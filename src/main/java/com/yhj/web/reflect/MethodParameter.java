@@ -1,23 +1,21 @@
 package com.yhj.web.reflect;
 
-import java.lang.annotation.Annotation;
-
 public final class MethodParameter {
 
+	/**	是否不能为空*/
+	private boolean required = true;
+	
 	/**	参数名*/
 	private String parameterName;
 
 	/**	参数类型*/
 	private Class<?> parameterClass;
 
-	
-	private volatile Annotation[] parameterAnnotations;
 
-	
-	public MethodParameter(String parameterName, Class<?> parameterClass, Annotation[] parameterAnnotations) {
+	public MethodParameter(String parameterName, Class<?> parameterClass, boolean required) {
 		this.parameterName = parameterName;
 		this.parameterClass = parameterClass;
-		this.parameterAnnotations = parameterAnnotations;
+		this.required = required;
 	}
 	
 	
@@ -28,7 +26,7 @@ public final class MethodParameter {
 
 
 	public MethodParameter() {
-		
+
 	}
 	
 	
@@ -48,10 +46,21 @@ public final class MethodParameter {
 		this.parameterClass = parameterClass;
 	}
 
+	public final boolean isRequired() {
+		return required;
+	}
+
+
+	public final void setRequired(boolean required) {
+		this.required = required;
+	}
+
 
 	@Override
 	public String toString() {
-		return "{\n\t\"parameterName\":\"" + parameterName + "\",\n\t\"parameterClass\":\"" + parameterClass
-				+ "\",\n\t\"parameterAnnotations\":\"" + parameterAnnotations + "\"\n}";
+		return "{\n\t\"required\":\"" + required + "\",\n\t\"parameterName\":\"" + parameterName
+				+ "\",\n\t\"parameterClass\":\"" + parameterClass + "\"\n}";
 	}
+
+	
 }

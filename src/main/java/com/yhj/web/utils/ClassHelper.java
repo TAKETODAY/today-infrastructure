@@ -20,14 +20,14 @@ public final class ClassHelper {
 	/**
 	 * 获取类加载器 获取加载器类的实现比较简单，只需获取当前线程的ClassLoader
 	 */
-	public static ClassLoader getClassLoader() {
+	public final static ClassLoader getClassLoader() {
 		return Thread.currentThread().getContextClassLoader();
 	}
 
 	/**
 	 * 获取指定包名下所有的类； 获取指定包名下所有的类，需要根据包名并将其转换为文件路径，读取class文件或jar包，获取指定的类名去加载类
 	 */
-	public static Set<Class<?>> getClassSet(String packageName) {
+	public final static Set<Class<?>> getClassSet(String packageName) {
 
 		Set<Class<?>> classSet = new HashSet<Class<?>>();
 		try {
@@ -105,7 +105,7 @@ public final class ClassHelper {
 	 * 加载类 加载类需要提供类名与是否初始化的标志，这里提到的初始化指是否执行类的静态代码块;
 	 * 为了提高加载类的性能，可以将loadClass方法的isInitialized参数设置false
 	 */
-	public static Class<?> loadClass(String className, boolean isInitialized) {
+	public final static Class<?> loadClass(String className, boolean isInitialized) {
 		try {
 			// 进行类加载
 			return Class.forName(className, isInitialized, getClassLoader());

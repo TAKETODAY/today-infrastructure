@@ -13,7 +13,7 @@ import com.yhj.web.enums.RequestMethod;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface RequestMapping {
+public @interface ActionMapping {
 
 	/***
 	 * 请求路径
@@ -25,6 +25,11 @@ public @interface RequestMapping {
 	 * 请求方法	大写
 	 * @return
 	 */
-	RequestMethod[] method() default {};
+	RequestMethod[] method() default {
+		RequestMethod.GET,
+		RequestMethod.PUT,
+		RequestMethod.POST,
+		RequestMethod.DELETE
+	};
 	
 }
