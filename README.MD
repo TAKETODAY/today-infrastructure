@@ -9,6 +9,30 @@ Today Web Framework 高性能 轻量级web框架
 ###	通过@ActionMapping配置请求
 	@ActionMapping(value = {"/index.action", "/index.jsp"}, method = RequestMethod.GET)
 
+
+##	登录实例
+```java
+	@ActionMapping(value = "/login" , method = RequestMethod.GET)
+	public String login() {
+		return "/login/login";
+	}
+	
+	
+	@ActionMapping(value = "/login.do" , method = RequestMethod.POST)
+	public String login(@RequestParam(required = true) String userId,
+                            @RequestParam(required = true) String passwd, HttpServletRequest request)  {    
+                   
+		request.setAttribute("userId", userId);
+		if(userId.equals(passwd)) {
+			request.setAttribute("msg", "登录成功");
+			return "/success";
+		}
+		request.setAttribute("msg", "登录失败");
+		return "/error";
+	}
+```
+
+
 ### 通过@ActionProcessor配置处理器Bean	并配置资源路径 以及后缀 后缀默认为	.jsp
 	@ActionProcessor(prefix = "/WEB-INF/view/index")
 
