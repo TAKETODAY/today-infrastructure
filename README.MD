@@ -9,6 +9,9 @@ Today Web Framework 高性能 轻量级web框架
 ###	通过@ActionMapping配置请求
 	@ActionMapping(value = {"/index.action", "/index.jsp"}, method = RequestMethod.GET)
 
+### 通过@ActionProcessor配置处理器Bean	并配置资源路径 以及后缀 后缀默认为	.jsp
+	@ActionProcessor(prefix = "/WEB-INF/view/index")
+
 
 ##	登录实例
 ```java
@@ -32,9 +35,6 @@ Today Web Framework 高性能 轻量级web框架
 	}
 ```
 
-
-### 通过@ActionProcessor配置处理器Bean	并配置资源路径 以及后缀 后缀默认为	.jsp
-	@ActionProcessor(prefix = "/WEB-INF/view/index")
 
 
 ###	也可以通过xml文件配置视图，不需要处理器Bean，也可以配置简单的处理器Bean，但是不能完成参数注入
