@@ -8,10 +8,8 @@ public final class MethodInfo {
 
 	/** 方法本身 **/
 	private Method				method		= null;
-
 	/** 参数列表 **/
 	private MethodParameter[]	parameter	= null;
-
 	/** 返回类型 **/
 	private Class<?>			returnType	= null;
 
@@ -21,17 +19,9 @@ public final class MethodInfo {
 	}
 
 	
-//	public MethodInfo(Method method, MethodParameter[] parameter, Class<?> returnType) {
-//		this.method = method;
-//		this.parameter = parameter;
-//		this.returnType = returnType;
-//	}
-	
 	public MethodInfo(Method method, List<MethodParameter> parameters, Class<?> returnType) {
 		this.method = method;
-		
 		this.parameter = parameters.toArray(new MethodParameter [] {});
-		
 		this.returnType = returnType;
 	}
 
@@ -60,9 +50,6 @@ public final class MethodInfo {
 	}
 
 
-	/* （非 Javadoc）
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

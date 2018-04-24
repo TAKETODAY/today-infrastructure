@@ -1,8 +1,5 @@
 package com.yhj.web.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -13,30 +10,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class StringUtil extends StringUtils {
 
-	/**
-	 * 过滤掉集合里的空格
-	 * @param list
-	 * @return
-	 */
-	public static List<String> filterWhite(List<String> list) {
-		List<String> resultList = new ArrayList<String>();
-		for (String l : list) {
-			if (isNotEmpty(l)) {
-				resultList.add(l);
-			}
-		}
-		return resultList;
-	}
-
-	/**
-	 * 格式化模糊查询
-	 * 
-	 * @param str
-	 * @return
-	 */
-	public static String formatLike(String str) {
-		return isNotEmpty(str) ? "%" + str + "%" : null;
-	}
 
 	/**
 	 * 判断是否是空
@@ -44,7 +17,7 @@ public final class StringUtil extends StringUtils {
 	 * @param str
 	 * @return
 	 */
-	public static boolean isEmpty(String str) {
+	public final static boolean isEmpty(String str) {
 		return (str == null || "".equals(str.trim()));
 	}
 
@@ -54,7 +27,7 @@ public final class StringUtil extends StringUtils {
 	 * @param str
 	 * @return
 	 */
-	public static boolean isNotEmpty(String str) {
+	public final static boolean isNotEmpty(String str) {
 		return (str != null) && !"".equals(str.trim());
 	}
 

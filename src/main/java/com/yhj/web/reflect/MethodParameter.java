@@ -9,17 +9,17 @@ public final class MethodParameter {
 	private String parameterName;
 
 	/**	参数类型*/
-	private Class<?> parameterClass;
+	private String parameterClass;
 
 
-	public MethodParameter(String parameterName, Class<?> parameterClass, boolean required) {
+	public MethodParameter(String parameterName, String parameterClass, boolean required) {
 		this.parameterName = parameterName;
 		this.parameterClass = parameterClass;
 		this.required = required;
 	}
 	
 	
-	public MethodParameter(String parameterName, Class<?> parameterClass) {
+	public MethodParameter(String parameterName, String parameterClass) {
 		this.parameterName = parameterName;
 		this.parameterClass = parameterClass;
 	}
@@ -34,7 +34,7 @@ public final class MethodParameter {
 		return parameterName;
 	}
 
-	public Class<?> getParameterClass() {
+	public String getParameterClass() {
 		return parameterClass;
 	}
 
@@ -42,7 +42,7 @@ public final class MethodParameter {
 		this.parameterName = parameterName;
 	}
 
-	public void setParameterClass(Class<?> parameterClass) {
+	public void setParameterClass(String parameterClass) {
 		this.parameterClass = parameterClass;
 	}
 

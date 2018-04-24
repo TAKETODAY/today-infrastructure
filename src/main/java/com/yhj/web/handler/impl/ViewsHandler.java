@@ -82,8 +82,7 @@ public final class ViewsHandler implements DispatcherHandler{
 				}
 			}
 		} else {
-			System.out.println("NOT Found : " + requestURI);
-			response.sendError(404);
+			System.out.println("ViewsHandler NOT Found : " + requestURI);
 			System.out.println("NOT Found : " + (System.currentTimeMillis() - start) + "ms");
 		}
 		

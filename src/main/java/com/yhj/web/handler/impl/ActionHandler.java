@@ -1,9 +1,12 @@
 package com.yhj.web.handler.impl;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,33 +15,41 @@ import java.util.Set;
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import com.yhj.web.annotation.ActionMapping;
 import com.yhj.web.annotation.ActionProcessor;
 import com.yhj.web.annotation.RequestParam;
+import com.yhj.web.core.Constant;
 import com.yhj.web.enums.RequestMethod;
 import com.yhj.web.handler.DispatcherHandler;
 import com.yhj.web.mapping.RequestMapping;
 import com.yhj.web.reflect.MethodInfo;
 import com.yhj.web.reflect.MethodParameter;
 import com.yhj.web.utils.ClassHelper;
+import com.yhj.web.utils.StringUtil;
 
-public final class ActionHandler implements DispatcherHandler {
+public final class ActionHandler implements DispatcherHandler ,Constant{
 
-	private static final Map<String, RequestMapping>	requestMapping		= new HashMap<>();
+	private static final long serialVersionUID = 4385638260913560140L;
 
-	private static String								contextPath			= null;
+	
+	private static final Map<String, RequestMapping>	requestMapping			= new HashMap<>();
 
-	private String										prefix				= "/WEB-INF/view";
+	private static String								contextPath				= null;
 
-	private String										suffix				= ".jsp";
+	private String										prefix					= "/WEB-INF/view";
 
-	private String										scanPackage			= "com.yhj.core.action";
+	private String										suffix					= ".jsp";
 
-	private static final List<Class<?>>					actionProcessors	= new ArrayList<>();
+	private String										scanPackage				= "com.yhj.core.action";
 
-	public static final String							REDIRECT_URL_PREFIX	= "redirect:";
+	private static final List<Class<?>>					actionProcessors		= new ArrayList<>();
+
+	public static final String							REDIRECT_URL_PREFIX		= "redirect:";
+
+//	public static final String							REQUEST_METHOD_PREFIX	= ":METHOD:";
+	
+	public static final String							REQUEST_METHOD_PREFIX	= ":";
 
 	@Override
 	public void doDispatchHandle(String uri, HttpServletRequest request, HttpServletResponse response)
@@ -49,19 +60,42 @@ public final class ActionHandler implements DispatcherHandler {
 
 		long nanoStart = System.nanoTime();
 
-		RequestMapping mapping = requestMapping.get(uri);
+		RequestMapping mapping = requestMapping.get(request.getMethod() + REQUEST_METHOD_PREFIX + uri);
 
 		if (mapping == null) {
 			response.sendError(404);
 			return;
 		}
 
-		//判断请求方法是否合法
-		if(!hasMethod(request.getMethod(), mapping.getMethod())) {
-			response.sendError(405);
-			return;
-		}
+		MethodInfo methodInfo = mapping.getMethodInfo();
 
+		//方法参数
+		MethodParameter[] methodParameters = methodInfo.getParameter();
+
+		Object[] args = new Object[methodParameters.length];
+
+		for (int i = 0; i < methodParameters.length; i++) {
+			System.out.print("\n参数：" + (i + 1)+"\t");
+			final String paramName = methodParameters[i].getParameterName();
+
+			final String requestParameter = request.getParameter(paramName);
+
+			// 判断参数类型
+			final String parameterClass = methodParameters[i].getParameterClass();
+			
+			System.out.print(parameterClass);
+			
+			if(!this.setParameter(request, response, args, i, methodParameters[i], requestParameter, parameterClass)){
+				response.sendError(400);
+				return;
+			}
+		}
+		System.out.println("parameter处理时间：" + (System.currentTimeMillis() - start) + "ms");
+
+		System.out.println(Arrays.toString(args));
+
+
+		//准备执行
 		Object actionProcessor = null;// 处理器
 		try {
 			actionProcessor = mapping.getActionProcessor().newInstance();
@@ -70,50 +104,8 @@ public final class ActionHandler implements DispatcherHandler {
 		} catch (IllegalAccessException e) {
 			System.err.println("初始化异常 IllegalAccessException");
 		}
-
-		MethodInfo methodInfo = mapping.getMethodInfo();
-
+		
 		Method method = methodInfo.getMethod();
-		MethodParameter[] parameter = methodInfo.getParameter();
-
-		Object[] args = new Object[parameter.length];
-
-		for (int i = 0; i < parameter.length; i++) {
-
-			Object paramName = parameter[i].getParameterName();
-
-			final String requestParameter = request.getParameter((String) paramName);
-
-			// 判断参数
-			if (parameter[i].isRequired() && "".equals(requestParameter)) {
-				response.sendError(400);
-				return;
-			}
-
-			// 判断参数类型
-			Class<?> parameterClass = parameter[i].getParameterClass();
-			if (parameterClass.equals(Integer.class)) {
-				try {
-					args[i] = Integer.parseInt(requestParameter);
-				} catch (NumberFormatException e) {
-					response.sendError(400);
-					return;
-				}
-			} else if (parameterClass.equals(HttpServletRequest.class)) {
-				args[i] = request;
-			} else if (parameterClass.equals(HttpServletResponse.class)) {
-				args[i] = response;
-			} else if (parameterClass.equals(HttpSession.class)) {
-				args[i] = request.getSession();
-			} else {
-				args[i] = requestParameter;
-			}
-
-		}
-		System.out.println("parameter处理时间：" + (System.currentTimeMillis() - start) + "ms");
-
-		System.out.println(Arrays.toString(args));
-
 		// 参数注入
 		Object invoke = method.invoke(actionProcessor, args);
 
@@ -126,6 +118,8 @@ public final class ActionHandler implements DispatcherHandler {
 			} else {
 				request.getRequestDispatcher(prefix + returnStr + suffix).forward(request, response);
 			}
+		} else if(returnType.equals(Map.class)){
+			
 		}
 
 		System.out.println(invoke);
@@ -135,22 +129,226 @@ public final class ActionHandler implements DispatcherHandler {
 
 	}
 
-	
 
 	/**
-	 * 判断请求是否合法
-	 * @param requestMethod
-	 * @param mappingMethod
+	 * 装载参数
+	 * @param request
+	 * @param response
+	 * @param args
+	 * @param i
+	 * @param methodParameter
+	 * @param requestParameter
+	 * @param parameterClass
+	 * @return
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	private final boolean setParameter(HttpServletRequest request, HttpServletResponse response, Object[] args, int i, 
+				final MethodParameter methodParameter , final String requestParameter , final String parameterClass)
+								throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+		System.out.print("\t普通参数注入：");
+		switch (parameterClass)
+		{
+			case "int":
+			case TYPE_INTEGER:
+				try {
+					// 判断参数
+					if (methodParameter.isRequired() && StringUtil.isEmpty(requestParameter)) {
+						return false;
+					}
+					args[i] = Integer.parseInt(requestParameter);
+				} catch (NumberFormatException e) {
+					return false;
+				}
+				break;
+			case "long":
+			case TYPE_LONG:
+				try {
+					if (methodParameter.isRequired() && StringUtil.isEmpty(requestParameter)) {
+						return false;
+					}
+					args[i] = Long.parseLong(requestParameter);
+				} catch (NumberFormatException e) {
+					return false;
+				}
+				break;
+			case TYPE_STRING:
+				if (methodParameter.isRequired() && StringUtil.isEmpty(requestParameter)) {
+					return false;
+				}
+				args[i] = requestParameter;		
+			break;
+			case HTTP_SESSION: 			args[i] = request.getSession(); break;
+			case HTTP_SERVLET_REQUEST: 	args[i] = request; 				break;
+			case HTTP_SERVLET_RESPONSE: args[i] = response; 			break;
+			
+			default:
+				System.out.print("\t没有普通参数注入：");
+				
+				Class<?> forName = Class.forName(parameterClass);
+				//判断是否是数组
+				if(forName.isArray()) {
+					return setArrayParameter(request, args, i, methodParameter, requestParameter, parameterClass, forName);
+				}
+				Object newInstance = forName.newInstance();
+				Enumeration<String> parameterNames = request.getParameterNames();
+			
+				if(!setBean(request, response, requestParameter, forName, newInstance, parameterNames)) {
+					return false;
+				}
+				args[i] = newInstance;
+				
+				break;
+		}
+		return true;
+	}
+
+
+	/**
+	 * 注入数组
+	 * @param request
+	 * @param args
+	 * @param i
+	 * @param methodParameter
+	 * @param requestParameter
+	 * @param parameterClass
+	 * @param forName
 	 * @return
 	 */
-	public final boolean hasMethod(final String requestMethod, RequestMethod[] mappingMethod) {
-		for (int i = 0; i < mappingMethod.length; i++) {
-			if (mappingMethod[i].hasMethod(requestMethod)) {
+	private boolean setArrayParameter(HttpServletRequest request, Object[] args, int i,
+			final MethodParameter methodParameter, final String requestParameter, final String parameterClass, Class<?> forName) {
+		
+		System.out.println("数组参数注入");
+		
+		if(StringUtil.isEmpty(requestParameter)) {
+			if (methodParameter.isRequired()) {
+				System.out.println("数组必须");
+				return false;
+			}
+			args[i] = null;
+			return true;
+		}
+		
+		
+		String[] parameterValues = request.getParameterValues(methodParameter.getParameterName());
+		final int length = parameterValues.length;//数组长度
+		switch (parameterClass)
+		{
+			case TYPE_ARRAY_INT:
+				try {
+					int [] newInstance = new int[length];
+					for(int j = 0 ; j < length ; j++)
+						newInstance[j] = Integer.parseInt(parameterValues[j]);
+					args[i] = newInstance;
+					return true;
+				} catch (NumberFormatException e) {
+					return false;
+				}
+			case TYPE_ARRAY_INTEGER:
+				try {
+					Integer [] newInstance = new Integer[length];
+					for(int j = 0 ; j < length ; j++) 
+						newInstance[j] = Integer.parseInt(parameterValues[j]);
+					args[i] = newInstance;
+				} catch (NumberFormatException e) {
+					return false;
+				}
 				return true;
+			case TYPE_ARRAY_long:
+				try {
+					long[] newInstance = new long[length];
+					for(int j = 0 ; j < length ; j++)
+						newInstance[j] =  Long.parseLong(parameterValues[j]);
+					args[i] = newInstance;
+					return true;
+				} catch (NumberFormatException e) {
+					return false;
+				}
+			case TYPE_ARRAY_LONG:
+				try {
+					Long [] newInstance = new Long[length];
+					for(int j = 0 ; j < length ; j++)
+						newInstance[j] = Long.parseLong(parameterValues[j]);
+					args[i] = newInstance;
+					return true;
+				} catch (NumberFormatException e) {
+					return false;
+				}
+			case TYPE_ARRAY_STRING:
+				args[i] = parameterValues;
+				return true;
+			default:
+				
+				return true;
+		}
+	}
+
+
+	/**
+	 * 注入POJO对象
+	 * @param request
+	 * @param response
+	 * @param requestParameter
+	 * @param forName
+	 * @param newInstance
+	 * @param parameterNames
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	private final boolean setBean(HttpServletRequest request, HttpServletResponse response, final String requestParameter,
+			Class<?> forName, Object newInstance, Enumeration<String> parameterNames)
+			throws IllegalAccessException, IOException {
+		System.out.print("\tPOJO参数注入\t");
+		while (parameterNames.hasMoreElements()) {
+			//遍历参数
+			final String parameterName =  parameterNames.nextElement();
+			Field field = null;
+			try {
+				//寻找参数
+				field = forName.getDeclaredField(parameterName);
+				field.setAccessible(true);
+				field.set(newInstance, request.getParameter(parameterName));
+			} catch (NoSuchFieldException e) {
+				System.out.println("没有：" + parameterName);
+			}catch (IllegalArgumentException e) {
+				switch (field.getType().getName())
+				{
+					case "int":
+					case TYPE_INTEGER:
+						try {
+							field.set(newInstance, Integer.parseInt(request.getParameter(parameterName)));
+						} catch (NumberFormatException ex) {
+							return false;
+						}
+						break;
+					case "long":
+					case TYPE_LONG:
+						try {
+							field.set(newInstance,Long.parseLong(requestParameter));
+						} catch (NumberFormatException exx) {
+							return false;
+						}
+						break;
+				}
 			}
 		}
-		return false;
+		return true;
 	}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	// 初始化
 	@Override
@@ -185,10 +383,15 @@ public final class ActionHandler implements DispatcherHandler {
 		ActionMapping mapping = method.getAnnotation(ActionMapping.class);
 		if (mapping != null) {
 			String[] values = mapping.value();
+			RequestMethod[] mappingMethods = mapping.method();
 			for (int i = 0; i < values.length; i++) {
-				RequestMapping requestMapping = getRequestMapping(method, mapping, values, i);
-				requestMapping.setActionProcessor(clazz);
-				getRequestMapping().put(contextPath + values[i], requestMapping);
+				for (int j = 0; j < mappingMethods.length; j++) {
+					final String requestMethod = mappingMethods[j].toString();
+					RequestMapping requestMapping = getRequestMapping(method, requestMethod, values[i]);
+					requestMapping.setActionProcessor(clazz);
+					getRequestMapping().put(requestMethod + REQUEST_METHOD_PREFIX + contextPath + values[i],
+							requestMapping);
+				}
 			}
 		}
 	}
@@ -202,9 +405,9 @@ public final class ActionHandler implements DispatcherHandler {
 	 * @param i
 	 * @return
 	 */
-	public final RequestMapping getRequestMapping(Method method, ActionMapping mapping, String[] values, final int i) {
+	public final RequestMapping getRequestMapping(Method method, final String mappingMethod, final String value) {
 
-		RequestMapping requestMapping = new RequestMapping(contextPath + values[i], mapping.method());
+		RequestMapping requestMapping = new RequestMapping(mappingMethod + REQUEST_METHOD_PREFIX + contextPath + value);
 
 		Class<?> returnType = method.getReturnType();
 
@@ -232,7 +435,7 @@ public final class ActionHandler implements DispatcherHandler {
 				methodParameter.setRequired(requestParam.required());
 			}
 			// 设置参数类型
-			methodParameter.setParameterClass(parameter.getType());
+			methodParameter.setParameterClass(parameter.getType().getName());
 			// 加入到参数列表
 			methodParameters.add(methodParameter);
 		}

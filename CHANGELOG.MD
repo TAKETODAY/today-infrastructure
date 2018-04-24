@@ -13,7 +13,8 @@ Java1.8
 
 ###	通过@ActionMapping配置请求
 	@ActionMapping(value = {"/index.action", "/index.jsp"}, method = RequestMethod.GET)
-	
+
+
 ```java
 	/**
 	 * 判断请求是否合法
@@ -31,4 +32,13 @@ Java1.8
 	}
 
 ```
+
+###	请求参数基本完毕
+	完成数组注入
+	完成一级POJO参数注入
+
+
+
+
+
 
