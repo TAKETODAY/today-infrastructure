@@ -47,10 +47,8 @@ import java.util.StringTokenizer;
  */
 public final class AntPathMatcher {
 
-	/** Default path separator: "/" */
-	private static final String	DEFAULT_PATH_SEPARATOR	= "/";
 
-	private static final String	pathSeparator			= DEFAULT_PATH_SEPARATOR;
+	private static final String	pathSeparator			=  "/";
 
 	/**
 	 * Does the given <code>path</code> represent a pattern that can be matched by
@@ -213,8 +211,8 @@ public final class AntPathMatcher {
 
 			strLoop: for (int i = 0; i <= strLength - patLength; i++) {
 				for (int j = 0; j < patLength; j++) {
-					String subPat = (String) pattDirs[pattIdxStart + j + 1];
-					String subStr = (String) pathDirs[pathIdxStart + i + j];
+					String subPat = pattDirs[pattIdxStart + j + 1];
+					String subStr = pathDirs[pathIdxStart + i + j];
 
 					if (!matchStrings(subPat, subStr)) {
 						continue strLoop;
@@ -500,7 +498,7 @@ public final class AntPathMatcher {
 	private static String[] toStringArray(Collection<?> collection) {
 		if (collection == null) {
 			return null;
-		} 
-		return (String[]) collection.toArray(new String[collection.size()]);
+		}
+		return collection.toArray(new String[collection.size()]);
 	}
 }

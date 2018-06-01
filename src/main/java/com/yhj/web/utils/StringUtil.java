@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class StringUtil extends StringUtils {
 
-
 	/**
 	 * 判断是否是空
 	 * 
@@ -31,7 +30,6 @@ public final class StringUtil extends StringUtils {
 		return (str != null) && !"".equals(str.trim());
 	}
 
-
 	public static int toInt(final String str, final int defaultValue) {
 		if (str == null) {
 			return defaultValue;
@@ -42,10 +40,10 @@ public final class StringUtil extends StringUtils {
 			return defaultValue;
 		}
 	}
-	
-//	public static void main(String[] args) {
-//		System.out.println(isEmpty(null));
-//		System.out.println(formatLike(""));
-//	}
-	
+
+	// public static void main(String[] args) {
+	// System.out.println(isEmpty(null));
+	// System.out.println(formatLike(""));
+	// }
+
 }

@@ -2,39 +2,34 @@ package com.yhj.web.reflect;
 
 public final class MethodParameter {
 
-	/**	是否不能为空*/
-	private boolean required = true;
+	/** 是否不能为空 */
+	private boolean	required		= true;
+	/** 参数名 */
+	private String	parameterName	= null;
+	/** 参数类型 */
+	private Class<?> parameterClass	= null;
+
 	
-	/**	参数名*/
-	private String parameterName;
-
-	/**	参数类型*/
-	private String parameterClass;
-
-
-	public MethodParameter(String parameterName, String parameterClass, boolean required) {
+	public MethodParameter(String parameterName, Class<?> parameterClass, boolean required) {
 		this.parameterName = parameterName;
 		this.parameterClass = parameterClass;
 		this.required = required;
 	}
-	
-	
-	public MethodParameter(String parameterName, String parameterClass) {
+
+	public MethodParameter(String parameterName, Class<?> parameterClass) {
 		this.parameterName = parameterName;
 		this.parameterClass = parameterClass;
 	}
 
-
 	public MethodParameter() {
 
 	}
-	
-	
+
 	public String getParameterName() {
 		return parameterName;
 	}
 
-	public String getParameterClass() {
+	public Class<?> getParameterClass() {
 		return parameterClass;
 	}
 
@@ -42,7 +37,7 @@ public final class MethodParameter {
 		this.parameterName = parameterName;
 	}
 
-	public void setParameterClass(String parameterClass) {
+	public void setParameterClass(Class<?> parameterClass) {
 		this.parameterClass = parameterClass;
 	}
 
@@ -50,11 +45,9 @@ public final class MethodParameter {
 		return required;
 	}
 
-
 	public final void setRequired(boolean required) {
 		this.required = required;
 	}
-
 
 	@Override
 	public String toString() {
@@ -62,5 +55,4 @@ public final class MethodParameter {
 				+ "\",\n\t\"parameterClass\":\"" + parameterClass + "\"\n}";
 	}
 
-	
 }

@@ -37,6 +37,7 @@ Java1.8
 	完成数组注入
 	完成一级POJO参数注入
 
+出去View的action，所有的Action都由ActionHandler处理，减少内存开销
 
 
 

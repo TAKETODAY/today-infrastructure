@@ -8,10 +8,10 @@
 	<name>today-web-1.2.0</name>
 	<description>Today Web Framework</description>
 	
-	<url>www.yanghaijian.top</url>
+	<url>https://www.yanghaijian.top</url>
 	<organization>
 		<name>Today</name>
-		<url>www.yanghaijian.top</url>
+		<url>https://www.yanghaijian.top</url>
 	</organization>
 	
 	<profiles>
@@ -31,7 +31,6 @@
 
 	</profiles>
 
-
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -39,12 +38,13 @@
 			<version>4.4</version>
 			<scope>test</scope>
 		</dependency>
-
+<!-- 
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
 		</dependency>
+ -->
 
 
 		<dependency>
@@ -83,6 +83,17 @@
 			<groupId>dom4j</groupId>
 			<artifactId>dom4j</artifactId>
 			<version>1.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.47</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.yhj</groupId>
+			<artifactId>today-servlet</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 

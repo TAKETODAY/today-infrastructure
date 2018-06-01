@@ -9,22 +9,15 @@ import java.lang.annotation.Target;
 
 import com.yhj.web.enums.RequestMethod;
 
-
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface ActionMapping {
 
-	/***
-	 * 请求路径
-	 * @return
-	 */
+	/** 请求路径 */
 	String[] value() default {};
 
-	/**
-	 * 请求方法	大写
-	 * @return
-	 */
+	/** 请求方法	大写	 */
 	RequestMethod[] method() default {
 		RequestMethod.GET,
 		RequestMethod.PUT,

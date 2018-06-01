@@ -6,7 +6,6 @@
  * @author:Topcat Tuppin Last Modified:10,Mar,2001
  *************************************************/
 
-
 public final class MD5 {
 	/*
 	 * 下面这些S11-S44实际上是一个4*4的矩阵，在原始的C实现中是用#define 实现的， 这里把它们实现成为static
@@ -52,15 +51,14 @@ public final class MD5 {
 		return s;
 	}
 
-	
-
-//	public static void main(String args[]) {
-//		MD5 m = new MD5();
-//		if (Array.getLength(args) == 0) {
-//			System.out.println("MD5('666'):" + m.getMD5Str(m.getMD5Str("666")).toLowerCase());
-//		} else
-//			System.out.println("MD5(" + args[0] + ")=" + m.getMD5Str(args[0]));
-//	}
+	// public static void main(String args[]) {
+	// MD5 m = new MD5();
+	// if (Array.getLength(args) == 0) {
+	// System.out.println("MD5('666'):" +
+	// m.getMD5Str(m.getMD5Str("666")).toLowerCase());
+	// } else
+	// System.out.println("MD5(" + args[0] + ")=" + m.getMD5Str(args[0]));
+	// }
 
 	/*
 	 * 下面的三个成员是MD5计算过程中用到的3个核心数据，在原始的C实现中 被定义到MD5_CTX结构中

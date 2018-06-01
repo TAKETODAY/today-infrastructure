@@ -20,15 +20,28 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import com.sun.management.OperatingSystemMXBean;
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import com.yhj.web.core.Constant;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+public abstract class Tools implements Constant {
 
-@SuppressWarnings("restriction")
-public final class Tools implements Constant {
+	private static final long		serialVersionUID	= -8607909512364691460L;
 
-	private static final long serialVersionUID = -8607909512364691460L;
+	private static final String[]	MOBILE_AGENTS		= { "iphone", "android", "ipad", "phone", "mobile", "wap",
+			"netfront", "java", "opera mobi", "opera mini", "ucweb", "windows ce", "symbian", "series", "webos", "sony",
+			"blackberry", "dopod", "nokia", "samsung", "palmsource", "xda", "pieplus", "meizu", "midp", "cldc",
+			"motorola", "foma", "docomo", "up.browser", "up.link", "blazer", "helio", "hosin", "huawei", "novarra",
+			"coolpad", "webos", "techfaith", "palmsource", "alcatel", "amoi", "ktouch", "nexian", "ericsson", "philips",
+			"sagem", "wellcom", "bunjalloo", "maui", "smartphone", "iemobile", "spice", "bird", "zte-", "longcos",
+			"pantech", "gionee", "portalmmm", "jig browser", "hiptop", "benq", "haier", "^lct", "320x320", "240x320",
+			"176x220", "w3c ", "acs-", "alav", "alca", "amoi", "audi", "avan", "benq", "bird", "blac", "blaz", "brew",
+			"cell", "cldc", "cmd-", "dang", "doco", "eric", "hipt", "inno", "ipaq", "java", "jigs", "kddi", "keji",
+			"leno", "lg-c", "lg-d", "lg-g", "lge-", "maui", "maxo", "midp", "mits", "mmef", "mobi", "mot-", "moto",
+			"mwbp", "nec-", "newt", "noki", "oper", "palm", "pana", "pant", "phil", "play", "port", "prox", "qwap",
+			"sage", "sams", "sany", "sch-", "sec-", "send", "seri", "sgh-", "shar", "sie-", "siem", "smal", "smar",
+			"sony", "sph-", "symb", "t-mo", "teli", "tim-", "tosh", "tsm-", "upg1", "upsi", "vk-v", "voda", "wap-",
+			"wapa", "wapi", "wapp", "wapr", "webc", "winw", "winw", "xda", "xda-", "Googlebot-Mobile" };
 
 	/**
 	 * @param base64ImgStr
@@ -36,15 +49,18 @@ public final class Tools implements Constant {
 	 * @param outputImgPath
 	 *            图片路径-具体到文件
 	 * @return
+	 * @throws Base64DecodingException
 	 * @Description: 将base64编码字符串转换为图片
 	 * @Author:
 	 * @CreateTime:
 	 */
-	public static boolean base64Str2Img(String base64ImgStr, final String outputImgPath) {
+	public static boolean base64Str2Img(String base64ImgStr, final String outputImgPath)
+			throws Base64DecodingException {
 		try {
 			base64ImgStr = base64ImgStr.replace("data:image/png;base64,", "");
 			// 解密
-			byte[] buf = new BASE64Decoder().decodeBuffer(base64ImgStr);
+
+			byte[] buf = Base64.decode(base64ImgStr);
 			// 处理数据
 			for (int i = 0; i < buf.length; ++i) {
 				if (buf[i] < 0) {
@@ -66,9 +82,10 @@ public final class Tools implements Constant {
 	 * 
 	 * @param str
 	 * @return
+	 * @throws Base64DecodingException
 	 */
-	public static String decodeBase64(final String str) throws IOException {
-		return new String(new BASE64Decoder().decodeBuffer(str));
+	public static final String decodeBase64(final String str) throws Base64DecodingException {
+		return new String(Base64.decode(str));
 	}
 
 	public static void diskInfo() {
@@ -115,7 +132,7 @@ public final class Tools implements Constant {
 			inputStream.close();
 		}
 		// 加密
-		return new BASE64Encoder().encode(data);
+		return Base64.encode(data);
 	}
 
 	/**
@@ -124,11 +141,11 @@ public final class Tools implements Constant {
 	 */
 	public static String getMemInfo() {
 		OperatingSystemMXBean mem = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-		return mem.getFreePhysicalMemorySize() / 1024 / 1024 + "MB/" + 
-				mem.getTotalPhysicalMemorySize() / 1024 / 1024 + "MB";
+		return mem.getFreePhysicalMemorySize() / 1024 / 1024 + "MB/" + mem.getTotalPhysicalMemorySize() / 1024 / 1024
+				+ "MB";
 	}
 
-	public static String getNowTime() {
+	public static String getCurrentTime() {
 		return new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss").format(new Date());
 	}
 
@@ -170,30 +187,16 @@ public final class Tools implements Constant {
 		System.out.println("用户的当前工作目录：" + sysProperty.getProperty("user.dir"));
 	}
 
-	public static boolean isAjax(HttpServletRequest request) {
+	public static final boolean isAjax(HttpServletRequest request) {
 		return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
 	}
 
 	public static boolean isMoblie(HttpServletRequest request) {
 		boolean isMoblie = false;
-		String[] mobileAgents = { "iphone", "android", "ipad", "phone", "mobile", "wap", "netfront", "java",
-				"opera mobi", "opera mini", "ucweb", "windows ce", "symbian", "series", "webos", "sony", "blackberry",
-				"dopod", "nokia", "samsung", "palmsource", "xda", "pieplus", "meizu", "midp", "cldc", "motorola",
-				"foma", "docomo", "up.browser", "up.link", "blazer", "helio", "hosin", "huawei", "novarra", "coolpad",
-				"webos", "techfaith", "palmsource", "alcatel", "amoi", "ktouch", "nexian", "ericsson", "philips",
-				"sagem", "wellcom", "bunjalloo", "maui", "smartphone", "iemobile", "spice", "bird", "zte-", "longcos",
-				"pantech", "gionee", "portalmmm", "jig browser", "hiptop", "benq", "haier", "^lct", "320x320",
-				"240x320", "176x220", "w3c ", "acs-", "alav", "alca", "amoi", "audi", "avan", "benq", "bird", "blac",
-				"blaz", "brew", "cell", "cldc", "cmd-", "dang", "doco", "eric", "hipt", "inno", "ipaq", "java", "jigs",
-				"kddi", "keji", "leno", "lg-c", "lg-d", "lg-g", "lge-", "maui", "maxo", "midp", "mits", "mmef", "mobi",
-				"mot-", "moto", "mwbp", "nec-", "newt", "noki", "oper", "palm", "pana", "pant", "phil", "play", "port",
-				"prox", "qwap", "sage", "sams", "sany", "sch-", "sec-", "send", "seri", "sgh-", "shar", "sie-", "siem",
-				"smal", "smar", "sony", "sph-", "symb", "t-mo", "teli", "tim-", "tosh", "tsm-", "upg1", "upsi", "vk-v",
-				"voda", "wap-", "wapa", "wapi", "wapp", "wapr", "webc", "winw", "winw", "xda", "xda-",
-				"Googlebot-Mobile" };
+
 		if (request.getHeader("User-Agent") != null) {
 			String client = request.getHeader("User-Agent");
-			for (String mobileAgent : mobileAgents) {
+			for (String mobileAgent : MOBILE_AGENTS) {
 				if (client.toLowerCase().indexOf(mobileAgent) >= 0 && client.toLowerCase().indexOf("windows nt") <= 0
 						&& client.toLowerCase().indexOf("macintosh") <= 0) {
 					isMoblie = true;
@@ -213,22 +216,23 @@ public final class Tools implements Constant {
 		return new String(str.getBytes("iso-8859-1"), "utf-8");
 	}
 
-	/*public static void main(String[] args) throws IOException {
-
-		String decodeBase64 = Tools.decodeBase64("ICy5YqxZB1uWSwcVLSNLcA==");
-		System.out.println(decodeBase64);
-		long start = System.currentTimeMillis();
-
-		System.out.println(System.currentTimeMillis() - start + "ms");
-	}*/
+	/*
+	 * public static void main(String[] args) throws IOException {
+	 * 
+	 * String decodeBase64 = Tools.decodeBase64("ICy5YqxZB1uWSwcVLSNLcA==");
+	 * System.out.println(decodeBase64); long start = System.currentTimeMillis();
+	 * 
+	 * System.out.println(System.currentTimeMillis() - start + "ms"); }
+	 */
 
 	/**
 	 * 编码
+	 * 
 	 * @param str
 	 * @return
 	 */
 	public static String toBase64Str(String str) throws UnsupportedEncodingException {
-		return new BASE64Encoder().encode(str.getBytes("utf-8"));
+		return Base64.encode(str.getBytes("utf-8"));
 	}
 
 	/**
@@ -238,23 +242,6 @@ public final class Tools implements Constant {
 	 */
 	public static String urlEncode(String str) throws UnsupportedEncodingException {
 		return java.net.URLDecoder.decode(str, "utf-8");
-	}
-
-	/**
-	 * 将具体时间封装成数组
-	 */
-	private String times[] = null;
-
-	public Tools() {
-
-	}
-
-	public Tools(String time) {
-		this.times = time.split("-");
-	}
-
-	public String getDate() {
-		return times[2];
 	}
 
 	/**
@@ -314,21 +301,7 @@ public final class Tools implements Constant {
 		}
 	}
 
-
-
-	public static String delHtml(String htmlStr){
+	public static String delHtml(String htmlStr) {
 		return htmlStr.replaceAll("<[^>]+>", "").replaceAll("\\\\s*|\\t|\\r|\\n", "").replaceAll(" ", "");
-	}
-	
-	public String getMonth() {
-		return times[1];
-	}
-
-	public String getTime() {
-		return times[3];
-	}
-
-	public String getYear() {
-		return times[0];
 	}
 }

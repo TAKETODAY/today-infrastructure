@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-public final class MethodInfo {
+public final class ProcessorMethod {
 
 	/** 方法本身 **/
 	private Method				method		= null;
@@ -14,12 +14,12 @@ public final class MethodInfo {
 	private Class<?>			returnType	= null;
 
 	
-	public MethodInfo() {
+	public ProcessorMethod() {
 
 	}
 
 	
-	public MethodInfo(Method method, List<MethodParameter> parameters, Class<?> returnType) {
+	public ProcessorMethod(Method method, List<MethodParameter> parameters, Class<?> returnType) {
 		this.method = method;
 		this.parameter = parameters.toArray(new MethodParameter [] {});
 		this.returnType = returnType;

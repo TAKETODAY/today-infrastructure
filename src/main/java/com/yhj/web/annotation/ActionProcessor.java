@@ -10,8 +10,4 @@ import java.lang.annotation.Target;
 @Target(TYPE)
 public @interface ActionProcessor {
 
-	String prefix() default "/WEB-INF/view";
-
-	String suffix() default ".jsp";
-
 }

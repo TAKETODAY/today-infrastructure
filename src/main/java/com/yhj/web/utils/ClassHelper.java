@@ -10,9 +10,9 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-
 /**
  * 类工具
+ * 
  * @author Today
  */
 public final class ClassHelper {
@@ -37,9 +37,9 @@ public final class ClassHelper {
 				if (url != null) {
 					String protocol = url.getProtocol();
 					if ("file".equals(protocol)) {
-						//空格%20
+						// 空格%20
 						String packagePath = url.getPath().replace("%20", " ");
-						//设置全限定类名
+						// 设置全限定类名
 						setClassName(classSet, packagePath, packageName);
 					} else if ("jar".equals(protocol)) {
 						JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
@@ -69,7 +69,8 @@ public final class ClassHelper {
 
 	private final static void setClassName(Set<Class<?>> classSet, String packagePath, String packageName) {
 		File[] files = new File(packagePath).listFiles(new FileFilter() {
-//			@Override
+			// @Override
+			@Override
 			public boolean accept(File file) {
 				return (file.isFile() && file.getName().endsWith(".class")) || file.isDirectory();
 			}
@@ -77,7 +78,7 @@ public final class ClassHelper {
 		for (File file : files) {
 			String fileName = file.getName();
 			if (file.isFile()) {
-				//是class文件就得到他的全限定名
+				// 是class文件就得到他的全限定名
 				String className = fileName.substring(0, fileName.lastIndexOf("."));
 				if (!isEmpty(packageName)) {
 					className = packageName + "." + className;
@@ -100,7 +101,7 @@ public final class ClassHelper {
 		Class<?> cls = loadClass(className, false);
 		classSet.add(cls);
 	}
-	
+
 	/**
 	 * 加载类 加载类需要提供类名与是否初始化的标志，这里提到的初始化指是否执行类的静态代码块;
 	 * 为了提高加载类的性能，可以将loadClass方法的isInitialized参数设置false
@@ -115,7 +116,7 @@ public final class ClassHelper {
 	}
 
 	public final static boolean isEmpty(final CharSequence cs) {
-        return cs == null || cs.length() == 0;
-    }
+		return cs == null || cs.length() == 0;
+	}
 
 }

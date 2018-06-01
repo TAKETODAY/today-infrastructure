@@ -11,7 +11,6 @@ public final class Json implements Serializable {
 	private String				msg;
 
 	private Object				data;
-	
 
 	public Json() {
 
@@ -51,4 +50,10 @@ public final class Json implements Serializable {
 	public void setData(Object data) {
 		this.data = data;
 	}
+
+	@Override
+	public String toString() {
+		return "{\n\t\"success\":\"" + success + "\",\n\t\"msg\":\"" + msg + "\",\n\t\"data\":\"" + data + "\"\n}";
+	}
+	
 }

@@ -2,7 +2,7 @@ package com.yhj.web.mapping;
 
 import java.io.Serializable;
 
-import com.yhj.web.reflect.MethodInfo;
+import com.yhj.web.reflect.ProcessorMethod;
 
 /***
  * 最大的用处是用来返回json数据, 也可以返回视图
@@ -11,40 +11,43 @@ import com.yhj.web.reflect.MethodInfo;
 public final class RequestMapping implements Serializable {
 
 	private static final long	serialVersionUID	= 1430992221283070496L;
-
-	private String				requestUri			= null;
-
+	/**	处理器类*/
 	private Class<?>			actionProcessor		= null;
-
-	private MethodInfo			methodInfo			= null;
-
-//	private 
+	/**	处理器方法*/
+	private ProcessorMethod		processorMethod		= null;
+	/**	拦截器*/
+	private String[] 			interceptors		= null;
+	/**	响应方式*/
+	private boolean 			responseBody   		= false;
 	
-	
-	
+ 	
 	public RequestMapping() {
 
 	}
-
-	public RequestMapping(String requestUri) {
-		this.requestUri = requestUri;
+	
+	public final String[] getInterceptors() {
+		return interceptors;
 	}
 
-	public final String getRequestUri() {
-		return requestUri;
+	public final void setInterceptors(String[] interceptors) {
+		this.interceptors = interceptors;
+	}
+	
+	public final boolean isResponseBody() {
+		return responseBody;
 	}
 
-	public final RequestMapping setRequestUri(String requestUri) {
-		this.requestUri = requestUri;
-		return this;
+	public final void setResponseBody(boolean responseBody) {
+		this.responseBody = responseBody;
 	}
+
 
 	public final Class<?> getActionProcessor() {
 		return actionProcessor;
 	}
 
-	public final MethodInfo getMethodInfo() {
-		return methodInfo;
+	public final ProcessorMethod getProcessorMethod() {
+		return processorMethod;
 	}
 
 	public final RequestMapping setActionProcessor(Class<?> actionProcessor) {
@@ -52,14 +55,14 @@ public final class RequestMapping implements Serializable {
 		return this;
 	}
 
-	public final RequestMapping setMethodInfo(MethodInfo methodInfo) {
-		this.methodInfo = methodInfo;
+	public final RequestMapping setProcessorMethod(ProcessorMethod methodInfo) {
+		this.processorMethod = methodInfo;
 		return this;
 	}
 
 	@Override
 	public String toString() {
-		return "{\n\t\"requestUri\":\"" + requestUri + "\",\n\t\"actionProcessor\":\"" + actionProcessor
-				+ "\",\n\t\"methodInfo\":\"" + methodInfo + "\"\n}";
+		return "{\n\t\"actionProcessor\":\"" + actionProcessor + "\",\n\t\"processorMethod\":\"" + processorMethod
+				+ "\",\n\t\"responseBody\":\"" + responseBody + "\"\n}";
 	}
 }

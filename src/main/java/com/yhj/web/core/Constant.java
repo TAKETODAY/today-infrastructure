@@ -4,11 +4,10 @@ import java.io.Serializable;
 
 /**
  * 时间:2018,1,6 2018 1 16
- * 
  * @author Today
  */
 public interface Constant extends Serializable {
-
+	
 	
 	String						TYPE_ARRAY_INT				= "[I";
 	String						TYPE_ARRAY_long				= "[J";
@@ -16,6 +15,8 @@ public interface Constant extends Serializable {
 	String						TYPE_ARRAY_STRING			= "[Ljava.lang.String;";
 	String						TYPE_ARRAY_INTEGER			= "[Ljava.lang.Integer;";
 
+	
+	String						TYPE_NUMBER					= "java.lang.Number";
 	String						TYPE_LONG					= "java.lang.Long";
 	String						TYPE_STRING					= "java.lang.String";
 	String						TYPE_INTEGER				= "java.lang.Integer";
@@ -23,6 +24,15 @@ public interface Constant extends Serializable {
 	String						HTTP_SERVLET_REQUEST		= "javax.servlet.http.HttpServletRequest";
 	String						HTTP_SERVLET_RESPONSE		= "javax.servlet.http.HttpServletResponse";
 
+	String 						CONTENT_TYPE_JSON			= "application/json;charset=UTF-8";
+	
+	
+	public static final String							REDIRECT_URL_PREFIX		= "redirect:";
+//	public static final String							REQUEST_METHOD_PREFIX	= ":METHOD:";
+	
+	public static final String							REQUEST_METHOD_PREFIX	= ":";
+	
+	
 	/**
 	 * The number of bytes in a kilobyte.
 	 */
