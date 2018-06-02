@@ -12,6 +12,7 @@ import com.yhj.web.core.Constant;
 import com.yhj.web.handler.DispatchHandler;
 import com.yhj.web.handler.impl.ActionHandler;
 import com.yhj.web.handler.impl.ViewsHandler;
+import com.yhj.web.interceptor.InterceptProcessor;
 import com.yhj.web.mapping.RequestMapping;
 import com.yhj.web.mapping.ViewMapping;
 
@@ -72,9 +73,21 @@ public final class ViewsDispatcher extends HttpServlet implements Constant{
 			/**	进入拦截*/
 			String[] interceptors = requestMapping.getInterceptors();
 			
+			for(String interceptor : interceptors) {
+				System.out.println(interceptor);
+				InterceptProcessor interceptProcessor = DispatchHandler.INTERCEPTOR_MAPPING.get(interceptor);
+				
+				if(!interceptProcessor.beforeProcess(request, response)){
+					System.out.println("整个过程: " + (System.currentTimeMillis() - start) + "ms");
+					return;
+				}
+				
+			}
+			
 			
 			ACTION_HANDLER.doDispatch(requestMapping, request, response);
 		
+//			interceptProcessor.afterProcess(request, response);
 			
 		} catch (Exception e) {
 			e.printStackTrace();

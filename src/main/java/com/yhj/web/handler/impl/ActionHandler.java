@@ -176,7 +176,6 @@ public final class ActionHandler extends AbstractActionHandler {
 						args[i] = NumberUtils.parseArray(request.getParameterValues(methodParameter.getParameterName()), parameterClass);
 						return true;
 					} catch (Exception e) {
-						e.printStackTrace();
 						return false;
 					}
 					

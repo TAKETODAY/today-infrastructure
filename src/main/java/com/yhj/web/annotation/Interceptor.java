@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 import com.yhj.web.interceptor.InterceptProcessor;
 
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Interceptor {
