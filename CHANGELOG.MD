@@ -40,6 +40,41 @@ Java1.8
 出去View的action，所有的Action都由ActionHandler处理，减少内存开销
 
 
+优化POJO注入
+```java
+	/**
+	 * 设置POJO属性
+	 * @param request
+	 * @param parameterName
+	 * @param bean
+	 * @param field
+	 * @return
+	 */
+	private final boolean set(HttpServletRequest request, final String parameterName, Object bean, Field field)  {
+		
+		Object parseDigit = null;
+		
+		try {
+			final Class<?> type = field.getType();
+			if(type.isArray()) {
+				parseDigit = NumberUtils.stringToArray(request.getParameterValues(parameterName), type);
+			} else if(type.getSuperclass() == Number.class) {
+				System.out.println("number");
+				parseDigit = NumberUtils.parseDigit(request.getParameter(parameterName), type);
+			} else if (type == String.class) {
+				parseDigit = request.getParameter(parameterName);
+			}
+			field.set(bean, parseDigit);
+			return true;
+		} catch (IllegalArgumentException | IllegalAccessException | ConversionException e) {
+			return false;
+		}
+		
+	}
+
+```
+
+计划支持注入集合
 
 
 

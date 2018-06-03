@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSON;
+import com.yhj.web.exception.ConversionException;
 import com.yhj.web.mapping.RequestMapping;
 import com.yhj.web.reflect.MethodParameter;
 import com.yhj.web.reflect.ProcessorMethod;
@@ -116,71 +117,60 @@ public final class ActionHandler extends AbstractActionHandler {
 								throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		System.out.print("\t普通参数注入：");
 		
-		final String requestParameter = request.getParameter(paramName);//得到
+		final String requestParameter = request.getParameter(paramName);//得到参数数值
+		
+		if(parameterClass.getSuperclass() == Number.class) {
+			if (methodParameter.isRequired() && StringUtil.isEmpty(requestParameter)) {
+				return false;
+			}
+			
+			try {
+				args[i] = NumberUtils.parseDigit(requestParameter, parameterClass);
+				return true;
+			} catch (Exception e) {
+				return false;
+			}
+			
+		} else if(parameterClass.isArray()) {//判断是否是数组
+			System.out.println("数组参数注入");
+			
+			if(StringUtil.isEmpty(requestParameter)) {
+				if (methodParameter.isRequired()) {
+					System.out.println("数组必须");
+					return false;
+				}
+				args[i] = null;
+				return true;
+			}
+			
+			try {
+				
+				args[i] = NumberUtils.parseArray(request.getParameterValues(methodParameter.getParameterName()), parameterClass);
+				return true;
+			} catch (Exception e) {
+				return false;
+			}
+		}
 		
 		switch (parameterClass.getName())
 		{
-			case "int":
-			case TYPE_INTEGER:
-				try {
-					// 判断参数
-					if (methodParameter.isRequired() && StringUtil.isEmpty(requestParameter)) {
-						return false;
-					}
-					args[i] = Integer.parseInt(requestParameter);
-				} catch (NumberFormatException e) {
-					return false;
-				}
-				break;
-			case "long":
-			case TYPE_LONG:
-				try {
-					if (methodParameter.isRequired() && StringUtil.isEmpty(requestParameter)) {
-						return false;
-					}
-					args[i] = Long.parseLong(requestParameter);
-				} catch (NumberFormatException e) {
-					return false;
-				}
-				break;
 			case TYPE_STRING:
 				if (methodParameter.isRequired() && StringUtil.isEmpty(requestParameter)) {
 					return false;
 				}
-				args[i] = requestParameter;
-			break;
-			case HTTP_SESSION: 			args[i] = request.getSession(); break;
-			case HTTP_SERVLET_REQUEST: 	args[i] = request; 				break;
-			case HTTP_SERVLET_RESPONSE: args[i] = response; 			break;
+				args[i] = requestParameter;								return true;
 			
+			case HTTP_SESSION: 			args[i] = request.getSession(); return true;
+			case HTTP_SERVLET_REQUEST: 	args[i] = request; 				return true;
+			case HTTP_SERVLET_RESPONSE: args[i] = response; 			return true;
+			
+			case TYPE_LIST:				args[i] = null;					return true;
+			case TYPE_SET:				args[i] = null;					return true;
+			case TYPE_MAP:				args[i] = null;					return true;
+
 			default:
 				System.out.print("\t没有普通参数注入：");
-				
-				//判断是否是数组
-				if(parameterClass.isArray()) {
-					System.out.println("数组参数注入");
-					
-					if(StringUtil.isEmpty(requestParameter)) {
-						if (methodParameter.isRequired()) {
-							System.out.println("数组必须");
-							return false;
-						}
-						args[i] = null;
-						return true;
-					}
-					try {
-//						StringToArrayFactory arrayFactory = new StringToArrayFactory();
-						
-//						args[i] = arrayFactory.getConverter(forName).doConvert(request.getParameterValues(methodParameter.getParameterName()));
-						
-						args[i] = NumberUtils.parseArray(request.getParameterValues(methodParameter.getParameterName()), parameterClass);
-						return true;
-					} catch (Exception e) {
-						return false;
-					}
-					
-				}
-//				Enumeration<String> parameterNames = request.getParameterNames();
+			
 				args[i] = parameterClass.newInstance();
 				
 				System.out.println(request.getParameterMap());
@@ -188,9 +178,8 @@ public final class ActionHandler extends AbstractActionHandler {
 				if(!setBean(request, parameterClass, args[i], request.getParameterNames())) {
 					return false;
 				}
-				break;
+				return true;
 		}
-		return true;
 	}
 
 
@@ -210,7 +199,7 @@ public final class ActionHandler extends AbstractActionHandler {
 	private final boolean setBean(HttpServletRequest request , Class<?> forName, Object bean, Enumeration<String> parameterNames)
 			throws IllegalAccessException, IOException {
 		System.out.print("\tPOJO参数注入\t");
-		
+
 		while (parameterNames.hasMoreElements()) {
 			//遍历参数
 			final String parameterName =  parameterNames.nextElement();
@@ -219,7 +208,7 @@ public final class ActionHandler extends AbstractActionHandler {
 				//寻找参数
 				field = forName.getDeclaredField(parameterName);
 				field.setAccessible(true);
-				
+
 				if(!set(request, parameterName, bean, field)) {
 					return false;
 				}
@@ -231,31 +220,34 @@ public final class ActionHandler extends AbstractActionHandler {
 		return true;
 	}
 
-
-	private final boolean set(HttpServletRequest request, final String parameterName, Object bean, Field field) throws IllegalAccessException {
+	/**
+	 * 设置POJO属性
+	 * @param request
+	 * @param parameterName
+	 * @param bean
+	 * @param field
+	 * @return
+	 */
+	private final boolean set(HttpServletRequest request, final String parameterName, Object bean, Field field)  {
 		
-		switch (field.getType().getName()) 
-		{
-			case "int":
-			case TYPE_INTEGER:
-				try {
-					field.set(bean, Integer.parseInt(request.getParameter(parameterName)));
-				} catch (NumberFormatException ex) {
-					return false;
-				}
-				return true;
-			case "long":
-			case TYPE_LONG:
-				try {
-					field.set(bean, Long.parseLong(request.getParameter(parameterName)));
-				} catch (NumberFormatException exx) {
-					return false;
-				}
-				return true;
-			default:
-				field.set(bean, request.getParameter(parameterName));
-				return true;
+		Object parseDigit = null;
+		
+		try {
+			final Class<?> type = field.getType();
+			if(type.isArray()) {
+				parseDigit = NumberUtils.stringToArray(request.getParameterValues(parameterName), type);
+			} else if(type.getSuperclass() == Number.class) {
+				System.out.println("number");
+				parseDigit = NumberUtils.parseDigit(request.getParameter(parameterName), type);
+			} else if (type == String.class) {
+				parseDigit = request.getParameter(parameterName);
+			}
+			field.set(bean, parseDigit);
+			return true;
+		} catch (IllegalArgumentException | IllegalAccessException | ConversionException e) {
+			return false;
 		}
+		
 	}
 
 	
