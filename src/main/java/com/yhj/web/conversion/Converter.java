@@ -7,5 +7,4 @@ public interface Converter<S, T> {
 
 	public T doConvert(S source) throws ConversionException;
 
-
 }

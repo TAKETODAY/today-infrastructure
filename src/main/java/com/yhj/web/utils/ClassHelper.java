@@ -43,38 +43,43 @@ public final class ClassHelper {
 						setClassName(classSet, packagePath, packageName);
 					} else if ("jar".equals(protocol)) {
 						JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
-						if (jarURLConnection != null) {
-							JarFile jarFile = jarURLConnection.getJarFile();
-							if (jarFile != null) {
-								Enumeration<JarEntry> jarEntries = jarFile.entries();
-								while (jarEntries.hasMoreElements()) {
-									JarEntry jarEntry = jarEntries.nextElement();
-									String jarEntryName = jarEntry.getName();
-									if (jarEntryName.endsWith(".class")) {
-										String className = jarEntryName.substring(0, jarEntryName.lastIndexOf("."))
-												.replaceAll("/", ".");
-										doAddClass(classSet, className);
-									}
-								}
+						if (jarURLConnection == null) {
+							continue;
+						}
+						JarFile jarFile = jarURLConnection.getJarFile();
+						if (jarFile == null) {
+							continue;
+						}
+						Enumeration<JarEntry> jarEntries = jarFile.entries();
+						while (jarEntries.hasMoreElements()) {
+							JarEntry jarEntry = jarEntries.nextElement();
+							String jarEntryName = jarEntry.getName();
+							if (jarEntryName.endsWith(".class")) {
+								String className = jarEntryName.substring(0, jarEntryName.lastIndexOf("."))
+										.replaceAll("/", ".");
+								doAddClass(classSet, className);
 							}
 						}
 					}
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RuntimeException("get class set failure.");
 		}
 		return classSet;
 	}
 
+	//递归扫描
 	private final static void setClassName(Set<Class<?>> classSet, String packagePath, String packageName) {
+		
 		File[] files = new File(packagePath).listFiles(new FileFilter() {
-			// @Override
 			@Override
 			public boolean accept(File file) {
 				return (file.isFile() && file.getName().endsWith(".class")) || file.isDirectory();
 			}
 		});
+		
 		for (File file : files) {
 			String fileName = file.getName();
 			if (file.isFile()) {
@@ -82,22 +87,24 @@ public final class ClassHelper {
 				String className = fileName.substring(0, fileName.lastIndexOf("."));
 				if (!isEmpty(packageName)) {
 					className = packageName + "." + className;
+					System.out.println("find class -> " + className);
 					doAddClass(classSet, className);
 				}
 			} else {
 				String subPackagePath = fileName;
 				if (!isEmpty(packageName)) {
-					subPackagePath = packagePath + subPackagePath;
+					subPackagePath = packagePath + "/" + subPackagePath;
 					fileName = packageName + "." + fileName;
-					System.out.println(subPackagePath);
-					System.out.println(fileName);
+					System.out.println("Enter package -> " + fileName);
 					setClassName(classSet, subPackagePath, fileName);
 				}
 			}
 		}
+		
 	}
 
 	private final static void doAddClass(Set<Class<?>> classSet, String className) {
+		
 		Class<?> cls = loadClass(className, false);
 		classSet.add(cls);
 	}

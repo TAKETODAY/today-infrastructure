@@ -1,26 +1,20 @@
 package com.yhj.web.handler.impl;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSON;
-import com.yhj.web.exception.ConversionException;
+import com.yhj.web.mapping.MethodParameter;
+import com.yhj.web.mapping.ProcessorMethod;
 import com.yhj.web.mapping.RequestMapping;
-import com.yhj.web.reflect.MethodParameter;
-import com.yhj.web.reflect.ProcessorMethod;
-import com.yhj.web.utils.NumberUtils;
-import com.yhj.web.utils.StringUtil;
 
 public final class ActionHandler extends AbstractActionHandler {
 
-	
 	private static final long serialVersionUID = 4385638260913560140L;
+	
 	
 	/**
 	 * 处理请求
@@ -29,7 +23,6 @@ public final class ActionHandler extends AbstractActionHandler {
 	public void doDispatch(RequestMapping mapping, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		long start = System.currentTimeMillis();
-		// start = System.currentTimeMillis();
 
 		long nanoStart = System.nanoTime();
 
@@ -38,24 +31,11 @@ public final class ActionHandler extends AbstractActionHandler {
 		//方法参数
 		MethodParameter[] methodParameters = methodInfo.getParameter();
 		
-		
 		final Object[] args = new Object[methodParameters.length];//处理器参数列表
-
 		
-		for (int i = 0; i < methodParameters.length; i++) 	{
-			
-			MethodParameter methodParameter = methodParameters[i];
-
-			Class<?> parameterClass = methodParameter.getParameterClass();
-			
-			System.out.print("\n参数：" + (i + 1)+"\t");
-			//判断参数类型
-			System.out.print(parameterClass);
-
-			if(!this.setParameter(request, response, args, i, methodParameter, methodParameter.getParameterName(), parameterClass)){
-				response.sendError(400);
-				return;
-			}
+		if(!parameterResolver.resolveParameter(args, methodParameters, request, response)){
+			response.sendError(400);	//bad request
+			return;
 		}
 
 		System.out.println("parameter处理时间：" + (System.currentTimeMillis() - start) + "ms");
@@ -84,7 +64,7 @@ public final class ActionHandler extends AbstractActionHandler {
 			} else {
 				request.getRequestDispatcher(prefix + returnStr + suffix).forward(request, response);
 			}
-		} else {//返回字符串\
+		} else {//返回字符串
 			response.setContentType(CONTENT_TYPE_JSON);
 			response.getWriter().print(JSON.toJSON(invoke));
 		}
@@ -95,167 +75,5 @@ public final class ActionHandler extends AbstractActionHandler {
 		System.out.println(System.nanoTime() - nanoStart + "ns");
 
 	}
-
-
-	/**
-	 * 装载参数
-	 * @param request
-	 * @param response
-	 * @param arg
-	 * @param i
-	 * @param methodParameter
-	 * @param requestParameter
-	 * @param parameterClass
-	 * @return
-	 * @throws IOException
-	 * @throws ClassNotFoundException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
-	private final boolean setParameter(HttpServletRequest request, HttpServletResponse response, Object args[],final int i, 
-				final MethodParameter methodParameter , final String paramName , final Class<?> parameterClass)
-								throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-		System.out.print("\t普通参数注入：");
-		
-		final String requestParameter = request.getParameter(paramName);//得到参数数值
-		
-		if(parameterClass.getSuperclass() == Number.class) {
-			if (methodParameter.isRequired() && StringUtil.isEmpty(requestParameter)) {
-				return false;
-			}
-			
-			try {
-				args[i] = NumberUtils.parseDigit(requestParameter, parameterClass);
-				return true;
-			} catch (Exception e) {
-				return false;
-			}
-			
-		} else if(parameterClass.isArray()) {//判断是否是数组
-			System.out.println("数组参数注入");
-			
-			if(StringUtil.isEmpty(requestParameter)) {
-				if (methodParameter.isRequired()) {
-					System.out.println("数组必须");
-					return false;
-				}
-				args[i] = null;
-				return true;
-			}
-			
-			try {
-				
-				args[i] = NumberUtils.parseArray(request.getParameterValues(methodParameter.getParameterName()), parameterClass);
-				return true;
-			} catch (Exception e) {
-				return false;
-			}
-		}
-		
-		switch (parameterClass.getName())
-		{
-			case TYPE_STRING:
-				if (methodParameter.isRequired() && StringUtil.isEmpty(requestParameter)) {
-					return false;
-				}
-				args[i] = requestParameter;								return true;
-			
-			case HTTP_SESSION: 			args[i] = request.getSession(); return true;
-			case HTTP_SERVLET_REQUEST: 	args[i] = request; 				return true;
-			case HTTP_SERVLET_RESPONSE: args[i] = response; 			return true;
-			
-			case TYPE_LIST:				args[i] = null;					return true;
-			case TYPE_SET:				args[i] = null;					return true;
-			case TYPE_MAP:				args[i] = null;					return true;
-
-			default:
-				System.out.print("\t没有普通参数注入：");
-			
-				args[i] = parameterClass.newInstance();
-				
-				System.out.println(request.getParameterMap());
-				
-				if(!setBean(request, parameterClass, args[i], request.getParameterNames())) {
-					return false;
-				}
-				return true;
-		}
-	}
-
-
-
-	/**
-	 * 注入POJO对象
-	 * @param request
-	 * @param response
-	 * @param requestParameter
-	 * @param forName
-	 * @param bean
-	 * @param parameterNames
-	 * @return
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 */
-	private final boolean setBean(HttpServletRequest request , Class<?> forName, Object bean, Enumeration<String> parameterNames)
-			throws IllegalAccessException, IOException {
-		System.out.print("\tPOJO参数注入\t");
-
-		while (parameterNames.hasMoreElements()) {
-			//遍历参数
-			final String parameterName =  parameterNames.nextElement();
-			Field field = null;
-			try {
-				//寻找参数
-				field = forName.getDeclaredField(parameterName);
-				field.setAccessible(true);
-
-				if(!set(request, parameterName, bean, field)) {
-					return false;
-				}
-			} catch (NoSuchFieldException e) {
-				System.out.println("没有：" + parameterName);
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * 设置POJO属性
-	 * @param request
-	 * @param parameterName
-	 * @param bean
-	 * @param field
-	 * @return
-	 */
-	private final boolean set(HttpServletRequest request, final String parameterName, Object bean, Field field)  {
-		
-		Object parseDigit = null;
-		
-		try {
-			final Class<?> type = field.getType();
-			if(type.isArray()) {
-				parseDigit = NumberUtils.stringToArray(request.getParameterValues(parameterName), type);
-			} else if(type.getSuperclass() == Number.class) {
-				System.out.println("number");
-				parseDigit = NumberUtils.parseDigit(request.getParameter(parameterName), type);
-			} else if (type == String.class) {
-				parseDigit = request.getParameter(parameterName);
-			}
-			field.set(bean, parseDigit);
-			return true;
-		} catch (IllegalArgumentException | IllegalAccessException | ConversionException e) {
-			return false;
-		}
-		
-	}
-
-	
-	
-	
-	
-	
-	
-	
 
 }

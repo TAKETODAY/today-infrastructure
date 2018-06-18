@@ -1,4 +1,4 @@
-package com.yhj.web.reflect;
+package com.yhj.web.mapping;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -12,12 +12,10 @@ public final class ProcessorMethod {
 	private MethodParameter[]	parameter	= null;
 	/** 返回类型 **/
 	private Class<?>			returnType	= null;
-
 	
 	public ProcessorMethod() {
 
 	}
-
 	
 	public ProcessorMethod(Method method, List<MethodParameter> parameters, Class<?> returnType) {
 		this.method = method;

@@ -12,13 +12,14 @@ import com.yhj.web.mapping.RequestMapping;
 import com.yhj.web.mapping.ViewMapping;
 
 public interface DispatchHandler<T>{
-	
-	/**	拦截器池*/
-	Map<String, InterceptProcessor> INTERCEPTOR_MAPPING = new HashMap<>();
+
+
 	/** view 视图映射池 */
-	Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>();
+	Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>(5);
 	/** Action 映射池 */
-	Map<String, RequestMapping>	ACTION_REQUEST_MAPPING = new HashMap<>();
+	Map<String, RequestMapping>	ACTION_REQUEST_MAPPING = new HashMap<>(8);
+	/**	拦截器池*/
+	Map<String, InterceptProcessor> INTERCEPTOR_MAPPING = new HashMap<>(6);
 
 	/**
 	 * 初始化处理器
@@ -34,7 +35,6 @@ public interface DispatchHandler<T>{
 	 * @throws Exception
 	 */
 	public void doDispatch(T mapping, HttpServletRequest request, HttpServletResponse response) throws Exception;
-	
 	
 	
 }

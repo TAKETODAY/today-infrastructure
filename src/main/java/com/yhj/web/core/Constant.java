@@ -36,24 +36,12 @@ public interface Constant extends Serializable {
 
 	
 	
-	/**
-	 * The number of bytes in a kilobyte.
-	 */
 	long	ONE_KB						= 1024;
 
-	/**
-	 * The number of bytes in a megabyte.
-	 */
 	long	ONE_MB						= ONE_KB * ONE_KB;
 
-	/**
-	 * The number of bytes in a gigabyte.
-	 */
 	long	ONE_GB						= ONE_KB * ONE_MB;
 
-	/**
-	 * The number of bytes in a terabyte.
-	 */
 	long	ONE_TB						= ONE_KB * ONE_GB;
 
 	// font

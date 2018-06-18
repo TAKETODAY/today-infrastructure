@@ -13,21 +13,20 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import com.yhj.web.handler.DispatchHandler;
 import com.yhj.web.mapping.ViewMapping;
 
-public abstract class AbstractViewHandler implements DispatchHandler<ViewMapping>{
+public abstract class AbstractViewHandler extends AbstractHandler<ViewMapping>{
 
-	protected static String	contextPath	= null;
 	
 	@Override
-	public abstract void doDispatch(ViewMapping mapping, HttpServletRequest request, HttpServletResponse response) throws Exception ;
+	public abstract void doDispatch(ViewMapping mapping, HttpServletRequest request,
+			HttpServletResponse response) throws Exception ;
 
 	/**
 	 * viewsConfigLocation 加载配置文件
 	 */
 	@Override
-	public void doInit(ServletConfig config) {
+	public final void doInit(ServletConfig config) {
 		long start = System.currentTimeMillis();
 		String con = config.getInitParameter("viewsConfigLocation");
 		contextPath = config.getServletContext().getContextPath();
@@ -36,8 +35,9 @@ public abstract class AbstractViewHandler implements DispatchHandler<ViewMapping
 		
 		System.out.println("Initializing ViewsHandler from [" + realPath + "]");
 		try {
-			setXMLConfiguration(contextPath , realPath);
-		} catch (MalformedURLException e) {
+			setXMLConfiguration(realPath);
+		} 
+		catch (MalformedURLException e) {
 			System.err.println("ViewsHandler Initialization ERROR !");
 		}
 		System.out.println("ViewsHandler Initialization Takes " + (System.currentTimeMillis() - start) + "ms");
@@ -51,7 +51,7 @@ public abstract class AbstractViewHandler implements DispatchHandler<ViewMapping
 	 * @param configFilePath
 	 * @throws MalformedURLException
 	 */
-	private void setXMLConfiguration(String contextPath, String configFilePath) throws MalformedURLException {
+	private void setXMLConfiguration(String configFilePath) throws MalformedURLException {
 		SAXReader reader = new SAXReader();
 		// 读取文件 转换成Document
 		Document document = null;
@@ -62,7 +62,7 @@ public abstract class AbstractViewHandler implements DispatchHandler<ViewMapping
 		}
 		Element element = document.getRootElement();
 		//开始读取
-		getConfiguration(contextPath, element);
+		getConfiguration(element);
 	}
 
 	/**
@@ -71,15 +71,15 @@ public abstract class AbstractViewHandler implements DispatchHandler<ViewMapping
 	 * @param element
 	 */
 	@SuppressWarnings("unchecked")
-	private void getConfiguration(String contextPath, Element element) {
+	private void getConfiguration(Element element) {
 		ViewMapping mapping = new ViewMapping();
 		if ("view".equals(element.getName())) {
-			setViews(contextPath, element, mapping);
+			setViews(element, mapping);
 		}
 		// 使用递归
 		Iterator<Element> iterator = element.elementIterator();
 		while (iterator.hasNext()) {
-			getConfiguration(contextPath, iterator.next());
+			getConfiguration(iterator.next());
 		}
 	}
 
@@ -89,7 +89,7 @@ public abstract class AbstractViewHandler implements DispatchHandler<ViewMapping
 	 * @param element
 	 * @param mapping
 	 */
-	public void setViews(String contextPath, Element element, ViewMapping mapping) {
+	public void setViews(Element element, ViewMapping mapping) {
 		mapping.setAssetsPath(element.getParent().attribute("baseDir").getValue() 
 				+ element.attribute("jsp").getValue());
 

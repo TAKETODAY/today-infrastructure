@@ -1,8 +1,6 @@
 
-package com.yhj.web.conversion.str.impl;
+package com.yhj.web.conversion;
 
-import com.yhj.web.conversion.Converter;
-import com.yhj.web.conversion.ConverterFactory;
 import com.yhj.web.utils.NumberUtils;
 
 public final class StringToArrayFactory implements ConverterFactory<String[], Object> {

@@ -2,8 +2,6 @@ package com.yhj.web.mapping;
 
 import java.io.Serializable;
 
-import com.yhj.web.reflect.ProcessorMethod;
-
 /***
  * 最大的用处是用来返回json数据, 也可以返回视图
  * @author Today

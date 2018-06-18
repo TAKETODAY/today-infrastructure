@@ -14,10 +14,8 @@ import com.yhj.web.interceptor.InterceptProcessor;
 @Documented
 public @interface Interceptor {
 
-	
-	/**	配置拦截器 */
+	/**	配置拦截器 执行的先后顺序由拦截器的位置有关*/
     Class<? extends InterceptProcessor>[] value() default {};
-    
     
     
 }
