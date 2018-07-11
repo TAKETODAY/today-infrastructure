@@ -1,63 +1,156 @@
 # Today Web Framework
 
-Today Web Framework 高性能 轻量级web框架
+Today Web Framework 一个类似 SpringMvc的轻量级web框架
 
-	1.1.0 已经应用到了Today Blog https://www.yanghaijian.top
-	1.2.0 正在开发中
-
-
-###	通过@ActionMapping配置请求
-	@ActionMapping(value = {"/index.action", "/index.jsp"}, method = RequestMethod.GET)
-
-### 通过@ActionProcessor配置处理器Bean	并配置资源路径 以及后缀 后缀默认为	.jsp
-	@ActionProcessor(prefix = "/WEB-INF/view/index")
-
-
-##	登录实例
+### 通过@ActionProcessor,@RestProcessor配置请求处理器
 ```java
-	@ActionMapping(value = "/login" , method = RequestMethod.GET)
-	public String login() {
-		return "/login/login";
+@RestProcessor
+@ActionProcessor
+public class IndexAction {
+
+}
+```
+##配置请求
+```java
+
+@GET("index")
+@POST("post")
+@PUT("article/{1}")
+......
+@ActionMapping("/users/{id}")
+@ActionMapping(value = "/users/**", method = {RequestMethod.GET})
+@ActionMapping(value = "/users/*.html", method = {RequestMethod.GET})
+@ActionMapping(value = {"/index.action", "/index.do", "/index"}, method = RequestMethod.GET)
+@Interceptor({LoginInterceptor.class, ...})
+public (String|List<?>|Set<?>|Map<?>|void|File|Image|...) \\w+ (request, request, session,servletContext, str, int, long , byte, short, boolean, @Session("loginUser"), @Header("User-Agent"), @Cookie("JSESSIONID"), @PathVariable("id"), @RequestBody("users"), @Multipart("uploadFiles") MultipartFile[]) {
+    service...
+    return </>;
+}
+```
+## 配置自定义参数转换器
+```java
+@ParameterConverter 
+public class DateConverter implements Converter<String, Date> {
+	@Override
+	public Date doConvert(String source) throws ConversionException {
+		...
 	}
-	
-	
-	@ActionMapping(value = "/login.do" , method = RequestMethod.POST)
-	public String login(@RequestParam(required = true) String userId,@RequestParam(required = true) String passwd, HttpServletRequest request) {
-		request.setAttribute("userId", userId);
-		if(userId.equals(passwd)) {
-			request.setAttribute("msg", "登录成功");
-			return "/success";
-		}
-		request.setAttribute("msg", "登录失败");
-		return "/error";
-	}
+}
 ```
 
 
-
-###	也可以通过xml文件配置视图，不需要处理器Bean，也可以配置简单的处理器Bean，但是不能完成参数注入
+###	也可以通过xml文件配置简单视图, 静态资源 
 
 ```xml	
-	<!DOCTYPE Web-Views-configuration PUBLIC
-			"-//Today Technology//Web-View Configuration DTD 1.0//CN"
-					"https://www.yanghaijian.top/dtd/web/views-configuration-1.0.dtd">
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Web-Configuration PUBLIC 
+	"-//TODAY BLOG//Web - Configuration DTD 2.0//"
+		"https://taketoday.cn/framework/web/dtd/web-configuration-2.1.0.dtd">
+
+<Web-Configuration>
+
+	<static-resources mapping="/assets/*" />
 	
-	<Web-Views-configuration>
-	
-		<!-- 状态码 -->
-		<common baseDir="/WEB-INF/error" class="com.yhj.core.action.IndexAction">
-			<view jsp="/400.jsp" name="BadRequest" 		 type="dispatcher"/>
-			<view jsp="/403.jsp" name="Forbidden" 		 type="dispatcher"/>
-			<view jsp="/404.jsp" name="NotFound" 		 type="dispatcher"/>
-			<view jsp="/500.jsp" name="ServerIsBusy" 	 type="dispatcher"/>
-			<view jsp="/405.jsp" name="MethodNotAllowed" type="dispatcher"/>
-		</common>
-		
-		<!-- 首页 -->
-		<common class="com.yhj.core.action.IndexAction" baseDir="/WEB-INF/view">
-			<action name="index.html" type="dispatcher" method="index" jsp="/index.jsp"></action>
-		</common>
-		
-	</Web-Views-configuration>
+	<common prefix="/WEB-INF/error/" suffix=".jsp">
+		<view res="400" name="BadRequest" />
+		<view res="403" name="Forbidden" />
+		<view res="404" name="NotFound" />
+		<view res="500" name="ServerIsBusy" />
+		<view res="405" name="MethodNotAllowed" />
+	</common>
+
+</Web-Configuration>
 
 ```
+##	登录实例
+```java
+@ActionProcessor
+public final class UserAction {
+
+/* 简单视图可以使用xml文件定义，只支持jsp
+	<common prefix="/WEB-INF/view/" suffix=".jsp">
+		<view res="login" name="login" />
+		<view res="register" name="register" />
+	</common> */
+
+	@ActionMapping(value = "/login" , method = RequestMethod.GET)
+	public String login() {
+		return "/login/login";//支持jsp,FreeMarker,Thymeleaf,自定义视图
+	}
+
+	@ResponseBody
+	@ActionMapping(value = "/login" , method = RequestMethod.POST)
+	public String login(@RequestParam(required = true) String userId,@RequestParam(required = true) String passwd, HttpServletRequest request) {
+		if(userId.equals(passwd)) {
+			return"{\"msg\":\"登录成功\"}";
+		}
+		return"{\"msg\":\"登录失败\"}";
+	}
+}
+```
+## 支持文件下载 ， 支持直接返回给浏览器图片
+
+```java
+@ActionMapping(value = {"/download"}, method = RequestMethod.GET)
+public File download(String path) {
+    return new File(path);
+}
+```
+```java
+@GET("/display")
+public final BufferedImage display(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    response.setContentType("image/jpeg");
+    return ImageIO.read(new File("D:/www.yhj.com/webapps/upload/logo.png"));
+}
+
+@GET("captcha")
+public final BufferedImage captcha(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    BufferedImage image = new BufferedImage(IMG_WIDTH, IMG_HEIGHT, BufferedImage.TYPE_INT_RGB);
+    Graphics graphics = image.getGraphics();
+    graphics.setColor(Color.WHITE);
+    graphics.fillRect(0, 0, IMG_WIDTH, IMG_HEIGHT);
+    Graphics2D graphics2d = (Graphics2D) graphics;
+    drawRandomNum(graphics2d, request);
+    return image;
+}
+```
+
+```java
+@ResponseBody
+@ActionMapping(value = { "/upload" }, method = RequestMethod.POST)
+public String upload(@Multipart MultipartFile uploadFile)
+        throws IOException {
+
+    String upload = "D:/www.yhj.com/webapps/upload/";
+    String path = upload + uploadFile.getFileName();
+    File file = new File(path);
+    uploadFile.save(file);
+
+    return "/upload/" + uploadFile.getFileName();
+}
+
+@ResponseBody
+@ActionMapping(value = { "/upload/multi" }, method = RequestMethod.POST)
+public String multiUpload(HttpServletRequest request, HttpSession session, HttpServletResponse response,
+        @Multipart MultipartFile[] files) throws IOException {
+
+    String upload = "D:/www.yhj.com/webapps/upload/";
+
+    for (MultipartFile multipartFile : files) {
+        String path = upload + multipartFile.getFileName();
+        File file = new File(path);
+        System.out.println(path);
+        if (!multipartFile.save(file)) {
+            return "<script>alert('upload error !')</script>";
+            //response.getWriter().print("<script>alert('upload error !')</script>");
+        }
+    }
+    //response.getWriter().print("<script>alert('upload success !')</script>");
+    return "<script>alert('upload success !')</script>";
+}
+```
+
+## 暂无IOC
+
+## end.
