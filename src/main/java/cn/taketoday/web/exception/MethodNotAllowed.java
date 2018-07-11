@@ -23,7 +23,7 @@ package cn.taketoday.web.exception;
  * @author Today
  * @date 2018年7月1日 下午7:38:39
  */
-public class MethodNotAllowed extends Exception {
+public final class MethodNotAllowed extends Exception {
 
 	private static final long serialVersionUID = -2685676809973234020L;
 

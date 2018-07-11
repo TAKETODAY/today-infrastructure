@@ -23,7 +23,10 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.servlet.MultipartConfigElement;
@@ -38,34 +41,52 @@ import javax.servlet.annotation.WebListener;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import cn.taketoday.context.core.Constant;
+import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtil;
+import cn.taketoday.web.core.Constant;
+import cn.taketoday.web.core.DefaultWebApplicationContext;
+import cn.taketoday.web.core.WebApplicationContext;
+import cn.taketoday.web.handler.ActionHandler;
 import cn.taketoday.web.handler.DispatchHandler;
+import cn.taketoday.web.multipart.AbstractMultipartResolver;
+import cn.taketoday.web.multipart.DefaultMultipartResolver;
+import cn.taketoday.web.resolver.DefaultExceptionResolver;
+import cn.taketoday.web.resolver.DefaultParameterResolver;
+import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.servlet.ActionDispatcher;
 import cn.taketoday.web.servlet.ViewDispatcher;
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.web.view.AbstractViewResolver;
+import cn.taketoday.web.view.JstlViewResolver;
 
 /**
  * @author Today
  * @date 2018年6月23日 下午4:14:53
  */
-@Slf4j
 @WebListener("WebContextLoader")
 public final class WebContextLoader implements ServletContextListener, Constant {
 
-	private static final long	serialVersionUID		= 4983190133174606852L;
+	private static final long				serialVersionUID	= 4983190133174606852L;
 
-	/** configuration factory */
-	ConfigurationFactory		configurationFactory	= ConfigurationFactory.createFactory();
+	private Logger							log					= LoggerFactory.getLogger(WebContextLoader.class);
+
+	private static WebApplicationContext	applicationContext;
 
 	public WebContextLoader() {
-		
+
+	}
+
+	public static WebApplicationContext getWebApplicationContext() {
+		return applicationContext;
 	}
 
 	/**
@@ -73,19 +94,21 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 	 * 
 	 * @throws Exception
 	 */
-	private void initFrameWork() throws Exception {
-		String realPath = configurationFactory.getServletContext().getRealPath("/WEB-INF"); // get real path
+	private void initFrameWork(String path) throws Exception {
 		// find the config file
-		getConfigFile(new File(realPath));
-
+		getConfigFile(new File(path));
 	}
 
+	/**
+	 * find config file
+	 * 
+	 * @param dir
+	 * @throws Exception
+	 */
 	private void getConfigFile(File dir) throws Exception {
 
-		File[] listFiles = dir.listFiles(path -> (
-			path.isDirectory() || path.getName().endsWith(".xml") || path.getName().endsWith(".properties")
-		));
-		
+		File[] listFiles = dir.listFiles(path -> (path.isDirectory() || path.getName().endsWith(".xml")));
+
 		for (File file : listFiles) {
 			if (file.isDirectory()) { // recursive
 				getConfigFile(file);
@@ -94,7 +117,6 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 			InputStream inputStream = new FileInputStream(file);
 			loadXml(inputStream);
 		}
-		
 	}
 
 	/**
@@ -108,14 +130,15 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setIgnoringComments(true);
 		DocumentBuilder builder = factory.newDocumentBuilder();
-		
-		builder.setEntityResolver((publicId, systemId)-> {
+
+		builder.setEntityResolver((publicId, systemId) -> {
 			if (systemId.contains(DTD_NAME)) {
-				return new InputSource(new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes()));
+				return new InputSource(
+						new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes()));
 			}
 			return null;
 		});
-		
+
 		Document document = builder.parse(inputStream);
 		registerXml(document);
 
@@ -131,10 +154,9 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 		Element root = doc.getDocumentElement();
 
 		if (ROOT_ELEMENT.equals(root.getNodeName())) { // root element
-			log.info("Found configuration file.");
+			log.info("Found Configuration File.");
 			configStart(root);
 		}
-		
 	}
 
 	/**
@@ -154,69 +176,193 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 				Element ele = (Element) node;
 				String nodeName = ele.getNodeName();
 				if (ELEMENT_COMMON.equals(nodeName)) {
-					log.info("start configure Views.");
-					configurationFactory.createViewConfig().init(ele); // view init
+
+					log.info("Start Configure Views.");
+
+					applicationContext.create(ViewConfig.class).init(ele); // view init
 				} else if (ELEMENT_STATIC_RESOURCES.equals(nodeName)) {
 					String staticMapping = ele.getAttribute(ATTR_MAPPING);
-
 					addDefaultServletMapping(staticMapping);
-				} else if (ELEMENT_COMPONENT_SCAN.equals(nodeName)) {
-					String basePackage = ele.getAttribute(ATTR_BASE_PACKAGE);
-					String suffix = ele.getAttribute(ATTR_SUFFIX);
-					String prefix = ele.getAttribute(ATTR_PREFIX);
-
-					configurationFactory.setPrefix(prefix);
-					configurationFactory.setSuffix(suffix);
-
-					log.info("start configure Actions.");
-					configurationFactory.createActionConfig().init(basePackage);
+				} else if (ELEMENT_MULTIPART.equals(nodeName)) {
+					multipartResolver(ele);
+				} else if (ELEMENT_VIEW_RESOLVER.equals(nodeName)) {
+					viewResolver(ele);
+				} else if (ELEMENT_EXCEPTION_RESOLVER.equals(nodeName)) {
+					registerResolver(ele, ExceptionResolver.class, Constant.EXCEPTION_RESOLVER);
+				} else if (ELEMENT_PARAMETER_RESOLVER.equals(nodeName)) {
+					registerResolver(ele, DefaultParameterResolver.class, Constant.PARAMETER_RESOLVER);
 				}
 			}
 		}
-		// register servlet
-		doRegisterServlet();
 	}
-	
+
+	/**
+	 * 
+	 * @param element
+	 * @param clazz
+	 * @param name
+	 * @throws ClassNotFoundException
+	 * @throws BeanDefinitionStoreException
+	 */
+	private void registerResolver(Element element, Class<?> clazz, String name)
+			throws ClassNotFoundException, BeanDefinitionStoreException {
+
+		String class_ = element.getAttribute(Constant.ATTR_CLASS);
+
+		Class<?> parameterResolver = null;
+		if ("".equals(class_)) {
+			parameterResolver = clazz;
+		} else if (!clazz.getName().equals(class_)) {
+			parameterResolver = Class.forName(class_);
+		} else {
+			parameterResolver = clazz;
+		}
+		// register resolver
+		applicationContext.registerBean(name, parameterResolver);
+		applicationContext.onRefresh();
+		log.info("register [{}] onto [{}]", name, parameterResolver.getName());
+	}
+
+	/**
+	 * 
+	 * @param element
+	 * @throws ClassNotFoundException
+	 * @throws BeanDefinitionStoreException
+	 * @throws NoSuchBeanDefinitionException
+	 */
+	private void viewResolver(Element element)
+			throws ClassNotFoundException, BeanDefinitionStoreException, NoSuchBeanDefinitionException {
+
+		registerResolver(element, JstlViewResolver.class, Constant.VIEW_RESOLVER);
+
+		AbstractViewResolver viewResolver = applicationContext.getBean(Constant.VIEW_RESOLVER,
+				AbstractViewResolver.class);
+
+		viewResolver.setServletContext(applicationContext.getServletContext());
+
+		NodeList childNodes = element.getChildNodes();
+		for (int j = 0; j < childNodes.getLength(); j++) {
+			Node item = childNodes.item(j);
+			if (item instanceof Element) {
+				Element config = (Element) item;
+				String eleName = config.getNodeName();
+				String nodeValue = config.getTextContent();
+				log.debug("Found Element -> [{}] = [{}]", eleName, nodeValue);
+				switch (eleName) //
+				{
+				case Constant.ELEMENT_VIEW_ENCODING:
+					viewResolver.setEncoding(nodeValue);
+					break;
+				case Constant.ELEMENT_VIEW_PREFIX:
+					viewResolver.setPrefix(nodeValue);
+					break;
+				case Constant.ELEMENT_VIEW_SUFFIX:
+					viewResolver.setSuffix(nodeValue);
+					break;
+				case Constant.ELEMENT_VIEW_LOCALE:
+					viewResolver.setLocale(new Locale(nodeValue));
+					break;
+				}
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param element
+	 * @throws ClassNotFoundException
+	 * @throws BeanDefinitionStoreException
+	 * @throws NoSuchBeanDefinitionException
+	 */
+	private void multipartResolver(Element element)
+			throws ClassNotFoundException, BeanDefinitionStoreException, NoSuchBeanDefinitionException {
+
+		registerResolver(element, DefaultMultipartResolver.class, Constant.MULTIPART_RESOLVER);
+
+		AbstractMultipartResolver multipartResolver = applicationContext.getBean(Constant.MULTIPART_RESOLVER,
+				AbstractMultipartResolver.class);
+
+		NodeList childNodes = element.getChildNodes();
+		for (int j = 0; j < childNodes.getLength(); j++) {
+			Node item = childNodes.item(j);
+			if (item instanceof Element) {
+				Element config = (Element) item;
+				String elementName = config.getNodeName();
+				String nodeValue = config.getTextContent();
+				log.debug("Found Element -> [{}] = [{}]", elementName, nodeValue);
+				switch (elementName) //
+				{
+				case Constant.ELEMENT_UPLOAD_FILE_SIZE_THRESHOLD:
+					multipartResolver.setFileSizeThreshold(Integer.parseInt(nodeValue));
+					break;
+				case Constant.ELEMENT_UPLOAD_LOCATION:
+					multipartResolver.setLocation(nodeValue);
+					break;
+				case Constant.ELEMENT_UPLOAD_MAX_FILE_SIZE:
+					multipartResolver.setMaxFileSize(Long.parseLong(nodeValue));
+					break;
+				case Constant.ELEMENT_UPLOAD_MAX_REQUEST_SIZE:
+					multipartResolver.setMaxRequestSize(Long.parseLong(nodeValue));
+					break;
+				case Constant.ELEMENT_UPLOAD_ENCODING:
+					multipartResolver.setEncoding(nodeValue);
+					break;
+				}
+			}
+		}
+	}
 
 	/**
 	 * Register Servlet
 	 * 
 	 * @throws ServletException
+	 * @throws NoSuchBeanDefinitionException
+	 * @throws BeanDefinitionStoreException
 	 */
-	private void doRegisterServlet() throws ServletException {
+	private void doRegisterServlet()
+			throws ServletException, NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
 		Set<String> urls = DispatchHandler.VIEW_REQUEST_MAPPING.keySet();
 
-		ServletContext servletContext = configurationFactory.getServletContext();
-
+		ServletContext servletContext = applicationContext.getServletContext();
 		if (urls.size() > 0) {
-			log.info("register view dispatcher.");
+			log.info("Register Views Dispatcher.");
 			Servlet viewServlet = new ViewDispatcher();
-			servletContext.addServlet("ViewDispatcher", viewServlet);
+			servletContext.addServlet(Constant.VIEW_DISPATCHER, viewServlet);
 
-			ServletRegistration registration = servletContext.getServletRegistration("ViewDispatcher");
+			ServletRegistration registration = servletContext.getServletRegistration(Constant.VIEW_DISPATCHER);
 			registration.addMapping(urls.toArray(new String[0]));
-
 		}
 
 		if (DispatchHandler.HANDLER_MAPPING_POOL.size() < 1) {
 			return;
 		}
 
-		log.info("register action dispatcher.");
-		Servlet actionServlet = new ActionDispatcher();
-		servletContext.addServlet("ActionDispatcher", actionServlet);
+		applicationContext.registerBean(Constant.ACTION_HANDLER, ActionHandler.class);
+		applicationContext.onRefresh();
 
-		ServletRegistration.Dynamic registration = (Dynamic) servletContext.getServletRegistration("ActionDispatcher");
+		log.info("Register Action Dispatcher.");
+		Servlet actionServlet = null;
+		try {
+			actionServlet = new ActionDispatcher(applicationContext);
+		} catch (NoSuchBeanDefinitionException ex) {
+			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
+		}
+		servletContext.addServlet(Constant.ACTION_DISPATCHER, actionServlet);
 
-		MultipartConfigElement multipartConfig = new MultipartConfigElement(configurationFactory.getLocation(),
-				configurationFactory.getMaxFileSize(), configurationFactory.getMaxRequestSize(),
-				configurationFactory.getFileSizeThreshold());
+		ServletRegistration.Dynamic registration = (Dynamic) servletContext
+				.getServletRegistration(Constant.ACTION_DISPATCHER);
+
+		AbstractMultipartResolver multipartResolver = applicationContext.getBean(Constant.MULTIPART_RESOLVER,
+				AbstractMultipartResolver.class);
+
+		MultipartConfigElement multipartConfig = new MultipartConfigElement(multipartResolver.getLocation(),
+				multipartResolver.getMaxFileSize(), multipartResolver.getMaxRequestSize(),
+				multipartResolver.getFileSizeThreshold());
 
 		registration.setMultipartConfig(multipartConfig);
 
-		registration.addMapping("/");
-
+		registration.addMapping(Constant.ACTION_DISPATCHER_MAPPING);
 	}
 
 	/**
@@ -226,16 +372,18 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 	 */
 	private void addDefaultServletMapping(String staticMapping) throws Exception {
 
-		ServletRegistration servletRegistration = configurationFactory.getServletContext()
-				.getServletRegistration("default");
+		ServletRegistration servletRegistration = applicationContext.getServletContext()
+				.getServletRegistration(Constant.DEFAULT);
 
 		if (servletRegistration == null) { // create
 			createDefaultServlet();
-			servletRegistration = configurationFactory.getServletContext().getServletRegistration("default");
+			servletRegistration = applicationContext.getServletContext().getServletRegistration(Constant.DEFAULT);
 		}
 
 		if (StringUtil.isEmpty(staticMapping)) {
-			String[] defaultUrlPatterns = configurationFactory.getDefaultUrlPatterns();
+			String[] defaultUrlPatterns = ((ActionConfig) applicationContext.create(ActionConfig.class))
+					.getDefaultUrlPatterns();
+
 			servletRegistration.addMapping(defaultUrlPatterns);
 			log.debug("add default servlet default mapping -> {}.", Arrays.toString(defaultUrlPatterns));
 			return;
@@ -244,7 +392,6 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 		servletRegistration.addMapping(staticMapping);
 
 		log.debug("add default servlet mapping -> {}.", servletRegistration.getMappings());
-
 	}
 
 	/**
@@ -259,10 +406,9 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 		Class<?> default_ = Class.forName("org.apache.catalina.servlets.DefaultServlet");
 		Servlet servlet = (Servlet) default_.getConstructor().newInstance();
 
-		configurationFactory.getServletContext().addServlet("default", servlet);
+		applicationContext.getServletContext().addServlet(Constant.DEFAULT, servlet);
 
 		log.debug("no default servlet registration , create.");
-
 		return servlet;
 	}
 
@@ -273,21 +419,27 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 	public void contextInitialized(ServletContextEvent sce) {
 
 		long start = System.currentTimeMillis(); // start millis
-		log.info("your application start initializing.");
 
-		configurationFactory.setServletContext(sce.getServletContext());
+		log.info("your application starts to be initialized at -> {}.",
+				new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date()));
 
-		sce.getServletContext().setAttribute("CDN", "//weixiub.oss-cn-beijing.aliyuncs.com");
+		applicationContext = new DefaultWebApplicationContext(ClassUtils.scanPackage(""));
+		// servletContext
+		ServletContext servletContext = sce.getServletContext();
+		applicationContext.setServletContext(servletContext);
+		String realPath = servletContext.getRealPath("/WEB-INF");
 
 		try {
-			
-			//init start 
-			initFrameWork();
-			
-			if (DispatchHandler.HANDLER_MAPPING_POOL.size() < 1) {
-				log.info("there is no config file use default.");
-				configurationFactory.createActionConfig().init(""); // scan all the package
-			}
+			// init start
+			initFrameWork(realPath);
+			log.info("Start Configure Actions.");
+			applicationContext.create(ActionConfig.class).init(applicationContext);
+
+			// check all resolver
+			checkResolver();
+			// register servlet
+			doRegisterServlet();
+			applicationContext.loadSuccess();
 			// init end
 		} catch (Exception ex) {
 			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
@@ -295,6 +447,38 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 
 		log.info("your application started successfully, It takes a total of {} ms.",
 				System.currentTimeMillis() - start);
+	}
+
+	/**
+	 * check resolver
+	 * 
+	 * @throws BeanDefinitionStoreException
+	 */
+	private void checkResolver() throws BeanDefinitionStoreException {
+
+		if (!applicationContext.containsBean(Constant.EXCEPTION_RESOLVER)) {
+			applicationContext.registerBean(Constant.EXCEPTION_RESOLVER, DefaultExceptionResolver.class);
+			applicationContext.onRefresh();
+			log.info("use default exception resolver -> [{}].", DefaultExceptionResolver.class);
+		}
+		if (!applicationContext.containsBean(Constant.MULTIPART_RESOLVER)) {
+			// default multipart resolver
+			applicationContext.registerBean(Constant.MULTIPART_RESOLVER, DefaultMultipartResolver.class);
+			applicationContext.onRefresh();
+			log.info("use default multipart resolver -> [{}].", DefaultMultipartResolver.class);
+		}
+		if (!applicationContext.containsBean(Constant.VIEW_RESOLVER)) {
+			// use jstl view resolver
+			applicationContext.registerBean(Constant.VIEW_RESOLVER, JstlViewResolver.class);
+			applicationContext.onRefresh();
+			log.info("use default view resolver -> [{}].", JstlViewResolver.class);
+		}
+		if (!applicationContext.containsBean(Constant.PARAMETER_RESOLVER)) {
+			// use jstl view resolver
+			applicationContext.registerBean(Constant.PARAMETER_RESOLVER, DefaultParameterResolver.class);
+			applicationContext.onRefresh();
+			log.info("use default parameter resolver -> [{}].", DefaultParameterResolver.class);
+		}
 	}
 
 	/**

@@ -22,7 +22,7 @@ package cn.taketoday.web.view;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.web.config.ConfigurationFactory;
+import cn.taketoday.web.core.WebApplicationContext;
 
 /**
  * @author Today
@@ -35,7 +35,7 @@ public interface ViewResolver {
 	 * 
 	 * @param configurationFactory
 	 */
-	void initViewResolver(ConfigurationFactory configurationFactory);
+	void initViewResolver(WebApplicationContext applicationContext);
 
 	/**
 	 * resolve View

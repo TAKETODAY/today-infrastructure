@@ -24,6 +24,13 @@ import javax.servlet.http.HttpServletResponse;
 
 public interface ExceptionResolver {
 
-	void resolveException(HttpServletRequest request, HttpServletResponse response, Exception exception);
-	
+	/**
+	 * resolve exception
+	 * 
+	 * @param request
+	 * @param response
+	 * @param exception
+	 */
+	public void resolveException(HttpServletRequest request, HttpServletResponse response, Exception exception);
+
 }

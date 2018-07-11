@@ -17,33 +17,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.core;
+package cn.taketoday.web.exception;
 
 /**
- * @author YHJ
- * @version 1.0
- * @time 2017 08 29 22:20
- * @version 2.0
- * @time 2018 1 ? - 2018 3 8
+ * @author Today
+ * @date 2018年7月10日 下午9:42:16
  */
-public final class Version {
+public final class FileSizeLimitExceededException extends Exception {
 
-	public static final String	HISTORY_VERSION	= "1.0.0";
-	/**
-	 * 当前版本
-	 */
-	public static final String	VERSION			= "1.2.0";
-
-	/**
-	 * 当前版本
-	 * 
-	 * @return
-	 */
-	public String getVersion() {
-		return VERSION;
+	
+	public FileSizeLimitExceededException() {
+		
+	}
+	
+	public FileSizeLimitExceededException(long maxRequestSize, Throwable cause) {
+		super("The upload file exceeds its maximum permitted size " + maxRequestSize + " bytes", cause);
 	}
 
-	public static String getHistoryVersion() {
-		return HISTORY_VERSION;
-	}
+	private static final long serialVersionUID = 3714652502972383301L;
+
+	
 }

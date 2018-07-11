@@ -22,26 +22,25 @@ package cn.taketoday.web.view;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.web.config.ConfigurationFactory;
+import cn.taketoday.web.core.WebApplicationContext;
 
 /**
  * @author Today
  * @date 2018年6月26日 上午11:53:43
  */
-public final class JstlViewResolver extends AbstractViewResolver {
-	
+public class JstlViewResolver extends AbstractViewResolver {
+
 	@Override
-	public void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		request.getRequestDispatcher(prefix + templateName + suffix)
-						.forward(request, response);
+	public void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+
+		request.getRequestDispatcher(prefix + templateName + suffix).forward(request, response);
 	}
 
-	
 	@Override
-	public void initViewResolver(ConfigurationFactory configurationFactory) {
-		init(configurationFactory);
-	}
+	public void initViewResolver(WebApplicationContext applicationContext) {
 
+		log.info("Configuration Jstl View Resolver Success.");
+	}
 
 }

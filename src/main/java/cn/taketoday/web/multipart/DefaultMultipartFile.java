@@ -22,48 +22,75 @@ package cn.taketoday.web.multipart;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
+
+import javax.servlet.http.Part;
 
 /**
+ * 
  * @author Today
- * @date 2018年7月11日 下午1:02:52
+ * @date 2018年6月28日 下午10:40:32
  */
-public interface MultipartFile extends Serializable {
+public final class DefaultMultipartFile implements MultipartFile {
 
-	public InputStream getInputStream() throws IOException;
+	private static final long serialVersionUID = 2226234093543929729L;
 
-	public String getContentType();
+	private Part part;
 
-	/**
-	 * Return the size of the file in bytes.
-	 * @return the size of the file, or 0 if empty
-	 */
-	public long getSize();
+	public DefaultMultipartFile() {
+		
+	}
+
+	public DefaultMultipartFile(Part part) {
+		this.part = part;
+	}
+
+	public InputStream getInputStream() throws IOException {
+		return part.getInputStream();
+	}
+
+	public String getContentType() {
+		return part.getContentType();
+	}
+
+	public long getSize() {
+		return part.getSize();
+
+	}
 
 	/**
 	 * Gets the name of this part
 	 *
 	 * @return The name of this part as a <tt>String</tt>
 	 */
-	public String getName();
+	public String getName() {
+		return part.getName();
+	}
 
 	/**
 	 * Return the original filename in the client's filesystem.
 	 */
-	public String getFileName();
+	public String getFileName() {
+		return part.getSubmittedFileName();
+	}
 
 	/**
 	 * save file
-	 * 
 	 * @param dest
-	 * @return
+	 * @return 
 	 */
-	public boolean save(File dest);
+	public boolean save(File dest) {
 
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean isEmpty();
+		try {
+			part.write(dest.getPath());
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return part.getSize() == 0;
+	}
 
 }

@@ -27,26 +27,23 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import cn.taketoday.web.config.ConfigurationFactory;
-
+import cn.taketoday.web.core.WebApplicationContext;
 
 /**
  * @author Today
  * @date 2018年6月26日 上午11:26:01
  */
-public final class ThymeleafViewResolver extends AbstractViewResolver {
+public class ThymeleafViewResolver extends AbstractViewResolver {
 
-	private TemplateEngine templateEngine;
-	private boolean cacheable = false;
+	private TemplateEngine	templateEngine;
+	private boolean			cacheable	= false;
 
 	/**
 	 * init Thymeleaf View Resolver
 	 */
 	@Override
-	public void initViewResolver(ConfigurationFactory configurationFactory) {
+	public void initViewResolver(WebApplicationContext configurationFactory) {
 
-		init(configurationFactory);
-		
 		templateEngine = new TemplateEngine();
 
 		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
@@ -58,19 +55,21 @@ public final class ThymeleafViewResolver extends AbstractViewResolver {
 		templateResolver.setTemplateMode(TemplateMode.HTML);
 
 		templateEngine.setTemplateResolver(templateResolver);
-	
+
+		log.info("Configuration Thymeleaf View Resolver Success.");
+		
 	}
 
 	/**
-	 * resolve Thymeleaf View 
+	 * resolve Thymeleaf View
 	 */
 	@Override
 	public void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-		WebContext context = new WebContext(request, response, servletContext, locale);
 
-		templateEngine.process(templateName, context, response.getWriter());
-		
+		templateEngine.process(templateName, new WebContext(request, response, servletContext, locale),
+				response.getWriter());
+
 	}
 
 }

@@ -20,6 +20,8 @@
 package cn.taketoday.web.resolver;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,8 +29,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.annotation.ParameterConverter;
 import cn.taketoday.context.conversion.Converter;
+import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.web.core.Constant;
+import cn.taketoday.web.core.WebApplicationContext;
 import cn.taketoday.web.mapping.MethodParameter;
-import cn.taketoday.web.multipart.DefaultMultipartResolver;
+import cn.taketoday.web.multipart.AbstractMultipartResolver;
 import cn.taketoday.web.multipart.MultipartResolver;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,48 +43,51 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public abstract class AbstractParameterResolver implements ParameterResolver {
-	
-	MultipartResolver multipartResolver = new DefaultMultipartResolver();
-	
+
+	protected MultipartResolver							multipartResolver;
+
+	protected Map<Class<?>, Converter<String, Object>>	supportParameterTypes	= new HashMap<>(1);
+
+	// protected WebApplicationContext applicationContext;
+
 	@Override
 	@SuppressWarnings("unchecked")
-	public final void doInit(Set<Class<?>> actions) {
+	public final void doInit(WebApplicationContext applicationContext) {
+
 		log.info("Load ParameterConverter Extensions");
 		try {
+			Set<Class<?>> actions = applicationContext.getActions();
 			
-			for (Class<?> clazz : actions) {	//get converter
-				
-				if(clazz.isInterface()) { //basic 
+			this.multipartResolver = applicationContext.getBean(Constant.MULTIPART_RESOLVER,
+					AbstractMultipartResolver.class);
+			
+			for (Class<?> clazz : actions) { // get converter
+				if (clazz.isInterface()) { // basic
 					continue;
 				}
-				
+
 				ParameterConverter converter = clazz.getAnnotation(ParameterConverter.class);
-				if (converter == null) { //basic 
+				if (converter == null) { // basic
 					continue;
 				}
-				
 				try {
-					Method method = clazz.getMethod("doConvert", String.class);	//get method named 'doConvert'
-					
-					supportParameterTypes.put(method.getReturnType(), 
-							(Converter<String, Object>) clazz.newInstance()); //put
-					
+					Method method = clazz.getMethod("doConvert", String.class); // get method named 'doConvert'
+
+					supportParameterTypes.put(method.getReturnType(), (Converter<String, Object>) clazz.newInstance()); // put
+
 					log.info("Mapped ParameterConverter : {} -> [{}]", method.getReturnType(), clazz.getName());
-					
 				} catch (NoSuchMethodException e) {
-					log.error("doConvert's method parameter only support String", e);
+					log.error("doConvert's method parameter only support [String]", e);
 				}
 			}
-		} 
-		catch (InstantiationException | IllegalAccessException e) {
-			log.error("InstantiationException ", e);
+		} catch (InstantiationException | IllegalAccessException | NoSuchBeanDefinitionException ex) {
+			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
+			System.exit(0);
 		}
-		
-		if(supportParameterTypes.size() < 1) {
-			
+
+		if (supportParameterTypes.size() < 1) {
 			log.info("NO ParameterConverter FOUND");
 		}
-		
 	}
 
 	@Override
@@ -87,10 +95,8 @@ public abstract class AbstractParameterResolver implements ParameterResolver {
 		return supportParameterTypes.containsKey(parameter.getParameterClass());
 	}
 
-
 	@Override
-	public abstract boolean resolveParameter(Object[] args, MethodParameter[] parameters, HttpServletRequest request, 
-			HttpServletResponse response) throws Exception ;
-	
+	public abstract boolean resolveParameter(Object[] args, MethodParameter[] parameters, HttpServletRequest request,
+			HttpServletResponse response) throws Exception;
 
 }

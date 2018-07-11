@@ -17,33 +17,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.core;
+package cn.taketoday.web.multipart;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * @author YHJ
- * @version 1.0
- * @time 2017 08 29 22:20
- * @version 2.0
- * @time 2018 1 ? - 2018 3 8
+ * @author Today
+ * @date 2018年7月11日 下午12:23:50
  */
-public final class Version {
+@Setter
+@Getter
+public abstract class AbstractMultipartResolver implements MultipartResolver {
 
-	public static final String	HISTORY_VERSION	= "1.0.0";
-	/**
-	 * 当前版本
-	 */
-	public static final String	VERSION			= "1.2.0";
+	protected String	location			= System.getProperty("java.io.tmpdir");
 
-	/**
-	 * 当前版本
-	 * 
-	 * @return
-	 */
-	public String getVersion() {
-		return VERSION;
-	}
+	protected String	encoding			= "UTF-8";
+	protected long		maxFileSize			= 2048000;								// every single
+	protected long		maxRequestSize		= 204800000;							// total size
+	protected int		fileSizeThreshold	= 2048000000;							// cache
 
-	public static String getHistoryVersion() {
-		return HISTORY_VERSION;
-	}
 }

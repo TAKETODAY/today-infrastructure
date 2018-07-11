@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import cn.taketoday.web.config.ConfigurationFactory;
+import cn.taketoday.web.core.WebApplicationContext;
 import freemarker.ext.jsp.TaglibFactory;
 import freemarker.ext.servlet.HttpRequestHashModel;
 import freemarker.ext.servlet.HttpRequestParametersHashModel;
@@ -41,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2018年6月26日 下午7:16:46
  */
 @Slf4j
-public final class FreeMarkerViewResolver extends AbstractViewResolver {
+public class FreeMarkerViewResolver extends AbstractViewResolver {
 
 	private ObjectWrapper		wrapper;
 	private Configuration		configuration;
@@ -56,19 +56,18 @@ public final class FreeMarkerViewResolver extends AbstractViewResolver {
 	public static final String	KEY_JSP_TAGLIBS			= "JspTaglibs";
 
 	@Override
-	public void initViewResolver(ConfigurationFactory configurationFactory) {
-		
-		log.info("configuration freeMarker view resolver");
-		init(configurationFactory);
-		
+	public void initViewResolver(WebApplicationContext applicationContext) {
+
 		configuration = new Configuration();
 		this.wrapper = new DefaultObjectWrapper();
 		this.taglibFactory = new TaglibFactory(servletContext);
-		
+
 		configuration.setLocale(locale);
 		configuration.setObjectWrapper(wrapper);
 		configuration.setDefaultEncoding(encoding);
 		configuration.setServletContextForTemplateLoading(servletContext, prefix); // path -> /WEB-INF/..
+
+		log.info("Configuration FreeMarker View Resolver Success.");
 	}
 
 	public FreeMarkerViewResolver() {
@@ -77,6 +76,7 @@ public final class FreeMarkerViewResolver extends AbstractViewResolver {
 
 	/**
 	 * create Model Attributes
+	 * 
 	 * @param request
 	 * @param response
 	 * @return
@@ -105,16 +105,14 @@ public final class FreeMarkerViewResolver extends AbstractViewResolver {
 		return model;
 	}
 
-
 	/**
-	 * FreeMarker View
+	 * Resolve FreeMarker View
 	 */
 	@Override
-	public void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
 
-		configuration.getTemplate(templateName + suffix).process(
-					createModel(request, response), response.getWriter());
-	
+		configuration.getTemplate(templateName + suffix).process(createModel(request, response), response.getWriter());
 	}
 
 }

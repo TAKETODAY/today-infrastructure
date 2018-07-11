@@ -32,9 +32,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.taketoday.context.annotation.ActionProcessor;
 import cn.taketoday.context.annotation.RestProcessor;
-import cn.taketoday.context.core.Constant;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtil;
 import cn.taketoday.web.annotation.ActionMapping;
@@ -55,25 +57,35 @@ import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.Session;
 import cn.taketoday.web.annotation.TRACE;
+import cn.taketoday.web.core.Constant;
 import cn.taketoday.web.core.RequestMethod;
+import cn.taketoday.web.core.WebApplicationContext;
 import cn.taketoday.web.handler.DispatchHandler;
 import cn.taketoday.web.interceptor.InterceptProcessor;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.mapping.RegexMapping;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Today
  * @date 2018年6月23日 下午4:20:26
  */
-@Slf4j
 public final class ActionConfig implements WebConfig {
 
-	ConfigurationFactory		configurationFactory;
+	private final Logger			log					= LoggerFactory.getLogger(ActionConfig.class);
 
-	private static WebConfig	actionConfig	= new ActionConfig();
+	private String					contextPath;
+	private WebApplicationContext	applicationContext;
+	private static WebConfig		actionConfig		= new ActionConfig();
+
+	private String[]				defaultUrlPatterns	= { "*.gif", "*.jpg", "*.jpeg", "*.png", "*.swf", "*.js",
+			"*.css", "*.ico", "*.rar", "*.zip", "*.txt", "*.flv", "*.mid", "*.doc", "*.ppt", "*.pdf", "*.xls", "*.mp3",
+			"*.wma", "*.map", "*.woff2", "*.woff", "*.docx" };
+
+	public final String[] getDefaultUrlPatterns() {
+		return defaultUrlPatterns;
+	}
 
 	public static WebConfig create() {
 		return actionConfig;
@@ -85,16 +97,10 @@ public final class ActionConfig implements WebConfig {
 
 	@Override
 	public boolean init(Object config) throws Exception {
-
-		String scanPackage = (String) config;
-
-		log.info("Initializing ActionHandler And ParameterResolver From Base Package [{}]", scanPackage);
-
-		configurationFactory = ConfigurationFactory.createFactory();
-		Set<Class<?>> actions = setConfiguration(scanPackage);
-
-		configurationFactory.setActions(actions);
-
+		this.applicationContext = (WebApplicationContext) config;
+		log.info("Initializing ActionHandler And ParameterResolver");
+		this.contextPath = applicationContext.getServletContext().getContextPath();
+		setConfiguration(applicationContext.getActions());
 		return true;
 	}
 
@@ -104,9 +110,8 @@ public final class ActionConfig implements WebConfig {
 	 * @param scanPackage
 	 * @return
 	 */
-	public final Set<Class<?>> setConfiguration(String scanPackage) {
+	public final void setConfiguration(Set<Class<?>> actions) {
 
-		Set<Class<?>> actions = ClassUtils.scanPackage(scanPackage);
 		for (Class<?> clazz : actions) {
 			ActionProcessor actionProcessor = clazz.getAnnotation(ActionProcessor.class);
 			if (actionProcessor != null) {
@@ -124,13 +129,12 @@ public final class ActionConfig implements WebConfig {
 				}
 			}
 		}
-		//configure end
+		// configure end
 		log.info("Interceptors conut {}", DispatchHandler.INTERCEPT_POOL.size());
 		log.info("Interceptors ->  [{}]", Arrays.toString(DispatchHandler.INTERCEPT_POOL.toArray()));
 		log.info("Action Mapped count [{}]", DispatchHandler.HANDLER_MAPPING_POOL.size());
-		log.info("regx url Mapped [{}]", DispatchHandler.REGEX_URL);
 
-		return actions;
+		return;
 	}
 
 	/**
@@ -143,17 +147,23 @@ public final class ActionConfig implements WebConfig {
 
 		Map<String, Set<RequestMethod>> mapping = new HashMap<>();
 		ActionMapping clazzMapping = clazz.getAnnotation(ActionMapping.class);
-		annotation(mapping, method);	
-		
-		//set HandlerMapping
+		annotation(mapping, method);
+
+		// set HandlerMapping
 		HandlerMapping requestMapping = this.createHandlerMapping(clazz, method, isRest);
-		
-		//do map url
+
+		// do map url
 		mappingUrl(requestMapping, clazzMapping, mapping);
 	}
 
+	/**
+	 * set request annotation
+	 * 
+	 * @param requestMapping
+	 * @param method
+	 */
 	private void annotation(Map<String, Set<RequestMethod>> requestMapping, Method method) {
-		
+
 		ActionMapping mapping = method.getAnnotation(ActionMapping.class);
 		if (mapping != null) {
 			String[] value = mapping.value();
@@ -166,148 +176,141 @@ public final class ActionConfig implements WebConfig {
 		PUT PUT = method.getAnnotation(PUT.class);
 		POST POST = method.getAnnotation(POST.class);
 		DELETE DELETE = method.getAnnotation(DELETE.class);
-		
+
 		HEAD HEAD = method.getAnnotation(HEAD.class);
 		PATCH PATCH = method.getAnnotation(PATCH.class);
 		TRACE TRACE = method.getAnnotation(TRACE.class);
 		OPTIONS OPTIONS = method.getAnnotation(OPTIONS.class);
-		
-		if(GET != null) {
-			requestMapping.put(GET.value(), 
-					new HashSet<>(Arrays.asList(RequestMethod.GET)));
+
+		if (GET != null) {
+			requestMapping.put(GET.value(), new HashSet<>(Arrays.asList(RequestMethod.GET)));
 		}
-		if(POST != null) {
-			requestMapping.put(POST.value(), 
-					new HashSet<>(Arrays.asList(RequestMethod.POST)));
+		if (POST != null) {
+			requestMapping.put(POST.value(), new HashSet<>(Arrays.asList(RequestMethod.POST)));
 		}
-		if(PUT != null) {
-			requestMapping.put(PUT.value(), 
-					new HashSet<>(Arrays.asList(RequestMethod.PUT)));
+		if (PUT != null) {
+			requestMapping.put(PUT.value(), new HashSet<>(Arrays.asList(RequestMethod.PUT)));
 		}
-		if(DELETE != null) {
-			requestMapping.put(DELETE.value(), 
-					new HashSet<>(Arrays.asList(RequestMethod.DELETE)));
+		if (DELETE != null) {
+			requestMapping.put(DELETE.value(), new HashSet<>(Arrays.asList(RequestMethod.DELETE)));
 		}
-		if(HEAD != null) {
-			requestMapping.put(HEAD.value(), 
-					new HashSet<>(Arrays.asList(RequestMethod.HEAD)));
+		if (HEAD != null) {
+			requestMapping.put(HEAD.value(), new HashSet<>(Arrays.asList(RequestMethod.HEAD)));
 		}
-		if(OPTIONS != null) {
-			requestMapping.put(OPTIONS.value(), 
-					new HashSet<>(Arrays.asList(RequestMethod.OPTIONS)));
+		if (OPTIONS != null) {
+			requestMapping.put(OPTIONS.value(), new HashSet<>(Arrays.asList(RequestMethod.OPTIONS)));
 		}
-		if(PATCH != null) {
-			requestMapping.put(PATCH.value(), 
-					new HashSet<>(Arrays.asList(RequestMethod.PATCH)));
+		if (PATCH != null) {
+			requestMapping.put(PATCH.value(), new HashSet<>(Arrays.asList(RequestMethod.PATCH)));
 		}
-		if(TRACE != null) {
-			requestMapping.put(TRACE.value(), 
-					new HashSet<>(Arrays.asList(RequestMethod.TRACE)));
+		if (TRACE != null) {
+			requestMapping.put(TRACE.value(), new HashSet<>(Arrays.asList(RequestMethod.TRACE)));
 		}
-		
 	}
-	
+
 	/**
 	 * create url mapping
+	 * 
 	 * @param mapping
 	 * @param requestMapping
 	 * @param clazzMapping
 	 * @param mappingMethods
 	 */
-	private void mappingUrl(HandlerMapping requestMapping, ActionMapping clazzMapping, Map<String, Set<RequestMethod>> mapping_) {
-		
+	private void mappingUrl(HandlerMapping requestMapping, ActionMapping clazzMapping,
+			Map<String, Set<RequestMethod>> mapping_) {
+
 		Set<String> urls = mapping_.keySet();
 
 		String url = "";
-		
+
 		for (String uri : urls) {
-			
+
 			Set<RequestMethod> mappingMethods = mapping_.get(uri);
 			uri = check(uri);
-			
+
 			if (clazzMapping != null) {
-				uri = check(clazzMapping.value()[0]) + uri	; //class mapping only use first url
+				uri = check(clazzMapping.value()[0]) + uri; // class mapping only use first url
 				RequestMethod[] method = clazzMapping.method();
-				if(method.length != 4) {	// not default method
+				if (method.length != 4) { // not default method
 					mappingMethods.addAll(Arrays.asList(method));
 				}
 			}
-			
-			url = configurationFactory.contextPath +  uri;
-			
-			for(RequestMethod requestMethod : mappingMethods) {
+
+			url = contextPath + uri; // add contextPath
+
+			for (RequestMethod requestMethod : mappingMethods) {
 				String requestMethod_ = requestMethod.toString() + Constant.REQUEST_METHOD_PREFIX;
-				url = requestMethod_ + configurationFactory.contextPath +  uri;
-				
-				//add the mapping 
+				url = requestMethod_ + contextPath + uri;
+
+				// add the mapping
 				int index = DispatchHandler.HANDLER_MAPPING_POOL.add(requestMapping);
-				
+
 				this.createRegexUrl(url, requestMapping.getHandlerMethod().getParameter(), index, requestMethod_);
-				
+
 				DispatchHandler.REQUEST_MAPPING.put(url, index);
-				
-				log.info("Action Mapped [{}] -> [{}] interceptors -> {}", 
-						url,
-						requestMapping.getActionProcessor().getName() + "." 
-						+ requestMapping.getHandlerMethod().getMethod().getName() + "()",
-						Arrays.toString(requestMapping.getInterceptors())
-				);
+
+				log.info("Action Mapped [{}] -> [{}] interceptors -> {}", url,
+						requestMapping.getActionProcessor().getName() + "."
+								+ requestMapping.getHandlerMethod().getMethod().getName() + "()",
+						Arrays.toString(requestMapping.getInterceptors()));
 			}
 		}
 	}
 
 	/**
+	 * create regex Url
 	 * 
 	 * @param regexUrl
 	 * @param methodParameters
 	 */
 	private void createRegexUrl(String regexUrl, MethodParameter[] methodParameters, int index, String requestMethod_) {
-		
-		if(!regexUrl.contains("*") && !regexUrl.contains("{")) {	//
-			return ;
+
+		if (!regexUrl.contains("*") && !regexUrl.contains("{")) { //
+			return;
 		}
-		
+
 		String methodUrl = regexUrl;
-		
+
 		regexUrl = regexUrl.replaceAll("\\*\\*", "[\\\\d|\\\\w|/]+");
 		regexUrl = regexUrl.replaceAll("\\*", "[\\\\d|\\\\w]+");
-		
+
 		for (MethodParameter methodParameter : methodParameters) {
-			
-			if(!methodParameter.hasPathVariable()) {
+
+			if (!methodParameter.hasPathVariable()) {
 				continue;
 			}
-			
+
 			Class<?> parameterClass = methodParameter.getParameterClass();
 			String parameterName = methodParameter.getParameterName();
-			
-			if(parameterClass == String.class) {
+
+			if (parameterClass == String.class) {
 				regexUrl = regexUrl.replace("{" + parameterName + "}", "\\w+");
 			} else {
 				regexUrl = regexUrl.replace("{" + parameterName + "}", "\\d+");
 			}
-			
+
 			String[] splitRegex = methodUrl.split(Constant.PATH_VARIABLE_REGEXP);
 			String tempMethodUrl = methodUrl;
 			for (String reg : splitRegex) {
 				tempMethodUrl = tempMethodUrl.replaceFirst(reg, "\\\\");
 			}
-			
-			String [] regexArr = tempMethodUrl.split("\\\\");		
-			
+
+			String[] regexArr = tempMethodUrl.split("\\\\");
+
 			for (int i = 0; i < regexArr.length; i++) {
-				if(regexArr[i].equals("{" + parameterName + "}")) {
+				if (regexArr[i].equals("{" + parameterName + "}")) {
 					methodParameter.setPathIndex(i);
 				}
 			}
 		}
-		
-		DispatchHandler.REGEX_URL.add(new RegexMapping(regexUrl, methodUrl.replace(requestMethod_, ""), index));
-		
+		RegexMapping regexMapping = new RegexMapping(regexUrl, methodUrl.replace(requestMethod_, ""), index);
+		DispatchHandler.REGEX_URL.add(regexMapping);
+		log.info("regx url Mapped [{}]", regexMapping);
 	}
 
 	/**
 	 * check uri
+	 * 
 	 * @param uri
 	 * @return
 	 */
@@ -315,9 +318,9 @@ public final class ActionConfig implements WebConfig {
 		return uri.startsWith("/") ? uri : "/" + uri;
 	}
 
-
 	/**
-	 * 封装Mapping
+	 * set Handler Mapping
+	 * 
 	 * @param clazz
 	 * @param method
 	 * @param isRest
@@ -333,32 +336,33 @@ public final class ActionConfig implements WebConfig {
 		} catch (IOException e) {
 			log.error("get method parameters error.", e);
 		}
-		
+
 		List<MethodParameter> methodParameters = new ArrayList<>();// 处理器方法参数列表
 		setMethodParameter(parameters, methodParameters, methodArgsNames); // 设置 MethodParameter
-		
+
 		// 设置请求处理器
 		HandlerMethod methodInfo = new HandlerMethod(method, methodParameters);
 		requestMapping.setHandlerMethod(methodInfo);
 		requestMapping.setActionProcessor(clazz);
-		
+
 		setInterceptor(clazz, method, isRest, requestMapping);
 
 		return requestMapping;
 	}
 
 	/***
-	 * 设置方法参数列表
+	 * set method parameter list
 	 * 
 	 * @param parameters
 	 * @param methodParameters
 	 */
-	private void setMethodParameter(Parameter[] parameters, List<MethodParameter> methodParameters, String[] methodArgsNames) {
-		
-		for(int i = 0; i < parameters.length; i++) {
-			
+	private void setMethodParameter(Parameter[] parameters, List<MethodParameter> methodParameters,
+			String[] methodArgsNames) {
+
+		for (int i = 0; i < parameters.length; i++) {
+
 			MethodParameter methodParameter = new MethodParameter();
-			
+
 			methodParameter.setParameterClass(parameters[i].getType());// 设置参数类型
 			Class<?> parameterClass = parameters[i].getType();
 			if (parameterClass == List.class || parameterClass == Set.class) {
@@ -370,7 +374,7 @@ public final class ActionConfig implements WebConfig {
 				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
 				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[1]);
 			} else if (parameterClass == Optional.class) {
-				
+
 				methodParameter.setRequired(false);
 				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
 				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[0]);
@@ -380,20 +384,21 @@ public final class ActionConfig implements WebConfig {
 
 			// 保证必须有参数名
 			if (StringUtil.isEmpty(methodParameter.getParameterName())) {
-				
+
 				String parameterName = parameters[i].getName();
-				if(parameterName.matches("arg[\\d]+")) {
+				if (parameterName.matches("arg[\\d]+")) {
 					parameterName = methodArgsNames[i];
 				}
-				
+
 				methodParameter.setParameterName(parameterName);
 			}
 			methodParameters.add(methodParameter); // 加入到参数列表
 		}
-		
+
 	}
 
 	/**
+	 * add interceptor to handler
 	 * 
 	 * @param clazz
 	 * @param method
@@ -440,7 +445,7 @@ public final class ActionConfig implements WebConfig {
 	}
 
 	/***
-	 * 设置注解
+	 * set annotation
 	 * 
 	 * @param parameter
 	 * @param methodParameter
@@ -521,17 +526,15 @@ public final class ActionConfig implements WebConfig {
 						if (DispatchHandler.INTERCEPT_POOL.add(newInstance)) {
 							ids[i++] = size;
 						} else {
-							log.error("");
+							log.error("interceptor -> [{}] register error", interceptor);
 						}
 					}
 				}
 			} catch (Exception e) {
 				log.error("interceptor -> [{}] register error", interceptor, e);
-				e.printStackTrace();
 			}
 		}
 		return ids;
 	}
-	
 
 }

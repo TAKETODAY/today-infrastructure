@@ -26,7 +26,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.web.exception.BadRequestException;
+import cn.taketoday.web.exception.FileSizeLimitExceededException;
 import cn.taketoday.web.exception.MethodNotAllowed;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,11 +36,8 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2018年6月25日 下午8:27:22
  */
 @Slf4j
-public final class DefaultExceptionResolver implements ExceptionResolver {
-
-	public DefaultExceptionResolver() {
-
-	}
+@NoArgsConstructor
+public class DefaultExceptionResolver implements ExceptionResolver {
 
 	@Override
 	public void resolveException(HttpServletRequest request, HttpServletResponse response, Exception ex) {
@@ -50,15 +49,16 @@ public final class DefaultExceptionResolver implements ExceptionResolver {
 			} else if (ex instanceof ConversionException) {
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
 			} else if (ex instanceof BadRequestException) {
-				
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
-			} else if (ex instanceof FileNotFoundException){
-				
+			} else if (ex instanceof FileNotFoundException) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
+			} else if (ex instanceof FileSizeLimitExceededException) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
 			} else {
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
 			}
-			log.error("ERROR -> [{}] caused by {}",ex.getMessage(), ex.getCause(), ex);
+			response.flushBuffer();
+			log.error("ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
 		} catch (Exception handlerException) {
 			log.warn("Handling of [" + ex.getClass().getName() + "] resulted in Exception", handlerException);
 		}

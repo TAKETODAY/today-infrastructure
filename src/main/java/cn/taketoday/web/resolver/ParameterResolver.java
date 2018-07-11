@@ -19,14 +19,10 @@
  */
 package cn.taketoday.web.resolver;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.context.conversion.Converter;
+import cn.taketoday.web.core.WebApplicationContext;
 import cn.taketoday.web.mapping.MethodParameter;
 
 
@@ -36,9 +32,7 @@ public interface ParameterResolver {
 	 * 初始化处理器
 	 * @param config 初始化参数
 	 */
-	public void doInit(Set<Class<?>> action);
-	
-	Map<Class<?>, Converter<String, Object>> supportParameterTypes  = new HashMap<>(1);
+	public void doInit(WebApplicationContext applicationContext);
 	
 	public boolean supportsParameter(MethodParameter parameter);
 

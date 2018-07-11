@@ -19,15 +19,25 @@
  */
 package cn.taketoday.web.handler;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 
-import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.web.config.ConfigurationFactory;
-import cn.taketoday.web.resolver.DefaultParameterResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.web.core.Constant;
+import cn.taketoday.web.core.WebApplicationContext;
 import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.view.JstlViewResolver;
+import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.ViewResolver;
-
 
 /**
  * @author Today
@@ -35,29 +45,60 @@ import cn.taketoday.web.view.ViewResolver;
  */
 public abstract class AbstractHandler<T> implements DispatchHandler<T> {
 
+	protected final Logger		log						= LoggerFactory.getLogger(AbstractHandler.class);
+
 	protected String			contextPath				= null;
-	protected String			prefix					= "/WEB-INF";
-	protected String			suffix					= "";
 
-	ConfigurationFactory		configurationFactory	= ConfigurationFactory.createFactory();
-	protected ParameterResolver	parameterResolver		= new DefaultParameterResolver();
-	protected ViewResolver		viewResolver			= new JstlViewResolver();
-
+	protected WebApplicationContext applicationContext;
 	
+	/**	view **/
+	protected ViewResolver		viewResolver;
+	/**	parameter **/
+	protected ParameterResolver	parameterResolver;
+
 	@Override
-	public void doInit() {
-		this.suffix = configurationFactory.getSuffix();
-		this.prefix = configurationFactory.getPrefix();
+	public void doInit(WebApplicationContext applicationContext) {
 
-		ServletContext servletContext = configurationFactory.getServletContext();
-		this.contextPath = servletContext.getContextPath();
-
-		parameterResolver.doInit(configurationFactory.getActions());//parameter resolver init -> scan extensions
-
-		viewResolver.initViewResolver(configurationFactory);//view resolver init
-		
+		this.applicationContext = applicationContext;
+		try {
+			
+			viewResolver = applicationContext.getBean(Constant.VIEW_RESOLVER, AbstractViewResolver.class);
+			parameterResolver = applicationContext.getBean(Constant.PARAMETER_RESOLVER, ParameterResolver.class);
+		} catch (NoSuchBeanDefinitionException ex) {
+			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
+		}
+		this.contextPath = applicationContext.getServletContext().getContextPath();
+		viewResolver.initViewResolver(applicationContext);// view resolver init
+		parameterResolver.doInit(applicationContext);// parameter resolver init -> scan extensions
 	}
 
-	
-}
+	/**
+	 * download file
+	 * 
+	 * @param request
+	 * @param response
+	 * @param download
+	 * @throws IOException
+	 */
+	protected void downloadFile(HttpServletRequest request, HttpServletResponse response, File download)
+			throws IOException {
 
+		response.setContentLengthLong(download.length());
+		response.setHeader("Content-Transfer-Encoding", "binary");
+		response.setHeader("Content-Type", "pplication/force-download;");
+		response.setHeader("Content-Disposition",
+				"attachment;filename=\"" + URLEncoder.encode(download.getName(), "UTF-8") + "\"");
+
+		InputStream in = new FileInputStream(download.getAbsolutePath());
+		OutputStream out = response.getOutputStream();
+		byte[] b = new byte[2048];
+		int len = 0;
+		while ((len = in.read(b)) != -1) {
+			out.write(b, 0, len);
+		}
+		out.flush();
+		response.flushBuffer();
+		out.close();
+		in.close();
+	}
+}

@@ -23,7 +23,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import cn.taketoday.context.core.Constant;
+import cn.taketoday.web.core.Constant;
 import cn.taketoday.web.handler.DispatchHandler;
 import cn.taketoday.web.mapping.ViewMapping;
 import lombok.extern.slf4j.Slf4j;
@@ -49,14 +49,14 @@ public final class ViewConfig implements WebConfig {
 	public boolean init(Object config) throws Exception {
 		// <common/> element
 		Element element = (Element) config;
-		String baseDir = element.getAttribute(Constant.ATTR_BASE_DIR); // base dir
+		String prefix = element.getAttribute(Constant.ATTR_PREFIX); // prefix
 		String suffix = element.getAttribute(Constant.ATTR_SUFFIX); // suffix
 
 		NodeList nl = element.getChildNodes(); // <view/>
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
 			if (node instanceof Element) {
-				process(element, baseDir, suffix, node);
+				process(element, prefix, suffix, node);
 			}
 		}
 		return true;

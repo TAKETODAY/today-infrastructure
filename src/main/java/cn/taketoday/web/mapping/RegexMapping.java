@@ -36,7 +36,6 @@ public final class RegexMapping {
 	private String	methodUrl;
 	// the handler mapping index
 	private int		index;
-
 	
 	public RegexMapping() {
 

@@ -19,17 +19,21 @@
  */
 package cn.taketoday.web.multipart;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.taketoday.web.mapping.MethodParameter;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Today
@@ -37,31 +41,50 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Setter
 @Getter
-@Slf4j
-public final class DefaultMultipartResolver implements MultipartResolver {
+public final class DefaultMultipartResolver extends AbstractMultipartResolver {
 
-	private long	maxUploadSize	= 10240000;
-	private String	encoding		= "utf-8";
+	protected Logger log = LoggerFactory.getLogger(DefaultMultipartResolver.class);
 
 	@Override
 	public Object resolveMultipart(HttpServletRequest request, String methodParameterName,
 			MethodParameter methodParameter) throws Exception {
 
-		// 多文件上传
-		if (methodParameter.getParameterClass() == MultipartFile[].class) {
-
+		Class<?> parameterClass = methodParameter.getParameterClass();
+		if (parameterClass == MultipartFile.class) {
+			return new DefaultMultipartFile(request.getPart(methodParameterName));
+		} else if (parameterClass == MultipartFile[].class) {
 			Collection<Part> parts = request.getParts();// parts
 
-			Set<MultipartFile> multipartFiles = new HashSet<>();
+			Set<DefaultMultipartFile> multipartFiles = new HashSet<>();
 
 			for (Part part : parts) {
 				if (methodParameterName.equals(part.getName())) {
-					multipartFiles.add(new MultipartFile(part));
+					multipartFiles.add(new DefaultMultipartFile(part));
 				}
 			}
-			return multipartFiles.toArray(new MultipartFile[0]);
+			return multipartFiles.toArray(new DefaultMultipartFile[0]);
+		} else if (parameterClass == Set.class) {
+
+			Collection<Part> parts = request.getParts();// parts
+			Set<DefaultMultipartFile> multipartFiles = new HashSet<>();
+			for (Part part : parts) {
+				if (methodParameterName.equals(part.getName())) {
+					multipartFiles.add(new DefaultMultipartFile(part));
+				}
+			}
+			return multipartFiles;
+		} else if (parameterClass == List.class) {
+			Collection<Part> parts = request.getParts();// parts
+			List<DefaultMultipartFile> multipartFiles = new ArrayList<>();
+			for (Part part : parts) {
+				if (methodParameterName.equals(part.getName())) {
+					multipartFiles.add(new DefaultMultipartFile(part));
+				}
+			}
+			return multipartFiles;
 		}
-		return new MultipartFile(request.getPart(methodParameterName));
+		log.error("method parameter setting error.");
+		return null;
 	}
 
 	@Override

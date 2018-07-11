@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.taketoday.web.core.WebApplicationContext;
 import cn.taketoday.web.mapping.HandlerMappingPool;
 import cn.taketoday.web.mapping.InterceptPool;
 import cn.taketoday.web.mapping.RegexMapping;
@@ -38,22 +39,29 @@ import cn.taketoday.web.mapping.ViewMapping;
  */
 public interface DispatchHandler<T>{
 
+	/**
+	 * 
+	 */
 	Set<RegexMapping> REGEX_URL = new LinkedHashSet<>(8);
 //	Set<RegexMapping> REGEX_URL = new HashSet<>(8);
 	/** view 视图映射池 */
-	Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>(5);
+	Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>(8);
 	/** Action 映射池 */
 	HandlerMappingPool HANDLER_MAPPING_POOL = new HandlerMappingPool();
 	/**	*/
 	Map<String, Integer> REQUEST_MAPPING = new HashMap<>(8);
 	/**	拦截器池*/
 	InterceptPool INTERCEPT_POOL = new InterceptPool();
-
-	public void doInit();
 	
 	/**
-	 * 处理请求
-	 * @param requestURI
+	 * 
+	 * @param applicationContext
+	 */
+	public void doInit(WebApplicationContext applicationContext);
+	
+	/**
+	 * doDispatch
+	 * @param mapping
 	 * @param request
 	 * @param response
 	 * @throws Exception

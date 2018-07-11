@@ -19,31 +19,24 @@
  */
 package cn.taketoday.web.core;
 
+import javax.servlet.ServletContext;
+
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.web.config.WebConfig;
+
 /**
- * @author YHJ
- * @version 1.0
- * @time 2017 08 29 22:20
- * @version 2.0
- * @time 2018 1 ? - 2018 3 8
+ * @author Today
+ * @date 2018年7月10日 下午1:13:57
  */
-public final class Version {
-
-	public static final String	HISTORY_VERSION	= "1.0.0";
+public interface WebApplicationContext extends ApplicationContext {
+	
 	/**
-	 * 当前版本
+	 * Return the standard Servlet API ServletContext for this application.
 	 */
-	public static final String	VERSION			= "1.2.0";
+	public ServletContext getServletContext();
 
-	/**
-	 * 当前版本
-	 * 
-	 * @return
-	 */
-	public String getVersion() {
-		return VERSION;
-	}
-
-	public static String getHistoryVersion() {
-		return HISTORY_VERSION;
-	}
+	public void setServletContext(ServletContext servletContext);
+	
+	public WebConfig create(Class<?> webConfig);
+	
 }

@@ -38,10 +38,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import cn.taketoday.context.conversion.Converter;
-import cn.taketoday.context.core.Constant;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.context.utils.StringUtil;
+import cn.taketoday.web.core.Constant;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.utils.ParamList;
@@ -63,7 +63,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	@Override
 	public boolean resolveParameter(Object[] args, MethodParameter[] parameters, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
-//		log.debug("set parameter start");
+		// log.debug("set parameter start");
 		try {
 			for (int i = 0; i < parameters.length; i++) {
 				args[i] = setParameter(request, response, parameters[i]);
@@ -92,23 +92,30 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 
 		switch (parameterClass.getName()) //
 		{
-			case HTTP_SESSION:	 		return request.getSession();
-			case HTTP_SERVLET_CONTEXT: 	return request.getServletContext();
-			case HTTP_SERVLET_REQUEST: 	return request;
-			case HTTP_SERVLET_RESPONSE: return response;
-			
-			// Collection parameter []
-			case TYPE_SET: 	return resolveSetParameter(request, methodParameterName, methodParameter);
-			case TYPE_MAP: 	return resolveMapParameter(request, methodParameterName, methodParameter);
-			case TYPE_LIST: return resolveListParameter(request, methodParameterName, methodParameter);
+		case HTTP_SESSION:
+			return request.getSession();
+		case HTTP_SERVLET_CONTEXT:
+			return request.getServletContext();
+		case HTTP_SERVLET_REQUEST:
+			return request;
+		case HTTP_SERVLET_RESPONSE:
+			return response;
 
-			case TYPE_OPTIONAL: 		return resolveOptionalParameter(request, methodParameterName, methodParameter);
+		// Collection parameter []
+		case TYPE_SET:
+			return resolveSetParameter(request, methodParameterName, methodParameter);
+		case TYPE_MAP:
+			return resolveMapParameter(request, methodParameterName, methodParameter);
+		case TYPE_LIST:
+			return resolveListParameter(request, methodParameterName, methodParameter);
+
+		case TYPE_OPTIONAL:
+			return resolveOptionalParameter(request, methodParameterName, methodParameter);
 
 		}
 
 		return resolve(request, methodParameter, methodParameterName, parameterClass);
 	}
-
 
 	/**
 	 * 
@@ -182,8 +189,8 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new BadRequestException();
 		}
-		
-		//pojo
+
+		// pojo
 		if (!setBean(request, parameterClass, newInstance, request.getParameterNames(), methodParameter)) {
 
 			throw new BadRequestException("set pojo error");
@@ -191,9 +198,9 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 		return newInstance;
 	}
 
-
 	/**
 	 * resolve Optional Parameter
+	 * 
 	 * @param request
 	 * @param methodParameterName
 	 * @param methodParameter
@@ -203,8 +210,8 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	private Object resolveOptionalParameter(HttpServletRequest request, String methodParameterName,
 			MethodParameter methodParameter) throws Exception {
 
-		return Optional.ofNullable(resolve(request, methodParameter,
-				methodParameterName, methodParameter.getGenericityClass()));
+		return Optional.ofNullable(
+				resolve(request, methodParameter, methodParameterName, methodParameter.getGenericityClass()));
 	}
 
 	/**
@@ -222,17 +229,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 		switch (methodParameter.getAnnotation()) //
 		{
 			case ANNOTATION_COOKIE: {
-				final Cookie[] cookies = request.getCookies();
-				for (Cookie cookie : cookies) {
-					if (methodParameterName.equals(cookie.getName())) {
-						return cookie.getValue();
-					}
-				}
-				// no cookie
-				if (methodParameter.isRequired()) {
-					throw new BadRequestException("cookie -> " + methodParameterName + " can't be null");
-				}
-				return null;
+				return cookie(request, methodParameterName, methodParameter);
 			}
 			case ANNOTATION_SESSION: {
 				return request.getSession().getAttribute(methodParameterName);
@@ -243,9 +240,6 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 						return multipartResolver.resolveMultipart(request, methodParameterName, methodParameter);
 					}
 					throw new BadRequestException("this isn't multipart request.");
-				} catch (Exception e) {
-					log.error("can't be resolve multipart.", e);
-					throw new BadRequestException("can't be resolve multipart.");
 				} finally {
 					multipartResolver.cleanupMultipart(request);
 				}
@@ -259,27 +253,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 				return header;
 			}
 			case ANNOTATION_PATH_VARIABLE: {
-				try {
-					String requestURI = request.getRequestURI();
-					final String[] splitRegex = ((String) request.getAttribute("REGEX"))
-							.split(Constant.PATH_VARIABLE_REGEXP);
-	
-					for (String reg : splitRegex) {
-						requestURI = requestURI.replace(reg, "\\");
-					}
-					String requestParameter = requestURI.split("\\\\")[methodParameter.getPathIndex()];
-					// get parameter class
-					final Class<?> parameterClass = methodParameter.getParameterClass();
-					if (parameterClass.getSuperclass() == Number.class) {
-						log.debug("number path variable -> [{}]", methodParameterName);
-						// -> parse number
-						return NumberUtils.parseDigit(requestParameter, parameterClass);
-					}
-					return requestParameter;
-				} catch (ConversionException e) {
-					log.error("path variable error", e);
-					throw new BadRequestException("path variable -> " + methodParameterName + " can't be resolve.");
-				}
+				return pathVariable(request, methodParameterName, methodParameter);
 			}
 			case ANNOTATION_REQUESTBODY: {
 	
@@ -293,7 +267,63 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 				return JSON.parseObject(body, methodParameter.getParameterClass());
 			}
 		}
+		return null;
+	}
 
+	/**
+	 * set Path Variable arg
+	 * @param request
+	 * @param methodParameterName
+	 * @param methodParameter
+	 * @return
+	 * @throws BadRequestException
+	 */
+	private Object pathVariable(HttpServletRequest request, String methodParameterName, MethodParameter methodParameter)
+			throws BadRequestException {
+		try {
+			String requestURI = request.getRequestURI();
+			final String[] splitRegex = ((String) request.getAttribute("REGEX"))
+					.split(Constant.PATH_VARIABLE_REGEXP);
+
+			for (String reg : splitRegex) {
+				requestURI = requestURI.replace(reg, "\\");
+			}
+			String requestParameter = requestURI.split("\\\\")[methodParameter.getPathIndex()];
+			// get parameter class
+			final Class<?> parameterClass = methodParameter.getParameterClass();
+			if (parameterClass.getSuperclass() == Number.class) {
+				log.debug("number path variable -> [{}]", methodParameterName);
+				// -> parse number
+				return NumberUtils.parseDigit(requestParameter, parameterClass);
+			}
+			return requestParameter;
+		} catch (ConversionException e) {
+			log.error("path variable error", e);
+			throw new BadRequestException("path variable -> " + methodParameterName + " can't be resolve.");
+		}
+	}
+
+	/**
+	 * get cookie
+	 * 
+	 * @param request
+	 * @param methodParameterName
+	 * @param methodParameter
+	 * @return
+	 * @throws BadRequestException
+	 */
+	private Object cookie(HttpServletRequest request, String methodParameterName, MethodParameter methodParameter)
+			throws BadRequestException {
+		final Cookie[] cookies = request.getCookies();
+		for (Cookie cookie : cookies) {
+			if (methodParameterName.equals(cookie.getName())) {
+				return cookie.getValue();
+			}
+		}
+		// no cookie
+		if (methodParameter.isRequired()) {
+			throw new BadRequestException("cookie -> " + methodParameterName + " can't be null");
+		}
 		return null;
 	}
 
@@ -347,7 +377,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 				return true;
 			}
 			if (type.getSuperclass() == Number.class) {
-
+				
 				parseDigit = NumberUtils.parseDigit(parameter, type);
 			} else if (type == String.class) {
 				parseDigit = parameter;
@@ -388,8 +418,8 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 				throw new BadRequestException("list request body read error.");
 			}
 
-			return JSONArray.parseArray(JSONObject.parseObject(body)
-					.get(parameterName).toString(), methodParameter.getGenericityClass());
+			return JSONArray.parseArray(JSONObject.parseObject(body).get(parameterName).toString(),
+					methodParameter.getGenericityClass());
 		}
 
 		try {
