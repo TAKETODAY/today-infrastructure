@@ -34,7 +34,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PropertyValue {
+public final class PropertyValue {
 
 	private Object	value;
 	private Field	field;

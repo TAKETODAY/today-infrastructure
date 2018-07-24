@@ -17,21 +17,35 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.utils;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Properties;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Today
- * @date 2018年7月2日 下午10:42:12
+ * @date 2018年7月12日 下午8:46:41
  */
-@Target({ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Property {
-    
-    String value() default "";
-    
+@Slf4j
+public abstract class PropertyUtils {
+
+	/**
+	 * find in property file
+	 * 
+	 * @param value_
+	 * @return
+	 */
+	public static String findInProperties(Properties properties, String value_) {
+		final String key = value_;
+		if (value_.startsWith("#{") && value_.endsWith("}")) {
+			value_ = properties.getProperty(value_.replaceAll("[{|#|}]+", ""));
+			if (value_ == null) {
+				log.error("properties file lack -> [{}] , must specify a properties value", key);
+				System.exit(0);// exit
+			}
+		}
+		return value_;
+	}
+
 }

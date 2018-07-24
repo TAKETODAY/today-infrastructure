@@ -17,21 +17,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.factory;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
  * @author Today
- * @date 2018年7月2日 下午10:42:12
+ * @date 2018年7月18日 上午1:01:19
  */
-@Target({ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Property {
-    
-    String value() default "";
-    
+public interface BeanPostProcessor {
+
+	void postProcessBeforeInitialization(Object bean, String beanName) throws Exception;
+
+	/**
+	 * 
+	 * @param bean
+	 * @param beanName
+	 * @throws Exception
+	 */
+	void postProcessAfterInitialization(Object bean, String beanName) throws Exception;
 }

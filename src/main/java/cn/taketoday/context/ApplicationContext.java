@@ -33,12 +33,29 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
  */
 public interface ApplicationContext extends BeanFactory {
 
+	/**
+	 * load properties configuration file. No specific name required.
+	 * 
+	 * @param dir
+	 * @throws IOException
+	 */
 	public void loadPropertysConfig(File dir) throws IOException;
 
+	/**
+	 * init success
+	 */
 	public void loadSuccess();
 
+	/**
+	 * load context
+	 */
 	public void loadContext();
 
+	/**
+	 * load context with given path
+	 * 
+	 * @param path
+	 */
 	public void loadContext(String path);
 
 	/**
@@ -47,10 +64,30 @@ public interface ApplicationContext extends BeanFactory {
 	 */
 	public void setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry);
 
+	/**
+	 * get the bean definition registry
+	 * 
+	 * @return
+	 */
 	public BeanDefinitionRegistry getBeanDefinitionRegistry();
 
+	/**
+	 * get all scanned bean class
+	 * 
+	 * @return
+	 */
 	public Set<Class<?>> getActions();
-	
+
+	/**
+	 * get bean definition loader
+	 * 
+	 * @return
+	 */
 	public BeanDefinitionLoader getBeanDefinitionLoader();
+
+	/**
+	 * close context
+	 */
+	public void close();
 
 }

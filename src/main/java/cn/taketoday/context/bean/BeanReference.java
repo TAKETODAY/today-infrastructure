@@ -33,7 +33,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BeanReference {
+public final class BeanReference {
 
 	private String	name;
 	private Object	bean;

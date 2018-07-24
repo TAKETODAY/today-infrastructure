@@ -17,21 +17,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.aware;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import cn.taketoday.context.ApplicationContext;
 
 /**
  * @author Today
- * @date 2018年7月2日 下午10:42:12
+ * @date 2018年7月17日 下午9:35:52
  */
-@Target({ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Property {
-    
-    String value() default "";
-    
+public interface ApplicationContextAware {
+
+	/**
+	 * 
+	 * @param applicationContext
+	 */
+	void setApplicationContext(ApplicationContext applicationContext);
+
 }

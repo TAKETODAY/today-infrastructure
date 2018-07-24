@@ -33,7 +33,6 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
  */
 public interface BeanDefinitionRegistry {
 
-	
 	Map<String, BeanDefinition> getBeanDefinitionsMap();
 	
 	void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
@@ -105,6 +104,5 @@ public interface BeanDefinitionRegistry {
 	 * @return
 	 */
 	Properties getProperties();
-	
 
 }

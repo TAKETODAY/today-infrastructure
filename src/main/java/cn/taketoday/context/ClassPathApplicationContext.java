@@ -25,9 +25,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 
+import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.DefaultBeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
@@ -38,14 +40,15 @@ import cn.taketoday.context.utils.ClassUtils;
  */
 public class ClassPathApplicationContext extends AbstractBeanFactory implements ApplicationContext {
 	
+	
 	public ClassPathApplicationContext(Set<Class<?>> actions) {
 		this.actions = actions;
-		beanDefinitionReader = new DefaultBeanDefinitionLoader(beanDefinitionRegistry);
+		beanDefinitionLoader = new DefaultBeanDefinitionLoader(beanDefinitionRegistry, postProcessors);
 		loadContext();
 	}
 
 	public ClassPathApplicationContext() {
-		beanDefinitionReader = new DefaultBeanDefinitionLoader(beanDefinitionRegistry);
+		beanDefinitionLoader = new DefaultBeanDefinitionLoader(beanDefinitionRegistry, postProcessors);
 	}
 
 	private Set<Class<?>> getAllClazz() {
@@ -61,9 +64,7 @@ public class ClassPathApplicationContext extends AbstractBeanFactory implements 
 			this.loadPropertysConfig(new File(path));
 
 			// load bean from class set
-			beanDefinitionReader.loadBeanDefinitions(actions);
-//			setBeanDefinitionRegistry(beanDefinitionReader.getRegistry());
-
+			beanDefinitionLoader.loadBeanDefinitions(actions);
 			log.debug("init singleton bean start");
 			// init singleton bean
 			doCreateSingleton(beanDefinitionRegistry);
@@ -79,8 +80,7 @@ public class ClassPathApplicationContext extends AbstractBeanFactory implements 
 			
 			this.loadPropertysConfig(new File(path));
 			// load bean from class set
-			beanDefinitionReader.loadBeanDefinitions(getAllClazz());
-//			setBeanDefinitionRegistry(beanDefinitionReader.getRegistry());
+			beanDefinitionLoader.loadBeanDefinitions(getAllClazz());
 
 			log.debug("init singleton bean start");
 			// init singleton bean
@@ -133,19 +133,19 @@ public class ClassPathApplicationContext extends AbstractBeanFactory implements 
 
 	@Override
 	public void registerBean(Class<?> clazz) throws BeanDefinitionStoreException {
-		beanDefinitionReader.loadBeanDefinition(clazz);
-		setBeanDefinitionRegistry(beanDefinitionReader.getRegistry());
+		beanDefinitionLoader.loadBeanDefinition(clazz);
+		setBeanDefinitionRegistry(beanDefinitionLoader.getRegistry());
 	}
 
 	@Override
 	public void registerBean(Set<Class<?>> clazz) throws BeanDefinitionStoreException {
-		beanDefinitionReader.loadBeanDefinitions(clazz);
-		setBeanDefinitionRegistry(beanDefinitionReader.getRegistry());
+		beanDefinitionLoader.loadBeanDefinitions(clazz);
+		setBeanDefinitionRegistry(beanDefinitionLoader.getRegistry());
 	}
 
 	@Override
 	public BeanDefinitionLoader getBeanDefinitionLoader() {
-		return beanDefinitionReader;
+		return beanDefinitionLoader;
 	}
 
 	@Override
@@ -155,7 +155,7 @@ public class ClassPathApplicationContext extends AbstractBeanFactory implements 
 
 	@Override
 	public void registerBean(String name, Class<?> clazz) throws BeanDefinitionStoreException {
-		beanDefinitionReader.loadBeanDefinition(name, clazz);
+		beanDefinitionLoader.loadBeanDefinition(name, clazz);
 	}
 
 	@Override
@@ -167,4 +167,43 @@ public class ClassPathApplicationContext extends AbstractBeanFactory implements 
 		}
 	}
 
+	@Override
+	public void close() {
+		
+		log.info("Closing -> [{}] ", this);
+		
+		Set<BeanDefinition> beanDefinitions = beanDefinitionRegistry.getBeanDefinitions();
+		
+		for (BeanDefinition beanDefinition : beanDefinitions) {
+			
+			Object bean = beanDefinition.getBean();
+			
+			if(bean instanceof DisposableBean) {
+				try {
+					((DisposableBean) bean).destroy();
+				} catch (Exception ex) {
+					log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
+				}
+			}
+		}
+		
+		beanDefinitionRegistry.getProperties().clear();
+		beanDefinitionRegistry.getBeanDefinitionsMap().clear();
+		if(actions == null) {
+			return ;
+		}
+		actions.clear();
+	}
+
 }
+
+
+
+
+
+
+
+
+
+
+

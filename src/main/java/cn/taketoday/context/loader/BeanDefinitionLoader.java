@@ -49,7 +49,12 @@ public interface BeanDefinitionLoader {
 	 */
 	public void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException;
 	
-	
+	/**
+	 * 
+	 * @param name
+	 * @param clazz
+	 * @throws BeanDefinitionStoreException
+	 */
 	public void loadBeanDefinition(String name, Class<?> clazz) throws BeanDefinitionStoreException;
 
 }

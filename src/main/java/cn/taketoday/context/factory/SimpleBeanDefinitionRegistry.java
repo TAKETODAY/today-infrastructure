@@ -19,12 +19,15 @@
  */
 package cn.taketoday.context.factory;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
@@ -39,10 +42,22 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 	private final Map<String, BeanDefinition>	beanDefinitionMap	= new ConcurrentHashMap<>(32);
 
 	private Properties							properties			= new Properties();
-
+	
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
 			throws BeanDefinitionStoreException {
+		
+		if(		beanName.equals(BeanPostProcessor.class.getName())			//
+				|| beanName.equals(DisposableBean.class.getName())			//
+				|| beanName.equals(InitializingBean.class.getName())		//
+				|| beanName.equals(BeanNameAware.class.getName())			//
+				|| beanName.equals(ApplicationContextAware.class.getName()) //
+				|| beanName.equals(Serializable.class.getName())			//
+				|| beanName.equals(Cloneable.class.getName())) 				//
+		{
+			return;
+		}
+		
 		this.beanDefinitionMap.put(beanName, beanDefinition);
 	}
 

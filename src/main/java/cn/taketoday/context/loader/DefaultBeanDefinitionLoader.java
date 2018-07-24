@@ -18,6 +18,8 @@
 package cn.taketoday.context.loader;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.context.annotation.ActionProcessor;
@@ -35,9 +37,10 @@ import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.bean.PropertyValues;
 import cn.taketoday.context.core.Scope;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.utils.NumberUtils;
+import cn.taketoday.context.factory.BeanPostProcessor;
+import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.utils.PropertyUtils;
 import cn.taketoday.context.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,9 +52,12 @@ import lombok.extern.slf4j.Slf4j;
 public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 	private BeanDefinitionRegistry registry;
-
-	public DefaultBeanDefinitionLoader(BeanDefinitionRegistry registry) {
+	
+	private List<BeanPostProcessor> postProcessors ;
+	
+	public DefaultBeanDefinitionLoader(BeanDefinitionRegistry registry, List<BeanPostProcessor> postProcessors) {
 		this.registry = registry;
+		this.postProcessors = postProcessors;
 	}
 
 	@Override
@@ -61,22 +67,40 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 	@Override
 	public void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException {
-
+		
 		if (clazz.isInterface()) {
 			return;
 		}
-
+		this.addBeanPostProcessor(clazz);
+		
 		BeanDefinition beanDefinition = new BeanDefinition();
 		Class<?>[] interfaces = clazz.getInterfaces();
 		if (interfaces.length > 0) {
-			for (Class<?> cla : interfaces) {
-				beanDefinition.setBeanClass(clazz);
-				register(beanDefinition, cla);
+			registerInterface(clazz, beanDefinition, interfaces);
+		}
+		//check if exist bean
+		for (Class<?> interface_ : interfaces) {
+			if(registry.containsBeanDefinition(interface_.getName())) {
+				return;	//
 			}
-			return;
 		}
 		beanDefinition.setBeanClass(clazz);
 		register(beanDefinition, clazz);
+	}
+
+	/**
+	 * register Interface
+	 * @param clazz
+	 * @param beanDefinition
+	 * @param interfaces
+	 * @throws BeanDefinitionStoreException
+	 */
+	private void registerInterface(Class<?> clazz, BeanDefinition beanDefinition, Class<?>[] interfaces)
+			throws BeanDefinitionStoreException {
+		for (Class<?> cla : interfaces) {
+			beanDefinition.setBeanClass(clazz);
+			register(beanDefinition, cla);
+		}
 	}
 
 	@Override
@@ -86,16 +110,17 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 		}
 	}
 
-
 	@Override
 	public void loadBeanDefinition(String name, Class<?> clazz) throws BeanDefinitionStoreException {
 		
 		if (clazz.isInterface()) {
+			log.error("class -> [{}] can't be interface", clazz.getName());
 			throw new BeanDefinitionStoreException("class -> " + clazz.getName() + "can't be interface");
 		}
-
+		
+		this.addBeanPostProcessor(clazz); //
+		
 		BeanDefinition beanDefinition = new BeanDefinition();
-
 		beanDefinition.setBeanClass(clazz);
 		
 		register(name, beanDefinition, clazz);
@@ -123,9 +148,8 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	 * @throws BeanDefinitionStoreException
 	 */
 	private void register(String name, BeanDefinition beanDefinition, Class<?> clazz) throws BeanDefinitionStoreException {
-		// setPropertyValues
+		//apply
 		beanDefinition.setPropertyValues(processProperty(beanDefinition));
-		
 		registry.registerBeanDefinition(name, beanDefinition);
 	}
 
@@ -198,11 +222,11 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 			if (property != null) {
 				String value = property.value();
 				if (!"".equals(value)) {
-					value_ = findInPropertyFile(value);
+					value_ = PropertyUtils.findInProperties(registry.getProperties(), value);
 				} else {// use field name
 					value_ = registry.getProperties().getProperty(field.getName());
 				}
-				propertyValue.setValue(convert(value_, field.getType()));
+				propertyValue.setValue(ConvertUtils.convert(value_, field.getType()));
 			} else {
 				Autowired autowired = field.getAnnotation(Autowired.class);
 				if (autowired == null) {
@@ -225,50 +249,20 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	}
 
 	/**
-	 * convert string to target type
-	 * 
-	 * @param value
-	 * @param type
-	 * @return
+	 * add BeanPostProcessor to pool
+	 * @param clazz
 	 */
-	private Object convert(String value, Class<?> type) {
-
-		if (type.getSuperclass() == Number.class) {
-
-			if (StringUtil.isEmpty(value)) {
-				return 0;
-			} // parse number
+	private final void addBeanPostProcessor(Class<?> clazz){
+		if(BeanPostProcessor.class.isAssignableFrom(clazz)) {
 			try {
-				return NumberUtils.parseDigit(value, type);
-			} catch (ConversionException e) {
-				log.error("can not convert [{}] to [{}]", value, type);
-				System.exit(0);
+				//new 
+				postProcessors.add((BeanPostProcessor) clazz.getConstructor().newInstance());
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				log.error("this class -> [{}] can not be create instance", clazz, e);
 			}
 		}
-
-		if (type == boolean.class | type == Boolean.class) {
-			return Boolean.valueOf(value);
-		}
-
-		return value;
 	}
 
-	/**
-	 * find in property file
-	 * 
-	 * @param value_
-	 * @return
-	 */
-	private String findInPropertyFile(String value_) {
-		final String key = value_;
-		if (value_.startsWith("#{") && value_.endsWith("}")) {
-			value_ = registry.getProperties().getProperty(value_.replaceAll("[{|#|}]+", ""));
-			if (value_ == null) {
-				log.error("properties file lack -> [{}] , must specify a properties value", key);
-				System.exit(0);// exit
-			}
-		}
-		return value_;
-	}
-
+	
 }

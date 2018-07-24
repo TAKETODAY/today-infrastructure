@@ -32,15 +32,17 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class BeanDefinition {
+public final class BeanDefinition {
 
 	private Object					bean;
 	private Class<? extends Object>	beanClass;
 	private Scope					scope			= Scope.SINGLETON;
+
+//	private Method					initMethod;
+//	private Method					destoryMethod;
 	
 	private PropertyValues			propertyValues	= new PropertyValues();
-	
-	
+
 	public BeanDefinition() {
 
 	}
@@ -48,7 +50,6 @@ public class BeanDefinition {
 	public boolean isSingleton() {
 		return scope == Scope.SINGLETON;
 	}
-
 
 	public BeanDefinition(Object bean, Class<? extends Object> beanClass, PropertyValues propertyValues) {
 		this.bean = bean;

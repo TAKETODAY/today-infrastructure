@@ -17,21 +17,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package cn.taketoday.context.aware;
 
 /**
  * @author Today
- * @date 2018年7月2日 下午10:42:12
+ * @date 2018年7月17日 下午9:35:14
  */
-@Target({ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Property {
-    
-    String value() default "";
-    
+public interface BeanNameAware {
+
+	void setBeanName(String name);
+
 }

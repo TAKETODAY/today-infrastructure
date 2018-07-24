@@ -29,16 +29,43 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
  * @date 2018年6月23日 上午11:22:26
  */
 public interface BeanFactory {
-	
-	
+
+	/**
+	 * refresh factory
+	 */
 	void onRefresh();
-	
+
+	/**
+	 * remove bean with the given name
+	 * 
+	 * @param name
+	 * @throws NoSuchBeanDefinitionException
+	 */
 	void removeBean(String name) throws NoSuchBeanDefinitionException;
-	
+
+	/**
+	 * register a bean with the given name and type
+	 * 
+	 * @param name
+	 * @param clazz
+	 * @throws BeanDefinitionStoreException
+	 */
 	void registerBean(String name, Class<?> clazz) throws BeanDefinitionStoreException;
-	
+
+	/**
+	 * register a bean with the given type
+	 * 
+	 * @param clazz
+	 * @throws BeanDefinitionStoreException
+	 */
 	void registerBean(Class<?> clazz) throws BeanDefinitionStoreException;
 
+	/**
+	 * register a bean with the given types
+	 * 
+	 * @param clazz
+	 * @throws BeanDefinitionStoreException
+	 */
 	void registerBean(Set<Class<?>> clazz) throws BeanDefinitionStoreException;
 
 	/**
@@ -128,6 +155,5 @@ public interface BeanFactory {
 	 * @return
 	 */
 	Set<String> getAliases(Class<?> type);
-
 
 }

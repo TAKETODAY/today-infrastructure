@@ -18,6 +18,7 @@
 package cn.taketoday.context.factory;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.BeanReference;
 import cn.taketoday.context.bean.PropertyValue;
@@ -37,15 +41,27 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
 
-	
-	protected final Logger log = LoggerFactory.getLogger(AbstractBeanFactory.class);
-	
-	protected BeanDefinitionRegistry beanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
-	
-	protected BeanDefinitionLoader	beanDefinitionReader;
-	
-	protected Set<Class<?>>			actions	= new HashSet<>();
-	
+	protected final Logger				log						= LoggerFactory.getLogger(AbstractBeanFactory.class);
+
+	/**
+	 * storage BeanDefinition
+	 */
+	protected BeanDefinitionRegistry	beanDefinitionRegistry	= new SimpleBeanDefinitionRegistry();
+	/**
+	 * resolve beanDefinition which in xml file or It is marked annotation
+	 * 
+	 */
+	protected BeanDefinitionLoader		beanDefinitionLoader;
+	/**
+	 * Bean Post Processor
+	 */
+	protected List<BeanPostProcessor>	postProcessors			= new ArrayList<>();
+
+	/**
+	 * all the class in classpath
+	 */
+	protected Set<Class<?>>				actions					= new HashSet<>();
+
 	@Override
 	public final Object getBean(String name) throws NoSuchBeanDefinitionException {
 
@@ -56,13 +72,12 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 		Object bean = beanDefinition.getBean();
 		if (bean == null) {
 			try {
-				bean = doCreateBean(beanDefinition);
-				return bean;
+				bean = doCreateBean(beanDefinition, name);
 			} catch (Exception ex) {
 				log.error("ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
 			}
 		}
-		return beanDefinition.getBean();
+		return bean;
 	}
 
 	@Override
@@ -120,6 +135,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	}
 
 	/**
+	 * create bean use default constructor
 	 * 
 	 * @param beanDefinition
 	 * @return
@@ -149,26 +165,30 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 		}
 	}
 
-	
 	/**
+	 * create bean use default constructor
 	 * 
 	 * @param beanDefinition
 	 * @return
 	 * @throws Exception
 	 */
-	protected Object doCreateBean(BeanDefinition beanDefinition) throws Exception {
+	protected Object doCreateBean(BeanDefinition beanDefinition, String name) throws Exception {
 		Object bean = createBeanInstance(beanDefinition);
-		applyPropertyValues(bean, beanDefinition.getPropertyValues().getPropertyValues());
-		return bean;
+		// init
+		return initializingBean(bean, name, beanDefinition.getPropertyValues().getPropertyValues());
 	}
 
 	/**
+	 * 
 	 * set singleton bean
 	 */
 	protected void doCreateSingleton(BeanDefinitionRegistry beanDefinitionRegistry) throws Exception {
 
-		Set<BeanDefinition> beanDefinitions = beanDefinitionRegistry.getBeanDefinitions();
-		for (BeanDefinition beanDefinition : beanDefinitions) {
+		Set<String> names = beanDefinitionRegistry.getBeanDefinitionsMap().keySet();
+		for (String name : names) {
+
+			BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinitionsMap().get(name);
+
 			if (!beanDefinition.isSingleton()) {
 				log.debug("bean befinition [{}] is PROTOTYPE", beanDefinition.getBeanClass().getName());
 				continue;
@@ -178,14 +198,54 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 			}
 			//
 			Object bean = createBeanInstance(beanDefinition);
+			// initializing bean
 			beanDefinition.setBean(bean);
-			applyPropertyValues(bean, beanDefinition.getPropertyValues().getPropertyValues());
+			initializingBean(bean, name, beanDefinition.getPropertyValues().getPropertyValues());
 		}
+	}
+
+	/**
+	 * initializing bean
+	 * 
+	 * @param bean
+	 * @param name
+	 * @param propertyValues
+	 * @throws Exception
+	 */
+	private final Object initializingBean(Object bean, String name, List<PropertyValue> propertyValues)
+			throws Exception {
+
+		// aware
+		if (bean instanceof BeanNameAware) {
+			((BeanNameAware) bean).setBeanName(name);
+		}
+		if (bean instanceof ApplicationContextAware) {
+			((ApplicationContextAware) bean).setApplicationContext((ApplicationContext) this);
+		}
+
+		// before properties
+		for (BeanPostProcessor postProcessor : postProcessors) {
+			postProcessor.postProcessBeforeInitialization(bean, name);
+		}
+
+		// apply properties
+		applyPropertyValues(bean, propertyValues);
+
+		if (bean instanceof InitializingBean) {
+			((InitializingBean) bean).afterPropertiesSet();
+		}
+
+		// after properties
+		for (BeanPostProcessor postProcessor : postProcessors) {
+			postProcessor.postProcessAfterInitialization(bean, name);
+		}
+
+		return bean;
 	}
 
 	@Override
 	public void removeBean(String name) throws NoSuchBeanDefinitionException {
 		beanDefinitionRegistry.removeBeanDefinition(name);
 	}
-	
+
 }

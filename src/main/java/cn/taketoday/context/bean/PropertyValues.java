@@ -25,10 +25,8 @@ import java.util.List;
 /**
  * @author Today
  * @date 2018年6月23日 上午11:29:23
- * 包装一个对象所有的PropertyValue。<br/>
- * 为什么封装而不是直接用List?因为可以封装一些操作。
  */
-public class PropertyValues {
+public final class PropertyValues {
 
 	private final List<PropertyValue> propertyValueList = new ArrayList<PropertyValue>();
 
@@ -37,7 +35,6 @@ public class PropertyValues {
 	}
 
 	public void addPropertyValue(PropertyValue pv) {
-        //TODO:这里可以对于重复propertyName进行判断，直接用list没法做到
 		this.propertyValueList.add(pv);
 	}
 
