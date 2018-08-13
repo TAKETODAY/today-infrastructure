@@ -26,6 +26,7 @@ import cn.taketoday.context.exception.ConversionException;
  * @author Today
  * @date 2018年7月7日 下午9:33:52
  */
+@FunctionalInterface
 public interface Converter<S, T> {
 
 	public T doConvert(S source) throws ConversionException;

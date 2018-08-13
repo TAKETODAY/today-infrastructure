@@ -17,32 +17,43 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.utils;
+package cn.taketoday.test.context.utils;
+
+import java.util.Arrays;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import cn.taketoday.context.exception.ConversionException;
+import cn.taketoday.context.utils.NumberUtils;
 
 /**
  * @author Today
- * @date 2018年6月26日 下午9:19:09
+ * @date 2018年7月6日 下午1:36:29
  */
-public abstract class StringUtil {
+public class NumberUtilsTest {
 
-	/**
-	 * 判断是否是空
-	 * 
-	 * @param str
-	 * @return
-	 */
-	public final static boolean isEmpty(String str) {
-		return (str == null || "".equals(str.trim()));
+	private long start;
+
+	@Before
+	public void start() {
+		start = System.currentTimeMillis();
 	}
-
-	/**
-	 * 判断是否不是空
-	 * 
-	 * @param str
-	 * @return
-	 */
-	public final static boolean isNotEmpty(String str) {
-		return (str != null) && !"".equals(str.trim());
+	
+	@After
+	public void end() {
+		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+	}
+	
+	@Test
+	public void test_ParseArray() throws ConversionException {
+		int[] parseArray = NumberUtils.parseArray(new String[] { "12", "12222", "12121", "56723562" }, int[].class);
+		
+		assert parseArray.length == 4;
+		assert parseArray[0] == 12;
+		
+		System.out.println(Arrays.toString(parseArray));
 	}
 
 }

@@ -25,8 +25,10 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
 /**
- * @author Today BeanFactory
- * @date 2018年6月23日 上午11:22:26
+ * 
+ * @author Today <br>
+ * 
+ *         2018-06-23 11:22:26
  */
 public interface BeanFactory {
 
@@ -73,6 +75,7 @@ public interface BeanFactory {
 	 * it doesn't exist
 	 * 
 	 * @param name
+	 *            bean name
 	 * @return get bean instance
 	 * @throws NoSuchBeanDefinitionException
 	 */
@@ -83,6 +86,7 @@ public interface BeanFactory {
 	 * it doesn't exist
 	 * 
 	 * @param requiredType
+	 *            bean type
 	 * @return get casted bean instance
 	 * @throws NoSuchBeanDefinitionException
 	 */
@@ -90,7 +94,7 @@ public interface BeanFactory {
 
 	/**
 	 * find the bean with the given name and cast to required type, throw an
-	 * NoSuchBeanDefinitionException if it doesn't exist
+	 * NoSuchBeanDefinitionException if it doesn't exist.
 	 * 
 	 * @param name
 	 *            bean name

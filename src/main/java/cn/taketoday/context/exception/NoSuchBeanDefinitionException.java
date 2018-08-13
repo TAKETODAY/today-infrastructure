@@ -28,12 +28,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NoSuchBeanDefinitionException extends Exception {
 
-	public NoSuchBeanDefinitionException(String msg) {
-		super(msg);
-	}
-
 	private static final long serialVersionUID = 5308905127914570739L;
 
-	
-	
+	public NoSuchBeanDefinitionException(Throwable cause) {
+		super(cause);
+	}
+
+	public NoSuchBeanDefinitionException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public NoSuchBeanDefinitionException(String message) {
+		super(message);
+	}
+
 }

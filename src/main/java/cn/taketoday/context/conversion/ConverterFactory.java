@@ -19,9 +19,14 @@
  */
 package cn.taketoday.context.conversion;
 
+/**
+ * 
+ * @author Today <br>
+ *         2018-08-08 07:19
+ */
+@FunctionalInterface
 public interface ConverterFactory<S, R> {
 
+	
 	<T extends R> Converter<S, T> getConverter(Class<T> targetType);
-
-
 }

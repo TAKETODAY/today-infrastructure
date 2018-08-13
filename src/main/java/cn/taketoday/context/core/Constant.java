@@ -22,10 +22,13 @@ package cn.taketoday.context.core;
 import java.io.Serializable;
 
 /**
- * 时间:2018,1,6 2018 1 16
  * 
- * @author Today
+ * @author Today <br>
+ * 		2018-01-16 10:56
  */
 public interface Constant extends Serializable {
 
+	String GET_BEAN = "getBean";
+	
 }
+

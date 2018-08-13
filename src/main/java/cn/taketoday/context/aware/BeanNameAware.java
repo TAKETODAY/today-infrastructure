@@ -20,11 +20,18 @@
 package cn.taketoday.context.aware;
 
 /**
- * @author Today
- * @date 2018年7月17日 下午9:35:14
+ * 
+ * @author Today <br>
+ * 
+ *         2018-07-17 21:35:14
  */
-public interface BeanNameAware {
+public interface BeanNameAware extends Aware {
 
+	/**
+	 * aware bean name.
+	 * 
+	 * @param name
+	 */
 	void setBeanName(String name);
 
 }

@@ -19,24 +19,25 @@
  */
 package cn.taketoday.context.bean;
 
-
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * @author Today
- * @date 2018年6月23日 上午11:27:30
+/***
+ * 
+ * @author Today <br>
+ *         2018-06-23 11:27:30
  */
 @Setter
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public final class BeanReference {
 
-	private String	name;
-	private Object	bean;
+	/** reference name */
+	private String name;
+
+	/** reference bean instance */
+	// private Object bean;
 
 	public BeanReference(String name) {
 		this.name = name;
@@ -44,7 +45,11 @@ public final class BeanReference {
 
 	@Override
 	public String toString() {
-		return " {\"name\":\"" + name + "\", \"bean\":\"" + bean + "\"}";
+		return new StringBuilder()//
+				.append("{\"name\":\"")//
+				.append(name)//
+				.append("\"}")//
+				.toString();
 	}
 
 }

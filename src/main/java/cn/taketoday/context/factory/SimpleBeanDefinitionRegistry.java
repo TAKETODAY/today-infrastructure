@@ -20,45 +20,80 @@
 package cn.taketoday.context.factory;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.aware.BeanClassLoaderAware;
+import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.core.Constant;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import lombok.NoArgsConstructor;
 
 /**
- * @author Today
- * @date 2018年7月8日 下午7:57:22
+ * 
+ * @author Today <br>
+ * 
+ * 		2018-07-08 19:57:22
  */
-public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
+@NoArgsConstructor
+public final class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 
+	protected final Logger log = LoggerFactory.getLogger(SimpleBeanDefinitionRegistry.class);
+	
+	private Properties properties = new Properties();
+	
+	/** Map of bean instance*/
+	private final Map<String, Object> singletons = new ConcurrentHashMap<>(16);
 	/** Map of bean definition objects, keyed by bean name */
-	private final Map<String, BeanDefinition>	beanDefinitionMap	= new ConcurrentHashMap<>(32);
-
-	private Properties							properties			= new Properties();
+	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(16);
+	/** dependency */
+	private final Set<PropertyValue> dependency = new HashSet<>();
+	
+	private Set<String> discardedNames = new HashSet<String>() {
+		
+		private static final long serialVersionUID = -1534194758376819762L; {
+			
+			add(Constant.class.getName());
+			add(Cloneable.class.getName());
+			add(FactoryBean.class.getName());
+			add(Serializable.class.getName());
+			add(BeanNameAware.class.getName());
+			add(DisposableBean.class.getName());
+			add(BeanFactoryAware.class.getName());
+			add(InitializingBean.class.getName());
+			add(BeanPostProcessor.class.getName());
+			add(BeanClassLoaderAware.class.getName());
+//			add(PropertyValueResolver.class.getName());
+			add(ApplicationContextAware.class.getName());
+			
+		}
+	};
 	
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
 			throws BeanDefinitionStoreException {
-		
-		if(		beanName.equals(BeanPostProcessor.class.getName())			//
-				|| beanName.equals(DisposableBean.class.getName())			//
-				|| beanName.equals(InitializingBean.class.getName())		//
-				|| beanName.equals(BeanNameAware.class.getName())			//
-				|| beanName.equals(ApplicationContextAware.class.getName()) //
-				|| beanName.equals(Serializable.class.getName())			//
-				|| beanName.equals(Cloneable.class.getName())) 				//
-		{
-			return;
+		if(discardedNames.contains(beanName)) {
+			return ;
 		}
-		
 		this.beanDefinitionMap.put(beanName, beanDefinition);
+		
+		PropertyValue[] propertyValues = beanDefinition.getPropertyValues();
+		if(propertyValues == null) {
+			return ;
+		}
+		this.dependency.addAll(Arrays.asList(propertyValues));
 	}
 
 	@Override
@@ -70,17 +105,10 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 
 	@Override
 	public BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
+		
 		BeanDefinition bd = this.beanDefinitionMap.get(beanName);
+		
 		if (bd == null) {
-			Class<?>[] interfaces;
-			try {
-				interfaces = Class.forName(beanName).getInterfaces();
-			} catch (ClassNotFoundException e) {
-				throw new NoSuchBeanDefinitionException("no such bean definition named -> " + beanName);
-			}
-			for (Class<?> clazz : interfaces) {
-				return getBeanDefinition(clazz.getName());
-			}
 			throw new NoSuchBeanDefinitionException("no such bean definition named -> " + beanName);
 		}
 		return bd;
@@ -102,20 +130,6 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 	}
 
 	@Override
-	public boolean isBeanNameInUse(String beanName) {
-		return containsBeanDefinition(beanName);
-	}
-
-	@Override
-	public Set<BeanDefinition> getBeanDefinitions() {
-		Set<BeanDefinition> beanDefinitions = new HashSet<>();
-		beanDefinitionMap.forEach((key, value) -> {
-			beanDefinitions.add(value);
-		});
-		return beanDefinitions;
-	}
-
-	@Override
 	public Properties getProperties() {
 		return properties;
 	}
@@ -125,4 +139,29 @@ public class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 		return beanDefinitionMap;
 	}
 
+	@Override
+	public void addExcludeName(String name) {
+		discardedNames.add(name);
+	}
+
+	@Override
+	public Object getInstance(String name){
+		return singletons.get(name);
+	}
+
+	@Override
+	public Object putInstance(String name, Object bean) {
+		return singletons.put(name, bean);
+	}
+
+	@Override
+	public boolean containsInstance(String name) {
+		return singletons.containsKey(name);
+	}
+
+	@Override
+	public Set<PropertyValue> getDependency() {
+		return dependency;
+	}
+	
 }

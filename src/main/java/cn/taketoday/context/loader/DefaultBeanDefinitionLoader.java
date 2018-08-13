@@ -18,48 +18,50 @@
 package cn.taketoday.context.loader;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import cn.taketoday.context.annotation.ActionProcessor;
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.annotation.Property;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Repository;
 import cn.taketoday.context.annotation.RestProcessor;
 import cn.taketoday.context.annotation.Service;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.bean.BeanReference;
 import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.bean.PropertyValues;
 import cn.taketoday.context.core.Scope;
+import cn.taketoday.context.exception.AnnotationException;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.factory.BeanPostProcessor;
-import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.context.utils.PropertyUtils;
-import cn.taketoday.context.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today
- * @date 2018年6月23日 上午11:18:22
+ * Default Bean Definition Loader implements
+ * 
+ * @author Today <br>
+ *         2018-06-23 11:18:22
  */
 @Slf4j
 public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
-	private BeanDefinitionRegistry registry;
-	
-	private List<BeanPostProcessor> postProcessors ;
-	
-	public DefaultBeanDefinitionLoader(BeanDefinitionRegistry registry, List<BeanPostProcessor> postProcessors) {
-		this.registry = registry;
-		this.postProcessors = postProcessors;
-	}
+	/** bean definition registry */
+	private BeanDefinitionRegistry	registry;
+	/** load property */
+	private PropertyValuesLoader	propertyValuesLoader;
 
+	public DefaultBeanDefinitionLoader(BeanDefinitionRegistry registry) {
+		this.registry = registry;
+		propertyValuesLoader = new PropertyValuesLoader(registry);
+		propertyValuesLoader.init();
+	}
+	
 	@Override
 	public BeanDefinitionRegistry getRegistry() {
 		return this.registry;
@@ -71,40 +73,12 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 		if (clazz.isInterface()) {
 			return;
 		}
-		this.addBeanPostProcessor(clazz);
-		
-		BeanDefinition beanDefinition = new BeanDefinition();
-		Class<?>[] interfaces = clazz.getInterfaces();
-		if (interfaces.length > 0) {
-			registerInterface(clazz, beanDefinition, interfaces);
-		}
-		//check if exist bean
-		for (Class<?> interface_ : interfaces) {
-			if(registry.containsBeanDefinition(interface_.getName())) {
-				return;	//
-			}
-		}
-		beanDefinition.setBeanClass(clazz);
-		register(beanDefinition, clazz);
-	}
-
-	/**
-	 * register Interface
-	 * @param clazz
-	 * @param beanDefinition
-	 * @param interfaces
-	 * @throws BeanDefinitionStoreException
-	 */
-	private void registerInterface(Class<?> clazz, BeanDefinition beanDefinition, Class<?>[] interfaces)
-			throws BeanDefinitionStoreException {
-		for (Class<?> cla : interfaces) {
-			beanDefinition.setBeanClass(clazz);
-			register(beanDefinition, cla);
-		}
+		register(clazz);
 	}
 
 	@Override
 	public void loadBeanDefinitions(Set<Class<?>> beans) throws BeanDefinitionStoreException {
+
 		for (Class<?> clazz : beans) {
 			loadBeanDefinition(clazz);
 		}
@@ -112,157 +86,193 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 	@Override
 	public void loadBeanDefinition(String name, Class<?> clazz) throws BeanDefinitionStoreException {
-		
+
 		if (clazz.isInterface()) {
 			log.error("class -> [{}] can't be interface", clazz.getName());
 			throw new BeanDefinitionStoreException("class -> " + clazz.getName() + "can't be interface");
 		}
-		
-		this.addBeanPostProcessor(clazz); //
-		
-		BeanDefinition beanDefinition = new BeanDefinition();
-		beanDefinition.setBeanClass(clazz);
-		
-		register(name, beanDefinition, clazz);
+		// register
+		register(name, new BeanDefinition(name, clazz));
 	}
-	
+
 	/**
-	 * register
-	 * @param beanDefinition
+	 * register with given class
+	 * 
 	 * @param clazz
+	 *            bean class
 	 * @throws BeanDefinitionStoreException
 	 */
-	private void register(final BeanDefinition beanDefinition, Class<?> clazz) throws BeanDefinitionStoreException {
-		String name = name(beanDefinition, clazz);
-		if (name == null) {
-			return;
+	private void register(Class<?> clazz) throws BeanDefinitionStoreException {
+
+		Map<String, BeanDefinition> beanDefinitions = new HashMap<>();
+		
+		build(beanDefinitions, clazz);
+		
+		Set<Entry<String, BeanDefinition>> entrySet = beanDefinitions.entrySet();
+		Iterator<Entry<String, BeanDefinition>> iterator = entrySet.iterator();
+		while (iterator.hasNext()) {
+			Entry<String, BeanDefinition> entry = iterator.next();
+			register(entry.getKey(), entry.getValue());
 		}
-		register(name, beanDefinition, clazz);
 	}
-	
+
 	/**
+	 * register bean definition with given name.
 	 * 
 	 * @param name
+	 *            bean name
 	 * @param beanDefinition
-	 * @param clazz
+	 *            definition
 	 * @throws BeanDefinitionStoreException
 	 */
-	private void register(String name, BeanDefinition beanDefinition, Class<?> clazz) throws BeanDefinitionStoreException {
-		//apply
-		beanDefinition.setPropertyValues(processProperty(beanDefinition));
-		registry.registerBeanDefinition(name, beanDefinition);
+	private void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
+		try {
+
+			Class<? extends Object> beanClass = beanDefinition.getBeanClass();
+			// find same property.
+			Collection<BeanDefinition> values = registry.getBeanDefinitionsMap().values();
+			for (BeanDefinition beanDefinition_ : values) {
+				if (beanDefinition_.getBeanClass() == beanClass) {
+					// have same property value.
+					beanDefinition.setPropertyValues(beanDefinition_.getPropertyValues());
+					registry.registerBeanDefinition(name, beanDefinition);
+					return;
+				}
+			}
+			// process property
+			beanDefinition.setPropertyValues(processProperty(beanDefinition));
+			registry.registerBeanDefinition(name, beanDefinition);
+		} 
+		catch (Exception e) {
+			log.error("process property error.", e);
+		}
 	}
 
 	/**
-	 * get name
+	 * build definition map with given class
 	 * 
-	 * @param cla
-	 * @return
+	 * @param map
+	 *            bean definition map
+	 * @param clazz
+	 *            bean class
 	 */
-	private String name(BeanDefinition beanDefinition, Class<?> clazz) {
-		Class<?> cla = beanDefinition.getBeanClass();
-		String name = null;
-		Service service = cla.getAnnotation(Service.class);
-		Singleton singleton = cla.getAnnotation(Singleton.class);
-		Component component = cla.getAnnotation(Component.class);
-		Prototype prototype = cla.getAnnotation(Prototype.class);
-		Repository repository = cla.getAnnotation(Repository.class);
-		RestProcessor restProcessor = cla.getAnnotation(RestProcessor.class);
-		ActionProcessor actionProcessor = cla.getAnnotation(ActionProcessor.class);
+	private void build(Map<String, BeanDefinition> map, Class<?> clazz) {
+
+		Service service = clazz.getAnnotation(Service.class);
+		Singleton singleton = clazz.getAnnotation(Singleton.class);
+		Component component = clazz.getAnnotation(Component.class);
+		Prototype prototype = clazz.getAnnotation(Prototype.class);
+		Repository repository = clazz.getAnnotation(Repository.class);
+		// Processor
+		RestProcessor restProcessor = clazz.getAnnotation(RestProcessor.class);
+		ActionProcessor actionProcessor = clazz.getAnnotation(ActionProcessor.class);
+		
 		if (service != null) {
-			name = StringUtil.isEmpty(service.value()) ? clazz.getName() : service.value();
+			String[] names_ = findNames(clazz, service.value());
+			for (String name : names_) {
+				map.put(name, new BeanDefinition(name, clazz));
+			}
 		}
 		if (singleton != null) {
-			name = StringUtil.isEmpty(singleton.value()) ? clazz.getName() : singleton.value();
+			String[] names_ = findNames(clazz, singleton.value());
+			for (String name : names_) {
+				map.put(name, new BeanDefinition(name, clazz));
+			}
 		}
 		if (prototype != null) {
-			name = StringUtil.isEmpty(prototype.value()) ? clazz.getName() : prototype.value();
-			beanDefinition.setScope(Scope.PROTOTYPE);
+			String[] names_ = findNames(clazz, prototype.value());
+			for (String name : names_) {
+				map.put(name, new BeanDefinition(name, clazz, Scope.PROTOTYPE));
+			}
 		}
 		if (repository != null) {
-			name = StringUtil.isEmpty(repository.value()) ? clazz.getName() : repository.value();
+			String[] names_ = findNames(clazz, repository.value());
+			for (String name : names_) {
+				map.put(name, new BeanDefinition(name, clazz));
+			}
 		}
 		if (restProcessor != null) {
-			name = clazz.getName();
+			String[] names_ = findNames(clazz,
+					"".equals(restProcessor.value()) ? new String[] { clazz.getSimpleName() } : new String[] { restProcessor.value() });
+			for (String name : names_) {
+				map.put(name, new BeanDefinition(name, clazz));
+			}
 		}
 		if (actionProcessor != null) {
-			name = clazz.getName();
+			String[] names_ = findNames(clazz,
+					"".equals(actionProcessor.value()) ? new String[] { clazz.getSimpleName() } : new String[] { actionProcessor.value() });
+			for (String name : names_) {
+				map.put(name, new BeanDefinition(name, clazz));
+			}
 		}
 		if (component != null) {
-			name = StringUtil.isEmpty(component.value()) ? clazz.getName() : component.value();
-			beanDefinition.setScope(component.scope());
+			String[] names_ = findNames(clazz, component.value());
+			for (String name : names_) {
+				map.put(name, new BeanDefinition(name, clazz, component.scope()));
+			}
 		}
+		return;
+	}
 
-		if (name == null) {
-			return null;
+	/**
+	 * find names
+	 * 
+	 * @param clazz
+	 *            bean class
+	 * @param names
+	 *            annotation values
+	 * @return
+	 */
+	private String[] findNames(Class<?> clazz, String[] names) {
+		if (names.length == 0) {
+			return new String[] { clazz.getName() };
 		}
-		return name;
+		return names;
 	}
 
 	/**
 	 * process bean's property (field)
 	 * 
 	 * @param beanDefinition
-	 * @return
+	 *            bean definition
+	 * @return property value list
+	 * @throws Exception
 	 */
-	private PropertyValues processProperty(BeanDefinition beanDefinition) {
+	private PropertyValue[] processProperty(BeanDefinition beanDefinition) throws Exception {
 
 		Class<?> clazz = beanDefinition.getBeanClass();
-
-		PropertyValues propertyValues = new PropertyValues();
-
+		List<PropertyValue> propertyValues = new ArrayList<>();
 		Field[] declaredFields = clazz.getDeclaredFields();
 
-		for (Field field : declaredFields) {
-			field.setAccessible(true);
-			PropertyValue propertyValue = new PropertyValue();
-
-			String value_ = null;
-			Property property = field.getAnnotation(Property.class);
-			if (property != null) {
-				String value = property.value();
-				if (!"".equals(value)) {
-					value_ = PropertyUtils.findInProperties(registry.getProperties(), value);
-				} else {// use field name
-					value_ = registry.getProperties().getProperty(field.getName());
-				}
-				propertyValue.setValue(ConvertUtils.convert(value_, field.getType()));
-			} else {
-				Autowired autowired = field.getAnnotation(Autowired.class);
-				if (autowired == null) {
+		// self
+		try {
+			for (Field field : declaredFields) {
+				// supports?
+				if (!propertyValuesLoader.supportsProperty(field)) {
 					continue;
 				}
-				BeanReference reference = new BeanReference();
-				if (!"".equals(autowired.value())) {
-					reference.setName(autowired.value()); // bean name
-				} else if (!(autowired.class_() == Class.class)) {
-					reference.setName(autowired.class_().getName()); // class name
-				} else {
-					reference.setName(field.getType().getName()); // field type name
-				}
-				propertyValue.setValue(reference);
+				field.setAccessible(true);
+				propertyValues.add(propertyValuesLoader.create(field));
 			}
-			propertyValue.setField(field);
-			propertyValues.addPropertyValue(propertyValue);
+		} catch (AnnotationException ex) {
+			log.error("ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
 		}
-		return propertyValues;
-	}
-
-	/**
-	 * add BeanPostProcessor to pool
-	 * @param clazz
-	 */
-	private final void addBeanPostProcessor(Class<?> clazz){
-		if(BeanPostProcessor.class.isAssignableFrom(clazz)) {
+		
+		// superclass
+		Class<?> superclass = clazz.getSuperclass();
+		Field[] declaredFields_ = superclass.getDeclaredFields();
+		for (Field field : declaredFields_) {
+			if (!propertyValuesLoader.supportsProperty(field)) {
+				continue;
+			}
+			field.setAccessible(true);
 			try {
-				//new 
-				postProcessors.add((BeanPostProcessor) clazz.getConstructor().newInstance());
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				log.error("this class -> [{}] can not be create instance", clazz, e);
+				propertyValues.add(propertyValuesLoader.create(field));
+			} catch (AnnotationException ex) {
+				log.error("ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
 			}
 		}
+		return propertyValues.toArray(new PropertyValue[0]);
 	}
 
-	
 }

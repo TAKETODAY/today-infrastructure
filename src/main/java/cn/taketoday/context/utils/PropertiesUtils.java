@@ -17,21 +17,37 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.utils;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Properties;
+
+import cn.taketoday.context.exception.ConfigurationException;
 
 /**
- * @author Today
- * @date 2018年7月2日 下午10:42:12
+ * 
+ * @author Today <br>
+ *         2018-07-12 20:46:41
  */
-@Target({ElementType.FIELD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Property {
-    
-    String value() default "";
-    
+public abstract class PropertiesUtils {
+
+	/**
+	 * find in property file
+	 * 
+	 * @param value_
+	 *            the value will as a key, if don't exist return value_
+	 * @return
+	 * @throws ConfigurationException
+	 */
+	public static String findInProperties(Properties properties, String value_) throws ConfigurationException {
+		final String key = value_;
+		if (value_.startsWith("#{") && value_.endsWith("}")) {
+			value_ = properties.getProperty(value_.replaceAll("[{|#|}]+", ""));
+			if (value_ == null) {
+				throw new ConfigurationException("properties file lack -> [{}] , must specify a value.",
+						key.replaceAll("[{|#|}]+", ""));
+			}
+		}
+		return value_;
+	}
+
 }

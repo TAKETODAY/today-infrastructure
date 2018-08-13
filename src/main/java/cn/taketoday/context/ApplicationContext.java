@@ -21,7 +21,6 @@ package cn.taketoday.context;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
 
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.BeanFactory;
@@ -39,24 +38,19 @@ public interface ApplicationContext extends BeanFactory {
 	 * @param dir
 	 * @throws IOException
 	 */
-	public void loadPropertysConfig(File dir) throws IOException;
-
+	public void loadProperties(File dir) throws IOException;
+	
 	/**
 	 * init success
 	 */
 	public void loadSuccess();
 
 	/**
-	 * load context
-	 */
-	public void loadContext();
-
-	/**
-	 * load context with given path
+	 * load context with given path and package
 	 * 
 	 * @param path
 	 */
-	public void loadContext(String path);
+	public void loadContext(String path, String package_);
 
 	/**
 	 * 
@@ -70,13 +64,6 @@ public interface ApplicationContext extends BeanFactory {
 	 * @return
 	 */
 	public BeanDefinitionRegistry getBeanDefinitionRegistry();
-
-	/**
-	 * get all scanned bean class
-	 * 
-	 * @return
-	 */
-	public Set<Class<?>> getActions();
 
 	/**
 	 * get bean definition loader

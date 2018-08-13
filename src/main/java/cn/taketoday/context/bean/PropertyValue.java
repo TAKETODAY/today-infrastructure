@@ -27,8 +27,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * @author Today 用于bean的属性注入
- * @date 2018年6月23日 上午11:28:01
+ * 
+ * @author Today <br>
+ *         2018-06-23 11:28:01
  */
 @Setter
 @Getter
@@ -36,12 +37,23 @@ import lombok.Setter;
 @AllArgsConstructor
 public final class PropertyValue {
 
+	/** property value */
 	private Object	value;
+	/** field info */
 	private Field	field;
 
+	public PropertyValue(Field field) {
+		this.field = field;
+	}
+	
 	@Override
 	public String toString() {
-		return " {\"value\":\"" + value + "\",\"field\":\"" + field + "\"}";
+		return new StringBuilder()//
+				.append("{\"value\":\"")//
+				.append(value)//
+				.append("\",\"field\":\"")//
+				.append(field.getName())//
+				.append("\"}")//
+				.toString();
 	}
-
 }

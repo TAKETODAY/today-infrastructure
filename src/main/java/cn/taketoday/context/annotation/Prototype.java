@@ -33,6 +33,6 @@ import java.lang.annotation.Target;
 public @interface Prototype {
 	
 	//bean name
-	String value() default "";
+	String[] value() default {};
 
 }

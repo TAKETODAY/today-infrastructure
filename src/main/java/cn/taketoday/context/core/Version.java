@@ -20,30 +20,30 @@
 package cn.taketoday.context.core;
 
 /**
- * @author Today
- * @date 2018年6月22日 下午3:28:04
- * @version 1.0.1
+ * @author Today <br>
+ * 			2018-06-22 15:28:04
+ * @version 1.0.0
  */
-public final class Version {
+/**
+ * 
+ * @author Today <br>
+ *         2018-06-07 10:56
+ * @version 1.0.3
+ */
+public abstract class Version {
 
-	public static final String	HISTORY_VERSION[]	= { "1.0.0" };
+	private final static String	HISTORY_VERSION[]	= { "1.0.0", "1.0.1", "1.0.2" };
 
-	/**
-	 * 当前版本
-	 */
-	public static final String	VERSION				= "1.0.1";
+	private final static String	VERSION				= "today-context-1.0.3-RELEASE";
 
-	/**
-	 * 当前版本
-	 * 
-	 * @return
-	 */
-	public String getVersion() {
+	public static String getVersion() {
 		return VERSION;
 	}
 
 	public static String[] getHistoryVersion() {
-
 		return HISTORY_VERSION;
 	}
 }
+
+
+

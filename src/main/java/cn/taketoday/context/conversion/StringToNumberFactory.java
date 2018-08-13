@@ -21,10 +21,13 @@ package cn.taketoday.context.conversion;
 
 import cn.taketoday.context.utils.NumberUtils;
 
-
+/**
+ * 
+ * @author Today <br>
+ *         2018-08-08 07:19
+ */
 public final class StringToNumberFactory implements ConverterFactory<String, Number> {
 
-	
 	@Override
 	public <T extends Number> Converter<String, T> getConverter(Class<T> targetType) {
 		return source -> {
@@ -34,15 +37,3 @@ public final class StringToNumberFactory implements ConverterFactory<String, Num
 
 }
 
-//@Override
-//public <T extends Number> Converter<String, T> getConverter(Class<T> targetType) {
-//	return new Converter<String, T> () {
-//		@Override
-//		public T doConvert(String source) throws ConversionException {
-//			if (source.isEmpty()) {
-//				return null;
-//			}
-//			return NumberUtils.parseNumber(source, targetType);
-//		}
-//	};
-//}

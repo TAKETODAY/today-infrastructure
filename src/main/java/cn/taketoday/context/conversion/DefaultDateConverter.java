@@ -26,6 +26,11 @@ import java.util.Date;
 import cn.taketoday.context.annotation.ParameterConverter;
 import cn.taketoday.context.exception.ConversionException;
 
+/**
+ * 
+ * @author Today <br>
+ * 		2018-08-08 07:19
+ */
 @ParameterConverter
 public final class DefaultDateConverter implements Converter<String, Date> {
 	

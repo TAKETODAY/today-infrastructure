@@ -21,6 +21,11 @@ package cn.taketoday.context.conversion;
 
 import cn.taketoday.context.utils.NumberUtils;
 
+/**
+ * 
+ * @author Today <br>
+ * 		2018-08-08 07:19
+ */
 public final class StringToArrayFactory implements ConverterFactory<String[], Object> {
 
 	@Override

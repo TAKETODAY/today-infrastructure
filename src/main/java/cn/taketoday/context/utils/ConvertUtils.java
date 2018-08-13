@@ -23,20 +23,24 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * @author Today
- * @date 2018年7月12日 下午8:43:53
+ * 
+ * @author Today <br>
+ *         2018-07-12 20:43:53
  */
 // @Slf4j
 public abstract class ConvertUtils {
 
+	
 	/**
 	 * convert string to target type
 	 * 
 	 * @param value
-	 * @param type
-	 * @return
+	 *            value
+	 * @param targetClass
+	 *            targetClass
+	 * @return converted object
 	 */
-	public static Object convert(String value, Class<?> targetClass) {
+	public final static Object convert(String value, Class<?> targetClass) {
 
 		if (targetClass.isPrimitive()) {
 			switch (targetClass.getName()) //
@@ -57,9 +61,10 @@ public abstract class ConvertUtils {
 					return Boolean.parseBoolean(value);
 			}
 		}
-		
-		// parse number
-		if (Byte.class == targetClass) {
+
+		if (String.class == targetClass) {
+			return value;
+		} else if (Byte.class == targetClass) {
 			return Byte.parseByte(value);
 		} else if (Short.class == targetClass) {
 			return Short.parseShort(value);
@@ -78,7 +83,7 @@ public abstract class ConvertUtils {
 		} else if (targetClass == Boolean.class) {
 			return Boolean.parseBoolean(value);
 		}
-		
+
 		return value;
 	}
 

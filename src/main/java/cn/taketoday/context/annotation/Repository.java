@@ -33,8 +33,6 @@ import java.lang.annotation.Target;
 public @interface Repository {
 	
 	//bean name
-	String value() default "";
-	
-	
+	String[] value() default {};
 
 }

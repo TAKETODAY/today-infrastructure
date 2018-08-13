@@ -25,34 +25,71 @@ import org.objectweb.asm.Type;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 
+ * @author Today <br>
+ *         2018-06-0? ?
+ */
 @Slf4j
 public abstract class ClassUtils {
 
-	private static ClassLoader					classLoader			= Thread.currentThread().getContextClassLoader();
+	/** all the class in class path */
+	private static Set<Class<?>>			clazz_cache;
+	/** class loader **/
+	private static ClassLoader				classLoader;
 
-	private static final Map<Method, String[]>	PARAMS_NAMES_CACHE	= new ConcurrentHashMap<>(16);
+	private static Map<Method, String[]>	PARAMS_NAMES_CACHE	= new ConcurrentHashMap<>(16);
+
+	static {
+		
+		classLoader = ClassUtils.class.getClassLoader();
+		clazz_cache = scanPackage("");
+	}
+
+	/**
+	 * clear cache
+	 */
+	public static void clearCache() {
+		if(PARAMS_NAMES_CACHE != null) {
+			PARAMS_NAMES_CACHE.clear();
+		}
+		if(clazz_cache != null) {
+			clazz_cache.clear();
+		}
+	}
 
 	public static ClassLoader getClassLoader() {
 		return classLoader;
 	}
 
+	public static Set<Class<?>> getClassCache() {
+		return clazz_cache;
+	}
+
+	/**
+	 * scan class with given package.
+	 * 
+	 * @param basePackage
+	 *            the package to scan
+	 * @return class set
+	 */
 	public static Set<Class<?>> scanPackage(String basePackage) {
 
 		Set<Class<?>> clazz = new HashSet<Class<?>>();
-		if (StringUtil.isEmpty(basePackage)) {
+
+		if (StringUtils.isEmpty(basePackage)) {
 			basePackage = "";
 		} else {
 			basePackage = basePackage.replace('.', '/');
 		}
 		try {
 			Enumeration<URL> uri = classLoader.getResources(basePackage);
-
+			
 			while (uri.hasMoreElements()) {
 				URL url = uri.nextElement();
 				final String protocol = url.getProtocol();
 				if ("file".equals(protocol)) {
-					final String filePath = URLDecoder.decode(url.getFile(), "UTF-8"); // obtain physical file path use
-																						// utf-8
+					final String filePath = URLDecoder.decode(url.getFile(), "UTF-8");
 					findAllClass(basePackage, filePath, clazz);// scan all class and set collection
 				} else if ("jar".equals(protocol)) {
 					JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
@@ -87,14 +124,14 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * 
+	 * 
 	 * @param packageName
-	 *            包名
+	 *            the name of package
 	 * @param packagePath
-	 *            包的物理路径
-	 * @param recursive
-	 *            是否递归扫描
+	 *            the package physical path
 	 * @param classes
-	 *            类集合
+	 *            class set
 	 */
 	private static void findAllClass(String packageName, String packagePath, Set<Class<?>> classes) {
 		File directory = new File(packagePath);
@@ -102,19 +139,25 @@ public abstract class ClassUtils {
 			log.error("the package -> [{}] you provided that contains nothing", packageName);
 			return;
 		}
-		log.debug("enter package -> [{}]", packageName);
+
+		// log.debug("enter package -> [{}]", packageName);
 
 		// exists
 		File[] directoryFiles = directory
 				.listFiles(file -> (file.isDirectory()) || (file.getName().endsWith(".class")));
 
-		for (File file : directoryFiles) { // basic operation :)
+		if (directoryFiles == null) {
+			log.error("the package -> [{}] you provided that contains nothing", packageName);
+			return;
+		}
+
+		for (File file : directoryFiles) { //
 
 			if (file.isDirectory()) { // recursive
 
 				String scanPackage = packageName + "." + file.getName();
 				if (scanPackage.startsWith(".")) {
-					scanPackage = scanPackage.replaceFirst(".", "");
+					scanPackage = scanPackage.replaceFirst("[.]", "");
 				}
 				findAllClass(scanPackage, file.getAbsolutePath(), classes);
 			} else {
@@ -123,11 +166,11 @@ public abstract class ClassUtils {
 						+ file.getName().substring(0, file.getName().length() - ".class".length());
 
 				if (className.startsWith(".")) {
-					className = className.replaceFirst(".", "");
+					className = className.replaceFirst("[.]", "");
 				}
 				try {
-					log.debug("find class -> [{}]", className);
-					classes.add(classLoader.loadClass(className)); // add
+					// log.debug("find class -> [{}]", className);
+					classes.add(classLoader.loadClass(className.replaceAll("/", "."))); // add
 				} catch (ClassNotFoundException e) {
 					log.error("can't find class", e);
 				}
@@ -135,6 +178,45 @@ public abstract class ClassUtils {
 		}
 	}
 
+//	public final static String[] getMethodArgsNames(Class<?> clazz, Method method) {
+//
+//		if (PARAMS_NAMES_CACHE.containsKey(method)) {
+//			return PARAMS_NAMES_CACHE.get(method);
+//		}
+//
+//		try {
+//
+//			final String methodName = method.getName();
+//			final String className = clazz.getName();
+//
+//			ClassPool pool = ClassPool.getDefault();
+//
+//			pool.insertClassPath(new ClassClassPath(ClassUtils.class));
+//
+//			CtClass cc = pool.get(className);
+//			CtMethod cm = cc.getDeclaredMethod(methodName);
+//			MethodInfo methodInfo = cm.getMethodInfo();
+//
+//			CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+//
+//			String[] paramNames = new String[cm.getParameterTypes().length];
+//
+//			LocalVariableAttribute attr = (LocalVariableAttribute) codeAttribute
+//					.getAttribute(LocalVariableAttribute.tag);
+//
+//			if (attr != null) {
+//				int pos = Modifier.isStatic(cm.getModifiers()) ? 0 : 1;
+//				for (int i = 0; i < paramNames.length; i++) {
+//					paramNames[i] = attr.variableName(i + pos);
+//				}
+//				PARAMS_NAMES_CACHE.put(method, paramNames);
+//				return paramNames;
+//			}
+//		} catch (Exception ex) {
+//			log.error("ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
+//		}
+//		return null;
+//	}
 	/**
 	 * Compare whether the parameter type is consistent
 	 *
@@ -154,8 +236,18 @@ public abstract class ClassUtils {
 		}
 		return true;
 	}
-
-	public static String[] getMethodArgsNames(Class<?> clazz, Method method) throws IOException {
+	
+	/**
+	 * find method parameter list, and cache it.
+	 * 
+	 * @param clazz
+	 *            target class
+	 * @param method
+	 *            target method
+	 * @return method parameter list
+	 * @throws IOException
+	 */
+	public static String[] getMethodArgsNames(Class<?> clazz, Method method) {
 
 		if (PARAMS_NAMES_CACHE.containsKey(method)) {
 			return PARAMS_NAMES_CACHE.get(method);
@@ -167,7 +259,12 @@ public abstract class ClassUtils {
 
 		InputStream resourceAsStream = classLoader.getResourceAsStream(name);
 		
-		ClassReader classReader = new ClassReader(resourceAsStream);
+		ClassReader classReader = null;
+		try {
+			classReader = new ClassReader(resourceAsStream);
+		} catch (IOException ex) {
+			log.error("ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
+		}
 
 		classReader.accept(new ClassVisitor(Opcodes.ASM6) {
 			@Override
@@ -203,12 +300,7 @@ public abstract class ClassUtils {
 		PARAMS_NAMES_CACHE.put(method, paramNames);
 		return paramNames;
 	}
-
-	public void readClass() throws IOException {
-
-	}
-
-
+	
 }
 
 

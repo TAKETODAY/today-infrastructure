@@ -32,6 +32,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface Service {
 
-	String value() default "";// bean name
-
+	String[] value() default {};// bean names
 }

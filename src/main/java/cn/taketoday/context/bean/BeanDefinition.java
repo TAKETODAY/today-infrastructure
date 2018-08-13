@@ -19,47 +19,74 @@
  */
 package cn.taketoday.context.bean;
 
+import java.util.Arrays;
+
 import cn.taketoday.context.core.Scope;
-import lombok.AllArgsConstructor;
+import cn.taketoday.context.exception.NoSuchPropertyException;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
  * 
- * @author Today
- * @date 2018年6月23日 上午11:23:45
+ * @author Today <br>
+ *         2018-06-23 11:23:45
  */
 @Getter
 @Setter
-@AllArgsConstructor
+@NoArgsConstructor
 public final class BeanDefinition {
 
-	private Object					bean;
+	/** bean definition name. */
+	private String					name;
+	/** bean class. */
 	private Class<? extends Object>	beanClass;
-	private Scope					scope			= Scope.SINGLETON;
+	/** bean scope. */
+	private Scope					scope	= Scope.SINGLETON;
 
-//	private Method					initMethod;
-//	private Method					destoryMethod;
-	
-	private PropertyValues			propertyValues	= new PropertyValues();
+	// private Method initMethod;
+	// private Method destoryMethod;
 
-	public BeanDefinition() {
+	/** property values */
+	private PropertyValue[]			propertyValues;
 
+	public PropertyValue getPropertyValue(String name) throws NoSuchPropertyException {
+
+		for (PropertyValue propertyValue : propertyValues) {
+			if (propertyValue.getField().getName().equals(name)) {
+				return propertyValue;
+			}
+		}
+		throw new NoSuchPropertyException("No such property named -> [" + name + "]");
 	}
 
 	public boolean isSingleton() {
 		return scope == Scope.SINGLETON;
 	}
 
-	public BeanDefinition(Object bean, Class<? extends Object> beanClass, PropertyValues propertyValues) {
-		this.bean = bean;
+	public BeanDefinition(String name, Class<? extends Object> beanClass, Scope scope) {
+		this.name = name;
+		this.scope = scope;
 		this.beanClass = beanClass;
-		this.propertyValues = propertyValues;
+	}
+
+	public BeanDefinition(String name, Class<? extends Object> beanClass) {
+		this.beanClass = beanClass;
+		this.name = name;
 	}
 
 	@Override
 	public String toString() {
-		return "{\n\t\"bean\":\"" + bean + "\",\n\t\"beanClass\":\"" + beanClass + "\",\n\t\"scope\":\"" + scope
-				+ "\",\n\t\"propertyValues\":\"" + propertyValues + "\"\n}";
+		return new StringBuilder()//
+				.append("{\n\t\"name\":\"")//
+				.append(name)//
+				.append("\",\n\t\"beanClass\":\"")//
+				.append(beanClass)//
+				.append("\",\n\t\"scope\":\"")//
+				.append(scope)//
+				.append("\",\n\t\"propertyValues\":\"")//
+				.append(Arrays.toString(propertyValues))//
+				.append("\"\n}")//
+				.toString();
 	}
 }

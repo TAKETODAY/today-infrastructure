@@ -22,12 +22,15 @@ package cn.taketoday.context.aware;
 import cn.taketoday.context.ApplicationContext;
 
 /**
- * @author Today
- * @date 2018年7月17日 下午9:35:52
+ * 
+ * @author Today <br>
+ * 
+ *         2018-07-17 21:35:52
  */
-public interface ApplicationContextAware {
+public interface ApplicationContextAware extends Aware {
 
 	/**
+	 * set applicationContext
 	 * 
 	 * @param applicationContext
 	 */

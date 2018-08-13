@@ -37,7 +37,7 @@ import cn.taketoday.context.core.Scope;
 public @interface Component {
 
 	//bean name
-	String value() default "";
+	String[] value() default {};
 	
 	Scope scope() default Scope.SINGLETON;
 	

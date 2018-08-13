@@ -1,7 +1,9 @@
 /**
- * Original Author -> 杨海健 (taketoday@foxmail.com) https://yanghaijian.top
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
  * 
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -23,38 +25,48 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 
 /**
- * @author Today
- * @date 2018年6月23日 上午11:18:22
+ * create bean definition
+ * 
+ * @author Today <br>
+ * 
+ *         2018-06-23 11:18:22
  */
 public interface BeanDefinitionLoader {
 
 	/**
-	 * Get registered bean Definitions
+	 * Get registered bean definition registry
 	 * 
-	 * @return
+	 * @return registry
 	 */
-	public BeanDefinitionRegistry getRegistry();
+	BeanDefinitionRegistry getRegistry();
 
 	/**
+	 * load bean definitions with given bean collection.
 	 * 
 	 * @param beans
+	 *            beans collection
 	 * @throws BeanDefinitionStoreException
 	 */
-	public void loadBeanDefinitions(Set<Class<?>> beans) throws BeanDefinitionStoreException;
+	void loadBeanDefinitions(Set<Class<?>> beans) throws BeanDefinitionStoreException;
 
 	/**
+	 * load bean definition with given bean class.
 	 * 
 	 * @param clazz
+	 *            bean class
 	 * @throws BeanDefinitionStoreException
 	 */
-	public void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException;
-	
+	void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException;
+
 	/**
+	 * load bean definition with given bean class and bean name.
 	 * 
 	 * @param name
+	 *            bean name
 	 * @param clazz
+	 *            bean class
 	 * @throws BeanDefinitionStoreException
 	 */
-	public void loadBeanDefinition(String name, Class<?> clazz) throws BeanDefinitionStoreException;
+	void loadBeanDefinition(String name, Class<?> clazz) throws BeanDefinitionStoreException;
 
 }

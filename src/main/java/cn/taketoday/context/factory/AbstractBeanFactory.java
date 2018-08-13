@@ -18,8 +18,6 @@
 package cn.taketoday.context.factory;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,54 +26,71 @@ import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.aware.BeanClassLoaderAware;
+import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.BeanReference;
 import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.utils.ClassUtils;
 
 /**
- * @author Today
- * @date 2018年6月23日 上午11:20:58
+ * 
+ * @author Today <br>
+ * 
+ *         2018-06-23 11:20:58
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
 
-	protected final Logger				log						= LoggerFactory.getLogger(AbstractBeanFactory.class);
+	private final Logger				log	= LoggerFactory.getLogger(AbstractBeanFactory.class);
 
-	/**
-	 * storage BeanDefinition
-	 */
-	protected BeanDefinitionRegistry	beanDefinitionRegistry	= new SimpleBeanDefinitionRegistry();
-	/**
-	 * resolve beanDefinition which in xml file or It is marked annotation
-	 * 
-	 */
+	/** storage BeanDefinition */
+	protected BeanDefinitionRegistry	beanDefinitionRegistry;
+	/** resolve beanDefinition which It is marked annotation */
 	protected BeanDefinitionLoader		beanDefinitionLoader;
-	/**
-	 * Bean Post Processor
-	 */
-	protected List<BeanPostProcessor>	postProcessors			= new ArrayList<>();
-
-	/**
-	 * all the class in classpath
-	 */
-	protected Set<Class<?>>				actions					= new HashSet<>();
-
+	/** Bean Post Processors */
+	protected List<BeanPostProcessor>	postProcessors;
+	
 	@Override
 	public final Object getBean(String name) throws NoSuchBeanDefinitionException {
+		
+		Object bean = beanDefinitionRegistry.getInstance(name);
 
+		if (bean != null) {
+			return bean;
+		}
+		
 		BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(name);
 		if (beanDefinition == null) {
-			throw new IllegalArgumentException("No bean named " + name + " is defined");
-		}
-		Object bean = beanDefinition.getBean();
-		if (bean == null) {
+			// class full name
+			Class<?> beanType = null;
 			try {
-				bean = doCreateBean(beanDefinition, name);
-			} catch (Exception ex) {
-				log.error("ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
+				beanType = Class.forName(name);
+			} catch (ClassNotFoundException e) {
+				throw new NoSuchBeanDefinitionException("No bean named " + name + " is defined");
 			}
+			
+			Set<String> keySet = beanDefinitionRegistry.getBeanDefinitionsMap().keySet();
+			for (String name_ : keySet) {
+				BeanDefinition beanDefinition_ = beanDefinitionRegistry.getBeanDefinition(name_);
+				if (beanType.isAssignableFrom(beanDefinition_.getBeanClass())) {
+					beanDefinition = beanDefinition_;
+					beanDefinition.setName(name);
+					if (beanDefinition.isSingleton()) {
+						beanDefinitionRegistry.putInstance(name, beanDefinitionRegistry.getInstance(name_));
+					}
+					break;
+				}
+			}
+			throw new NoSuchBeanDefinitionException("No bean named " + name + " is defined");
+		}
+		try {
+			return doCreateBean(beanDefinition, name);
+		} catch (Exception ex) {
+			log.error("ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
 		}
 		return bean;
 	}
@@ -90,6 +105,180 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	@SuppressWarnings("unchecked")
 	public <T> T getBean(String name, Class<T> requiredType) throws NoSuchBeanDefinitionException {
 		return (T) getBean(name);
+	}
+
+	/**
+	 * create bean use default constructor
+	 * 
+	 * @param beanDefinition
+	 *            bean definition
+	 * @return bean instance
+	 * @throws Exception
+	 */
+	protected Object createBeanInstance(BeanDefinition beanDefinition) throws Exception {
+
+		return beanDefinition.getBeanClass().getConstructor().newInstance();
+	}
+
+	/**
+	 * apply property values.
+	 * 
+	 * @param bean
+	 *            bean instance
+	 * @param propertyValues
+	 *            property list
+	 * @throws Exception
+	 */
+	protected void applyPropertyValues(Object bean, PropertyValue[] propertyValues) throws Exception {
+
+		for (PropertyValue propertyValue : propertyValues) {
+			Field field = propertyValue.getField();
+			Object value = propertyValue.getValue();
+			if (value instanceof BeanReference) {
+				value = this.getBean(((BeanReference) value).getName());
+			}
+			field.set(bean, value);
+		}
+	}
+
+	/**
+	 * create bean use default constructor
+	 * 
+	 * @param beanDefinition
+	 *            bean definition
+	 * @return
+	 * @throws Exception
+	 */
+	protected Object doCreateBean(BeanDefinition beanDefinition, String name) throws Exception {
+
+		if (FactoryBean.class.isAssignableFrom(beanDefinition.getBeanClass())) {
+			return ((FactoryBean<?>) beanDefinitionRegistry.getInstance(beanDefinition.getName())).getBean();
+		}
+		
+		// init
+		Object bean = initializingBean(createBeanInstance(beanDefinition), name, beanDefinition);
+		
+		if (beanDefinition.isSingleton()) {
+			log.debug("Singleton bean is being stored in the name of [{}]", name);
+			beanDefinitionRegistry.putInstance(name, bean);
+		}
+		return bean;
+	}
+
+	/**
+	 * 
+	 * set singleton bean
+	 */
+	protected void doCreateSingleton() throws Exception {
+
+		Set<String> names = beanDefinitionRegistry.getBeanDefinitionsMap().keySet();
+		for (String name : names) {
+
+			BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinitionsMap().get(name);
+
+			if (!beanDefinition.isSingleton()) {
+				continue;
+			}
+
+			if (beanDefinitionRegistry.containsInstance(name)) {// initialized
+//				log.debug("bean definition registry contains instance -> [{}].", name);
+				continue;
+			}
+
+			// initializing singleton bean
+			Object bean = initializingBean(createBeanInstance(beanDefinition), name, beanDefinition);
+			
+			beanDefinitionRegistry.putInstance(name, bean);
+		}
+	}
+	
+	/**
+	 * add BeanPostProcessor to pool
+	 * 
+	 */
+	public abstract void addBeanPostProcessor();
+	
+	/**
+	 * register FactoryBean.
+	 * 
+	 * <p>
+	 * if this factory bean is prototype, register FactoryBean Definition. else
+	 * register target <b>T</b> definition.
+	 * </p>
+	 * 
+	 * @param beanDefinition
+	 *            FactoryBean definition
+	 * @param name
+	 *            FactoryBean names
+	 * @throws BeanDefinitionStoreException
+	 * @throws Exception
+	 */
+	protected abstract void registerFactoryBean(BeanDefinition beanDefinition, String name)
+			throws BeanDefinitionStoreException, Exception;
+
+	/**
+	 * initializing bean.
+	 * 
+	 * @param bean
+	 *            bean instance
+	 * @param name
+	 *            bean name
+	 * @param propertyValues
+	 *            property value
+	 * @throws Exception
+	 */
+	protected Object initializingBean(Object bean, String name, BeanDefinition beanDefinition) throws Exception {
+
+		log.debug("initializing bean named -> [{}].", name);
+
+		aware(bean, name);
+		
+		// before properties
+		for (BeanPostProcessor postProcessor : postProcessors) {
+			bean = postProcessor.postProcessBeforeInitialization(bean, name);
+		}
+		
+		// apply properties
+		applyPropertyValues(bean, beanDefinition.getPropertyValues());
+
+		if (bean instanceof InitializingBean) {
+			((InitializingBean) bean).afterPropertiesSet();
+		}
+		
+		// after properties
+		for (BeanPostProcessor postProcessor : postProcessors) {
+			bean = postProcessor.postProcessAfterInitialization(bean, name);
+		}
+		return bean;
+	}
+
+	/**
+	 * aware
+	 * 
+	 * @param bean
+	 *            bean instance
+	 * @param name
+	 *            bean name
+	 */
+	protected void aware(Object bean, String name) {
+		// aware
+		if (bean instanceof BeanNameAware) {
+			((BeanNameAware) bean).setBeanName(name);
+		}
+		if (bean instanceof ApplicationContextAware) {
+			((ApplicationContextAware) bean).setApplicationContext((ApplicationContext) this);
+		}
+		if (bean instanceof BeanClassLoaderAware) {
+			((BeanClassLoaderAware) bean).setBeanClassLoader(ClassUtils.getClassLoader());
+		}
+		if (bean instanceof BeanFactoryAware) {
+			((BeanFactoryAware) bean).setBeanFactory(this);
+		}
+	}
+
+	@Override
+	public void removeBean(String name) throws NoSuchBeanDefinitionException {
+		beanDefinitionRegistry.removeBeanDefinition(name);
 	}
 
 	@Override
@@ -110,8 +299,10 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	@Override
 	public boolean isPrototype(String name) throws NoSuchBeanDefinitionException {
 		BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(name);
+
 		if (beanDefinition == null) {
-			log.error("no such bean exception");
+
+			log.error("no such bean named -> [{}]", name);
 			throw new NoSuchBeanDefinitionException("no such bean exception");
 		}
 		return !beanDefinition.isSingleton();
@@ -121,7 +312,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	public Class<?> getType(String name) throws NoSuchBeanDefinitionException {
 
 		BeanDefinition type = beanDefinitionRegistry.getBeanDefinition(name);
-
+		
 		if (type == null) {
 			log.error("no such bean exception");
 			throw new NoSuchBeanDefinitionException("no such bean exception");
@@ -132,120 +323,6 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 	@Override
 	public Set<String> getAliases(Class<?> type) {
 		return beanDefinitionRegistry.getBeanDefinitionNames();
-	}
-
-	/**
-	 * create bean use default constructor
-	 * 
-	 * @param beanDefinition
-	 * @return
-	 * @throws Exception
-	 */
-	protected Object createBeanInstance(BeanDefinition beanDefinition) throws Exception {
-		return beanDefinition.getBeanClass().getConstructor().newInstance();
-	}
-
-	/**
-	 * 
-	 * @param bean
-	 * @param propertyValues
-	 * @throws Exception
-	 */
-	protected void applyPropertyValues(Object bean, List<PropertyValue> propertyValues) throws Exception {
-
-		for (PropertyValue propertyValue : propertyValues) {
-			Field field = propertyValue.getField();
-			Object value = propertyValue.getValue();
-			if (value instanceof BeanReference) {
-				BeanReference beanReference = (BeanReference) value;
-				value = getBean(beanReference.getName());
-				propertyValue.setValue(value);
-			}
-			field.set(bean, value);
-		}
-	}
-
-	/**
-	 * create bean use default constructor
-	 * 
-	 * @param beanDefinition
-	 * @return
-	 * @throws Exception
-	 */
-	protected Object doCreateBean(BeanDefinition beanDefinition, String name) throws Exception {
-		Object bean = createBeanInstance(beanDefinition);
-		// init
-		return initializingBean(bean, name, beanDefinition.getPropertyValues().getPropertyValues());
-	}
-
-	/**
-	 * 
-	 * set singleton bean
-	 */
-	protected void doCreateSingleton(BeanDefinitionRegistry beanDefinitionRegistry) throws Exception {
-
-		Set<String> names = beanDefinitionRegistry.getBeanDefinitionsMap().keySet();
-		for (String name : names) {
-
-			BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinitionsMap().get(name);
-
-			if (!beanDefinition.isSingleton()) {
-				log.debug("bean befinition [{}] is PROTOTYPE", beanDefinition.getBeanClass().getName());
-				continue;
-			}
-			if (beanDefinition.getBean() != null) {
-				continue;
-			}
-			//
-			Object bean = createBeanInstance(beanDefinition);
-			// initializing bean
-			beanDefinition.setBean(bean);
-			initializingBean(bean, name, beanDefinition.getPropertyValues().getPropertyValues());
-		}
-	}
-
-	/**
-	 * initializing bean
-	 * 
-	 * @param bean
-	 * @param name
-	 * @param propertyValues
-	 * @throws Exception
-	 */
-	private final Object initializingBean(Object bean, String name, List<PropertyValue> propertyValues)
-			throws Exception {
-
-		// aware
-		if (bean instanceof BeanNameAware) {
-			((BeanNameAware) bean).setBeanName(name);
-		}
-		if (bean instanceof ApplicationContextAware) {
-			((ApplicationContextAware) bean).setApplicationContext((ApplicationContext) this);
-		}
-
-		// before properties
-		for (BeanPostProcessor postProcessor : postProcessors) {
-			postProcessor.postProcessBeforeInitialization(bean, name);
-		}
-
-		// apply properties
-		applyPropertyValues(bean, propertyValues);
-
-		if (bean instanceof InitializingBean) {
-			((InitializingBean) bean).afterPropertiesSet();
-		}
-
-		// after properties
-		for (BeanPostProcessor postProcessor : postProcessors) {
-			postProcessor.postProcessAfterInitialization(bean, name);
-		}
-
-		return bean;
-	}
-
-	@Override
-	public void removeBean(String name) throws NoSuchBeanDefinitionException {
-		beanDefinitionRegistry.removeBeanDefinition(name);
 	}
 
 }

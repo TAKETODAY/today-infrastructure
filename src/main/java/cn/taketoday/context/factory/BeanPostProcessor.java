@@ -19,20 +19,33 @@
  */
 package cn.taketoday.context.factory;
 
-
 /**
- * @author Today
- * @date 2018年7月18日 上午1:01:19
+ * 
+ * @author Today <br>
+ * 
+ *         2018-07-18 1:01:19
  */
 public interface BeanPostProcessor {
 
-	void postProcessBeforeInitialization(Object bean, String beanName) throws Exception;
-
 	/**
+	 * before property set
 	 * 
 	 * @param bean
+	 *            bean instance
 	 * @param beanName
+	 *            bean name
 	 * @throws Exception
 	 */
-	void postProcessAfterInitialization(Object bean, String beanName) throws Exception;
+	Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception;
+
+	/**
+	 * after property set
+	 * 
+	 * @param bean
+	 *            bean instance
+	 * @param beanName
+	 *            bean name
+	 * @throws Exception
+	 */
+	Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
 }

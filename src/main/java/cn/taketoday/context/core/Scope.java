@@ -20,11 +20,12 @@
 package cn.taketoday.context.core;
 
 /**
- * @author Today
- * @date 2018年7月2日 下午10:38:57
+ * 
+ * @author Today <br>
+ * 
+ *         2018-07-02 22:38:57
  */
 public enum Scope {
 
 	SINGLETON, PROTOTYPE;
-
 }

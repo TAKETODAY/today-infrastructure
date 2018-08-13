@@ -19,17 +19,17 @@
  */
 package cn.taketoday.context.exception;
 
+import lombok.NoArgsConstructor;
+
 /**
- * @author Today
- * @date 2018年6月28日 下午5:05:34
+ * 
+ * @author Today <br>
+ *         2018-06-28 17:05:34
  */
+@NoArgsConstructor
 public final class ConversionException extends Exception {
 
 	private static final long serialVersionUID = -5L;
-
-	public ConversionException() {
-
-	}
 
 	public ConversionException(Throwable cause) {
 		super(cause);

@@ -19,33 +19,30 @@
  */
 package cn.taketoday.context.utils;
 
-import java.util.Properties;
-
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * @author Today
- * @date 2018年7月12日 下午8:46:41
+ * @date 2018年6月26日 下午9:19:09
  */
-@Slf4j
-public abstract class PropertyUtils {
+public abstract class StringUtils {
 
 	/**
-	 * find in property file
+	 *  判断是否是空
 	 * 
-	 * @param value_
+	 * @param str
 	 * @return
 	 */
-	public static String findInProperties(Properties properties, String value_) {
-		final String key = value_;
-		if (value_.startsWith("#{") && value_.endsWith("}")) {
-			value_ = properties.getProperty(value_.replaceAll("[{|#|}]+", ""));
-			if (value_ == null) {
-				log.error("properties file lack -> [{}] , must specify a properties value", key);
-				System.exit(0);// exit
-			}
-		}
-		return value_;
+	public final static boolean isEmpty(String str) {
+		return (str == null || "".equals(str.trim()));
+	}
+	
+	/**
+	 * 判断是否不是空
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public final static boolean isNotEmpty(String str) {
+		return (str != null) && !"".equals(str.trim());
 	}
 
 }

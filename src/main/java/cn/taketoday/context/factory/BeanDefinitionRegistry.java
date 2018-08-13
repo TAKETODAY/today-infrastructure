@@ -24,17 +24,77 @@ import java.util.Properties;
 import java.util.Set;
 
 import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
+
 /**
- * @author Today
- * @date 2018年7月8日 下午7:56:53
+ * 
+ * @author Today <br>
+ * 
+ *         2018-07-08 19:56:53 2018-08-06 11:07
  */
 public interface BeanDefinitionRegistry {
 
-	Map<String, BeanDefinition> getBeanDefinitionsMap();
+	/**
+	 * 
+	 * @return
+	 */
+	Set<PropertyValue> getDependency();
+
 	
+	/**
+	 * get bean instance, one {@link BeanDefinition} can have a lot of names, so
+	 * can't put instances in BeanDefinition.
+	 * 
+	 * @param name
+	 *            bean name
+	 * @return bean instance
+	 * @throws NoSuchBeanDefinitionException
+	 */
+	Object getInstance(String name);
+
+	/**
+	 * put instance.
+	 * 
+	 * @param name
+	 *            bean name
+	 * @param bean
+	 *            bean instance
+	 */
+	Object putInstance(String name, Object bean);
+
+	/**
+	 * 
+	 * @param name
+	 *            bean name
+	 * @return
+	 */
+	boolean containsInstance(String name);
+
+	/**
+	 * 
+	 * @param name
+	 *            exclude name
+	 */
+	void addExcludeName(String name);
+
+	/**
+	 * 
+	 * @return
+	 */
+	Map<String, BeanDefinition> getBeanDefinitionsMap();
+
+	/**
+	 * save bean definition.
+	 * 
+	 * @param beanName
+	 *            bean name
+	 * @param beanDefinition
+	 *            bean definition instance
+	 * @throws BeanDefinitionStoreException
+	 */
 	void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
 
 	/**
@@ -70,17 +130,10 @@ public interface BeanDefinitionRegistry {
 	/**
 	 * Return the names of all beans defined in this registry.
 	 * 
-	 * @return the names of all beans defined in this registry, or an empty array if
+	 * @return the names of all beans defined in this registry, or an empty set if
 	 *         none defined
 	 */
 	Set<String> getBeanDefinitionNames();
-
-	/**
-	 * Return the bean definitions of all beans defined in this registry.
-	 * 
-	 * @return
-	 */
-	Set<BeanDefinition> getBeanDefinitions();
 
 	/**
 	 * Return the number of beans defined in the registry.
@@ -90,17 +143,8 @@ public interface BeanDefinitionRegistry {
 	int getBeanDefinitionCount();
 
 	/**
-	 * Determine whether the given bean name is already in use within this registry,
-	 * i.e. whether there is a local bean or alias registered under this name.
-	 * 
-	 * @param beanName
-	 *            the name to check
-	 * @return whether the given bean name is already in use
-	 */
-	boolean isBeanNameInUse(String beanName);
-	
-	/**
 	 * get properties
+	 * 
 	 * @return
 	 */
 	Properties getProperties();

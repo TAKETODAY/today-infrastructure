@@ -22,17 +22,25 @@ package cn.taketoday.context.exception;
 import lombok.NoArgsConstructor;
 
 /**
- * @author Today
- * @date 2018年7月8日 下午7:54:46
+ * 
+ * @author Today <br>
+ *         2018-07-08 19:54:46
  */
 @NoArgsConstructor
 public class BeanDefinitionStoreException extends Exception {
 
 	private static final long serialVersionUID = 9141929287603186022L;
 
-	public BeanDefinitionStoreException(String msg) {
-		super(msg);
+	public BeanDefinitionStoreException(Throwable cause) {
+		super(cause);
 	}
-	
-	
+
+	public BeanDefinitionStoreException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public BeanDefinitionStoreException(String message) {
+		super(message);
+	}
+
 }

@@ -17,34 +17,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.bean;
+package cn.taketoday.test.dao;
 
-import java.util.ArrayList;
-import java.util.List;
+import cn.taketoday.test.domain.User;
 
 /**
  * @author Today
- * @date 2018年6月23日 上午11:29:23
+ * @date 2018年7月6日 下午5:33:16
  */
-public final class PropertyValues {
+public interface UserDao {
 
-	private final List<PropertyValue> propertyValueList = new ArrayList<PropertyValue>();
+	public boolean save(User user);
 
-	public PropertyValues() {
-		
-	}
+	public User login(User user);
 
-	public void addPropertyValue(PropertyValue pv) {
-		this.propertyValueList.add(pv);
-	}
-
-	public List<PropertyValue> getPropertyValues() {
-		return this.propertyValueList;
-	}
-
-	@Override
-	public String toString() {
-		return " {\"propertyValueList\":\"" + propertyValueList + "\"}";
-	}
-	
 }

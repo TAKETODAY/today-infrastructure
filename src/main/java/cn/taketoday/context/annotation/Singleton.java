@@ -33,5 +33,5 @@ import java.lang.annotation.Target;
 public @interface Singleton {
 
 	// bean name
-	String value() default "";
+	String[] value() default {};
 }
