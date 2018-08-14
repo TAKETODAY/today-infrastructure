@@ -33,22 +33,11 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2018年6月23日 下午4:19:53
  */
 @Slf4j
-public final class ViewConfig implements WebConfig {
+public final class ViewConfig {
 
-	private static WebConfig viewConfig = new ViewConfig();
+	public void init(Element element) throws Exception {
 
-	private ViewConfig() {
-
-	}
-
-	public static WebConfig create() {
-		return viewConfig;
-	}
-
-	@Override
-	public boolean init(Object config) throws Exception {
 		// <common/> element
-		Element element = (Element) config;
 		String prefix = element.getAttribute(Constant.ATTR_PREFIX); // prefix
 		String suffix = element.getAttribute(Constant.ATTR_SUFFIX); // suffix
 
@@ -59,7 +48,6 @@ public final class ViewConfig implements WebConfig {
 				process(element, prefix, suffix, node);
 			}
 		}
-		return true;
 	}
 
 	/**

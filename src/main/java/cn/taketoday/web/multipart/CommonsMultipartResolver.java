@@ -27,34 +27,25 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.exception.FileSizeLimitExceededException;
 import cn.taketoday.web.mapping.MethodParameter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * @author Today
- * @date 2018年7月11日 下午12:57:31
+ * @author Today <br>
+ *         2018-07-11 0:57:31
  */
+@Slf4j
 @NoArgsConstructor
 public final class CommonsMultipartResolver extends AbstractMultipartResolver {
-
-	
-	private Logger log = LoggerFactory.getLogger(CommonsMultipartResolver.class);
-	
-	protected FileUpload newFileUpload(FileItemFactory fileItemFactory) {
-		return new ServletFileUpload(fileItemFactory);
-	}
 
 	@Override
 	public boolean isMultipart(HttpServletRequest request) {
@@ -74,10 +65,12 @@ public final class CommonsMultipartResolver extends AbstractMultipartResolver {
 			return parseFileItems(fileItems, methodParameter.getParameterClass(), methodParameterName, methodParameter);
 
 		} catch (FileUploadBase.SizeLimitExceededException ex) {
-			log.error("the request was rejected because its size exceeds the configured maximum -> [{}] bytes", maxRequestSize);
+			log.error("the request was rejected because its size exceeds the configured maximum -> [{}] bytes",
+					maxRequestSize);
 			throw new FileSizeLimitExceededException(maxRequestSize, ex);
 		} catch (FileUploadBase.FileSizeLimitExceededException ex) {
-			log.error("The upload file exceeds its maximum permitted size -> [{}] bytes", methodParameterName, maxFileSize);
+			log.error("The upload file exceeds its maximum permitted size -> [{}] bytes", methodParameterName,
+					maxFileSize);
 			throw new FileSizeLimitExceededException(maxFileSize, ex);
 		} catch (FileUploadException ex) {
 			log.error("ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
@@ -86,11 +79,12 @@ public final class CommonsMultipartResolver extends AbstractMultipartResolver {
 	}
 
 	/**
-	 * parse file items
+	 * Parse file items.
+	 * 
 	 * @param fileItems
 	 * @param parameterClass
 	 * @param methodParameterName
-	 * @return 
+	 * @return
 	 * @throws BadRequestException
 	 */
 	private Object parseFileItems(List<FileItem> fileItems, Class<?> parameterClass, String methodParameterName,
@@ -126,7 +120,8 @@ public final class CommonsMultipartResolver extends AbstractMultipartResolver {
 	}
 
 	/**
-	 * resolve list
+	 * resolve list.
+	 * 
 	 * @param fileItems
 	 * @param methodParameterName
 	 * @param methodParameter
@@ -142,7 +137,7 @@ public final class CommonsMultipartResolver extends AbstractMultipartResolver {
 				}
 			}
 			return multipartFiles;
-		} else if(genericityClass == FileItem.class) {
+		} else if (genericityClass == FileItem.class) {
 			List<FileItem> multipartFiles = new ArrayList<>();
 			for (FileItem fileItem : fileItems) {
 				if (methodParameterName.equals(fileItem.getFieldName())) {
@@ -172,7 +167,7 @@ public final class CommonsMultipartResolver extends AbstractMultipartResolver {
 				}
 			}
 			return multipartFiles;
-		} else if(genericityClass == FileItem.class) {
+		} else if (genericityClass == FileItem.class) {
 			Set<FileItem> multipartFiles = new HashSet<>();
 			for (FileItem fileItem : fileItems) {
 				if (methodParameterName.equals(fileItem.getFieldName())) {

@@ -32,8 +32,10 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today
- * @date 2018年6月25日 下午8:27:22
+ * 
+ * @author Today <br>
+ * 
+ *         2018-06-25 20:27:22
  */
 @Slf4j
 @NoArgsConstructor
@@ -58,9 +60,10 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
 			}
 			response.flushBuffer();
+
 			log.error("ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
 		} catch (Exception handlerException) {
-			log.warn("Handling of [" + ex.getClass().getName() + "] resulted in Exception", handlerException);
+			log.error("Handling of [{}] resulted in Exception", ex.getClass().getName(), handlerException);
 		}
 	}
 

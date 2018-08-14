@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.config;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
@@ -32,13 +31,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.ActionProcessor;
 import cn.taketoday.context.annotation.RestProcessor;
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.StringUtil;
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Cookie;
 import cn.taketoday.web.annotation.DELETE;
@@ -66,42 +65,39 @@ import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.mapping.RegexMapping;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Today
  * @date 2018年6月23日 下午4:20:26
  */
-public final class ActionConfig implements WebConfig {
-
-	private final Logger			log					= LoggerFactory.getLogger(ActionConfig.class);
+@Singleton(Constant.ACTION_CONFIG)
+@Slf4j
+public final class ActionConfig implements ApplicationContextAware {
 
 	private String					contextPath;
+	
 	private WebApplicationContext	applicationContext;
-	private static WebConfig		actionConfig		= new ActionConfig();
-
+	
 	private String[]				defaultUrlPatterns	= { "*.gif", "*.jpg", "*.jpeg", "*.png", "*.swf", "*.js",
 			"*.css", "*.ico", "*.rar", "*.zip", "*.txt", "*.flv", "*.mid", "*.doc", "*.ppt", "*.pdf", "*.xls", "*.mp3",
 			"*.wma", "*.map", "*.woff2", "*.woff", "*.docx" };
-
+	
+	
 	public final String[] getDefaultUrlPatterns() {
 		return defaultUrlPatterns;
 	}
-
-	public static WebConfig create() {
-		return actionConfig;
-	}
-
-	private ActionConfig() {
+	
+	public ActionConfig() {
 
 	}
 
-	@Override
-	public boolean init(Object config) throws Exception {
-		this.applicationContext = (WebApplicationContext) config;
+	public void init() throws Exception {
+		
 		log.info("Initializing ActionHandler And ParameterResolver");
 		this.contextPath = applicationContext.getServletContext().getContextPath();
-		setConfiguration(applicationContext.getActions());
-		return true;
+		
+		setConfiguration();
 	}
 
 	/**
@@ -110,8 +106,9 @@ public final class ActionConfig implements WebConfig {
 	 * @param scanPackage
 	 * @return
 	 */
-	public final void setConfiguration(Set<Class<?>> actions) {
-
+	public final void setConfiguration() {
+		
+		Set<Class<?>> actions = ClassUtils.getClassCache();
 		for (Class<?> clazz : actions) {
 			ActionProcessor actionProcessor = clazz.getAnnotation(ActionProcessor.class);
 			if (actionProcessor != null) {
@@ -250,7 +247,7 @@ public final class ActionConfig implements WebConfig {
 				DispatchHandler.REQUEST_MAPPING.put(url, index);
 
 				log.info("Action Mapped [{}] -> [{}] interceptors -> {}", url,
-						requestMapping.getActionProcessor().getName() + "."
+						requestMapping.getAction() + "."
 								+ requestMapping.getHandlerMethod().getMethod().getName() + "()",
 						Arrays.toString(requestMapping.getInterceptors()));
 			}
@@ -331,20 +328,17 @@ public final class ActionConfig implements WebConfig {
 		HandlerMapping requestMapping = new HandlerMapping();
 		Parameter[] parameters = method.getParameters();
 		String[] methodArgsNames = null;
-		try {
-			methodArgsNames = ClassUtils.getMethodArgsNames(clazz, method);
-		} catch (IOException e) {
-			log.error("get method parameters error.", e);
-		}
-
+		
+		methodArgsNames = ClassUtils.getMethodArgsNames(clazz, method);
+		
 		List<MethodParameter> methodParameters = new ArrayList<>();// 处理器方法参数列表
 		setMethodParameter(parameters, methodParameters, methodArgsNames); // 设置 MethodParameter
-
+		
 		// 设置请求处理器
 		HandlerMethod methodInfo = new HandlerMethod(method, methodParameters);
 		requestMapping.setHandlerMethod(methodInfo);
-		requestMapping.setActionProcessor(clazz);
-
+		requestMapping.setAction(clazz.getSimpleName());
+		
 		setInterceptor(clazz, method, isRest, requestMapping);
 
 		return requestMapping;
@@ -359,8 +353,9 @@ public final class ActionConfig implements WebConfig {
 	private void setMethodParameter(Parameter[] parameters, List<MethodParameter> methodParameters,
 			String[] methodArgsNames) {
 
+		
 		for (int i = 0; i < parameters.length; i++) {
-
+			
 			MethodParameter methodParameter = new MethodParameter();
 
 			methodParameter.setParameterClass(parameters[i].getType());// 设置参数类型
@@ -383,13 +378,11 @@ public final class ActionConfig implements WebConfig {
 			setAnnotation(parameters[i], methodParameter);// 设置注解
 
 			// 保证必须有参数名
-			if (StringUtil.isEmpty(methodParameter.getParameterName())) {
-
+			if (StringUtils.isEmpty(methodParameter.getParameterName())) {
 				String parameterName = parameters[i].getName();
 				if (parameterName.matches("arg[\\d]+")) {
 					parameterName = methodArgsNames[i];
 				}
-
 				methodParameter.setParameterName(parameterName);
 			}
 			methodParameters.add(methodParameter); // 加入到参数列表
@@ -535,6 +528,11 @@ public final class ActionConfig implements WebConfig {
 			}
 		}
 		return ids;
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = (WebApplicationContext) applicationContext;
 	}
 
 }

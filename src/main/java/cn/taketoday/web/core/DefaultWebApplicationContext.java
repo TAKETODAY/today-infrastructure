@@ -19,33 +19,26 @@
  */
 package cn.taketoday.web.core;
 
-import java.util.Set;
-
 import javax.servlet.ServletContext;
 
 import cn.taketoday.context.ClassPathApplicationContext;
-import cn.taketoday.web.config.ActionConfig;
-import cn.taketoday.web.config.ViewConfig;
-import cn.taketoday.web.config.WebConfig;
-import lombok.NoArgsConstructor;
+import cn.taketoday.web.aware.ServletContextAware;
 
 /**
  * @author Today
  * @date 2018年7月10日 下午1:16:17
  */
-@NoArgsConstructor
 public class DefaultWebApplicationContext extends ClassPathApplicationContext implements WebApplicationContext {
 
 	private ServletContext servletContext;
 	
-	private WebConfig		viewConfig			= ViewConfig.create();
-	private WebConfig		actionConfig		= ActionConfig.create();
-	
-	public DefaultWebApplicationContext(Set<Class<?>> actions) {
-		this.actions = actions;
+	public DefaultWebApplicationContext() {
+		beanDefinitionRegistry.addExcludeName(Constant.class.getName());
+		beanDefinitionRegistry.addExcludeName(ServletContextAware.class.getName());
+		
 		loadContext();
 	}
-	
+
 	@Override
 	public ServletContext getServletContext() {
 		return servletContext;
@@ -57,13 +50,14 @@ public class DefaultWebApplicationContext extends ClassPathApplicationContext im
 	}
 
 	@Override
-	public WebConfig create(Class<?> webConfig) {
-		if(webConfig == ActionConfig.class) {
-			return actionConfig;
-		} else if (webConfig == ViewConfig.class) {
-			return viewConfig;
+	protected void aware(Object bean, String name) {
+
+		super.aware(bean, name);
+		
+		if (bean instanceof ServletContextAware) {
+			((ServletContextAware) bean).setServletContext(servletContext);
 		}
-		return null;
 	}
-	
+
+
 }

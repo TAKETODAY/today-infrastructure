@@ -25,24 +25,30 @@ import javax.servlet.http.HttpServletResponse;
 import cn.taketoday.web.core.WebApplicationContext;
 
 /**
- * @author Today
- * @date 2018年6月23日 上午11:59:50
+ * 
+ * @author Today <br>
+ * 
+ *         2018-06-23 11:59:50
  */
 public interface ViewResolver {
 
 	/**
-	 * init View Resolver
+	 * Init View Resolver.
 	 * 
-	 * @param configurationFactory
+	 * @param applicationContext
+	 *            application context
 	 */
 	void initViewResolver(WebApplicationContext applicationContext);
 
 	/**
-	 * resolve View
+	 * Resolve View.
 	 * 
 	 * @param templateName
+	 *            template name
 	 * @param request
+	 *            current request
 	 * @param response
+	 *            current response
 	 * @throws Exception
 	 */
 	void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response) throws Exception;

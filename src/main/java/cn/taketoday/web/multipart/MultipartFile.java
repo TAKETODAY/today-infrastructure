@@ -25,23 +25,37 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 /**
- * @author Today
- * @date 2018年7月11日 下午1:02:52
+ * 
+ * @author Today <br>
+ * 
+ *         2018-07-11 13:02:52
  */
 public interface MultipartFile extends Serializable {
 
+	/**
+	 * Get upload file input stream.
+	 * 
+	 * @return upload file input stream
+	 * @throws IOException
+	 */
 	public InputStream getInputStream() throws IOException;
 
+	/**
+	 * Get upload file content type.
+	 * 
+	 * @return upload file content type
+	 */
 	public String getContentType();
 
 	/**
 	 * Return the size of the file in bytes.
+	 * 
 	 * @return the size of the file, or 0 if empty
 	 */
 	public long getSize();
 
 	/**
-	 * Gets the name of this part
+	 * Gets the name of this part.
 	 *
 	 * @return The name of this part as a <tt>String</tt>
 	 */
@@ -53,7 +67,7 @@ public interface MultipartFile extends Serializable {
 	public String getFileName();
 
 	/**
-	 * save file
+	 * Save upload file to server.
 	 * 
 	 * @param dest
 	 * @return

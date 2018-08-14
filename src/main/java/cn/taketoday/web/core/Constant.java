@@ -22,23 +22,26 @@ package cn.taketoday.web.core;
 import java.io.Serializable;
 
 /**
- * 时间:2018,1,6 2018 1 16
  * 
- * @author Today
+ * @author Today <br>
+ *         2018,1,6 2018 1 16
  */
 public interface Constant extends Serializable {
 
 	String	DEFAULT								= "default";
-
+	String	WEB_INF								= "/WEB-INF";
+	
 	String	ACTION_DISPATCHER_MAPPING			= "/";
 	String	VIEW_DISPATCHER						= "ViewDispatcher";
 	String	ACTION_DISPATCHER					= "ActionDispatcher";
 
-	String	ACTION_HANDLER						= "actionHandler";
+	// Resolver
 	String	VIEW_RESOLVER						= "viewResolver";
+	String	ACTION_HANDLER						= "actionHandler";
 	String	EXCEPTION_RESOLVER					= "exceptionResolver";
 	String	MULTIPART_RESOLVER					= "multipartResolver";
 	String	PARAMETER_RESOLVER					= "parameterResolver";
+	String	ACTION_CONFIG						= "actionConfig";
 
 	// the dtd
 	String	DTD_NAME							= "web-configuration";
@@ -118,13 +121,5 @@ public interface Constant extends Serializable {
 
 	// font
 	String	DEFAULT_FONT						= "Verdana";
-
-	String	SITE_EXTENSION						= "action";
-
-	String	FORBIDDEN							= "/Forbidden";
-
-	String	NotFound							= "/NotFound";
-
-	String	ServerIsBusy						= "/ServerIsBusy";
 
 }

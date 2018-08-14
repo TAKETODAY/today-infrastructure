@@ -25,19 +25,44 @@ import javax.servlet.http.HttpServletResponse;
 import cn.taketoday.web.core.WebApplicationContext;
 import cn.taketoday.web.mapping.MethodParameter;
 
-
+/**
+ * 
+ * @author Today <br>
+ *         2018-07-04 18:29
+ */
 public interface ParameterResolver {
 
 	/**
-	 * 初始化处理器
-	 * @param config 初始化参数
+	 * init resolver
+	 * 
+	 * @param applicationContext
+	 *            application context
 	 */
 	public void doInit(WebApplicationContext applicationContext);
-	
+
+	/**
+	 * supports parameter ?
+	 * 
+	 * @param parameter
+	 *            method parameter
+	 * @return supports ?
+	 */
 	public boolean supportsParameter(MethodParameter parameter);
 
-	public boolean resolveParameter(Object[] args , MethodParameter[] parameters, HttpServletRequest request, HttpServletResponse response) throws Exception;
+	/**
+	 * 
+	 * @param args
+	 *            method parameter instances
+	 * @param parameters
+	 *            parameters
+	 * @param request
+	 *            current request
+	 * @param response
+	 *            current response
+	 * @return bad request?
+	 * @throws Exception
+	 */
+	public boolean resolveParameter(Object[] args, MethodParameter[] parameters, HttpServletRequest request,
+			HttpServletResponse response) throws Exception;
 
-	
-	
 }

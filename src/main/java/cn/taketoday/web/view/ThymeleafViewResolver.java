@@ -28,21 +28,25 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import cn.taketoday.web.core.WebApplicationContext;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today
- * @date 2018年6月26日 上午11:26:01
+ * 
+ * @author Today <br>
+ * 		2018-06-26 11:26:01
  */
+@Slf4j
 public class ThymeleafViewResolver extends AbstractViewResolver {
 
 	private TemplateEngine	templateEngine;
-	private boolean			cacheable	= false;
+	
+	private boolean			cacheable	= true;
 
 	/**
-	 * init Thymeleaf View Resolver
+	 * init Thymeleaf View Resolver.
 	 */
 	@Override
-	public void initViewResolver(WebApplicationContext configurationFactory) {
+	public void initViewResolver(WebApplicationContext applicationContext) {
 
 		templateEngine = new TemplateEngine();
 
@@ -61,7 +65,7 @@ public class ThymeleafViewResolver extends AbstractViewResolver {
 	}
 
 	/**
-	 * resolve Thymeleaf View
+	 * resolve Thymeleaf View.
 	 */
 	@Override
 	public void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response)

@@ -19,12 +19,15 @@
  */
 package cn.taketoday.web.multipart;
 
+import javax.servlet.http.HttpServletRequest;
+
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author Today
- * @date 2018年7月11日 下午12:23:50
+ * 
+ * @author Today <br>
+ * 		2018-07-11 12:23:50
  */
 @Setter
 @Getter
@@ -33,8 +36,18 @@ public abstract class AbstractMultipartResolver implements MultipartResolver {
 	protected String	location			= System.getProperty("java.io.tmpdir");
 
 	protected String	encoding			= "UTF-8";
-	protected long		maxFileSize			= 2048000;								// every single
-	protected long		maxRequestSize		= 204800000;							// total size
+	protected long		maxFileSize			= 2048000;								// every single file
+	protected long		maxRequestSize		= 204800000;							// total size in every single request
 	protected int		fileSizeThreshold	= 2048000000;							// cache
+	
+	@Override
+	public boolean isMultipart(HttpServletRequest request) {
 
+		if (!"POST".equals(request.getMethod())) {
+			return false;
+		}
+		String contentType = request.getContentType();
+		return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
+	}
+	
 }

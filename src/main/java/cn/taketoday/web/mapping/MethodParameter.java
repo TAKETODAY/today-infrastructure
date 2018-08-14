@@ -21,31 +21,34 @@ package cn.taketoday.web.mapping;
 
 import cn.taketoday.web.core.Constant;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 /**
+ * 
  * @author Today
- * @date 2018年6月25日 下午8:01:52
- * @version 2.0.0
+ * 
+ * @version 2.0.0 <br>
+ *          2018-06-25 20:01:52
  */
 @Setter
 @Getter
+@NoArgsConstructor
 public final class MethodParameter {
 
 	/** 是否不能为空 */
 	private boolean		required		= true;
 	/** 参数名 */
-	private String		parameterName	= null;
+	private String		parameterName;
 	/** 参数类型 */
-	private Class<?>	parameterClass	= null;
+	private Class<?>	parameterClass;
 	/** 泛型参数类型 */
-	private Class<?>	genericityClass	= null;
+	private Class<?>	genericityClass;
 	/** 注解支持 */
 	private int			annotation		= Constant.ANNOTATION_NULL;
 	/**	*/
-	private int 		pathIndex		= 0;
-	
+	private int			pathIndex		= 0;
+
 	public MethodParameter(String parameterName, Class<?> parameterClass, boolean required) {
 		this.parameterName = parameterName;
 		this.parameterClass = parameterClass;
@@ -57,27 +60,33 @@ public final class MethodParameter {
 		this.parameterClass = parameterClass;
 	}
 
-	public MethodParameter() {
-
-	}
-
-	public final boolean hasPathVariable(){
+	public final boolean hasPathVariable() {
 		return annotation == Constant.ANNOTATION_PATH_VARIABLE;
 	}
-	
+
 	public final boolean isRequestBody() {
 		return annotation == Constant.ANNOTATION_REQUESTBODY;
 	}
-	
+
 	public final boolean hasAnnotation() {
 		return annotation != Constant.ANNOTATION_NULL;
 	}
 
 	@Override
 	public String toString() {
-		return " {\"required\":\"" + required + "\", \"parameterName\":\"" + parameterName
-				+ "\", \"parameterClass\":\"" + parameterClass + "\", \"genericityClass\":\"" + genericityClass
-				+ "\", \"annotation\":\"" + annotation + "\"}";
+		return new StringBuilder()//
+				.append("{\n\t\"required\":\"")//
+				.append(required)//
+				.append("\",\n\t\"parameterName\":\"")//
+				.append(parameterName).append("\",\n\t\"parameterClass\":\"")//
+				.append(parameterClass)//
+				.append("\",\n\t\"genericityClass\":\"")//
+				.append(genericityClass)//
+				.append("\",\n\t\"annotation\":\"")
+				.append(annotation)//
+				.append("\",\n\t\"pathIndex\":\"")//
+				.append(pathIndex).append("\"\n}")//
+				.toString();
 	}
-
+	
 }

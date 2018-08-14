@@ -24,22 +24,28 @@ import javax.servlet.http.HttpServletRequest;
 import cn.taketoday.web.mapping.MethodParameter;
 
 /**
- * @author Today
- * @date 2018年6月28日 下午4:35:25
+ * 
+ * @author Today <br>
+ * 
+ *         2018-06-28 16:35:25
  */
 public interface MultipartResolver {
 
 	/**
+	 * Is multipart request ?
 	 * 
 	 * @param request
+	 *            request
 	 * @return
 	 */
 	boolean isMultipart(HttpServletRequest request);
 
 	/**
+	 * resolve request.
 	 * 
 	 * @param request
 	 * @param methodParameterName
+	 *            handler method parameter name
 	 * @param methodParameter
 	 * @return
 	 * @throws Exception
@@ -48,6 +54,7 @@ public interface MultipartResolver {
 			throws Exception;
 
 	/**
+	 * clean up.
 	 * 
 	 * @param request
 	 */

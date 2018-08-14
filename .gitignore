@@ -1,0 +1,10 @@
+*.class
+
+*.jar
+*.war
+*.ear
+/target
+/.settings
+/.classpath
+/.project
+CHANGELOG.MD

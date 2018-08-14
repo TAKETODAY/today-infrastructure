@@ -31,6 +31,6 @@ public interface ExceptionResolver {
 	 * @param response
 	 * @param exception
 	 */
-	public void resolveException(HttpServletRequest request, HttpServletResponse response, Exception exception);
+	void resolveException(HttpServletRequest request, HttpServletResponse response, Exception exception);
 
 }

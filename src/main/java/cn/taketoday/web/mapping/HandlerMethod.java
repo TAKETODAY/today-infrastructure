@@ -24,34 +24,32 @@ import java.util.Arrays;
 import java.util.List;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * @author Today
- * @date 2018年6月25日 下午8:03:11
+ * 
+ * @author Today <br>
+ * 		2018-06-25 20:03:11
  */
 @Setter
 @Getter
+@NoArgsConstructor
 public final class HandlerMethod {
 
-	/** 方法本身 **/
+	/** action **/
 	private Method				method		= null;
-	/** 参数列表 **/
+	/** parameter list **/
 	private MethodParameter[]	parameter	= null;
-	
-	public HandlerMethod() {
 
-	}
-	
+
 	public HandlerMethod(Method method, List<MethodParameter> parameters) {
 		this.method = method;
-		this.parameter = parameters.toArray(new MethodParameter [] {});
+		this.parameter = parameters.toArray(new MethodParameter[0]);
 	}
-
 
 	@Override
 	public String toString() {
 		return "{method=" + method + ", parameter=[" + Arrays.toString(parameter) + "]}";
 	}
 }
-

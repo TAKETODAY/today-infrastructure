@@ -25,6 +25,7 @@ import javax.servlet.http.HttpSession;
 
 import cn.taketoday.web.core.WebApplicationContext;
 import freemarker.ext.jsp.TaglibFactory;
+import freemarker.ext.servlet.AllHttpScopesHashModel;
 import freemarker.ext.servlet.HttpRequestHashModel;
 import freemarker.ext.servlet.HttpRequestParametersHashModel;
 import freemarker.ext.servlet.HttpSessionHashModel;
@@ -32,13 +33,14 @@ import freemarker.ext.servlet.ServletContextHashModel;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.ObjectWrapper;
-import freemarker.template.TemplateModel;
+import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModelException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today
- * @date 2018年6月26日 下午7:16:46
+ * 
+ * @author Today <br>
+ * 		2018-06-26 19:16:46
  */
 @Slf4j
 public class FreeMarkerViewResolver extends AbstractViewResolver {
@@ -58,14 +60,14 @@ public class FreeMarkerViewResolver extends AbstractViewResolver {
 	@Override
 	public void initViewResolver(WebApplicationContext applicationContext) {
 
-		configuration = new Configuration();
-		this.wrapper = new DefaultObjectWrapper();
+		configuration = new Configuration(Configuration.VERSION_2_3_23);
+		this.wrapper = new DefaultObjectWrapper(Configuration.VERSION_2_3_23);
 		this.taglibFactory = new TaglibFactory(servletContext);
 
 		configuration.setLocale(locale);
 		configuration.setObjectWrapper(wrapper);
 		configuration.setDefaultEncoding(encoding);
-		configuration.setServletContextForTemplateLoading(servletContext, prefix); // path -> /WEB-INF/..
+		configuration.setServletContextForTemplateLoading(servletContext, prefix); // prefix -> /WEB-INF/..
 
 		log.info("Configuration FreeMarker View Resolver Success.");
 	}
@@ -75,18 +77,18 @@ public class FreeMarkerViewResolver extends AbstractViewResolver {
 	}
 
 	/**
-	 * create Model Attributes
+	 * create Model Attributes.
 	 * 
 	 * @param request
 	 * @param response
 	 * @return
 	 * @throws TemplateModelException
 	 */
-	private final TemplateModel createModel(HttpServletRequest request, HttpServletResponse response)
+	private final TemplateHashModel createModel(HttpServletRequest request, HttpServletResponse response)
 			throws TemplateModelException {
-
-		AllScopesModel model = new AllScopesModel(wrapper, servletContext, request);
-
+		
+		AllHttpScopesHashModel model = new AllHttpScopesHashModel(wrapper, servletContext, request);
+		
 		// Create hash model wrapper for servlet context (the application)
 		@SuppressWarnings("deprecation")
 		ServletContextHashModel servletContextModel = new ServletContextHashModel(servletContext, wrapper);

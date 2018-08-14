@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import cn.taketoday.context.annotation.ParameterConverter;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.core.Constant;
 import cn.taketoday.web.core.WebApplicationContext;
 import cn.taketoday.web.mapping.MethodParameter;
@@ -38,25 +39,26 @@ import cn.taketoday.web.multipart.MultipartResolver;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today
- * @date 2018年6月25日 下午8:32:16
+ * 
+ * @author Today <br>
+ * 		2018-06-25 20:32:16
  */
 @Slf4j
 public abstract class AbstractParameterResolver implements ParameterResolver {
 
-	protected MultipartResolver							multipartResolver;
+	/** multipart */
+	protected MultipartResolver	multipartResolver;
 
-	protected Map<Class<?>, Converter<String, Object>>	supportParameterTypes	= new HashMap<>(1);
-
-	// protected WebApplicationContext applicationContext;
-
+	protected Map<Class<?>, Converter<String, Object>>	supportParameterTypes	= new HashMap<>(8);
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public final void doInit(WebApplicationContext applicationContext) {
 
-		log.info("Load ParameterConverter Extensions");
+		log.info("Loading ParameterConverter Extensions");
 		try {
-			Set<Class<?>> actions = applicationContext.getActions();
+			
+			Set<Class<?>> actions = ClassUtils.getClassCache();
 			
 			this.multipartResolver = applicationContext.getBean(Constant.MULTIPART_RESOLVER,
 					AbstractMultipartResolver.class);
@@ -80,9 +82,9 @@ public abstract class AbstractParameterResolver implements ParameterResolver {
 					log.error("doConvert's method parameter only support [String]", e);
 				}
 			}
+//			applicationContext.removeBean(Constant.MULTIPART_RESOLVER);//remove
 		} catch (InstantiationException | IllegalAccessException | NoSuchBeanDefinitionException ex) {
 			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
-			System.exit(0);
 		}
 
 		if (supportParameterTypes.size() < 1) {

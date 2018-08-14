@@ -23,28 +23,23 @@ import java.util.Locale;
 
 import javax.servlet.ServletContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import lombok.Getter;
 import lombok.Setter;
 
-
 /**
- * @author Today
- * @date 2018年6月26日 上午11:58:24
+ * 
+ * @author Today <br>
+ *         2018-06-26 11:58:24
  */
 @Setter
 @Getter
 public abstract class AbstractViewResolver implements ViewResolver {
-	
-	protected final Logger log	= LoggerFactory.getLogger(ViewResolver.class);
-	
-	protected String	prefix		= "/WEB-INF/view";
-	protected String	suffix		= ".jsp";
-	protected String	encoding	= "UTF-8";
-	protected Locale	locale		= Locale.CHINA;
-	
-	ServletContext servletContext 	= null;
+
+	protected String		prefix			= "/WEB-INF/view";
+	protected String		suffix			= ".jsp";
+	protected String		encoding		= "UTF-8";
+	protected Locale		locale			= Locale.CHINA;
+
+	ServletContext			servletContext	= null;
 
 }

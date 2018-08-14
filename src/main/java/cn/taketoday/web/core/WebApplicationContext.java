@@ -22,7 +22,6 @@ package cn.taketoday.web.core;
 import javax.servlet.ServletContext;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.web.config.WebConfig;
 
 /**
  * @author Today
@@ -35,8 +34,12 @@ public interface WebApplicationContext extends ApplicationContext {
 	 */
 	public ServletContext getServletContext();
 
+	/**
+	 * set ServletContext
+	 * 
+	 * @param servletContext
+	 */
 	public void setServletContext(ServletContext servletContext);
 	
-	public WebConfig create(Class<?> webConfig);
 	
 }

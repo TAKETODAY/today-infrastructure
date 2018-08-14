@@ -40,7 +40,7 @@ import com.alibaba.fastjson.JSONObject;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.NumberUtils;
-import cn.taketoday.context.utils.StringUtil;
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.core.Constant;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.mapping.MethodParameter;
@@ -80,6 +80,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	 * @param request
 	 * @param response
 	 * @param methodParameter
+	 *            method parameter
 	 * @return
 	 * @throws Exception
 	 */
@@ -92,32 +93,26 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 
 		switch (parameterClass.getName()) //
 		{
-		case HTTP_SESSION:
-			return request.getSession();
-		case HTTP_SERVLET_CONTEXT:
-			return request.getServletContext();
-		case HTTP_SERVLET_REQUEST:
-			return request;
-		case HTTP_SERVLET_RESPONSE:
-			return response;
-
-		// Collection parameter []
-		case TYPE_SET:
-			return resolveSetParameter(request, methodParameterName, methodParameter);
-		case TYPE_MAP:
-			return resolveMapParameter(request, methodParameterName, methodParameter);
-		case TYPE_LIST:
-			return resolveListParameter(request, methodParameterName, methodParameter);
-
-		case TYPE_OPTIONAL:
-			return resolveOptionalParameter(request, methodParameterName, methodParameter);
+			case HTTP_SESSION: 			return request.getSession();
+			case HTTP_SERVLET_CONTEXT:  return request.getServletContext();
+			case HTTP_SERVLET_REQUEST:  return request;
+			case HTTP_SERVLET_RESPONSE: return response;
+	
+			// Collection parameter []
+			case TYPE_SET:				return resolveSetParameter(request, methodParameterName, methodParameter);
+			case TYPE_MAP:				return resolveMapParameter(request, methodParameterName, methodParameter);
+			case TYPE_LIST:				return resolveListParameter(request, methodParameterName, methodParameter);
+	
+			case TYPE_OPTIONAL:			return resolveOptionalParameter(request, methodParameterName, methodParameter);
 
 		}
 
 		return resolve(request, methodParameter, methodParameterName, parameterClass);
 	}
 
+
 	/**
+	 * resolve.
 	 * 
 	 * @param request
 	 * @param methodParameter
@@ -131,7 +126,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	private final Object resolve(HttpServletRequest request, final MethodParameter methodParameter,
 			final String methodParameterName, final Class<?> parameterClass)
 			throws ConversionException, Exception, BadRequestException {
-		// 除开普通参数注入的其他参注入
+		// 
 		if (this.supportsParameter(methodParameter)) {
 			log.debug("set other support parameter -> {}", methodParameterName);
 
@@ -139,7 +134,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			return converter.doConvert(request.getParameter(methodParameterName));
 		}
 
-		// 注入含有注解的参数 不包含 @RequestParam
+		// resolve annotation parameter expect @RequestParam
 		if (methodParameter.hasAnnotation()) {
 			log.debug("set annotation parameter -> [{}]", methodParameterName);
 			return resolveAnnotationParameter(request, methodParameterName, methodParameter);
@@ -148,8 +143,8 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 		if (parameterClass.getSuperclass() == Number.class) {
 
 			log.debug("set number parameter -> [{}]", methodParameterName);
-			final String requestParameter = request.getParameter(methodParameterName);// 请求参数值
-			if (StringUtil.isEmpty(requestParameter)) {
+			final String requestParameter = request.getParameter(methodParameterName);// request parameter value
+			if (StringUtils.isEmpty(requestParameter)) {
 				if (methodParameter.isRequired()) {
 					log.debug("parameter -> [{}] is required", methodParameterName);
 					throw new BadRequestException(); // bad request
@@ -158,9 +153,9 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			} // parse number
 			return NumberUtils.parseDigit(requestParameter, parameterClass);
 
-		} else if (parameterClass.isArray()) { // 是数组
+		} else if (parameterClass.isArray()) { // array
 			log.debug("set array parameter -> [{}]", methodParameterName);
-			// 请求参数值
+			// parameter value[]
 			final String[] parameterValues = request.getParameterValues(methodParameterName);
 			if (parameterValues.length == 0) {
 				if (methodParameter.isRequired()) {
@@ -173,7 +168,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 		}
 
 		if (parameterClass == String.class) {
-			// 请求参数值
+			// parameter value
 			final String requestParameter = request.getParameter(methodParameterName);
 			if (methodParameter.isRequired() && (requestParameter == null || "".equals(requestParameter))) {
 				log.debug("parameter -> [{}] is required", methodParameterName);
@@ -181,7 +176,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			}
 			return requestParameter;
 		}
-		// 处理除特殊参数
+		// resolve pojo
 		log.debug("set pojo parameter -> {}", methodParameterName);
 		Object newInstance = null;
 		try {
@@ -228,50 +223,51 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 
 		switch (methodParameter.getAnnotation()) //
 		{
-			case ANNOTATION_COOKIE: {
-				return cookie(request, methodParameterName, methodParameter);
-			}
-			case ANNOTATION_SESSION: {
-				return request.getSession().getAttribute(methodParameterName);
-			}
-			case ANNOTATION_MULTIPART: { // resolve multipart
-				try {
-					if (multipartResolver.isMultipart(request)) {
-						return multipartResolver.resolveMultipart(request, methodParameterName, methodParameter);
-					}
-					throw new BadRequestException("this isn't multipart request.");
-				} finally {
-					multipartResolver.cleanupMultipart(request);
+		case ANNOTATION_COOKIE: {
+			return cookie(request, methodParameterName, methodParameter);
+		}
+		case ANNOTATION_SESSION: {
+			return request.getSession().getAttribute(methodParameterName);
+		}
+		case ANNOTATION_MULTIPART: { // resolve multipart
+			try {
+				if (multipartResolver.isMultipart(request)) {
+					return multipartResolver.resolveMultipart(request, methodParameterName, methodParameter);
 				}
+				throw new BadRequestException("this isn't multipart request.");
+			} finally {
+				multipartResolver.cleanupMultipart(request);
 			}
-			case ANNOTATION_HEADER: {
-	
-				final String header = request.getHeader(methodParameterName);
-				if (methodParameter.isRequired() && (header == null || "".equals(header.trim()))) {
-					throw new BadRequestException("header -> " + methodParameterName + " can't be null");
-				}
-				return header;
+		}
+		case ANNOTATION_HEADER: {
+
+			final String header = request.getHeader(methodParameterName);
+			if (methodParameter.isRequired() && (header == null || "".equals(header.trim()))) {
+				throw new BadRequestException("header -> " + methodParameterName + " can't be null");
 			}
-			case ANNOTATION_PATH_VARIABLE: {
-				return pathVariable(request, methodParameterName, methodParameter);
+			return header;
+		}
+		case ANNOTATION_PATH_VARIABLE: {
+			return pathVariable(request, methodParameterName, methodParameter);
+		}
+		case ANNOTATION_REQUESTBODY: {
+
+			String body = null;
+			try {
+				body = request.getReader().readLine();
+			} catch (IOException e) {
+				log.error("request body read error.", e);
+				throw new BadRequestException("request body read error.", e);
 			}
-			case ANNOTATION_REQUESTBODY: {
-	
-				String body = null;
-				try {
-					body = request.getReader().readLine();
-				} catch (IOException e) {
-					log.error("request body read error.", e);
-					throw new BadRequestException("request body read error.", e);
-				}
-				return JSON.parseObject(body, methodParameter.getParameterClass());
-			}
+			return JSON.parseObject(body, methodParameter.getParameterClass());
+		}
 		}
 		return null;
 	}
 
 	/**
 	 * set Path Variable arg
+	 * 
 	 * @param request
 	 * @param methodParameterName
 	 * @param methodParameter
@@ -282,8 +278,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			throws BadRequestException {
 		try {
 			String requestURI = request.getRequestURI();
-			final String[] splitRegex = ((String) request.getAttribute("REGEX"))
-					.split(Constant.PATH_VARIABLE_REGEXP);
+			final String[] splitRegex = ((String) request.getAttribute("REGEX")).split(Constant.PATH_VARIABLE_REGEXP);
 
 			for (String reg : splitRegex) {
 				requestURI = requestURI.replace(reg, "\\");
@@ -370,14 +365,14 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 
 		final Class<?> type = field.getType();
 		if (type.isArray()) {
-			parseDigit = NumberUtils.stringToArray(request.getParameterValues(parameterName), type);
+			parseDigit = NumberUtils.toArrayObject(request.getParameterValues(parameterName), type);
 		} else {
 			String parameter = request.getParameter(parameterName);
-			if (StringUtil.isEmpty(parameter)) {
+			if (StringUtils.isEmpty(parameter)) {
 				return true;
 			}
 			if (type.getSuperclass() == Number.class) {
-				
+
 				parseDigit = NumberUtils.parseDigit(parameter, type);
 			} else if (type == String.class) {
 				parseDigit = parameter;

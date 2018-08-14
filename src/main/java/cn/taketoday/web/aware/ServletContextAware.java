@@ -17,29 +17,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.interceptor;
+package cn.taketoday.web.aware;
 
+import javax.servlet.ServletContext;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import cn.taketoday.context.aware.Aware;
 
 /**
- * @author Today
- * @date 2018年6月25日 下午8:09:02
- * @version 2.0.0
+ * @author Today <br>
+ * 
+ *         2018-08-03 15:45
  */
-public abstract class DefaultInterceptProcessor implements InterceptProcessor{
+public interface ServletContextAware extends Aware {
 
-	@Override
-	public boolean beforeProcess(HttpServletRequest request, HttpServletResponse response) {
-		
-		return true;
-	}
-
-	@Override
-	public void afterProcess(HttpServletRequest request, HttpServletResponse response) {
-		
-	}
-	
+	void setServletContext(ServletContext servletContext);
 
 }

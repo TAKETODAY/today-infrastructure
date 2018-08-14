@@ -40,9 +40,11 @@ import cn.taketoday.web.resolver.ExceptionResolver;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today
- * @date 2018年6月25日 下午7:47:14
+ * 
+ * @author Today <br>
+ *         2018-06-25 19:47:14
  * @version 2.0.0
+ * @version 2.2.0
  */
 @Slf4j
 public final class ActionDispatcher extends HttpServlet {
@@ -58,6 +60,10 @@ public final class ActionDispatcher extends HttpServlet {
 
 		actionHandler = applicationContext.getBean(Constant.ACTION_HANDLER, ActionHandler.class);
 		exceptionResolver = applicationContext.getBean(Constant.EXCEPTION_RESOLVER, ExceptionResolver.class);
+		
+		applicationContext.removeBean(Constant.ACTION_HANDLER);
+		applicationContext.removeBean(Constant.EXCEPTION_RESOLVER);
+		
 		actionHandler.doInit(applicationContext);
 	}
 
@@ -72,13 +78,15 @@ public final class ActionDispatcher extends HttpServlet {
 
 		response.setCharacterEncoding("UTF-8");
 		request.setCharacterEncoding("UTF-8");
+
 		HandlerMapping requestMapping = null;
 
-		// enter handler
+		// find handler
 		try {
-			// find request mapping
+
 			final String requestURI = request.getMethod() + Constant.REQUEST_METHOD_PREFIX + request.getRequestURI();
 
+			// find request mapping
 			Integer index = DispatchHandler.REQUEST_MAPPING.get(requestURI);
 			if (index == null) {
 				Iterator<RegexMapping> iterator = DispatchHandler.REGEX_URL.iterator();
@@ -105,14 +113,19 @@ public final class ActionDispatcher extends HttpServlet {
 				InterceptProcessor interceptProcessor = DispatchHandler.INTERCEPT_POOL.get(interceptor);
 
 				if (!interceptProcessor.beforeProcess(request, response)) {
-					log.debug("interceptor number [{}] return false", interceptor);
+					log.debug("Interceptor number -> [{}] return false", interceptor);
 					return;
 				}
 			}
 			// do dispatch
-			actionHandler.doDispatch(requestMapping, request, response);
-			// interceptProcessor.afterProcess(request, response);
+			// actionHandler.doDispatch(requestMapping, request, response);
 
+			Object doDispatch = actionHandler.doDispatch(requestMapping, request, response);
+
+			for (Integer interceptor : interceptors) {
+				InterceptProcessor interceptProcessor = DispatchHandler.INTERCEPT_POOL.get(interceptor);
+				interceptProcessor.afterProcess(doDispatch, request, response);
+			}
 		} catch (Exception exception) {
 			exceptionResolver.resolveException(request, response, exception);
 		}

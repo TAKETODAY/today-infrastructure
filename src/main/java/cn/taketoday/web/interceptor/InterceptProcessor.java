@@ -23,21 +23,40 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Intercept Processor process before action , process after action like log
- * @author Today
- * @date 2018年6月25日 下午8:06:11
+ * Intercept Processor process before action , process after action.
+ * 
+ * @author Today <br>
+ * 
+ *         2018-06-25 20:06:11
  */
 public interface InterceptProcessor {
 
-	/**	前置拦截器
-	 * @throws Exception **/
-	public boolean beforeProcess(HttpServletRequest request, HttpServletResponse response) throws Exception;	
+	/**
+	 * Before HandlerMethod process.
+	 * 
+	 * @param request
+	 *            request
+	 * @param response
+	 *            response
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean beforeProcess(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
-	/** 后置拦截器
-	 * @throws Exception **/
-	default void afterProcess(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
+	/**
+	 * After HandlerMethod process.
+	 * 
+	 * @param result
+	 *            HandlerMethod returned value
+	 * @param request
+	 *            request
+	 * @param response
+	 *            response
+	 * @throws Exception
+	 */
+	default void afterProcess(Object result, HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+
 	}
 
-	
 }

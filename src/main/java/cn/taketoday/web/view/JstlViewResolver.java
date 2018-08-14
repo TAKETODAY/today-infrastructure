@@ -23,17 +23,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.web.core.WebApplicationContext;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today
- * @date 2018年6月26日 上午11:53:43
+ * 
+ * @author Today <br>
+ *         2018-06-26 11:53:43
  */
+@Slf4j
 public class JstlViewResolver extends AbstractViewResolver {
 
+	
 	@Override
 	public void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-
+		
 		request.getRequestDispatcher(prefix + templateName + suffix).forward(request, response);
 	}
 

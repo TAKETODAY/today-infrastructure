@@ -35,36 +35,34 @@ import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
 
 /**
- * @author Today
- * @date 2018年7月1日 下午5:30:35
+ * 
+ * @author Today <br>
+ * 
+ *         2018-1-1 17:30:35
  */
 public final class ActionHandler extends AbstractHandler<HandlerMapping> {
 
-	/**
-	 * 处理请求
-	 */
 	@Override
-	public void doDispatch(HandlerMapping mapping, HttpServletRequest request, HttpServletResponse response)
+	public Object doDispatch(HandlerMapping mapping, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 
-		// 获取处理器方法
+		// Handler Method
 		HandlerMethod handlerMethod = mapping.getHandlerMethod();
-		// 方法参数
+		// method parameter
 		MethodParameter[] methodParameters = handlerMethod.getParameter();
-		// 处理器参数列表
+		// Handler Method parameter list
 		final Object[] args = new Object[methodParameters.length];
 
 		if (!parameterResolver.resolveParameter(args, methodParameters, request, response)) {
 			log.debug("bad request");
 			response.sendError(400); // bad request
-			return;
+			return null;
 		}
 		// log.debug("parameter list -> {}", Arrays.toString(args));
 
-		Object invoke = handlerMethod.getMethod().invoke(applicationContext.getBean(mapping.getActionProcessor()),
-				args); // 参数注入并执行
+		Object invoke = handlerMethod.getMethod().invoke(applicationContext.getBean(mapping.getAction()), args); // 参数注入并执行
 
-		if (invoke instanceof String && !mapping.isResponseBody()) { // 返回视图
+		if (invoke instanceof String && !mapping.isResponseBody()) { // return view
 			final String returnStr = ((String) invoke);
 			if (returnStr.startsWith(Constant.REDIRECT_URL_PREFIX)) {
 				response.sendRedirect(contextPath + returnStr.replace(Constant.REDIRECT_URL_PREFIX, ""));
@@ -85,6 +83,7 @@ public final class ActionHandler extends AbstractHandler<HandlerMapping> {
 		}
 
 		log.debug("result -> {}", invoke);
+		return invoke;
 	}
 
 }

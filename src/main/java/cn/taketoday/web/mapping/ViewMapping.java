@@ -22,34 +22,31 @@ package cn.taketoday.web.mapping;
 import java.io.Serializable;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
  * views request mapping
  * 
- * @author Today
- * @date 2018年6月25日 下午7:58:07
+ * @author Today <br>
+ * 
+ *         2018-06-25 19:58:07
  * @version 2.0.0
  */
 @Setter
 @Getter
+@NoArgsConstructor
 public final class ViewMapping implements Serializable {
 
-	
 	private static final long	serialVersionUID	= -8130348090936881368L;
 	/** 返回类型 */
-	private int					returnType			= 0; 		// default -> dispatcher
+	private int					returnType			= 0;					// default -> dispatcher
 	/** 资源路径 */
 	private String				assetsPath			= "";
 
-	
-	public ViewMapping() {
-
-	}
-
 	@Override
 	public String toString() {
-		return "{\"returnType\":\"" + returnType + "\",\"assetsPath\":\"" + assetsPath + "\"}";
+		return "[returnType=" + returnType + ", assetsPath=" + assetsPath + "]";
 	}
 
 }

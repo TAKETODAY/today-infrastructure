@@ -1,4 +1,5 @@
-﻿package cn.taketoday.web.utils;
+﻿
+package cn.taketoday.web.utils;
 
 /************************************************
  * MD5 算法的Java Bean

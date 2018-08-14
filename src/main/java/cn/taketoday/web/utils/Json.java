@@ -21,23 +21,26 @@ package cn.taketoday.web.utils;
 
 import java.io.Serializable;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 
- * @author Today
- * @date 2018年6月30日 下午6:23:40
+ * @author Today <br>
+ * 
+ *         2018-06-30 18:23:40
  */
+@Setter
+@Getter
+@NoArgsConstructor
 public final class Json implements Serializable {
 
 	private static final long	serialVersionUID	= -5925945582314435750L;
 
-	private boolean				success;
 	private String				msg;
 	private Object				data;
-
-	public Json() {
-
-	}
+	private boolean				success;
 
 	public Json(boolean success, String msg) {
 		this.success = success;
@@ -50,35 +53,17 @@ public final class Json implements Serializable {
 		data = obj;
 	}
 
-	public boolean isSuccess() {
-		return success;
-	}
-
-	public void setSuccess(boolean success) {
-		this.success = success;
-	}
-
-	public String getMsg() {
-		return msg;
-	}
-
-	public void setMsg(String msg) {
-		this.msg = msg;
-	}
-
-	public Object getData() {
-		return data;
-	}
-
-	public void setData(Object data) {
-		this.data = data;
-	}
-
 	@Override
 	public String toString() {
-		return " {\"success\":" + success + ",\"msg\":\"" + msg + "\",\"data\":\"" + data + "\"}";
+		return new StringBuilder()//
+				.append("{\"msg\":\"")//
+				.append(msg)//
+				.append("\",\"data\":\"")//
+				.append(data)//
+				.append("\",\"success\":\"")//
+				.append(success)//
+				.append("\"}")//
+				.toString();
 	}
 
-	
-	
 }

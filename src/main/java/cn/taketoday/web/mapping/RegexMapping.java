@@ -21,25 +21,26 @@ package cn.taketoday.web.mapping;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * @author Today
- * @date 2018年6月30日 上午10:28:10
+ * 
+ * @author Today <br>
+ * 
+ *         2018-06-30 10:28:10
  */
 @Setter
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public final class RegexMapping {
 
 	private String	regexUrl;
+
 	private String	methodUrl;
 	// the handler mapping index
 	private int		index;
-	
-	public RegexMapping() {
-
-	}
 
 	@Override
 	public String toString() {

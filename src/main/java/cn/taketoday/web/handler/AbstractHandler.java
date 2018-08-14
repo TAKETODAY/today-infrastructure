@@ -45,25 +45,29 @@ import cn.taketoday.web.view.ViewResolver;
  */
 public abstract class AbstractHandler<T> implements DispatchHandler<T> {
 
-	protected final Logger		log						= LoggerFactory.getLogger(AbstractHandler.class);
+	protected final Logger			log			= LoggerFactory.getLogger(AbstractHandler.class);
 
-	protected String			contextPath				= null;
+	protected String				contextPath	= null;
 
-	protected WebApplicationContext applicationContext;
-	
-	/**	view **/
-	protected ViewResolver		viewResolver;
-	/**	parameter **/
-	protected ParameterResolver	parameterResolver;
+	protected WebApplicationContext	applicationContext;
+
+	/** view **/
+	protected ViewResolver			viewResolver;
+	/** parameter **/
+	protected ParameterResolver		parameterResolver;
 
 	@Override
 	public void doInit(WebApplicationContext applicationContext) {
 
 		this.applicationContext = applicationContext;
 		try {
-			
+
 			viewResolver = applicationContext.getBean(Constant.VIEW_RESOLVER, AbstractViewResolver.class);
 			parameterResolver = applicationContext.getBean(Constant.PARAMETER_RESOLVER, ParameterResolver.class);
+			
+			applicationContext.removeBean(Constant.VIEW_RESOLVER);
+			applicationContext.removeBean(Constant.PARAMETER_RESOLVER);
+
 		} catch (NoSuchBeanDefinitionException ex) {
 			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
 		}
@@ -73,11 +77,12 @@ public abstract class AbstractHandler<T> implements DispatchHandler<T> {
 	}
 
 	/**
-	 * download file
+	 * download file.
 	 * 
 	 * @param request
 	 * @param response
 	 * @param download
+	 *            file
 	 * @throws IOException
 	 */
 	protected void downloadFile(HttpServletRequest request, HttpServletResponse response, File download)

@@ -26,8 +26,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author Today
- * @date 2018年6月25日 下午7:59:13
+ * 
+ * @author Today <br>
+ * 
+ *         2018-06-25 19:59:13
  */
 @Getter
 @Setter
@@ -35,25 +37,25 @@ public final class HandlerMapping implements Serializable {
 
 	private static final long	serialVersionUID	= 1430992221283070496L;
 	/** 处理器类 */
-	private Class<?>			actionProcessor		= null;
+	private String				action;
 	/** 处理器方法 */
-	private HandlerMethod		handlerMethod		= null;
+	private HandlerMethod		handlerMethod;
 	/** 拦截器 */
-	private Integer[]			interceptors		= null;
+	private Integer[]			interceptors;
 	/** 响应方式 */
 	private boolean				responseBody		= false;
-	/** Produces */
-	private String				produces			= null;
 
-	
+	/** Produces */
+	// private String produces;
+
 	public HandlerMapping() {
 
 	}
 
 	@Override
 	public String toString() {
-		return "[actionProcessor=" + actionProcessor + ", processorMethod=" + handlerMethod.getMethod().getName() + ", interceptors="
-				+ Arrays.toString(interceptors) + ", responseBody=" + responseBody + "]";
+		return "[action=" + action + ", HandlerMethod=" + handlerMethod.getMethod().getName() + ", interceptors="
+				+ Arrays.toString(interceptors) + ",isResponseBody=" + responseBody + "]";
 	}
 
 }

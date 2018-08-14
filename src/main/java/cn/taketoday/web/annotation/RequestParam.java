@@ -35,6 +35,7 @@ public @interface RequestParam {
 
 	String value() default "";
 
+	@Deprecated
 	String defaultValue() default "";
 	
 }

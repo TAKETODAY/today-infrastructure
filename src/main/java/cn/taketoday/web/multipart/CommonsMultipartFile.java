@@ -24,20 +24,20 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.fileupload.FileItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * Commons file upload implement
+ * Commons file upload implement.
  * 
- * @author Today
- * @date 2018年7月11日 下午3:48:00
+ * @author Today <br>
+ * 
+ *         2018-07-11 15:48:00
  */
+@Slf4j
 public final class CommonsMultipartFile implements MultipartFile {
 
 	private static final long	serialVersionUID	= -8499057935018080732L;
-
-	protected Logger			log					= LoggerFactory.getLogger(CommonsMultipartFile.class);
 
 	private FileItem			fileItem;
 

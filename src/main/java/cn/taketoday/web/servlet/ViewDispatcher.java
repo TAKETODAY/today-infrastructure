@@ -32,8 +32,10 @@ import cn.taketoday.web.mapping.ViewMapping;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today
- * @date 2018年6月25日 下午7:48:28
+ * 
+ * @author Today <br>
+ * 
+ * 		2018-06-25 19:48:28
  * @version 2.0.0
  */
 @Slf4j
@@ -47,16 +49,25 @@ public final class ViewDispatcher extends HttpServlet {
 
 		final String contextPath = request.getContextPath();
 		String requestURI = request.getRequestURI().replace(contextPath, "");
-
+		
 		ViewMapping mapping = DispatchHandler.VIEW_REQUEST_MAPPING.get(requestURI);
+		if(mapping == null) {
+			response.sendError(404);
+			return ;
+		}
 		// 转到相应页面
+		String assetsPath = mapping.getAssetsPath();
 		switch (mapping.getReturnType()) 
 		{
 			case Constant.TYPE_DISPATCHER:
-				request.getRequestDispatcher(mapping.getAssetsPath()).forward(request, response);
+				request.getRequestDispatcher(assetsPath).forward(request, response);
 				return;
 			case Constant.TYPE_REDIRECT:
-				response.sendRedirect(contextPath + "/" + mapping.getAssetsPath());
+				if(assetsPath.startsWith("http")) {
+					response.sendRedirect(assetsPath);
+					return ;
+				}
+				response.sendRedirect(contextPath + "/" + assetsPath);
 				return;
 			default:
 				response.sendError(500);
@@ -67,7 +78,7 @@ public final class ViewDispatcher extends HttpServlet {
 	@Override
 	public void destroy() {
 
-		log.debug("------ ViewDispatcher shutdown -------");
+		log.debug("------ Views Dispatcher SHUTDOWN -------");
 	}
 
 }

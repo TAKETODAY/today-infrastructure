@@ -36,8 +36,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author Today
- * @date 2018年6月28日 下午9:00:29
+ * 
+ * @author Today <br>
+ *         2018-06-28 9:00:29
  */
 @Setter
 @Getter
@@ -85,16 +86,6 @@ public final class DefaultMultipartResolver extends AbstractMultipartResolver {
 		}
 		log.error("method parameter setting error.");
 		return null;
-	}
-
-	@Override
-	public boolean isMultipart(HttpServletRequest request) {
-
-		if (!"POST".equals(request.getMethod())) {
-			return false;
-		}
-		String contentType = request.getContentType();
-		return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
 	}
 
 	@Override

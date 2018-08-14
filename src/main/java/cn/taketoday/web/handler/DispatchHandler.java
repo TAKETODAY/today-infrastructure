@@ -20,7 +20,7 @@
 package cn.taketoday.web.handler;
 
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,39 +34,43 @@ import cn.taketoday.web.mapping.RegexMapping;
 import cn.taketoday.web.mapping.ViewMapping;
 
 /**
- * @author Today
- * @date 2018年6月30日 下午6:24:30
+ * 
+ * @author Today <br>
+ *         2018-06-30 18:24:30
  */
-public interface DispatchHandler<T>{
+public interface DispatchHandler<T> {
+
+	// Set<RegexMapping> REGEX_URL = new LinkedHashSet<>(8);
+	/** **/
+	Set<RegexMapping>			REGEX_URL				= new HashSet<>(8);
+	/** view 视图映射池 */
+	Map<String, ViewMapping>	VIEW_REQUEST_MAPPING	= new HashMap<>(8);
+	/** Action mapping pool */
+	HandlerMappingPool			HANDLER_MAPPING_POOL	= new HandlerMappingPool();
+	/** mapping */
+	Map<String, Integer>		REQUEST_MAPPING			= new HashMap<>(8);
+	/** 拦截器池 */
+	InterceptPool				INTERCEPT_POOL			= new InterceptPool();
 
 	/**
-	 * 
-	 */
-	Set<RegexMapping> REGEX_URL = new LinkedHashSet<>(8);
-//	Set<RegexMapping> REGEX_URL = new HashSet<>(8);
-	/** view 视图映射池 */
-	Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>(8);
-	/** Action 映射池 */
-	HandlerMappingPool HANDLER_MAPPING_POOL = new HandlerMappingPool();
-	/**	*/
-	Map<String, Integer> REQUEST_MAPPING = new HashMap<>(8);
-	/**	拦截器池*/
-	InterceptPool INTERCEPT_POOL = new InterceptPool();
-	
-	/**
+	 * Initialize view resolver and parameter resolver.
 	 * 
 	 * @param applicationContext
+	 *            application context
 	 */
 	public void doInit(WebApplicationContext applicationContext);
-	
+
 	/**
-	 * doDispatch
+	 * Resolve request and invoke HandlerMathod.
+	 * 
 	 * @param mapping
+	 *            the HandlerMapping
 	 * @param request
+	 *            current request
 	 * @param response
+	 *            current response
 	 * @throws Exception
 	 */
-	public void doDispatch(T mapping, HttpServletRequest request, HttpServletResponse response) throws Exception;
-	
-	
+	public Object doDispatch(T mapping, HttpServletRequest request, HttpServletResponse response) throws Exception;
+
 }

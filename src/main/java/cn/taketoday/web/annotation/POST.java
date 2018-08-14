@@ -26,15 +26,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author Today
- * @date 2018年7月1日 下午2:08:28
+ * 
+ * @author Today <br>
+ * 
+ *         2018-07-01 14:08:28
  */
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface POST {
-	
-	//url
-	String value() ;
+
+	// url
+	String value() default "";
 
 }
