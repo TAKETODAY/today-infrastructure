@@ -1,4 +1,9 @@
+<<<<<<< HEAD:src/main/java/cn/taketoday/web/utils/MD5.java
 ﻿package cn.taketoday.web.utils;
+=======
+﻿
+package cn.taketoday.web.utils;
+>>>>>>> 2.2.x:src/main/java/cn/taketoday/web/utils/MD5.java
 
 /************************************************
  * MD5 算法的Java Bean

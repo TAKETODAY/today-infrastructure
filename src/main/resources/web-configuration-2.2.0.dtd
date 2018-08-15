@@ -1,0 +1,66 @@
+<!-- 
+<!DOCTYPE Web-Configuration PUBLIC
+		"-//TODAY BLOG//Web-View Configuration DTD 2.0//CN"
+			"https://taketoday.cn/framework/web/dtd/web-configuration-2.2.0.dtd">
+
+<!ELEMENT Web-Configuration (static-resources*, property-location*, component-scan*, common*, bean*)>
+		class CDATA #IMPLIED
+
+-->
+
+<!ELEMENT Web-Configuration (#PCDATA|static-resources|common|view-resolver|multipart|exception-resolver|parameter-resolver)*>
+
+<!-- view's common configure -->
+<!ELEMENT common (view)*>
+	<!ATTLIST common
+		prefix CDATA "/WEB-INF"
+		suffix CDATA ".jsp"
+	>
+	
+<!-- view configure -->
+<!ELEMENT view (#PCDATA)>
+	<!ATTLIST view
+		res CDATA #REQUIRED
+		type (dispatcher|redirect) #IMPLIED
+		name CDATA #REQUIRED
+	>
+
+<!-- static sources configure -->
+<!ELEMENT static-resources (#PCDATA)>
+	<!ATTLIST static-resources
+		mapping CDATA #REQUIRED
+	>
+
+<!ELEMENT view-resolver (#PCDATA|view-suffix|view-prefix|view-encoding|view-locale)*>
+	<!ATTLIST view-resolver
+		class (cn.taketoday.web.view.JstlViewResolver|cn.taketoday.web.view.FreeMarkerViewResolver|cn.taketoday.web.view.ThymeleafViewResolver) #IMPLIED 
+	>
+	
+<!ELEMENT view-suffix (#PCDATA)>
+<!ELEMENT view-prefix (#PCDATA)>
+<!ELEMENT view-encoding (#PCDATA)>
+<!ELEMENT view-locale (#PCDATA)>
+	
+<!ELEMENT parameter-resolver (#PCDATA)>
+	<!ATTLIST parameter-resolver
+		class CDATA "cn.taketoday.web.resolver.DefaultParameterResolver"
+	>	
+<!ELEMENT exception-resolver (#PCDATA)>
+	<!ATTLIST exception-resolver
+		class CDATA "cn.taketoday.web.resolver.DefaultExceptionResolver"
+	>
+	
+<!ELEMENT multipart (#PCDATA|upload-location|upload-maxFileSize|upload-maxRequestSize|upload-fileSizeThreshold|upload-encoding)*>
+	<!ATTLIST multipart
+		class CDATA "cn.taketoday.web.multipart.DefaultMultipartResolver" 
+	>
+<!ELEMENT upload-encoding (#PCDATA)>
+<!ELEMENT upload-location (#PCDATA)>
+<!ELEMENT upload-maxFileSize (#PCDATA)>
+<!ELEMENT upload-maxRequestSize (#PCDATA)>
+<!ELEMENT upload-fileSizeThreshold (#PCDATA)>
+	
+	
+	
+
+
