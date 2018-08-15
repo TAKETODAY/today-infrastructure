@@ -22,7 +22,6 @@ package cn.taketoday.web.core;
 import javax.servlet.ServletContext;
 
 import cn.taketoday.context.ClassPathApplicationContext;
-import cn.taketoday.web.aware.ServletContextAware;
 
 /**
  * @author Today

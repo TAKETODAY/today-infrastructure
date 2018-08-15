@@ -71,8 +71,8 @@ import lombok.extern.slf4j.Slf4j;
  * @author Today
  * @date 2018年6月23日 下午4:20:26
  */
-@Singleton(Constant.ACTION_CONFIG)
 @Slf4j
+@Singleton(Constant.ACTION_CONFIG)
 public final class ActionConfig implements ApplicationContextAware {
 
 	private String					contextPath;

@@ -48,15 +48,14 @@ public final class ViewDispatcher extends HttpServlet {
 			throws ServletException, IOException {
 
 		final String contextPath = request.getContextPath();
-		String requestURI = request.getRequestURI().replace(contextPath, "");
 		
-		ViewMapping mapping = DispatchHandler.VIEW_REQUEST_MAPPING.get(requestURI);
+		ViewMapping mapping = DispatchHandler.VIEW_REQUEST_MAPPING.get(request.getRequestURI().replace(contextPath, ""));
 		if(mapping == null) {
 			response.sendError(404);
 			return ;
 		}
 		// 转到相应页面
-		String assetsPath = mapping.getAssetsPath();
+		final String assetsPath = mapping.getAssetsPath();
 		switch (mapping.getReturnType()) 
 		{
 			case Constant.TYPE_DISPATCHER:

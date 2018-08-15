@@ -17,38 +17,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.mapping;
+package test.web.action;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import cn.taketoday.context.annotation.RestProcessor;
+import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.annotation.Header;
+import cn.taketoday.web.annotation.POST;
 
 /**
- * 
- * @author Today <br>
- * 		2018-06-25 20:03:11
+ * @author Today
+ * @date 2018年7月2日 下午11:39:50
  */
-@Setter
-@Getter
-@NoArgsConstructor
-public final class HandlerMethod {
+@RestProcessor
+public class AnnotationAction {
 
-	/** action **/
-	private Method				method		= null;
-	/** parameter list **/
-	private MethodParameter[]	parameter	= null;
-
-	public HandlerMethod(Method method, List<MethodParameter> parameters) {
-		this.method = method;
-		this.parameter = parameters.toArray(new MethodParameter[0]);
+	
+	@GET("ann")
+	@POST("post")
+	public String annotation(HttpServletRequest request, @Header("User-Agent") String agent) {
+		
+		
+		return request.getMethod() + " User-Agent -> " + agent;
 	}
-
-	@Override
-	public String toString() {
-		return "{method=" + method + ", parameter=[" + Arrays.toString(parameter) + "]}";
-	}
+	
+	
 }

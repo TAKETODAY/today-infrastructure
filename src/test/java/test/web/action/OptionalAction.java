@@ -17,38 +17,33 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.mapping;
+package test.web.action;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import cn.taketoday.context.annotation.RestProcessor;
+import cn.taketoday.web.annotation.GET;
 
 /**
- * 
- * @author Today <br>
- * 		2018-06-25 20:03:11
+ * @author Today
+ * @date 2018年7月7日 下午8:57:05
  */
-@Setter
-@Getter
-@NoArgsConstructor
-public final class HandlerMethod {
+@RestProcessor
+public final class OptionalAction {
 
-	/** action **/
-	private Method				method		= null;
-	/** parameter list **/
-	private MethodParameter[]	parameter	= null;
-
-	public HandlerMethod(Method method, List<MethodParameter> parameters) {
-		this.method = method;
-		this.parameter = parameters.toArray(new MethodParameter[0]);
+	public OptionalAction() {
+		
 	}
 
-	@Override
-	public String toString() {
-		return "{method=" + method + ", parameter=[" + Arrays.toString(parameter) + "]}";
+	@GET("/optional")
+	public String optional(Optional<String> opt) {
+		
+		opt.ifPresent(opts -> {
+			System.out.println(opts);
+		});
+		
+		return "Optional";
 	}
+	
 }
+

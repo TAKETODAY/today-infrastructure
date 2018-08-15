@@ -33,6 +33,7 @@ import cn.taketoday.web.core.Constant;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
@@ -40,6 +41,7 @@ import cn.taketoday.web.mapping.MethodParameter;
  * 
  *         2018-1-1 17:30:35
  */
+@Slf4j
 public final class ActionHandler extends AbstractHandler<HandlerMapping> {
 
 	@Override

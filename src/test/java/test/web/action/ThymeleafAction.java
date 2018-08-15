@@ -17,38 +17,38 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.mapping;
+package test.web.action;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import cn.taketoday.context.annotation.ActionProcessor;
+import cn.taketoday.web.annotation.ActionMapping;
 
 /**
- * 
- * @author Today <br>
- * 		2018-06-25 20:03:11
+ * @author Today
+ * @date 2018年6月26日 下午8:24:43
  */
-@Setter
-@Getter
-@NoArgsConstructor
-public final class HandlerMethod {
+@ActionProcessor
+public class ThymeleafAction extends BaseAction{
 
-	/** action **/
-	private Method				method		= null;
-	/** parameter list **/
-	private MethodParameter[]	parameter	= null;
+	private static final long serialVersionUID = -3151382835705083327L;
 
-	public HandlerMethod(Method method, List<MethodParameter> parameters) {
-		this.method = method;
-		this.parameter = parameters.toArray(new MethodParameter[0]);
+	@ActionMapping("/thymeleaf")
+	public String thymeleaf(HttpServletRequest request) {
+		
+		request.setAttribute("hello", "Hello thymeleaf");
+		
+		return "/hello";
 	}
-
-	@Override
-	public String toString() {
-		return "{method=" + method + ", parameter=[" + Arrays.toString(parameter) + "]}";
+	
+	@ActionMapping("/thymeleaf/array")
+	public String thymeleaf_array(HttpServletRequest request) {
+		
+		request.setAttribute("arrays", new Integer[]{1, 100, 22, 33});
+		
+		return "/array";
 	}
+	
+	
+	
 }

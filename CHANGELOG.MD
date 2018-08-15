@@ -7,10 +7,6 @@
 > - 取消后缀
 > - Java1.8 通过反射得到参数名称
 
-
-
-
-
 ## v2.0 `2018-06-26`
 > ### 优化架构，简化配置几乎可以做到零配置
 > ### 请求参数支持基本数据类型数组
@@ -203,6 +199,8 @@ public final class PathVariableAction {
 > `HandlerMapping` private Class<?> actionProcessor 改为 private String action
 > 更改 `Freemarker` 版本 解决 `AllHttpScopesHashModel` 构造函数不可视问题, 去掉 `AllScopesModel` 类
 > 添加单元测试
+> 优化拦截器
+> 添加 web-configuration-2.2.0.dtd
 
 <br>
 <br>

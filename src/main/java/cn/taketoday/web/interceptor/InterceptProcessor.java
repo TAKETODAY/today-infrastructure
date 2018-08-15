@@ -22,6 +22,8 @@ package cn.taketoday.web.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.taketoday.web.mapping.HandlerMapping;
+
 /**
  * Intercept Processor process before action , process after action.
  * 
@@ -29,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
  * 
  *         2018-06-25 20:06:11
  */
+@FunctionalInterface
 public interface InterceptProcessor {
 
 	/**
@@ -38,10 +41,13 @@ public interface InterceptProcessor {
 	 *            request
 	 * @param response
 	 *            response
+	 * @param handlerMapping
+	 *            request mapping
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean beforeProcess(HttpServletRequest request, HttpServletResponse response) throws Exception;
+	boolean beforeProcess(HttpServletRequest request, HttpServletResponse response, HandlerMapping handlerMapping)
+			throws Exception;
 
 	/**
 	 * After HandlerMethod process.

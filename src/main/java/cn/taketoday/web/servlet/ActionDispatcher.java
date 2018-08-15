@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.servlet;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import javax.servlet.ServletConfig;
@@ -52,10 +51,10 @@ public final class ActionDispatcher extends HttpServlet {
 	private static final long				serialVersionUID	= -9011358593929556322L;
 
 	/** action executor */
-	private DispatchHandler<HandlerMapping>	actionHandler;
+	private transient final DispatchHandler<HandlerMapping> actionHandler;
 	/** exception Resolver */
-	private ExceptionResolver				exceptionResolver;
-
+	private transient final ExceptionResolver exceptionResolver;
+	
 	public ActionDispatcher(WebApplicationContext applicationContext) throws NoSuchBeanDefinitionException {
 
 		actionHandler = applicationContext.getBean(Constant.ACTION_HANDLER, ActionHandler.class);
@@ -73,20 +72,19 @@ public final class ActionDispatcher extends HttpServlet {
 	}
 
 	@Override
-	protected final void service(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+	protected final void service(HttpServletRequest request, HttpServletResponse response) {
 
-		response.setCharacterEncoding("UTF-8");
-		request.setCharacterEncoding("UTF-8");
-
-		HandlerMapping requestMapping = null;
-
-		// find handler
 		try {
-
+			
+			response.setCharacterEncoding("UTF-8");
+			request.setCharacterEncoding("UTF-8");
+	
+			HandlerMapping requestMapping = null;
+	
+			// find handler
 			final String requestURI = request.getMethod() + Constant.REQUEST_METHOD_PREFIX + request.getRequestURI();
 
-			// find request mapping
+			// find request mapping index
 			Integer index = DispatchHandler.REQUEST_MAPPING.get(requestURI);
 			if (index == null) {
 				Iterator<RegexMapping> iterator = DispatchHandler.REGEX_URL.iterator();
@@ -105,30 +103,33 @@ public final class ActionDispatcher extends HttpServlet {
 				}
 			}
 			requestMapping = DispatchHandler.HANDLER_MAPPING_POOL.get(index);
-			// get interceptors
+			// get intercepter s
 			Integer[] interceptors = requestMapping.getInterceptors();
 
-			// invoke
+			// invoke intercepter
 			for (Integer interceptor : interceptors) {
 				InterceptProcessor interceptProcessor = DispatchHandler.INTERCEPT_POOL.get(interceptor);
-
-				if (!interceptProcessor.beforeProcess(request, response)) {
+				
+				if (!interceptProcessor.beforeProcess(request, response, requestMapping)) {
 					log.debug("Interceptor number -> [{}] return false", interceptor);
 					return;
 				}
 			}
+			
 			// do dispatch
 			// actionHandler.doDispatch(requestMapping, request, response);
-
+			
 			Object doDispatch = actionHandler.doDispatch(requestMapping, request, response);
-
+			
 			for (Integer interceptor : interceptors) {
-				InterceptProcessor interceptProcessor = DispatchHandler.INTERCEPT_POOL.get(interceptor);
-				interceptProcessor.afterProcess(doDispatch, request, response);
+				
+				DispatchHandler.INTERCEPT_POOL.get(interceptor).afterProcess(doDispatch, request, response);
 			}
-		} catch (Exception exception) {
+		}//
+		catch (Exception exception) {
 			exceptionResolver.resolveException(request, response, exception);
 		}
 	}
 
 }
+

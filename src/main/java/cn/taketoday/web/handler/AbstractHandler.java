@@ -29,25 +29,22 @@ import java.net.URLEncoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.web.core.Constant;
 import cn.taketoday.web.core.WebApplicationContext;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.ViewResolver;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Today
  * @date 2018年7月1日 下午5:29:16
  */
+@Slf4j
 public abstract class AbstractHandler<T> implements DispatchHandler<T> {
 
-	protected final Logger			log			= LoggerFactory.getLogger(AbstractHandler.class);
-
-	protected String				contextPath	= null;
+	protected String contextPath;
 
 	protected WebApplicationContext	applicationContext;
 
