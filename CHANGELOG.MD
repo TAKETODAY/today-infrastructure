@@ -196,13 +196,8 @@ public final class PathVariableAction {
 ```
 
 ## v2.2.2
-> `HandlerMapping` private Class<?> actionProcessor 改为 private String action
-> 更改 `Freemarker` 版本 解决 `AllHttpScopesHashModel` 构造函数不可视问题, 去掉 `AllScopesModel` 类
-> 添加单元测试
-> 优化拦截器
-> 添加 web-configuration-2.2.0.dtd
-
-<br>
-<br>
-<br>
-<br>
+> ### `HandlerMapping` private Class<?> actionProcessor 改为 private String action
+> ### 更改 `Freemarker` 版本 解决 `AllHttpScopesHashModel` 构造函数不可视问题, 去掉 `AllScopesModel` 类
+> ### 添加单元测试
+> ### 优化拦截器
+> ### 添加 web-configuration-2.2.0.dtd
