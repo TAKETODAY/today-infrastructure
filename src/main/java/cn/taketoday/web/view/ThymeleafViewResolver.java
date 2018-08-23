@@ -27,7 +27,7 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
-import cn.taketoday.web.core.WebApplicationContext;
+import cn.taketoday.web.WebApplicationContext;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -51,7 +51,7 @@ public class ThymeleafViewResolver extends AbstractViewResolver {
 		templateEngine = new TemplateEngine();
 
 		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
-
+		
 		templateResolver.setPrefix(prefix);
 		templateResolver.setSuffix(suffix);
 		templateResolver.setCacheable(cacheable);

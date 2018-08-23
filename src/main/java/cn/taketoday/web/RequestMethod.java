@@ -17,28 +17,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package cn.taketoday.web;
 
 /**
- * 
- * @author Today <br>
- *         2018-08-21 20:19 <br>
- *         <b>change:</b> add defaultValue()
+ * @author Today
+ * @date 2018年6月27日 下午7:01:04
+ * @version 2.0.0
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface Session {
+public enum RequestMethod {
 
-	/**
-	 * Session attribute name.
-	 * 
-	 * @return
-	 */
-	String value() default "";
-
+	GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS;
+	
 }

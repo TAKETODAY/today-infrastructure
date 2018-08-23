@@ -21,14 +21,14 @@ package test.web.action;
 
 import javax.servlet.http.HttpServletRequest;
 
-import cn.taketoday.context.annotation.ActionProcessor;
 import cn.taketoday.web.annotation.ActionMapping;
+import cn.taketoday.web.annotation.Controller;
 
 /**
  * @author Today
  * @date 2018年6月26日 下午8:24:43
  */
-@ActionProcessor
+@Controller
 public class ThymeleafAction extends BaseAction{
 
 	private static final long serialVersionUID = -3151382835705083327L;

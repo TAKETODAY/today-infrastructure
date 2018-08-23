@@ -1,25 +1,25 @@
 /**
- * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn Copyright
+ * © Today & 2017 - 2018 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.web.mapping;
 
-import cn.taketoday.web.core.Constant;
+import cn.taketoday.web.Constant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,7 +28,7 @@ import lombok.Setter;
  * 
  * @author Today
  * 
- * @version 2.0.0 <br>
+ * @version 2.2.2 <br>
  *          2018-06-25 20:01:52
  */
 @Setter
@@ -37,7 +37,7 @@ import lombok.Setter;
 public final class MethodParameter {
 
 	/** 是否不能为空 */
-	private boolean		required		= true;
+	private boolean		required	= false;
 	/** 参数名 */
 	private String		parameterName;
 	/** 参数类型 */
@@ -45,9 +45,11 @@ public final class MethodParameter {
 	/** 泛型参数类型 */
 	private Class<?>	genericityClass;
 	/** 注解支持 */
-	private int			annotation		= Constant.ANNOTATION_NULL;
+	private int			annotation	= Constant.ANNOTATION_NULL;
 	/**	*/
-	private int			pathIndex		= 0;
+	private int			pathIndex	= 0;
+	/** the default value */
+	private String		defaultValue;
 
 	public MethodParameter(String parameterName, Class<?> parameterClass, boolean required) {
 		this.parameterName = parameterName;
@@ -82,11 +84,10 @@ public final class MethodParameter {
 				.append(parameterClass)//
 				.append("\",\n\t\"genericityClass\":\"")//
 				.append(genericityClass)//
-				.append("\",\n\t\"annotation\":\"")
-				.append(annotation)//
+				.append("\",\n\t\"annotation\":\"").append(annotation)//
 				.append("\",\n\t\"pathIndex\":\"")//
 				.append(pathIndex).append("\"\n}")//
 				.toString();
 	}
-	
+
 }

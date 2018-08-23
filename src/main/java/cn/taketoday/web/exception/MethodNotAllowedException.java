@@ -17,15 +17,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.core;
+package cn.taketoday.web.exception;
 
 /**
  * @author Today
- * @date 2018年6月27日 下午7:01:04
- * @version 2.0.0
+ * @date 2018年7月1日 下午7:38:39
  */
-public enum RequestMethod {
+public final class MethodNotAllowedException extends Exception {
 
-	GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS;
-	
+	private static final long serialVersionUID = -2685676809973234020L;
+
+	public MethodNotAllowedException(Throwable cause) {
+		super(cause);
+	}
+
+	public MethodNotAllowedException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public MethodNotAllowedException(String message) {
+		super(message);
+	}
+
+	public MethodNotAllowedException() {
+
+	}
 }

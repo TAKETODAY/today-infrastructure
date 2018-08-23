@@ -25,6 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.web.RequestMethod;
+
 /**
  * @author Today
  * @date 2018年7月1日 下午2:09:32
@@ -32,7 +34,8 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@ActionMapping(method = RequestMethod.TRACE)
 public @interface TRACE {
 
-	String value();
+	String[] value();
 }

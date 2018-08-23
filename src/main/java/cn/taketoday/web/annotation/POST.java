@@ -25,6 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.web.RequestMethod;
+
 /**
  * 
  * @author Today <br>
@@ -34,9 +36,10 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@ActionMapping(method = RequestMethod.POST)
 public @interface POST {
 
 	// url
-	String value() default "";
+	String[] value() default "";
 
 }

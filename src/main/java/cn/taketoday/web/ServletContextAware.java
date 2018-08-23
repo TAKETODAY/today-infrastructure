@@ -17,24 +17,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.annotation;
+package cn.taketoday.web;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.servlet.ServletContext;
+
+import cn.taketoday.context.aware.Aware;
 
 /**
+ * @author Today <br>
  * 
- * @author Today
- * @date 2018年7月1日 下午2:10:32
+ *         2018-08-03 15:45
  */
-@Target({ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Deprecated
-public @interface Produces {
+public interface ServletContextAware extends Aware {
 
-	String value();
+	void setServletContext(ServletContext servletContext);
+
 }

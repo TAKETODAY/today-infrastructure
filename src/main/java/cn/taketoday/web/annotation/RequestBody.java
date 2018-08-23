@@ -25,13 +25,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author Today
- * @date 2018年7月1日 下午2:06:43
+ * 
+ * @author Today <br>
+ *         2018-07-01 14:06:43 <br>
+ *         2018-08-21 20:17 change 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
 public @interface RequestBody {
 
+	
+	/**
+	 * Request body name.
+	 * 
+	 * @return
+	 */
 	String value() default "";
 
 }

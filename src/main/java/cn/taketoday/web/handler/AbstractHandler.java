@@ -29,22 +29,26 @@ import java.net.URLEncoder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.web.core.Constant;
-import cn.taketoday.web.core.WebApplicationContext;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.ViewResolver;
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today
- * @date 2018年7月1日 下午5:29:16
+ * 
+ * @author Today <br>
+ *         2018-07-01 17:29:16 <br>
+ *         2018-08-21 20:33 change
  */
 @Slf4j
 public abstract class AbstractHandler<T> implements DispatchHandler<T> {
 
-	protected String contextPath;
+	protected String				contextPath;
 
 	protected WebApplicationContext	applicationContext;
 
@@ -54,14 +58,14 @@ public abstract class AbstractHandler<T> implements DispatchHandler<T> {
 	protected ParameterResolver		parameterResolver;
 
 	@Override
-	public void doInit(WebApplicationContext applicationContext) {
+	public void doInit(WebApplicationContext applicationContext) throws ConfigurationException {
 
 		this.applicationContext = applicationContext;
 		try {
 
 			viewResolver = applicationContext.getBean(Constant.VIEW_RESOLVER, AbstractViewResolver.class);
 			parameterResolver = applicationContext.getBean(Constant.PARAMETER_RESOLVER, ParameterResolver.class);
-			
+
 			applicationContext.removeBean(Constant.VIEW_RESOLVER);
 			applicationContext.removeBean(Constant.PARAMETER_RESOLVER);
 
@@ -74,10 +78,12 @@ public abstract class AbstractHandler<T> implements DispatchHandler<T> {
 	}
 
 	/**
-	 * download file.
+	 * Download file to client.
 	 * 
 	 * @param request
+	 *            current request
 	 * @param response
+	 *            current response
 	 * @param download
 	 *            file
 	 * @throws IOException
@@ -91,16 +97,17 @@ public abstract class AbstractHandler<T> implements DispatchHandler<T> {
 		response.setHeader("Content-Disposition",
 				"attachment;filename=\"" + URLEncoder.encode(download.getName(), "UTF-8") + "\"");
 
+		@Cleanup
 		InputStream in = new FileInputStream(download.getAbsolutePath());
+		@Cleanup
 		OutputStream out = response.getOutputStream();
-		byte[] b = new byte[2048];
+		byte[] b = new byte[4096];
 		int len = 0;
 		while ((len = in.read(b)) != -1) {
 			out.write(b, 0, len);
 		}
 		out.flush();
 		response.flushBuffer();
-		out.close();
-		in.close();
 	}
+	
 }

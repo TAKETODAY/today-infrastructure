@@ -17,33 +17,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.core;
+package cn.taketoday.web;
 
 /**
- * @author YHJ
+ * @author Today <br>
  * @version 1.0
- * @time 2017 08 29 22:20
- * @version 2.0
- * @time 2018 1 ? - 2018 3 8
+ * 
+ * @version 2.0.0
+ * @time 2018 1 ? - 2018 3 8 <br>
+ *       <b>2.2.2.RELEASE -> 2018-08-23 14:53</b>
  */
 public final class Version {
 
-	public static final String	HISTORY_VERSION	= "1.0.0";
-	/**
-	 * 当前版本
-	 */
-	public static final String	VERSION			= "1.2.0";
-
-	/**
-	 * 当前版本
-	 * 
-	 * @return
-	 */
 	public String getVersion() {
-		return VERSION;
+		return "2.2.2.RELEASE";
 	}
 
-	public static String getHistoryVersion() {
-		return HISTORY_VERSION;
+	public static String[] getHistoryVersion() {
+		return new String[] { "1.0.0", "1.1.1", "2.0.0", "2.1.0.RELEASE", "2.2.0.RELEASE" };
 	}
 }

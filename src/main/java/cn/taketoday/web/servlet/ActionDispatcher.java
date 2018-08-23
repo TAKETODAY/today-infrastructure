@@ -27,12 +27,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.web.core.Constant;
-import cn.taketoday.web.core.WebApplicationContext;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.ActionHandler;
 import cn.taketoday.web.handler.DispatchHandler;
-import cn.taketoday.web.interceptor.InterceptProcessor;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.RegexMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
@@ -48,21 +48,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class ActionDispatcher extends HttpServlet {
 
-	private static final long				serialVersionUID	= -9011358593929556322L;
+	private static final long								serialVersionUID	= -9011358593929556322L;
 
 	/** action executor */
-	private transient final DispatchHandler<HandlerMapping> actionHandler;
+	private transient final DispatchHandler<HandlerMapping>	actionHandler;
 	/** exception Resolver */
-	private transient final ExceptionResolver exceptionResolver;
-	
-	public ActionDispatcher(WebApplicationContext applicationContext) throws NoSuchBeanDefinitionException {
+	private transient final ExceptionResolver				exceptionResolver;
+
+	public ActionDispatcher(WebApplicationContext applicationContext)
+			throws NoSuchBeanDefinitionException, ConfigurationException {
 
 		actionHandler = applicationContext.getBean(Constant.ACTION_HANDLER, ActionHandler.class);
 		exceptionResolver = applicationContext.getBean(Constant.EXCEPTION_RESOLVER, ExceptionResolver.class);
-		
+
 		applicationContext.removeBean(Constant.ACTION_HANDLER);
 		applicationContext.removeBean(Constant.EXCEPTION_RESOLVER);
-		
+
 		actionHandler.doInit(applicationContext);
 	}
 
@@ -75,14 +76,16 @@ public final class ActionDispatcher extends HttpServlet {
 	protected final void service(HttpServletRequest request, HttpServletResponse response) {
 
 		try {
-			
+
 			response.setCharacterEncoding("UTF-8");
 			request.setCharacterEncoding("UTF-8");
-	
+
 			HandlerMapping requestMapping = null;
-	
+
 			// find handler
-			final String requestURI = request.getMethod() + Constant.REQUEST_METHOD_PREFIX + request.getRequestURI();
+
+			final String requestURI = new StringBuilder(32).append(request.getMethod())
+					.append(Constant.REQUEST_METHOD_PREFIX).append(request.getRequestURI()).toString();
 
 			// find request mapping index
 			Integer index = DispatchHandler.REQUEST_MAPPING.get(requestURI);
@@ -108,28 +111,25 @@ public final class ActionDispatcher extends HttpServlet {
 
 			// invoke intercepter
 			for (Integer interceptor : interceptors) {
-				InterceptProcessor interceptProcessor = DispatchHandler.INTERCEPT_POOL.get(interceptor);
-				
-				if (!interceptProcessor.beforeProcess(request, response, requestMapping)) {
+
+				if (!DispatchHandler.INTERCEPT_POOL.get(interceptor).beforeProcess(request, response, requestMapping)) {
 					log.debug("Interceptor number -> [{}] return false", interceptor);
 					return;
 				}
 			}
-			
+
 			// do dispatch
 			// actionHandler.doDispatch(requestMapping, request, response);
-			
 			Object doDispatch = actionHandler.doDispatch(requestMapping, request, response);
-			
+
 			for (Integer interceptor : interceptors) {
-				
 				DispatchHandler.INTERCEPT_POOL.get(interceptor).afterProcess(doDispatch, request, response);
 			}
-		}//
+
+		} //
 		catch (Exception exception) {
 			exceptionResolver.resolveException(request, response, exception);
 		}
 	}
 
 }
-

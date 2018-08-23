@@ -25,12 +25,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.web.RequestMethod;
+
 
 @Target({ ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@ActionMapping(method = RequestMethod.PATCH)
 public @interface PATCH {
 	
-	String value();
+	String[] value();
 
 }

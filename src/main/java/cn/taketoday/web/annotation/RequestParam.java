@@ -25,17 +25,36 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
+/**
+ * 
+ * @author Today <br>
+ *         2018-08-21 18:51 change
+ */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface RequestParam {
 
-	boolean required() default true;
+	/**
+	 * If required == true when request parameter is null, will be return bad
+	 * request.
+	 * 
+	 * @return
+	 */
+	boolean required() default false;
 
+	/**
+	 * Parameter name.
+	 * 
+	 * @return
+	 */
 	String value() default "";
 
-	@Deprecated
+	/**
+	 * When required == false, and parameter == null. use default value.
+	 * 
+	 * @return
+	 */
 	String defaultValue() default "";
 	
 }

@@ -25,13 +25,35 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * 
+ * @author Today <br>
+ *         2018-08-21 19:19 change 
+ */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Header {
 
-    boolean required() default true;
-    
-    String value() default "";
+	/**
+	 * required ?
+	 * 
+	 * @return
+	 */
+	boolean required() default false;
+
+	/**
+	 * Header name.
+	 * 
+	 * @return
+	 */
+	String value() default "";
+	
+	/**
+	 * When required == false and parameter == null. use default value.
+	 * 
+	 * @return
+	 */
+	String defaultValue() default "";
 
 }

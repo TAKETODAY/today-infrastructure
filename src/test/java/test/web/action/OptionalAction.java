@@ -21,14 +21,14 @@ package test.web.action;
 
 import java.util.Optional;
 
-import cn.taketoday.context.annotation.RestProcessor;
 import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.annotation.RestController;
 
 /**
  * @author Today
  * @date 2018年7月7日 下午8:57:05
  */
-@RestProcessor
+@RestController
 public final class OptionalAction {
 
 	public OptionalAction() {

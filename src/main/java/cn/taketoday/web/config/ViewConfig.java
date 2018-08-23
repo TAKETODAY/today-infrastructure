@@ -23,7 +23,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import cn.taketoday.web.core.Constant;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.handler.DispatchHandler;
 import cn.taketoday.web.mapping.ViewMapping;
 import lombok.extern.slf4j.Slf4j;

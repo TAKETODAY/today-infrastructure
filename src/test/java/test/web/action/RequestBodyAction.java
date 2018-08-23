@@ -23,17 +23,17 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import cn.taketoday.context.annotation.ActionProcessor;
+import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.annotation.ActionMapping;
+import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.RequestBody;
-import cn.taketoday.web.core.RequestMethod;
 import test.web.domain.User;
 
 /**
  * @author Today
  * @date 2018年6月28日 下午6:35:39
  */
-@ActionProcessor
+@Controller
 public final class RequestBodyAction extends BaseAction{
 
 	private static final long serialVersionUID = -3387876040533333679L;

@@ -19,16 +19,16 @@
  */
 package test.web.action;
 
-import cn.taketoday.context.annotation.RestProcessor;
+import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.PathVariable;
-import cn.taketoday.web.core.RequestMethod;
+import cn.taketoday.web.annotation.RestController;
 
 /**
  * @author Today
  * @date 2018年6月29日 下午4:26:38
  */
-@RestProcessor
+@RestController
 public final class PathVariableAction {
 
 	

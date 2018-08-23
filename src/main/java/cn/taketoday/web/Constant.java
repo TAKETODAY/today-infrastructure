@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.core;
+package cn.taketoday.web;
 
 import java.io.Serializable;
 
@@ -28,9 +28,11 @@ import java.io.Serializable;
  */
 public interface Constant extends Serializable {
 
+	String	CONVERT_METHOD						= "doConvert";
+
 	String	DEFAULT								= "default";
 	String	WEB_INF								= "/WEB-INF";
-	
+
 	String	ACTION_DISPATCHER_MAPPING			= "/";
 	String	VIEW_DISPATCHER						= "ViewDispatcher";
 	String	ACTION_DISPATCHER					= "ActionDispatcher";

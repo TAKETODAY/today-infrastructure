@@ -1,21 +1,21 @@
 /**
- * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn Copyright
+ * © Today & 2017 - 2018 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.web.resolver;
 
@@ -41,16 +41,18 @@ import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.core.Constant;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.utils.ParamList;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today
- * @date 2018年6月25日 下午8:35:04
- * @version 2.0.0
+ * 
+ * @author Today <br>
+ * @version 2.0.0<br>
+ *          2018-06-25 20:35:04 <br>
+ *          2018-08-21 21:05 <b>change:</b> add default value feature.
  */
 @Slf4j
 public final class DefaultParameterResolver extends AbstractParameterResolver implements Constant {
@@ -65,11 +67,13 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			HttpServletResponse response) throws Exception {
 		// log.debug("set parameter start");
 		try {
+			
 			for (int i = 0; i < parameters.length; i++) {
 				args[i] = setParameter(request, response, parameters[i]);
 			}
 			return true;
-		} catch (BadRequestException e) {
+		} //
+		catch (BadRequestException e) {
 			return false; // bad request
 		}
 	}
@@ -93,23 +97,30 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 
 		switch (parameterClass.getName()) //
 		{
-			case HTTP_SESSION: 			return request.getSession();
-			case HTTP_SERVLET_CONTEXT:  return request.getServletContext();
-			case HTTP_SERVLET_REQUEST:  return request;
-			case HTTP_SERVLET_RESPONSE: return response;
-	
+			case HTTP_SESSION :
+				return request.getSession();
+			case HTTP_SERVLET_CONTEXT :
+				return request.getServletContext();
+			case HTTP_SERVLET_REQUEST :
+				return request;
+			case HTTP_SERVLET_RESPONSE :
+				return response;
+
 			// Collection parameter []
-			case TYPE_SET:				return resolveSetParameter(request, methodParameterName, methodParameter);
-			case TYPE_MAP:				return resolveMapParameter(request, methodParameterName, methodParameter);
-			case TYPE_LIST:				return resolveListParameter(request, methodParameterName, methodParameter);
-	
-			case TYPE_OPTIONAL:			return resolveOptionalParameter(request, methodParameterName, methodParameter);
+			case TYPE_SET :
+				return resolveSetParameter(request, methodParameterName, methodParameter);
+			case TYPE_MAP :
+				return resolveMapParameter(request, methodParameterName, methodParameter);
+			case TYPE_LIST :
+				return resolveListParameter(request, methodParameterName, methodParameter);
+
+			case TYPE_OPTIONAL :
+				return resolveOptionalParameter(request, methodParameterName, methodParameter);
 
 		}
 
 		return resolve(request, methodParameter, methodParameterName, parameterClass);
 	}
-
 
 	/**
 	 * resolve.
@@ -126,9 +137,9 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	private final Object resolve(HttpServletRequest request, final MethodParameter methodParameter,
 			final String methodParameterName, final Class<?> parameterClass)
 			throws ConversionException, Exception, BadRequestException {
-		// 
+		//
 		if (this.supportsParameter(methodParameter)) {
-			log.debug("set other support parameter -> {}", methodParameterName);
+			// log.debug("set other support parameter -> {}", methodParameterName);
 
 			Converter<String, ?> converter = supportParameterTypes.get(methodParameter.getParameterClass());
 			return converter.doConvert(request.getParameter(methodParameterName));
@@ -139,56 +150,62 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			log.debug("set annotation parameter -> [{}]", methodParameterName);
 			return resolveAnnotationParameter(request, methodParameterName, methodParameter);
 		}
-
+		
 		if (parameterClass.getSuperclass() == Number.class) {
-
+			
 			log.debug("set number parameter -> [{}]", methodParameterName);
+			
 			final String requestParameter = request.getParameter(methodParameterName);// request parameter value
-			if (StringUtils.isEmpty(requestParameter)) {
-				if (methodParameter.isRequired()) {
-					log.debug("parameter -> [{}] is required", methodParameterName);
-					throw new BadRequestException(); // bad request
-				}
-				return null; // default value
-			} // parse number
-			return NumberUtils.parseDigit(requestParameter, parameterClass);
 
-		} else if (parameterClass.isArray()) { // array
+			if (methodParameter.isRequired() && (requestParameter == null || "".equals(requestParameter))) {
+				log.debug("parameter -> [{}] is required", methodParameterName);
+				throw new BadRequestException(methodParameterName + "is required, bad request."); // bad request
+			}
+			
+			//
+			return requestParameter == null ? NumberUtils.parseDigit(methodParameter.getDefaultValue(), parameterClass)
+					: NumberUtils.parseDigit(requestParameter, parameterClass);
+			
+		} //
+		else if (parameterClass.isArray()) { // array
+			
 			log.debug("set array parameter -> [{}]", methodParameterName);
 			// parameter value[]
 			final String[] parameterValues = request.getParameterValues(methodParameterName);
 			if (parameterValues.length == 0) {
 				if (methodParameter.isRequired()) {
-					log.debug("array parameter -> [{}] is required", methodParameterName);
-					throw new BadRequestException();
+					log.debug("array parameter -> [{}] is required, bad request.", methodParameterName);
+					throw new BadRequestException(methodParameterName + " is required, bad request.");
 				}
 				return null;
 			}
 			return NumberUtils.parseArray(parameterValues, parameterClass);
-		}
-
-		if (parameterClass == String.class) {
+		} //
+		else if (parameterClass == String.class) {
 			// parameter value
 			final String requestParameter = request.getParameter(methodParameterName);
 			if (methodParameter.isRequired() && (requestParameter == null || "".equals(requestParameter))) {
-				log.debug("parameter -> [{}] is required", methodParameterName);
-				throw new BadRequestException("parameter is required");
+				log.debug("parameter -> [{}] is required, bad request.", methodParameterName);
+				throw new BadRequestException("parameter is required, bad request.");
 			}
-			return requestParameter;
+
+			return requestParameter == null ? methodParameter.getDefaultValue() : requestParameter;
 		}
 		// resolve pojo
 		log.debug("set pojo parameter -> {}", methodParameterName);
 		Object newInstance = null;
 		try {
-			newInstance = parameterClass.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new BadRequestException();
+
+			newInstance = parameterClass.getConstructor().newInstance();
+		} //
+		catch (InstantiationException | IllegalAccessException e) {
+			throw new BadRequestException("can't resolve pojo, bad request.");
 		}
 
 		// pojo
 		if (!setBean(request, parameterClass, newInstance, request.getParameterNames(), methodParameter)) {
 
-			throw new BadRequestException("set pojo error");
+			throw new BadRequestException("can't resolve pojo, bad request.");
 		}
 		return newInstance;
 	}
@@ -202,7 +219,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	 * @return
 	 * @throws Exception
 	 */
-	private Object resolveOptionalParameter(HttpServletRequest request, String methodParameterName,
+	private final Object resolveOptionalParameter(HttpServletRequest request, String methodParameterName,
 			MethodParameter methodParameter) throws Exception {
 
 		return Optional.ofNullable(
@@ -223,50 +240,51 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 
 		switch (methodParameter.getAnnotation()) //
 		{
-		case ANNOTATION_COOKIE: {
-			return cookie(request, methodParameterName, methodParameter);
-		}
-		case ANNOTATION_SESSION: {
-			return request.getSession().getAttribute(methodParameterName);
-		}
-		case ANNOTATION_MULTIPART: { // resolve multipart
-			try {
-				if (multipartResolver.isMultipart(request)) {
-					return multipartResolver.resolveMultipart(request, methodParameterName, methodParameter);
+			case ANNOTATION_COOKIE : { // cookie
+				return cookie(request, methodParameterName, methodParameter);
+			}
+			case ANNOTATION_SESSION : {
+				return request.getSession().getAttribute(methodParameterName);
+			}
+			case ANNOTATION_MULTIPART : { // resolve multipart
+				try {
+					if (multipartResolver.isMultipart(request)) {
+						return multipartResolver.resolveMultipart(request, methodParameterName, methodParameter);
+					}
+					throw new BadRequestException("this isn't multipart request, bad request.");
+				} finally {
+					multipartResolver.cleanupMultipart(request);
 				}
-				throw new BadRequestException("this isn't multipart request.");
-			} finally {
-				multipartResolver.cleanupMultipart(request);
 			}
-		}
-		case ANNOTATION_HEADER: {
+			case ANNOTATION_HEADER : {
 
-			final String header = request.getHeader(methodParameterName);
-			if (methodParameter.isRequired() && (header == null || "".equals(header.trim()))) {
-				throw new BadRequestException("header -> " + methodParameterName + " can't be null");
-			}
-			return header;
-		}
-		case ANNOTATION_PATH_VARIABLE: {
-			return pathVariable(request, methodParameterName, methodParameter);
-		}
-		case ANNOTATION_REQUESTBODY: {
+				final String header = request.getHeader(methodParameterName);
 
-			String body = null;
-			try {
-				body = request.getReader().readLine();
-			} catch (IOException e) {
-				log.error("request body read error.", e);
-				throw new BadRequestException("request body read error.", e);
+				if (methodParameter.isRequired() && (header == null || "".equals(header))) {
+					throw new BadRequestException("header -> " + methodParameterName + " can't be null, bad request");
+				}
+
+				return header == null ? methodParameter.getDefaultValue() : header;
 			}
-			return JSON.parseObject(body, methodParameter.getParameterClass());
-		}
+			case ANNOTATION_PATH_VARIABLE : {
+				return pathVariable(request, methodParameterName, methodParameter);
+			}
+			case ANNOTATION_REQUESTBODY : {
+				try {
+
+					return JSON.parseObject(request.getReader().readLine(), methodParameter.getParameterClass());
+
+				} catch (IOException e) {
+					log.error("request body read error.", e);
+					throw new BadRequestException("request body read error.", e);
+				}
+			}
 		}
 		return null;
 	}
 
 	/**
-	 * set Path Variable arg
+	 * Set Path Variable parameter.
 	 * 
 	 * @param request
 	 * @param methodParameterName
@@ -277,11 +295,12 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	private Object pathVariable(HttpServletRequest request, String methodParameterName, MethodParameter methodParameter)
 			throws BadRequestException {
 		try {
+
 			String requestURI = request.getRequestURI();
 			final String[] splitRegex = ((String) request.getAttribute("REGEX")).split(Constant.PATH_VARIABLE_REGEXP);
 
-			for (String reg : splitRegex) {
-				requestURI = requestURI.replace(reg, "\\");
+			for (String regex : splitRegex) {
+				requestURI = requestURI.replace(regex, "\\");
 			}
 			String requestParameter = requestURI.split("\\\\")[methodParameter.getPathIndex()];
 			// get parameter class
@@ -294,7 +313,8 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			return requestParameter;
 		} catch (ConversionException e) {
 			log.error("path variable error", e);
-			throw new BadRequestException("path variable -> " + methodParameterName + " can't be resolve.");
+			throw new BadRequestException(
+					"path variable -> " + methodParameterName + " can't be resolve, bad request.");
 		}
 	}
 
@@ -307,7 +327,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	 * @return
 	 * @throws BadRequestException
 	 */
-	private Object cookie(HttpServletRequest request, String methodParameterName, MethodParameter methodParameter)
+	private final Object cookie(HttpServletRequest request, String methodParameterName, MethodParameter methodParameter)
 			throws BadRequestException {
 		final Cookie[] cookies = request.getCookies();
 		for (Cookie cookie : cookies) {
@@ -317,9 +337,9 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 		}
 		// no cookie
 		if (methodParameter.isRequired()) {
-			throw new BadRequestException("cookie -> " + methodParameterName + " can't be null");
+			throw new BadRequestException("cookie -> " + methodParameterName + " can't be null, bad request.");
 		}
-		return null;
+		return methodParameter.getDefaultValue(); // return default value.
 	}
 
 	/**
@@ -366,6 +386,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 		final Class<?> type = field.getType();
 		if (type.isArray()) {
 			parseDigit = NumberUtils.toArrayObject(request.getParameterValues(parameterName), type);
+
 		} else {
 			String parameter = request.getParameter(parameterName);
 			if (StringUtils.isEmpty(parameter)) {
@@ -382,7 +403,8 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 				if (converter != null) {
 					parseDigit = converter.doConvert(parameter);
 				} else { // 不支持
-					throw new BadRequestException("parameter not supported");
+
+					throw new BadRequestException("parameter not supported, bad request.");
 				}
 			}
 		}
@@ -405,21 +427,20 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			MethodParameter methodParameter) throws Exception {
 
 		if (methodParameter.isRequestBody()) {
-			String body = null;
 			try {
-				body = request.getReader().readLine();
-			} catch (IOException e) {
-				log.error("list request body read error.", e);
-				throw new BadRequestException("list request body read error.");
-			}
 
-			return JSONArray.parseArray(JSONObject.parseObject(body).get(parameterName).toString(),
-					methodParameter.getGenericityClass());
+				return JSONArray.parseArray(
+						JSONObject.parseObject(request.getReader().readLine()).get(parameterName).toString(),
+						methodParameter.getGenericityClass());
+			} catch (IOException e) {
+				log.error("List request body read error.", e);
+				throw new BadRequestException("List request body read error.");
+			}
 		}
 
 		try {
-			// http://www.yhj.com/today/user/list?user%5b0%5d.userId=90&user%5b2%5d.userId=98&user%5b1%5d.userName=Today
 
+			// https://taketoday.cn/today/user/list?user%5b0%5d.userId=90&user%5b2%5d.userId=98&user%5b1%5d.userName=Today
 			Enumeration<String> parameterNames = request.getParameterNames();// 所有参数名
 			List<Object> list = new ParamList<>();
 			while (parameterNames.hasMoreElements()) {
@@ -433,7 +454,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 					int index = Integer.parseInt(split[1]);// 得到索引
 					Object newInstance = list.get(index);// 没有就是空值
 					if (newInstance == null) {
-						newInstance = clazz.newInstance();
+						newInstance = clazz.getConstructor().newInstance();
 					}
 
 					if (!resolvePojoParameter(request, requestParameter, newInstance, clazz.getDeclaredField(split[3]),
@@ -493,7 +514,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 				String key = split[1];// 得到key
 				Object newInstance = map.get(key);// 没有就是空值
 				if (newInstance == null) {
-					newInstance = clazz.newInstance();
+					newInstance = clazz.getConstructor().newInstance();
 				}
 
 				if (!resolvePojoParameter(request, requestParameter, newInstance, clazz.getDeclaredField(split[3]),

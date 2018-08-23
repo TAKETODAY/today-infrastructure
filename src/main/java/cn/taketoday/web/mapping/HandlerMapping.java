@@ -45,17 +45,14 @@ public final class HandlerMapping implements Serializable {
 	/** 响应方式 */
 	private boolean				responseBody		= false;
 
-	/** Produces */
-	// private String produces;
-
 	public HandlerMapping() {
 
 	}
 
 	@Override
 	public String toString() {
-		return "[action=" + action + ", HandlerMethod=" + handlerMethod.getMethod().getName() + ", interceptors="
-				+ Arrays.toString(interceptors) + ",isResponseBody=" + responseBody + "]";
+		return "[action=" + action + ", HandlerMethod=" + handlerMethod.getMethod().getName()
+				+ ", interceptors=" + Arrays.toString(interceptors) + ", responseBody=" + responseBody + "]";
 	}
 
 }

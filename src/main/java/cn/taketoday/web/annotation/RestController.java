@@ -1,9 +1,7 @@
 /**
- * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://yanghaijian.top
  * Copyright © Today & 2017 - 2018 All Rights Reserved.
  * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,29 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.exception;
+package cn.taketoday.web.annotation;
 
-/**
- * @author Today
- * @date 2018年7月1日 下午7:38:39
- */
-public final class MethodNotAllowed extends Exception {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-	private static final long serialVersionUID = -2685676809973234020L;
+import cn.taketoday.context.annotation.Component;
 
-	public MethodNotAllowed(Throwable cause) {
-		super(cause);
-	}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Component
+@Controller
+public @interface RestController {
 
-	public MethodNotAllowed(String message, Throwable cause) {
-		super(message, cause);
-	}
-
-	public MethodNotAllowed(String message) {
-		super(message);
-	}
-
-	public MethodNotAllowed() {
-
-	}
+	String[] value() default {}; // processor name
 }

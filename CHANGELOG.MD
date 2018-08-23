@@ -157,7 +157,6 @@ public final class OptionalAction {
 @RestProcessor
 public final class PathVariableAction {
 
-	
     @ActionMapping(value = {"/path/{id}"}, method = RequestMethod.GET)
     public String pathVariable(@PathVariable Integer id) {
 		
@@ -201,3 +200,15 @@ public final class PathVariableAction {
 > ### 添加单元测试
 > ### 优化拦截器
 > ### 添加 web-configuration-2.2.0.dtd
+> ### 改进freemarker view
+> ### 修改@RequestParam 逻辑
+> ### 启用defaultValue
+> ### 优化参数转换器
+> ### @ActionProcessor @RestProcessor 改名 @Controller @RestController @RequestMapping
+> ### 更改包名cn.taketoday.web.core -> cn.taketoday.web
+
+
+<br>
+<br>
+<br>
+<br>

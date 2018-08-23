@@ -92,7 +92,7 @@ public final class CommonsMultipartFile implements MultipartFile {
 			fileItem.write(dest);
 			return true;
 		} catch (Exception e) {
-			log.error("file [{}] upload failure.", getName(), e);
+			log.error("file [{}] upload failure.", getFileName(), e);
 			return false;
 		}
 	}

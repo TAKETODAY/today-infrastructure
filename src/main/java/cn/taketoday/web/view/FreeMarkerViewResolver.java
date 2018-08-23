@@ -19,11 +19,15 @@
  */
 package cn.taketoday.web.view;
 
+import java.util.Properties;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import cn.taketoday.web.core.WebApplicationContext;
+import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.web.WebApplicationContext;
 import freemarker.ext.jsp.TaglibFactory;
 import freemarker.ext.servlet.AllHttpScopesHashModel;
 import freemarker.ext.servlet.HttpRequestHashModel;
@@ -33,6 +37,7 @@ import freemarker.ext.servlet.ServletContextHashModel;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.ObjectWrapper;
+import freemarker.template.TemplateException;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModelException;
 import lombok.extern.slf4j.Slf4j;
@@ -45,9 +50,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FreeMarkerViewResolver extends AbstractViewResolver {
 
-	private ObjectWrapper		wrapper;
-	private Configuration		configuration;
-	private TaglibFactory		taglibFactory;
+	private ObjectWrapper wrapper;
+	private Configuration configuration;
+	private TaglibFactory taglibFactory;
+	
+	@Props(prefix = "freemarker.", replace = true)
+	private Properties props;
 
 	public static final String	KEY_REQUEST				= "Request";
 	public static final String	KEY_REQUEST_PRIVATE		= "__FreeMarkerServlet.Request__";
@@ -58,17 +66,24 @@ public class FreeMarkerViewResolver extends AbstractViewResolver {
 	public static final String	KEY_JSP_TAGLIBS			= "JspTaglibs";
 
 	@Override
-	public void initViewResolver(WebApplicationContext applicationContext) {
-
-		configuration = new Configuration(Configuration.VERSION_2_3_23);
-		this.wrapper = new DefaultObjectWrapper(Configuration.VERSION_2_3_23);
+	public void initViewResolver(WebApplicationContext applicationContext) throws ConfigurationException {
+		
 		this.taglibFactory = new TaglibFactory(servletContext);
-
+		this.configuration = new Configuration(Configuration.VERSION_2_3_23);
+		this.wrapper = new DefaultObjectWrapper(Configuration.VERSION_2_3_23);
+		
 		configuration.setLocale(locale);
 		configuration.setObjectWrapper(wrapper);
 		configuration.setDefaultEncoding(encoding);
 		configuration.setServletContextForTemplateLoading(servletContext, prefix); // prefix -> /WEB-INF/..
 
+		try {
+			
+			configuration.setSettings(props);
+		} catch (TemplateException e) {
+			throw new ConfigurationException("FreeMarker Properties Error.");
+		}
+		
 		log.info("Configuration FreeMarker View Resolver Success.");
 	}
 
@@ -90,9 +105,8 @@ public class FreeMarkerViewResolver extends AbstractViewResolver {
 		AllHttpScopesHashModel model = new AllHttpScopesHashModel(wrapper, servletContext, request);
 		
 		// Create hash model wrapper for servlet context (the application)
-		@SuppressWarnings("deprecation")
 		ServletContextHashModel servletContextModel = new ServletContextHashModel(servletContext, wrapper);
-
+		
 		model.putUnlistedModel(KEY_APPLICATION, servletContextModel);
 		model.putUnlistedModel(KEY_JSP_TAGLIBS, this.taglibFactory);
 
@@ -108,13 +122,14 @@ public class FreeMarkerViewResolver extends AbstractViewResolver {
 	}
 
 	/**
-	 * Resolve FreeMarker View
+	 * Resolve FreeMarker View.
 	 */
 	@Override
 	public void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 
-		configuration.getTemplate(templateName + suffix).process(createModel(request, response), response.getWriter());
+		configuration.getTemplate(templateName + suffix)//
+						.process(createModel(request, response), response.getWriter());
 	}
 
 }

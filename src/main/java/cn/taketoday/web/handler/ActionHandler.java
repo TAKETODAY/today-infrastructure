@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSON;
 
-import cn.taketoday.web.core.Constant;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
@@ -47,14 +47,14 @@ public final class ActionHandler extends AbstractHandler<HandlerMapping> {
 	@Override
 	public Object doDispatch(HandlerMapping mapping, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-
+		
 		// Handler Method
 		HandlerMethod handlerMethod = mapping.getHandlerMethod();
 		// method parameter
 		MethodParameter[] methodParameters = handlerMethod.getParameter();
 		// Handler Method parameter list
 		final Object[] args = new Object[methodParameters.length];
-
+		
 		if (!parameterResolver.resolveParameter(args, methodParameters, request, response)) {
 			log.debug("bad request");
 			response.sendError(400); // bad request
@@ -62,8 +62,9 @@ public final class ActionHandler extends AbstractHandler<HandlerMapping> {
 		}
 		// log.debug("parameter list -> {}", Arrays.toString(args));
 
-		Object invoke = handlerMethod.getMethod().invoke(applicationContext.getBean(mapping.getAction()), args); // 参数注入并执行
-
+		Object invoke = handlerMethod.getMethod().invoke(applicationContext.getBean(mapping.getAction()), args); // invoke
+		
+		
 		if (invoke instanceof String && !mapping.isResponseBody()) { // return view
 			final String returnStr = ((String) invoke);
 			if (returnStr.startsWith(Constant.REDIRECT_URL_PREFIX)) {
@@ -71,15 +72,17 @@ public final class ActionHandler extends AbstractHandler<HandlerMapping> {
 			} else {
 				viewResolver.resolveView(returnStr, request, response);
 			}
-
-		} else if (invoke instanceof File) {
-
+		} //
+		else if (invoke instanceof File) {
+			
 			downloadFile(request, response, (File) invoke);
-		} else if (invoke.getClass().getSuperclass() == Image.class) {
+		} //
+		else if (invoke.getClass().getSuperclass() == Image.class) {
 			// need set content type
 			ImageIO.write((RenderedImage) invoke, "jpg", response.getOutputStream());
 			response.flushBuffer();
-		} else if (invoke != null) { // 返回字符串
+		} //
+		else if (invoke != null) { // 返回字符串
 			response.setContentType(Constant.CONTENT_TYPE_JSON);
 			response.getWriter().print(JSON.toJSON(invoke));
 		}

@@ -25,6 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.web.RequestMethod;
+
 
 
 /**
@@ -34,9 +36,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@ActionMapping(method = RequestMethod.DELETE)
 public @interface DELETE {
 
-	String value();
+	String[] value();
 
 }
 

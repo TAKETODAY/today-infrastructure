@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,10 +30,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.annotation.ParameterConverter;
 import cn.taketoday.context.conversion.Converter;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.web.core.Constant;
-import cn.taketoday.web.core.WebApplicationContext;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.multipart.AbstractMultipartResolver;
 import cn.taketoday.web.multipart.MultipartResolver;
@@ -41,29 +43,30 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 
  * @author Today <br>
- * 		2018-06-25 20:32:16
+ *         2018-06-25 20:32:16
  */
 @Slf4j
 public abstract class AbstractParameterResolver implements ParameterResolver {
 
 	/** multipart */
-	protected MultipartResolver	multipartResolver;
+	protected MultipartResolver							multipartResolver;
 
 	protected Map<Class<?>, Converter<String, Object>>	supportParameterTypes	= new HashMap<>(8);
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
-	public final void doInit(WebApplicationContext applicationContext) {
+	public final void doInit(WebApplicationContext applicationContext) throws ConfigurationException {
 
 		log.info("Loading ParameterConverter Extensions");
 		try {
-			
+
 			Set<Class<?>> actions = ClassUtils.getClassCache();
-			
+
 			this.multipartResolver = applicationContext.getBean(Constant.MULTIPART_RESOLVER,
 					AbstractMultipartResolver.class);
-			
+
 			for (Class<?> clazz : actions) { // get converter
+
 				if (clazz.isInterface()) { // basic
 					continue;
 				}
@@ -72,19 +75,31 @@ public abstract class AbstractParameterResolver implements ParameterResolver {
 				if (converter == null) { // basic
 					continue;
 				}
-				try {
-					Method method = clazz.getMethod("doConvert", String.class); // get method named 'doConvert'
 
-					supportParameterTypes.put(method.getReturnType(), (Converter<String, Object>) clazz.newInstance()); // put
+				Method method = clazz.getMethod(Constant.CONVERT_METHOD, String.class); // get method named 'doConvert'
 
-					log.info("Mapped ParameterConverter : {} -> [{}]", method.getReturnType(), clazz.getName());
-				} catch (NoSuchMethodException e) {
-					log.error("doConvert's method parameter only support [String]", e);
-				}
+				supportParameterTypes.put(method.getReturnType(),
+						(Converter<String, Object>) clazz.getConstructor().newInstance());
+
+				log.info("Mapped ParameterConverter : {} -> [{}]", method.getReturnType(), clazz.getName());
 			}
-//			applicationContext.removeBean(Constant.MULTIPART_RESOLVER);//remove
-		} catch (InstantiationException | IllegalAccessException | NoSuchBeanDefinitionException ex) {
-			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
+		} //
+		catch (IllegalArgumentException | InvocationTargetException e) {
+			throw new ConfigurationException("Illegal Arguments of Constructor", e);
+		} //
+		catch (SecurityException e) {
+			throw new ConfigurationException("Modifier Configuration Error", e);
+		} //
+		catch (NoSuchMethodException e) {
+			throw new ConfigurationException("The method of {}'s parameter only support [java.lang.String]",
+					Constant.CONVERT_METHOD, e);
+		} //
+		catch (NoSuchBeanDefinitionException e) {
+			throw new ConfigurationException("The Context does not exist multipart resolver named -> {}.",
+					Constant.MULTIPART_RESOLVER, e);
+		} //
+		catch (InstantiationException | IllegalAccessException e) {
+			throw new ConfigurationException("Cannot instantiate ParameterConverter", e);
 		}
 
 		if (supportParameterTypes.size() < 1) {

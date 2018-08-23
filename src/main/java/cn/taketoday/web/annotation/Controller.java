@@ -19,26 +19,23 @@
  */
 package cn.taketoday.web.annotation;
 
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.annotation.Component;
+
 /**
  * 
  * @author Today <br>
- *         2018-08-21 20:19 <br>
- *         <b>change:</b> add defaultValue()
+ * 		2018-08-23 11:16
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-public @interface Session {
+@Target(ElementType.TYPE)
+@Component
+public @interface Controller {
 
-	/**
-	 * Session attribute name.
-	 * 
-	 * @return
-	 */
-	String value() default "";
-
+	String[] value() default {}; // processor name
 }

@@ -30,15 +30,25 @@ import cn.taketoday.web.RequestMethod;
 /**
  * 
  * @author Today <br>
- *         2018-07-01 14:07:11 2018-08-23 10:24 change add <b>@ActionMapping(method
- *         = RequestMethod.PUT)
+ *         2018-08-23 10:18 change
  */
-@Target({ ElementType.METHOD })
+@Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@ActionMapping(method = RequestMethod.PUT)
-public @interface PUT {
+@ActionMapping
+public @interface RequestMapping {
 
-	String[] value();
+	/**
+	 * 
+	 * @return
+	 */
+	String[] value() default {};
+
+	/**
+	 * request methods
+	 * 
+	 * @return
+	 */
+	RequestMethod[] method() default { RequestMethod.GET, RequestMethod.PUT, RequestMethod.POST, RequestMethod.DELETE };
 
 }

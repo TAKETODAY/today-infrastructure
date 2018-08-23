@@ -1,7 +1,7 @@
 package test.web.action;
 
 
-import cn.taketoday.web.core.Constant;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.utils.Json;
 
 

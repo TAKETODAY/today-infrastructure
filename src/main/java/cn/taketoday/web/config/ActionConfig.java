@@ -32,33 +32,28 @@ import java.util.Optional;
 import java.util.Set;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.ActionProcessor;
-import cn.taketoday.context.annotation.RestProcessor;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.ComponentImpl;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ActionMapping;
+import cn.taketoday.web.annotation.ActionMappingImpl;
+import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Cookie;
-import cn.taketoday.web.annotation.DELETE;
-import cn.taketoday.web.annotation.GET;
-import cn.taketoday.web.annotation.HEAD;
 import cn.taketoday.web.annotation.Header;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.Multipart;
-import cn.taketoday.web.annotation.OPTIONS;
-import cn.taketoday.web.annotation.PATCH;
-import cn.taketoday.web.annotation.POST;
-import cn.taketoday.web.annotation.PUT;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.ResponseBody;
+import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.Session;
-import cn.taketoday.web.annotation.TRACE;
-import cn.taketoday.web.core.Constant;
-import cn.taketoday.web.core.RequestMethod;
-import cn.taketoday.web.core.WebApplicationContext;
 import cn.taketoday.web.handler.DispatchHandler;
 import cn.taketoday.web.interceptor.InterceptProcessor;
 import cn.taketoday.web.mapping.HandlerMapping;
@@ -68,35 +63,35 @@ import cn.taketoday.web.mapping.RegexMapping;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today
- * @date 2018年6月23日 下午4:20:26
+ * 
+ * @author Today <br>
+ *         2018-06-23 16:20:26<br>
+ *         2018-08-21 20:50 change
  */
 @Slf4j
 @Singleton(Constant.ACTION_CONFIG)
 public final class ActionConfig implements ApplicationContextAware {
 
 	private String					contextPath;
-	
-	private WebApplicationContext	applicationContext;
-	
-	private String[]				defaultUrlPatterns	= { "*.gif", "*.jpg", "*.jpeg", "*.png", "*.swf", "*.js",
-			"*.css", "*.ico", "*.rar", "*.zip", "*.txt", "*.flv", "*.mid", "*.doc", "*.ppt", "*.pdf", "*.xls", "*.mp3",
-			"*.wma", "*.map", "*.woff2", "*.woff", "*.docx" };
-	
-	
-	public final String[] getDefaultUrlPatterns() {
-		return defaultUrlPatterns;
-	}
-	
-	public ActionConfig() {
 
+	private WebApplicationContext	applicationContext;
+
+	public final String[] getDefaultUrlPatterns() {
+
+		return new String[] { "*.gif", "*.jpg", "*.jpeg", "*.png", "*.swf", "*.js", "*.css", "*.ico", "*.rar", "*.zip",
+				"*.txt", "*.flv", "*.mid", "*.doc", "*.ppt", "*.pdf", "*.xls", "*.mp3", "*.wma", "*.map", "*.woff2",
+				"*.woff", "*.docx" };
+	}
+
+	public ActionConfig() {
+		
 	}
 
 	public void init() throws Exception {
-		
+
 		log.info("Initializing ActionHandler And ParameterResolver");
 		this.contextPath = applicationContext.getServletContext().getContextPath();
-		
+
 		setConfiguration();
 	}
 
@@ -105,20 +100,22 @@ public final class ActionConfig implements ApplicationContextAware {
 	 * 
 	 * @param scanPackage
 	 * @return
+	 * @throws Exception 
 	 */
-	public final void setConfiguration() {
-		
+	public final void setConfiguration() throws Exception {
+
 		Set<Class<?>> actions = ClassUtils.getClassCache();
 		for (Class<?> clazz : actions) {
-			ActionProcessor actionProcessor = clazz.getAnnotation(ActionProcessor.class);
+			 
+			Controller actionProcessor = clazz.getAnnotation(Controller.class);
 			if (actionProcessor != null) {
 				Method[] declaredMethods = clazz.getDeclaredMethods();
 				for (Method method : declaredMethods) {
 					this.setActionMapping(clazz, method, false);
 				}
 			}
-
-			RestProcessor restProcessor = clazz.getAnnotation(RestProcessor.class);
+			
+			RestController restProcessor = clazz.getAnnotation(RestController.class);
 			if (restProcessor != null) {
 				Method[] declaredMethods = clazz.getDeclaredMethods();
 				for (Method method : declaredMethods) {
@@ -139,11 +136,13 @@ public final class ActionConfig implements ApplicationContextAware {
 	 * 
 	 * @param clazz
 	 * @param method
+	 * @throws Exception 
 	 */
-	private final void setActionMapping(Class<?> clazz, Method method, boolean isRest) {
+	private final void setActionMapping(Class<?> clazz, Method method, boolean isRest) throws Exception {
 
 		Map<String, Set<RequestMethod>> mapping = new HashMap<>();
 		ActionMapping clazzMapping = clazz.getAnnotation(ActionMapping.class);
+		
 		annotation(mapping, method);
 
 		// set HandlerMapping
@@ -158,51 +157,24 @@ public final class ActionConfig implements ApplicationContextAware {
 	 * 
 	 * @param requestMapping
 	 * @param method
+	 * @throws Exception 
 	 */
-	private void annotation(Map<String, Set<RequestMethod>> requestMapping, Method method) {
-
-		ActionMapping mapping = method.getAnnotation(ActionMapping.class);
-		if (mapping != null) {
-			String[] value = mapping.value();
+	private void annotation(Map<String, Set<RequestMethod>> requestMapping, Method method) throws Exception {
+		
+		ActionMapping[] mapping = ClassUtils.getMethodAnntation(method, ActionMapping.class, ActionMappingImpl.class);
+		
+		if (mapping.length == 0) {
+			return ;
+		}
+		
+		for (ActionMapping actionMapping : mapping) {
+			String[] value = actionMapping.value();
 			for (String url : value) {
-				RequestMethod[] requestMethod_ = mapping.method();
+				RequestMethod[] requestMethod_ = actionMapping.method();
 				requestMapping.put(url, new HashSet<>(Arrays.asList(requestMethod_)));
 			}
 		}
-		GET GET = method.getAnnotation(GET.class);
-		PUT PUT = method.getAnnotation(PUT.class);
-		POST POST = method.getAnnotation(POST.class);
-		DELETE DELETE = method.getAnnotation(DELETE.class);
-
-		HEAD HEAD = method.getAnnotation(HEAD.class);
-		PATCH PATCH = method.getAnnotation(PATCH.class);
-		TRACE TRACE = method.getAnnotation(TRACE.class);
-		OPTIONS OPTIONS = method.getAnnotation(OPTIONS.class);
-
-		if (GET != null) {
-			requestMapping.put(GET.value(), new HashSet<>(Arrays.asList(RequestMethod.GET)));
-		}
-		if (POST != null) {
-			requestMapping.put(POST.value(), new HashSet<>(Arrays.asList(RequestMethod.POST)));
-		}
-		if (PUT != null) {
-			requestMapping.put(PUT.value(), new HashSet<>(Arrays.asList(RequestMethod.PUT)));
-		}
-		if (DELETE != null) {
-			requestMapping.put(DELETE.value(), new HashSet<>(Arrays.asList(RequestMethod.DELETE)));
-		}
-		if (HEAD != null) {
-			requestMapping.put(HEAD.value(), new HashSet<>(Arrays.asList(RequestMethod.HEAD)));
-		}
-		if (OPTIONS != null) {
-			requestMapping.put(OPTIONS.value(), new HashSet<>(Arrays.asList(RequestMethod.OPTIONS)));
-		}
-		if (PATCH != null) {
-			requestMapping.put(PATCH.value(), new HashSet<>(Arrays.asList(RequestMethod.PATCH)));
-		}
-		if (TRACE != null) {
-			requestMapping.put(TRACE.value(), new HashSet<>(Arrays.asList(RequestMethod.TRACE)));
-		}
+		
 	}
 
 	/**
@@ -239,6 +211,9 @@ public final class ActionConfig implements ApplicationContextAware {
 				String requestMethod_ = requestMethod.toString() + Constant.REQUEST_METHOD_PREFIX;
 				url = requestMethod_ + contextPath + uri;
 
+				//
+				url = url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
+				
 				// add the mapping
 				int index = DispatchHandler.HANDLER_MAPPING_POOL.add(requestMapping);
 
@@ -246,8 +221,8 @@ public final class ActionConfig implements ApplicationContextAware {
 
 				DispatchHandler.REQUEST_MAPPING.put(url, index);
 
-				log.info("Action Mapped [{}] -> [{}] interceptors -> {}", url,
-						requestMapping.getAction() + "."
+				log.info(
+						"Action Mapped [{}] -> [{}] interceptors -> {}", url, requestMapping.getAction() + "."
 								+ requestMapping.getHandlerMethod().getMethod().getName() + "()",
 						Arrays.toString(requestMapping.getInterceptors()));
 			}
@@ -255,7 +230,7 @@ public final class ActionConfig implements ApplicationContextAware {
 	}
 
 	/**
-	 * create regex Url
+	 * Create regex Url.
 	 * 
 	 * @param regexUrl
 	 * @param methodParameters
@@ -316,29 +291,38 @@ public final class ActionConfig implements ApplicationContextAware {
 	}
 
 	/**
-	 * set Handler Mapping
+	 * Set Handler Mapping.
 	 * 
 	 * @param clazz
 	 * @param method
 	 * @param isRest
 	 * @return
+	 * @throws Exception 
 	 */
-	private final HandlerMapping createHandlerMapping(Class<?> clazz, Method method, boolean isRest) {
+	private final HandlerMapping createHandlerMapping(Class<?> clazz, Method method, boolean isRest) throws Exception {
 
 		HandlerMapping requestMapping = new HandlerMapping();
 		Parameter[] parameters = method.getParameters();
-		String[] methodArgsNames = null;
-		
-		methodArgsNames = ClassUtils.getMethodArgsNames(clazz, method);
-		
+		String[] methodArgsNames = ClassUtils.getMethodArgsNames(clazz, method);
+
 		List<MethodParameter> methodParameters = new ArrayList<>();// 处理器方法参数列表
 		setMethodParameter(parameters, methodParameters, methodArgsNames); // 设置 MethodParameter
-		
+
 		// 设置请求处理器
 		HandlerMethod methodInfo = new HandlerMethod(method, methodParameters);
 		requestMapping.setHandlerMethod(methodInfo);
-		requestMapping.setAction(clazz.getSimpleName());
 		
+		Component[] component = ClassUtils.getClassAnntation(clazz, Component.class, ComponentImpl.class);
+		
+		String[] value = component[0].value();
+		
+		if(value.length == 0 || "".equals(value[0])) {
+			requestMapping.setAction(clazz.getName());
+//		requestMapping.setAction(clazz.getSimpleName());
+		} else {
+			requestMapping.setAction(value[0]);
+		}
+
 		setInterceptor(clazz, method, isRest, requestMapping);
 
 		return requestMapping;
@@ -353,9 +337,8 @@ public final class ActionConfig implements ApplicationContextAware {
 	private void setMethodParameter(Parameter[] parameters, List<MethodParameter> methodParameters,
 			String[] methodArgsNames) {
 
-		
 		for (int i = 0; i < parameters.length; i++) {
-			
+
 			MethodParameter methodParameter = new MethodParameter();
 
 			methodParameter.setParameterClass(parameters[i].getType());// 设置参数类型
@@ -391,7 +374,7 @@ public final class ActionConfig implements ApplicationContextAware {
 	}
 
 	/**
-	 * add interceptor to handler
+	 * add intercepter to handler .
 	 * 
 	 * @param clazz
 	 * @param method
@@ -438,15 +421,16 @@ public final class ActionConfig implements ApplicationContextAware {
 	}
 
 	/***
-	 * set annotation
+	 * set annotation.
 	 * 
 	 * @param parameter
 	 * @param methodParameter
 	 */
 	private void setAnnotation(Parameter parameter, MethodParameter methodParameter) {
 
+		boolean required = false;
 		String parameterName = "";
-		boolean required = true;
+		String defaultValue = null;
 		byte annotation = Constant.ANNOTATION_NULL;
 
 		Cookie cookie = parameter.getAnnotation(Cookie.class); // cookie
@@ -455,53 +439,58 @@ public final class ActionConfig implements ApplicationContextAware {
 
 		Multipart multipart = parameter.getAnnotation(Multipart.class); // 多段式
 		RequestBody requestBody = parameter.getAnnotation(RequestBody.class); // RequestBody
-
 		RequestParam requestParam = parameter.getAnnotation(RequestParam.class); // 普通请求参数
-
 		PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
 
 		if (requestParam != null) {
-			parameterName = requestParam.value();
 			required = requestParam.required();
+			parameterName = requestParam.value();
+			defaultValue = requestParam.defaultValue();
 		}
 		if (cookie != null) {
 			parameterName = cookie.value();
-			annotation = Constant.ANNOTATION_COOKIE;
 			required = cookie.required();
+			defaultValue = cookie.defaultValue();
+			annotation = Constant.ANNOTATION_COOKIE;
 		}
 		if (header != null) {
 			parameterName = header.value();
-			annotation = Constant.ANNOTATION_HEADER;
 			required = header.required();
+			defaultValue = header.defaultValue();
+			annotation = Constant.ANNOTATION_HEADER;
 		}
 		if (session != null) {
 			parameterName = session.value();
 			annotation = Constant.ANNOTATION_SESSION;
 		}
 		if (multipart != null) {
+			required = true;
 			parameterName = multipart.value();
 			annotation = Constant.ANNOTATION_MULTIPART;
 		}
 		if (requestBody != null) {
+			required = true;
 			parameterName = requestBody.value();
 			annotation = Constant.ANNOTATION_REQUESTBODY;
 		}
+
 		if (pathVariable != null) {
+			required = true;
 			parameterName = pathVariable.value();
 			annotation = Constant.ANNOTATION_PATH_VARIABLE;
-			required = true;
 		}
 
-		methodParameter.setRequired(required);
-		methodParameter.setAnnotation(annotation);
-		methodParameter.setParameterName(parameterName);
+		methodParameter.setRequired(required)//
+				.setAnnotation(annotation)//
+				.setDefaultValue(defaultValue)//
+				.setParameterName(parameterName);
 	}
 
 	/***
-	 * register interceptor id into interceptors pool
+	 * register intercepter id into intercepters pool
 	 * 
 	 * @param interceptors
-	 * @return interceptors id
+	 * @return intercepters id
 	 */
 	private final Integer[] addInterceptors(Class<InterceptProcessor>[] interceptors) {
 

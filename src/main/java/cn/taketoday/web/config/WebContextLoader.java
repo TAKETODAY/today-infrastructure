@@ -55,9 +55,9 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.utils.PropertiesUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.core.Constant;
-import cn.taketoday.web.core.DefaultWebApplicationContext;
-import cn.taketoday.web.core.WebApplicationContext;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.DefaultWebApplicationContext;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.ActionHandler;
 import cn.taketoday.web.handler.DispatchHandler;
 import cn.taketoday.web.multipart.AbstractMultipartResolver;
@@ -238,7 +238,7 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 		}
 		// register resolver
 		applicationContext.registerBean(name, parameterResolver);
-		applicationContext.onRefresh();
+		applicationContext.refresh(name);
 		log.info("register [{}] onto [{}]", name, parameterResolver.getName());
 	}
 
@@ -363,7 +363,7 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 			log.info("Register Views Dispatcher.");
 			Servlet viewServlet = new ViewDispatcher();
 			servletContext.addServlet(VIEW_DISPATCHER, viewServlet);
-
+			
 			ServletRegistration registration = servletContext.getServletRegistration(VIEW_DISPATCHER);
 			registration.addMapping(urls.toArray(new String[0]));
 		}
@@ -373,27 +373,29 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 		}
 
 		applicationContext.registerBean(ACTION_HANDLER, ActionHandler.class);
-		applicationContext.onRefresh();
+		applicationContext.refresh(ACTION_HANDLER);
 
 		log.info("Register Action Dispatcher.");
 		Servlet actionServlet = null;
 		try {
+			
 			actionServlet = new ActionDispatcher(applicationContext);
-		} catch (NoSuchBeanDefinitionException ex) {
+		}//
+		catch (NoSuchBeanDefinitionException | ConfigurationException ex) {
 			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
 		}
-
+		
 		servletContext.addServlet(ACTION_DISPATCHER, actionServlet);
 
 		ServletRegistration.Dynamic registration = (Dynamic) servletContext.getServletRegistration(ACTION_DISPATCHER);
 
 		AbstractMultipartResolver multipartResolver = applicationContext.getBean(MULTIPART_RESOLVER,
 				AbstractMultipartResolver.class);
-
+		
 		MultipartConfigElement multipartConfig = new MultipartConfigElement(multipartResolver.getLocation(),
 				multipartResolver.getMaxFileSize(), multipartResolver.getMaxRequestSize(),
 				multipartResolver.getFileSizeThreshold());
-
+		
 		registration.setMultipartConfig(multipartConfig);
 
 		registration.addMapping(ACTION_DISPATCHER_MAPPING);
@@ -485,25 +487,25 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 
 		if (!applicationContext.containsBean(EXCEPTION_RESOLVER)) {
 			applicationContext.registerBean(EXCEPTION_RESOLVER, DefaultExceptionResolver.class);
-			applicationContext.onRefresh();
+			applicationContext.refresh(EXCEPTION_RESOLVER);
 			log.info("use default exception resolver -> [{}].", DefaultExceptionResolver.class);
 		}
 		if (!applicationContext.containsBean(MULTIPART_RESOLVER)) {
 			// default multipart resolver
 			applicationContext.registerBean(MULTIPART_RESOLVER, DefaultMultipartResolver.class);
-			applicationContext.onRefresh();
+			applicationContext.refresh(MULTIPART_RESOLVER);
 			log.info("use default multipart resolver -> [{}].", DefaultMultipartResolver.class);
 		}
 		if (!applicationContext.containsBean(VIEW_RESOLVER)) {
 			// use jstl view resolver
 			applicationContext.registerBean(VIEW_RESOLVER, JstlViewResolver.class);
-			applicationContext.onRefresh();
+			applicationContext.refresh(VIEW_RESOLVER);
 			log.info("use default view resolver -> [{}].", JstlViewResolver.class);
 		}
 		if (!applicationContext.containsBean(PARAMETER_RESOLVER)) {
 			// use default parameter resolver
 			applicationContext.registerBean(PARAMETER_RESOLVER, DefaultParameterResolver.class);
-			applicationContext.onRefresh();
+			applicationContext.refresh(PARAMETER_RESOLVER);
 			log.info("use default parameter resolver -> [{}].", DefaultParameterResolver.class);
 		}
 	}
@@ -526,7 +528,7 @@ public final class WebContextLoader implements ServletContextListener, Constant 
 		applicationContext.setServletContext(servletContext);
 
 		String realPath = servletContext.getRealPath(WEB_INF);
-
+		
 		try {
 
 			// init start

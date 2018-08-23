@@ -22,7 +22,8 @@ package cn.taketoday.web.view;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.web.core.WebApplicationContext;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.web.WebApplicationContext;
 
 /**
  * 
@@ -37,8 +38,9 @@ public interface ViewResolver {
 	 * 
 	 * @param applicationContext
 	 *            application context
+	 * @throws ConfigurationException 
 	 */
-	void initViewResolver(WebApplicationContext applicationContext);
+	void initViewResolver(WebApplicationContext applicationContext) throws ConfigurationException;
 
 	/**
 	 * Resolve View.

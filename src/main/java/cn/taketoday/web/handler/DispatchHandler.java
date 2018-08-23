@@ -27,7 +27,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.web.core.WebApplicationContext;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.mapping.HandlerMappingPool;
 import cn.taketoday.web.mapping.InterceptPool;
 import cn.taketoday.web.mapping.RegexMapping;
@@ -57,8 +58,9 @@ public interface DispatchHandler<T> {
 	 * 
 	 * @param applicationContext
 	 *            application context
+	 * @throws ConfigurationException 
 	 */
-	public void doInit(WebApplicationContext applicationContext);
+	public void doInit(WebApplicationContext applicationContext) throws ConfigurationException;
 
 	/**
 	 * Resolve request and invoke HandlerMathod.

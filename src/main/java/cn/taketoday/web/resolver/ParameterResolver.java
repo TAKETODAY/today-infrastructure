@@ -22,7 +22,8 @@ package cn.taketoday.web.resolver;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.web.core.WebApplicationContext;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.mapping.MethodParameter;
 
 /**
@@ -37,8 +38,9 @@ public interface ParameterResolver {
 	 * 
 	 * @param applicationContext
 	 *            application context
+	 * @throws ConfigurationException 
 	 */
-	public void doInit(WebApplicationContext applicationContext);
+	public void doInit(WebApplicationContext applicationContext) throws ConfigurationException;
 
 	/**
 	 * supports parameter ?

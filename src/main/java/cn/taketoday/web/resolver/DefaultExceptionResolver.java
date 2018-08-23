@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.exception.FileSizeLimitExceededException;
-import cn.taketoday.web.exception.MethodNotAllowed;
+import cn.taketoday.web.exception.MethodNotAllowedException;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,7 +46,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 
 		try {
 
-			if (ex instanceof MethodNotAllowed) {
+			if (ex instanceof MethodNotAllowedException) {
 				response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, ex.getMessage());
 			} else if (ex instanceof ConversionException) {
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());

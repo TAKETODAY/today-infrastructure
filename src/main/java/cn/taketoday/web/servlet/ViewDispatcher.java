@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.web.core.Constant;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.handler.DispatchHandler;
 import cn.taketoday.web.mapping.ViewMapping;
 import lombok.extern.slf4j.Slf4j;
