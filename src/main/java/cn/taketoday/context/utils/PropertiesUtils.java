@@ -31,23 +31,27 @@ import cn.taketoday.context.exception.ConfigurationException;
 public abstract class PropertiesUtils {
 
 	/**
-	 * find in property file
+	 * find in property file, and system property.
 	 * 
-	 * @param value_
-	 *            the value will as a key, if don't exist return value_
+	 * @param value_ the value will as a key, if don't exist return value_
 	 * @return
 	 * @throws ConfigurationException
 	 */
 	public static String findInProperties(Properties properties, String value_) throws ConfigurationException {
 		final String key = value_;
 		if (value_.startsWith("#{") && value_.endsWith("}")) {
-			value_ = properties.getProperty(value_.replaceAll("[{|#|}]+", ""));
+			String replaceAll = value_.replaceAll("[{|#|}]+", "");
+			value_ = System.getProperty(replaceAll);
+			if (value_ != null) {
+				return value_;
+			}
+			value_ = properties.getProperty(replaceAll);
 			if (value_ == null) {
-				throw new ConfigurationException("properties file lack -> [{}] , must specify a value.",
+				throw new ConfigurationException("Properties -> [{}] , must specify a value.",
 						key.replaceAll("[{|#|}]+", ""));
 			}
 		}
 		return value_;
 	}
-
+	
 }

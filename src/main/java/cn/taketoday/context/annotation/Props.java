@@ -47,5 +47,14 @@ public @interface Props {
 	 * 
 	 * @return
 	 */
-	String[] prefix() default { ""};
+	String[] prefix() default { "" };
+
+	/**
+	 * replace prefix.
+	 * 
+	 * @return
+	 */
+	boolean replace() default false;
+	
+	
 }

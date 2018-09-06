@@ -22,7 +22,9 @@ package cn.taketoday.context.loader;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import cn.taketoday.context.annotation.PropertyResolver;
 import cn.taketoday.context.annotation.Props;
@@ -32,6 +34,7 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.PropertiesUtils;
+import lombok.Cleanup;
 
 /**
  * @author Today <br>
@@ -48,61 +51,72 @@ public class PropsPropertyResolver implements PropertyValueResolver {
 	public PropertyValue resolveProperty(BeanDefinitionRegistry registry, Field field) throws Exception {
 
 		if (!Properties.class.equals(field.getType())) {
-			throw new AnnotationException("field type must be -> [" + Properties.class.getName() + "]");
+			throw new AnnotationException("Field type must be -> [" + Properties.class.getName() + "]");
 		}
-
+		
 		Props props = field.getAnnotation(Props.class);
 		Properties properties = new Properties(); // property vlaue
 		Properties properties_ = new Properties(); // file to be load
 		ClassLoader classLoader = ClassUtils.getClassLoader();
 
+		@Cleanup
 		InputStream inputStream = null;
-		try {
-			String[] prefix = props.prefix();
-			for (String fileName : props.value()) {
-				inputStream = new FileInputStream(classLoader.getResource(checkName(fileName)).getPath());
-				
-				properties_.load(inputStream);
-				this.load(prefix, properties, properties_);
-			}
-			if (props.value().length == 0) {
 
-				properties_ = registry.getProperties();
-				this.load(prefix, properties, properties_);
-			}
-		} finally {
-			if (inputStream != null) {
-				inputStream.close();
-			}
+		for (String fileName : props.value()) {
+
+			inputStream = new FileInputStream(classLoader.getResource(checkName(fileName)).getPath());
+			properties_.load(inputStream);
+			this.load(props, properties, properties_);
 		}
+		if (props.value().length == 0) {
+
+			properties_ = registry.getProperties();
+			this.load(props, properties, properties_);
+		}
+
 		return new PropertyValue(properties, field);
 	}
 
 	/**
-	 * load property value.
+	 * load properties values.
 	 * 
-	 * @param prefix
-	 *            the property key's prefix
+	 * @param props
+	 *            Props annotation
 	 * @param properties
 	 *            property value
-	 * @param properties_
+	 * @param pool
 	 *            property pool
 	 */
-	private void load(String[] prefix, Properties properties, Properties properties_) {
-		
-		properties_.forEach((key, value) -> {
-			if (key instanceof String) {
-				for (String prefix_ : prefix) {
-					if (((String) key).startsWith(prefix_)) {
-						try {
-							properties.setProperty((String) key, PropertiesUtils.findInProperties(properties_, (String)value));
-						} catch (ConfigurationException e) {
-							//shutdown
+	private void load(Props props, Properties properties, Properties pool) {
+
+		String[] prefix = props.prefix();
+		boolean replace = props.replace();
+
+		Set<Entry<Object, Object>> entrySet = pool.entrySet();
+
+		try {
+			
+			for (Entry<Object, Object> entry : entrySet) {
+				Object key = entry.getKey();
+				Object value = entry.getValue();
+				if (key instanceof String) {
+					for (String prefix_ : prefix) {
+						if (((String) key).startsWith(prefix_)) {
+
+							if (replace) {
+								// replace the prefix
+								key = ((String) key).replaceFirst(prefix_, "");
+							}
+
+							properties.setProperty((String) key,
+									PropertiesUtils.findInProperties(pool, (String) value));
 						}
 					}
 				}
 			}
-		});
+		} catch (ConfigurationException e) {
+			// shutdown
+		}
 	}
 
 	/**

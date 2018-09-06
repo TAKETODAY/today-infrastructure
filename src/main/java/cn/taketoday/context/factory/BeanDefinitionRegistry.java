@@ -28,8 +28,9 @@ import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
-
 /**
+ * Store bean definitions.
+ * 
  * 
  * @author Today <br>
  * 
@@ -38,12 +39,19 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 public interface BeanDefinitionRegistry {
 
 	/**
+	 * Get instances Map
+	 * 
+	 * @return
+	 */
+	Map<String, Object> getSingletonsMap();
+
+	/**
+	 * All the {@link PropertyValue}.
 	 * 
 	 * @return
 	 */
 	Set<PropertyValue> getDependency();
 
-	
 	/**
 	 * get bean instance, one {@link BeanDefinition} can have a lot of names, so
 	 * can't put instances in BeanDefinition.
@@ -53,7 +61,7 @@ public interface BeanDefinitionRegistry {
 	 * @return bean instance
 	 * @throws NoSuchBeanDefinitionException
 	 */
-	Object getInstance(String name);
+	Object getSingleton(String name);
 
 	/**
 	 * put instance.
@@ -63,9 +71,10 @@ public interface BeanDefinitionRegistry {
 	 * @param bean
 	 *            bean instance
 	 */
-	Object putInstance(String name, Object bean);
+	Object putSingleton(String name, Object bean);
 
 	/**
+	 * contains instance with given name?
 	 * 
 	 * @param name
 	 *            bean name

@@ -21,8 +21,11 @@ package cn.taketoday.context.factory;
 
 import java.util.Set;
 
+import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.loader.BeanDefinitionLoader;
 
 /**
  * 
@@ -41,6 +44,7 @@ public interface BeanFactory {
 	 * remove bean with the given name
 	 * 
 	 * @param name
+	 *             bean name
 	 * @throws NoSuchBeanDefinitionException
 	 */
 	void removeBean(String name) throws NoSuchBeanDefinitionException;
@@ -48,8 +52,22 @@ public interface BeanFactory {
 	/**
 	 * register a bean with the given name and type
 	 * 
+	 * @param beanDefinition
+	 *                       bean definition
+	 * @throws BeanDefinitionStoreException
+	 * @throws ConfigurationException
+	 * @since 1.2.0
+	 */
+	void registerBean(String name, BeanDefinition beanDefinition)
+			throws BeanDefinitionStoreException, ConfigurationException;
+
+	/**
+	 * register a bean with the given name and type
+	 * 
 	 * @param name
+	 *              bean name
 	 * @param clazz
+	 *              bean class
 	 * @throws BeanDefinitionStoreException
 	 */
 	void registerBean(String name, Class<?> clazz) throws BeanDefinitionStoreException;
@@ -58,24 +76,28 @@ public interface BeanFactory {
 	 * register a bean with the given type
 	 * 
 	 * @param clazz
+	 *              bean class
 	 * @throws BeanDefinitionStoreException
+	 * @throws ConfigurationException
 	 */
-	void registerBean(Class<?> clazz) throws BeanDefinitionStoreException;
+	void registerBean(Class<?> clazz) throws BeanDefinitionStoreException, ConfigurationException;
 
 	/**
 	 * register a bean with the given types
 	 * 
 	 * @param clazz
+	 *              bean classes
 	 * @throws BeanDefinitionStoreException
+	 * @throws ConfigurationException
 	 */
-	void registerBean(Set<Class<?>> clazz) throws BeanDefinitionStoreException;
+	void registerBean(Set<Class<?>> clazz) throws BeanDefinitionStoreException, ConfigurationException;
 
 	/**
 	 * find the bean with the given type, throw an NoSuchBeanDefinitionException if
 	 * it doesn't exist
 	 * 
 	 * @param name
-	 *            bean name
+	 *             bean name
 	 * @return get bean instance
 	 * @throws NoSuchBeanDefinitionException
 	 */
@@ -86,7 +108,7 @@ public interface BeanFactory {
 	 * it doesn't exist
 	 * 
 	 * @param requiredType
-	 *            bean type
+	 *                     bean type
 	 * @return get casted bean instance
 	 * @throws NoSuchBeanDefinitionException
 	 */
@@ -97,9 +119,9 @@ public interface BeanFactory {
 	 * NoSuchBeanDefinitionException if it doesn't exist.
 	 * 
 	 * @param name
-	 *            bean name
+	 *                     bean name
 	 * @param requiredType
-	 *            cast to required type
+	 *                     cast to required type
 	 * @return get casted bean instance
 	 * @throws NoSuchBeanDefinitionException
 	 */
@@ -109,7 +131,7 @@ public interface BeanFactory {
 	 * whether there is a bean with the given name.
 	 * 
 	 * @param name
-	 *            bean name
+	 *             bean name
 	 * @return
 	 */
 	boolean containsBean(String name);
@@ -118,7 +140,7 @@ public interface BeanFactory {
 	 * whether there is a bean with the given type.
 	 * 
 	 * @param type
-	 *            bean type
+	 *             bean type
 	 * @return
 	 */
 	boolean containsBean(Class<?> type);
@@ -145,7 +167,7 @@ public interface BeanFactory {
 	 * get bean type
 	 * 
 	 * @param name
-	 *            bean name
+	 *             bean name
 	 * @return
 	 * @throws NoSuchBeanDefinitionException
 	 */
@@ -155,9 +177,29 @@ public interface BeanFactory {
 	 * get all bean name
 	 * 
 	 * @param type
-	 *            bean type
+	 *             bean type
 	 * @return
 	 */
 	Set<String> getAliases(Class<?> type);
+
+	/**
+	 * 
+	 * @param beanDefinitionRegistry
+	 */
+	void setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry);
+
+	/**
+	 * get the bean definition registry
+	 * 
+	 * @return
+	 */
+	BeanDefinitionRegistry getBeanDefinitionRegistry();
+
+	/**
+	 * get bean definition loader
+	 * 
+	 * @return
+	 */
+	BeanDefinitionLoader getBeanDefinitionLoader();
 
 }

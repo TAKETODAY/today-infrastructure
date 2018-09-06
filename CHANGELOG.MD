@@ -41,5 +41,19 @@ public @interface Props {
 
 ```
 
+> ## v1.1.1
+   
+- 修复单例情况下接口对象与实现类对象不一致问题
+- 添加部分doc
+- 添加refresh方法
+- 添加test code
+- Properties 注入时可以选择替换掉前缀，前缀有时是为了区分一类配置
+- 优化注入可以自定义注解注入
+   
+> ## v1.2.0
+- 添加 AnntationApplicationContext 支持 `Configuration` 注解
+- `ClassPathApplicationContext` 改为 `DefaultApplicationContext`
+- bean 注解支持方法标注
 
+   
    

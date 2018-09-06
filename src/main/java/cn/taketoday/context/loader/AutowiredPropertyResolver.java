@@ -33,7 +33,7 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
  *		2018-08-04 15:56
  */
 @PropertyResolver
-public class AutowiredPropertyResolver implements PropertyValueResolver{
+public class AutowiredPropertyResolver implements PropertyValueResolver {
 
 	@Override
 	public PropertyValue resolveProperty(BeanDefinitionRegistry registry, Field field) {

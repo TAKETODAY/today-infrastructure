@@ -21,6 +21,7 @@ package cn.taketoday.context.factory;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
@@ -55,7 +56,7 @@ public final class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistr
 	private Properties properties = new Properties();
 	
 	/** Map of bean instance*/
-	private final Map<String, Object> singletons = new ConcurrentHashMap<>(16);
+	private final Map<String, Object> singletons = new HashMap<>(16);
 	/** Map of bean definition objects, keyed by bean name */
 	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(16);
 	/** dependency */
@@ -101,6 +102,7 @@ public final class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistr
 		if (this.beanDefinitionMap.remove(beanName) == null) {
 			throw new NoSuchBeanDefinitionException(beanName);
 		}
+		singletons.remove(beanName);//remove singleton
 	}
 
 	@Override
@@ -145,23 +147,29 @@ public final class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistr
 	}
 
 	@Override
-	public Object getInstance(String name){
+	public Object getSingleton(String name){
 		return singletons.get(name);
 	}
 
 	@Override
-	public Object putInstance(String name, Object bean) {
+	public Object putSingleton(String name, Object bean) {
 		return singletons.put(name, bean);
 	}
 
 	@Override
 	public boolean containsInstance(String name) {
+
 		return singletons.containsKey(name);
 	}
 
 	@Override
 	public Set<PropertyValue> getDependency() {
 		return dependency;
+	}
+
+	@Override
+	public Map<String, Object> getSingletonsMap() {
+		return singletons;
 	}
 	
 }

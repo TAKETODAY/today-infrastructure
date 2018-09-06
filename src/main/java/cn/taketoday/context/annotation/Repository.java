@@ -24,15 +24,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * @author Today
- * @date 2018年7月2日 下午10:45:00
- */
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Repository {
-	
-	//bean name
-	String[] value() default {};
+import cn.taketoday.context.core.Scope;
 
+/**
+ * @author Today <br>
+ * 
+ *         2018-07-02 20:45:00
+ */
+@Target({ ElementType.TYPE, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+@Component(scope = Scope.SINGLETON)
+public @interface Repository {
+
+	// bean name
+	String[] value() default {};
 }

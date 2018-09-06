@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PropertyValuesLoader {
 
 	/** bean definition registry */
-	private BeanDefinitionRegistry registry;
+	private BeanDefinitionRegistry									registry;
 
 	private Map<Class<? extends Annotation>, PropertyValueResolver>	propertyValueResolvers	= new HashMap<>();
 
@@ -74,10 +74,11 @@ public class PropertyValuesLoader {
 	public void init() {
 		log.debug("Start loading property resolver.");
 		Set<Class<?>> actions = ClassUtils.getClassCache();
-		if(actions == null) {
+		if (actions == null) {
 			actions = ClassUtils.scanPackage("");
 		}
 		try {
+			
 			for (Class<?> clazz : actions) {
 				if (clazz.isInterface()) {
 					continue;
@@ -86,9 +87,10 @@ public class PropertyValuesLoader {
 				if (converter == null) {
 					continue;
 				}
-				propertyValueResolvers.put(converter.value(), (PropertyValueResolver) clazz.newInstance()); // put
+				propertyValueResolvers.put(converter.value(),
+						(PropertyValueResolver) clazz.getConstructor().newInstance());// put
 			}
-		} catch (InstantiationException | IllegalAccessException ex) {
+		} catch (Exception ex) {
 			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
 		}
 	}
@@ -99,7 +101,7 @@ public class PropertyValuesLoader {
 	 * @param field
 	 *            property
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public PropertyValue create(Field field) throws Exception {
 		Annotation[] annotations = field.getAnnotations();

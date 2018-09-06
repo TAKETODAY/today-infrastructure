@@ -85,9 +85,21 @@ public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean,
 
 }
 
+@Configuration
+public final class ConfigurationBean {
 
+	@Prototype
+	public User user() {
+		return new User().setId(12);
+	}
+
+	@Singleton("USER")
+	public User user() {
+		return new User();
+	}
+	
+}
 ```
-
 > 自动装载
 ```java
 public void test_AutoLoadContextAndClearCache() throws NoSuchBeanDefinitionException {
@@ -128,7 +140,8 @@ public void test_ManualLoadContext() throws NoSuchBeanDefinitionException, BeanD
 ```
 > FactoryBean
 ```java
-public void test_AutoLoadFactoryBean_() throws NoSuchBeanDefinitionException {
+@Test
+public void test_AutoLoadFactoryBean() throws NoSuchBeanDefinitionException {
     ApplicationContext applicationContext = new ClassPathApplicationContext(true);
     Config config = applicationContext.getBean("FactoryBean-Config", Config.class);
     Config config_ = applicationContext.getBean("FactoryBean-Config", Config.class);
@@ -140,6 +153,7 @@ public void test_AutoLoadFactoryBean_() throws NoSuchBeanDefinitionException {
 ```
 > 原型Bean
 ```java
+@Test
 public void test_AutoLoadPrototype() throws NoSuchBeanDefinitionException {
     ApplicationContext applicationContext = new ClassPathApplicationContext(true);
     Config config = applicationContext.getBean("prototype_config", Config.class);
@@ -150,6 +164,26 @@ public void test_AutoLoadPrototype() throws NoSuchBeanDefinitionException {
     applicationContext.close();
 }
 ```
+> @Configuration
+```java
+@Test
+public void test_AnntationApplicationContext() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
+
+	ApplicationContext applicationContext = new AnntationApplicationContext(
+			new HashSet<>(Arrays.asList(ConfigurationBean.class))
+	);
+
+	User bean = applicationContext.getBean("user", User.class);
+
+	bean.setAge(12);
+
+	User user = applicationContext.getBean("user", User.class);
+	assert bean != user;
+	
+	applicationContext.close();
+}
+```
+
 ### 联系方式
 - 邮箱 taketoday@foxmail.com
 

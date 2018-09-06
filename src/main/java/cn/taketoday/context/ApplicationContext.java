@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.factory.FactoryBean;
 
 /**
  * @author Today
@@ -33,48 +33,60 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 public interface ApplicationContext extends BeanFactory {
 
 	/**
+	 * refresh bean
+	 * 
+	 * @param name
+	 *             bean name
+	 * 
+	 * @since 1.2.0
+	 */
+	void refresh(String name);
+
+	/**
 	 * load properties configuration file. No specific name required.
 	 * 
 	 * @param dir
+	 *            dir
 	 * @throws IOException
 	 */
-	public void loadProperties(File dir) throws IOException;
-	
+	void loadProperties(File dir) throws IOException;
+
 	/**
 	 * init success
 	 */
-	public void loadSuccess();
+	void loadSuccess();
 
 	/**
-	 * load context with given path and package
+	 * Load Properties.
+	 * 
+	 * <p>
+	 * First of all, it will load all the properties files in the given path. If you
+	 * use <b>""</b> instead of a exact path like <b>/config</b> ,it will load all
+	 * the properties files in the application.
+	 * </p>
+	 * <p>
+	 * And then {@link package_} parameter decided where to load the beans.
+	 * </p>
+	 * <p>
+	 * when all the bean definition stores in the {@link BeanDefinitionRegistry} .
+	 * It will find all the bean post processor,and initialize it. Then register
+	 * {@link FactoryBean} .
+	 * </p>
+	 * <p>
+	 * Now it store all the bean and then resolve dependency, Last refresh context.
+	 * </p>
+	 * 
 	 * 
 	 * @param path
+	 *                 the path to load all the properties files
+	 * @param package_
+	 *                 package to scan
 	 */
-	public void loadContext(String path, String package_);
-
-	/**
-	 * 
-	 * @param beanDefinitionRegistry
-	 */
-	public void setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry);
-
-	/**
-	 * get the bean definition registry
-	 * 
-	 * @return
-	 */
-	public BeanDefinitionRegistry getBeanDefinitionRegistry();
-
-	/**
-	 * get bean definition loader
-	 * 
-	 * @return
-	 */
-	public BeanDefinitionLoader getBeanDefinitionLoader();
+	void loadContext(String path, String package_);
 
 	/**
 	 * close context
 	 */
-	public void close();
+	void close();
 
 }

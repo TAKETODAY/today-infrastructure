@@ -27,19 +27,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import cn.taketoday.context.annotation.ActionProcessor;
 import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Repository;
-import cn.taketoday.context.annotation.RestProcessor;
-import cn.taketoday.context.annotation.Service;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.annotation.ComponentImpl;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.core.Scope;
 import cn.taketoday.context.exception.AnnotationException;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -61,15 +57,15 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 		propertyValuesLoader = new PropertyValuesLoader(registry);
 		propertyValuesLoader.init();
 	}
-	
+
 	@Override
 	public BeanDefinitionRegistry getRegistry() {
 		return this.registry;
 	}
 
 	@Override
-	public void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException {
-		
+	public void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException, ConfigurationException {
+
 		if (clazz.isInterface()) {
 			return;
 		}
@@ -77,7 +73,7 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	}
 
 	@Override
-	public void loadBeanDefinitions(Set<Class<?>> beans) throws BeanDefinitionStoreException {
+	public void loadBeanDefinitions(Set<Class<?>> beans) throws BeanDefinitionStoreException, ConfigurationException {
 
 		for (Class<?> clazz : beans) {
 			loadBeanDefinition(clazz);
@@ -99,15 +95,17 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	 * register with given class
 	 * 
 	 * @param clazz
-	 *            bean class
+	 *              bean class
 	 * @throws BeanDefinitionStoreException
+	 * @throws ConfigurationException
 	 */
-	private void register(Class<?> clazz) throws BeanDefinitionStoreException {
+	@Override
+	public void register(Class<?> clazz) throws BeanDefinitionStoreException, ConfigurationException {
 
 		Map<String, BeanDefinition> beanDefinitions = new HashMap<>();
-		
+
 		build(beanDefinitions, clazz);
-		
+
 		Set<Entry<String, BeanDefinition>> entrySet = beanDefinitions.entrySet();
 		Iterator<Entry<String, BeanDefinition>> iterator = entrySet.iterator();
 		while (iterator.hasNext()) {
@@ -117,15 +115,16 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	}
 
 	/**
-	 * register bean definition with given name.
+	 * register bean definition with given name, and resolve property values
 	 * 
 	 * @param name
-	 *            bean name
+	 *                       bean name
 	 * @param beanDefinition
-	 *            definition
+	 *                       definition
 	 * @throws BeanDefinitionStoreException
 	 */
-	private void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
+	@Override
+	public void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
 		try {
 
 			Class<? extends Object> beanClass = beanDefinition.getBeanClass();
@@ -142,8 +141,7 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 			// process property
 			beanDefinition.setPropertyValues(processProperty(beanDefinition));
 			registry.registerBeanDefinition(name, beanDefinition);
-		} 
-		catch (Exception e) {
+		} catch (Exception e) {
 			log.error("process property error.", e);
 		}
 	}
@@ -152,75 +150,36 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	 * build definition map with given class
 	 * 
 	 * @param map
-	 *            bean definition map
+	 *              bean definition map
 	 * @param clazz
-	 *            bean class
+	 *              bean class
+	 * @throws ConfigurationException
 	 */
-	private void build(Map<String, BeanDefinition> map, Class<?> clazz) {
+	private void build(Map<String, BeanDefinition> map, Class<?> clazz) throws ConfigurationException {
 
-		Service service = clazz.getAnnotation(Service.class);
-		Singleton singleton = clazz.getAnnotation(Singleton.class);
-		Component component = clazz.getAnnotation(Component.class);
-		Prototype prototype = clazz.getAnnotation(Prototype.class);
-		Repository repository = clazz.getAnnotation(Repository.class);
-		// Processor
-		RestProcessor restProcessor = clazz.getAnnotation(RestProcessor.class);
-		ActionProcessor actionProcessor = clazz.getAnnotation(ActionProcessor.class);
-		
-		if (service != null) {
-			String[] names_ = findNames(clazz, service.value());
-			for (String name : names_) {
-				map.put(name, new BeanDefinition(name, clazz));
+		try {
+
+			Component[] components = ClassUtils.getClassAnntation(clazz, Component.class, ComponentImpl.class);
+			for (Component component : components) {
+				String[] names = findNames(clazz, component.value());
+				for (String name : names) {
+
+					map.put(name, new BeanDefinition(name, clazz));
+				}
 			}
+			return;
+		} catch (Exception e) {
+			throw new ConfigurationException("Auto load definition error");
 		}
-		if (singleton != null) {
-			String[] names_ = findNames(clazz, singleton.value());
-			for (String name : names_) {
-				map.put(name, new BeanDefinition(name, clazz));
-			}
-		}
-		if (prototype != null) {
-			String[] names_ = findNames(clazz, prototype.value());
-			for (String name : names_) {
-				map.put(name, new BeanDefinition(name, clazz, Scope.PROTOTYPE));
-			}
-		}
-		if (repository != null) {
-			String[] names_ = findNames(clazz, repository.value());
-			for (String name : names_) {
-				map.put(name, new BeanDefinition(name, clazz));
-			}
-		}
-		if (restProcessor != null) {
-			String[] names_ = findNames(clazz,
-					"".equals(restProcessor.value()) ? new String[] { clazz.getSimpleName() } : new String[] { restProcessor.value() });
-			for (String name : names_) {
-				map.put(name, new BeanDefinition(name, clazz));
-			}
-		}
-		if (actionProcessor != null) {
-			String[] names_ = findNames(clazz,
-					"".equals(actionProcessor.value()) ? new String[] { clazz.getSimpleName() } : new String[] { actionProcessor.value() });
-			for (String name : names_) {
-				map.put(name, new BeanDefinition(name, clazz));
-			}
-		}
-		if (component != null) {
-			String[] names_ = findNames(clazz, component.value());
-			for (String name : names_) {
-				map.put(name, new BeanDefinition(name, clazz, component.scope()));
-			}
-		}
-		return;
 	}
 
 	/**
 	 * find names
 	 * 
 	 * @param clazz
-	 *            bean class
+	 *              bean class
 	 * @param names
-	 *            annotation values
+	 *              annotation values
 	 * @return
 	 */
 	private String[] findNames(Class<?> clazz, String[] names) {
@@ -234,7 +193,7 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	 * process bean's property (field)
 	 * 
 	 * @param beanDefinition
-	 *            bean definition
+	 *                       bean definition
 	 * @return property value list
 	 * @throws Exception
 	 */
@@ -257,7 +216,7 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 		} catch (AnnotationException ex) {
 			log.error("ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
 		}
-		
+
 		// superclass
 		Class<?> superclass = clazz.getSuperclass();
 		Field[] declaredFields_ = superclass.getDeclaredFields();

@@ -19,7 +19,6 @@
  */
 package cn.taketoday.context.exception;
 
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -30,12 +29,15 @@ import lombok.extern.slf4j.Slf4j;
  * 
  *         2018-08-08 09:55
  */
-@NoArgsConstructor
 @Slf4j
 public class ConfigurationException extends Exception {
 
 	private static final long serialVersionUID = -5325643331368019892L;
 
+	public ConfigurationException() {
+		this("");
+	}
+	
 	public ConfigurationException(Throwable cause) {
 		super(cause);
 	}

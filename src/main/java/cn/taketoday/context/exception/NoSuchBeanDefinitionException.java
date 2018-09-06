@@ -22,8 +22,10 @@ package cn.taketoday.context.exception;
 import lombok.NoArgsConstructor;
 
 /**
- * @author Today
- * @date 2018年7月3日 下午8:24:18
+ * 
+ * @author Today <br>
+ * 
+ *         2018-07-3 20:24:18
  */
 @NoArgsConstructor
 public class NoSuchBeanDefinitionException extends Exception {
