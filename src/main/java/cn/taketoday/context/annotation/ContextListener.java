@@ -27,21 +27,15 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.Scope;
 
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
 /**
  * @author Today <br>
  * 
- *         2018-09-06 14:05
+ *         2018-09-10 11:09
  */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE })
 @Component(scope = Scope.SINGLETON)
-public @interface Configuration {
+public @interface ContextListener {
 
-	/**
-	 * bean name
-	 * 
-	 * @return
-	 */
-	String[] value() default {};
 }

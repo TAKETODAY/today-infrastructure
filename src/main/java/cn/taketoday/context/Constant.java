@@ -17,31 +17,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.context;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.io.Serializable;
 
-import cn.taketoday.context.Scope;
-
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
 /**
- * @author Today <br>
  * 
- *         2018-09-06 14:05
+ * @author Today <br>
+ *         2018-01-16 10:56
  */
-@Component(scope = Scope.SINGLETON)
-public @interface Configuration {
+public interface Constant extends Serializable {
 
-	/**
-	 * bean name
-	 * 
-	 * @return
-	 */
-	String[] value() default {};
+	String	GET_BEAN				= "getBean";
+
+	String	ON_APPLICATION_EVENT	= "onApplicationEvent";
+
 }

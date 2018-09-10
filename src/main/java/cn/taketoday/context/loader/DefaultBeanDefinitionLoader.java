@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.ComponentImpl;
@@ -48,9 +47,9 @@ import lombok.extern.slf4j.Slf4j;
 public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 	/** bean definition registry */
-	private BeanDefinitionRegistry	registry;
+	protected BeanDefinitionRegistry	registry;
 	/** load property */
-	private PropertyValuesLoader	propertyValuesLoader;
+	protected PropertyValuesLoader		propertyValuesLoader;
 
 	public DefaultBeanDefinitionLoader(BeanDefinitionRegistry registry) {
 		this.registry = registry;
@@ -65,16 +64,15 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 	@Override
 	public void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException, ConfigurationException {
-
-		if (clazz.isInterface()) {
+		if(clazz.isInterface()) {
 			return;
 		}
 		register(clazz);
 	}
 
 	@Override
-	public void loadBeanDefinitions(Set<Class<?>> beans) throws BeanDefinitionStoreException, ConfigurationException {
-
+	public void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException, ConfigurationException {
+		
 		for (Class<?> clazz : beans) {
 			loadBeanDefinition(clazz);
 		}
@@ -82,11 +80,7 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 	@Override
 	public void loadBeanDefinition(String name, Class<?> clazz) throws BeanDefinitionStoreException {
-
-		if (clazz.isInterface()) {
-			log.error("class -> [{}] can't be interface", clazz.getName());
-			throw new BeanDefinitionStoreException("class -> " + clazz.getName() + "can't be interface");
-		}
+		
 		// register
 		register(name, new BeanDefinition(name, clazz));
 	}
@@ -105,9 +99,8 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 		Map<String, BeanDefinition> beanDefinitions = new HashMap<>();
 
 		build(beanDefinitions, clazz);
-
-		Set<Entry<String, BeanDefinition>> entrySet = beanDefinitions.entrySet();
-		Iterator<Entry<String, BeanDefinition>> iterator = entrySet.iterator();
+		
+		Iterator<Entry<String, BeanDefinition>> iterator = beanDefinitions.entrySet().iterator();
 		while (iterator.hasNext()) {
 			Entry<String, BeanDefinition> entry = iterator.next();
 			register(entry.getKey(), entry.getValue());
@@ -125,15 +118,16 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	 */
 	@Override
 	public void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
+
 		try {
 
 			Class<? extends Object> beanClass = beanDefinition.getBeanClass();
 			// find same property.
 			Collection<BeanDefinition> values = registry.getBeanDefinitionsMap().values();
-			for (BeanDefinition beanDefinition_ : values) {
-				if (beanDefinition_.getBeanClass() == beanClass) {
+			for (BeanDefinition registedDefinition : values) {
+				if (registedDefinition.getBeanClass() == beanClass) {
 					// have same property value.
-					beanDefinition.setPropertyValues(beanDefinition_.getPropertyValues());
+					beanDefinition.setPropertyValues(registedDefinition.getPropertyValues());
 					registry.registerBeanDefinition(name, beanDefinition);
 					return;
 				}
@@ -161,10 +155,12 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 			Component[] components = ClassUtils.getClassAnntation(clazz, Component.class, ComponentImpl.class);
 			for (Component component : components) {
+
 				String[] names = findNames(clazz, component.value());
+
 				for (String name : names) {
 
-					map.put(name, new BeanDefinition(name, clazz));
+					map.put(name, new BeanDefinition(name, clazz, component.scope()));
 				}
 			}
 			return;
@@ -182,9 +178,9 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	 *              annotation values
 	 * @return
 	 */
-	private String[] findNames(Class<?> clazz, String[] names) {
+	private String[] findNames(Class<?> clazz, String... names) {
 		if (names.length == 0) {
-			return new String[] { clazz.getName() };
+			return new String[] { clazz.getSimpleName() };
 		}
 		return names;
 	}
@@ -219,6 +215,9 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 		// superclass
 		Class<?> superclass = clazz.getSuperclass();
+		if(superclass == null) {
+			return propertyValues.toArray(new PropertyValue[0]);
+		}
 		Field[] declaredFields_ = superclass.getDeclaredFields();
 		for (Field field : declaredFields_) {
 			if (!propertyValuesLoader.supportsProperty(field)) {

@@ -21,8 +21,9 @@ package cn.taketoday.context.bean;
 
 import java.util.Arrays;
 
-import cn.taketoday.context.core.Scope;
+import cn.taketoday.context.Scope;
 import cn.taketoday.context.exception.NoSuchPropertyException;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -35,6 +36,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public final class BeanDefinition {
 
 	/** bean definition name. */
@@ -51,7 +53,7 @@ public final class BeanDefinition {
 	private PropertyValue[]			propertyValues;
 
 	public PropertyValue getPropertyValue(String name) throws NoSuchPropertyException {
-
+		
 		for (PropertyValue propertyValue : propertyValues) {
 			if (propertyValue.getField().getName().equals(name)) {
 				return propertyValue;

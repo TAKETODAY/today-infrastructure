@@ -43,14 +43,14 @@ import test.domain.User;
  */
 public final class DefaultBeanDefinitionLoaderTest {
 
-	private long start;
-	
-	private BeanDefinitionRegistry registry;
-	
-	private List<BeanPostProcessor> postProcessors;
-	
-	private DefaultBeanDefinitionLoader beanDefinitionLoader;
-	
+	private long						start;
+
+	private BeanDefinitionRegistry		registry;
+
+	private List<BeanPostProcessor>		postProcessors;
+
+	private DefaultBeanDefinitionLoader	beanDefinitionLoader;
+
 	@Before
 	public void start() {
 		postProcessors = new ArrayList<>();
@@ -58,40 +58,38 @@ public final class DefaultBeanDefinitionLoaderTest {
 		beanDefinitionLoader = new DefaultBeanDefinitionLoader(registry);
 		start = System.currentTimeMillis();
 	}
-	
+
 	@After
 	public void end() {
 		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
 	}
-	
+
 	@Test
 	public void test_LoadBeanDefinition() throws BeanDefinitionStoreException, ConfigurationException {
-		
+
 		beanDefinitionLoader.loadBeanDefinition(User.class);
 		beanDefinitionLoader.loadBeanDefinition("user", User.class);
 		beanDefinitionLoader.loadBeanDefinitions(ClassUtils.scanPackage("cn.taketoday.test.dao"));
-		
+
 		Map<String, BeanDefinition> beanDefinitionsMap = registry.getBeanDefinitionsMap();
-		
+
 		assert beanDefinitionsMap.size() > 0;
 
 		System.out.println(beanDefinitionsMap);
 	}
-	
+
 	@Test
 	public void test_LoadBeanPostProcessor() throws BeanDefinitionStoreException, ConfigurationException {
-		
+
 		beanDefinitionLoader.loadBeanDefinitions(ClassUtils.scanPackage("cn.taketoday.test.context.loader"));
-		
+
 		Map<String, BeanDefinition> beanDefinitionsMap = registry.getBeanDefinitionsMap();
-		
+
 		assert postProcessors.size() > 0;
 		assert beanDefinitionsMap.size() > 0;
-		
+
 		System.out.println(postProcessors);
 		System.out.println(beanDefinitionsMap);
 	}
-	
-	
-	
+
 }

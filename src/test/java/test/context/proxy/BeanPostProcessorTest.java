@@ -17,31 +17,35 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
+package test.context.proxy;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.junit.After;
+import org.junit.Before;
 
-import cn.taketoday.context.Scope;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.DefaultApplicationContext;
 
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
 /**
  * @author Today <br>
  * 
- *         2018-09-06 14:05
+ *         2018-08-08 18:20
  */
-@Component(scope = Scope.SINGLETON)
-public @interface Configuration {
+public class BeanPostProcessorTest {
 
-	/**
-	 * bean name
-	 * 
-	 * @return
-	 */
-	String[] value() default {};
+	private long				start;
+
+	private ApplicationContext	applicationContext;
+
+	@Before
+	public void start() {
+		start = System.currentTimeMillis();
+		applicationContext = new DefaultApplicationContext("test.context.proxy");
+	}
+
+	@After
+	public void end() {
+		applicationContext.close();
+		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+	}
+
 }

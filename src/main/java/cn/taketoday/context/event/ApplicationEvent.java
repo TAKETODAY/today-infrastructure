@@ -17,31 +17,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.event;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.EventObject;
 
-import cn.taketoday.context.Scope;
-
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
 /**
  * @author Today <br>
  * 
- *         2018-09-06 14:05
+ *         2018-09-09 21:23
  */
-@Component(scope = Scope.SINGLETON)
-public @interface Configuration {
+public abstract class ApplicationEvent extends EventObject {
+
+	private static final long	serialVersionUID	= -6076460817762760269L;
+
+	private final long			timestamp;
+
+	public ApplicationEvent(Object source) {
+		super(source);
+		this.timestamp = System.currentTimeMillis();
+	}
 
 	/**
-	 * bean name
-	 * 
-	 * @return
+	 * Return the system time in milliseconds when the event happened.
 	 */
-	String[] value() default {};
+	public final long getTimestamp() {
+		return this.timestamp;
+	}
 }

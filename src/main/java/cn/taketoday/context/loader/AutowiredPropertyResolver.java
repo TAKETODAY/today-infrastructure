@@ -44,10 +44,10 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
 		} 
 		
 		if (!(autowired.class_() == Class.class)) {
-			return new PropertyValue(new BeanReference(autowired.class_().getName()), field); // class name
+			return new PropertyValue(new BeanReference(autowired.class_().getSimpleName()), field); // class name
 		}
 		
-		return new PropertyValue(new BeanReference(field.getType().getName()), field); // // field type name
+		return new PropertyValue(new BeanReference(field.getType().getSimpleName()), field); // // field type name
 	}
 	
 }

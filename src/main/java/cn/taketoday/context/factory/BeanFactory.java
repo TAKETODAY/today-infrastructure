@@ -36,6 +36,13 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 public interface BeanFactory {
 
 	/**
+	 * 
+	 * @param name
+	 * @param bean
+	 */
+	void registerSingleton(String name, Object bean);
+
+	/**
 	 * refresh factory
 	 */
 	void onRefresh();

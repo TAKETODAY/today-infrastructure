@@ -17,31 +17,31 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
+package test.context.proxy;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.factory.BeanPostProcessor;
 
-import cn.taketoday.context.Scope;
-
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
 /**
  * @author Today <br>
  * 
- *         2018-09-06 14:05
+ *         2018-09-09 20:14
  */
-@Component(scope = Scope.SINGLETON)
-public @interface Configuration {
+@Singleton
+public class ProxyBeanPostProcessor implements BeanPostProcessor {
 
-	/**
-	 * bean name
-	 * 
-	 * @return
-	 */
-	String[] value() default {};
+	@Override
+	public void postProcessBeforeInitialization(Object bean, BeanDefinition beanName) throws Exception {
+		
+		
+		
+		
+	}
+
+	@Override
+	public void postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+
+	}
+
 }

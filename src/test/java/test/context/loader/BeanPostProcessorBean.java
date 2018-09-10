@@ -20,6 +20,7 @@
 package test.context.loader;
 
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.factory.BeanPostProcessor;
 
 /**
@@ -31,17 +32,15 @@ import cn.taketoday.context.factory.BeanPostProcessor;
 public class BeanPostProcessorBean implements BeanPostProcessor {
 
 	@Override
-	public Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception {
+	public void postProcessBeforeInitialization(Object bean, BeanDefinition beanName) throws Exception {
 
 		System.out.println("Before : beanName -> " + beanName + " bean instance -> " + bean);
-		return bean;
 	}
 
 	@Override
-	public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+	public void postProcessAfterInitialization(Object bean, String beanName) throws Exception {
 
 		System.out.println("After : beanName -> " + beanName + " bean instance -> " + bean);
-		return bean;
 	}
 
 }

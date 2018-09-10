@@ -36,9 +36,6 @@ public final class BeanReference {
 	/** reference name */
 	private String name;
 
-	/** reference bean instance */
-	// private Object bean;
-
 	public BeanReference(String name) {
 		this.name = name;
 	}

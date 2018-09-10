@@ -5,8 +5,8 @@
 	<groupId>cn.taketoday</groupId>
 	<artifactId>today-context</artifactId>
 	
-	<version>1.2.0.RELEASE</version>
-	<name>today-context-1.2.0.RELEASE</name>
+	<version>2.0.0.RELEASE</version>
+	<name>today-context-2.0.0.RELEASE</name>
 
 	<url>https://taketoday.cn</url>
 	<organization>

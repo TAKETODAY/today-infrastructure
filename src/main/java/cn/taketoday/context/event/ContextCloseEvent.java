@@ -17,31 +17,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.event;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import cn.taketoday.context.ApplicationContext;
 
-import cn.taketoday.context.Scope;
-
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
 /**
  * @author Today <br>
- * 
- *         2018-09-06 14:05
+ * 	
+ *		2018-09-10 07:55
  */
-@Component(scope = Scope.SINGLETON)
-public @interface Configuration {
+public class ContextCloseEvent extends ApplicationContextEvent {
 
-	/**
-	 * bean name
-	 * 
-	 * @return
-	 */
-	String[] value() default {};
+	private static final long serialVersionUID = -7729176812465669727L;
+
+	
+	public ContextCloseEvent(ApplicationContext source) {
+		super(source);
+	}
+	
 }

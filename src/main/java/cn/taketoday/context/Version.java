@@ -17,18 +17,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.core;
+package cn.taketoday.context;
 
-import java.io.Serializable;
-
+/**
+ * @author Today <br>
+ * 			2018-06-22 15:28:04
+ * @version 1.0.0
+ */
 /**
  * 
  * @author Today <br>
- * 		2018-01-16 10:56
+ *         2018-06-07 10:56
+ * @version 1.0.3
  */
-public interface Constant extends Serializable {
+public abstract class Version {
 
-	String GET_BEAN = "getBean";
-	
+	public static String getVersion() {
+		return "1.2.1.RELEASE";
+	}
+
+	public static String[] getHistoryVersion() {
+		return new String[] { //
+				"1.0.0", "1.0.1", "1.0.2", "1.0.3.RELEASE"
+		};
+	}
 }
-

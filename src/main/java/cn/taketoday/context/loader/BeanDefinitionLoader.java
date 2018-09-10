@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.loader;
 
-import java.util.Set;
+import java.util.Collection;
 
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
@@ -50,7 +50,7 @@ public interface BeanDefinitionLoader {
 	 * @throws BeanDefinitionStoreException
 	 * @throws ConfigurationException
 	 */
-	void loadBeanDefinitions(Set<Class<?>> beans) throws BeanDefinitionStoreException, ConfigurationException;
+	void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException, ConfigurationException;
 
 	/**
 	 * load bean definition with given bean class.

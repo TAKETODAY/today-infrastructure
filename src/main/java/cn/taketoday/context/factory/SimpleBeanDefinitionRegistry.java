@@ -31,15 +31,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.core.Constant;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.listener.ContextCloseListener;
 import lombok.NoArgsConstructor;
 
 /**
@@ -66,19 +67,19 @@ public final class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistr
 		
 		private static final long serialVersionUID = -1534194758376819762L; {
 			
-			add(Constant.class.getName());
-			add(Cloneable.class.getName());
-			add(FactoryBean.class.getName());
-			add(Serializable.class.getName());
-			add(BeanNameAware.class.getName());
-			add(DisposableBean.class.getName());
-			add(BeanFactoryAware.class.getName());
-			add(InitializingBean.class.getName());
-			add(BeanPostProcessor.class.getName());
-			add(BeanClassLoaderAware.class.getName());
-//			add(PropertyValueResolver.class.getName());
-			add(ApplicationContextAware.class.getName());
-			
+			add(Constant.class.getSimpleName());
+			add(Cloneable.class.getSimpleName());
+			add(FactoryBean.class.getSimpleName());
+			add(Serializable.class.getSimpleName());
+			add(BeanNameAware.class.getSimpleName());
+			add(DisposableBean.class.getSimpleName());
+			add(BeanFactoryAware.class.getSimpleName());
+			add(InitializingBean.class.getSimpleName());
+			add(BeanPostProcessor.class.getSimpleName());
+			add(ContextCloseListener.class.getSimpleName());
+			add(BeanClassLoaderAware.class.getSimpleName());
+//			add(PropertyValueResolver.class.getSimpleName());
+			add(ApplicationContextAware.class.getSimpleName());
 		}
 	};
 	

@@ -17,53 +17,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
-
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
-
-import cn.taketoday.context.Scope;
-import lombok.NoArgsConstructor;
+package cn.taketoday.context;
 
 /**
+ * 
  * @author Today <br>
  * 
- *         2018-08-22 17:29
+ *         2018-07-02 22:38:57
  */
-@NoArgsConstructor
-@SuppressWarnings("all")
-public final class ComponentImpl implements Component {
+public enum Scope {
 
-	private String[]	value;
-
-	private Scope		scope;
-
-	@Override
-	public Class<? extends Annotation> annotationType() {
-		return Component.class;
-	}
-
-	@Override
-	public String[] value() {
-		return value;
-	}
-
-	@Override
-	public Scope scope() {
-		return scope;
-	}
-
-	@Override
-	public String toString() {
-		return new StringBuilder()//
-				.append("@")//
-				.append(Component.class.getName())//
-				.append("(value=")//
-				.append(Arrays.toString(value))//
-				.append(", scope=")//
-				.append(scope)//
-				.append(")")//
-				.toString();
-	}
-
+	SINGLETON, PROTOTYPE;
 }

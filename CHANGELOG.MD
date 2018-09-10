@@ -51,9 +51,15 @@ public @interface Props {
 - 优化注入可以自定义注解注入
    
 > ## v1.2.0
+
 - 添加 AnntationApplicationContext 支持 `Configuration` 注解
 - `ClassPathApplicationContext` 改为 `DefaultApplicationContext`
 - bean 注解支持方法标注
 
+> ## v1.2.1
+
+- 修复注入原型错误   
    
-   
+> ## v2.0.0
+
+- 加入event机制

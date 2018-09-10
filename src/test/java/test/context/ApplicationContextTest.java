@@ -20,9 +20,12 @@
 package test.context;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.junit.After;
@@ -71,7 +74,7 @@ public class ApplicationContextTest {
 	public void test_ApplicationContext() throws NoSuchBeanDefinitionException {
 
 		ApplicationContext applicationContext = new DefaultApplicationContext();
-		applicationContext.loadContext("", "cn.taketoday.test.dao");
+		applicationContext.loadContext("", "test.dao");
 		Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitionRegistry()
 				.getBeanDefinitionsMap();
 
@@ -80,6 +83,8 @@ public class ApplicationContextTest {
 
 		boolean containsBean = applicationContext.containsBean(UserDaoImpl.class);
 
+		System.out.println(applicationContext.getBean(UserDaoImpl.class));
+		
 		applicationContext.close();
 
 		assert containsBean : "UserDaoImpl load error.";
@@ -100,7 +105,7 @@ public class ApplicationContextTest {
 
 		assert beanDefinitions.size() != 0 : "nothing in context.";
 
-		Set<Class<?>> classCache = ClassUtils.getClassCache();
+		Collection<Class<?>> classCache = ClassUtils.getClassCache();
 
 		assert classCache.size() == 0 : "cache clear error.";
 		applicationContext.close();
@@ -198,19 +203,41 @@ public class ApplicationContextTest {
 	public void test_Login() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
 		ApplicationContext applicationContext = new DefaultApplicationContext(false);
+		try {
 
-		UserService userService = applicationContext.getBean(UserServiceImpl.class);
+			UserService userService = applicationContext.getBean(UserServiceImpl.class);
 
-		UserDao userDao = applicationContext.getBean(UserDao.class);
-		UserDaoImpl userDaoImpl = applicationContext.getBean(UserDaoImpl.class);
+			UserDao userDao = applicationContext.getBean(UserDao.class);
+			UserDaoImpl userDaoImpl = applicationContext.getBean(UserDaoImpl.class);
+			
+			Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitionRegistry()
+					.getBeanDefinitionsMap();
 
-		assert userDao == userDaoImpl;
+			Set<Entry<String, Object>> entrySet = applicationContext.getBeanDefinitionRegistry().getSingletonsMap().entrySet();
+			
+			for (Entry<String, Object> entry : entrySet) {
+				System.err.println(entry.getKey() + "\n" +entry.getValue());
+			}
+			
+			Iterator<Entry<String, BeanDefinition>> iterator = beanDefinitionsMap.entrySet().iterator();
+			while (iterator.hasNext()) {
+				Entry<String, BeanDefinition> entry = iterator.next();
+				System.err.println(entry.getKey() + "\n" + entry.getValue());
+			}
 
-		User login = userService.login(new User(1, "TODAY", 20, "666", "666", "男", new Date()));
+			System.out.println(userDao);
 
-		assert login != null : "Login failed";
+			System.out.println(userDaoImpl);
 
-		applicationContext.close();
+			assert userDao == userDaoImpl;
+
+			User login = userService.login(new User(1, "TODAY", 20, "666", "666", "男", new Date()));
+
+			assert login != null : "Login failed";
+		} finally {
+
+			applicationContext.close();
+		}
 	}
 
 	@Test
@@ -232,7 +259,7 @@ public class ApplicationContextTest {
 		User user = applicationContext.getBean("user", User.class);
 
 		assert bean != user;
-		
+
 		System.err.println(user);
 		applicationContext.close();
 	}

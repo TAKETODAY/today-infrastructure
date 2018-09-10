@@ -25,12 +25,13 @@ import java.io.IOException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.FactoryBean;
+import cn.taketoday.context.listener.ApplicationEventPublisher;
 
 /**
  * @author Today
  * @date 2018年6月23日 下午4:39:36
  */
-public interface ApplicationContext extends BeanFactory {
+public interface ApplicationContext extends BeanFactory, ApplicationEventPublisher {
 
 	/**
 	 * refresh bean

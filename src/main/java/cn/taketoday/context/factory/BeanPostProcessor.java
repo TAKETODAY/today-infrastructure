@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.factory;
 
+import cn.taketoday.context.bean.BeanDefinition;
+
 /**
  * 
  * @author Today <br>
@@ -36,7 +38,7 @@ public interface BeanPostProcessor {
 	 *            bean name
 	 * @throws Exception
 	 */
-	Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception;
+	void postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) throws Exception;
 
 	/**
 	 * after property set
@@ -47,5 +49,5 @@ public interface BeanPostProcessor {
 	 *            bean name
 	 * @throws Exception
 	 */
-	Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
+	void postProcessAfterInitialization(Object bean, String beanName) throws Exception;
 }

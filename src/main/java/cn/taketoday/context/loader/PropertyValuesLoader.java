@@ -21,9 +21,9 @@ package cn.taketoday.context.loader;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import cn.taketoday.context.annotation.PropertyResolver;
 import cn.taketoday.context.bean.PropertyValue;
@@ -73,22 +73,19 @@ public class PropertyValuesLoader {
 	 */
 	public void init() {
 		log.debug("Start loading property resolver.");
-		Set<Class<?>> actions = ClassUtils.getClassCache();
-		if (actions == null) {
-			actions = ClassUtils.scanPackage("");
-		}
+
 		try {
-			
-			for (Class<?> clazz : actions) {
+
+			Collection<Class<?>> classes = ClassUtils.getClasses(PropertyResolver.class);
+
+			for (Class<?> clazz : classes) {
 				if (clazz.isInterface()) {
 					continue;
 				}
-				PropertyResolver converter = clazz.getAnnotation(PropertyResolver.class);
-				if (converter == null) {
-					continue;
-				}
-				propertyValueResolvers.put(converter.value(),
-						(PropertyValueResolver) clazz.getConstructor().newInstance());// put
+				propertyValueResolvers.put(//
+						clazz.getAnnotation(PropertyResolver.class).value(),
+						(PropertyValueResolver) clazz.getConstructor().newInstance()//
+				);// put
 			}
 		} catch (Exception ex) {
 			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
@@ -99,7 +96,7 @@ public class PropertyValuesLoader {
 	 * create property value
 	 * 
 	 * @param field
-	 *            property
+	 *              property
 	 * @return
 	 * @throws Exception
 	 */

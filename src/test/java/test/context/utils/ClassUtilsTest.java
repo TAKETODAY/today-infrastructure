@@ -2,13 +2,17 @@ package test.context.utils;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.ComponentImpl;
 import cn.taketoday.context.utils.ClassUtils;
+import test.domain.Config;
 
 /**
  * 
@@ -39,7 +43,7 @@ public class ClassUtilsTest {
 	
 	@Test
 	public void test_ClassCache() {
-		Set<Class<?>> classCache = ClassUtils.getClassCache();
+		Collection<Class<?>> classCache = ClassUtils.getClassCache();
 		
 		assert classCache.size() > 0 : "cache error";
 	}
@@ -61,4 +65,28 @@ public class ClassUtilsTest {
 		System.out.println(Arrays.toString(methodArgsNames));
 	}
 	
+	@Test
+	public void test_GetClassAnntation() throws Exception {
+
+		Component[] classAnntation = ClassUtils.getClassAnntation(Config.class, Component.class, ComponentImpl.class);
+		for (Component componentImpl : classAnntation) {
+			
+			System.out.println(componentImpl);
+		}
+		
+	}
+	
+	
+	
+	
 }
+
+
+
+
+
+
+
+
+
+

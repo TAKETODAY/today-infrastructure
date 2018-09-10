@@ -32,6 +32,7 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,7 +42,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -64,7 +64,7 @@ public abstract class ClassUtils {
 	private static Logger					log					= LoggerFactory.getLogger(ClassUtils.class);
 
 	/** all the class in class path */
-	private static Set<Class<?>>			clazz_cache;
+	private static Collection<Class<?>>		clazz_cache;
 	/** class loader **/
 	private static ClassLoader				classLoader;
 
@@ -79,13 +79,13 @@ public abstract class ClassUtils {
 	 * 
 	 * @param annotationClass
 	 *                        annotation class
-	 * @return the set of class 
+	 * @return the set of class
 	 */
-	public static final Set<Class<?>> getClasses(Class<? extends Annotation> annotationClass) {
+	public static final Collection<Class<?>> getClasses(Class<? extends Annotation> annotationClass) {
 
 		Set<Class<?>> set = new HashSet<>();
 
-		Iterator<Class<?>> iterator = clazz_cache.iterator();
+		Iterator<Class<?>> iterator = getClassCache().iterator();
 		while (iterator.hasNext()) {
 			Class<?> clazz = iterator.next();
 			if (clazz.isAnnotationPresent(annotationClass)) {
@@ -94,25 +94,24 @@ public abstract class ClassUtils {
 		}
 		return set;
 	}
-	
+
 	/**
 	 * 
 	 * @param annotationClass
 	 * @return
 	 */
-	public static final Set<Class<?>> getImplClasses(Class<?> interfaceClass) {
+	public static final Collection<Class<?>> getImplClasses(Class<?> interfaceClass) {
 
 		Set<Class<?>> set = new HashSet<>();
-		Iterator<Class<?>> iterator = clazz_cache.iterator();
+		Iterator<Class<?>> iterator = getClassCache().iterator();
 		while (iterator.hasNext()) {
 			Class<?> clazz = iterator.next();
-			if(interfaceClass.isAssignableFrom(clazz) && interfaceClass != clazz) {
+			if (interfaceClass.isAssignableFrom(clazz) && interfaceClass != clazz) {
 				set.add(clazz);
 			}
 		}
 		return set;
 	}
-	
 
 	/**
 	 * clear cache
@@ -130,8 +129,8 @@ public abstract class ClassUtils {
 		return classLoader;
 	}
 
-	public static Set<Class<?>> getClassCache() {
-		if(clazz_cache == null) {
+	public static Collection<Class<?>> getClassCache() {
+		if (clazz_cache == null) {
 			clazz_cache = scanPackage("");
 		}
 		return clazz_cache;
@@ -353,7 +352,6 @@ public abstract class ClassUtils {
 
 		for (Annotation targetClassAnno : annotations) {
 			// clazz 每一个注解
-
 			Class<? extends Annotation> annotationType = targetClassAnno.annotationType();
 
 			if (annotationType == annotationClass) {// 如果等于对象注解就直接添加
@@ -372,7 +370,7 @@ public abstract class ClassUtils {
 	}
 
 	private static <T> void convert(Class<? extends Annotation> annotationClass, Class<? extends T> implClass,
-			List<T> object, Method[] declaredMethods, Annotation targetClassAnno, Class<?> targetAnnoType,
+			List<T> object, Method[] declaredMethods, Annotation targetAnnoInstance, Class<?> targetAnnoType,
 			Annotation[] allAnnoAnnotations) throws Exception {
 
 		// 对所有的注解(targetClassAnno)上的注解遍历，判断是否是annotationClass
@@ -385,26 +383,23 @@ public abstract class ClassUtils {
 			T newInstance = implClass.getConstructor().newInstance();
 
 			for (Method method : declaredMethods) {// 遍历对象class的方法
-
 				String name = method.getName();
 				Field field = implClass.getDeclaredField(name);
 				field.setAccessible(true);
 				Method declaredMethod = null;
 				try {
-
 					declaredMethod = targetAnnoType.getMethod(name);
 				} catch (NoSuchMethodException e) {
+					//
 					field.set(newInstance, annotation_.annotationType().getMethod(name).invoke(annotation_));
 					continue;
 				}
-				Object value = declaredMethod.invoke(targetClassAnno);
-
+				Object value = declaredMethod.invoke(targetAnnoInstance);
 				if (field.getType().isArray() && !value.getClass().isArray()) {
 					Object array = Array.newInstance(field.getType().getComponentType(), 1);
 					Array.set(array, 0, value);
 					value = array;
 				}
-
 				field.set(newInstance, value);
 			}
 			object.add(newInstance);
@@ -484,5 +479,5 @@ public abstract class ClassUtils {
 
 		return newInstance;
 	}
-	
+
 }

@@ -29,7 +29,6 @@ import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.ComponentImpl;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.core.Scope;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.utils.ClassUtils;
@@ -41,7 +40,7 @@ import lombok.NonNull;
  * 
  *         2018-09-06 13:47
  */
-public class AnntationApplicationContext extends DefaultApplicationContext {
+public class AnntationApplicationContext extends DefaultApplicationContext implements ApplicationContext {
 
 	private static final Map<String, Method> PROTOTYPES = new HashMap<>();
 
