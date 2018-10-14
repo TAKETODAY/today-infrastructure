@@ -17,31 +17,38 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.domain;
-
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
+package cn.taketoday.context.factory;
 
 /**
  * @author Today <br>
  * 
- *         2018-09-06 15:30
+ *         2018-09-11 11:01
  */
-@Configuration
-public class ConfigurationBean {
+@FunctionalInterface
+public interface ObjectFactory {
 
-	@Prototype
-	public User user() {
-		
-		return new User().setId(12);
-	}
-	
-	@Singleton
-	public User user__() {
-		
-		return new User().setId(12);
+	/**
+	 * Creates a new object with default constructor.
+	 * 
+	 * @param type
+	 *             Object type
+	 * @return
+	 */
+	default <T> T create(Class<T> type) {
+		return create(type, null);
 	}
 
-	
+	/**
+	 * Creates a new object with the specified constructor and parameters.
+	 * 
+	 * @param type
+	 *                            Object type
+	 * @param constructorArgTypes
+	 *                            Constructor argument types
+	 * @param constructorArgs
+	 *                            Constructor argument values
+	 * @return
+	 */
+	<T> T create(Class<T> type, Class<?>[] constructorArgTypes, Object... constructorArgs);
+
 }

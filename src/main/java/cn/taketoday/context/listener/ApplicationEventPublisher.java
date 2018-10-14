@@ -21,8 +21,6 @@ package cn.taketoday.context.listener;
 
 import java.util.EventObject;
 
-import cn.taketoday.context.event.ApplicationEvent;
-
 /**
  * @author Today <br>
  * 
@@ -31,10 +29,5 @@ import cn.taketoday.context.event.ApplicationEvent;
 @FunctionalInterface
 public interface ApplicationEventPublisher {
 
-	default void publishEvent(ApplicationEvent event) {
-		publishEvent((EventObject) event);
-	}
-
 	void publishEvent(EventObject event);
-
 }

@@ -59,7 +59,9 @@ public @interface Props {
 > ## v1.2.1
 
 - 修复注入原型错误   
-   
-> ## v2.0.0
 
-- 加入event机制
+
+> ## 2.0.0
+
+- 加入`ObjectFactory`
+- 框架重构 

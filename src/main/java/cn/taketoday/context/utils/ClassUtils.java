@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.utils;
 
+import cn.taketoday.context.exception.ConfigurationException;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,14 +36,14 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -52,8 +54,6 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.taketoday.context.exception.ConfigurationException;
-
 /**
  * 
  * @author Today <br>
@@ -61,38 +61,58 @@ import cn.taketoday.context.exception.ConfigurationException;
  */
 public abstract class ClassUtils {
 
-	private static Logger					log					= LoggerFactory.getLogger(ClassUtils.class);
+	private static Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
 	/** all the class in class path */
-	private static Collection<Class<?>>		clazz_cache;
+	private static Collection<Class<?>> clazz_cache;
 	/** class loader **/
-	private static ClassLoader				classLoader;
+	private static ClassLoader classLoader;
 
-	private static Map<Method, String[]>	PARAMS_NAMES_CACHE	= new ConcurrentHashMap<>(16);
+	private static Map<Method, String[]> PARAMS_NAMES_CACHE = new HashMap<>(16);
 
 	static {
-		classLoader = ClassUtils.class.getClassLoader();
+		classLoader = Thread.currentThread().getContextClassLoader();
+		if (classLoader == null) {
+			classLoader = ClassUtils.class.getClassLoader();
+		}
+		if (classLoader == null) {
+			classLoader = ClassLoader.getSystemClassLoader();
+		}
+	}
+
+	/**
+	 * 
+	 * @param cls
+	 * @return
+	 */
+	public static final boolean isCollection(Class<?> cls) {
+		return Collection.class.isAssignableFrom(cls);
+	}
+
+	/**
+	 * load class
+	 * 
+	 * @param name
+	 * @return
+	 * @throws ClassNotFoundException
+	 */
+	public static final Class<?> forName(String name) throws ClassNotFoundException {
+		return classLoader.loadClass(name);
 	}
 
 	/**
 	 * Find class by annotation.
 	 * 
 	 * @param annotationClass
-	 *                        annotation class
+	 *            annotation class
 	 * @return the set of class
 	 */
-	public static final Collection<Class<?>> getClasses(Class<? extends Annotation> annotationClass) {
-
-		Set<Class<?>> set = new HashSet<>();
-
-		Iterator<Class<?>> iterator = getClassCache().iterator();
-		while (iterator.hasNext()) {
-			Class<?> clazz = iterator.next();
-			if (clazz.isAnnotationPresent(annotationClass)) {
-				set.add(clazz);
-			}
-		}
-		return set;
+	public static final Collection<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotationClass) {
+		return getClassCache()//
+//				.stream()//
+				.parallelStream()//
+				.filter(clazz -> clazz.isAnnotationPresent(annotationClass))//
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -101,16 +121,17 @@ public abstract class ClassUtils {
 	 * @return
 	 */
 	public static final Collection<Class<?>> getImplClasses(Class<?> interfaceClass) {
+		return getClassCache()//
+				.parallelStream()//
+				.filter(clazz -> interfaceClass.isAssignableFrom(clazz) && interfaceClass != clazz)//
+				.collect(Collectors.toSet());
+	}
 
-		Set<Class<?>> set = new HashSet<>();
-		Iterator<Class<?>> iterator = getClassCache().iterator();
-		while (iterator.hasNext()) {
-			Class<?> clazz = iterator.next();
-			if (interfaceClass.isAssignableFrom(clazz) && interfaceClass != clazz) {
-				set.add(clazz);
-			}
-		}
-		return set;
+	public static final Collection<Class<?>> getImplClasses(Class<?> interfaceClass, String packageName) {
+		return getClassCache()//
+				.parallelStream()//
+				.filter((clazz) -> clazz.getName().contains(packageName) && interfaceClass.isAssignableFrom(clazz))//
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -136,14 +157,59 @@ public abstract class ClassUtils {
 		return clazz_cache;
 	}
 
+	public static final Collection<Class<?>> scan(String dir) {
+		Set<Class<?>> clazz = new HashSet<Class<?>>();
+
+		try {
+			URL url = new URL("file:/" + dir);
+			
+//			File file = new File(dir);
+			
+			
+			final String protocol = url.getProtocol();
+			if ("file".equals(protocol)) {
+				final String filePath = URLDecoder.decode(url.getFile(), "UTF-8");
+				findAllClass("", filePath, clazz);// scan all class and set collection
+			} else if ("jar".equals(protocol)) {
+				JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
+				if (jarURLConnection == null) {
+					log.warn("Can't open connection with [{}].", dir);
+				}
+				JarFile jarFile = jarURLConnection.getJarFile();
+				if (jarFile == null) {
+					log.warn("Can't open jar file with [{}].", dir);
+				}
+				Enumeration<JarEntry> jarEntries = jarFile.entries();
+				while (jarEntries.hasMoreElements()) {
+					JarEntry jarEntry = jarEntries.nextElement();
+					String jarEntryName = jarEntry.getName();
+					if (jarEntryName.contains("today") && jarEntryName.endsWith(".class")) {
+						String className = jarEntryName.substring(0, jarEntryName.lastIndexOf(".")).replaceAll("/",
+								".");
+						try {
+							
+							clazz.add(classLoader.loadClass(className));
+						} //
+						catch (ClassNotFoundException e) {
+							log.error("can't find class", e);
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			log.error("exception occur", e);
+		}
+		return clazz;
+	}
+
 	/**
 	 * scan class with given package.
 	 * 
 	 * @param basePackage
-	 *                    the package to scan
+	 *            the package to scan
 	 * @return class set
 	 */
-	public static Set<Class<?>> scanPackage(String basePackage) {
+	public static Collection<Class<?>> scanPackage(String basePackage) {
 
 		Set<Class<?>> clazz = new HashSet<Class<?>>();
 
@@ -177,10 +243,11 @@ public abstract class ClassUtils {
 						if (jarEntryName.contains("today") && jarEntryName.endsWith(".class")) {
 							String className = jarEntryName.substring(0, jarEntryName.lastIndexOf(".")).replaceAll("/",
 									".");
-
 							try {
+
 								clazz.add(classLoader.loadClass(className));
-							} catch (ClassNotFoundException e) {
+							} //
+							catch (ClassNotFoundException e) {
 								log.error("can't find class", e);
 							}
 						}
@@ -198,14 +265,16 @@ public abstract class ClassUtils {
 	 * 
 	 * 
 	 * @param packageName
-	 *                    the name of package
+	 *            the name of package
 	 * @param packagePath
-	 *                    the package physical path
+	 *            the package physical path
 	 * @param classes
-	 *                    class set
+	 *            class set
 	 */
 	private static void findAllClass(String packageName, String packagePath, Set<Class<?>> classes) {
+
 		File directory = new File(packagePath);
+
 		if (!directory.exists() || !directory.isDirectory()) {
 			log.error("the package -> [{}] you provided that contains nothing", packageName);
 			return;
@@ -224,27 +293,29 @@ public abstract class ClassUtils {
 
 		for (File file : directoryFiles) { //
 
+			String fileName = file.getName();
+
 			if (file.isDirectory()) { // recursive
 
-				String scanPackage = packageName + "." + file.getName();
+				String scanPackage = packageName + "." + fileName;
 				if (scanPackage.startsWith(".")) {
 					scanPackage = scanPackage.replaceFirst("[.]", "");
 				}
 				findAllClass(scanPackage, file.getAbsolutePath(), classes);
-			} else {
+				continue;
+			}
+			if (fileName.contains("package-info")) {
+				continue;
+			}
 
-				String className = packageName + '.'
-						+ file.getName().substring(0, file.getName().length() - ".class".length());
+			String className = packageName + '.' + fileName.substring(0, fileName.length() - ".class".length());
 
-				if (className.startsWith(".")) {
-					className = className.replaceFirst("[.]", "");
-				}
-				try {
-					// log.debug("find class -> [{}]", className);
-					classes.add(classLoader.loadClass(className.replaceAll("/", "."))); // add
-				} catch (ClassNotFoundException e) {
-					log.error("can't find class", e);
-				}
+			try {
+
+				classes.add(classLoader.loadClass(className.replaceAll("/", "."))); // add
+			} //
+			catch (ClassNotFoundException e) {
+				log.warn("Can't find class -> [{}]", className);
 			}
 		}
 	}
@@ -253,9 +324,9 @@ public abstract class ClassUtils {
 	 * Compare whether the parameter type is consistent.
 	 *
 	 * @param types
-	 *                the type of the asm({@link Type})
+	 *            the type of the asm({@link Type})
 	 * @param classes
-	 *                java type({@link Class})
+	 *            java type({@link Class})
 	 * @return return param type equals
 	 */
 	private static boolean sameType(Type[] types, Class<?>[] classes) {
@@ -273,32 +344,35 @@ public abstract class ClassUtils {
 	 * Find method parameter list, and cache it.
 	 * 
 	 * @param clazz
-	 *               target class
+	 *            target class
 	 * @param method
-	 *               target method
+	 *            target method
 	 * @return method parameter list
 	 * @throws IOException
 	 */
-	public static String[] getMethodArgsNames(Class<?> clazz, Method method) {
+	public static String[] getMethodArgsNames(Method method) {
 
 		if (PARAMS_NAMES_CACHE.containsKey(method)) {
 			return PARAMS_NAMES_CACHE.get(method);
 		}
 
+		Class<?> declaringClass = method.getDeclaringClass();
 		String[] paramNames = new String[method.getParameterCount()];
-
-		String name = clazz.getName().replace('.', '/') + ".class";
+		String name = declaringClass.getName().replace('.', '/') + ".class";
 
 		InputStream resourceAsStream = classLoader.getResourceAsStream(name);
 
 		ClassReader classReader = null;
 		try {
+
 			classReader = new ClassReader(resourceAsStream);
-		} catch (IOException ex) {
+		} //
+		catch (IOException ex) {
 			log.error("ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
 		}
 
 		classReader.accept(new ClassVisitor(Opcodes.ASM6) {
+
 			@Override
 			public MethodVisitor visitMethod(final int access, final String name, final String desc,
 					final String signature, final String[] exceptions) {
@@ -313,15 +387,15 @@ public abstract class ClassUtils {
 					@Override
 					public void visitLocalVariable(String name, String desc, String signature, Label start, Label end,
 							int index) {
-						int i = index - 1;
 						// if it is a static method, the first is the parameter
 						// if it's not a static method, the first one is "this" and then the parameter
 						// of the method
-						if (Modifier.isStatic(method.getModifiers())) {
-							i = index;
+						if (!Modifier.isStatic(method.getModifiers())) {
+							index = index - 1;
 						}
-						if (i >= 0 && i < paramNames.length) {
-							paramNames[i] = name;
+
+						if (index >= 0 && index < paramNames.length) {
+							paramNames[index] = name;
 						}
 						super.visitLocalVariable(name, desc, signature, start, end, index);
 					}
@@ -342,8 +416,8 @@ public abstract class ClassUtils {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T[] getClassAnntation(Class<?> clazz, Class<? extends Annotation> annotationClass,
-			Class<T> implClass) throws Exception {
+	public static <T> T[] getClassAnntation(Class<?> clazz, Class<T> annotationClass, Class<? extends T> implClass)
+			throws Exception {
 
 		List<T> targetInstance = new ArrayList<>();
 
@@ -369,8 +443,8 @@ public abstract class ClassUtils {
 		return targetInstance.toArray((T[]) Array.newInstance(annotationClass, targetInstance.size()));
 	}
 
-	private static <T> void convert(Class<? extends Annotation> annotationClass, Class<? extends T> implClass,
-			List<T> object, Method[] declaredMethods, Annotation targetAnnoInstance, Class<?> targetAnnoType,
+	private static <T> void convert(Class<T> annotationClass, Class<? extends T> implClass, List<T> object,
+			Method[] declaredMethods, Annotation targetAnnoInstance, Class<?> targetAnnoType,
 			Annotation[] allAnnoAnnotations) throws Exception {
 
 		// 对所有的注解(targetClassAnno)上的注解遍历，判断是否是annotationClass
@@ -407,8 +481,8 @@ public abstract class ClassUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T[] getMethodAnntation(Method method, Class<? extends Annotation> annotationClass,
-			Class<? extends T> implClass) throws Exception {
+	public static <T> T[] getMethodAnntation(Method method, Class<T> annotationClass, Class<? extends T> implClass)
+			throws Exception {
 		List<T> targetInstance = new ArrayList<>();
 
 		Annotation[] annotations = method.getAnnotations();// clazz 的注解

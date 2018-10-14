@@ -38,22 +38,23 @@ import lombok.Setter;
 public final class PropertyValue {
 
 	/** property value */
-	private Object	value;
+	private Object value;
 	/** field info */
-	private Field	field;
+	private Field field;
 
 	public PropertyValue(Field field) {
 		this.field = field;
 	}
-	
+
 	@Override
 	public String toString() {
 		return new StringBuilder()//
 				.append("{\"value\":\"")//
 				.append(value)//
 				.append("\",\"field\":\"")//
-				.append(field.getName())//
+				.append(field)//
 				.append("\"}")//
 				.toString();
 	}
+
 }

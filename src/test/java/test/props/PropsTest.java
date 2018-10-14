@@ -17,31 +17,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.domain;
+package test.props;
 
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.ApplicationContext;
+
+import org.junit.Test;
 
 /**
  * @author Today <br>
  * 
- *         2018-09-06 15:30
+ *         2018-10-09 15:06
  */
-@Configuration
-public class ConfigurationBean {
+public class PropsTest {
 
-	@Prototype
-	public User user() {
+	@Test
+	public void test_Props(){
+
+		ApplicationContext applicationContext = new StandardApplicationContext(false);
+
+		Config_ bean = applicationContext.getBean(Config_.class);
+
+		assert bean.getHost() != null;
 		
-		return new User().setId(12);
-	}
-	
-	@Singleton
-	public User user__() {
-		
-		return new User().setId(12);
+		System.out.println(bean);
+
+		applicationContext.close();
 	}
 
-	
 }

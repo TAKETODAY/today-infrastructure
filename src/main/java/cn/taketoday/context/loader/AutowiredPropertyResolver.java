@@ -19,35 +19,53 @@
  */
 package cn.taketoday.context.loader;
 
-import java.lang.reflect.Field;
-
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.PropertyResolver;
 import cn.taketoday.context.bean.BeanReference;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.utils.StringUtils;
+
+import java.lang.reflect.Field;
+
+import javax.annotation.Resource;
 
 /**
  * @author Today <br>
- * 	
- *		2018-08-04 15:56
+ * 
+ *         2018-08-04 15:56
  */
-@PropertyResolver
+@PropertyResolver({ Autowired.class, Resource.class })
 public class AutowiredPropertyResolver implements PropertyValueResolver {
 
 	@Override
 	public PropertyValue resolveProperty(BeanDefinitionRegistry registry, Field field) {
+
+		Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
 		
-		Autowired autowired = field.getAnnotation(Autowired.class);	//auto wired
-		if (!"".equals(autowired.value())) {
-			return new PropertyValue(new BeanReference(autowired.value()), field);// bean name
-		} 
-		
-		if (!(autowired.class_() == Class.class)) {
-			return new PropertyValue(new BeanReference(autowired.class_().getSimpleName()), field); // class name
+		boolean required = true;
+		String name = field.getType().getSimpleName();
+
+		if (autowired != null) {
+			if (StringUtils.isNotEmpty(autowired.value())) {
+				name = autowired.value();
+			}else if (!(autowired.class_() == Class.class)) {
+				name = autowired.class_().getName();//full class name
+			}
+			required = autowired.required(); // class name
 		}
-		
-		return new PropertyValue(new BeanReference(field.getType().getSimpleName()), field); // // field type name
+		// Resource.class
+		Resource resource = field.getAnnotation(Resource.class);
+		if (resource != null) {
+			if (StringUtils.isNotEmpty(resource.name())){
+				name = resource.name();
+			}else if (!(resource.type() == Object.class)) {
+				// Type's simple name
+				name = resource.type().getSimpleName();
+			}
+		}
+
+		return new PropertyValue(new BeanReference(name).setRequired(required), field); // // field type name
 	}
-	
+
 }

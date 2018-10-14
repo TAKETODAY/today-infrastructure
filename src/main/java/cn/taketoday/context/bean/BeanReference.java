@@ -36,6 +36,9 @@ public final class BeanReference {
 	/** reference name */
 	private String name;
 
+	/**	required?**/
+	private boolean required = true;
+	
 	public BeanReference(String name) {
 		this.name = name;
 	}

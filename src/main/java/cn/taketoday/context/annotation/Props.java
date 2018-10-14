@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target({ ElementType.FIELD, ElementType.TYPE })
 
 /**
  * @author Today <br>
@@ -55,6 +55,5 @@ public @interface Props {
 	 * @return
 	 */
 	boolean replace() default false;
-	
-	
+
 }

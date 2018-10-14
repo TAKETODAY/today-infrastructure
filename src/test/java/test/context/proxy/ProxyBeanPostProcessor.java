@@ -32,7 +32,7 @@ import cn.taketoday.context.factory.BeanPostProcessor;
 public class ProxyBeanPostProcessor implements BeanPostProcessor {
 
 	@Override
-	public void postProcessBeforeInitialization(Object bean, BeanDefinition beanName) throws Exception {
+	public void postProcessBeforeInitialization(Object bean, BeanDefinition beanName) {
 		
 		
 		
@@ -40,7 +40,7 @@ public class ProxyBeanPostProcessor implements BeanPostProcessor {
 	}
 
 	@Override
-	public void postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+	public void postProcessAfterInitialization(Object bean, String beanName) {
 
 	}
 

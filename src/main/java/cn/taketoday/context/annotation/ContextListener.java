@@ -24,8 +24,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import cn.taketoday.context.Scope;
+import java.util.EventObject;
 
 /**
  * @author Today <br>
@@ -35,7 +34,8 @@ import cn.taketoday.context.Scope;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
-@Component(scope = Scope.SINGLETON)
 public @interface ContextListener {
+	
+	Class<?>[] value() default EventObject.class;
 
 }

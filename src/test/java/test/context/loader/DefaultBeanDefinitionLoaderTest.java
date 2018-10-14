@@ -31,6 +31,7 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.factory.SimpleBeanDefinitionRegistry;
+import cn.taketoday.context.factory.SimpleObjectFactory;
 import cn.taketoday.context.loader.DefaultBeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
 import test.domain.User;
@@ -55,7 +56,7 @@ public final class DefaultBeanDefinitionLoaderTest {
 	public void start() {
 		postProcessors = new ArrayList<>();
 		registry = new SimpleBeanDefinitionRegistry();
-		beanDefinitionLoader = new DefaultBeanDefinitionLoader(registry);
+		beanDefinitionLoader = new DefaultBeanDefinitionLoader(registry, new SimpleObjectFactory());
 		start = System.currentTimeMillis();
 	}
 

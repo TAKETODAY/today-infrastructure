@@ -19,11 +19,12 @@
  */
 package cn.taketoday.context.bean;
 
-import java.util.Arrays;
-
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.exception.NoSuchPropertyException;
-import lombok.AllArgsConstructor;
+
+import java.util.Arrays;
+import java.util.List;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,22 +37,83 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public final class BeanDefinition {
 
-	/** bean definition name. */
+	/**
+	 *  bean name
+	 *  
+	 */
 	private String					name;
 	/** bean class. */
 	private Class<? extends Object>	beanClass;
 	/** bean scope. */
 	private Scope					scope	= Scope.SINGLETON;
-
+	
 	// private Method initMethod;
-	// private Method destoryMethod;
 
 	/** property values */
 	private PropertyValue[]			propertyValues;
+	
+	/**
+	 * <p>
+	 * This is a very important property.
+	 * <p>
+	 * If registry contains it's singleton instance, we don't know the instance has
+	 * initialized or not, so must be have a flag to prove it has initialized
+	 * 
+	 */
+	private boolean 				initialized = false;
 
+	/**
+	 * Mark as a FactoryBean.
+	 */
+	private boolean 				factoryBean = false;
+	
+	/**
+	 * Is Abstract ?
+	 */
+	private boolean 				Abstract 	= false;
+	
+	
+	
+	/**
+	 * Add PropertyValue to list.
+	 * 
+	 * @param propertyValue
+	 */
+	public void addPropertyValue(PropertyValue ... propertyValues_) {
+		if (propertyValues == null) {
+			propertyValues = propertyValues_ ;
+			return ;
+		}
+		List<PropertyValue> asList = Arrays.asList(propertyValues);
+		for (PropertyValue propertyValue : propertyValues_) {
+			asList.add(propertyValue);
+		}
+		propertyValues = asList.toArray(new PropertyValue[0]);
+	}
+	
+	/**
+	 * 
+	 * @param propertyValues_
+	 */
+	public void addPropertyValue(List<PropertyValue> propertyValues_) {
+		
+		if (propertyValues == null) {
+			propertyValues = propertyValues_.toArray(new PropertyValue[0]) ;
+			return ;
+		}
+		propertyValues_.addAll(Arrays.asList(propertyValues));
+		
+		propertyValues = propertyValues_.toArray(new PropertyValue[0]);
+	}
+	
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 * @throws NoSuchPropertyException
+	 */
 	public PropertyValue getPropertyValue(String name) throws NoSuchPropertyException {
 		
 		for (PropertyValue propertyValue : propertyValues) {
@@ -71,7 +133,7 @@ public final class BeanDefinition {
 		this.scope = scope;
 		this.beanClass = beanClass;
 	}
-
+ 
 	public BeanDefinition(String name, Class<? extends Object> beanClass) {
 		this.beanClass = beanClass;
 		this.name = name;

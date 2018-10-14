@@ -17,20 +17,59 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.aware;
+package cn.taketoday.context;
 
 /**
  * @author Today <br>
  * 
- *         2018-08-03 15:43
+ *         2018-09-11 20:02
  */
-public interface BeanClassLoaderAware extends Aware {
+public interface ObjectPool<T> {
 
 	/**
-	 * set class loader
+	 * contains element
 	 * 
-	 * @param classLoader
+	 * @param element
+	 * @return
 	 */
-	void setBeanClassLoader(ClassLoader classLoader);
+	boolean contains(T element);
+
+	/**
+	 * the size of pool
+	 * 
+	 * @return
+	 */
+	int size();
+
+	/**
+	 * the index os element
+	 * 
+	 * @param element
+	 * @return
+	 */
+	int indexOf(T element);
+
+	/**
+	 * to array
+	 * 
+	 * @return
+	 */
+	T[] toArray();
+
+	/**
+	 * get a element from pool
+	 * 
+	 * @param index
+	 * @return
+	 */
+	T get(int index);
+
+	/**
+	 * add a element to pool
+	 * 
+	 * @param element
+	 * @return
+	 */
+	int add(T element);
 
 }

@@ -19,17 +19,20 @@
  */
 package cn.taketoday.context.loader;
 
+import cn.taketoday.context.annotation.PropertyResolver;
+import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.exception.AnnotationException;
+import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.factory.ObjectFactory;
+import cn.taketoday.context.factory.SimpleObjectFactory;
+import cn.taketoday.context.utils.ClassUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.context.annotation.PropertyResolver;
-import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.exception.AnnotationException;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -42,9 +45,11 @@ import lombok.extern.slf4j.Slf4j;
 public class PropertyValuesLoader {
 
 	/** bean definition registry */
-	private BeanDefinitionRegistry									registry;
+	private BeanDefinitionRegistry registry;
 
-	private Map<Class<? extends Annotation>, PropertyValueResolver>	propertyValueResolvers	= new HashMap<>();
+	private ObjectFactory objectFactory = new SimpleObjectFactory();
+
+	private Map<Class<? extends Annotation>, PropertyValueResolver> propertyValueResolvers = new HashMap<>();
 
 	public PropertyValuesLoader(BeanDefinitionRegistry registry) {
 		this.registry = registry;
@@ -72,20 +77,26 @@ public class PropertyValuesLoader {
 	 * @param actions
 	 */
 	public void init() {
+
 		log.debug("Start loading property resolver.");
 
 		try {
-
-			Collection<Class<?>> classes = ClassUtils.getClasses(PropertyResolver.class);
-
+			
+			Collection<Class<?>> classes = ClassUtils.getAnnotatedClasses(PropertyResolver.class);
+			
 			for (Class<?> clazz : classes) {
 				if (clazz.isInterface()) {
+					log.warn("PropertyResolver Can't be Interface.");
 					continue;
 				}
-				propertyValueResolvers.put(//
-						clazz.getAnnotation(PropertyResolver.class).value(),
-						(PropertyValueResolver) clazz.getConstructor().newInstance()//
-				);// put
+				
+				Class<? extends Annotation>[] values = clazz.getAnnotation(PropertyResolver.class).value();
+
+				PropertyValueResolver propertyResolver = (PropertyValueResolver) objectFactory.create(clazz);
+
+				for (Class<? extends Annotation> class1 : values) {
+					propertyValueResolvers.put(class1, propertyResolver);// put
+				}
 			}
 		} catch (Exception ex) {
 			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
@@ -96,7 +107,7 @@ public class PropertyValuesLoader {
 	 * create property value
 	 * 
 	 * @param field
-	 *              property
+	 *        property
 	 * @return
 	 * @throws Exception
 	 */
@@ -106,7 +117,8 @@ public class PropertyValuesLoader {
 			if (!propertyValueResolvers.containsKey(annotation.annotationType())) {
 				continue;
 			}
-			return propertyValueResolvers.get(annotation.annotationType()).resolveProperty(registry, field);
+			return propertyValueResolvers.get(annotation.annotationType())//
+					.resolveProperty(registry, field);
 		}
 		throw new AnnotationException("Without regulation annotation present.");
 	}

@@ -23,8 +23,8 @@ import cn.taketoday.context.exception.ConversionException;
 
 /**
  * 
- * @author Today
- * @date 2018年7月7日 下午9:33:52
+ * @author Today <br>
+ *         2018-07-07 21:33:52
  */
 @FunctionalInterface
 public interface Converter<S, T> {

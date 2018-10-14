@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
  *         2018-06-28 17:05:34
  */
 @NoArgsConstructor
-public final class ConversionException extends Exception {
+public final class ConversionException extends ContextException {
 
 	private static final long serialVersionUID = -5L;
 

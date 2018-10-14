@@ -30,9 +30,7 @@ public final class StringToArrayFactory implements ConverterFactory<String[], Ob
 
 	@Override
 	public <T> Converter<String[], T> getConverter(Class<T> targetClass) {
-		return source -> {
-			return NumberUtils.parseArray(source, targetClass);
-		};
+		return source -> NumberUtils.parseArray(source, targetClass);
 	}
 
 }

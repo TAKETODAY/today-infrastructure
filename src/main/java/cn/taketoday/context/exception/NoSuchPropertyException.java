@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
  *		2018-08-05 10:08
  */
 @NoArgsConstructor
-public class NoSuchPropertyException extends Exception {
+public class NoSuchPropertyException extends ContextException {
 
 	private static final long serialVersionUID = -4359026024553502609L;
 

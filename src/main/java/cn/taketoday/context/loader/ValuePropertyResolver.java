@@ -19,14 +19,15 @@
  */
 package cn.taketoday.context.loader;
 
-import java.lang.reflect.Field;
-
 import cn.taketoday.context.annotation.PropertyResolver;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.PropertiesUtils;
+
+import java.lang.reflect.Field;
 
 /**
  * @author Today <br>
@@ -44,10 +45,18 @@ public class ValuePropertyResolver implements PropertyValueResolver{
 		
 		String value_ = null;
 		
-		String value = field.getAnnotation(Value.class).value();
+		Value annotation = field.getAnnotation(Value.class);
+		String value = annotation.value();
 		if (!"".equals(value)) {
 			
-			value_ = PropertiesUtils.findInProperties(registry.getProperties(), value);
+			value_ = PropertiesUtils.findInProperties(registry.getProperties(), value, false);
+			if(value_ == null) {
+				if(annotation.required()) {
+					throw new ConfigurationException("Properties -> [{}] , must specify a value.",
+							value.replaceAll("[{|#|}]+", ""));
+				}
+				return new PropertyValue(null, field);
+			}
 			//if it contains an identifier
 			value_ = PropertiesUtils.findInProperties(registry.getProperties(), value_);
 

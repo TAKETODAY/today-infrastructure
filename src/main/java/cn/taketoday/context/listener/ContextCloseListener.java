@@ -19,6 +19,12 @@
  */
 package cn.taketoday.context.listener;
 
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.ContextListener;
+import cn.taketoday.context.event.ContextCloseEvent;
+import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.factory.DisposableBean;
+
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,12 +32,6 @@ import java.util.Set;
 
 import javax.annotation.PreDestroy;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.ContextListener;
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.event.ContextCloseEvent;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.factory.DisposableBean;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -50,7 +50,7 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
 
 		log.info("Closing -> [{}] at [{}].", applicationContext,
 				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(event.getTimestamp())));
-		
+
 		BeanDefinitionRegistry beanDefinitionRegistry = applicationContext.getBeanDefinitionRegistry();
 
 		Set<String> names = beanDefinitionRegistry.getBeanDefinitionNames();
@@ -59,22 +59,18 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
 
 			for (String name : names) {
 				Object bean = beanDefinitionRegistry.getSingleton(name);
-				
-				if(bean == null) {
+
+				if (bean == null) {
 					continue;
 				}
 				if (bean instanceof DisposableBean) {
 					((DisposableBean) bean).destroy();
 				}
-				BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(name);
-				if(beanDefinition == null) {
-					bean = null;
-					continue;
-				}
-				//PreDestroy
-				Method[] declaredMethods = beanDefinition.getBeanClass().getDeclaredMethods();
+
+				// PreDestroy
+				Method[] declaredMethods = bean.getClass().getDeclaredMethods();
 				for (Method method : declaredMethods) {
-					if(method.isAnnotationPresent(PreDestroy.class)){
+					if (method.isAnnotationPresent(PreDestroy.class)) {
 						method.invoke(bean);
 					}
 				}
@@ -82,8 +78,9 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
 			}
 		} //
 		catch (Exception ex) {
-			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
+			log.error("Closing Context ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
 		}
+
 		beanDefinitionRegistry.getProperties().clear();
 		beanDefinitionRegistry.getSingletonsMap().clear();
 		beanDefinitionRegistry.getBeanDefinitionsMap().clear();

@@ -21,4 +21,11 @@ public @interface Autowired {
 	 */
 	Class<?> class_() default Class.class;
 
+	/**
+	 * is required ?
+	 * 
+	 * @return
+	 */
+	boolean required() default true;
+
 }

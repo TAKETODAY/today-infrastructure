@@ -19,16 +19,17 @@
  */
 package cn.taketoday.context.annotation;
 
+import cn.taketoday.context.Scope;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.Scope;
-
 /**
- * @author Today
- * @date 2018年7月2日 下午10:45:21
+ * 
+ * @author Today <br>
+ *         2018-7-2 20:45:21
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Component(scope = Scope.SINGLETON)

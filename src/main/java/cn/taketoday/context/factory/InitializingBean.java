@@ -23,9 +23,15 @@ package cn.taketoday.context.factory;
  * invoke after all the properties has been set
  * 
  * @author Today
- * @date 2018年7月17日 下午10:24:03
+ * @date 2018-7-17 22:24:03
  */
 public interface InitializingBean {
 
+	/**
+	 * After property set.
+	 * 
+	 * @throws Exception
+	 */
 	void afterPropertiesSet() throws Exception;
+
 }

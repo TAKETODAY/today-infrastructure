@@ -19,6 +19,14 @@
  */
 package test.context;
 
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.utils.ClassUtils;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -32,13 +40,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.context.AnntationApplicationContext;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.DefaultApplicationContext;
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.utils.ClassUtils;
 import test.dao.UserDao;
 import test.dao.impl.UserDaoImpl;
 import test.domain.Config;
@@ -81,7 +82,7 @@ public class ApplicationContextTest {
 		System.out.println(beanDefinitionsMap);
 		applicationContext.loadSuccess();
 
-		boolean containsBean = applicationContext.containsBean(UserDaoImpl.class);
+		boolean containsBean = applicationContext.containsBeanDefinition(UserDaoImpl.class);
 
 		System.out.println(applicationContext.getBean(UserDaoImpl.class));
 		
@@ -184,8 +185,8 @@ public class ApplicationContextTest {
 
 		ApplicationContext applicationContext = new DefaultApplicationContext();
 
-		applicationContext.registerBean("user", User.class);
-		applicationContext.registerBean("user_", User.class);
+		applicationContext.registerBeanDefinition("user", User.class);
+		applicationContext.registerBeanDefinition("user_", User.class);
 		applicationContext.onRefresh(); // init bean
 
 		Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitionRegistry()
@@ -243,7 +244,7 @@ public class ApplicationContextTest {
 	@Test
 	public void test_AnntationApplicationContext() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-		ApplicationContext applicationContext = new AnntationApplicationContext(
+		ApplicationContext applicationContext = new StandardApplicationContext(
 				new HashSet<>(Arrays.asList(ConfigurationBean.class)));
 
 		long start = System.currentTimeMillis();
@@ -261,6 +262,19 @@ public class ApplicationContextTest {
 		assert bean != user;
 
 		System.err.println(user);
+		applicationContext.close();
+	}
+	
+	@Test
+	public void test_Required() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
+		
+		ApplicationContext applicationContext = new StandardApplicationContext(false);
+		
+		
+		System.err.println(applicationContext.getBeanDefinitionRegistry().getBeanDefinitionsMap());
+		
+		System.out.println(applicationContext.getBean(Config.class));
+		
 		applicationContext.close();
 	}
 

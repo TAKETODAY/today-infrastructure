@@ -26,12 +26,12 @@ import cn.taketoday.context.ApplicationContext;
  * 
  *         2018-09-10 10:46
  */
-public class BeanDefinitionLoadedEvent extends ApplicationContextEvent {
+public final class BeanDefinitionLoadedEvent extends ApplicationContextEvent {
 
 	private static final long serialVersionUID = -9064466466220241434L;
 
-	public BeanDefinitionLoadedEvent(ApplicationContext source) {
-		super(source);
+	public BeanDefinitionLoadedEvent(ApplicationContext applicationContext) {
+		super(applicationContext);
 	}
 
 }

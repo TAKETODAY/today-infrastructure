@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
  *         2018-07-3 20:24:18
  */
 @NoArgsConstructor
-public class NoSuchBeanDefinitionException extends Exception {
+public class NoSuchBeanDefinitionException extends ContextException {
 
 	private static final long serialVersionUID = 5308905127914570739L;
 

@@ -19,20 +19,31 @@
  */
 package cn.taketoday.context;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.ComponentImpl;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.utils.PropertiesUtils;
 import cn.taketoday.context.utils.StringUtils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+
 import lombok.NonNull;
 
 /**
@@ -40,7 +51,7 @@ import lombok.NonNull;
  * 
  *         2018-09-06 13:47
  */
-public class AnntationApplicationContext extends DefaultApplicationContext implements ApplicationContext {
+public class StandardApplicationContext extends DefaultApplicationContext implements ApplicationContext {
 
 	private static final Map<String, Method> PROTOTYPES = new HashMap<>();
 
@@ -49,7 +60,7 @@ public class AnntationApplicationContext extends DefaultApplicationContext imple
 	 * 
 	 * @param actions
 	 */
-	public AnntationApplicationContext(Set<Class<?>> actions) {
+	public StandardApplicationContext(Set<Class<?>> actions) {
 		super(actions);
 	}
 
@@ -58,7 +69,7 @@ public class AnntationApplicationContext extends DefaultApplicationContext imple
 	 * 
 	 * @param package_
 	 */
-	public AnntationApplicationContext(String package_) {
+	public StandardApplicationContext(String package_) {
 		super(package_);
 	}
 
@@ -67,8 +78,12 @@ public class AnntationApplicationContext extends DefaultApplicationContext imple
 	 * 
 	 * @param clear
 	 */
-	public AnntationApplicationContext() {
-		super(false);
+	public StandardApplicationContext() {
+		super();
+	}
+
+	public StandardApplicationContext(boolean clear) {
+		super(clear);
 	}
 
 	@Override
@@ -81,41 +96,25 @@ public class AnntationApplicationContext extends DefaultApplicationContext imple
 		}
 
 		BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(name);
-
+		
 		if (beanDefinition == null) {
-
-			// class full name
-			Class<?> beanType = null;
-			try {
-
-				beanType = Class.forName(name);
-			} catch (ClassNotFoundException e) {
-				throw new NoSuchBeanDefinitionException("No bean named " + name + " is defined");
-			}
-
-			Set<String> keySet = beanDefinitionRegistry.getBeanDefinitionsMap().keySet();
-			for (String name_ : keySet) {
-				BeanDefinition beanDefinition_ = beanDefinitionRegistry.getBeanDefinition(name_);
-				if (beanType.isAssignableFrom(beanDefinition_.getBeanClass())) {
-					beanDefinition = beanDefinition_;
-					beanDefinition.setName(name);
-					if (beanDefinition.isSingleton()) {
-						beanDefinitionRegistry.putSingleton(name, beanDefinitionRegistry.getSingleton(name_));
-					}
-					break;
-				}
-			}
-			throw new NoSuchBeanDefinitionException("No bean named " + name + " is defined");
+			log.warn("No such bean definition named : [{}].", name);
+			return null;
 		}
-		//
+		
 		try {
 
 			Method method = PROTOTYPES.get(name);
-
-			if (method == null) {
+			
+			if (method != null) {
+				return method.invoke(beanDefinitionRegistry.getSingleton(beanDefinition.getName()));
+			}
+			
+			if (beanDefinition.isSingleton()) {
 				return doCreateBean(beanDefinition, name);
 			}
-			return method.invoke(beanDefinitionRegistry.getSingleton(beanDefinition.getName()));
+			// prototype
+			return doCreatePrototype(beanDefinition, name);
 		} //
 		catch (Exception ex) {
 			log.error("ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
@@ -131,9 +130,11 @@ public class AnntationApplicationContext extends DefaultApplicationContext imple
 			super.loadBeanDefinition(path, package_);
 			// add bean post processor
 			super.addBeanPostProcessor();
+			Map<String, BeanDefinition> beanDefinitionsMap = beanDefinitionRegistry.getBeanDefinitionsMap();
+
+			this.configuration(beanDefinitionsMap.entrySet());
 			// handle dependency
-			this.configuration(super.registerFactoryBean());
-			super.handleDependency(beanDefinitionRegistry.getBeanDefinitionsMap().entrySet());
+			super.handleDependency(beanDefinitionsMap.entrySet());
 
 			onRefresh();
 		} //
@@ -153,9 +154,13 @@ public class AnntationApplicationContext extends DefaultApplicationContext imple
 			this.loadBeanDefinition(clazz);
 			// add bean post processor
 			super.addBeanPostProcessor();
+
+			Map<String, BeanDefinition> beanDefinitionsMap = beanDefinitionRegistry.getBeanDefinitionsMap();
+
+			this.configuration(beanDefinitionsMap.entrySet());
 			// handle dependency
-			this.configuration(super.registerFactoryBean());
-			super.handleDependency(beanDefinitionRegistry.getBeanDefinitionsMap().entrySet());
+			super.handleDependency(beanDefinitionsMap.entrySet());
+
 			onRefresh();
 		} //
 		catch (Exception e) {
@@ -171,12 +176,18 @@ public class AnntationApplicationContext extends DefaultApplicationContext imple
 	 */
 	private void configuration(Set<Entry<String, BeanDefinition>> beanDefinitions) throws Exception {
 
-		for (Entry<String, BeanDefinition> beanDefinition : beanDefinitions) {
+		for (Entry<String, BeanDefinition> beanDefinition_ : beanDefinitions) {
 
-			Class<? extends Object> beanClass = beanDefinition.getValue().getBeanClass();
+			BeanDefinition beanDefinition = beanDefinition_.getValue();
+
+			Class<? extends Object> beanClass = beanDefinition.getBeanClass();
 
 			if (!beanClass.isAnnotationPresent(Configuration.class)) {
 				continue;
+			}
+			// Props
+			if (beanClass.isAnnotationPresent(Props.class)) {
+				properties(beanDefinition, beanClass);
 			}
 
 			Method[] declaredMethods = beanClass.getDeclaredMethods();
@@ -192,6 +203,46 @@ public class AnntationApplicationContext extends DefaultApplicationContext imple
 				create(method, components);
 			}
 		}
+	}
+
+	/**
+	 * Properties injection
+	 * 
+	 * @param beanDefinition
+	 * @param beanClass
+	 * @throws ConfigurationException
+	 */
+	private void properties(BeanDefinition beanDefinition, Class<? extends Object> beanClass)
+			throws ConfigurationException {
+
+		Props props = beanClass.getAnnotation(Props.class);
+
+		List<PropertyValue> propertyValues = new ArrayList<>();
+
+		Properties properties = beanDefinitionRegistry.getProperties();
+		String[] prefixs = props.prefix();
+		Field[] declaredFields = beanClass.getDeclaredFields();
+		for (String prefix : prefixs) {
+
+			for (Field declaredField : declaredFields) {
+
+				String key = prefix + declaredField.getName();
+
+				String value = properties.getProperty(key);
+				if (value == null) {
+					continue;
+				}
+				declaredField.setAccessible(true);
+				propertyValues.add(//
+						new PropertyValue(//
+								ConvertUtils.convert(//
+										PropertiesUtils.findInProperties(properties, value), declaredField.getType()//
+								), declaredField//
+						)//
+				);
+			}
+		}
+		beanDefinition.addPropertyValue(propertyValues);
 	}
 
 	/**
@@ -213,60 +264,46 @@ public class AnntationApplicationContext extends DefaultApplicationContext imple
 				if (StringUtils.isEmpty(name)) {
 					name = method.getName();
 				}
-
+				
 				PROTOTYPES.put(name, method);
-
+				
 				BeanDefinition beanDefinition_ = new BeanDefinition()//
+						.setScope(scope)//
 						.setBeanClass(method.getReturnType())//
-						.setName(method.getDeclaringClass().getName())//
-						.setScope(scope);
+						.setName(method.getDeclaringClass().getSimpleName());
 				beanDefinitionLoader.register(name, beanDefinition_);
 			}
 		}
 	}
 
 	@Override
-	protected void doCreateSingleton() throws Exception {
+	protected void doCreateSingleton(Entry<String, BeanDefinition> entry, Set<Entry<String, BeanDefinition>> entrySet)
+			throws Exception {
 
-		Set<String> names = beanDefinitionRegistry.getBeanDefinitionsMap().keySet();
+		String name = entry.getKey();
+		BeanDefinition beanDefinition = entry.getValue();
 
-		for (String name : names) {
+		// remove singleton
+		if (PROTOTYPES.containsKey(name)) {
+			Method method = PROTOTYPES.get(name);
 
-			BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinitionsMap().get(name);
-
-			if (!beanDefinition.isSingleton()) {
-				continue;
-			}
-
-			// interface
-			Class<?>[] interfaces = beanDefinition.getBeanClass().getInterfaces();
-			for (Class<?> clazz : interfaces) {
-				if (beanDefinitionRegistry.containsInstance(clazz.getName())) {
-					beanDefinitionRegistry.putSingleton(name, beanDefinitionRegistry.getSingleton(clazz.getName()));
-					continue;
-				}
-			}
-
-			if (beanDefinitionRegistry.containsInstance(name)) {
-				continue;// initialized
-			}
-			if (PROTOTYPES.containsKey(name)) {
-				Method method = PROTOTYPES.get(name);
-
+			try {
+				
 				beanDefinitionRegistry.putSingleton(name, //
-						method.invoke(//
-								createDeclaringObject(name, beanDefinition, beanDefinition.getName())//
+						initializingBean(//
+								method.invoke(//
+										createDeclaringObject(name, beanDefinition.getName())//
+								), name, beanDefinition//
 						)//
 				);
-				PROTOTYPES.remove(name);
-				continue;
+
+			} catch (InvocationTargetException e) {
+				log.error("Error with creating bean named -> [{}]", name, e);
 			}
-
-			// initializing singleton bean
-			Object bean = initializingBean(createBeanInstance(beanDefinition), name, beanDefinition);
-
-			beanDefinitionRegistry.putSingleton(name, bean);
+			PROTOTYPES.remove(name);
+			return;
 		}
+		super.doCreateSingleton(entry, entrySet);
 	}
 
 	/**
@@ -276,23 +313,22 @@ public class AnntationApplicationContext extends DefaultApplicationContext imple
 	 * @param declaringName
 	 * @return
 	 * @throws Exception
-	 * @throws NoSuchBeanDefinitionException
 	 */
-	private Object createDeclaringObject(String name, BeanDefinition beanDefinition, String declaringName)
-			throws Exception, NoSuchBeanDefinitionException {
-		if (beanDefinitionRegistry.containsInstance(declaringName)) {
+	private Object createDeclaringObject(String name, String declaringName) throws Exception {
+
+		if (beanDefinitionRegistry.containsSingleton(declaringName)) {
 
 			return beanDefinitionRegistry.getSingleton(declaringName);
-		} // not initialized
-
+		}
+		BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(declaringName);
+		// declaring bean not initialized
 		Object declaringSingleton = super.initializingBean(//
 				createBeanInstance(//
-						beanDefinitionRegistry.getBeanDefinition(declaringName)//
+						beanDefinition//
 				), //
 				name, //
-				beanDefinition //
-		);
-
+				beanDefinition);
+		// put declaring object
 		beanDefinitionRegistry.putSingleton(name, declaringSingleton);
 
 		return declaringSingleton;

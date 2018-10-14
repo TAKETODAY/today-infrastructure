@@ -36,12 +36,19 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
 public interface BeanDefinitionLoader {
 
 	/**
+	 * 
+	 * @param clazz
+	 * @return
+	 */
+	BeanDefinition getBeanDefinition(Class<?> clazz);
+	
+	/**
 	 * Get registered bean definition registry
 	 * 
 	 * @return registry
 	 */
 	BeanDefinitionRegistry getRegistry();
-
+	
 	/**
 	 * load bean definitions with given bean collection.
 	 * 
@@ -82,7 +89,7 @@ public interface BeanDefinitionLoader {
 	 * @throws ConfigurationException
 	 */
 	void register(Class<?> clazz) throws BeanDefinitionStoreException, ConfigurationException;
-
+	
 	/**
 	 * register bean definition with given name , and resolve property values
 	 * 

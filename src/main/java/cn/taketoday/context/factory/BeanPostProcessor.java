@@ -27,6 +27,7 @@ import cn.taketoday.context.bean.BeanDefinition;
  * 
  *         2018-07-18 1:01:19
  */
+@FunctionalInterface
 public interface BeanPostProcessor {
 
 	/**
@@ -38,7 +39,9 @@ public interface BeanPostProcessor {
 	 *            bean name
 	 * @throws Exception
 	 */
-	void postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) throws Exception;
+	default void postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) throws Exception {
+
+	}
 
 	/**
 	 * after property set

@@ -26,13 +26,12 @@ import cn.taketoday.context.ApplicationContext;
  * 	
  *		2018-09-10 07:55
  */
-public class ContextCloseEvent extends ApplicationContextEvent {
+public final class ContextCloseEvent extends ApplicationContextEvent {
 
 	private static final long serialVersionUID = -7729176812465669727L;
-
 	
-	public ContextCloseEvent(ApplicationContext source) {
-		super(source);
+	public ContextCloseEvent(ApplicationContext applicationContext) {
+		super(applicationContext);
 	}
 	
 }

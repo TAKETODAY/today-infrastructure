@@ -19,6 +19,29 @@
  */
 package cn.taketoday.context;
 
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.ComponentImpl;
+import cn.taketoday.context.annotation.ContextListener;
+import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
+import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
+import cn.taketoday.context.event.ContextCloseEvent;
+import cn.taketoday.context.event.ContextRefreshEvent;
+import cn.taketoday.context.event.ContextStartedEvent;
+import cn.taketoday.context.event.ObjectRefreshedEvent;
+import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.factory.AbstractBeanFactory;
+import cn.taketoday.context.factory.BeanPostProcessor;
+import cn.taketoday.context.factory.ObjectFactory;
+import cn.taketoday.context.factory.SimpleBeanDefinitionRegistry;
+import cn.taketoday.context.factory.SimpleObjectFactory;
+import cn.taketoday.context.listener.ApplicationListener;
+import cn.taketoday.context.loader.DefaultBeanDefinitionLoader;
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.StringUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,7 +54,6 @@ import java.util.Date;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -39,22 +61,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.annotation.ComponentImpl;
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
-import cn.taketoday.context.event.ContextCloseEvent;
-import cn.taketoday.context.event.ContextStartedEvent;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.AbstractBeanFactory;
-import cn.taketoday.context.factory.BeanPostProcessor;
-import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.factory.SimpleBeanDefinitionRegistry;
-import cn.taketoday.context.listener.ApplicationListener;
-import cn.taketoday.context.loader.DefaultBeanDefinitionLoader;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.StringUtils;
 import lombok.NonNull;
 
 /**
@@ -64,21 +70,34 @@ import lombok.NonNull;
  */
 public abstract class AbstractApplicationContext extends AbstractBeanFactory implements ApplicationContext {
 
-	protected final Logger log = LoggerFactory.getLogger(getClass());
+	final Logger log = LoggerFactory.getLogger(getClass());
+	/** application listeners **/
+	final Map<Class<?>, Collection<ApplicationListener<EventObject>>> applicationListeners = new HashMap<>();
 
-	protected Map<Class<?>, Collection<ApplicationListener<EventObject>>> applicationListeners = new HashMap<>();
-
-	
 	public AbstractApplicationContext() {
-		
+
 		log.info("Starting Application Context at [{}].",
 				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
 		postProcessors = new ArrayList<>();
+		objectFactory = new SimpleObjectFactory();
 		beanDefinitionRegistry = new SimpleBeanDefinitionRegistry();
-		beanDefinitionLoader = new DefaultBeanDefinitionLoader(beanDefinitionRegistry);
+		beanDefinitionLoader = new DefaultBeanDefinitionLoader(beanDefinitionRegistry, objectFactory);
 
-		start();
+		// put OBJECT_FACTORY
+		beanDefinitionRegistry.putSingleton(Constant.OBJECT_FACTORY, objectFactory);
+
+		loadListener();
+	}
+
+	@Override
+	public ObjectFactory getObjectFactory() {
+		return objectFactory;
+	}
+
+	@Override
+	public void setObjectFactory(ObjectFactory objectFactory) {
+		super.objectFactory = objectFactory;
 	}
 
 	/**
@@ -93,7 +112,7 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 	 * load all the properties file and class with given package in class path
 	 * 
 	 * @param package_
-	 *                 given package
+	 *            given package
 	 */
 	public void loadContext(@NonNull String package_) {
 		this.loadContext("", package_);
@@ -101,59 +120,94 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 
 	public abstract void loadContext(@NonNull String path, @NonNull String package_);
 
-	@SuppressWarnings("unchecked")
-	public void start() {
-		
-		Collection<Class<?>> implClasses = ClassUtils.getImplClasses(ApplicationListener.class);
+	/**
+	 * load all the application listeners in context.
+	 * 
+	 */
+	private void loadListener() {
 
-		Iterator<Class<?>> iterator = implClasses.iterator();
+		log.debug("Loading Application Listeners.");
+
+		ClassUtils.getImplClasses(ApplicationListener.class)//
+				.parallelStream()//
+				.forEach(this::forEach);
+	}
+
+	/**
+	 * 
+	 * @param clazz
+	 */
+	private void forEach(Class<?> clazz) {
 
 		try {
 
-			while (iterator.hasNext()) {
+			ContextListener contextListener = clazz.getAnnotation(ContextListener.class);
+			if (contextListener == null) {
+				return;
+			}
 
-				Class<?> clazz = iterator.next();
+			Component[] components = ClassUtils.getClassAnntation(clazz, Component.class, ComponentImpl.class);
+			String name = clazz.getSimpleName();
+			if (components != null && components.length != 0) {
+				// bean name
+				name = components[0].value()[0];
+			}
 
-				Component[] components = ClassUtils.getClassAnntation(clazz, Component.class, ComponentImpl.class);
+			// if exist bean
+			Object applicationListener = beanDefinitionRegistry.getSingleton(name);
 
-				if (components != null && components.length != 0) {
+			if (applicationListener == null) {
+				// create bean instance
+				applicationListener = objectFactory.create(clazz);
+				beanDefinitionRegistry.putSingleton(name, applicationListener);
+			}
 
-					Object applicationListener = clazz.getConstructor().newInstance();
-					Class<?> eventType = EventObject.class;
-					Method[] declaredMethods = clazz.getDeclaredMethods();
-					for (Method method : declaredMethods) {
-						if (method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
-							eventType = method.getParameterTypes()[0];
-							break;
-						}
+			Method[] declaredMethods = clazz.getMethods();
+			for (Method method : declaredMethods) {
+				// onApplicationEvent
+				if (method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
+					if (method.isBridge()) {
+//						log.debug("Bridge Method : {}", method);
+						continue;
 					}
-
-					if (applicationListeners.containsKey(eventType)) {
-
-						applicationListeners.get(eventType).add((ApplicationListener<EventObject>) applicationListener);
-					} else {
-
-						applicationListeners.put(eventType, new ArrayList<ApplicationListener<EventObject>>() {
-							private static final long serialVersionUID = 1;
-							{
-								add((ApplicationListener<EventObject>) applicationListener);
-							}
-						});
-					}
-
-					String name = clazz.getSimpleName();
-
-					if (components[0].value().length != 0) {
-						name = components[0].value()[0];
-					}
-
-					beanDefinitionRegistry.putSingleton(name, applicationListener);
+					// register listener
+					this.registerListener(applicationListener, method.getParameterTypes()[0]);
+				}
+			}
+			// specify type
+			Class<?>[] classes = contextListener.value();
+			for (Class<?> class_ : classes) {
+				// register listener
+				if (class_ != EventObject.class) {
+					this.registerListener(applicationListener, class_);
 				}
 			}
 		} //
 		catch (Exception e) {
 			log.error("Application Listener Register Error.", e);
 		}
+	}
+
+	/**
+	 * 
+	 * @param applicationListener
+	 *            the instance of application listener
+	 * @param eventType
+	 *            the event class
+	 */
+	@SuppressWarnings("unchecked")
+	private void registerListener(Object applicationListener, Class<?> eventType) {
+
+		if (applicationListeners.containsKey(eventType)) {
+			applicationListeners.get(eventType).add((ApplicationListener<EventObject>) applicationListener);
+			return;
+		}
+		applicationListeners.put(eventType, new ArrayList<ApplicationListener<EventObject>>() {
+			private static final long serialVersionUID = 1;
+			{
+				add((ApplicationListener<EventObject>) applicationListener);
+			}
+		});
 	}
 
 	/**
@@ -168,8 +222,9 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 			this.loadBeanDefinition(clazz);
 			// add bean post processor
 			this.addBeanPostProcessor();
+
 			// handle dependency
-			this.handleDependency(this.registerFactoryBean());
+			super.handleDependency(beanDefinitionRegistry.getBeanDefinitionsMap().entrySet());
 
 			onRefresh();
 		} //
@@ -184,7 +239,8 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 	@Override
 	public void loadProperties(File dir) throws IOException {
 
-		File[] listFiles = dir.listFiles(file -> (file.isDirectory()) || (file.getName().endsWith(".properties")));
+		File[] listFiles = dir
+				.listFiles(file -> (file.isDirectory()) || (file.getName().endsWith(Constant.PROPERTIES_SUFFIX)));
 
 		if (listFiles == null) {
 			return;
@@ -196,6 +252,7 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 			}
 			InputStream inputStream = null;
 			try {
+
 				inputStream = new FileInputStream(file);
 				beanDefinitionRegistry.getProperties().load(inputStream);
 			} finally {
@@ -219,7 +276,9 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 
 		this.loadProperties(new File(ClassUtils.getClassLoader().getResource("").getPath()));
 
+		log.debug("Start loading BeanDefinitions.");
 		// load bean from class set
+		publishEvent(new BeanDefinitionLoadingEvent(this));
 		beanDefinitionLoader.loadBeanDefinitions(beans);
 		publishEvent(new BeanDefinitionLoadedEvent(this));
 	}
@@ -233,30 +292,30 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 				beanDefinitionRegistry.getBeanDefinitionsMap().entrySet());
 
 		try {
-
+			
 			for (Entry<String, BeanDefinition> entry : entrySet) {
 				BeanDefinition beanDefinition = entry.getValue();
 				if (!BeanPostProcessor.class.isAssignableFrom(beanDefinition.getBeanClass())) {
 					continue;
 				}
-				log.debug("Find a BeanPostProcessor -> [{}]", beanDefinition.getBeanClass());
-
+				log.debug("Find a BeanPostProcessor: [{}]", beanDefinition.getBeanClass());
+				
 				postProcessors.add((BeanPostProcessor) initializingBean(//
 						createBeanInstance(beanDefinition), entry.getKey(), beanDefinition)//
 				);
 			}
 		} //
 		catch (Exception e) {
-			log.error("ERROR -> [{}] caused by {}", e.getMessage(), e.getCause(), e);
+			log.error("ERROR : [{}] caused by {}", e.getMessage(), e.getCause(), e);
 		}
 	}
 
 	/**
 	 * 
 	 * @param path
-	 *                 properties file path
+	 *            properties file path
 	 * @param package_
-	 *                 scan package
+	 *            scan package
 	 * @throws IOException
 	 * @throws BeanDefinitionStoreException
 	 * @throws ConfigurationException
@@ -268,6 +327,8 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 
 		this.loadProperties(new File(ClassUtils.getClassLoader().getResource(path).getPath()));
 
+		log.debug("Start loading BeanDefinitions.");
+		publishEvent(new BeanDefinitionLoadingEvent(this));
 		// load bean from class set
 		if (StringUtils.isEmpty(package_)) {
 			beanDefinitionLoader.loadBeanDefinitions(ClassUtils.getClassCache());
@@ -275,60 +336,6 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 			beanDefinitionLoader.loadBeanDefinitions(ClassUtils.scanPackage(package_));
 		}
 		publishEvent(new BeanDefinitionLoadedEvent(this));
-	}
-
-	/**
-	 * 
-	 * @return
-	 * @throws Exception
-	 */
-	protected Set<Entry<String, BeanDefinition>> registerFactoryBean() throws Exception {
-		log.debug("Start register FactoryBean.");
-		Set<Entry<String, BeanDefinition>> entrySet = new HashSet<>(
-				beanDefinitionRegistry.getBeanDefinitionsMap().entrySet());
-
-		for (Entry<String, BeanDefinition> entry : entrySet) {
-			this.doRegisterFactoryBean(entry.getValue(), entry.getKey());
-		}
-		return entrySet;
-	}
-
-	@Override
-	protected void doRegisterFactoryBean(BeanDefinition beanDefinition, String name) throws Exception {
-
-		Class<? extends Object> beanClass = beanDefinition.getBeanClass();
-		if (!FactoryBean.class.isAssignableFrom(beanClass)) {
-			return;
-		}
-
-		if (!beanDefinition.isSingleton()) {
-			throw new ConfigurationException("FactoryBean -> [{}] must be a Singleton.", name);
-		}
-
-		log.debug("register FactoryBean -> [{}].", beanClass);
-		// initialize once, Singleton
-		Object factoryBean_ = initializingBean(createBeanInstance(beanDefinition), name, beanDefinition);
-
-		FactoryBean<?> factoryBean = (FactoryBean<?>) factoryBean_;
-
-		BeanDefinition beanDefinition_ = new BeanDefinition();
-		beanDefinition_.setBeanClass(beanClass);// FactoryBean class
-		beanDefinition_.setName(name);// FactoryBean name, when get instance use this name
-
-		String beanName = factoryBean.getBeanName(); // bean's real name
-
-		if (!factoryBean.isSingleton()) { // PROTOTYPE
-			beanDefinition_.setScope(Scope.PROTOTYPE);
-			log.debug("FactoryBean -> [{}] is PROTOTYPE.", beanName);
-		} else { // initialized
-			beanDefinitionRegistry.putSingleton(beanName, factoryBean.getBean());
-		}
-
-		// FactoryBean name, put factory bean instance to registry
-		beanDefinitionRegistry.putSingleton(name, factoryBean_);
-
-		// register
-		beanDefinitionRegistry.registerBeanDefinition(beanName, beanDefinition_);
 	}
 
 	@Override
@@ -341,7 +348,13 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 
 		try {
 
-			doCreateSingleton();
+			publishEvent(new ContextRefreshEvent(this));
+			log.debug("Initialization of singleton.");
+			Set<Entry<String, BeanDefinition>> entrySet = beanDefinitionRegistry.getBeanDefinitionsMap().entrySet();
+			for (Entry<String, BeanDefinition> entry : entrySet) {
+				doCreateSingleton(entry, entrySet);
+			}
+			log.debug("The singleton objects is initialized.");
 			publishEvent(new ContextStartedEvent(this));
 		} //
 		catch (Exception ex) {
@@ -352,19 +365,45 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 	@Override
 	public void refresh(String name) {
 
-		BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinitionsMap().get(name);
-
 		try {
+
+			BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(name);
 
 			beanDefinitionRegistry.putSingleton(//
 					name, initializingBean(//
 							createBeanInstance(beanDefinition), name, beanDefinition//
 					)//
 			);
+			publishEvent(new ObjectRefreshedEvent(beanDefinition, this));
+		} //
+		catch (NoSuchBeanDefinitionException e1) {
+			log.error("ERROR MSG -> [{}]", e1.getMessage(), e1);
 		} //
 		catch (Exception e) {
 			log.error("Can't refresh a bean named -> [{}]", name, e);
 		}
+	}
+
+	@Override
+	public Object refresh(BeanDefinition beanDefinition) {
+
+		String name = beanDefinition.getName();
+
+		try {
+
+			Object initializingBean = initializingBean(createBeanInstance(beanDefinition), name, beanDefinition);
+
+			publishEvent(new ObjectRefreshedEvent(beanDefinition, this));
+
+			return initializingBean;
+		} //
+		catch (NoSuchBeanDefinitionException e1) {
+			log.error("ERROR MSG -> [{}]", e1.getMessage(), e1);
+		} //
+		catch (Exception e) {
+			log.error("Can't refresh a bean named: [{}]", name);
+		}
+		return null;
 	}
 
 	@Override
@@ -374,6 +413,8 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 
 	@Override
 	public void publishEvent(EventObject event) {
+
+		log.info("Publish event: [{}]", event.getClass().getName());
 
 		Collection<ApplicationListener<EventObject>> collection = applicationListeners.get(event.getClass());
 		if (collection == null) {

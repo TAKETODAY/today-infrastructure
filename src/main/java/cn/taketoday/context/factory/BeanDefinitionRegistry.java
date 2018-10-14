@@ -80,7 +80,7 @@ public interface BeanDefinitionRegistry {
 	 *            bean name
 	 * @return
 	 */
-	boolean containsInstance(String name);
+	boolean containsSingleton(String name);
 
 	/**
 	 * 

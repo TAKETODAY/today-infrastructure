@@ -33,12 +33,12 @@ package cn.taketoday.context;
 public abstract class Version {
 
 	public static String getVersion() {
-		return "1.2.1.RELEASE";
+		return "2.0.0.RELEASE";
 	}
 
 	public static String[] getHistoryVersion() {
 		return new String[] { //
-				"1.0.0", "1.0.1", "1.0.2", "1.0.3.RELEASE"
+				"1.0.0", "1.0.1", "1.0.2", "1.0.3.RELEASE", "1.2.1.RELEASE"
 		};
 	}
 }

@@ -17,31 +17,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.domain;
+package cn.taketoday.context.event;
 
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.ApplicationContext;
 
 /**
  * @author Today <br>
  * 
- *         2018-09-06 15:30
+ *         2018-09-10 10:46
  */
-@Configuration
-public class ConfigurationBean {
+public final class BeanDefinitionLoadingEvent extends ApplicationContextEvent {
 
-	@Prototype
-	public User user() {
-		
-		return new User().setId(12);
-	}
-	
-	@Singleton
-	public User user__() {
-		
-		return new User().setId(12);
+	private static final long serialVersionUID = -9064466466220241434L;
+
+	public BeanDefinitionLoadingEvent(ApplicationContext applicationContext) {
+		super(applicationContext);
 	}
 
-	
 }

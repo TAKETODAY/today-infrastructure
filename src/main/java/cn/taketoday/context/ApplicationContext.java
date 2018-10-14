@@ -19,35 +19,60 @@
  */
 package cn.taketoday.context;
 
+import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.event.ObjectRefreshedEvent;
+import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.factory.ObjectFactory;
+import cn.taketoday.context.listener.ApplicationEventPublisher;
+
 import java.io.File;
 import java.io.IOException;
 
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.listener.ApplicationEventPublisher;
-
 /**
- * @author Today
- * @date 2018年6月23日 下午4:39:36
+ * 
+ * @author Today <br>
+ *         2018-06-23 16:39:36
  */
 public interface ApplicationContext extends BeanFactory, ApplicationEventPublisher {
 
 	/**
-	 * refresh bean
+	 * 
+	 * @return
+	 */
+	ObjectFactory getObjectFactory();
+
+	/**
+	 * 
+	 * @param objectFactory
+	 */
+	void setObjectFactory(ObjectFactory objectFactory);
+
+	/**
+	 * Refresh bean with given name, and publish {@link ObjectRefreshedEvent}.
 	 * 
 	 * @param name
-	 *             bean name
+	 *            bean name
 	 * 
 	 * @since 1.2.0
 	 */
 	void refresh(String name);
 
 	/**
-	 * load properties configuration file. No specific name required.
+	 * Refresh bean definition, and publish {@link ObjectRefreshedEvent}.
+	 * 
+	 * @param beanDefinition
+	 *            bean definition
+	 * @since 2.0.0
+	 * @return initialized object
+	 */
+	Object refresh(BeanDefinition beanDefinition);
+
+	/**
+	 * Load properties configuration file. No specific name required.
 	 * 
 	 * @param dir
-	 *            dir
+	 *            directory
 	 * @throws IOException
 	 */
 	void loadProperties(File dir) throws IOException;
@@ -58,7 +83,7 @@ public interface ApplicationContext extends BeanFactory, ApplicationEventPublish
 	void loadSuccess();
 
 	/**
-	 * Load Properties.
+	 * Load Application Context.
 	 * 
 	 * <p>
 	 * First of all, it will load all the properties files in the given path. If you
@@ -70,18 +95,16 @@ public interface ApplicationContext extends BeanFactory, ApplicationEventPublish
 	 * </p>
 	 * <p>
 	 * when all the bean definition stores in the {@link BeanDefinitionRegistry} .
-	 * It will find all the bean post processor,and initialize it. Then register
-	 * {@link FactoryBean} .
+	 * It will find all the bean post processor,and initialize it.
 	 * </p>
 	 * <p>
 	 * Now it store all the bean and then resolve dependency, Last refresh context.
 	 * </p>
 	 * 
-	 * 
 	 * @param path
-	 *                 the path to load all the properties files
+	 *            the path to load all the properties files
 	 * @param package_
-	 *                 package to scan
+	 *            package to scan
 	 */
 	void loadContext(String path, String package_);
 

@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
  *         2018-07-08 19:54:46
  */
 @NoArgsConstructor
-public class BeanDefinitionStoreException extends Exception {
+public class BeanDefinitionStoreException extends ContextException {
 
 	private static final long serialVersionUID = 9141929287603186022L;
 

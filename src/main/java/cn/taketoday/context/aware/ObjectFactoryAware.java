@@ -17,31 +17,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.domain;
+package cn.taketoday.context.aware;
 
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.factory.ObjectFactory;
 
 /**
  * @author Today <br>
  * 
- *         2018-09-06 15:30
+ *         2018-09-16 14:34
  */
-@Configuration
-public class ConfigurationBean {
+public interface ObjectFactoryAware {
 
-	@Prototype
-	public User user() {
-		
-		return new User().setId(12);
-	}
-	
-	@Singleton
-	public User user__() {
-		
-		return new User().setId(12);
-	}
-
-	
+	void setObjectFactory(ObjectFactory objectFactory);
 }

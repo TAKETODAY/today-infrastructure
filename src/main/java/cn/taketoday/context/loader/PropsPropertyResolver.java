@@ -19,13 +19,6 @@
  */
 package cn.taketoday.context.loader;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-
 import cn.taketoday.context.annotation.PropertyResolver;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.bean.PropertyValue;
@@ -34,7 +27,13 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.PropertiesUtils;
-import lombok.Cleanup;
+
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author Today <br>
@@ -59,14 +58,14 @@ public class PropsPropertyResolver implements PropertyValueResolver {
 		Properties properties_ = new Properties(); // file to be load
 		ClassLoader classLoader = ClassUtils.getClassLoader();
 
-		@Cleanup
-		InputStream inputStream = null;
-
 		for (String fileName : props.value()) {
-
-			inputStream = new FileInputStream(classLoader.getResource(checkName(fileName)).getPath());
-			properties_.load(inputStream);
-			this.load(props, properties, properties_);
+			
+			try (InputStream inputStream = new FileInputStream(
+					classLoader.getResource(checkName(fileName)).getPath())) {
+				
+				properties_.load(inputStream);
+				this.load(props, properties, properties_);
+			}
 		}
 		if (props.value().length == 0) {
 
@@ -95,7 +94,7 @@ public class PropsPropertyResolver implements PropertyValueResolver {
 		Set<Entry<Object, Object>> entrySet = pool.entrySet();
 
 		try {
-			
+
 			for (Entry<Object, Object> entry : entrySet) {
 				Object key = entry.getKey();
 				Object value = entry.getValue();

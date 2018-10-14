@@ -38,9 +38,9 @@ public interface PropertyValueResolver {
 	 * According to different annotation resolve different property.
 	 * 
 	 * @param registry
-	 *            Bean definition registry
+	 *        Bean definition registry
 	 * @param field
-	 *            bean's field
+	 *        bean's field
 	 * @return property value
 	 * @throws Exception
 	 */

@@ -42,6 +42,6 @@ public @interface PropertyResolver {
 	 * 
 	 * @return
 	 */
-	Class<? extends Annotation> value() default Autowired.class;
+	Class<? extends Annotation>[] value() default Autowired.class;
 	
 }

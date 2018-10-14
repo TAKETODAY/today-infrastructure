@@ -30,9 +30,7 @@ public final class StringToNumberFactory implements ConverterFactory<String, Num
 
 	@Override
 	public <T extends Number> Converter<String, T> getConverter(Class<T> targetType) {
-		return source -> {
-			return NumberUtils.parseNumber(source, targetType);
-		};
+		return source -> NumberUtils.parseNumber(source, targetType);
 	}
 
 }

@@ -80,7 +80,7 @@ public class DefaultApplicationContext extends AbstractApplicationContext {
 			// add bean post processor
 			this.addBeanPostProcessor();
 			// handle dependency
-			this.handleDependency(this.registerFactoryBean());
+			super.handleDependency(beanDefinitionRegistry.getBeanDefinitionsMap().entrySet());
 			
 			onRefresh();
 		} //

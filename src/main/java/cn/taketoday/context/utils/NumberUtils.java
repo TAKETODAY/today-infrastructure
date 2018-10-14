@@ -19,11 +19,11 @@
  */
 package cn.taketoday.context.utils;
 
+import cn.taketoday.context.exception.ConversionException;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
-
-import cn.taketoday.context.exception.ConversionException;
 
 /**
  * @author Today
@@ -121,7 +121,10 @@ public abstract class NumberUtils {
 	}
 
 	public static final Object parseDigit(String text, Class<?> targetClass) throws ConversionException {
-
+		
+		if(StringUtils.isEmpty(text)) {
+			return null;
+		}
 		if (Byte.class == targetClass || byte.class == targetClass) {
 			return Byte.parseByte(text);
 		} else if (Short.class == targetClass || short.class == targetClass) {

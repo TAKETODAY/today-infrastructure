@@ -17,31 +17,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.domain;
+package cn.taketoday.context.event;
 
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.bean.BeanDefinition;
+
+import lombok.Getter;
 
 /**
  * @author Today <br>
  * 
- *         2018-09-06 15:30
+ *         2018-09-20 16:48
  */
-@Configuration
-public class ConfigurationBean {
+public final class ObjectRefreshedEvent extends ApplicationContextEvent {
 
-	@Prototype
-	public User user() {
-		
-		return new User().setId(12);
-	}
-	
-	@Singleton
-	public User user__() {
-		
-		return new User().setId(12);
+	private static final long serialVersionUID = -5481459354993271103L;
+
+	/** which bean definition refreshed **/
+	@Getter
+	private BeanDefinition beanDefinition;
+
+	public ObjectRefreshedEvent(BeanDefinition beanDefinition, ApplicationContext applicationContext) {
+		super(applicationContext);
+		this.beanDefinition = beanDefinition;
 	}
 
-	
 }

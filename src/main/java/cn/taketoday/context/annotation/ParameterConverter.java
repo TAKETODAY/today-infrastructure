@@ -24,8 +24,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.TYPE})
+/**
+ * 
+ * @author Today <br>
+ *         2018-10-14 18:30
+ */
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ParameterConverter {
+
+	/**
+	 * 
+	 * @return
+	 */
+	Class<?>[] value() default void.class;
 	
 }

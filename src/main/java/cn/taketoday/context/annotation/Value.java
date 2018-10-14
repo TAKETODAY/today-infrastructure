@@ -35,4 +35,11 @@ import java.lang.annotation.Target;
 public @interface Value {
 
 	String value() default "";
+	
+	/**
+	 * is required ?
+	 * 
+	 * @return
+	 */
+	boolean required() default true;
 }

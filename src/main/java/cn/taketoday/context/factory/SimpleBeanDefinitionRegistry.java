@@ -19,54 +19,57 @@
  */
 package cn.taketoday.context.factory;
 
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.aware.BeanFactoryAware;
+import cn.taketoday.context.aware.BeanNameAware;
+import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.bean.BeanReference;
+import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.listener.ContextCloseListener;
+
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.context.aware.BeanClassLoaderAware;
-import cn.taketoday.context.aware.BeanFactoryAware;
-import cn.taketoday.context.aware.BeanNameAware;
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.listener.ContextCloseListener;
 import lombok.NoArgsConstructor;
 
 /**
  * 
  * @author Today <br>
  * 
- * 		2018-07-08 19:57:22
+ *         2018-07-08 19:57:22
  */
 @NoArgsConstructor
 public final class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistry {
 
 	protected final Logger log = LoggerFactory.getLogger(SimpleBeanDefinitionRegistry.class);
-	
+
 	private Properties properties = new Properties();
-	
-	/** Map of bean instance*/
+
+	/** Map of bean instance */
 	private final Map<String, Object> singletons = new HashMap<>(16);
 	/** Map of bean definition objects, keyed by bean name */
 	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(16);
 	/** dependency */
 	private final Set<PropertyValue> dependency = new HashSet<>();
-	
+
 	private Set<String> discardedNames = new HashSet<String>() {
-		
-		private static final long serialVersionUID = -1534194758376819762L; {
-			
+
+		private static final long serialVersionUID = -1534194758376819762L;
+		{
+
 			add(Constant.class.getSimpleName());
 			add(Cloneable.class.getSimpleName());
 			add(FactoryBean.class.getSimpleName());
@@ -77,25 +80,29 @@ public final class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistr
 			add(InitializingBean.class.getSimpleName());
 			add(BeanPostProcessor.class.getSimpleName());
 			add(ContextCloseListener.class.getSimpleName());
-			add(BeanClassLoaderAware.class.getSimpleName());
 //			add(PropertyValueResolver.class.getSimpleName());
 			add(ApplicationContextAware.class.getSimpleName());
 		}
 	};
-	
+
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
 			throws BeanDefinitionStoreException {
-		if(discardedNames.contains(beanName)) {
-			return ;
+		if (discardedNames.contains(beanName)) {
+			return;
 		}
 		this.beanDefinitionMap.put(beanName, beanDefinition);
-		
+
 		PropertyValue[] propertyValues = beanDefinition.getPropertyValues();
-		if(propertyValues == null) {
-			return ;
+		if (propertyValues == null) {
+			return;
 		}
-		this.dependency.addAll(Arrays.asList(propertyValues));
+		
+		this.dependency.addAll(//
+				Stream.of(propertyValues)//
+						.filter(propertyValue -> propertyValue.getValue() instanceof BeanReference)//
+						.collect(Collectors.toSet())//
+		);
 	}
 
 	@Override
@@ -103,18 +110,13 @@ public final class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistr
 		if (this.beanDefinitionMap.remove(beanName) == null) {
 			throw new NoSuchBeanDefinitionException(beanName);
 		}
-		singletons.remove(beanName);//remove singleton
+		singletons.remove(beanName);// remove singleton
 	}
 
 	@Override
 	public BeanDefinition getBeanDefinition(String beanName) throws NoSuchBeanDefinitionException {
-		
-		BeanDefinition bd = this.beanDefinitionMap.get(beanName);
-		
-		if (bd == null) {
-			throw new NoSuchBeanDefinitionException("no such bean definition named -> " + beanName);
-		}
-		return bd;
+
+		return beanDefinitionMap.get(beanName);
 	}
 
 	@Override
@@ -148,7 +150,7 @@ public final class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistr
 	}
 
 	@Override
-	public Object getSingleton(String name){
+	public Object getSingleton(String name) {
 		return singletons.get(name);
 	}
 
@@ -158,7 +160,7 @@ public final class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistr
 	}
 
 	@Override
-	public boolean containsInstance(String name) {
+	public boolean containsSingleton(String name) {
 
 		return singletons.containsKey(name);
 	}
@@ -172,5 +174,5 @@ public final class SimpleBeanDefinitionRegistry implements BeanDefinitionRegistr
 	public Map<String, Object> getSingletonsMap() {
 		return singletons;
 	}
-	
+
 }

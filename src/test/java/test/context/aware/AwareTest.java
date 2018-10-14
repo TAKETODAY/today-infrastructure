@@ -56,7 +56,7 @@ public class AwareTest {
 		
 		ApplicationContext applicationContext = new DefaultApplicationContext();
 		
-		applicationContext.registerBean(AwareBean.class);
+		applicationContext.registerBeanDefinition(AwareBean.class);
 		applicationContext.onRefresh();
 		
 		AwareBean bean = applicationContext.getBean(AwareBean.class);

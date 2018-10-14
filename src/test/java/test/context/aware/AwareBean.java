@@ -22,10 +22,10 @@ package test.context.aware;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.factory.BeanFactory;
+
 import lombok.Getter;
 
 /**
@@ -35,7 +35,7 @@ import lombok.Getter;
  */
 @Singleton
 @Getter
-public class AwareBean implements ApplicationContextAware, BeanFactoryAware, BeanNameAware, BeanClassLoaderAware {
+public class AwareBean implements ApplicationContextAware, BeanFactoryAware, BeanNameAware {
 
 	private String				beanName;
 
@@ -60,10 +60,6 @@ public class AwareBean implements ApplicationContextAware, BeanFactoryAware, Bea
 		this.beanName = name;
 	}
 
-	@Override
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		this.classLoader = classLoader;
-	}
 
 	@Override
 	public String toString() {

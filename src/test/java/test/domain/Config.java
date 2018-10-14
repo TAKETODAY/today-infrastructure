@@ -2,6 +2,7 @@ package test.domain;
 
 import java.io.Serializable;
 
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.annotation.Value;
@@ -56,6 +57,9 @@ public final class Config implements Serializable {
 	@Value("#{site.otherFooterInfo}")
 	private String				otherFooterInfo;
 
+	@Autowired(required = false)
+	User user;
+	
 	public Config() {
 
 	}
@@ -69,10 +73,11 @@ public final class Config implements Serializable {
 				.append("\",\n\t\"siteName\":\"").append(siteName).append("\",\n\t\"copyright\":\"").append(copyright)
 				.append("\",\n\t\"baiduCode\":\"").append(baiduCode).append("\",\n\t\"serverPath\":\"")
 				.append(serverPath).append("\",\n\t\"description\":\"").append(description)
-				.append("\",\n\t\"otherFooterInfo\":\"").append(otherFooterInfo).append("\"\n}");
+				.append("\",\n\t\"otherFooterInfo\":\"").append(otherFooterInfo).append("\",\n\t\"user\":\"")
+				.append(user).append("\"\n}");
 		return builder.toString();
 	}
-	
-	
+
+
 
 }

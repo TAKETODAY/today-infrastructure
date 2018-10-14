@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
  *         2018-08-04 17:04
  */
 @NoArgsConstructor
-public class AnnotationException extends Exception {
+public class AnnotationException extends ContextException {
 
 	private static final long serialVersionUID = 9118846811977982992L;
 

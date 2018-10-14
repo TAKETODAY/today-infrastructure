@@ -17,31 +17,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.domain;
+package cn.taketoday.context.exception;
 
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Today <br>
- * 
- *         2018-09-06 15:30
+ * 	
+ *		2018-10-05 21:33
  */
-@Configuration
-public class ConfigurationBean {
+@NoArgsConstructor
+public class ContextException extends RuntimeException {
 
-	@Prototype
-	public User user() {
-		
-		return new User().setId(12);
+	private static final long serialVersionUID = -48874370885763615L;
+
+	
+	public ContextException(Throwable cause) {
+		super(cause);
+	}
+
+	public ContextException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public ContextException(String message) {
+		super(message);
 	}
 	
-	@Singleton
-	public User user__() {
-		
-		return new User().setId(12);
-	}
-
 	
 }
