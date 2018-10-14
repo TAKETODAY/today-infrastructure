@@ -37,5 +37,5 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping(method = RequestMethod.TRACE)
 public @interface TRACE {
 
-	String[] value();
+	String[] value() default "";
 }

@@ -207,6 +207,20 @@ public final class PathVariableAction {
 > ### @ActionProcessor @RestProcessor 改名 @Controller @RestController @RequestMapping
 > ### 更改包名cn.taketoday.web.core -> cn.taketoday.web
 
+## v2.2.3
+> ### 修复ServletContext 注入过晚
+> ### JSON.toJSON(invoke) -> JSON.toJSONString(invoke, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty)
+
+## v2.2.4
+
+- requestMapping.setAction(clazz.getSimpleName());
+
+## v2.3.0
+
+- 修复 path variable 参数不匹配
+- 增加 @Application注解，可注入ServletContxet Attribute
+- 重构参数转换器
+
 
 <br>
 <br>

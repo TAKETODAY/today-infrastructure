@@ -19,6 +19,12 @@
  */
 package cn.taketoday.web.handler;
 
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.web.mapping.HandlerMappingPool;
+import cn.taketoday.web.mapping.InterceptPool;
+import cn.taketoday.web.mapping.RegexMapping;
+import cn.taketoday.web.mapping.ViewMapping;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,13 +32,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.mapping.HandlerMappingPool;
-import cn.taketoday.web.mapping.InterceptPool;
-import cn.taketoday.web.mapping.RegexMapping;
-import cn.taketoday.web.mapping.ViewMapping;
 
 /**
  * 
@@ -56,11 +55,9 @@ public interface DispatchHandler<T> {
 	/**
 	 * Initialize view resolver and parameter resolver.
 	 * 
-	 * @param applicationContext
-	 *            application context
 	 * @throws ConfigurationException 
 	 */
-	public void doInit(WebApplicationContext applicationContext) throws ConfigurationException;
+	public void doInit() throws ConfigurationException;
 
 	/**
 	 * Resolve request and invoke HandlerMathod.

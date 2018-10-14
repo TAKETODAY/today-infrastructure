@@ -33,6 +33,7 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebApplicationContextAware;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.ViewResolver;
@@ -46,29 +47,24 @@ import lombok.extern.slf4j.Slf4j;
  *         2018-08-21 20:33 change
  */
 @Slf4j
-public abstract class AbstractHandler<T> implements DispatchHandler<T> {
+public abstract class AbstractHandler<T> implements DispatchHandler<T>, WebApplicationContextAware {
 
-	protected String				contextPath;
-
-	protected WebApplicationContext	applicationContext;
-
+	protected String contextPath;
 	/** view **/
-	protected ViewResolver			viewResolver;
+	protected ViewResolver viewResolver;
 	/** parameter **/
-	protected ParameterResolver		parameterResolver;
+	protected ParameterResolver parameterResolver;
+
+	protected WebApplicationContext applicationContext;
 
 	@Override
-	public void doInit(WebApplicationContext applicationContext) throws ConfigurationException {
+	public void doInit() throws ConfigurationException {
 
-		this.applicationContext = applicationContext;
 		try {
-
+			
 			viewResolver = applicationContext.getBean(Constant.VIEW_RESOLVER, AbstractViewResolver.class);
 			parameterResolver = applicationContext.getBean(Constant.PARAMETER_RESOLVER, ParameterResolver.class);
-
-			applicationContext.removeBean(Constant.VIEW_RESOLVER);
-			applicationContext.removeBean(Constant.PARAMETER_RESOLVER);
-
+			
 		} catch (NoSuchBeanDefinitionException ex) {
 			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
 		}
@@ -81,11 +77,11 @@ public abstract class AbstractHandler<T> implements DispatchHandler<T> {
 	 * Download file to client.
 	 * 
 	 * @param request
-	 *            current request
+	 *        current request
 	 * @param response
-	 *            current response
+	 *        current response
 	 * @param download
-	 *            file
+	 *        file
 	 * @throws IOException
 	 */
 	protected void downloadFile(HttpServletRequest request, HttpServletResponse response, File download)
@@ -109,5 +105,10 @@ public abstract class AbstractHandler<T> implements DispatchHandler<T> {
 		out.flush();
 		response.flushBuffer();
 	}
-	
+
+	@Override
+	public void setWebApplicationContext(WebApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
+
 }

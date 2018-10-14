@@ -33,12 +33,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JstlViewResolver extends AbstractViewResolver {
 
-	
 	@Override
 	public void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
-		
-		request.getRequestDispatcher(prefix + templateName + suffix).forward(request, response);
+
+		request.getRequestDispatcher(prefix + templateName + suffix)//
+				.forward(request, response);
 	}
 
 	@Override

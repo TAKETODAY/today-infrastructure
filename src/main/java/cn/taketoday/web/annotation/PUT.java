@@ -39,6 +39,6 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping(method = RequestMethod.PUT)
 public @interface PUT {
 
-	String[] value();
+	String[] value() default "";
 
 }

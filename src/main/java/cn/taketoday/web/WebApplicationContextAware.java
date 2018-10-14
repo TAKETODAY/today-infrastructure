@@ -19,24 +19,18 @@
  */
 package cn.taketoday.web;
 
+import cn.taketoday.context.aware.Aware;
+
 /**
  * @author Today <br>
- * @version 1.0
  * 
- * @version 2.0.0
- * @time 2018 1 ? - 2018 3 8 <br>
- *       <b>2.2.2.RELEASE -> 2018-08-23 14:53</b><br>
- *       <b>2.2.4.RELEASE -> 2018-09-09 18:37</b>
+ *         2018-09-14 20:17
  */
-public abstract class Version {
+public interface WebApplicationContextAware extends Aware {
 
-	public static String getVersion() {
-		return "2.2.4.RELEASE";
-	}
-
-	public static String[] getHistoryVersion() {
-		return new String[] { //
-				"1.0.0", "1.1.1", "2.0.0", "2.1.0.RELEASE", "2.2.0.RELEASE", "2.2.2.RELEASE", "2.2.3.RELEASE" //
-		};
-	}
+	/**
+	 * 
+	 * @param applicationContext
+	 */
+	void setWebApplicationContext(WebApplicationContext applicationContext);
 }

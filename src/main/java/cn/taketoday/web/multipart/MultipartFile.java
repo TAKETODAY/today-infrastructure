@@ -38,46 +38,47 @@ public interface MultipartFile extends Serializable {
 	 * @return upload file input stream
 	 * @throws IOException
 	 */
-	public InputStream getInputStream() throws IOException;
+	InputStream getInputStream() throws IOException;
 
 	/**
 	 * Get upload file content type.
 	 * 
 	 * @return upload file content type
 	 */
-	public String getContentType();
+	String getContentType();
 
 	/**
 	 * Return the size of the file in bytes.
 	 * 
 	 * @return the size of the file, or 0 if empty
 	 */
-	public long getSize();
+	long getSize();
 
 	/**
 	 * Gets the name of this part.
 	 *
 	 * @return The name of this part as a <tt>String</tt>
 	 */
-	public String getName();
+	String getName();
 
 	/**
-	 * Return the original filename in the client's filesystem.
+	 * Return the original filename in the client's file system.
 	 */
-	public String getFileName();
+	String getFileName();
 
 	/**
 	 * Save upload file to server.
 	 * 
 	 * @param dest
+	 *        the file path
 	 * @return
 	 */
-	public boolean save(File dest);
+	boolean save(File dest);
 
 	/**
 	 * 
 	 * @return
 	 */
-	public boolean isEmpty();
+	boolean isEmpty();
 
 }

@@ -19,22 +19,27 @@
  */
 package cn.taketoday.web;
 
+import cn.taketoday.context.StandardApplicationContext;
+
 import javax.servlet.ServletContext;
 
-import cn.taketoday.context.ClassPathApplicationContext;
+import lombok.NonNull;
 
 /**
- * @author Today
- * @date 2018年7月10日 下午1:16:17
+ * 
+ * @author Today <br>
+ *         2018-07-10 1:16:17
  */
-public class DefaultWebApplicationContext extends ClassPathApplicationContext implements WebApplicationContext {
+public class DefaultWebApplicationContext extends StandardApplicationContext implements WebApplicationContext {
 
 	private ServletContext servletContext;
-	
-	public DefaultWebApplicationContext() {
-		beanDefinitionRegistry.addExcludeName(Constant.class.getName());
-		beanDefinitionRegistry.addExcludeName(ServletContextAware.class.getName());
-		
+
+	public DefaultWebApplicationContext(@NonNull ServletContext servletContext) {
+		super();
+		this.servletContext = servletContext;
+		beanDefinitionRegistry.addExcludeName(Constant.class.getSimpleName());
+		beanDefinitionRegistry.addExcludeName(ServletContextAware.class.getSimpleName());
+
 		loadContext();
 	}
 
@@ -50,13 +55,14 @@ public class DefaultWebApplicationContext extends ClassPathApplicationContext im
 
 	@Override
 	protected void aware(Object bean, String name) {
-
 		super.aware(bean, name);
-		
+
 		if (bean instanceof ServletContextAware) {
 			((ServletContextAware) bean).setServletContext(servletContext);
 		}
+		if (bean instanceof WebApplicationContextAware) {
+			((WebApplicationContextAware) bean).setWebApplicationContext(this);
+		}
 	}
-
 
 }

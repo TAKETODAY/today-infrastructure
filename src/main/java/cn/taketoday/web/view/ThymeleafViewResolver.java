@@ -33,14 +33,14 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 
  * @author Today <br>
- * 		2018-06-26 11:26:01
+ *         2018-06-26 11:26:01
  */
 @Slf4j
 public class ThymeleafViewResolver extends AbstractViewResolver {
 
-	private TemplateEngine	templateEngine;
-	
-	private boolean			cacheable	= true;
+	private TemplateEngine templateEngine;
+
+	private boolean cacheable = true;
 
 	/**
 	 * init Thymeleaf View Resolver.
@@ -51,7 +51,7 @@ public class ThymeleafViewResolver extends AbstractViewResolver {
 		templateEngine = new TemplateEngine();
 
 		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
-		
+
 		templateResolver.setPrefix(prefix);
 		templateResolver.setSuffix(suffix);
 		templateResolver.setCacheable(cacheable);
@@ -61,7 +61,7 @@ public class ThymeleafViewResolver extends AbstractViewResolver {
 		templateEngine.setTemplateResolver(templateResolver);
 
 		log.info("Configuration Thymeleaf View Resolver Success.");
-		
+
 	}
 
 	/**
@@ -71,8 +71,8 @@ public class ThymeleafViewResolver extends AbstractViewResolver {
 	public void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
 
-		templateEngine.process(templateName, new WebContext(request, response, servletContext, locale),
-				response.getWriter());
+		templateEngine.process(templateName, //
+				new WebContext(request, response, servletContext, locale), response.getWriter());
 
 	}
 

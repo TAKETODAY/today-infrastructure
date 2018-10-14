@@ -39,7 +39,7 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping(method = RequestMethod.DELETE)
 public @interface DELETE {
 
-	String[] value();
+	String[] value() default "";
 
 }
 

@@ -37,5 +37,5 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping(method = RequestMethod.GET)
 public @interface GET {
 
-	String[] value();
+	String[] value() default "";
 }

@@ -35,9 +35,9 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public final class MethodParameter {
-
+	
 	/** 是否不能为空 */
-	private boolean		required	= false;
+	private boolean		required		= false;
 	/** 参数名 */
 	private String		parameterName;
 	/** 参数类型 */
@@ -45,11 +45,16 @@ public final class MethodParameter {
 	/** 泛型参数类型 */
 	private Class<?>	genericityClass;
 	/** 注解支持 */
-	private int			annotation	= Constant.ANNOTATION_NULL;
+	private byte		annotation		= Constant.ANNOTATION_NULL;
 	/**	*/
-	private int			pathIndex	= 0;
+	private int			pathIndex		= 0;
 	/** the default value */
 	private String		defaultValue;
+	
+	/**
+	 * @since 2.3.0
+	 */
+	private byte		parameterType	= Constant.TYPE_OTHER;
 
 	public MethodParameter(String parameterName, Class<?> parameterClass, boolean required) {
 		this.parameterName = parameterName;
@@ -74,20 +79,20 @@ public final class MethodParameter {
 		return annotation != Constant.ANNOTATION_NULL;
 	}
 
-	@Override
-	public String toString() {
-		return new StringBuilder()//
-				.append("{\n\t\"required\":\"")//
-				.append(required)//
-				.append("\",\n\t\"parameterName\":\"")//
-				.append(parameterName).append("\",\n\t\"parameterClass\":\"")//
-				.append(parameterClass)//
-				.append("\",\n\t\"genericityClass\":\"")//
-				.append(genericityClass)//
-				.append("\",\n\t\"annotation\":\"").append(annotation)//
-				.append("\",\n\t\"pathIndex\":\"")//
-				.append(pathIndex).append("\"\n}")//
-				.toString();
-	}
+//	@Override
+//	public String toString() {
+//		return new StringBuilder()//
+//				.append("{\n\t\"required\":\"")//
+//				.append(required)//
+//				.append("\",\n\t\"parameterName\":\"")//
+//				.append(parameterName).append("\",\n\t\"parameterClass\":\"")//
+//				.append(parameterClass)//
+//				.append("\",\n\t\"genericityClass\":\"")//
+//				.append(genericityClass)//
+//				.append("\",\n\t\"annotation\":\"").append(annotation)//
+//				.append("\",\n\t\"pathIndex\":\"")//
+//				.append(pathIndex).append("\"\n}")//
+//				.toString();
+//	}
 
 }

@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.view;
 
+import cn.taketoday.web.ServletContextAware;
+
 import java.util.Locale;
 
 import javax.servlet.ServletContext;
@@ -33,13 +35,18 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public abstract class AbstractViewResolver implements ViewResolver {
+public abstract class AbstractViewResolver implements ViewResolver ,ServletContextAware {
 
-	protected String		prefix			= "/WEB-INF/view";
-	protected String		suffix			= ".jsp";
+	protected String		prefix			= "/WEB-INF/ftl";
+	protected String		suffix			= ".ftl";
 	protected String		encoding		= "UTF-8";
 	protected Locale		locale			= Locale.CHINA;
 
 	ServletContext			servletContext	= null;
 
+	@Override
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
+	}
+	
 }

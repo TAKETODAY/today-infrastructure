@@ -17,26 +17,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web;
+package cn.taketoday.web.annotation;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
 /**
  * @author Today <br>
- * @version 1.0
  * 
- * @version 2.0.0
- * @time 2018 1 ? - 2018 3 8 <br>
- *       <b>2.2.2.RELEASE -> 2018-08-23 14:53</b><br>
- *       <b>2.2.4.RELEASE -> 2018-09-09 18:37</b>
+ *         2018-09-16 14:18
  */
-public abstract class Version {
+public @interface Application {
 
-	public static String getVersion() {
-		return "2.2.4.RELEASE";
-	}
+	/**
+	 * Servlet Context attribute name
+	 * 
+	 * @return
+	 */
+	String value() default "";
 
-	public static String[] getHistoryVersion() {
-		return new String[] { //
-				"1.0.0", "1.1.1", "2.0.0", "2.1.0.RELEASE", "2.2.0.RELEASE", "2.2.2.RELEASE", "2.2.3.RELEASE" //
-		};
-	}
 }

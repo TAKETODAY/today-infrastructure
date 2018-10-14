@@ -34,6 +34,6 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping(method = RequestMethod.PATCH)
 public @interface PATCH {
 	
-	String[] value();
+	String[] value() default "";
 
 }

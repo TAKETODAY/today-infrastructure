@@ -1,30 +1,12 @@
-﻿/**
- * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn Copyright
- * © Today & 2017 - 2018 All Rights Reserved.
- * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
- * details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
+﻿
 package cn.taketoday.web.utils;
 
 /**
  * @author:Topcat Tuppin <br>
  *                Last Modified:10,Mar,2001
- * 
  */
 public final class MD5 {
+	
 	/*
 	 * 下面这些S11-S44实际上是一个4*4的矩阵，在原始的C实现中是用#define 实现的， 这里把它们实现成为static
 	 * final是表示了只读，切能在同一个进程空间内的多个 Instance间共享
@@ -68,15 +50,6 @@ public final class MD5 {
 		String s = new String(ob);
 		return s;
 	}
-
-	// public static void main(String args[]) {
-	// MD5 m = new MD5();
-	// if (Array.getLength(args) == 0) {
-	// System.out.println("MD5('666'):" +
-	// m.getMD5Str(m.getMD5Str("666")).toLowerCase());
-	// } else
-	// System.out.println("MD5(" + args[0] + ")=" + m.getMD5Str(args[0]));
-	// }
 
 	/*
 	 * 下面的三个成员是MD5计算过程中用到的3个核心数据，在原始的C实现中 被定义到MD5_CTX结构中
@@ -343,4 +316,5 @@ public final class MD5 {
 		/// * Buffer remaining input */
 		md5Memcpy(buffer, inbuf, index, i, inputLen - i);
 	}
+	
 }

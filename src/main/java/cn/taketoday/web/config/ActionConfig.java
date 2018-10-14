@@ -19,30 +19,19 @@
  */
 package cn.taketoday.web.config;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.ComponentImpl;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebApplicationContextAware;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.ActionMappingImpl;
+import cn.taketoday.web.annotation.Application;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Cookie;
 import cn.taketoday.web.annotation.Header;
@@ -55,11 +44,33 @@ import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.Session;
 import cn.taketoday.web.handler.DispatchHandler;
-import cn.taketoday.web.interceptor.InterceptProcessor;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.mapping.RegexMapping;
+import cn.taketoday.web.ui.ExtendedModelMap;
+import cn.taketoday.web.ui.Model;
+import cn.taketoday.web.ui.ModelMap;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -70,11 +81,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Singleton(Constant.ACTION_CONFIG)
-public final class ActionConfig implements ApplicationContextAware {
+public final class ActionConfig implements WebApplicationContextAware {
 
-	private String					contextPath;
+	private String contextPath;
 
-	private WebApplicationContext	applicationContext;
+	private WebApplicationContext applicationContext;
 
 	public final String[] getDefaultUrlPatterns() {
 
@@ -84,7 +95,7 @@ public final class ActionConfig implements ApplicationContextAware {
 	}
 
 	public ActionConfig() {
-		
+
 	}
 
 	public void init() throws Exception {
@@ -100,13 +111,13 @@ public final class ActionConfig implements ApplicationContextAware {
 	 * 
 	 * @param scanPackage
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public final void setConfiguration() throws Exception {
 
-		Set<Class<?>> actions = ClassUtils.getClassCache();
+		Collection<Class<?>> actions = ClassUtils.getClassCache();
 		for (Class<?> clazz : actions) {
-			 
+
 			Controller actionProcessor = clazz.getAnnotation(Controller.class);
 			if (actionProcessor != null) {
 				Method[] declaredMethods = clazz.getDeclaredMethods();
@@ -114,7 +125,7 @@ public final class ActionConfig implements ApplicationContextAware {
 					this.setActionMapping(clazz, method, false);
 				}
 			}
-			
+
 			RestController restProcessor = clazz.getAnnotation(RestController.class);
 			if (restProcessor != null) {
 				Method[] declaredMethods = clazz.getDeclaredMethods();
@@ -136,20 +147,26 @@ public final class ActionConfig implements ApplicationContextAware {
 	 * 
 	 * @param clazz
 	 * @param method
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private final void setActionMapping(Class<?> clazz, Method method, boolean isRest) throws Exception {
 
 		Map<String, Set<RequestMethod>> mapping = new HashMap<>();
-		ActionMapping clazzMapping = clazz.getAnnotation(ActionMapping.class);
-		
-		annotation(mapping, method);
 
+		ActionMapping[] clazzMapping = ClassUtils.getClassAnntation(clazz, ActionMapping.class,
+				ActionMappingImpl.class);
+		ActionMapping clazzMapping_ = null;
+
+		if (clazzMapping != null && clazzMapping.length != 0) {
+			clazzMapping_ = clazzMapping[0];
+		}
+
+		annotation(mapping, method);
 		// set HandlerMapping
 		HandlerMapping requestMapping = this.createHandlerMapping(clazz, method, isRest);
 
 		// do map url
-		mappingUrl(requestMapping, clazzMapping, mapping);
+		mappingUrl(requestMapping, clazzMapping_, mapping);
 	}
 
 	/**
@@ -157,16 +174,16 @@ public final class ActionConfig implements ApplicationContextAware {
 	 * 
 	 * @param requestMapping
 	 * @param method
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private void annotation(Map<String, Set<RequestMethod>> requestMapping, Method method) throws Exception {
-		
+
 		ActionMapping[] mapping = ClassUtils.getMethodAnntation(method, ActionMapping.class, ActionMappingImpl.class);
-		
+
 		if (mapping.length == 0) {
-			return ;
+			return;
 		}
-		
+
 		for (ActionMapping actionMapping : mapping) {
 			String[] value = actionMapping.value();
 			for (String url : value) {
@@ -174,7 +191,7 @@ public final class ActionConfig implements ApplicationContextAware {
 				requestMapping.put(url, new HashSet<>(Arrays.asList(requestMethod_)));
 			}
 		}
-		
+
 	}
 
 	/**
@@ -213,7 +230,7 @@ public final class ActionConfig implements ApplicationContextAware {
 
 				//
 				url = url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
-				
+
 				// add the mapping
 				int index = DispatchHandler.HANDLER_MAPPING_POOL.add(requestMapping);
 
@@ -297,13 +314,13 @@ public final class ActionConfig implements ApplicationContextAware {
 	 * @param method
 	 * @param isRest
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	private final HandlerMapping createHandlerMapping(Class<?> clazz, Method method, boolean isRest) throws Exception {
 
 		HandlerMapping requestMapping = new HandlerMapping();
 		Parameter[] parameters = method.getParameters();
-		String[] methodArgsNames = ClassUtils.getMethodArgsNames(clazz, method);
+		String[] methodArgsNames = ClassUtils.getMethodArgsNames(method);
 
 		List<MethodParameter> methodParameters = new ArrayList<>();// 处理器方法参数列表
 		setMethodParameter(parameters, methodParameters, methodArgsNames); // 设置 MethodParameter
@@ -311,14 +328,13 @@ public final class ActionConfig implements ApplicationContextAware {
 		// 设置请求处理器
 		HandlerMethod methodInfo = new HandlerMethod(method, methodParameters);
 		requestMapping.setHandlerMethod(methodInfo);
-		
+
 		Component[] component = ClassUtils.getClassAnntation(clazz, Component.class, ComponentImpl.class);
-		
+
 		String[] value = component[0].value();
-		
-		if(value.length == 0 || "".equals(value[0])) {
-			requestMapping.setAction(clazz.getName());
-//		requestMapping.setAction(clazz.getSimpleName());
+
+		if (value.length == 0 || "".equals(value[0])) {
+			requestMapping.setAction(clazz.getSimpleName());
 		} else {
 			requestMapping.setAction(value[0]);
 		}
@@ -341,23 +357,62 @@ public final class ActionConfig implements ApplicationContextAware {
 
 			MethodParameter methodParameter = new MethodParameter();
 
-			methodParameter.setParameterClass(parameters[i].getType());// 设置参数类型
 			Class<?> parameterClass = parameters[i].getType();
-			if (parameterClass == List.class || parameterClass == Set.class) {
+			methodParameter.setParameterClass(parameterClass);// 设置参数类型
 
+			if (parameterClass == Set.class) {
+				methodParameter.setParameterType(Constant.TYPE_SET);
+				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
+				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[0]);
+			} else if (parameterClass == List.class) {
+				methodParameter.setParameterType(Constant.TYPE_LIST);
 				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
 				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[0]);
 			} else if (parameterClass == Map.class) {
-
+				methodParameter.setParameterType(Constant.TYPE_MAP);
 				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
 				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[1]);
+				// Model Map
+				if (methodParameter.getGenericityClass() == Object.class) {
+					methodParameter.setParameterType(Constant.TYPE_MODEL);
+				}
 			} else if (parameterClass == Optional.class) {
-
 				methodParameter.setRequired(false);
+				methodParameter.setParameterType(Constant.TYPE_OPTIONAL);
 				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
 				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[0]);
+			} else if (parameterClass == int.class || parameterClass == Integer.class) {
+				methodParameter.setParameterType(Constant.TYPE_INT);
+			} else if (parameterClass == long.class || parameterClass == Long.class) {
+				methodParameter.setParameterType(Constant.TYPE_LONG);
+			} else if (parameterClass == short.class || parameterClass == Short.class) {
+				methodParameter.setParameterType(Constant.TYPE_SHORT);
+			} else if (parameterClass == byte.class || parameterClass == Byte.class) {
+				methodParameter.setParameterType(Constant.TYPE_BYTE);
+			} else if (parameterClass == double.class || parameterClass == Double.class) {
+				methodParameter.setParameterType(Constant.TYPE_DOUBLE);
+			} else if (parameterClass == float.class || parameterClass == Float.class) {
+				methodParameter.setParameterType(Constant.TYPE_FLOAT);
+			} else if (parameterClass == boolean.class || parameterClass == Boolean.class) {
+				methodParameter.setParameterType(Constant.TYPE_BOOLEAN);
+			} else if (parameterClass == HttpServletRequest.class) {
+				methodParameter.setParameterType(Constant.TYPE_HTTP_SERVLET_REQUEST);
+			} else if (parameterClass == HttpServletResponse.class) {
+				methodParameter.setParameterType(Constant.TYPE_HTTP_SERVLET_RESPONSE);
+			} else if (parameterClass == HttpSession.class) {
+				methodParameter.setParameterType(Constant.TYPE_HTTP_SESSION);
+			} else if (parameterClass == ServletContext.class) {
+				methodParameter.setParameterType(Constant.TYPE_SERVLET_CONTEXT);
+			} else if (parameterClass == Model.class || parameterClass == ModelMap.class
+					|| parameterClass == ExtendedModelMap.class) {
+				methodParameter.setParameterType(Constant.TYPE_MODEL);
+			} else if (parameterClass == String.class) {
+				methodParameter.setParameterType(Constant.TYPE_STRING);
 			}
-
+			// array
+			if (parameterClass.isArray()) {
+				methodParameter.setParameterType(Constant.TYPE_ARRAY);
+			}
 			setAnnotation(parameters[i], methodParameter);// 设置注解
 
 			// 保证必须有参数名
@@ -397,7 +452,7 @@ public final class ActionConfig implements ApplicationContextAware {
 		Interceptor interceptors = clazz.getAnnotation(Interceptor.class);
 		if (interceptors != null) {
 			@SuppressWarnings("unchecked")
-			Class<InterceptProcessor>[] values = (Class<InterceptProcessor>[]) interceptors.value();
+			Class<HandlerInterceptor>[] values = (Class<HandlerInterceptor>[]) interceptors.value();
 			length = interceptors.value().length;
 			classInterceptor = addInterceptors(values);
 		}
@@ -407,7 +462,7 @@ public final class ActionConfig implements ApplicationContextAware {
 		Integer[] methodInterceptor = new Integer[0];
 		if (interceptors_ != null) {
 			@SuppressWarnings("unchecked")
-			Class<InterceptProcessor>[] values = (Class<InterceptProcessor>[]) interceptors_.value();
+			Class<HandlerInterceptor>[] values = (Class<HandlerInterceptor>[]) interceptors_.value();
 			length += interceptors_.value().length;
 			methodInterceptor = addInterceptors(values);
 		}
@@ -436,6 +491,7 @@ public final class ActionConfig implements ApplicationContextAware {
 		Cookie cookie = parameter.getAnnotation(Cookie.class); // cookie
 		Header header = parameter.getAnnotation(Header.class); // header
 		Session session = parameter.getAnnotation(Session.class); // session
+		Application application = parameter.getAnnotation(Application.class);
 
 		Multipart multipart = parameter.getAnnotation(Multipart.class); // 多段式
 		RequestBody requestBody = parameter.getAnnotation(RequestBody.class); // RequestBody
@@ -480,6 +536,11 @@ public final class ActionConfig implements ApplicationContextAware {
 			annotation = Constant.ANNOTATION_PATH_VARIABLE;
 		}
 
+		if (application != null) {
+			required = true;
+			parameterName = application.value();
+			annotation = Constant.ANNOTATION_SERVLET_CONTEXT;
+		}
 		methodParameter.setRequired(required)//
 				.setAnnotation(annotation)//
 				.setDefaultValue(defaultValue)//
@@ -492,11 +553,11 @@ public final class ActionConfig implements ApplicationContextAware {
 	 * @param interceptors
 	 * @return intercepters id
 	 */
-	private final Integer[] addInterceptors(Class<InterceptProcessor>[] interceptors) {
+	private final Integer[] addInterceptors(Class<HandlerInterceptor>[] interceptors) {
 
 		Integer[] ids = new Integer[interceptors.length];
 		int i = 0;
-		for (Class<InterceptProcessor> interceptor : interceptors) {
+		for (Class<HandlerInterceptor> interceptor : interceptors) {
 			int size = DispatchHandler.INTERCEPT_POOL.size();
 			try {
 				{
@@ -504,8 +565,13 @@ public final class ActionConfig implements ApplicationContextAware {
 					if (index >= 0) {
 						ids[i++] = index;
 					} else {
-						InterceptProcessor newInstance = interceptor.getDeclaredConstructor().newInstance();
-						if (DispatchHandler.INTERCEPT_POOL.add(newInstance)) {
+
+						BeanDefinition beanDefinition = applicationContext.getBeanDefinitionLoader()
+								.getBeanDefinition(interceptor);
+
+						Object newInstance = applicationContext.refresh(beanDefinition);
+
+						if (DispatchHandler.INTERCEPT_POOL.add((HandlerInterceptor) newInstance)) {
 							ids[i++] = size;
 						} else {
 							log.error("interceptor -> [{}] register error", interceptor);
@@ -520,8 +586,8 @@ public final class ActionConfig implements ApplicationContextAware {
 	}
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) {
-		this.applicationContext = (WebApplicationContext) applicationContext;
+	public void setWebApplicationContext(WebApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 
 }

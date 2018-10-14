@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultExceptionResolver implements ExceptionResolver {
 
 	@Override
-	public void resolveException(HttpServletRequest request, HttpServletResponse response, Exception ex) {
+	public void resolveException(HttpServletRequest request, HttpServletResponse response, Throwable ex) {
 
 		try {
 
@@ -61,8 +61,9 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 			}
 			response.flushBuffer();
 
-			log.error("ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
-		} catch (Exception handlerException) {
+			log.error("Catch Throwable: [{}] With Msg: [{}], caused by: [{}].", ex, ex.getMessage(), ex.getCause(), ex);
+
+		} catch (Throwable handlerException) {
 			log.error("Handling of [{}] resulted in Exception", ex.getClass().getName(), handlerException);
 		}
 	}

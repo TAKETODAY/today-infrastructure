@@ -20,12 +20,12 @@
 package cn.taketoday.web;
 
 /**
- * @author Today
- * @date 2018年6月27日 下午7:01:04
+ * 
+ * @author Today <br>
+ *         2018-06-27 19:01:04
  * @version 2.0.0
  */
 public enum RequestMethod {
 
 	GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS;
-	
 }

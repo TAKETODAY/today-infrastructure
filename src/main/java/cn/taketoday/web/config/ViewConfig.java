@@ -29,8 +29,9 @@ import cn.taketoday.web.mapping.ViewMapping;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today
- * @date 2018年6月23日 下午4:19:53
+ * 
+ * @author Today <br>
+ *         2018-06-23 16:19:53
  */
 @Slf4j
 public final class ViewConfig {

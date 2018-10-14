@@ -19,10 +19,10 @@
  */
 package cn.taketoday.web.mapping;
 
+import cn.taketoday.web.interceptor.HandlerInterceptor;
+
 import java.util.Arrays;
 import java.util.RandomAccess;
-
-import cn.taketoday.web.interceptor.InterceptProcessor;
 
 /**
  * intercept pool.
@@ -33,19 +33,19 @@ import cn.taketoday.web.interceptor.InterceptProcessor;
  */
 public final class InterceptPool implements RandomAccess, Cloneable, java.io.Serializable {
 
-	private static final long						serialVersionUID	= 8673264195747942595L;
+	private static final long serialVersionUID = 8673264195747942595L;
 
-	private transient volatile InterceptProcessor[]	array;
+	private transient volatile HandlerInterceptor[] array;
 
 	public InterceptPool() {
-		array = new InterceptProcessor[0];
+		array = new HandlerInterceptor[0];
 	}
 
 	public int size() {
 		return array.length;
 	}
 
-	private int indexOf(Class<InterceptProcessor> o, Object[] elements, int index, int fence) {
+	private int indexOf(Class<HandlerInterceptor> o, Object[] elements, int index, int fence) {
 
 		if (o == null) {
 			for (int i = index; i < fence; i++)
@@ -60,21 +60,21 @@ public final class InterceptPool implements RandomAccess, Cloneable, java.io.Ser
 		return -1;
 	}
 
-	public int indexOf(Class<InterceptProcessor> o) {
+	public int indexOf(Class<HandlerInterceptor> o) {
 		return indexOf(o, array, 0, array.length);
 	}
 
-	public InterceptProcessor[] toArray() {
+	public HandlerInterceptor[] toArray() {
 		return array;
 	}
 
-	public InterceptProcessor get(int index) {
+	public HandlerInterceptor get(int index) {
 		return array[index];
 	}
 
-	public boolean add(InterceptProcessor e) {
+	public boolean add(HandlerInterceptor e) {
 
-		InterceptProcessor[] newArray = new InterceptProcessor[array.length + 1];
+		HandlerInterceptor[] newArray = new HandlerInterceptor[array.length + 1];
 		System.arraycopy(array, 0, newArray, 0, array.length);
 		newArray[array.length] = e;
 		array = newArray;

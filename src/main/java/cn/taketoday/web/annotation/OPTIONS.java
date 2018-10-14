@@ -33,6 +33,5 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping(method = RequestMethod.OPTIONS)
 public @interface OPTIONS {
 
-	String[] value();
-
+	String[] value() default "";
 }

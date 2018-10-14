@@ -25,7 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.web.interceptor.InterceptProcessor;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -33,7 +33,7 @@ import cn.taketoday.web.interceptor.InterceptProcessor;
 public @interface Interceptor {
 
 	/**	配置拦截器 执行的先后顺序由拦截器的位置有关*/
-    Class<? extends InterceptProcessor>[] value() default {};
+    Class<? extends HandlerInterceptor>[] value() default {};
     
 }
 

@@ -24,22 +24,22 @@ import javax.servlet.ServletContext;
 import cn.taketoday.context.ApplicationContext;
 
 /**
- * @author Today
- * @date 2018年7月10日 下午1:13:57
+ * 
+ * @author Today <br>
+ * 		2018-07-10 13:13:57
  */
 public interface WebApplicationContext extends ApplicationContext {
 	
 	/**
 	 * Return the standard Servlet API ServletContext for this application.
 	 */
-	public ServletContext getServletContext();
+	ServletContext getServletContext();
 
 	/**
-	 * set ServletContext
+	 * Set ServletContext
 	 * 
 	 * @param servletContext
 	 */
-	public void setServletContext(ServletContext servletContext);
-	
+	void setServletContext(ServletContext servletContext);
 	
 }

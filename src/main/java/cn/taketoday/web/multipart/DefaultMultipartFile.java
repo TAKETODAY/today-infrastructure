@@ -27,8 +27,8 @@ import javax.servlet.http.Part;
 
 /**
  * 
- * @author Today
- * @date 2018年6月28日 下午10:40:32
+ * @author Today <br>
+ *         2018-06-28 22:40:32
  */
 public final class DefaultMultipartFile implements MultipartFile {
 
@@ -54,7 +54,6 @@ public final class DefaultMultipartFile implements MultipartFile {
 
 	public long getSize() {
 		return part.getSize();
-
 	}
 
 	/**
@@ -75,8 +74,9 @@ public final class DefaultMultipartFile implements MultipartFile {
 
 	/**
 	 * save file
+	 * 
 	 * @param dest
-	 * @return 
+	 * @return
 	 */
 	public boolean save(File dest) {
 

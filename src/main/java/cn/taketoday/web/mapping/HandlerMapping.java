@@ -46,7 +46,7 @@ public final class HandlerMapping implements Serializable {
 	private boolean				responseBody		= false;
 
 	public HandlerMapping() {
-
+		
 	}
 
 	@Override
