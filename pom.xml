@@ -7,9 +7,9 @@
 	<groupId>cn.taketoday</groupId>
 	<artifactId>today-web</artifactId>
 
-	<version>2.3.0.RELEASE</version>
+	<version>2.3.1.RELEASE</version>
 
-	<name>today-web-2.3.0.RELEASE</name>
+	<name>today-web-2.3.1.RELEASE</name>
 
 	<description>Today Web Framework</description>
 
