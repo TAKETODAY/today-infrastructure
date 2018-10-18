@@ -38,7 +38,7 @@ public interface ParameterResolver {
 	 * 
 	 * @param applicationContext
 	 *            application context
-	 * @throws ConfigurationException 
+	 * @throws ConfigurationException
 	 */
 	public void doInit(WebApplicationContext applicationContext) throws ConfigurationException;
 
@@ -61,10 +61,9 @@ public interface ParameterResolver {
 	 *            current request
 	 * @param response
 	 *            current response
-	 * @return bad request?
 	 * @throws Exception
 	 */
-	public boolean resolveParameter(Object[] args, MethodParameter[] parameters, HttpServletRequest request,
-			HttpServletResponse response) throws Exception;
+	public void resolveParameter(Object[] args, MethodParameter[] parameters, HttpServletRequest request,
+			HttpServletResponse response) throws Throwable;
 
 }

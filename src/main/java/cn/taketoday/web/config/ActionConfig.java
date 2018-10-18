@@ -43,16 +43,16 @@ import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.annotation.Session;
-import cn.taketoday.web.handler.DispatchHandler;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
-import cn.taketoday.web.mapping.RegexMapping;
-import cn.taketoday.web.ui.ExtendedModelMap;
+import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelMap;
 
+import java.awt.Image;
+import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
@@ -135,9 +135,9 @@ public final class ActionConfig implements WebApplicationContextAware {
 			}
 		}
 		// configure end
-		log.info("Interceptors conut {}", DispatchHandler.INTERCEPT_POOL.size());
-		log.info("Interceptors ->  [{}]", Arrays.toString(DispatchHandler.INTERCEPT_POOL.toArray()));
-		log.info("Action Mapped count [{}]", DispatchHandler.HANDLER_MAPPING_POOL.size());
+		log.info("Interceptors conut {}", DispatcherServlet.INTERCEPT_POOL.size());
+		log.info("Interceptors ->  [{}]", Arrays.toString(DispatcherServlet.INTERCEPT_POOL.toArray()));
+		log.info("Action Mapped count [{}]", DispatcherServlet.HANDLER_MAPPING_POOL.size());
 
 		return;
 	}
@@ -227,16 +227,15 @@ public final class ActionConfig implements WebApplicationContextAware {
 			for (RequestMethod requestMethod : mappingMethods) {
 				String requestMethod_ = requestMethod.toString() + Constant.REQUEST_METHOD_PREFIX;
 				url = requestMethod_ + contextPath + uri;
-
 				//
 				url = url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
 
 				// add the mapping
-				int index = DispatchHandler.HANDLER_MAPPING_POOL.add(requestMapping);
+				int index = DispatcherServlet.HANDLER_MAPPING_POOL.add(requestMapping);
 
 				this.createRegexUrl(url, requestMapping.getHandlerMethod().getParameter(), index, requestMethod_);
 
-				DispatchHandler.REQUEST_MAPPING.put(url, index);
+				DispatcherServlet.REQUEST_MAPPING.put(url, index);
 
 				log.info(
 						"Action Mapped [{}] -> [{}] interceptors -> {}", url, requestMapping.getAction() + "."
@@ -260,8 +259,8 @@ public final class ActionConfig implements WebApplicationContextAware {
 
 		String methodUrl = regexUrl;
 
-		regexUrl = regexUrl.replaceAll("\\*\\*", "[\\\\d|\\\\w|/]+");
-		regexUrl = regexUrl.replaceAll("\\*", "[\\\\d|\\\\w]+");
+		regexUrl = regexUrl.replaceAll(Constant.ANY_PATH, Constant.ANY_PATH_REGEXP);
+		regexUrl = regexUrl.replaceAll(Constant.ONE_PATH, Constant.ONE_PATH_REGEXP);
 
 		for (MethodParameter methodParameter : methodParameters) {
 
@@ -273,9 +272,9 @@ public final class ActionConfig implements WebApplicationContextAware {
 			String parameterName = methodParameter.getParameterName();
 
 			if (parameterClass == String.class) {
-				regexUrl = regexUrl.replace("{" + parameterName + "}", "\\w+");
+				regexUrl = regexUrl.replace("{" + parameterName + "}", Constant.STRING_REGEXP);
 			} else {
-				regexUrl = regexUrl.replace("{" + parameterName + "}", "\\d+");
+				regexUrl = regexUrl.replace("{" + parameterName + "}", Constant.NUMBER_REGEXP);
 			}
 
 			String[] splitRegex = methodUrl.split(Constant.PATH_VARIABLE_REGEXP);
@@ -291,10 +290,11 @@ public final class ActionConfig implements WebApplicationContextAware {
 					methodParameter.setPathIndex(i);
 				}
 			}
+			methodParameter
+					.setSplitMethodUrl(methodUrl.replace(requestMethod_, "").split(Constant.PATH_VARIABLE_REGEXP));
 		}
-		RegexMapping regexMapping = new RegexMapping(regexUrl, methodUrl.replace(requestMethod_, ""), index);
-		DispatchHandler.REGEX_URL.add(regexMapping);
-		log.info("regx url Mapped [{}]", regexMapping);
+		DispatcherServlet.REGEX_URL.put(regexUrl, index);
+		log.info("regx url Mapped [{}] -> [{}]", regexUrl, index);
 	}
 
 	/**
@@ -327,6 +327,9 @@ public final class ActionConfig implements WebApplicationContextAware {
 
 		// 设置请求处理器
 		HandlerMethod methodInfo = new HandlerMethod(method, methodParameters);
+
+		methodInfo.setReutrnType(reutrnType(method, method.getReturnType(), isRest));
+
 		requestMapping.setHandlerMethod(methodInfo);
 
 		Component[] component = ClassUtils.getClassAnntation(clazz, Component.class, ComponentImpl.class);
@@ -339,9 +342,46 @@ public final class ActionConfig implements WebApplicationContextAware {
 			requestMapping.setAction(value[0]);
 		}
 
-		setInterceptor(clazz, method, isRest, requestMapping);
+		setInterceptor(clazz, method, requestMapping);
 
 		return requestMapping;
+	}
+
+	/**
+	 * 
+	 * Resolve Handler Method's return type
+	 * 
+	 * @param method
+	 *            handler method
+	 * @param reutrnType_
+	 *            return type
+	 * @param isRest
+	 *            class rest?
+	 * @return
+	 */
+	private byte reutrnType(Method method, Class<?> reutrnType_, boolean isRest) {
+		// image
+		if (Image.class.isAssignableFrom(reutrnType_)) {
+			return Constant.RETURN_IMAGE;
+		}
+		// file
+		if (File.class == reutrnType_) {
+			return Constant.RETURN_FILE;
+		}
+		// void
+		if (void.class == reutrnType_) {
+			return Constant.RETURN_VOID;
+		}
+		// rest
+		ResponseBody annotation = method.getAnnotation(ResponseBody.class);
+		if (annotation != null) {
+			isRest = annotation.value();
+		}
+		// view
+		if (String.class == reutrnType_ && !isRest) {
+			return Constant.RETURN_VIEW;
+		}
+		return Constant.RETURN_JSON;
 	}
 
 	/***
@@ -360,16 +400,17 @@ public final class ActionConfig implements WebApplicationContextAware {
 			Class<?> parameterClass = parameters[i].getType();
 			methodParameter.setParameterClass(parameterClass);// 设置参数类型
 
-			if (parameterClass == Set.class) {
+			if (Set.class.isAssignableFrom(parameterClass)) {
 				methodParameter.setParameterType(Constant.TYPE_SET);
 				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
 				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[0]);
-			} else if (parameterClass == List.class) {
+			} else if (List.class.isAssignableFrom(parameterClass)) {
 				methodParameter.setParameterType(Constant.TYPE_LIST);
 				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
 				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[0]);
-			} else if (parameterClass == Map.class) {
+			} else if (Map.class.isAssignableFrom(parameterClass) && ModelMap.class != parameterClass) {
 				methodParameter.setParameterType(Constant.TYPE_MAP);
+
 				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
 				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[1]);
 				// Model Map
@@ -403,8 +444,8 @@ public final class ActionConfig implements WebApplicationContextAware {
 				methodParameter.setParameterType(Constant.TYPE_HTTP_SESSION);
 			} else if (parameterClass == ServletContext.class) {
 				methodParameter.setParameterType(Constant.TYPE_SERVLET_CONTEXT);
-			} else if (parameterClass == Model.class || parameterClass == ModelMap.class
-					|| parameterClass == ExtendedModelMap.class) {
+			} else if (parameterClass == Model.class || parameterClass == ModelMap.class) {
+
 				methodParameter.setParameterType(Constant.TYPE_MODEL);
 			} else if (parameterClass == String.class) {
 				methodParameter.setParameterType(Constant.TYPE_STRING);
@@ -436,15 +477,7 @@ public final class ActionConfig implements WebApplicationContextAware {
 	 * @param isRest
 	 * @param requestMapping
 	 */
-	private void setInterceptor(Class<?> clazz, Method method, boolean isRest, HandlerMapping requestMapping) {
-
-		ResponseBody responseBody = method.getAnnotation(ResponseBody.class);
-
-		if (responseBody != null) {
-			requestMapping.setResponseBody(responseBody.value());
-		} else {
-			requestMapping.setResponseBody(isRest);
-		}
+	private void setInterceptor(Class<?> clazz, Method method, HandlerMapping requestMapping) {
 
 		int length = 0;
 		Integer[] classInterceptor = new Integer[0];
@@ -548,7 +581,7 @@ public final class ActionConfig implements WebApplicationContextAware {
 	}
 
 	/***
-	 * register intercepter id into intercepters pool
+	 * Register intercepter id into intercepters pool
 	 * 
 	 * @param interceptors
 	 * @return intercepters id
@@ -558,10 +591,10 @@ public final class ActionConfig implements WebApplicationContextAware {
 		Integer[] ids = new Integer[interceptors.length];
 		int i = 0;
 		for (Class<HandlerInterceptor> interceptor : interceptors) {
-			int size = DispatchHandler.INTERCEPT_POOL.size();
+			int size = DispatcherServlet.INTERCEPT_POOL.size();
 			try {
 				{
-					int index = DispatchHandler.INTERCEPT_POOL.indexOf(interceptor); // 获得对象的位置
+					int index = DispatcherServlet.INTERCEPT_POOL.indexOf(interceptor); // 获得对象的位置
 					if (index >= 0) {
 						ids[i++] = index;
 					} else {
@@ -571,7 +604,7 @@ public final class ActionConfig implements WebApplicationContextAware {
 
 						Object newInstance = applicationContext.refresh(beanDefinition);
 
-						if (DispatchHandler.INTERCEPT_POOL.add((HandlerInterceptor) newInstance)) {
+						if (DispatcherServlet.INTERCEPT_POOL.add((HandlerInterceptor) newInstance)) {
 							ids[i++] = size;
 						} else {
 							log.error("interceptor -> [{}] register error", interceptor);

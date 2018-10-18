@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.mapping;
 
+import cn.taketoday.web.Constant;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +44,13 @@ public final class HandlerMethod {
 	/** parameter list **/
 	private MethodParameter[]	parameter	= null;
 
+	/**
+	 * use switch case instead of if else
+	 * 
+	 * @since 2.3.1
+	 */
+	private byte				reutrnType  = Constant.RETURN_VOID;
+	
 	public HandlerMethod(Method method, List<MethodParameter> parameters) {
 		this.method = method;
 		this.parameter = parameters.toArray(new MethodParameter[0]);

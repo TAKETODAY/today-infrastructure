@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.ui;
 
+import java.util.Enumeration;
 import java.util.Map;
 
 /**
@@ -26,7 +27,7 @@ import java.util.Map;
  * @author Today <br>
  *         2018-10-14 20:30
  */
-public interface Model {
+public interface Model extends Map<String, Object>{
 
 	/**
 	 * Add the supplied attribute under the supplied name.
@@ -43,14 +44,7 @@ public interface Model {
 	 * 
 	 * @see #addAttribute(String, Object)
 	 */
-	Model addAllAttributes(Map<String, ?> attributes);
-
-	/**
-	 * Copy all attributes in the supplied {@code Map} into this {@code Map}, with
-	 * existing objects of the same name taking precedence (i.e. not getting
-	 * replaced).
-	 */
-	Model mergeAttributes(Map<String, ?> attributes);
+	Model addAllAttributes(Map<String, Object> attributes);
 
 	/**
 	 * Does this model contain an attribute of the given name?
@@ -65,5 +59,17 @@ public interface Model {
 	 * Return the current set of model attributes as a Map.
 	 */
 	Map<String, Object> asMap();
+	
+	/**
+	 * 
+	 * @param name
+	 */
+	void removeAttribute(String name);
 
+	/**
+	 * 
+	 * @return
+	 */
+	Enumeration<String> getAttributeNames();
+	
 }

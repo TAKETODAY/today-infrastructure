@@ -26,17 +26,25 @@ package cn.taketoday.web;
  * @version 2.0.0
  * @time 2018 1 ? - 2018 3 8 <br>
  *       <b>2.2.2.RELEASE -> 2018-08-23 14:53</b><br>
- *       <b>2.2.4.RELEASE -> 2018-09-09 18:37</b>
+ *       <b>2.2.4.RELEASE -> 2018-09-09 18:37</b><br>
+ *       <b>2.3.1.RELEASE -> 2018-10-18 20:26</b><br>
  */
 public abstract class Version {
 
 	public static String getVersion() {
-		return "2.2.4.RELEASE";
+		return "2.3.1.RELEASE";
 	}
 
 	public static String[] getHistoryVersion() {
 		return new String[] { //
-				"1.0.0", "1.1.1", "2.0.0", "2.1.0.RELEASE", "2.2.0.RELEASE", "2.2.2.RELEASE", "2.2.3.RELEASE" //
+				"1.0.0", //
+				"1.1.1", //
+				"2.0.0", //
+				"2.1.0.RELEASE", //
+				"2.2.0.RELEASE", //
+				"2.2.2.RELEASE", //
+				"2.2.3.RELEASE", //
+				"2.3.0.RELEASE" //
 		};
 	}
 }

@@ -26,15 +26,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author Today
- * @date 2018年6月29日 下午4:27:12
+ * 
+ * @author Today <br>
+ *         2018-06-29 16:27:12
  */
-@Target({ElementType.PARAMETER})
+@Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface PathVariable {
 
-    String value() default "";
-    
-}
+	String value() default "";
 
+}

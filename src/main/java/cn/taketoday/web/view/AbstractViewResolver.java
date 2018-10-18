@@ -35,7 +35,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public abstract class AbstractViewResolver implements ViewResolver ,ServletContextAware {
+public abstract class AbstractViewResolver implements ViewResolver, ServletContextAware {
 
 	protected String		prefix			= "/WEB-INF/ftl";
 	protected String		suffix			= ".ftl";

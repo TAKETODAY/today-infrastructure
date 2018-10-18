@@ -19,15 +19,15 @@
  */
 package cn.taketoday.web.view;
 
+import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.web.WebApplicationContext;
+
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.web.WebApplicationContext;
 import freemarker.ext.jsp.TaglibFactory;
 import freemarker.ext.servlet.AllHttpScopesHashModel;
 import freemarker.ext.servlet.HttpRequestHashModel;
@@ -40,50 +40,50 @@ import freemarker.template.ObjectWrapper;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModelException;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  * @author Today <br>
- * 		2018-06-26 19:16:46
+ *         2018-06-26 19:16:46
  */
 @Slf4j
 public class FreeMarkerViewResolver extends AbstractViewResolver {
 
 	private ObjectWrapper wrapper;
+	@Getter
 	private Configuration configuration;
 	private TaglibFactory taglibFactory;
-	
+
 	@Props(prefix = "freemarker.", replace = true)
 	private Properties props;
 
-	public static final String	KEY_REQUEST				= "Request";
-	public static final String	KEY_REQUEST_PRIVATE		= "__FreeMarkerServlet.Request__";
-	public static final String	KEY_REQUEST_PARAMETERS	= "RequestParameters";
-	public static final String	KEY_SESSION				= "Session";
-	public static final String	KEY_APPLICATION			= "Application";
-	public static final String	KEY_APPLICATION_PRIVATE	= "__FreeMarkerServlet.Application__";
-	public static final String	KEY_JSP_TAGLIBS			= "JspTaglibs";
+	public static final String KEY_REQUEST = "Request";
+	public static final String KEY_SESSION = "Session";
+	public static final String KEY_JSP_TAGLIBS = "JspTaglibs";
+	public static final String KEY_APPLICATION = "Application";
+	public static final String KEY_REQUEST_PARAMETERS = "RequestParameters";
 
 	@Override
 	public void initViewResolver(WebApplicationContext applicationContext) throws ConfigurationException {
-		
+
 		this.taglibFactory = new TaglibFactory(servletContext);
-		this.configuration = new Configuration(Configuration.VERSION_2_3_23);
-		this.wrapper = new DefaultObjectWrapper(Configuration.VERSION_2_3_23);
-		
+		this.configuration = new Configuration(Configuration.VERSION_2_3_28);
+		this.wrapper = new DefaultObjectWrapper(Configuration.VERSION_2_3_28);
+
 		configuration.setLocale(locale);
 		configuration.setObjectWrapper(wrapper);
 		configuration.setDefaultEncoding(encoding);
 		configuration.setServletContextForTemplateLoading(servletContext, prefix); // prefix -> /WEB-INF/..
 
 		try {
-			
+
 			configuration.setSettings(props);
 		} catch (TemplateException e) {
-			throw new ConfigurationException("FreeMarker Properties Error.");
+			throw new ConfigurationException("Set FreeMarker's Properties Error.");
 		}
-		
+
 		log.info("Configuration FreeMarker View Resolver Success.");
 	}
 
@@ -101,24 +101,20 @@ public class FreeMarkerViewResolver extends AbstractViewResolver {
 	 */
 	private final TemplateHashModel createModel(HttpServletRequest request, HttpServletResponse response)
 			throws TemplateModelException {
-		
-		AllHttpScopesHashModel model = new AllHttpScopesHashModel(wrapper, servletContext, request);
-		
-		// Create hash model wrapper for servlet context (the application)
-		ServletContextHashModel servletContextModel = new ServletContextHashModel(servletContext, wrapper);
-		
-		model.putUnlistedModel(KEY_APPLICATION, servletContextModel);
-		model.putUnlistedModel(KEY_JSP_TAGLIBS, this.taglibFactory);
 
-		// Create hash model wrapper for session
-		HttpSession session = request.getSession();
-
-		model.putUnlistedModel(KEY_SESSION, new HttpSessionHashModel(session, wrapper));
-		// Create hash model wrapper for request
-		model.putUnlistedModel(KEY_REQUEST, new HttpRequestHashModel(request, response, wrapper));
-		model.putUnlistedModel(KEY_REQUEST_PARAMETERS, new HttpRequestParametersHashModel(request));
-
-		return model;
+		return new AllHttpScopesHashModel(wrapper, servletContext, request) {
+			private static final long serialVersionUID = -0;
+			{
+				// Create hash model wrapper for servlet context (the application)
+				putUnlistedModel(KEY_APPLICATION, new ServletContextHashModel(servletContext, wrapper));
+				putUnlistedModel(KEY_JSP_TAGLIBS, FreeMarkerViewResolver.this.taglibFactory);
+				// Create hash model wrapper for session
+				putUnlistedModel(KEY_SESSION, new HttpSessionHashModel(request.getSession(), wrapper));
+				// Create hash model wrapper for request
+				putUnlistedModel(KEY_REQUEST, new HttpRequestHashModel(request, response, wrapper));
+				putUnlistedModel(KEY_REQUEST_PARAMETERS, new HttpRequestParametersHashModel(request));
+			}
+		};
 	}
 
 	/**
@@ -129,7 +125,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver {
 			throws Exception {
 
 		configuration.getTemplate(templateName + suffix)//
-						.process(createModel(request, response), response.getWriter());
+				.process(createModel(request, response), response.getWriter());
 	}
 
 }

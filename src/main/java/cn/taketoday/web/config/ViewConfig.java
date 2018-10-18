@@ -19,13 +19,16 @@
  */
 package cn.taketoday.web.config;
 
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.mapping.ViewMapping;
+import cn.taketoday.web.servlet.ViewDispatcher;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.handler.DispatchHandler;
-import cn.taketoday.web.mapping.ViewMapping;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -36,8 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class ViewConfig {
 
-	public void init(Element element) throws Exception {
-
+	public void init(Element element, String contextPath) throws Exception {
 		// <common/> element
 		String prefix = element.getAttribute(Constant.ATTR_PREFIX); // prefix
 		String suffix = element.getAttribute(Constant.ATTR_SUFFIX); // suffix
@@ -46,34 +48,47 @@ public final class ViewConfig {
 		for (int i = 0; i < nl.getLength(); i++) {
 			Node node = nl.item(i);
 			if (node instanceof Element) {
-				process(element, prefix, suffix, node);
+				process(element, prefix, suffix, node, contextPath);
 			}
 		}
 	}
 
 	/**
-	 * put mapping
+	 * process
 	 * 
 	 * @param element
-	 * @param baseDir
+	 * @param prefix
 	 * @param suffix
 	 * @param node
+	 * @param contextPath
+	 * @throws ConfigurationException
 	 */
-	private void process(Element element, String baseDir, String suffix, Node node) {
+	private void process(Element element, String prefix, String suffix, Node node, String contextPath)
+			throws ConfigurationException {
+
 		ViewMapping mapping = new ViewMapping();
 		Element view = (Element) node;
 		String name = view.getAttribute(Constant.ATTR_NAME); // request uri
 		String res = view.getAttribute(Constant.ATTR_ASSET); // res
-		String returnType = element.getAttribute(Constant.ATTR_TYPE); // return type
+		String returnType = view.getAttribute(Constant.ATTR_TYPE); // return type
 
-		if (Constant.REDIRECT_URL_PREFIX.equals(returnType)) {
-			mapping.setReturnType(Constant.TYPE_REDIRECT);
+		if (StringUtils.isEmpty(res)) {
+			throw new ConfigurationException(
+					"You must specify a 'res' attribute like this: [<view res=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]");
 		}
-		mapping.setAssetsPath(baseDir + res + suffix);
 
-		name = (name.startsWith("/") ? name : "/" + name);
+		res = prefix + res + suffix;
+		if (Constant.VALUE_REDIRECT.equals(returnType)) {// redirect
+			mapping.setReturnType(Constant.TYPE_REDIRECT);
+			if (!res.startsWith(Constant.HTTP)) {
+				res = contextPath + res;
+			}
+		}
 
-		DispatchHandler.VIEW_REQUEST_MAPPING.put(name, mapping);
+		mapping.setAssetsPath(res);
+
+		name = contextPath + (name.startsWith("/") ? name : "/" + name);
+		ViewDispatcher.VIEW_REQUEST_MAPPING.put(name, mapping);
 		log.info("View Mapped [{} -> {}]", name, mapping);
 	}
 

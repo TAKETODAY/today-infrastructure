@@ -45,6 +45,7 @@ public final class Json implements Serializable {
 	public Json(boolean success) {
 		this.success = success;
 	}
+	
 	public Json(boolean success, String msg) {
 		this.success = success;
 		this.msg = msg;

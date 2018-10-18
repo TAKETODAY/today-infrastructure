@@ -221,6 +221,12 @@ public final class PathVariableAction {
 - 增加 @Application注解，可注入ServletContxet Attribute
 - 重构参数转换器
 
+## v2.3.1
+- 修复@Application 空指针
+- 重构 `ViewDispatcher`
+- 重构 `DispatcherServlet`
+- 优化 path variable 参数注入
+
 
 <br>
 <br>

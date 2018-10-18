@@ -42,17 +42,17 @@ public final class HandlerMapping implements Serializable {
 	private HandlerMethod		handlerMethod;
 	/** 拦截器 */
 	private Integer[]			interceptors;
-	/** 响应方式 */
-	private boolean				responseBody		= false;
-
+	
 	public HandlerMapping() {
 		
 	}
 
 	@Override
 	public String toString() {
-		return "[action=" + action + ", HandlerMethod=" + handlerMethod.getMethod().getName()
-				+ ", interceptors=" + Arrays.toString(interceptors) + ", responseBody=" + responseBody + "]";
+		return new StringBuilder()//
+				.append("{\"action\":\"").append(action)//
+				.append("\",\"handlerMethod\":\"").append(handlerMethod)//
+				.append("\",\"interceptors\":\"").append(Arrays.toString(interceptors)).append("\"}")//
+				.toString();
 	}
-
 }

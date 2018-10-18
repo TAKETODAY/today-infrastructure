@@ -56,6 +56,12 @@ public final class MethodParameter {
 	 */
 	private byte		parameterType	= Constant.TYPE_OTHER;
 
+	/**
+	 * @since 2.3.1
+	 */
+	private String[]	splitMethodUrl  = null;
+
+	
 	public MethodParameter(String parameterName, Class<?> parameterClass, boolean required) {
 		this.parameterName = parameterName;
 		this.parameterClass = parameterClass;

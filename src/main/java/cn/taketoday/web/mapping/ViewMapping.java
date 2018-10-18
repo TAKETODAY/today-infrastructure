@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.mapping;
 
+import cn.taketoday.web.Constant;
+
 import java.io.Serializable;
 
 import lombok.Getter;
@@ -40,7 +42,7 @@ public final class ViewMapping implements Serializable {
 
 	private static final long	serialVersionUID	= -8130348090936881368L;
 	/** 返回类型 */
-	private int					returnType			= 0;					// default -> dispatcher
+	private int					returnType			= Constant.TYPE_FORWARD; // default -> forward
 	/** 资源路径 */
 	private String				assetsPath			= "";
 

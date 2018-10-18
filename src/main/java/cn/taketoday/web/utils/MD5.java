@@ -1,5 +1,4 @@
-﻿
-package cn.taketoday.web.utils;
+﻿package cn.taketoday.web.utils;
 
 /**
  * @author:Topcat Tuppin <br>

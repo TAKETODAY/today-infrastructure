@@ -17,35 +17,33 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.ui;
+package cn.taketoday.web.event;
 
-import java.util.Map;
+import cn.taketoday.context.event.ApplicationEvent;
+import cn.taketoday.web.WebApplicationContext;
 
-public class ExtendedModelMap extends ModelMap implements Model {
+/**
+ * @author Today <br>
+ * 
+ *         2018-10-18 14:06
+ */
+public class ApplicationStartedEvent extends ApplicationEvent {
 
-	private static final long serialVersionUID = 347423614962447380L;
+	private static final long serialVersionUID = -2786104286663018066L;
 
-	@Override
-	public ExtendedModelMap addAttribute(String attributeName, Object attributeValue) {
-		super.addAttribute(attributeName, attributeValue);
-		return this;
+	final WebApplicationContext applicationContext;
+
+	public ApplicationStartedEvent(WebApplicationContext applicationContext) {
+		super(applicationContext);
+		this.applicationContext = applicationContext;
 	}
 
-	@Override
-	public ExtendedModelMap addAllAttributes(Map<String, ?> attributes) {
-		super.addAllAttributes(attributes);
-		return this;
-	}
-
-	@Override
-	public ExtendedModelMap mergeAttributes(Map<String, ?> attributes) {
-		super.mergeAttributes(attributes);
-		return this;
-	}
-
-	@Override
-	public Map<String, Object> asMap() {
-		return this;
+	/**
+	 * 
+	 * @return
+	 */
+	public WebApplicationContext getApplicationContext() {
+		return applicationContext;
 	}
 
 }

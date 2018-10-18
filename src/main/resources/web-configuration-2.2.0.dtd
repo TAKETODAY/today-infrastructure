@@ -21,7 +21,7 @@
 <!ELEMENT view (#PCDATA)>
 	<!ATTLIST view
 		res CDATA #REQUIRED
-		type (dispatcher|redirect) #IMPLIED
+		type (forward|redirect) #IMPLIED
 		name CDATA #REQUIRED
 	>
 

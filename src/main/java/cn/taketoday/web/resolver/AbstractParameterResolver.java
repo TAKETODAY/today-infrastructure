@@ -71,7 +71,9 @@ public abstract class AbstractParameterResolver implements ParameterResolver, Ob
 	@Override
 	@SuppressWarnings("unchecked")
 	public final void doInit(WebApplicationContext applicationContext) throws ConfigurationException {
-
+		
+		this.servletContext = applicationContext.getServletContext();
+		
 		log.info("Loading ParameterConverter Extensions");
 		try {
 
@@ -138,7 +140,7 @@ public abstract class AbstractParameterResolver implements ParameterResolver, Ob
 	}
 
 	@Override
-	public abstract boolean resolveParameter(Object[] args, MethodParameter[] parameters, HttpServletRequest request,
-			HttpServletResponse response) throws Exception;
+	public abstract void resolveParameter(Object[] args, MethodParameter[] parameters, HttpServletRequest request,
+			HttpServletResponse response) throws Throwable;
 
 }

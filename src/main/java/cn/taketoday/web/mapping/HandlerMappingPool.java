@@ -33,7 +33,7 @@ public final class HandlerMappingPool implements RandomAccess, Cloneable, java.i
 	private static final long					serialVersionUID	= -1108959675710066622L;
 
 	/** pool **/
-	private transient volatile HandlerMapping[]	array;
+	private transient HandlerMapping[]	array;
 
 	public HandlerMappingPool() {
 		array = new HandlerMapping[0];

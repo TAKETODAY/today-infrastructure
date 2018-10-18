@@ -27,8 +27,7 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.DefaultWebApplicationContext;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.handler.ActionHandler;
-import cn.taketoday.web.handler.DispatchHandler;
+import cn.taketoday.web.event.ApplicationStartedEvent;
 import cn.taketoday.web.multipart.AbstractMultipartResolver;
 import cn.taketoday.web.multipart.DefaultMultipartResolver;
 import cn.taketoday.web.resolver.DefaultExceptionResolver;
@@ -50,6 +49,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.Servlet;
@@ -89,7 +89,7 @@ public final class WebApplicationContextLoader implements ServletContextListener
 	private static WebApplicationContext applicationContext;
 
 	public WebApplicationContextLoader() {
-		
+
 	}
 
 	public static WebApplicationContext getWebApplicationContext() {
@@ -193,7 +193,8 @@ public final class WebApplicationContextLoader implements ServletContextListener
 				{
 					case ELEMENT_COMMON :
 						log.info("Start Configure Views.");
-						new ViewConfig().init(ele); // view init
+						// view init
+						new ViewConfig().init(ele, applicationContext.getServletContext().getContextPath());
 						break;
 					case ELEMENT_STATIC_RESOURCES :
 						String staticMapping = ele.getAttribute(ATTR_MAPPING);
@@ -358,30 +359,32 @@ public final class WebApplicationContextLoader implements ServletContextListener
 	private void doRegisterServlet()
 			throws ServletException, NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-		Set<String> urls = DispatchHandler.VIEW_REQUEST_MAPPING.keySet();
+		Set<String> urls = ViewDispatcher.VIEW_REQUEST_MAPPING.keySet();
 
 		ServletContext servletContext = applicationContext.getServletContext();
-		if (urls.size() > 0) {
-			log.info("Register Views Dispatcher.");
-			Servlet viewServlet = new ViewDispatcher();
-			servletContext.addServlet(VIEW_DISPATCHER, viewServlet);
+		if (urls.size() > 0) {// register
+			log.info("Register View Dispatcher Servlet: [{}].", ViewDispatcher.class);
+			applicationContext.registerBeanDefinition(VIEW_DISPATCHER, ViewDispatcher.class);
+			applicationContext.refresh(VIEW_DISPATCHER);
 
+			Servlet viewServlet = applicationContext.getBean(ViewDispatcher.class);
+
+			servletContext.addServlet(VIEW_DISPATCHER, viewServlet);
 			ServletRegistration registration = servletContext.getServletRegistration(VIEW_DISPATCHER);
-			registration.addMapping(urls.toArray(new String[0]));
+			String contextPath = servletContext.getContextPath();
+
+			registration.addMapping(urls.stream()//
+					.map(ac -> ac.replaceFirst(contextPath, ""))//
+					.collect(Collectors.toSet())//
+					.toArray(new String[0]));
 		}
 
-		if (DispatchHandler.HANDLER_MAPPING_POOL.size() < 1) {
+		if (DispatcherServlet.HANDLER_MAPPING_POOL.size() < 1) {
 			return;
 		}
 
-		if (!applicationContext.containsBeanDefinition(ACTION_HANDLER)) {
-			log.info("Register Action Handler -> [{}].", ActionHandler.class);
-			applicationContext.registerBeanDefinition(ACTION_HANDLER, ActionHandler.class);
-			applicationContext.refresh(ACTION_HANDLER);
-		}
-
 		if (!applicationContext.containsBeanDefinition(DISPATCHER_SERVLET)) {
-			log.info("Register Dispatcher Servlet -> [{}].", DispatcherServlet.class);
+			log.info("Register Dispatcher Servlet: [{}].", DispatcherServlet.class);
 			applicationContext.registerBeanDefinition(DISPATCHER_SERVLET, DispatcherServlet.class);
 			applicationContext.refresh(DISPATCHER_SERVLET);
 		}
@@ -422,13 +425,13 @@ public final class WebApplicationContextLoader implements ServletContextListener
 			String[] defaultUrlPatterns = actionConfig.getDefaultUrlPatterns();
 
 			servletRegistration.addMapping(defaultUrlPatterns);
-			log.debug("add default servlet default mapping -> {}.", Arrays.toString(defaultUrlPatterns));
+			log.debug("Add default servlet default mapping: {}.", Arrays.toString(defaultUrlPatterns));
 			return;
 		}
 
 		servletRegistration.addMapping(staticMapping);
 
-		log.debug("add default servlet mapping -> {}.", servletRegistration.getMappings());
+		log.debug("Add default servlet mapping: [{}].", servletRegistration.getMappings());
 	}
 
 	/**
@@ -445,7 +448,7 @@ public final class WebApplicationContextLoader implements ServletContextListener
 
 		applicationContext.getServletContext().addServlet(DEFAULT, servlet);
 
-		log.debug("no default servlet registration , create.");
+		log.debug("No default servlet registration , Create.");
 		return servlet;
 	}
 
@@ -474,7 +477,7 @@ public final class WebApplicationContextLoader implements ServletContextListener
 
 		servletRegistration.addMapping(defaultUrlPatterns);
 
-		log.debug("add default servlet default mapping -> {}.", Arrays.toString(defaultUrlPatterns));
+		log.debug("Add default servlet default mapping: {}.", Arrays.toString(defaultUrlPatterns));
 	}
 
 	/**
@@ -487,25 +490,25 @@ public final class WebApplicationContextLoader implements ServletContextListener
 		if (!applicationContext.containsBeanDefinition(EXCEPTION_RESOLVER)) {
 			applicationContext.registerBeanDefinition(EXCEPTION_RESOLVER, DefaultExceptionResolver.class);
 			applicationContext.refresh(EXCEPTION_RESOLVER);
-			log.info("use default exception resolver -> [{}].", DefaultExceptionResolver.class);
+			log.info("Use default exception resolver: [{}].", DefaultExceptionResolver.class);
 		}
 		if (!applicationContext.containsBeanDefinition(MULTIPART_RESOLVER)) {
 			// default multipart resolver
 			applicationContext.registerBeanDefinition(MULTIPART_RESOLVER, DefaultMultipartResolver.class);
 			applicationContext.refresh(MULTIPART_RESOLVER);
-			log.info("use default multipart resolver -> [{}].", DefaultMultipartResolver.class);
+			log.info("Use default multipart resolver: [{}].", DefaultMultipartResolver.class);
 		}
 		if (!applicationContext.containsBeanDefinition(VIEW_RESOLVER)) {
 			// use jstl view resolver
 			applicationContext.registerBeanDefinition(VIEW_RESOLVER, FreeMarkerViewResolver.class);
 			applicationContext.refresh(VIEW_RESOLVER);
-			log.info("use default view resolver -> [{}].", FreeMarkerViewResolver.class);
+			log.info("Use default view resolver: [{}].", FreeMarkerViewResolver.class);
 		}
 		if (!applicationContext.containsBeanDefinition(PARAMETER_RESOLVER)) {
 			// use default parameter resolver
 			applicationContext.registerBeanDefinition(PARAMETER_RESOLVER, DefaultParameterResolver.class);
 			applicationContext.refresh(PARAMETER_RESOLVER);
-			log.info("use default parameter resolver -> [{}].", DefaultParameterResolver.class);
+			log.info("Use default parameter resolver: [{}].", DefaultParameterResolver.class);
 		}
 	}
 
@@ -517,7 +520,7 @@ public final class WebApplicationContextLoader implements ServletContextListener
 
 		long start = System.currentTimeMillis(); // start millis
 
-		log.info("your application starts to be initialized at -> {}.",
+		log.info("Your Application Starts To Be Initialized At: [{}].",
 				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
 		ServletContext servletContext = sce.getServletContext();
@@ -536,7 +539,7 @@ public final class WebApplicationContextLoader implements ServletContextListener
 			log.info("Start Configure Actions.");
 
 			ActionConfig actionConfig = applicationContext.getBean(ACTION_CONFIG, ActionConfig.class);
-			
+
 			actionConfig.init();
 
 			// check all resolver
@@ -552,10 +555,12 @@ public final class WebApplicationContextLoader implements ServletContextListener
 			applicationContext.loadSuccess();
 			// init end
 		} catch (Throwable ex) {
-			log.error("Initialized ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
+			log.error("Initialized ERROR: [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
 		}
 
-		log.info("Your Application Started Successfully, It takes a total of {} ms.",
+		applicationContext.publishEvent(new ApplicationStartedEvent(applicationContext));
+
+		log.info("Your Application Started Successfully, It takes a total of [{}] ms.",
 				System.currentTimeMillis() - start);
 	}
 
@@ -566,7 +571,7 @@ public final class WebApplicationContextLoader implements ServletContextListener
 	private void removeFrameWorkBeanDefinitions() throws NoSuchBeanDefinitionException {
 		applicationContext.removeBeanDefinition(ACTION_CONFIG);
 		applicationContext.removeBeanDefinition(VIEW_RESOLVER);
-		applicationContext.removeBeanDefinition(ACTION_HANDLER);
+		applicationContext.removeBeanDefinition(VIEW_DISPATCHER);
 		applicationContext.removeBeanDefinition(EXCEPTION_RESOLVER);
 		applicationContext.removeBeanDefinition(DISPATCHER_SERVLET);
 		applicationContext.removeBeanDefinition(MULTIPART_RESOLVER);
@@ -579,7 +584,8 @@ public final class WebApplicationContextLoader implements ServletContextListener
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
 		applicationContext.close();
-		log.info("your application destroyed at: {}.", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+		log.info("Your application destroyed at: [{}].",
+				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 	}
 
 }

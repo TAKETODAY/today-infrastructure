@@ -19,14 +19,12 @@
  */
 package cn.taketoday.web;
 
-import java.io.Serializable;
-
 /**
  * 
  * @author Today <br>
  *         2018,1,6 2018 1 16
  */
-public interface Constant extends Serializable {
+public interface Constant extends cn.taketoday.context.Constant {
 
 	String	CONVERT_METHOD						= "doConvert";
 
@@ -41,7 +39,6 @@ public interface Constant extends Serializable {
 
 	// Resolver
 	String	VIEW_RESOLVER						= "viewResolver";
-	String	ACTION_HANDLER						= "actionHandler";
 	String	EXCEPTION_RESOLVER					= "exceptionResolver";
 	String	MULTIPART_RESOLVER					= "multipartResolver";
 	String	PARAMETER_RESOLVER					= "parameterResolver";
@@ -49,6 +46,15 @@ public interface Constant extends Serializable {
 	// the dtd
 	String	DTD_NAME							= "web-configuration";
 
+	String 	COLLECTION_PARAM_REGEXP				= "(\\[|\\]|\\.)";
+	String 	MAP_PARAM_REGEXP					= "(\\['|\\']|\\.)";
+	String 	REPLACE_REGEXP						= "\\\\";
+	String 	NUMBER_REGEXP						= "\\d+";
+	String 	STRING_REGEXP						= "\\w+";
+	String 	ONE_PATH							= "\\*";
+	String 	ANY_PATH							= "\\*\\*";
+	String 	ONE_PATH_REGEXP						= "[\\\\d|\\\\w]+";
+	String 	ANY_PATH_REGEXP						= "[\\\\d|\\\\w|/]+";
 	String	PATH_VARIABLE_REGEXP				= "\\{(\\w+)\\}";
 
 	// config
@@ -63,9 +69,12 @@ public interface Constant extends Serializable {
 	String	ATTR_SUFFIX							= "suffix";
 	String	ATTR_BASE_PACKAGE					= "base-package";
 
+	String  VALUE_FORWARD 						= "forward";
+	String  VALUE_REDIRECT 						= "redirect";
+	
 	String	ELEMENT_EXCEPTION_RESOLVER			= "exception-resolver";
 	String	ELEMENT_PARAMETER_RESOLVER			= "parameter-resolver";
-
+	
 	String	ELEMENT_VIEW_RESOLVER				= "view-resolver";
 	String	ELEMENT_VIEW_PREFIX					= "view-prefix";
 	String	ELEMENT_VIEW_LOCALE					= "view-locale";
@@ -83,7 +92,7 @@ public interface Constant extends Serializable {
 	String	ELEMENT_STATIC_RESOURCES			= "static-resources";
 	String	ROOT_ELEMENT						= "Web-Configuration";
 
-	int		TYPE_DISPATCHER						= 0x00;
+	int		TYPE_FORWARD						= 0x00;
 	int		TYPE_REDIRECT						= 0x01;
 
 	byte	ANNOTATION_NULL						= 0x00;
@@ -123,21 +132,36 @@ public interface Constant extends Serializable {
 	
 	byte	TYPE_OPTIONAL						= 0x11;
 	byte	TYPE_MODEL							= 0x12;
-	
 	/**
 	 * END
 	 * 
 	 **************************************************/
+		
+	/**************************************************
+	 * return type
+	 * 
+	 */
+
+	byte RETURN_VOID							= 0x00;
+	byte RETURN_JSON							= 0x01;
+	byte RETURN_VIEW							= 0x02;
+
+	byte RETURN_FILE							= 0x03;
+	byte RETURN_IMAGE							= 0x04;
 	
-
+	
+	/**
+	 * end
+	 **************************************************/
+	
 	String	CONTENT_TYPE_JSON					= "application/json;charset=UTF-8";
-
 	String	APPLICATION_X_WWW_FORM_URLENCODED	= "application/x-www-form-urlencoded";
-
 	String	REDIRECT_URL_PREFIX					= "redirect:";
+	String	BLANK								= "";
+	String	IMAGE_PNG							= "png";
 	String	HTTP								= "http";
+	String	HTTPS								= "https";
 	String	REQUEST_METHOD_PREFIX				= ":";
-
 	// font
 	String	DEFAULT_FONT						= "Verdana";
 
@@ -242,6 +266,11 @@ public interface Constant extends Serializable {
 	 * {@code "Content-Location"}
 	 */
 	String	CONTENT_LOCATION					= "Content-Location";
+	
+	/**
+	 * {@code "Content-Disposition"}
+	 */
+	String 	CONTENT_DISPOSITION					= "Content-Disposition";
 	/**
 	 * {@code "Content-Transfer-Encoding"}
 	 */
@@ -566,4 +595,9 @@ public interface Constant extends Serializable {
 	String	WEBSOCKET							= "WebSocket";
 
 	String	XML_HTTP_REQUEST					= "XMLHttpRequest";
+	
+	String APPLICATION_FORCE_DOWNLOAD  			= "application/force-download;";
+
+	String ATTACHMENT_FILE_NAME					= "attachment;filename=\"";
+	
 }

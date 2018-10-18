@@ -19,11 +19,11 @@
  */
 package cn.taketoday.web.view;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.web.WebApplicationContext;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 
@@ -53,6 +53,6 @@ public interface ViewResolver {
 	 *            current response
 	 * @throws Exception
 	 */
-	void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response) throws Exception;
+	void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response) throws Throwable;
 
 }

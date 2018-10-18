@@ -35,7 +35,7 @@ public final class InterceptPool implements RandomAccess, Cloneable, java.io.Ser
 
 	private static final long serialVersionUID = 8673264195747942595L;
 
-	private transient volatile HandlerInterceptor[] array;
+	private transient HandlerInterceptor[] array;
 
 	public InterceptPool() {
 		array = new HandlerInterceptor[0];

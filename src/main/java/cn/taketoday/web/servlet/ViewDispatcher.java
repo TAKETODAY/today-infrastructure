@@ -19,23 +19,28 @@
  */
 package cn.taketoday.web.servlet;
 
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.mapping.ViewMapping;
+import cn.taketoday.web.resolver.ExceptionResolver;
+import cn.taketoday.web.view.ViewResolver;
+
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.handler.DispatchHandler;
-import cn.taketoday.web.mapping.ViewMapping;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  * @author Today <br>
  * 
- * 		2018-06-25 19:48:28
+ *         2018-06-25 19:48:28
  * @version 2.0.0
  */
 @Slf4j
@@ -43,41 +48,49 @@ public final class ViewDispatcher extends HttpServlet {
 
 	private static final long serialVersionUID = 7842118161452996065L;
 
+	@Autowired(Constant.VIEW_RESOLVER)
+	protected transient ViewResolver viewResolver;
+	/** exception Resolver */
+	@Autowired(Constant.EXCEPTION_RESOLVER)
+	private transient ExceptionResolver exceptionResolver;
+	/** view 视图映射池 */
+	public static final Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>(8);
+
 	@Override
 	protected final void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		final String contextPath = request.getContextPath();
-		
-		ViewMapping mapping = DispatchHandler.VIEW_REQUEST_MAPPING.get(request.getRequestURI().replace(contextPath, ""));
-		if(mapping == null) {
+		final ViewMapping mapping = VIEW_REQUEST_MAPPING.get(request.getRequestURI());
+
+		if (mapping == null) {
 			response.sendError(404);
-			return ;
+			return;
 		}
-		// 转到相应页面
-		final String assetsPath = mapping.getAssetsPath();
-		switch (mapping.getReturnType()) 
-		{
-			case Constant.TYPE_DISPATCHER:
-				request.getRequestDispatcher(assetsPath).forward(request, response);
-				return;
-			case Constant.TYPE_REDIRECT:
-				if(assetsPath.startsWith("http")) {
-					response.sendRedirect(assetsPath);
-					return ;
-				}
-				response.sendRedirect(contextPath + "/" + assetsPath);
-				return;
-			default:
-				response.sendError(500);
-				return;
+
+		try {
+
+			// 转到相应页面
+			switch (mapping.getReturnType())
+			{
+				case Constant.TYPE_FORWARD :
+					viewResolver.resolveView(mapping.getAssetsPath(), request, response);
+					return;
+				case Constant.TYPE_REDIRECT :
+					response.sendRedirect(mapping.getAssetsPath());
+					return;
+				default:
+					response.sendError(500);// never get there
+					return;
+			}
+
+		} catch (Throwable e) {
+			exceptionResolver.resolveException(request, response, e);
 		}
 	}
 
 	@Override
 	public void destroy() {
-
-		log.debug("------ Views Dispatcher SHUTDOWN -------");
+		log.info("------ Views Dispatcher SHUTDOWN -------");
 	}
 
 }

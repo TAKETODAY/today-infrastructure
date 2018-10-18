@@ -23,8 +23,6 @@ import cn.taketoday.context.StandardApplicationContext;
 
 import javax.servlet.ServletContext;
 
-import lombok.NonNull;
-
 /**
  * 
  * @author Today <br>
@@ -34,12 +32,13 @@ public class DefaultWebApplicationContext extends StandardApplicationContext imp
 
 	private ServletContext servletContext;
 
-	public DefaultWebApplicationContext(@NonNull ServletContext servletContext) {
+	public DefaultWebApplicationContext() {
 		super();
-		this.servletContext = servletContext;
-		beanDefinitionRegistry.addExcludeName(Constant.class.getSimpleName());
-		beanDefinitionRegistry.addExcludeName(ServletContextAware.class.getSimpleName());
+	}
 
+	public DefaultWebApplicationContext(ServletContext servletContext) {
+		this();
+		this.servletContext = servletContext;
 		loadContext();
 	}
 

@@ -19,73 +19,37 @@
  */
 package cn.taketoday.web.ui;
 
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 
  * @author Today <br>
  *         2018-10-14 20:29
  */
-public class ModelMap extends HashMap<String, Object> {
+public final class ModelMap implements Model {
 
-	private static final long serialVersionUID = 1086694108147798005L;
+	protected final HttpServletRequest request;
 
-	/**
-	 * Construct a new, empty {@code ModelMap}.
-	 */
-	public ModelMap() {
+	public ModelMap(HttpServletRequest request) {
+		this.request = request;
 	}
 
-	/**
-	 * Construct a new {@code ModelMap} containing the supplied attribute under the
-	 * supplied name.
-	 * 
-	 * @see #addAttribute(String, Object)
-	 */
-	public ModelMap(String attributeName, Object attributeValue) {
-		addAttribute(attributeName, attributeValue);
-	}
-
-	/**
-	 * Add the supplied attribute under the supplied name.
-	 * 
-	 * @param attributeName
-	 *            the name of the model attribute (never {@code null})
-	 * @param attributeValue
-	 *            the model attribute value (can be {@code null})
-	 */
+	@Override
 	public ModelMap addAttribute(String attributeName, Object attributeValue) {
-		put(attributeName, attributeValue);
+		request.setAttribute(attributeName, attributeValue);
 		return this;
 	}
 
-	/**
-	 * Copy all attributes in the supplied {@code Map} into this {@code Map}.
-	 * 
-	 * @see #addAttribute(String, Object)
-	 */
-	public ModelMap addAllAttributes(Map<String, ?> attributes) {
-		if (attributes != null) {
-			putAll(attributes);
-		}
-		return this;
-	}
-
-	/**
-	 * Copy all attributes in the supplied {@code Map} into this {@code Map}, with
-	 * existing objects of the same name taking precedence (i.e. not getting
-	 * replaced).
-	 */
-	public ModelMap mergeAttributes(Map<String, ?> attributes) {
-		if (attributes != null) {
-			attributes.forEach((key, value) -> {
-				if (!containsKey(key)) {
-					put(key, value);
-				}
-			});
-		}
+	@Override
+	public ModelMap addAllAttributes(Map<String, Object> attributes) {
+		attributes.forEach(request::setAttribute);
 		return this;
 	}
 
@@ -97,7 +61,110 @@ public class ModelMap extends HashMap<String, Object> {
 	 * @return whether this model contains a corresponding attribute
 	 */
 	public boolean containsAttribute(String attributeName) {
-		return containsKey(attributeName);
+		return request.getAttribute(attributeName) == null;
+	}
+
+	@Override
+	public Map<String, Object> asMap() {
+		Map<String, Object> map = new HashMap<>();
+		Enumeration<String> attributeNames = request.getAttributeNames();
+		while (attributeNames.hasMoreElements()) {
+			String name = attributeNames.nextElement();
+			map.put(name, request.getAttribute(name));
+		}
+		return map;
+	}
+
+	@Override
+	public void removeAttribute(String name) {
+		request.removeAttribute(name);
+	}
+
+	@Override
+	public Enumeration<String> getAttributeNames() {
+		return request.getAttributeNames();
+	}
+
+	@Override
+	public int size() {
+		int size = 0;
+		Enumeration<String> attributeNames = request.getAttributeNames();
+		while (attributeNames.hasMoreElements()) {
+			size++;
+		}
+		return size;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return size() == 0;
+	}
+
+	@Override
+	public boolean containsKey(Object key) {
+		return containsAttribute((String) key);
+	}
+
+	@Override
+	public boolean containsValue(Object value) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Object get(Object key) {
+		return request.getAttribute((String) key);
+	}
+
+	@Override
+	public Object put(String key, Object value) {
+		request.setAttribute(key, value);
+		return null;
+	}
+
+	@Override
+	public Object remove(Object name) {
+		request.removeAttribute((String) name);
+		return null;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public void putAll(Map<? extends String, ? extends Object> attributes) {
+		addAllAttributes((Map<String, Object>) attributes);
+	}
+	
+
+	@Override
+	public void clear() {
+		Enumeration<String> attributeNames = request.getAttributeNames();
+		while (attributeNames.hasMoreElements()) {
+			request.removeAttribute(attributeNames.nextElement());
+		}
+	}
+
+	@Override
+	public Set<String> keySet() {
+		Set<String> keySet = new HashSet<>();
+		Enumeration<String> attributeNames = request.getAttributeNames();
+		while (attributeNames.hasMoreElements()) {
+			keySet.add(attributeNames.nextElement());
+		}
+		return keySet;
+	}
+
+	@Override
+	public Collection<Object> values() {
+		Set<Object> valueSet = new HashSet<>();
+		Enumeration<String> attributeNames = request.getAttributeNames();
+		while (attributeNames.hasMoreElements()) {
+			valueSet.add(request.getAttribute(attributeNames.nextElement()));
+		}
+		return valueSet;
+	}
+
+	@Override
+	public Set<Entry<String, Object>> entrySet() {
+		throw new UnsupportedOperationException();
 	}
 
 }

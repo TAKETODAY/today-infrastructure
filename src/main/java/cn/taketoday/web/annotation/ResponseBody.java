@@ -26,10 +26,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
-@Target({METHOD})
+@Target({ METHOD })
 public @interface ResponseBody {
 
-	//响应方式	默认true
+	// 响应方式 默认true
 	boolean value() default true;
-	
+
 }
