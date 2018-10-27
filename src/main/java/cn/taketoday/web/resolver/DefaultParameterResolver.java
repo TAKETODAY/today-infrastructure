@@ -366,8 +366,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			throw new BadRequestException(
 					"Path variable: '" + methodParameterName + "' can't be resolve, bad request.");
 		}
-		throw new BadRequestException(
-				"Path variable: '" + methodParameterName + "' can't be resolve, bad request.");
+		throw new BadRequestException("Path variable: '" + methodParameterName + "' can't be resolve, bad request.");
 	}
 
 	/**
@@ -560,19 +559,19 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	 */
 	private final Map<String, Object> resolveMapParameter(HttpServletRequest request, String methodParameterName,
 			MethodParameter methodParameter) throws Throwable {
-		
+
 		Enumeration<String> parameterNames = request.getParameterNames();// 所有参数名
 		Map<String, Object> map = new HashMap<>();
-		
+
 		// parameter class
 		Class<?> clazz = methodParameter.getGenericityClass();
 		while (parameterNames.hasMoreElements()) {
 			// users%5B%27today_1%27%5D.userId=434&users%5B%27today%27%5D.age=43&users%5B%27today%27%5D.userName=434&users%5B%27today%27%5D.sex=%E7%94%B7&users%5B%27today%27%5D.passwd=4343
 			String requestParameter = parameterNames.nextElement();
 			if (requestParameter.startsWith(methodParameterName)) { // users['today'].userName=TODAY&users['today'].age=20
-				
+
 				String[] keyList = requestParameter.split(Constant.MAP_PARAM_REGEXP); // [users, today, , userName]
-				
+
 				String key = keyList[1];// 得到key
 				Object newInstance = map.get(key);// 没有就是空值
 				if (newInstance == null) {

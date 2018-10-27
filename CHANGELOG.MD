@@ -222,19 +222,20 @@ public final class PathVariableAction {
 - 重构参数转换器
 
 ## v2.3.1
+![LOGO](https://taketoday.cn/display.action?userId=666)
 - 修复@Application 空指针
-- 重构 `ViewDispatcher`
-- 重构 `DispatcherServlet`
-- 优化 path variable 参数注入
+- [重构 `ViewDispatcher`](/src/main/java/cn/taketoday/web/servlet/ViewDispatcher.java)
+- [重构 `DispatcherServlet`](/src/main/java/cn/taketoday/web/servlet/DispatcherServlet.java)
+- [优化 path variable 参数注入](/src/main/java/cn/taketoday/web/resolver/DefaultParameterResolver.java#L337)
+- [修复exception resolver InvocationTargetException](/src/main/java/cn/taketoday/web/resolver/DefaultExceptionResolver.java#L49)
+- [优化requestBody注解参数注入](/src/main/java/cn/taketoday/web/resolver/DefaultParameterResolver.java#L304)
+- [优化MultipartResolver](/src/main/java/cn/taketoday/web/multipart/CommonsMultipartResolver.java#L80)
+- [update web-configuration-2.3.0.dtd](/src/main/resources/web-configuration-2.3.0.dtd)
+- [增加WebMvcConfigLocation，自定义web-mvc配置文件路径，加快启动速度](/src/main/java/cn/taketoday/web/Constant.java#L51)
+- 去掉Optional类型参数
 
-## v2.3.1
-- 修复exception resolver InvocationTargetException
-- 修复requestBody注解参数注入错误
-- 优化MultipartResolver
-- update web-configuration-2.3.0.dtd
-- 增加WebMvcConfigLocation，自定义web-mvc配置文件路径，如果没有启动有点耗时
-- 修复URI 后缀为 '/' 不能匹配
-- 去掉optional参数
+## v2.3.2
+- fix #1
 
 <br>
 <br>

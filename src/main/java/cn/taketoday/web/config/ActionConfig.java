@@ -307,7 +307,7 @@ public final class ActionConfig implements WebApplicationContextAware {
 	 * @return
 	 */
 	private final String check(String uri) {
-		return uri.startsWith("/") ? uri : "/" + uri;
+		return StringUtils.isEmpty(uri) ? uri : (uri.startsWith("/") ? uri : "/" + uri);
 	}
 
 	/**
@@ -402,7 +402,7 @@ public final class ActionConfig implements WebApplicationContextAware {
 
 			Class<?> parameterClass = parameters[i].getType();
 			methodParameter.setParameterClass(parameterClass);
-			
+
 			byte parameterType = Constant.TYPE_OTHER;
 			Class<?> genericityClass = null;
 			if (Set.class.isAssignableFrom(parameterClass)) {
@@ -472,9 +472,16 @@ public final class ActionConfig implements WebApplicationContextAware {
 
 			setAnnotation(parameters[i], methodParameter);// 设置注解
 
-			methodParameter.setGenericityClass(genericityClass);
+			// 保证必须有参数名
+			if (StringUtils.isEmpty(methodParameter.getParameterName())) {
+				String parameterName = parameters[i].getName();
+				if (parameterName.matches("arg[\\d]+")) {
+					parameterName = methodArgsNames[i];
+				}
+				methodParameter.setParameterName(parameterName);
+			}
 
-			methodParameter.setParameterName( methodArgsNames[i]);
+			methodParameter.setGenericityClass(genericityClass);
 			methodParameters.add(methodParameter); // 加入到参数列表
 		}
 	}
