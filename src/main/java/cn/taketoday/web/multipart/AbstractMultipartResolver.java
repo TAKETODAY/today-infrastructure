@@ -27,19 +27,19 @@ import lombok.Setter;
 /**
  * 
  * @author Today <br>
- * 		2018-07-11 12:23:50
+ *         2018-07-11 12:23:50
  */
 @Setter
 @Getter
 public abstract class AbstractMultipartResolver implements MultipartResolver {
 
-	protected String	location			= System.getProperty("java.io.tmpdir");
+	protected String location = System.getProperty("java.io.tmpdir");
 
-	protected String	encoding			= "UTF-8";
-	protected long		maxFileSize			= 2048000;								// every single file
-	protected long		maxRequestSize		= 204800000;							// total size in every single request
-	protected int		fileSizeThreshold	= 2048000000;							// cache
-	
+	protected String encoding = "UTF-8";
+	protected long maxFileSize = 2048000; // every single file
+	protected long maxRequestSize = 204800000; // total size in every single request
+	protected int fileSizeThreshold = 2048000000; // cache
+
 	@Override
 	public boolean isMultipart(HttpServletRequest request) {
 
@@ -49,5 +49,5 @@ public abstract class AbstractMultipartResolver implements MultipartResolver {
 		String contentType = request.getContentType();
 		return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
 	}
-	
+
 }

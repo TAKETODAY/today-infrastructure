@@ -227,6 +227,14 @@ public final class PathVariableAction {
 - 重构 `DispatcherServlet`
 - 优化 path variable 参数注入
 
+## v2.3.1
+- 修复exception resolver InvocationTargetException
+- 修复requestBody注解参数注入错误
+- 优化MultipartResolver
+- update web-configuration-2.3.0.dtd
+- 增加WebMvcConfigLocation，自定义web-mvc配置文件路径，如果没有启动有点耗时
+- 修复URI 后缀为 '/' 不能匹配
+- 去掉optional参数
 
 <br>
 <br>

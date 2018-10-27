@@ -19,33 +19,33 @@
  */
 package cn.taketoday.web.multipart;
 
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.exception.BadRequestException;
+import cn.taketoday.web.mapping.MethodParameter;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
-import cn.taketoday.web.exception.BadRequestException;
-import cn.taketoday.web.exception.FileSizeLimitExceededException;
-import cn.taketoday.web.mapping.MethodParameter;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  * @author Today <br>
  *         2018-07-11 0:57:31
  */
-@Slf4j
 @NoArgsConstructor
 public final class CommonsMultipartResolver extends AbstractMultipartResolver {
+
+	private ServletFileUpload servletFileUpload = new ServletFileUpload(new DiskFileItemFactory());
 
 	@Override
 	public boolean isMultipart(HttpServletRequest request) {
@@ -54,130 +54,117 @@ public final class CommonsMultipartResolver extends AbstractMultipartResolver {
 
 	@Override
 	public Object resolveMultipart(HttpServletRequest request, String methodParameterName,
-			MethodParameter methodParameter) throws Exception {
+			MethodParameter methodParameter) throws BadRequestException {
 
-		ServletFileUpload servletFileUpload = new ServletFileUpload(new DiskFileItemFactory());
 		servletFileUpload.setHeaderEncoding(encoding);
 		servletFileUpload.setFileSizeMax(maxFileSize);
 		servletFileUpload.setSizeMax(maxRequestSize);
 		try {
-			List<FileItem> fileItems = servletFileUpload.parseRequest(request);
-			return parseFileItems(fileItems, methodParameter.getParameterClass(), methodParameterName, methodParameter);
 
-		} catch (FileUploadBase.SizeLimitExceededException ex) {
-			log.error("the request was rejected because its size exceeds the configured maximum -> [{}] bytes",
-					maxRequestSize);
-			throw new FileSizeLimitExceededException(maxRequestSize, ex);
-		} catch (FileUploadBase.FileSizeLimitExceededException ex) {
-			log.error("The upload file exceeds its maximum permitted size -> [{}] bytes", methodParameterName,
-					maxFileSize);
-			throw new FileSizeLimitExceededException(maxFileSize, ex);
+			return parseFileItems(servletFileUpload.parseRequest(request), methodParameterName, methodParameter);
 		} catch (FileUploadException ex) {
-			log.error("ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
-			throw new BadRequestException("Failed to parse multipart servlet request", ex);
+			throw new BadRequestException(
+					"Failed to parse multipart servlet request With Msg:[" + ex.getMessage() + "]", ex);
 		}
 	}
 
 	/**
-	 * Parse file items.
+	 * Parse file items
 	 * 
 	 * @param fileItems
-	 * @param parameterClass
 	 * @param methodParameterName
+	 * @param methodParameter
 	 * @return
 	 * @throws BadRequestException
 	 */
-	private Object parseFileItems(List<FileItem> fileItems, Class<?> parameterClass, String methodParameterName,
-			MethodParameter methodParameter) throws BadRequestException {
+	private Object parseFileItems(List<FileItem> fileItems, String methodParameterName, MethodParameter methodParameter)
+			throws BadRequestException {
 
-		if (parameterClass == MultipartFile.class) {
-			if (fileItems.isEmpty()) {
-				throw new BadRequestException("bad request.");
-			}
-			return new CommonsMultipartFile(fileItems.get(0));
-		} else if (parameterClass == MultipartFile[].class) {
-			Set<CommonsMultipartFile> multipartFiles = new HashSet<>();
-			for (FileItem fileItem : fileItems) {
-				if (methodParameterName.equals(fileItem.getFieldName())) {
-					multipartFiles.add(new CommonsMultipartFile(fileItem));
+		switch (methodParameter.getParameterType())
+		{
+			case Constant.TYPE_FILE_ITEM :
+				if (fileItems.isEmpty()) {
+					throw new BadRequestException("There isn't a file item, bad request.");
 				}
+				for (FileItem fileItem : fileItems) {
+					if (methodParameterName.equals(fileItem.getFieldName())) {
+						return fileItem;
+					}
+				}
+			case Constant.TYPE_MULTIPART_FILE :
+				if (fileItems.isEmpty()) {
+					throw new BadRequestException("There isn't a file item, bad request.");
+				}
+				for (FileItem fileItem : fileItems) {
+					if (methodParameterName.equals(fileItem.getFieldName())) {
+						return new CommonsMultipartFile(fileItem);
+					}
+				}
+			case Constant.TYPE_ARRAY_MULTIPART_FILE : {
+				return multipartFile(fileItems, new ArrayList<>(), methodParameterName)//
+						.toArray(new MultipartFile[0]);
 			}
-			return multipartFiles.toArray(new MultipartFile[0]);
-		} else if (parameterClass == Set.class) {
-			return resolveSet(fileItems, methodParameterName, methodParameter);
-		} else if (parameterClass == List.class) {
-			return resolveList(fileItems, methodParameterName, methodParameter);
-		} else if (parameterClass == FileItem.class) {
-			if (fileItems.isEmpty()) {
-				throw new BadRequestException("bad request.");
+			case Constant.TYPE_ARRAY_FILE_ITEM : {
+				return fileItem(fileItems, new HashSet<>(), methodParameterName)//
+						.toArray(new FileItem[0]);
 			}
-			return fileItems.get(0);
-		} else if (parameterClass == FileItem[].class) {
-			return fileItems.toArray(new FileItem[0]);
+			case Constant.TYPE_SET_MULTIPART_FILE : {
+				return multipartFile(fileItems, new HashSet<>(), methodParameterName);
+			}
+			case Constant.TYPE_SET_FILE_ITEM : {
+				return fileItem(fileItems, new HashSet<>(), methodParameterName);
+			}
+			case Constant.TYPE_LIST_MULTIPART_FILE : {
+				return multipartFile(fileItems, new ArrayList<>(), methodParameterName);
+			}
+			case Constant.TYPE_LIST_FILE_ITEM : {
+				return fileItem(fileItems, new ArrayList<>(), methodParameterName);
+			}
+			default:
+				throw new BadRequestException("Not supported type: [" + methodParameter.getParameterClass() + "]");
 		}
-		log.error("method parameter setting error.");
-		return null;
 	}
 
 	/**
-	 * resolve list.
+	 * parse a set of {@link MultipartFile}
 	 * 
 	 * @param fileItems
+	 *            upload files
+	 * @param multipartFiles
+	 *            the collection of {@link MultipartFile}
 	 * @param methodParameterName
-	 * @param methodParameter
-	 * @return Return List&lt;MultipartFile&gt; or List&lt;FileItem&gt;
+	 * @return
 	 */
-	private Object resolveList(List<FileItem> fileItems, String methodParameterName, MethodParameter methodParameter) {
-		Class<?> genericityClass = methodParameter.getGenericityClass();
-		if (genericityClass == MultipartFile.class) {
-			List<MultipartFile> multipartFiles = new ArrayList<>();
-			for (FileItem fileItem : fileItems) {
-				if (methodParameterName.equals(fileItem.getFieldName())) {
-					multipartFiles.add(new CommonsMultipartFile(fileItem));
-				}
+	private final Collection<MultipartFile> multipartFile(List<FileItem> fileItems,
+			Collection<MultipartFile> multipartFiles, String methodParameterName) {
+
+		for (FileItem fileItem : fileItems) {
+			if (methodParameterName.equals(fileItem.getFieldName())) {
+				multipartFiles.add(new CommonsMultipartFile(fileItem));
 			}
-			return multipartFiles;
-		} else if (genericityClass == FileItem.class) {
-			List<FileItem> multipartFiles = new ArrayList<>();
-			for (FileItem fileItem : fileItems) {
-				if (methodParameterName.equals(fileItem.getFieldName())) {
-					multipartFiles.add(fileItem);
-				}
-			}
-			return multipartFiles;
 		}
-		log.error("method parameter setting error.");
-		return null;
+		return multipartFiles;
 	}
 
 	/**
+	 * parse a set of {@link FileItem}
 	 * 
 	 * @param fileItems
+	 *            upload files
+	 * @param multipartFiles
+	 *            the collection of {@link FileItem}
 	 * @param methodParameterName
-	 * @param methodParameter
-	 * @return Return Set&lt;MultipartFile&gt; or Set&lt;FileItem&gt;
+	 *            method parameter name method parameter name
+	 * @return
 	 */
-	private Object resolveSet(List<FileItem> fileItems, String methodParameterName, MethodParameter methodParameter) {
-		Class<?> genericityClass = methodParameter.getGenericityClass();
-		if (genericityClass == MultipartFile.class) {
-			Set<MultipartFile> multipartFiles = new HashSet<>();
-			for (FileItem fileItem : fileItems) {
-				if (methodParameterName.equals(fileItem.getFieldName())) {
-					multipartFiles.add(new CommonsMultipartFile(fileItem));
-				}
+	private final Collection<FileItem> fileItem(List<FileItem> fileItems, Collection<FileItem> multipartFiles,
+			String methodParameterName) {
+		for (FileItem fileItem : fileItems) {
+			if (methodParameterName.equals(fileItem.getFieldName())) {
+				multipartFiles.add(fileItem);
 			}
-			return multipartFiles;
-		} else if (genericityClass == FileItem.class) {
-			Set<FileItem> multipartFiles = new HashSet<>();
-			for (FileItem fileItem : fileItems) {
-				if (methodParameterName.equals(fileItem.getFieldName())) {
-					multipartFiles.add(fileItem);
-				}
-			}
-			return fileItems;
 		}
-		log.error("method parameter setting error.");
-		return null;
+		return multipartFiles;
 	}
 
 	@Override

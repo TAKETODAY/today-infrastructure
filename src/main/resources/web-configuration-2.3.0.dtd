@@ -1,7 +1,7 @@
 <!-- 
 <!DOCTYPE Web-Configuration PUBLIC
 		"-//TODAY BLOG//Web-View Configuration DTD 2.0//CN"
-			"https://taketoday.cn/framework/web/dtd/web-configuration-2.2.0.dtd">
+			"https://taketoday.cn/framework/web/dtd/web-configuration-2.3.0.dtd">
 
 <!ELEMENT Web-Configuration (static-resources*, property-location*, component-scan*, common*, bean*)>
 		class CDATA #IMPLIED
@@ -13,8 +13,8 @@
 <!-- view's common configure -->
 <!ELEMENT common (view)*>
 	<!ATTLIST common
-		prefix CDATA "/WEB-INF"
-		suffix CDATA ".jsp"
+		prefix CDATA "/WEB-INF/view"
+		suffix CDATA ".ftl"
 	>
 	
 <!-- view configure -->
@@ -33,7 +33,7 @@
 
 <!ELEMENT view-resolver (#PCDATA|view-suffix|view-prefix|view-encoding|view-locale)*>
 	<!ATTLIST view-resolver
-		class (cn.taketoday.web.view.JstlViewResolver|cn.taketoday.web.view.FreeMarkerViewResolver|cn.taketoday.web.view.ThymeleafViewResolver) #IMPLIED 
+		class CDATA "cn.taketoday.web.view.FreeMarkerViewResolver"
 	>
 	
 <!ELEMENT view-suffix (#PCDATA)>

@@ -24,6 +24,7 @@ import cn.taketoday.context.annotation.ComponentImpl;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestMethod;
@@ -47,6 +48,7 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelMap;
@@ -63,13 +65,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.apache.commons.fileupload.FileItem;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -228,7 +231,7 @@ public final class ActionConfig implements WebApplicationContextAware {
 				String requestMethod_ = requestMethod.toString() + Constant.REQUEST_METHOD_PREFIX;
 				url = requestMethod_ + contextPath + uri;
 				//
-				url = url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
+//				url = url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
 
 				// add the mapping
 				int index = DispatcherServlet.HANDLER_MAPPING_POOL.add(requestMapping);
@@ -320,10 +323,9 @@ public final class ActionConfig implements WebApplicationContextAware {
 
 		HandlerMapping requestMapping = new HandlerMapping();
 		Parameter[] parameters = method.getParameters();
-		String[] methodArgsNames = ClassUtils.getMethodArgsNames(method);
 
 		List<MethodParameter> methodParameters = new ArrayList<>();// 处理器方法参数列表
-		setMethodParameter(parameters, methodParameters, methodArgsNames); // 设置 MethodParameter
+		setMethodParameter(parameters, methodParameters, method); // 设置 MethodParameter
 
 		// 设置请求处理器
 		HandlerMethod methodInfo = new HandlerMethod(method, methodParameters);
@@ -390,83 +392,91 @@ public final class ActionConfig implements WebApplicationContextAware {
 	 * @param parameters
 	 * @param methodParameters
 	 */
-	private void setMethodParameter(Parameter[] parameters, List<MethodParameter> methodParameters,
-			String[] methodArgsNames) {
+	private void setMethodParameter(Parameter[] parameters, List<MethodParameter> methodParameters, Method method) {
+
+		String[] methodArgsNames = ClassUtils.getMethodArgsNames(method);
 
 		for (int i = 0; i < parameters.length; i++) {
 
 			MethodParameter methodParameter = new MethodParameter();
 
 			Class<?> parameterClass = parameters[i].getType();
-			methodParameter.setParameterClass(parameterClass);// 设置参数类型
-
+			methodParameter.setParameterClass(parameterClass);
+			
+			byte parameterType = Constant.TYPE_OTHER;
+			Class<?> genericityClass = null;
 			if (Set.class.isAssignableFrom(parameterClass)) {
-				methodParameter.setParameterType(Constant.TYPE_SET);
+				parameterType = Constant.TYPE_SET;
 				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
-				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[0]);
+				genericityClass = (Class<?>) paramType.getActualTypeArguments()[0];
 			} else if (List.class.isAssignableFrom(parameterClass)) {
-				methodParameter.setParameterType(Constant.TYPE_LIST);
+				parameterType = Constant.TYPE_LIST;
 				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
-				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[0]);
-			} else if (Map.class.isAssignableFrom(parameterClass) && ModelMap.class != parameterClass) {
-				methodParameter.setParameterType(Constant.TYPE_MAP);
-
+				genericityClass = (Class<?>) paramType.getActualTypeArguments()[0];
+			} else if (Map.class.isAssignableFrom(parameterClass) && !Model.class.isAssignableFrom(parameterClass)) {
+				parameterType = Constant.TYPE_MAP;
 				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
-				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[1]);
+				genericityClass = (Class<?>) paramType.getActualTypeArguments()[1];
 				// Model Map
-				if (methodParameter.getGenericityClass() == Object.class) {
-					methodParameter.setParameterType(Constant.TYPE_MODEL);
+				if (genericityClass == Object.class) {
+					parameterType = Constant.TYPE_MODEL;
 				}
-			} else if (parameterClass == Optional.class) {
-				methodParameter.setRequired(false);
-				methodParameter.setParameterType(Constant.TYPE_OPTIONAL);
-				ParameterizedType paramType = (ParameterizedType) parameters[i].getParameterizedType();
-				methodParameter.setGenericityClass((Class<?>) paramType.getActualTypeArguments()[0]);
 			} else if (parameterClass == int.class || parameterClass == Integer.class) {
-				methodParameter.setParameterType(Constant.TYPE_INT);
+				parameterType = Constant.TYPE_INT;
 			} else if (parameterClass == long.class || parameterClass == Long.class) {
-				methodParameter.setParameterType(Constant.TYPE_LONG);
+				parameterType = Constant.TYPE_LONG;
 			} else if (parameterClass == short.class || parameterClass == Short.class) {
-				methodParameter.setParameterType(Constant.TYPE_SHORT);
+				parameterType = Constant.TYPE_SHORT;
 			} else if (parameterClass == byte.class || parameterClass == Byte.class) {
-				methodParameter.setParameterType(Constant.TYPE_BYTE);
+				parameterType = Constant.TYPE_BYTE;
 			} else if (parameterClass == double.class || parameterClass == Double.class) {
-				methodParameter.setParameterType(Constant.TYPE_DOUBLE);
+				parameterType = Constant.TYPE_DOUBLE;
 			} else if (parameterClass == float.class || parameterClass == Float.class) {
-				methodParameter.setParameterType(Constant.TYPE_FLOAT);
+				parameterType = Constant.TYPE_FLOAT;
 			} else if (parameterClass == boolean.class || parameterClass == Boolean.class) {
-				methodParameter.setParameterType(Constant.TYPE_BOOLEAN);
+				parameterType = Constant.TYPE_BOOLEAN;
 			} else if (parameterClass == HttpServletRequest.class) {
-				methodParameter.setParameterType(Constant.TYPE_HTTP_SERVLET_REQUEST);
+				parameterType = Constant.TYPE_HTTP_SERVLET_REQUEST;
 			} else if (parameterClass == HttpServletResponse.class) {
-				methodParameter.setParameterType(Constant.TYPE_HTTP_SERVLET_RESPONSE);
+				parameterType = Constant.TYPE_HTTP_SERVLET_RESPONSE;
 			} else if (parameterClass == HttpSession.class) {
-				methodParameter.setParameterType(Constant.TYPE_HTTP_SESSION);
+				parameterType = Constant.TYPE_HTTP_SESSION;
 			} else if (parameterClass == ServletContext.class) {
-				methodParameter.setParameterType(Constant.TYPE_SERVLET_CONTEXT);
+				parameterType = Constant.TYPE_SERVLET_CONTEXT;
 			} else if (parameterClass == Model.class || parameterClass == ModelMap.class) {
-
-				methodParameter.setParameterType(Constant.TYPE_MODEL);
+				parameterType = Constant.TYPE_MODEL;
 			} else if (parameterClass == String.class) {
-				methodParameter.setParameterType(Constant.TYPE_STRING);
+				parameterType = Constant.TYPE_STRING;
+			} else if (FileItem.class.isAssignableFrom(parameterClass)) {
+				parameterType = Constant.TYPE_FILE_ITEM;
+			} else if (MultipartFile.class.isAssignableFrom(parameterClass)) {
+				parameterType = Constant.TYPE_MULTIPART_FILE;
 			}
+
 			// array
 			if (parameterClass.isArray()) {
-				methodParameter.setParameterType(Constant.TYPE_ARRAY);
+				parameterType = Constant.TYPE_ARRAY;
+				if (parameterClass.getComponentType() == FileItem.class) {
+					methodParameter.addParameterType(Constant.TYPE_FILE_ITEM);
+				} else if (parameterClass.getComponentType() == MultipartFile.class) {
+					methodParameter.addParameterType(Constant.TYPE_MULTIPART_FILE);
+				}
 			}
+			methodParameter.setParameterType(parameterType);
+			// multipart
+			if (genericityClass == FileItem.class) {
+				methodParameter.addParameterType(Constant.TYPE_FILE_ITEM);
+			} else if (genericityClass == MultipartFile.class) {
+				methodParameter.addParameterType(Constant.TYPE_MULTIPART_FILE);
+			}
+
 			setAnnotation(parameters[i], methodParameter);// 设置注解
 
-			// 保证必须有参数名
-			if (StringUtils.isEmpty(methodParameter.getParameterName())) {
-				String parameterName = parameters[i].getName();
-				if (parameterName.matches("arg[\\d]+")) {
-					parameterName = methodArgsNames[i];
-				}
-				methodParameter.setParameterName(parameterName);
-			}
+			methodParameter.setGenericityClass(genericityClass);
+
+			methodParameter.setParameterName( methodArgsNames[i]);
 			methodParameters.add(methodParameter); // 加入到参数列表
 		}
-
 	}
 
 	/**
@@ -573,6 +583,9 @@ public final class ActionConfig implements WebApplicationContextAware {
 			required = true;
 			parameterName = application.value();
 			annotation = Constant.ANNOTATION_SERVLET_CONTEXT;
+		}
+		if (StringUtils.isEmpty(defaultValue) && NumberUtils.isNumber(parameter.getType())) {
+			defaultValue = "0"; // fix default value
 		}
 		methodParameter.setRequired(required)//
 				.setAnnotation(annotation)//

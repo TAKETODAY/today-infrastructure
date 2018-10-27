@@ -22,6 +22,11 @@ package cn.taketoday.web.resolver;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * 
+ * @author Today <br>
+ *         2018-10-24 19:18
+ */
 public interface ExceptionResolver {
 
 	/**

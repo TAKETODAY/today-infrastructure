@@ -34,8 +34,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * 
  * @author Today <br>
@@ -43,7 +41,6 @@ import lombok.extern.slf4j.Slf4j;
  *         2018-06-25 19:48:28
  * @version 2.0.0
  */
-@Slf4j
 public final class ViewDispatcher extends HttpServlet {
 
 	private static final long serialVersionUID = 7842118161452996065L;
@@ -61,7 +58,6 @@ public final class ViewDispatcher extends HttpServlet {
 			throws ServletException, IOException {
 
 		final ViewMapping mapping = VIEW_REQUEST_MAPPING.get(request.getRequestURI());
-
 		if (mapping == null) {
 			response.sendError(404);
 			return;
@@ -86,11 +82,6 @@ public final class ViewDispatcher extends HttpServlet {
 		} catch (Throwable e) {
 			exceptionResolver.resolveException(request, response, e);
 		}
-	}
-
-	@Override
-	public void destroy() {
-		log.info("------ Views Dispatcher SHUTDOWN -------");
 	}
 
 }

@@ -19,8 +19,11 @@
  */
 package cn.taketoday.web.multipart;
 
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.exception.BadRequestException;
+import cn.taketoday.web.mapping.MethodParameter;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,10 +31,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.taketoday.web.mapping.MethodParameter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -44,48 +45,44 @@ import lombok.Setter;
 @Getter
 public final class DefaultMultipartResolver extends AbstractMultipartResolver {
 
-	protected Logger log = LoggerFactory.getLogger(DefaultMultipartResolver.class);
-
 	@Override
 	public Object resolveMultipart(HttpServletRequest request, String methodParameterName,
-			MethodParameter methodParameter) throws Exception {
+			MethodParameter methodParameter) throws Throwable {
 
-		Class<?> parameterClass = methodParameter.getParameterClass();
-		if (parameterClass == MultipartFile.class) {
-			return new DefaultMultipartFile(request.getPart(methodParameterName));
-		} else if (parameterClass == MultipartFile[].class) {
-			Collection<Part> parts = request.getParts();// parts
-
-			Set<DefaultMultipartFile> multipartFiles = new HashSet<>();
-
-			for (Part part : parts) {
-				if (methodParameterName.equals(part.getName())) {
-					multipartFiles.add(new DefaultMultipartFile(part));
+		switch (methodParameter.getParameterType())
+		{
+			case Constant.TYPE_MULTIPART_FILE :
+				return new DefaultMultipartFile(request.getPart(methodParameterName));
+			case Constant.TYPE_ARRAY_MULTIPART_FILE : {
+				Set<DefaultMultipartFile> multipartFiles = new HashSet<>();
+				for (Part part : request.getParts()) {
+					if (methodParameterName.equals(part.getName())) {
+						multipartFiles.add(new DefaultMultipartFile(part));
+					}
 				}
+				return multipartFiles.toArray(new DefaultMultipartFile[0]);
 			}
-			return multipartFiles.toArray(new DefaultMultipartFile[0]);
-		} else if (parameterClass == Set.class) {
-
-			Collection<Part> parts = request.getParts();// parts
-			Set<DefaultMultipartFile> multipartFiles = new HashSet<>();
-			for (Part part : parts) {
-				if (methodParameterName.equals(part.getName())) {
-					multipartFiles.add(new DefaultMultipartFile(part));
+			case Constant.TYPE_SET_MULTIPART_FILE : {
+				Set<DefaultMultipartFile> multipartFiles = new HashSet<>();
+				for (Part part : request.getParts()) {
+					if (methodParameterName.equals(part.getName())) {
+						multipartFiles.add(new DefaultMultipartFile(part));
+					}
 				}
+				return multipartFiles;
 			}
-			return multipartFiles;
-		} else if (parameterClass == List.class) {
-			Collection<Part> parts = request.getParts();// parts
-			List<DefaultMultipartFile> multipartFiles = new ArrayList<>();
-			for (Part part : parts) {
-				if (methodParameterName.equals(part.getName())) {
-					multipartFiles.add(new DefaultMultipartFile(part));
+			case Constant.TYPE_LIST_MULTIPART_FILE : {
+				List<DefaultMultipartFile> multipartFiles = new ArrayList<>();
+				for (Part part : request.getParts()) {
+					if (methodParameterName.equals(part.getName())) {
+						multipartFiles.add(new DefaultMultipartFile(part));
+					}
 				}
+				return multipartFiles;
 			}
-			return multipartFiles;
+			default:
+				throw new BadRequestException("Not supported type: [" + methodParameter.getParameterClass() + "]");
 		}
-		log.error("method parameter setting error.");
-		return null;
 	}
 
 	@Override
@@ -96,7 +93,7 @@ public final class DefaultMultipartResolver extends AbstractMultipartResolver {
 				part.delete();
 			}
 		} catch (Exception ex) {
-			log.error("cleanup cache error", ex);
+			LoggerFactory.getLogger(DefaultMultipartResolver.class).error("cleanup cache error", ex);
 		}
 	}
 

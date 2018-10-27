@@ -22,6 +22,7 @@ package cn.taketoday.web.config;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.PropertiesUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -42,6 +43,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,6 +64,7 @@ import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.annotation.WebListener;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -81,15 +84,26 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @WebListener("WebApplicationContextLoader")
-public final class WebApplicationContextLoader implements ServletContextListener, Constant {
+public class WebApplicationContextLoader implements ServletContextListener, Constant {
 
 	private static final long serialVersionUID = 4983190133174606852L;
 
 	/** context **/
 	private static WebApplicationContext applicationContext;
 
-	public WebApplicationContextLoader() {
+	private DocumentBuilder builder;
 
+	public WebApplicationContextLoader() throws ParserConfigurationException {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setIgnoringComments(true);
+		builder = factory.newDocumentBuilder();
+		builder.setEntityResolver((publicId, systemId) -> {
+			if (systemId.contains(DTD_NAME) || publicId.contains(DTD_NAME)) {
+				return new InputSource(
+						new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes()));
+			}
+			return null;
+		});
 	}
 
 	public static WebApplicationContext getWebApplicationContext() {
@@ -101,10 +115,30 @@ public final class WebApplicationContextLoader implements ServletContextListener
 	 * 
 	 * @throws Exception
 	 */
-	private void initFrameWork(String path) throws Exception {
+	private void initFrameWork(ServletContext servletContext) throws Exception {
 		// find the configure file
 		log.info("TODAY WEB Framework Is Looking For Configuration File.");
-		getConfigFile(new File(path));
+
+		String webMvcConfigLocation = servletContext.getInitParameter(WEB_MVC_CONFIG_LOCATION);
+
+		if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
+			String[] files = webMvcConfigLocation.split("[;|,]");
+			if (files == null || files.length == 0) {
+				files = new String[] { webMvcConfigLocation };
+			}
+			for (String file : files) {
+				URL resource = ClassUtils.getClassLoader().getResource(file);
+				if (resource == null) {
+					throw new ConfigurationException("You Provided Configuration File: [{}], Does Not Exist",
+							webMvcConfigLocation);
+				}
+				try (InputStream inputStream = new FileInputStream(resource.getFile())) {
+					registerXml(builder.parse(inputStream), webMvcConfigLocation);
+				}
+			}
+			return;
+		}
+		findConfigFile(new File(servletContext.getRealPath(WEB_INF)));
 	}
 
 	/**
@@ -114,7 +148,7 @@ public final class WebApplicationContextLoader implements ServletContextListener
 	 *            directory
 	 * @throws Exception
 	 */
-	private void getConfigFile(File dir) throws Exception {
+	private void findConfigFile(File dir) throws Exception {
 
 		log.debug("Enter [{}].", dir.getAbsolutePath());
 
@@ -122,38 +156,13 @@ public final class WebApplicationContextLoader implements ServletContextListener
 
 		for (File file : listFiles) {
 			if (file.isDirectory()) { // recursive
-				getConfigFile(file);
+				findConfigFile(file);
 				continue;
 			}
-			InputStream inputStream = new FileInputStream(file);
-			loadXml(inputStream, file);
-		}
-	}
-
-	/**
-	 * load xml file.
-	 * 
-	 * @param inputStream
-	 *            xml input stream
-	 * @throws Exception
-	 */
-	private void loadXml(InputStream inputStream, File file) throws Exception {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setIgnoringComments(true);
-		DocumentBuilder builder = factory.newDocumentBuilder();
-
-		builder.setEntityResolver((publicId, systemId) -> {
-			if (systemId.contains(DTD_NAME) || publicId.contains(DTD_NAME)) {
-				return new InputSource(
-						new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes()));
+			try (InputStream inputStream = new FileInputStream(file)) {
+				registerXml(builder.parse(inputStream), file.getAbsolutePath());
 			}
-			return null;
-		});
-
-		Document document = builder.parse(inputStream);
-		registerXml(document, file);
-
-		inputStream.close();
+		}
 	}
 
 	/**
@@ -163,11 +172,10 @@ public final class WebApplicationContextLoader implements ServletContextListener
 	 *            xml file
 	 * @throws Exception
 	 */
-	private void registerXml(Document doc, File file) throws Exception {
+	private void registerXml(Document doc, String filePath) throws Exception {
 		Element root = doc.getDocumentElement();
-
 		if (ROOT_ELEMENT.equals(root.getNodeName())) { // root element
-			log.info("Found Configuration File: [{}].", file.getAbsolutePath());
+			log.info("Found Configuration File: [{}].", filePath);
 			configStart(root);
 		}
 	}
@@ -322,7 +330,9 @@ public final class WebApplicationContextLoader implements ServletContextListener
 			if (item instanceof Element) {
 				Element config = (Element) item;
 				String elementName = config.getNodeName();
-				String nodeValue = PropertiesUtils.findInProperties(properties, config.getTextContent());
+				String nodeValue = PropertiesUtils.findInProperties(//
+						properties, PropertiesUtils.findInProperties(properties, config.getTextContent())//
+				);
 				log.debug("Found Element -> [{}] = [{}]", elementName, nodeValue);
 				switch (elementName) //
 				{
@@ -396,10 +406,13 @@ public final class WebApplicationContextLoader implements ServletContextListener
 		// set multipartResolver
 		AbstractMultipartResolver multipartResolver = applicationContext.getBean(MULTIPART_RESOLVER,
 				AbstractMultipartResolver.class);
-		MultipartConfigElement multipartConfig = new MultipartConfigElement(multipartResolver.getLocation(),
-				multipartResolver.getMaxFileSize(), multipartResolver.getMaxRequestSize(),
-				multipartResolver.getFileSizeThreshold());
 
+		MultipartConfigElement multipartConfig = new MultipartConfigElement(//
+				multipartResolver.getLocation(), //
+				multipartResolver.getMaxFileSize(), //
+				multipartResolver.getMaxRequestSize(), //
+				multipartResolver.getFileSizeThreshold()//
+		);
 		registration.setMultipartConfig(multipartConfig);
 		registration.addMapping(DISPATCHER_SERVLET_MAPPING);
 	}
@@ -499,7 +512,7 @@ public final class WebApplicationContextLoader implements ServletContextListener
 			log.info("Use default multipart resolver: [{}].", DefaultMultipartResolver.class);
 		}
 		if (!applicationContext.containsBeanDefinition(VIEW_RESOLVER)) {
-			// use jstl view resolver
+			// use freemarker view resolver
 			applicationContext.registerBeanDefinition(VIEW_RESOLVER, FreeMarkerViewResolver.class);
 			applicationContext.refresh(VIEW_RESOLVER);
 			log.info("Use default view resolver: [{}].", FreeMarkerViewResolver.class);
@@ -530,12 +543,9 @@ public final class WebApplicationContextLoader implements ServletContextListener
 
 		applicationContext = new DefaultWebApplicationContext(servletContext);
 
-		String realPath = servletContext.getRealPath(WEB_INF);
-
 		try {
-
 			// init start
-			initFrameWork(realPath);
+			initFrameWork(servletContext);
 			log.info("Start Configure Actions.");
 
 			ActionConfig actionConfig = applicationContext.getBean(ACTION_CONFIG, ActionConfig.class);
@@ -551,17 +561,17 @@ public final class WebApplicationContextLoader implements ServletContextListener
 			doRegisterServlet();
 
 			removeFrameWorkBeanDefinitions();
-
+			builder = null;
 			applicationContext.loadSuccess();
+
+			applicationContext.publishEvent(new ApplicationStartedEvent(applicationContext));
+
+			log.info("Your Application Started Successfully, It takes a total of [{}] ms.",
+					System.currentTimeMillis() - start);
 			// init end
 		} catch (Throwable ex) {
 			log.error("Initialized ERROR: [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
 		}
-
-		applicationContext.publishEvent(new ApplicationStartedEvent(applicationContext));
-
-		log.info("Your Application Started Successfully, It takes a total of [{}] ms.",
-				System.currentTimeMillis() - start);
 	}
 
 	/**
@@ -576,16 +586,6 @@ public final class WebApplicationContextLoader implements ServletContextListener
 		applicationContext.removeBeanDefinition(DISPATCHER_SERVLET);
 		applicationContext.removeBeanDefinition(MULTIPART_RESOLVER);
 		applicationContext.removeBeanDefinition(PARAMETER_RESOLVER);
-	}
-
-	/**
-	 * Destroy Application
-	 */
-	@Override
-	public void contextDestroyed(ServletContextEvent sce) {
-		applicationContext.close();
-		log.info("Your application destroyed at: [{}].",
-				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 	}
 
 }

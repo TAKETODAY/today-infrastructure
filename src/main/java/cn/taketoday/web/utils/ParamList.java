@@ -251,7 +251,6 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 		System.arraycopy(array, 0, newArray, 0, array.length);
 		newArray[array.length] = e;
 		array = newArray;
-
 		return true;
 	}
 
@@ -403,7 +402,6 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 	public void forEach(Consumer<? super E> action) {
 		if (action == null)
 			throw new NullPointerException();
-
 		for (int i = 0; i < array.length; ++i) {
 			E e = (E) array[i];
 			action.accept(e);

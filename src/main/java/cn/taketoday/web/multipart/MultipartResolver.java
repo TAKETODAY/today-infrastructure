@@ -51,7 +51,7 @@ public interface MultipartResolver {
 	 * @throws Exception
 	 */
 	Object resolveMultipart(HttpServletRequest request, String methodParameterName, MethodParameter methodParameter)
-			throws Exception;
+			throws Throwable;
 
 	/**
 	 * clean up.

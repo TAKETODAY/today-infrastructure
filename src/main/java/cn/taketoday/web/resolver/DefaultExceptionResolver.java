@@ -19,15 +19,15 @@
  */
 package cn.taketoday.web.resolver;
 
-import java.io.FileNotFoundException;
+import cn.taketoday.context.exception.ConversionException;
+import cn.taketoday.web.exception.BadRequestException;
+import cn.taketoday.web.exception.MethodNotAllowedException;
+
+import java.lang.reflect.InvocationTargetException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.context.exception.ConversionException;
-import cn.taketoday.web.exception.BadRequestException;
-import cn.taketoday.web.exception.FileSizeLimitExceededException;
-import cn.taketoday.web.exception.MethodNotAllowedException;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,15 +46,17 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 
 		try {
 
+			if (ex instanceof InvocationTargetException) { // invoke
+				Throwable targetException = ((InvocationTargetException) ex).getTargetException();
+				if (targetException != null) {
+					ex = targetException;
+				}
+			}
+
 			if (ex instanceof MethodNotAllowedException) {
 				response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, ex.getMessage());
-			} else if (ex instanceof ConversionException) {
-				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
-			} else if (ex instanceof BadRequestException) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
-			} else if (ex instanceof FileNotFoundException) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
-			} else if (ex instanceof FileSizeLimitExceededException) {
+			} else if (ex instanceof BadRequestException || //
+					ex instanceof ConversionException) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
 			} else {
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());

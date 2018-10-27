@@ -41,6 +41,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -211,7 +213,7 @@ public final class DispatcherServlet extends HttpServlet implements Initializing
 					));
 					break;
 			}
-			log.debug("result -> {}", result);
+			log.debug("Finished Process [{}]", requestURI);
 		} //
 		catch (Throwable exception) {
 			exceptionResolver.resolveException(request, response, exception);
@@ -255,6 +257,18 @@ public final class DispatcherServlet extends HttpServlet implements Initializing
 	@Override
 	public void setWebApplicationContext(WebApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
+	}
+
+	/**
+	 * Destroy Application
+	 */
+	@Override
+	public void destroy() {
+		if (applicationContext != null) {
+			applicationContext.close();
+		}
+		log.info("Your application destroyed at: [{}].",
+				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 	}
 
 }

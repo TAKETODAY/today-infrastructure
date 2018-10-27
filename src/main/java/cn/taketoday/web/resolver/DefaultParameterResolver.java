@@ -1,26 +1,25 @@
 /**
- * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn Copyright
- * © Today & 2017 - 2018 All Rights Reserved.
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © Today & 2017 - 2018 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
- * later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
- * details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.context.conversion.Converter;
-import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -36,7 +35,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.Cookie;
@@ -108,13 +106,10 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 				return resolveMapParameter(request, methodParameterName, methodParameter);
 			case TYPE_LIST :
 				return resolveListParameter(request, methodParameterName, methodParameter);
-			case TYPE_OPTIONAL :
-				return resolveOptionalParameter(request, methodParameterName, methodParameter);
 			case TYPE_ARRAY :
 				return resolveArrayParameter(request, methodParameterName, methodParameter);
 			case TYPE_STRING :
 				return resolveStringParameter(request, methodParameterName, methodParameter);
-
 			case TYPE_BYTE :
 				return resolveParameter(//
 						request, methodParameterName, methodParameter, //
@@ -135,7 +130,6 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 						request, methodParameterName, methodParameter, //
 						parameter -> Long.parseLong(parameter)//
 				);
-
 			case TYPE_DOUBLE :
 				return resolveParameter(//
 						request, methodParameterName, methodParameter, //
@@ -151,7 +145,6 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 						request, methodParameterName, methodParameter, //
 						parameter -> Boolean.parseBoolean(parameter)//
 				);
-
 			case TYPE_MODEL :
 				return new ModelMap(request);
 		}
@@ -218,8 +211,8 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 
 //		log.debug("set array parameter -> [{}]", methodParameterName);
 		// parameter value[]
-		final String[] parameterValues = request.getParameterValues(methodParameterName);
-		if (parameterValues.length == 0) {
+		String[] parameterValues = request.getParameterValues(methodParameterName);
+		if (parameterValues == null || parameterValues.length == 0) {
 			if (methodParameter.isRequired()) {
 				log.debug("array parameter -> [{}] is required, bad request.", methodParameterName);
 				throw new BadRequestException(methodParameterName + " is required, bad request.");
@@ -230,16 +223,14 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	}
 
 	/**
-	 * resolve.
+	 * resolve
 	 * 
 	 * @param request
 	 * @param methodParameter
 	 * @param methodParameterName
 	 * @param parameterClass
 	 * @return
-	 * @throws ConversionException
-	 * @throws Exception
-	 * @throws BadRequestException
+	 * @throws Throwable
 	 */
 	private final Object resolve(HttpServletRequest request, final MethodParameter methodParameter,
 			final String methodParameterName, final Class<?> parameterClass) throws Throwable {
@@ -249,9 +240,8 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			Converter<String, ?> converter = supportParameterTypes.get(methodParameter.getParameterClass());
 			return converter.doConvert(request.getParameter(methodParameterName));
 		}
-
 		// resolve pojo
-		log.debug("set pojo parameter -> {}", methodParameterName);
+//		log.debug("set pojo parameter -> {}", methodParameterName);
 		Object newInstance = null;
 		try {
 
@@ -269,23 +259,6 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	}
 
 	/**
-	 * resolve Optional Parameter
-	 * 
-	 * @param request
-	 * @param methodParameterName
-	 * @param methodParameter
-	 * @return
-	 * @throws Exception
-	 */
-	private final Object resolveOptionalParameter(HttpServletRequest request, String methodParameterName,
-			MethodParameter methodParameter) throws Throwable {
-
-		return Optional.ofNullable(//
-				resolve(request, methodParameter, methodParameterName, methodParameter.getGenericityClass())//
-		);
-	}
-
-	/**
 	 * resolve annotation parameter
 	 * 
 	 * @param request
@@ -296,9 +269,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	 */
 	private final Object resolveAnnotationParameter(String methodParameterName, HttpServletRequest request,
 			MethodParameter methodParameter) throws Throwable {
-
 //		log.debug("Set annotation parameter -> [{}]", methodParameterName);
-
 		switch (methodParameter.getAnnotation()) //
 		{
 			case ANNOTATION_COOKIE : { // cookie
@@ -307,7 +278,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			case ANNOTATION_SESSION : {
 				return request.getSession().getAttribute(methodParameterName);
 			}
-			case ANNOTATION_MULTIPART : { // resolve multipart
+			case ANNOTATION_MULTIPART : { // resolve multi part
 				try {
 					if (multipartResolver.isMultipart(request)) {
 						return multipartResolver.resolveMultipart(request, methodParameterName, methodParameter);
@@ -317,7 +288,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 					multipartResolver.cleanupMultipart(request);
 				}
 			}
-			case ANNOTATION_HEADER : {
+			case ANNOTATION_HEADER : {// request header
 
 				final String header = request.getHeader(methodParameterName);
 
@@ -327,20 +298,27 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 
 				return header == null ? methodParameter.getDefaultValue() : header;
 			}
-			case ANNOTATION_PATH_VARIABLE : {
+			case ANNOTATION_PATH_VARIABLE : { // path variable
 				return pathVariable(request, methodParameterName, methodParameter);
 			}
-			case ANNOTATION_REQUESTBODY : {
+			case ANNOTATION_REQUESTBODY : { // request body
+				Object requestBody = request.getAttribute(KEY_REQUESTBODY);
+				if (requestBody != null) {
+					return ((JSONObject) requestBody).getObject(methodParameterName,
+							methodParameter.getParameterClass());
+				}
 				try {
 
-					return JSON.parseObject(request.getReader().readLine(), methodParameter.getParameterClass());
+					JSONObject object = JSON.parseObject(request.getReader().readLine());
+					request.setAttribute(KEY_REQUESTBODY, object);
+					return object.getObject(methodParameterName, methodParameter.getParameterClass());
 				} //
 				catch (IOException e) {
 					log.error("Request body read error.", e);
 					throw new BadRequestException("request body read error.", e);
 				}
 			}
-			case ANNOTATION_SERVLET_CONTEXT : {
+			case ANNOTATION_SERVLET_CONTEXT : { // servlet context attribute
 				return servletContext.getAttribute(methodParameterName);
 			}
 		}
@@ -383,13 +361,13 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 				case TYPE_FLOAT :
 					return Float.parseFloat(value);
 			}
-			throw new BadRequestException(
-					"Path variable: '" + methodParameterName + "' can't be resolve, bad request.");
 		} catch (Throwable e) {
 			log.error("Path variable: '{}' can't be resolve, bad request.", methodParameterName, e);
 			throw new BadRequestException(
 					"Path variable: '" + methodParameterName + "' can't be resolve, bad request.");
 		}
+		throw new BadRequestException(
+				"Path variable: '" + methodParameterName + "' can't be resolve, bad request.");
 	}
 
 	/**
@@ -475,9 +453,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			if (StringUtils.isEmpty(parameter)) {
 				return true;
 			}
-			if (type.getSuperclass() == Number.class || type == byte.class || type == short.class || type == float.class
-					|| type == int.class || type == long.class || type == double.class) {
-				
+			if (NumberUtils.isNumber(type)) {
 				property = NumberUtils.parseDigit(parameter, type);
 			} else if (type == String.class) {
 				property = parameter;
@@ -513,47 +489,46 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 		if (methodParameter.isRequestBody()) {
 			try {
 
-				return JSONArray.parseArray(
-						JSONObject.parseObject(request.getReader().readLine()).get(parameterName).toString(),
-						methodParameter.getGenericityClass());
-			} catch (IOException e) {
-				log.error("List request body read error.", e);
+				Object requestBody = request.getAttribute(KEY_REQUESTBODY);
+				if (requestBody != null) {
+					return JSONArray.parseArray(//
+							((JSONObject) requestBody).getString(parameterName), methodParameter.getGenericityClass()//
+					);
+				}
+
+				JSONObject object = JSON.parseObject(request.getReader().readLine());
+				request.setAttribute(KEY_REQUESTBODY, object);
+				JSONArray.parseArray(//
+						object.getString(parameterName), methodParameter.getGenericityClass()//
+				);
+			} //
+			catch (IOException e) {
+				log.error("'Collection' request body read error.", e);
 				throw new BadRequestException("List request body read error.");
 			}
 		}
-
-		try {
-
-			// https://taketoday.cn/today/user/list?user%5b0%5d.userId=90&user%5b2%5d.userId=98&user%5b1%5d.userName=Today
-			Enumeration<String> parameterNames = request.getParameterNames();// 所有参数名
-			List<Object> list = new ParamList<>();
-			while (parameterNames.hasMoreElements()) {
-
-				String requestParameter = parameterNames.nextElement();
-
-				if (requestParameter.startsWith(parameterName)) {
-					String[] split = requestParameter.split(Constant.COLLECTION_PARAM_REGEXP);// [use_i&&``981_r, 65651,
-																								// , userName]
-					Class<?> clazz = methodParameter.getGenericityClass();
-
-					int index = Integer.parseInt(split[1]);// 得到索引
-					Object newInstance = list.get(index);// 没有就是空值
-					if (newInstance == null) {
-						newInstance = clazz.getConstructor().newInstance();
-					}
-
-					if (!resolvePojoParameter(request, requestParameter, newInstance, clazz.getDeclaredField(split[3]),
-							methodParameter)) {// 得到Field准备注入
-						return list;
-					}
-					list.set(index, newInstance);
+		// https://taketoday.cn/today/user/list?user%5b0%5d.userId=90&user%5b2%5d.userId=98&user%5b1%5d.userName=Today
+		Enumeration<String> parameterNames = request.getParameterNames();// 所有参数名
+		List<Object> list = new ParamList<>();
+		Class<?> clazz = methodParameter.getGenericityClass();
+		while (parameterNames.hasMoreElements()) {
+			String requestParameter = parameterNames.nextElement();
+			if (requestParameter.startsWith(parameterName)) {// users[0].userName=TODAY&users[0].age=20
+				String[] split = requestParameter.split(Constant.COLLECTION_PARAM_REGEXP);// [users, 1,, userName]
+				int index = Integer.parseInt(split[1]);// 得到索引
+				Object newInstance = list.get(index);// 没有就是空值
+				if (newInstance == null) {
+					newInstance = clazz.getConstructor().newInstance();
 				}
+
+				if (!resolvePojoParameter(request, requestParameter, newInstance, clazz.getDeclaredField(split[3]),
+						methodParameter)) {// 得到Field准备注入
+					return list;
+				}
+				list.set(index, newInstance);
 			}
-			return list;
-		} catch (Exception ex) {
-			log.error("ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
 		}
-		return null;
+		return list;
 	}
 
 	/**
@@ -585,28 +560,29 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	 */
 	private final Map<String, Object> resolveMapParameter(HttpServletRequest request, String methodParameterName,
 			MethodParameter methodParameter) throws Throwable {
-
+		
 		Enumeration<String> parameterNames = request.getParameterNames();// 所有参数名
 		Map<String, Object> map = new HashMap<>();
+		
+		// parameter class
+		Class<?> clazz = methodParameter.getGenericityClass();
 		while (parameterNames.hasMoreElements()) {
 			// users%5B%27today_1%27%5D.userId=434&users%5B%27today%27%5D.age=43&users%5B%27today%27%5D.userName=434&users%5B%27today%27%5D.sex=%E7%94%B7&users%5B%27today%27%5D.passwd=4343
 			String requestParameter = parameterNames.nextElement();
-			if (requestParameter.startsWith(methodParameterName)) {
-
-				final String[] split = requestParameter.split(Constant.MAP_PARAM_REGEXP); // [users, today, , userName]
-				Class<?> clazz = methodParameter.getGenericityClass();
-
-				String key = split[1];// 得到key
+			if (requestParameter.startsWith(methodParameterName)) { // users['today'].userName=TODAY&users['today'].age=20
+				
+				String[] keyList = requestParameter.split(Constant.MAP_PARAM_REGEXP); // [users, today, , userName]
+				
+				String key = keyList[1];// 得到key
 				Object newInstance = map.get(key);// 没有就是空值
 				if (newInstance == null) {
-					newInstance = clazz.getConstructor().newInstance();
+					newInstance = clazz.getConstructor().newInstance();// default constructor
 				}
-
-				if (!resolvePojoParameter(request, requestParameter, newInstance, clazz.getDeclaredField(split[3]),
+				if (!resolvePojoParameter(request, requestParameter, newInstance, clazz.getDeclaredField(keyList[3]),
 						methodParameter)) {// 得到Field准备注入
 					return map;
 				}
-				map.put(key, newInstance);
+				map.put(key, newInstance);// put directly
 			}
 		}
 		return map;

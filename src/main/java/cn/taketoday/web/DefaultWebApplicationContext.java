@@ -41,6 +41,11 @@ public class DefaultWebApplicationContext extends StandardApplicationContext imp
 		this.servletContext = servletContext;
 		loadContext();
 	}
+	public DefaultWebApplicationContext(String properties, ServletContext servletContext) {
+		super(properties);
+		this.servletContext = servletContext;
+		loadContext();
+	}
 
 	@Override
 	public ServletContext getServletContext() {

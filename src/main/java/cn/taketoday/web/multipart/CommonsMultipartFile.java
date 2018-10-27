@@ -39,7 +39,7 @@ public final class CommonsMultipartFile implements MultipartFile {
 
 	private static final long	serialVersionUID	= -8499057935018080732L;
 
-	private FileItem			fileItem;
+	private final FileItem			fileItem;
 
 	/**
 	 * Create an instance wrapping the given FileItem.

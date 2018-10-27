@@ -26,6 +26,9 @@ package cn.taketoday.web;
  */
 public interface Constant extends cn.taketoday.context.Constant {
 
+	
+	String 	KEY_REQUESTBODY						= "REQUESTBODY";
+	
 	String	CONVERT_METHOD						= "doConvert";
 
 	String	DEFAULT_ENCODING					= "UTF-8";
@@ -45,6 +48,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	ACTION_CONFIG						= "actionConfig";
 	// the dtd
 	String	DTD_NAME							= "web-configuration";
+	String	WEB_MVC_CONFIG_LOCATION				= "WebMvcConfigLocation";
 
 	String 	COLLECTION_PARAM_REGEXP				= "(\\[|\\]|\\.)";
 	String 	MAP_PARAM_REGEXP					= "(\\['|\\']|\\.)";
@@ -129,9 +133,22 @@ public interface Constant extends cn.taketoday.context.Constant {
 	byte	TYPE_MAP							= 0x0E;
 	byte	TYPE_SET							= 0x0F;
 	byte	TYPE_LIST							= 0x10;
-	
-	byte	TYPE_OPTIONAL						= 0x11;
+
 	byte	TYPE_MODEL							= 0x12;
+	// multi
+	byte	TYPE_FILE_ITEM						= 0x13;
+	byte	TYPE_ARRAY_FILE_ITEM				= TYPE_ARRAY + TYPE_FILE_ITEM;
+	byte	TYPE_MULTIPART_FILE					= 0x15;
+	byte	TYPE_ARRAY_MULTIPART_FILE			= TYPE_ARRAY + TYPE_MULTIPART_FILE;
+	
+	byte	TYPE_SET_FILE_ITEM					= TYPE_SET + TYPE_FILE_ITEM;
+	byte	TYPE_LIST_FILE_ITEM					= TYPE_LIST + TYPE_FILE_ITEM;
+	
+	byte	TYPE_SET_MULTIPART_FILE				= TYPE_SET + TYPE_MULTIPART_FILE;
+	byte	TYPE_LIST_MULTIPART_FILE			= TYPE_LIST + TYPE_MULTIPART_FILE;
+	
+	
+	
 	/**
 	 * END
 	 * 

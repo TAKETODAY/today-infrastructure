@@ -21,6 +21,7 @@ package cn.taketoday.web.utils;
 
 import java.io.Serializable;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,21 +35,33 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public final class Json implements Serializable {
 
-	private static final long	serialVersionUID	= -5925945582314435750L;
+	private static final long serialVersionUID = -5925945582314435750L;
 
-	private String				msg;
-	private Object				data;
-	private boolean				success;
+	private String msg;
+	private int code = 200;
+	private Object data;
+	private boolean success;
 
 	public Json(boolean success) {
 		this.success = success;
 	}
-	
+
 	public Json(boolean success, String msg) {
 		this.success = success;
 		this.msg = msg;
+	}
+
+	public Json(String msg, int code, boolean success) {
+		this.msg = msg;
+		this.code = code;
+		this.success = success;
+	}
+	public Json(int code, boolean success) {
+		this.code = code;
+		this.success = success;
 	}
 
 	public Json(boolean success, String msg, Object obj) {
@@ -60,12 +73,10 @@ public final class Json implements Serializable {
 	@Override
 	public String toString() {
 		return new StringBuilder()//
-				.append("{\"msg\":\"")//
-				.append(msg)//
-				.append("\",\"data\":\"")//
-				.append(data)//
-				.append("\",\"success\":\"")//
-				.append(success)//
+				.append("{\"msg\":\"").append(msg)//
+				.append("\",\"code\":\"").append(code)//
+				.append("\",\"data\":\"").append(data)//
+				.append("\",\"success\":\"").append(success)//
 				.append("\"}")//
 				.toString();
 	}
