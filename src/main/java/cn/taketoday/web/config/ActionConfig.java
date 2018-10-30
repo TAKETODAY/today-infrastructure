@@ -240,10 +240,11 @@ public final class ActionConfig implements WebApplicationContextAware {
 
 				DispatcherServlet.REQUEST_MAPPING.put(url, index);
 
-				log.info(
+				log.info(//
 						"Action Mapped [{}] -> [{}] interceptors -> {}", url, requestMapping.getAction() + "."
 								+ requestMapping.getHandlerMethod().getMethod().getName() + "()",
-						Arrays.toString(requestMapping.getInterceptors()));
+						Arrays.toString(requestMapping.getInterceptors())//
+				);
 			}
 		}
 	}

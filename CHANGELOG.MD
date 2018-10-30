@@ -236,6 +236,7 @@ public final class PathVariableAction {
 
 ## v2.3.2
 - fix #1
+- fix #2 JSONObject could be null
 
 <br>
 <br>

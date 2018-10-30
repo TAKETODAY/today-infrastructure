@@ -26,8 +26,14 @@ package cn.taketoday.web;
  */
 public interface Constant extends cn.taketoday.context.Constant {
 
-	
+	/**********************************************************
+	 * Framework Attribute Keys
+	 */
 	String 	KEY_REQUESTBODY						= "REQUESTBODY";
+	
+	/**
+	 * Framework Attribute Keys End
+	 **********************************************************/
 	
 	String	CONVERT_METHOD						= "doConvert";
 

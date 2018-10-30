@@ -45,8 +45,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * 
  * @author Today <br>
@@ -54,7 +52,6 @@ import lombok.extern.slf4j.Slf4j;
  *          2018-06-25 20:35:04 <br>
  *          2018-08-21 21:05 <b>change:</b> add default value feature.
  */
-@Slf4j
 public final class DefaultParameterResolver extends AbstractParameterResolver implements Constant {
 
 	private static final long serialVersionUID = 4394085271334581064L;
@@ -167,8 +164,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 		String requestParameter = request.getParameter(methodParameterName);
 		if (StringUtils.isEmpty(requestParameter)) {
 			if (methodParameter.isRequired()) {
-				log.debug("parameter -> [{}] is required, bad request.", methodParameterName);
-				throw new BadRequestException("parameter is required, bad request.");
+				throw new BadRequestException("Parameter: [" + methodParameterName + "] is required, bad request.");
 			}
 			return converter.doConvert(methodParameter.getDefaultValue());
 		}
@@ -190,8 +186,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 
 		if (StringUtils.isEmpty(requestParameter)) {
 			if (methodParameter.isRequired()) {
-				log.debug("parameter -> [{}] is required, bad request.", methodParameterName);
-				throw new BadRequestException("parameter is required, bad request.");
+				throw new BadRequestException("Parameter: [" + methodParameterName + "] is required, bad request.");
 			}
 			return methodParameter.getDefaultValue();
 		}
@@ -208,14 +203,13 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 	 */
 	private Object resolveArrayParameter(HttpServletRequest request, String methodParameterName,
 			MethodParameter methodParameter) throws BadRequestException {
-
-//		log.debug("set array parameter -> [{}]", methodParameterName);
 		// parameter value[]
 		String[] parameterValues = request.getParameterValues(methodParameterName);
 		if (parameterValues == null || parameterValues.length == 0) {
 			if (methodParameter.isRequired()) {
-				log.debug("array parameter -> [{}] is required, bad request.", methodParameterName);
-				throw new BadRequestException(methodParameterName + " is required, bad request.");
+				throw new BadRequestException(//
+						"Array parameter: [" + methodParameterName + "] is required, bad request."//
+				);
 			}
 			return null;
 		}
@@ -308,14 +302,19 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 							methodParameter.getParameterClass());
 				}
 				try {
-
-					JSONObject object = JSON.parseObject(request.getReader().readLine());
+					// fix #2 JSONObject could be null
+					String readLine = request.getReader().readLine();
+					if (readLine == null) {
+						throw new BadRequestException(
+								"Request body: [" + methodParameterName + "] can't be null, bad request."//
+						);
+					}
+					JSONObject object = JSON.parseObject(readLine);
 					request.setAttribute(KEY_REQUESTBODY, object);
 					return object.getObject(methodParameterName, methodParameter.getParameterClass());
 				} //
 				catch (IOException e) {
-					log.error("Request body read error.", e);
-					throw new BadRequestException("request body read error.", e);
+					throw new BadRequestException("Request body read error.", e);
 				}
 			}
 			case ANNOTATION_SERVLET_CONTEXT : { // servlet context attribute
@@ -360,13 +359,17 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 					return Double.parseDouble(value);
 				case TYPE_FLOAT :
 					return Float.parseFloat(value);
+				default:
+					if (this.supportsParameter(methodParameter)) {
+						return supportParameterTypes.get(methodParameter.getParameterClass())//
+								.doConvert(request.getParameter(methodParameterName));
+					}
 			}
 		} catch (Throwable e) {
-			log.error("Path variable: '{}' can't be resolve, bad request.", methodParameterName, e);
 			throw new BadRequestException(
-					"Path variable: '" + methodParameterName + "' can't be resolve, bad request.");
+					"Path variable: [" + methodParameterName + "] can't be resolve, bad request.");
 		}
-		throw new BadRequestException("Path variable: '" + methodParameterName + "' can't be resolve, bad request.");
+		throw new BadRequestException("Path variable: [" + methodParameterName + "] can't be resolve, bad request.");
 	}
 
 	/**
@@ -393,7 +396,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 		}
 		// no cookie
 		if (methodParameter.isRequired()) {
-			throw new BadRequestException("cookie: [" + methodParameterName + "] can't be null, bad request.");
+			throw new BadRequestException("Cookie: [" + methodParameterName + "] can't be null, bad request.");
 		}
 		return methodParameter.getDefaultValue(); // return default value.
 	}
@@ -417,7 +420,6 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 				// 遍历参数
 				final String parameterName = parameterNames.nextElement();
 				// 寻找参数
-
 				if (!resolvePojoParameter(request, parameterName, bean, forName.getDeclaredField(parameterName),
 						methodParameter)) {
 					return false;
@@ -463,7 +465,7 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 					property = converter.doConvert(parameter);
 				} else { // 不支持
 
-					throw new BadRequestException("parameter not supported, bad request.");
+					throw new BadRequestException("Parameter not supported, bad request.");
 				}
 			}
 		}
@@ -486,24 +488,29 @@ public final class DefaultParameterResolver extends AbstractParameterResolver im
 			MethodParameter methodParameter) throws Throwable {
 
 		if (methodParameter.isRequestBody()) {
+
+			Object requestBody = request.getAttribute(KEY_REQUESTBODY);
+			if (requestBody != null) {
+				return JSONArray.parseArray(//
+						((JSONObject) requestBody).getString(parameterName), methodParameter.getGenericityClass()//
+				);
+			}
+
 			try {
 
-				Object requestBody = request.getAttribute(KEY_REQUESTBODY);
-				if (requestBody != null) {
-					return JSONArray.parseArray(//
-							((JSONObject) requestBody).getString(parameterName), methodParameter.getGenericityClass()//
-					);
+				// fix #2 JSONObject could be null
+				String readLine = request.getReader().readLine();
+				if (readLine == null) {
+					throw new BadRequestException("Request body: [" + parameterName + "] can't be null, bad request.");
 				}
-
-				JSONObject object = JSON.parseObject(request.getReader().readLine());
+				JSONObject object = JSON.parseObject(readLine);
 				request.setAttribute(KEY_REQUESTBODY, object);
 				JSONArray.parseArray(//
 						object.getString(parameterName), methodParameter.getGenericityClass()//
 				);
 			} //
 			catch (IOException e) {
-				log.error("'Collection' request body read error.", e);
-				throw new BadRequestException("List request body read error.");
+				throw new BadRequestException("Collection request body read error.");
 			}
 		}
 		// https://taketoday.cn/today/user/list?user%5b0%5d.userId=90&user%5b2%5d.userId=98&user%5b1%5d.userName=Today

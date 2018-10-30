@@ -175,12 +175,10 @@ public final String multiUpload(HttpServletResponse response, @Multipart Multipa
 }
 ```
 
-> 具体项目：[TODAY WEB DEMO](https://github.com/TAKETODAY/today-web-demo)
-
 ### 联系方式
 - 邮箱 taketoday@foxmail.com
 
 ### 开源协议
 
-请查看 [GNU GENERAL PUBLIC LICENSE](https://github.com/TAKETODAY/today-web/blob/master/LICENSE)
+请查看 [GNU GENERAL PUBLIC LICENSE](https://gitee.com/TAKETODAY/today_web/blob/master/LICENSE)
 

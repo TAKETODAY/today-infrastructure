@@ -19,9 +19,12 @@
  */
 package cn.taketoday.web.exception;
 
+import org.slf4j.LoggerFactory;
+
 /**
- * @author Today
- * @date 2018年6月28日 下午4:36:28
+ * 
+ * @author Today <br>
+ *         2018-10-30 16:51
  */
 public final class BadRequestException extends Exception {
 
@@ -37,6 +40,7 @@ public final class BadRequestException extends Exception {
 
 	public BadRequestException(String message) {
 		super(message);
+		LoggerFactory.getLogger(BadRequestException.class).error(message);
 	}
 
 	public BadRequestException() {
