@@ -19,21 +19,21 @@
  */
 package test.context.utils;
 
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.DefaultApplicationContext;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.PropertiesUtils;
+
 import java.util.Properties;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.DefaultApplicationContext;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.utils.PropertiesUtils;
-
 /**
  * 
  * @author Today <br>
- * 		2018-07-12 20:46:41
+ *         2018-07-12 20:46:41
  */
 public class PropertiesUtilsTest {
 
@@ -43,26 +43,27 @@ public class PropertiesUtilsTest {
 	public void start() {
 		start = System.currentTimeMillis();
 	}
-	
+
 	@After
 	public void end() {
 		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
 	}
-	
+
 	@Test
 	public void test_FindInProperties() throws ConfigurationException {
-		ApplicationContext applicationContext = new DefaultApplicationContext(true);
-		Properties properties = applicationContext.getBeanDefinitionRegistry().getProperties();
 		
-		String findInProperties = PropertiesUtils.findInProperties(properties, "#{site.name}");
-		String findInProperties_ = PropertiesUtils.findInProperties(properties, "TODAY BLOG");
+		try (ApplicationContext applicationContext = new DefaultApplicationContext()) {
+
+			Properties properties = applicationContext.getEnvironment().getProperties();
 		
-		assert findInProperties.equals(findInProperties_);
-		
-		System.out.println(findInProperties);
-		System.out.println(findInProperties_);
+			String findInProperties = PropertiesUtils.findInProperties(properties, "#{site.name}");
+			String findInProperties_ = PropertiesUtils.findInProperties(properties, "TODAY BLOG");
+
+			assert findInProperties.equals(findInProperties_);
+
+			System.out.println(findInProperties);
+			System.out.println(findInProperties_);
+		}
 	}
-	
-	
 
 }

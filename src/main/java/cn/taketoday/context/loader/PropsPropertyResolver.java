@@ -19,12 +19,12 @@
  */
 package cn.taketoday.context.loader;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.PropertyResolver;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.AnnotationException;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.PropertiesUtils;
 
@@ -47,29 +47,31 @@ public class PropsPropertyResolver implements PropertyValueResolver {
 	 * resolve {@link Props} annotation property.
 	 */
 	@Override
-	public PropertyValue resolveProperty(BeanDefinitionRegistry registry, Field field) throws Exception {
+	public PropertyValue resolveProperty(ApplicationContext applicationContext, //
+			Field field) throws Exception //
+	{
 
 		if (!Properties.class.equals(field.getType())) {
 			throw new AnnotationException("Field type must be -> [" + Properties.class.getName() + "]");
 		}
-		
+
 		Props props = field.getAnnotation(Props.class);
 		Properties properties = new Properties(); // property vlaue
 		Properties properties_ = new Properties(); // file to be load
 		ClassLoader classLoader = ClassUtils.getClassLoader();
 
 		for (String fileName : props.value()) {
-			
+
 			try (InputStream inputStream = new FileInputStream(
 					classLoader.getResource(checkName(fileName)).getPath())) {
-				
+
 				properties_.load(inputStream);
 				this.load(props, properties, properties_);
 			}
 		}
 		if (props.value().length == 0) {
 
-			properties_ = registry.getProperties();
+			properties_ = applicationContext.getEnvironment().getProperties();
 			this.load(props, properties, properties_);
 		}
 

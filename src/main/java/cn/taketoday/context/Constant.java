@@ -32,7 +32,18 @@ public interface Constant extends Serializable {
 
 	String	ON_APPLICATION_EVENT	= "onApplicationEvent";
 
-	String	OBJECT_FACTORY			= "ObjectFactory";
+	String	OBJECT_FACTORY			= "objectFactory";
 	
 	String  PROPERTIES_SUFFIX		= ".properties";
+	
+	String 	PLACE_HOLDER_PREFIX		= "#{";
+	
+	String 	PLACE_HOLDER_SUFFIX		= "}";
+	
+	String	KEY_ACTIVE_PROFILES		= "context.active.profiles";
+	
+	String	SPLIT_REGEXP			= "[;|,]";
+	
 }
+
+

@@ -19,15 +19,12 @@
  */
 package cn.taketoday.context.factory;
 
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
 
 import java.util.Set;
 
 /**
+ * bean factory
  * 
  * @author Today <br>
  * 
@@ -35,72 +32,7 @@ import java.util.Set;
  */
 public interface BeanFactory {
 
-	
 	String FACTORY_BEAN_PREFIX = "$";
-	
-	/**
-	 * 
-	 * @param name
-	 * @param bean
-	 */
-	void registerSingleton(String name, Object bean);
-
-	/**
-	 * refresh factory, initialize singleton
-	 */
-	void onRefresh();
-
-	/**
-	 * remove bean with the given name
-	 * 
-	 * @param name
-	 *            bean name
-	 * @throws NoSuchBeanDefinitionException
-	 */
-	void removeBeanDefinition(String name) throws NoSuchBeanDefinitionException;
-
-	/**
-	 * register a bean with the given name and type
-	 * 
-	 * @param beanDefinition
-	 *            bean definition
-	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
-	 * @since 1.2.0
-	 */
-	void registerBeanDefinition(String name, BeanDefinition beanDefinition)
-			throws BeanDefinitionStoreException, ConfigurationException;
-
-	/**
-	 * register a bean with the given name and type
-	 * 
-	 * @param name
-	 *            bean name
-	 * @param clazz
-	 *            bean class
-	 * @throws BeanDefinitionStoreException
-	 */
-	void registerBeanDefinition(String name, Class<?> clazz) throws BeanDefinitionStoreException;
-
-	/**
-	 * register a bean with the given type
-	 * 
-	 * @param clazz
-	 *            bean class
-	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
-	 */
-	void registerBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException, ConfigurationException;
-
-	/**
-	 * register a bean with the given types
-	 * 
-	 * @param clazz
-	 *            bean classes
-	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
-	 */
-	void registerBeanDefinition(Set<Class<?>> clazz) throws BeanDefinitionStoreException, ConfigurationException;
 
 	/**
 	 * find the bean with the given type, throw an NoSuchBeanDefinitionException if
@@ -138,20 +70,11 @@ public interface BeanFactory {
 	<T> T getBean(String name, Class<T> requiredType) throws NoSuchBeanDefinitionException;
 
 	/**
-	 * whether there is a bean with the given name.
-	 * 
-	 * @param name
-	 *            bean name
-	 * @return
-	 */
-	boolean containsBeanDefinition(String name);
-
-	/**
 	 * whether there is a bean with the given type.
 	 * 
 	 * @param type
 	 *            bean type
-	 * @return
+	 * @return if exist a bean with given type
 	 */
 	boolean containsBeanDefinition(Class<?> type);
 
@@ -159,7 +82,7 @@ public interface BeanFactory {
 	 * is Singleton ?
 	 * 
 	 * @param name
-	 * @return
+	 * @return if this bean is a singleton
 	 * @throws NoSuchBeanDefinitionException
 	 */
 	boolean isSingleton(String name) throws NoSuchBeanDefinitionException;
@@ -188,28 +111,8 @@ public interface BeanFactory {
 	 * 
 	 * @param type
 	 *            bean type
-	 * @return
+	 * @return a set of names with given type
 	 */
 	Set<String> getAliases(Class<?> type);
-
-	/**
-	 * 
-	 * @param beanDefinitionRegistry
-	 */
-	void setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry);
-
-	/**
-	 * get the bean definition registry
-	 * 
-	 * @return
-	 */
-	BeanDefinitionRegistry getBeanDefinitionRegistry();
-
-	/**
-	 * get bean definition loader
-	 * 
-	 * @return
-	 */
-	BeanDefinitionLoader getBeanDefinitionLoader();
 
 }

@@ -20,7 +20,9 @@
 package cn.taketoday.context.listener;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.ContextListener;
+import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.DisposableBean;
@@ -28,7 +30,6 @@ import cn.taketoday.context.factory.DisposableBean;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Set;
 
 import javax.annotation.PreDestroy;
 
@@ -41,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @ContextListener
+@Order(Ordered.LOWEST_PRECEDENCE)
 public class ContextCloseListener implements ApplicationListener<ContextCloseEvent> {
 
 	@Override
@@ -48,17 +50,15 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
 
 		ApplicationContext applicationContext = event.getApplicationContext();
 
-		log.info("Closing -> [{}] at [{}].", applicationContext,
-				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(event.getTimestamp())));
+		log.info("Closing: [{}] at [{}].", applicationContext,
+				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(event.getTimestamp())));
 
-		BeanDefinitionRegistry beanDefinitionRegistry = applicationContext.getBeanDefinitionRegistry();
-
-		Set<String> names = beanDefinitionRegistry.getBeanDefinitionNames();
+		BeanDefinitionRegistry beanDefinitionRegistry = applicationContext.getEnvironment().getBeanDefinitionRegistry();
 
 		try {
 
-			for (String name : names) {
-				Object bean = beanDefinitionRegistry.getSingleton(name);
+			for (String name : beanDefinitionRegistry.getBeanDefinitionNames()) {
+				Object bean = applicationContext.getSingleton(name);
 
 				if (bean == null) {
 					continue;
@@ -74,16 +74,16 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
 						method.invoke(bean);
 					}
 				}
-				bean = null;
 			}
 		} //
-		catch (Exception ex) {
-			log.error("Closing Context ERROR -> [{}] caused by {}", ex.getMessage(), ex.getCause(), ex);
+		catch (Throwable ex) {
+			log.error("Closing Context ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
+		} finally {
+			beanDefinitionRegistry.getDependency().clear();
+			applicationContext.getEnvironment().getProperties().clear();
+			applicationContext.getSingletonsMap().clear();
+			beanDefinitionRegistry.getBeanDefinitionsMap().clear();
 		}
-
-		beanDefinitionRegistry.getProperties().clear();
-		beanDefinitionRegistry.getSingletonsMap().clear();
-		beanDefinitionRegistry.getBeanDefinitionsMap().clear();
 	}
 
 }

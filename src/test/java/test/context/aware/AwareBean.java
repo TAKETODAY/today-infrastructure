@@ -24,6 +24,8 @@ import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
+import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.factory.BeanFactory;
 
 import lombok.Getter;
@@ -35,15 +37,15 @@ import lombok.Getter;
  */
 @Singleton
 @Getter
-public class AwareBean implements ApplicationContextAware, BeanFactoryAware, BeanNameAware {
+public class AwareBean implements ApplicationContextAware, BeanFactoryAware, BeanNameAware, EnvironmentAware {
 
-	private String				beanName;
+	private String beanName;
 
-	private ClassLoader			classLoader;
+	private BeanFactory beanFactory;
 
-	private BeanFactory			beanFactory;
+	private ApplicationContext applicationContext;
 
-	private ApplicationContext	applicationContext;
+	private Environment environment;
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
@@ -60,18 +62,23 @@ public class AwareBean implements ApplicationContextAware, BeanFactoryAware, Bea
 		this.beanName = name;
 	}
 
+	@Override
+	public void setEnvironment(Environment environment) {
+		this.environment = environment;
+	}
 
 	@Override
 	public String toString() {
 		return new StringBuilder()//
 				.append("{\n\t\"beanName\":\"")//
 				.append(beanName)//
-				.append("\",\n\t\"classLoader\":\"")//
-				.append(classLoader)//
 				.append("\",\n\t\"beanFactory\":\"")//
 				.append(beanFactory)//
 				.append("\",\n\t\"applicationContext\":\"")//
-				.append(applicationContext).append("\"\n}")//
+				.append(applicationContext)//
+				.append("\",\n\t\"environment\":\"")//
+				.append(environment)//
+				.append("\"\n}")//
 				.toString();
 	}
 

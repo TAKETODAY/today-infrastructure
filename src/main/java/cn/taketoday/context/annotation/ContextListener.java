@@ -35,7 +35,12 @@ import java.util.EventObject;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface ContextListener {
-	
-	Class<?>[] value() default EventObject.class;
+
+	/**
+	 * specify event
+	 * 
+	 * @return
+	 */
+	Class<? extends EventObject>[] value() default {};
 
 }

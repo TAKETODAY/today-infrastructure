@@ -35,10 +35,9 @@ public final class BeanReference {
 
 	/** reference name */
 	private String name;
-
-	/**	required?**/
+	/** required? **/
 	private boolean required = true;
-	
+
 	public BeanReference(String name) {
 		this.name = name;
 	}
@@ -46,8 +45,8 @@ public final class BeanReference {
 	@Override
 	public String toString() {
 		return new StringBuilder()//
-				.append("{\"name\":\"")//
-				.append(name)//
+				.append("{\"name\":\"").append(name)//
+				.append("\",\"required\":\"").append(required)//
 				.append("\"}")//
 				.toString();
 	}

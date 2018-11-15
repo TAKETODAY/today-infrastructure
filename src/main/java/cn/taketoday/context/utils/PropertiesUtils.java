@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.utils;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.exception.ConfigurationException;
 
 import java.io.IOException;
@@ -53,21 +54,17 @@ public abstract class PropertiesUtils {
 	 * @return
 	 * @throws ConfigurationException
 	 */
-	public static String findInProperties(Properties properties, String value_, boolean shutdown)
-			throws ConfigurationException {
-
+	public static String findInProperties(Properties properties, //
+			String value_, boolean shutdown) throws ConfigurationException //
+	{
 		final String key = value_;
-		if (value_.startsWith("#{") && value_.endsWith("}")) {
+		if (value_.startsWith(Constant.PLACE_HOLDER_PREFIX) && value_.endsWith(Constant.PLACE_HOLDER_SUFFIX)) {
 			String replaceAll = value_.replaceAll("[{|#|}]+", "");
-			value_ = System.getProperty(replaceAll);
-			if (value_ != null) {
-				return value_;
-			}
 			value_ = properties.getProperty(replaceAll);
 			if (value_ == null) {
-				if(shutdown) {
+				if (shutdown) {
 					throw new ConfigurationException("Properties -> [{}] , must specify a value.",
-						key.replaceAll("[{|#|}]+", ""));
+							key.replaceAll("[{|#|}]+", ""));
 				}
 				return null;
 			}

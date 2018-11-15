@@ -19,14 +19,13 @@
  */
 package test.context.loader;
 
-import org.junit.Test;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.ValuePropertyResolver;
+
+import org.junit.Test;
 
 /**
  * @author Today <br>
@@ -45,9 +44,7 @@ public class ValuePropertyResolveTest {
 
 		ApplicationContext applicationContext = new DefaultApplicationContext(true);
 
-		BeanDefinitionRegistry registry = applicationContext.getBeanDefinitionRegistry();
-
-		PropertyValue resolveProperty = propertyResolver.resolveProperty(registry,
+		PropertyValue resolveProperty = propertyResolver.resolveProperty(applicationContext,
 				ValuePropertyResolveTest.class.getDeclaredField("host"));
 
 		assert resolveProperty.getValue() != null;

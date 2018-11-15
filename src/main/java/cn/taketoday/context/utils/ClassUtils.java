@@ -19,6 +19,12 @@
  */
 package cn.taketoday.context.utils;
 
+import cn.taketoday.context.asm.ClassReader;
+import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Label;
+import cn.taketoday.context.asm.MethodVisitor;
+import cn.taketoday.context.asm.Opcodes;
+import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.exception.ConfigurationException;
 
 import java.io.File;
@@ -40,17 +46,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,16 +60,19 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ClassUtils {
 
-	private static Logger log = LoggerFactory.getLogger(ClassUtils.class);
+	private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
 	/** all the class in class path */
-	private static Collection<Class<?>> clazz_cache;
+	private static Collection<Class<?>> clazz_cache = new HashSet<>(256);
 	/** class loader **/
 	private static ClassLoader classLoader;
+
+	private static boolean hasLoadedClass = false;
 
 	private static Map<Method, String[]> PARAMS_NAMES_CACHE = new HashMap<>(16);
 
 	static {
+
 		classLoader = Thread.currentThread().getContextClassLoader();
 		if (classLoader == null) {
 			classLoader = ClassUtils.class.getClassLoader();
@@ -87,6 +89,20 @@ public abstract class ClassUtils {
 	 */
 	public static final boolean isCollection(Class<?> cls) {
 		return Collection.class.isAssignableFrom(cls);
+	}
+
+	/**
+	 * 
+	 * @param className
+	 * @return
+	 */
+	public static boolean isPresent(String className) {
+		try {
+			forName(className);
+			return true;
+		} catch (Throwable ex) {
+			return false;
+		}
 	}
 
 	/**
@@ -127,6 +143,12 @@ public abstract class ClassUtils {
 				.collect(Collectors.toSet());
 	}
 
+	/**
+	 * 
+	 * @param interfaceClass
+	 * @param packageName
+	 * @return
+	 */
 	public static final Collection<Class<?>> getImplClasses(Class<?> interfaceClass, String packageName) {
 		return getClassCache()//
 				.parallelStream()//
@@ -146,60 +168,27 @@ public abstract class ClassUtils {
 		}
 	}
 
+	public static void setClassLoader(ClassLoader classLoader) {
+		ClassUtils.classLoader = classLoader;
+	}
+
 	public static ClassLoader getClassLoader() {
 		return classLoader;
 	}
 
+	/**
+	 * get all classes in class path
+	 * 
+	 * @return all classes in class path
+	 */
 	public static Collection<Class<?>> getClassCache() {
-		if (clazz_cache == null) {
+		if (hasLoadedClass) {
+			return clazz_cache;
+		}
+		if (clazz_cache.size() == 0) {
 			clazz_cache = scanPackage("");
 		}
 		return clazz_cache;
-	}
-
-	public static final Collection<Class<?>> scan(String dir) {
-		Set<Class<?>> clazz = new HashSet<Class<?>>();
-
-		try {
-			URL url = new URL("file:/" + dir);
-			
-//			File file = new File(dir);
-			
-			
-			final String protocol = url.getProtocol();
-			if ("file".equals(protocol)) {
-				final String filePath = URLDecoder.decode(url.getFile(), "UTF-8");
-				findAllClass("", filePath, clazz);// scan all class and set collection
-			} else if ("jar".equals(protocol)) {
-				JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
-				if (jarURLConnection == null) {
-					log.warn("Can't open connection with [{}].", dir);
-				}
-				JarFile jarFile = jarURLConnection.getJarFile();
-				if (jarFile == null) {
-					log.warn("Can't open jar file with [{}].", dir);
-				}
-				Enumeration<JarEntry> jarEntries = jarFile.entries();
-				while (jarEntries.hasMoreElements()) {
-					JarEntry jarEntry = jarEntries.nextElement();
-					String jarEntryName = jarEntry.getName();
-					if (jarEntryName.contains("today") && jarEntryName.endsWith(".class")) {
-						String className = jarEntryName.substring(0, jarEntryName.lastIndexOf(".")).replaceAll("/",
-								".");
-						try {
-							
-							clazz.add(classLoader.loadClass(className));
-						} //
-						catch (ClassNotFoundException e) {
-							log.error("can't find class", e);
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			log.error("exception occur", e);
-		}
-		return clazz;
 	}
 
 	/**
@@ -211,8 +200,6 @@ public abstract class ClassUtils {
 	 */
 	public static Collection<Class<?>> scanPackage(String basePackage) {
 
-		Set<Class<?>> clazz = new HashSet<Class<?>>();
-
 		if (StringUtils.isEmpty(basePackage)) {
 			basePackage = "";
 		} else {
@@ -223,10 +210,11 @@ public abstract class ClassUtils {
 
 			while (uri.hasMoreElements()) {
 				URL url = uri.nextElement();
+
 				final String protocol = url.getProtocol();
 				if ("file".equals(protocol)) {
-					final String filePath = URLDecoder.decode(url.getFile(), "UTF-8");
-					findAllClass(basePackage, filePath, clazz);// scan all class and set collection
+					findAllClass(basePackage, URLDecoder.decode(url.getFile(), "UTF-8"));// scan all class and
+																							// set collection
 				} else if ("jar".equals(protocol)) {
 					JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
 					if (jarURLConnection == null) {
@@ -240,23 +228,31 @@ public abstract class ClassUtils {
 					while (jarEntries.hasMoreElements()) {
 						JarEntry jarEntry = jarEntries.nextElement();
 						String jarEntryName = jarEntry.getName();
-						if (jarEntryName.contains("today") && jarEntryName.endsWith(".class")) {
-							String className = jarEntryName.substring(0, jarEntryName.lastIndexOf(".")).replaceAll("/",
-									".");
-							try {
 
-								clazz.add(classLoader.loadClass(className));
-							} //
-							catch (ClassNotFoundException e) {
-								log.error("can't find class", e);
-							}
+						if (jarEntry.isDirectory() || //
+								!jarEntryName.contains("today") || // framework package
+								jarEntryName.startsWith("module-info") || //
+								jarEntryName.startsWith("package-info") || //
+								!jarEntryName.endsWith(".class")) {
+							continue;
+						}
+
+						try {
+
+							clazz_cache.add(classLoader.loadClass(//
+									jarEntryName.substring(0, jarEntryName.lastIndexOf(".")).replaceAll("/", ".")//
+							));
+						} //
+						catch (NoClassDefFoundError | ClassNotFoundException e) {
+							log.warn("Exception Occur With Msg: [{}]", e.getMessage());
 						}
 					}
 				}
 			}
-			return clazz;
+			hasLoadedClass = true;
+			return clazz_cache;
 		} catch (IOException e) {
-			log.error("io exception occur", e);
+			log.error("IO exception occur With Msg: [{}]", e.getMessage(), e);
 		}
 		return null;
 	}
@@ -271,23 +267,22 @@ public abstract class ClassUtils {
 	 * @param classes
 	 *            class set
 	 */
-	private static void findAllClass(String packageName, String packagePath, Set<Class<?>> classes) {
+	private static void findAllClass(String packageName, String packagePath) {
 
 		File directory = new File(packagePath);
 
 		if (!directory.exists() || !directory.isDirectory()) {
-			log.error("the package -> [{}] you provided that contains nothing", packageName);
+			log.error("The package -> [{}] you provided that contains nothing", packageName);
 			return;
 		}
 
-		// log.debug("enter package -> [{}]", packageName);
-
+//		log.debug("enter package -> [{}]", packageName);
 		// exists
 		File[] directoryFiles = directory
 				.listFiles(file -> (file.isDirectory()) || (file.getName().endsWith(".class")));
 
 		if (directoryFiles == null) {
-			log.error("the package -> [{}] you provided that contains nothing", packageName);
+			log.error("The package -> [{}] you provided that contains nothing", packageName);
 			return;
 		}
 
@@ -301,7 +296,7 @@ public abstract class ClassUtils {
 				if (scanPackage.startsWith(".")) {
 					scanPackage = scanPackage.replaceFirst("[.]", "");
 				}
-				findAllClass(scanPackage, file.getAbsolutePath(), classes);
+				findAllClass(scanPackage, file.getAbsolutePath());
 				continue;
 			}
 			if (fileName.contains("package-info")) {
@@ -312,7 +307,7 @@ public abstract class ClassUtils {
 
 			try {
 
-				classes.add(classLoader.loadClass(className.replaceAll("/", "."))); // add
+				clazz_cache.add(classLoader.loadClass(className.replaceAll("/", "."))); // add
 			} //
 			catch (ClassNotFoundException e) {
 				log.warn("Can't find class -> [{}]", className);
@@ -371,8 +366,11 @@ public abstract class ClassUtils {
 			log.error("ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
 		}
 
-		classReader.accept(new ClassVisitor(Opcodes.ASM6) {
+		if (classReader == null) {
+			throw new RuntimeException();
+		}
 
+		classReader.accept(new ClassVisitor(Opcodes.ASM7) {
 			@Override
 			public MethodVisitor visitMethod(final int access, final String name, final String desc,
 					final String signature, final String[] exceptions) {
@@ -383,7 +381,7 @@ public abstract class ClassUtils {
 				}
 				MethodVisitor v = super.visitMethod(access, name, desc, signature, exceptions);
 
-				return new MethodVisitor(Opcodes.ASM6, v) {
+				return new MethodVisitor(Opcodes.ASM7, v) {
 					@Override
 					public void visitLocalVariable(String name, String desc, String signature, Label start, Label end,
 							int index) {
@@ -416,9 +414,9 @@ public abstract class ClassUtils {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T[] getClassAnntation(Class<?> clazz, Class<T> annotationClass, Class<? extends T> implClass)
-			throws Exception {
-
+	public static <T> T[] getClassAnntation(Class<?> clazz, //
+			Class<T> annotationClass, Class<? extends T> implClass) throws Exception //
+	{
 		List<T> targetInstance = new ArrayList<>();
 
 		Annotation[] annotations = clazz.getAnnotations();// clazz 的注解
@@ -443,10 +441,14 @@ public abstract class ClassUtils {
 		return targetInstance.toArray((T[]) Array.newInstance(annotationClass, targetInstance.size()));
 	}
 
-	private static <T> void convert(Class<T> annotationClass, Class<? extends T> implClass, List<T> object,
-			Method[] declaredMethods, Annotation targetAnnoInstance, Class<?> targetAnnoType,
-			Annotation[] allAnnoAnnotations) throws Exception {
-
+	private static <T> void convert(Class<T> annotationClass, //
+			Class<? extends T> implClass, //
+			List<T> object, //
+			Method[] declaredMethods, //
+			Annotation targetAnnoInstance, //
+			Class<?> targetAnnoType, //
+			Annotation[] allAnnoAnnotations) throws Exception //
+	{
 		// 对所有的注解(targetClassAnno)上的注解遍历，判断是否是annotationClass
 		for (Annotation annotation_ : allAnnoAnnotations) {
 			// annotation 上的 class
@@ -454,7 +456,7 @@ public abstract class ClassUtils {
 			if (annotationType_ != annotationClass) {
 				continue;
 			}
-			T newInstance = implClass.getConstructor().newInstance();
+			T newInstance = implClass.getConstructor().newInstance(); // the impl class's instance
 
 			for (Method method : declaredMethods) {// 遍历对象class的方法
 				String name = method.getName();
@@ -462,9 +464,10 @@ public abstract class ClassUtils {
 				field.setAccessible(true);
 				Method declaredMethod = null;
 				try {
+					
 					declaredMethod = targetAnnoType.getMethod(name);
 				} catch (NoSuchMethodException e) {
-					//
+					// not impl the method
 					field.set(newInstance, annotation_.annotationType().getMethod(name).invoke(annotation_));
 					continue;
 				}
@@ -474,15 +477,22 @@ public abstract class ClassUtils {
 					Array.set(array, 0, value);
 					value = array;
 				}
-				field.set(newInstance, value);
+				try {
+					
+					field.set(newInstance, value);
+				} catch (IllegalArgumentException e) {
+					// not a target type of method type
+					field.set(newInstance, annotation_.annotationType().getMethod(name).invoke(annotation_));
+				}
 			}
 			object.add(newInstance);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T[] getMethodAnntation(Method method, Class<T> annotationClass, Class<? extends T> implClass)
-			throws Exception {
+	public static <T> T[] getMethodAnntation(Method method, //
+			Class<T> annotationClass, Class<? extends T> implClass) throws Exception //
+	{
 		List<T> targetInstance = new ArrayList<>();
 
 		Annotation[] annotations = method.getAnnotations();// clazz 的注解
@@ -516,8 +526,9 @@ public abstract class ClassUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static <T> T getAnntation(Annotation targetClassAnno, Class<? extends Annotation> annotationClass,
-			Class<? extends T> implClass) throws Exception {
+	public static <T> T getAnntation(Annotation targetClassAnno, //
+			Class<? extends Annotation> annotationClass, Class<? extends T> implClass) throws Exception //
+	{
 		return convert(implClass, targetClassAnno, annotationClass.getDeclaredMethods());
 	}
 
@@ -534,23 +545,27 @@ public abstract class ClassUtils {
 	 * @throws NoSuchFieldException
 	 * @throws ConfigurationException
 	 */
-	private static <T> T convert(Class<? extends T> implClass, Object targetInstance, Method[] declaredMethods)
-			throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException,
-			NoSuchFieldException, ConfigurationException {
+	private static <T> T convert(Class<? extends T> implClass, //
+			Object targetInstance, Method[] declaredMethods) //
+			throws InstantiationException, //
+			IllegalAccessException, //
+			InvocationTargetException, //
+			NoSuchMethodException, NoSuchFieldException, ConfigurationException //
+	{
 
 		T newInstance = implClass.getConstructor().newInstance();// instance
 
 		for (Method method : declaredMethods) {
-
+			
 			Field field = implClass.getDeclaredField(method.getName());
-
+			
 			if (field == null) {
-				throw new ConfigurationException("you must specify a field named -> {}.", method.getName());
+				throw new ConfigurationException("You must specify a field named: [{}] in [{}]", //
+						method.getName(), implClass);
 			}
 			field.setAccessible(true);
 			field.set(newInstance, method.invoke(targetInstance));
 		}
-
 		return newInstance;
 	}
 

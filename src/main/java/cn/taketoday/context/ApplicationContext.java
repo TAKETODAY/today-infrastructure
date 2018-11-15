@@ -20,21 +20,27 @@
 package cn.taketoday.context;
 
 import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.listener.ApplicationEventPublisher;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.Closeable;
 
 /**
  * 
  * @author Today <br>
  *         2018-06-23 16:39:36
  */
-public interface ApplicationContext extends BeanFactory, ApplicationEventPublisher {
+public interface ApplicationContext extends ConfigurableBeanFactory, ApplicationEventPublisher, Closeable {
+
+	/**
+	 * 
+	 * @return
+	 */
+	ConfigurableEnvironment getEnvironment();
 
 	/**
 	 * 
@@ -43,10 +49,11 @@ public interface ApplicationContext extends BeanFactory, ApplicationEventPublish
 	ObjectFactory getObjectFactory();
 
 	/**
+	 * refresh factory, initialize singleton
 	 * 
-	 * @param objectFactory
+	 * @since 2.0.1
 	 */
-	void setObjectFactory(ObjectFactory objectFactory);
+	void onRefresh();
 
 	/**
 	 * Refresh bean with given name, and publish {@link ObjectRefreshedEvent}.
@@ -69,16 +76,7 @@ public interface ApplicationContext extends BeanFactory, ApplicationEventPublish
 	Object refresh(BeanDefinition beanDefinition);
 
 	/**
-	 * Load properties configuration file. No specific name required.
-	 * 
-	 * @param dir
-	 *            directory
-	 * @throws IOException
-	 */
-	void loadProperties(File dir) throws IOException;
-
-	/**
-	 * init success
+	 * context load success, clean cache like class cache.
 	 */
 	void loadSuccess();
 
@@ -94,23 +92,23 @@ public interface ApplicationContext extends BeanFactory, ApplicationEventPublish
 	 * And then {@link package_} parameter decided where to load the beans.
 	 * </p>
 	 * <p>
-	 * when all the bean definition stores in the {@link BeanDefinitionRegistry} .
-	 * It will find all the bean post processor,and initialize it.
+	 * when all the bean definition stores in the {@link BeanDefinitionRegistry}.
+	 * then resolve dependency
 	 * </p>
 	 * <p>
-	 * Now it store all the bean and then resolve dependency, Last refresh context.
+	 * Then It will find all the bean post processor,and initialize it. Last refresh
+	 * context.
 	 * </p>
 	 * 
-	 * @param path
-	 *            the path to load all the properties files
 	 * @param package_
 	 *            package to scan
 	 */
-	void loadContext(String path, String package_);
+	void loadContext(String package_);
 
 	/**
 	 * close context
 	 */
+	@Override
 	void close();
 
 }

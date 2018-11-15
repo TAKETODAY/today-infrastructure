@@ -52,6 +52,7 @@ public class NumberUtilsTest {
 		
 		assert parseArray.length == 4;
 		assert parseArray[0] == 12;
+		assert parseArray[3] == 56723562;
 		
 		System.out.println(Arrays.toString(parseArray));
 	}

@@ -39,18 +39,13 @@ import lombok.Setter;
 @NoArgsConstructor
 public final class BeanDefinition {
 
-	/**
-	 *  bean name
-	 *  
-	 */
+	/** bean name.		*/
 	private String					name;
-	/** bean class. */
+	/** bean class. 	*/
 	private Class<? extends Object>	beanClass;
-	/** bean scope. */
+	/** bean scope. 	*/
 	private Scope					scope	= Scope.SINGLETON;
-	
 	// private Method initMethod;
-
 	/** property values */
 	private PropertyValue[]			propertyValues;
 	
@@ -60,12 +55,11 @@ public final class BeanDefinition {
 	 * <p>
 	 * If registry contains it's singleton instance, we don't know the instance has
 	 * initialized or not, so must be have a flag to prove it has initialized
-	 * 
 	 */
 	private boolean 				initialized = false;
 
 	/**
-	 * Mark as a FactoryBean.
+	 * Mark as a {@link FactoryBean}.
 	 */
 	private boolean 				factoryBean = false;
 	
@@ -109,8 +103,10 @@ public final class BeanDefinition {
 	}
 	
 	/**
+	 * get a property
 	 * 
 	 * @param name
+	 *            the name of property
 	 * @return
 	 * @throws NoSuchPropertyException
 	 */
@@ -121,7 +117,7 @@ public final class BeanDefinition {
 				return propertyValue;
 			}
 		}
-		throw new NoSuchPropertyException("No such property named -> [" + name + "]");
+		throw new NoSuchPropertyException("No such property named: [" + name + "]");
 	}
 
 	public boolean isSingleton() {
@@ -142,14 +138,13 @@ public final class BeanDefinition {
 	@Override
 	public String toString() {
 		return new StringBuilder()//
-				.append("{\n\t\"name\":\"")//
-				.append(name)//
-				.append("\",\n\t\"beanClass\":\"")//
-				.append(beanClass)//
-				.append("\",\n\t\"scope\":\"")//
-				.append(scope)//
-				.append("\",\n\t\"propertyValues\":\"")//
-				.append(Arrays.toString(propertyValues))//
+				.append("{\n\t\"name\":\"").append(name)//
+				.append("\",\n\t\"beanClass\":\"").append(beanClass)//
+				.append("\",\n\t\"scope\":\"").append(scope)//
+				.append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(propertyValues))//
+				.append("\",\n\t\"initialized\":\"").append(initialized)
+				.append("\",\n\t\"factoryBean\":\"").append(factoryBean)//
+				.append("\",\n\t\"Abstract\":\"").append(Abstract)//
 				.append("\"\n}")//
 				.toString();
 	}

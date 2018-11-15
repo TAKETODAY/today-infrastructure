@@ -23,10 +23,14 @@ import cn.taketoday.context.factory.BeanFactory;
 
 /**
  * @author Today <br>
- * 	
- *		2018-08-03 15:54
+ * 
+ *         2018-08-03 15:54
  */
 public interface BeanFactoryAware extends Aware {
 
+	/**
+	 * 
+	 * @param beanFactory
+	 */
 	void setBeanFactory(BeanFactory beanFactory);
 }

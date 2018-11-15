@@ -19,22 +19,22 @@
  */
 package cn.taketoday.context.annotation;
 
+import cn.taketoday.context.Scope;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.Scope;
-
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
 /**
  * @author Today <br>
  * 
  *         2018-09-06 14:05
  */
+@Documented
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 @Component(scope = Scope.SINGLETON)
 public @interface Configuration {
 

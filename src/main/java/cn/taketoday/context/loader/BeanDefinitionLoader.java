@@ -19,12 +19,12 @@
  */
 package cn.taketoday.context.loader;
 
-import java.util.Collection;
-
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
+
+import java.util.Collection;
 
 /**
  * create bean definition
@@ -36,46 +36,48 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
 public interface BeanDefinitionLoader {
 
 	/**
+	 * Create a bean definition with given class type
 	 * 
 	 * @param clazz
+	 *            the bean type
 	 * @return
 	 */
-	BeanDefinition getBeanDefinition(Class<?> clazz);
-	
+	BeanDefinition createBeanDefinition(Class<?> clazz);
+
 	/**
 	 * Get registered bean definition registry
 	 * 
 	 * @return registry
 	 */
 	BeanDefinitionRegistry getRegistry();
-	
+
 	/**
-	 * load bean definitions with given bean collection.
+	 * Load bean definitions with given bean collection.
 	 * 
 	 * @param beans
-	 *              beans collection
+	 *            beans collection
 	 * @throws BeanDefinitionStoreException
 	 * @throws ConfigurationException
 	 */
-	void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException, ConfigurationException;
+	void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException;
 
 	/**
 	 * load bean definition with given bean class.
 	 * 
 	 * @param clazz
-	 *              bean class
+	 *            bean class
 	 * @throws BeanDefinitionStoreException
 	 * @throws ConfigurationException
 	 */
-	void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException, ConfigurationException;
+	void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException;
 
 	/**
 	 * load bean definition with given bean class and bean name.
 	 * 
 	 * @param name
-	 *              bean name
+	 *            bean name
 	 * @param clazz
-	 *              bean class
+	 *            bean class
 	 * @throws BeanDefinitionStoreException
 	 */
 	void loadBeanDefinition(String name, Class<?> clazz) throws BeanDefinitionStoreException;
@@ -84,19 +86,19 @@ public interface BeanDefinitionLoader {
 	 * register bean definition with given class
 	 * 
 	 * @param clazz
-	 *              bean class
+	 *            bean class
 	 * @throws BeanDefinitionStoreException
 	 * @throws ConfigurationException
 	 */
-	void register(Class<?> clazz) throws BeanDefinitionStoreException, ConfigurationException;
-	
+	void register(Class<?> clazz) throws BeanDefinitionStoreException;
+
 	/**
 	 * register bean definition with given name , and resolve property values
 	 * 
 	 * @param name
-	 *                       bean name
+	 *            bean name
 	 * @param beanDefinition
-	 *                       bean definition instance
+	 *            bean definition instance
 	 * @throws BeanDefinitionStoreException
 	 */
 	void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;

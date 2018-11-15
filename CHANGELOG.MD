@@ -1,6 +1,8 @@
 # Today IOC Framework
 
-### Today IOC Framework 是作者学习 Spring IOC 以及自己对IOC的理解之作
+### Today IOC Framework 是我学习 Spring IOC 以及自己对IOC的理解之作
+
+> ...
 
 > ## v1.0.3
 
@@ -19,24 +21,32 @@
 public @interface PropertyResolver {
 
     Class<? extends Annotation> value() default Autowired.class;>
- }
- ```
+}
+```
 > 5:
 ```java
 public @interface Props {
 
-    /**
-     * @return properties file name
-     */
+	/**
+	 * @return properties file name
+	 */
     String[] value() default {};
 
-    /**
-     * prefix of the key <br>
-     * default ""
-     *
-     * @return
-     */
-    String[] prefix() default { "" };
+	/**
+	 * prefix of the key <br>
+	 * default ""
+	 * 
+	 * @return
+	 */
+	String[] prefix() default { "" };
+
+	/**
+	 * replace prefix.
+	 * 
+	 * @return
+	 */
+	boolean replace() default false;
+
 }
 
 ```
@@ -60,8 +70,111 @@ public @interface Props {
 
 - 修复注入原型错误   
 
-
-> ## 2.0.0
+> ## v2.0.0
 
 - 加入`ObjectFactory`
 - 框架重构 
+
+> ## v2.1.0
+- fix: fix BeanPostProcessor's Dependency 
+- feat: add asm 7.0 under cn.taketoday.asm
+- [feat: add `@Order` Ordered feature](/src/test/java/test/context/listener)
+- [feat: add `@Conditional` feature](/src/test/java/test/context/profile/ProfileTest.java)
+- [feat: add `@Profile` feature](/src/test/java/test/context/profile/ProfileTest.java)
+- [feat: add `Environment` feature](/src/test/java/test/context/env/StandardEnvironmentTest.java)
+- [feat: add `Environment` feature](/src/test/java/test/context/env/StandardEnvironmentTest.java)
+- refactor: New Understanding Of IOC and coding
+
+> examples
+
+```java
+@Singleton
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class ProxyBeanPostProcessor implements BeanPostProcessor {
+
+}
+```
+> or
+
+```java
+@ContextListener
+public class BeanDefinitionLoadedListener_2 implements ApplicationListener<BeanDefinitionLoadedEvent>, Ordered {
+	
+	@Override
+	public void onApplicationEvent(BeanDefinitionLoadedEvent event) {
+		log.debug("BeanDefinitionLoadedListener_2");
+	}
+
+	@Override
+	public int getOrder() {
+		return 2;
+	}
+}
+```
+> @Profile("test")
+```java
+@Configuration
+public class ConfigurationBean {
+
+	@Prototype
+	public User user() {
+		return new User().setId(12);
+	}
+
+	@Singleton("user__")
+	public User user__() {
+		return new User().setId(12);
+	}
+
+	@Profile("test")
+	@Prototype("user")
+	public User testUser() {
+		return new User().setUserName("TEST");
+	}
+
+	@Profile("prod")
+	@Singleton("user")
+	public User prodUser() {
+		return new User().setUserName("PROD");
+	}
+	
+	@Singleton("user_")
+	@Conditional(WindowsCondition.class)
+	public User windowsUser() {
+		return new User().setUserName("Windows");
+	}
+}
+
+public class WindowsCondition implements Condition {
+	@Override
+	public boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement) {
+		String system = applicationContext.getEnvironment().getProperty("os.name");
+		if(system.contains("Windows")) {
+			return true;
+		}
+		return false;
+	}
+}
+
+@Test
+public void test_Profile() {
+
+	try (ApplicationContext applicationContext = new StandardApplicationContext(true)) {
+		
+		User user = applicationContext.getBean("user", User.class);
+		System.out.println(user);
+		assert "TEST".equals(user.getUserName());
+	}
+}
+
+@Test
+public void test_Conditional() {
+	
+	try (ApplicationContext applicationContext = new StandardApplicationContext(true)) {
+		User user = applicationContext.getBean("user_", User.class);
+		System.out.println(user);
+		assert "Windows".equals(user.getUserName());
+	}
+}
+```
+

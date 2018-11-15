@@ -19,14 +19,14 @@
  */
 package cn.taketoday.context.factory;
 
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Store bean definitions.
@@ -39,55 +39,10 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 public interface BeanDefinitionRegistry {
 
 	/**
-	 * Get instances Map
-	 * 
-	 * @return
-	 */
-	Map<String, Object> getSingletonsMap();
-
-	/**
-	 * All the {@link PropertyValue}.
 	 * 
 	 * @return
 	 */
 	Set<PropertyValue> getDependency();
-
-	/**
-	 * get bean instance, one {@link BeanDefinition} can have a lot of names, so
-	 * can't put instances in BeanDefinition.
-	 * 
-	 * @param name
-	 *            bean name
-	 * @return bean instance
-	 * @throws NoSuchBeanDefinitionException
-	 */
-	Object getSingleton(String name);
-
-	/**
-	 * put instance.
-	 * 
-	 * @param name
-	 *            bean name
-	 * @param bean
-	 *            bean instance
-	 */
-	Object putSingleton(String name, Object bean);
-
-	/**
-	 * contains instance with given name?
-	 * 
-	 * @param name
-	 *            bean name
-	 * @return
-	 */
-	boolean containsSingleton(String name);
-
-	/**
-	 * 
-	 * @param name
-	 *            exclude name
-	 */
-	void addExcludeName(String name);
 
 	/**
 	 * 
@@ -96,16 +51,17 @@ public interface BeanDefinitionRegistry {
 	Map<String, BeanDefinition> getBeanDefinitionsMap();
 
 	/**
-	 * save bean definition.
+	 * register a bean with the given name and type
 	 * 
-	 * @param beanName
-	 *            bean name
 	 * @param beanDefinition
-	 *            bean definition instance
+	 *            bean definition
 	 * @throws BeanDefinitionStoreException
+	 * @throws ConfigurationException
+	 * @since 1.2.0
 	 */
-	void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
-
+	void registerBeanDefinition(String name, BeanDefinition beanDefinition)
+			throws BeanDefinitionStoreException, ConfigurationException;
+	
 	/**
 	 * Remove the BeanDefinition for the given name.
 	 * 
@@ -150,12 +106,5 @@ public interface BeanDefinitionRegistry {
 	 * @return the number of beans defined in the registry
 	 */
 	int getBeanDefinitionCount();
-
-	/**
-	 * get properties
-	 * 
-	 * @return
-	 */
-	Properties getProperties();
 
 }

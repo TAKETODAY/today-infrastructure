@@ -30,21 +30,21 @@ import lombok.extern.slf4j.Slf4j;
  *         2018-08-08 09:55
  */
 @Slf4j
-public class ConfigurationException extends Exception {
+public class ConfigurationException extends ContextException {
 
 	private static final long serialVersionUID = -5325643331368019892L;
 
 	public ConfigurationException() {
 		this("");
 	}
-	
+
 	public ConfigurationException(Throwable cause) {
 		super(cause);
 	}
 
-	public ConfigurationException(String message, Object ... args) {
+	public ConfigurationException(String message, Object... args) {
 		super(message);
-		log.error("Configuration Exception Message -> [" + message + "] , Your Application Will Be Shutdown.", args);
+		log.error("Configuration Exception Message: [" + message + "] , Your Application Will Be Shutdown.", args);
 		System.exit(0);
 	}
 }

@@ -19,15 +19,15 @@
  */
 package test.context.aware;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * 
@@ -36,39 +36,38 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
  *         2018-07-17 21:35:52
  */
 public class AwareTest {
-	
+
 	private long start;
 
 	@Before
 	public void start() {
 		start = System.currentTimeMillis();
 	}
-	
+
 	@After
 	public void end() {
 		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
 	}
-	
-	
-	
+
 	@Test
-	public void test_AwareBean() throws BeanDefinitionStoreException, NoSuchBeanDefinitionException, ConfigurationException {
-		
-		ApplicationContext applicationContext = new DefaultApplicationContext();
-		
-		applicationContext.registerBeanDefinition(AwareBean.class);
-		applicationContext.onRefresh();
-		
-		AwareBean bean = applicationContext.getBean(AwareBean.class);
-		assert bean.getApplicationContext() != null : "applicationContext == null";
-		assert bean.getBeanFactory() != null : "bean factory == null";
-		assert bean.getBeanName() != null : "bean name == null";
-		assert bean.getClassLoader() != null : "class loader == null";
-		
-		System.out.println(bean);
-		
-		applicationContext.close();
-		
+	public void test_AwareBean()
+			throws BeanDefinitionStoreException, NoSuchBeanDefinitionException, ConfigurationException {
+
+		try (ApplicationContext applicationContext = new DefaultApplicationContext()) {
+
+			applicationContext.registerBean(AwareBean.class);
+			applicationContext.onRefresh();
+			
+			AwareBean bean = applicationContext.getBean(AwareBean.class);
+			assert bean.getApplicationContext() != null : "applicationContext == null";
+			assert bean.getBeanFactory() != null : "bean factory == null";
+			assert bean.getBeanName() != null : "bean name == null";
+			assert bean.getEnvironment() != null : "env == null";
+
+			System.out.println(bean);
+
+		}
+
 	}
 
 }

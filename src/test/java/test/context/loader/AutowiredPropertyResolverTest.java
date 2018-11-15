@@ -19,13 +19,14 @@
  */
 package test.context.loader;
 
-import org.junit.Test;
-
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.factory.SimpleBeanDefinitionRegistry;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.PropertyValueResolver;
+
+import org.junit.Test;
 
 /**
  * @author Today <br>
@@ -38,13 +39,13 @@ public class AutowiredPropertyResolverTest {
 	private String name;
 
 	@Test
-	public void test_() throws Exception {
+	public void test_() throws Throwable {
 
 		PropertyValueResolver autowiredPropertyResolver = new AutowiredPropertyResolver();
 
-		SimpleBeanDefinitionRegistry registry = new SimpleBeanDefinitionRegistry();
+		ConfigurableApplicationContext applicationContext = new DefaultApplicationContext();
 
-		PropertyValue resolveProperty = autowiredPropertyResolver.resolveProperty(registry,
+		PropertyValue resolveProperty = autowiredPropertyResolver.resolveProperty(applicationContext,
 				AutowiredPropertyResolverTest.class.getDeclaredField("name"));
 
 		assert resolveProperty != null;

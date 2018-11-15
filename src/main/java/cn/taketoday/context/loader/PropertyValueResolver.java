@@ -19,10 +19,10 @@
  */
 package cn.taketoday.context.loader;
 
-import java.lang.reflect.Field;
-
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
+
+import java.lang.reflect.Field;
 
 /**
  * resolve field property
@@ -38,12 +38,12 @@ public interface PropertyValueResolver {
 	 * According to different annotation resolve different property.
 	 * 
 	 * @param registry
-	 *        Bean definition registry
+	 *            Bean definition registry
 	 * @param field
-	 *        bean's field
+	 *            bean's field
 	 * @return property value
 	 * @throws Exception
 	 */
-	PropertyValue resolveProperty(BeanDefinitionRegistry registry, Field field) throws Exception;
+	PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) throws Throwable;
 
 }

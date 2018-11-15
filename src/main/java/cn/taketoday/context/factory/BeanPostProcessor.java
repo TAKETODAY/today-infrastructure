@@ -31,16 +31,18 @@ import cn.taketoday.context.bean.BeanDefinition;
 public interface BeanPostProcessor {
 
 	/**
+	 * 
 	 * before property set
 	 * 
 	 * @param bean
 	 *            bean instance
-	 * @param beanName
-	 *            bean name
+	 * @param beanDefinition
+	 *            bean definition
+	 * @return
 	 * @throws Exception
 	 */
-	default void postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) throws Exception {
-
+	default Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) throws Exception {
+		return bean;
 	}
 
 	/**
@@ -50,7 +52,8 @@ public interface BeanPostProcessor {
 	 *            bean instance
 	 * @param beanName
 	 *            bean name
+	 * @return
 	 * @throws Exception
 	 */
-	void postProcessAfterInitialization(Object bean, String beanName) throws Exception;
+	Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
 }

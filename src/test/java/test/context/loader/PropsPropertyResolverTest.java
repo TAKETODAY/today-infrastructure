@@ -19,17 +19,17 @@
  */
 package test.context.loader;
 
-import java.util.Properties;
-
-import org.junit.Test;
-
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.AnnotationException;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.PropsPropertyResolver;
+
+import java.util.Properties;
+
+import org.junit.Test;
 
 /**
  * @author Today <br>
@@ -39,20 +39,18 @@ import cn.taketoday.context.loader.PropsPropertyResolver;
 public class PropsPropertyResolverTest {
 
 	@Props(value = "info", prefix = "site")
-	private Properties	properties;
+	private Properties properties;
 
 	@Props(value = "info", prefix = "site")
-	private String		name;
+	private String name;
 
 	@Test
 	public void test_() throws NoSuchFieldException, SecurityException, Exception {
 		PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
 
-		ApplicationContext applicationContext = new DefaultApplicationContext(true);
+		ConfigurableApplicationContext applicationContext = new DefaultApplicationContext(true);
 
-		BeanDefinitionRegistry registry = applicationContext.getBeanDefinitionRegistry();
-
-		PropertyValue resolveProperty = propertyResolver.resolveProperty(registry,
+		PropertyValue resolveProperty = propertyResolver.resolveProperty(applicationContext,
 				PropsPropertyResolverTest.class.getDeclaredField("properties"));
 
 		assert resolveProperty.getValue() != null;
@@ -69,10 +67,10 @@ public class PropsPropertyResolverTest {
 
 		ApplicationContext applicationContext = new DefaultApplicationContext(true);
 
-		BeanDefinitionRegistry registry = applicationContext.getBeanDefinitionRegistry();
-
 		try {
-			propertyResolver.resolveProperty(registry, PropsPropertyResolverTest.class.getDeclaredField("name"));
+
+			propertyResolver.resolveProperty(applicationContext,
+					PropsPropertyResolverTest.class.getDeclaredField("name"));
 		} catch (AnnotationException e) {
 			System.err.println("AnnotationException");
 		} finally {

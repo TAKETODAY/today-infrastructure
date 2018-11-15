@@ -19,7 +19,13 @@
  */
 package cn.taketoday.context;
 
+import cn.taketoday.context.event.BeanPostProcessorLoadingEvent;
+import cn.taketoday.context.event.HandleDependencyEvent;
+
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lombok.NonNull;
 
@@ -30,6 +36,8 @@ import lombok.NonNull;
  */
 public class DefaultApplicationContext extends AbstractApplicationContext {
 
+	private static final Logger log = LoggerFactory.getLogger(DefaultApplicationContext.class);
+
 	/**
 	 * start with given class set
 	 * 
@@ -38,16 +46,6 @@ public class DefaultApplicationContext extends AbstractApplicationContext {
 	public DefaultApplicationContext(Set<Class<?>> actions) {
 		this();
 		loadContext(actions);
-	}
-
-	/**
-	 * start with given package
-	 * 
-	 * @param package_
-	 */
-	public DefaultApplicationContext(String package_) {
-		this();
-		loadContext();
 	}
 
 	/**
@@ -64,30 +62,49 @@ public class DefaultApplicationContext extends AbstractApplicationContext {
 	}
 
 	/**
-	 * default constructor
+	 * 
+	 * @param path
+	 * @param package_
+	 */
+	public DefaultApplicationContext(String path) {
+		super(path);
+	}
+
+	/**
+	 * 
+	 * @param path
+	 * @param package_
+	 */
+	public DefaultApplicationContext(String path, String package_) {
+		super(path);
+		loadContext(package_);
+	}
+
+	/**
+	 * 
 	 */
 	public DefaultApplicationContext() {
-		super();
+		super("");
 	}
 
 	@Override
-	public void loadContext(@NonNull String path, @NonNull String package_) {
-		
+	public void loadContext(@NonNull String package_) {
+
 		try {
-			
 			// load bean definition
-			this.loadBeanDefinition(path, package_);
-			// add bean post processor
-			this.addBeanPostProcessor();
+			this.loadBeanDefinition(package_);
 			// handle dependency
-			super.handleDependency(beanDefinitionRegistry.getBeanDefinitionsMap().entrySet());
-			
+			publishEvent(new HandleDependencyEvent(this));
+			super.handleDependency();
+			// add bean post processor
+			publishEvent(new BeanPostProcessorLoadingEvent(this));
+			this.addBeanPostProcessor();
+
 			onRefresh();
 		} //
 		catch (Exception e) {
 			log.error("ERROR -> [{}] caused by {}", e.getMessage(), e.getCause(), e);
 		}
 	}
-
 
 }

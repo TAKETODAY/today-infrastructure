@@ -47,31 +47,39 @@ public class SimpleObjectFactory implements ObjectFactory {
 		if (type == List.class || type == Collection.class) {
 			return type.cast(new ArrayList<>());
 		} else if (type == Map.class) {
-			
+
 			return type.cast(new HashMap<>());
 		} else if (type == SortedSet.class) {
-			
+
 			return type.cast(new TreeSet<>());
 		} else if (type == Set.class) {
-			
+
 			return type.cast(new HashSet<>());
 		}
 
 		try {
-			
+
 			if (constructorArgTypes == null || constructorArgs == null) {
-				return type.getDeclaredConstructor().newInstance();
+				return type.getConstructor().newInstance();
 			}
 			return type.cast(type.getConstructor(constructorArgTypes).newInstance(constructorArgs));
-		} //
-		catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
-
-			log.error("Can't create a -> [{}] instance with given args -> [{}].", type.getName(),
+		} catch (InstantiationException e) {
+			log.error("Can't create a : [{}] instance with given args: [{}].", type.getName(),
 					Arrays.toString(constructorArgs), e);
-			
+			return null;
+		} catch (IllegalAccessException e) {
+			log.error("Illegal Access To the constructor that you provided.");
+			return null;
+		} catch (InvocationTargetException e) {
+			log.error(" An exception: [{}] occurs When invoke the constructor that you provided with given args: [{}].",
+					e.getTargetException(), Arrays.toString(constructorArgs), e);
+			return null;
+		} catch (NoSuchMethodException e) {
+			log.error("This class:[{}] does not have the constructor that you provided with given args: [{}].",
+					type.getName(), Arrays.toString(constructorArgs), e);
 			return null;
 		}
+
 	}
 
 }

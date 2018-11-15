@@ -121,9 +121,9 @@ public abstract class NumberUtils {
 	}
 
 	public static final Object parseDigit(String text, Class<?> targetClass) throws ConversionException {
-		
-		if(StringUtils.isEmpty(text)) {
-			return null;
+
+		if (StringUtils.isEmpty(text)) {
+			return 0;
 		}
 		if (Byte.class == targetClass || byte.class == targetClass) {
 			return Byte.parseByte(text);
@@ -145,5 +145,23 @@ public abstract class NumberUtils {
 		throw new ConversionException("can't convert[" + text + "] to [" + targetClass.getName() + "]");
 	}
 
+	/**
+	 * 
+	 * @param targetClass
+	 * @return
+	 */
+	public static boolean isNumber(Class<?> targetClass) {
+
+		if (Number.class.isAssignableFrom(targetClass) //
+				|| targetClass == int.class//
+				|| targetClass == long.class//
+				|| targetClass == float.class//
+				|| targetClass == double.class//
+				|| targetClass == short.class//
+				|| targetClass == byte.class) {
+			return true;
+		}
+		return false;
+	}
 
 }

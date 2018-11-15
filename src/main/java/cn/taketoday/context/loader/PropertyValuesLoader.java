@@ -19,12 +19,11 @@
  */
 package cn.taketoday.context.loader;
 
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.PropertyResolver;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.AnnotationException;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.ObjectFactory;
-import cn.taketoday.context.factory.SimpleObjectFactory;
 import cn.taketoday.context.utils.ClassUtils;
 
 import java.lang.annotation.Annotation;
@@ -45,14 +44,19 @@ import lombok.extern.slf4j.Slf4j;
 public class PropertyValuesLoader {
 
 	/** bean definition registry */
-	private BeanDefinitionRegistry registry;
+	private ConfigurableApplicationContext applicationContext;
 
-	private ObjectFactory objectFactory = new SimpleObjectFactory();
+	private ObjectFactory objectFactory;
 
 	private Map<Class<? extends Annotation>, PropertyValueResolver> propertyValueResolvers = new HashMap<>();
 
-	public PropertyValuesLoader(BeanDefinitionRegistry registry) {
-		this.registry = registry;
+	public PropertyValuesLoader(ConfigurableApplicationContext applicationContext, ObjectFactory objectFactory) {
+		this.objectFactory = objectFactory;
+		this.applicationContext = applicationContext;
+	}
+
+	public PropertyValuesLoader(ConfigurableApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 
 	/**
@@ -81,15 +85,15 @@ public class PropertyValuesLoader {
 		log.debug("Start loading property resolver.");
 
 		try {
-			
+
 			Collection<Class<?>> classes = ClassUtils.getAnnotatedClasses(PropertyResolver.class);
-			
+
 			for (Class<?> clazz : classes) {
 				if (clazz.isInterface()) {
 					log.warn("PropertyResolver Can't be Interface.");
 					continue;
 				}
-				
+
 				Class<? extends Annotation>[] values = clazz.getAnnotation(PropertyResolver.class).value();
 
 				PropertyValueResolver propertyResolver = (PropertyValueResolver) objectFactory.create(clazz);
@@ -107,18 +111,18 @@ public class PropertyValuesLoader {
 	 * create property value
 	 * 
 	 * @param field
-	 *        property
+	 *            property
 	 * @return
 	 * @throws Exception
 	 */
-	public PropertyValue create(Field field) throws Exception {
+	public PropertyValue create(Field field) throws Throwable {
 		Annotation[] annotations = field.getAnnotations();
 		for (Annotation annotation : annotations) {
 			if (!propertyValueResolvers.containsKey(annotation.annotationType())) {
 				continue;
 			}
 			return propertyValueResolvers.get(annotation.annotationType())//
-					.resolveProperty(registry, field);
+					.resolveProperty(applicationContext, field);
 		}
 		throw new AnnotationException("Without regulation annotation present.");
 	}

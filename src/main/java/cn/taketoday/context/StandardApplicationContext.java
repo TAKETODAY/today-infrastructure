@@ -21,10 +21,14 @@ package cn.taketoday.context;
 
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.ComponentImpl;
+import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.context.annotation.ConditionalImpl;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.event.BeanPostProcessorLoadingEvent;
+import cn.taketoday.context.event.HandleDependencyEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
@@ -44,6 +48,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import lombok.NonNull;
 
 /**
@@ -51,9 +58,11 @@ import lombok.NonNull;
  * 
  *         2018-09-06 13:47
  */
-public class StandardApplicationContext extends DefaultApplicationContext implements ApplicationContext {
+public class StandardApplicationContext extends AbstractApplicationContext implements ApplicationContext {
 
-	private static final Map<String, Method> PROTOTYPES = new HashMap<>();
+	private static final Logger log = LoggerFactory.getLogger(StandardApplicationContext.class);
+
+	private final Map<String, Method> prototypes = new HashMap<>(8);
 
 	/**
 	 * start with given class set
@@ -61,16 +70,17 @@ public class StandardApplicationContext extends DefaultApplicationContext implem
 	 * @param actions
 	 */
 	public StandardApplicationContext(Set<Class<?>> actions) {
-		super(actions);
+		this();
+		loadContext(actions);
 	}
 
-	/**
-	 * start with given package
-	 * 
-	 * @param package_
-	 */
-	public StandardApplicationContext(String package_) {
-		super(package_);
+	public StandardApplicationContext(String path) {
+		super(path);
+	}
+
+	public StandardApplicationContext(String path, String package_) {
+		super(path);
+		loadContext(package_);
 	}
 
 	/**
@@ -79,63 +89,69 @@ public class StandardApplicationContext extends DefaultApplicationContext implem
 	 * @param clear
 	 */
 	public StandardApplicationContext() {
-		super();
+		super("");
 	}
 
 	public StandardApplicationContext(boolean clear) {
-		super(clear);
+		this();
+		loadContext();
+		if (clear) {
+			loadSuccess();
+		}
 	}
 
 	@Override
 	public final Object getBean(String name) throws NoSuchBeanDefinitionException {
 
-		Object bean = beanDefinitionRegistry.getSingleton(name);
+		Object bean = getSingleton(name);
 
 		if (bean != null) {
 			return bean;
 		}
 
-		BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(name);
-		
+		BeanDefinition beanDefinition = getBeanDefinition(name);
+
 		if (beanDefinition == null) {
-			log.warn("No such bean definition named : [{}].", name);
+			log.warn("No such bean definition named: [{}].", name);
 			return null;
 		}
-		
+
 		try {
 
-			Method method = PROTOTYPES.get(name);
-			
-			if (method != null) {
-				return method.invoke(beanDefinitionRegistry.getSingleton(beanDefinition.getName()));
-			}
-			
 			if (beanDefinition.isSingleton()) {
 				return doCreateBean(beanDefinition, name);
 			}
+
+			Method method = prototypes.get(name);
+
+			if (method != null) {
+				return method.invoke(getSingleton(beanDefinition.getName()));
+			}
+
 			// prototype
 			return doCreatePrototype(beanDefinition, name);
 		} //
 		catch (Exception ex) {
-			log.error("ERROR -> [{}] caused by [{}]", ex.getMessage(), ex.getCause(), ex);
+			log.error("An Exception Occurred When Getting A Bean Named: [{}], With Msg: [{}] caused by {}", //
+					name, ex.getMessage(), ex.getCause(), ex);
 		}
 		return bean;
 	}
 
 	@Override
-	public void loadContext(@NonNull String path, @NonNull String package_) {
+	public void loadContext(@NonNull String package_) {
 
 		try {
 			// load bean definition
-			super.loadBeanDefinition(path, package_);
-			// add bean post processor
-			super.addBeanPostProcessor();
-			Map<String, BeanDefinition> beanDefinitionsMap = beanDefinitionRegistry.getBeanDefinitionsMap();
+			super.loadBeanDefinition(package_);
 
-			this.configuration(beanDefinitionsMap.entrySet());
+			this.configuration();
 			// handle dependency
-			super.handleDependency(beanDefinitionsMap.entrySet());
-
+			publishEvent(new HandleDependencyEvent(this));
+			super.handleDependency();
+			// add bean post processor
+			publishEvent(new BeanPostProcessorLoadingEvent(this));
+			super.addBeanPostProcessor();
 			onRefresh();
 		} //
 		catch (Exception e) {
@@ -152,15 +168,13 @@ public class StandardApplicationContext extends DefaultApplicationContext implem
 
 			// load bean definition
 			this.loadBeanDefinition(clazz);
-			// add bean post processor
-			super.addBeanPostProcessor();
-
-			Map<String, BeanDefinition> beanDefinitionsMap = beanDefinitionRegistry.getBeanDefinitionsMap();
-
-			this.configuration(beanDefinitionsMap.entrySet());
+			this.configuration();
 			// handle dependency
-			super.handleDependency(beanDefinitionsMap.entrySet());
-
+			publishEvent(new HandleDependencyEvent(this));
+			super.handleDependency();
+			// add bean post processor
+			publishEvent(new BeanPostProcessorLoadingEvent(this));
+			super.addBeanPostProcessor();
 			onRefresh();
 		} //
 		catch (Exception e) {
@@ -174,17 +188,20 @@ public class StandardApplicationContext extends DefaultApplicationContext implem
 	 * @param beanDefinitions
 	 * @throws Exception
 	 */
-	private void configuration(Set<Entry<String, BeanDefinition>> beanDefinitions) throws Exception {
+	private void configuration() throws Exception {
 
-		for (Entry<String, BeanDefinition> beanDefinition_ : beanDefinitions) {
+		Map<String, BeanDefinition> beanDefinitionsMap = getBeanDefinitionsMap();
+
+		for (Entry<String, BeanDefinition> beanDefinition_ : beanDefinitionsMap.entrySet()) {
 
 			BeanDefinition beanDefinition = beanDefinition_.getValue();
 
 			Class<? extends Object> beanClass = beanDefinition.getBeanClass();
-
+			//
 			if (!beanClass.isAnnotationPresent(Configuration.class)) {
 				continue;
 			}
+
 			// Props
 			if (beanClass.isAnnotationPresent(Props.class)) {
 				properties(beanDefinition, beanClass);
@@ -193,16 +210,39 @@ public class StandardApplicationContext extends DefaultApplicationContext implem
 			Method[] declaredMethods = beanClass.getDeclaredMethods();
 
 			for (Method method : declaredMethods) {
-
+				if (!conditional(method)) {
+					continue;
+				}
 				Component[] components = ClassUtils.getMethodAnntation(method, Component.class, ComponentImpl.class);
 
 				if (components.length == 0) {
 					continue;
 				}
-
 				create(method, components);
 			}
 		}
+	}
+
+	/**
+	 * 
+	 * @param method
+	 * @return
+	 * @throws Exception
+	 */
+	private boolean conditional(Method method) throws Exception {
+		Conditional[] conditionals = ClassUtils.getMethodAnntation(method, Conditional.class, ConditionalImpl.class);
+		if (conditionals == null || conditionals.length == 0) {
+			return true;
+		}
+		for (Conditional conditional : conditionals) {
+			for (Class<? extends Condition> conditionClass : conditional.value()) {
+				Condition condition = objectFactory.create(conditionClass);
+				if (!condition.matches(this, method)) {
+					return false; // can't match
+				}
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -212,14 +252,16 @@ public class StandardApplicationContext extends DefaultApplicationContext implem
 	 * @param beanClass
 	 * @throws ConfigurationException
 	 */
-	private void properties(BeanDefinition beanDefinition, Class<? extends Object> beanClass)
-			throws ConfigurationException {
+	private void properties(BeanDefinition beanDefinition, //
+			Class<? extends Object> beanClass) throws ConfigurationException //
+	{
+		log.debug("Loading Properties For: [{}].", beanClass.getName());
 
 		Props props = beanClass.getAnnotation(Props.class);
 
 		List<PropertyValue> propertyValues = new ArrayList<>();
 
-		Properties properties = beanDefinitionRegistry.getProperties();
+		Properties properties = getEnvironment().getProperties();
 		String[] prefixs = props.prefix();
 		Field[] declaredFields = beanClass.getDeclaredFields();
 		for (String prefix : prefixs) {
@@ -232,11 +274,17 @@ public class StandardApplicationContext extends DefaultApplicationContext implem
 				if (value == null) {
 					continue;
 				}
+				log.debug("Found Properties key: [{}].", key);
+
 				declaredField.setAccessible(true);
+				String findInProperties = PropertiesUtils.findInProperties(//
+						properties, PropertiesUtils.findInProperties(properties, value)//
+				);
+
 				propertyValues.add(//
 						new PropertyValue(//
 								ConvertUtils.convert(//
-										PropertiesUtils.findInProperties(properties, value), declaredField.getType()//
+										findInProperties, declaredField.getType()//
 								), declaredField//
 						)//
 				);
@@ -257,50 +305,52 @@ public class StandardApplicationContext extends DefaultApplicationContext implem
 			Scope scope = component.scope();
 
 			if (names.length == 0) {
-				names = new String[] { method.getName() };
+				names = new String[] { method.getReturnType().getSimpleName() };// use simple name
 			}
+
 			for (String name : names) {
 
 				if (StringUtils.isEmpty(name)) {
-					name = method.getName();
+					name = method.getReturnType().getSimpleName();
 				}
-				
-				PROTOTYPES.put(name, method);
-				
+
+				prototypes.put(name, method);
+
 				BeanDefinition beanDefinition_ = new BeanDefinition()//
 						.setScope(scope)//
 						.setBeanClass(method.getReturnType())//
-						.setName(method.getDeclaringClass().getSimpleName());
+						.setName(method.getDeclaringClass().getSimpleName()); // use declaring class name
+				// register
 				beanDefinitionLoader.register(name, beanDefinition_);
 			}
 		}
 	}
 
 	@Override
-	protected void doCreateSingleton(Entry<String, BeanDefinition> entry, Set<Entry<String, BeanDefinition>> entrySet)
-			throws Exception {
-
+	protected void doCreateSingleton(Entry<String, BeanDefinition> entry, //
+			Set<Entry<String, BeanDefinition>> entrySet) throws Exception //
+	{
 		String name = entry.getKey();
 		BeanDefinition beanDefinition = entry.getValue();
 
 		// remove singleton
-		if (PROTOTYPES.containsKey(name)) {
-			Method method = PROTOTYPES.get(name);
-
+		Method method = prototypes.get(name);
+		if (method != null) {
 			try {
-				
-				beanDefinitionRegistry.putSingleton(name, //
+				registerSingleton(name, //
 						initializingBean(//
 								method.invoke(//
 										createDeclaringObject(name, beanDefinition.getName())//
 								), name, beanDefinition//
 						)//
 				);
-
-			} catch (InvocationTargetException e) {
-				log.error("Error with creating bean named -> [{}]", name, e);
+				beanDefinition.setInitialized(true);
+				prototypes.remove(name);
+			} //
+			catch (InvocationTargetException e) {
+				beanDefinition.setInitialized(false);
+				log.error("Error with creating bean named: [{}]", name, e.getTargetException());
 			}
-			PROTOTYPES.remove(name);
 			return;
 		}
 		super.doCreateSingleton(entry, entrySet);
@@ -309,28 +359,28 @@ public class StandardApplicationContext extends DefaultApplicationContext implem
 	/**
 	 * 
 	 * @param name
-	 * @param beanDefinition
 	 * @param declaringName
 	 * @return
 	 * @throws Exception
 	 */
 	private Object createDeclaringObject(String name, String declaringName) throws Exception {
 
-		if (beanDefinitionRegistry.containsSingleton(declaringName)) {
+		Object declaringSingleton = getSingleton(declaringName);
+		BeanDefinition beanDefinition = getBeanDefinition(declaringName);
 
-			return beanDefinitionRegistry.getSingleton(declaringName);
+		if (beanDefinition.isInitialized() && declaringSingleton != null) {
+			return declaringSingleton;
 		}
-		BeanDefinition beanDefinition = beanDefinitionRegistry.getBeanDefinition(declaringName);
 		// declaring bean not initialized
-		Object declaringSingleton = super.initializingBean(//
+		declaringSingleton = super.initializingBean(//
 				createBeanInstance(//
 						beanDefinition//
 				), //
 				name, //
 				beanDefinition);
 		// put declaring object
-		beanDefinitionRegistry.putSingleton(name, declaringSingleton);
-
+		registerSingleton(name, declaringSingleton);
+		beanDefinition.setInitialized(true);
 		return declaringSingleton;
 	}
 

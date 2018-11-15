@@ -19,8 +19,12 @@
  */
 package cn.taketoday.context.loader;
 
+import cn.taketoday.context.Condition;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.ComponentImpl;
+import cn.taketoday.context.annotation.Conditional;
+import cn.taketoday.context.annotation.ConditionalImpl;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.AnnotationException;
@@ -33,13 +37,13 @@ import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.utils.ClassUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,17 +56,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
-	/** bean definition registry */
-	protected BeanDefinitionRegistry registry;
+	private ObjectFactory objectFactory;
+	private BeanDefinitionRegistry registry;
 	/** load property */
-	protected PropertyValuesLoader propertyValuesLoader;
+	private PropertyValuesLoader propertyValuesLoader;
+	/** bean definition registry */
+	private ConfigurableApplicationContext applicationContext;
 
-	protected ObjectFactory objectFactory;
-
-	public DefaultBeanDefinitionLoader(BeanDefinitionRegistry registry, ObjectFactory objectFactory) {
-		this.registry = registry;
+	public DefaultBeanDefinitionLoader(ConfigurableApplicationContext applicationContext, ObjectFactory objectFactory) {
+		this.applicationContext = applicationContext;
 		this.objectFactory = objectFactory;
-		propertyValuesLoader = new PropertyValuesLoader(registry);
+		registry = applicationContext.getEnvironment().getBeanDefinitionRegistry();
+		propertyValuesLoader = new PropertyValuesLoader(applicationContext, objectFactory);
 		propertyValuesLoader.init();
 	}
 
@@ -72,17 +77,47 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	}
 
 	@Override
-	public void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException, ConfigurationException {
+	public void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException {
+
 		if (clazz.isInterface()) {
 			return;
 		}
-		register(clazz);
+		try {
+
+			if (conditional(clazz)) {
+				register(clazz);
+			}
+		} catch (Exception e) {
+			new BeanDefinitionStoreException(e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * If matched
+	 * 
+	 * @param clazz
+	 *            target class
+	 * @return
+	 * @throws Exception
+	 */
+	private boolean conditional(Class<?> clazz) throws Exception {
+		Conditional[] conditionals = ClassUtils.getClassAnntation(clazz, Conditional.class, ConditionalImpl.class);
+		if (conditionals == null || conditionals.length == 0) {
+			return true;
+		}
+		for (Conditional conditional : conditionals) {
+			for (Class<? extends Condition> conditionClass : conditional.value()) {
+				Condition condition = objectFactory.create(conditionClass);
+				if (!condition.matches(applicationContext, clazz)) {
+					return false; // can't match
+				}
+			}
+		}
+		return true;
 	}
 
 	@Override
-	public void loadBeanDefinitions(Collection<Class<?>> beans)
-			throws BeanDefinitionStoreException, ConfigurationException {
-
+	public void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException {
 		for (Class<?> clazz : beans) {
 			loadBeanDefinition(clazz);
 		}
@@ -90,7 +125,6 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 	@Override
 	public void loadBeanDefinition(String name, Class<?> clazz) throws BeanDefinitionStoreException {
-
 		// register
 		register(name, new BeanDefinition(name, clazz));
 	}
@@ -104,8 +138,9 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	 * @throws ConfigurationException
 	 */
 	@Override
-	public void register(Class<?> clazz) throws BeanDefinitionStoreException, ConfigurationException {
-
+	public void register(Class<?> clazz) //
+			throws BeanDefinitionStoreException, ConfigurationException //
+	{
 		Map<String, BeanDefinition> beanDefinitions = new HashMap<>();
 
 		build(beanDefinitions, clazz);
@@ -148,8 +183,8 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 			// FactoryBean
 			name = registerFactoryBean(name, beanDefinition, beanClass);
 			registry.registerBeanDefinition(name, beanDefinition);
-		} catch (Exception e) {
-			log.error("process property error.", e);
+		} catch (Throwable e) {
+			log.error("Process property error.", e);
 		}
 	}
 
@@ -161,9 +196,9 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	 * @return
 	 * @throws ConfigurationException
 	 */
-	private String registerFactoryBean(String factoryBeanName, BeanDefinition beanDefinition,
-			Class<? extends Object> beanClass) throws ConfigurationException {
-
+	private String registerFactoryBean(String factoryBeanName, //
+			BeanDefinition beanDefinition, Class<? extends Object> beanClass) throws ConfigurationException //
+	{
 		if (FactoryBean.class.isAssignableFrom(beanClass)) {
 			// beanClass must be a singleton.
 			if (!beanDefinition.isSingleton()) {
@@ -171,13 +206,13 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 			}
 
 			String $beanName = BeanFactory.FACTORY_BEAN_PREFIX + factoryBeanName;// $name
-			Object $factoryBean = registry.getSingleton($beanName);
+			Object $factoryBean = applicationContext.getSingleton($beanName);
 			if ($factoryBean == null) {// If not exist instance
-				
+
 				FactoryBean<?> $factoryBean_ = (FactoryBean<?>) objectFactory.create(beanClass);
 				factoryBeanName = $factoryBean_.getBeanName();
-				registry.putSingleton(BeanFactory.FACTORY_BEAN_PREFIX + factoryBeanName, $factoryBean_);// not
-																										// initialized
+				applicationContext.registerSingleton(BeanFactory.FACTORY_BEAN_PREFIX + factoryBeanName, $factoryBean_);// not
+				// initialized
 			}
 
 			beanDefinition.setFactoryBean(true)//
@@ -207,7 +242,7 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 				for (String name : names) {
 
-					if (!registry.containsSingleton(name)) {
+					if (!applicationContext.containsSingleton(name)) {
 						map.put(name, new BeanDefinition(name, clazz, component.scope()));
 					}
 				}
@@ -242,10 +277,10 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	 * @return property value list
 	 * @throws Exception
 	 */
-	private PropertyValue[] processProperty(BeanDefinition beanDefinition) throws Exception {
+	private PropertyValue[] processProperty(BeanDefinition beanDefinition) throws Throwable {
 
 		Class<?> clazz = beanDefinition.getBeanClass();
-		List<PropertyValue> propertyValues = new ArrayList<>();
+		Set<PropertyValue> propertyValues = new HashSet<>();
 		Field[] declaredFields = clazz.getDeclaredFields();
 
 		// self
@@ -257,7 +292,10 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 					continue;
 				}
 				field.setAccessible(true);
-				propertyValues.add(propertyValuesLoader.create(field));
+				PropertyValue create = propertyValuesLoader.create(field);
+				if (create != null) {
+					propertyValues.add(create);
+				}
 			}
 		} //
 		catch (AnnotationException ex) {
@@ -294,7 +332,7 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	}
 
 	@Override
-	public BeanDefinition getBeanDefinition(Class<?> clazz) {
+	public BeanDefinition createBeanDefinition(Class<?> clazz) {
 
 		BeanDefinition beanDefinition = new BeanDefinition(clazz.getSimpleName(), clazz);
 
@@ -303,7 +341,7 @@ public final class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 			// process property
 			return beanDefinition.setPropertyValues(processProperty(beanDefinition));
 		} //
-		catch (Exception e) {
+		catch (Throwable e) {
 			log.error("process property error.", e);
 		}
 		return null;
