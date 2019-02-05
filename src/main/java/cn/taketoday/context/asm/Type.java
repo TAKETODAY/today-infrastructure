@@ -215,12 +215,10 @@ public final class Type {
 				return FLOAT_TYPE;
 			} else if (clazz == Long.TYPE) {
 				return LONG_TYPE;
-			} else {
-				throw new AssertionError();
 			}
-		} else {
-			return getType(getDescriptor(clazz));
+			throw new AssertionError();
 		}
+		return getType(getDescriptor(clazz));
 	}
 
 	/**
@@ -432,8 +430,9 @@ public final class Type {
 	 *            descriptorBuffer.
 	 * @return the {@link Type} corresponding to the given type descriptor.
 	 */
-	private static Type getTypeInternal(final String descriptorBuffer, final int descriptorBegin,
-			final int descriptorEnd) {
+	private static Type getTypeInternal(final String descriptorBuffer, //
+			final int descriptorBegin, final int descriptorEnd) //
+	{
 		switch (descriptorBuffer.charAt(descriptorBegin))
 		{
 			case 'V' :
@@ -544,10 +543,13 @@ public final class Type {
 		if (sort == OBJECT) {
 			return valueBuffer.substring(valueBegin - 1, valueEnd + 1);
 		} else if (sort == INTERNAL) {
-			return new StringBuilder().append('L').append(valueBuffer, valueBegin, valueEnd).append(';').toString();
-		} else {
-			return valueBuffer.substring(valueBegin, valueEnd);
+			return new StringBuilder()//
+					.append('L')//
+					.append(valueBuffer, valueBegin, valueEnd)//
+					.append(';')//
+					.toString();
 		}
+		return valueBuffer.substring(valueBegin, valueEnd);
 	}
 
 	/**

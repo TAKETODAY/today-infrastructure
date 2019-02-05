@@ -1,26 +1,27 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.context.factory;
 
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -46,7 +47,7 @@ public interface BeanFactory {
 	Object getBean(String name) throws NoSuchBeanDefinitionException;
 
 	/**
-	 * find the bean with the given type, throw an NoSuchBeanDefinitionException if
+	 * Find the bean with the given type, throw an NoSuchBeanDefinitionException if
 	 * it doesn't exist
 	 * 
 	 * @param requiredType
@@ -68,15 +69,6 @@ public interface BeanFactory {
 	 * @throws NoSuchBeanDefinitionException
 	 */
 	<T> T getBean(String name, Class<T> requiredType) throws NoSuchBeanDefinitionException;
-
-	/**
-	 * whether there is a bean with the given type.
-	 * 
-	 * @param type
-	 *            bean type
-	 * @return if exist a bean with given type
-	 */
-	boolean containsBeanDefinition(Class<?> type);
 
 	/**
 	 * is Singleton ?
@@ -114,5 +106,24 @@ public interface BeanFactory {
 	 * @return a set of names with given type
 	 */
 	Set<String> getAliases(Class<?> type);
+
+	/**
+	 * Get the target class's name
+	 * 
+	 * @param requiredType
+	 * @return
+	 * @since 2.1.2
+	 */
+	String getBeanName(Class<?> requiredType);
+
+	/**
+	 * Get a list of beans with given type
+	 * 
+	 * @param requiredType
+	 *            given bean type
+	 * @return
+	 * @since 2.1.2
+	 */
+	<T> List<T> getBeans(Class<T> requiredType);
 
 }

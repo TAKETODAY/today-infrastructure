@@ -1,36 +1,35 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package test.context;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.DefaultApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.factory.BeanDefinitionRegistry;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,9 +39,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import lombok.extern.slf4j.Slf4j;
 import test.demo.dao.UserDao;
 import test.demo.dao.impl.UserDaoImpl;
 import test.demo.domain.Config;
+import test.demo.domain.ConfigFactoryBean;
 import test.demo.domain.ConfigurationBean;
 import test.demo.domain.User;
 import test.demo.service.UserService;
@@ -52,6 +53,7 @@ import test.demo.service.impl.UserServiceImpl;
  * @author Today
  * @date 2018年7月3日 下午10:05:21
  */
+@Slf4j
 public class ApplicationContextTest {
 
 	private long start;
@@ -73,64 +75,38 @@ public class ApplicationContextTest {
 	 */
 	@Test
 	public void test_ApplicationContext() throws NoSuchBeanDefinitionException {
+		try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
+			applicationContext.loadContext("test.demo.dao");
+			Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap();
 
-		ApplicationContext applicationContext = new DefaultApplicationContext();
-		applicationContext.loadContext("test.dao");
-		Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry()
-				.getBeanDefinitionsMap();
+			System.out.println(beanDefinitionsMap);
 
-		System.out.println(beanDefinitionsMap);
-		applicationContext.loadSuccess();
+			boolean containsBean = applicationContext.containsBeanDefinition(UserDaoImpl.class);
 
-		boolean containsBean = applicationContext.containsBeanDefinition(UserDaoImpl.class);
+			System.out.println(applicationContext.getBean(UserDaoImpl.class));
 
-		System.out.println(applicationContext.getBean(UserDaoImpl.class));
-
-		applicationContext.close();
-
-		assert containsBean : "UserDaoImpl load error.";
-	}
-
-	/**
-	 * test auto load context and clear cache.
-	 * 
-	 * @throws NoSuchBeanDefinitionException
-	 */
-	@Test
-	public void test_AutoLoadContextAndClearCache() throws NoSuchBeanDefinitionException {
-		// auto load context and clear cache.
-
-		try (ApplicationContext applicationContext = new DefaultApplicationContext(true)) {
-
-			Map<String, BeanDefinition> beanDefinitions = applicationContext.getEnvironment()
-					.getBeanDefinitionRegistry().getBeanDefinitionsMap();
-
-			assert beanDefinitions.size() != 0 : "nothing in context.";
-
-			Collection<Class<?>> classCache = ClassUtils.getClassCache();
-
-			assert classCache.size() == 0 : "cache clear error.";
+			assert containsBean : "UserDaoImpl load error.";
 		}
 	}
 
 	/**
-	 * test auto load context and get singleton.
+	 * test load context and get singleton.
 	 * 
 	 * @throws NoSuchBeanDefinitionException
 	 */
 	@Test
-	public void test_AutoLoadSingleton() throws NoSuchBeanDefinitionException {
-		ApplicationContext applicationContext = new DefaultApplicationContext(true);
-		Config config = applicationContext.getBean(Config.class);
-		Config config_ = applicationContext.getBean(Config.class);
+	public void test_LoadSingleton() throws NoSuchBeanDefinitionException {
+		try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+			applicationContext.loadContext("test.demo.domain");
+			Config config = applicationContext.getBean(Config.class);
+			Config config_ = applicationContext.getBean(Config.class);
 
-		assert config == config_ : "singleton error.";
+			assert config == config_ : "singleton error.";
 
-		String copyright = config.getCopyright();
+			String copyright = config.getCopyright();
 
-		assert copyright != null : "properties file load error.";
-
-		applicationContext.close();
+			assert copyright != null : "properties file load error.";
+		}
 	}
 
 	/**
@@ -140,40 +116,45 @@ public class ApplicationContextTest {
 	 */
 	@Test
 	public void test_AutoLoadPrototype() throws NoSuchBeanDefinitionException {
-		ApplicationContext applicationContext = new DefaultApplicationContext(true);
-		Config config = applicationContext.getBean("prototype_config", Config.class);
-		Config config_ = applicationContext.getBean("prototype_config", Config.class);
-
-		assert config != config_ : "prototype error.";
-
-		applicationContext.close();
-	}
-
-	@Test
-	public void test_AutoLoadFactoryBean_() throws NoSuchBeanDefinitionException {
-		ApplicationContext applicationContext = new DefaultApplicationContext(true);
-		Config config = applicationContext.getBean("FactoryBean-Config", Config.class);
-		Config config_ = applicationContext.getBean("FactoryBean-Config", Config.class);
-
-		assert config == config_ : "FactoryBean error.";
-
-		applicationContext.close();
+		try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+			applicationContext.loadContext("");
+			Config config = applicationContext.getBean("prototype_config", Config.class);
+			Config config_ = applicationContext.getBean("prototype_config", Config.class);
+			assert config != config_ : "prototype error.";
+		}
 	}
 
 	/**
-	 * test auto load FactoryBean.
+	 * test load FactoryBean.
 	 * 
 	 * @throws NoSuchBeanDefinitionException
 	 */
 	@Test
-	public void test_AutoLoadFactoryBean() throws NoSuchBeanDefinitionException {
-		ApplicationContext applicationContext = new DefaultApplicationContext(true);
-		Config config = applicationContext.getBean("FactoryBean-Config", Config.class);
-		Config config_ = applicationContext.getBean("FactoryBean-Config", Config.class);
+	public void test_LoadFactoryBean() throws NoSuchBeanDefinitionException {
 
-		assert config == config_ : "FactoryBean error.";
+		try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
+			applicationContext.loadContext("test.demo.domain");
+			Config config = applicationContext.getBean("FactoryBean-Config", Config.class);
+			Config config_ = applicationContext.getBean("FactoryBean-Config", Config.class);
 
-		applicationContext.close();
+			BeanDefinition beanDefinition = applicationContext.getBeanDefinition("FactoryBean-Config");
+			PropertyValue propertyValue = beanDefinition.getPropertyValue("pro");
+			ConfigFactoryBean bean = applicationContext.getBean("$FactoryBean-Config", ConfigFactoryBean.class);
+
+			Map<String, Object> singletonsMap = applicationContext.getSingletonsMap();
+
+			for (Entry<String, Object> entry : singletonsMap.entrySet()) {
+				System.err.println(entry.getKey() + "==" + entry.getValue());
+			}
+
+			log.debug("{}", config.hashCode());
+			log.debug("{}", config_.hashCode());
+
+//			assert config != config_ : "FactoryBean error.";
+			log.debug("{}", bean);
+			log.debug("{}", propertyValue);
+			log.debug("{}", bean.getPro());
+		}
 	}
 
 	/**
@@ -185,15 +166,14 @@ public class ApplicationContextTest {
 	@Test
 	public void test_ManualLoadContext() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-		try (ApplicationContext applicationContext = new DefaultApplicationContext()) {
+		try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
 
 			applicationContext.registerBean(User.class);
 			applicationContext.registerBean("user", User.class);
 			applicationContext.registerBean("user_", User.class);
 //			applicationContext.onRefresh(); // init bean
 
-			Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment()
-					.getBeanDefinitionRegistry().getBeanDefinitionsMap();
+			Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap();
 
 			System.out.println(beanDefinitionsMap);
 
@@ -206,16 +186,14 @@ public class ApplicationContextTest {
 	@Test
 	public void test_Login() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-		ApplicationContext applicationContext = new DefaultApplicationContext(false);
-		try {
+		try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo")) {
 
 			UserService userService = applicationContext.getBean(UserServiceImpl.class);
 
 			UserDao userDao = applicationContext.getBean(UserDao.class);
 			UserDaoImpl userDaoImpl = applicationContext.getBean(UserDaoImpl.class);
 
-			Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment()
-					.getBeanDefinitionRegistry().getBeanDefinitionsMap();
+			Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap();
 
 			Set<Entry<String, Object>> entrySet = applicationContext.getSingletonsMap().entrySet();
 
@@ -238,47 +216,47 @@ public class ApplicationContextTest {
 			User login = userService.login(new User(1, "TODAY", 20, "666", "666", "男", new Date()));
 
 			assert login != null : "Login failed";
-		} finally {
-
-			applicationContext.close();
 		}
 	}
 
 	@Test
-	public void test_StandardApplicationContext() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
+	public void test_loadFromCollection() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-		ApplicationContext applicationContext = new StandardApplicationContext(
-				new HashSet<>(Arrays.asList(ConfigurationBean.class))//
-		);
+		try (ApplicationContext applicationContext = //
+				new StandardApplicationContext(Arrays.asList(ConfigurationBean.class))) {
 
-		long start = System.currentTimeMillis();
+			long start = System.currentTimeMillis();
 
-		User bean = applicationContext.getBean(User.class);
-		System.err.println(System.currentTimeMillis() - start + "ms");
-		System.err.println(applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap());
+			User bean = applicationContext.getBean(User.class);
+			System.err.println(System.currentTimeMillis() - start + "ms");
+			System.err.println(applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap());
 
-		bean.setAge(12);
+			bean.setAge(12);
+			
+			System.err.println(bean);
 
-		System.err.println(bean);
+			User user = applicationContext.getBean(User.class);
 
-		User user = applicationContext.getBean(User.class);
+			assert bean == user;
 
-		assert bean == user;
-
-		System.err.println(user);
-		applicationContext.close();
+			System.err.println(user);
+		}
 	}
 
 	@Test
 	public void test_Required() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-		ApplicationContext applicationContext = new StandardApplicationContext(false);
+		try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+			applicationContext.loadContext("");
+			ConfigurableEnvironment environment = applicationContext.getEnvironment();
+			BeanDefinitionRegistry beanDefinitionRegistry = environment.getBeanDefinitionRegistry();
+			System.err.println(beanDefinitionRegistry.getBeanDefinitionsMap());
 
-		System.err.println(applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap());
-
-		System.out.println(applicationContext.getBean(Config.class));
-
-		applicationContext.close();
+			Config bean = applicationContext.getBean(Config.class);
+			System.out.println(bean);
+			assert bean != null;
+			assert bean.getUser() != null;
+		}
 	}
 
 }

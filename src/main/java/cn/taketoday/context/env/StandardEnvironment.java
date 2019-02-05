@@ -1,35 +1,43 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.context.env;
 
+import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.StringUtils;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -40,14 +48,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StandardEnvironment implements ConfigurableEnvironment {
 
-	private String[] profiles = new String[0];
+	private Set<String> activeProfiles = new HashSet<>();
 
-	private Properties properties = System.getProperties();
+	private final Properties properties = System.getProperties();
+
+	private BeanNameCreator beanNameCreator;
 
 	/** resolve beanDefinition which It is marked annotation */
-	protected BeanDefinitionLoader beanDefinitionLoader;
+	private BeanDefinitionLoader beanDefinitionLoader;
 	/** storage BeanDefinition */
-	protected BeanDefinitionRegistry beanDefinitionRegistry;
+	private BeanDefinitionRegistry beanDefinitionRegistry;
 
 	@Override
 	public Properties getProperties() {
@@ -86,46 +96,60 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
 	@Override
 	public String[] getActiveProfiles() {
-		return profiles;
+		return StringUtils.toStringArray(activeProfiles);
+	}
+
+	//---ConfigurableEnvironment
+	
+	@Override
+	public void setActiveProfiles(String... profiles) {
+		activeProfiles.clear();
+		log.info("Active profiles: {}", Arrays.toString(profiles));;
+		this.activeProfiles.addAll(Arrays.asList(profiles));
 	}
 
 	@Override
-	public boolean acceptsProfiles(String... profiles) {
-		if (this.profiles.length == 0) {
-			return true;
-		}
-		for (String activeProfile : this.profiles) {
-			for (String profile : profiles) {
-				if (profile.equals(activeProfile)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public void setActiveProfiles(@NonNull String... profiles) {
-		this.profiles = profiles;
+	public void setProperty(String key, String value) {
+		properties.setProperty(key, value);
 	}
 
 	@Override
 	public void addActiveProfile(String profile) {
-		String[] newArray = new String[profiles.length + 1];
-		System.arraycopy(profiles, 0, newArray, 0, profiles.length);
-		newArray[profiles.length] = profile;
-		this.profiles = newArray;
+		this.activeProfiles.add(profile);
 	}
 
 	/**
-	 * load properties file with given path
+	 * Load properties file with given path
 	 */
 	@Override
-	public void loadProperties(File dir) throws IOException {
+	public void loadProperties(String properties) throws IOException {
 
-		File[] listFiles = dir.listFiles(//
-				file -> (file.isDirectory()) || (file.getName().endsWith(Constant.PROPERTIES_SUFFIX))//
-		);
+		Objects.requireNonNull(properties, "Properties dir can't be null");
+
+		URL resource = ClassUtils.getClassLoader().getResource(properties);
+		if (resource == null) {
+			log.warn("The path: [{}] you provided that doesn't exist", properties);
+			return;
+		}
+		final File dir = new File(resource.getPath());
+
+		log.debug("Start loading Properties.");
+		doLoad(dir, this.properties);
+
+		final String profiles = getProperty(Constant.KEY_ACTIVE_PROFILES);
+		if (StringUtils.isNotEmpty(profiles)) {
+			setActiveProfiles(StringUtils.split(profiles));
+		}
+	}
+
+	/**
+	 * @param dir
+	 * @param properties
+	 * @throws IOException
+	 */
+	static void doLoad(File dir, Properties properties) throws IOException {
+
+		File[] listFiles = dir.listFiles(PROPERTIES_FILE_FILTER);
 
 		if (listFiles == null) {
 			log.warn("The path: [{}] you provided that contains nothing", dir.getAbsolutePath());
@@ -134,7 +158,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
 		for (File file : listFiles) {
 			if (file.isDirectory()) { // recursive
-				loadProperties(file);
+				doLoad(file, properties);
 				continue;
 			}
 			log.debug("Found Properties File: [{}]", file.getAbsolutePath());
@@ -143,6 +167,20 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 			}
 		}
 	}
+
+	/**
+	 * Properties file filter
+	 */
+	private static final FileFilter PROPERTIES_FILE_FILTER = new FileFilter() {
+		@Override
+		public boolean accept(File file) {
+			if (file.isDirectory()) {
+				return true;
+			}
+			final String name = file.getName();
+			return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
+		}
+	};
 
 	@Override
 	public ConfigurableEnvironment setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) {
@@ -154,6 +192,33 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 	public ConfigurableEnvironment setBeanDefinitionLoader(BeanDefinitionLoader beanDefinitionLoader) {
 		this.beanDefinitionLoader = beanDefinitionLoader;
 		return this;
+	}
+
+	@Override
+	public boolean acceptsProfiles(String... profiles) {
+
+		for (String profile : profiles) {
+			if (StringUtils.isNotEmpty(profile) && profile.charAt(0) == '!') {
+				if (!activeProfiles.contains(profile.substring(1))) {
+					return true;
+				}
+			}
+			else if (activeProfiles.contains(profile)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public ConfigurableEnvironment setBeanNameCreator(BeanNameCreator beanNameCreator) {
+		this.beanNameCreator = beanNameCreator;
+		return this;
+	}
+
+	@Override
+	public BeanNameCreator getBeanNameCreator() {
+		return beanNameCreator;
 	}
 
 }

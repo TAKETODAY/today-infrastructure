@@ -1,24 +1,25 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.context.env;
 
+import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 
@@ -34,7 +35,7 @@ import java.util.Properties;
 public interface Environment {
 
 	/**
-	 * get properties
+	 * Get properties
 	 * 
 	 * @return
 	 */
@@ -80,28 +81,36 @@ public interface Environment {
 	<T> T getProperty(String key, Class<T> targetType);
 
 	/**
-	 * get the bean definition registry
+	 * Return the set of profiles explicitly made active for this environment.
+	 */
+	String[] getActiveProfiles();
+
+	/**
+	 * If active profiles is empty return false. If active profiles is not empty
+	 * then will compare all active profiles.
+	 * 
+	 */
+	boolean acceptsProfiles(String... profiles);
+
+	/**
+	 * Get a bean name creator
 	 * 
 	 * @return
 	 */
-	BeanDefinitionRegistry getBeanDefinitionRegistry();
+	BeanNameCreator getBeanNameCreator();
 
 	/**
-	 * get bean definition loader
+	 * Get bean definition loader
 	 * 
 	 * @return
 	 */
 	BeanDefinitionLoader getBeanDefinitionLoader();
 
 	/**
-	 * Return the set of profiles explicitly made active for this environment.
+	 * Get the bean definition registry
+	 * 
+	 * @return
 	 */
-	String[] getActiveProfiles();
-
-	/**
-	 * Return whether one or more of the given profiles is active or, in the case of
-	 * logic is inverted, i.e. the method will return true if the given profile is
-	 */
-	boolean acceptsProfiles(String... profiles);
+	BeanDefinitionRegistry getBeanDefinitionRegistry();
 
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 	<contextName>TODAY IOC</contextName>
-	  
+
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5p - [%16.16t] %-40.40logger{40} %L\t- %m%n</pattern>
@@ -9,10 +9,13 @@
 		</encoder>
 	</appender>
 
+<!-- 
+	<root level="INFO">
+ -->
 	<root level="INFO, DEBUG">
-		<appender-ref ref="STDOUT" />
+		<appender-ref ref="STDOUT"/>
 	</root>
-	
+
 </configuration>
 
 

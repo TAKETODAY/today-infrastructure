@@ -1,20 +1,20 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.context;
@@ -22,17 +22,13 @@ package cn.taketoday.context;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.ComponentImpl;
 import cn.taketoday.context.annotation.ContextListener;
-import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.context.aware.BeanFactoryAware;
-import cn.taketoday.context.aware.BeanNameAware;
-import cn.taketoday.context.aware.EnvironmentAware;
-import cn.taketoday.context.aware.ObjectFactoryAware;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.env.DefaultBeanNameCreator;
+import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.env.StandardEnvironment;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
 import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
-import cn.taketoday.context.event.BeanPostProcessorLoadingEvent;
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.context.event.ContextRefreshEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
@@ -40,23 +36,22 @@ import cn.taketoday.context.event.HandleDependencyEvent;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;
-import cn.taketoday.context.factory.ObjectFactory;
-import cn.taketoday.context.factory.SimpleObjectFactory;
 import cn.taketoday.context.listener.ApplicationListener;
+import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.DefaultBeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.context.utils.StringUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collection;
 import java.util.Date;
 import java.util.EventObject;
 import java.util.HashMap;
@@ -64,145 +59,212 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import lombok.NonNull;
-
 /**
  * @author Today <br>
- * 
+ *         <p>
  *         2018-09-09 22:02
  */
-public abstract class AbstractApplicationContext extends AbstractBeanFactory implements ConfigurableApplicationContext {
+public abstract class AbstractApplicationContext implements ConfigurableApplicationContext {
 
 	private static final Logger log = LoggerFactory.getLogger(AbstractApplicationContext.class);
 
+	private final long startupDate;
+	private String propertiesLocation = ""; // default ""
+	private BeanNameCreator beanNameCreator;
+	private ConfigurableEnvironment environment;
+	private final AtomicBoolean started = new AtomicBoolean(false);
+
 	/** application listeners **/
-	private final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = new HashMap<>(10);
+	private final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = new HashMap<>(10, 1.0f);
 
-	private ConfigurableEnvironment environment = new StandardEnvironment();
-
-	public AbstractApplicationContext(String properties) {
-
-		log.info("Starting Application Context at [{}].",
-				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-
-		postProcessors = new ArrayList<>();
-		objectFactory = new SimpleObjectFactory();
-		environment.setBeanDefinitionRegistry(this);
-
-		beanDefinitionLoader = new DefaultBeanDefinitionLoader(this, objectFactory);
-		environment.setBeanDefinitionLoader(beanDefinitionLoader);
-
-		// put OBJECT_FACTORY
-		registerSingleton(Constant.OBJECT_FACTORY, objectFactory);
-		loadListener();
-
-		try {
-
-			log.debug("Start loading Properties.");
-
-			environment.loadProperties(new File(ClassUtils.getClassLoader().getResource(properties).getPath()));
-		} //
-		catch (IOException ex) {
-			log.error("An Exception Occurred When Loading Properties, With Msg: [{}] caused by {}", ex.getMessage(),
-					ex.getCause(), ex);
-		}
-		// environment
-		String property = environment.getProperty(Constant.KEY_ACTIVE_PROFILES);
-		if (StringUtils.isEmpty(property)) {
-			return;
-		}
-		String[] profiles = property.split(Constant.SPLIT_REGEXP);
-		if (profiles == null || profiles.length == 0) {
-			profiles = new String[] { property };
-		}
-		environment.setActiveProfiles(profiles);
-	}
-
-	@Override
-	protected void aware(Object bean, String name) {
-		// aware
-		if (bean instanceof BeanNameAware) {
-			((BeanNameAware) bean).setBeanName(name);
-		}
-		if (bean instanceof ApplicationContextAware) {
-			((ApplicationContextAware) bean).setApplicationContext((ApplicationContext) this);
-		}
-		if (bean instanceof BeanFactoryAware) {
-			((BeanFactoryAware) bean).setBeanFactory(this);
-		}
-		if (bean instanceof ObjectFactoryAware) {
-			((ObjectFactoryAware) bean).setObjectFactory(objectFactory);
-		}
-		if (bean instanceof EnvironmentAware) {
-			((EnvironmentAware) bean).setEnvironment(environment);
-		}
-	}
-
-	@Override
-	public ObjectFactory getObjectFactory() {
-		return objectFactory;
-	}
-
-	@Override
-	public void setObjectFactory(ObjectFactory objectFactory) {
-		super.objectFactory = objectFactory;
+	public AbstractApplicationContext() {
+		this.startupDate = System.currentTimeMillis();
+		log.info("Starting Application Context at [{}].", //
+				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(startupDate)));
 	}
 
 	/**
-	 * 
-	 * load all the properties file and class in class path
+	 * Load all the class in class path
 	 */
 	public void loadContext() {
 		this.loadContext("");
 	}
 
 	/**
-	 * load all the properties file and class with given package in class path
-	 * 
-	 * @param package_
-	 *            given package
+	 * Load class with given package locations in class path
+	 *
+	 * @param locations
+	 *            given packages
 	 */
-	public abstract void loadContext(@NonNull String package_);
+	public void loadContext(String... locations) {
+		this.loadContext(ClassUtils.scan(locations));
+	}
 
 	/**
-	 * load all the application listeners in context.
+	 * @param clazz
+	 *            class set
 	 */
-	private void loadListener() {
-
-		log.debug("Loading Application Listeners.");
-
-		ClassUtils.getImplClasses(ApplicationListener.class)//
-				.stream()//
-				.forEach(this::forEach);
-		// sort
-		for (Entry<Class<?>, List<ApplicationListener<EventObject>>> entry : applicationListeners.entrySet()) {
-			entry.getValue().sort(Comparator.comparingInt(OrderUtils::getOrder).reversed());
+	@Override
+	public void loadContext(Collection<Class<?>> classes) {
+		try {
+			// Prepare refresh
+			prepareRefresh();
+			// Prepare BeanFactory
+			prepareBeanFactory(classes);
+			// Initialize other special beans in specific context subclasses.
+			onRefresh();
+			// Initialize all singletons.
+			refresh();
+			// finish refresh
+			finishRefresh();
+		}
+		catch (Throwable ex) {
+			ex = ExceptionUtils.unwrapThrowable(ex);
+			log.error("An Exception Occurred When Loading Context, With Msg: [{}]", ex.getMessage(), ex);
 		}
 	}
 
 	/**
+	 * Prepare to load context
 	 * 
-	 * @param clazz
+	 * @throws IOException
 	 */
-	private void forEach(Class<?> clazz) {
+	protected void prepareRefresh() throws IOException {
+		// prepare properties
+		getEnvironment().loadProperties(propertiesLocation);
+	}
 
-		// FIXME sometimes listener count not correct
+	/**
+	 * @param beanFactory
+	 *            bean factory
+	 * @param beanClasses
+	 *            bean classes
+	 * @throws Throwable
+	 */
+	protected abstract void doLoadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) //
+			throws Throwable;
+
+	/**
+	 * Context start success
+	 */
+	private void finishRefresh() {
+		// clear cache
+		ClassUtils.clearCache();
+		// start success publish started event
+		publishEvent(new ContextStartedEvent(this));
+		started.set(true);
+	}
+
+	/**
+	 * Template method
+	 */
+	protected void onRefresh() throws ContextException {
+
+	}
+
+	/**
+	 * @param classes
+	 * @throws Throwable
+	 */
+	public void prepareBeanFactory(Collection<Class<?>> classes) throws Throwable {
+
+		final AbstractBeanFactory beanFactory = getBeanFactory();
+
+		//
+		postProcessBeanFactory(beanFactory);
+
+		final ConfigurableEnvironment environment = getEnvironment();
+
+		BeanNameCreator beanNameCreator = environment.getBeanNameCreator();
+		// check name creator
+		if (beanNameCreator == null) {
+			beanNameCreator = new DefaultBeanNameCreator(environment);
+			environment.setBeanNameCreator(beanNameCreator);
+		}
+		// check registry
+		if (environment.getBeanDefinitionRegistry() == null) {
+			environment.setBeanDefinitionRegistry(this);
+		}
+		// must not be null
+		beanFactory.setBeanNameCreator(beanNameCreator);
+		//
+		// check bean definition loader
+		BeanDefinitionLoader beanDefinitionLoader = environment.getBeanDefinitionLoader();
+		if (beanDefinitionLoader == null) {
+			beanDefinitionLoader = new DefaultBeanDefinitionLoader(this);
+			environment.setBeanDefinitionLoader(beanDefinitionLoader);
+		}
+		beanFactory.setBeanDefinitionLoader(beanDefinitionLoader);
+		// register Environment
+		registerSingleton(beanNameCreator.create(Environment.class), environment);
+		// register listener
+		registerListener();
+		// start loading bean definitions ; publish loading bean definition event
+		publishEvent(new BeanDefinitionLoadingEvent(this));
+		doLoadBeanDefinitions(beanFactory, classes);
+		// bean definitions loaded
+		publishEvent(new BeanDefinitionLoadedEvent(this));
+		// handle dependency : register bean dependencies definition
+		publishEvent(new HandleDependencyEvent(this));
+		beanFactory.handleDependency();
+
+		// register bean post processors
+		beanFactory.registerBeanPostProcessors();
+	}
+
+	/**
+	 * @param beanFactory
+	 */
+	protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
+
+	}
+
+	/**
+	 * Load all the application listeners in context and register it.
+	 */
+	void registerListener() {
+
+		log.debug("Loading Application Listeners.");
+
+		for (Class<?> listenerClass : ClassUtils.getImplClasses(ApplicationListener.class)) {
+			forEach(listenerClass);
+		}
+		// sort
+		for (Entry<Class<?>, List<ApplicationListener<EventObject>>> entry : this.applicationListeners.entrySet()) {
+			OrderUtils.reversedSort(entry.getValue());
+		}
+	}
+
+	/**
+	 * @param listenerClass
+	 */
+	private void forEach(Class<?> listenerClass) {
+
 		try {
 
-			ContextListener contextListener = clazz.getAnnotation(ContextListener.class);
+			ContextListener contextListener = listenerClass.getAnnotation(ContextListener.class);
 			if (contextListener == null) {
 				return;
 			}
 
-			Component[] components = ClassUtils.getClassAnntation(clazz, Component.class, ComponentImpl.class);
-			String name = clazz.getSimpleName();
+			if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
+				throw new ConfigurationException("[{}] must be a [{}]", //
+						listenerClass.getName(), ApplicationListener.class.getClass().getName());
+			}
+
+			Component[] components = ClassUtils.getAnnotationArray(listenerClass, Component.class, ComponentImpl.class);
+			String name = null;
 			if (components != null && components.length != 0) {
 				// bean name
 				name = components[0].value()[0];
+			}
+			else {
+				name = getBeanNameCreator().create(listenerClass);
 			}
 
 			// if exist bean
@@ -210,236 +272,357 @@ public abstract class AbstractApplicationContext extends AbstractBeanFactory imp
 
 			if (applicationListener == null) {
 				// create bean instance
-				applicationListener = objectFactory.create(clazz);
+				applicationListener = ClassUtils.newInstance(listenerClass);
 				registerSingleton(name, applicationListener);
 			}
 
-			Method[] declaredMethods = clazz.getDeclaredMethods();
-			for (Method method : declaredMethods) {
+			for (Method method : listenerClass.getDeclaredMethods()) {
 				// onApplicationEvent
 				if (method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
 					if (method.isBridge()) {
 						continue;
 					}
 					// register listener
-					this.registerListener(applicationListener, method.getParameterTypes()[0]);
+					doRegisterListener(applicationListener, method.getParameterTypes()[0]);
 				}
 			}
 			// specify type
 			Class<?>[] classes = contextListener.value();
 			for (Class<?> class_ : classes) {
 				// register listener
-				this.registerListener(applicationListener, class_);
+				doRegisterListener(applicationListener, class_);
 			}
-		} //
-		catch (Exception ex) {
-			log.error("An Exception Occurred When Register Application Listener, With Msg: [{}] caused by {}", //
-					ex.getMessage(), ex.getCause(), ex);
+		}
+		catch (Throwable ex) {
+			ex = ExceptionUtils.unwrapThrowable(ex);
+			log.error("An Exception Occurred When Register Application Listener, With Msg: [{}]", ex.getMessage(), ex);
 		}
 	}
 
 	/**
-	 * 
 	 * @param applicationListener
 	 *            the instance of application listener
 	 * @param eventType
-	 *            the event class
+	 *            the event type
+	 * @off
 	 */
 	@SuppressWarnings({ "unchecked", "serial" })
-	private void registerListener(Object applicationListener, Class<?> eventType) {
+	private void doRegisterListener(Object applicationListener, Class<?> eventType) {
 		if (applicationListeners.containsKey(eventType)) {
 			applicationListeners.get(eventType).add((ApplicationListener<EventObject>) applicationListener);
 			return;
 		}
-		applicationListeners.put(eventType, new ArrayList<ApplicationListener<EventObject>>() {
-			{
-				add((ApplicationListener<EventObject>) applicationListener);
-			}
-		});
+		applicationListeners.put(eventType, new ArrayList<ApplicationListener<EventObject>>() {{
+			add((ApplicationListener<EventObject>) applicationListener);
+		}});
 	}
-
-	/**
-	 * 
-	 * @param clazz
-	 */
-	public void loadContext(Set<Class<?>> clazz) {
-
-		try {
-			// load bean definition
-			this.loadBeanDefinition(clazz);
-			// handle dependency
-			publishEvent(new HandleDependencyEvent(this));
-			super.handleDependency();
-			// add bean post processor
-			publishEvent(new BeanPostProcessorLoadingEvent(this));
-			this.addBeanPostProcessor();
-
-			onRefresh();
-		} //
-		catch (Exception ex) {
-			log.error("An Exception Occurred When Loading Context, With Msg: [{}] caused by {}", ex.getMessage(),
-					ex.getCause(), ex);
-		}
-	}
-
-	/**
-	 * 
-	 * @param beans
-	 * @throws IOException
-	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
-	 */
-	protected void loadBeanDefinition(Set<Class<?>> beans)//
-			throws IOException, BeanDefinitionStoreException, ConfigurationException //
-	{
-		log.debug("Start loading BeanDefinitions.");
-
-		// load bean from class set
-		publishEvent(new BeanDefinitionLoadingEvent(this));
-		beanDefinitionLoader.loadBeanDefinitions(beans);
-		publishEvent(new BeanDefinitionLoadedEvent(this));
-	}
+	//@on
 
 	@Override
-	public void addBeanPostProcessor() {
-
-		log.debug("Start loading BeanPostProcessor.");
-		Set<Entry<String, BeanDefinition>> entrySet = getBeanDefinitionsMap().entrySet();
-		try {
-
-			for (Entry<String, BeanDefinition> entry : entrySet) {
-				BeanDefinition beanDefinition = entry.getValue();
-				if (!BeanPostProcessor.class.isAssignableFrom(beanDefinition.getBeanClass())) {
-					continue;
-				}
-				log.debug("Find a BeanPostProcessor: [{}]", beanDefinition.getBeanClass());
-				postProcessors.add((BeanPostProcessor) initializeSingleton(entry.getKey(), beanDefinition));
-			}
-			postProcessors.sort(Comparator.comparingInt(OrderUtils::getOrder).reversed());
-		} //
-		catch (Exception ex) {
-			log.error("An Exception Occurred When Adding Post Processor To Context: [{}] With Msg: [{}] caused by {}",
-					this, ex.getMessage(), ex.getCause(), ex);
-		}
-	}
-
-	/**
-	 * 
-	 * @param path
-	 *            properties file path
-	 * @param package_
-	 *            scan package
-	 * @throws IOException
-	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
-	 */
-	protected void loadBeanDefinition(String package_)//
-			throws IOException, BeanDefinitionStoreException, ConfigurationException //
-	{
-		log.debug("Start loading BeanDefinitions.");
-		publishEvent(new BeanDefinitionLoadingEvent(this));
-		// load bean from class set
-		beanDefinitionLoader.loadBeanDefinitions(ClassUtils.scanPackage(package_));
-		publishEvent(new BeanDefinitionLoadedEvent(this));
-	}
-
-	@Override
-	public void loadSuccess() {
-		ClassUtils.clearCache();
-	}
-
-	@Override
-	public void onRefresh() {
+	public void refresh() throws ContextException {
 
 		try {
 
-			log.debug("Initialization of singleton objects.");
+			// refresh object instance
 			publishEvent(new ContextRefreshEvent(this));
-			Set<Entry<String, BeanDefinition>> entrySet = getBeanDefinitionsMap().entrySet();
-			for (Entry<String, BeanDefinition> entry : entrySet) {
-				doCreateSingleton(entry, entrySet);
-			}
-			log.debug("The singleton objects is initialized.");
-			publishEvent(new ContextStartedEvent(this));
-		} //
-		catch (Exception ex) {
-			log.error("An Exception Occurred When Refresh Context: [{}] With Msg: [{}] caused by {}", this,
-					ex.getMessage(), ex.getCause(), ex);
+
+			getBeanFactory().preInstantiateSingletons();
 		}
-	}
-
-	@Override
-	public void refresh(String name) {
-
-		try {
-
-			BeanDefinition beanDefinition = getBeanDefinition(name);
-
-			registerSingleton(//
-					name, initializingBean(//
-							createBeanInstance(beanDefinition), name, beanDefinition//
-					)//
-			);
-			publishEvent(new ObjectRefreshedEvent(beanDefinition, this));
-		} //
-		catch (NoSuchBeanDefinitionException e1) {
-			log.error("ERROR MSG: [{}]", e1.getMessage(), e1);
-		} //
-		catch (Exception e) {
-			log.error("Can't refresh a bean named: [{}]", name, e);
+		catch (Throwable ex) {
+			ex = ExceptionUtils.unwrapThrowable(ex);
+			log.error("An Exception Occurred When Refresh Context: [{}] With Msg: [{}]", this, ex.getMessage(), ex);
+			throw new ContextException(ex);
 		}
-	}
-
-	@Override
-	public Object refresh(BeanDefinition beanDefinition) {
-
-		String name = beanDefinition.getName();
-
-		try {
-
-			Object initializingBean = initializingBean(createBeanInstance(beanDefinition), name, beanDefinition);
-
-			publishEvent(new ObjectRefreshedEvent(beanDefinition, this));
-
-			return initializingBean;
-		} //
-		catch (NoSuchBeanDefinitionException e1) {
-			log.error("ERROR MSG -> [{}]", e1.getMessage(), e1);
-		} //
-		catch (Exception e) {
-			log.error("Can't refresh a bean named: [{}]", name);
-		}
-		return null;
 	}
 
 	@Override
 	public void close() {
+		started.set(false);
 		publishEvent(new ContextCloseEvent(this));
 	}
 
+	// --------ApplicationEventPublisher
 	@Override
 	public void publishEvent(EventObject event) {
 
-		log.info("Publish event: [{}]", event.getClass().getName());
+		if (log.isDebugEnabled()) {
+			log.debug("Publish event: [{}]", event.getClass().getName());
+		}
 
-		List<ApplicationListener<EventObject>> collection = applicationListeners.get(event.getClass());
-		if (collection == null) {
+		final List<ApplicationListener<EventObject>> listeners = applicationListeners.get(event.getClass());
+		if (listeners == null || listeners.isEmpty()) {
 			return;
 		}
 
-		for (ApplicationListener<EventObject> applicationListener : collection) {
+		for (final ApplicationListener<EventObject> applicationListener : listeners) {
 			applicationListener.onApplicationEvent(event);
 		}
 	}
+
+	/**
+	 * get AbstractBeanFactory
+	 * 
+	 * @return
+	 * @throws IllegalStateException
+	 */
+	public abstract AbstractBeanFactory getBeanFactory() throws IllegalStateException;
 
 	@Override
 	public void setEnvironment(ConfigurableEnvironment environment) {
 		this.environment = environment;
 	}
 
+	public BeanNameCreator getBeanNameCreator() {
+		if (this.beanNameCreator == null) {
+			this.beanNameCreator = createBeanNameCreator();
+		}
+		return this.beanNameCreator;
+	}
+
 	@Override
 	public ConfigurableEnvironment getEnvironment() {
-		return environment;
+		if (this.environment == null) {
+			this.environment = createEnvironment();
+		}
+		return this.environment;
+	}
+
+	/**
+	 * @return
+	 */
+	protected BeanNameCreator createBeanNameCreator() {
+		return new DefaultBeanNameCreator(getEnvironment());
+	}
+
+	/**
+	 * @return
+	 */
+	protected ConfigurableEnvironment createEnvironment() {
+		return new StandardEnvironment();
+	}
+
+	@Override
+	public boolean hasStarted() {
+		return started.get();
+	}
+
+	@Override
+	public long getStartupDate() {
+		return startupDate;
+	}
+
+	// ---------------------ConfigurableBeanFactory
+
+	@Override
+	public void registerBean(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
+		getBeanFactory().registerBean(name, beanDefinition);
+	}
+
+	@Override
+	public void removeBean(String name) throws BeanDefinitionStoreException {
+		getBeanFactory().removeBean(name);
+	}
+
+	@Override
+	public void registerBean(String name, Class<?> clazz) throws BeanDefinitionStoreException {
+		getBeanFactory().registerBean(name, clazz);
+	}
+
+	@Override
+	public void registerBean(Class<?> clazz) throws BeanDefinitionStoreException, ConfigurationException {
+		getBeanFactory().registerBean(clazz);
+	}
+
+	@Override
+	public void registerBean(Set<Class<?>> clazz) throws BeanDefinitionStoreException {
+		getBeanFactory().registerBean(clazz);
+	}
+
+	@Override
+	public void destroyBean(String name) {
+		getBeanFactory().destroyBean(name);
+	}
+
+	@Override
+	public void refresh(String name) {
+
+		try {
+			getBeanFactory().refresh(name);
+			// object refreshed
+			publishEvent(new ObjectRefreshedEvent(getBeanDefinition(name), this));
+		}
+		catch (Throwable ex) {
+			ex = ExceptionUtils.unwrapThrowable(ex);
+			log.error("Can't refresh a bean named: [{}], With Msg: [{}]", name, ex.getMessage(), ex);
+			throw new ContextException(ex);
+		}
+	}
+
+	@Override
+	public Object refresh(BeanDefinition beanDefinition) {
+
+		try {
+
+			Object initializingBean = getBeanFactory().refresh(beanDefinition);
+			// object refreshed
+			publishEvent(new ObjectRefreshedEvent(beanDefinition, this));
+			return initializingBean;
+		}
+		catch (Throwable ex) {
+			ex = ExceptionUtils.unwrapThrowable(ex);
+			log.error("Can't refresh a bean named: [{}], With Msg: [{}]", beanDefinition.getName(), ex.getMessage(), ex);
+			throw new ContextException(ex);
+		}
+	}
+
+	@Override
+	public void preInstantiateSingletons() throws Throwable {
+		getBeanFactory().preInstantiateSingletons();
+	}
+
+	@Override
+	public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+		getBeanFactory().addBeanPostProcessor(beanPostProcessor);
+	}
+
+	@Override
+	public void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+		getBeanFactory().removeBeanPostProcessor(beanPostProcessor);
+	}
+
+	// ------------------- BeanFactory
+	@Override
+	public Object getBean(String name) throws NoSuchBeanDefinitionException {
+		return getBeanFactory().getBean(name);
+	}
+
+	@Override
+	public <T> T getBean(Class<T> requiredType) throws NoSuchBeanDefinitionException {
+		return getBeanFactory().getBean(requiredType);
+	}
+
+	@Override
+	public <T> T getBean(String name, Class<T> requiredType) throws NoSuchBeanDefinitionException {
+		return getBeanFactory().getBean(name, requiredType);
+	}
+
+	@Override
+	public <T> List<T> getBeans(Class<T> requiredType) {
+		return getBeanFactory().getBeans(requiredType);
+	}
+
+	@Override
+	public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
+		return getBeanFactory().isSingleton(name);
+	}
+
+	@Override
+	public boolean isPrototype(String name) throws NoSuchBeanDefinitionException {
+		return getBeanFactory().isPrototype(name);
+	}
+
+	@Override
+	public Class<?> getType(String name) throws NoSuchBeanDefinitionException {
+		return getBeanFactory().getType(name);
+	}
+
+	@Override
+	public Set<String> getAliases(Class<?> type) {
+		return getBeanFactory().getAliases(type);
+	}
+
+	@Override
+	public String getBeanName(Class<?> targetClass) {
+		return getBeanFactory().getBeanName(targetClass);
+	}
+
+	@Override
+	public void registerSingleton(String name, Object bean) {
+		getBeanFactory().registerSingleton(name, bean);
+	}
+
+	@Override
+	public void registerSingleton(Object bean) {
+		getBeanFactory().registerSingleton(bean);
+	}
+
+	@Override
+	public Map<String, Object> getSingletonsMap() {
+		return getBeanFactory().getSingletonsMap();
+	}
+
+	@Override
+	public Object getSingleton(String name) {
+		return getBeanFactory().getSingleton(name);
+	}
+
+	@Override
+	public void removeSingleton(String name) {
+		getBeanFactory().removeSingleton(name);
+	}
+
+	@Override
+	public boolean containsSingleton(String name) {
+
+		return getBeanFactory().containsSingleton(name);
+	}
+
+	@Override
+	public Map<String, BeanDefinition> getBeanDefinitionsMap() {
+		return getBeanFactory().getBeanDefinitionsMap();
+	}
+
+	@Override
+	public void registerBeanDefinition(String name, BeanDefinition beanDefinition) //
+			throws BeanDefinitionStoreException, ConfigurationException //
+	{
+		getBeanFactory().registerBeanDefinition(name, beanDefinition);
+	}
+
+	@Override
+	public void removeBeanDefinition(String beanName) {
+		getBeanFactory().removeBeanDefinition(beanName);
+	}
+
+	@Override
+	public BeanDefinition getBeanDefinition(String beanName) {
+		return getBeanFactory().getBeanDefinition(beanName);
+	}
+
+	@Override
+	public BeanDefinition getBeanDefinition(Class<?> beanClass) {
+		return getBeanFactory().getBeanDefinition(beanClass);
+	}
+
+	@Override
+	public boolean containsBeanDefinition(String beanName) {
+		return getBeanFactory().containsBeanDefinition(beanName);
+	}
+
+	@Override
+	public boolean containsBeanDefinition(Class<?> type) {
+		return getBeanFactory().containsBeanDefinition(type);
+	}
+
+	@Override
+	public boolean containsBeanDefinition(Class<?> type, boolean equals) {
+		return getBeanFactory().containsBeanDefinition(type, equals);
+	}
+
+	@Override
+	public Set<String> getBeanDefinitionNames() {
+		return getBeanFactory().getBeanDefinitionNames();
+	}
+
+	@Override
+	public int getBeanDefinitionCount() {
+		return getBeanFactory().getBeanDefinitionCount();
+	}
+
+	// ----------------------
+
+	public void setPropertiesLocation(String propertiesLocation) {
+		this.propertiesLocation = propertiesLocation;
 	}
 
 }

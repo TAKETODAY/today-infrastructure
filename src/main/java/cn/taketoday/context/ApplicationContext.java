@@ -1,33 +1,31 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.context;
 
-import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.env.ConfigurableEnvironment;
-import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
-import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.listener.ApplicationEventPublisher;
 
 import java.io.Closeable;
+import java.util.Collection;
 
 /**
  * 
@@ -43,42 +41,11 @@ public interface ApplicationContext extends ConfigurableBeanFactory, Application
 	ConfigurableEnvironment getEnvironment();
 
 	/**
-	 * 
-	 * @return
-	 */
-	ObjectFactory getObjectFactory();
-
-	/**
 	 * refresh factory, initialize singleton
 	 * 
 	 * @since 2.0.1
 	 */
-	void onRefresh();
-
-	/**
-	 * Refresh bean with given name, and publish {@link ObjectRefreshedEvent}.
-	 * 
-	 * @param name
-	 *            bean name
-	 * 
-	 * @since 1.2.0
-	 */
-	void refresh(String name);
-
-	/**
-	 * Refresh bean definition, and publish {@link ObjectRefreshedEvent}.
-	 * 
-	 * @param beanDefinition
-	 *            bean definition
-	 * @since 2.0.0
-	 * @return initialized object
-	 */
-	Object refresh(BeanDefinition beanDefinition);
-
-	/**
-	 * context load success, clean cache like class cache.
-	 */
-	void loadSuccess();
+	void refresh();
 
 	/**
 	 * Load Application Context.
@@ -100,15 +67,37 @@ public interface ApplicationContext extends ConfigurableBeanFactory, Application
 	 * context.
 	 * </p>
 	 * 
-	 * @param package_
-	 *            package to scan
+	 * @param locations
+	 *            packages to scan
 	 */
-	void loadContext(String package_);
+	void loadContext(String... locations);
+
+	/**
+	 * load context from given classes
+	 * 
+	 * @param classes
+	 * @since 2.1.2
+	 */
+	void loadContext(Collection<Class<?>> classes);
 
 	/**
 	 * close context
 	 */
 	@Override
 	void close();
+
+	/**
+	 * started ?
+	 * 
+	 * @return
+	 */
+	boolean hasStarted();
+
+	/**
+	 * Get the context startup time stamp
+	 * 
+	 * @return
+	 */
+	long getStartupDate();
 
 }

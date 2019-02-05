@@ -1,20 +1,20 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.context.loader;
@@ -38,11 +38,11 @@ public interface BeanDefinitionLoader {
 	/**
 	 * Create a bean definition with given class type
 	 * 
-	 * @param clazz
+	 * @param beanClass
 	 *            the bean type
 	 * @return
 	 */
-	BeanDefinition createBeanDefinition(Class<?> clazz);
+	BeanDefinition createBeanDefinition(Class<?> beanClass);
 
 	/**
 	 * Get registered bean definition registry
@@ -62,7 +62,7 @@ public interface BeanDefinitionLoader {
 	void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException;
 
 	/**
-	 * load bean definition with given bean class.
+	 * Load bean definition with given bean class.
 	 * 
 	 * @param clazz
 	 *            bean class
@@ -72,18 +72,18 @@ public interface BeanDefinitionLoader {
 	void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException;
 
 	/**
-	 * load bean definition with given bean class and bean name.
+	 * Load bean definition with given bean class and bean name.
 	 * 
 	 * @param name
 	 *            bean name
-	 * @param clazz
+	 * @param beanClass
 	 *            bean class
 	 * @throws BeanDefinitionStoreException
 	 */
-	void loadBeanDefinition(String name, Class<?> clazz) throws BeanDefinitionStoreException;
+	void loadBeanDefinition(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
 
 	/**
-	 * register bean definition with given class
+	 * Register bean definition with given class
 	 * 
 	 * @param clazz
 	 *            bean class
@@ -93,7 +93,7 @@ public interface BeanDefinitionLoader {
 	void register(Class<?> clazz) throws BeanDefinitionStoreException;
 
 	/**
-	 * register bean definition with given name , and resolve property values
+	 * Register bean definition with given name , and resolve property values
 	 * 
 	 * @param name
 	 *            bean name

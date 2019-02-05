@@ -1,20 +1,20 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package test.demo.domain;
@@ -25,6 +25,9 @@ import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 
+import javax.annotation.PostConstruct;
+
+import lombok.extern.slf4j.Slf4j;
 import test.context.condition.WindowsCondition;
 
 /**
@@ -32,8 +35,14 @@ import test.context.condition.WindowsCondition;
  * 
  *         2018-09-06 15:30
  */
+@Slf4j
 @Configuration
 public class ConfigurationBean {
+
+	@PostConstruct
+	public void init() {
+		log.info("ConfigurationBean.init()");
+	}
 
 	@Prototype
 	public User user() {
@@ -55,6 +64,12 @@ public class ConfigurationBean {
 	@Singleton("user")
 	public User prodUser() {
 		return new User().setUserName("PROD");
+	}
+
+	@Singleton("yhj")
+	@Profile("!test")
+	public User yhj() {
+		return new User().setUserName("yhj");
 	}
 
 	@Singleton("user_")

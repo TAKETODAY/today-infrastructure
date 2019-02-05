@@ -82,7 +82,6 @@ public @interface Props {
 - [feat: add `@Conditional` feature](/src/test/java/test/context/profile/ProfileTest.java)
 - [feat: add `@Profile` feature](/src/test/java/test/context/profile/ProfileTest.java)
 - [feat: add `Environment` feature](/src/test/java/test/context/env/StandardEnvironmentTest.java)
-- [feat: add `Environment` feature](/src/test/java/test/context/env/StandardEnvironmentTest.java)
 - refactor: New Understanding Of IOC and coding
 
 > examples
@@ -177,4 +176,28 @@ public void test_Conditional() {
 	}
 }
 ```
+
+> ## v2.1.1
+- feat: add the destroy bean feature
+- fix: #1  some singletons could not be initialized
+- discard @PropertyResolver
+
+
+> ## v2.1.2
+- Use `BeanNameCreator` to create bean name
+- `FactoryBean`
+- fix: #2 handleDependency(): when handle dependency some bean definition has already exist 
+- fix: same name of bean when applyPropertyValues() cause exception
+- feat: add initMethods feature
+- feat: add destroyMethods feature
+- feat: add `@MissingBean` feature
+
+
+
+
+
+
+
+
+
 
