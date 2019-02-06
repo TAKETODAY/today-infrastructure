@@ -1,20 +1,20 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.web.mapping;
@@ -22,7 +22,6 @@ package cn.taketoday.web.mapping;
 import cn.taketoday.web.Constant;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -34,58 +33,60 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-@NoArgsConstructor
-public final class MethodParameter {
-	
+public class MethodParameter {
+	//@off
 	/** 是否不能为空 */
-	private boolean		required		= false;
+	private final boolean	required;
 	/** 参数名 */
-	private String		parameterName;
+	private final String	parameterName;
 	/** 参数类型 */
-	private Class<?>	parameterClass;
+	private final Class<?>	parameterClass;
 	/** 泛型参数类型 */
-	private Class<?>	genericityClass;
+	private final Class<?>	genericityClass;
 	/** 注解支持 */
-	private byte		annotation		= Constant.ANNOTATION_NULL;
+	private final byte		annotation;
 	/**	*/
-	private int			pathIndex		= 0;
+	private int				pathIndex		= 0;
 	/** the default value */
-	private String		defaultValue;
+	private final String	defaultValue;
 	
 	/**
 	 * @since 2.3.0
 	 */
-	private byte		parameterType	= Constant.TYPE_OTHER;
+	private final byte		parameterType;
 
 	/**
 	 * @since 2.3.1
 	 */
-	private String[]	splitMethodUrl  = null;
+	private String[]		splitMethodUrl  = null;
 	
-	public MethodParameter(String parameterName, boolean required) {
-		this.parameterName = parameterName;
-		this.required = required;
+	//@on
+
+	public MethodParameter() {
+		this(false, null, null, null, Constant.ANNOTATION_COOKIE, null, Constant.ANNOTATION_NULL);
 	}
 
-	public MethodParameter(String parameterName) {
-		this.parameterName = parameterName;
-	}
-
-	public MethodParameter addParameterType(byte parameterType) {
-		this.parameterType += parameterType;
-		return this;
-	}
-	
 	public final boolean hasPathVariable() {
 		return annotation == Constant.ANNOTATION_PATH_VARIABLE;
 	}
 
 	public final boolean isRequestBody() {
-		return annotation == Constant.ANNOTATION_REQUESTBODY;
+		return annotation == Constant.ANNOTATION_REQUEST_BODY;
 	}
 
 	public final boolean hasAnnotation() {
 		return annotation != Constant.ANNOTATION_NULL;
+	}
+
+	public MethodParameter(boolean required, String parameterName, Class<?> parameterClass, Class<?> genericityClass, byte annotation,
+			String defaultValue, byte parameterType) {
+		this.required = required;
+		this.parameterName = parameterName;
+		this.parameterClass = parameterClass;
+		this.genericityClass = genericityClass;
+		this.annotation = annotation;
+		this.defaultValue = defaultValue;
+		this.parameterType = parameterType;
 	}
 
 //	@Override

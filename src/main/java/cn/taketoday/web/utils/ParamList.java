@@ -1,24 +1,25 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.web.utils;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -39,11 +40,10 @@ import java.util.function.UnaryOperator;
  * @author Today <br>
  *         2018-06-30 18:21:37
  */
-public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, java.io.Serializable {
+@SuppressWarnings("serial")
+public class ParamList<E> implements List<E>, RandomAccess, Serializable {
 
-	private static final long serialVersionUID = 8673264195747942595L;
-
-	private transient volatile Object[] array;
+	private Object[] array;
 
 	public ParamList() {
 		array = new Object[0];
@@ -74,13 +74,13 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 	 * re-acquire array each time.
 	 * 
 	 * @param o
-	 *        element to search for
+	 *            element to search for
 	 * @param elements
-	 *        the array
+	 *            the array
 	 * @param index
-	 *        first index to search
+	 *            first index to search
 	 * @param fence
-	 *        one past last index to search
+	 *            one past last index to search
 	 * @return index of element, or -1 if absent
 	 */
 	private static int indexOf(Object o, Object[] elements, int index, int fence) {
@@ -88,7 +88,8 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 			for (int i = index; i < fence; i++)
 				if (elements[i] == null)
 					return i;
-		} else {
+		}
+		else {
 			for (int i = index; i < fence; i++)
 				if (o.equals(elements[i]))
 					return i;
@@ -100,11 +101,11 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 	 * static version of lastIndexOf.
 	 * 
 	 * @param o
-	 *        element to search for
+	 *            element to search for
 	 * @param elements
-	 *        the array
+	 *            the array
 	 * @param index
-	 *        first index to search
+	 *            first index to search
 	 * @return index of element, or -1 if absent
 	 */
 	private static int lastIndexOf(Object o, Object[] elements, int index) {
@@ -112,7 +113,8 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 			for (int i = index; i >= 0; i--)
 				if (elements[i] == null)
 					return i;
-		} else {
+		}
+		else {
 			for (int i = index; i >= 0; i--)
 				if (o.equals(elements[i]))
 					return i;
@@ -127,7 +129,7 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 	 * <tt>(o==null&nbsp;?&nbsp;e==null&nbsp;:&nbsp;o.equals(e))</tt>.
 	 *
 	 * @param o
-	 *        element whose presence in this list is to be tested
+	 *            element whose presence in this list is to be tested
 	 * @return {@code true} if this list contains the specified element
 	 */
 	public boolean contains(Object o) {
@@ -149,14 +151,14 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 	 * or -1 if there is no such index.
 	 *
 	 * @param e
-	 *        element to search for
+	 *            element to search for
 	 * @param index
-	 *        index to start searching from
+	 *            index to start searching from
 	 * @return the index of the first occurrence of the element in this list at
 	 *         position {@code index} or later in the list; {@code -1} if the
 	 *         element is not found.
 	 * @throws IndexOutOfBoundsException
-	 *         if the specified index is negative
+	 *             if the specified index is negative
 	 */
 	public int indexOf(E e, int index) {
 		return indexOf(e, array, index, array.length);
@@ -177,34 +179,18 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 	 * or -1 if there is no such index.
 	 *
 	 * @param e
-	 *        element to search for
+	 *            element to search for
 	 * @param index
-	 *        index to start searching backwards from
+	 *            index to start searching backwards from
 	 * @return the index of the last occurrence of the element at position less than
 	 *         or equal to {@code index} in this list; -1 if the element is not
 	 *         found.
 	 * @throws IndexOutOfBoundsException
-	 *         if the specified index is greater than or equal to the current size
-	 *         of this list
+	 *             if the specified index is greater than or equal to the current
+	 *             size of this list
 	 */
 	public int lastIndexOf(E e, int index) {
 		return lastIndexOf(e, array, index);
-	}
-
-	/**
-	 * Returns a shallow copy of this list. (The elements themselves are not
-	 * copied.)
-	 *
-	 * @return a clone of this list
-	 */
-	@SuppressWarnings("unchecked")
-	public Object clone() {
-		try {
-			return (ParamList<E>) super.clone();
-		} catch (CloneNotSupportedException e) {
-			// this shouldn't happen, since we are Cloneable
-			throw new InternalError();
-		}
 	}
 
 	public Object[] toArray() {
@@ -217,25 +203,29 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 	}
 
 	/**
+	 * <p>
 	 * Replaces the element at the specified position in this list with the
 	 * specified element.
-	 *
-	 * @throws IndexOutOfBoundsException
-	 *         {@inheritDoc}
+	 * </p>
+	 * 
+	 * If index out of bounds will set the index  
+	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public E set(int index, E element) {
-
+		
 		if (index <= array.length - 1) {
+			final Object oldElement = array[index];
 			array[index] = element;
-			return element;
+			return (E) oldElement;
 		}
-
+		
 		Object[] newArray = new Object[index + 1];
 		System.arraycopy(array, 0, newArray, 0, array.length);
 		newArray[index] = element;
-
+		
 		array = newArray;
-
+		
 		return element;
 	}
 
@@ -243,7 +233,7 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 	 * Appends the specified element to the end of this list.
 	 *
 	 * @param e
-	 *        element to be appended to this list
+	 *            element to be appended to this list
 	 * @return {@code true} (as specified by {@link Collection#add})
 	 */
 	public boolean add(E e) {
@@ -253,27 +243,20 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 		array = newArray;
 		return true;
 	}
-
+	
 	public void add(int index, E element) {
-		this.set(index, element);
+		if (index <= array.length - 1) {
+			array[index] = element;
+			return ;
+		}
+		Object[] newArray = new Object[index + 1];
+		System.arraycopy(array, 0, newArray, 0, array.length);
+		newArray[index] = element;
+		
+		array = newArray;
 	}
 
 	public E remove(int index) {
-		Object[] elements = array;
-		E oldValue = get(index);
-		int numMoved = array.length - index - 1;
-		if (numMoved == 0)
-			array = Arrays.copyOf(elements, array.length - 1);
-		else {
-			Object[] newElements = new Object[array.length - 1];
-			System.arraycopy(elements, 0, newElements, 0, index);
-			System.arraycopy(elements, index + 1, newElements, index, numMoved);
-			array = newElements;
-		}
-		return oldValue;
-	}
-
-	public E remove_(int index) {
 		Object[] elements = array;
 		E oldValue = get(index);
 		int numMoved = array.length - index - 1;
@@ -326,11 +309,11 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 	 * specified collection.
 	 *
 	 * @param c
-	 *        collection to be checked for containment in this list
+	 *            collection to be checked for containment in this list
 	 * @return {@code true} if this list contains all of the elements of the
 	 *         specified collection
 	 * @throws NullPointerException
-	 *         if the specified collection is null
+	 *             if the specified collection is null
 	 * @see #contains(Object)
 	 */
 	public boolean containsAll(Collection<?> c) {
@@ -367,15 +350,15 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 	 * are returned by the specified collection's iterator.
 	 *
 	 * @param index
-	 *        index at which to insert the first element from the specified
-	 *        collection
+	 *            index at which to insert the first element from the specified
+	 *            collection
 	 * @param c
-	 *        collection containing elements to be added to this list
+	 *            collection containing elements to be added to this list
 	 * @return {@code true} if this list changed as a result of the call
 	 * @throws IndexOutOfBoundsException
-	 *         {@inheritDoc}
+	 *             {@inheritDoc}
 	 * @throws NullPointerException
-	 *         if the specified collection is null
+	 *             if the specified collection is null
 	 * @see #add(int,Object)
 	 */
 	public boolean addAll(int index, Collection<? extends E> c) {
@@ -415,8 +398,7 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 			int newlen = 0;
 			Object[] temp = new Object[array.length];
 			for (int i = 0; i < array.length; ++i) {
-				@SuppressWarnings("unchecked")
-				E e = (E) array[i];
+				@SuppressWarnings("unchecked") E e = (E) array[i];
 				if (!filter.test(e))
 					temp[newlen++] = e;
 			}
@@ -433,8 +415,7 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 			throw new NullPointerException();
 		Object[] newElements = Arrays.copyOf(array, array.length);
 		for (int i = 0; i < array.length; ++i) {
-			@SuppressWarnings("unchecked")
-			E e = (E) array[i];
+			@SuppressWarnings("unchecked") E e = (E) array[i];
 			newElements[i] = operator.apply(e);
 		}
 		array = newElements;
@@ -474,7 +455,7 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 	 * {@code (e1==null ? e2==null : e1.equals(e2))}.
 	 *
 	 * @param o
-	 *        the object to be compared for equality with this list
+	 *            the object to be compared for equality with this list
 	 * @return {@code true} if the specified object is equal to this list
 	 */
 	public boolean equals(Object o) {
@@ -547,7 +528,7 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 	 * {@code set} or {@code add} methods.
 	 *
 	 * @throws IndexOutOfBoundsException
-	 *         {@inheritDoc}
+	 *             {@inheritDoc}
 	 */
 	public ListIterator<E> listIterator(int index) {
 		if (index < 0 || index > array.length)
@@ -604,7 +585,7 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 		 * Not supported. Always throws UnsupportedOperationException.
 		 * 
 		 * @throws UnsupportedOperationException
-		 *         always; {@code remove} is not supported by this iterator.
+		 *             always; {@code remove} is not supported by this iterator.
 		 */
 		public void remove() {
 			throw new UnsupportedOperationException();
@@ -614,7 +595,7 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 		 * Not supported. Always throws UnsupportedOperationException.
 		 * 
 		 * @throws UnsupportedOperationException
-		 *         always; {@code set} is not supported by this iterator.
+		 *             always; {@code set} is not supported by this iterator.
 		 */
 		public void set(E e) {
 			throw new UnsupportedOperationException();
@@ -624,7 +605,7 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 		 * Not supported. Always throws UnsupportedOperationException.
 		 * 
 		 * @throws UnsupportedOperationException
-		 *         always; {@code add} is not supported by this iterator.
+		 *             always; {@code add} is not supported by this iterator.
 		 */
 		public void add(E e) {
 			throw new UnsupportedOperationException();
@@ -636,8 +617,7 @@ public final class ParamList<E> implements List<E>, RandomAccess, Cloneable, jav
 			Object[] elements = snapshot;
 			final int size = elements.length;
 			for (int i = cursor; i < size; i++) {
-				@SuppressWarnings("unchecked")
-				E e = (E) elements[i];
+				@SuppressWarnings("unchecked") E e = (E) elements[i];
 				action.accept(e);
 			}
 			cursor = size;

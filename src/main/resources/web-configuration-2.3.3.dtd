@@ -1,31 +1,38 @@
 <!-- 
 <!DOCTYPE Web-Configuration PUBLIC
 		"-//TODAY BLOG//Web-View Configuration DTD 2.0//CN"
-			"https://taketoday.cn/framework/web/dtd/web-configuration-2.3.0.dtd">
+			"https://taketoday.cn/framework/web/dtd/web-configuration-2.3.3.dtd">
 
-<!ELEMENT Web-Configuration (static-resources*, property-location*, component-scan*, common*, bean*)>
+<!ELEMENT Web-Configuration (static-resources*, component-scan*, common*, bean*)>
 		class CDATA #IMPLIED
 
 -->
 
-<!ELEMENT Web-Configuration (#PCDATA|static-resources|common|view-resolver|multipart|exception-resolver|parameter-resolver)*>
+<!ELEMENT Web-Configuration (#PCDATA|dispatcher-servlet|static-resources|controller|view-resolver|multipart|exception-resolver|parameter-resolver)*>
 
-<!-- view's common configure -->
-<!ELEMENT common (view)*>
-	<!ATTLIST common
-		prefix CDATA "/WEB-INF/view"
+<!-- action common configure -->
+<!ELEMENT controller (action)*>
+	<!ATTLIST controller
+		prefix CDATA "/WEB-INF/ftl"
 		suffix CDATA ".ftl"
+		name CDATA #IMPLIED
+		class CDATA #IMPLIED
 	>
 	
-<!-- view configure -->
-<!ELEMENT view (#PCDATA)>
-	<!ATTLIST view
-		res CDATA #REQUIRED
-		type (forward|redirect) #IMPLIED
+<!-- action -->
+<!ELEMENT action (#PCDATA)>
+	<!ATTLIST action
 		name CDATA #REQUIRED
+		method CDATA #IMPLIED
+		resource CDATA #IMPLIED
+		content-type CDATA "text/html;charset=UTF-8"
+		type (forward|redirect) #IMPLIED
 	>
-
 <!-- static sources configure -->
+<!ELEMENT dispatcher-servlet (#PCDATA)>
+	<!ATTLIST dispatcher-servlet
+		mapping CDATA #REQUIRED
+	>
 <!ELEMENT static-resources (#PCDATA)>
 	<!ATTLIST static-resources
 		mapping CDATA #REQUIRED
@@ -35,7 +42,6 @@
 	<!ATTLIST view-resolver
 		class CDATA "cn.taketoday.web.view.FreeMarkerViewResolver"
 	>
-	
 <!ELEMENT view-suffix (#PCDATA)>
 <!ELEMENT view-prefix (#PCDATA)>
 <!ELEMENT view-encoding (#PCDATA)>
@@ -44,7 +50,7 @@
 <!ELEMENT parameter-resolver (#PCDATA)>
 	<!ATTLIST parameter-resolver
 		class CDATA "cn.taketoday.web.resolver.DefaultParameterResolver"
-	>	
+	>
 <!ELEMENT exception-resolver (#PCDATA)>
 	<!ATTLIST exception-resolver
 		class CDATA "cn.taketoday.web.resolver.DefaultExceptionResolver"
@@ -54,12 +60,13 @@
 	<!ATTLIST multipart
 		class CDATA "cn.taketoday.web.multipart.DefaultMultipartResolver" 
 	>
+	
 <!ELEMENT upload-encoding (#PCDATA)>
 <!ELEMENT upload-location (#PCDATA)>
 <!ELEMENT upload-maxFileSize (#PCDATA)>
 <!ELEMENT upload-maxRequestSize (#PCDATA)>
 <!ELEMENT upload-fileSizeThreshold (#PCDATA)>
-	
+
 	
 	
 

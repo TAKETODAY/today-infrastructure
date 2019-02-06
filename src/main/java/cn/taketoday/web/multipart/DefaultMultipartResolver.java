@@ -1,26 +1,29 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.web.multipart;
 
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.annotation.WebDebugMode;
 import cn.taketoday.web.exception.BadRequestException;
+import cn.taketoday.web.exception.FileSizeExceededException;
 import cn.taketoday.web.mapping.MethodParameter;
 
 import java.util.ArrayList;
@@ -33,26 +36,27 @@ import javax.servlet.http.Part;
 
 import org.slf4j.LoggerFactory;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
- * 
  * @author Today <br>
  *         2018-06-28 9:00:29
  */
-@Setter
-@Getter
-public final class DefaultMultipartResolver extends AbstractMultipartResolver {
+@WebDebugMode
+@Singleton(Constant.MULTIPART_RESOLVER)
+public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
 	@Override
-	public Object resolveMultipart(HttpServletRequest request, String methodParameterName,
-			MethodParameter methodParameter) throws Throwable {
+	public Object resolveMultipart(HttpServletRequest request, //
+			String methodParameterName, MethodParameter methodParameter) throws Throwable //
+	{
+		if (maxRequestSize < request.getContentLengthLong()) { // exceed max size?
+			throw new FileSizeExceededException(maxRequestSize, null).setActual(request.getContentLengthLong());
+		}
 
 		switch (methodParameter.getParameterType())
 		{
-			case Constant.TYPE_MULTIPART_FILE :
+			case Constant.TYPE_MULTIPART_FILE : {
 				return new DefaultMultipartFile(request.getPart(methodParameterName));
+			}
 			case Constant.TYPE_ARRAY_MULTIPART_FILE : {
 				Set<DefaultMultipartFile> multipartFiles = new HashSet<>();
 				for (Part part : request.getParts()) {
@@ -80,19 +84,20 @@ public final class DefaultMultipartResolver extends AbstractMultipartResolver {
 				}
 				return multipartFiles;
 			}
-			default:
-				throw new BadRequestException("Not supported type: [" + methodParameter.getParameterClass() + "]");
 		}
+		throw new BadRequestException("Not supported type: [" + methodParameter.getParameterClass() + "]");
 	}
 
 	@Override
 	public void cleanupMultipart(HttpServletRequest request) {
 
 		try {
+
 			for (Part part : request.getParts()) {
 				part.delete();
 			}
-		} catch (Exception ex) {
+		} //
+		catch (Exception ex) {
 			LoggerFactory.getLogger(DefaultMultipartResolver.class).error("cleanup cache error", ex);
 		}
 	}

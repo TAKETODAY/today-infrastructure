@@ -1,20 +1,20 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.web.ui;
@@ -33,33 +33,28 @@ import javax.servlet.http.HttpServletRequest;
  * @author Today <br>
  *         2018-10-14 20:29
  */
-public final class ModelMap implements Model {
+public class ModelAttributes implements Model, Map<String, Object> {
 
-	protected final HttpServletRequest request;
+	private final HttpServletRequest request;
 
-	public ModelMap(HttpServletRequest request) {
+	public ModelAttributes(HttpServletRequest request) {
 		this.request = request;
 	}
 
 	@Override
-	public ModelMap addAttribute(String attributeName, Object attributeValue) {
-		request.setAttribute(attributeName, attributeValue);
+	public ModelAttributes addAttribute(String attributeName, Object attributeValue) {
+		if (attributeName != null) {
+			request.setAttribute(attributeName, attributeValue);
+		}
 		return this;
 	}
 
 	@Override
-	public ModelMap addAllAttributes(Map<String, Object> attributes) {
+	public ModelAttributes addAllAttributes(Map<String, Object> attributes) {
 		attributes.forEach(request::setAttribute);
 		return this;
 	}
 
-	/**
-	 * Does this model contain an attribute of the given name?
-	 * 
-	 * @param attributeName
-	 *            the name of the model attribute (never {@code null})
-	 * @return whether this model contains a corresponding attribute
-	 */
 	public boolean containsAttribute(String attributeName) {
 		return request.getAttribute(attributeName) == null;
 	}
@@ -81,15 +76,19 @@ public final class ModelMap implements Model {
 	}
 
 	@Override
-	public Enumeration<String> getAttributeNames() {
-		return request.getAttributeNames();
+	public Collection<String> getAttributeNames() {
+		Enumeration<String> enumeration = request.getAttributeNames();
+		Collection<String> attributeNames = new HashSet<>();
+		while (enumeration.hasMoreElements()) {
+			attributeNames.add(enumeration.nextElement());
+		}
+		return attributeNames;
 	}
 
 	@Override
 	public int size() {
 		int size = 0;
-		Enumeration<String> attributeNames = request.getAttributeNames();
-		while (attributeNames.hasMoreElements()) {
+		while (request.getAttributeNames().hasMoreElements()) {
 			size++;
 		}
 		return size;
@@ -109,9 +108,12 @@ public final class ModelMap implements Model {
 	public boolean containsValue(Object value) {
 		throw new UnsupportedOperationException();
 	}
-
+	
 	@Override
 	public Object get(Object key) {
+		if (!(key instanceof String)) {
+			throw new RuntimeException("Attribute name must be a String");
+		}
 		return request.getAttribute((String) key);
 	}
 
@@ -123,6 +125,10 @@ public final class ModelMap implements Model {
 
 	@Override
 	public Object remove(Object name) {
+
+		if (!(name instanceof String)) {
+			throw new RuntimeException("Attribute name must be a String");
+		}
 		request.removeAttribute((String) name);
 		return null;
 	}
@@ -132,7 +138,6 @@ public final class ModelMap implements Model {
 	public void putAll(Map<? extends String, ? extends Object> attributes) {
 		addAllAttributes((Map<String, Object>) attributes);
 	}
-	
 
 	@Override
 	public void clear() {
@@ -164,7 +169,51 @@ public final class ModelMap implements Model {
 
 	@Override
 	public Set<Entry<String, Object>> entrySet() {
-		throw new UnsupportedOperationException();
+		Set<Entry<String, Object>> entries = new HashSet<>();
+		Enumeration<String> attributeNames = request.getAttributeNames();
+		while (attributeNames.hasMoreElements()) {
+			String currentKey = attributeNames.nextElement();
+			entries.add(new Node(currentKey, request.getAttribute(currentKey)));
+		}
+		return entries;
+	}
+
+	@Override
+	public Object getAttribute(String name) {
+		return get(name);
+	}
+
+	@Override
+	public <T> T getAttribute(String name, Class<T> targetClass) {
+		return targetClass.cast(get(name));
+	}
+
+	private static final class Node implements Entry<String, Object> {
+
+		private final String key;
+		private Object value;
+
+		public Node(String key, Object value) {
+			this.key = key;
+			this.value = value;
+		}
+
+		@Override
+		public final Object setValue(Object value) {
+			Object oldValue = this.value;
+			this.value = value;
+			return oldValue;
+		}
+
+		@Override
+		public final Object getValue() {
+			return value;
+		}
+
+		@Override
+		public final String getKey() {
+			return key;
+		}
 	}
 
 }

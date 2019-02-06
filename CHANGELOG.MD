@@ -147,11 +147,11 @@ public final class OptionalAction {
     @GET("/optional")
     public String optional(Optional<String> opt) {
 		
-	opt.ifPresent(opts -> {
-		System.out.println(opts);
-	});
-		
-	return "Optional";
+		opt.ifPresent(opts -> {
+			System.out.println(opts);
+		});
+			
+		return "Optional";
     }
 }
 @RestProcessor
@@ -237,6 +237,15 @@ public final class PathVariableAction {
 ## v2.3.2
 - fix #1
 - fix #2 JSONObject could be null
+- use `HandlerMappingRegistry` instead of `HandlerMappingPool`
+
+## v2.3.3
+- TODO fix path variable不能匹配中文字符
+- view add content type 
+- fix #3 upload file not found exception
+- add some test code
+
+
 
 <br>
 <br>

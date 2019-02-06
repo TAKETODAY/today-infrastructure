@@ -1,31 +1,31 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.web.multipart;
+
+import cn.taketoday.web.exception.InternalServerException;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.fileupload.FileItem;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Commons file upload implement.
@@ -34,12 +34,10 @@ import lombok.extern.slf4j.Slf4j;
  * 
  *         2018-07-11 15:48:00
  */
-@Slf4j
-public final class CommonsMultipartFile implements MultipartFile {
+@SuppressWarnings("serial")
+public class CommonsMultipartFile implements MultipartFile {
 
-	private static final long	serialVersionUID	= -8499057935018080732L;
-
-	private final FileItem			fileItem;
+	private final FileItem fileItem;
 
 	/**
 	 * Create an instance wrapping the given FileItem.
@@ -89,12 +87,34 @@ public final class CommonsMultipartFile implements MultipartFile {
 	public boolean save(File dest) {
 
 		try {
+
+			// fix #3 Upload file not found exception
+			File parentFile = dest.getParentFile();
+			if (!parentFile.exists()) {
+				parentFile.mkdirs();
+			}
+
 			fileItem.write(dest);
 			return true;
-		} catch (Exception e) {
-			log.error("file [{}] upload failure.", getFileName(), e);
-			return false;
+		} //
+		catch (Exception e) {
+			throw new InternalServerException("File: [" + getFileName() + "] upload failure.", e);
 		}
+	}
+
+	@Override
+	public byte[] getBytes() {
+		return fileItem.get();
+	}
+
+	@Override
+	public Object getOriginalResource() {
+		return fileItem;
+	}
+
+	@Override
+	public void delete() throws IOException {
+		fileItem.delete();
 	}
 
 }

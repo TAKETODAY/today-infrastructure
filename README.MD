@@ -2,12 +2,13 @@
 
 > TODAY WEB 一个类似 SpringMVC 的轻量级web框架
 
-### 前言
-> 本人大学生一枚，专业是电子信息工程，大二在读。大一开始学Java，准确的说是高三最后的几周开始的. 果然兴趣是最好的老师， 在大一下学期自己独自一人从前端到后台写了我的个人网站：<a href="https://taketoday.cn" target="_blank">TODAY BLOG</a> 。 从注册域名到备案再到网站成功上线，我遇到过的困难数不计其数。因为感兴趣所以我坚持了下来。第一个版本使用的纯Servlet写的。后来了解到Java有很多开源框架可以简化我的开发。于是又投入到新一轮的学习之中...... 学了Struts2后自己学着写了一个小框架：[TODAY WEB](https://gitee.com/TAKETODAY/today_web/tree/v1.1.1/)，几百行搞定从解析xml定义的action到处理对应的请求。学了Spring MVC后，我写了此项目：[TODAY WEB 2.0](https://gitee.com/TAKETODAY/today_web)。
+## 前言
+> 本人大学生一枚，专业是电子信息工程，大三在读。大一开始学Java，准确的说是高三最后的几周开始的. 果然兴趣是最好的老师， 在大一下学期自己独自一人从前端到后台写了我的个人网站：<a href="https://taketoday.cn" target="_blank">TODAY BLOG</a> 。 从注册域名到备案再到网站成功上线，我遇到过的困难数不计其数。因为感兴趣所以我坚持了下来。第一个版本使用的纯Servlet写的。后来了解到Java有很多开源框架可以简化我的开发。于是又投入到新一轮的学习之中...... 学了Struts2后自己学着写了一个小框架：[TODAY WEB](https://gitee.com/TAKETODAY/today_web/tree/v1.1.1/)，几百行搞定从解析xml定义的action到处理对应的请求。学了Spring MVC后，我写了此项目：[TODAY WEB 2.0](https://gitee.com/TAKETODAY/today_web)。
 
-### 使用说明
+## 使用说明
 
 > 通过 `@Controller` `@RestController` 配置控制器
+
 ```java
 //@Controller
 @RestController
@@ -16,11 +17,13 @@ public class IndexController {
     
 }
 ```
+
 > 配置请求
+
 ```java
 @GET("index")
 @POST("post")
-@PUT("article/{1}")
+@PUT("articles/{id}")
 ......
 @RequestMapping("/users/{id}")
 @RequestMapping(value = "/users/**", method = {RequestMethod.GET})
@@ -33,6 +36,7 @@ public (String|List<?>|Set<?>|Map<?>|void|File|Image|...) \\w+ (request, request
 }
 ```
 > 自定义参数转换器
+
 ```java
 @ParameterConverter 
 public class DateConverter implements Converter<String, Date> {
@@ -49,11 +53,12 @@ public class DateConverter implements Converter<String, Date> {
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Web-Configuration PUBLIC 
 		"-//TODAY BLOG//Web - Configuration DTD 2.0//CN"
-			"https://taketoday.cn/framework/web/dtd/web-configuration-2.2.0.dtd">
+			"https://taketoday.cn/framework/web/dtd/web-configuration-2.3.3.dtd">
 
 <Web-Configuration>
 
-    <static-resources mapping="/assets/*" />
+    <dispatcher-servlet mapping="/;*.do"/>
+    <static-resources mapping="/assets/*;*.js"/>
     
 <!-- 不配置默认使用：<multipart class="cn.taketoday.web.multipart.DefaultMultipartResolver"> 支持自定义-->
     <multipart class="cn.taketoday.web.multipart.CommonsMultipartResolver">
@@ -75,27 +80,31 @@ public class DateConverter implements Converter<String, Date> {
 	<parameter-resolver class="cn.taketoday.web.resolver.DefaultParameterResolver"/>
     
     <!-- 视图 -->
-    <common prefix="/WEB-INF/error/" suffix=".jsp">
-        <view res="400" name="BadRequest" />
-        <view res="403" name="Forbidden" />
-        <view res="404" name="NotFound" />
-        <view res="500" name="ServerIsBusy" />
-        <view res="405" name="MethodNotAllowed" />
-    </common>
-
+    <controller>
+        <action resource="http://pipe.b3log.org/blogs/Today" name="today-blog-pipe" type="redirect"/>
+        <action resource="https://taketoday.cn" name="today" type="redirect"/>
+        <action resource="https://github.com" name="github" type="redirect"/>
+        <action resource="/login" name="login.do" type="redirect"/>
+    </controller>
+    
+    <controller class="cn.taketoday.demo.controller.XMLController" name="xmlController" prefix="/xml/">
+        <action name="obj" method="obj"/>
+        <action name="test" resource="test" method="test" type="forward"/>
+    </controller>
+    
 </Web-Configuration>
 ```
 >  登录实例
 
 ```java
 @Controller
-public final class UserController {
+public class UserController {
 
-/* 简单视图可以使用xml文件定义，只支持jsp
-    <common prefix="/WEB-INF/view/" suffix=".jsp">
-        <view res="login" name="login" />
-        <view res="register" name="register" />
-    </common> */
+/* 
+    <controller prefix="/WEB-INF/view/" suffix=".ftl">
+        <action resource="login" name="login" />
+        <action resource="register" name="register" />
+    </controller> */
     
     // @GET("login")
     @RequestMapping(value = "/login" , method = RequestMethod.GET)
@@ -106,12 +115,12 @@ public final class UserController {
     // @POST("login")
     @ResponseBody
     @RequestMapping(value = "/login" , method = RequestMethod.POST)
-    public String login(@RequestParam(required = true) String userId,@RequestParam(required = true) String passwd) {
+    public String login(@RequestParam(required = true) String userId, @RequestParam(required = true) String passwd) {
         // service...
         if(userId.equals(passwd)) {
-            return"{\"msg\":\"登录成功\"}";
+            return "{\"msg\":\"登录成功\"}";
         }
-        return"{\"msg\":\"登录失败\"}";//支持pojo转json
+        return "{\"msg\":\"登录失败\"}";//支持pojo转json
     }
 }
 ```
@@ -124,11 +133,12 @@ public File download(String path) {
     return new File(path);
 }
 ```
+
 ```java
 @GET("/display")
 public final BufferedImage display(HttpServletResponse response) throws IOException {
     response.setContentType("image/jpeg");
-    return ImageIO.read(new File("D:/www.yhj.com/webapps/upload/logo.png"));
+    return ImageIO.read(new File("D:/taketoday.cn/webapps/upload/logo.png"));
 }
 
 @GET("captcha")
@@ -142,11 +152,12 @@ public final BufferedImage captcha(HttpServletRequest request) throws IOExceptio
     return image;
 }
 ```
+
 > 文件上传，支持多文件
+
 ```java
 @RequestMapping(value = { "/upload" }, method = RequestMethod.POST)
-public final String upload(@Multipart MultipartFile uploadFile)
-        throws IOException {
+public final String upload(@Multipart MultipartFile uploadFile) throws IOException {
 
     String upload = "D:/www.yhj.com/webapps/upload/";
     String path = upload + uploadFile.getFileName();
@@ -174,11 +185,15 @@ public final String multiUpload(HttpServletResponse response, @Multipart Multipa
     return "<script>alert('upload success !')</script>";
 }
 ```
+## 案例
+- [DEMO](https://github.com/TAKETODAY/today-web-demo)
 
-### 联系方式
+## 文档
+- [Wiki](https://gitee.com/TAKETODAY/today_web/wikis)
+
+## 联系方式
 - 邮箱 taketoday@foxmail.com
 
-### 开源协议
-
-请查看 [GNU GENERAL PUBLIC LICENSE](https://gitee.com/TAKETODAY/today_web/blob/master/LICENSE)
+## 开源协议
+请查看 [GNU GENERAL PUBLIC LICENSE](https://github.com/TAKETODAY/today-web/blob/master/LICENSE)
 

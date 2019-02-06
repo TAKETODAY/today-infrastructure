@@ -1,28 +1,28 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2018 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
+ * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.web.annotation;
 
+import cn.taketoday.web.RequestMethod;
+
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
-
-import cn.taketoday.web.RequestMethod;
 
 /**
  * @author Today <br>
@@ -32,9 +32,9 @@ import cn.taketoday.web.RequestMethod;
 @SuppressWarnings("all")
 public class ActionMappingImpl implements ActionMapping {
 
-	private String[]		value;
-
-	private RequestMethod[]	method;
+	private String[] value;
+	private boolean exclude;
+	private RequestMethod[] method;
 
 	@Override
 	public Class<? extends Annotation> annotationType() {
@@ -61,6 +61,44 @@ public class ActionMappingImpl implements ActionMapping {
 				.append(Arrays.toString(method))//
 				.append(")")//
 				.toString();
+	}
+
+	@Override
+	public boolean exclude() {
+		return exclude;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+
+		if (obj == this) {
+			return true;
+		}
+
+		if (!(obj instanceof ActionMapping)) {
+			return false;
+		}
+
+		ActionMapping actionMapping = (ActionMapping) obj;
+		RequestMethod[] otherMethods = actionMapping.method();
+		String[] otherValues = actionMapping.value();
+		if (actionMapping.exclude() != exclude || //
+				otherValues.length != value.length || //
+				method.length != otherMethods.length) {
+
+			return false;
+		}
+		for (int i = 0; i < method.length; i++) {
+			if (!otherMethods[i].equals(method[i])) {
+				return false;
+			}
+		}
+		for (int i = 0; i < value.length; i++) {
+			if (!otherValues[i].equals(value[i])) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }
