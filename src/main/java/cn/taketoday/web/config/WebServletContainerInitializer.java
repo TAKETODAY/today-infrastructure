@@ -1,6 +1,6 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2019 All Rights Reserved.
+ * Copyright ©  TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -183,7 +183,7 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 	 * 
 	 * @param doc
 	 *            xml file
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	private final void registerXml(Document doc, String filePath) throws Throwable {
 		Element root = doc.getDocumentElement();
@@ -441,7 +441,7 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 		if (StringUtils.isEmpty(staticMapping)) {
 			throw new ConfigurationException("Static sources mapping can't be empty, please check your configuration");
 		}
-		
+
 		servletRegistration.addMapping(StringUtils.split(staticMapping));
 		log.debug("Add default servlet mapping: [{}].", servletRegistration.getMappings());
 	}
@@ -482,22 +482,25 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 	}
 
 	/**
+	 * Prepare {@link WebApplicationContext}
+	 * 
 	 * @param classes
+	 *            classes to scan
 	 * @param servletContext
 	 * @return startup Date
 	 */
 	private long prepareApplicationContext(Set<Class<?>> classes, ServletContext servletContext) {
 
-		Object attribute = servletContext.getAttribute(KEY_WEB_APPLICATION_CONTEXT);
+		final Object attribute = servletContext.getAttribute(KEY_WEB_APPLICATION_CONTEXT);
 		if (attribute != null && attribute instanceof WebApplicationContext) {
 			applicationContext = (WebApplicationContext) attribute;
 			return applicationContext.getStartupDate();
 		}
 
-		long start = System.currentTimeMillis();
 		ClassUtils.setClassCache(classes);
+		final long start = System.currentTimeMillis();
 		log.info("Your Application Starts To Be Initialized At: [{}].", //
-				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(start)));
 
 		log.debug("There are [{}] classes in class path", classes.size());
 		applicationContext = new DefaultWebApplicationContext(classes, servletContext);
@@ -512,15 +515,16 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 
 		final long start = prepareApplicationContext(classes, servletContext);
 		try {
-			final ConfigurableEnvironment environment = applicationContext.getEnvironment();
+
 			final WebApplicationContext applicationContext = getWebApplicationContext();
+			final ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
 			try {
 				servletContext.setRequestCharacterEncoding(DEFAULT_ENCODING);
 				servletContext.setResponseCharacterEncoding(DEFAULT_ENCODING);
 			}
 			catch (Throwable e) {
-				// cause by jetty
+				// Waiting for Jetty 10.0.0
 			}
 
 			if (Boolean.parseBoolean(environment.getProperty(ENABLE_WEB_MVC_XML, "true"))) {
@@ -559,7 +563,7 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 		}
 
 	}
-	
+
 	static void removeFrameWorkBeanDefinitions() {
 		applicationContext.destroyBean(VIEW_CONFIG);
 		applicationContext.destroyBean(ACTION_CONFIG);

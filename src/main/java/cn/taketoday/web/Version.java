@@ -29,11 +29,12 @@ package cn.taketoday.web;
  *       <b>2.3.1.RELEASE -> 2018-10-18 20:26</b><br>
  *       ...<br>
  *       <b>2.3.3.RELEASE -> 2018-12-07 21:28</b><br>
+ *       <b>2.3.4.RELEASE -> 2019-02-10 18:03</b><br>
  */
 public abstract class Version {
 
 	public static String getVersion() {
-		return "2.3.3.RELEASE";
+		return "2.3.4.RELEASE";
 	}
 
 	public static String[] getHistoryVersion() {
@@ -46,7 +47,8 @@ public abstract class Version {
 				"2.2.2.RELEASE", //
 				"2.2.3.RELEASE", //
 				"2.3.1.RELEASE", //
-				"2.3.3.RELEASE" //
+				"2.3.3.RELEASE", //
+				"2.3.4.RELEASE" //
 		};
 	}
 }

@@ -240,14 +240,12 @@ public final class PathVariableAction {
 - use `HandlerMappingRegistry` instead of `HandlerMappingPool`
 
 ## v2.3.3
-- TODO fix path variable不能匹配中文字符
+- fix path variable不能匹配中文字符
 - view add content type 
 - fix #3 upload file not found exception
 - add some test code
 
+## v2.3.4
+- Sync to maven Central
+- Waiting for Jetty 10.0.0
 
-
-<br>
-<br>
-<br>
-<br>

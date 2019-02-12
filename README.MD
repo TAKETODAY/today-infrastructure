@@ -5,6 +5,24 @@
 ## 前言
 > 本人大学生一枚，专业是电子信息工程，大三在读。大一开始学Java，准确的说是高三最后的几周开始的. 果然兴趣是最好的老师， 在大一下学期自己独自一人从前端到后台写了我的个人网站：<a href="https://taketoday.cn" target="_blank">TODAY BLOG</a> 。 从注册域名到备案再到网站成功上线，我遇到过的困难数不计其数。因为感兴趣所以我坚持了下来。第一个版本使用的纯Servlet写的。后来了解到Java有很多开源框架可以简化我的开发。于是又投入到新一轮的学习之中...... 学了Struts2后自己学着写了一个小框架：[TODAY WEB](https://gitee.com/TAKETODAY/today_web/tree/v1.1.1/)，几百行搞定从解析xml定义的action到处理对应的请求。学了Spring MVC后，我写了此项目：[TODAY WEB 2.0](https://gitee.com/TAKETODAY/today_web)。
 
+## 安装
+
+```xml
+<dependency>
+    <groupId>cn.taketoday</groupId>
+    <artifactId>today-web</artifactId>
+    <version>2.3.4.RELEASE</version>
+</dependency>
+```
+- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-web/2.3.4.RELEASE/jar)
+
+
+## 案例
+- [DEMO](https://github.com/TAKETODAY/today-web-demo)
+
+## 文档
+- [Wiki](https://gitee.com/TAKETODAY/today_web/wikis)
+
 ## 使用说明
 
 > 通过 `@Controller` `@RestController` 配置控制器
@@ -185,11 +203,6 @@ public final String multiUpload(HttpServletResponse response, @Multipart Multipa
     return "<script>alert('upload success !')</script>";
 }
 ```
-## 案例
-- [DEMO](https://github.com/TAKETODAY/today-web-demo)
-
-## 文档
-- [Wiki](https://gitee.com/TAKETODAY/today_web/wikis)
 
 ## 联系方式
 - 邮箱 taketoday@foxmail.com
