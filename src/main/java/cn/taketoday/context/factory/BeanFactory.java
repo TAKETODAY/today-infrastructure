@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * bean factory
+ * Bean factory
  * 
  * @author Today <br>
  * 
@@ -33,6 +33,9 @@ import java.util.Set;
  */
 public interface BeanFactory {
 
+	/**
+	 * If a bean name start with this its a {@link FactoryBean}
+	 */
 	String FACTORY_BEAN_PREFIX = "$";
 
 	/**
@@ -43,6 +46,7 @@ public interface BeanFactory {
 	 *            bean name
 	 * @return get bean instance
 	 * @throws NoSuchBeanDefinitionException
+	 *             if a bean does not exist
 	 */
 	Object getBean(String name) throws NoSuchBeanDefinitionException;
 
@@ -54,6 +58,7 @@ public interface BeanFactory {
 	 *            bean type
 	 * @return get casted bean instance
 	 * @throws NoSuchBeanDefinitionException
+	 *             if a bean does not exist
 	 */
 	<T> T getBean(Class<T> requiredType) throws NoSuchBeanDefinitionException;
 
@@ -67,6 +72,7 @@ public interface BeanFactory {
 	 *            cast to required type
 	 * @return get casted bean instance
 	 * @throws NoSuchBeanDefinitionException
+	 *             if a bean does not exist
 	 */
 	<T> T getBean(String name, Class<T> requiredType) throws NoSuchBeanDefinitionException;
 
@@ -76,6 +82,7 @@ public interface BeanFactory {
 	 * @param name
 	 * @return if this bean is a singleton
 	 * @throws NoSuchBeanDefinitionException
+	 *             if a bean does not exist
 	 */
 	boolean isSingleton(String name) throws NoSuchBeanDefinitionException;
 
@@ -85,6 +92,7 @@ public interface BeanFactory {
 	 * @param name
 	 * @return
 	 * @throws NoSuchBeanDefinitionException
+	 *             if a bean does not exist
 	 */
 	boolean isPrototype(String name) throws NoSuchBeanDefinitionException;
 
@@ -95,6 +103,7 @@ public interface BeanFactory {
 	 *            bean name
 	 * @return
 	 * @throws NoSuchBeanDefinitionException
+	 *             if a bean does not exist
 	 */
 	Class<?> getType(String name) throws NoSuchBeanDefinitionException;
 

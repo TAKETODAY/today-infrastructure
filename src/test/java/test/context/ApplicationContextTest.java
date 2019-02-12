@@ -237,7 +237,7 @@ public class ApplicationContextTest {
 
 			User user = applicationContext.getBean(User.class);
 
-			assert bean == user;
+			assert bean != user;
 
 			System.err.println(user);
 		}

@@ -37,8 +37,9 @@ public interface BeanPostProcessor {
 	 *            bean instance
 	 * @param beanDefinition
 	 *            bean definition
-	 * @return
+	 * @return bean instance
 	 * @throws Exception
+	 *             in case of errors
 	 */
 	default Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) throws Exception {
 		return bean;
@@ -51,8 +52,9 @@ public interface BeanPostProcessor {
 	 *            bean instance
 	 * @param beanName
 	 *            bean name
-	 * @return
+	 * @return bean instance
 	 * @throws Exception
+	 *             in case of errors
 	 */
 	default Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
 		return bean;

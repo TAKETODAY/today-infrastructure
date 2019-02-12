@@ -29,5 +29,11 @@ import java.util.EventObject;
 @FunctionalInterface
 public interface ApplicationEventPublisher {
 
+	/**
+	 * Publish event
+	 * 
+	 * @param event
+	 *            event object
+	 */
 	void publishEvent(EventObject event);
 }

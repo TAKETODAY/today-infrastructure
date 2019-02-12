@@ -22,6 +22,7 @@ package cn.taketoday.context.conversion;
 import cn.taketoday.context.exception.ConversionException;
 
 /**
+ * A {@link Converter}
  * 
  * @author Today <br>
  *         2018-07-07 21:33:52
@@ -30,7 +31,7 @@ import cn.taketoday.context.exception.ConversionException;
 public interface Converter<S, T> {
 
 	/**
-	 * Convert {@link source} to target class {@link T}
+	 * Convert source object to target class {@link T}
 	 * 
 	 * @param source
 	 *            source instance

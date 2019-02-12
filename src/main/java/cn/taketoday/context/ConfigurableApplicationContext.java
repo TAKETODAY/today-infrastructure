@@ -20,6 +20,7 @@
 package cn.taketoday.context;
 
 import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 
 /**
@@ -30,8 +31,10 @@ import cn.taketoday.context.factory.ConfigurableBeanFactory;
 public interface ConfigurableApplicationContext extends ApplicationContext {
 
 	/**
+	 * Setting the {@link Environment}
 	 * 
 	 * @param environment
+	 *            {@link Environment} instance
 	 * @since 2.1.0
 	 */
 	void setEnvironment(ConfigurableEnvironment environment);
@@ -45,7 +48,9 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
 	ConfigurableEnvironment getEnvironment();
 
 	/**
-	 * @return
+	 * Get AbstractBeanFactory
+	 * 
+	 * @return A bean factory
 	 */
 	ConfigurableBeanFactory getBeanFactory();
 

@@ -136,8 +136,10 @@ public abstract class ClassUtils {
 	 * Load class
 	 * 
 	 * @param name
-	 * @return
+	 *            a class full name
+	 * @return a class
 	 * @throws ClassNotFoundException
+	 *             when class could not be found
 	 */
 	public static Class<?> forName(String name) throws ClassNotFoundException {
 		return classLoader.loadClass(name);
@@ -155,18 +157,24 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * Get all child classes in class path
+	 * 
 	 * @param superClass
-	 * @return
+	 *            super class or a interface class
+	 * @return a {@link Collection} of impl class
 	 */
 	public static Collection<Class<?>> getImplClasses(Class<?> superClass) {
 		return filter(clazz -> superClass.isAssignableFrom(clazz) && superClass != clazz);
 	}
 
 	/**
+	 * Get all child classes in class path filter with package name
 	 * 
 	 * @param superClass
+	 *            super class or a interface class
 	 * @param packageName
-	 * @return
+	 *            package name
+	 * @return a {@link Collection} of impl class
 	 */
 	public static Collection<Class<?>> getImplClasses(Class<?> superClass, String packageName) {
 		return filter(clazz -> clazz.getName().startsWith(packageName) && superClass.isAssignableFrom(clazz));
@@ -174,7 +182,11 @@ public abstract class ClassUtils {
 
 	/**
 	 * @param predicate
-	 * @return
+	 *            a <a href=
+	 *            "package-summary.html#NonInterference">non-interfering</a>,
+	 *            <a href="package-summary.html#Statelessness">stateless</a>
+	 *            predicate to apply to each element to determine if it should be
+	 *            included
 	 */
 	public static final <T> Collection<Class<?>> filter(Predicate<Class<?>> predicate) {
 		return getClassCache()//
@@ -185,8 +197,11 @@ public abstract class ClassUtils {
 	}
 
 	/**
-	 * @param packageName
-	 * @return
+	 * Get {@link Collection} of class under the packages
+	 * 
+	 * @param packages
+	 *            package name
+	 * @return a {@link Collection} of class under the packages
 	 */
 	public static Collection<Class<?>> getClasses(String... packages) {
 
@@ -208,7 +223,7 @@ public abstract class ClassUtils {
 	}
 
 	/**
-	 * scan class with given package.
+	 * Scan class with given package.
 	 * 
 	 * @param packages
 	 *            the packages to scan
@@ -281,8 +296,12 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * Load classes from a {@link JarEntry}
+	 * 
 	 * @param jarEntry
+	 *            the entry of jar
 	 * @param scanClasses
+	 *            class set
 	 */
 	public static void loadClassInJar(JarEntry jarEntry, String packageName, Collection<Class<?>> scanClasses) {
 		final String jarEntryName = jarEntry.getName();
@@ -405,12 +424,11 @@ public abstract class ClassUtils {
 	/**
 	 * Find method parameter list, and cache it.
 	 * 
-	 * @param clazz
-	 *            target class
 	 * @param method
 	 *            target method
 	 * @return method parameter list
 	 * @throws IOException
+	 *             when could not access to the class file
 	 * @since 1.0.0
 	 */
 	public static String[] getMethodArgsNames(Method method) throws IOException {
@@ -455,11 +473,15 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * Get the array of {@link Annotation} instance
 	 * 
 	 * @param annotatedElement
+	 *            annotated element
 	 * @param annotationClass
+	 *            target annotation class
 	 * @param implClass
-	 * @return
+	 *            impl class
+	 * @return the array of {@link Annotation} instance
 	 * @since 2.1.1
 	 */
 	@SuppressWarnings("unchecked")
@@ -470,9 +492,13 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * Get the array of {@link Annotation} instance
+	 * 
 	 * @param annotatedElement
+	 *            annotated element
 	 * @param annotationClass
-	 * @return
+	 *            target annotation class
+	 * @return the array of {@link Annotation} instance
 	 * @since 2.1.1
 	 */
 	@SuppressWarnings("unchecked")
@@ -489,7 +515,7 @@ public abstract class ClassUtils {
 	 *            The annotation class
 	 * @param implClass
 	 *            The implementation class
-	 * @return
+	 * @return the {@link Collection} of {@link Annotation} instance
 	 * @since 2.0.x
 	 */
 	public static <T extends Annotation> Collection<T> getAnnotation(AnnotatedElement annotatedElement, //
@@ -536,7 +562,7 @@ public abstract class ClassUtils {
 	 * 
 	 * @param annotation
 	 *            annotation instance
-	 * @return
+	 * @return {@link AnnotationAttributes}
 	 * @since 2.1.1
 	 */
 	public static AnnotationAttributes getAnnotationAttributes(Annotation annotation) {
@@ -566,7 +592,7 @@ public abstract class ClassUtils {
 	 *            The annotated element
 	 * @param annotationClass
 	 *            The annotation class
-	 * @return
+	 * @return the {@link Collection} of {@link Annotation} instance
 	 * @since 2.1.1
 	 */
 	public static <T extends Annotation> Collection<T> getAnnotation(AnnotatedElement annotatedElement, //
@@ -588,7 +614,7 @@ public abstract class ClassUtils {
 	 *            The annotation class
 	 * @param attributes
 	 *            The annotation attributes key-value
-	 * @return
+	 * @return the target {@link Annotation} instance
 	 * @since 2.1.1
 	 */
 	public static <T extends Annotation> T getAnnotationProxy(Class<T> annotationClass, AnnotationAttributes attributes) {
@@ -669,12 +695,13 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * Get target {@link AnnotationAttributes}
 	 * 
 	 * @param annotationClass
 	 *            The annotation class
 	 * @param annotation
 	 *            The annotation instance
-	 * @return
+	 * @return {@link AnnotationAttributes}
 	 * @since 2.1.1
 	 */
 	public static <T extends Annotation> AnnotationAttributes getAnnotationAttributes(Annotation annotation, //
@@ -749,6 +776,7 @@ public abstract class ClassUtils {
 	 * Use recursive to find the target annotation instance
 	 * 
 	 * @param targetAnnotationType
+	 *            target {@link Annotation} thye
 	 * @param annotationType
 	 * @return
 	 * @since 2.1.1
@@ -779,12 +807,16 @@ public abstract class ClassUtils {
 	 * 
 	 * @param beanClass
 	 *            bean class
-	 * @return
+	 * @return the instance of target class
 	 * @since 2.1.2
-	 * @throws Throwable
 	 */
-	public static <T> T newInstance(Class<T> beanClass) throws Throwable {
-		return beanClass.getConstructor().newInstance();
+	public static <T> T newInstance(Class<T> beanClass) {
+		try {
+			return beanClass.getConstructor().newInstance();
+		}
+		catch (Throwable e) {
+			throw new ContextException(e);
+		}
 	}
 
 	/**
@@ -792,13 +824,17 @@ public abstract class ClassUtils {
 	 * 
 	 * @param beanClassName
 	 *            bean class name string
-	 * @return
-	 * @throws Throwable
+	 * @return the instance of target class
 	 * @since 2.1.2
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T newInstance(String beanClassName) throws Throwable {
-		return (T) forName(beanClassName).getConstructor().newInstance();
+	public static <T> T newInstance(String beanClassName) {
+		try {
+			return (T) forName(beanClassName).getConstructor().newInstance();
+		}
+		catch (Throwable e) {
+			throw new ContextException(e);
+		}
 	}
 
 	/**
@@ -806,7 +842,7 @@ public abstract class ClassUtils {
 	 * 
 	 * @param targetClass
 	 *            target class
-	 * @return
+	 * @return get all the {@link Field}
 	 * @since 2.1.2
 	 */
 	public static Collection<Field> getFields(Class<?> targetClass) {
@@ -827,7 +863,7 @@ public abstract class ClassUtils {
 	 * 
 	 * @param targetClass
 	 *            target class
-	 * @return
+	 * @return get all the {@link Field} array
 	 * @since 2.1.2
 	 */
 	public static Field[] getFieldArray(Class<?> targetClass) {

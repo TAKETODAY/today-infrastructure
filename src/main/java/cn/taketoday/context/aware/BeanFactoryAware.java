@@ -22,6 +22,9 @@ package cn.taketoday.context.aware;
 import cn.taketoday.context.factory.BeanFactory;
 
 /**
+ * 
+ * {@link BeanFactory} Injection
+ * 
  * @author Today <br>
  * 
  *         2018-08-03 15:54

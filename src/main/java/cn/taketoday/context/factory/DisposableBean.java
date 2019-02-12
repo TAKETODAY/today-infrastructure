@@ -22,8 +22,8 @@ package cn.taketoday.context.factory;
 /**
  * Release resources
  * 
- * @author Today
- * @date 2018年7月18日 上午1:07:15
+ * @author TODAY <br>
+ *         2018-7-18 1:07:15
  */
 public interface DisposableBean {
 
@@ -31,6 +31,7 @@ public interface DisposableBean {
 	 * Invoked by a ApplicationContext on destruction of a singleton.
 	 * 
 	 * @throws Exception
+	 *             in case of errors
 	 */
 	void destroy() throws Exception;
 }

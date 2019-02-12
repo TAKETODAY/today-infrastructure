@@ -31,8 +31,10 @@ import java.util.EventObject;
 public interface ApplicationListener<E extends EventObject> extends EventListener {
 
 	/**
+	 * On event
 	 * 
 	 * @param event
+	 *            event instance
 	 */
 	void onApplicationEvent(E event);
 

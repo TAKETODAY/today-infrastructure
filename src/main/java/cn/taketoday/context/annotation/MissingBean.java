@@ -1,6 +1,6 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2019 All Rights Reserved.
+ * Copyright ©  TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -44,24 +44,12 @@ public @interface MissingBean {
 	 */
 	String value() default Constant.BLANK;
 
-	/**
-	 * @return
-	 */
 	Class<?> type() default void.class;
 
-	/**
-	 * @return
-	 */
 	Scope scope() default Scope.SINGLETON;
 
-	/**
-	 * @return
-	 */
 	String[] initMethods() default {};
 
-	/**
-	 * @return
-	 */
 	String[] destroyMethods() default {};
 
 }

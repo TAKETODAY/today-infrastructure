@@ -22,6 +22,9 @@ package cn.taketoday.context.aware;
 import cn.taketoday.context.env.Environment;
 
 /**
+ * 
+ * {@link Environment} Injection
+ * 
  * @author Today <br>
  * 
  *         2018-11-14 21:06
@@ -33,5 +36,5 @@ public interface EnvironmentAware extends Aware {
 	 * @param environment
 	 */
 	void setEnvironment(Environment environment);
-	
+
 }

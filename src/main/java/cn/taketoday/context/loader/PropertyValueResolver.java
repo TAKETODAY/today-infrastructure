@@ -26,7 +26,7 @@ import cn.taketoday.context.exception.ContextException;
 import java.lang.reflect.Field;
 
 /**
- * resolve field property
+ * Resolve field property
  * 
  * @author Today <br>
  * 
@@ -38,12 +38,12 @@ public interface PropertyValueResolver {
 	/**
 	 * According to different annotation resolve different property.
 	 * 
-	 * @param registry
+	 * @param applicationContext
 	 *            Bean definition registry
 	 * @param field
 	 *            bean's field
 	 * @return property value
-	 * @throws Exception
+	 * @throws ContextException
 	 */
 	PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) throws ContextException;
 

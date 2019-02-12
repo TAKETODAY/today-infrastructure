@@ -39,7 +39,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -187,9 +186,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	 * @throws Throwable
 	 */
 	protected Object createBeanInstance(BeanDefinition beanDefinition) throws Throwable {
-		Object bean = getSingleton(beanDefinition.getName());
+		final Object bean = getSingleton(beanDefinition.getName());
 		if (bean == null) {
-			bean = ClassUtils.newInstance(beanDefinition.getBeanClass());
+			return ClassUtils.newInstance(beanDefinition.getBeanClass());
 		}
 		return bean;
 	}
@@ -469,7 +468,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 				postProcessors.add((BeanPostProcessor) initializeSingleton(entry.getKey(), beanDefinition));
 			}
 			OrderUtils.reversedSort(postProcessors);
-//			postProcessors.sort(Comparator.comparingInt(OrderUtils::getOrder).reversed());
 		}
 		catch (Throwable ex) {
 			ex = ExceptionUtils.unwrapThrowable(ex);
@@ -481,25 +479,20 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
 	/**
 	 * Handle interface dependencies
-	 *
-	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
 	 */
-	public void handleDependency() throws BeanDefinitionStoreException, ConfigurationException {
+	public void handleDependency() {
 
-		Set<Entry<String, BeanDefinition>> entrySet = getBeanDefinitionsMap().entrySet();
+		final Set<Entry<String, BeanDefinition>> entrySet = getBeanDefinitionsMap().entrySet();
 
-		Iterator<PropertyValue> iterator = getDependencies().iterator();// all dependencies
+		for (final PropertyValue propertyValue : getDependencies()) {
 
-		while (iterator.hasNext()) {
-			PropertyValue propertyValue = iterator.next();
-			Class<?> propertyType = propertyValue.getField().getType();
+			final Class<?> propertyType = propertyValue.getField().getType();
 			// Abstract
 			if (!Modifier.isAbstract(propertyType.getModifiers())) {
 				continue;
 			}
 
-			String beanName = ((BeanReference) propertyValue.getValue()).getName();
+			final String beanName = ((BeanReference) propertyValue.getValue()).getName();
 
 			// fix: #2 when handle dependency some bean definition has already exist
 			BeanDefinition registedBeanDefinition = getBeanDefinition(beanName);
@@ -717,9 +710,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	}
 
 	@Override
-	public void registerBeanDefinition(String beanName, //
-			BeanDefinition beanDefinition) throws BeanDefinitionStoreException //
-	{
+	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
 
 		this.beanDefinitionMap.put(beanName, beanDefinition);
 
@@ -870,12 +861,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	}
 
 	@Override
-	public void preInstantiateSingletons() throws Throwable {
+	public void initializeSingletons() throws Throwable {
 
 		log.debug("Initialization of singleton objects.");
-
-		// fix: #1 some singletons could not be initialized.
-		preInitialization();
 
 		final Set<Entry<String, BeanDefinition>> entrySet = getBeanDefinitionsMap().entrySet();
 		for (Entry<String, BeanDefinition> entry : entrySet) {
@@ -889,11 +877,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	 * 
 	 * @throws Exception
 	 */
-	protected void preInitialization() throws Exception {
+	public void preInitialization() throws Exception {
+
 		for (Entry<String, Object> entry : getSingletonsMap().entrySet()) {
 			final String name = entry.getKey();
-			Object singleton = entry.getValue();
-			BeanDefinition beanDefinition = getBeanDefinition(name);
+			final Object singleton = entry.getValue();
+			final BeanDefinition beanDefinition = getBeanDefinition(name);
 			if (beanDefinition == null || beanDefinition.isInitialized()) {
 				continue;
 			}

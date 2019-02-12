@@ -29,14 +29,14 @@ public interface FactoryBean<T> {
 	/**
 	 * get bean instance
 	 * 
-	 * @return
+	 * @return bean instance
 	 */
 	T getBean();
 
 	/**
 	 * get bean name
 	 * 
-	 * @return
+	 * @return bean name
 	 */
 	default String getBeanName() {
 		return null;
@@ -45,7 +45,7 @@ public interface FactoryBean<T> {
 	/**
 	 * Get bean class
 	 * 
-	 * @return
+	 * @return bean class
 	 * @since 2.1.2
 	 */
 	Class<T> getBeanClass();

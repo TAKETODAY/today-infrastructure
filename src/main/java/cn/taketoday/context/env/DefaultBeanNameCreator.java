@@ -23,6 +23,8 @@ import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.Constant;
 
 /**
+ * Default implementation of {@link BeanNameCreator}
+ * 
  * @author Today <br>
  * 
  *         2019-01-13 13:39

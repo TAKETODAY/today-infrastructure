@@ -26,6 +26,7 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import java.io.IOException;
 
 /**
+ * Configurable {@link Environment}
  * 
  * @author Today <br>
  *         2018-11-14 19:35
@@ -36,12 +37,15 @@ public interface ConfigurableEnvironment extends Environment {
 	 * Specify the set of profiles active for this {@code Environment}
 	 * 
 	 * @param profiles
+	 *            Setting active profiles
 	 */
 	void setActiveProfiles(String... profiles);
 
 	/**
 	 * Add a profile to the current set of active profiles.
 	 * 
+	 * @param profile
+	 *            add a active profile
 	 */
 	void addActiveProfile(String profile);
 
@@ -51,6 +55,7 @@ public interface ConfigurableEnvironment extends Environment {
 	 * @param properties
 	 *            properties directory
 	 * @throws IOException
+	 *             when could not access to a properties file
 	 */
 	void loadProperties(String properties) throws IOException;
 
@@ -58,28 +63,35 @@ public interface ConfigurableEnvironment extends Environment {
 	 * Set {@link Environment} property
 	 * 
 	 * @param key
+	 *            key
 	 * @param value
+	 *            value
 	 */
 	void setProperty(String key, String value);
 
 	/**
 	 * Set the bean definition registry
 	 * 
-	 * @return
+	 * @param beanDefinitionRegistry
+	 *            {@link BeanDefinitionRegistry} instance
+	 * @return {@link ConfigurableEnvironment}
 	 */
 	ConfigurableEnvironment setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry);
 
 	/**
 	 * set bean definition loader
 	 * 
-	 * @return
+	 * @param beanDefinitionLoader
+	 *            {@link BeanDefinitionLoader} instance
+	 * @return {@link ConfigurableEnvironment}
 	 */
 	ConfigurableEnvironment setBeanDefinitionLoader(BeanDefinitionLoader beanDefinitionLoader);
 
 	/**
 	 * 
 	 * @param beanNameCreator
-	 * @return
+	 *            {@link BeanNameCreator} instance
+	 * @return {@link ConfigurableEnvironment}
 	 * @since 2.1.1
 	 */
 	ConfigurableEnvironment setBeanNameCreator(BeanNameCreator beanNameCreator);

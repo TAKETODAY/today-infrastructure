@@ -22,8 +22,8 @@ package cn.taketoday.context.factory;
 /**
  * Invoke after all the properties has been set
  * 
- * @author Today
- * @date 2018-7-17 22:24:03
+ * @author TODAY <br>
+ *         2018-7-17 22:24:03
  */
 public interface InitializingBean {
 
@@ -31,6 +31,7 @@ public interface InitializingBean {
 	 * After bean instance properties set.
 	 * 
 	 * @throws Exception
+	 *             in case of errors
 	 */
 	void afterPropertiesSet() throws Exception;
 

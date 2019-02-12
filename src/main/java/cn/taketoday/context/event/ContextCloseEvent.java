@@ -22,16 +22,18 @@ package cn.taketoday.context.event;
 import cn.taketoday.context.ApplicationContext;
 
 /**
+ * When close {@link ApplicationContext} will publish this event
+ * 
  * @author Today <br>
- * 	
- *		2018-09-10 07:55
+ * 
+ *         2018-09-10 07:55
  */
 public final class ContextCloseEvent extends ApplicationContextEvent {
 
 	private static final long serialVersionUID = 0L;
-	
+
 	public ContextCloseEvent(ApplicationContext applicationContext) {
 		super(applicationContext);
 	}
-	
+
 }

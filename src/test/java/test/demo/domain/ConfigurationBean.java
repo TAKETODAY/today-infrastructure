@@ -44,7 +44,7 @@ public class ConfigurationBean {
 		log.info("ConfigurationBean.init()");
 	}
 
-	@Prototype
+	@Prototype("prototype_user")
 	public User user() {
 		return new User().setId(12);
 	}

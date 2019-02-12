@@ -20,12 +20,15 @@
 package cn.taketoday.context.bean;
 
 import cn.taketoday.context.Scope;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.NoSuchPropertyException;
+import cn.taketoday.context.factory.FactoryBean;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
 
 /**
+ * Bean definition
  * 
  * @author Today <br>
  *         2018-06-23 11:23:45
@@ -33,7 +36,7 @@ import java.util.Collection;
 public interface BeanDefinition {
 
 	/**
-	 * get a property
+	 * Get a property
 	 * 
 	 * @param name
 	 *            the name of property
@@ -47,28 +50,55 @@ public interface BeanDefinition {
 	Class<?> getBeanClass();
 
 	/**
-	 * @return
+	 * Get init methods
+	 * 
+	 * @return get all the init methods
 	 */
 	Method[] getInitMethods();
 
 	/**
-	 * @return
+	 * @return all the destroy methods name
 	 */
 	String[] getDestroyMethods();
 
 	/**
-	 * @return
+	 * @return Bean {@link Scope}
 	 */
 	Scope getScope();
 
+	/**
+	 * Get bean name
+	 * 
+	 * @return bean name
+	 */
 	String getName();
 
+	/**
+	 * if bean is a {@link FactoryBean}
+	 * 
+	 * @return if is a {@link FactoryBean}
+	 */
 	boolean isFactoryBean();
 
+	/**
+	 * if a {@link Singleton} has initialized
+	 * 
+	 * @return if its initialized
+	 */
 	boolean isInitialized();
 
+	/**
+	 * if it is from abstract class
+	 * 
+	 * @return if it is from abstract class
+	 */
 	boolean isAbstract();
 
+	/**
+	 * Get all the {@link PropertyValue}s
+	 * 
+	 * @return all {@link PropertyValue}
+	 */
 	PropertyValue[] getPropertyValues();
 
 	// ----------------- Configurable

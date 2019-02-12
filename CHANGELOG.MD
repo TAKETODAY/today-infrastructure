@@ -186,15 +186,18 @@ public void test_Conditional() {
 > ## v2.1.2
 - Use `BeanNameCreator` to create bean name
 - `FactoryBean`
-- fix: #2 handleDependency(): when handle dependency some bean definition has already exist 
+- fix: handleDependency(): when handle dependency some bean definition has already exist 
 - fix: same name of bean when applyPropertyValues() cause exception
 - feat: add initMethods feature
 - feat: add destroyMethods feature
 - feat: add `@MissingBean` feature
 
+> ## v2.1.3
+- fix missing @Props injection
+- sync to maven central
 
-
-
+> ## v2.1.4
+- fix some singletons could not be initialized.
 
 
 

@@ -22,14 +22,16 @@ package cn.taketoday.context.event;
 import cn.taketoday.context.ApplicationContext;
 
 /**
+ * 
+ * Handle all dependencies
+ * 
  * @author Today <br>
- * 	
- *		2018-11-10 13:23
+ * 
+ *         2018-11-10 13:23
  */
 
 @SuppressWarnings("serial")
 public class HandleDependencyEvent extends ApplicationContextEvent {
-
 
 	public HandleDependencyEvent(ApplicationContext source) {
 		super(source);

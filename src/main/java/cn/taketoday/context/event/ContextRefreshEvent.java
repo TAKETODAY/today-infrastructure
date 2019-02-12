@@ -22,9 +22,12 @@ package cn.taketoday.context.event;
 import cn.taketoday.context.ApplicationContext;
 
 /**
+ * 
+ * Context singletons initialize event
+ * 
  * @author Today <br>
- * 	
- *		2018-10-09 20:24
+ * 
+ *         2018-10-09 20:24
  */
 @SuppressWarnings("serial")
 public class ContextRefreshEvent extends ApplicationContextEvent {

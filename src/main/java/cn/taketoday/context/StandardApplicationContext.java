@@ -35,34 +35,27 @@ import cn.taketoday.context.bean.StandardBeanDefinition;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ContextException;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
-import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
+ * Standard {@link ApplicationContext}
+ * 
  * @author Today <br>
  *         <p>
  *         2018-09-06 13:47
  */
 public class StandardApplicationContext extends AbstractApplicationContext implements ConfigurableApplicationContext {
-
-	private static final Logger log = LoggerFactory.getLogger(StandardApplicationContext.class);
 
 	private final StandardBeanFactory beanFactory;
 
@@ -108,12 +101,13 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
 	}
 
 	@Override
-	public AbstractBeanFactory getBeanFactory() throws IllegalStateException {
+	public AbstractBeanFactory getBeanFactory() {
 		return this.beanFactory;
 	}
 
 	@Override
-	protected void doLoadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) throws Throwable {
+	protected void doLoadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
+
 		beanFactory.getBeanDefinitionLoader().loadBeanDefinitions(beanClasses);
 
 		this.beanFactory.loadConfigurationBeans();
@@ -150,87 +144,25 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
 			}
 		}
 
+		/**
+		 * If {@link BeanDefinition} is {@link StandardBeanDefinition} will create bean
+		 * from {@link StandardBeanDefinition#getFactoryMethod()}
+		 */
 		@Override
-		public Object getBean(String name) throws NoSuchBeanDefinitionException {
-
-			final Object bean = getSingleton(name);
+		protected Object createBeanInstance(BeanDefinition beanDefinition) throws Throwable {
+			final Object bean = getSingleton(beanDefinition.getName());
 
 			if (bean == null) {
+				if (beanDefinition instanceof StandardBeanDefinition) {
+					final StandardBeanDefinition standardBeanDefinition = (StandardBeanDefinition) beanDefinition;
+					final Method factoryMethod = standardBeanDefinition.getFactoryMethod();
 
-				final BeanDefinition beanDefinition = getBeanDefinition(name);
-				if (beanDefinition != null) {
-
-					try {
-
-						if (beanDefinition instanceof StandardBeanDefinition) {
-							return doCreateWithFactoryMethod(name, (StandardBeanDefinition) beanDefinition);
-						}
-						if (beanDefinition.isSingleton()) {
-							return doCreateBean(beanDefinition, name);
-						}
-						// prototype
-						return doCreatePrototype(beanDefinition, name);
-					}
-					catch (Throwable ex) {
-						ex = ExceptionUtils.unwrapThrowable(ex);
-						log.error("An Exception Occurred When Getting A Bean Named: [{}], With Msg: [{}]", //
-								name, ex.getMessage(), ex);
-					}
+					return factoryMethod.invoke(getDeclaringInstance(standardBeanDefinition.getDeclaringName()), //
+							ContextUtils.resolveParameter(factoryMethod, this));
 				}
+				return ClassUtils.newInstance(beanDefinition.getBeanClass());
 			}
 			return bean;
-		}
-
-		/**
-		 * @param name
-		 * @param standardBeanDefinition
-		 * @return
-		 * @throws Throwable
-		 */
-		private Object doCreateWithFactoryMethod(String name, final StandardBeanDefinition standardBeanDefinition) //
-				throws Throwable //
-		{
-			final Method factoryMethod = standardBeanDefinition.getFactoryMethod();
-
-			Object bean = factoryMethod.invoke(getDeclaringInstance(standardBeanDefinition.getDeclaringName()), //
-					ContextUtils.resolveParameter(factoryMethod, this));
-
-			if (standardBeanDefinition.isSingleton()) {
-				bean = initializingBean(bean, name, standardBeanDefinition);
-				registerSingleton(name, bean);
-				standardBeanDefinition.setInitialized(true);
-				log.debug("Singleton bean is being stored in the name of [{}]", name);
-			}
-			return bean;
-		}
-
-		@Override
-		protected void doCreateSingleton(Entry<String, BeanDefinition> entry, //
-				Set<Entry<String, BeanDefinition>> entrySet) throws Throwable//
-		{
-			BeanDefinition beanDefinition = entry.getValue();
-
-			if (beanDefinition instanceof StandardBeanDefinition) {
-				final String name = entry.getKey();
-				final StandardBeanDefinition standardBeanDefinition = (StandardBeanDefinition) beanDefinition;
-				final Method factoryMethod = standardBeanDefinition.getFactoryMethod();
-				final Object declaringInstance = getDeclaringInstance(standardBeanDefinition.getDeclaringName());
-
-				try {
-
-					final Object bean = factoryMethod.invoke(declaringInstance, ContextUtils.resolveParameter(factoryMethod, this));
-
-					registerSingleton(name, initializingBean(bean, name, beanDefinition));
-
-					beanDefinition.setInitialized(true);
-				}
-				catch (InvocationTargetException e) {
-					log.error("Error with creating bean named: [{}]", name, e.getTargetException());
-				}
-			}
-			else {
-				super.doCreateSingleton(entry, entrySet);
-			}
 		}
 
 		// -----------------------------------------
@@ -267,17 +199,15 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
 		 * Resolve bean from a class which annotated with @{@link Configuration}
 		 * 
 		 * @throws Throwable
+		 *             when exception occurred
 		 */
-		private void loadConfigurationBeans() throws Throwable {
+		private void loadConfigurationBeans() {
 
 			for (Entry<String, BeanDefinition> entry : getBeanDefinitionsMap().entrySet()) {
 
-				BeanDefinition beanDefinition = entry.getValue();
+				final BeanDefinition beanDefinition = entry.getValue();
 
-				Class<? extends Object> beanClass = beanDefinition.getBeanClass();
-
-				ContextUtils.resolveProps(beanDefinition, getEnvironment());
-
+				final Class<? extends Object> beanClass = beanDefinition.getBeanClass();
 				if (!beanClass.isAnnotationPresent(Configuration.class)) {
 					continue;
 				}
@@ -337,6 +267,8 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
 
 					beanDefinition.setDeclaringName(declaringBeanName)//
 							.setFactoryMethod(method);
+
+					ContextUtils.resolveProps(beanDefinition, getEnvironment());
 
 					beanDefinitionLoader.register(name, beanDefinition);
 				}

@@ -23,7 +23,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.EventObject;
 
 /**
  * @author Today <br>
@@ -33,12 +32,5 @@ import java.util.EventObject;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ContextListener {
-
-	/**
-	 * specify event
-	 * 
-	 * @return
-	 */
-	Class<? extends EventObject>[] value() default {};
 
 }

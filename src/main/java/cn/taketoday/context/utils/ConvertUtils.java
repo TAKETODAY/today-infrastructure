@@ -107,6 +107,9 @@ public abstract class ConvertUtils {
 			case "Duration" : {
 				return convertDuration(value);
 			}
+			case "DataSize": {
+				return DataSize.parse(value);
+			}
 		}
 
 		if (targetClass.isEnum()) {
@@ -160,11 +163,6 @@ public abstract class ConvertUtils {
 		}
 
 		return Duration.parse(value);
-	}
-
-	public static void main(String[] args) {
-		Object convert = convert("10min", Duration.class);
-		System.err.println(convert);
 	}
 
 }

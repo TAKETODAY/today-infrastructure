@@ -1,33 +1,46 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>cn.taketoday</groupId>
 	<artifactId>today-context</artifactId>
+	<version>2.1.4.RELEASE</version>
+	<name>today-context-2.1.4.RELEASE</name>
 
-	<version>2.1.2.RELEASE</version>
-	<name>today-context-2.1.2.RELEASE</name>
+	<description>today-context is a lightweight dependency injection framework.</description>
+
+	<licenses>
+		<license>
+			<name>GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007</name>
+			<url>https://www.gnu.org/licenses/gpl.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 	<url>https://taketoday.cn</url>
 	<organization>
-		<name>Today</name>
+		<name>TODAY</name>
 		<url>https://taketoday.cn</url>
 	</organization>
 
-	<profiles>
-		<profile>
-			<id>jdk-8</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-				<jdk>8</jdk>
-			</activation>
-			<properties>
-				<maven.compiler.source>8</maven.compiler.source>
-				<maven.compiler.target>8</maven.compiler.target>
-				<maven.compiler.compilerVersion>8</maven.compiler.compilerVersion>
-			</properties>
-		</profile>
+	<developers>
+		<developer>
+			<name>TODAY</name>
+			<url>https://taketoday.cn</url>
+			<email>taketoday@foxmail.com</email>
+		</developer>
+	</developers>
 
-	</profiles>
+	<scm>
+		<url>https://github.com/TAKETODAY/today-context.git</url>
+		<developerConnection>TODAY</developerConnection>
+		<tag>dependency-injection</tag>
+	</scm>
+
+	<issueManagement>
+		<system>Github Issues</system>
+		<url>https://github.com/TAKETODAY/today-context/issues</url>
+	</issueManagement>
 
 	<dependencies>
 
@@ -61,9 +74,59 @@
 
 	</dependencies>
 
+
+	<profiles>
+
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.sonatype.plugins</groupId>
+						<artifactId>nexus-staging-maven-plugin</artifactId>
+						<version>1.6.8</version>
+						<extensions>true</extensions>
+						<configuration>
+							<serverId>sonatype-nexus</serverId>
+							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+							<autoReleaseAfterClose>true</autoReleaseAfterClose>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+	</profiles>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+		</snapshotRepository>
+		<repository>
+			<id>release</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
 	<build>
 		<defaultGoal>compile</defaultGoal>
 		<plugins>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -72,14 +135,6 @@
 					<source>8</source>
 					<target>8</target>
 					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<skipTests>true</skipTests>
 				</configuration>
 			</plugin>
 
@@ -98,6 +153,26 @@
 				<executions>
 					<execution>
 						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.0.1</version>
+				<configuration>
+					<charset>UTF-8</charset>
+					<encoding>UTF-8</encoding>
+					<aggregate>true</aggregate>
+					<docencoding>UTF-8</docencoding>
+					<failOnError>false</failOnError>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
 						<goals>
 							<goal>jar</goal>
 						</goals>

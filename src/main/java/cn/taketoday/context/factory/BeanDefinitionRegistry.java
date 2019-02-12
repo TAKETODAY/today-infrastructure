@@ -20,8 +20,6 @@
 package cn.taketoday.context.factory;
 
 import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.ConfigurationException;
 
 import java.util.Map;
 import java.util.Set;
@@ -47,12 +45,9 @@ public interface BeanDefinitionRegistry {
 	 * 
 	 * @param beanDefinition
 	 *            bean definition
-	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
 	 * @since 1.2.0
 	 */
-	void registerBeanDefinition(String name, BeanDefinition beanDefinition) //
-			throws BeanDefinitionStoreException, ConfigurationException;
+	void registerBeanDefinition(String name, BeanDefinition beanDefinition);
 
 	/**
 	 * Remove the BeanDefinition for the given name.

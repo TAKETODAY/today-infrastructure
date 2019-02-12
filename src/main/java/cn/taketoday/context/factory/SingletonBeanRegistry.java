@@ -21,7 +21,6 @@ package cn.taketoday.context.factory;
 
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
 import java.util.Map;
 
@@ -55,7 +54,7 @@ public interface SingletonBeanRegistry {
 	/**
 	 * Get instances Map
 	 * 
-	 * @return
+	 * @return the map of singletons
 	 */
 	Map<String, Object> getSingletonsMap();
 
@@ -66,7 +65,6 @@ public interface SingletonBeanRegistry {
 	 * @param name
 	 *            bean name
 	 * @return bean instance
-	 * @throws NoSuchBeanDefinitionException
 	 */
 	Object getSingleton(String name);
 
@@ -83,7 +81,7 @@ public interface SingletonBeanRegistry {
 	 * 
 	 * @param name
 	 *            bean name
-	 * @return
+	 * @return if contains singleton
 	 */
 	boolean containsSingleton(String name);
 

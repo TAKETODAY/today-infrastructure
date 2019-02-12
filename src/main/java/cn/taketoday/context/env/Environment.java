@@ -36,13 +36,15 @@ public interface Environment {
 
 	/**
 	 * Get properties
-	 * 
-	 * @return
 	 */
 	Properties getProperties();
 
 	/**
 	 * Return whether the given property key is available for resolution
+	 * 
+	 * @param key
+	 *            key
+	 * @return if contains
 	 */
 	boolean containsProperty(String key);
 
@@ -64,7 +66,8 @@ public interface Environment {
 	 *            the property name to resolve
 	 * @param defaultValue
 	 *            the default value to return if no value is found
-	 * @return
+	 * @return the property value associated with the given key, or
+	 *         {@code defaultValue} if the key cannot be resolved.
 	 */
 	String getProperty(String key, String defaultValue);
 
@@ -76,12 +79,15 @@ public interface Environment {
 	 *            the property name to resolve
 	 * @param targetType
 	 *            the expected type of the property value
-	 * @return
+	 * @return the property value associated with the given key, or {@code null} if
+	 *         the key cannot be resolved
 	 */
 	<T> T getProperty(String key, Class<T> targetType);
 
 	/**
 	 * Return the set of profiles explicitly made active for this environment.
+	 * 
+	 * @return active profiles
 	 */
 	String[] getActiveProfiles();
 
@@ -89,27 +95,30 @@ public interface Environment {
 	 * If active profiles is empty return false. If active profiles is not empty
 	 * then will compare all active profiles.
 	 * 
+	 * @param profiles
+	 *            profiles
+	 * @return if accepted
 	 */
 	boolean acceptsProfiles(String... profiles);
 
 	/**
 	 * Get a bean name creator
 	 * 
-	 * @return
+	 * @return {@link BeanNameCreator}
 	 */
 	BeanNameCreator getBeanNameCreator();
 
 	/**
 	 * Get bean definition loader
 	 * 
-	 * @return
+	 * @return {@link BeanDefinitionLoader}
 	 */
 	BeanDefinitionLoader getBeanDefinitionLoader();
 
 	/**
 	 * Get the bean definition registry
 	 * 
-	 * @return
+	 * @return {@link BeanDefinitionRegistry}
 	 */
 	BeanDefinitionRegistry getBeanDefinitionRegistry();
 

@@ -41,15 +41,12 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Objects;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Default Bean Definition Loader implements
  * 
  * @author Today <br>
  *         2018-06-23 11:18:22
  */
-@Slf4j
 public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 	private final BeanDefinitionRegistry registry;
@@ -121,19 +118,16 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	}
 
 	/**
-	 * register with given class
+	 * Register with given class
 	 * 
-	 * @param clazz
+	 * @param beanClass
 	 *            bean class
 	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
 	 */
 	@Override
-	public void register(Class<?> beanClass) //
-			throws BeanDefinitionStoreException, ConfigurationException //
-	{
+	public void register(Class<?> beanClass) throws BeanDefinitionStoreException {
 		try {
-			
+
 			Collection<AnnotationAttributes> annotationAttributes = ClassUtils.getAnnotationAttributes(beanClass, Component.class);
 			if (annotationAttributes.isEmpty()) {
 				return;
@@ -142,10 +136,9 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 			final String defaultBeanName = beanNameCreator.create(beanClass);
 			for (AnnotationAttributes attributes : annotationAttributes) {
 				for (String name : ContextUtils.findNames(defaultBeanName, attributes.getStringArray(Constant.VALUE))) {
-					if (applicationContext.containsBeanDefinition(name)) {
-						log.info("Multiple: [{}] Overriding its bean definition", name);
+					if (!applicationContext.containsBeanDefinition(name)) {
+						register(name, build(beanClass, attributes, name));
 					}
-					register(name, build(beanClass, attributes, name));
 				}
 			}
 		}
@@ -162,24 +155,32 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	 * Build a bean definition
 	 * 
 	 * @param beanClass
+	 *            given bean class
 	 * @param attributes
+	 *            {@link AnnotationAttributes}
 	 * @param name
+	 *            bean name
 	 * @return
 	 * @throws Throwable
 	 */
 	private BeanDefinition build(Class<?> beanClass, AnnotationAttributes attributes, String name) throws Throwable {
 
+		final BeanDefinition beanDefinition = new DefaultBeanDefinition(name, beanClass);//
 		if (attributes == null) {
-			return new DefaultBeanDefinition(name, beanClass)//
-					.setDestroyMethods(new String[0])//
-					.setInitMethods(ContextUtils.resolveInitMethod(beanClass))//
-					.setPropertyValues(ContextUtils.resolvePropertyValue(beanClass, this.applicationContext));
+			beanDefinition.setDestroyMethods(new String[0])//
+					.setInitMethods(ContextUtils.resolveInitMethod(beanClass));//
+		}
+		else {
+			beanDefinition.setScope(attributes.getEnum(Constant.SCOPE))//
+					.setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))//
+					.setInitMethods(ContextUtils.resolveInitMethod(beanClass, attributes.getStringArray(Constant.INIT_METHODS)));
 		}
 
-		return new DefaultBeanDefinition(name, beanClass, attributes.getEnum(Constant.SCOPE))//
-				.setPropertyValues(ContextUtils.resolvePropertyValue(beanClass, this.applicationContext))//
-				.setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))//
-				.setInitMethods(ContextUtils.resolveInitMethod(beanClass, attributes.getStringArray(Constant.INIT_METHODS)));
+		beanDefinition.setPropertyValues(ContextUtils.resolvePropertyValue(beanClass, this.applicationContext));
+		// fix missing @Props injection
+		ContextUtils.resolveProps(beanDefinition, this.applicationContext.getEnvironment());
+
+		return beanDefinition;
 	}
 
 	/**
@@ -261,6 +262,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 		try {
 
+			ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
 			// process property
 			return beanDefinition.setInitMethods(ContextUtils.resolveInitMethod(beanClass))//
 					.setPropertyValues(ContextUtils.resolvePropertyValue(beanClass, this.applicationContext));

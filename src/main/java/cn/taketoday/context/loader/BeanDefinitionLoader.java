@@ -21,7 +21,6 @@ package cn.taketoday.context.loader;
 
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 
 import java.util.Collection;
@@ -40,7 +39,7 @@ public interface BeanDefinitionLoader {
 	 * 
 	 * @param beanClass
 	 *            the bean type
-	 * @return
+	 * @return A new {@link BeanDefinition}
 	 */
 	BeanDefinition createBeanDefinition(Class<?> beanClass);
 
@@ -57,7 +56,7 @@ public interface BeanDefinitionLoader {
 	 * @param beans
 	 *            beans collection
 	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
+	 *             BeanDefinition could not be store
 	 */
 	void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException;
 
@@ -67,7 +66,7 @@ public interface BeanDefinitionLoader {
 	 * @param clazz
 	 *            bean class
 	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
+	 *             BeanDefinition could not be store
 	 */
 	void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException;
 
@@ -79,6 +78,7 @@ public interface BeanDefinitionLoader {
 	 * @param beanClass
 	 *            bean class
 	 * @throws BeanDefinitionStoreException
+	 *             BeanDefinition could not be store
 	 */
 	void loadBeanDefinition(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
 
@@ -88,7 +88,7 @@ public interface BeanDefinitionLoader {
 	 * @param clazz
 	 *            bean class
 	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
+	 *             BeanDefinition could not be store
 	 */
 	void register(Class<?> clazz) throws BeanDefinitionStoreException;
 
@@ -100,6 +100,8 @@ public interface BeanDefinitionLoader {
 	 * @param beanDefinition
 	 *            bean definition instance
 	 * @throws BeanDefinitionStoreException
+	 *             BeanDefinition could not be store
+	 * 
 	 */
 	void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
 

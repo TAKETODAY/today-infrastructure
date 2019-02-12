@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
+ * Property
  * 
  * @author Today <br>
  *         2018-06-23 11:28:01

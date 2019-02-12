@@ -77,8 +77,8 @@ public abstract class ContextUtils {
 	/**
 	 * Find names
 	 * 
-	 * @param beanClass
-	 *            bean class
+	 * @param defaultName
+	 *            default bean name
 	 * @param names
 	 *            annotation values
 	 * @return
@@ -95,6 +95,8 @@ public abstract class ContextUtils {
 	 * 
 	 * @param method
 	 *            target method
+	 * @param beanFactory
+	 *            bean factory
 	 * @since 2.1.2
 	 * @return parameter list
 	 */
@@ -137,8 +139,6 @@ public abstract class ContextUtils {
 	}
 
 	/**
-	 * 
-	 * @param loader
 	 * @param resource
 	 * @return
 	 * @throws IOException
@@ -265,12 +265,21 @@ public abstract class ContextUtils {
 	//@on
 
 	/**
+	 * 
+	 * @param beanDefinition
+	 * @param initMethods
+	 * @since 2.1.3
+	 */
+	public static void resolveInitMethod(BeanDefinition beanDefinition, String... initMethods) {
+		beanDefinition.setInitMethods(resolveInitMethod(beanDefinition.getBeanClass(), initMethods));
+	}
+
+	/**
 	 * @param beanClass
 	 *            bean class
 	 * @param initMethods
 	 *            init Method s
 	 * @since 2.1.2
-	 * @throws Throwable
 	 */
 	public static Method[] resolveInitMethod(Class<?> beanClass, String... initMethods) {
 
@@ -302,6 +311,7 @@ public abstract class ContextUtils {
 	 */
 	static void addInitMethod(List<Method> methods, Class<?> beanClass, String... initMethods) {
 		for (final Method method : beanClass.getDeclaredMethods()) {
+
 			if (method.isAnnotationPresent(PostConstruct.class)) {
 				methods.add(method);
 				continue;
@@ -315,11 +325,22 @@ public abstract class ContextUtils {
 	}
 
 	/**
+	 * @param beanDefinition
+	 *            bean definition
+	 * @param applicationContext
+	 * @since 2.1.3
+	 */
+	public static void resolvePropertyValue(final BeanDefinition beanDefinition, ApplicationContext applicationContext) {
+		beanDefinition.setPropertyValues(resolvePropertyValue(beanDefinition.getBeanClass(), applicationContext));
+	}
+
+	/**
 	 * Process bean's property (field)
 	 * 
 	 * @param beanClass
 	 *            bean class
-	 * @throws Throwable
+	 * @param applicationContext
+	 * @since 2.1.2
 	 */
 	public static PropertyValue[] resolvePropertyValue(Class<?> beanClass, //
 			ApplicationContext applicationContext) //
@@ -343,6 +364,7 @@ public abstract class ContextUtils {
 	 * 
 	 * @param field
 	 *            property
+	 * @param applicationContext
 	 * @return
 	 * @throws Exception
 	 */
@@ -380,8 +402,7 @@ public abstract class ContextUtils {
 	 *
 	 * @param beanDefinition
 	 *            target bean definition
-	 * @param beanClass
-	 *            bean class
+	 * @param environment
 	 */
 	public static void resolveProps(BeanDefinition beanDefinition, Environment environment) throws ConfigurationException {
 		Class<?> beanClass = beanDefinition.getBeanClass();
@@ -448,11 +469,11 @@ public abstract class ContextUtils {
 	 * 
 	 * @param annotatedElement
 	 *            target class or a method
-	 * @return
-	 * @throws Exception
+	 * @param applicationContext
+	 *            {@link ApplicationContext}
+	 * @return If matched
 	 */
-	public static boolean conditional(AnnotatedElement annotatedElement, ConfigurableApplicationContext applicationContext)
-			throws Throwable {
+	public static boolean conditional(AnnotatedElement annotatedElement, ConfigurableApplicationContext applicationContext) {
 
 		Collection<Conditional> conditionals = ClassUtils.getAnnotation(annotatedElement, Conditional.class, ConditionalImpl.class);
 		if (conditionals.isEmpty()) {

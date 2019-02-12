@@ -31,6 +31,15 @@ import java.nio.charset.StandardCharsets;
 public interface Constant extends Serializable {
 
 	//@off
+	/** Bytes per Kilobyte.*/
+	long 	BYTES_PER_KB 			= 1024;
+	/** Bytes per Megabyte. */
+	long 	BYTES_PER_MB 			= BYTES_PER_KB * 1024;
+	/** Bytes per Gigabyte.*/
+	long 	BYTES_PER_GB 			= BYTES_PER_MB * 1024;
+	/** Bytes per Terabyte.*/
+	long 	BYTES_PER_TB 			= BYTES_PER_GB * 1024;
+
 	String	KEY_USE_SIMPLE_NAME		= "context.name.simple";
 	String 	KEY_ACTIVE_PROFILES 	= "context.active.profiles";
 	

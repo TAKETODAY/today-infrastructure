@@ -20,11 +20,15 @@
 package cn.taketoday.context.event;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
 
 import lombok.Getter;
 
 /**
+ * 
+ * {@link Singleton} bean Initialized event
+ * 
  * @author Today <br>
  * 
  *         2018-09-20 16:48

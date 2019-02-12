@@ -22,7 +22,6 @@ package cn.taketoday.context.factory;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
 import java.util.Set;
@@ -35,18 +34,17 @@ import java.util.Set;
 public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegistry, BeanDefinitionRegistry {
 
 	/**
-	 * register a bean with the given name and bean definition
+	 * Register a bean with the given name and bean definition
 	 * 
 	 * @param beanDefinition
 	 *            bean definition
 	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
 	 * @since 1.2.0
 	 */
 	void registerBean(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
 
 	/**
-	 * remove bean with the given name
+	 * Remove bean with the given name
 	 * 
 	 * @param name
 	 *            bean name
@@ -55,7 +53,7 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
 	void removeBean(String name) throws BeanDefinitionStoreException;
 
 	/**
-	 * register a bean with the given name and type
+	 * Register a bean with the given name and type
 	 * 
 	 * @param name
 	 *            bean name
@@ -66,25 +64,22 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
 	void registerBean(String name, Class<?> clazz) throws BeanDefinitionStoreException;
 
 	/**
-	 * register a bean with the given type
+	 * Register a bean with the given type
 	 * 
 	 * @param clazz
 	 *            bean class
 	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
 	 */
-	void registerBean(Class<?> clazz) //
-			throws BeanDefinitionStoreException, ConfigurationException;
+	void registerBean(Class<?> clazz) throws BeanDefinitionStoreException;
 
 	/**
-	 * register a bean with the given types
+	 * Register a bean with the given types
 	 * 
-	 * @param clazz
+	 * @param classes
 	 *            bean classes
 	 * @throws BeanDefinitionStoreException
-	 * @throws ConfigurationException
 	 */
-	void registerBean(Set<Class<?>> clazz) throws BeanDefinitionStoreException;
+	void registerBean(Set<Class<?>> classes) throws BeanDefinitionStoreException;
 
 	/**
 	 * Destroy bean with given name
@@ -119,15 +114,16 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
 	 * Initialize singletons
 	 * 
 	 * @throws Throwable
-	 * 
+	 *             when could not initialize singletons
 	 * @since 2.1.2
 	 */
-	void preInstantiateSingletons() throws Throwable;
+	void initializeSingletons() throws Throwable;
 
 	/**
 	 * Add a {@link BeanPostProcessor}
 	 * 
 	 * @param beanPostProcessor
+	 *            bean post processor instance
 	 * @since 2.1.2
 	 */
 	void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
@@ -136,6 +132,7 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
 	 * Remove a {@link BeanPostProcessor}
 	 * 
 	 * @param beanPostProcessor
+	 *            bean post processor instance
 	 * @since 2.1.2
 	 */
 	void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor);

@@ -30,12 +30,10 @@ import java.lang.reflect.AnnotatedElement;
 public interface Condition {
 
 	/**
-	 * 
 	 * @param applicationContext
-	 * @param obj
+	 * @param annotatedElement
 	 * @return
 	 */
 	boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement);
-	
-}
 
+}

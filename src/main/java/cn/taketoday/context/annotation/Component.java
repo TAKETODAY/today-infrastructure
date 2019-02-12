@@ -40,25 +40,14 @@ import java.lang.annotation.Target;
 public @interface Component {
 
 	/**
-	 * bean name
-	 * 
-	 * @return
+	 * @return bean name
 	 */
 	String[] value() default {};
 
-	/**
-	 * @return
-	 */
 	Scope scope() default Scope.SINGLETON;
 
-	/**
-	 * @return
-	 */
 	String[] initMethods() default {};
 
-	/**
-	 * @return
-	 */
 	String[] destroyMethods() default {};
 
 }

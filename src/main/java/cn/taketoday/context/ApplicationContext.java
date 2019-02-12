@@ -35,13 +35,14 @@ import java.util.Collection;
 public interface ApplicationContext extends ConfigurableBeanFactory, ApplicationEventPublisher, Closeable {
 
 	/**
+	 * Get {@link ConfigurableEnvironment}
 	 * 
-	 * @return
+	 * @return {@link ConfigurableEnvironment}
 	 */
 	ConfigurableEnvironment getEnvironment();
 
 	/**
-	 * refresh factory, initialize singleton
+	 * Refresh factory, initialize singleton
 	 * 
 	 * @since 2.0.1
 	 */
@@ -56,7 +57,7 @@ public interface ApplicationContext extends ConfigurableBeanFactory, Application
 	 * the properties files in the application.
 	 * </p>
 	 * <p>
-	 * And then {@link package_} parameter decided where to load the beans.
+	 * And then locations parameter decided where to load the beans.
 	 * </p>
 	 * <p>
 	 * when all the bean definition stores in the {@link BeanDefinitionRegistry}.
@@ -76,27 +77,28 @@ public interface ApplicationContext extends ConfigurableBeanFactory, Application
 	 * load context from given classes
 	 * 
 	 * @param classes
+	 *            class set
 	 * @since 2.1.2
 	 */
 	void loadContext(Collection<Class<?>> classes);
 
 	/**
-	 * close context
+	 * Close context and destroy all singletons
 	 */
 	@Override
 	void close();
 
 	/**
-	 * started ?
+	 * Context has started
 	 * 
-	 * @return
+	 * @return is started
 	 */
 	boolean hasStarted();
 
 	/**
 	 * Get the context startup time stamp
 	 * 
-	 * @return
+	 * @return startup timestamp
 	 */
 	long getStartupDate();
 

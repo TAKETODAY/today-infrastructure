@@ -20,8 +20,11 @@
 package cn.taketoday.context.event;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.factory.BeanPostProcessor;
 
 /**
+ * Loading {@link BeanPostProcessor} event
+ * 
  * @author Today <br>
  * 
  *         2018-11-10 13:33

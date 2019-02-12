@@ -22,17 +22,20 @@ package cn.taketoday.context;
 /**
  * @author Today <br>
  *         2018-11-15 20:50
- * @version 2.1.1.RELEASE
+ * @version 2.1.4.RELEASE
  */
 public abstract class Version {
 
 	public static String getVersion() {
-		return "2.1.1.RELEASE"; // refactor
+		return "2.1.4.RELEASE"; // refactor
 	}
 
 	public static String[] getHistoryVersion() {
 		return new String[] { //
-				"1.0.0", "1.0.1", "1.0.2", "1.0.3.RELEASE", "1.2.1.RELEASE", "2.0.0.RELEASE", "2.1.0.RELEASE", //
+				"1.0.0", "1.0.1", "1.0.2", "1.0.3.RELEASE", //
+				"1.2.1.RELEASE", "2.0.0.RELEASE", "2.1.0.RELEASE", //
+				"2.1.1.RELEASE", "2.1.2.RELEASE", "2.1.3.RELEASE", //
+				"2.1.4.RELEASE"//
 		};
 	}
 }

@@ -24,6 +24,8 @@ import lombok.Setter;
 
 /***
  * 
+ * Reference to a bean
+ * 
  * @author Today <br>
  *         2018-06-23 11:27:30
  */

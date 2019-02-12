@@ -1,6 +1,6 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Today & 2017 - 2019 All Rights Reserved.
+ * Copyright ©  TODAY & 2017 - 2019 All Rights Reserved.
  * 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -31,6 +31,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * Default implementation of {@link BeanDefinition}
+ * 
  * @author TODAY <br>
  *         2019-02-01 12:23
  */
@@ -221,7 +223,7 @@ public class DefaultBeanDefinition implements BeanDefinition {
 
 	@Override
 	public void addPropertyValue(PropertyValue... propertyValues_) {
-		
+
 		if (propertyValues == null) {
 			propertyValues = propertyValues_;
 			return;

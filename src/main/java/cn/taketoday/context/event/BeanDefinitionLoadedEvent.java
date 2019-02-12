@@ -20,8 +20,11 @@
 package cn.taketoday.context.event;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.bean.BeanDefinition;
 
 /**
+ * {@link BeanDefinition} Loaded event
+ * 
  * @author Today <br>
  * 
  *         2018-09-10 10:46

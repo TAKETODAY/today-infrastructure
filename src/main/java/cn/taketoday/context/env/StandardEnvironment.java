@@ -41,6 +41,8 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * Standard implementation of {@link Environment}
+ * 
  * @author Today <br>
  * 
  *         2018-11-14 21:23
@@ -99,8 +101,8 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 		return StringUtils.toStringArray(activeProfiles);
 	}
 
-	//---ConfigurableEnvironment
-	
+	// ---ConfigurableEnvironment
+
 	@Override
 	public void setActiveProfiles(String... profiles) {
 		activeProfiles.clear();

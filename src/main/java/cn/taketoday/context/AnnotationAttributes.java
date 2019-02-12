@@ -32,9 +32,9 @@ import java.util.Objects;
  * @author Chris Beams
  * @author Sam Brannen
  * @author Juergen Hoeller
- * @since 2.1.1
  * @author Today <br>
  *         2018-12-14 13:45
+ * @since 2.1.1
  */
 @SuppressWarnings("serial")
 public class AnnotationAttributes extends HashMap<String, Object> {
@@ -128,7 +128,7 @@ public class AnnotationAttributes extends HashMap<String, Object> {
 
 		Object value = get(attributeName); // get value
 		assertAttributePresence(attributeName, value);
-		
+
 		if (!expectedType.isInstance(value) && expectedType.isArray() && expectedType.getComponentType().isInstance(value)) {
 			Object array = Array.newInstance(expectedType.getComponentType(), 1);
 			Array.set(array, 0, value);
@@ -178,8 +178,8 @@ public class AnnotationAttributes extends HashMap<String, Object> {
 
 	@Override
 	public String toString() {
-		Iterator<Map.Entry<String, Object>> entries = entrySet().iterator();
-		StringBuilder sb = new StringBuilder("{");
+		final Iterator<Map.Entry<String, Object>> entries = entrySet().iterator();
+		final StringBuilder sb = new StringBuilder("{");
 		while (entries.hasNext()) {
 			Map.Entry<String, Object> entry = entries.next();
 			sb.append(entry.getKey());
@@ -220,7 +220,7 @@ public class AnnotationAttributes extends HashMap<String, Object> {
 		if (!(object instanceof AnnotationAttributes)) {
 			return false;
 		}
-		AnnotationAttributes other = (AnnotationAttributes) object;
+		final AnnotationAttributes other = (AnnotationAttributes) object;
 
 		if (other.annotationType != annotationType || !displayName.equals(other.displayName)) {
 			return false;

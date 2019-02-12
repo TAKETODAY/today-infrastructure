@@ -22,12 +22,8 @@ package cn.taketoday.context.utils;
 import cn.taketoday.context.Constant;
 
 import java.io.CharArrayWriter;
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
 
 /**
  * 
@@ -272,105 +268,46 @@ public abstract class StringUtils {
 		return (needToChange ? out.toString() : s);
 	}
 
-	public static String[] tokenizeToStringArray(String str, String delimiters) {
-		return tokenizeToStringArray(str, delimiters, true, true);
-	}
-
 	/**
-	 * Tokenize the given {@code String} into a {@code String} array via a
-	 * {@link StringTokenizer}.
-	 * <p>
-	 * The given {@code delimiters} string can consist of any number of delimiter
-	 * characters. Each of those characters can be used to separate tokens. A
-	 * delimiter is always a single character; for multi-character delimiters,
-	 * consider using {@link #delimitedListToStringArray}.
-	 * 
-	 * @param str
-	 *            the {@code String} to tokenize
-	 * @param delimiters
-	 *            the delimiter characters, assembled as a {@code String} (each of
-	 *            the characters is individually considered as a delimiter)
-	 * @param trimTokens
-	 *            trim the tokens via {@link String#trim()}
-	 * @param ignoreEmptyTokens
-	 *            omit empty tokens from the result array (only applies to tokens
-	 *            that are empty after trimming; StringTokenizer will not consider
-	 *            subsequent delimiters as token in the first place).
-	 * @return an array of the tokens
-	 * @see java.util.StringTokenizer
-	 * @see String#trim()
-	 * @see #delimitedListToStringArray
+	 * @param collection
+	 * @return
 	 */
-	public static String[] tokenizeToStringArray(
-			String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
-
-		if (str == null) {
-			return new String[0];
-		}
-
-		StringTokenizer st = new StringTokenizer(str, delimiters);
-		List<String> tokens = new ArrayList<>();
-		while (st.hasMoreTokens()) {
-			String token = st.nextToken();
-			if (trimTokens) {
-				token = token.trim();
-			}
-			if (!ignoreEmptyTokens || token.length() > 0) {
-				tokens.add(token);
-			}
-		}
-		return toStringArray(tokens);
-	}
-
 	public static String[] toStringArray(Collection<String> collection) {
-		return collection.toArray(new String[collection.size()]);
-	}
-
-	/////////////////////////
-	/**
-	 * Convert a {@code Collection} into a delimited {@code String} (e.g. CSV).
-	 * <p>
-	 * Useful for {@code toString()} implementations.
-	 * 
-	 * @param coll
-	 *            the {@code Collection} to convert
-	 * @param delim
-	 *            the delimiter to use (typically a ",")
-	 * @return the delimited {@code String}
-	 */
-	public static String collectionToDelimitedString(Collection<?> coll, String delim) {
-		return collectionToDelimitedString(coll, delim, "", "");
+		return collection.toArray(new String[0]);
 	}
 
 	/**
-	 * Convert a {@code Collection} into a delimited {@code String} (e.g., CSV).
-	 * <p>
-	 * Useful for {@code toString()} implementations.
+	 * String Array to String
 	 * 
-	 * @param coll
-	 *            the {@code Collection} to convert
-	 * @return the delimited {@code String}
+	 * @param array
+	 * @return
 	 */
-	public static String collectionToCommaDelimitedString(Collection<?> coll) {
-		return collectionToDelimitedString(coll, ",");
+	public static String arrayToString(String[] array) {
+		return arrayToString(array, ",");
 	}
 
-	public static String collectionToDelimitedString(
-			Collection<?> coll, String delim, String prefix, String suffix) {
-
-		if ((coll == null || coll.isEmpty())) {
-			return "";
+	/**
+	 * @param array
+	 * @param suffix
+	 * @return
+	 */
+	public static String arrayToString(String[] array, String suffix) {
+		if (array == null) {
+			return "null";
+		}
+		final int length = array.length;
+		if (length == 1) {
+			return array[0];
 		}
 
-		StringBuilder sb = new StringBuilder();
-		Iterator<?> it = coll.iterator();
-		while (it.hasNext()) {
-			sb.append(prefix).append(it.next()).append(suffix);
-			if (it.hasNext()) {
-				sb.append(delim);
+		final StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < length; i++) {
+			builder.append(array[i]);
+			if (i != length - 1) {
+				builder.append(suffix);
 			}
 		}
-		return sb.toString();
+		return builder.toString();
 	}
 
 }
