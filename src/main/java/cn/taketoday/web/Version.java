@@ -34,7 +34,7 @@ package cn.taketoday.web;
 public abstract class Version {
 
 	public static String getVersion() {
-		return "2.3.4.RELEASE";
+		return "2.3.5.RELEASE";
 	}
 
 	public static String[] getHistoryVersion() {
@@ -48,7 +48,8 @@ public abstract class Version {
 				"2.2.3.RELEASE", //
 				"2.3.1.RELEASE", //
 				"2.3.3.RELEASE", //
-				"2.3.4.RELEASE" //
+				"2.3.4.RELEASE", //
+				"2.3.5.RELEASE" //
 		};
 	}
 }

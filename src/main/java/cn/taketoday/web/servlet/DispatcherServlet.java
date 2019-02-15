@@ -1,6 +1,6 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright ©  TODAY & 2017 - 2019 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.servlet;
 
+import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -177,9 +178,9 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 			}
 
 			// Handler Method
-			HandlerMethod handlerMethod = requestMapping.getHandlerMethod();
+			final HandlerMethod handlerMethod = requestMapping.getHandlerMethod();
 			// method parameter
-			MethodParameter[] methodParameters = handlerMethod.getParameter();
+			final MethodParameter[] methodParameters = handlerMethod.getParameter();
 			// Handler Method parameter list
 			final Object[] args = new Object[methodParameters.length];
 
@@ -187,9 +188,9 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 
 			// log.debug("parameter list -> {}", Arrays.toString(args));
 			// do dispatch
-			Object result = handlerMethod.getMethod().invoke(requestMapping.getAction(), args); // invoke
+			final Object result = handlerMethod.getMethod().invoke(requestMapping.getAction(), args); // invoke
 
-			for (Integer interceptor : interceptors) {
+			for (final Integer interceptor : interceptors) {
 				handlerInterceptorRegistry.get(interceptor).afterProcess(result, request, response);
 			}
 
@@ -278,7 +279,7 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 			String resource, String contextPath, ViewResolver viewResolver, Map<String, Object> dataModel) throws Throwable //
 	{
 		if (resource.startsWith(Constant.REDIRECT_URL_PREFIX)) {
-			String redirect = resource.replaceFirst(Constant.REDIRECT_URL_PREFIX, Constant.BLANK);
+			final String redirect = resource.replaceFirst(Constant.REDIRECT_URL_PREFIX, Constant.BLANK);
 			if (redirect.startsWith(Constant.HTTP)) {
 				response.sendRedirect(redirect);
 				return;
@@ -487,18 +488,23 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 	public void destroy() {
 
 		if (applicationContext != null) {
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			String msg = new StringBuffer()//
-					.append("Your application destroyed at: [")//
-					.append(simpleDateFormat.format(new Date()))//
-					.append("] on startup date: [")//
-					.append(simpleDateFormat.format(applicationContext.getStartupDate()))//
-					.append("]")//
-					.toString();
+			final State state = applicationContext.getState();
 
-			applicationContext.close();
-			log.info(msg);
-			applicationContext.getServletContext().log(msg);
+			if (state != State.CLOSING && state != State.CLOSED) {
+
+				final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				final String msg = new StringBuffer()//
+						.append("Your application destroyed at: [")//
+						.append(simpleDateFormat.format(new Date()))//
+						.append("] on startup date: [")//
+						.append(simpleDateFormat.format(applicationContext.getStartupDate()))//
+						.append("]")//
+						.toString();
+
+				applicationContext.close();
+				log.info(msg);
+				applicationContext.getServletContext().log(msg);
+			}
 		}
 	}
 
