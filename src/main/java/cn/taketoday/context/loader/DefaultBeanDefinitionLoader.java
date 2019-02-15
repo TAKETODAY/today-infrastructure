@@ -75,7 +75,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 	@Override
 	public void loadBeanDefinition(Class<?> beanClass) throws BeanDefinitionStoreException {
-
+		
 		if (Modifier.isAbstract(beanClass.getModifiers())) {
 			return; // don't load abstract class
 		}

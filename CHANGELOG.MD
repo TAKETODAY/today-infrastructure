@@ -199,6 +199,8 @@ public void test_Conditional() {
 > ## v2.1.4
 - fix some singletons could not be initialized.
 
+> ## v2.1.5
+- add context `state` feature
 
 
 

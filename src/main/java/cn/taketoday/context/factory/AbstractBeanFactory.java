@@ -47,8 +47,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import javax.annotation.PreDestroy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -457,7 +455,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 		log.debug("Start loading BeanPostProcessor.");
 		try {
 
-			List<BeanPostProcessor> postProcessors = this.postProcessors;
+			List<BeanPostProcessor> postProcessors = this.getPostProcessors();
 
 			for (Entry<String, BeanDefinition> entry : getBeanDefinitionsMap().entrySet()) {
 				BeanDefinition beanDefinition = entry.getValue();
@@ -541,8 +539,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
 		aware(bean, name);
 
-		if (!postProcessors.isEmpty()) {
-			return initWithPostProcessors(bean, name, beanDefinition, postProcessors);
+		if (!getPostProcessors().isEmpty()) {
+			return initWithPostProcessors(bean, name, beanDefinition, getPostProcessors());
 		}
 		// apply properties
 		applyPropertyValues(bean, beanDefinition.getPropertyValues());
@@ -552,6 +550,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	}
 
 	/**
+	 * 
 	 * @param bean
 	 * @param name
 	 * @param beanDefinition
@@ -563,7 +562,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 			List<BeanPostProcessor> postProcessors) throws Exception //
 	{
 		// before properties
-		for (BeanPostProcessor postProcessor : postProcessors) {
+		for (final BeanPostProcessor postProcessor : postProcessors) {
 			bean = postProcessor.postProcessBeforeInitialization(bean, beanDefinition);
 		}
 		// apply properties
@@ -571,7 +570,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 		// invoke initialize methods
 		invokeInitMethods(bean, beanDefinition.getInitMethods());
 		// after properties
-		for (BeanPostProcessor postProcessor : postProcessors) {
+		for (final BeanPostProcessor postProcessor : postProcessors) {
 			bean = postProcessor.postProcessAfterInitialization(bean, name);
 		}
 		return bean;
@@ -649,13 +648,13 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
 	@Override
 	public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-		postProcessors.remove(beanPostProcessor);
-		postProcessors.add(beanPostProcessor);
+		getPostProcessors().remove(beanPostProcessor);
+		getPostProcessors().add(beanPostProcessor);
 	}
 
 	@Override
 	public void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-		postProcessors.remove(beanPostProcessor);
+		getPostProcessors().remove(beanPostProcessor);
 	}
 
 	@Override
@@ -725,28 +724,30 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 		}
 	}
 
+	/**
+	 * Destroy a bean with bean instance and bean definition
+	 * 
+	 * @param beanInstance
+	 *            bean instance
+	 * @param beanDefinition
+	 *            bean definition
+	 */
 	public void destroyBean(Object beanInstance, BeanDefinition beanDefinition) {
 
 		try {
+
 			if (beanInstance == null || beanDefinition == null) {
 				return;
 			}
 
+			// use real class
 			final Class<? extends Object> beanClass = beanInstance.getClass();
 
 			for (String destroyMethod : beanDefinition.getDestroyMethods()) {
 				beanClass.getMethod(destroyMethod).invoke(beanInstance);
 			}
-			// PreDestroy
-			for (Method method : beanClass.getDeclaredMethods()) {
-				if (method.isAnnotationPresent(PreDestroy.class)) {
-					method.invoke(beanInstance);
-				}
-			}
 
-			if (beanInstance instanceof DisposableBean) {
-				((DisposableBean) beanInstance).destroy();
-			}
+			ContextUtils.destroyBean(beanInstance, beanClass.getDeclaredMethods());
 		}
 		catch (Throwable e) {
 			e = ExceptionUtils.unwrapThrowable(e);
@@ -950,5 +951,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
 	public void setBeanNameCreator(BeanNameCreator beanNameCreator) {
 		this.beanNameCreator = beanNameCreator;
+	}
+
+	public List<BeanPostProcessor> getPostProcessors() {
+		return postProcessors;
 	}
 }

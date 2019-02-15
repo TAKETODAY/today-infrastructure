@@ -355,7 +355,6 @@ public abstract class ClassUtils {
 			return;
 		}
 		// exists
-		final ClassLoader classLoader = getClassLoader();
 		final int length = Constant.CLASS_FILE_SUFFIX.length();
 
 		for (File file : directoryFiles) { //

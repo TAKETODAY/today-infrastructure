@@ -127,7 +127,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 	public void loadProperties(String properties) throws IOException {
 
 		Objects.requireNonNull(properties, "Properties dir can't be null");
-
+		
 		URL resource = ClassUtils.getClassLoader().getResource(properties);
 		if (resource == null) {
 			log.warn("The path: [{}] you provided that doesn't exist", properties);

@@ -19,26 +19,30 @@
  */
 package cn.taketoday.context.listener;
 
+import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.event.ContextCloseEvent;
+import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ContextUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Today <br>
  * 
  *         2018-09-09 23:20
  */
-@Slf4j
 @ContextListener
 @Order(Ordered.LOWEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE)
 public class ContextCloseListener implements ApplicationListener<ContextCloseEvent> {
@@ -46,20 +50,37 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
 	@Override
 	public void onApplicationEvent(ContextCloseEvent event) {
 
-		ApplicationContext applicationContext = event.getApplicationContext();
+		final ApplicationContext applicationContext = event.getApplicationContext();
+
+		final Logger log = LoggerFactory.getLogger(getClass());
+
 		log.info("Closing: [{}] at [{}]", applicationContext,
 				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date(event.getTimestamp())));
 
 		// environment
-		ConfigurableEnvironment environment = applicationContext.getEnvironment();
-		BeanDefinitionRegistry beanDefinitionRegistry = environment.getBeanDefinitionRegistry();
+		final ConfigurableEnvironment environment = applicationContext.getEnvironment();
+		final BeanDefinitionRegistry beanDefinitionRegistry = environment.getBeanDefinitionRegistry();
+
+		if (applicationContext instanceof AbstractApplicationContext) {
+			AbstractBeanFactory beanFactory = ((AbstractApplicationContext) applicationContext).getBeanFactory();
+			beanFactory.getDependencies().clear();
+			beanFactory.getPostProcessors().clear();
+		}
 
 		try {
 
-			for (String name : applicationContext.getBeanDefinitionsMap().keySet()) {
+			for (final String name : applicationContext.getBeanDefinitionsMap().keySet()) {
 				applicationContext.destroyBean(name);
 			}
-			
+
+			for (final Object bean : applicationContext.getSingletonsMap().values()) {
+				ContextUtils.destroyBean(bean, bean.getClass().getDeclaredMethods());
+			}
+
+		}
+		catch (Throwable e) {
+			log.error("An Exception Occurred When Destroy Bean");
+			throw new ContextException(e);
 		} finally {
 			ClassUtils.clearCache();
 			applicationContext.getSingletonsMap().clear();

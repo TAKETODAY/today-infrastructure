@@ -30,7 +30,6 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("serial")
 public class ContextException extends RuntimeException {
 
-	
 	public ContextException(Throwable cause) {
 		super(cause);
 	}

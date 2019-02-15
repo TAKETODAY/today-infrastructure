@@ -56,7 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,19 +69,19 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
 	private static final Logger log = LoggerFactory.getLogger(AbstractApplicationContext.class);
 
-	private final long startupDate;
+	private long startupDate;
 	private String propertiesLocation = ""; // default ""
 	private BeanNameCreator beanNameCreator;
 	private ConfigurableEnvironment environment;
-	private final AtomicBoolean started = new AtomicBoolean(false);
+
+	// @since 2.1.5
+	private State state;
 
 	/** application listeners **/
 	private final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = new HashMap<>(10, 1.0f);
 
 	public AbstractApplicationContext() {
-		this.startupDate = System.currentTimeMillis();
-		log.info("Starting Application Context at [{}].", //
-				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(startupDate)));
+		applyState(State.NONE);
 	}
 
 	/**
@@ -105,6 +104,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	@Override
 	public void loadContext(Collection<Class<?>> classes) {
 		try {
+
 			// Prepare refresh
 			prepareRefresh();
 			// Prepare BeanFactory
@@ -117,8 +117,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 			finishRefresh();
 		}
 		catch (Throwable ex) {
+			applyState(State.FAILED);
 			ex = ExceptionUtils.unwrapThrowable(ex);
 			log.error("An Exception Occurred When Loading Context, With Msg: [{}]", ex.getMessage(), ex);
+			throw new ContextException(ex);
 		}
 	}
 
@@ -127,12 +129,19 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	 */
 	protected void prepareRefresh() {
 		// prepare properties
+		this.startupDate = System.currentTimeMillis();
+		log.info("Starting Application Context at [{}].", //
+				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(startupDate)));
+
+		applyState(State.STARTING);
+
 		try {
 
 			getEnvironment().loadProperties(propertiesLocation);
 		}
 		catch (IOException ex) {
 			log.error("An Exception Occurred When Loading Properties, With Msg: [{}]", ex.getMessage(), ex);
+			throw new ContextException(ex);
 		}
 	}
 
@@ -152,7 +161,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 		ClassUtils.clearCache();
 		// start success publish started event
 		publishEvent(new ContextStartedEvent(this));
-		started.set(true);
+		applyState(State.STARTED);
 	}
 
 	/**
@@ -161,7 +170,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	 * @throws Exception
 	 */
 	protected void onRefresh() throws Throwable {
-		
+
 		// fix: #1 some singletons could not be initialized.
 		getBeanFactory().preInitialization();
 	}
@@ -198,6 +207,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 			beanDefinitionLoader = new DefaultBeanDefinitionLoader(this);
 			environment.setBeanDefinitionLoader(beanDefinitionLoader);
 		}
+
 		beanFactory.setBeanDefinitionLoader(beanDefinitionLoader);
 		// register Environment
 		registerSingleton(beanNameCreator.create(Environment.class), environment);
@@ -284,6 +294,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 		catch (Throwable ex) {
 			ex = ExceptionUtils.unwrapThrowable(ex);
 			log.error("An Exception Occurred When Register Application Listener, With Msg: [{}]", ex.getMessage(), ex);
+			throw new ContextException(ex);
 		}
 	}
 
@@ -331,8 +342,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
 	@Override
 	public void close() {
-		started.set(false);
+		applyState(State.CLOSING);
 		publishEvent(new ContextCloseEvent(this));
+		applyState(State.CLOSED);
 	}
 
 	// --------ApplicationEventPublisher
@@ -395,7 +407,16 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
 	@Override
 	public boolean hasStarted() {
-		return started.get();
+		return state == State.STARTED;
+	}
+
+	@Override
+	public final State getState() {
+		return state;
+	}
+
+	final void applyState(State state) {
+		this.state = state;
 	}
 
 	@Override
@@ -556,7 +577,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
 	@Override
 	public boolean containsSingleton(String name) {
-
 		return getBeanFactory().containsSingleton(name);
 	}
 

@@ -37,6 +37,7 @@ import cn.taketoday.context.exception.AnnotationException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.PropertyValueResolver;
 import cn.taketoday.context.loader.PropsPropertyResolver;
@@ -60,6 +61,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
 import org.slf4j.LoggerFactory;
@@ -525,7 +527,29 @@ public abstract class ContextUtils {
 		if (beanDefinition.getScope() == null) {
 			beanDefinition.setScope(Scope.SINGLETON);
 		}
+	}
 
+	/**
+	 * Destroy bean instance
+	 * 
+	 * @param bean
+	 *            bean instance
+	 * @param methods
+	 *            methods
+	 * @throws Throwable
+	 */
+	public static void destroyBean(Object bean, Method[] methods) throws Throwable {
+
+		// PreDestroy
+		for (final Method method : methods) {
+			if (method.isAnnotationPresent(PreDestroy.class)) {
+				method.invoke(bean);
+			}
+		}
+
+		if (bean instanceof DisposableBean) {
+			((DisposableBean) bean).destroy();
+		}
 	}
 
 }

@@ -102,4 +102,16 @@ public interface ApplicationContext extends ConfigurableBeanFactory, Application
 	 */
 	long getStartupDate();
 
+	/**
+	 * Get context's state
+	 * 
+	 * @return context's state
+	 * @since 2.1.5
+	 */
+	State getState();
+
+	public enum State {
+		NONE, STARTING, STARTED, FAILED, CLOSING, CLOSED;
+	}
+
 }
