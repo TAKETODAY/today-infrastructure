@@ -11,10 +11,10 @@
 <dependency>
     <groupId>cn.taketoday</groupId>
     <artifactId>today-web</artifactId>
-    <version>2.3.4.RELEASE</version>
+    <version>2.3.5.RELEASE</version>
 </dependency>
 ```
-- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-web/2.3.4.RELEASE/jar)
+- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-web/2.3.5.RELEASE/jar)
 
 ## 案例
 - [DEMO](https://github.com/TAKETODAY/today-web-demo)
