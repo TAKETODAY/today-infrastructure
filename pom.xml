@@ -4,8 +4,11 @@
 
 	<groupId>cn.taketoday</groupId>
 	<artifactId>today-context</artifactId>
-<!-- 	<version>2.1.5.RELEASE</version> -->
-	<version>2.1.5.SNAPSHOT</version>
+<!-- 
+	<version>2.1.6.SNAPSHOT</version>
+-->
+
+	<version>2.1.5.RELEASE</version> 
 	<name>Today Context</name>
 
 	<description>today-context is a lightweight dependency injection framework.</description>
