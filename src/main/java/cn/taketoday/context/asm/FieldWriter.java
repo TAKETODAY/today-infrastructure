@@ -132,8 +132,8 @@ final class FieldWriter extends FieldVisitor {
 	 *            the field's constant value. May be {@literal null}.
 	 */
 	FieldWriter(final SymbolTable symbolTable, final int access, final String name, final String descriptor,
-			final String signature, final Object constantValue) {
-		super(Opcodes.ASM7);
+			final String signature, final Object constantValue) //
+	{
 		this.symbolTable = symbolTable;
 		this.accessFlags = access;
 		this.nameIndex = symbolTable.addConstantUtf8(name);
@@ -159,11 +159,10 @@ final class FieldWriter extends FieldVisitor {
 		// Write type_index and reserve space for num_element_value_pairs.
 		annotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
 		if (visible) {
-			return lastRuntimeVisibleAnnotation = new AnnotationWriter(symbolTable, annotation,
-					lastRuntimeVisibleAnnotation);
-		} else {
-			return lastRuntimeInvisibleAnnotation = new AnnotationWriter(symbolTable, annotation,
-					lastRuntimeInvisibleAnnotation);
+			return lastRuntimeVisibleAnnotation = new AnnotationWriter(symbolTable, annotation, lastRuntimeVisibleAnnotation);
+		}
+		else {
+			return lastRuntimeInvisibleAnnotation = new AnnotationWriter(symbolTable, annotation, lastRuntimeInvisibleAnnotation);
 		}
 	}
 
@@ -180,11 +179,10 @@ final class FieldWriter extends FieldVisitor {
 		// Write type_index and reserve space for num_element_value_pairs.
 		typeAnnotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
 		if (visible) {
-			return lastRuntimeVisibleTypeAnnotation = new AnnotationWriter(symbolTable, typeAnnotation,
-					lastRuntimeVisibleTypeAnnotation);
-		} else {
-			return lastRuntimeInvisibleTypeAnnotation = new AnnotationWriter(symbolTable, typeAnnotation,
-					lastRuntimeInvisibleTypeAnnotation);
+			return lastRuntimeVisibleTypeAnnotation = new AnnotationWriter(symbolTable, typeAnnotation, lastRuntimeVisibleTypeAnnotation);
+		}
+		else {
+			return lastRuntimeInvisibleTypeAnnotation = new AnnotationWriter(symbolTable, typeAnnotation, lastRuntimeInvisibleTypeAnnotation);
 		}
 	}
 
@@ -251,8 +249,7 @@ final class FieldWriter extends FieldVisitor {
 			size += lastRuntimeVisibleTypeAnnotation.computeAnnotationsSize(Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
 		}
 		if (lastRuntimeInvisibleTypeAnnotation != null) {
-			size += lastRuntimeInvisibleTypeAnnotation
-					.computeAnnotationsSize(Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
+			size += lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
 		}
 		if (firstAttribute != null) {
 			size += firstAttribute.computeAttributesSize(symbolTable);
@@ -308,8 +305,7 @@ final class FieldWriter extends FieldVisitor {
 		// For ease of reference, we use here the same attribute order as in Section 4.7
 		// of the JVMS.
 		if (constantValueIndex != 0) {
-			output.putShort(symbolTable.addConstantUtf8(Constants.CONSTANT_VALUE)).putInt(2)
-					.putShort(constantValueIndex);
+			output.putShort(symbolTable.addConstantUtf8(Constants.CONSTANT_VALUE)).putInt(2).putShort(constantValueIndex);
 		}
 		if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && useSyntheticAttribute) {
 			output.putShort(symbolTable.addConstantUtf8(Constants.SYNTHETIC)).putInt(0);
@@ -321,20 +317,18 @@ final class FieldWriter extends FieldVisitor {
 			output.putShort(symbolTable.addConstantUtf8(Constants.DEPRECATED)).putInt(0);
 		}
 		if (lastRuntimeVisibleAnnotation != null) {
-			lastRuntimeVisibleAnnotation
-					.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_ANNOTATIONS), output);
+			lastRuntimeVisibleAnnotation.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_ANNOTATIONS), output);
 		}
 		if (lastRuntimeInvisibleAnnotation != null) {
-			lastRuntimeInvisibleAnnotation
-					.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_ANNOTATIONS), output);
+			lastRuntimeInvisibleAnnotation.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_ANNOTATIONS), output);
 		}
 		if (lastRuntimeVisibleTypeAnnotation != null) {
-			lastRuntimeVisibleTypeAnnotation
-					.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS), output);
+			lastRuntimeVisibleTypeAnnotation.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS),
+					output);
 		}
 		if (lastRuntimeInvisibleTypeAnnotation != null) {
-			lastRuntimeInvisibleTypeAnnotation
-					.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS), output);
+			lastRuntimeInvisibleTypeAnnotation.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS),
+					output);
 		}
 		if (firstAttribute != null) {
 			firstAttribute.putAttributes(symbolTable, output);

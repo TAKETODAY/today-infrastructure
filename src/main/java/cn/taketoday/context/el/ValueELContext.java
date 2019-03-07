@@ -1,9 +1,9 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
- * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,27 +13,28 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ *   
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.event;
+package cn.taketoday.context.el;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.factory.BeanPostProcessor;
+import javax.el.BeanNameELResolver;
+import javax.el.ELManager;
+import javax.el.StandardELContext;
+
+import cn.taketoday.context.AbstractApplicationContext;
 
 /**
- * Loading {@link BeanPostProcessor} event
  * 
- * @author Today <br>
- * 
- *         2018-11-10 13:33
+ * @author TODAY <br>
+ *         2019-02-21 19:41
  */
-@SuppressWarnings("serial")
-public class BeanPostProcessorLoadingEvent extends ApplicationContextEvent {
+public class ValueELContext extends StandardELContext {
 
-	public BeanPostProcessorLoadingEvent(ApplicationContext source) {
-		super(source);
+	public ValueELContext(AbstractApplicationContext applicationContext) {
+		super(ELManager.getExpressionFactory());
+		addELResolver(new BeanNameELResolver(new BeanFactoryResolver(applicationContext)));
 	}
 
 }

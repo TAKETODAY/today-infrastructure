@@ -34,13 +34,13 @@ import lombok.Setter;
 @SuppressWarnings("serial")
 public class User implements Serializable {
 
-	private Integer id = null;
-	private String userName = null;
-	private Integer age = null;
-	private String passwd = null;
-	private String userId = null;
-	private String sex = null;
-	private Date brithday = null;
+	private Integer id;
+	private String userName;
+	private Integer age;
+	private String passwd;
+	private String userId;
+	private String sex;
+	private Date brithday;
 
 	@Override
 	public String toString() {

@@ -19,8 +19,29 @@
  */
 package cn.taketoday.context;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EventObject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.el.ELManager;
+import javax.el.ELProcessor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.el.ValueELContext;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.DefaultBeanNameCreator;
 import cn.taketoday.context.env.Environment;
@@ -28,9 +49,10 @@ import cn.taketoday.context.env.StandardEnvironment;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
 import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
 import cn.taketoday.context.event.ContextCloseEvent;
+import cn.taketoday.context.event.ContextPreRefreshEvent;
 import cn.taketoday.context.event.ContextRefreshEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
-import cn.taketoday.context.event.HandleDependencyEvent;
+import cn.taketoday.context.event.DependenciesHandledEvent;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -44,22 +66,6 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EventObject;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author Today <br>
  *         <p>
@@ -71,12 +77,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
 	private long startupDate;
 	private String propertiesLocation = ""; // default ""
-	private BeanNameCreator beanNameCreator;
 	private ConfigurableEnvironment environment;
-
+	
 	// @since 2.1.5
 	private State state;
-
 	/** application listeners **/
 	private final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = new HashMap<>(10, 1.0f);
 
@@ -97,6 +101,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	 * @param locations
 	 *            given packages
 	 */
+	@Override
 	public void loadContext(String... locations) {
 		this.loadContext(ClassUtils.scan(locations));
 	}
@@ -104,7 +109,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	@Override
 	public void loadContext(Collection<Class<?>> classes) {
 		try {
-
 			// Prepare refresh
 			prepareRefresh();
 			// Prepare BeanFactory
@@ -113,14 +117,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 			onRefresh();
 			// Initialize all singletons.
 			refresh();
-			// finish refresh
+			// Finish refresh
 			finishRefresh();
 		}
 		catch (Throwable ex) {
 			applyState(State.FAILED);
 			ex = ExceptionUtils.unwrapThrowable(ex);
 			log.error("An Exception Occurred When Loading Context, With Msg: [{}]", ex.getMessage(), ex);
-			throw new ContextException(ex);
+			throw ExceptionUtils.newContextException(ex);
 		}
 	}
 
@@ -128,7 +132,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	 * Prepare to load context
 	 */
 	protected void prepareRefresh() {
-		// prepare properties
+
 		this.startupDate = System.currentTimeMillis();
 		log.info("Starting Application Context at [{}].", //
 				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(startupDate)));
@@ -136,7 +140,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 		applyState(State.STARTING);
 
 		try {
-
+			// prepare properties
 			getEnvironment().loadProperties(propertiesLocation);
 		}
 		catch (IOException ex) {
@@ -146,12 +150,17 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	}
 
 	/**
+	 * 
+	 * Load bean definitions
+	 * 
 	 * @param beanFactory
 	 *            bean factory
 	 * @param beanClasses
 	 *            bean classes
 	 */
-	protected abstract void doLoadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses);
+	protected void doLoadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
+		beanFactory.getBeanDefinitionLoader().loadBeanDefinitions(beanClasses);
+	}
 
 	/**
 	 * Context start success
@@ -167,10 +176,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	/**
 	 * Template method
 	 * 
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	protected void onRefresh() throws Throwable {
-
+		publishEvent(new ContextPreRefreshEvent(this));
 		// fix: #1 some singletons could not be initialized.
 		getBeanFactory().preInitialization();
 	}
@@ -188,29 +197,45 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 		postProcessBeanFactory(beanFactory);
 
 		final ConfigurableEnvironment environment = getEnvironment();
-
 		BeanNameCreator beanNameCreator = environment.getBeanNameCreator();
 		// check name creator
 		if (beanNameCreator == null) {
 			beanNameCreator = new DefaultBeanNameCreator(environment);
 			environment.setBeanNameCreator(beanNameCreator);
 		}
-		// check registry
-		if (environment.getBeanDefinitionRegistry() == null) {
-			environment.setBeanDefinitionRegistry(this);
-		}
 		// must not be null
 		beanFactory.setBeanNameCreator(beanNameCreator);
+		// check registry
+		if (environment.getBeanDefinitionRegistry() == null) {
+			environment.setBeanDefinitionRegistry(beanFactory);
+		}
 		// check bean definition loader
 		BeanDefinitionLoader beanDefinitionLoader = environment.getBeanDefinitionLoader();
 		if (beanDefinitionLoader == null) {
 			beanDefinitionLoader = new DefaultBeanDefinitionLoader(this);
 			environment.setBeanDefinitionLoader(beanDefinitionLoader);
 		}
-
 		beanFactory.setBeanDefinitionLoader(beanDefinitionLoader);
+
+		// setting el manager @since 2.1.5
+
+		final ELManager elManager = new ELManager();
+
+		ELProcessor elProcessor = environment.getELProcessor();
+		if (elProcessor == null) {
+			elProcessor = new ELProcessor(elManager);
+			environment.setELProcessor(elProcessor);
+			elManager.setELContext(new ValueELContext(this));
+		}
+
+		// register ELManager @since 2.1.5
+		registerSingleton(beanNameCreator.create(ELManager.class), elManager);
+		registerSingleton(beanNameCreator.create(ELProcessor.class), elProcessor);
 		// register Environment
 		registerSingleton(beanNameCreator.create(Environment.class), environment);
+		// register ApplicationContext
+		registerSingleton(beanNameCreator.create(ApplicationContext.class), this);
+
 		// register listener
 		registerListener();
 		// start loading bean definitions ; publish loading bean definition event
@@ -219,9 +244,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 		// bean definitions loaded
 		publishEvent(new BeanDefinitionLoadedEvent(this));
 		// handle dependency : register bean dependencies definition
-		publishEvent(new HandleDependencyEvent(this));
 		beanFactory.handleDependency();
-
+		publishEvent(new DependenciesHandledEvent(this, beanFactory.getDependencies()));
 		// register bean post processors
 		beanFactory.registerBeanPostProcessors();
 	}
@@ -264,16 +288,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 			if (contextListener == null) {
 				return;
 			}
-
 			if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
 				throw new ConfigurationException("[{}] must be a [{}]", //
 						listenerClass.getName(), ApplicationListener.class.getClass().getName());
 			}
-
-			final String name = getBeanNameCreator().create(listenerClass);
+			final String name = getEnvironment().getBeanNameCreator().create(listenerClass);
 			// if exist bean
 			Object applicationListener = getSingleton(name);
-
 			if (applicationListener == null) {
 				// create bean instance
 				applicationListener = ClassUtils.newInstance(listenerClass);
@@ -294,7 +315,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 		catch (Throwable ex) {
 			ex = ExceptionUtils.unwrapThrowable(ex);
 			log.error("An Exception Occurred When Register Application Listener, With Msg: [{}]", ex.getMessage(), ex);
-			throw new ContextException(ex);
+			throw ExceptionUtils.newContextException(ex);
 		}
 	}
 
@@ -325,18 +346,15 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
 	@Override
 	public void refresh() throws ContextException {
-
 		try {
-
 			// refresh object instance
 			publishEvent(new ContextRefreshEvent(this));
-
 			getBeanFactory().initializeSingletons();
 		}
 		catch (Throwable ex) {
 			ex = ExceptionUtils.unwrapThrowable(ex);
 			log.error("An Exception Occurred When Refresh Context: [{}] With Msg: [{}]", this, ex.getMessage(), ex);
-			throw new ContextException(ex);
+			throw ExceptionUtils.newContextException(ex);
 		}
 	}
 
@@ -370,13 +388,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	@Override
 	public void setEnvironment(ConfigurableEnvironment environment) {
 		this.environment = environment;
-	}
-
-	public BeanNameCreator getBeanNameCreator() {
-		if (this.beanNameCreator == null) {
-			this.beanNameCreator = createBeanNameCreator();
-		}
-		return this.beanNameCreator;
 	}
 
 	@Override
@@ -458,9 +469,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
 	@Override
 	public void refresh(String name) {
-
 		try {
-
 			getBeanFactory().refresh(name);
 			// object refreshed
 			publishEvent(new ObjectRefreshedEvent(getBeanDefinition(name), this));
@@ -468,15 +477,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 		catch (Throwable ex) {
 			ex = ExceptionUtils.unwrapThrowable(ex);
 			log.error("Can't refresh a bean named: [{}], With Msg: [{}]", name, ex.getMessage(), ex);
-			throw new ContextException(ex);
+			throw ExceptionUtils.newContextException(ex);
 		}
 	}
 
 	@Override
 	public Object refresh(BeanDefinition beanDefinition) {
-
 		try {
-
+			
 			final Object initializingBean = getBeanFactory().refresh(beanDefinition);
 			// object refreshed
 			publishEvent(new ObjectRefreshedEvent(beanDefinition, this));
@@ -485,7 +493,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 		catch (Throwable ex) {
 			ex = ExceptionUtils.unwrapThrowable(ex);
 			log.error("Can't refresh a bean named: [{}], With Msg: [{}]", beanDefinition.getName(), ex.getMessage(), ex);
-			throw new ContextException(ex);
+			throw ExceptionUtils.newContextException(ex);
 		}
 	}
 
@@ -523,6 +531,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	@Override
 	public <T> List<T> getBeans(Class<T> requiredType) {
 		return getBeanFactory().getBeans(requiredType);
+	}
+
+	@Override
+	public <T extends Annotation, E> List<E> getAnnotatedBeans(Class<T> annotationType) {
+		return getBeanFactory().getAnnotatedBeans(annotationType);
 	}
 
 	@Override

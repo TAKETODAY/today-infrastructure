@@ -19,13 +19,13 @@
  */
 package cn.taketoday.context;
 
+import java.io.Closeable;
+import java.util.Collection;
+
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.listener.ApplicationEventPublisher;
-
-import java.io.Closeable;
-import java.util.Collection;
 
 /**
  * 
@@ -111,7 +111,30 @@ public interface ApplicationContext extends ConfigurableBeanFactory, Application
 	State getState();
 
 	public enum State {
-		NONE, STARTING, STARTED, FAILED, CLOSING, CLOSED;
+		/**
+		 * context instantiated
+		 */
+		NONE,
+		/**
+		 * context is loading
+		 */
+		STARTING,
+		/**
+		 * context is started
+		 */
+		STARTED,
+		/**
+		 * context failed to start
+		 */
+		FAILED,
+		/**
+		 * context is closing
+		 */
+		CLOSING,
+		/**
+		 * context is closed
+		 */
+		CLOSED;
 	}
 
 }

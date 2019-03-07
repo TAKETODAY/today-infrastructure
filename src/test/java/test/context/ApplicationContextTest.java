@@ -19,15 +19,6 @@
  */
 package test.context;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.env.ConfigurableEnvironment;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
@@ -39,15 +30,23 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import lombok.extern.slf4j.Slf4j;
-import test.demo.dao.UserDao;
-import test.demo.dao.impl.UserDaoImpl;
 import test.demo.domain.Config;
 import test.demo.domain.ConfigFactoryBean;
 import test.demo.domain.ConfigurationBean;
 import test.demo.domain.User;
+import test.demo.repository.UserRepository;
+import test.demo.repository.impl.DefaultUserRepository;
 import test.demo.service.UserService;
-import test.demo.service.impl.UserServiceImpl;
+import test.demo.service.impl.DefaultUserService;
 
 /**
  * @author Today
@@ -76,14 +75,14 @@ public class ApplicationContextTest {
 	@Test
 	public void test_ApplicationContext() throws NoSuchBeanDefinitionException {
 		try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
-			applicationContext.loadContext("test.demo.dao");
+			applicationContext.loadContext("test.demo.repository");
 			Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap();
 
 			System.out.println(beanDefinitionsMap);
 
-			boolean containsBean = applicationContext.containsBeanDefinition(UserDaoImpl.class);
+			boolean containsBean = applicationContext.containsBeanDefinition(DefaultUserRepository.class);
 
-			System.out.println(applicationContext.getBean(UserDaoImpl.class));
+			System.out.println(applicationContext.getBean(DefaultUserRepository.class));
 
 			assert containsBean : "UserDaoImpl load error.";
 		}
@@ -110,21 +109,6 @@ public class ApplicationContextTest {
 	}
 
 	/**
-	 * test auto load context and get prototype.
-	 * 
-	 * @throws NoSuchBeanDefinitionException
-	 */
-	@Test
-	public void test_AutoLoadPrototype() throws NoSuchBeanDefinitionException {
-		try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-			applicationContext.loadContext("");
-			Config config = applicationContext.getBean("prototype_config", Config.class);
-			Config config_ = applicationContext.getBean("prototype_config", Config.class);
-			assert config != config_ : "prototype error.";
-		}
-	}
-
-	/**
 	 * test load FactoryBean.
 	 * 
 	 * @throws NoSuchBeanDefinitionException
@@ -146,6 +130,8 @@ public class ApplicationContextTest {
 			for (Entry<String, Object> entry : singletonsMap.entrySet()) {
 				System.err.println(entry.getKey() + "==" + entry.getValue());
 			}
+
+			assert config != config_;
 
 			log.debug("{}", config.hashCode());
 			log.debug("{}", config_.hashCode());
@@ -186,12 +172,12 @@ public class ApplicationContextTest {
 	@Test
 	public void test_Login() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo")) {
+		try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo.service","test.demo.repository")) {
 
-			UserService userService = applicationContext.getBean(UserServiceImpl.class);
+			UserService userService = applicationContext.getBean(DefaultUserService.class);
 
-			UserDao userDao = applicationContext.getBean(UserDao.class);
-			UserDaoImpl userDaoImpl = applicationContext.getBean(UserDaoImpl.class);
+			UserRepository userDao = applicationContext.getBean(UserRepository.class);
+			DefaultUserRepository userDaoImpl = applicationContext.getBean(DefaultUserRepository.class);
 
 			Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap();
 
@@ -232,7 +218,7 @@ public class ApplicationContextTest {
 			System.err.println(applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap());
 
 			bean.setAge(12);
-			
+
 			System.err.println(bean);
 
 			User user = applicationContext.getBean(User.class);
@@ -258,5 +244,23 @@ public class ApplicationContextTest {
 			assert bean.getUser() != null;
 		}
 	}
+
+	@Test
+	public void test_OnConstructor() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
+
+		try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+			applicationContext.loadContext("");
+			ConfigurableEnvironment environment = applicationContext.getEnvironment();
+			BeanDefinitionRegistry beanDefinitionRegistry = environment.getBeanDefinitionRegistry();
+			System.err.println(beanDefinitionRegistry.getBeanDefinitionsMap());
+
+			Config bean = applicationContext.getBean(Config.class);
+			System.out.println(bean);
+			assert bean != null;
+			assert bean.getUser() != null;
+		}
+	}
+
+
 
 }

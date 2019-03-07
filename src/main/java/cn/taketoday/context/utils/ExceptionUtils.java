@@ -22,6 +22,8 @@ package cn.taketoday.context.utils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 
+import cn.taketoday.context.exception.ContextException;
+
 /**
  * 
  * @author Today <br>
@@ -29,17 +31,33 @@ import java.lang.reflect.UndeclaredThrowableException;
  */
 public abstract class ExceptionUtils {
 
+	/**
+	 * Unwrap
+	 * 
+	 * @param ex
+	 *            target {@link Throwable}
+	 * @return unwrapped {@link Throwable}
+	 */
 	public static Throwable unwrapThrowable(Throwable ex) {
 		Throwable unwrapped = ex;
 		while (true) {
 			if (unwrapped instanceof InvocationTargetException) {
 				unwrapped = ((InvocationTargetException) unwrapped).getTargetException();
-			} else if (unwrapped instanceof UndeclaredThrowableException) {
+			}
+			else if (unwrapped instanceof UndeclaredThrowableException) {
 				unwrapped = ((UndeclaredThrowableException) unwrapped).getUndeclaredThrowable();
-			} else {
+			}
+			else {
 				return unwrapped;
 			}
 		}
+	}
+
+	public static ContextException newContextException(Throwable ex) {
+		if (ex instanceof ContextException) {
+			return (ContextException) ex;
+		}
+		return new ContextException(ex);
 	}
 
 }

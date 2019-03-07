@@ -22,6 +22,7 @@ package cn.taketoday.context.annotation;
 import cn.taketoday.context.Scope;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -31,6 +32,7 @@ import java.lang.annotation.Target;
  * 
  *         2018-07-02 20:45:00
  */
+@Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Component(scope = Scope.SINGLETON)
 @Target({ ElementType.TYPE, ElementType.METHOD })

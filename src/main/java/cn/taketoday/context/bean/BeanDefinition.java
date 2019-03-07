@@ -19,13 +19,13 @@
  */
 package cn.taketoday.context.bean;
 
+import java.lang.reflect.Method;
+import java.util.Collection;
+
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.factory.FactoryBean;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
 
 /**
  * Bean definition
@@ -109,10 +109,6 @@ public interface BeanDefinition {
 	 */
 	void addPropertyValue(PropertyValue... propertyValues_);
 
-	/**
-	 * 
-	 * @param propertyValues
-	 */
 	void addPropertyValue(Collection<PropertyValue> propertyValues);
 
 	BeanDefinition setInitialized(boolean initialized);

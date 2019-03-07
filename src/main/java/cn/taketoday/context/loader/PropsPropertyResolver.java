@@ -19,23 +19,14 @@
  */
 package cn.taketoday.context.loader;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.exception.AnnotationException;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.ContextException;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
+
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.utils.ContextUtils;
 
 /**
  * @author Today <br>
@@ -50,83 +41,18 @@ public class PropsPropertyResolver implements PropertyValueResolver {
 	@Override
 	public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
 
-		// Must be a Map
-		if (!Properties.class.equals(field.getType()) && !Map.class.equals(field.getType())) {
-			throw new AnnotationException("Field: [" + field + "] type must be: [" + //
-					Properties.class.getName() + "] or [" + Map.class.getName() + "]");
-		}
-
 		Props props = field.getAnnotation(Props.class);
-		Map<Object, Object> properties = new Properties(); // property value
-		Properties properties_ = new Properties(); // file to be load
-		ClassLoader classLoader = ClassUtils.getClassLoader();
 
-		for (String fileName : props.value()) {
+		Properties properties = //
+				ContextUtils.loadProps(props, applicationContext.getEnvironment().getProperties());
 
-			try (InputStream inputStream = new FileInputStream(classLoader.getResource(checkName(fileName)).getPath())) {
+		// feat: Enhance `Props`
+		final Class<?> propertyClass = field.getType();
+		if (!Map.class.isAssignableFrom(propertyClass)) {
 
-				properties_.load(inputStream);
-				this.load(props, properties, properties_);
-			}
-			catch (IOException e) {
-				throw new ContextException(e);
-			}
+			return new PropertyValue(ContextUtils.resolveProps(props.prefix(), propertyClass, properties), field);
 		}
-		if (props.value().length == 0) {
-			this.load(props, properties, applicationContext.getEnvironment().getProperties());
-		}
-
 		return new PropertyValue(properties, field);
-	}
-
-	/**
-	 * load properties values.
-	 * 
-	 * @param props
-	 *            Props annotation
-	 * @param properties
-	 *            property value
-	 * @param pool
-	 *            all property
-	 */
-	private void load(Props props, Map<Object, Object> properties, Properties pool) {
-
-		String[] prefix = props.prefix();
-		boolean replace = props.replace();
-
-		try {
-
-			for (Entry<Object, Object> entry : pool.entrySet()) {
-				Object key = entry.getKey();
-				Object value = entry.getValue();
-				if (key instanceof String) {
-					for (String prefix_ : prefix) {
-						if (((String) key).startsWith(prefix_)) { // start with prefix
-
-							if (replace) {
-								// replace the prefix
-								key = ((String) key).replaceFirst(prefix_, "");
-							}
-							properties.put((String) key, ContextUtils.resolvePlaceholder(pool, (String) value));
-						}
-					}
-				}
-			}
-		}
-		catch (ConfigurationException e) {
-			// shutdown
-		}
-	}
-
-	/**
-	 * get file name.
-	 * 
-	 * @param fileName
-	 *            input file name
-	 * @return standard file name
-	 */
-	private final String checkName(String fileName) {
-		return fileName.endsWith(Constant.PROPERTIES_SUFFIX) ? fileName : fileName + Constant.PROPERTIES_SUFFIX;
 	}
 
 }

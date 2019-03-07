@@ -19,16 +19,20 @@
  */
 package cn.taketoday.context.exception;
 
-import lombok.NoArgsConstructor;
-
 /**
  * @author Today <br>
- * 	
- *		2018-10-05 21:33
+ *         2018-10-05 21:33
  */
-@NoArgsConstructor
 @SuppressWarnings("serial")
 public class ContextException extends RuntimeException {
+
+	public ContextException() {
+		
+	}
+
+	public ContextException(String message) {
+		super(message);
+	}
 
 	public ContextException(Throwable cause) {
 		super(cause);
@@ -38,9 +42,4 @@ public class ContextException extends RuntimeException {
 		super(message, cause);
 	}
 
-	public ContextException(String message) {
-		super(message);
-	}
-	
-	
 }

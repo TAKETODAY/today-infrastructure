@@ -4,7 +4,8 @@
 
 	<groupId>cn.taketoday</groupId>
 	<artifactId>today-context</artifactId>
-	<version>2.1.5.RELEASE</version>
+<!-- 	<version>2.1.5.RELEASE</version> -->
+	<version>2.1.5.SNAPSHOT</version>
 	<name>Today Context</name>
 
 	<description>today-context is a lightweight dependency injection framework.</description>
@@ -45,6 +46,12 @@
 	<dependencies>
 
 		<dependency>
+			<groupId>cn.taketoday</groupId>
+			<artifactId>today-expression</artifactId>
+			<version>0.0.1.RELEASE</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.18.0</version>
@@ -64,6 +71,13 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
+		
+	<!-- 	<dependency>
+			<groupId>com.github.houbb</groupId>
+			<artifactId>junitperf</artifactId>
+			<version>2.0.0</version>
+			<scope>test</scope>
+		</dependency> -->
 
 		<dependency>
 			<groupId>org.mockito</groupId>

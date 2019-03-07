@@ -19,22 +19,31 @@
  */
 package cn.taketoday.context.event;
 
+import java.util.Set;
+
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.bean.PropertyValue;
 
 /**
  * 
- * Handle all dependencies
+ * Handled all dependencies
  * 
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-11-10 13:23
  */
-
 @SuppressWarnings("serial")
-public class HandleDependencyEvent extends ApplicationContextEvent {
+public class DependenciesHandledEvent extends ApplicationContextEvent {
 
-	public HandleDependencyEvent(ApplicationContext source) {
+	private final Set<PropertyValue> dependencies;
+
+	public DependenciesHandledEvent(ApplicationContext source, Set<PropertyValue> dependencies) {
 		super(source);
+		this.dependencies = dependencies;
+	}
+
+	public final Set<PropertyValue> getDependencies() {
+		return dependencies;
 	}
 
 }

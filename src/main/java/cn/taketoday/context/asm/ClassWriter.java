@@ -268,13 +268,14 @@ public class ClassWriter extends ClassVisitor {
 	 *            computed for these methods</i>.
 	 */
 	public ClassWriter(final ClassReader classReader, final int flags) {
-		super(Opcodes.ASM7);
 		symbolTable = classReader == null ? new SymbolTable(this) : new SymbolTable(this, classReader);
 		if ((flags & COMPUTE_FRAMES) != 0) {
 			this.compute = MethodWriter.COMPUTE_ALL_FRAMES;
-		} else if ((flags & COMPUTE_MAXS) != 0) {
+		}
+		else if ((flags & COMPUTE_MAXS) != 0) {
 			this.compute = MethodWriter.COMPUTE_MAX_STACK_AND_LOCAL;
-		} else {
+		}
+		else {
 			this.compute = MethodWriter.COMPUTE_NOTHING;
 		}
 	}
@@ -317,8 +318,8 @@ public class ClassWriter extends ClassVisitor {
 
 	@Override
 	public final ModuleVisitor visitModule(final String name, final int access, final String version) {
-		return moduleWriter = new ModuleWriter(symbolTable, symbolTable.addConstantModule(name).index, access,
-				version == null ? 0 : symbolTable.addConstantUtf8(version));
+		return moduleWriter = new ModuleWriter(symbolTable, symbolTable.addConstantModule(name).index, access, version == null ? 0
+				: symbolTable.addConstantUtf8(version));
 	}
 
 	@Override
@@ -343,11 +344,10 @@ public class ClassWriter extends ClassVisitor {
 		// Write type_index and reserve space for num_element_value_pairs.
 		annotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
 		if (visible) {
-			return lastRuntimeVisibleAnnotation = new AnnotationWriter(symbolTable, annotation,
-					lastRuntimeVisibleAnnotation);
-		} else {
-			return lastRuntimeInvisibleAnnotation = new AnnotationWriter(symbolTable, annotation,
-					lastRuntimeInvisibleAnnotation);
+			return lastRuntimeVisibleAnnotation = new AnnotationWriter(symbolTable, annotation, lastRuntimeVisibleAnnotation);
+		}
+		else {
+			return lastRuntimeInvisibleAnnotation = new AnnotationWriter(symbolTable, annotation, lastRuntimeInvisibleAnnotation);
 		}
 	}
 
@@ -364,11 +364,10 @@ public class ClassWriter extends ClassVisitor {
 		// Write type_index and reserve space for num_element_value_pairs.
 		typeAnnotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
 		if (visible) {
-			return lastRuntimeVisibleTypeAnnotation = new AnnotationWriter(symbolTable, typeAnnotation,
-					lastRuntimeVisibleTypeAnnotation);
-		} else {
-			return lastRuntimeInvisibleTypeAnnotation = new AnnotationWriter(symbolTable, typeAnnotation,
-					lastRuntimeInvisibleTypeAnnotation);
+			return lastRuntimeVisibleTypeAnnotation = new AnnotationWriter(symbolTable, typeAnnotation, lastRuntimeVisibleTypeAnnotation);
+		}
+		else {
+			return lastRuntimeInvisibleTypeAnnotation = new AnnotationWriter(symbolTable, typeAnnotation, lastRuntimeInvisibleTypeAnnotation);
 		}
 	}
 
@@ -426,7 +425,8 @@ public class ClassWriter extends ClassVisitor {
 		FieldWriter fieldWriter = new FieldWriter(symbolTable, access, name, descriptor, signature, value);
 		if (firstField == null) {
 			firstField = fieldWriter;
-		} else {
+		}
+		else {
 			lastField.fv = fieldWriter;
 		}
 		return lastField = fieldWriter;
@@ -435,11 +435,11 @@ public class ClassWriter extends ClassVisitor {
 	@Override
 	public final MethodVisitor visitMethod(final int access, final String name, final String descriptor,
 			final String signature, final String[] exceptions) {
-		MethodWriter methodWriter = new MethodWriter(symbolTable, access, name, descriptor, signature, exceptions,
-				compute);
+		MethodWriter methodWriter = new MethodWriter(symbolTable, access, name, descriptor, signature, exceptions, compute);
 		if (firstMethod == null) {
 			firstMethod = methodWriter;
-		} else {
+		}
+		else {
 			lastMethod.mv = methodWriter;
 		}
 		return lastMethod = methodWriter;
@@ -539,8 +539,7 @@ public class ClassWriter extends ClassVisitor {
 		}
 		if (lastRuntimeInvisibleTypeAnnotation != null) {
 			++attributesCount;
-			size += lastRuntimeInvisibleTypeAnnotation
-					.computeAnnotationsSize(Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
+			size += lastRuntimeInvisibleTypeAnnotation.computeAnnotationsSize(Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
 		}
 		if (symbolTable.computeBootstrapMethodsSize() > 0) {
 			++attributesCount;
@@ -606,12 +605,12 @@ public class ClassWriter extends ClassVisitor {
 		// of the JVMS.
 		result.putShort(attributesCount);
 		if (innerClasses != null) {
-			result.putShort(symbolTable.addConstantUtf8(Constants.INNER_CLASSES)).putInt(innerClasses.length + 2)
-					.putShort(numberOfInnerClasses).putByteArray(innerClasses.data, 0, innerClasses.length);
+			result.putShort(symbolTable.addConstantUtf8(Constants.INNER_CLASSES)).putInt(innerClasses.length + 2).putShort(
+					numberOfInnerClasses).putByteArray(innerClasses.data, 0, innerClasses.length);
 		}
 		if (enclosingClassIndex != 0) {
-			result.putShort(symbolTable.addConstantUtf8(Constants.ENCLOSING_METHOD)).putInt(4)
-					.putShort(enclosingClassIndex).putShort(enclosingMethodIndex);
+			result.putShort(symbolTable.addConstantUtf8(Constants.ENCLOSING_METHOD)).putInt(4).putShort(enclosingClassIndex).putShort(
+					enclosingMethodIndex);
 		}
 		if ((accessFlags & Opcodes.ACC_SYNTHETIC) != 0 && (version & 0xFFFF) < Opcodes.V1_5) {
 			result.putShort(symbolTable.addConstantUtf8(Constants.SYNTHETIC)).putInt(0);
@@ -624,27 +623,25 @@ public class ClassWriter extends ClassVisitor {
 		}
 		if (debugExtension != null) {
 			int length = debugExtension.length;
-			result.putShort(symbolTable.addConstantUtf8(Constants.SOURCE_DEBUG_EXTENSION)).putInt(length)
-					.putByteArray(debugExtension.data, 0, length);
+			result.putShort(symbolTable.addConstantUtf8(Constants.SOURCE_DEBUG_EXTENSION)).putInt(length).putByteArray(debugExtension.data,
+					0, length);
 		}
 		if ((accessFlags & Opcodes.ACC_DEPRECATED) != 0) {
 			result.putShort(symbolTable.addConstantUtf8(Constants.DEPRECATED)).putInt(0);
 		}
 		if (lastRuntimeVisibleAnnotation != null) {
-			lastRuntimeVisibleAnnotation
-					.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_ANNOTATIONS), result);
+			lastRuntimeVisibleAnnotation.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_ANNOTATIONS), result);
 		}
 		if (lastRuntimeInvisibleAnnotation != null) {
-			lastRuntimeInvisibleAnnotation
-					.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_ANNOTATIONS), result);
+			lastRuntimeInvisibleAnnotation.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_ANNOTATIONS), result);
 		}
 		if (lastRuntimeVisibleTypeAnnotation != null) {
-			lastRuntimeVisibleTypeAnnotation
-					.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS), result);
+			lastRuntimeVisibleTypeAnnotation.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS),
+					result);
 		}
 		if (lastRuntimeInvisibleTypeAnnotation != null) {
-			lastRuntimeInvisibleTypeAnnotation
-					.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS), result);
+			lastRuntimeInvisibleTypeAnnotation.putAnnotations(symbolTable.addConstantUtf8(Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS),
+					result);
 		}
 		symbolTable.putBootstrapMethods(result);
 		if (moduleWriter != null) {
@@ -654,9 +651,8 @@ public class ClassWriter extends ClassVisitor {
 			result.putShort(symbolTable.addConstantUtf8(Constants.NEST_HOST)).putInt(2).putShort(nestHostClassIndex);
 		}
 		if (nestMemberClasses != null) {
-			result.putShort(symbolTable.addConstantUtf8(Constants.NEST_MEMBERS)).putInt(nestMemberClasses.length + 2)
-					.putShort(numberOfNestMemberClasses)
-					.putByteArray(nestMemberClasses.data, 0, nestMemberClasses.length);
+			result.putShort(symbolTable.addConstantUtf8(Constants.NEST_MEMBERS)).putInt(nestMemberClasses.length + 2).putShort(
+					numberOfNestMemberClasses).putByteArray(nestMemberClasses.data, 0, nestMemberClasses.length);
 		}
 		if (firstAttribute != null) {
 			firstAttribute.putAttributes(symbolTable, result);
@@ -665,7 +661,8 @@ public class ClassWriter extends ClassVisitor {
 		// Third step: replace the ASM specific instructions, if any.
 		if (hasAsmInstructions) {
 			return replaceAsmInstructions(result.data, hasFrames);
-		} else {
+		}
+		else {
 			return result.data;
 		}
 	}
@@ -999,13 +996,15 @@ public class ClassWriter extends ClassVisitor {
 		Class<?> class1;
 		try {
 			class1 = Class.forName(type1.replace('/', '.'), false, classLoader);
-		} catch (ClassNotFoundException e) {
+		}
+		catch (ClassNotFoundException e) {
 			throw new TypeNotPresentException(type1, e);
 		}
 		Class<?> class2;
 		try {
 			class2 = Class.forName(type2.replace('/', '.'), false, classLoader);
-		} catch (ClassNotFoundException e) {
+		}
+		catch (ClassNotFoundException e) {
 			throw new TypeNotPresentException(type2, e);
 		}
 		if (class1.isAssignableFrom(class2)) {
@@ -1016,7 +1015,8 @@ public class ClassWriter extends ClassVisitor {
 		}
 		if (class1.isInterface() || class2.isInterface()) {
 			return "java/lang/Object";
-		} else {
+		}
+		else {
 			do {
 				class1 = class1.getSuperclass();
 			} while (!class1.isAssignableFrom(class2));

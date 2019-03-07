@@ -382,7 +382,8 @@ public class Label {
 	final void addLineNumber(final int lineNumber) {
 		if (this.lineNumber == 0) {
 			this.lineNumber = (short) lineNumber;
-		} else {
+		}
+		else {
 			if (otherLineNumbers == null) {
 				otherLineNumbers = new int[LINE_NUMBERS_CAPACITY_INCREMENT];
 			}
@@ -443,14 +444,17 @@ public class Label {
 			if (wideReference) {
 				addForwardReference(sourceInsnBytecodeOffset, FORWARD_REFERENCE_TYPE_WIDE, code.length);
 				code.putInt(-1);
-			} else {
+			}
+			else {
 				addForwardReference(sourceInsnBytecodeOffset, FORWARD_REFERENCE_TYPE_SHORT, code.length);
 				code.putShort(-1);
 			}
-		} else {
+		}
+		else {
 			if (wideReference) {
 				code.putInt(bytecodeOffset - sourceInsnBytecodeOffset);
-			} else {
+			}
+			else {
 				code.putShort(bytecodeOffset - sourceInsnBytecodeOffset);
 			}
 		}
@@ -532,7 +536,8 @@ public class Label {
 					if (opcode < Opcodes.IFNULL) {
 						// Change IFEQ ... JSR to ASM_IFEQ ... ASM_JSR.
 						code[sourceInsnBytecodeOffset] = (byte) (opcode + Constants.ASM_OPCODE_DELTA);
-					} else {
+					}
+					else {
 						// Change IFNULL and IFNONNULL to ASM_IFNULL and ASM_IFNONNULL.
 						code[sourceInsnBytecodeOffset] = (byte) (opcode + Constants.ASM_IFNULL_OPCODE_DELTA);
 					}
@@ -540,7 +545,8 @@ public class Label {
 				}
 				code[handle++] = (byte) (relativeOffset >>> 8);
 				code[handle] = (byte) relativeOffset;
-			} else {
+			}
+			else {
 				code[handle++] = (byte) (relativeOffset >>> 24);
 				code[handle++] = (byte) (relativeOffset >>> 16);
 				code[handle++] = (byte) (relativeOffset >>> 8);
@@ -639,8 +645,7 @@ public class Label {
 			// the end of a subroutine and if this block and subroutineCaller do not belong
 			// to the same
 			// subroutine.
-			if ((basicBlock.flags & FLAG_SUBROUTINE_END) != 0
-					&& basicBlock.subroutineId != subroutineCaller.subroutineId) {
+			if ((basicBlock.flags & FLAG_SUBROUTINE_END) != 0 && basicBlock.subroutineId != subroutineCaller.subroutineId) {
 				basicBlock.outgoingEdges = new Edge(basicBlock.outputStackSize,
 						// By construction, the first outgoing edge of a basic block that ends with a
 						// jsr

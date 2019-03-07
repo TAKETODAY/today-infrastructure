@@ -17,36 +17,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
+package test.demo.service.impl;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.context.Constant;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.Service;
+import test.demo.domain.Config;
+import test.demo.domain.User;
+import test.demo.repository.UserRepository;
+import test.demo.service.UserService;
 
 /**
  * 
  * @author Today <br>
- *         2018-?-? ?:?
+ *         2018-11-15 16:52
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR })
-public @interface Autowired {
+@Service
+public class DefaultUserService implements UserService {
 
-	/**
-	 * Bean name
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+	private final UserRepository userRepository;
 
-	/**
-	 * is required ?
-	 * 
-	 * @return
-	 */
-	boolean required() default true;
+	@Autowired
+	public DefaultUserService(@Autowired(required = true) UserRepository userDao, @Props(prefix = "site.") Config config) {
+		this.userRepository = userDao;
+	}
+
+	@Override
+	public User login(User user) {
+		return userRepository.login(user);
+	}
+
+	@Override
+	public boolean register(User user) {
+		return userRepository.save(user);
+	}
 
 }

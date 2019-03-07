@@ -19,20 +19,27 @@
  */
 package test.context.utils;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
-
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Properties;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ContextUtils;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 
@@ -107,6 +114,61 @@ public class ContextUtilsTest {
 
 		assert resource.getProtocol().equals("file");
 		assert "TODAY BLOG".equals(properties.getProperty("site.name"));
+	}
+
+	@Props(prefix = "site.")
+	Config test;
+
+	@Test
+	public void test_ResolveProps() throws NoSuchFieldException, SecurityException, IOException {
+
+		Field declaredField = ContextUtilsTest.class.getDeclaredField("test");
+		Props declaredAnnotation = declaredField.getDeclaredAnnotation(Props.class);
+
+		URL resource = ClassUtils.getClassLoader().getResource("info.properties");
+		Properties properties = ContextUtils.getUrlAsProperties(resource.getProtocol() + ":" + resource.getPath());
+
+		Config resolveProps = ContextUtils.resolveProps(declaredAnnotation.prefix(), Config.class, properties);
+
+		System.err.println(resolveProps);
+
+		assert "TODAY BLOG".equals(resolveProps.getDescription());
+		assert "https://cdn.taketoday.cn".equals(resolveProps.getCdn());
+		
+		assert 21 == resolveProps.getAdmin().getAge();
+		assert "666".equals(resolveProps.getAdmin().getUserId());
+		assert "TODAY".equals(resolveProps.getAdmin().getUserName());
+	}
+
+	@Getter
+	@Setter
+	@ToString
+	@NoArgsConstructor
+	public static class Config {
+		private String cdn;
+		private String icp;
+		private String host;
+		private File index;
+		private File upload;
+		private String keywords;
+		private String siteName;
+		private String copyright;
+		private File serverPath;
+		private String description;
+
+		@Props
+		UserModel admin;
+	}
+
+	@Getter
+	@Setter
+	@ToString
+	@NoArgsConstructor
+	public static class UserModel {
+
+		private String userId;
+		private String userName;
+		private Integer age;
 	}
 
 }

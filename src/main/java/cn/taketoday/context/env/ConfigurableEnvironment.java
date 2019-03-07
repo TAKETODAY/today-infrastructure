@@ -19,11 +19,13 @@
  */
 package cn.taketoday.context.env;
 
+import java.io.IOException;
+
+import javax.el.ELProcessor;
+
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
-
-import java.io.IOException;
 
 /**
  * Configurable {@link Environment}
@@ -95,5 +97,13 @@ public interface ConfigurableEnvironment extends Environment {
 	 * @since 2.1.1
 	 */
 	ConfigurableEnvironment setBeanNameCreator(BeanNameCreator beanNameCreator);
+
+	/**
+	 * Set {@link ELProcessor}
+	 * 
+	 * @return {@link ELProcessor}
+	 * @since 2.1.5
+	 */
+	ConfigurableEnvironment setELProcessor(ELProcessor processor);
 
 }

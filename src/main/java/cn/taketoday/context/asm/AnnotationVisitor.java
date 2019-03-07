@@ -38,13 +38,6 @@ package cn.taketoday.context.asm;
 public abstract class AnnotationVisitor {
 
 	/**
-	 * The ASM API version implemented by this visitor. The value of this field must
-	 * be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or
-	 * {@link Opcodes#ASM7}. default use asm7
-	 */
-	protected final int api = Opcodes.ASM7;
-
-	/**
 	 * The annotation visitor to which this visitor must delegate method calls. May
 	 * be null.
 	 */

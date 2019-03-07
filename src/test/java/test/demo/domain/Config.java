@@ -19,13 +19,16 @@
  */
 package test.demo.domain;
 
+import java.io.File;
+import java.io.Serializable;
+
+import javax.annotation.PostConstruct;
+
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.annotation.Value;
-
-import java.io.Serializable;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -48,10 +51,10 @@ public final class Config implements Serializable {
 	private String host;
 
 	@Value("#{site.index}")
-	private String index;
+	private File index;
 
 	@Value("#{site.upload}")
-	private String upload;
+	private File upload;
 
 	@Value("#{site.keywords}")
 	private String keywords;
@@ -63,7 +66,7 @@ public final class Config implements Serializable {
 	private String copyright;
 
 	@Value("#{site.server.path}")
-	private String serverPath;
+	private File serverPath;
 
 	@Value("#{site.description}")
 	private String description;
@@ -74,20 +77,55 @@ public final class Config implements Serializable {
 	@Autowired(required = false)
 	User user;
 
+	@Props(prefix = "site.admin.")
+	User admin;
+
+//	@Value(value = "#{user}", required = false)
+//	User user_;
+//
+	@PostConstruct
+	public void init() {
+		System.err.println("admin: " + admin);
+	}
+
 	public Config() {
-		
+
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("{\n\t\"id\":\"").append(id).append("\",\n\t\"cdn\":\"").append(cdn).append("\",\n\t\"icp\":\"").append(icp).append(
-				"\",\n\t\"host\":\"").append(host).append("\",\n\t\"index\":\"").append(index).append("\",\n\t\"upload\":\"").append(
-						upload).append("\",\n\t\"keywords\":\"").append(keywords).append("\",\n\t\"siteName\":\"").append(siteName).append(
-								"\",\n\t\"copyright\":\"").append(copyright).append("\",\n\t\"serverPath\":\"").append(serverPath).append(
-										"\",\n\t\"description\":\"").append(description).append("\",\n\t\"otherFooterInfo\":\"").append(
-												otherFooterInfo).append("\",\n\t\"user\":\"").append(user).append("\"\n}");
+		builder.append("{\n\t\"id\":\"");
+		builder.append(id);
+		builder.append("\", \n\t\"cdn\":\"");
+		builder.append(cdn);
+		builder.append("\", \n\t\"icp\":\"");
+		builder.append(icp);
+		builder.append("\", \n\t\"host\":\"");
+		builder.append(host);
+		builder.append("\", \n\t\"index\":\"");
+		builder.append(index);
+		builder.append("\", \n\t\"upload\":\"");
+		builder.append(upload);
+		builder.append("\", \n\t\"keywords\":\"");
+		builder.append(keywords);
+		builder.append("\", \n\t\"siteName\":\"");
+		builder.append(siteName);
+		builder.append("\", \n\t\"copyright\":\"");
+		builder.append(copyright);
+		builder.append("\", \n\t\"serverPath\":\"");
+		builder.append(serverPath);
+		builder.append("\", \n\t\"description\":\"");
+		builder.append(description);
+		builder.append("\", \n\t\"otherFooterInfo\":\"");
+		builder.append(otherFooterInfo);
+		builder.append("\", \n\t\"user\":\"");
+		builder.append(user);
+		builder.append("\", \n\t\"admin\":\"");
+		builder.append(admin);
+		builder.append("\"\n}");
 		return builder.toString();
 	}
+
 
 }

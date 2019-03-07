@@ -52,7 +52,7 @@ public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean 
 	@PostConstruct
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	public void init2() {
-		log.info("ConfigFactoryBean.init1()");
+		log.info("ConfigFactoryBean.init2()");
 	}
 
 	@Props(value = "info", prefix = "site.")

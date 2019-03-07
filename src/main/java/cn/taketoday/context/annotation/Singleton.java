@@ -19,18 +19,20 @@
  */
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.context.Scope;
-
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.context.Scope;
 
 /**
  * 
  * @author Today <br>
  *         2018-07-02 22:46:11
  */
+@Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Component(scope = Scope.SINGLETON)

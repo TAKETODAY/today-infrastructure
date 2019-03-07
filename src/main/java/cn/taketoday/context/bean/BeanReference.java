@@ -20,7 +20,6 @@
 package cn.taketoday.context.bean;
 
 import lombok.Getter;
-import lombok.Setter;
 
 /***
  * 
@@ -29,21 +28,26 @@ import lombok.Setter;
  * @author Today <br>
  *         2018-06-23 11:27:30
  */
-@Setter
 @Getter
-public class BeanReference {
+public final class BeanReference {
 
 	/** reference name */
-	private String name;
+	private final String name;
 	/** required? **/
-	private boolean required = true;
+	private final boolean required;
 
 	/**
 	 * record reference type
 	 * 
 	 * @since v2.1.2
 	 */
-	private Class<?> referenceClass;
+	private final Class<?> referenceClass;
+
+	public BeanReference(String name, boolean required, Class<?> referenceClass) {
+		this.name = name;
+		this.required = required;
+		this.referenceClass = referenceClass;
+	}
 
 	@Override
 	public String toString() {

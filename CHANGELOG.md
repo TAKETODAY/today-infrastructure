@@ -200,7 +200,12 @@ public void test_Conditional() {
 - fix some singletons could not be initialized.
 
 > ## v2.1.5
-- add context `state` feature
+- feat: Add context `state` feature
+- fix: `StandardEnvironment`.`addActiveProfile()` when add profile before load context it is not work
+- feat: support `Constructor` injection
+- adjust: Adjust context event
+- feat: Enhance `Props`
+- fix: When manually load context some properties can't be loaded
 
 
 

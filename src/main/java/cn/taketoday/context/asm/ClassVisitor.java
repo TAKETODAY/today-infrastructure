@@ -41,13 +41,6 @@ package cn.taketoday.context.asm;
 public abstract class ClassVisitor {
 
 	/**
-	 * The ASM API version implemented by this visitor. The value of this field must
-	 * be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or
-	 * {@link Opcodes#ASM7}.
-	 */
-	protected final int api;
-
-	/**
 	 * The class visitor to which this visitor must delegate method calls. May be
 	 * null.
 	 */
@@ -55,32 +48,19 @@ public abstract class ClassVisitor {
 
 	/**
 	 * Constructs a new {@link ClassVisitor}.
-	 *
-	 * @param api
-	 *            the ASM API version implemented by this visitor. Must be one of
-	 *            {@link Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}
-	 *            or {@link Opcodes#ASM7}.
 	 */
-	public ClassVisitor(final int api) {
-		this(api, null);
+	public ClassVisitor() {
+		this(null);
 	}
 
 	/**
 	 * Constructs a new {@link ClassVisitor}.
 	 *
-	 * @param api
-	 *            the ASM API version implemented by this visitor. Must be one of
-	 *            {@link Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}
-	 *            or {@link Opcodes#ASM7}.
 	 * @param classVisitor
 	 *            the class visitor to which this visitor must delegate method
 	 *            calls. May be null.
 	 */
-	public ClassVisitor(final int api, final ClassVisitor classVisitor) {
-		if (api != Opcodes.ASM6 && api != Opcodes.ASM5 && api != Opcodes.ASM4 && api != Opcodes.ASM7) {
-			throw new IllegalArgumentException();
-		}
-		this.api = api;
+	public ClassVisitor(final ClassVisitor classVisitor) {
 		this.cv = classVisitor;
 	}
 
@@ -112,7 +92,7 @@ public abstract class ClassVisitor {
 	 */
 	public void visit(final int version, final int access, //
 			final String name, final String signature, final String superName, final String[] interfaces) {
-		
+
 		if (cv != null) {
 			cv.visit(version, access, name, signature, superName, interfaces);
 		}
@@ -150,9 +130,6 @@ public abstract class ClassVisitor {
 	 *         visitor is not interested in visiting this module.
 	 */
 	public ModuleVisitor visitModule(final String name, final int access, final String version) {
-		if (api < Opcodes.ASM6) {
-			throw new UnsupportedOperationException("This feature requires ASM6");
-		}
 		if (cv != null) {
 			return cv.visitModule(name, access, version);
 		}
@@ -172,9 +149,6 @@ public abstract class ClassVisitor {
 	 *            the internal name of the host class of the nest.
 	 */
 	public void visitNestHost(final String nestHost) {
-		if (api < Opcodes.ASM7) {
-			throw new UnsupportedOperationException("This feature requires ASM7");
-		}
 		if (cv != null) {
 			cv.visitNestHost(nestHost);
 		}
@@ -237,10 +211,8 @@ public abstract class ClassVisitor {
 	 *         visitor is not interested in visiting this annotation.
 	 */
 	public AnnotationVisitor visitTypeAnnotation(final int typeRef, final TypePath typePath, final String descriptor,
-			final boolean visible) {
-		if (api < Opcodes.ASM5) {
-			throw new UnsupportedOperationException("This feature requires ASM5");
-		}
+			final boolean visible) //
+	{
 		if (cv != null) {
 			return cv.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
 		}
@@ -271,9 +243,6 @@ public abstract class ClassVisitor {
 	 *            the internal name of a nest member.
 	 */
 	public void visitNestMember(final String nestMember) {
-		if (api < Opcodes.ASM7) {
-			throw new UnsupportedOperationException("This feature requires ASM7");
-		}
 		if (cv != null) {
 			cv.visitNestMember(nestMember);
 		}
@@ -331,7 +300,8 @@ public abstract class ClassVisitor {
 	 *         these annotations and attributes.
 	 */
 	public FieldVisitor visitField(final int access, final String name, final String descriptor, final String signature,
-			final Object value) {
+			final Object value) //
+	{
 		if (cv != null) {
 			return cv.visitField(access, name, descriptor, signature, value);
 		}
@@ -361,7 +331,8 @@ public abstract class ClassVisitor {
 	 *         method.
 	 */
 	public MethodVisitor visitMethod(final int access, final String name, final String descriptor,
-			final String signature, final String[] exceptions) {
+			final String signature, final String[] exceptions) //
+	{
 		if (cv != null) {
 			return cv.visitMethod(access, name, descriptor, signature, exceptions);
 		}

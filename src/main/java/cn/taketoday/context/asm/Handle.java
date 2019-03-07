@@ -179,8 +179,8 @@ public final class Handle {
 			return false;
 		}
 		Handle handle = (Handle) object;
-		return tag == handle.tag && isInterface == handle.isInterface && owner.equals(handle.owner)
-				&& name.equals(handle.name) && descriptor.equals(handle.descriptor);
+		return tag == handle.tag && isInterface == handle.isInterface && owner.equals(handle.owner) && name.equals(
+				handle.name) && descriptor.equals(handle.descriptor);
 	}
 
 	@Override

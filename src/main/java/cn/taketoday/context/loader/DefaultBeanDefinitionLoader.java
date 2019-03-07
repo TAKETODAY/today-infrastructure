@@ -19,6 +19,10 @@
  */
 package cn.taketoday.context.loader;
 
+import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.Objects;
+
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -37,10 +41,6 @@ import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
-import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.Objects;
-
 /**
  * Default Bean Definition Loader implements
  * 
@@ -57,14 +57,12 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 	public DefaultBeanDefinitionLoader(ConfigurableApplicationContext applicationContext) {
 
-		Objects.requireNonNull(applicationContext, "applicationContext can't be null");
+		this.applicationContext = //
+				Objects.requireNonNull(applicationContext, "applicationContext can't be null");
 
-		this.applicationContext = applicationContext;
 		ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
-		environment.setBeanDefinitionLoader(this);
-
-		this.registry = applicationContext;
+		this.registry = environment.getBeanDefinitionRegistry();
 		this.beanNameCreator = environment.getBeanNameCreator();
 	}
 
@@ -75,7 +73,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
 	@Override
 	public void loadBeanDefinition(Class<?> beanClass) throws BeanDefinitionStoreException {
-		
+
 		if (Modifier.isAbstract(beanClass.getModifiers())) {
 			return; // don't load abstract class
 		}
@@ -206,9 +204,9 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 			registry.registerBeanDefinition(name, beanDefinition);
 		}
 		catch (Throwable ex) {
-
+			ex = ExceptionUtils.unwrapThrowable(ex);
 			throw new BeanDefinitionStoreException("An Exception Occurred When Register Bean Definition: [{}], With Msg: [{}]", //
-					name, ex.getMessage(), ExceptionUtils.unwrapThrowable(ex));
+					name, ex.getMessage(), ex);
 		}
 	}
 
@@ -254,7 +252,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	@Override
 	public BeanDefinition createBeanDefinition(Class<?> beanClass) {
 
-		BeanDefinition beanDefinition = //
+		final BeanDefinition beanDefinition = //
 				new DefaultBeanDefinition(beanNameCreator.create(beanClass), beanClass)//
 						.setDestroyMethods(new String[0])//
 						.setAbstract(Modifier.isAbstract(beanClass.getModifiers()))//
@@ -263,7 +261,8 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 		try {
 
 			ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
-			// process property
+
+			// process property and init methods
 			return beanDefinition.setInitMethods(ContextUtils.resolveInitMethod(beanClass))//
 					.setPropertyValues(ContextUtils.resolvePropertyValue(beanClass, this.applicationContext));
 		}

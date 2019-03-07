@@ -38,11 +38,6 @@ package cn.taketoday.context.asm;
  * @author Eric Bruneton
  */
 public abstract class ModuleVisitor {
-	/**
-	 * The ASM API version implemented by this visitor. The value of this field must
-	 * be one of {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
-	 */
-	protected final int api;
 
 	/**
 	 * The module visitor to which this visitor must delegate method calls. May be
@@ -53,29 +48,19 @@ public abstract class ModuleVisitor {
 	/**
 	 * Constructs a new {@link ModuleVisitor}.
 	 *
-	 * @param api
-	 *            the ASM API version implemented by this visitor. Must be one of
-	 *            {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
 	 */
-	public ModuleVisitor(final int api) {
-		this(api, null);
+	public ModuleVisitor() {
+		this(null);
 	}
 
 	/**
 	 * Constructs a new {@link ModuleVisitor}.
 	 *
-	 * @param api
-	 *            the ASM API version implemented by this visitor. Must be one of
-	 *            {@link Opcodes#ASM6} or {@link Opcodes#ASM7}.
 	 * @param moduleVisitor
 	 *            the module visitor to which this visitor must delegate method
 	 *            calls. May be null.
 	 */
-	public ModuleVisitor(final int api, final ModuleVisitor moduleVisitor) {
-		if (api != Opcodes.ASM6 && api != Opcodes.ASM7) {
-			throw new IllegalArgumentException();
-		}
-		this.api = api;
+	public ModuleVisitor(final ModuleVisitor moduleVisitor) {
 		this.mv = moduleVisitor;
 	}
 

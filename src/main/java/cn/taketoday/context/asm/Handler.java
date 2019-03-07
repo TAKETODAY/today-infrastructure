@@ -129,7 +129,8 @@ final class Handler {
 	static Handler removeRange(final Handler firstHandler, final Label start, final Label end) {
 		if (firstHandler == null) {
 			return null;
-		} else {
+		}
+		else {
 			firstHandler.nextHandler = removeRange(firstHandler.nextHandler, start, end);
 		}
 		int handlerStart = firstHandler.startPc.bytecodeOffset;
@@ -146,14 +147,17 @@ final class Handler {
 				// If [handlerStart,handlerEnd[ is included in [rangeStart,rangeEnd[, remove
 				// firstHandler.
 				return firstHandler.nextHandler;
-			} else {
+			}
+			else {
 				// [handlerStart,handlerEnd[ - [rangeStart,rangeEnd[ = [rangeEnd,handlerEnd[
 				return new Handler(firstHandler, end, firstHandler.endPc);
 			}
-		} else if (rangeEnd >= handlerEnd) {
+		}
+		else if (rangeEnd >= handlerEnd) {
 			// [handlerStart,handlerEnd[ - [rangeStart,rangeEnd[ = [handlerStart,rangeStart[
 			return new Handler(firstHandler, firstHandler.startPc, start);
-		} else {
+		}
+		else {
 			// [handlerStart,handlerEnd[ - [rangeStart,rangeEnd[ =
 			// [handlerStart,rangeStart[ + [rangeEnd,handerEnd[
 			firstHandler.nextHandler = new Handler(firstHandler, end, firstHandler.endPc);
@@ -209,8 +213,8 @@ final class Handler {
 		output.putShort(getExceptionTableLength(firstHandler));
 		Handler handler = firstHandler;
 		while (handler != null) {
-			output.putShort(handler.startPc.bytecodeOffset).putShort(handler.endPc.bytecodeOffset)
-					.putShort(handler.handlerPc.bytecodeOffset).putShort(handler.catchType);
+			output.putShort(handler.startPc.bytecodeOffset).putShort(handler.endPc.bytecodeOffset).putShort(
+					handler.handlerPc.bytecodeOffset).putShort(handler.catchType);
 			handler = handler.nextHandler;
 		}
 	}

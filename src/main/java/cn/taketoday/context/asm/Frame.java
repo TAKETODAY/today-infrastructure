@@ -314,10 +314,12 @@ class Frame {
 	static int getAbstractTypeFromApiFormat(final SymbolTable symbolTable, final Object type) {
 		if (type instanceof Integer) {
 			return CONSTANT_KIND | ((Integer) type).intValue();
-		} else if (type instanceof String) {
+		}
+		else if (type instanceof String) {
 			String descriptor = Type.getObjectType((String) type).getDescriptor();
 			return getAbstractTypeFromDescriptor(symbolTable, descriptor, 0);
-		} else {
+		}
+		else {
 			return UNINITIALIZED_KIND | symbolTable.addUninitializedType("", ((Label) type).bytecodeOffset);
 		}
 	}
@@ -440,7 +442,8 @@ class Frame {
 		if ((access & Opcodes.ACC_STATIC) == 0) {
 			if ((access & Constants.ACC_CONSTRUCTOR) == 0) {
 				inputLocals[inputLocalIndex++] = REFERENCE_KIND | symbolTable.addType(symbolTable.getClassName());
-			} else {
+			}
+			else {
 				inputLocals[inputLocalIndex++] = UNINITIALIZED_THIS;
 			}
 		}
@@ -525,7 +528,8 @@ class Frame {
 			// to its value
 			// in the input frame.
 			return LOCAL_KIND | localIndex;
-		} else {
+		}
+		else {
 			int abstractType = outputLocals[localIndex];
 			if (abstractType == 0) {
 				// If this local has never been assigned in this basic block, so it is still
@@ -618,7 +622,8 @@ class Frame {
 	private int pop() {
 		if (outputStackTop > 0) {
 			return outputStack[--outputStackTop];
-		} else {
+		}
+		else {
 			// If the output frame stack is empty, pop from the input stack.
 			return STACK_KIND | -(--outputStackStart);
 		}
@@ -633,7 +638,8 @@ class Frame {
 	private void pop(final int elements) {
 		if (outputStackTop >= elements) {
 			outputStackTop -= elements;
-		} else {
+		}
+		else {
 			// If the number of elements to be popped is greater than the number of elements
 			// in the output
 			// stack, clear it, and pop the remaining elements from the input stack.
@@ -654,9 +660,11 @@ class Frame {
 		char firstDescriptorChar = descriptor.charAt(0);
 		if (firstDescriptorChar == '(') {
 			pop((Type.getArgumentsAndReturnSizes(descriptor) >> 2) - 1);
-		} else if (firstDescriptorChar == 'J' || firstDescriptorChar == 'D') {
+		}
+		else if (firstDescriptorChar == 'J' || firstDescriptorChar == 'D') {
 			pop(2);
-		} else {
+		}
+		else {
 			pop(1);
 		}
 	}
@@ -709,15 +717,16 @@ class Frame {
 				int value = initializedType & VALUE_MASK;
 				if (kind == LOCAL_KIND) {
 					initializedType = dim + inputLocals[value];
-				} else if (kind == STACK_KIND) {
+				}
+				else if (kind == STACK_KIND) {
 					initializedType = dim + inputStack[inputStack.length - value];
 				}
 				if (abstractType == initializedType) {
 					if (abstractType == UNINITIALIZED_THIS) {
 						return REFERENCE_KIND | symbolTable.addType(symbolTable.getClassName());
-					} else {
-						return REFERENCE_KIND
-								| symbolTable.addType(symbolTable.getType(abstractType & VALUE_MASK).value);
+					}
+					else {
+						return REFERENCE_KIND | symbolTable.addType(symbolTable.getType(abstractType & VALUE_MASK).value);
 					}
 				}
 			}
@@ -859,8 +868,8 @@ class Frame {
 					int previousLocalType = getLocal(arg - 1);
 					if (previousLocalType == LONG || previousLocalType == DOUBLE) {
 						setLocal(arg - 1, TOP);
-					} else if ((previousLocalType & KIND_MASK) == LOCAL_KIND
-							|| (previousLocalType & KIND_MASK) == STACK_KIND) {
+					}
+					else if ((previousLocalType & KIND_MASK) == LOCAL_KIND || (previousLocalType & KIND_MASK) == STACK_KIND) {
 						// The type of the previous local variable is not known yet, but if it later
 						// appears
 						// to be LONG or DOUBLE, we should then use TOP instead.
@@ -878,8 +887,8 @@ class Frame {
 					int previousLocalType = getLocal(arg - 1);
 					if (previousLocalType == LONG || previousLocalType == DOUBLE) {
 						setLocal(arg - 1, TOP);
-					} else if ((previousLocalType & KIND_MASK) == LOCAL_KIND
-							|| (previousLocalType & KIND_MASK) == STACK_KIND) {
+					}
+					else if ((previousLocalType & KIND_MASK) == LOCAL_KIND || (previousLocalType & KIND_MASK) == STACK_KIND) {
 						// The type of the previous local variable is not known yet, but if it later
 						// appears
 						// to be LONG or DOUBLE, we should then use TOP instead.
@@ -1154,7 +1163,8 @@ class Frame {
 				pop();
 				if (arrayElementType.charAt(0) == '[') {
 					push(symbolTable, '[' + arrayElementType);
-				} else {
+				}
+				else {
 					push(ARRAY_OF | REFERENCE_KIND | symbolTable.addType(arrayElementType));
 				}
 				break;
@@ -1163,7 +1173,8 @@ class Frame {
 				pop();
 				if (castType.charAt(0) == '[') {
 					push(symbolTable, castType);
-				} else {
+				}
+				else {
 					push(REFERENCE_KIND | symbolTable.addType(castType));
 				}
 				break;
@@ -1222,7 +1233,8 @@ class Frame {
 					// equal to its
 					// value at the beginning of the block.
 					concreteOutputType = inputLocals[i];
-				} else {
+				}
+				else {
 					int dim = abstractOutputType & DIM_MASK;
 					int kind = abstractOutputType & KIND_MASK;
 					if (kind == LOCAL_KIND) {
@@ -1232,26 +1244,27 @@ class Frame {
 						// when
 						// this method is called, but was not when the abstract type was computed).
 						concreteOutputType = dim + inputLocals[abstractOutputType & VALUE_MASK];
-						if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0
-								&& (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
+						if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0 && (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
 							concreteOutputType = TOP;
 						}
-					} else if (kind == STACK_KIND) {
+					}
+					else if (kind == STACK_KIND) {
 						// By definition, a STACK_KIND type designates the concrete type of a local
 						// variable at
 						// the beginning of the basic block corresponding to this frame (which is known
 						// when
 						// this method is called, but was not when the abstract type was computed).
 						concreteOutputType = dim + inputStack[numStack - (abstractOutputType & VALUE_MASK)];
-						if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0
-								&& (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
+						if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0 && (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
 							concreteOutputType = TOP;
 						}
-					} else {
+					}
+					else {
 						concreteOutputType = abstractOutputType;
 					}
 				}
-			} else {
+			}
+			else {
 				// If the local variable has never been assigned in this basic block, it is
 				// equal to its
 				// value at the beginning of the block.
@@ -1321,17 +1334,17 @@ class Frame {
 			int kind = abstractOutputType & KIND_MASK;
 			if (kind == LOCAL_KIND) {
 				concreteOutputType = dim + inputLocals[abstractOutputType & VALUE_MASK];
-				if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0
-						&& (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
+				if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0 && (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
 					concreteOutputType = TOP;
 				}
-			} else if (kind == STACK_KIND) {
+			}
+			else if (kind == STACK_KIND) {
 				concreteOutputType = dim + inputStack[numStack - (abstractOutputType & VALUE_MASK)];
-				if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0
-						&& (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
+				if ((abstractOutputType & TOP_IF_LONG_OR_DOUBLE_FLAG) != 0 && (concreteOutputType == LONG || concreteOutputType == DOUBLE)) {
 					concreteOutputType = TOP;
 				}
-			} else {
+			}
+			else {
 				concreteOutputType = abstractOutputType;
 			}
 			if (initializations != null) {
@@ -1392,22 +1405,25 @@ class Frame {
 				// If srcType is the NULL type, merge(srcType, dstType) = dstType, so there is
 				// no change.
 				return false;
-			} else if ((srcType & (DIM_MASK | KIND_MASK)) == (dstType & (DIM_MASK | KIND_MASK))) {
+			}
+			else if ((srcType & (DIM_MASK | KIND_MASK)) == (dstType & (DIM_MASK | KIND_MASK))) {
 				// If srcType has the same array dimension and the same kind as dstType.
 				if ((dstType & KIND_MASK) == REFERENCE_KIND) {
 					// If srcType and dstType are reference types with the same array dimension,
 					// merge(srcType, dstType) = dim(srcType) | common super class of srcType and
 					// dstType.
-					mergedType = (srcType & DIM_MASK) | REFERENCE_KIND
-							| symbolTable.addMergedType(srcType & VALUE_MASK, dstType & VALUE_MASK);
-				} else {
+					mergedType = (srcType & DIM_MASK) | REFERENCE_KIND | symbolTable.addMergedType(srcType & VALUE_MASK,
+							dstType & VALUE_MASK);
+				}
+				else {
 					// If srcType and dstType are array types of equal dimension but different
 					// element types,
 					// merge(srcType, dstType) = dim(srcType) - 1 | java/lang/Object.
 					int mergedDim = ELEMENT_OF + (srcType & DIM_MASK);
 					mergedType = mergedDim | REFERENCE_KIND | symbolTable.addType("java/lang/Object");
 				}
-			} else if ((srcType & DIM_MASK) != 0 || (srcType & KIND_MASK) == REFERENCE_KIND) {
+			}
+			else if ((srcType & DIM_MASK) != 0 || (srcType & KIND_MASK) == REFERENCE_KIND) {
 				// If srcType is any other reference or array type,
 				// merge(srcType, dstType) = min(srcDdim, dstDim) | java/lang/Object
 				// where srcDim is the array dimension of srcType, minus 1 if srcType is an
@@ -1422,16 +1438,19 @@ class Frame {
 					dstDim = ELEMENT_OF + dstDim;
 				}
 				mergedType = Math.min(srcDim, dstDim) | REFERENCE_KIND | symbolTable.addType("java/lang/Object");
-			} else {
+			}
+			else {
 				// If srcType is any other type, merge(srcType, dstType) = TOP.
 				mergedType = TOP;
 			}
-		} else if (dstType == NULL) {
+		}
+		else if (dstType == NULL) {
 			// If dstType is the NULL type, merge(srcType, dstType) = srcType, or TOP if
 			// srcType is not a
 			// an array type or a reference type.
 			mergedType = (srcType & DIM_MASK) != 0 || (srcType & KIND_MASK) == REFERENCE_KIND ? srcType : TOP;
-		} else {
+		}
+		else {
 			// If dstType is any other type, merge(srcType, dstType) = TOP whatever srcType.
 			mergedType = TOP;
 		}
@@ -1469,7 +1488,8 @@ class Frame {
 			i += (localType == LONG || localType == DOUBLE) ? 2 : 1;
 			if (localType == TOP) {
 				numTrailingTop++;
-			} else {
+			}
+			else {
 				numLocal += numTrailingTop + 1;
 				numTrailingTop = 0;
 			}
@@ -1527,8 +1547,7 @@ class Frame {
 					output.putByte(typeValue);
 					break;
 				case REFERENCE_KIND :
-					output.putByte(ITEM_OBJECT)
-							.putShort(symbolTable.addConstantClass(symbolTable.getType(typeValue).value).index);
+					output.putByte(ITEM_OBJECT).putShort(symbolTable.addConstantClass(symbolTable.getType(typeValue).value).index);
 					break;
 				case UNINITIALIZED_KIND :
 					output.putByte(ITEM_UNINITIALIZED).putShort((int) symbolTable.getType(typeValue).data);
@@ -1536,7 +1555,8 @@ class Frame {
 				default:
 					throw new AssertionError();
 			}
-		} else {
+		}
+		else {
 			// Case of an array type, we need to build its descriptor first.
 			StringBuilder typeDescriptor = new StringBuilder();
 			while (arrayDimensions-- > 0) {
@@ -1544,7 +1564,8 @@ class Frame {
 			}
 			if ((abstractType & KIND_MASK) == REFERENCE_KIND) {
 				typeDescriptor.append('L').append(symbolTable.getType(abstractType & VALUE_MASK).value).append(';');
-			} else {
+			}
+			else {
 				switch (abstractType & VALUE_MASK)
 				{
 					case Frame.ITEM_ASM_BOOLEAN :

@@ -3,6 +3,8 @@ package test.context;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 
+import org.junit.Test;
+
 import test.demo.domain.Config;
 
 /**
@@ -16,7 +18,7 @@ public class BenchmarkTest {
 	private long times = 5000;
 //	private long times = 5000000;
 
-//	@Test
+	@Test
 	public void testSingleton() {
 		long start = System.currentTimeMillis();
 		ApplicationContext applicationContext = new StandardApplicationContext();

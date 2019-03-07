@@ -19,13 +19,14 @@
  */
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.Scope;
-
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.Scope;
 
 /**
  * Context will create a bean definition when current context were missing
@@ -33,6 +34,7 @@ import java.lang.annotation.Target;
  * @author TODAY <br>
  *         2019-01-31 14:36
  */
+@Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface MissingBean {

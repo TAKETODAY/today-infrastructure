@@ -175,66 +175,80 @@ final class AnnotationWriter extends AnnotationVisitor {
 		}
 		if (value instanceof String) {
 			annotation.put12('s', symbolTable.addConstantUtf8((String) value));
-		} else if (value instanceof Byte) {
+		}
+		else if (value instanceof Byte) {
 			annotation.put12('B', symbolTable.addConstantInteger(((Byte) value).byteValue()).index);
-		} else if (value instanceof Boolean) {
+		}
+		else if (value instanceof Boolean) {
 			int booleanValue = ((Boolean) value).booleanValue() ? 1 : 0;
 			annotation.put12('Z', symbolTable.addConstantInteger(booleanValue).index);
-		} else if (value instanceof Character) {
+		}
+		else if (value instanceof Character) {
 			annotation.put12('C', symbolTable.addConstantInteger(((Character) value).charValue()).index);
-		} else if (value instanceof Short) {
+		}
+		else if (value instanceof Short) {
 			annotation.put12('S', symbolTable.addConstantInteger(((Short) value).shortValue()).index);
-		} else if (value instanceof Type) {
+		}
+		else if (value instanceof Type) {
 			annotation.put12('c', symbolTable.addConstantUtf8(((Type) value).getDescriptor()));
-		} else if (value instanceof byte[]) {
+		}
+		else if (value instanceof byte[]) {
 			byte[] byteArray = (byte[]) value;
 			annotation.put12('[', byteArray.length);
 			for (byte byteValue : byteArray) {
 				annotation.put12('B', symbolTable.addConstantInteger(byteValue).index);
 			}
-		} else if (value instanceof boolean[]) {
+		}
+		else if (value instanceof boolean[]) {
 			boolean[] booleanArray = (boolean[]) value;
 			annotation.put12('[', booleanArray.length);
 			for (boolean booleanValue : booleanArray) {
 				annotation.put12('Z', symbolTable.addConstantInteger(booleanValue ? 1 : 0).index);
 			}
-		} else if (value instanceof short[]) {
+		}
+		else if (value instanceof short[]) {
 			short[] shortArray = (short[]) value;
 			annotation.put12('[', shortArray.length);
 			for (short shortValue : shortArray) {
 				annotation.put12('S', symbolTable.addConstantInteger(shortValue).index);
 			}
-		} else if (value instanceof char[]) {
+		}
+		else if (value instanceof char[]) {
 			char[] charArray = (char[]) value;
 			annotation.put12('[', charArray.length);
 			for (char charValue : charArray) {
 				annotation.put12('C', symbolTable.addConstantInteger(charValue).index);
 			}
-		} else if (value instanceof int[]) {
+		}
+		else if (value instanceof int[]) {
 			int[] intArray = (int[]) value;
 			annotation.put12('[', intArray.length);
 			for (int intValue : intArray) {
 				annotation.put12('I', symbolTable.addConstantInteger(intValue).index);
 			}
-		} else if (value instanceof long[]) {
+		}
+		else if (value instanceof long[]) {
 			long[] longArray = (long[]) value;
 			annotation.put12('[', longArray.length);
 			for (long longValue : longArray) {
 				annotation.put12('J', symbolTable.addConstantLong(longValue).index);
 			}
-		} else if (value instanceof float[]) {
+		}
+		else if (value instanceof float[]) {
 			float[] floatArray = (float[]) value;
 			annotation.put12('[', floatArray.length);
 			for (float floatValue : floatArray) {
 				annotation.put12('F', symbolTable.addConstantFloat(floatValue).index);
 			}
-		} else if (value instanceof double[]) {
+		}
+		else if (value instanceof double[]) {
 			double[] doubleArray = (double[]) value;
 			annotation.put12('[', doubleArray.length);
 			for (double doubleValue : doubleArray) {
 				annotation.put12('D', symbolTable.addConstantDouble(doubleValue).index);
 			}
-		} else {
+		}
+		else {
 			Symbol symbol = symbolTable.addConstant(value);
 			annotation.put12(".s.IFJDCS".charAt(symbol.tag), symbol.index);
 		}

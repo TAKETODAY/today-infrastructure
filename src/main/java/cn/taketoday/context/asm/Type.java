@@ -199,21 +199,29 @@ public final class Type {
 		if (clazz.isPrimitive()) {
 			if (clazz == Integer.TYPE) {
 				return INT_TYPE;
-			} else if (clazz == Void.TYPE) {
+			}
+			else if (clazz == Void.TYPE) {
 				return VOID_TYPE;
-			} else if (clazz == Boolean.TYPE) {
+			}
+			else if (clazz == Boolean.TYPE) {
 				return BOOLEAN_TYPE;
-			} else if (clazz == Byte.TYPE) {
+			}
+			else if (clazz == Byte.TYPE) {
 				return BYTE_TYPE;
-			} else if (clazz == Character.TYPE) {
+			}
+			else if (clazz == Character.TYPE) {
 				return CHAR_TYPE;
-			} else if (clazz == Short.TYPE) {
+			}
+			else if (clazz == Short.TYPE) {
 				return SHORT_TYPE;
-			} else if (clazz == Double.TYPE) {
+			}
+			else if (clazz == Double.TYPE) {
 				return DOUBLE_TYPE;
-			} else if (clazz == Float.TYPE) {
+			}
+			else if (clazz == Float.TYPE) {
 				return FLOAT_TYPE;
-			} else if (clazz == Long.TYPE) {
+			}
+			else if (clazz == Long.TYPE) {
 				return LONG_TYPE;
 			}
 			throw new AssertionError();
@@ -344,8 +352,8 @@ public final class Type {
 				// Skip the argument descriptor content.
 				currentOffset = methodDescriptor.indexOf(';', currentOffset) + 1;
 			}
-			argumentTypes[currentArgumentTypeIndex++] = getTypeInternal(methodDescriptor, currentArgumentTypeOffset,
-					currentOffset);
+			argumentTypes[currentArgumentTypeIndex++] = //
+					getTypeInternal(methodDescriptor, currentArgumentTypeOffset, currentOffset);
 		}
 		return argumentTypes;
 	}
@@ -542,7 +550,8 @@ public final class Type {
 	public String getDescriptor() {
 		if (sort == OBJECT) {
 			return valueBuffer.substring(valueBegin - 1, valueEnd + 1);
-		} else if (sort == INTERNAL) {
+		}
+		else if (sort == INTERNAL) {
 			return new StringBuilder()//
 					.append('L')//
 					.append(valueBuffer, valueBegin, valueEnd)//
@@ -630,9 +639,11 @@ public final class Type {
 	private void appendDescriptor(final StringBuilder stringBuilder) {
 		if (sort == OBJECT) {
 			stringBuilder.append(valueBuffer, valueBegin - 1, valueEnd + 1);
-		} else if (sort == INTERNAL) {
+		}
+		else if (sort == INTERNAL) {
 			stringBuilder.append('L').append(valueBuffer, valueBegin, valueEnd).append(';');
-		} else {
+		}
+		else {
 			stringBuilder.append(valueBuffer, valueBegin, valueEnd);
 		}
 	}
@@ -655,27 +666,37 @@ public final class Type {
 			char descriptor;
 			if (currentClass == Integer.TYPE) {
 				descriptor = 'I';
-			} else if (currentClass == Void.TYPE) {
+			}
+			else if (currentClass == Void.TYPE) {
 				descriptor = 'V';
-			} else if (currentClass == Boolean.TYPE) {
+			}
+			else if (currentClass == Boolean.TYPE) {
 				descriptor = 'Z';
-			} else if (currentClass == Byte.TYPE) {
+			}
+			else if (currentClass == Byte.TYPE) {
 				descriptor = 'B';
-			} else if (currentClass == Character.TYPE) {
+			}
+			else if (currentClass == Character.TYPE) {
 				descriptor = 'C';
-			} else if (currentClass == Short.TYPE) {
+			}
+			else if (currentClass == Short.TYPE) {
 				descriptor = 'S';
-			} else if (currentClass == Double.TYPE) {
+			}
+			else if (currentClass == Double.TYPE) {
 				descriptor = 'D';
-			} else if (currentClass == Float.TYPE) {
+			}
+			else if (currentClass == Float.TYPE) {
 				descriptor = 'F';
-			} else if (currentClass == Long.TYPE) {
+			}
+			else if (currentClass == Long.TYPE) {
 				descriptor = 'J';
-			} else {
+			}
+			else {
 				throw new AssertionError();
 			}
 			stringBuilder.append(descriptor);
-		} else {
+		}
+		else {
 			stringBuilder.append('L');
 			String name = currentClass.getName();
 			int nameLength = name.length();
@@ -785,7 +806,8 @@ public final class Type {
 			if (currentChar == 'J' || currentChar == 'D') {
 				currentOffset++;
 				argumentsSize += 2;
-			} else {
+			}
+			else {
 				while (methodDescriptor.charAt(currentOffset) == '[') {
 					currentOffset++;
 				}
@@ -800,7 +822,8 @@ public final class Type {
 		currentChar = methodDescriptor.charAt(currentOffset + 1);
 		if (currentChar == 'V') {
 			return argumentsSize << 2;
-		} else {
+		}
+		else {
 			int returnSize = (currentChar == 'J' || currentChar == 'D') ? 2 : 1;
 			return argumentsSize << 2 | returnSize;
 		}
@@ -847,7 +870,8 @@ public final class Type {
 				default:
 					throw new AssertionError();
 			}
-		} else {
+		}
+		else {
 			switch (sort)
 			{
 				case VOID :

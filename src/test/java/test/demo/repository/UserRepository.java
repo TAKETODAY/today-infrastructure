@@ -17,36 +17,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.annotation;
+package test.demo.repository;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.context.Constant;
+import test.demo.domain.User;
 
 /**
- * 
- * @author Today <br>
- *         2018-?-? ?:?
+ * @author Today
+ * @date 2018年7月6日 下午5:33:16
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR })
-public @interface Autowired {
+public interface UserRepository {
 
-	/**
-	 * Bean name
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+	public boolean save(User user);
 
-	/**
-	 * is required ?
-	 * 
-	 * @return
-	 */
-	boolean required() default true;
+	public User login(User user);
 
 }

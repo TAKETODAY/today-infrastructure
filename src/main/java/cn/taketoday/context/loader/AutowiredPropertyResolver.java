@@ -19,6 +19,11 @@
  */
 package cn.taketoday.context.loader;
 
+import java.lang.reflect.Field;
+import java.util.Map.Entry;
+
+import javax.annotation.Resource;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.annotation.Autowired;
@@ -26,11 +31,6 @@ import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.BeanReference;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.utils.StringUtils;
-
-import java.lang.reflect.Field;
-import java.util.Map.Entry;
-
-import javax.annotation.Resource;
 
 /**
  * @author Today <br>
@@ -44,46 +44,33 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
 	@Override
 	public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
 
-		if (beanNameCreator == null) {
+		if (this.beanNameCreator == null) {
 			this.beanNameCreator = applicationContext.getEnvironment().getBeanNameCreator();
 		}
-
-		Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
-
-		boolean required = true;
-		Class<?> propertyClass = field.getType();
+		
+		final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
 
 		String name = null;
+		boolean required = true;
+		final Class<?> propertyClass = field.getType();
 
 		if (autowired != null) {
-			if (StringUtils.isNotEmpty(autowired.value())) {
-				name = autowired.value();
-			}
-			else {
+			name = autowired.value();
+			if (StringUtils.isEmpty(name)) {
 				name = byType(applicationContext, propertyClass);
 			}
 			required = autowired.required(); // class name
 		}
-
-		if (StringUtils.isEmpty(name) && field.isAnnotationPresent(Resource.class)) {
+		else if (field.isAnnotationPresent(Resource.class)) {
 			// Resource.class
-			Resource resource = field.getAnnotation(Resource.class);
-			if (StringUtils.isNotEmpty(resource.name())) {
-				name = resource.name();
-			}
-			else if (resource.type() != Object.class) {
+			final Resource resource = field.getAnnotation(Resource.class);
+			name = resource.name();
+			if (StringUtils.isEmpty(name) && resource.type() != Object.class) {
 				name = byType(applicationContext, propertyClass);
-			}
-			else {
-				name = beanNameCreator.create(propertyClass);
 			}
 		}
 
-		return new PropertyValue(new BeanReference()//
-				.setName(name)//
-				.setRequired(required)//
-				.setReferenceClass(propertyClass), field//
-		);
+		return new PropertyValue(new BeanReference(name, required, propertyClass), field);
 	}
 
 	/**

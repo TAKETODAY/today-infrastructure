@@ -220,8 +220,8 @@ public class Attribute {
 	 * @param code
 	 *            the bytecode of the method corresponding to these code attributes,
 	 *            or {@literal
-	 *     null} if they are not code attributes. Corresponds to the 'code' field
-	 *            of the Code attribute.
+	 *     null} if they are not code attributes. Corresponds to the 'code' field of
+	 *            the Code attribute.
 	 * @param codeLength
 	 *            the length of the bytecode of the method corresponding to these
 	 *            code attributes, or 0 if they are not code attributes. Corresponds
@@ -276,8 +276,8 @@ public class Attribute {
 	 * @param code
 	 *            the bytecode of the method corresponding to these code attributes,
 	 *            or {@literal
-	 *     null} if they are not code attributes. Corresponds to the 'code' field
-	 *            of the Code attribute.
+	 *     null} if they are not code attributes. Corresponds to the 'code' field of
+	 *            the Code attribute.
 	 * @param codeLength
 	 *            the length of the bytecode of the method corresponding to these
 	 *            code attributes, or 0 if they are not code attributes. Corresponds

@@ -19,6 +19,12 @@
  */
 package cn.taketoday.context;
 
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map.Entry;
+
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
@@ -41,12 +47,6 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
 
 /**
  * Standard {@link ApplicationContext}
@@ -107,8 +107,7 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
 
 	@Override
 	protected void doLoadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
-
-		beanFactory.getBeanDefinitionLoader().loadBeanDefinitions(beanClasses);
+		super.doLoadBeanDefinitions(beanFactory, beanClasses);
 
 		this.beanFactory.loadConfigurationBeans();
 		this.beanFactory.loadMissingBean(beanClasses);
@@ -160,7 +159,7 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
 					return factoryMethod.invoke(getDeclaringInstance(standardBeanDefinition.getDeclaringName()), //
 							ContextUtils.resolveParameter(factoryMethod, this));
 				}
-				return ClassUtils.newInstance(beanDefinition.getBeanClass());
+				return ClassUtils.newInstance(beanDefinition, this);
 			}
 			return bean;
 		}
@@ -367,8 +366,9 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
 		public BeanDefinitionLoader getBeanDefinitionLoader() {
 			if (beanDefinitionLoader == null) {
 				try {
+					// fix: when manually load context some properties can't be loaded
 					// not initialize
-					prepareBeanFactory(new HashSet<>());
+					loadContext(new HashSet<>());
 				}
 				catch (Throwable e) {
 					throw new ContextException(e);

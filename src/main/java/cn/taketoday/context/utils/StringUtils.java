@@ -19,11 +19,11 @@
  */
 package cn.taketoday.context.utils;
 
-import cn.taketoday.context.Constant;
-
 import java.io.CharArrayWriter;
 import java.util.BitSet;
 import java.util.Collection;
+
+import cn.taketoday.context.Constant;
 
 /**
  * 
@@ -282,7 +282,7 @@ public abstract class StringUtils {
 	 * @param array
 	 * @return
 	 */
-	public static String arrayToString(String[] array) {
+	public static String arrayToString(Object[] array) {
 		return arrayToString(array, ",");
 	}
 
@@ -291,13 +291,13 @@ public abstract class StringUtils {
 	 * @param suffix
 	 * @return
 	 */
-	public static String arrayToString(String[] array, String suffix) {
+	public static String arrayToString(Object[] array, String suffix) {
 		if (array == null) {
 			return "null";
 		}
 		final int length = array.length;
 		if (length == 1) {
-			return array[0];
+			return array[0].toString();
 		}
 
 		final StringBuilder builder = new StringBuilder();
@@ -308,6 +308,14 @@ public abstract class StringUtils {
 			}
 		}
 		return builder.toString();
+	}
+
+	/**
+	 * @param fileName
+	 * @return
+	 */
+	public static String checkPropertiesName(String fileName) {
+		return fileName.endsWith(Constant.PROPERTIES_SUFFIX) ? fileName : fileName + Constant.PROPERTIES_SUFFIX;
 	}
 
 }

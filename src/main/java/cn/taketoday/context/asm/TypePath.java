@@ -151,24 +151,30 @@ public final class TypePath {
 			char c = typePath.charAt(typePathIndex++);
 			if (c == '[') {
 				output.put11(ARRAY_ELEMENT, 0);
-			} else if (c == '.') {
+			}
+			else if (c == '.') {
 				output.put11(INNER_TYPE, 0);
-			} else if (c == '*') {
+			}
+			else if (c == '*') {
 				output.put11(WILDCARD_BOUND, 0);
-			} else if (c >= '0' && c <= '9') {
+			}
+			else if (c >= '0' && c <= '9') {
 				int typeArg = c - '0';
 				while (typePathIndex < typePathLength) {
 					c = typePath.charAt(typePathIndex++);
 					if (c >= '0' && c <= '9') {
 						typeArg = typeArg * 10 + c - '0';
-					} else if (c == ';') {
+					}
+					else if (c == ';') {
 						break;
-					} else {
+					}
+					else {
 						throw new IllegalArgumentException();
 					}
 				}
 				output.put11(TYPE_ARGUMENT, typeArg);
-			} else {
+			}
+			else {
 				throw new IllegalArgumentException();
 			}
 		}
@@ -220,7 +226,8 @@ public final class TypePath {
 	static void put(final TypePath typePath, final ByteVector output) {
 		if (typePath == null) {
 			output.putByte(0);
-		} else {
+		}
+		else {
 			int length = typePath.typePathContainer[typePath.typePathOffset] * 2 + 1;
 			output.putByteArray(typePath.typePathContainer, typePath.typePathOffset, length);
 		}

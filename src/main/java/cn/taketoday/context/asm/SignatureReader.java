@@ -111,7 +111,8 @@ public class SignatureReader {
 				// offset points to the second character), unless the character just after this
 				// TypeParameter signals the end of the TypeParameters.
 			} while (currentChar != '>');
-		} else {
+		}
+		else {
 			offset = 0;
 		}
 
@@ -131,7 +132,8 @@ public class SignatureReader {
 				// Use offset + 1 to skip the first character of a ThrowsSignature, i.e. '^'.
 				offset = parseType(signature, offset + 1, signatureVistor.visitExceptionType());
 			}
-		} else {
+		}
+		else {
 			// Otherwise we are parsing a ClassSignature (by hypothesis on the method
 			// input), which has
 			// one or more ClassTypeSignature for the super class and the implemented
@@ -223,7 +225,8 @@ public class SignatureReader {
 							String name = signature.substring(start, offset - 1);
 							if (inner) {
 								signatureVisitor.visitInnerClassType(name);
-							} else {
+							}
+							else {
 								signatureVisitor.visitClassType(name);
 							}
 						}
@@ -237,7 +240,8 @@ public class SignatureReader {
 						start = offset;
 						visited = false;
 						inner = true;
-					} else if (currentChar == '<') {
+					}
+					else if (currentChar == '<') {
 						// If a '<' is encountered, this means we have fully parsed the main class name
 						// or an
 						// inner class name, and that we now need to parse TypeArguments. First, we need
@@ -246,7 +250,8 @@ public class SignatureReader {
 						String name = signature.substring(start, offset - 1);
 						if (inner) {
 							signatureVisitor.visitInnerClassType(name);
-						} else {
+						}
+						else {
 							signatureVisitor.visitClassType(name);
 						}
 						visited = true;

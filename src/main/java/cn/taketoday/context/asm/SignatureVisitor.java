@@ -65,25 +65,10 @@ public abstract class SignatureVisitor {
 	public static final char INSTANCEOF = '=';
 
 	/**
-	 * The ASM API version implemented by this visitor. The value of this field must
-	 * be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or
-	 * {@link Opcodes#ASM7}.
-	 */
-	protected final int api;
-
-	/**
 	 * Constructs a new {@link SignatureVisitor}.
-	 *
-	 * @param api
-	 *            the ASM API version implemented by this visitor. Must be one of
-	 *            {@link Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}
-	 *            or {@link Opcodes#ASM7}.
 	 */
-	public SignatureVisitor(final int api) {
-		if (api != Opcodes.ASM6 && api != Opcodes.ASM5 && api != Opcodes.ASM4 && api != Opcodes.ASM7) {
-			throw new IllegalArgumentException();
-		}
-		this.api = api;
+	public SignatureVisitor() {
+
 	}
 
 	/**

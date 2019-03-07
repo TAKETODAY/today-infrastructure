@@ -19,10 +19,10 @@
  */
 package test.context.props;
 
+import org.junit.Test;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-
-import org.junit.Test;
 
 /**
  * @author Today <br>
@@ -37,6 +37,22 @@ public class PropsTest {
 
 			Config_ bean = applicationContext.getBean(Config_.class);
 			assert "https://taketoday.cn".equals(bean.getHost());
+		}
+	}
+
+	@Test
+	public void test_PropsOnConstructor() {
+
+		try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+
+			applicationContext.registerBean("testBean", PropsBean.class);
+//			applicationContext.refresh();
+
+			PropsBean bean = applicationContext.getBean(PropsBean.class);
+
+			assert bean != null : "@Props function error";
+
+			System.err.println(bean);
 		}
 	}
 

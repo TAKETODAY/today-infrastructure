@@ -55,15 +55,6 @@ package cn.taketoday.context.asm;
  */
 public abstract class MethodVisitor {
 
-	private static final String REQUIRES_ASM5 = "This feature requires ASM5";
-
-	/**
-	 * The ASM API version implemented by this visitor. The value of this field must
-	 * be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or
-	 * {@link Opcodes#ASM7}.
-	 */
-	protected final int api;
-
 	/**
 	 * The method visitor to which this visitor must delegate method calls. May be
 	 * null.
@@ -72,32 +63,22 @@ public abstract class MethodVisitor {
 
 	/**
 	 * Constructs a new {@link MethodVisitor}.
-	 *
-	 * @param api
-	 *            the ASM API version implemented by this visitor. Must be one of
-	 *            {@link Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}
-	 *            or {@link Opcodes#ASM7}.
 	 */
-	public MethodVisitor(final int api) {
-		this(api, null);
+	public MethodVisitor() {
+		this(null);
 	}
 
 	/**
 	 * Constructs a new {@link MethodVisitor}.
 	 *
 	 * @param api
-	 *            the ASM API version implemented by this visitor. Must be one of
-	 *            {@link Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}
-	 *            or {@link Opcodes#ASM7}.
+	 *            the ASM API version implemented by this visitor. Must be
+	 *            {@link Opcodes#ASM7}.
 	 * @param methodVisitor
 	 *            the method visitor to which this visitor must delegate method
 	 *            calls. May be null.
 	 */
-	public MethodVisitor(final int api, final MethodVisitor methodVisitor) {
-		if (api != Opcodes.ASM6 && api != Opcodes.ASM5 && api != Opcodes.ASM4 && api != Opcodes.ASM7) {
-			throw new IllegalArgumentException();
-		}
-		this.api = api;
+	public MethodVisitor(final MethodVisitor methodVisitor) {
 		this.mv = methodVisitor;
 	}
 
@@ -116,9 +97,6 @@ public abstract class MethodVisitor {
 	 *            {@link Opcodes}).
 	 */
 	public void visitParameter(final String name, final int access) {
-		if (api < Opcodes.ASM5) {
-			throw new UnsupportedOperationException(REQUIRES_ASM5);
-		}
 		if (mv != null) {
 			mv.visitParameter(name, access);
 		}
@@ -181,10 +159,8 @@ public abstract class MethodVisitor {
 	 *         visitor is not interested in visiting this annotation.
 	 */
 	public AnnotationVisitor visitTypeAnnotation(final int typeRef, final TypePath typePath, final String descriptor,
-			final boolean visible) {
-		if (api < Opcodes.ASM5) {
-			throw new UnsupportedOperationException(REQUIRES_ASM5);
-		}
+			final boolean visible) //
+	{
 		if (mv != null) {
 			return mv.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
 		}
@@ -236,7 +212,8 @@ public abstract class MethodVisitor {
 	 *         visitor is not interested in visiting this annotation.
 	 */
 	public AnnotationVisitor visitParameterAnnotation(final int parameter, final String descriptor,
-			final boolean visible) {
+			final boolean visible) //
+	{
 		if (mv != null) {
 			return mv.visitParameterAnnotation(parameter, descriptor, visible);
 		}
@@ -335,7 +312,8 @@ public abstract class MethodVisitor {
 	 *             Opcodes#F_SAME frame, in which case it is silently ignored).
 	 */
 	public void visitFrame(final int type, final int numLocal, final Object[] local, final int numStack,
-			final Object[] stack) {
+			final Object[] stack) //
+	{
 		if (mv != null) {
 			mv.visitFrame(type, numLocal, local, numStack, stack);
 		}
@@ -472,14 +450,7 @@ public abstract class MethodVisitor {
 	 */
 	@Deprecated
 	public void visitMethodInsn(final int opcode, final String owner, final String name, final String descriptor) {
-		if (api >= Opcodes.ASM5) {
-			boolean isInterface = opcode == Opcodes.INVOKEINTERFACE;
-			visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-			return;
-		}
-		if (mv != null) {
-			mv.visitMethodInsn(opcode, owner, name, descriptor);
-		}
+		visitMethodInsn(opcode, owner, name, descriptor, opcode == Opcodes.INVOKEINTERFACE);
 	}
 
 	/**
@@ -501,14 +472,8 @@ public abstract class MethodVisitor {
 	 *            if the method's owner class is an interface.
 	 */
 	public void visitMethodInsn(final int opcode, final String owner, final String name, final String descriptor,
-			final boolean isInterface) {
-		if (api < Opcodes.ASM5) {
-			if (isInterface != (opcode == Opcodes.INVOKEINTERFACE)) {
-				throw new IllegalArgumentException("INVOKESPECIAL/STATIC on interfaces requires ASM5");
-			}
-			visitMethodInsn(opcode, owner, name, descriptor);
-			return;
-		}
+			final boolean isInterface) //
+	{
 		if (mv != null) {
 			mv.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
 		}
@@ -532,10 +497,8 @@ public abstract class MethodVisitor {
 	 *            may change.
 	 */
 	public void visitInvokeDynamicInsn(final String name, final String descriptor, final Handle bootstrapMethodHandle,
-			final Object... bootstrapMethodArguments) {
-		if (api < Opcodes.ASM5) {
-			throw new UnsupportedOperationException(REQUIRES_ASM5);
-		}
+			final Object... bootstrapMethodArguments) //
+	{
 		if (mv != null) {
 			mv.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
 		}
@@ -587,30 +550,41 @@ public abstract class MethodVisitor {
 	 * <pre>
 	 * if (cst instanceof Integer) {
 	 * 	// ...
-	 * } else if (cst instanceof Float) {
+	 * }
+	 * else if (cst instanceof Float) {
 	 * 	// ...
-	 * } else if (cst instanceof Long) {
+	 * }
+	 * else if (cst instanceof Long) {
 	 * 	// ...
-	 * } else if (cst instanceof Double) {
+	 * }
+	 * else if (cst instanceof Double) {
 	 * 	// ...
-	 * } else if (cst instanceof String) {
+	 * }
+	 * else if (cst instanceof String) {
 	 * 	// ...
-	 * } else if (cst instanceof Type) {
+	 * }
+	 * else if (cst instanceof Type) {
 	 * 	int sort = ((Type) cst).getSort();
 	 * 	if (sort == Type.OBJECT) {
 	 * 		// ...
-	 * 	} else if (sort == Type.ARRAY) {
+	 * 	}
+	 * 	else if (sort == Type.ARRAY) {
 	 * 		// ...
-	 * 	} else if (sort == Type.METHOD) {
+	 * 	}
+	 * 	else if (sort == Type.METHOD) {
 	 * 		// ...
-	 * 	} else {
+	 * 	}
+	 * 	else {
 	 * 		// throw an exception
 	 * 	}
-	 * } else if (cst instanceof Handle) {
+	 * }
+	 * else if (cst instanceof Handle) {
 	 * 	// ...
-	 * } else if (cst instanceof ConstantDynamic) {
+	 * }
+	 * else if (cst instanceof ConstantDynamic) {
 	 * 	// ...
-	 * } else {
+	 * }
+	 * else {
 	 * 	// throw an exception
 	 * }
 	 * </pre>
@@ -626,13 +600,6 @@ public abstract class MethodVisitor {
 	 *            for classes whose version is 55.
 	 */
 	public void visitLdcInsn(final Object value) {
-		if (api < Opcodes.ASM5
-				&& (value instanceof Handle || (value instanceof Type && ((Type) value).getSort() == Type.METHOD))) {
-			throw new UnsupportedOperationException(REQUIRES_ASM5);
-		}
-		if (api != Opcodes.ASM7 && value instanceof ConstantDynamic) {
-			throw new UnsupportedOperationException("This feature requires ASM7");
-		}
 		if (mv != null) {
 			mv.visitLdcInsn(value);
 		}
@@ -731,10 +698,8 @@ public abstract class MethodVisitor {
 	 *         visitor is not interested in visiting this annotation.
 	 */
 	public AnnotationVisitor visitInsnAnnotation(final int typeRef, final TypePath typePath, final String descriptor,
-			final boolean visible) {
-		if (api < Opcodes.ASM5) {
-			throw new UnsupportedOperationException(REQUIRES_ASM5);
-		}
+			final boolean visible) //
+	{
 		if (mv != null) {
 			return mv.visitInsnAnnotation(typeRef, typePath, descriptor, visible);
 		}
@@ -789,10 +754,8 @@ public abstract class MethodVisitor {
 	 *         visitor is not interested in visiting this annotation.
 	 */
 	public AnnotationVisitor visitTryCatchAnnotation(final int typeRef, final TypePath typePath,
-			final String descriptor, final boolean visible) {
-		if (api < Opcodes.ASM5) {
-			throw new UnsupportedOperationException(REQUIRES_ASM5);
-		}
+			final String descriptor, final boolean visible) //
+	{
 		if (mv != null) {
 			return mv.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible);
 		}
@@ -822,7 +785,8 @@ public abstract class MethodVisitor {
 	 *             (by the {@link #visitLabel} method).
 	 */
 	public void visitLocalVariable(final String name, final String descriptor, final String signature,
-			final Label start, final Label end, final int index) {
+			final Label start, final Label end, final int index) //
+	{
 		if (mv != null) {
 			mv.visitLocalVariable(name, descriptor, signature, start, end, index);
 		}
@@ -858,10 +822,8 @@ public abstract class MethodVisitor {
 	 *         visitor is not interested in visiting this annotation.
 	 */
 	public AnnotationVisitor visitLocalVariableAnnotation(final int typeRef, final TypePath typePath,
-			final Label[] start, final Label[] end, final int[] index, final String descriptor, final boolean visible) {
-		if (api < Opcodes.ASM5) {
-			throw new UnsupportedOperationException(REQUIRES_ASM5);
-		}
+			final Label[] start, final Label[] end, final int[] index, final String descriptor, final boolean visible) //
+	{
 		if (mv != null) {
 			return mv.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, descriptor, visible);
 		}

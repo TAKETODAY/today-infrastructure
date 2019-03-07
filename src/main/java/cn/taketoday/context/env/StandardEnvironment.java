@@ -19,18 +19,12 @@
  */
 package cn.taketoday.context.env;
 
-import cn.taketoday.context.BeanNameCreator;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.StringUtils;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -38,6 +32,16 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.el.ELProcessor;
+import javax.el.ExpressionFactory;
+
+import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -60,6 +64,8 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 	private BeanDefinitionLoader beanDefinitionLoader;
 	/** storage BeanDefinition */
 	private BeanDefinitionRegistry beanDefinitionRegistry;
+
+	private ELProcessor elProcessor;
 
 	@Override
 	public Properties getProperties() {
@@ -105,9 +111,8 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
 	@Override
 	public void setActiveProfiles(String... profiles) {
-		activeProfiles.clear();
-		log.info("Active profiles: {}", Arrays.toString(profiles));;
 		this.activeProfiles.addAll(Arrays.asList(profiles));
+		log.info("Active profiles: {}", activeProfiles);
 	}
 
 	@Override
@@ -117,6 +122,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
 	@Override
 	public void addActiveProfile(String profile) {
+		log.info("Add active profile: [{}]", profile);
 		this.activeProfiles.add(profile);
 	}
 
@@ -127,7 +133,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 	public void loadProperties(String properties) throws IOException {
 
 		Objects.requireNonNull(properties, "Properties dir can't be null");
-		
+
 		URL resource = ClassUtils.getClassLoader().getResource(properties);
 		if (resource == null) {
 			log.warn("The path: [{}] you provided that doesn't exist", properties);
@@ -145,8 +151,12 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 	}
 
 	/**
+	 * Do load
+	 * 
 	 * @param dir
+	 *            base dir
 	 * @param properties
+	 *            properties
 	 * @throws IOException
 	 */
 	static void doLoad(File dir, Properties properties) throws IOException {
@@ -221,6 +231,31 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 	@Override
 	public BeanNameCreator getBeanNameCreator() {
 		return beanNameCreator;
+	}
+
+	@Override
+	public ELProcessor getELProcessor() {
+		return elProcessor;
+	}
+
+	@Override
+	public ConfigurableEnvironment setELProcessor(final ELProcessor elProcessor) {
+
+		try {
+			this.elProcessor = elProcessor;
+
+			Field declaredField = ClassUtils.forName("javax.el.ELUtil").getDeclaredField("exprFactory");
+			declaredField.setAccessible(true);
+
+			declaredField.set(null, ExpressionFactory.newInstance(getProperties()));
+		}
+		catch (Throwable e) {
+			e = ExceptionUtils.unwrapThrowable(e);
+			log.error("An Exception Occurred When Loading Context, With Msg: [{}]", e.getMessage(), e);
+
+			throw ExceptionUtils.newContextException(e);
+		}
+		return this;
 	}
 
 }

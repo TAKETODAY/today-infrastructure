@@ -26,7 +26,7 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import java.util.Collection;
 
 /**
- * create bean definition
+ * Create bean definition
  * 
  * @author Today <br>
  * 
@@ -39,7 +39,7 @@ public interface BeanDefinitionLoader {
 	 * 
 	 * @param beanClass
 	 *            the bean type
-	 * @return A new {@link BeanDefinition}
+	 * @return A new {@link BeanDefinition} with out DestroyMethods
 	 */
 	BeanDefinition createBeanDefinition(Class<?> beanClass);
 

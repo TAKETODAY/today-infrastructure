@@ -19,18 +19,20 @@
  */
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.context.env.ProfileCondition;
-
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.context.env.ProfileCondition;
 
 /**
  * @author Today <br>
  * 
  *         2018-11-14 22:55
  */
+@Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Conditional(ProfileCondition.class)
 @Target({ ElementType.TYPE, ElementType.METHOD })
@@ -41,6 +43,6 @@ public @interface Profile {
 	 * 
 	 * @return
 	 */
-	String[] value() ;
+	String[] value();
 
 }

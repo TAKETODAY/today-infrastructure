@@ -31,13 +31,14 @@ import cn.taketoday.context.Constant;
  */
 public class DefaultBeanNameCreator implements BeanNameCreator {
 
-	private boolean useSimpleName = true;
+	private final boolean useSimpleName;
 
 	public DefaultBeanNameCreator(ConfigurableEnvironment environment) {
-		String useSimpleName = environment.getProperty(Constant.KEY_USE_SIMPLE_NAME);
-		if (useSimpleName != null) {
+		final String useSimpleName = environment.getProperty(Constant.KEY_USE_SIMPLE_NAME);
+		if (useSimpleName != null)
 			this.useSimpleName = Boolean.parseBoolean(useSimpleName);
-		}
+		else
+			this.useSimpleName = true;
 	}
 
 	@Override

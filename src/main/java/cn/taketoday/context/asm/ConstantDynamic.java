@@ -156,16 +156,14 @@ public final class ConstantDynamic {
 			return false;
 		}
 		ConstantDynamic constantDynamic = (ConstantDynamic) object;
-		return name.equals(constantDynamic.name) && descriptor.equals(constantDynamic.descriptor)
-				&& bootstrapMethod.equals(constantDynamic.bootstrapMethod)
-				&& Arrays.equals(bootstrapMethodArguments, constantDynamic.bootstrapMethodArguments);
+		return name.equals(constantDynamic.name) && descriptor.equals(constantDynamic.descriptor) && bootstrapMethod.equals(
+				constantDynamic.bootstrapMethod) && Arrays.equals(bootstrapMethodArguments, constantDynamic.bootstrapMethodArguments);
 	}
 
 	@Override
 	public int hashCode() {
-		return name.hashCode() ^ Integer.rotateLeft(descriptor.hashCode(), 8)
-				^ Integer.rotateLeft(bootstrapMethod.hashCode(), 16)
-				^ Integer.rotateLeft(Arrays.hashCode(bootstrapMethodArguments), 24);
+		return name.hashCode() ^ Integer.rotateLeft(descriptor.hashCode(), 8) ^ Integer.rotateLeft(bootstrapMethod.hashCode(),
+				16) ^ Integer.rotateLeft(Arrays.hashCode(bootstrapMethodArguments), 24);
 	}
 
 	@Override

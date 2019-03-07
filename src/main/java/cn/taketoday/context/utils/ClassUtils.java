@@ -19,16 +19,6 @@
  */
 package cn.taketoday.context.utils;
 
-import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.asm.ClassReader;
-import cn.taketoday.context.asm.ClassVisitor;
-import cn.taketoday.context.asm.Label;
-import cn.taketoday.context.asm.MethodVisitor;
-import cn.taketoday.context.asm.Opcodes;
-import cn.taketoday.context.asm.Type;
-import cn.taketoday.context.exception.ContextException;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -40,6 +30,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -63,6 +54,18 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.asm.ClassReader;
+import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Label;
+import cn.taketoday.context.asm.MethodVisitor;
+import cn.taketoday.context.asm.Type;
+import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.factory.BeanFactory;
+
 /**
  * 
  * @author Today <br>
@@ -73,7 +76,7 @@ public abstract class ClassUtils {
 	private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
 	/** all the class in class path */
-	private static Collection<Class<?>> classesCache;
+	private static Set<Class<?>> classesCache;
 	/** class loader **/
 	private static ClassLoader classLoader;
 
@@ -163,7 +166,7 @@ public abstract class ClassUtils {
 	 *            super class or a interface class
 	 * @return a {@link Collection} of impl class
 	 */
-	public static Collection<Class<?>> getImplClasses(Class<?> superClass) {
+	public static Set<Class<?>> getImplClasses(Class<?> superClass) {
 		return filter(clazz -> superClass.isAssignableFrom(clazz) && superClass != clazz);
 	}
 
@@ -176,7 +179,7 @@ public abstract class ClassUtils {
 	 *            package name
 	 * @return a {@link Collection} of impl class
 	 */
-	public static Collection<Class<?>> getImplClasses(Class<?> superClass, String packageName) {
+	public static Set<Class<?>> getImplClasses(Class<?> superClass, String packageName) {
 		return filter(clazz -> clazz.getName().startsWith(packageName) && superClass.isAssignableFrom(clazz));
 	}
 
@@ -188,7 +191,7 @@ public abstract class ClassUtils {
 	 *            predicate to apply to each element to determine if it should be
 	 *            included
 	 */
-	public static final <T> Collection<Class<?>> filter(Predicate<Class<?>> predicate) {
+	public static final <T> Set<Class<?>> filter(Predicate<Class<?>> predicate) {
 		return getClassCache()//
 //				.stream()//
 				.parallelStream()//
@@ -203,7 +206,7 @@ public abstract class ClassUtils {
 	 *            package name
 	 * @return a {@link Collection} of class under the packages
 	 */
-	public static Collection<Class<?>> getClasses(String... packages) {
+	public static Set<Class<?>> getClasses(String... packages) {
 
 		if (StringUtils.isArrayEmpty(packages) || //
 				(packages.length == 1 && StringUtils.isEmpty(packages[0]))) //
@@ -229,18 +232,35 @@ public abstract class ClassUtils {
 	 *            the packages to scan
 	 * @return class set
 	 */
-	public static Collection<Class<?>> scan(String... packages) {
+	public static Set<Class<?>> scan(String... packages) {
 		Objects.requireNonNull(packages, "scan package can't be null");
 
 		if (classesCache == null || classesCache.isEmpty()) {
-			Collection<Class<?>> scanClasses = new HashSet<>(2048, 1.0f);
-			for (String package_ : packages) {
-				// scan
-				scan(scanClasses, package_);
+
+			final Set<Class<?>> scanClasses = new HashSet<>(2048, 1.0f);
+			// packages = ""
+			if (packages.length == 1 && StringUtils.isEmpty(packages[0])) {
+				scan(scanClasses, Constant.BLANK);
 			}
-			if (packages == null || packages.length != 1 || StringUtils.isNotEmpty(packages[0])) {
-				// Framework classes
-				scan(scanClasses, Constant.FREAMWORK_PACKAGE);
+			else {
+				final Set<String> packagesToScan = new HashSet<>();
+				for (final String location : packages) {
+					if (location.startsWith(Constant.FREAMWORK_PACKAGE)) {
+						packagesToScan.add(Constant.FREAMWORK_PACKAGE);
+					}
+					else if (StringUtils.isEmpty(location)) {
+						scan(scanClasses, Constant.BLANK);
+						setClassCache(scanClasses);
+						return scanClasses;
+					}
+					else {
+						packagesToScan.add(location);
+					}
+				}
+				packagesToScan.add(Constant.FREAMWORK_PACKAGE);
+				for (final String location : packagesToScan) {
+					scan(scanClasses, location);
+				}
 			}
 			setClassCache(scanClasses);
 			return scanClasses;
@@ -260,8 +280,7 @@ public abstract class ClassUtils {
 		try {
 //			log.debug("package: [{}]", packageName);
 
-			Enumeration<URL> uri = classLoader.getResources(packageName);
-
+			final Enumeration<URL> uri = classLoader.getResources(packageName);
 			while (uri.hasMoreElements()) {
 				URL url = uri.nextElement();
 //				log.debug("with uri: [{}]", url);
@@ -270,16 +289,17 @@ public abstract class ClassUtils {
 					findAllClassWithPackage(packageName, StringUtils.decodeUrl(url.getFile()), scanClasses);
 				}
 				else if ("jar".equals(protocol)) {
-					JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
+					final JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
 					if (jarURLConnection == null) {
 						log.warn("Can't get the connection of the url: [{}]", url);
 						continue;
 					}
-					JarFile jarFile = jarURLConnection.getJarFile();
+					final JarFile jarFile = jarURLConnection.getJarFile();
 					if (jarFile == null) {
 						continue;
 					}
-					Enumeration<JarEntry> jarEntries = jarFile.entries();
+
+					final Enumeration<JarEntry> jarEntries = jarFile.entries();
 					while (jarEntries.hasMoreElements()) {
 						loadClassInJar(jarEntries.nextElement(), packageName, scanClasses);
 					}
@@ -324,7 +344,7 @@ public abstract class ClassUtils {
 					jarEntryName.substring(0, jarEntryName.lastIndexOf(".")).replaceAll("/", ".")//
 			));
 		}
-		catch (NoClassDefFoundError | ClassNotFoundException | UnsupportedClassVersionError e) {
+		catch (Error | ClassNotFoundException e) {
 //			log.warn("[{}] Occur , With Msg:[{}]", e, e.getMessage());
 		}
 	}
@@ -355,7 +375,6 @@ public abstract class ClassUtils {
 			return;
 		}
 		// exists
-		final int length = Constant.CLASS_FILE_SUFFIX.length();
 
 		for (File file : directoryFiles) { //
 
@@ -370,13 +389,13 @@ public abstract class ClassUtils {
 				findAllClassWithPackage(scanPackage, file.getAbsolutePath(), scanClasses);
 				continue;
 			}
-			if (fileName.contains("package-info")) {
+			if (fileName.startsWith("package-info")) {
 				continue;
 			}
 			String className = new StringBuilder()//
 					.append(packageName)//
 					.append(".")//
-					.append(fileName.substring(0, fileName.length() - length))//
+					.append(fileName.substring(0, fileName.length() - 6))//
 					.toString()//
 					.replaceAll("/", ".");
 
@@ -384,7 +403,7 @@ public abstract class ClassUtils {
 
 				scanClasses.add(classLoader.loadClass(className)); // add
 			}
-			catch (ClassNotFoundException | NoClassDefFoundError | UnsupportedClassVersionError e) {
+			catch (ClassNotFoundException | Error e) {
 //				log.warn("Can't find class: [{}]", className);
 			}
 		}
@@ -405,15 +424,16 @@ public abstract class ClassUtils {
 	 *
 	 * @param types
 	 *            the type of the asm({@link Type})
-	 * @param classes
+	 * @param parameterTypes
 	 *            java type({@link Class})
 	 * @return return param type equals
 	 */
-	private static boolean sameType(Type[] types, Class<?>[] classes) {
-		if (types.length != classes.length)
+	private static boolean sameType(Type[] types, Class<?>[] parameterTypes) {
+		if (types.length != parameterTypes.length) {
 			return false;
+		}
 		for (int i = 0; i < types.length; i++) {
-			if (!Type.getType(classes[i]).equals(types[i])) {
+			if (!Type.getType(parameterTypes[i]).equals(types[i])) {
 				return false;
 			}
 		}
@@ -421,23 +441,23 @@ public abstract class ClassUtils {
 	}
 
 	/**
-	 * Find method parameter list, and cache it.
+	 * Find method parameter list
 	 * 
 	 * @param method
 	 *            target method
 	 * @return method parameter list
-	 * @throws IOException
+	 * @throws ContextException
 	 *             when could not access to the class file
 	 * @since 1.0.0
 	 */
-	public static String[] getMethodArgsNames(Method method) throws IOException {
+	public static String[] getMethodArgsNames(Method method) throws ContextException {
 
 		String[] paramNames = new String[method.getParameterCount()];
 
 		try (InputStream resourceAsStream = //
-				classLoader.getResourceAsStream(method.getDeclaringClass().getName().replace('.', '/') + ".class")) {
+				classLoader.getResourceAsStream(method.getDeclaringClass().getName().replace('.', '/').concat(".class"))) {
 
-			new ClassReader(resourceAsStream).accept(new ClassVisitor(Opcodes.ASM7) {
+			new ClassReader(resourceAsStream).accept(new ClassVisitor() {
 				@Override
 				public MethodVisitor visitMethod(int access, String name, //
 						String desc, String signature, String[] exceptions) //
@@ -447,7 +467,7 @@ public abstract class ClassUtils {
 					if (!name.equals(method.getName()) || !sameType(args, method.getParameterTypes())) {
 						return super.visitMethod(access, name, desc, signature, exceptions);
 					}
-					return new MethodVisitor(Opcodes.ASM7, super.visitMethod(access, name, desc, signature, exceptions)) {
+					return new MethodVisitor(super.visitMethod(access, name, desc, signature, exceptions)) {
 						@Override
 						public void visitLocalVariable(String name, String desc, //
 								String signature, Label start, Label end, int index) //
@@ -467,6 +487,9 @@ public abstract class ClassUtils {
 					};
 				}
 			}, 0);
+		}
+		catch (IOException e) {
+			throw new ContextException(e);
 		}
 		return paramNames;
 	}
@@ -517,42 +540,68 @@ public abstract class ClassUtils {
 	 * @return the {@link Collection} of {@link Annotation} instance
 	 * @since 2.0.x
 	 */
-	public static <T extends Annotation> Collection<T> getAnnotation(AnnotatedElement annotatedElement, //
-			Class<T> annotationClass, Class<? extends T> implClass) //
+	public static <A extends Annotation> Collection<A> getAnnotation(AnnotatedElement annotatedElement, //
+			Class<A> annotationClass, Class<? extends A> implClass) throws ContextException//
 	{
 		try {
-
-			Collection<T> result = new LinkedList<>();
-			// @off
+			Collection<A> result = new LinkedList<>();
 			for (AnnotationAttributes attributes : getAnnotationAttributes(annotatedElement, annotationClass)) {
-				T instance = implClass.getConstructor().newInstance();
-				for (Method method : annotationClass.getDeclaredMethods()) {
-					// method name must == field name
-					final String name = method.getName();
-					final Field declaredField = implClass.getDeclaredField(name);
-//					final boolean accessible = declaredField.isAccessible(); // access able ?
-//					try {
-//						if (!accessible) {
-							declaredField.setAccessible(true);
-//						}
-						declaredField.set(instance, attributes.get(name));
-//					} finally {
-//						declaredField.setAccessible(accessible);
-//					}
-				}
-				result.add(instance);
+				result.add(injectAttributes(attributes, annotationClass, newInstance(implClass)));
 			}
-			//@on
 			return result;
 		}
+		catch (Throwable ex) {
+			ex = ExceptionUtils.unwrapThrowable(ex);
+			log.error("An Exception Occurred When Getting Annotation, With Msg: [{}]", ex.getMessage(), ex);
+			throw ExceptionUtils.newContextException(ex);
+		}
+	}
+
+	/**
+	 * Inject {@link AnnotationAttributes} by reflect
+	 * 
+	 * @param source
+	 *            Element attributes
+	 * @param annotationClass
+	 *            Annotated class
+	 * @param instance
+	 *            target instance
+	 * @return target instance
+	 * @throws ContextException
+	 *             if any {@link Exception} occurred
+	 * @since 2.1.5
+	 */
+	public static <A> A injectAttributes(AnnotationAttributes source, //
+			Class<? extends A> annotationClass, A instance) throws ContextException//
+	{
+		final Class<?> implClass = instance.getClass();
+		try {
+			// @off
+			for (final Method method : annotationClass.getDeclaredMethods()) {
+				// method name must == field name
+				final String name = method.getName();
+				final Field declaredField = implClass.getDeclaredField(name);
+//				final boolean accessible = declaredField.isAccessible(); // access able ?
+//				try {
+//					if (!accessible) {
+						declaredField.setAccessible(true);
+//					}
+					declaredField.set(instance, source.get(name));
+//				} finally {
+//					declaredField.setAccessible(accessible);
+//				}
+			}
+			// @on
+			return instance;
+		}
 		catch (NoSuchFieldException e) {
-			log.error("You must specify a field: [{}] in class: [{}]", e.getMessage(), implClass.getName(), e);
+			log.error("You Must Specify A Field: [{}] In Class: [{}]", e.getMessage(), implClass.getName(), e);
 			throw new ContextException(e);
 		}
 		catch (Throwable ex) {
 			ex = ExceptionUtils.unwrapThrowable(ex);
 			log.error("An Exception Occurred When Getting Annotation, With Msg: [{}]", ex.getMessage(), ex);
-			throw new ContextException(ex);
+			throw ExceptionUtils.newContextException(ex);
 		}
 	}
 
@@ -564,24 +613,25 @@ public abstract class ClassUtils {
 	 * @return {@link AnnotationAttributes}
 	 * @since 2.1.1
 	 */
-	public static AnnotationAttributes getAnnotationAttributes(Annotation annotation) {
+	public static AnnotationAttributes getAnnotationAttributes(Annotation annotation) throws ContextException {
 
-		AnnotationAttributes attributes = null;
 		try {
 
-			Method[] declaredMethods = annotation.annotationType().getDeclaredMethods();
-			attributes = new AnnotationAttributes(annotation.annotationType(), declaredMethods.length);
+			final Class<? extends Annotation> annotationType = annotation.annotationType();
+			final Method[] declaredMethods = annotationType.getDeclaredMethods();
+			final AnnotationAttributes attributes = //
+					new AnnotationAttributes(annotationType, declaredMethods.length);
 
-			for (Method method : declaredMethods) {
+			for (final Method method : declaredMethods) {
 				attributes.put(method.getName(), method.invoke(annotation));
 			}
+			return attributes;
 		}
 		catch (Throwable ex) {
 			ex = ExceptionUtils.unwrapThrowable(ex);
 			log.error("An Exception Occurred When Getting Annotation Attributes, With Msg: [{}]", ex.getMessage(), ex);
-			throw new ContextException(ex);
+			throw ExceptionUtils.newContextException(ex);
 		}
-		return attributes;
 	}
 
 	/**
@@ -595,7 +645,7 @@ public abstract class ClassUtils {
 	 * @since 2.1.1
 	 */
 	public static <T extends Annotation> Collection<T> getAnnotation(AnnotatedElement annotatedElement, //
-			Class<T> annotationClass) //
+			Class<T> annotationClass) throws ContextException//
 	{
 		Objects.requireNonNull(annotationClass, "annotation class can't be null");
 
@@ -615,25 +665,23 @@ public abstract class ClassUtils {
 	 *            The annotation attributes key-value
 	 * @return the target {@link Annotation} instance
 	 * @since 2.1.1
+	 * @off
 	 */
 	public static <T extends Annotation> T getAnnotationProxy(Class<T> annotationClass, AnnotationAttributes attributes) {
 		return annotationClass.cast(Proxy.newProxyInstance(classLoader, new Class[] { annotationClass, Annotation.class }, //
 				(Object proxy, Method method, Object[] args) -> {
 					switch (method.getName())
 					{
-						case Constant.EQUALS :
-							return eq(attributes, args);
-						case Constant.HASH_CODE :
-							return attributes.hashCode();
-						case Constant.TO_STRING :
-							return attributes.toString();
-						case Constant.ANNOTATION_TYPE :
-							return annotationClass;
+						case Constant.EQUALS : 			return eq(attributes, args);
+						case Constant.HASH_CODE :		return attributes.hashCode();
+						case Constant.TO_STRING :		return attributes.toString();
+						case Constant.ANNOTATION_TYPE :	return annotationClass;
 					}
 					return attributes.get(method.getName());
 				}//
 		));
 	}
+	//@on
 
 	/**
 	 * Equals
@@ -679,7 +727,7 @@ public abstract class ClassUtils {
 	 * @since 2.1.1
 	 */
 	public static <T extends Annotation> Collection<AnnotationAttributes> //
-			getAnnotationAttributes(AnnotatedElement annotatedElement, Class<T> annotationClass) //
+			getAnnotationAttributes(AnnotatedElement annotatedElement, Class<T> annotationClass) throws ContextException//
 	{
 		Objects.requireNonNull(annotatedElement, "annotated element can't be null");
 
@@ -704,7 +752,7 @@ public abstract class ClassUtils {
 	 * @since 2.1.1
 	 */
 	public static <T extends Annotation> AnnotationAttributes getAnnotationAttributes(Annotation annotation, //
-			Class<T> annotationClass) //
+			Class<T> annotationClass) throws ContextException//
 	{
 		try {
 			if (annotation == null) {
@@ -739,7 +787,7 @@ public abstract class ClassUtils {
 		catch (Throwable ex) {
 			ex = ExceptionUtils.unwrapThrowable(ex);
 			log.error("An Exception Occurred When Getting Annotation Attributes, With Msg: [{}]", ex.getMessage(), ex);
-			throw new ContextException(ex);
+			throw ExceptionUtils.newContextException(ex);
 		}
 	}
 
@@ -809,7 +857,7 @@ public abstract class ClassUtils {
 	 * @return the instance of target class
 	 * @since 2.1.2
 	 */
-	public static <T> T newInstance(Class<T> beanClass) {
+	public static <T> T newInstance(Class<T> beanClass) throws ContextException {
 		try {
 			return beanClass.getConstructor().newInstance();
 		}
@@ -827,13 +875,58 @@ public abstract class ClassUtils {
 	 * @since 2.1.2
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T newInstance(String beanClassName) {
+	public static <T> T newInstance(String beanClassName) throws ContextException {
 		try {
 			return (T) forName(beanClassName).getConstructor().newInstance();
 		}
 		catch (Throwable e) {
 			throw new ContextException(e);
 		}
+	}
+
+	/**
+	 * 
+	 * Use {@link Constructor} to create bean instance.
+	 * 
+	 * @param beanDefinition
+	 *            target bean's definition
+	 * @param beanFactory
+	 *            bean factory
+	 * @return bean class 's instance
+	 * @throws ReflectiveOperationException
+	 *             if any reflective operation exception occurred
+	 * @since 2.1.5
+	 */
+	public static Object newInstance(BeanDefinition beanDefinition, BeanFactory beanFactory) //
+			throws ReflectiveOperationException //
+	{
+		final Class<?> beanClass = beanDefinition.getBeanClass();
+		try {
+			return ClassUtils.newInstance(beanClass);
+		}
+		catch (final ContextException e) {
+			if (e.getCause() instanceof NoSuchMethodException) {
+				for (final Constructor<?> constructor : beanClass.getConstructors()) {
+					final Autowired autowired = constructor.getAnnotation(Autowired.class);
+					if (autowired != null) {
+						return constructor.newInstance(ContextUtils.resolveParameter(constructor, beanFactory));
+					}
+				}
+			}
+			throw e;
+		}
+	}
+
+	/**
+	 * Get bean instance's {@link Field}
+	 * 
+	 * @param target
+	 *            target instance
+	 * @return all {@link Field}
+	 * @since 2.1.5
+	 */
+	public static Collection<Field> getFields(Object target) {
+		return getFields(target.getClass());
 	}
 
 	/**
@@ -887,7 +980,7 @@ public abstract class ClassUtils {
 	/**
 	 * get all classes loaded in class path
 	 */
-	public static Collection<Class<?>> getClassCache() {
+	public static Set<Class<?>> getClassCache() {
 
 		if (classesCache == null || classesCache.isEmpty()) {
 			setClassCache(scan(""));
@@ -895,7 +988,7 @@ public abstract class ClassUtils {
 		return classesCache;
 	}
 
-	public static void setClassCache(Collection<Class<?>> classes) {
+	public static void setClassCache(Set<Class<?>> classes) {
 		ClassUtils.classesCache = classes;
 	}
 

@@ -19,11 +19,13 @@
  */
 package cn.taketoday.context.env;
 
+import java.util.Properties;
+
+import javax.el.ELProcessor;
+
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
-
-import java.util.Properties;
 
 /**
  * 
@@ -122,4 +124,11 @@ public interface Environment {
 	 */
 	BeanDefinitionRegistry getBeanDefinitionRegistry();
 
+	/**
+	 * Get {@link ELProcessor}
+	 * 
+	 * @return {@link ELProcessor}
+	 * @since 2.1.5
+	 */
+	ELProcessor getELProcessor();
 }

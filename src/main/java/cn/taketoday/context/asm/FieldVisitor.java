@@ -38,13 +38,6 @@ package cn.taketoday.context.asm;
 public abstract class FieldVisitor {
 
 	/**
-	 * The ASM API version implemented by this visitor. The value of this field must
-	 * be one of {@link Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6} or
-	 * {@link Opcodes#ASM7}.
-	 */
-	protected final int api;
-
-	/**
 	 * The field visitor to which this visitor must delegate method calls. May be
 	 * null.
 	 */
@@ -52,32 +45,19 @@ public abstract class FieldVisitor {
 
 	/**
 	 * Constructs a new {@link FieldVisitor}.
-	 *
-	 * @param api
-	 *            the ASM API version implemented by this visitor. Must be one of
-	 *            {@link Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}
-	 *            or {@link Opcodes#ASM7}.
 	 */
-	public FieldVisitor(final int api) {
-		this(api, null);
+	public FieldVisitor() {
+		this(null);
 	}
 
 	/**
 	 * Constructs a new {@link FieldVisitor}.
 	 *
-	 * @param api
-	 *            the ASM API version implemented by this visitor. Must be one of
-	 *            {@link Opcodes#ASM4}, {@link Opcodes#ASM5}, {@link Opcodes#ASM6}
-	 *            or {@link Opcodes#ASM7}.
 	 * @param fieldVisitor
 	 *            the field visitor to which this visitor must delegate method
 	 *            calls. May be null.
 	 */
-	public FieldVisitor(final int api, final FieldVisitor fieldVisitor) {
-		if (api != Opcodes.ASM6 && api != Opcodes.ASM5 && api != Opcodes.ASM4 && api != Opcodes.ASM7) {
-			throw new IllegalArgumentException();
-		}
-		this.api = api;
+	public FieldVisitor(final FieldVisitor fieldVisitor) {
 		this.fv = fieldVisitor;
 	}
 
@@ -116,10 +96,8 @@ public abstract class FieldVisitor {
 	 *         visitor is not interested in visiting this annotation.
 	 */
 	public AnnotationVisitor visitTypeAnnotation(final int typeRef, final TypePath typePath, final String descriptor,
-			final boolean visible) {
-		if (api < Opcodes.ASM5) {
-			throw new UnsupportedOperationException("This feature requires ASM5");
-		}
+			final boolean visible) //
+	{
 		if (fv != null) {
 			return fv.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
 		}

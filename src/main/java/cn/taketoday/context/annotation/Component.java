@@ -22,6 +22,7 @@ package cn.taketoday.context.annotation;
 import cn.taketoday.context.Scope;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -35,6 +36,7 @@ import java.lang.annotation.Target;
  * 
  *         2018-07-2 22:46:39
  */
+@Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Component {
@@ -43,7 +45,9 @@ public @interface Component {
 	 * @return bean name
 	 */
 	String[] value() default {};
-
+	/**
+	 * @return bean's scope
+	 */
 	Scope scope() default Scope.SINGLETON;
 
 	String[] initMethods() default {};

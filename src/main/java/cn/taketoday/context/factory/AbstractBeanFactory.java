@@ -19,6 +19,22 @@
  */
 package cn.taketoday.context.factory;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.bean.BeanDefinition;
@@ -34,21 +50,6 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.OrderUtils;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -71,7 +72,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64, 1f);
 
 	@Override
-	public Object getBean(String name) throws NoSuchBeanDefinitionException {
+	public Object getBean(String name) throws ContextException {
 
 		Object bean = singletons.get(name);
 
@@ -79,7 +80,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 			BeanDefinition beanDefinition = getBeanDefinition(name);
 			if (beanDefinition != null) {
 				try {
-
 					if (beanDefinition.isSingleton()) {
 						return doCreateBean(beanDefinition, name);
 					}
@@ -90,9 +90,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 					ex = ExceptionUtils.unwrapThrowable(ex);
 					log.error("An Exception Occurred When Getting A Bean Named: [{}], With Msg: [{}]", //
 							name, ex.getMessage(), ex);
+					throw ExceptionUtils.newContextException(ex);
 				}
 			}
 		}
+
 		return bean;
 	}
 
@@ -120,7 +122,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	}
 
 	@Override
-	public <T> T getBean(Class<T> requiredType) throws NoSuchBeanDefinitionException {
+	public <T> T getBean(Class<T> requiredType) {
 		return getBean(getBeanNameCreator().create(requiredType), requiredType);
 	}
 
@@ -146,7 +148,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	}
 
 	@Override
-	public <T> T getBean(String name, Class<T> requiredType) throws NoSuchBeanDefinitionException {
+	public <T> T getBean(String name, Class<T> requiredType) {
 
 		Object bean = getBean(name);
 		if (bean != null) {
@@ -160,11 +162,26 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
 	@Override
 	public <T> List<T> getBeans(Class<T> requiredType) {
-
-		List<T> beans = new ArrayList<>();
+		final List<T> beans = new ArrayList<>();
 
 		for (Entry<String, BeanDefinition> entry : getBeanDefinitionsMap().entrySet()) {
 			if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
+				@SuppressWarnings("unchecked") //
+				T bean = (T) getBean(entry.getKey());
+				if (bean != null) {
+					beans.add(bean);
+				}
+			}
+		}
+		return beans;
+	}
+
+	@Override
+	public <A extends Annotation, T> List<T> getAnnotatedBeans(Class<A> annotationType) {
+		final List<T> beans = new ArrayList<>();
+
+		for (Entry<String, BeanDefinition> entry : getBeanDefinitionsMap().entrySet()) {
+			if (entry.getValue().getBeanClass().isAnnotationPresent(annotationType)) {
 				@SuppressWarnings("unchecked") //
 				T bean = (T) getBean(entry.getKey());
 				if (bean != null) {
@@ -186,7 +203,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	protected Object createBeanInstance(BeanDefinition beanDefinition) throws Throwable {
 		final Object bean = getSingleton(beanDefinition.getName());
 		if (bean == null) {
-			return ClassUtils.newInstance(beanDefinition.getBeanClass());
+			return ClassUtils.newInstance(beanDefinition, this);
 		}
 		return bean;
 	}
@@ -202,11 +219,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	 */
 	protected void applyPropertyValues(Object bean, PropertyValue... propertyValues) throws IllegalAccessException {
 
-		for (PropertyValue propertyValue : propertyValues) {
+		for (final PropertyValue propertyValue : propertyValues) {
 			Object value = propertyValue.getValue();
 			// reference bean
 			if (value instanceof BeanReference) {
-				BeanReference beanReference = (BeanReference) value;
+				final BeanReference beanReference = (BeanReference) value;
 				// fix: same name of bean
 				value = this.getBean(beanReference.getName(), beanReference.getReferenceClass());
 				if (value == null) {
@@ -471,7 +488,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 			ex = ExceptionUtils.unwrapThrowable(ex);
 			log.error("An Exception Occurred When Adding Post Processor To Context: [{}] With Msg: [{}]", //
 					this, ex.getMessage(), ex);
-			throw new ContextException(ex);
+
+			throw ExceptionUtils.newContextException(ex);
 		}
 	}
 
@@ -739,10 +757,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 			if (beanInstance == null || beanDefinition == null) {
 				return;
 			}
-
 			// use real class
 			final Class<? extends Object> beanClass = beanInstance.getClass();
-
 			for (String destroyMethod : beanDefinition.getDestroyMethods()) {
 				beanClass.getMethod(destroyMethod).invoke(beanInstance);
 			}
@@ -753,6 +769,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 			e = ExceptionUtils.unwrapThrowable(e);
 			log.error("An Exception Occurred When Destroy a bean: [{}], With Msg: [{}]", //
 					beanDefinition.getName(), e.getMessage(), e);
+			throw ExceptionUtils.newContextException(e);
 		}
 	}
 
@@ -921,7 +938,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 			beanDefinition.setInitialized(true);
 		}
 		catch (Throwable ex) {
-			throw new ContextException(ExceptionUtils.unwrapThrowable(ex));
+			throw ExceptionUtils.newContextException(ex);
 		}
 	}
 
@@ -929,11 +946,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	public Object refresh(BeanDefinition beanDefinition) {
 
 		try {
-
 			return initializingBean(createBeanInstance(beanDefinition), beanDefinition.getName(), beanDefinition);
 		}
 		catch (Throwable ex) {
-			throw new ContextException(ExceptionUtils.unwrapThrowable(ex));
+			throw ExceptionUtils.newContextException(ex);
 		}
 	}
 

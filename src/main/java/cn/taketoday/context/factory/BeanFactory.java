@@ -19,10 +19,12 @@
  */
 package cn.taketoday.context.factory;
 
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-
+import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
+
+import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
 /**
  * Bean factory
@@ -45,10 +47,10 @@ public interface BeanFactory {
 	 * @param name
 	 *            bean name
 	 * @return get bean instance
-	 * @throws NoSuchBeanDefinitionException
-	 *             if a bean does not exist
+	 * @throws ContextException
+	 *             Exception Occurred When Getting A Named Bean
 	 */
-	Object getBean(String name) throws NoSuchBeanDefinitionException;
+	Object getBean(String name) throws ContextException;
 
 	/**
 	 * Find the bean with the given type, throw an NoSuchBeanDefinitionException if
@@ -56,11 +58,9 @@ public interface BeanFactory {
 	 * 
 	 * @param requiredType
 	 *            bean type
-	 * @return get casted bean instance
-	 * @throws NoSuchBeanDefinitionException
-	 *             if a bean does not exist
+	 * @return get safe casted bean instance
 	 */
-	<T> T getBean(Class<T> requiredType) throws NoSuchBeanDefinitionException;
+	<T> T getBean(Class<T> requiredType);
 
 	/**
 	 * find the bean with the given name and cast to required type, throw an
@@ -71,10 +71,8 @@ public interface BeanFactory {
 	 * @param requiredType
 	 *            cast to required type
 	 * @return get casted bean instance
-	 * @throws NoSuchBeanDefinitionException
-	 *             if a bean does not exist
 	 */
-	<T> T getBean(String name, Class<T> requiredType) throws NoSuchBeanDefinitionException;
+	<T> T getBean(String name, Class<T> requiredType);
 
 	/**
 	 * is Singleton ?
@@ -134,5 +132,15 @@ public interface BeanFactory {
 	 * @since 2.1.2
 	 */
 	<T> List<T> getBeans(Class<T> requiredType);
+
+	/**
+	 * Get a list of annotated beans
+	 * 
+	 * @param annotationType
+	 *            {@link Annotation} type
+	 * @return list of annotated beans
+	 * @since 2.1.5
+	 */
+	<A extends Annotation, T> List<T> getAnnotatedBeans(Class<A> annotationType);
 
 }

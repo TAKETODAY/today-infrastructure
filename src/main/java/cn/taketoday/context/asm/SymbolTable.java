@@ -367,7 +367,8 @@ final class SymbolTable {
 		if (bootstrapMethods != null) {
 			addConstantUtf8(Constants.BOOTSTRAP_METHODS);
 			return 8 + bootstrapMethods.length;
-		} else {
+		}
+		else {
 			return 0;
 		}
 	}
@@ -382,8 +383,8 @@ final class SymbolTable {
 	 */
 	void putBootstrapMethods(final ByteVector output) {
 		if (bootstrapMethods != null) {
-			output.putShort(addConstantUtf8(Constants.BOOTSTRAP_METHODS)).putInt(bootstrapMethods.length + 2)
-					.putShort(bootstrapMethodCount).putByteArray(bootstrapMethods.data, 0, bootstrapMethods.length);
+			output.putShort(addConstantUtf8(Constants.BOOTSTRAP_METHODS)).putInt(bootstrapMethods.length + 2).putShort(
+					bootstrapMethodCount).putByteArray(bootstrapMethods.data, 0, bootstrapMethods.length);
 		}
 	}
 
@@ -473,41 +474,55 @@ final class SymbolTable {
 	Symbol addConstant(final Object value) {
 		if (value instanceof Integer) {
 			return addConstantInteger(((Integer) value).intValue());
-		} else if (value instanceof Byte) {
+		}
+		else if (value instanceof Byte) {
 			return addConstantInteger(((Byte) value).intValue());
-		} else if (value instanceof Character) {
+		}
+		else if (value instanceof Character) {
 			return addConstantInteger(((Character) value).charValue());
-		} else if (value instanceof Short) {
+		}
+		else if (value instanceof Short) {
 			return addConstantInteger(((Short) value).intValue());
-		} else if (value instanceof Boolean) {
+		}
+		else if (value instanceof Boolean) {
 			return addConstantInteger(((Boolean) value).booleanValue() ? 1 : 0);
-		} else if (value instanceof Float) {
+		}
+		else if (value instanceof Float) {
 			return addConstantFloat(((Float) value).floatValue());
-		} else if (value instanceof Long) {
+		}
+		else if (value instanceof Long) {
 			return addConstantLong(((Long) value).longValue());
-		} else if (value instanceof Double) {
+		}
+		else if (value instanceof Double) {
 			return addConstantDouble(((Double) value).doubleValue());
-		} else if (value instanceof String) {
+		}
+		else if (value instanceof String) {
 			return addConstantString((String) value);
-		} else if (value instanceof Type) {
+		}
+		else if (value instanceof Type) {
 			Type type = (Type) value;
 			int typeSort = type.getSort();
 			if (typeSort == Type.OBJECT) {
 				return addConstantClass(type.getInternalName());
-			} else if (typeSort == Type.METHOD) {
+			}
+			else if (typeSort == Type.METHOD) {
 				return addConstantMethodType(type.getDescriptor());
-			} else { // type is a primitive or array type.
+			}
+			else { // type is a primitive or array type.
 				return addConstantClass(type.getDescriptor());
 			}
-		} else if (value instanceof Handle) {
+		}
+		else if (value instanceof Handle) {
 			Handle handle = (Handle) value;
 			return addConstantMethodHandle(handle.getTag(), handle.getOwner(), handle.getName(), handle.getDesc(),
 					handle.isInterface());
-		} else if (value instanceof ConstantDynamic) {
+		}
+		else if (value instanceof ConstantDynamic) {
 			ConstantDynamic constantDynamic = (ConstantDynamic) value;
 			return addConstantDynamic(constantDynamic.getName(), constantDynamic.getDescriptor(),
 					constantDynamic.getBootstrapMethod(), constantDynamic.getBootstrapMethodArgumentsUnsafe());
-		} else {
+		}
+		else {
 			throw new IllegalArgumentException("value " + value);
 		}
 	}
@@ -583,8 +598,8 @@ final class SymbolTable {
 		int hashCode = hash(tag, owner, name, descriptor);
 		Entry entry = get(hashCode);
 		while (entry != null) {
-			if (entry.tag == tag && entry.hashCode == hashCode && entry.owner.equals(owner) && entry.name.equals(name)
-					&& entry.value.equals(descriptor)) {
+			if (entry.tag == tag && entry.hashCode == hashCode && entry.owner.equals(owner) && entry.name.equals(
+					name) && entry.value.equals(descriptor)) {
 				return entry;
 			}
 			entry = entry.next;
@@ -774,8 +789,7 @@ final class SymbolTable {
 		int hashCode = hash(tag, name, descriptor);
 		Entry entry = get(hashCode);
 		while (entry != null) {
-			if (entry.tag == tag && entry.hashCode == hashCode && entry.name.equals(name)
-					&& entry.value.equals(descriptor)) {
+			if (entry.tag == tag && entry.hashCode == hashCode && entry.name.equals(name) && entry.value.equals(descriptor)) {
 				return entry.index;
 			}
 			entry = entry.next;
@@ -864,15 +878,16 @@ final class SymbolTable {
 		int hashCode = hash(tag, owner, name, descriptor, referenceKind);
 		Entry entry = get(hashCode);
 		while (entry != null) {
-			if (entry.tag == tag && entry.hashCode == hashCode && entry.data == referenceKind
-					&& entry.owner.equals(owner) && entry.name.equals(name) && entry.value.equals(descriptor)) {
+			if (entry.tag == tag && entry.hashCode == hashCode && entry.data == referenceKind && entry.owner.equals(
+					owner) && entry.name.equals(name) && entry.value.equals(descriptor)) {
 				return entry;
 			}
 			entry = entry.next;
 		}
 		if (referenceKind <= Opcodes.H_PUTSTATIC) {
 			constantPool.put112(tag, referenceKind, addConstantFieldref(owner, name, descriptor).index);
-		} else {
+		}
+		else {
 			constantPool.put112(tag, referenceKind, addConstantMethodref(owner, name, descriptor, isInterface).index);
 		}
 		return put(new Entry(constantPoolCount++, tag, owner, name, descriptor, referenceKind, hashCode));
@@ -983,8 +998,8 @@ final class SymbolTable {
 		int hashCode = hash(tag, name, descriptor, bootstrapMethodIndex);
 		Entry entry = get(hashCode);
 		while (entry != null) {
-			if (entry.tag == tag && entry.hashCode == hashCode && entry.data == bootstrapMethodIndex
-					&& entry.name.equals(name) && entry.value.equals(descriptor)) {
+			if (entry.tag == tag && entry.hashCode == hashCode && entry.data == bootstrapMethodIndex && entry.name.equals(
+					name) && entry.value.equals(descriptor)) {
 				return entry;
 			}
 			entry = entry.next;
@@ -1241,8 +1256,8 @@ final class SymbolTable {
 		int hashCode = hash(Symbol.UNINITIALIZED_TYPE_TAG, value, bytecodeOffset);
 		Entry entry = get(hashCode);
 		while (entry != null) {
-			if (entry.tag == Symbol.UNINITIALIZED_TYPE_TAG && entry.hashCode == hashCode && entry.data == bytecodeOffset
-					&& entry.value.equals(value)) {
+			if (entry.tag == Symbol.UNINITIALIZED_TYPE_TAG && entry.hashCode == hashCode && entry.data == bytecodeOffset && entry.value.equals(
+					value)) {
 				return entry.index;
 			}
 			entry = entry.next;

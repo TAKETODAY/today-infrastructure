@@ -19,9 +19,6 @@
  */
 package cn.taketoday.context.utils;
 
-import cn.taketoday.context.Constant;
-import cn.taketoday.context.exception.ContextException;
-
 import java.io.File;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
@@ -29,6 +26,9 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.Duration;
+
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.exception.ContextException;
 
 /**
  * 
@@ -56,6 +56,9 @@ public abstract class ConvertUtils {
 
 		switch (targetClass.getSimpleName()) //
 		{
+
+			case "String" :
+				return value;
 			case "Byte" :
 			case "byte" :
 				return Byte.parseByte(value);
@@ -107,7 +110,7 @@ public abstract class ConvertUtils {
 			case "Duration" : {
 				return convertDuration(value);
 			}
-			case "DataSize": {
+			case "DataSize" : {
 				return DataSize.parse(value);
 			}
 		}
@@ -132,7 +135,7 @@ public abstract class ConvertUtils {
 		catch (Throwable e) {
 			//
 		}
-		return value;
+		return null;
 	}
 
 	/**

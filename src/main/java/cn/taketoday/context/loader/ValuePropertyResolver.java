@@ -19,15 +19,18 @@
  */
 package cn.taketoday.context.loader;
 
+import java.lang.reflect.Field;
+
+import javax.el.ELException;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
-
-import java.lang.reflect.Field;
-import java.util.Properties;
 
 /**
  * @author Today <br>
@@ -42,23 +45,36 @@ public class ValuePropertyResolver implements PropertyValueResolver {
 	@Override
 	public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
 
-		String value_ = null;
-
 		Value annotation = field.getAnnotation(Value.class);
-		String value = annotation.value();
+		String expression = annotation.value();
 
-		Properties properties = applicationContext.getEnvironment().getProperties();
-		if (StringUtils.isNotEmpty(value)) {
-			value_ = ContextUtils.resolvePlaceholder(properties, value, annotation.required());
-		}
-		else {// use field name
-			value_ = properties.getProperty(field.getName());
+		ConfigurableEnvironment environment = applicationContext.getEnvironment();
+
+		if (StringUtils.isEmpty(expression)) {
+			// use field name
+			expression = "#{" + field.getName() + "}";
 		}
 
-		if (value_ == null) {
-			return null;
+		final Class<?> type = field.getType();
+
+		Object resolved = null;
+		try {
+			resolved = ConvertUtils.convert(ContextUtils.resolvePlaceholder(environment.getProperties(), expression, false), type);
 		}
-		return new PropertyValue(ConvertUtils.convert(value_, field.getType()), field);
+		catch (NumberFormatException e) {}
+		if (resolved == null) {
+			try {
+				resolved = environment.getELProcessor().getValue(expression, type);
+			}
+			catch (ELException e) {
+				if (annotation.required()) {
+					throw new ConfigurationException("Cannot handle: [{}] -> [{}].", field, expression, e);
+				}
+			}
+			if (resolved == null)
+				return null;
+		}
+		return new PropertyValue(resolved, field);
 	}
 
 }

@@ -290,7 +290,8 @@ public class ByteVector {
 			char charValue = stringValue.charAt(i);
 			if (charValue >= '\u0001' && charValue <= '\u007F') {
 				currentData[currentLength++] = (byte) charValue;
-			} else {
+			}
+			else {
 				length = currentLength;
 				return encodeUtf8(stringValue, i, 65535);
 			}
@@ -323,9 +324,11 @@ public class ByteVector {
 			char charValue = stringValue.charAt(i);
 			if (charValue >= 0x0001 && charValue <= 0x007F) {
 				byteLength++;
-			} else if (charValue <= 0x07FF) {
+			}
+			else if (charValue <= 0x07FF) {
 				byteLength += 2;
-			} else {
+			}
+			else {
 				byteLength += 3;
 			}
 		}
@@ -347,10 +350,12 @@ public class ByteVector {
 			char charValue = stringValue.charAt(i);
 			if (charValue >= 0x0001 && charValue <= 0x007F) {
 				data[currentLength++] = (byte) charValue;
-			} else if (charValue <= 0x07FF) {
+			}
+			else if (charValue <= 0x07FF) {
 				data[currentLength++] = (byte) (0xC0 | charValue >> 6 & 0x1F);
 				data[currentLength++] = (byte) (0x80 | charValue & 0x3F);
-			} else {
+			}
+			else {
 				data[currentLength++] = (byte) (0xE0 | charValue >> 12 & 0xF);
 				data[currentLength++] = (byte) (0x80 | charValue >> 6 & 0x3F);
 				data[currentLength++] = (byte) (0x80 | charValue & 0x3F);

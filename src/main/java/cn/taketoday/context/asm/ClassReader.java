@@ -210,8 +210,7 @@ public class ClassReader {
 		// minor_version fields, which
 		// use 4 and 2 bytes respectively.
 		if (checkClassVersion && readShort(classFileOffset + 6) > Opcodes.V12) {
-			throw new IllegalArgumentException(
-					"Unsupported class file major version " + readShort(classFileOffset + 6));
+			throw new IllegalArgumentException("Unsupported class file major version " + readShort(classFileOffset + 6));
 		}
 		// Create the constant pool arrays. The constant_pool_count field is after the
 		// magic,
@@ -534,37 +533,53 @@ public class ClassReader {
 			// typical classes).
 			if (Constants.SOURCE_FILE.equals(attributeName)) {
 				sourceFile = readUTF8(currentAttributeOffset, charBuffer);
-			} else if (Constants.INNER_CLASSES.equals(attributeName)) {
+			}
+			else if (Constants.INNER_CLASSES.equals(attributeName)) {
 				innerClassesOffset = currentAttributeOffset;
-			} else if (Constants.ENCLOSING_METHOD.equals(attributeName)) {
+			}
+			else if (Constants.ENCLOSING_METHOD.equals(attributeName)) {
 				enclosingMethodOffset = currentAttributeOffset;
-			} else if (Constants.NEST_HOST.equals(attributeName)) {
+			}
+			else if (Constants.NEST_HOST.equals(attributeName)) {
 				nestHostClass = readClass(currentAttributeOffset, charBuffer);
-			} else if (Constants.NEST_MEMBERS.equals(attributeName)) {
+			}
+			else if (Constants.NEST_MEMBERS.equals(attributeName)) {
 				nestMembersOffset = currentAttributeOffset;
-			} else if (Constants.SIGNATURE.equals(attributeName)) {
+			}
+			else if (Constants.SIGNATURE.equals(attributeName)) {
 				signature = readUTF8(currentAttributeOffset, charBuffer);
-			} else if (Constants.RUNTIME_VISIBLE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_VISIBLE_ANNOTATIONS.equals(attributeName)) {
 				runtimeVisibleAnnotationsOffset = currentAttributeOffset;
-			} else if (Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
 				runtimeVisibleTypeAnnotationsOffset = currentAttributeOffset;
-			} else if (Constants.DEPRECATED.equals(attributeName)) {
+			}
+			else if (Constants.DEPRECATED.equals(attributeName)) {
 				accessFlags |= Opcodes.ACC_DEPRECATED;
-			} else if (Constants.SYNTHETIC.equals(attributeName)) {
+			}
+			else if (Constants.SYNTHETIC.equals(attributeName)) {
 				accessFlags |= Opcodes.ACC_SYNTHETIC;
-			} else if (Constants.SOURCE_DEBUG_EXTENSION.equals(attributeName)) {
+			}
+			else if (Constants.SOURCE_DEBUG_EXTENSION.equals(attributeName)) {
 				sourceDebugExtension = readUtf(currentAttributeOffset, attributeLength, new char[attributeLength]);
-			} else if (Constants.RUNTIME_INVISIBLE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_INVISIBLE_ANNOTATIONS.equals(attributeName)) {
 				runtimeInvisibleAnnotationsOffset = currentAttributeOffset;
-			} else if (Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
 				runtimeInvisibleTypeAnnotationsOffset = currentAttributeOffset;
-			} else if (Constants.MODULE.equals(attributeName)) {
+			}
+			else if (Constants.MODULE.equals(attributeName)) {
 				moduleOffset = currentAttributeOffset;
-			} else if (Constants.MODULE_MAIN_CLASS.equals(attributeName)) {
+			}
+			else if (Constants.MODULE_MAIN_CLASS.equals(attributeName)) {
 				moduleMainClass = readClass(currentAttributeOffset, charBuffer);
-			} else if (Constants.MODULE_PACKAGES.equals(attributeName)) {
+			}
+			else if (Constants.MODULE_PACKAGES.equals(attributeName)) {
 				modulePackagesOffset = currentAttributeOffset;
-			} else if (!Constants.BOOTSTRAP_METHODS.equals(attributeName)) {
+			}
+			else if (!Constants.BOOTSTRAP_METHODS.equals(attributeName)) {
 				// The BootstrapMethods attribute is read in the constructor.
 				Attribute attribute = readAttribute(attributePrototypes, attributeName, currentAttributeOffset,
 						attributeLength, charBuffer, -1, null);
@@ -913,21 +928,29 @@ public class ClassReader {
 			if (Constants.CONSTANT_VALUE.equals(attributeName)) {
 				int constantvalueIndex = readUnsignedShort(currentOffset);
 				constantValue = constantvalueIndex == 0 ? null : readConst(constantvalueIndex, charBuffer);
-			} else if (Constants.SIGNATURE.equals(attributeName)) {
+			}
+			else if (Constants.SIGNATURE.equals(attributeName)) {
 				signature = readUTF8(currentOffset, charBuffer);
-			} else if (Constants.DEPRECATED.equals(attributeName)) {
+			}
+			else if (Constants.DEPRECATED.equals(attributeName)) {
 				accessFlags |= Opcodes.ACC_DEPRECATED;
-			} else if (Constants.SYNTHETIC.equals(attributeName)) {
+			}
+			else if (Constants.SYNTHETIC.equals(attributeName)) {
 				accessFlags |= Opcodes.ACC_SYNTHETIC;
-			} else if (Constants.RUNTIME_VISIBLE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_VISIBLE_ANNOTATIONS.equals(attributeName)) {
 				runtimeVisibleAnnotationsOffset = currentOffset;
-			} else if (Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
 				runtimeVisibleTypeAnnotationsOffset = currentOffset;
-			} else if (Constants.RUNTIME_INVISIBLE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_INVISIBLE_ANNOTATIONS.equals(attributeName)) {
 				runtimeInvisibleAnnotationsOffset = currentOffset;
-			} else if (Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
 				runtimeInvisibleTypeAnnotationsOffset = currentOffset;
-			} else {
+			}
+			else {
 				Attribute attribute = readAttribute(context.attributePrototypes, attributeName, currentOffset,
 						attributeLength, charBuffer, -1, null);
 				attribute.nextAttribute = attributes;
@@ -1094,7 +1117,8 @@ public class ClassReader {
 				if ((context.parsingOptions & SKIP_CODE) == 0) {
 					codeOffset = currentOffset;
 				}
-			} else if (Constants.EXCEPTIONS.equals(attributeName)) {
+			}
+			else if (Constants.EXCEPTIONS.equals(attributeName)) {
 				exceptionsOffset = currentOffset;
 				exceptions = new String[readUnsignedShort(exceptionsOffset)];
 				int currentExceptionOffset = exceptionsOffset + 2;
@@ -1102,30 +1126,42 @@ public class ClassReader {
 					exceptions[i] = readClass(currentExceptionOffset, charBuffer);
 					currentExceptionOffset += 2;
 				}
-			} else if (Constants.SIGNATURE.equals(attributeName)) {
+			}
+			else if (Constants.SIGNATURE.equals(attributeName)) {
 				signatureIndex = readUnsignedShort(currentOffset);
-			} else if (Constants.DEPRECATED.equals(attributeName)) {
+			}
+			else if (Constants.DEPRECATED.equals(attributeName)) {
 				context.currentMethodAccessFlags |= Opcodes.ACC_DEPRECATED;
-			} else if (Constants.RUNTIME_VISIBLE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_VISIBLE_ANNOTATIONS.equals(attributeName)) {
 				runtimeVisibleAnnotationsOffset = currentOffset;
-			} else if (Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
 				runtimeVisibleTypeAnnotationsOffset = currentOffset;
-			} else if (Constants.ANNOTATION_DEFAULT.equals(attributeName)) {
+			}
+			else if (Constants.ANNOTATION_DEFAULT.equals(attributeName)) {
 				annotationDefaultOffset = currentOffset;
-			} else if (Constants.SYNTHETIC.equals(attributeName)) {
+			}
+			else if (Constants.SYNTHETIC.equals(attributeName)) {
 				synthetic = true;
 				context.currentMethodAccessFlags |= Opcodes.ACC_SYNTHETIC;
-			} else if (Constants.RUNTIME_INVISIBLE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_INVISIBLE_ANNOTATIONS.equals(attributeName)) {
 				runtimeInvisibleAnnotationsOffset = currentOffset;
-			} else if (Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
 				runtimeInvisibleTypeAnnotationsOffset = currentOffset;
-			} else if (Constants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS.equals(attributeName)) {
 				runtimeVisibleParameterAnnotationsOffset = currentOffset;
-			} else if (Constants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS.equals(attributeName)) {
 				runtimeInvisibleParameterAnnotationsOffset = currentOffset;
-			} else if (Constants.METHOD_PARAMETERS.equals(attributeName)) {
+			}
+			else if (Constants.METHOD_PARAMETERS.equals(attributeName)) {
 				methodParametersOffset = currentOffset;
-			} else {
+			}
+			else {
 				Attribute attribute = readAttribute(context.attributePrototypes, attributeName, currentOffset,
 						attributeLength, charBuffer, -1, null);
 				attribute.nextAttribute = attributes;
@@ -1676,12 +1712,14 @@ public class ClassReader {
 						currentLocalVariableTableOffset += 10;
 					}
 				}
-			} else if (Constants.LOCAL_VARIABLE_TYPE_TABLE.equals(attributeName)) {
+			}
+			else if (Constants.LOCAL_VARIABLE_TYPE_TABLE.equals(attributeName)) {
 				localVariableTypeTableOffset = currentOffset;
 				// Here we do not extract the labels corresponding to the attribute content. We
 				// assume they
 				// are the same or a subset of those of the LocalVariableTable attribute.
-			} else if (Constants.LINE_NUMBER_TABLE.equals(attributeName)) {
+			}
+			else if (Constants.LINE_NUMBER_TABLE.equals(attributeName)) {
 				if ((context.parsingOptions & SKIP_DEBUG) == 0) {
 					// Parse the attribute to find the corresponding (debug only) labels.
 					int currentLineNumberTableOffset = currentOffset;
@@ -1695,7 +1733,8 @@ public class ClassReader {
 						labels[startPc].addLineNumber(lineNumber);
 					}
 				}
-			} else if (Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
 				visibleTypeAnnotationOffsets = readTypeAnnotations(methodVisitor, context, currentOffset,
 						/* visible = */ true);
 				// Here we do not extract the labels corresponding to the attribute content.
@@ -1710,11 +1749,13 @@ public class ClassReader {
 				// annotation at a
 				// time. This assumes that type annotations are ordered by increasing bytecode
 				// offset.
-			} else if (Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
+			}
+			else if (Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
 				invisibleTypeAnnotationOffsets = readTypeAnnotations(methodVisitor, context, currentOffset,
 						/* visible = */ false);
 				// Same comment as above for the RuntimeVisibleTypeAnnotations attribute.
-			} else if (Constants.STACK_MAP_TABLE.equals(attributeName)) {
+			}
+			else if (Constants.STACK_MAP_TABLE.equals(attributeName)) {
 				if ((context.parsingOptions & SKIP_FRAMES) == 0) {
 					stackMapFrameOffset = currentOffset + 2;
 					stackMapTableEndOffset = currentOffset + attributeLength;
@@ -1736,7 +1777,8 @@ public class ClassReader {
 				// exist. Except for UNINITIALIZED type offsets. We solve this by parsing the
 				// stack map
 				// table without a full decoding (see below).
-			} else if ("StackMap".equals(attributeName)) {
+			}
+			else if ("StackMap".equals(attributeName)) {
 				if ((context.parsingOptions & SKIP_FRAMES) == 0) {
 					stackMapFrameOffset = currentOffset + 2;
 					stackMapTableEndOffset = currentOffset + attributeLength;
@@ -1749,7 +1791,8 @@ public class ClassReader {
 				// extraction of the labels corresponding to this attribute (see the comment
 				// above for the
 				// StackMapTable attribute).
-			} else {
+			}
+			else {
 				Attribute attribute = readAttribute(context.attributePrototypes, attributeName, currentOffset,
 						attributeLength, charBuffer, codeOffset, labels);
 				attribute.nextAttribute = attributes;
@@ -1793,8 +1836,7 @@ public class ClassReader {
 			for (int offset = stackMapFrameOffset; offset < stackMapTableEndOffset - 2; ++offset) {
 				if (classFileBuffer[offset] == Frame.ITEM_UNINITIALIZED) {
 					int potentialBytecodeOffset = readUnsignedShort(offset + 1);
-					if (potentialBytecodeOffset >= 0 && potentialBytecodeOffset < codeLength
-							&& (classFileBuffer[bytecodeStartOffset + potentialBytecodeOffset] & 0xFF) == Opcodes.NEW) {
+					if (potentialBytecodeOffset >= 0 && potentialBytecodeOffset < codeLength && (classFileBuffer[bytecodeStartOffset + potentialBytecodeOffset] & 0xFF) == Opcodes.NEW) {
 						createLabel(potentialBytecodeOffset, labels);
 					}
 				}
@@ -1858,8 +1900,7 @@ public class ClassReader {
 			}
 
 			// Visit the stack map frame for this bytecode offset, if any.
-			while (stackMapFrameOffset != 0
-					&& (context.currentFrameOffset == currentBytecodeOffset || context.currentFrameOffset == -1)) {
+			while (stackMapFrameOffset != 0 && (context.currentFrameOffset == currentBytecodeOffset || context.currentFrameOffset == -1)) {
 				// If there is a stack map frame for this offset, make methodVisitor visit it,
 				// and read the
 				// next stack map frame if there is one.
@@ -1868,7 +1909,8 @@ public class ClassReader {
 						methodVisitor.visitFrame(Opcodes.F_NEW, context.currentFrameLocalCount,
 								context.currentFrameLocalTypes, context.currentFrameStackCount,
 								context.currentFrameStackTypes);
-					} else {
+					}
+					else {
 						methodVisitor.visitFrame(context.currentFrameType, context.currentFrameLocalCountDelta,
 								context.currentFrameLocalTypes, context.currentFrameStackCount,
 								context.currentFrameStackTypes);
@@ -1881,7 +1923,8 @@ public class ClassReader {
 				if (stackMapFrameOffset < stackMapTableEndOffset) {
 					stackMapFrameOffset = readStackMapFrame(stackMapFrameOffset, compressedFrames, expandFrames,
 							context);
-				} else {
+				}
+				else {
 					stackMapFrameOffset = 0;
 				}
 			}
@@ -2119,7 +2162,8 @@ public class ClassReader {
 					if (opcode == Opcodes.GOTO || opcode == Opcodes.JSR) {
 						// Replace GOTO with GOTO_W and JSR with JSR_W.
 						methodVisitor.visitJumpInsn(opcode + Constants.WIDE_JUMP_OPCODE_DELTA, target);
-					} else {
+					}
+					else {
 						// Compute the "opposite" of opcode. This can be done by flipping the least
 						// significant bit for IFNULL and IFNONNULL, and similarly for IFEQ ...
 						// IF_ACMPEQ
@@ -2154,7 +2198,8 @@ public class ClassReader {
 					if (opcode == Opcodes.IINC) {
 						methodVisitor.visitIincInsn(readUnsignedShort(currentOffset + 2), readShort(currentOffset + 4));
 						currentOffset += 6;
-					} else {
+					}
+					else {
 						methodVisitor.visitVarInsn(opcode, readUnsignedShort(currentOffset + 2));
 						currentOffset += 4;
 					}
@@ -2239,14 +2284,15 @@ public class ClassReader {
 					String descriptor = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
 					if (opcode < Opcodes.INVOKEVIRTUAL) {
 						methodVisitor.visitFieldInsn(opcode, owner, name, descriptor);
-					} else {
-						boolean isInterface = classFileBuffer[cpInfoOffset
-								- 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
+					}
+					else {
+						boolean isInterface = classFileBuffer[cpInfoOffset - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
 						methodVisitor.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
 					}
 					if (opcode == Opcodes.INVOKEINTERFACE) {
 						currentOffset += 5;
-					} else {
+					}
+					else {
 						currentOffset += 3;
 					}
 					break;
@@ -2290,9 +2336,7 @@ public class ClassReader {
 			}
 
 			// Visit the runtime visible instruction annotations, if any.
-			while (visibleTypeAnnotationOffsets != null
-					&& currentVisibleTypeAnnotationIndex < visibleTypeAnnotationOffsets.length
-					&& currentVisibleTypeAnnotationBytecodeOffset <= currentBytecodeOffset) {
+			while (visibleTypeAnnotationOffsets != null && currentVisibleTypeAnnotationIndex < visibleTypeAnnotationOffsets.length && currentVisibleTypeAnnotationBytecodeOffset <= currentBytecodeOffset) {
 				if (currentVisibleTypeAnnotationBytecodeOffset == currentBytecodeOffset) {
 					// Parse the target_type, target_info and target_path fields.
 					int currentAnnotationOffset = readTypeAnnotationTarget(context,
@@ -2310,9 +2354,7 @@ public class ClassReader {
 			}
 
 			// Visit the runtime invisible instruction annotations, if any.
-			while (invisibleTypeAnnotationOffsets != null
-					&& currentInvisibleTypeAnnotationIndex < invisibleTypeAnnotationOffsets.length
-					&& currentInvisibleTypeAnnotationBytecodeOffset <= currentBytecodeOffset) {
+			while (invisibleTypeAnnotationOffsets != null && currentInvisibleTypeAnnotationIndex < invisibleTypeAnnotationOffsets.length && currentInvisibleTypeAnnotationBytecodeOffset <= currentBytecodeOffset) {
 				if (currentInvisibleTypeAnnotationBytecodeOffset == currentBytecodeOffset) {
 					// Parse the target_type, target_info and target_path fields.
 					int currentAnnotationOffset = readTypeAnnotationTarget(context,
@@ -2585,7 +2627,8 @@ public class ClassReader {
 				// Parse num_element_value_pairs and element_value_pairs and visit these values.
 				currentOffset = readElementValues(methodVisitor.visitTryCatchAnnotation(targetType & 0xFFFFFF00, path,
 						annotationDescriptor, visible), currentOffset, /* named = */ true, charBuffer);
-			} else {
+			}
+			else {
 				// We don't want to visit the other target_type annotations, so we just skip
 				// them (which
 				// requires some parsing because the element_value_pairs array has a variable
@@ -2617,8 +2660,8 @@ public class ClassReader {
 	 *         not have a bytecode offset.
 	 */
 	private int getTypeAnnotationBytecodeOffset(final int[] typeAnnotationOffsets, final int typeAnnotationIndex) {
-		if (typeAnnotationOffsets == null || typeAnnotationIndex >= typeAnnotationOffsets.length
-				|| readByte(typeAnnotationOffsets[typeAnnotationIndex]) < TypeReference.INSTANCEOF) {
+		if (typeAnnotationOffsets == null || typeAnnotationIndex >= typeAnnotationOffsets.length || readByte(
+				typeAnnotationOffsets[typeAnnotationIndex]) < TypeReference.INSTANCEOF) {
 			return -1;
 		}
 		return readUnsignedShort(typeAnnotationOffsets[typeAnnotationIndex] + 1);
@@ -2778,7 +2821,8 @@ public class ClassReader {
 				String elementName = readUTF8(currentOffset, charBuffer);
 				currentOffset = readElementValue(annotationVisitor, currentOffset + 2, elementName, charBuffer);
 			}
-		} else {
+		}
+		else {
 			// Parse the array_value array.
 			while (numElementValuePairs-- > 0) {
 				currentOffset = readElementValue(annotationVisitor, currentOffset, /* named = */ null, charBuffer);
@@ -2926,8 +2970,7 @@ public class ClassReader {
 					case 'F' :
 						float[] floatValues = new float[numValues];
 						for (int i = 0; i < numValues; i++) {
-							floatValues[i] = Float
-									.intBitsToFloat(readInt(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]));
+							floatValues[i] = Float.intBitsToFloat(readInt(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]));
 							currentOffset += 3;
 						}
 						annotationVisitor.visit(elementName, floatValues);
@@ -2935,8 +2978,7 @@ public class ClassReader {
 					case 'D' :
 						double[] doubleValues = new double[numValues];
 						for (int i = 0; i < numValues; i++) {
-							doubleValues[i] = Double
-									.longBitsToDouble(readLong(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]));
+							doubleValues[i] = Double.longBitsToDouble(readLong(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]));
 							currentOffset += 3;
 						}
 						annotationVisitor.visit(elementName, doubleValues);
@@ -2971,7 +3013,8 @@ public class ClassReader {
 		if ((context.currentMethodAccessFlags & Opcodes.ACC_STATIC) == 0) {
 			if ("<init>".equals(context.currentMethodName)) {
 				locals[numLocal++] = Opcodes.UNINITIALIZED_THIS;
-			} else {
+			}
+			else {
 				locals[numLocal++] = readClass(header + 2, context.charBuffer);
 			}
 		}
@@ -3056,7 +3099,8 @@ public class ClassReader {
 		if (compressed) {
 			// Read the frame_type field.
 			frameType = b[currentOffset++] & 0xFF;
-		} else {
+		}
+		else {
 			frameType = Frame.FULL_FRAME;
 			context.currentFrameOffset = -1;
 		}
@@ -3066,13 +3110,15 @@ public class ClassReader {
 			offsetDelta = frameType;
 			context.currentFrameType = Opcodes.F_SAME;
 			context.currentFrameStackCount = 0;
-		} else if (frameType < Frame.RESERVED) {
+		}
+		else if (frameType < Frame.RESERVED) {
 			offsetDelta = frameType - Frame.SAME_LOCALS_1_STACK_ITEM_FRAME;
 			currentOffset = readVerificationTypeInfo(currentOffset, context.currentFrameStackTypes, 0, charBuffer,
 					labels);
 			context.currentFrameType = Opcodes.F_SAME1;
 			context.currentFrameStackCount = 1;
-		} else if (frameType >= Frame.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
+		}
+		else if (frameType >= Frame.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
 			offsetDelta = readUnsignedShort(currentOffset);
 			currentOffset += 2;
 			if (frameType == Frame.SAME_LOCALS_1_STACK_ITEM_FRAME_EXTENDED) {
@@ -3080,15 +3126,18 @@ public class ClassReader {
 						labels);
 				context.currentFrameType = Opcodes.F_SAME1;
 				context.currentFrameStackCount = 1;
-			} else if (frameType >= Frame.CHOP_FRAME && frameType < Frame.SAME_FRAME_EXTENDED) {
+			}
+			else if (frameType >= Frame.CHOP_FRAME && frameType < Frame.SAME_FRAME_EXTENDED) {
 				context.currentFrameType = Opcodes.F_CHOP;
 				context.currentFrameLocalCountDelta = Frame.SAME_FRAME_EXTENDED - frameType;
 				context.currentFrameLocalCount -= context.currentFrameLocalCountDelta;
 				context.currentFrameStackCount = 0;
-			} else if (frameType == Frame.SAME_FRAME_EXTENDED) {
+			}
+			else if (frameType == Frame.SAME_FRAME_EXTENDED) {
 				context.currentFrameType = Opcodes.F_SAME;
 				context.currentFrameStackCount = 0;
-			} else if (frameType < Frame.FULL_FRAME) {
+			}
+			else if (frameType < Frame.FULL_FRAME) {
 				int local = expand ? context.currentFrameLocalCount : 0;
 				for (int k = frameType - Frame.SAME_FRAME_EXTENDED; k > 0; k--) {
 					currentOffset = readVerificationTypeInfo(currentOffset, context.currentFrameLocalTypes, local++,
@@ -3098,7 +3147,8 @@ public class ClassReader {
 				context.currentFrameLocalCountDelta = frameType - Frame.SAME_FRAME_EXTENDED;
 				context.currentFrameLocalCount += context.currentFrameLocalCountDelta;
 				context.currentFrameStackCount = 0;
-			} else {
+			}
+			else {
 				final int numberOfLocals = readUnsignedShort(currentOffset);
 				currentOffset += 2;
 				context.currentFrameType = Opcodes.F_FULL;
@@ -3116,7 +3166,8 @@ public class ClassReader {
 							charBuffer, labels);
 				}
 			}
-		} else {
+		}
+		else {
 			throw new IllegalArgumentException();
 		}
 		context.currentFrameOffset += offsetDelta + 1;
@@ -3409,8 +3460,7 @@ public class ClassReader {
 	 */
 	public int readInt(final int offset) {
 		byte[] classFileBuffer = b;
-		return ((classFileBuffer[offset] & 0xFF) << 24) | ((classFileBuffer[offset + 1] & 0xFF) << 16)
-				| ((classFileBuffer[offset + 2] & 0xFF) << 8) | (classFileBuffer[offset + 3] & 0xFF);
+		return ((classFileBuffer[offset] & 0xFF) << 24) | ((classFileBuffer[offset + 1] & 0xFF) << 16) | ((classFileBuffer[offset + 2] & 0xFF) << 8) | (classFileBuffer[offset + 3] & 0xFF);
 	}
 
 	/**
@@ -3494,12 +3544,12 @@ public class ClassReader {
 			int currentByte = classFileBuffer[currentOffset++];
 			if ((currentByte & 0x80) == 0) {
 				charBuffer[strLength++] = (char) (currentByte & 0x7F);
-			} else if ((currentByte & 0xE0) == 0xC0) {
-				charBuffer[strLength++] = (char) (((currentByte & 0x1F) << 6)
-						+ (classFileBuffer[currentOffset++] & 0x3F));
-			} else {
-				charBuffer[strLength++] = (char) (((currentByte & 0xF) << 12)
-						+ ((classFileBuffer[currentOffset++] & 0x3F) << 6) + (classFileBuffer[currentOffset++] & 0x3F));
+			}
+			else if ((currentByte & 0xE0) == 0xC0) {
+				charBuffer[strLength++] = (char) (((currentByte & 0x1F) << 6) + (classFileBuffer[currentOffset++] & 0x3F));
+			}
+			else {
+				charBuffer[strLength++] = (char) (((currentByte & 0xF) << 12) + ((classFileBuffer[currentOffset++] & 0x3F) << 6) + (classFileBuffer[currentOffset++] & 0x3F));
 			}
 		}
 		return new String(charBuffer, 0, strLength);
@@ -3611,8 +3661,7 @@ public class ClassReader {
 			bootstrapMethodArguments[i] = readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
 			bootstrapMethodOffset += 2;
 		}
-		return constantDynamicValues[constantPoolEntryIndex] = new ConstantDynamic(name, descriptor, handle,
-				bootstrapMethodArguments);
+		return constantDynamicValues[constantPoolEntryIndex] = new ConstantDynamic(name, descriptor, handle, bootstrapMethodArguments);
 	}
 
 	/**
