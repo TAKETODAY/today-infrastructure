@@ -160,6 +160,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	// byte ANNOTATION_REQUEST_PARAM = 0x05;//不需要设置
 	byte	ANNOTATION_MULTIPART				= 0x06;
 	byte	ANNOTATION_REQUEST_BODY				= 0x07;
+	byte	ANNOTATION_REQUEST_ATTRIBUTE		= 0x08;
 
 	/*************************************************
 	 * Parameter Types
@@ -212,6 +213,16 @@ public interface Constant extends cn.taketoday.context.Constant {
 	 * @since 2.3.3
 	 */
 	byte	TYPE_REDIRECT_MODEL					= 0x17;
+	
+	/**
+	 * @since 2.1.5
+	 */
+	byte	TYPE_INPUT_STREAM					= 0x18;
+	byte	TYPE_OUT_STREAM						= 0x19;
+	byte	TYPE_READER							= 0x1A;
+	byte	TYPE_WRITER							= 0x1B;
+	byte	TYPE_LOCALE							= 0x1C;
+	byte	TYPE_PRINCIPAL						= 0x1D;
 
 	/**
 	 * END  Parameter Types 

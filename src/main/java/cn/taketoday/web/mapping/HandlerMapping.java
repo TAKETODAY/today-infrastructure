@@ -19,9 +19,6 @@
  */
 package cn.taketoday.web.mapping;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * Mapping handler to a request
  * 
@@ -29,8 +26,6 @@ import lombok.Setter;
  * 
  *         2018-06-25 19:59:13
  */
-@Getter
-@Setter
 public class HandlerMapping {
 
 	/** 处理器类 */
@@ -39,6 +34,33 @@ public class HandlerMapping {
 	/** 处理器方法 */
 	private HandlerMethod handlerMethod;
 	/** 拦截器 */
-	private Integer[] interceptors;
+	private int[] interceptors;
+
+	public Object getAction() {
+		return action;
+	}
+
+	public HandlerMapping setAction(Object action) {
+		this.action = action;
+		return this;
+	}
+
+	public int[] getInterceptors() {
+		return interceptors;
+	}
+
+	public HandlerMapping setInterceptors(int[] interceptors) {
+		this.interceptors = interceptors;
+		return this;
+	}
+
+	public HandlerMethod getHandlerMethod() {
+		return handlerMethod;
+	}
+
+	public HandlerMapping setHandlerMethod(HandlerMethod handlerMethod) {
+		this.handlerMethod = handlerMethod;
+		return this;
+	}
 
 }

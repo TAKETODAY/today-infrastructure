@@ -180,24 +180,31 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 		// @off
 		switch (methodParameter.getParameterType())
 		{
-			case TYPE_HTTP_SESSION : 			return request.getSession();
-			case TYPE_SERVLET_CONTEXT :			return request.getServletContext();
-			case TYPE_HTTP_SERVLET_REQUEST : 	return request;
+			case TYPE_HTTP_SESSION 			: 	return request.getSession();
+			case TYPE_SERVLET_CONTEXT 		:	return request.getServletContext();
+			case TYPE_HTTP_SERVLET_REQUEST 	: 	return request;
 			case TYPE_HTTP_SERVLET_RESPONSE :	return response;
-			case TYPE_MODEL : 		return new ModelAttributes(request);
-			case TYPE_SET :			return resolveSetParameter(request, methodParameterName, methodParameter);
-			case TYPE_MAP :			return resolveMapParameter(request, methodParameterName, methodParameter);
-			case TYPE_LIST :		return resolveListParameter(request, methodParameterName, methodParameter);
-			case TYPE_ARRAY :		return resolveArrayParameter(request, methodParameterName, methodParameter);
-			case TYPE_STRING :		return resolveStringParameter(request, methodParameterName, methodParameter);
+			case TYPE_READER				:  	return request.getReader();
+			case TYPE_LOCALE				: 	return request.getLocale();
+			case TYPE_WRITER				:  	return response.getWriter();
+			case TYPE_OUT_STREAM			:  	return response.getOutputStream();
+			case TYPE_INPUT_STREAM			:  	return request.getInputStream();
+			case TYPE_PRINCIPAL				:  	return request.getUserPrincipal();
 			
-			case TYPE_BYTE :	return resolveParameter(request, methodParameterName, methodParameter, Byte::parseByte);
-			case TYPE_LONG :	return resolveParameter(request, methodParameterName, methodParameter, Long::parseLong);
-			case TYPE_SHORT :	return resolveParameter(request, methodParameterName, methodParameter, Short::parseShort);
-			case TYPE_FLOAT :	return resolveParameter(request, methodParameterName, methodParameter, Float::parseFloat);
-			case TYPE_INT :		return resolveParameter(request, methodParameterName, methodParameter, Integer::parseInt);
-			case TYPE_DOUBLE :	return resolveParameter(request, methodParameterName, methodParameter, Double::parseDouble);
-			case TYPE_BOOLEAN :	return resolveParameter(request, methodParameterName, methodParameter, Boolean::parseBoolean);
+			case TYPE_MODEL 	: 	return new ModelAttributes(request);
+			case TYPE_SET 		:	return resolveSetParameter(request, methodParameterName, methodParameter);
+			case TYPE_MAP 		:	return resolveMapParameter(request, methodParameterName, methodParameter);
+			case TYPE_LIST 		:	return resolveListParameter(request, methodParameterName, methodParameter);
+			case TYPE_ARRAY 	:	return resolveArrayParameter(request, methodParameterName, methodParameter);
+			case TYPE_STRING 	:	return resolveStringParameter(request, methodParameterName, methodParameter);
+			
+			case TYPE_BYTE 		:	return resolveParameter(request, methodParameterName, methodParameter, Byte::parseByte);
+			case TYPE_LONG 		:	return resolveParameter(request, methodParameterName, methodParameter, Long::parseLong);
+			case TYPE_SHORT 	:	return resolveParameter(request, methodParameterName, methodParameter, Short::parseShort);
+			case TYPE_FLOAT 	:	return resolveParameter(request, methodParameterName, methodParameter, Float::parseFloat);
+			case TYPE_INT 		:	return resolveParameter(request, methodParameterName, methodParameter, Integer::parseInt);
+			case TYPE_DOUBLE 	:	return resolveParameter(request, methodParameterName, methodParameter, Double::parseDouble);
+			case TYPE_BOOLEAN 	:	return resolveParameter(request, methodParameterName, methodParameter, Boolean::parseBoolean);
 			
 			case TYPE_MODEL_AND_VIEW : {
 				final ModelAndView modelAndView = new ModelAndView();
@@ -411,8 +418,11 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 			case ANNOTATION_SERVLET_CONTEXT : { // servlet context attribute
 				return servletContext.getAttribute(methodParameterName);
 			}
+			case ANNOTATION_REQUEST_ATTRIBUTE : {
+				return request.getAttribute(methodParameterName);
+			}
 		}
-		return null;
+		throw new BadRequestException("Annotation Parameter: [" + methodParameterName + "] not supported, bad request.");
 	}
 
 	/**
@@ -600,7 +610,6 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 	private List<?> resolveListParameter(HttpServletRequest request, //
 			String parameterName, MethodParameter methodParameter) throws Throwable //
 	{
-
 		log.debug("Resolve List Parameter: [{}]", parameterName);
 		if (methodParameter.isRequestBody()) {
 			log.debug("List parameter is request body");

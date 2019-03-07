@@ -19,9 +19,24 @@
  */
 package cn.taketoday.web.config;
 
+import java.awt.Image;
+import java.awt.image.RenderedImage;
+import java.lang.reflect.Method;
+import java.util.Objects;
+import java.util.Properties;
+
+import javax.el.ELProcessor;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.DefaultBeanDefinition;
+import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
@@ -31,20 +46,6 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextAware;
 import cn.taketoday.web.mapping.ViewMapping;
 import cn.taketoday.web.servlet.ViewDispatcher;
-
-import java.awt.Image;
-import java.awt.image.RenderedImage;
-import java.lang.reflect.Method;
-import java.util.Objects;
-import java.util.Properties;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -58,13 +59,18 @@ public class ViewConfiguration implements WebApplicationContextAware {
 
 	private String contextPath;
 	private Properties variables;
+	private ELProcessor elProcessor;
 	private BeanNameCreator beanNameCreator;
 	private WebApplicationContext applicationContext;
 
 	/**
 	 * 
+	 * Start configuration
+	 * 
 	 * @param controller
+	 *            the controller element
 	 * @throws Exception
+	 *             if any {@link Exception} occurred
 	 */
 	public void configuration(Element controller) throws Exception {
 
@@ -152,7 +158,9 @@ public class ViewConfiguration implements WebApplicationContextAware {
 		}
 
 		resource = ContextUtils.resolvePlaceholder(variables, prefix + resource + suffix, false);
-
+		if (resource == null) {
+			resource = elProcessor.getValue(prefix + resource + suffix, String.class);
+		}
 		if (Constant.VALUE_REDIRECT.equals(type)) { // redirect
 			mapping.setReturnType(Constant.TYPE_REDIRECT);
 			if (!resource.startsWith(Constant.HTTP)) {
@@ -172,7 +180,7 @@ public class ViewConfiguration implements WebApplicationContextAware {
 
 		name = ContextUtils.resolvePlaceholder(variables, //
 				contextPath + (name.startsWith("/") ? name : "/" + name));
-
+		
 		ViewDispatcher.register(name, mapping);
 		log.info("View Mapped [{} -> {}]", name, mapping);
 		return mapping;
@@ -181,8 +189,11 @@ public class ViewConfiguration implements WebApplicationContextAware {
 	@Override
 	public void setWebApplicationContext(WebApplicationContext applicationContext) {
 		this.applicationContext = applicationContext;
-		this.variables = applicationContext.getEnvironment().getProperties();
-		this.beanNameCreator = applicationContext.getEnvironment().getBeanNameCreator();
+		final ConfigurableEnvironment environment = applicationContext.getEnvironment();
+
+		this.variables = environment.getProperties();
+		this.elProcessor = environment.getELProcessor();
+		this.beanNameCreator = environment.getBeanNameCreator();
 		this.contextPath = applicationContext.getServletContext().getContextPath();
 	}
 

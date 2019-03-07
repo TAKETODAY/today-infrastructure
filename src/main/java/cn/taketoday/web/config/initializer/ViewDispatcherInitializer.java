@@ -19,12 +19,6 @@
  */
 package cn.taketoday.web.config.initializer;
 
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebApplicationContextAware;
-import cn.taketoday.web.servlet.ViewDispatcher;
-
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,6 +26,12 @@ import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebApplicationContextAware;
+import cn.taketoday.web.servlet.ViewDispatcher;
 
 /**
  * @author TODAY <br>
@@ -73,7 +73,7 @@ public class ViewDispatcherInitializer extends WebServletInitializer<ViewDispatc
 
 				log.info("Register View Dispatcher Servlet: [{}] With Url Mappings: {}", viewDispatcher, getUrlMappings());
 
-				setServletName(Constant.VIEW_DISPATCHER);
+				setName(Constant.VIEW_DISPATCHER);
 				setServlet(viewDispatcher);
 			}
 		}

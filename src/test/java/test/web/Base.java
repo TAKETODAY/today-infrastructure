@@ -19,10 +19,9 @@
  */
 package test.web;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.DefaultWebApplicationContext;
+import cn.taketoday.web.WebApplicationContext;
 
 import java.util.Map;
 
@@ -33,16 +32,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * @author Today <br>
  * 
  *         2018-12-24 19:17
  */
+@Getter
+@Setter
 public class Base {
 
 	private ServletContext servletContext;
 
-	private ApplicationContext applicationContext;
+	private WebApplicationContext applicationContext;
 	long start = System.currentTimeMillis();
 
 	@Before
@@ -63,19 +67,18 @@ public class Base {
 		if (applicationContext != null) {
 			applicationContext.close();
 		}
-		
 	}
 
 	@Test
 	public void test_() {
 		System.err.println(System.currentTimeMillis() - start);
 		Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitionsMap();
-		
+
 		System.err.println(beanDefinitionsMap);
-		for (Class<?> class1 : ClassUtils.getClassCache()) {
-			System.err.println(class1);
-		}
-		
+//		for (Class<?> class1 : ClassUtils.getClassCache()) {
+//			System.err.println(class1);
+//		}
+
 	}
 
 }

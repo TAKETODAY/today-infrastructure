@@ -19,9 +19,6 @@
  */
 package cn.taketoday.web.config.initializer;
 
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
-
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
@@ -30,6 +27,8 @@ import javax.servlet.ServletSecurityElement;
 
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -46,7 +45,6 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
 	private int loadOnStartup = -1;
 
 	private MultipartConfigElement multipartConfig;
-
 	private ServletSecurityElement servletSecurity;
 
 	public WebServletInitializer() {
@@ -72,7 +70,7 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
 
 		final T servlet = getServlet();
 		if (servlet != null) {
-			return servletContext.addServlet(getServletName(), servlet);
+			return servletContext.addServlet(getName(), servlet);
 		}
 		return null;
 	}
@@ -87,7 +85,7 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
 	@Override
 	protected void configureRegistration(ServletRegistration.Dynamic registration) {
 
-		LoggerFactory.getLogger(getClass()).debug("Configure servlet registration: [{}]", this);
+		LoggerFactory.getLogger(WebServletInitializer.class).debug("Configure servlet registration: [{}]", this);
 
 		super.configureRegistration(registration);
 
@@ -107,14 +105,6 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
 		if (this.servletSecurity != null) {
 			registration.setServletSecurity(servletSecurity);
 		}
-	}
-
-	public String getServletName() {
-		return getName();
-	}
-
-	public void setServletName(String name) {
-		setName(name);
 	}
 
 	public T getServlet() {

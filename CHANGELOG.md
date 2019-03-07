@@ -250,6 +250,15 @@ public final class PathVariableAction {
 - Waiting for Jetty 10.0.0
 
 ## v2.3.5
+- add new today-context version
+- adjust: adjust `DispatcherServlet`.`destroy()`
+- feat: add `Reader`, `Writer`,request `Locale`, `OutputStream`, `InputStream`, `java.security.Principal`. parameter types
+
+## v2.3.6
+- add new today-context version
+- feat: auto register `Servlet`,`Filter`,`Listener`
+
+
 
 
 

@@ -56,11 +56,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -69,7 +70,6 @@ import lombok.extern.slf4j.Slf4j;
  *          2018-06-25 20:35:04 <br>
  *          2018-08-21 21:05 <b>change:</b> add default value feature.
  */
-@Slf4j
 @SuppressWarnings("serial")
 public class DefaultParameterResolver implements ParameterResolver, Constant, InitializingBean, WebApplicationContextAware {
 
@@ -95,6 +95,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	@Override
 	public void afterPropertiesSet() throws Exception {
 
+		final Logger log = LoggerFactory.getLogger(getClass());
 		log.info("Loading ParameterConverter Extensions");
 		try {
 
@@ -176,7 +177,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @param methodParameter
 	 *            method parameter
 	 * @return
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	private Object setParameter(HttpServletRequest request, //
 			HttpServletResponse response, final MethodParameter methodParameter) throws Throwable //
@@ -190,24 +191,31 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 		// @off
 		switch (methodParameter.getParameterType())
 		{
-			case TYPE_HTTP_SESSION : 			return request.getSession();
-			case TYPE_SERVLET_CONTEXT :			return request.getServletContext();
-			case TYPE_HTTP_SERVLET_REQUEST : 	return request;
+			case TYPE_HTTP_SESSION 			: 	return request.getSession();
+			case TYPE_SERVLET_CONTEXT 		:	return request.getServletContext();
+			case TYPE_HTTP_SERVLET_REQUEST 	: 	return request;
 			case TYPE_HTTP_SERVLET_RESPONSE :	return response;
-			case TYPE_MODEL : 		return new ModelAttributes(request);
-			case TYPE_SET :			return resolveSetParameter(request, methodParameterName, methodParameter);
-			case TYPE_MAP :			return resolveMapParameter(request, methodParameterName, methodParameter);
-			case TYPE_LIST :		return resolveListParameter(request, methodParameterName, methodParameter);
-			case TYPE_ARRAY :		return resolveArrayParameter(request, methodParameterName, methodParameter);
-			case TYPE_STRING :		return resolveStringParameter(request, methodParameterName, methodParameter);
+			case TYPE_READER				:  	return request.getReader();
+			case TYPE_LOCALE				: 	return request.getLocale();
+			case TYPE_WRITER				:  	return response.getWriter();
+			case TYPE_OUT_STREAM			:  	return response.getOutputStream();
+			case TYPE_INPUT_STREAM			:  	return request.getInputStream();
+			case TYPE_PRINCIPAL				:  	return request.getUserPrincipal();
 			
-			case TYPE_BYTE :	return resolveParameter(request, methodParameterName, methodParameter, Byte::parseByte);
-			case TYPE_LONG :	return resolveParameter(request, methodParameterName, methodParameter, Long::parseLong);
-			case TYPE_SHORT :	return resolveParameter(request, methodParameterName, methodParameter, Short::parseShort);
-			case TYPE_FLOAT :	return resolveParameter(request, methodParameterName, methodParameter, Float::parseFloat);
-			case TYPE_INT :		return resolveParameter(request, methodParameterName, methodParameter, Integer::parseInt);
-			case TYPE_DOUBLE :	return resolveParameter(request, methodParameterName, methodParameter, Double::parseDouble);
-			case TYPE_BOOLEAN :	return resolveParameter(request, methodParameterName, methodParameter, Boolean::parseBoolean);
+			case TYPE_MODEL 	: 	return new ModelAttributes(request);
+			case TYPE_SET 		:	return resolveSetParameter(request, methodParameterName, methodParameter);
+			case TYPE_MAP 		:	return resolveMapParameter(request, methodParameterName, methodParameter);
+			case TYPE_LIST 		:	return resolveListParameter(request, methodParameterName, methodParameter);
+			case TYPE_ARRAY 	:	return resolveArrayParameter(request, methodParameterName, methodParameter);
+			case TYPE_STRING 	:	return resolveStringParameter(request, methodParameterName, methodParameter);
+			
+			case TYPE_BYTE 		:	return resolveParameter(request, methodParameterName, methodParameter, Byte::parseByte);
+			case TYPE_LONG 		:	return resolveParameter(request, methodParameterName, methodParameter, Long::parseLong);
+			case TYPE_SHORT 	:	return resolveParameter(request, methodParameterName, methodParameter, Short::parseShort);
+			case TYPE_FLOAT 	:	return resolveParameter(request, methodParameterName, methodParameter, Float::parseFloat);
+			case TYPE_INT 		:	return resolveParameter(request, methodParameterName, methodParameter, Integer::parseInt);
+			case TYPE_DOUBLE 	:	return resolveParameter(request, methodParameterName, methodParameter, Double::parseDouble);
+			case TYPE_BOOLEAN 	:	return resolveParameter(request, methodParameterName, methodParameter, Boolean::parseBoolean);
 			
 			case TYPE_MODEL_AND_VIEW : {
 				final ModelAndView modelAndView = new ModelAndView();
@@ -400,17 +408,17 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 				return pathVariable(request, methodParameterName, methodParameter);
 			}
 			case ANNOTATION_REQUEST_BODY : { // request body
-				Object requestBody = request.getAttribute(KEY_REQUEST_BODY);
+				final Object requestBody = request.getAttribute(KEY_REQUEST_BODY);
 				if (requestBody != null) {
 					return ((JSONObject) requestBody).getObject(methodParameterName, methodParameter.getParameterClass());
 				}
 				try {
 					// fixed #2 JSONObject could be null
-					String formData = request.getReader().readLine();
+					final String formData = request.getReader().readLine();
 					if (StringUtils.isEmpty(formData)) {
 						throw newBadRequest("Request body", methodParameterName, null);
 					}
-					JSONObject parsedJson = JSON.parseObject(formData);
+					final JSONObject parsedJson = JSON.parseObject(formData);
 					request.setAttribute(KEY_REQUEST_BODY, parsedJson);
 					return parsedJson.getObject(methodParameterName, methodParameter.getParameterClass());
 				}
@@ -421,8 +429,12 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 			case ANNOTATION_SERVLET_CONTEXT : { // servlet context attribute
 				return servletContext.getAttribute(methodParameterName);
 			}
+			case ANNOTATION_REQUEST_ATTRIBUTE : {
+				return request.getAttribute(methodParameterName);
+			}
 		}
-		return null;
+
+		throw new BadRequestException("Annotation Parameter: [" + methodParameterName + "] not supported, bad request.");
 	}
 
 	/**
@@ -447,7 +459,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 			String pathVariable;
 			if (attribute == null) {
 				String requestURI = (String) request.getAttribute(Constant.KEY_REQUEST_URI);
-				for (String regex : methodParameter.getSplitMethodUrl()) {
+				for (final String regex : methodParameter.getSplitMethodUrl()) {
 					requestURI = requestURI.replace(regex, Constant.REPLACE_SPLIT_METHOD_URL);
 				}
 				final String[] split = requestURI.split(Constant.REPLACE_REGEXP);
@@ -462,8 +474,8 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 				case TYPE_STRING :	return pathVariable;
 				case TYPE_BYTE :	return Byte.parseByte(pathVariable);
 				case TYPE_INT :		return Integer.parseInt(pathVariable);
-				case TYPE_SHORT :	return Short.parseShort(pathVariable);
 				case TYPE_LONG :	return Long.parseLong(pathVariable);
+				case TYPE_SHORT :	return Short.parseShort(pathVariable);
 				case TYPE_DOUBLE :	return Double.parseDouble(pathVariable);
 				case TYPE_FLOAT :	return Float.parseFloat(pathVariable);
 				default:	 		{
@@ -561,7 +573,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 
 		}
 		else {
-			String parameter = request.getParameter(parameterName);
+			final String parameter = request.getParameter(parameterName);
 			if (StringUtils.isEmpty(parameter)) {
 				return true;
 			}
@@ -573,7 +585,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 			}
 			else {
 				// if has supported type
-				Converter<String, Object> converter = supportParameterTypes.get(type);
+				final Converter<String, Object> converter = supportParameterTypes.get(type);
 				if (converter != null) {
 					property = converter.doConvert(parameter);
 				}

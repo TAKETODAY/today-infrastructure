@@ -91,7 +91,7 @@ public class DebugDispatcherServlet extends DispatcherServlet {
 			request.setAttribute(Constant.KEY_REQUEST_URI, requestURI);
 			requestMapping = handlerMappingRegistry.get(index);
 			// get intercepter s
-			final Integer[] interceptors = requestMapping.getInterceptors();
+			final int[] interceptors = requestMapping.getInterceptors();
 			// invoke intercepter
 			final HandlerInterceptorRegistry handlerInterceptorRegistry = getHandlerInterceptorRegistry();
 			for (Integer interceptor : interceptors) {

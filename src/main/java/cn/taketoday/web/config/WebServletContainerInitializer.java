@@ -19,6 +19,48 @@
  */
 package cn.taketoday.web.config;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EventListener;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.servlet.Filter;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.Servlet;
+import javax.servlet.ServletContainerInitializer;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
+import javax.servlet.ServletSecurityElement;
+import javax.servlet.annotation.HandlesTypes;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.ServletSecurity;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.annotation.WebInitParam;
+import javax.servlet.annotation.WebListener;
+import javax.servlet.annotation.WebServlet;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -32,6 +74,9 @@ import cn.taketoday.web.DefaultWebApplicationContext;
 import cn.taketoday.web.ServletContextInitializer;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.initializer.DispatcherServletInitializer;
+import cn.taketoday.web.config.initializer.WebFilterInitializer;
+import cn.taketoday.web.config.initializer.WebListenerInitializer;
+import cn.taketoday.web.config.initializer.WebServletInitializer;
 import cn.taketoday.web.event.ApplicationStartedEvent;
 import cn.taketoday.web.multipart.AbstractMultipartResolver;
 import cn.taketoday.web.multipart.DefaultMultipartResolver;
@@ -39,35 +84,6 @@ import cn.taketoday.web.resolver.DefaultExceptionResolver;
 import cn.taketoday.web.resolver.DefaultParameterResolver;
 import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.FreeMarkerViewResolver;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
-import javax.servlet.annotation.HandlesTypes;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  * Initialize Web application in a server like tomcat, jetty, undertow
@@ -539,13 +555,18 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 			List<ServletContextInitializer> contextInitializers = //
 					applicationContext.getBeans(ServletContextInitializer.class);
 
+			applyFilter(applicationContext, contextInitializers);
+			applyServlet(applicationContext, contextInitializers);
+			applyListener(applicationContext, contextInitializers);
+
 			OrderUtils.reversedSort(contextInitializers);
 
 			for (final ServletContextInitializer servletContextInitializer : contextInitializers) {
 				servletContextInitializer.onStartup(servletContext);
 			}
 
-			removeFrameWorkBeanDefinitions();
+			applicationContext.destroyBean(VIEW_CONFIG);
+			applicationContext.destroyBean(ACTION_CONFIG);
 
 			applicationContext.publishEvent(new ApplicationStartedEvent(applicationContext));
 			if (Boolean.parseBoolean(environment.getProperty(ENABLE_WEB_STARTED_LOG, "true"))) {
@@ -564,9 +585,100 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 
 	}
 
-	static void removeFrameWorkBeanDefinitions() {
-		applicationContext.destroyBean(VIEW_CONFIG);
-		applicationContext.destroyBean(ACTION_CONFIG);
+	private void applyFilter(final WebApplicationContext applicationContext, List<ServletContextInitializer> contextInitializers) {
+
+		List<Filter> filters = applicationContext.getAnnotatedBeans(WebFilter.class);
+		for (Filter filter : filters) {
+
+			final Class<?> beanClass = filter.getClass();
+
+			WebFilterInitializer<Filter> webFilterInitializer = new WebFilterInitializer<>(filter);
+
+			WebFilter webFilter = beanClass.getAnnotation(WebFilter.class);
+
+			final Set<String> urlPatterns = new HashSet<>();
+			Collections.addAll(urlPatterns, webFilter.value());
+			Collections.addAll(urlPatterns, webFilter.urlPatterns());
+
+			webFilterInitializer.addUrlMappings(StringUtils.toStringArray(urlPatterns));
+
+			webFilterInitializer.addServletNames(webFilter.servletNames());
+			webFilterInitializer.setAsyncSupported(webFilter.asyncSupported());
+
+			for (WebInitParam initParam : webFilter.initParams()) {
+				webFilterInitializer.addInitParameter(initParam.name(), initParam.value());
+			}
+
+			String name = webFilter.filterName();
+			if (StringUtils.isEmpty(name)) {
+				final String displayName = webFilter.displayName();
+				if (StringUtils.isEmpty(displayName)) {
+					name = applicationContext.getBeanName(beanClass);
+				}
+				else {
+					name = displayName;
+				}
+			}
+
+			webFilterInitializer.setName(name);
+			webFilterInitializer.setDispatcherTypes(webFilter.dispatcherTypes());
+
+			contextInitializers.add(webFilterInitializer);
+		}
+	}
+
+	private void applyServlet(final WebApplicationContext applicationContext, List<ServletContextInitializer> contextInitializers) {
+
+		List<Servlet> servlets = applicationContext.getAnnotatedBeans(WebServlet.class);
+
+		for (Servlet servlet : servlets) {
+
+			final Class<?> beanClass = servlet.getClass();
+
+			WebServletInitializer<Servlet> webServletInitializer = new WebServletInitializer<>(servlet);
+
+			WebServlet webServlet = beanClass.getAnnotation(WebServlet.class);
+
+			webServletInitializer.addUrlMappings(webServlet.urlPatterns());
+			webServletInitializer.setLoadOnStartup(webServlet.loadOnStartup());
+			webServletInitializer.setAsyncSupported(webServlet.asyncSupported());
+
+			for (WebInitParam initParam : webServlet.initParams()) {
+				webServletInitializer.addInitParameter(initParam.name(), initParam.value());
+			}
+
+			final MultipartConfig multipartConfig = beanClass.getAnnotation(MultipartConfig.class);
+			if (multipartConfig != null) {
+				webServletInitializer.setMultipartConfig(new MultipartConfigElement(multipartConfig));
+			}
+			final ServletSecurity servletSecurity = beanClass.getAnnotation(ServletSecurity.class);
+			if (servletSecurity != null) {
+				webServletInitializer.setServletSecurity(new ServletSecurityElement(servletSecurity));
+			}
+
+			String name = webServlet.name();
+			if (StringUtils.isEmpty(name)) {
+
+				final String displayName = webServlet.displayName();
+				if (StringUtils.isEmpty(displayName)) {
+					name = applicationContext.getBeanName(beanClass);
+				}
+				else {
+					name = displayName;
+				}
+			}
+			webServletInitializer.setName(name);
+
+			contextInitializers.add(webServletInitializer);
+		}
+	}
+
+	private void applyListener(final WebApplicationContext applicationContext, List<ServletContextInitializer> contextInitializers) {
+
+		List<EventListener> eventListeners = applicationContext.getAnnotatedBeans(WebListener.class);
+		for (EventListener eventListener : eventListeners) {
+			contextInitializers.add(new WebListenerInitializer<>(eventListener));
+		}
 	}
 
 }

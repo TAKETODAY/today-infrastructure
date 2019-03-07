@@ -19,9 +19,6 @@
  */
 package cn.taketoday.web.config.initializer;
 
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -34,15 +31,15 @@ import javax.servlet.FilterRegistration;
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.slf4j.LoggerFactory;
+
+import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
 
 /**
  * @author TODAY <br>
  *         2019-02-03 13:22
  */
-@Setter
-@Getter
 public class WebFilterInitializer<T extends Filter> extends WebComponentInitializer<FilterRegistration.Dynamic> {
 
 	private T filter;
@@ -51,22 +48,28 @@ public class WebFilterInitializer<T extends Filter> extends WebComponentInitiali
 
 	private Set<String> servletNames = new LinkedHashSet<>();
 
-	@Override
-	protected Dynamic addRegistration(ServletContext servletContext) {
-		return servletContext.addFilter(getFilterName(), filter);
+	public WebFilterInitializer() {
+
 	}
 
-	/**
-	 * Get filter name
-	 * 
-	 * @return
-	 */
-	public String getFilterName() {
-		return filter.getClass().getSimpleName();
+	public WebFilterInitializer(T filter) {
+		this.filter = filter;
+	}
+
+	@Override
+	protected Dynamic addRegistration(ServletContext servletContext) {
+		final T filter = getFilter();
+		if (filter != null) {
+			return servletContext.addFilter(getName(), filter);
+		}
+		return null;
 	}
 
 	@Override
 	protected void configureRegistration(Dynamic registration) {
+
+		LoggerFactory.getLogger(WebFilterInitializer.class).debug("Configure filter registration: [{}]", this);
+
 		super.configureRegistration(registration);
 
 		EnumSet<DispatcherType> dispatcherTypes = null;
@@ -93,5 +96,75 @@ public class WebFilterInitializer<T extends Filter> extends WebComponentInitiali
 			}
 		}
 	}
+
+	public T getFilter() {
+		return filter;
+	}
+
+	public boolean isMatchAfter() {
+		return matchAfter;
+	}
+
+	public DispatcherType[] getDispatcherTypes() {
+		return dispatcherTypes;
+	}
+
+	public Set<String> getServletNames() {
+		return servletNames;
+	}
+
+	public WebFilterInitializer<T> setFilter(T filter) {
+		this.filter = filter;
+		return this;
+	}
+
+	public WebFilterInitializer<T> setMatchAfter(boolean matchAfter) {
+		this.matchAfter = matchAfter;
+		return this;
+	}
+
+	public WebFilterInitializer<T> setDispatcherTypes(DispatcherType[] dispatcherTypes) {
+		this.dispatcherTypes = dispatcherTypes;
+		return this;
+	}
+
+	public WebFilterInitializer<T> setServletNames(Set<String> servletNames) {
+		this.servletNames = servletNames;
+		return this;
+	}
+
+	public WebFilterInitializer<T> addServletNames(String... servletNames) {
+		for (String name : servletNames) {
+			this.servletNames.add(name);
+		}
+		return this;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("{\n\t\"filter\":\"");
+		builder.append(filter);
+		builder.append("\",\n\t\"matchAfter\":\"");
+		builder.append(matchAfter);
+		builder.append("\",\n\t\"dispatcherTypes\":\"");
+		builder.append(Arrays.toString(dispatcherTypes));
+		builder.append("\",\n\t\"servletNames\":\"");
+		builder.append(servletNames);
+		builder.append("\",\n\t\"initParameters\":\"");
+		builder.append(getInitParameters());
+		builder.append("\",\n\t\"urlMappings\":\"");
+		builder.append(getUrlMappings());
+		builder.append("\",\n\t\"order\":\"");
+		builder.append(getOrder());
+		builder.append("\",\n\t\"name\":\"");
+		builder.append(getName());
+		builder.append("\",\n\t\"asyncSupported\":\"");
+		builder.append(isAsyncSupported());
+		builder.append("\"\n}");
+		return builder.toString();
+	}
+
+
 
 }

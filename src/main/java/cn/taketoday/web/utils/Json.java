@@ -36,13 +36,12 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public final class Json implements Serializable {
-
-	private static final long serialVersionUID = -5925945582314435750L;
+@SuppressWarnings("serial")
+public class Json implements Serializable {
 
 	private String msg;
-	private int code = 200;
 	private Object data;
+	private int code = 200;
 	private boolean success;
 
 	public Json(boolean success) {
@@ -59,6 +58,7 @@ public final class Json implements Serializable {
 		this.code = code;
 		this.success = success;
 	}
+	
 	public Json(int code, boolean success) {
 		this.code = code;
 		this.success = success;

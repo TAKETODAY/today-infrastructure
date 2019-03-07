@@ -56,11 +56,18 @@ import cn.taketoday.web.ui.RedirectModel;
 
 import java.awt.Image;
 import java.awt.image.RenderedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,6 +75,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -126,25 +134,25 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	 * 
 	 * @throws Exception
 	 */
-	public void startConfiguration() throws Exception {
+	void startConfiguration() throws Exception {
 
 		// @since 2.3.3
 		for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitionsMap().entrySet()) {
 
 			final Class<? extends Object> beanClass = entry.getValue().getBeanClass();
 
-			Collection<AnnotationAttributes> annotationAttributes = //
+			final Collection<AnnotationAttributes> controllerAttributes = //
 					ClassUtils.getAnnotationAttributes(beanClass, Controller.class);
 
-			if (annotationAttributes.isEmpty()) {
+			if (controllerAttributes.isEmpty()) {
 				continue;
 			}
 
-			Collection<ActionMapping> controllerMappings = //
+			final Collection<ActionMapping> controllerMappings = //
 					ClassUtils.getAnnotation(beanClass, ActionMapping.class); // find mapping on class
 
-			Set<String> namespaces = new HashSet<>(4, 1.0f); // name space
-			Set<RequestMethod> methodsOnClass = new HashSet<>(8, 1.0f); // method
+			final Set<String> namespaces = new HashSet<>(4, 1.0f); // name space
+			final Set<RequestMethod> methodsOnClass = new HashSet<>(8, 1.0f); // method
 
 			if (!controllerMappings.isEmpty()) {
 				ActionMapping controllerMapping = controllerMappings.iterator().next(); // get first mapping on class
@@ -153,9 +161,8 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 				}
 				Collections.addAll(methodsOnClass, controllerMapping.method());
 			}
-
-			final AnnotationAttributes attributes = annotationAttributes.iterator().next();
-			final boolean restful = attributes.getBoolean("restful"); // restful
+			
+			final boolean restful = controllerAttributes.iterator().next().getBoolean("restful"); // restful
 
 			for (Method method : beanClass.getDeclaredMethods()) {
 				this.setActionMapping(beanClass, method, namespaces, methodsOnClass, restful);
@@ -176,7 +183,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	private void setActionMapping(Class<?> beanClass, Method method, //
 			Set<String> namespaces, Set<RequestMethod> methodsOnClass, boolean restful) throws Exception //
 	{
-		Collection<AnnotationAttributes> annotationAttributes = //
+		final Collection<AnnotationAttributes> annotationAttributes = //
 				ClassUtils.getAnnotationAttributes(method, ActionMapping.class);
 
 		if (annotationAttributes.isEmpty()) {
@@ -375,7 +382,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 		handlerMethod.setReutrnType(returnType(method, method.getReturnType(), restful));
 		handlerMapping.setHandlerMethod(handlerMethod);
 
-		Object bean = applicationContext.getBean(beanClass);
+		final Object bean = applicationContext.getBean(beanClass);
 		if (bean == null) {
 			throw new ConfigurationException(//
 					"An unexpected exception occurred: [Can't get bean with given type: [{}]]", //
@@ -533,6 +540,24 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 		else if (ModelAndView.class == parameterClass) {
 			parameterType = Constant.TYPE_MODEL_AND_VIEW;
 		}
+		else if (Reader.class == parameterClass || BufferedReader.class == parameterClass) {
+			parameterType = Constant.TYPE_READER;
+		}
+		else if (Writer.class == parameterClass || PrintWriter.class == parameterClass) {
+			parameterType = Constant.TYPE_WRITER;
+		}
+		else if (InputStream.class == parameterClass) {
+			parameterType = Constant.TYPE_INPUT_STREAM;
+		}
+		else if (OutputStream.class == parameterClass) {
+			parameterType = Constant.TYPE_OUT_STREAM;
+		}
+		else if (Locale.class == parameterClass) {
+			parameterType = Constant.TYPE_LOCALE;
+		}
+		else if (Principal.class == parameterClass) {
+			parameterType = Constant.TYPE_PRINCIPAL;
+		}
 
 		// array
 		if (parameterClass.isArray()) {
@@ -576,34 +601,35 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	 * Add intercepter to handler .
 	 * 
 	 * @param controllerClass
+	 *            controller class
 	 * @param action
-	 * @param isRest
+	 *            method
 	 * @param requestMapping
+	 *            mapping of request
 	 */
 	@SuppressWarnings("unchecked")
 	private void setInterceptor(Class<?> controllerClass, Method action, HandlerMapping requestMapping) {
 
 		int length = 0;
-		Integer[] classInterceptor = new Integer[0];
+		int[] classInterceptor = new int[0];
 		// 设置类拦截器
-		Interceptor interceptors = controllerClass.getAnnotation(Interceptor.class);
-		if (interceptors != null) {
-
-			Class<HandlerInterceptor>[] values = (Class<HandlerInterceptor>[]) interceptors.value();
-			length = interceptors.value().length;
-			classInterceptor = addInterceptors(values);
+		Interceptor controllerInterceptors = controllerClass.getAnnotation(Interceptor.class);
+		if (controllerInterceptors != null) {
+			Class<? extends HandlerInterceptor>[] value = controllerInterceptors.value();
+			length = value.length;
+			classInterceptor = addInterceptors((Class<HandlerInterceptor>[]) value);
 		}
 		// 方法拦截器
-		Interceptor interceptors_ = action.getAnnotation(Interceptor.class);
+		Interceptor actionInterceptors = action.getAnnotation(Interceptor.class);
 
-		Integer[] methodInterceptor = new Integer[0];
-		if (interceptors_ != null) {
-			Class<HandlerInterceptor>[] values = (Class<HandlerInterceptor>[]) interceptors_.value();
-			length += interceptors_.value().length;
-			methodInterceptor = addInterceptors(values);
+		int[] methodInterceptor = new int[0];
+		if (actionInterceptors != null) {
+			Class<? extends HandlerInterceptor>[] value = actionInterceptors.value();
+			length += value.length;
+			methodInterceptor = addInterceptors(value);
 		}
 
-		Integer[] ids = new Integer[length];
+		int[] ids = new int[length];
 
 		System.arraycopy(classInterceptor, 0, ids, 0, classInterceptor.length);
 		System.arraycopy(methodInterceptor, 0, ids, classInterceptor.length, methodInterceptor.length);
@@ -612,16 +638,18 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	}
 
 	/***
-	 * Register intercepter id into intercepters pool
+	 * Register intercepter id into intercepters registry
 	 * 
 	 * @param interceptors
-	 * @return intercepter ids
+	 * @return
 	 */
-	private final Integer[] addInterceptors(Class<HandlerInterceptor>[] interceptors) {
+	private final int[] addInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
 
-		Integer[] ids = new Integer[interceptors.length];
+		final HandlerInterceptorRegistry handlerInterceptorRegistry = this.handlerInterceptorRegistry;
+
+		int[] ids = new int[interceptors.length];
 		int i = 0;
-		for (Class<HandlerInterceptor> interceptor : interceptors) {
+		for (Class<? extends HandlerInterceptor> interceptor : interceptors) {
 			int size = handlerInterceptorRegistry.size();
 			try {
 				{

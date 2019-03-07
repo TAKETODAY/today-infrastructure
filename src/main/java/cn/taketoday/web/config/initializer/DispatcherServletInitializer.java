@@ -73,7 +73,7 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
 
 			log.info("Register Dispatcher Servlet: [{}] With Url Mappings: {}", dispatcherServlet, getUrlMappings());
 
-			setServletName(Constant.DISPATCHER_SERVLET);
+			setName(Constant.DISPATCHER_SERVLET);
 			setServlet(dispatcherServlet);
 		}
 		return dispatcherServlet;

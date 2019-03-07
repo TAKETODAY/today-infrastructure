@@ -68,7 +68,6 @@ public class Pagination<T> {
 	private List<T> data;
 
 	/**
-	 * 
 	 * @return
 	 */
 	public Pagination<T> setNum() {

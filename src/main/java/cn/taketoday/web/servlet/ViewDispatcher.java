@@ -57,7 +57,7 @@ public class ViewDispatcher extends GenericServlet {
 	/** exception Resolver */
 	@Autowired(Constant.EXCEPTION_RESOLVER)
 	private ExceptionResolver exceptionResolver;
-
+	
 	@Value(value = "#{download.buff.size}", required = false)
 	private int downloadFileBuf = 10240;
 
@@ -77,6 +77,7 @@ public class ViewDispatcher extends GenericServlet {
 
 		final HttpServletRequest request = (HttpServletRequest) req;
 		final HttpServletResponse response = (HttpServletResponse) res;
+
 		final ViewMapping mapping = VIEW_REQUEST_MAPPING.get(request.getRequestURI());
 
 		try {
@@ -91,7 +92,6 @@ public class ViewDispatcher extends GenericServlet {
 			if (mapping.hasAction()) {
 				result = mapping.getAction().invoke(mapping.getController(), request, response);
 			}
-			// 转到相应页面
 			if (response.isCommitted()) {
 				return;
 			}

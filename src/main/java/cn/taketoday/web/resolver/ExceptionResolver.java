@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author Today <br>
  *         2018-10-24 19:18
  */
+@FunctionalInterface
 public interface ExceptionResolver {
 
 	/**
@@ -39,7 +40,7 @@ public interface ExceptionResolver {
 	 * @param response
 	 *            current response
 	 * @param exception
-	 *            the exception occurred in handler method
+	 *            the exception occurred
 	 * @param handlerMapping
 	 *            current handler mapping info
 	 * @throws Throwable

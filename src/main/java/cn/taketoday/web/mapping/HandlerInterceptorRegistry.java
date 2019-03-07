@@ -28,7 +28,7 @@ import java.util.Objects;
 import java.util.RandomAccess;
 
 /**
- * intercept pool.
+ * Intercept registry.
  * 
  * @author Today <br>
  * 
@@ -47,15 +47,16 @@ public class HandlerInterceptorRegistry implements RandomAccess {
 		return array.length;
 	}
 
-	public int indexOf(Class<HandlerInterceptor> handlerInterceptorClass) {
+	public int indexOf(Class<? extends HandlerInterceptor> handlerInterceptorClass) {
 		if (handlerInterceptorClass == null) {
 			for (int i = 0; i < array.length; i++)
 				if (array[i] == null)
 					return i;
 		}
 		else {
+			final String className = handlerInterceptorClass.getName();
 			for (int i = 0; i < array.length; i++) {
-				if (handlerInterceptorClass.getName().equals(array[i].getClass().getName()))
+				if (className.equals(array[i].getClass().getName()))
 					return i;
 			}
 		}

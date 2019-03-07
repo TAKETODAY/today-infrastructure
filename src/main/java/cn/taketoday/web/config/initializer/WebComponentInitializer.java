@@ -35,7 +35,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
  * @author TODAY <br>
  *         2019-02-03 12:22
  */

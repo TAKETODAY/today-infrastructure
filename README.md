@@ -16,7 +16,6 @@
 ```
 - [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-web/2.3.4.RELEASE/jar)
 
-
 ## 案例
 - [DEMO](https://github.com/TAKETODAY/today-web-demo)
 
