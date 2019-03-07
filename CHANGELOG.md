@@ -206,7 +206,7 @@ public void test_Conditional() {
 - adjust: Adjust context event
 - feat: Enhance `Props`
 - fix: When manually load context some properties can't be loaded
-
+- fix: el Messages resource bundle not found
 
 
 
