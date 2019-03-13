@@ -19,6 +19,38 @@
  */
 package cn.taketoday.web.config;
 
+import java.awt.Image;
+import java.awt.image.RenderedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
@@ -53,39 +85,6 @@ import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.ModelAttributes;
 import cn.taketoday.web.ui.RedirectModel;
-
-import java.awt.Image;
-import java.awt.image.RenderedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -121,12 +120,43 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 
 	}
 
-	public void configuration() throws Exception {
+	/**
+	 * Build {@link HandlerMapping}
+	 * 
+	 * @param beanClass
+	 *            bean class
+	 * @throws Exception
+	 *             if any {@link Exception} occurred
+	 * @since 2.3.7
+	 */
+	public void buildHandlerMapping(final Class<?> beanClass) throws Exception {
 
-		log.info("Initializing Actions And Find ParameterResolver");
-		startConfiguration();
-		handlerMappingRegistry.setRegexMappings(new HashMap<>(regexUrls))//
-				.setRequestMappings(new HashMap<>(requestMappings));
+		final Collection<AnnotationAttributes> controllerAttributes = //
+				ClassUtils.getAnnotationAttributes(beanClass, Controller.class);
+
+		if (controllerAttributes.isEmpty()) {
+			return;
+		}
+
+		final Collection<ActionMapping> controllerMappings = //
+				ClassUtils.getAnnotation(beanClass, ActionMapping.class); // find mapping on class
+
+		final Set<String> namespaces = new HashSet<>(4, 1.0f); // name space
+		final Set<RequestMethod> methodsOnClass = new HashSet<>(8, 1.0f); // method
+
+		if (!controllerMappings.isEmpty()) {
+			ActionMapping controllerMapping = controllerMappings.iterator().next(); // get first mapping on class
+			for (String value : controllerMapping.value()) {
+				namespaces.add(checkUrl(value));
+			}
+			Collections.addAll(methodsOnClass, controllerMapping.method());
+		}
+
+		final boolean restful = controllerAttributes.iterator().next().getBoolean("restful"); // restful
+
+		for (Method method : beanClass.getDeclaredMethods()) {
+			this.setActionMapping(beanClass, method, namespaces, methodsOnClass, restful);
+		}
 	}
 
 	/**
@@ -135,38 +165,9 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	 * @throws Exception
 	 */
 	void startConfiguration() throws Exception {
-
 		// @since 2.3.3
 		for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitionsMap().entrySet()) {
-
-			final Class<? extends Object> beanClass = entry.getValue().getBeanClass();
-
-			final Collection<AnnotationAttributes> controllerAttributes = //
-					ClassUtils.getAnnotationAttributes(beanClass, Controller.class);
-
-			if (controllerAttributes.isEmpty()) {
-				continue;
-			}
-
-			final Collection<ActionMapping> controllerMappings = //
-					ClassUtils.getAnnotation(beanClass, ActionMapping.class); // find mapping on class
-
-			final Set<String> namespaces = new HashSet<>(4, 1.0f); // name space
-			final Set<RequestMethod> methodsOnClass = new HashSet<>(8, 1.0f); // method
-
-			if (!controllerMappings.isEmpty()) {
-				ActionMapping controllerMapping = controllerMappings.iterator().next(); // get first mapping on class
-				for (String value : controllerMapping.value()) {
-					namespaces.add(checkUrl(value));
-				}
-				Collections.addAll(methodsOnClass, controllerMapping.method());
-			}
-			
-			final boolean restful = controllerAttributes.iterator().next().getBoolean("restful"); // restful
-
-			for (Method method : beanClass.getDeclaredMethods()) {
-				this.setActionMapping(beanClass, method, namespaces, methodsOnClass, restful);
-			}
+			buildHandlerMapping(entry.getValue().getBeanClass());
 		}
 	}
 
@@ -186,13 +187,11 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 		final Collection<AnnotationAttributes> annotationAttributes = //
 				ClassUtils.getAnnotationAttributes(method, ActionMapping.class);
 
-		if (annotationAttributes.isEmpty()) {
-			return;
+		if (!annotationAttributes.isEmpty()) {
+			// do mapping url
+			this.mappingHandlerMapping(this.createHandlerMapping(beanClass, method, restful), // create HandlerMapping
+					namespaces, methodsOnClass, annotationAttributes);
 		}
-
-		// do mapping url
-		this.mappingHandlerMapping(this.createHandlerMapping(beanClass, method, restful), // create HandlerMapping
-				namespaces, methodsOnClass, annotationAttributes);
 	}
 
 	/**
@@ -216,10 +215,13 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	 * Mapping given HandlerMapping to {@link HandlerMappingRegistry}
 	 * 
 	 * @param handlerMapping
+	 *            current {@link HandlerMapping}
 	 * @param namespaces
+	 *            path on class
 	 * @param classRequestMethods
+	 *            methods on class
 	 * @param annotationAttributes
-	 *            {@link ActionMapping}
+	 *            {@link ActionMapping} Attributes
 	 */
 	private void mappingHandlerMapping(HandlerMapping handlerMapping, Set<String> namespaces, //
 			Set<RequestMethod> classRequestMethods, Collection<AnnotationAttributes> annotationAttributes) //
@@ -250,7 +252,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	}
 
 	/**
-	 * Mapping
+	 * Mapping to {@link HandlerMappingRegistry}
 	 * 
 	 * @param handlerMapping
 	 * @param handlerMethod
@@ -280,6 +282,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	 * Create path variable mapping.
 	 * 
 	 * @param regexUrl
+	 *            regex url
 	 * @param methodParameters
 	 */
 	private boolean doMappingPathVariable(String regexUrl, //
@@ -695,13 +698,27 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 		if (requestMappings != null) {
 			this.requestMappings.clear();
 		}
-		this.regexUrls = null;
-		this.requestMappings = null;
 	}
 
 	@Override
 	public void onStartup(ServletContext servletContext) throws Throwable {
-		configuration();
+
+		log.info("Initializing Controllers");
+		startConfiguration();
+		handlerMappingRegistry.setRegexMappings(new HashMap<>(regexUrls))//
+				.setRequestMappings(new HashMap<>(requestMappings));
+	}
+
+	public void reBuiltControllers() throws Throwable {
+
+		log.info("rebuilding Controllers");
+
+		regexUrls.clear();
+		requestMappings.clear();
+
+		startConfiguration();
+		handlerMappingRegistry.setRegexMappings(new HashMap<>(regexUrls))//
+				.setRequestMappings(new HashMap<>(requestMappings));
 	}
 
 	@Override

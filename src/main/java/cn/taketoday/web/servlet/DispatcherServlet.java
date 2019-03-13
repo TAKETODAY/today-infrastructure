@@ -162,9 +162,9 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 					response.sendError(404);
 					return;
 				}
+				request.setAttribute(Constant.KEY_REQUEST_URI, requestURI);
 			}
-			//
-			request.setAttribute(Constant.KEY_REQUEST_URI, requestURI);
+			
 			requestMapping = handlerMappingRegistry.get(index);
 			// get intercepter s
 			final int[] interceptors = requestMapping.getInterceptors();

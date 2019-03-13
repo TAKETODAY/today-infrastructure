@@ -258,6 +258,8 @@ public final class PathVariableAction {
 - add new today-context version
 - feat: auto register `Servlet`,`Filter`,`Listener`
 
+## v2.3.7
+- reat: Allow rebuild Controllers
 
 
 

@@ -542,12 +542,11 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 			catch (Throwable e) {
 				// Waiting for Jetty 10.0.0
 			}
-
-			if (Boolean.parseBoolean(environment.getProperty(ENABLE_WEB_MVC_XML, "true"))) {
+			if (environment.getProperty(ENABLE_WEB_MVC_XML, Boolean::parseBoolean, true)) {
 				this.viewConfiguration = applicationContext.getBean(VIEW_CONFIG, ViewConfiguration.class);
 				initFrameWorkFromWebMvcXml(servletContext);
 			}
-
+			
 			// check all resolver
 			checkFrameWorkResolvers();
 
@@ -564,12 +563,9 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 			for (final ServletContextInitializer servletContextInitializer : contextInitializers) {
 				servletContextInitializer.onStartup(servletContext);
 			}
-
-			applicationContext.destroyBean(VIEW_CONFIG);
-			applicationContext.destroyBean(ACTION_CONFIG);
-
+			
 			applicationContext.publishEvent(new ApplicationStartedEvent(applicationContext));
-			if (Boolean.parseBoolean(environment.getProperty(ENABLE_WEB_STARTED_LOG, "true"))) {
+			if (environment.getProperty(ENABLE_WEB_STARTED_LOG, Boolean::parseBoolean, true)) {
 				log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
 						System.currentTimeMillis() - start//
 				);
