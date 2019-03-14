@@ -24,6 +24,7 @@ import java.util.Properties;
 import javax.el.ELProcessor;
 
 import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 
@@ -84,7 +85,46 @@ public interface Environment {
 	 * @return the property value associated with the given key, or {@code null} if
 	 *         the key cannot be resolved
 	 */
-	<T> T getProperty(String key, Class<T> targetType);
+	default <T> T getProperty(String key, Class<T> targetType) {
+		return getProperty(key, targetType, null);
+	}
+
+	/**
+	 * Return the property value associated with the given key, or
+	 * {@link defaultValue} if the key cannot be resolved.
+	 * 
+	 * @param key
+	 *            the property name to resolve
+	 * @param targetType
+	 *            the expected type of the property value
+	 * @param defaultValue
+	 *            if the key cannot be resolved will return this value
+	 * @return the property value associated with the given key, or
+	 *         {@link defaultValue} if the key cannot be resolved
+	 * @since 2.1.6
+	 */
+	default <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
+		return getProperty(key, (s) -> targetType.cast(s), defaultValue);
+	}
+
+	/**
+	 * @param key
+	 *            the property name to resolve
+	 * @param converter
+	 *            converter to convert a source value to target type value
+	 * @param defaultValue
+	 *            if the key cannot be resolved will return this value
+	 * @return the property value associated with the given key and convert to
+	 *         target type, or {@link defaultValue} if the key cannot be resolved
+	 */
+	@SuppressWarnings("unchecked")
+	default <S, T> T getProperty(String key, Converter<S, T> converter, T defaultValue) {
+		String property = getProperty(key);
+		if (property == null) {
+			return defaultValue;
+		}
+		return converter.doConvert((S) property);
+	}
 
 	/**
 	 * Return the set of profiles explicitly made active for this environment.

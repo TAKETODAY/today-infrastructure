@@ -88,11 +88,6 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 	}
 
 	@Override
-	public <T> T getProperty(String key, Class<T> targetType) {
-		return targetType.cast(properties.get(key));
-	}
-
-	@Override
 	public BeanDefinitionRegistry getBeanDefinitionRegistry() {
 		return beanDefinitionRegistry;
 	}
