@@ -19,10 +19,12 @@
  */
 package cn.taketoday.context.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
@@ -36,8 +38,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.net.JarURLConnection;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -75,19 +77,41 @@ public abstract class ClassUtils {
 
 	private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
-	/** all the class in class path */
-	private static Set<Class<?>> classesCache;
 	/** class loader **/
 	private static ClassLoader classLoader;
+	/** scanned classes */
+	private static Set<Class<?>> classesCache;
 
 	static {
-		classLoader = Thread.currentThread().getContextClassLoader();
+
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		if (classLoader == null) {
 			classLoader = ClassUtils.class.getClassLoader();
 		}
 		if (classLoader == null) {
 			classLoader = ClassLoader.getSystemClassLoader();
 		}
+		setClassLoader(classLoader);
+
+		final Set<String> ignoreScanJars = new HashSet<>();
+
+		try {
+			final Enumeration<URL> resources = classLoader.getResources("ignore/jar-prefix");
+			while (resources.hasMoreElements()) {
+				final BufferedReader inputStream = new BufferedReader(//
+						new InputStreamReader(resources.nextElement().openStream(), Constant.DEFAULT_CHARSET)//
+				);
+				String str;
+				while ((str = inputStream.readLine()) != null) {
+					ignoreScanJars.add(str);
+				}
+			}
+		}
+		catch (IOException e) {//
+			log.error("IOException occurred when load 'ignore/jar-prefix'");
+			throw ExceptionUtils.newContextException(e);
+		}
+		IGNORE_SCAN_JARS = ignoreScanJars.toArray(new String[0]);
 	}
 
 	/**
@@ -103,6 +127,8 @@ public abstract class ClassUtils {
 			add(Documented.class);
 		}
 	};
+	
+	private static final String[] IGNORE_SCAN_JARS;
 	
 	//@on
 	public static void addIgnoreAnnotationClass(Class<? extends Annotation> annotationClass) {
@@ -185,11 +211,6 @@ public abstract class ClassUtils {
 
 	/**
 	 * @param predicate
-	 *            a <a href=
-	 *            "package-summary.html#NonInterference">non-interfering</a>,
-	 *            <a href="package-summary.html#Statelessness">stateless</a>
-	 *            predicate to apply to each element to determine if it should be
-	 *            included
 	 */
 	public static final <T> Set<Class<?>> filter(Predicate<Class<?>> predicate) {
 		return getClassCache()//
@@ -240,16 +261,17 @@ public abstract class ClassUtils {
 			final Set<Class<?>> scanClasses = new HashSet<>(2048, 1.0f);
 			// packages = ""
 			if (packages.length == 1 && StringUtils.isEmpty(packages[0])) {
-				scan(scanClasses, Constant.BLANK);
+				scan(scanClasses);
 			}
 			else {
 				final Set<String> packagesToScan = new HashSet<>();
 				for (final String location : packages) {
 					if (location.startsWith(Constant.FREAMWORK_PACKAGE)) {
+						// maybe cn.taketoday.xxx will scan all cn.taketoday
 						packagesToScan.add(Constant.FREAMWORK_PACKAGE);
 					}
 					else if (StringUtils.isEmpty(location)) {
-						scan(scanClasses, Constant.BLANK);
+						scan(scanClasses);
 						setClassCache(scanClasses);
 						return scanClasses;
 					}
@@ -282,30 +304,65 @@ public abstract class ClassUtils {
 
 			final Enumeration<URL> uri = classLoader.getResources(packageName);
 			while (uri.hasMoreElements()) {
-				URL url = uri.nextElement();
-//				log.debug("with uri: [{}]", url);
-				final String protocol = url.getProtocol();
-				if ("file".equals(protocol)) {
-					findAllClassWithPackage(packageName, StringUtils.decodeUrl(url.getFile()), scanClasses);
-				}
-				else if ("jar".equals(protocol)) {
-					final JarURLConnection jarURLConnection = (JarURLConnection) url.openConnection();
-					if (jarURLConnection == null) {
-						log.warn("Can't get the connection of the url: [{}]", url);
-						continue;
-					}
-					final JarFile jarFile = jarURLConnection.getJarFile();
-					if (jarFile == null) {
-						continue;
-					}
+				scan(scanClasses, new File(uri.nextElement().getFile()), packageName);
+			}
+		}
+		catch (IOException e) {
+			log.error("IO exception occur With Msg: [{}]", e.getMessage(), e);
+			throw new ContextException(e);
+		}
+	}
 
-					final Enumeration<JarEntry> jarEntries = jarFile.entries();
-					while (jarEntries.hasMoreElements()) {
-						loadClassInJar(jarEntries.nextElement(), packageName, scanClasses);
-					}
+	/**
+	 * Scan class in a file
+	 * 
+	 * @param scanClasses
+	 *            class set
+	 * @param file
+	 *            file in class maybe a jar file or class directory
+	 * @param packageName
+	 *            if file is a directory will use this packageName
+	 * @throws IOException
+	 * @since 2.1.6
+	 */
+	static void scan(final Collection<Class<?>> scanClasses, final File file, String packageName) throws IOException {
+
+		if (file.isDirectory()) {
+			findAllClassWithPackage(packageName, file, scanClasses);
+			return;
+		}
+		final String fileName = file.getName();
+		if (fileName.endsWith(".jar")) {
+			for (final String ignoreJarName : IGNORE_SCAN_JARS) {
+				if (fileName.startsWith(ignoreJarName)) {
+					return;
 				}
-				else {
-					log.warn("This Protocol: [{}] is not supported.", protocol);
+			}
+//			log.debug("scan in: [{}]", file);
+			try (final JarFile jarFile = new JarFile(file)) {
+				final Enumeration<JarEntry> jarEntries = jarFile.entries();
+				while (jarEntries.hasMoreElements()) {
+					loadClassInJar(jarEntries.nextElement(), Constant.BLANK, scanClasses);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Scan all the classpath classes
+	 * 
+	 * @param scanClasses
+	 *            class set
+	 * @since 2.1.6
+	 */
+	public static void scan(Collection<Class<?>> scanClasses) {
+
+		try {
+			if (classLoader instanceof URLClassLoader) {
+				URL[] urLs = ((URLClassLoader) classLoader).getURLs();
+				// fix: protocol is file not a jar protocol
+				for (URL url : urLs) {
+					scan(scanClasses, new File(url.getFile()), Constant.BLANK);
 				}
 			}
 		}
@@ -358,9 +415,7 @@ public abstract class ClassUtils {
 	 * @param scanClasses
 	 *            class set
 	 */
-	private static void findAllClassWithPackage(String packageName, String packagePath, Collection<Class<?>> scanClasses) {
-
-		File directory = new File(packagePath);
+	private static void findAllClassWithPackage(String packageName, File directory, Collection<Class<?>> scanClasses) {
 
 		if (!directory.exists() || !directory.isDirectory()) {
 			log.error("The package -> [{}] you provided that contains nothing", packageName);
@@ -386,7 +441,7 @@ public abstract class ClassUtils {
 				if (scanPackage.startsWith(".")) {
 					scanPackage = scanPackage.replaceFirst("[.]", "");
 				}
-				findAllClassWithPackage(scanPackage, file.getAbsolutePath(), scanClasses);
+				findAllClassWithPackage(scanPackage, file, scanClasses);
 				continue;
 			}
 			if (fileName.startsWith("package-info")) {

@@ -77,7 +77,7 @@ public class ApplicationContextTest {
 		try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
 			applicationContext.loadContext("test.demo.repository");
 			Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap();
-
+			
 			System.out.println(beanDefinitionsMap);
 
 			boolean containsBean = applicationContext.containsBeanDefinition(DefaultUserRepository.class);

@@ -205,8 +205,17 @@ public void test_Conditional() {
 - feat: support `Constructor` injection
 - adjust: Adjust context event
 - feat: Enhance `Props`
+- feat: Add el support
 - fix: When manually load context some properties can't be loaded
 - fix: el Messages resource bundle not found
+
+> ## v2.1.6
+- feat: hot swap supports
+- feat: add `Environment` new api to get property
+- feat: add jar-prefix file to ignore jar scanning
+
+
+
 
 
 

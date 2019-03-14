@@ -1,15 +1,5 @@
 package test.context.utils;
 
-import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Scope;
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.annotation.ComponentImpl;
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.utils.ClassUtils;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -19,6 +9,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Scope;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.ComponentImpl;
+import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 import test.context.props.Config_;
 import test.context.utils.Bean.C;
