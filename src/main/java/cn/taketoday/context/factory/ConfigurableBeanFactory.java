@@ -19,12 +19,12 @@
  */
 package cn.taketoday.context.factory;
 
+import java.util.Set;
+
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-
-import java.util.Set;
 
 /**
  * @author Today <br>
@@ -95,7 +95,6 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
 	 * 
 	 * @param name
 	 *            bean name
-	 * 
 	 * @since 1.2.0
 	 */
 	void refresh(String name);
@@ -136,5 +135,16 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
 	 * @since 2.1.2
 	 */
 	void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor);
+
+	/**
+	 * Refresh a bean which has already in context
+	 * 
+	 * @param previousClass
+	 *            Previous Class
+	 * @param currentClass
+	 *            Swap {@link Class}
+	 * @since 2.1.6
+	 */
+	void refresh(Class<?> previousClass, Class<?> currentClass);
 
 }

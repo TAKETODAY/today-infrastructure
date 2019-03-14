@@ -78,7 +78,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	private long startupDate;
 	private String propertiesLocation = ""; // default ""
 	private ConfigurableEnvironment environment;
-	
+
 	// @since 2.1.5
 	private State state;
 	/** application listeners **/
@@ -484,7 +484,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	@Override
 	public Object refresh(BeanDefinition beanDefinition) {
 		try {
-			
+
 			final Object initializingBean = getBeanFactory().refresh(beanDefinition);
 			// object refreshed
 			publishEvent(new ObjectRefreshedEvent(beanDefinition, this));
@@ -510,6 +510,23 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	@Override
 	public void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
 		getBeanFactory().removeBeanPostProcessor(beanPostProcessor);
+	}
+
+	@Override
+	public void refresh(Class<?> previousClass, Class<?> currentClass) {
+
+		try {
+
+			getBeanFactory().refresh(previousClass, currentClass);
+
+			// object refreshed
+			publishEvent(new ObjectRefreshedEvent(getBeanDefinition(currentClass), this));
+		}
+		catch (Throwable ex) {
+			ex = ExceptionUtils.unwrapThrowable(ex);
+			log.error("Can't refresh a bean: [{}], With Msg: [{}]", previousClass, ex.getMessage(), ex);
+			throw ExceptionUtils.newContextException(ex);
+		}
 	}
 
 	// ------------------- BeanFactory

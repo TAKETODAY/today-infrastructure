@@ -23,8 +23,6 @@ import java.lang.reflect.Field;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * Property
@@ -32,20 +30,14 @@ import lombok.Setter;
  * @author Today <br>
  *         2018-06-23 11:28:01
  */
-@Setter
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
 public class PropertyValue {
 
 	/** property value */
-	private Object value;
+	private final Object value;
 	/** field info */
-	private Field field;
-
-	public PropertyValue(Field field) {
-		this.field = field;
-	}
+	private final Field field;
 
 	@Override
 	public String toString() {
@@ -56,4 +48,22 @@ public class PropertyValue {
 				.toString();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj instanceof PropertyValue) {
+			PropertyValue other = ((PropertyValue) obj);
+			if (!other.value.equals(this.value)) {
+				return false;
+			}
+			Field otherField = other.field;
+			return (otherField.getDeclaringClass().getName().equals(this.field.getDeclaringClass().getName())) //
+					&& (otherField.getName().equals(this.field.getName())) //
+					&& (otherField.getType().getName().equals(this.field.getType().getName()));
+		}
+
+		return super.equals(obj);
+	}
 }

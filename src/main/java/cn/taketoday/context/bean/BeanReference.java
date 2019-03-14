@@ -59,4 +59,24 @@ public final class BeanReference {
 				.toString();
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) {
+			return true;
+		}
+
+		if (obj instanceof BeanReference) {
+			BeanReference other = (BeanReference) obj;
+			
+			if (other.required != this.required || //
+					!other.name.equals(this.name) || //
+					!other.referenceClass.getName().equals(this.referenceClass.getName())) {
+				return false;
+			}
+			return true;
+		}
+
+		return false;
+	}
+
 }

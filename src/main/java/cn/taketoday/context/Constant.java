@@ -67,7 +67,6 @@ public interface Constant extends Serializable {
 	 * @since 2.1.2
 	 */
 	String 	FREAMWORK_PACKAGE		= "cn.taketoday";
-//	String 	COMPONENT_SCAN			= "component-scan";
 	String 	CLASS_PATH_PREFIX 		= "classpath:";
 	String	INIT_METHODS			= "initMethods";
 	String	DESTROY_METHODS			= "destroyMethods";

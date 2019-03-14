@@ -78,7 +78,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 			return; // don't load abstract class
 		}
 		try {
-
+			
 			if (ContextUtils.conditional(beanClass, applicationContext)) {
 				register(beanClass);
 			}
@@ -125,12 +125,12 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	@Override
 	public void register(Class<?> beanClass) throws BeanDefinitionStoreException {
 		try {
-
+			
 			Collection<AnnotationAttributes> annotationAttributes = ClassUtils.getAnnotationAttributes(beanClass, Component.class);
 			if (annotationAttributes.isEmpty()) {
 				return;
 			}
-
+			
 			final String defaultBeanName = beanNameCreator.create(beanClass);
 			for (AnnotationAttributes attributes : annotationAttributes) {
 				for (String name : ContextUtils.findNames(defaultBeanName, attributes.getStringArray(Constant.VALUE))) {

@@ -20,6 +20,7 @@
 package cn.taketoday.context.factory;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -732,12 +734,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 		this.beanDefinitionMap.put(beanName, beanDefinition);
 
 		PropertyValue[] propertyValues = beanDefinition.getPropertyValues();
-		if (propertyValues == null) {
-			return;
-		}
-		for (PropertyValue propertyValue : propertyValues) {
-			if (propertyValue.getValue() instanceof BeanReference) {
-				this.dependencies.add(propertyValue);
+		if (propertyValues != null) {
+			for (PropertyValue propertyValue : propertyValues) {
+				if (propertyValue.getValue() instanceof BeanReference) {
+					this.dependencies.add(propertyValue);
+				}
 			}
 		}
 	}
@@ -950,6 +951,104 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 		}
 		catch (Throwable ex) {
 			throw ExceptionUtils.newContextException(ex);
+		}
+	}
+
+	/*
+	 * （非 Javadoc）
+	 * 
+	 * @see
+	 * cn.taketoday.context.factory.ConfigurableBeanFactory#refresh(java.lang.Class,
+	 * java.lang.Class)
+	 */
+	@Override
+	public void refresh(Class<?> previousClass, Class<?> currentClass) {
+
+		BeanDefinition previousBeanDefinition = //
+				Objects.requireNonNull(getBeanDefinition(previousClass), "No such bean definition : " + previousClass.getName());
+
+		// remove previous bean
+		String previousBeanName = previousBeanDefinition.getName();
+		removeBean(previousBeanName);
+
+		if (currentClass == null) {
+			updateDependencies(previousBeanName, null);
+			return;
+		}
+		// TODO remove all the property bean definition
+		getBeanDefinitionLoader().loadBeanDefinition(currentClass);
+
+		BeanDefinition currentBeanDefinition = getBeanDefinition(currentClass);
+
+		if (currentBeanDefinition == null) {
+			getBeanDefinitionLoader().loadBeanDefinition(beanNameCreator.create(currentClass), currentClass);
+		}
+
+		// refresh all property and remove all reference dependencies
+		for (PropertyValue propertyValue : currentBeanDefinition.getPropertyValues()) {
+			Object value = propertyValue.getValue();
+			if (value instanceof BeanReference) {
+				BeanReference beanReference = (BeanReference) value;
+				
+				Set<PropertyValue> dependencies = getDependencies();
+				Object[] dependent = //
+						dependencies.stream()//
+								.filter(predicate -> beanReference.equals(predicate.getValue()))//
+								.toArray();
+				
+				for (Object object : dependent) {
+					if (beanReference != object) {
+						dependencies.remove(object);
+					}
+				}
+				
+				PropertyValue previousPropertyValue = //
+						previousBeanDefinition.getPropertyValue(propertyValue.getField().getName());
+				// do refresh property
+				refresh(previousPropertyValue.getField().getType(), beanReference.getReferenceClass());
+			}
+		}
+		// refresh with new bean name
+		String currentName = currentBeanDefinition.getName();
+
+		refresh(currentName);
+
+		Object refreshed = getBean(currentName);
+
+		updateDependencies(currentName, refreshed);
+	}
+
+	/**
+	 * Update dependencies
+	 * 
+	 * @param currentName
+	 *            bean's new name
+	 * @param refreshed
+	 *            refreshed object
+	 */
+	private void updateDependencies(final String currentName, final Object refreshed) {
+
+		try {
+
+			Class<? extends Object> refreshedClass = refreshed.getClass();
+			// update all dependencies
+			for (PropertyValue propertyValue : getDependencies()) {
+
+				final Field field = propertyValue.getField();
+				final BeanReference beanReference = (BeanReference) propertyValue.getValue();
+				
+				if (beanReference.getName().equals(currentName) && //
+						field.getType().isAssignableFrom(refreshedClass)) {
+					
+					
+					
+					Object bean = getBean(field.getDeclaringClass());
+					field.set(bean, refreshed);
+				}
+			}
+		}
+		catch (IllegalArgumentException | IllegalAccessException e) {
+			throw ExceptionUtils.newContextException(e);
 		}
 	}
 
