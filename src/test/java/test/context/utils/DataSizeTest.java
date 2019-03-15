@@ -1,9 +1,9 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
- * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,23 +13,30 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ *   
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package test.demo.service;
+package test.context.utils;
 
-import test.demo.config.User;
+import org.junit.Test;
+
+import cn.taketoday.context.utils.DataSize;
 
 /**
- * 
- * @author Today <br>
- * 		2018-11-15 16:50
+ * @author TODAY <br>
+ *         2019-03-15 21:21
  */
-public interface UserService {
+public class DataSizeTest {
 
-	public boolean register(User user);
+	@Test
+	public void test_Parse() {
 
-	public User login(User user);
+		DataSize parse = DataSize.parse("10MB");
+		DataSize gb = DataSize.parse("1GB");
+		
+		assert gb.equals(DataSize.ofGigabytes(1));
+		assert parse.equals(DataSize.ofMegabytes(10));
+	}
 
 }

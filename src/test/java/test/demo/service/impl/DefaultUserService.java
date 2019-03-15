@@ -22,8 +22,8 @@ package test.demo.service.impl;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Service;
-import test.demo.domain.Config;
-import test.demo.domain.User;
+import test.demo.config.Config;
+import test.demo.config.User;
 import test.demo.repository.UserRepository;
 import test.demo.service.UserService;
 

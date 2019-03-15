@@ -21,14 +21,13 @@ package test.context.profile;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import test.demo.config.User;
 
 import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import test.demo.domain.User;
 
 /**
  * @author Today <br>
@@ -52,7 +51,7 @@ public class ProfileTest {
 	@Test
 	public void test_Profile() {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("","test.demo.domain")) {
+		try (ApplicationContext applicationContext = new StandardApplicationContext("","test.demo.config")) {
 
 			User user = applicationContext.getBean("user", User.class);
 			System.out.println(user);
@@ -63,7 +62,7 @@ public class ProfileTest {
 	@Test
 	public void test_Conditional() {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("","test.demo.domain")) {
+		try (ApplicationContext applicationContext = new StandardApplicationContext("","test.demo.config")) {
 			User yhj = applicationContext.getBean("yhj", User.class);
 			User user = applicationContext.getBean("user_", User.class);
 			assert yhj != null;

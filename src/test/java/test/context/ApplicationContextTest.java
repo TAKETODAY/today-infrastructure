@@ -39,10 +39,10 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import lombok.extern.slf4j.Slf4j;
-import test.demo.domain.Config;
-import test.demo.domain.ConfigFactoryBean;
-import test.demo.domain.ConfigurationBean;
-import test.demo.domain.User;
+import test.demo.config.Config;
+import test.demo.config.ConfigFactoryBean;
+import test.demo.config.ConfigurationBean;
+import test.demo.config.User;
 import test.demo.repository.UserRepository;
 import test.demo.repository.impl.DefaultUserRepository;
 import test.demo.service.UserService;
@@ -96,7 +96,7 @@ public class ApplicationContextTest {
 	@Test
 	public void test_LoadSingleton() throws NoSuchBeanDefinitionException {
 		try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-			applicationContext.loadContext("test.demo.domain");
+			applicationContext.loadContext("test.demo.config");
 			Config config = applicationContext.getBean(Config.class);
 			Config config_ = applicationContext.getBean(Config.class);
 
@@ -117,7 +117,7 @@ public class ApplicationContextTest {
 	public void test_LoadFactoryBean() throws NoSuchBeanDefinitionException {
 
 		try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
-			applicationContext.loadContext("test.demo.domain");
+			applicationContext.loadContext("test.demo.config");
 			Config config = applicationContext.getBean("FactoryBean-Config", Config.class);
 			Config config_ = applicationContext.getBean("FactoryBean-Config", Config.class);
 

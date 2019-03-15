@@ -19,7 +19,7 @@
  */
 package test.demo.repository;
 
-import test.demo.domain.User;
+import test.demo.config.User;
 
 /**
  * @author Today

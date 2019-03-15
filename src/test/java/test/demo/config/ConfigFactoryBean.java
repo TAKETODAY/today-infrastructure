@@ -17,7 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.demo.domain;
+package test.demo.config;
+
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
@@ -25,11 +29,6 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.factory.InitializingBean;
-
-import java.util.Properties;
-
-import javax.annotation.PostConstruct;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

@@ -22,8 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import test.context.props.Config_;
 import test.context.utils.Bean.C;
 import test.context.utils.Bean.S;
-import test.demo.domain.Config;
-import test.demo.domain.User;
+import test.demo.config.Config;
+import test.demo.config.User;
 
 /**
  * 

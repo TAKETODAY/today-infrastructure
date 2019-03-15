@@ -26,7 +26,7 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import cn.taketoday.context.annotation.Repository;
-import test.demo.domain.User;
+import test.demo.config.User;
 import test.demo.repository.UserRepository;
 
 /**

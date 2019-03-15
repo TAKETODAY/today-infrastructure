@@ -2,10 +2,9 @@ package test.context;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import test.demo.config.Config;
 
 import org.junit.Test;
-
-import test.demo.domain.Config;
 
 /**
  * A simple benchmark test

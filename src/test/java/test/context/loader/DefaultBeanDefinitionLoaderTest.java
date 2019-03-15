@@ -29,6 +29,7 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.DefaultBeanDefinitionLoader;
+import test.demo.config.User;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -36,8 +37,6 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import test.demo.domain.User;
 
 /**
  * Default Bean Definition Loader implements

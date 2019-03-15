@@ -35,7 +35,7 @@ import org.junit.Test;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import test.demo.domain.User;
+import test.demo.config.User;
 
 /**
  * @author TODAY <br>

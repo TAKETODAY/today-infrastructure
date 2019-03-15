@@ -17,16 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.context;
-
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
+package test.context.factory;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +41,8 @@ public class BaseTest {
 
 	private long start;
 
-	private static ConfigurableApplicationContext applicationContext = new StandardApplicationContext("", "");
+	private static ConfigurableApplicationContext applicationContext = //
+			new StandardApplicationContext("", "test.context.factory", "test.demo.config");
 
 	private String process;
 

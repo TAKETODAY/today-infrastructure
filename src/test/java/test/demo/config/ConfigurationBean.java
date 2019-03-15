@@ -17,16 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.demo.domain;
+package test.demo.config;
+
+import javax.annotation.PostConstruct;
 
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
-
-import javax.annotation.PostConstruct;
-
 import lombok.extern.slf4j.Slf4j;
 import test.context.condition.WindowsCondition;
 

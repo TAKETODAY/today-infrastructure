@@ -29,7 +29,6 @@ import java.util.Set;
 import org.junit.Test;
 
 import lombok.extern.slf4j.Slf4j;
-import test.context.BaseTest;
 
 /**
  * @author Today <br>
