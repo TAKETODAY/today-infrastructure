@@ -19,34 +19,9 @@
  */
 package cn.taketoday.web.servlet;
 
-import cn.taketoday.context.ApplicationContext.State;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.utils.ExceptionUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebApplicationContextAware;
-import cn.taketoday.web.mapping.HandlerInterceptorRegistry;
-import cn.taketoday.web.mapping.HandlerMapping;
-import cn.taketoday.web.mapping.HandlerMappingRegistry;
-import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.mapping.MethodParameter;
-import cn.taketoday.web.mapping.RegexMapping;
-import cn.taketoday.web.resolver.ExceptionResolver;
-import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.view.AbstractViewResolver;
-import cn.taketoday.web.view.ViewResolver;
-
 import java.awt.image.RenderedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -67,23 +42,44 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+import cn.taketoday.context.ApplicationContext.State;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Value;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.mapping.HandlerInterceptorRegistry;
+import cn.taketoday.web.mapping.HandlerMapping;
+import cn.taketoday.web.mapping.HandlerMappingRegistry;
+import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.mapping.RegexMapping;
+import cn.taketoday.web.resolver.ExceptionResolver;
+import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.ui.ModelAndView;
+import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.view.AbstractViewResolver;
+import cn.taketoday.web.view.ViewResolver;
+
 /**
  * @author TODAY <br>
  *         2018-06-25 19:47:14
  * @version 2.3.3
  */
-public class DispatcherServlet implements Servlet, InitializingBean, WebApplicationContextAware {
+public class DispatcherServlet implements Servlet {
 
 	private static final Logger log = LoggerFactory.getLogger(DispatcherServlet.class);
 
 	/** view resolver **/
-	@Autowired(Constant.VIEW_RESOLVER)
+//	@Autowired(Constant.VIEW_RESOLVER)
 	private ViewResolver viewResolver;
 	/** parameter resolver */
-	@Autowired(Constant.PARAMETER_RESOLVER)
+//	@Autowired(Constant.PARAMETER_RESOLVER)
 	private ParameterResolver parameterResolver;
 	/** exception resolver */
-	@Autowired(Constant.EXCEPTION_RESOLVER)
+//	@Autowired(Constant.EXCEPTION_RESOLVER)
 	private ExceptionResolver exceptionResolver;
 	/** context path */
 	private String contextPath;
@@ -91,13 +87,13 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 	@Value(value = "#{download.buff.size}", required = false)
 	private int downloadFileBuf = 10240;
 	/** Action mapping registry */
-	@Autowired(Constant.HANDLER_MAPPING_REGISTRY)
+//	@Autowired(Constant.HANDLER_MAPPING_REGISTRY)
 	private HandlerMappingRegistry handlerMappingRegistry;
 	/** intercepter registry */
-	@Autowired(Constant.HANDLER_INTERCEPTOR_REGISTRY)
+//	@Autowired(Constant.HANDLER_INTERCEPTOR_REGISTRY)
 	private HandlerInterceptorRegistry handlerInterceptorRegistry;
 
-	private WebApplicationContext applicationContext;
+	private final WebApplicationContext applicationContext;
 
 	private ServletConfig servletConfig;
 
@@ -111,25 +107,34 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 			SerializerFeature.DisableCircularReferenceDetect//
 	};
 
-	public DispatcherServlet() {
+	@Autowired
+	public DispatcherServlet(//
+			ViewResolver viewResolver, //
+			ParameterResolver parameterResolver, //
+			ExceptionResolver exceptionResolver, //
+			HandlerMappingRegistry handlerMappingRegistry, //
+			HandlerInterceptorRegistry handlerInterceptorRegistry) //
+	{
+		this.viewResolver = viewResolver;
 
-	}
-
-	@Override
-	public void afterPropertiesSet() {
-		if (applicationContext == null) {
-			throw new ConfigurationException("An unexpected error occurred, 'applicationContext' can't be null");
-		}
 		if (exceptionResolver == null) {
 			throw new ConfigurationException("You must provide an 'exceptionResolver'");
 		}
+		this.exceptionResolver = exceptionResolver;
+
 		if (parameterResolver == null) {
 			throw new ConfigurationException("You must provide a 'parameterResolver'");
 		}
+		this.parameterResolver = parameterResolver;
+
 		if (viewResolver instanceof AbstractViewResolver) {
 			JSON.defaultLocale = ((AbstractViewResolver) viewResolver).getLocale();
 		}
-		contextPath = applicationContext.getServletContext().getContextPath();
+		this.handlerMappingRegistry = handlerMappingRegistry;
+		this.handlerInterceptorRegistry = handlerInterceptorRegistry;
+
+		this.applicationContext = WebUtils.getWebApplicationContext();
+		this.contextPath = this.applicationContext.getServletContext().getContextPath();
 	}
 
 	@Override
@@ -164,13 +169,13 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 				}
 				request.setAttribute(Constant.KEY_REQUEST_URI, requestURI);
 			}
-			
+
 			requestMapping = handlerMappingRegistry.get(index);
 			// get intercepter s
 			final int[] interceptors = requestMapping.getInterceptors();
 			// invoke intercepter
 			final HandlerInterceptorRegistry handlerInterceptorRegistry = getHandlerInterceptorRegistry();
-			for (Integer interceptor : interceptors) {
+			for (final int interceptor : interceptors) {
 				if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(request, response, requestMapping)) {
 					log.debug("Interceptor: [{}] return false", handlerInterceptorRegistry.get(interceptor));
 					return;
@@ -190,7 +195,7 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 			// do dispatch
 			final Object result = handlerMethod.getMethod().invoke(requestMapping.getAction(), args); // invoke
 
-			for (final Integer interceptor : interceptors) {
+			for (final int interceptor : interceptors) {
 				handlerInterceptorRegistry.get(interceptor).afterProcess(result, request, response);
 			}
 
@@ -205,7 +210,7 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 					break;
 				}
 				case Constant.RETURN_FILE : {
-					downloadFile(request, response, (File) result, downloadFileBuf);
+					WebUtils.downloadFile(request, response, (File) result, downloadFileBuf);
 					break;
 				}
 				case Constant.RETURN_IMAGE : {
@@ -222,7 +227,7 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 					break;
 				}
 				case Constant.RETURN_VOID : {
-					Object attribute = request.getAttribute(Constant.KEY_MODEL_AND_VIEW);
+					final Object attribute = request.getAttribute(Constant.KEY_MODEL_AND_VIEW);
 					if (attribute != null) {
 						resolveModelAndView(request, response, (ModelAndView) attribute);
 					}
@@ -275,8 +280,13 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 	 * @since 2.3.3
 	 */
 	@SuppressWarnings("unchecked")
-	static void resolveView(HttpServletRequest request, HttpServletResponse response, //
-			String resource, String contextPath, ViewResolver viewResolver, Map<String, Object> dataModel) throws Throwable //
+	static void resolveView(//
+			final HttpServletRequest request, //
+			final HttpServletResponse response, //
+			final String resource, //
+			final String contextPath, //
+			final ViewResolver viewResolver, //
+			final Map<String, Object> dataModel) throws Throwable //
 	{
 		if (resource.startsWith(Constant.REDIRECT_URL_PREFIX)) {
 			final String redirect = resource.replaceFirst(Constant.REDIRECT_URL_PREFIX, Constant.BLANK);
@@ -312,8 +322,8 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 	 * @throws Throwable
 	 * @since 2.3.3
 	 */
-	void resolveModelAndView(HttpServletRequest request, //
-			HttpServletResponse response, final ModelAndView modelAndView) throws Throwable //
+	void resolveModelAndView(final HttpServletRequest request, //
+			final HttpServletResponse response, final ModelAndView modelAndView) throws Throwable //
 	{
 		if (modelAndView.noView()) {
 			return;
@@ -330,7 +340,7 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 			response.getWriter().print(view.toString());
 		}
 		else if (view instanceof File) {
-			downloadFile(request, response, (File) view, downloadFileBuf);
+			WebUtils.downloadFile(request, response, (File) view, downloadFileBuf);
 		}
 		else if (view instanceof RenderedImage) {
 			resolveImage(response, (RenderedImage) view);
@@ -343,11 +353,12 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 	 * Resolve json view
 	 * 
 	 * @param response
+	 *            current response
 	 * @param view
 	 *            view instance
 	 * @throws IOException
 	 */
-	static void resolveJsonView(HttpServletResponse response, final Object view) throws IOException {
+	static void resolveJsonView(final HttpServletResponse response, final Object view) throws IOException {
 		response.setContentType(Constant.CONTENT_TYPE_JSON);
 		JSON.writeJSONString(response.getWriter(), view, SERIALIZE_FEATURES);
 	}
@@ -362,46 +373,9 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 	 * @throws IOException
 	 * @since 2.3.3
 	 */
-	static void resolveImage(HttpServletResponse response, final RenderedImage image) throws IOException {
+	static void resolveImage(final HttpServletResponse response, final RenderedImage image) throws IOException {
 		// need set content type
 		ImageIO.write(image, Constant.IMAGE_PNG, response.getOutputStream());
-	}
-
-	/**
-	 * Download file to client.
-	 *
-	 * @param request
-	 *            current request
-	 * @param response
-	 *            current response
-	 * @param download
-	 *            file to download
-	 * @param downloadFileBuf
-	 *            download buff
-	 * @since 2.1.x
-	 */
-	static void downloadFile(HttpServletRequest request, //
-			HttpServletResponse response, File download, int downloadFileBuf) throws IOException //
-	{
-		response.setContentLengthLong(download.length());
-		response.setContentType(Constant.APPLICATION_FORCE_DOWNLOAD);
-
-		response.setHeader(Constant.CONTENT_TRANSFER_ENCODING, Constant.BINARY);
-		response.setHeader(Constant.CONTENT_DISPOSITION, new StringBuilder(Constant.ATTACHMENT_FILE_NAME)//
-				.append(StringUtils.encodeUrl(download.getName()))//
-				.append(Constant.QUOTATION_MARKS)//
-				.toString()//
-		);
-
-		try (InputStream in = new FileInputStream(download);
-				OutputStream out = response.getOutputStream()) {
-
-			byte[] buff = new byte[downloadFileBuf];
-			int len = 0;
-			while ((len = in.read(buff)) != -1) {
-				out.write(buff, 0, len);
-			}
-		}
 	}
 
 	/**
@@ -414,8 +388,8 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 	 * @param viewResolver
 	 * @throws Throwable
 	 */
-	static void resolveObject(HttpServletRequest request, HttpServletResponse response, //
-			Object result, ViewResolver viewResolver, int downloadFileBuf) throws Throwable //
+	static void resolveObject(final HttpServletRequest request, final HttpServletResponse response, //
+			final Object result, final ViewResolver viewResolver, final int downloadFileBuf) throws Throwable //
 	{
 		if (result instanceof String) {
 			resolveView(request, response, (String) result, request.getContextPath(), viewResolver);
@@ -430,15 +404,10 @@ public class DispatcherServlet implements Servlet, InitializingBean, WebApplicat
 			return;
 		}
 		else if (result instanceof File) {
-			downloadFile(request, response, (File) result, downloadFileBuf);
+			WebUtils.downloadFile(request, response, (File) result, downloadFileBuf);
 			return;
 		}
 		resolveJsonView(response, result);
-	}
-
-	@Override
-	public void setWebApplicationContext(WebApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
 	}
 
 	@Override

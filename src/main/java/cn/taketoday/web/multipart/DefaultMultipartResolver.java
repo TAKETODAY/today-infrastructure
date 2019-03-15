@@ -48,8 +48,9 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 	public Object resolveMultipart(HttpServletRequest request, //
 			String methodParameterName, MethodParameter methodParameter) throws Throwable //
 	{
-		if (maxRequestSize < request.getContentLengthLong()) { // exceed max size?
-			throw new FileSizeExceededException(maxRequestSize, null).setActual(request.getContentLengthLong());
+		
+		if (getMaxRequestSize() < request.getContentLengthLong()) { // exceed max size?
+			throw new FileSizeExceededException(getMaxRequestSize(), null).setActual(request.getContentLengthLong());
 		}
 
 		switch (methodParameter.getParameterType())

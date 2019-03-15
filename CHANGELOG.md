@@ -259,8 +259,8 @@ public final class PathVariableAction {
 - feat: auto register `Servlet`,`Filter`,`Listener`
 
 ## v2.3.7
-- reat: Allow rebuild Controllers
-
+- feat: allow rebuild Controllers
+- :sparkles: add WebUtils api
 
 
 

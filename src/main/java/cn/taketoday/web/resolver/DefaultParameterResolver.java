@@ -19,28 +19,6 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.conversion.Converter;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.ContextException;
-import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.NumberUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebApplicationContextAware;
-import cn.taketoday.web.annotation.ParameterConverter;
-import cn.taketoday.web.exception.BadRequestException;
-import cn.taketoday.web.mapping.MethodParameter;
-import cn.taketoday.web.multipart.MultipartResolver;
-import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.ui.ModelAttributes;
-import cn.taketoday.web.ui.RedirectModel;
-import cn.taketoday.web.ui.RedirectModelAttributes;
-import cn.taketoday.web.utils.ParamList;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Enumeration;
@@ -62,6 +40,29 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.conversion.Converter;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.NumberUtils;
+import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebApplicationContextAware;
+import cn.taketoday.web.annotation.ParameterConverter;
+import cn.taketoday.web.exception.BadRequestException;
+import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.multipart.MultipartResolver;
+import cn.taketoday.web.ui.ModelAndView;
+import cn.taketoday.web.ui.ModelAttributes;
+import cn.taketoday.web.ui.RedirectModel;
+import cn.taketoday.web.ui.RedirectModelAttributes;
+import cn.taketoday.web.utils.ParamList;
+import cn.taketoday.web.utils.WebUtils;
 
 /**
  *
@@ -152,7 +153,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	}
 
 	@Override
-	public boolean supportsParameter(MethodParameter parameter) {
+	public boolean supportsParameter(final MethodParameter parameter) {
 		return supportParameterTypes.containsKey(parameter.getParameterClass());
 	}
 
@@ -160,8 +161,8 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * resolve
 	 */
 	@Override
-	public void resolveParameter(Object[] args, //
-			MethodParameter[] parameters, HttpServletRequest request, HttpServletResponse response) throws Throwable //
+	public void resolveParameter(final Object[] args, final MethodParameter[] parameters, //
+			final HttpServletRequest request, final HttpServletResponse response) throws Throwable //
 	{
 		// log.debug("set parameter start");
 		for (int i = 0; i < parameters.length; i++) {
@@ -179,8 +180,8 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return
 	 * @throws Throwable
 	 */
-	private Object setParameter(HttpServletRequest request, //
-			HttpServletResponse response, final MethodParameter methodParameter) throws Throwable //
+	private Object setParameter(final HttpServletRequest request, //
+			final HttpServletResponse response, final MethodParameter methodParameter) throws Throwable //
 	{
 		// method parameter name
 		final String methodParameterName = methodParameter.getParameterName();
@@ -246,38 +247,17 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return
 	 * @throws BadRequestException
 	 */
-	private Object resolveParameter(HttpServletRequest request, String methodParameterName, //
-			MethodParameter methodParameter, Converter<String, Object> converter) throws BadRequestException //
+	private Object resolveParameter(final HttpServletRequest request, final String methodParameterName, //
+			final MethodParameter methodParameter, final Converter<String, Object> converter) throws BadRequestException //
 	{
 		final String requestParameter = request.getParameter(methodParameterName);
 		if (StringUtils.isEmpty(requestParameter)) {
 			if (methodParameter.isRequired()) {
-				throw newBadRequest(null, methodParameterName, null);
+				throw WebUtils.newBadRequest(null, methodParameterName, null);
 			}
 			return converter.doConvert(methodParameter.getDefaultValue());
 		}
 		return converter.doConvert(requestParameter);
-	}
-
-	/**
-	 * @param type
-	 *            type
-	 * @param methodParameterName
-	 *            parameter name
-	 */
-	final static BadRequestException newBadRequest(String type, String methodParameterName, Throwable ex) {
-		StringBuilder msg = new StringBuilder(64);
-
-		if (StringUtils.isNotEmpty(type)) {
-			msg.append(type);
-		}
-		else {
-			msg.append("Parameter");
-		}
-
-		msg.append(": [").append(methodParameterName).append("] is required and it can't be resolve, bad request.");
-
-		return new BadRequestException(msg.toString(), ex);
 	}
 
 	/**
@@ -288,15 +268,15 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return
 	 * @throws BadRequestException
 	 */
-	private Object resolveStringParameter(HttpServletRequest request, String methodParameterName, //
-			MethodParameter methodParameter) throws BadRequestException //
+	private Object resolveStringParameter(final HttpServletRequest request, final String methodParameterName, //
+			final MethodParameter methodParameter) throws BadRequestException //
 	{
 		// parameter value
 		final String requestParameter = request.getParameter(methodParameterName);
 
 		if (StringUtils.isEmpty(requestParameter)) {
 			if (methodParameter.isRequired()) {
-				throw newBadRequest(null, methodParameterName, null);
+				throw WebUtils.newBadRequest(null, methodParameterName, null);
 			}
 			return methodParameter.getDefaultValue();
 		}
@@ -312,14 +292,14 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return
 	 * @throws BadRequestException
 	 */
-	private Object resolveArrayParameter(HttpServletRequest request, String methodParameterName, //
-			MethodParameter methodParameter) throws BadRequestException //
+	private Object resolveArrayParameter(final HttpServletRequest request, final String methodParameterName, //
+			final MethodParameter methodParameter) throws BadRequestException //
 	{
 		// parameter value[]
-		String[] parameterValues = request.getParameterValues(methodParameterName);
+		final String[] parameterValues = request.getParameterValues(methodParameterName);
 		if (StringUtils.isArrayEmpty(parameterValues)) {
 			if (methodParameter.isRequired()) {
-				throw newBadRequest("Array", methodParameterName, null);
+				throw WebUtils.newBadRequest("Array", methodParameterName, null);
 			}
 			return null;
 		}
@@ -336,7 +316,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return
 	 * @throws Throwable
 	 */
-	private Object resolve(HttpServletRequest request, final MethodParameter methodParameter, //
+	private Object resolve(final HttpServletRequest request, final MethodParameter methodParameter, //
 			final String methodParameterName, final Class<?> parameterClass) throws Throwable //
 	{
 		if (this.supportsParameter(methodParameter)) {
@@ -346,18 +326,18 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 		}
 		// resolve pojo
 //		log.debug("set pojo parameter -> {}", methodParameterName);
-		Object newInstance = null;
+		final Object newInstance;
 		try {
 
 			newInstance = parameterClass.getConstructor().newInstance();
 		} //
 		catch (Throwable e) {
-			throw newBadRequest("Can't resolve pojo", methodParameterName, null);
+			throw WebUtils.newBadRequest("Can't resolve pojo", methodParameterName, null);
 		}
 
 		// pojo
 		if (!setBean(request, parameterClass, newInstance, request.getParameterNames(), methodParameter)) {
-			throw newBadRequest("Can't resolve pojo", methodParameterName, null);
+			throw WebUtils.newBadRequest("Can't resolve pojo", methodParameterName, null);
 		}
 		return newInstance;
 	}
@@ -371,8 +351,8 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return
 	 * @throws BadRequestException
 	 */
-	private Object resolveAnnotationParameter(String methodParameterName, HttpServletRequest request, //
-			MethodParameter methodParameter) throws Throwable //
+	private Object resolveAnnotationParameter(final String methodParameterName, final HttpServletRequest request, //
+			final MethodParameter methodParameter) throws Throwable //
 	{
 //		log.debug("Set annotation parameter -> [{}]", methodParameterName);
 		switch (methodParameter.getAnnotation()) //
@@ -389,7 +369,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 					if (multipartResolver.isMultipart(request)) {
 						return multipartResolver.resolveMultipart(request, methodParameterName, methodParameter);
 					}
-					throw newBadRequest("This isn't multipart request", methodParameterName, null);
+					throw WebUtils.newBadRequest("This isn't multipart request", methodParameterName, null);
 				} finally {
 					multipartResolver.cleanupMultipart(request);
 				}
@@ -398,7 +378,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 				final String header = request.getHeader(methodParameterName);
 				if (StringUtils.isEmpty(header)) {
 					if (methodParameter.isRequired()) {
-						throw newBadRequest("Header", methodParameterName, null);
+						throw WebUtils.newBadRequest("Header", methodParameterName, null);
 					}
 					return methodParameter.getDefaultValue();
 				}
@@ -416,14 +396,14 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 					// fixed #2 JSONObject could be null
 					final String formData = request.getReader().readLine();
 					if (StringUtils.isEmpty(formData)) {
-						throw newBadRequest("Request body", methodParameterName, null);
+						throw WebUtils.newBadRequest("Request body", methodParameterName, null);
 					}
 					final JSONObject parsedJson = JSON.parseObject(formData);
 					request.setAttribute(KEY_REQUEST_BODY, parsedJson);
 					return parsedJson.getObject(methodParameterName, methodParameter.getParameterClass());
 				}
 				catch (IOException e) {
-					throw newBadRequest("Request body", methodParameterName, e);
+					throw WebUtils.newBadRequest("Request body", methodParameterName, e);
 				}
 			}
 			case ANNOTATION_SERVLET_CONTEXT : { // servlet context attribute
@@ -450,13 +430,13 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return
 	 * @throws BadRequestException
 	 */
-	private Object pathVariable(HttpServletRequest request, //
-			String methodParameterName, MethodParameter methodParameter) throws BadRequestException //
+	private Object pathVariable(final HttpServletRequest request, //
+			final String methodParameterName,final MethodParameter methodParameter) throws BadRequestException //
 	{
 		try {
 
 			final Object attribute = request.getAttribute(Constant.KEY_REPLACED);
-			String pathVariable;
+			final String pathVariable;
 			if (attribute == null) {
 				String requestURI = (String) request.getAttribute(Constant.KEY_REQUEST_URI);
 				for (final String regex : methodParameter.getSplitMethodUrl()) {
@@ -486,9 +466,9 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 			}
 		}
 		catch (Throwable e) {
-			throw newBadRequest("Path variable", methodParameterName, e);
+			throw WebUtils.newBadRequest("Path variable", methodParameterName, e);
 		}
-		throw newBadRequest("Path variable", methodParameterName, null);
+		throw WebUtils.newBadRequest("Path variable", methodParameterName, null);
 	}
 	
 	//@on
@@ -502,21 +482,21 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return
 	 * @throws BadRequestException
 	 */
-	private final Object cookie(HttpServletRequest request, //
-			String methodParameterName, MethodParameter methodParameter) throws BadRequestException //
+	private Object cookie(final HttpServletRequest request, //
+			final String methodParameterName, final MethodParameter methodParameter) throws BadRequestException //
 	{
 		final Cookie[] cookies = request.getCookies();
 		if (cookies == null) {
 			return null;
 		}
-		for (Cookie cookie : cookies) {
+		for (final Cookie cookie : cookies) {
 			if (methodParameterName.equals(cookie.getName())) {
 				return cookie.getValue();
 			}
 		}
 		// no cookie
 		if (methodParameter.isRequired()) {
-			throw newBadRequest("Cookie", methodParameterName, null);
+			throw WebUtils.newBadRequest("Cookie", methodParameterName, null);
 		}
 		return methodParameter.getDefaultValue(); // return default value.
 	}
@@ -532,8 +512,8 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return
 	 * @throws BadRequestException
 	 */
-	private boolean setBean(HttpServletRequest request, //
-			Class<?> parameterClass, Object bean, Enumeration<String> parameterNames, MethodParameter methodParameter) throws Throwable //
+	private boolean setBean(final HttpServletRequest request, final Class<?> parameterClass, final Object bean, //
+			final Enumeration<String> parameterNames, final MethodParameter methodParameter) throws Throwable //
 	{
 		try {
 			while (parameterNames.hasMoreElements()) {
@@ -562,15 +542,14 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @param field
 	 * @return
 	 */
-	private boolean resolvePojoParameter(HttpServletRequest request, //
-			String parameterName, Object bean, Field field, MethodParameter methodParameter) throws Throwable //
+	private boolean resolvePojoParameter(final HttpServletRequest request, final String parameterName, //
+			final Object bean, final Field field, final MethodParameter methodParameter) throws Throwable //
 	{
 		Object property = null;
 
 		final Class<?> type = field.getType();
 		if (type.isArray()) {
 			property = NumberUtils.toArrayObject(request.getParameterValues(parameterName), type);
-
 		}
 		else {
 			final String parameter = request.getParameter(parameterName);
@@ -612,12 +591,12 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return
 	 * @throws BadRequestException
 	 */
-	private List<?> resolveListParameter(HttpServletRequest request, //
-			String parameterName, MethodParameter methodParameter) throws Throwable //
+	private List<?> resolveListParameter(final HttpServletRequest request, //
+			final String parameterName, final MethodParameter methodParameter) throws Throwable //
 	{
 		if (methodParameter.isRequestBody()) {
 
-			Object requestBody = request.getAttribute(KEY_REQUEST_BODY);
+			final Object requestBody = request.getAttribute(KEY_REQUEST_BODY);
 			if (requestBody != null) {
 				return JSONArray.parseArray(//
 						((JSONObject) requestBody).getString(parameterName), methodParameter.getGenericityClass()//
@@ -627,16 +606,16 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 			try {
 
 				// fix #2 JSONObject could be null
-				String formData = request.getReader().readLine();
+				final String formData = request.getReader().readLine();
 				if (StringUtils.isEmpty(formData)) {
-					throw newBadRequest("Request body", parameterName, null);
+					throw WebUtils.newBadRequest("Request body", parameterName, null);
 				}
-				JSONObject parsedJson = JSON.parseObject(formData);
+				final JSONObject parsedJson = JSON.parseObject(formData);
 				request.setAttribute(KEY_REQUEST_BODY, parsedJson);
 				JSONArray.parseArray(parsedJson.getString(parameterName), methodParameter.getGenericityClass());
 			}
 			catch (IOException e) {
-				throw newBadRequest("Collection request body", parameterName, e);
+				throw WebUtils.newBadRequest("Collection request body", parameterName, e);
 			}
 		}
 		// https://taketoday.cn/today/user/list?user%5b0%5d.userId=90&user%5b2%5d.userId=98&user%5b1%5d.userName=Today
@@ -646,10 +625,10 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 		final Enumeration<String> parameterNames = request.getParameterNames();// all request parameter name
 
 		while (parameterNames.hasMoreElements()) {
-			String requestParameter = parameterNames.nextElement();
+			final String requestParameter = parameterNames.nextElement();
 			if (requestParameter.startsWith(parameterName)) {// users[0].userName=TODAY&users[0].age=20
-				String[] split = requestParameter.split(Constant.COLLECTION_PARAM_REGEXP);// [users, 1,, userName]
-				int index = Integer.parseInt(split[1]);// get index
+				final String[] split = requestParameter.split(Constant.COLLECTION_PARAM_REGEXP);// [users, 1,, userName]
+				final int index = Integer.parseInt(split[1]);// get index
 				Object newInstance = list.get(index);
 				if (newInstance == null) {
 					newInstance = clazz.getConstructor().newInstance();
@@ -677,8 +656,8 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return
 	 * @throws Exception
 	 */
-	private final Set<?> resolveSetParameter(HttpServletRequest request, //
-			String methodParameterName, MethodParameter methodParameter) throws Throwable {
+	private final Set<?> resolveSetParameter(final HttpServletRequest request, //
+			final String methodParameterName, final MethodParameter methodParameter) throws Throwable {
 
 		return new HashSet<>(resolveListParameter(request, methodParameterName, methodParameter));
 	}
@@ -694,22 +673,22 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return method parameter type -> Map
 	 * @throws Exception
 	 */
-	private Map<String, Object> resolveMapParameter(HttpServletRequest request, //
-			String methodParameterName, MethodParameter methodParameter) throws Throwable//
+	private Map<String, Object> resolveMapParameter(final HttpServletRequest request, //
+			final String methodParameterName, final MethodParameter methodParameter) throws Throwable//
 	{
-		Enumeration<String> parameterNames = request.getParameterNames();// all parameter
-		Map<String, Object> map = new HashMap<>();
 
+		final Enumeration<String> parameterNames = request.getParameterNames();// all parameter
+		final Map<String, Object> map = new HashMap<>();
 		// parameter class
-		Class<?> clazz = methodParameter.getGenericityClass();
+		final Class<?> clazz = methodParameter.getGenericityClass();
 		while (parameterNames.hasMoreElements()) {
 			// users%5B%27today_1%27%5D.userId=434&users%5B%27today%27%5D.age=43&users%5B%27today%27%5D.userName=434&users%5B%27today%27%5D.sex=%E7%94%B7&users%5B%27today%27%5D.passwd=4343
-			String requestParameter = parameterNames.nextElement();
+			final String requestParameter = parameterNames.nextElement();
 			if (requestParameter.startsWith(methodParameterName)) { // users['today'].userName=TODAY&users['today'].age=20
 
-				String[] keyList = requestParameter.split(Constant.MAP_PARAM_REGEXP); // [users, today, , userName]
+				final String[] keyList = requestParameter.split(Constant.MAP_PARAM_REGEXP); // [users, today, , userName]
 
-				String key = keyList[1];// get key
+				final String key = keyList[1];// get key
 				Object newInstance = map.get(key);// 没有就是空值
 				if (newInstance == null) {
 					newInstance = clazz.getConstructor().newInstance();// default constructor

@@ -43,7 +43,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import javax.servlet.ServletSecurityElement;
-import javax.servlet.annotation.HandlesTypes;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebFilter;
@@ -66,6 +65,7 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
+import cn.taketoday.context.utils.DataSize;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -92,10 +92,9 @@ import cn.taketoday.web.view.FreeMarkerViewResolver;
  *         2019-01-12 17:28
  */
 @SuppressWarnings("serial")
-@HandlesTypes({ Object.class })
-public class WebServletContainerInitializer implements ServletContainerInitializer, Constant {
+public class WebApplicationLoader implements ServletContainerInitializer, Constant {
 
-	private static final Logger log = LoggerFactory.getLogger(WebServletContainerInitializer.class);
+	private static final Logger log = LoggerFactory.getLogger(WebApplicationLoader.class);
 
 	private ViewConfiguration viewConfiguration;
 
@@ -104,7 +103,7 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 
 	private DocumentBuilder builder;
 
-	public WebServletContainerInitializer() {
+	public WebApplicationLoader() {
 
 	}
 
@@ -113,7 +112,7 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 	 * 
 	 * @return {@link WebApplicationContext}
 	 */
-	public static WebApplicationContext getWebApplicationContext() {
+	public final static WebApplicationContext getWebApplicationContext() {
 		return applicationContext;
 	}
 
@@ -425,13 +424,13 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 						abstractMultipartResolver.setEncoding(nodeValue);
 						break;
 					case ELEMENT_UPLOAD_MAX_FILE_SIZE :
-						abstractMultipartResolver.setMaxFileSize(Long.parseLong(nodeValue));
+						abstractMultipartResolver.setMaxFileSize(DataSize.parse(nodeValue).toBytes());
 						break;
 					case ELEMENT_UPLOAD_MAX_REQUEST_SIZE :
-						abstractMultipartResolver.setMaxRequestSize(Long.parseLong(nodeValue));
+						abstractMultipartResolver.setMaxRequestSize(DataSize.parse(nodeValue).toBytes());
 						break;
 					case ELEMENT_UPLOAD_FILE_SIZE_THRESHOLD :
-						abstractMultipartResolver.setFileSizeThreshold(Integer.parseInt(nodeValue));
+						abstractMultipartResolver.setFileSizeThreshold((int) DataSize.parse(nodeValue).toBytes());
 						break;
 					default:
 						log.error("This element -> [{}] is not supported.", elementName);
@@ -513,13 +512,11 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 			return applicationContext.getStartupDate();
 		}
 
-		ClassUtils.setClassCache(classes);
 		final long start = System.currentTimeMillis();
 		log.info("Your Application Starts To Be Initialized At: [{}].", //
 				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(start)));
 
-		log.debug("There are [{}] classes in class path", classes.size());
-		applicationContext = new DefaultWebApplicationContext(classes, servletContext);
+		applicationContext = new DefaultWebApplicationContext(servletContext);
 
 		return start;
 	}
@@ -546,7 +543,7 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 				this.viewConfiguration = applicationContext.getBean(VIEW_CONFIG, ViewConfiguration.class);
 				initFrameWorkFromWebMvcXml(servletContext);
 			}
-			
+
 			// check all resolver
 			checkFrameWorkResolvers();
 
@@ -563,7 +560,7 @@ public class WebServletContainerInitializer implements ServletContainerInitializ
 			for (final ServletContextInitializer servletContextInitializer : contextInitializers) {
 				servletContextInitializer.onStartup(servletContext);
 			}
-			
+
 			applicationContext.publishEvent(new ApplicationStartedEvent(applicationContext));
 			if (environment.getProperty(ENABLE_WEB_STARTED_LOG, Boolean::parseBoolean, true)) {
 				log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //

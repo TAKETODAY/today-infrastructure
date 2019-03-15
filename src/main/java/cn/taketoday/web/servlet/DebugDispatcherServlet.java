@@ -19,6 +19,18 @@
  */
 package cn.taketoday.web.servlet;
 
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.util.Arrays;
+
+import javax.imageio.ImageIO;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -31,19 +43,11 @@ import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.mapping.RegexMapping;
+import cn.taketoday.web.resolver.ExceptionResolver;
+import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.ui.ModelAndView;
-
-import java.awt.image.RenderedImage;
-import java.io.File;
-import java.util.Arrays;
-
-import javax.imageio.ImageIO;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.view.ViewResolver;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -55,6 +59,17 @@ import lombok.extern.slf4j.Slf4j;
 @WebDebugMode
 @Singleton(Constant.DISPATCHER_SERVLET)
 public class DebugDispatcherServlet extends DispatcherServlet {
+
+	@Autowired
+	public DebugDispatcherServlet(//
+			ViewResolver viewResolver, //
+			ParameterResolver parameterResolver, //
+			ExceptionResolver exceptionResolver,
+			HandlerMappingRegistry handlerMappingRegistry, //
+			HandlerInterceptorRegistry handlerInterceptorRegistry) //
+	{
+		super(viewResolver, parameterResolver, exceptionResolver, handlerMappingRegistry, handlerInterceptorRegistry);
+	}
 
 	@Override
 	public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException {
@@ -87,7 +102,7 @@ public class DebugDispatcherServlet extends DispatcherServlet {
 					return;
 				}
 			}
-			
+
 			request.setAttribute(Constant.KEY_REQUEST_URI, requestURI);
 			requestMapping = handlerMappingRegistry.get(index);
 			// get intercepter s
@@ -131,7 +146,7 @@ public class DebugDispatcherServlet extends DispatcherServlet {
 					break;
 				}
 				case Constant.RETURN_FILE : {
-					downloadFile(request, response, (File) result, getDownloadFileBuf());
+					WebUtils.downloadFile(request, response, (File) result, getDownloadFileBuf());
 					break;
 				}
 				case Constant.RETURN_IMAGE : {

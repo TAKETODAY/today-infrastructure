@@ -19,12 +19,6 @@
  */
 package cn.taketoday.web.multipart;
 
-import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.exception.BadRequestException;
-import cn.taketoday.web.exception.FileSizeExceededException;
-import cn.taketoday.web.mapping.MethodParameter;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -35,9 +29,16 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.ProgressListener;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
+import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.exception.BadRequestException;
+import cn.taketoday.web.exception.FileSizeExceededException;
+import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.utils.WebUtils;
 import lombok.NoArgsConstructor;
 
 /**
@@ -52,9 +53,16 @@ public class CommonsMultipartResolver extends AbstractMultipartResolver implemen
 
 	@Override
 	public void afterPropertiesSet() {
-		servletFileUpload.setHeaderEncoding(encoding);
-		servletFileUpload.setFileSizeMax(maxFileSize);
-		servletFileUpload.setSizeMax(maxRequestSize);
+		ProgressListener progressListener = //
+				WebUtils.getWebApplicationContext().getBean(ProgressListener.class);
+
+		if (progressListener != null) {
+			servletFileUpload.setProgressListener(progressListener);
+		}
+		servletFileUpload.setHeaderEncoding(getEncoding());
+		servletFileUpload.setSizeMax(getMaxRequestSize());
+		servletFileUpload.setFileSizeMax(getMaxFileSize());
+
 	}
 
 	@Override
@@ -66,16 +74,16 @@ public class CommonsMultipartResolver extends AbstractMultipartResolver implemen
 	public Object resolveMultipart(HttpServletRequest request, String methodParameterName, MethodParameter methodParameter) //
 			throws BadRequestException, FileSizeExceededException //
 	{
+
+		if (getMaxRequestSize() < request.getContentLengthLong()) {// exceed max size?
+			throw new FileSizeExceededException(getMaxRequestSize(), null).setActual(request.getContentLengthLong());
+		}
+
 		try {
-
-			if (maxRequestSize < request.getContentLengthLong()) {// exceed max size?
-				throw new FileSizeExceededException(maxRequestSize, null).setActual(request.getContentLengthLong());
-			}
-
 			return parseFileItems(servletFileUpload.parseRequest(request), methodParameterName, methodParameter);
 		}
 		catch (FileSizeLimitExceededException e) {
-			throw new FileSizeExceededException(maxFileSize, e).setActual(e.getActualSize());
+			throw new FileSizeExceededException(getMaxRequestSize(), e).setActual(e.getActualSize());
 		}
 		catch (FileUploadException ex) {
 			throw new BadRequestException(//
@@ -98,13 +106,14 @@ public class CommonsMultipartResolver extends AbstractMultipartResolver implemen
 	{
 		switch (methodParameter.getParameterType())
 		{
-			case Constant.TYPE_MULTIPART_FILE :
+			case Constant.TYPE_MULTIPART_FILE : {
 				for (FileItem fileItem : fileItems) {
 					if (methodParameterName.equals(fileItem.getFieldName())) {
 						return new CommonsMultipartFile(fileItem);
 					}
 				}
 				throw new BadRequestException("There isn't a file item, bad request.");
+			}
 			case Constant.TYPE_ARRAY_MULTIPART_FILE : {
 				return multipartFile(fileItems, new ArrayList<>(), methodParameterName)//
 						.toArray(new MultipartFile[0]);
@@ -143,7 +152,7 @@ public class CommonsMultipartResolver extends AbstractMultipartResolver implemen
 
 	@Override
 	public void cleanupMultipart(HttpServletRequest request) {
-		//
+
 	}
 
 }

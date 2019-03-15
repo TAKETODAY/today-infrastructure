@@ -21,6 +21,7 @@ package cn.taketoday.web.multipart;
 
 import javax.servlet.http.HttpServletRequest;
 
+import cn.taketoday.context.utils.DataSize;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -34,12 +35,16 @@ import lombok.Setter;
 public abstract class AbstractMultipartResolver implements MultipartResolver {
 
 	/*** file upload location */
-	protected String location 		= System.getProperty("java.io.tmpdir");
+	private String location = System.getProperty("java.io.tmpdir");
 
-	protected String encoding 		= "UTF-8";
-	protected long maxFileSize 		= 2048000; // every single file
-	protected long maxRequestSize 	= 204800000; // total size in every single request
-	protected int fileSizeThreshold = 2048000000; // cache
+	private String encoding = "UTF-8";
+
+	/**
+	 * Maximum size of a single uploaded file.
+	 */
+	private long maxFileSize = DataSize.ofMegabytes(512).toBytes(); // every single file
+	private long maxRequestSize = DataSize.ofGigabytes(1).toBytes(); // total size in every single request
+	private int fileSizeThreshold = new Long(DataSize.ofGigabytes(1).toBytes()).intValue(); // cache
 
 	@Override
 	public boolean isMultipart(HttpServletRequest request) {
