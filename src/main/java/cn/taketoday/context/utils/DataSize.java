@@ -19,10 +19,11 @@
  */
 package cn.taketoday.context.utils;
 
-import cn.taketoday.context.Constant;
-
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import cn.taketoday.context.Constant;
 
 /**
  * A data size, such as '12MB'.
@@ -131,7 +132,7 @@ public final class DataSize implements Comparable<DataSize> {
 	 * @see #parse(CharSequence, DataUnit)
 	 */
 	public static DataSize parse(CharSequence text) {
-		return parse(text, null);
+		return parse(text, DataUnit.BYTES);
 	}
 
 	/**
@@ -155,11 +156,15 @@ public final class DataSize implements Comparable<DataSize> {
 	 */
 	public static DataSize parse(CharSequence text, DataUnit defaultUnit) {
 		try {
-			Matcher matcher = PATTERN.matcher(text);
 
-			DataUnit unit = determineDataUnit(matcher.group(2), defaultUnit);
-			long amount = Long.parseLong(matcher.group(1));
-			return DataSize.of(amount, unit);
+			final Matcher matcher = PATTERN.matcher(text);
+			// fix matcher 
+			if (matcher.matches()) {
+				final long amount = Long.parseLong(matcher.group(1));
+				final DataUnit unit = determineDataUnit(matcher.group(2), defaultUnit);
+				return DataSize.of(amount, unit);
+			}
+			return DataSize.of(Long.parseLong(text.toString()), DataUnit.BYTES);
 		}
 		catch (Exception ex) {
 			throw new IllegalArgumentException("'" + text + "' is not a valid data size", ex);
@@ -167,8 +172,7 @@ public final class DataSize implements Comparable<DataSize> {
 	}
 
 	private static DataUnit determineDataUnit(String suffix, DataUnit defaultUnit) {
-		DataUnit defaultUnitToUse = (defaultUnit != null ? defaultUnit : DataUnit.BYTES);
-		return (StringUtils.isNotEmpty(suffix) ? DataUnit.fromSuffix(suffix) : defaultUnitToUse);
+		return (StringUtils.isNotEmpty(suffix) ? DataUnit.fromSuffix(suffix) : Objects.requireNonNull(defaultUnit));
 	}
 
 	/**

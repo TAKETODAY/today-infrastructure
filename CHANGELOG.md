@@ -213,7 +213,7 @@ public void test_Conditional() {
 - feat: hot swap supports
 - feat: add `Environment` new api to get property
 - feat: add jar-prefix file to ignore jar scanning
-
+- fix: ensure ExpressionFactory's instance consistent
 
 
 

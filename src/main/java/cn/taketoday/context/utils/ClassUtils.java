@@ -92,7 +92,6 @@ public abstract class ClassUtils {
 			classLoader = ClassLoader.getSystemClassLoader();
 		}
 		setClassLoader(classLoader);
-
 		final Set<String> ignoreScanJars = new HashSet<>();
 
 		try {
