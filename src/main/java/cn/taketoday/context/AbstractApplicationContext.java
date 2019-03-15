@@ -21,6 +21,7 @@ package cn.taketoday.context;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import java.util.Set;
 
 import javax.el.ELManager;
 import javax.el.ELProcessor;
+import javax.el.ExpressionFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,7 +192,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	 * @param classes
 	 *            class set
 	 */
-	public void prepareBeanFactory(Collection<Class<?>> classes) {
+	public void prepareBeanFactory(Collection<Class<?>> classes) throws Throwable {
 
 		final AbstractBeanFactory beanFactory = getBeanFactory();
 
@@ -221,6 +223,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
 		final ELManager elManager = new ELManager();
 
+		{// fix: ensure ExpressionFactory's instance consistent @since 2.1.6
+			Field declaredField = ClassUtils.forName("javax.el.ELUtil").getDeclaredField("exprFactory");
+			declaredField.setAccessible(true);
+			declaredField.set(null, ExpressionFactory.newInstance(environment.getProperties()));
+		}
 		ELProcessor elProcessor = environment.getELProcessor();
 		if (elProcessor == null) {
 			elProcessor = new ELProcessor(elManager);

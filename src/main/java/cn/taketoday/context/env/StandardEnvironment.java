@@ -24,7 +24,6 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -33,14 +32,12 @@ import java.util.Properties;
 import java.util.Set;
 
 import javax.el.ELProcessor;
-import javax.el.ExpressionFactory;
 
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -235,21 +232,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
 	@Override
 	public ConfigurableEnvironment setELProcessor(final ELProcessor elProcessor) {
-
-		try {
-			this.elProcessor = elProcessor;
-
-			Field declaredField = ClassUtils.forName("javax.el.ELUtil").getDeclaredField("exprFactory");
-			declaredField.setAccessible(true);
-
-			declaredField.set(null, ExpressionFactory.newInstance(getProperties()));
-		}
-		catch (Throwable e) {
-			e = ExceptionUtils.unwrapThrowable(e);
-			log.error("An Exception Occurred When Loading Context, With Msg: [{}]", e.getMessage(), e);
-
-			throw ExceptionUtils.newContextException(e);
-		}
+		this.elProcessor = elProcessor;
 		return this;
 	}
 
