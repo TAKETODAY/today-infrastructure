@@ -216,7 +216,7 @@ public void test_Conditional() {
 - fix: ensure ExpressionFactory's instance consistent
 - fix: DataSize.parse()
 - :white_check_mark: add some test code 
-
+- :zap: add ConcurrentProperties 
 
 
 

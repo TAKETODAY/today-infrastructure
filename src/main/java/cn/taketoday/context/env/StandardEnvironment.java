@@ -25,6 +25,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
@@ -34,6 +36,7 @@ import java.util.Set;
 import javax.el.ELProcessor;
 
 import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
@@ -53,7 +56,24 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
 	private Set<String> activeProfiles = new HashSet<>();
 
-	private final Properties properties = System.getProperties();
+	private final Properties properties = new ConcurrentProperties();
+
+	{
+		if (System.getSecurityManager() != null) {
+			AccessController.doPrivileged(new PrivilegedAction<Object>() {
+				@Override
+				public Object run() {
+					properties.putAll(System.getProperties());
+					System.setProperties(properties);
+					return null;
+				}
+			});
+		}
+		else {
+			properties.putAll(System.getProperties());
+			System.setProperties(properties);
+		}
+	}
 
 	private BeanNameCreator beanNameCreator;
 
