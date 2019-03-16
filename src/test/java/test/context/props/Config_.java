@@ -2,7 +2,6 @@ package test.context.props;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Props;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

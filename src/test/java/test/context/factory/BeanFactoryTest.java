@@ -19,15 +19,14 @@
  */
 package test.context.factory;
 
-import cn.taketoday.context.BeanNameCreator;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
-
 import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
 
+import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import lombok.extern.slf4j.Slf4j;
 
 /**

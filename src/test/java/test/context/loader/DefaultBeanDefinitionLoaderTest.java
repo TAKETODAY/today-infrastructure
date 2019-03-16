@@ -17,6 +17,13 @@
  */
 package test.context.loader;
 
+import java.util.HashSet;
+import java.util.Map;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
@@ -30,13 +37,6 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.DefaultBeanDefinitionLoader;
 import test.demo.config.User;
-
-import java.util.HashSet;
-import java.util.Map;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Default Bean Definition Loader implements

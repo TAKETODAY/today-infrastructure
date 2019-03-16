@@ -19,12 +19,6 @@
  */
 package test.context;
 
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
-
 import java.util.Arrays;
 
 import org.junit.After;
@@ -32,6 +26,11 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

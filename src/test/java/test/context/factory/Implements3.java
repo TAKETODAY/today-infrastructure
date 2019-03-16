@@ -20,7 +20,6 @@
 package test.context.factory;
 
 import cn.taketoday.context.annotation.Singleton;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**

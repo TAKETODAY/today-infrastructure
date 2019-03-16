@@ -19,6 +19,10 @@
  */
 package test.context.loader;
 
+import java.util.Properties;
+
+import org.junit.Test;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
@@ -26,10 +30,6 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.AnnotationException;
 import cn.taketoday.context.loader.PropsPropertyResolver;
-
-import java.util.Properties;
-
-import org.junit.Test;
 
 /**
  * @author Today <br>

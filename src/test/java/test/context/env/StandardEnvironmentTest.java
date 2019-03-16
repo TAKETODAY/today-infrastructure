@@ -19,6 +19,13 @@
  */
 package test.context.env;
 
+import java.io.IOException;
+import java.util.Properties;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.env.ConfigurableEnvironment;
@@ -28,13 +35,6 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.utils.ClassUtils;
-
-import java.io.IOException;
-import java.util.Properties;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * @author Today <br>

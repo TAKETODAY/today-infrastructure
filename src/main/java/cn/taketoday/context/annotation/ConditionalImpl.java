@@ -19,9 +19,9 @@
  */
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.context.Condition;
-
 import java.lang.annotation.Annotation;
+
+import cn.taketoday.context.Condition;
 
 /**
  * @author Today <br>

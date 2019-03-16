@@ -47,6 +47,7 @@ import javax.annotation.Resource;
 import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.Constant;
@@ -54,6 +55,7 @@ import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.ConditionalImpl;
+import cn.taketoday.context.annotation.DefaultProps;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.BeanDefinition;
@@ -123,6 +125,16 @@ public abstract class ContextUtils {
 			final Autowired autowiredOnParamter = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
 			final Class<?> type = parameter.getType();
 
+			// if it is a Map
+			if (Map.class.isAssignableFrom(type)) {
+				Props props = parameter.getAnnotation(Props.class);
+				if (props == null) {
+					props = new DefaultProps();
+				}
+				args[i] = loadProps(props, System.getProperties());
+				continue;
+			}
+
 			boolean required = true;
 
 			Object bean; // bean instance
@@ -140,7 +152,7 @@ public abstract class ContextUtils {
 			else {
 				bean = beanFactory.getBean(type);// use parameter type to obtain a bean
 			}
-			// @Props
+			// @Props on a bean (pojo) which has already annotated @Autowired or not
 			if (parameter.isAnnotationPresent(Props.class)) {
 				final Props props = parameter.getAnnotation(Props.class);
 				if (bean != null) {
@@ -184,9 +196,9 @@ public abstract class ContextUtils {
 	 * @throws IOException
 	 */
 	public static final Properties getResourceAsProperties(String resource) throws IOException {
-		Properties props = new Properties();
+		Properties props = new ConcurrentProperties();
 
-		try (InputStream in = ClassUtils.getClassLoader().getResourceAsStream(resource)) {
+		try (InputStream in = ClassUtils.getClassLoader().getResourceAsStream(StringUtils.checkPropertiesName(resource))) {
 			props.load(in);
 		}
 
@@ -210,8 +222,8 @@ public abstract class ContextUtils {
 	 * @throws IOException
 	 */
 	public static final Properties getUrlAsProperties(String urlString) throws IOException {
-		Properties props = new Properties();
-		try (InputStream in = getUrlAsStream(urlString)) {
+		Properties props = new ConcurrentProperties();
+		try (InputStream in = getUrlAsStream(StringUtils.checkPropertiesName(urlString))) {
 			props.load(in);
 		}
 		return props;
@@ -587,7 +599,7 @@ public abstract class ContextUtils {
 	 */
 	public static Properties loadProps(Props props, Properties aplicationProps) {
 
-		final Properties ret = new Properties();
+		final Properties ret = new ConcurrentProperties();
 		final String[] fileNames = props.value();
 
 		final Properties propertiesToUse;
@@ -595,10 +607,13 @@ public abstract class ContextUtils {
 			propertiesToUse = Objects.requireNonNull(aplicationProps);
 		}
 		else {
-			propertiesToUse = new Properties();
+			propertiesToUse = new ConcurrentProperties();
 			for (String fileName : fileNames) {
-				try (InputStream inputStream = //
-						ClassUtils.getClassLoader().getResource(StringUtils.checkPropertiesName(fileName)).openStream()) {
+				if (StringUtils.isEmpty(fileName)) {
+					propertiesToUse.putAll(aplicationProps);
+					break;
+				}
+				try (InputStream inputStream = getResourceAsStream(StringUtils.checkPropertiesName(fileName))) {
 					propertiesToUse.load(inputStream);
 				}
 				catch (IOException e) {

@@ -19,13 +19,13 @@
  */
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.context.Constant;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Properties;
+
+import cn.taketoday.context.Constant;
 
 /**
  * 

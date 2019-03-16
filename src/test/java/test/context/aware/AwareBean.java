@@ -27,7 +27,6 @@ import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.factory.BeanFactory;
-
 import lombok.Getter;
 
 /**

@@ -19,11 +19,10 @@
  */
 package cn.taketoday.context.annotation;
 
-import cn.taketoday.context.Scope;
-
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 
+import cn.taketoday.context.Scope;
 import lombok.NoArgsConstructor;
 
 /**

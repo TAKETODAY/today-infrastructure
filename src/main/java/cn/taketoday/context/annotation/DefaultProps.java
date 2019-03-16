@@ -1,9 +1,9 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
- * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,27 +13,41 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ *   
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package test.context.factory;
+package cn.taketoday.context.annotation;
 
-import cn.taketoday.context.annotation.Singleton;
-import lombok.extern.slf4j.Slf4j;
+import java.lang.annotation.Annotation;
+
+import cn.taketoday.context.Constant;
 
 /**
- * @author Today <br>
- * 
- *         2019-01-22 19:41
+ * @author TODAY <br>
+ *         2019-03-15 23:18
  */
-@Slf4j
-@Singleton
-public class Implements1 implements Interface {
+@SuppressWarnings("all")
+public class DefaultProps implements Props, Annotation {
 
 	@Override
-	public void test() {
-		log.debug("Implements1");
+	public Class<? extends Annotation> annotationType() {
+		return Props.class;
+	}
+
+	@Override
+	public String[] value() {
+		return new String[0];
+	}
+
+	@Override
+	public String[] prefix() {
+		return new String[] { Constant.BLANK };
+	}
+
+	@Override
+	public boolean replace() {
+		return false;
 	}
 
 }

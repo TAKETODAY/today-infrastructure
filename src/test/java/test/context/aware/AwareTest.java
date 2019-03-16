@@ -19,15 +19,15 @@
  */
 package test.context.aware;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * 

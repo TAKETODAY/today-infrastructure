@@ -19,10 +19,10 @@
  */
 package cn.taketoday.context.event;
 
+import java.util.Collection;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.MissingBean;
-
-import java.util.Collection;
 
 /**
  * register the {@link MissingBean}

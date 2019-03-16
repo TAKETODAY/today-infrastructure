@@ -19,10 +19,10 @@
  */
 package test.context.utils;
 
-import cn.taketoday.context.utils.StringUtils;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author Today <br>

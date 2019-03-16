@@ -19,13 +19,13 @@
  */
 package test.context.loader;
 
+import org.junit.Test;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.loader.ValuePropertyResolver;
-
-import org.junit.Test;
 
 /**
  * @author Today <br>

@@ -19,13 +19,13 @@
  */
 package test.context.factory;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
 /**
  * @author Today <br>

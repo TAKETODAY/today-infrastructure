@@ -19,12 +19,12 @@
  */
 package cn.taketoday.context.utils;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Order;
-
 import java.lang.reflect.AnnotatedElement;
 import java.util.Comparator;
 import java.util.List;
+
+import cn.taketoday.context.Ordered;
+import cn.taketoday.context.annotation.Order;
 
 /**
  * 

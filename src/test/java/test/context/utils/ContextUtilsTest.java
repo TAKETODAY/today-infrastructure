@@ -22,7 +22,9 @@ package test.context.utils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -127,17 +129,43 @@ public class ContextUtilsTest {
 
 		URL resource = ClassUtils.getClassLoader().getResource("info.properties");
 		Properties properties = ContextUtils.getUrlAsProperties(resource.getProtocol() + ":" + resource.getPath());
-
+		properties.list(System.err);
 		Config resolveProps = ContextUtils.resolveProps(declaredAnnotation.prefix(), Config.class, properties);
 
 		System.err.println(resolveProps);
 
 		assert "TODAY BLOG".equals(resolveProps.getDescription());
 		assert "https://cdn.taketoday.cn".equals(resolveProps.getCdn());
-		
+
 		assert 21 == resolveProps.getAdmin().getAge();
 		assert "666".equals(resolveProps.getAdmin().getUserId());
 		assert "TODAY".equals(resolveProps.getAdmin().getUserName());
+	}
+
+	@Test
+	public void test_ResolveParameter() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException {
+
+		try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.utils")) {
+
+			Constructor<Config> constructor = Config.class.getConstructor(UserModel.class, Properties.class);
+			Object[] resolveParameter = ContextUtils.resolveParameter(constructor, applicationContext);
+
+			Config newInstance = constructor.newInstance(resolveParameter);
+			System.err.println(newInstance);
+
+			assert resolveParameter.length == 2;
+
+			assert resolveParameter[0] instanceof UserModel;
+
+			UserModel userModel = (UserModel) resolveParameter[0];
+			assert userModel.getAge() == 21;
+			assert userModel.getUserId().equals("666");
+			assert userModel.getUserName().equals("TODAY");
+
+			assert resolveParameter[1] instanceof Properties;
+
+		}
 	}
 
 	@Getter
@@ -145,6 +173,7 @@ public class ContextUtilsTest {
 	@ToString
 	@NoArgsConstructor
 	public static class Config {
+
 		private String cdn;
 		private String icp;
 		private String host;
@@ -158,6 +187,12 @@ public class ContextUtilsTest {
 
 		@Props
 		UserModel admin;
+
+		public Config(@Props(prefix = "site.admin.") UserModel model, @Props(prefix = "site.") Properties properties) {
+			System.err.println("model -> " + model);
+			properties.list(System.err);
+			System.err.println(properties.getClass());
+		}
 	}
 
 	@Getter

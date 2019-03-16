@@ -19,11 +19,11 @@
  */
 package cn.taketoday.context.loader;
 
+import java.util.Collection;
+
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
-
-import java.util.Collection;
 
 /**
  * Create bean definition

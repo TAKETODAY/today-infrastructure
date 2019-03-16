@@ -19,15 +19,15 @@
  */
 package test.context.profile;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
-import test.demo.config.User;
-
 import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
+import test.demo.config.User;
 
 /**
  * @author Today <br>

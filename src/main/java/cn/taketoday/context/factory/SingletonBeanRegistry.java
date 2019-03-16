@@ -19,10 +19,10 @@
  */
 package cn.taketoday.context.factory;
 
+import java.util.Map;
+
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.bean.BeanDefinition;
-
-import java.util.Map;
 
 /**
  * @author Today <br>

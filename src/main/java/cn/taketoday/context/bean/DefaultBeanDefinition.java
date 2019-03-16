@@ -19,16 +19,16 @@
  */
 package cn.taketoday.context.bean;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.factory.InitializingBean;
-
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Default implementation of {@link BeanDefinition}

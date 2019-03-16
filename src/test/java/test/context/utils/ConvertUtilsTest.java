@@ -19,13 +19,13 @@
  */
 package test.context.utils;
 
-import cn.taketoday.context.utils.ConvertUtils;
-
 import java.util.Arrays;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import cn.taketoday.context.utils.ConvertUtils;
 
 /**
  * 

@@ -23,7 +23,6 @@ import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
 import cn.taketoday.context.listener.ApplicationListener;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**

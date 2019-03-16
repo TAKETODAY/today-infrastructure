@@ -19,16 +19,16 @@
  */
 package test.context.loader;
 
+import java.util.HashSet;
+
+import org.junit.Test;
+
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.PropertyValueResolver;
-
-import java.util.HashSet;
-
-import org.junit.Test;
 
 /**
  * @author Today <br>
