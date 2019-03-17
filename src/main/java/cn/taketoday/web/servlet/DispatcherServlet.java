@@ -73,25 +73,20 @@ public class DispatcherServlet implements Servlet {
 	private static final Logger log = LoggerFactory.getLogger(DispatcherServlet.class);
 
 	/** view resolver **/
-//	@Autowired(Constant.VIEW_RESOLVER)
-	private ViewResolver viewResolver;
+	private final ViewResolver viewResolver;
 	/** parameter resolver */
-//	@Autowired(Constant.PARAMETER_RESOLVER)
-	private ParameterResolver parameterResolver;
+	private final ParameterResolver parameterResolver;
 	/** exception resolver */
-//	@Autowired(Constant.EXCEPTION_RESOLVER)
-	private ExceptionResolver exceptionResolver;
+	private final ExceptionResolver exceptionResolver;
 	/** context path */
-	private String contextPath;
+	private final String contextPath;
 	/** download file buffer */
 	@Value(value = "#{download.buff.size}", required = false)
 	private int downloadFileBuf = 10240;
 	/** Action mapping registry */
-//	@Autowired(Constant.HANDLER_MAPPING_REGISTRY)
-	private HandlerMappingRegistry handlerMappingRegistry;
+	private final HandlerMappingRegistry handlerMappingRegistry;
 	/** intercepter registry */
-//	@Autowired(Constant.HANDLER_INTERCEPTOR_REGISTRY)
-	private HandlerInterceptorRegistry handlerInterceptorRegistry;
+	private final HandlerInterceptorRegistry handlerInterceptorRegistry;
 
 	private final WebApplicationContext applicationContext;
 

@@ -19,13 +19,13 @@
  */
 package test.web.utils;
 
-import cn.taketoday.web.utils.Json;
-import cn.taketoday.web.utils.ParamList;
-
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import cn.taketoday.web.utils.Json;
+import cn.taketoday.web.utils.ParamList;
 
 /**
  * @author Today <br>

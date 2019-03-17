@@ -62,7 +62,6 @@ public class CommonsMultipartResolver extends AbstractMultipartResolver implemen
 		servletFileUpload.setHeaderEncoding(getEncoding());
 		servletFileUpload.setSizeMax(getMaxRequestSize());
 		servletFileUpload.setFileSizeMax(getMaxFileSize());
-
 	}
 
 	@Override

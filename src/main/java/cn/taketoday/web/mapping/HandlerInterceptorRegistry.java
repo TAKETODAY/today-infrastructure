@@ -19,13 +19,13 @@
  */
 package cn.taketoday.web.mapping;
 
-import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
-
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.RandomAccess;
+
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
  * Intercept registry.

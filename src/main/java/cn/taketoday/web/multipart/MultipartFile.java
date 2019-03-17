@@ -26,6 +26,8 @@ import java.io.Serializable;
 
 import javax.servlet.http.Part;
 
+import org.apache.commons.fileupload.FileItem;
+
 /**
  * 
  * @author Today <br>

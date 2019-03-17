@@ -19,10 +19,6 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.utils.ClassUtils;
-
 import java.util.Map.Entry;
 
 import javax.servlet.ServletRegistration;
@@ -31,6 +27,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
+
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.utils.ClassUtils;
 
 /**
  * 
@@ -43,8 +43,16 @@ public class JstlViewResolver extends AbstractViewResolver implements Initializi
 	public void resolveView(String templateName, //
 			HttpServletRequest request, HttpServletResponse response) throws Throwable//
 	{
-		request.getRequestDispatcher(prefix + templateName + suffix)//
+		request.getRequestDispatcher(build(templateName))//
 				.forward(request, response);
+	}
+
+	private final String build(String templateName) {
+		return new StringBuilder(32)//
+				.append(prefix)//
+				.append(templateName)//
+				.append(suffix)//
+				.toString();
 	}
 
 	/**

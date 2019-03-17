@@ -19,11 +19,10 @@
  */
 package cn.taketoday.web.mapping;
 
-import cn.taketoday.web.Constant;
-
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import cn.taketoday.web.Constant;
 import lombok.Getter;
 import lombok.Setter;
 

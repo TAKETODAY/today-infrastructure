@@ -19,10 +19,6 @@
  */
 package test.web;
 
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.web.DefaultWebApplicationContext;
-import cn.taketoday.web.WebApplicationContext;
-
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -32,6 +28,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.web.DefaultWebApplicationContext;
+import cn.taketoday.web.WebApplicationContext;
 import lombok.Getter;
 import lombok.Setter;
 

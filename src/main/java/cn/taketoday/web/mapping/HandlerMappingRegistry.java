@@ -19,13 +19,13 @@
  */
 package cn.taketoday.web.mapping;
 
-import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.web.Constant;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.RandomAccess;
+
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.web.Constant;
 
 /**
  * Store {@link HandlerMapping}

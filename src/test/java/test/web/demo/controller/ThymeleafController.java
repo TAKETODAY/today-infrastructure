@@ -19,10 +19,10 @@
  */
 package test.web.demo.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Controller;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * 

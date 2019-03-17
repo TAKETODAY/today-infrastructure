@@ -19,9 +19,6 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.factory.InitializingBean;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -31,6 +28,9 @@ import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
+import cn.taketoday.context.annotation.Value;
+import cn.taketoday.context.factory.InitializingBean;
+
 /**
  * 
  * @author Today <br>
@@ -38,18 +38,21 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
  */
 public class ThymeleafViewResolver extends AbstractViewResolver implements InitializingBean {
 
-	private TemplateEngine templateEngine;
+	private final TemplateEngine templateEngine;
 
 	@Value(value = "#{thymeleaf.cacheable}", required = false)
 	private boolean cacheable = true;
 
+	public ThymeleafViewResolver() {
+		templateEngine = new TemplateEngine();
+	}
+	
 	/**
 	 * Init Thymeleaf View Resolver.
 	 */
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		templateEngine = new TemplateEngine();
-
+		
 		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
 
 		templateResolver.setPrefix(prefix);

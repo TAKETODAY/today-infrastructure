@@ -19,15 +19,6 @@
  */
 package cn.taketoday.web.servlet;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.utils.ExceptionUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.mapping.ViewMapping;
-import cn.taketoday.web.resolver.ExceptionResolver;
-import cn.taketoday.web.view.ViewResolver;
-
 import java.awt.image.RenderedImage;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +30,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Value;
+import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.mapping.ViewMapping;
+import cn.taketoday.web.resolver.ExceptionResolver;
+import cn.taketoday.web.view.ViewResolver;
 import lombok.extern.slf4j.Slf4j;
 
 /**

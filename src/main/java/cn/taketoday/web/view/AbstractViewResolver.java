@@ -19,12 +19,11 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.web.ServletContextAware;
-
 import java.util.Locale;
 
 import javax.servlet.ServletContext;
 
+import cn.taketoday.web.ServletContextAware;
 import lombok.Getter;
 import lombok.Setter;
 

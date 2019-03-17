@@ -19,11 +19,11 @@
  */
 package cn.taketoday.web.mapping;
 
-import cn.taketoday.web.Constant;
-
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+
+import cn.taketoday.web.Constant;
 
 /**
  * 

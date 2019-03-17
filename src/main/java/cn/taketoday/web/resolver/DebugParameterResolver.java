@@ -19,6 +19,25 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
@@ -40,26 +59,6 @@ import cn.taketoday.web.ui.ModelAttributes;
 import cn.taketoday.web.ui.RedirectModel;
 import cn.taketoday.web.ui.RedirectModelAttributes;
 import cn.taketoday.web.utils.ParamList;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**

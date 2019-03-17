@@ -19,10 +19,10 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.web.mapping.HandlerMapping;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import cn.taketoday.web.mapping.HandlerMapping;
 
 /**
  * 

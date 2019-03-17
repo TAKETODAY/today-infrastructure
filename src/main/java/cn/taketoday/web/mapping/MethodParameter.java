@@ -20,7 +20,6 @@
 package cn.taketoday.web.mapping;
 
 import cn.taketoday.web.Constant;
-
 import lombok.Getter;
 import lombok.Setter;
 

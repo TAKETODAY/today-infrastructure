@@ -19,6 +19,12 @@
  */
 package cn.taketoday.web.config.initializer;
 
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletSecurityElement;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -27,13 +33,6 @@ import cn.taketoday.web.WebApplicationContextAware;
 import cn.taketoday.web.multipart.AbstractMultipartResolver;
 import cn.taketoday.web.multipart.MultipartResolver;
 import cn.taketoday.web.servlet.DispatcherServlet;
-
-import javax.servlet.MultipartConfigElement;
-import javax.servlet.ServletSecurityElement;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import lombok.Getter;
 import lombok.Setter;
 

@@ -19,14 +19,14 @@
  */
 package cn.taketoday.web.annotation;
 
-import cn.taketoday.context.Constant;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import javax.servlet.http.HttpServletResponse;
+
+import cn.taketoday.context.Constant;
 
 /**
  * @author Today <br>

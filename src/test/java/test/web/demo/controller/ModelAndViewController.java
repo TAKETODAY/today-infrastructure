@@ -19,17 +19,16 @@
  */
 package test.web.demo.controller;
 
-import cn.taketoday.web.RequestMethod;
-import cn.taketoday.web.annotation.Controller;
-import cn.taketoday.web.annotation.RequestMapping;
-import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.ui.ModelAndView;
-
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.annotation.Controller;
+import cn.taketoday.web.annotation.RequestMapping;
+import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.ui.ModelAndView;
 import lombok.extern.slf4j.Slf4j;
 
 /**

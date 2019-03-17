@@ -252,15 +252,15 @@ public final class PathVariableAction {
 ## v2.3.5
 - add new today-context version
 - adjust: adjust `DispatcherServlet`.`destroy()`
-- feat: add `Reader`, `Writer`,request `Locale`, `OutputStream`, `InputStream`, `java.security.Principal`. parameter types
+- :sparkles: feat: add `Reader`, `Writer`,request `Locale`, `OutputStream`, `InputStream`, `java.security.Principal`. parameter types
 
 ## v2.3.6
 - add new today-context version
-- feat: auto register `Servlet`,`Filter`,`Listener`
+- :sparkles: feat: auto register `Servlet`,`Filter`,`Listener`
 
 ## v2.3.7
-- feat: allow rebuild Controllers
-- :sparkles: add WebUtils api
+- :sparkles: feat: allow rebuild Controllers
+- :sparkles: :zap: add WebUtils api
 
 
 

@@ -19,10 +19,10 @@
  */
 package cn.taketoday.web.annotation;
 
-import cn.taketoday.web.RequestMethod;
-
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+
+import cn.taketoday.web.RequestMethod;
 
 /**
  * @author Today <br>

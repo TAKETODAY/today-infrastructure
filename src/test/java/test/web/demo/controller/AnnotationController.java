@@ -19,13 +19,13 @@
  */
 package test.web.demo.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 import cn.taketoday.web.annotation.Application;
 import cn.taketoday.web.annotation.Cookie;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.Header;
 import cn.taketoday.web.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * 

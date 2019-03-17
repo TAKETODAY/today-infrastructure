@@ -19,9 +19,9 @@
  */
 package cn.taketoday.web.multipart;
 
-import cn.taketoday.web.mapping.MethodParameter;
-
 import javax.servlet.http.HttpServletRequest;
+
+import cn.taketoday.web.mapping.MethodParameter;
 
 /**
  * 

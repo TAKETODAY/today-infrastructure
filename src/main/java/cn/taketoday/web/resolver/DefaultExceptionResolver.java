@@ -19,6 +19,16 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.ClassUtils;
@@ -34,17 +44,6 @@ import cn.taketoday.web.exception.NotFoundException;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.utils.Json;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**

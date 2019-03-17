@@ -19,6 +19,9 @@
  */
 package test.web.demo.controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Controller;
@@ -28,9 +31,6 @@ import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.ui.Model;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 /**
  * 

@@ -19,21 +19,23 @@
  */
 package cn.taketoday.web.view;
 
+import java.util.Properties;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.LoggerFactory;
+
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.WebDebugMode;
-
-import java.util.Properties;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.LoggerFactory;
-
+import cn.taketoday.web.utils.WebUtils;
 import freemarker.ext.jsp.TaglibFactory;
 import freemarker.ext.servlet.AllHttpScopesHashModel;
 import freemarker.ext.servlet.HttpRequestHashModel;
@@ -58,20 +60,50 @@ import lombok.Getter;
 @Singleton(Constant.VIEW_RESOLVER)
 public class FreeMarkerViewResolver extends AbstractViewResolver implements InitializingBean {
 
-	@Autowired(required = false)
-	private ObjectWrapper wrapper;
+	private final ObjectWrapper wrapper;
 
 	@Getter
-	@Autowired(required = false)
-	private Configuration configuration;
+	private final Configuration configuration;
+	private final TaglibFactory taglibFactory;
 
-	@Autowired(required = false)
-	private TaglibFactory taglibFactory;
+	private final ServletContextHashModel applicationModel;
 
-	@Props(prefix = "freemarker.", replace = true)
-	private Properties settings;
+	@Autowired
+	public FreeMarkerViewResolver(//
+			@Autowired(required = false) ObjectWrapper wrapper, //
+			@Autowired(required = false) Configuration configuration, //
+			@Autowired(required = false) TaglibFactory taglibFactory, //
+			@Props(prefix = "freemarker.", replace = true) Properties settings) //
+	{
+		WebApplicationContext webApplicationContext = WebUtils.getWebApplicationContext();
+		if (configuration == null) {
+			configuration = new Configuration(Configuration.VERSION_2_3_28);
+			webApplicationContext.registerSingleton(configuration.getClass().getName(), configuration);
+		}
 
-	private ServletContextHashModel applicationModel;
+		this.configuration = configuration;
+		if (wrapper == null) {
+			wrapper = new DefaultObjectWrapper(Configuration.VERSION_2_3_28);
+		}
+		this.wrapper = wrapper;
+		ServletContext servletContext = webApplicationContext.getServletContext();
+		if (taglibFactory == null) {
+			taglibFactory = new TaglibFactory(servletContext);
+		}
+		this.taglibFactory = taglibFactory;
+		this.configuration.setObjectWrapper(wrapper);
+		// Create hash model wrapper for servlet context (the application)
+		this.applicationModel = new ServletContextHashModel(servletContext, wrapper);
+
+		try {
+			if (settings != null && !settings.isEmpty()) {
+				this.configuration.setSettings(settings);
+			}
+		}
+		catch (TemplateException e) {
+			throw new ConfigurationException("Set FreeMarker's Properties Error, With Msg: [{}]", e.getMessage(), e);
+		}
+	}
 
 	/**
 	 * Use {@link afterPropertiesSet}
@@ -81,35 +113,11 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 	@Override
 	public void afterPropertiesSet() throws ConfigurationException {
 
-		if (this.configuration == null) {
-			this.configuration = new Configuration(Configuration.VERSION_2_3_28);
-			if (this.wrapper == null) {
-				this.wrapper = new DefaultObjectWrapper(Configuration.VERSION_2_3_28);
-			}
-			if (this.taglibFactory == null) {
-				this.taglibFactory = new TaglibFactory(servletContext);
-			}
-			this.configuration.setLocale(locale);
-			this.configuration.setObjectWrapper(wrapper);
-			this.configuration.setDefaultEncoding(encoding);
-			this.configuration.setServletContextForTemplateLoading(servletContext, prefix); // prefix -> /WEB-INF/..
+		this.configuration.setLocale(locale);
+		this.configuration.setDefaultEncoding(encoding);
+		this.configuration.setServletContextForTemplateLoading(servletContext, prefix); // prefix -> /WEB-INF/..
 
-			try {
-				if (settings != null) {
-					this.configuration.setSettings(settings);
-				}
-				// Create hash model wrapper for servlet context (the application)
-				applicationModel = new ServletContextHashModel(servletContext, wrapper);
-			}
-			catch (TemplateException e) {
-				throw new ConfigurationException("Set FreeMarker's Properties Error, With Msg: [{}]", e.getMessage(), e);
-			}
-		}
 		LoggerFactory.getLogger(getClass()).info("Configuration FreeMarker View Resolver Success.");
-	}
-
-	public FreeMarkerViewResolver() {
-
 	}
 
 	/**

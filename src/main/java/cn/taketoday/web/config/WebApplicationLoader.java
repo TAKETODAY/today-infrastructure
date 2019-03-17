@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EventListener;
@@ -292,7 +293,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 
 		Class<?> resolverClass = null;
 		if (!defaultClass.getName().equals(attrClass)) { // Custom
-			resolverClass = Class.forName(attrClass);
+			resolverClass = ClassUtils.forName(attrClass);
 		}
 		else {
 			resolverClass = defaultClass; // default
@@ -316,19 +317,13 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 	 */
 	private void viewResolver(Element element) throws Throwable {
 
-		final WebApplicationContext applicationContext = getWebApplicationContext();
+		registerResolver(element, FreeMarkerViewResolver.class, VIEW_RESOLVER, false);
 
-		final Class<?> viewResolverClass = //
-				registerResolver(element, FreeMarkerViewResolver.class, VIEW_RESOLVER, false);
-
-		final Object viewResolver = ClassUtils.newInstance(viewResolverClass);
+		final Object viewResolver = getWebApplicationContext().getBean(VIEW_RESOLVER);
 
 		if (viewResolver instanceof AbstractViewResolver) {
 			doAbstractViewResolver(element, (AbstractViewResolver) viewResolver);
 		}
-		// refresh resolver
-		applicationContext.registerSingleton(VIEW_RESOLVER, viewResolver);
-		applicationContext.refresh(VIEW_RESOLVER);
 	}
 
 	/**
@@ -578,9 +573,9 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 
 	}
 
-	private void applyFilter(final WebApplicationContext applicationContext, List<ServletContextInitializer> contextInitializers) {
+	private void applyFilter(final WebApplicationContext applicationContext, Collection<ServletContextInitializer> contextInitializers) {
 
-		List<Filter> filters = applicationContext.getAnnotatedBeans(WebFilter.class);
+		Collection<Filter> filters = applicationContext.getAnnotatedBeans(WebFilter.class);
 		for (Filter filter : filters) {
 
 			final Class<?> beanClass = filter.getClass();
@@ -620,9 +615,9 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 		}
 	}
 
-	private void applyServlet(final WebApplicationContext applicationContext, List<ServletContextInitializer> contextInitializers) {
+	private void applyServlet(final WebApplicationContext applicationContext, Collection<ServletContextInitializer> contextInitializers) {
 
-		List<Servlet> servlets = applicationContext.getAnnotatedBeans(WebServlet.class);
+		Collection<Servlet> servlets = applicationContext.getAnnotatedBeans(WebServlet.class);
 
 		for (Servlet servlet : servlets) {
 
@@ -666,9 +661,9 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 		}
 	}
 
-	private void applyListener(final WebApplicationContext applicationContext, List<ServletContextInitializer> contextInitializers) {
+	private void applyListener(final WebApplicationContext applicationContext, Collection<ServletContextInitializer> contextInitializers) {
 
-		List<EventListener> eventListeners = applicationContext.getAnnotatedBeans(WebListener.class);
+		Collection<EventListener> eventListeners = applicationContext.getAnnotatedBeans(WebListener.class);
 		for (EventListener eventListener : eventListeners) {
 			contextInitializers.add(new WebListenerInitializer<>(eventListener));
 		}

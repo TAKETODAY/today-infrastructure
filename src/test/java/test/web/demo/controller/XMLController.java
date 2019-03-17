@@ -19,10 +19,10 @@
  */
 package test.web.demo.controller;
 
-import cn.taketoday.context.utils.StringUtils;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author Today <br>

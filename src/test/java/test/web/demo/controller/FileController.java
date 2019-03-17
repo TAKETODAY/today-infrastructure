@@ -19,14 +19,6 @@
  */
 package test.web.demo.controller;
 
-import cn.taketoday.web.RequestMethod;
-import cn.taketoday.web.annotation.Controller;
-import cn.taketoday.web.annotation.GET;
-import cn.taketoday.web.annotation.Multipart;
-import cn.taketoday.web.annotation.RequestMapping;
-import cn.taketoday.web.annotation.ResponseBody;
-import cn.taketoday.web.multipart.MultipartFile;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -41,6 +33,14 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import cn.taketoday.web.RequestMethod;
+import cn.taketoday.web.annotation.Controller;
+import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.annotation.Multipart;
+import cn.taketoday.web.annotation.RequestMapping;
+import cn.taketoday.web.annotation.ResponseBody;
+import cn.taketoday.web.multipart.MultipartFile;
 
 /**
  * 
