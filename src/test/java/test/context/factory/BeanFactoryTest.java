@@ -25,6 +25,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +59,7 @@ public class BeanFactoryTest extends BaseTest {
 
 	@Test
 	public void test_GetBeanWithName() throws NoSuchBeanDefinitionException {
-		
+
 		setProcess("Get bean by given bean name");
 
 		ConfigurableBeanFactory beanFactory = getBeanFactory();
@@ -81,7 +82,7 @@ public class BeanFactoryTest extends BaseTest {
 	public void test_GetBeans() throws NoSuchBeanDefinitionException {
 
 		setProcess("Get beans by given type");
-		
+
 		ConfigurableBeanFactory beanFactory = getBeanFactory();
 
 		List<Interface> beans = beanFactory.getBeans(Interface.class);
@@ -96,6 +97,18 @@ public class BeanFactoryTest extends BaseTest {
 	}
 
 	@Test
+	public void test_GetAnnotatedBeans() throws NoSuchBeanDefinitionException {
+
+		setProcess("Get Annotated Beans");
+
+		ConfigurableBeanFactory beanFactory = getBeanFactory();
+
+		List<Object> annotatedBeans = beanFactory.getAnnotatedBeans(Singleton.class);
+		log.debug("beans: {}", annotatedBeans);
+		assert annotatedBeans.size() == 7;
+	}
+
+	@Test
 	public void test_GetType() throws NoSuchBeanDefinitionException {
 		setProcess("Get bean's type");
 		ConfigurableBeanFactory beanFactory = getBeanFactory();
@@ -107,9 +120,9 @@ public class BeanFactoryTest extends BaseTest {
 
 	@Test
 	public void test_GetAliases() throws NoSuchBeanDefinitionException {
-		
+
 		setProcess("Get bean's aliases by given type");
-		
+
 		ConfigurableBeanFactory beanFactory = getBeanFactory();
 		Set<String> aliases = beanFactory.getAliases(Interface.class);
 
@@ -119,9 +132,9 @@ public class BeanFactoryTest extends BaseTest {
 
 	@Test
 	public void test_GetBeanName() throws NoSuchBeanDefinitionException {
-		
+
 		setProcess("Get bean name by given type");
-		
+
 		ConfigurableBeanFactory beanFactory = getBeanFactory();
 
 		BeanNameCreator beanNameCreator = getApplicationContext().getEnvironment().getBeanNameCreator();
@@ -137,7 +150,7 @@ public class BeanFactoryTest extends BaseTest {
 	public void test_IsPrototype() throws NoSuchBeanDefinitionException {
 
 		setProcess("Whether bean is a prototype");
-		
+
 		ConfigurableBeanFactory beanFactory = getBeanFactory();
 
 		assert beanFactory.isPrototype("FactoryBean-Config");
@@ -147,7 +160,7 @@ public class BeanFactoryTest extends BaseTest {
 	public void test_IsSingleton() throws NoSuchBeanDefinitionException {
 
 		setProcess("Whether bean is a singleton");
-		
+
 		ConfigurableBeanFactory beanFactory = getBeanFactory();
 
 		BeanNameCreator beanNameCreator = //

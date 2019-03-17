@@ -77,7 +77,7 @@ public @interface Props {
 
 > ## v2.1.0
 - fix: fix BeanPostProcessor's Dependency 
-- feat: add asm 7.0 under cn.taketoday.asm
+- :sparkles: feat: add asm 7.0 under cn.taketoday.asm
 - [feat: add `@Order` Ordered feature](/src/test/java/test/context/listener)
 - [feat: add `@Conditional` feature](/src/test/java/test/context/profile/ProfileTest.java)
 - [feat: add `@Profile` feature](/src/test/java/test/context/profile/ProfileTest.java)
@@ -178,19 +178,19 @@ public void test_Conditional() {
 ```
 
 > ## v2.1.1
-- feat: add the destroy bean feature
-- fix: #1  some singletons could not be initialized
+- :sparkles: feat: add the destroy bean feature
+- :bug: fix: #1  some singletons could not be initialized
 - discard @PropertyResolver
 
 
 > ## v2.1.2
 - Use `BeanNameCreator` to create bean name
 - `FactoryBean`
-- fix: handleDependency(): when handle dependency some bean definition has already exist 
-- fix: same name of bean when applyPropertyValues() cause exception
-- feat: add initMethods feature
-- feat: add destroyMethods feature
-- feat: add `@MissingBean` feature
+- :bug: fix: handleDependency(): when handle dependency some bean definition has already exist 
+- :bug: fix: same name of bean when applyPropertyValues() cause exception
+- :sparkles: feat: add initMethods feature
+- :sparkles: feat: add destroyMethods feature
+- :sparkles: feat: add `@MissingBean` feature
 
 > ## v2.1.3
 - fix missing @Props injection
@@ -200,23 +200,23 @@ public void test_Conditional() {
 - fix some singletons could not be initialized.
 
 > ## v2.1.5
-- feat: Add context `state` feature
-- fix: `StandardEnvironment`.`addActiveProfile()` when add profile before load context it is not work
-- feat: support `Constructor` injection
+- :sparkles: feat: Add context `state` feature
+- :bug: fix: `StandardEnvironment`.`addActiveProfile()` when add profile before load context it is not work
+- :sparkles: feat: support `Constructor` injection
 - adjust: Adjust context event
-- feat: Enhance `Props`
-- feat: Add el support
-- fix: When manually load context some properties can't be loaded
-- fix: el Messages resource bundle not found
+- :sparkles: feat: Enhance `Props`
+- :sparkles: feat: Add el support
+- :bug: fix: When manually load context some properties can't be loaded
+- :bug: fix: el Messages resource bundle not found
 
 > ## v2.1.6
-- feat: hot swap supports
-- feat: add `Environment` new api to get property
-- feat: add jar-prefix file to ignore jar scanning
-- fix: ensure ExpressionFactory's instance consistent
-- fix: DataSize.parse()
+- :sparkles: feat: hot swap supports
+- :sparkles: feat: add `Environment` new api to get property
+- :sparkles: feat: add jar-prefix file to ignore jar scanning
+- :bug: fix: ensure ExpressionFactory's instance consistent
+- :bug: fix: DataSize.parse()
 - :white_check_mark: add some test code 
 - :zap: add ConcurrentProperties 
-
+- :bug: fix #3 when get annotated beans that StandardBeanDefinition missed
 
 

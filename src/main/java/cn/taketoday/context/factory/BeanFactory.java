@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
@@ -124,17 +125,19 @@ public interface BeanFactory {
 	String getBeanName(Class<?> requiredType);
 
 	/**
-	 * Get a list of beans with given type
+	 * Get a set of beans with given type, this method must invoke after
+	 * {@link ApplicationContext#loadContext(String...)}
 	 * 
 	 * @param requiredType
 	 *            given bean type
-	 * @return
+	 * @return a set of beans with given type
 	 * @since 2.1.2
 	 */
 	<T> List<T> getBeans(Class<T> requiredType);
 
 	/**
-	 * Get a list of annotated beans
+	 * Get a list of annotated beans, this method must invoke after
+	 * {@link ApplicationContext#loadContext(String...)}
 	 * 
 	 * @param annotationType
 	 *            {@link Annotation} type

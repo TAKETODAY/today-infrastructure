@@ -43,6 +43,7 @@ import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.BeanReference;
 import cn.taketoday.context.bean.DefaultBeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.bean.StandardBeanDefinition;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
@@ -164,7 +165,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
 	@Override
 	public <T> List<T> getBeans(Class<T> requiredType) {
-		final List<T> beans = new ArrayList<>();
+		final Set<T> beans = new HashSet<>();
 
 		for (Entry<String, BeanDefinition> entry : getBeanDefinitionsMap().entrySet()) {
 			if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
@@ -175,23 +176,33 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 				}
 			}
 		}
-		return beans;
+		return new ArrayList<>(beans);
 	}
 
 	@Override
+	@SuppressWarnings("unchecked") //
 	public <A extends Annotation, T> List<T> getAnnotatedBeans(Class<A> annotationType) {
-		final List<T> beans = new ArrayList<>();
+		final Set<T> beans = new HashSet<>();
 
 		for (Entry<String, BeanDefinition> entry : getBeanDefinitionsMap().entrySet()) {
-			if (entry.getValue().getBeanClass().isAnnotationPresent(annotationType)) {
-				@SuppressWarnings("unchecked") //
+			BeanDefinition value = entry.getValue();
+			if (value.getBeanClass().isAnnotationPresent(annotationType)) {
 				T bean = (T) getBean(entry.getKey());
 				if (bean != null) {
 					beans.add(bean);
 				}
+			} // fix #3: when get annotated beans that StandardBeanDefinition missed @since v2.1.6
+			else if (value instanceof StandardBeanDefinition) {
+				Method factoryMethod = ((StandardBeanDefinition) value).getFactoryMethod();
+				if (factoryMethod.isAnnotationPresent(annotationType)) {
+					T bean = (T) getBean(entry.getKey());
+					if (bean != null) {
+						beans.add(bean);
+					}
+				}
 			}
 		}
-		return beans;
+		return new ArrayList<>(beans);
 	}
 
 	/**
@@ -989,19 +1000,19 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 			Object value = propertyValue.getValue();
 			if (value instanceof BeanReference) {
 				BeanReference beanReference = (BeanReference) value;
-				
+
 				Set<PropertyValue> dependencies = getDependencies();
 				Object[] dependent = //
 						dependencies.stream()//
 								.filter(predicate -> beanReference.equals(predicate.getValue()))//
 								.toArray();
-				
+
 				for (Object object : dependent) {
 					if (beanReference != object) {
 						dependencies.remove(object);
 					}
 				}
-				
+
 				PropertyValue previousPropertyValue = //
 						previousBeanDefinition.getPropertyValue(propertyValue.getField().getName());
 				// do refresh property
@@ -1036,12 +1047,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
 				final Field field = propertyValue.getField();
 				final BeanReference beanReference = (BeanReference) propertyValue.getValue();
-				
+
 				if (beanReference.getName().equals(currentName) && //
 						field.getType().isAssignableFrom(refreshedClass)) {
-					
-					
-					
+
 					Object bean = getBean(field.getDeclaringClass());
 					field.set(bean, refreshed);
 				}
