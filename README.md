@@ -1,5 +1,8 @@
 # TODAY Context
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3dee875088b746ab92c9b19f37c8fcf0)](https://app.codacy.com/app/TAKETODAY/today-context?utm_source=github.com&utm_medium=referral&utm_content=TAKETODAY/today-context&utm_campaign=Badge_Grade_Settings)
+
+
 :apple:  today-context is a lightweight dependency injection framework.    
 
 ## 安装
