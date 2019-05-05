@@ -79,6 +79,7 @@ import cn.taketoday.web.config.initializer.WebFilterInitializer;
 import cn.taketoday.web.config.initializer.WebListenerInitializer;
 import cn.taketoday.web.config.initializer.WebServletInitializer;
 import cn.taketoday.web.event.ApplicationStartedEvent;
+import cn.taketoday.web.listener.RequestContextHolder;
 import cn.taketoday.web.multipart.AbstractMultipartResolver;
 import cn.taketoday.web.multipart.DefaultMultipartResolver;
 import cn.taketoday.web.resolver.DefaultExceptionResolver;
@@ -499,7 +500,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 	 * @param servletContext
 	 * @return startup Date
 	 */
-	private long prepareApplicationContext(Set<Class<?>> classes, ServletContext servletContext) {
+	private long prepareApplicationContext(ServletContext servletContext) {
 
 		final Object attribute = servletContext.getAttribute(KEY_WEB_APPLICATION_CONTEXT);
 		if (attribute != null && attribute instanceof WebApplicationContext) {
@@ -511,8 +512,10 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 		log.info("Your Application Starts To Be Initialized At: [{}].", //
 				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(start)));
 
-		applicationContext = new DefaultWebApplicationContext(servletContext);
-
+		// fix: applicationContext NullPointerException
+		applicationContext = new DefaultWebApplicationContext();
+		applicationContext.setServletContext(servletContext);
+		applicationContext.loadContext(Constant.BLANK);
 		return start;
 	}
 
@@ -521,7 +524,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 
 		Objects.requireNonNull(servletContext, "ServletContext can't be null");
 
-		final long start = prepareApplicationContext(classes, servletContext);
+		final long start = prepareApplicationContext(servletContext);
 		try {
 
 			final WebApplicationContext applicationContext = getWebApplicationContext();
@@ -549,6 +552,10 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 			applyFilter(applicationContext, contextInitializers);
 			applyServlet(applicationContext, contextInitializers);
 			applyListener(applicationContext, contextInitializers);
+
+			if (environment.getProperty(ENABLE_REQUEST_CONTEXT, Boolean::parseBoolean, false)) {
+				contextInitializers.add(new WebListenerInitializer<RequestContextHolder>(new RequestContextHolder()));
+			}
 
 			OrderUtils.reversedSort(contextInitializers);
 
@@ -627,7 +634,11 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 
 			WebServlet webServlet = beanClass.getAnnotation(WebServlet.class);
 
-			webServletInitializer.addUrlMappings(webServlet.urlPatterns());
+			String[] urlPatterns = webServlet.urlPatterns();
+			if (StringUtils.isArrayEmpty(urlPatterns)) {
+				urlPatterns = new String[] { applicationContext.getBeanName(beanClass) };
+			}
+			webServletInitializer.addUrlMappings(urlPatterns);
 			webServletInitializer.setLoadOnStartup(webServlet.loadOnStartup());
 			webServletInitializer.setAsyncSupported(webServlet.asyncSupported());
 

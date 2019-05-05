@@ -56,7 +56,7 @@ public class ViewDispatcher extends GenericServlet {
 	/** exception Resolver */
 	@Autowired(Constant.EXCEPTION_RESOLVER)
 	private ExceptionResolver exceptionResolver;
-	
+
 	@Value(value = "#{download.buff.size}", required = false)
 	private int downloadFileBuf = 10240;
 
@@ -93,6 +93,9 @@ public class ViewDispatcher extends GenericServlet {
 			}
 			if (response.isCommitted()) {
 				return;
+			}
+			if (mapping.getStatus() != 0) {
+				response.setStatus(mapping.getStatus());
 			}
 			final String contentType = mapping.getContentType();
 			if (StringUtils.isNotEmpty(contentType)) {

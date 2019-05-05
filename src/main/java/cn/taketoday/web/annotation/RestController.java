@@ -24,14 +24,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Component;
-
 /**
  * 
  * @author Today <br>
  *         2018-11-17 21:26
  */
-@Component
 @Controller(restful = true)
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

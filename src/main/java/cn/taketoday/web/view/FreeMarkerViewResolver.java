@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.view;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -47,6 +49,7 @@ import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.ObjectWrapper;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateHashModel;
+import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
 import lombok.Getter;
 
@@ -95,6 +98,12 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 		// Create hash model wrapper for servlet context (the application)
 		this.applicationModel = new ServletContextHashModel(servletContext, wrapper);
 
+		Map<String, TemplateModel> templateModels = webApplicationContext.getBeansOfType(TemplateModel.class);
+		
+		for (Entry<String, TemplateModel> entry : templateModels.entrySet()) {
+			configuration.setSharedVariable(entry.getKey(), entry.getValue());;
+		}
+		
 		try {
 			if (settings != null && !settings.isEmpty()) {
 				this.configuration.setSettings(settings);

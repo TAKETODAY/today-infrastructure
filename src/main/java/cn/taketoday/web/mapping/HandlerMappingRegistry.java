@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.RandomAccess;
+import java.util.regex.Pattern;
 
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.web.Constant;
@@ -48,7 +49,7 @@ public class HandlerMappingRegistry implements RandomAccess {
 		this.regexMappings = new RegexMapping[regexMappings.size()];
 		int i = 0;
 		for (Entry<String, Integer> entry : regexMappings.entrySet()) {
-			this.regexMappings[i++] = new RegexMapping(entry.getKey(), entry.getValue());
+			this.regexMappings[i++] = new RegexMapping(Pattern.compile(entry.getKey()), entry.getValue());
 		}
 		return this;
 	}

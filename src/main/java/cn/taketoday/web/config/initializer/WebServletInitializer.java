@@ -23,6 +23,7 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
+import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.ServletSecurityElement;
 
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
 	}
 
 	@Override
-	protected ServletRegistration.Dynamic addRegistration(ServletContext servletContext) {
+	protected Dynamic addRegistration(ServletContext servletContext) {
 
 		final T servlet = getServlet();
 		if (servlet != null) {
@@ -83,7 +84,7 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
 	 *            the registration
 	 */
 	@Override
-	protected void configureRegistration(ServletRegistration.Dynamic registration) {
+	protected void configureRegistration(Dynamic registration) {
 
 		LoggerFactory.getLogger(WebServletInitializer.class).debug("Configure servlet registration: [{}]", this);
 

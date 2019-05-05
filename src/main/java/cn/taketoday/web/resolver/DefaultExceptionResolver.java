@@ -62,6 +62,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 			HttpServletResponse response, Throwable ex, HandlerMapping handlerMapping) throws Throwable //
 	{
 		try {
+
 			response.reset();
 			if (handlerMapping != null) {
 
@@ -71,17 +72,16 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 				if (responseStatus == null) {
 					responseStatus = method.getDeclaringClass().getAnnotation(ResponseStatus.class);
 				}
-				int status = 500;
+				int status = getStatus(ex);
 				String msg = ex.getMessage();
 				String redirect = null;
 				if (responseStatus != null) {
 					msg = responseStatus.msg();
-					status = responseStatus.value();
+					int value = responseStatus.value();
+					status = value == 0 ? status : value;
 					redirect = responseStatus.redirect();
 				}
-				if (status != 500) {
-					response.setStatus(status);
-				}
+				response.setStatus(status);
 				switch (handlerMethod.getReutrnType())
 				{
 					case Constant.RETURN_FILE :
@@ -91,22 +91,26 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 
 						response.setContentType(Constant.CONTENT_TYPE_JSON);
 						JSON.writeJSONString(response.getWriter(), new Json(msg, status, false),
-								SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty//
+								SerializerFeature.WriteMapNullValue, //
+								SerializerFeature.WriteNullListAsEmpty, //
+								SerializerFeature.DisableCircularReferenceDetect//
 						);
 						break;
 					case Constant.RETURN_IMAGE :
-						resolveImageException(ex, response, request);
+						resolveImageException(ex, response);
 						break;
 					case Constant.RETURN_VIEW :
+					case Constant.RETURN_OBJECT :
+					case Constant.RETURN_MODEL_AND_VIEW :
 						if (StringUtils.isNotEmpty(redirect)) {
 							response.sendRedirect(request.getContextPath() + redirect);
 						}
 						else
-							resolveViewException(ex, response, request, status, msg);
+							resolveViewException(ex, response, status, msg);
 				}
 			}
 			else {
-				resolveViewException(ex, response, request, 500, ex.getMessage());
+				resolveViewException(ex, response, 500, ex.getMessage());
 			}
 
 			log.error("Catch Throwable: [{}] With Msg: [{}]", ex, ex.getMessage(), ex);
@@ -119,19 +123,37 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 		}
 	}
 
+	private int getStatus(Throwable ex) {
+
+		if (ex instanceof MethodNotAllowedException) {
+			return HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+		}
+		else if (ex instanceof BadRequestException || //
+				ex instanceof ConversionException || //
+				ex instanceof FileSizeExceededException) //
+		{
+			return HttpServletResponse.SC_BAD_REQUEST;
+		}
+		else if (ex instanceof NotFoundException) {
+			return HttpServletResponse.SC_NOT_FOUND;
+		}
+		else if (ex instanceof AccessForbiddenException) {
+			return HttpServletResponse.SC_FORBIDDEN;
+		}
+		return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+	}
+
 	/**
 	 * resolve view exception
 	 * 
 	 * @param ex
 	 * @param response
-	 * @param request
 	 * @param status
 	 * @param msg
 	 * @throws IOException
 	 */
-	private void resolveViewException(Throwable ex, //
-			HttpServletResponse response, HttpServletRequest request, int status, String msg) //
-			throws IOException //
+	public static void resolveViewException(Throwable ex, //
+			HttpServletResponse response, int status, String msg) throws IOException //
 	{
 		if (ex instanceof MethodNotAllowedException) {
 			response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, msg);
@@ -158,12 +180,9 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 	 * 
 	 * @param ex
 	 * @param response
-	 * @param request
 	 * @throws IOException
 	 */
-	private void resolveImageException(Throwable ex, //
-			HttpServletResponse response, HttpServletRequest request) throws IOException //
-	{
+	public static void resolveImageException(Throwable ex, HttpServletResponse response) throws IOException {
 		response.setContentType(Constant.CONTENT_TYPE_IMAGE);
 		String fileName = "/error/500.png";
 		if (ex instanceof MethodNotAllowedException) {

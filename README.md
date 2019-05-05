@@ -1,6 +1,6 @@
 # TODAY WEB
 
-> TODAY WEB 一个类似 SpringMVC 的轻量级web框架
+:apple: today-web is a servlet based high-performance lightweight web framework
 
 ## 背景
 <details>

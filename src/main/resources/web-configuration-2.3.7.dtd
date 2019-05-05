@@ -1,7 +1,7 @@
 <!-- 
 <!DOCTYPE Web-Configuration PUBLIC
 		"-//TODAY BLOG//Web-View Configuration DTD 2.0//CN"
-			"https://taketoday.cn/framework/web/dtd/web-configuration-2.3.3.dtd">
+			"https://taketoday.cn/framework/web/dtd/web-configuration-2.3.7.dtd">
 
 <!ELEMENT Web-Configuration (static-resources*, component-scan*, common*, bean*)>
 		class CDATA #IMPLIED
@@ -66,8 +66,5 @@
 <!ELEMENT upload-maxFileSize (#PCDATA)>
 <!ELEMENT upload-maxRequestSize (#PCDATA)>
 <!ELEMENT upload-fileSizeThreshold (#PCDATA)>
-
-	
-	
 
 

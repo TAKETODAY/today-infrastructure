@@ -28,13 +28,14 @@ package cn.taketoday.web.mapping;
  */
 public class HandlerMapping {
 
+	private static final int[] EMPTY = new int[0];
 	/** 处理器类 */
 //	private String				action;
 	private Object action;
 	/** 处理器方法 */
 	private HandlerMethod handlerMethod;
 	/** 拦截器 */
-	private int[] interceptors;
+	private int[] interceptors = EMPTY;
 
 	public Object getAction() {
 		return action;

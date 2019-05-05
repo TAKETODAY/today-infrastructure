@@ -63,6 +63,12 @@ public class ViewMapping implements Serializable {
 	 * @since 2.3.3
 	 */
 	private String contentType = null;
+	/**
+	 * The request status
+	 * 
+	 * @since 2.3.7
+	 */
+	private int status;
 
 	public final boolean hasAction() {
 		return action != null;

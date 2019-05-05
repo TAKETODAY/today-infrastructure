@@ -33,8 +33,10 @@ public interface Constant extends cn.taketoday.context.Constant {
 			"*.ico", "*.zip", "*.txt", "*.mp3", "*.woff2", "*.woff" //
 	};
 
-	String 	ENABLE_WEB_MVC_XML 					= "enable.webmvc.xml";
-	String 	ENABLE_WEB_STARTED_LOG				= "enable.started.log";
+	String ENABLE_WEB_MVC_XML 		= "enable.webmvc.xml";
+	String ENABLE_WEB_STARTED_LOG 	= "enable.started.log";
+	// @since 2.3.7
+	String ENABLE_REQUEST_CONTEXT 	= "enable.request.context";
 	//@off
 	/**
 	 * mode
@@ -60,6 +62,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String 	KEY_JSP_TAGLIBS 					= "JspTaglibs";
 	String 	KEY_APPLICATION 					= "Application";
 	String 	KEY_REQUEST_PARAMETERS 				= "RequestParameters";
+	/**@deprecated @since 2.1.7*/
 	String 	KEY_REQUEST_URI 					= "REQUESTURI";
 	String	KEY_REPLACED						= "REPLACED";
 	/**
@@ -124,6 +127,8 @@ public interface Constant extends cn.taketoday.context.Constant {
 	 * @since 2.3.3
 	 */
 	String	ATTR_CONTENT_TYPE					= "content-type";
+	/** The response status @since 2.3.7*/
+	String	ATTR_STATUS							= "status";
 
 	String  VALUE_FORWARD 						= "forward";
 	String  VALUE_REDIRECT 						= "redirect";
@@ -255,6 +260,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	CONTENT_TYPE_IMAGE					= "image/jpeg";
 
 	String	REDIRECT_URL_PREFIX					= "redirect:";
+	int		REDIRECT_URL_PREFIX_LENGTH			= REDIRECT_URL_PREFIX.length();
 	String	QUOTATION_MARKS						= "\"";
 	String	IMAGE_PNG							= "png";
 	String	HTTP								= "http";

@@ -198,7 +198,6 @@ public final class MD5 {
         state[1] = 0xefcdab89L;
         state[2] = 0x98badcfeL;
         state[3] = 0x10325476L;
-        return;
     }
     /*
      * F, G, H ,I 是4个基本的MD5函数，在原始的MD5的C实现中，由于它们是

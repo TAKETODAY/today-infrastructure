@@ -152,7 +152,8 @@ public class DispatcherServlet implements Servlet {
 				// path variable
 				requestURI = StringUtils.decodeUrl(requestURI);// decode
 				for (RegexMapping regexMapping : handlerMappingRegistry.getRegexMappings()) {
-					if (requestURI.matches(regexMapping.getRegex())) {
+					// TODO path matcher
+					if (regexMapping.getPattern().matcher(requestURI).matches()) {
 						index = regexMapping.getIndex();
 						break;
 					}
@@ -162,7 +163,6 @@ public class DispatcherServlet implements Servlet {
 					response.sendError(404);
 					return;
 				}
-				request.setAttribute(Constant.KEY_REQUEST_URI, requestURI);
 			}
 
 			requestMapping = handlerMappingRegistry.get(index);
@@ -284,12 +284,14 @@ public class DispatcherServlet implements Servlet {
 			final Map<String, Object> dataModel) throws Throwable //
 	{
 		if (resource.startsWith(Constant.REDIRECT_URL_PREFIX)) {
-			final String redirect = resource.replaceFirst(Constant.REDIRECT_URL_PREFIX, Constant.BLANK);
-			if (redirect.startsWith(Constant.HTTP)) {
+			// @since 2.3.7
+			final String redirect = resource.substring(Constant.REDIRECT_URL_PREFIX_LENGTH);
+			if (StringUtils.isEmpty(redirect) || redirect.startsWith(Constant.HTTP)) {
 				response.sendRedirect(redirect);
-				return;
 			}
-			response.sendRedirect(contextPath + redirect);
+			else {
+				response.sendRedirect(contextPath + redirect);
+			}
 			return;
 		}
 		if (dataModel != null) {
@@ -298,7 +300,7 @@ public class DispatcherServlet implements Servlet {
 		{
 			final HttpSession session = request.getSession();
 			final Object attribute = session.getAttribute(Constant.KEY_REDIRECT_MODEL);
-			if (attribute != null) {
+			if (attribute instanceof Map) {
 				((Map<String, Object>) attribute).forEach(request::setAttribute);
 				session.removeAttribute(Constant.KEY_REDIRECT_MODEL);
 			}
@@ -410,11 +412,6 @@ public class DispatcherServlet implements Servlet {
 		this.servletConfig = servletConfig;
 	}
 
-	/*
-	 * （非 Javadoc）
-	 * 
-	 * @see javax.servlet.Servlet#getServletConfig()
-	 */
 	@Override
 	public ServletConfig getServletConfig() {
 		return servletConfig;
@@ -429,7 +426,6 @@ public class DispatcherServlet implements Servlet {
 	}
 
 	/**
-	 * 
 	 * @param msg
 	 */
 	final void log(String msg) {
@@ -445,7 +441,7 @@ public class DispatcherServlet implements Servlet {
 
 	@Override
 	public String getServletInfo() {
-		return "DispatcherServlet, Copyright © Today & 2017 - 2018 All Rights Reserved";
+		return "DispatcherServlet, Copyright © Today & 2017 - 2019 All Rights Reserved";
 	}
 
 	@Override

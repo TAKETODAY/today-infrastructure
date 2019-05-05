@@ -104,7 +104,8 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 
 			for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitionsMap().entrySet()) {
 
-				final Class<?> beanClass = entry.getValue().getBeanClass();
+				final BeanDefinition beanDefinition = entry.getValue();
+				final Class<?> beanClass = beanDefinition.getBeanClass();
 				final ParameterConverter converter = beanClass.getAnnotation(ParameterConverter.class);
 				if (converter == null) {
 					continue;
@@ -112,7 +113,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 
 				Object singleton = applicationContext.getBean(beanClass);
 				if (singleton == null) {
-					singleton = ClassUtils.newInstance(beanClass);
+					singleton = ClassUtils.newInstance(beanDefinition, applicationContext.getBeanFactory());
 
 					applicationContext.registerSingleton(singleton);
 				}
@@ -296,12 +297,15 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 			final MethodParameter methodParameter) throws BadRequestException //
 	{
 		// parameter value[]
-		final String[] parameterValues = request.getParameterValues(methodParameterName);
+		String[] parameterValues = request.getParameterValues(methodParameterName);
 		if (StringUtils.isArrayEmpty(parameterValues)) {
-			if (methodParameter.isRequired()) {
-				throw WebUtils.newBadRequest("Array", methodParameterName, null);
+			parameterValues = StringUtils.split(request.getParameter(methodParameterName));
+			if (StringUtils.isArrayEmpty(parameterValues)) {
+				if (methodParameter.isRequired()) {
+					throw WebUtils.newBadRequest("Array", methodParameterName, null);
+				}
+				return null;
 			}
-			return null;
 		}
 		return NumberUtils.parseArray(parameterValues, methodParameter.getParameterClass());
 	}
@@ -390,7 +394,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 			case ANNOTATION_REQUEST_BODY : { // request body
 				final Object requestBody = request.getAttribute(KEY_REQUEST_BODY);
 				if (requestBody != null) {
-					return ((JSONObject) requestBody).getObject(methodParameterName, methodParameter.getParameterClass());
+					return toJavaObject(methodParameterName, methodParameter.getParameterClass(), (JSONObject) requestBody);
 				}
 				try {
 					// fixed #2 JSONObject could be null
@@ -400,7 +404,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 					}
 					final JSONObject parsedJson = JSON.parseObject(formData);
 					request.setAttribute(KEY_REQUEST_BODY, parsedJson);
-					return parsedJson.getObject(methodParameterName, methodParameter.getParameterClass());
+					return toJavaObject(methodParameterName, methodParameter.getParameterClass(), parsedJson);
 				}
 				catch (IOException e) {
 					throw WebUtils.newBadRequest("Request body", methodParameterName, e);
@@ -418,6 +422,20 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	}
 
 	/**
+	 * @param methodParameterName
+	 * @param parameterClass
+	 * @param requestBody
+	 * @return
+	 */
+	static Object toJavaObject(final String methodParameterName, final Class<?> parameterClass, final JSONObject requestBody) {
+		final JSONObject obj = requestBody.getJSONObject(methodParameterName);
+		if (obj == null) {
+			return requestBody.toJavaObject(parameterClass);
+		}
+		return obj.toJavaObject(parameterClass);
+	}
+
+	/**
 	 * Resolve Path Variable parameter.
 	 *
 	 * @param request
@@ -431,14 +449,14 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @throws BadRequestException
 	 */
 	private Object pathVariable(final HttpServletRequest request, //
-			final String methodParameterName,final MethodParameter methodParameter) throws BadRequestException //
+			final String methodParameterName, final MethodParameter methodParameter) throws BadRequestException //
 	{
 		try {
 
 			final Object attribute = request.getAttribute(Constant.KEY_REPLACED);
 			final String pathVariable;
 			if (attribute == null) {
-				String requestURI = (String) request.getAttribute(Constant.KEY_REQUEST_URI);
+				String requestURI = StringUtils.decodeUrl(request.getRequestURI());
 				for (final String regex : methodParameter.getSplitMethodUrl()) {
 					requestURI = requestURI.replace(regex, Constant.REPLACE_SPLIT_METHOD_URL);
 				}
@@ -520,8 +538,8 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 				// 遍历参数
 				final String parameterName = parameterNames.nextElement();
 				// 寻找参数
-				if (!resolvePojoParameter(request, parameterName, bean, //
-						parameterClass.getDeclaredField(parameterName), methodParameter)) {
+				if (!resolvePojoParameter(request, parameterName, //
+						bean, parameterClass.getDeclaredField(parameterName))) {
 
 					return false;
 				}
@@ -543,7 +561,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @return
 	 */
 	private boolean resolvePojoParameter(final HttpServletRequest request, final String parameterName, //
-			final Object bean, final Field field, final MethodParameter methodParameter) throws Throwable //
+			final Object bean, final Field field) throws Throwable //
 	{
 		Object property = null;
 
@@ -598,13 +616,17 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 
 			final Object requestBody = request.getAttribute(KEY_REQUEST_BODY);
 			if (requestBody != null) {
-				return JSONArray.parseArray(//
-						((JSONObject) requestBody).getString(parameterName), methodParameter.getGenericityClass()//
-				);
+
+				final JSONObject parsedJson = (JSONObject) requestBody;
+				final JSONArray array = parsedJson.getJSONArray(parameterName);
+				if (array == null) {
+					return JSONObject.parseArray(parsedJson.toJSONString(), methodParameter.getGenericityClass());
+				}
+				return array.toJavaList(methodParameter.getGenericityClass());
 			}
 
 			try {
-
+				
 				// fix #2 JSONObject could be null
 				final String formData = request.getReader().readLine();
 				if (StringUtils.isEmpty(formData)) {
@@ -612,7 +634,11 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 				}
 				final JSONObject parsedJson = JSON.parseObject(formData);
 				request.setAttribute(KEY_REQUEST_BODY, parsedJson);
-				JSONArray.parseArray(parsedJson.getString(parameterName), methodParameter.getGenericityClass());
+				final JSONArray array = parsedJson.getJSONArray(parameterName);
+				if (array == null) {
+					return JSONArray.parseArray(formData, methodParameter.getGenericityClass());
+				}
+				return array.toJavaList(methodParameter.getGenericityClass());
 			}
 			catch (IOException e) {
 				throw WebUtils.newBadRequest("Collection request body", parameterName, e);
@@ -634,8 +660,8 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 					newInstance = clazz.getConstructor().newInstance();
 				}
 
-				if (!resolvePojoParameter(request, requestParameter, newInstance, //
-						clazz.getDeclaredField(split[3]), methodParameter)) {// 得到Field准备注入
+				if (!resolvePojoParameter(request, requestParameter,//
+						newInstance, clazz.getDeclaredField(split[3]))) {// 得到Field准备注入
 
 					return list;
 				}
@@ -693,8 +719,8 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 				if (newInstance == null) {
 					newInstance = clazz.getConstructor().newInstance();// default constructor
 				}
-				if (!resolvePojoParameter(request, requestParameter, //
-						newInstance, clazz.getDeclaredField(keyList[3]), methodParameter)) {// 得到Field准备注入
+				if (!resolvePojoParameter(request, //
+						requestParameter, newInstance, clazz.getDeclaredField(keyList[3]))) {// 得到Field准备注入
 
 					return map;
 				}

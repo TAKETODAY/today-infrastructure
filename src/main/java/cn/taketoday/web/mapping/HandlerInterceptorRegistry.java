@@ -71,7 +71,7 @@ public class HandlerInterceptorRegistry implements RandomAccess {
 		return array[index];
 	}
 
-	public boolean add(HandlerInterceptor e) {
+	public int add(HandlerInterceptor e) {
 
 		Objects.requireNonNull(e, "HandlerInterceptor instance can't be null");
 
@@ -80,7 +80,7 @@ public class HandlerInterceptorRegistry implements RandomAccess {
 		newArray[array.length] = e;
 		array = newArray;
 
-		return true;
+		return array.length - 1;
 	}
 
 	@Override

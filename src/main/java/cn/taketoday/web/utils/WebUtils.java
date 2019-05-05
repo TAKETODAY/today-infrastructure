@@ -96,11 +96,11 @@ public abstract class WebUtils {
 				.append(Constant.QUOTATION_MARKS)//
 				.toString()//
 		);
-
+		
 		try (InputStream in = new FileInputStream(download);
 				OutputStream out = response.getOutputStream()) {
 
-			byte[] buff = new byte[downloadFileBuf];
+			final byte[] buff = new byte[downloadFileBuf];
 			int len = 0;
 			while ((len = in.read(buff)) != -1) {
 				out.write(buff, 0, len);

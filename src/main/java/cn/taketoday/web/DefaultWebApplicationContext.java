@@ -19,27 +19,28 @@
  */
 package cn.taketoday.web;
 
+import java.util.Collection;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.aware.Aware;
-import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.factory.AbstractBeanFactory;
-import cn.taketoday.context.factory.BeanPostProcessor;
+import cn.taketoday.context.utils.StringUtils;
 
 /**
  * 
  * @author Today <br>
  *         2018-07-10 1:16:17
  */
-public class DefaultWebApplicationContext extends StandardApplicationContext implements WebApplicationContext {
+public class DefaultWebApplicationContext extends AbstractApplicationContext implements WebApplicationContext {
 
 	/**
 	 * Servlet context
 	 */
 	private ServletContext servletContext;
+
+	private final DefaultWebBeanFactory beanFactory;
 
 	@Override
 	public ServletContext getServletContext() {
@@ -51,11 +52,13 @@ public class DefaultWebApplicationContext extends StandardApplicationContext imp
 		this.servletContext = servletContext;
 	}
 
-	/**
-	 * 
-	 */
 	public DefaultWebApplicationContext() {
-		super();
+		this.beanFactory = new DefaultWebBeanFactory(this);
+	}
+
+	@Override
+	public AbstractBeanFactory getBeanFactory() {
+		return this.beanFactory;
 	}
 
 	/**
@@ -87,28 +90,32 @@ public class DefaultWebApplicationContext extends StandardApplicationContext imp
 	 *            package locations
 	 * @since 2.3.3
 	 */
-	public DefaultWebApplicationContext(ServletContext servletContext, String properties, String... locations) {
-		super(properties);
+	public DefaultWebApplicationContext(ServletContext servletContext, String propertiesLocation, String... locations) {
+		this();
+		if (StringUtils.isNotEmpty(propertiesLocation)) {
+			setPropertiesLocation(propertiesLocation);
+		}
 		this.servletContext = servletContext;
 		loadContext(locations);
 	}
 
+	public DefaultWebApplicationContext(DefaultWebBeanFactory beanFactory) {
+		this.beanFactory = beanFactory;
+	}
+
 	@Override
 	protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
-		beanFactory.addBeanPostProcessor(new BeanPostProcessor() {
-			@Override
-			public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) throws Exception {
-				if (bean instanceof Aware) {
-					if (bean instanceof ServletContextAware) {
-						((ServletContextAware) bean).setServletContext(servletContext);
-					}
-					if (bean instanceof WebApplicationContextAware) {
-						((WebApplicationContextAware) bean).setWebApplicationContext(DefaultWebApplicationContext.this);
-					}
-				}
-				return bean;
-			}
-		});
+		// register WebApplicationContext
+		registerSingleton(beanFactory.getBeanNameCreator().create(WebApplicationContext.class), this);
+		
+		super.postProcessBeanFactory(beanFactory);
+	}
+
+	@Override
+	protected void doLoadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
+		super.doLoadBeanDefinitions(beanFactory, beanClasses);
+		this.beanFactory.loadConfigurationBeans();
+		this.beanFactory.loadMissingBean(beanClasses);
 	}
 
 }

@@ -36,8 +36,7 @@ public interface ServletContextInitializer {
 	 * @param servletContext
 	 *            the {@code ServletContext} to initialize
 	 * @throws Throwable
-	 *             if any call against the given {@code ServletContext} throws a
-	 *             {@code ServletException}
+	 *             if any call {@link Throwable} occurred
 	 */
 	void onStartup(ServletContext servletContext) throws Throwable;
 }

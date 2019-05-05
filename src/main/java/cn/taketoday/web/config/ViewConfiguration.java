@@ -131,7 +131,12 @@ public class ViewConfiguration implements WebApplicationContextAware {
 		String method = action.getAttribute(Constant.ATTR_METHOD); // handler method
 		String resource = action.getAttribute(Constant.ATTR_RESOURCE); // resource
 		String contentType = action.getAttribute(Constant.ATTR_CONTENT_TYPE); // content type
+		final String status = action.getAttribute(Constant.ATTR_STATUS); // status
 
+		if (StringUtils.isNotEmpty(status)) {
+			mapping.setStatus(Integer.parseInt(status));
+		}
+		
 		if (StringUtils.isEmpty(name)) {
 			throw new ConfigurationException(//
 					"You must specify a 'name' attribute like this: [<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]"//
@@ -180,7 +185,7 @@ public class ViewConfiguration implements WebApplicationContextAware {
 
 		name = ContextUtils.resolvePlaceholder(variables, //
 				contextPath + (name.startsWith("/") ? name : "/" + name));
-		
+
 		ViewDispatcher.register(name, mapping);
 		log.info("View Mapped [{} -> {}]", name, mapping);
 		return mapping;

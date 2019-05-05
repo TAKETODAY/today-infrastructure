@@ -19,18 +19,33 @@
  */
 package cn.taketoday.web.mapping;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import java.util.regex.Pattern;
 
 /**
  * @author Today <br>
  * 
  *         2018-11-28 18:12
  */
-@Getter
-@AllArgsConstructor
 public final class RegexMapping {
 
-	private final String regex;
+	/**
+	 * @since 2.1.7
+	 */
+	private final Pattern pattern;
+//	private final String regex;
+
 	private final Integer index;
+
+	public RegexMapping(final Pattern pattern, Integer index) {
+		this.index = index;
+		this.pattern = pattern;
+	}
+
+	public final Pattern getPattern() {
+		return pattern;
+	}
+
+	public final Integer getIndex() {
+		return index;
+	}
 }

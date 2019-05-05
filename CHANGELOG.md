@@ -261,6 +261,6 @@ public final class PathVariableAction {
 ## v2.3.7
 - :sparkles: feat: allow rebuild Controllers
 - :sparkles: :zap: add WebUtils api
-
-
-
+- :sparkles: feat: status feature
+- :sparkles: feat: @Interceptor exclude feature
+- :bug: fix: applicationContext NullPointerException

@@ -43,12 +43,10 @@ import lombok.Setter;
 public abstract class WebComponentInitializer<D extends Registration.Dynamic> implements OrderedInitializer {
 
 	private String name;
-	/**
-	 * Startup order
-	 */
+	/** Startup order */
 	private int order = LOWEST_PRECEDENCE;
 
-	private boolean asyncSupported = true;
+	private boolean asyncSupported = false;
 
 	private Set<String> urlMappings = new LinkedHashSet<>();
 

@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.ProgressListener;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
@@ -53,12 +52,7 @@ public class CommonsMultipartResolver extends AbstractMultipartResolver implemen
 
 	@Override
 	public void afterPropertiesSet() {
-		ProgressListener progressListener = //
-				WebUtils.getWebApplicationContext().getBean(ProgressListener.class);
 
-		if (progressListener != null) {
-			servletFileUpload.setProgressListener(progressListener);
-		}
 		servletFileUpload.setHeaderEncoding(getEncoding());
 		servletFileUpload.setSizeMax(getMaxRequestSize());
 		servletFileUpload.setFileSizeMax(getMaxFileSize());
@@ -111,7 +105,7 @@ public class CommonsMultipartResolver extends AbstractMultipartResolver implemen
 						return new CommonsMultipartFile(fileItem);
 					}
 				}
-				throw new BadRequestException("There isn't a file item, bad request.");
+				throw WebUtils.newBadRequest("Multipart", methodParameterName, null);
 			}
 			case Constant.TYPE_ARRAY_MULTIPART_FILE : {
 				return multipartFile(fileItems, new ArrayList<>(), methodParameterName)//

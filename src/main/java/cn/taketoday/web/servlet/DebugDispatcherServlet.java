@@ -91,7 +91,7 @@ public class DebugDispatcherServlet extends DispatcherServlet {
 				// path variable
 				requestURI = StringUtils.decodeUrl(requestURI);// decode
 				for (RegexMapping regexMapping : handlerMappingRegistry.getRegexMappings()) {
-					if (requestURI.matches(regexMapping.getRegex())) {
+					if (regexMapping.getPattern().matcher(requestURI).matches()) {
 						index = regexMapping.getIndex();
 						break;
 					}
@@ -102,8 +102,7 @@ public class DebugDispatcherServlet extends DispatcherServlet {
 					return;
 				}
 			}
-
-			request.setAttribute(Constant.KEY_REQUEST_URI, requestURI);
+			
 			requestMapping = handlerMappingRegistry.get(index);
 			// get intercepter s
 			final int[] interceptors = requestMapping.getInterceptors();

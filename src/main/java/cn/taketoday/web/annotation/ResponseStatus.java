@@ -24,8 +24,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.servlet.http.HttpServletResponse;
-
 import cn.taketoday.context.Constant;
 
 /**
@@ -42,7 +40,7 @@ public @interface ResponseStatus {
 	 * 
 	 * @return
 	 */
-	int value() default HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+	int value() default 0;
 
 	/**
 	 * The descriptive message

@@ -296,6 +296,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 
 		regexUrl = regexUrl.replaceAll(Constant.ANY_PATH, Constant.ANY_PATH_REGEXP);
 		regexUrl = regexUrl.replaceAll(Constant.ONE_PATH, Constant.ONE_PATH_REGEXP);
+		boolean hasSet = false;
 
 		Parameter[] parameters = method.getParameters();
 		for (int i = 0; i < parameters.length; i++) {
@@ -323,24 +324,27 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 			}
 
 			String parameterName = methodParameter.getParameterName();
-			regexUrl = regexUrl.replace("{" + parameterName + "}", regex);
+			regexUrl = regexUrl.replace('{' + parameterName + '}', regex);
 
 			String[] splitRegex = methodUrl.split(Constant.PATH_VARIABLE_REGEXP);
 			String tempMethodUrl = methodUrl;
 
 			for (String reg : splitRegex) {
-				tempMethodUrl = tempMethodUrl.replaceFirst(reg, "\\\\");
+				tempMethodUrl = tempMethodUrl.replaceFirst(reg, Constant.REPLACE_REGEXP);
 			}
 
-			String[] regexArr = tempMethodUrl.split("\\\\");
+			String[] regexArr = tempMethodUrl.split(Constant.REPLACE_REGEXP);
 			for (int j = 0; j < regexArr.length; j++) {
-				if (regexArr[j].equals("{" + parameterName + "}")) {
+				if (regexArr[j].equals('{' + parameterName + '}')) {
 					methodParameter.setPathIndex(j);
 				}
 			}
-			methodParameter.setSplitMethodUrl(//
-					methodUrl.replace(requestMethod_, Constant.BLANK).split(Constant.PATH_VARIABLE_REGEXP)//
-			);
+			if (!hasSet) {
+				methodParameter.setSplitMethodUrl(//
+						methodUrl.replace(requestMethod_, Constant.BLANK).split(Constant.PATH_VARIABLE_REGEXP)//
+				);
+				hasSet = true;
+			}
 		}
 		this.regexUrls.put(regexUrl, index);
 		log.info("Mapped [{}] -> [{}]", regexUrl, method);
@@ -365,7 +369,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	/**
 	 * Set Handler Mapping.
 	 * 
-	 * @param beanCLass
+	 * @param beanClass
 	 * @param method
 	 * @param restful
 	 * @return
@@ -590,10 +594,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 
 		if (StringUtils.isEmpty(parameterName)) {
 			// use method parameter name
-//			parameterName = parameter.getName();
-//			if (parameterName.matches("arg[\\d]+")) {
 			parameterName = methodArgsName;
-//			}
 		}
 
 		return new MethodParameter(required, parameterName, parameterClass, //
@@ -610,34 +611,32 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	 * @param requestMapping
 	 *            mapping of request
 	 */
-	@SuppressWarnings("unchecked")
 	private void setInterceptor(Class<?> controllerClass, Method action, HandlerMapping requestMapping) {
 
-		int length = 0;
-		int[] classInterceptor = new int[0];
+		final List<Integer> ids = new ArrayList<>();
+
 		// 设置类拦截器
-		Interceptor controllerInterceptors = controllerClass.getAnnotation(Interceptor.class);
+		final Interceptor controllerInterceptors = controllerClass.getAnnotation(Interceptor.class);
 		if (controllerInterceptors != null) {
-			Class<? extends HandlerInterceptor>[] value = controllerInterceptors.value();
-			length = value.length;
-			classInterceptor = addInterceptors((Class<HandlerInterceptor>[]) value);
+			ids.addAll(addInterceptors(controllerInterceptors.value()));
 		}
-		// 方法拦截器
-		Interceptor actionInterceptors = action.getAnnotation(Interceptor.class);
+		// HandlerInterceptor on a method
+		final Interceptor actionInterceptors = action.getAnnotation(Interceptor.class);
 
-		int[] methodInterceptor = new int[0];
 		if (actionInterceptors != null) {
-			Class<? extends HandlerInterceptor>[] value = actionInterceptors.value();
-			length += value.length;
-			methodInterceptor = addInterceptors(value);
+			ids.addAll(addInterceptors(actionInterceptors.value()));
+
+			for (Class<? extends HandlerInterceptor> interceptor : actionInterceptors.exclude()) {
+				final int index = handlerInterceptorRegistry.indexOf(interceptor);
+				if (index >= 0) {
+					ids.remove(Integer.valueOf(index));
+				}
+			}
 		}
 
-		int[] ids = new int[length];
-
-		System.arraycopy(classInterceptor, 0, ids, 0, classInterceptor.length);
-		System.arraycopy(methodInterceptor, 0, ids, classInterceptor.length, methodInterceptor.length);
-
-		requestMapping.setInterceptors(ids);
+		if (ids.size() > 0) {
+			requestMapping.setInterceptors(ids.stream().mapToInt(Integer::intValue).toArray());
+		}
 	}
 
 	/***
@@ -646,32 +645,33 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	 * @param interceptors
 	 * @return
 	 */
-	private final int[] addInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
+	private final List<Integer> addInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
+
+		if (interceptors == null || interceptors.length == 0) {
+			return Collections.emptyList();
+		}
 
 		final HandlerInterceptorRegistry handlerInterceptorRegistry = this.handlerInterceptorRegistry;
 
-		int[] ids = new int[interceptors.length];
-		int i = 0;
+		final List<Integer> ids = new ArrayList<>(interceptors.length);
+
 		for (Class<? extends HandlerInterceptor> interceptor : interceptors) {
-			int size = handlerInterceptorRegistry.size();
 			try {
-				{
-					int index = handlerInterceptorRegistry.indexOf(interceptor); // 获得对象的位置
-					if (index >= 0) {
-						ids[i++] = index;
+				final int index = handlerInterceptorRegistry.indexOf(interceptor); // 获得对象的位置
+				if (index >= 0) {
+					ids.add(Integer.valueOf(index));
+				}
+				else {
+					final HandlerInterceptor newInstance;
+					if (applicationContext.containsBeanDefinition(interceptor)) {
+						newInstance = applicationContext.getBean(interceptor);
 					}
 					else {
-
-						Object newInstance = applicationContext//
+						newInstance = (HandlerInterceptor) applicationContext//
 								.refresh(beanDefinitionLoader.createBeanDefinition(interceptor));
 
-						if (handlerInterceptorRegistry.add((HandlerInterceptor) newInstance)) {
-							ids[i++] = size;
-						}
-						else {
-							throw new ConfigurationException("Interceptor: [{}] register error", interceptor.getName());
-						}
 					}
+					ids.add(Integer.valueOf(handlerInterceptorRegistry.add(newInstance)));
 				}
 			}
 			catch (Exception e) {

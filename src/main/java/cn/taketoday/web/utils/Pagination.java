@@ -21,8 +21,6 @@ package cn.taketoday.web.utils;
 
 import java.util.List;
 
-import com.alibaba.fastjson.annotation.JSONField;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -49,7 +47,6 @@ public class Pagination<T> {
 	/**
 	 * all row in database
 	 */
-	@JSONField(serialize = false)
 	private long all;
 
 	/**

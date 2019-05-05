@@ -45,7 +45,7 @@ public interface HandlerInterceptor {
 	 * @param handlerMapping
 	 *            request mapping
 	 * @return
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	boolean beforeProcess(HttpServletRequest request, HttpServletResponse response, HandlerMapping handlerMapping)
 			throws Throwable;
@@ -59,7 +59,7 @@ public interface HandlerInterceptor {
 	 *            request
 	 * @param response
 	 *            response
-	 * @throws Exception
+	 * @throws Throwable
 	 */
 	default void afterProcess(Object result, HttpServletRequest request, HttpServletResponse response)
 			throws Throwable {

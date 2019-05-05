@@ -442,11 +442,11 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 	{
 
 		try {
-
+			
 			final Object attribute = request.getAttribute(Constant.KEY_REPLACED);
 			String pathVariable;
 			if (attribute == null) {
-				String requestURI = (String) request.getAttribute(Constant.KEY_REQUEST_URI);
+				String requestURI = request.getRequestURI();
 				log.debug("Resolve Path variable: [{}], With request Uri: [{}]", methodParameterName, requestURI);
 				for (String regex : methodParameter.getSplitMethodUrl()) {
 					log.debug("replace: [{}]", regex);

@@ -28,6 +28,8 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import cn.taketoday.web.exception.InternalServerException;
+
 /**
  * 
  * @author Today <br>
@@ -125,12 +127,11 @@ public class ModelAttributes implements Model, Map<String, Object> {
 
 	@Override
 	public Object remove(Object name) {
-
-		if (!(name instanceof String)) {
-			throw new RuntimeException("Attribute name must be a String");
+		if (name instanceof String) {
+			request.removeAttribute((String) name);
+			return null;
 		}
-		request.removeAttribute((String) name);
-		return null;
+		throw new InternalServerException("Attribute name must be a String");
 	}
 
 	@Override

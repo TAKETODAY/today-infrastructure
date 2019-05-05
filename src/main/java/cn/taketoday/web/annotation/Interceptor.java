@@ -27,8 +27,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-17 21:23
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -36,6 +35,11 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 public @interface Interceptor {
 
 	/** 配置拦截器 执行的先后顺序由拦截器的位置有关 */
-	Class<? extends HandlerInterceptor>[] value();
+	Class<? extends HandlerInterceptor>[] value() default {};
+
+	/**
+	 * Exclude {@link HandlerInterceptor}
+	 */
+	Class<? extends HandlerInterceptor>[] exclude() default {};
 
 }
