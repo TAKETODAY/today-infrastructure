@@ -24,6 +24,7 @@ import javax.el.ELManager;
 import javax.el.StandardELContext;
 
 import cn.taketoday.context.AbstractApplicationContext;
+import cn.taketoday.context.Constant;
 
 /**
  * 
@@ -34,6 +35,7 @@ public class ValueELContext extends StandardELContext {
 
 	public ValueELContext(AbstractApplicationContext applicationContext) {
 		super(ELManager.getExpressionFactory());
+		getBeans().put(Constant.ENV, applicationContext.getEnvironment().getProperties()); // @since 2.1.6
 		addELResolver(new BeanNameELResolver(new BeanFactoryResolver(applicationContext)));
 	}
 

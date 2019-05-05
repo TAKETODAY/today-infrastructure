@@ -24,8 +24,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
-import cn.taketoday.context.annotation.Repository;
+import cn.taketoday.context.annotation.Prototype;
+import cn.taketoday.context.aware.BeanNameAware;
+import lombok.extern.slf4j.Slf4j;
 import test.demo.config.User;
 import test.demo.repository.UserRepository;
 
@@ -34,17 +37,20 @@ import test.demo.repository.UserRepository;
  * @author Today <br>
  *         2018-07-06 17:40:34
  */
-@Repository
-public class DefaultUserRepository implements UserRepository {
+@Slf4j
+@Prototype
+//@Repository
+public class DefaultUserRepository implements UserRepository, BeanNameAware {
 
 	private Map<String, User> users = new HashMap<>();
-
+	
 	public DefaultUserRepository() {
 		
 	}
 
 	@PostConstruct
 	public void initData() {
+		log.info("init data: [{}]", this);
 		users.put("666", new User(1, "杨海健", 20, "666", "666", "男", new Date()));
 		users.put("6666", new User(2, "杨海健1", 20, "6666", "6666", "男", new Date()));
 		users.put("66666", new User(3, "杨海健2", 20, "66666", "66666", "男", new Date()));
@@ -57,6 +63,12 @@ public class DefaultUserRepository implements UserRepository {
 		users.put(user.getUserId(), user);
 
 		return true;
+	}
+
+	@PreDestroy
+	public void exit() {
+		log.info("destory: [{}]", this);
+		users = null;
 	}
 
 	@Override
@@ -73,5 +85,10 @@ public class DefaultUserRepository implements UserRepository {
 			return null;
 		}
 		return user_;
+	}
+
+	@Override
+	public void setBeanName(String name) {
+		log.info("[{}] named: [{}]", this, name);
 	}
 }

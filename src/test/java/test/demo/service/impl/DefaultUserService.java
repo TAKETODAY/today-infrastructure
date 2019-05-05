@@ -22,6 +22,7 @@ package test.demo.service.impl;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Service;
+import lombok.extern.slf4j.Slf4j;
 import test.demo.config.Config;
 import test.demo.config.User;
 import test.demo.repository.UserRepository;
@@ -32,14 +33,21 @@ import test.demo.service.UserService;
  * @author Today <br>
  *         2018-11-15 16:52
  */
+@Slf4j
 @Service
 public class DefaultUserService implements UserService {
 
-	private final UserRepository userRepository;
+	@Autowired
+	private UserRepository userRepository;
+
+//	@Autowired
+//	public DefaultUserService(@Autowired(required = true) UserRepository userDao, @Props(prefix = "site.") Config config) {
+//		this.userRepository = userDao;
+//	}
 
 	@Autowired
-	public DefaultUserService(@Autowired(required = true) UserRepository userDao, @Props(prefix = "site.") Config config) {
-		this.userRepository = userDao;
+	public DefaultUserService(@Props(prefix = "site.") Config config) {
+		log.info("Creating 'UserService'");
 	}
 
 	@Override

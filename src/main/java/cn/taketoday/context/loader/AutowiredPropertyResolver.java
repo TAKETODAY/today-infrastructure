@@ -39,15 +39,11 @@ import cn.taketoday.context.utils.StringUtils;
  */
 public class AutowiredPropertyResolver implements PropertyValueResolver {
 
-	private BeanNameCreator beanNameCreator;
-
 	@Override
 	public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
 
-		if (this.beanNameCreator == null) {
-			this.beanNameCreator = applicationContext.getEnvironment().getBeanNameCreator();
-		}
-		
+		final BeanNameCreator beanNameCreator = applicationContext.getEnvironment().getBeanNameCreator();
+
 		final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
 
 		String name = null;
@@ -57,7 +53,7 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
 		if (autowired != null) {
 			name = autowired.value();
 			if (StringUtils.isEmpty(name)) {
-				name = byType(applicationContext, propertyClass);
+				name = byType(applicationContext, propertyClass, beanNameCreator);
 			}
 			required = autowired.required(); // class name
 		}
@@ -65,8 +61,8 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
 			// Resource.class
 			final Resource resource = field.getAnnotation(Resource.class);
 			name = resource.name();
-			if (StringUtils.isEmpty(name) && resource.type() != Object.class) {
-				name = byType(applicationContext, propertyClass);
+			if (StringUtils.isEmpty(name)) { // fix  resource.type() != Object.class) {
+				name = byType(applicationContext, propertyClass, beanNameCreator);
 			}
 		}
 
@@ -78,7 +74,9 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
 	 * @param targetClass
 	 * @return
 	 */
-	private String byType(ApplicationContext applicationContext, Class<?> targetClass) {
+	private String byType(ApplicationContext applicationContext, Class<?> targetClass, //
+			final BeanNameCreator beanNameCreator) //
+	{
 		if (applicationContext.hasStarted()) {
 			String name = findName(applicationContext, targetClass);
 			if (StringUtils.isNotEmpty(name)) {

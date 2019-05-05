@@ -21,9 +21,12 @@ package cn.taketoday.context.factory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -74,13 +77,18 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	/** Map of bean definition objects, keyed by bean name */
 	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64, 1f);
 
+	// @since 2.1.6
+	private boolean fullPrototype = false;
+	// @since 2.1.6
+	private boolean fullLifecycle = false;
+
 	@Override
 	public Object getBean(String name) throws ContextException {
 
-		Object bean = singletons.get(name);
+		final Object bean = singletons.get(name);
 
 		if (bean == null) {
-			BeanDefinition beanDefinition = getBeanDefinition(name);
+			final BeanDefinition beanDefinition = getBeanDefinition(name);
 			if (beanDefinition != null) {
 				try {
 					if (beanDefinition.isSingleton()) {
@@ -97,7 +105,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 				}
 			}
 		}
-
 		return bean;
 	}
 
@@ -137,14 +144,20 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	 * @since 2.1.2
 	 * @return
 	 */
-	<T> Object doGetBeanforType(Class<T> requiredType) {
+	<T> Object doGetBeanforType(final Class<T> requiredType) {
 		Object bean = null;
 		for (Entry<String, BeanDefinition> entry : getBeanDefinitionsMap().entrySet()) {
 			if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
 				bean = getBean(entry.getKey());
 				if (bean != null) {
-					break;
+					return bean;
 				}
+			}
+		}
+		// fix
+		for (Object entry : getSingletonsMap().values()) {
+			if (requiredType.isAssignableFrom(entry.getClass())) {
+				return entry;
 			}
 		}
 		return bean;
@@ -191,7 +204,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 				if (bean != null) {
 					beans.add(bean);
 				}
-			} // fix #3: when get annotated beans that StandardBeanDefinition missed @since v2.1.6
+			} // fix #3: when get annotated beans that StandardBeanDefinition missed @since
+				// v2.1.6
 			else if (value instanceof StandardBeanDefinition) {
 				Method factoryMethod = ((StandardBeanDefinition) value).getFactoryMethod();
 				if (factoryMethod.isAnnotationPresent(annotationType)) {
@@ -203,6 +217,22 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 			}
 		}
 		return new ArrayList<>(beans);
+	}
+
+	@Override
+	public <T> Map<String, T> getBeansOfType(Class<T> requiredType) {
+		final Map<String, T> beans = new HashMap<>();
+
+		for (Entry<String, BeanDefinition> entry : getBeanDefinitionsMap().entrySet()) {
+			if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
+				@SuppressWarnings("unchecked") //
+				T bean = (T) getBean(entry.getKey());
+				if (bean != null) {
+					beans.put(entry.getKey(), bean);
+				}
+			}
+		}
+		return beans;
 	}
 
 	/**
@@ -238,18 +268,59 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 			if (value instanceof BeanReference) {
 				final BeanReference beanReference = (BeanReference) value;
 				// fix: same name of bean
-				value = this.getBean(beanReference.getName(), beanReference.getReferenceClass());
+				value = resolvePropertyValue(beanReference);
 				if (value == null) {
 					if (beanReference.isRequired()) {
 						log.error("[{}] is required.", propertyValue.getField());
 						throw new NoSuchBeanDefinitionException(beanReference.getName());
 					}
-					continue; // if reference bean is null and it is not required ,do nothing
+					continue; // if reference bean is null and it is not required ,do nothing,default value
 				}
 			}
 			// set property
 			propertyValue.getField().set(bean, value);
 		}
+	}
+
+	/**
+	 * Resolve reference {@link PropertyValue}
+	 * 
+	 * @param beanReference
+	 *            {@link BeanReference} record a reference of bean
+	 * 
+	 * @return a bean
+	 */
+	private Object resolvePropertyValue(BeanReference beanReference) {
+
+		final Class<?> beanClass = beanReference.getReferenceClass();
+		final String beanName = beanReference.getName();
+
+		if (fullPrototype//
+				&& beanReference.isPrototype() //
+				&& beanClass.isInterface() // only support interface TODO cglib support
+				&& containsBeanDefinition(beanName)) //
+		{
+			final BeanDefinition beanDefinition = getBeanDefinition(beanName);
+			final Class<?>[] interfaces = beanDefinition.getBeanClass().getInterfaces();
+			// @off
+			return Proxy.newProxyInstance(beanClass.getClassLoader(),  interfaces, 
+				(Object proxy, Method method, Object[] args) -> {
+					final Object bean = getBean(beanName, beanClass);
+					try {
+						return method.invoke(bean, args);
+					}
+					catch (InvocationTargetException ex) {
+						throw ex.getTargetException();
+					} finally {
+						if (fullLifecycle) {
+							// destroyBean after every call
+							destroyBean(bean, beanDefinition);
+						}
+					}
+				}
+			); //@on
+		}
+		return getBean(beanName, beanClass);
 	}
 
 	/**
@@ -262,6 +333,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	protected void invokeInitMethods(Object bean, Method... methods) throws Exception {
 
 		for (Method method : methods) {
+			method.setAccessible(true); // fix: can not access a member
 			method.invoke(bean, ContextUtils.resolveParameter(method, this));
 		}
 
@@ -391,6 +463,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 				);
 			}
 		}
+		//
 		return initializeSingleton(currentBeanName, currentBeanDefinition);
 	}
 
@@ -533,6 +606,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 			// handle dependency which is interface and parent object
 			for (Entry<String, BeanDefinition> entry : entrySet) {
 				BeanDefinition beanDefinition = entry.getValue();
+
 				if (propertyType.isAssignableFrom(beanDefinition.getBeanClass())) {
 					// register new bean definition
 					registerBeanDefinition(//
@@ -690,7 +764,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
 	@Override
 	public void registerSingleton(String name, Object bean) {
-		if (!name.startsWith(FACTORY_BEAN_PREFIX) && bean instanceof FactoryBean) {// since v2.1.1
+		if (!name.startsWith(FACTORY_BEAN_PREFIX) && bean instanceof FactoryBean) {// @since v2.1.1
 			name = FACTORY_BEAN_PREFIX + name;
 		}
 		singletons.put(name, bean);
@@ -745,7 +819,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 		this.beanDefinitionMap.put(beanName, beanDefinition);
 
 		PropertyValue[] propertyValues = beanDefinition.getPropertyValues();
-		if (propertyValues != null) {
+		if (propertyValues != null && propertyValues.length != 0) {
 			for (PropertyValue propertyValue : propertyValues) {
 				if (propertyValue.getValue() instanceof BeanReference) {
 					this.dependencies.add(propertyValue);
@@ -965,16 +1039,13 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 		}
 	}
 
-	/*
-	 * （非 Javadoc）
-	 * 
-	 * @see
-	 * cn.taketoday.context.factory.ConfigurableBeanFactory#refresh(java.lang.Class,
-	 * java.lang.Class)
-	 */
 	@Override
 	public void refresh(Class<?> previousClass, Class<?> currentClass) {
-
+		
+		if (previousClass == currentClass || previousClass.isInterface()) {
+			return;
+		}
+		
 		BeanDefinition previousBeanDefinition = //
 				Objects.requireNonNull(getBeanDefinition(previousClass), "No such bean definition : " + previousClass.getName());
 
@@ -986,6 +1057,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 			updateDependencies(previousBeanName, null);
 			return;
 		}
+		
 		// TODO remove all the property bean definition
 		getBeanDefinitionLoader().loadBeanDefinition(currentClass);
 
@@ -993,6 +1065,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
 		if (currentBeanDefinition == null) {
 			getBeanDefinitionLoader().loadBeanDefinition(beanNameCreator.create(currentClass), currentClass);
+			currentBeanDefinition = getBeanDefinition(currentClass);
 		}
 
 		// refresh all property and remove all reference dependencies
@@ -1080,4 +1153,19 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	public List<BeanPostProcessor> getPostProcessors() {
 		return postProcessors;
 	}
+
+	@Override
+	public void enableFullPrototype() {
+		fullPrototype = true;
+	}
+
+	public boolean isFullPrototype() {
+		return fullPrototype;
+	}
+
+	@Override
+	public void enableFullLifecycle() {
+		fullLifecycle = true;
+	}
+
 }

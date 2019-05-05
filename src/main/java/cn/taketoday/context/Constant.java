@@ -40,6 +40,29 @@ public interface Constant extends Serializable {
 	/** Bytes per Terabyte.*/
 	long 	BYTES_PER_TB 			= BYTES_PER_GB * 1024;
 
+	//@since 2.1.6
+	String 	ENABLE_LAZY_LOADING 	= "enable.lazy.loading";
+	String	ENABLE_FULL_PROTOTYPE	= "enable.full.prototype";
+	String	ENABLE_FULL_LIFECYCLE	= "enable.full.lifecycle";
+	String  EMPTY_STRING_ARRAY[]	= new String[0];
+	String  CONSTRUCTOR_NAME 		= "<init>";
+	String  STATIC_CLASS_INIT 		= "<clinit>";
+	/** Suffix for array class names: {@code "[]"}. */
+	String  ARRAY_SUFFIX 			= "[]";
+	/** Prefix for internal array class names: {@code "["}. */
+	String  INTERNAL_ARRAY_PREFIX 	= "[";
+	/** Prefix for internal non-primitive array class names: {@code "[L"}. */
+	String  NON_PRIMITIVE_ARRAY_PREFIX = "[L";
+	/** The package separator character: {@code '.'}. */
+	char 	PACKAGE_SEPARATOR 		= '.';
+	/** The path separator character: {@code '/'}. */
+	char 	PATH_SEPARATOR 			= '/';
+	char 	INNER_CLASS_SEPARATOR 	= '$';
+	String	ENV						= "env";
+	char 	EL_PREFIX 				= INNER_CLASS_SEPARATOR;
+	//
+	
+	
 	String	KEY_USE_SIMPLE_NAME		= "context.name.simple";
 	String 	KEY_ACTIVE_PROFILES 	= "context.active.profiles";
 	
@@ -50,7 +73,7 @@ public interface Constant extends Serializable {
 	String 	ON_APPLICATION_EVENT 	= "onApplicationEvent";
 	String 	PROPERTIES_SUFFIX 		= ".properties";
 	String 	PLACE_HOLDER_PREFIX 	= "#{";
-	String 	PLACE_HOLDER_SUFFIX 	= "}";
+	char 	PLACE_HOLDER_SUFFIX 	= '}';
 	String 	SPLIT_REGEXP 			= "[;|,]";
 
 	String	BLANK					= "";

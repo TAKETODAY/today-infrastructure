@@ -19,6 +19,9 @@
  */
 package cn.taketoday.context.bean;
 
+import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.utils.ContextUtils;
+import cn.taketoday.context.utils.StringUtils;
 import lombok.Getter;
 
 /***
@@ -43,20 +46,24 @@ public final class BeanReference {
 	 */
 	private final Class<?> referenceClass;
 
-	public BeanReference(String name, boolean required, Class<?> referenceClass) {
-		this.name = name;
-		this.required = required;
-		this.referenceClass = referenceClass;
+	/**
+	 * record reference type
+	 * 
+	 * @since v2.1.6
+	 */
+	private boolean prototype = false;
+
+	public void applyPrototype() {
+		this.prototype = true;
 	}
 
-	@Override
-	public String toString() {
-		return new StringBuilder()//
-				.append("{\"name\":\"").append(name)//
-				.append("\",\"required\":\"").append(required)//
-				.append("\",\"referenceClass\":\"").append(referenceClass)//
-				.append("\"}")//
-				.toString();
+	public BeanReference(String name, boolean required, Class<?> referenceClass) {
+		this.name = name;
+		if(StringUtils.isEmpty(name)) {
+			throw new ContextException("Bean name can't be empty");
+		}
+		this.required = required;
+		this.referenceClass = referenceClass;
 	}
 
 	@Override
@@ -67,10 +74,10 @@ public final class BeanReference {
 
 		if (obj instanceof BeanReference) {
 			BeanReference other = (BeanReference) obj;
-			
+
 			if (other.required != this.required || //
 					!other.name.equals(this.name) || //
-					!other.referenceClass.getName().equals(this.referenceClass.getName())) {
+					!ContextUtils.equals(other.referenceClass, referenceClass)) {
 				return false;
 			}
 			return true;

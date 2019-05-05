@@ -218,5 +218,12 @@ public void test_Conditional() {
 - :white_check_mark: add some test code 
 - :zap: add ConcurrentProperties 
 - :bug: fix #3 when get annotated beans that StandardBeanDefinition missed
-
+- :bug: fix: NumberUtils String[].class can't be resolve
+- :sparkles: feat: full Prototype supports (only support interface)
+- :sparkles: feat: full Prototype Lifecycle supports (destroy bean after every single call)
+- :bug: fix: can not access a member
+- :bug: fix: can't getMethodArgsNames
+- :bug: fix: ELProcessor not process
+- :sparkles: feat: lazy loading
+- :bug: fix: no constructor
 

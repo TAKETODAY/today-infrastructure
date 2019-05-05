@@ -37,21 +37,28 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +70,7 @@ import cn.taketoday.context.asm.ClassReader;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Label;
 import cn.taketoday.context.asm.MethodVisitor;
+import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.ContextException;
@@ -82,6 +90,19 @@ public abstract class ClassUtils {
 	/** scanned classes */
 	private static Set<Class<?>> classesCache;
 
+	private static final Map<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32, 1f);
+
+	/**
+	 * @since 2.1.1
+	 */
+	private static final Set<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS;//
+
+	public static void addIgnoreAnnotationClass(Class<? extends Annotation> annotationClass) {
+		IGNORE_ANNOTATION_CLASS.add(annotationClass);
+	}
+
+	private static final String[] IGNORE_SCAN_JARS;
+
 	static {
 
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -94,7 +115,7 @@ public abstract class ClassUtils {
 		setClassLoader(classLoader);
 		final Set<String> ignoreScanJars = new HashSet<>();
 
-		try {
+		try { // @since 2.1.6
 			final Enumeration<URL> resources = classLoader.getResources("ignore/jar-prefix");
 			while (resources.hasMoreElements()) {
 				final BufferedReader inputStream = new BufferedReader(//
@@ -111,27 +132,25 @@ public abstract class ClassUtils {
 			throw ExceptionUtils.newContextException(e);
 		}
 		IGNORE_SCAN_JARS = ignoreScanJars.toArray(new String[0]);
-	}
 
-	/**
-	 * @since 2.1.1
-	 * @off
-	 */
-	@SuppressWarnings("serial")
-	private static final Set<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = //
-		new HashSet<Class<? extends Annotation>>(4, 1.0f) {{
-			add(Target.class);
-			add(Inherited.class);
-			add(Retention.class);
-			add(Documented.class);
+		final Set<Class<?>> primitiveTypes = new HashSet<>(32);
+		Collections.addAll(primitiveTypes, //
+				boolean.class, byte.class, char.class, int.class, //
+				long.class, double.class, float.class, short.class, //
+				boolean[].class, byte[].class, char[].class, double[].class, //
+				float[].class, int[].class, long[].class, short[].class//
+		);
+		primitiveTypes.add(void.class);
+		for (Class<?> primitiveType : primitiveTypes) {
+			PRIMITIVE_CACHE.put(primitiveType.getName(), primitiveType);
 		}
-	};
-	
-	private static final String[] IGNORE_SCAN_JARS;
-	
-	//@on
-	public static void addIgnoreAnnotationClass(Class<? extends Annotation> annotationClass) {
-		IGNORE_ANNOTATION_CLASS.add(annotationClass);
+
+		IGNORE_ANNOTATION_CLASS = new HashSet<>();
+
+		IGNORE_ANNOTATION_CLASS.add(Target.class);
+		IGNORE_ANNOTATION_CLASS.add(Inherited.class);
+		IGNORE_ANNOTATION_CLASS.add(Retention.class);
+		IGNORE_ANNOTATION_CLASS.add(Documented.class);
 	}
 
 	/**
@@ -160,17 +179,69 @@ public abstract class ClassUtils {
 		}
 	}
 
+	public static Class<?> resolvePrimitiveClassName(String name) {
+		// Most class names will be quite long, considering that they
+		// SHOULD sit in a package, so a length check is worthwhile.
+		if (name != null && name.length() <= 8) {
+			// Could be a primitive - likely.
+			return PRIMITIVE_CACHE.get(name);
+		}
+		return null;
+	}
+
 	/**
-	 * Load class
+	 * Load class .from spring
 	 * 
 	 * @param name
 	 *            a class full name
 	 * @return a class
 	 * @throws ClassNotFoundException
 	 *             when class could not be found
+	 * @since 2.1.6
 	 */
-	public static Class<?> forName(String name) throws ClassNotFoundException {
-		return classLoader.loadClass(name);
+	public static Class<?> forName(String name) throws ClassNotFoundException, LinkageError {
+
+		Class<?> clazz = resolvePrimitiveClassName(name);
+		if (clazz != null) {
+			return clazz;
+		}
+
+		// "java.lang.String[]" style arrays
+		if (name.endsWith(Constant.ARRAY_SUFFIX)) {
+			Class<?> elementClass = //
+					forName(name.substring(0, name.length() - Constant.ARRAY_SUFFIX.length()));
+			return Array.newInstance(elementClass, 0).getClass();
+		}
+
+		// "[Ljava.lang.String;" style arrays
+		if (name.startsWith(Constant.NON_PRIMITIVE_ARRAY_PREFIX) && name.endsWith(";")) {
+			Class<?> elementClass = //
+					forName(name.substring(Constant.NON_PRIMITIVE_ARRAY_PREFIX.length(), name.length() - 1));
+			return Array.newInstance(elementClass, 0).getClass();
+		}
+
+		// "[[I" or "[[Ljava.lang.String;" style arrays
+		if (name.startsWith(Constant.INTERNAL_ARRAY_PREFIX)) {
+			Class<?> elementClass = forName(name.substring(Constant.INTERNAL_ARRAY_PREFIX.length()));
+			return Array.newInstance(elementClass, 0).getClass();
+		}
+
+		try {
+			return Class.forName(name, false, classLoader);
+		}
+		catch (ClassNotFoundException ex) {
+			int lastDotIndex = name.lastIndexOf(Constant.PACKAGE_SEPARATOR);
+			if (lastDotIndex != -1) {
+				String innerClassName = name.substring(0, lastDotIndex) + Constant.INNER_CLASS_SEPARATOR + name.substring(lastDotIndex + 1);
+				try {
+					return Class.forName(innerClassName, false, classLoader);
+				}
+				catch (ClassNotFoundException ex2) {
+					// Swallow - let original exception get through
+				}
+			}
+			throw ex;
+		}
 	}
 
 	/**
@@ -211,7 +282,7 @@ public abstract class ClassUtils {
 	/**
 	 * @param predicate
 	 */
-	public static final <T> Set<Class<?>> filter(Predicate<Class<?>> predicate) {
+	public static final <T> Set<Class<?>> filter(final Predicate<Class<?>> predicate) {
 		return getClassCache()//
 //				.stream()//
 				.parallelStream()//
@@ -226,7 +297,7 @@ public abstract class ClassUtils {
 	 *            package name
 	 * @return a {@link Collection} of class under the packages
 	 */
-	public static Set<Class<?>> getClasses(String... packages) {
+	public static Set<Class<?>> getClasses(final String... packages) {
 
 		if (StringUtils.isArrayEmpty(packages) || //
 				(packages.length == 1 && StringUtils.isEmpty(packages[0]))) //
@@ -235,8 +306,8 @@ public abstract class ClassUtils {
 		}
 
 		return filter(clazz -> {
-			String name = clazz.getName();
-			for (String prefix : packages) {
+			final String name = clazz.getName();
+			for (final String prefix : packages) {
 				if (StringUtils.isEmpty(prefix) || name.startsWith(prefix) || name.startsWith(Constant.FREAMWORK_PACKAGE)) {
 					return true;
 				}
@@ -252,7 +323,7 @@ public abstract class ClassUtils {
 	 *            the packages to scan
 	 * @return class set
 	 */
-	public static Set<Class<?>> scan(String... packages) {
+	public static Set<Class<?>> scan(final String... packages) {
 		Objects.requireNonNull(packages, "scan package can't be null");
 
 		if (classesCache == null || classesCache.isEmpty()) {
@@ -265,7 +336,8 @@ public abstract class ClassUtils {
 			else {
 				final Set<String> packagesToScan = new HashSet<>();
 				for (final String location : packages) {
-					if (location.startsWith(Constant.FREAMWORK_PACKAGE)) {
+
+					if (scanAllFreamworkPackage && location.startsWith(Constant.FREAMWORK_PACKAGE)) {
 						// maybe cn.taketoday.xxx will scan all cn.taketoday
 						packagesToScan.add(Constant.FREAMWORK_PACKAGE);
 					}
@@ -287,6 +359,13 @@ public abstract class ClassUtils {
 			return scanClasses;
 		}
 		return getClasses(packages);
+	}
+
+	/** for scan cn.taketoday */
+	private static boolean scanAllFreamworkPackage = true;
+
+	public static void setScanAllFreamworkPackage(final boolean scanAllFreamworkPackage) {
+		ClassUtils.scanAllFreamworkPackage = scanAllFreamworkPackage;
 	}
 
 	/**
@@ -358,9 +437,8 @@ public abstract class ClassUtils {
 
 		try {
 			if (classLoader instanceof URLClassLoader) {
-				URL[] urLs = ((URLClassLoader) classLoader).getURLs();
 				// fix: protocol is file not a jar protocol
-				for (URL url : urLs) {
+				for (final URL url : ((URLClassLoader) classLoader).getURLs()) {
 					scan(scanClasses, new File(url.getFile()), Constant.BLANK);
 				}
 			}
@@ -472,81 +550,6 @@ public abstract class ClassUtils {
 			return (file.isDirectory()) || (file.getName().endsWith(Constant.CLASS_FILE_SUFFIX));
 		}
 	};
-
-	/**
-	 * Compare whether the parameter type is consistent.
-	 *
-	 * @param types
-	 *            the type of the asm({@link Type})
-	 * @param parameterTypes
-	 *            java type({@link Class})
-	 * @return return param type equals
-	 */
-	private static boolean sameType(Type[] types, Class<?>[] parameterTypes) {
-		if (types.length != parameterTypes.length) {
-			return false;
-		}
-		for (int i = 0; i < types.length; i++) {
-			if (!Type.getType(parameterTypes[i]).equals(types[i])) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Find method parameter list
-	 * 
-	 * @param method
-	 *            target method
-	 * @return method parameter list
-	 * @throws ContextException
-	 *             when could not access to the class file
-	 * @since 1.0.0
-	 */
-	public static String[] getMethodArgsNames(Method method) throws ContextException {
-
-		String[] paramNames = new String[method.getParameterCount()];
-
-		try (InputStream resourceAsStream = //
-				classLoader.getResourceAsStream(method.getDeclaringClass().getName().replace('.', '/').concat(".class"))) {
-
-			new ClassReader(resourceAsStream).accept(new ClassVisitor() {
-				@Override
-				public MethodVisitor visitMethod(int access, String name, //
-						String desc, String signature, String[] exceptions) //
-				{
-					final Type[] args = Type.getArgumentTypes(desc);
-					// method name and parameter same at the same time
-					if (!name.equals(method.getName()) || !sameType(args, method.getParameterTypes())) {
-						return super.visitMethod(access, name, desc, signature, exceptions);
-					}
-					return new MethodVisitor(super.visitMethod(access, name, desc, signature, exceptions)) {
-						@Override
-						public void visitLocalVariable(String name, String desc, //
-								String signature, Label start, Label end, int index) //
-						{
-							// if it is a static method, the first is the parameter
-							// if it's not a static method, the first one is "this" and then the parameter
-							// of the method
-							if (!Modifier.isStatic(method.getModifiers())) {
-								index = index - 1;
-							}
-
-							if (index >= 0 && index < paramNames.length) {
-								paramNames[index] = name;
-							}
-							super.visitLocalVariable(name, desc, signature, start, end, index);
-						}
-					};
-				}
-			}, 0);
-		}
-		catch (IOException e) {
-			throw new ContextException(e);
-		}
-		return paramNames;
-	}
 
 	/**
 	 * Get the array of {@link Annotation} instance
@@ -724,6 +727,11 @@ public abstract class ClassUtils {
 	public static <T extends Annotation> T getAnnotationProxy(Class<T> annotationClass, AnnotationAttributes attributes) {
 		return annotationClass.cast(Proxy.newProxyInstance(classLoader, new Class[] { annotationClass, Annotation.class }, //
 				(Object proxy, Method method, Object[] args) -> {
+					// The switch statement compares the String object in its expression with the expressions
+					// associated with each case label as if it were using the String.equals method;
+					// consequently, the comparison of String objects in switch statements is case sensitive. 
+					// The Java compiler generates generally more efficient bytecode from switch statements 
+					// that use String objects than from chained if-then-else statements.
 					switch (method.getName())
 					{
 						case Constant.EQUALS : 			return eq(attributes, args);
@@ -785,7 +793,7 @@ public abstract class ClassUtils {
 	{
 		Objects.requireNonNull(annotatedElement, "annotated element can't be null");
 
-		Collection<AnnotationAttributes> result = new HashSet<>();
+		final Collection<AnnotationAttributes> result = new HashSet<>();
 		for (Annotation annotation : annotatedElement.getDeclaredAnnotations()) {
 			AnnotationAttributes annotationAttributes = getAnnotationAttributes(annotation, annotationClass);
 			if (annotationAttributes != null) {
@@ -812,7 +820,7 @@ public abstract class ClassUtils {
 			if (annotation == null) {
 				return null;
 			}
-			Class<? extends Annotation> annotationType = annotation.annotationType();
+			final Class<? extends Annotation> annotationType = annotation.annotationType();
 
 			if (annotationType == annotationClass) {// 如果等于对象注解就直接添加
 				return getAnnotationAttributes(annotation);
@@ -822,16 +830,16 @@ public abstract class ClassUtils {
 				return null;
 			}
 			// find the default value of annotation
-			AnnotationAttributes annotationAttributes = // recursive
+			final AnnotationAttributes annotationAttributes = // recursive
 					getTargetAnnotationAttributes(annotationClass, annotationType);
 			if (annotationAttributes == null) { // there is no an annotation
 				return null;
 			}
 
 			// found it
-			for (Method method : annotationType.getDeclaredMethods()) {
+			for (final Method method : annotationType.getDeclaredMethods()) {
 				final String name = method.getName();
-				Object value = annotationAttributes.get(name);
+				final Object value = annotationAttributes.get(name);
 				if (value == null || eq(method.getReturnType(), value.getClass())) {
 					annotationAttributes.put(name, method.invoke(annotation));
 				}
@@ -877,16 +885,17 @@ public abstract class ClassUtils {
 	 * Use recursive to find the target annotation instance
 	 * 
 	 * @param targetAnnotationType
-	 *            target {@link Annotation} thye
+	 *            target {@link Annotation} class
 	 * @param annotationType
-	 * @return
+	 * @return target {@link AnnotationAttributes}
 	 * @since 2.1.1
 	 */
-	public static <T extends Annotation> AnnotationAttributes getTargetAnnotationAttributes(Class<T> targetAnnotationType,
-			Class<? extends Annotation> annotationType) //
-	{
+	public static <T extends Annotation> AnnotationAttributes getTargetAnnotationAttributes(//
+			final Class<T> targetAnnotationType, //
+			final Class<? extends Annotation> annotationType//
+	) {
 
-		for (Annotation currentAnnotation : annotationType.getAnnotations()) {
+		for (final Annotation currentAnnotation : annotationType.getAnnotations()) {
 
 			if (IGNORE_ANNOTATION_CLASS.contains(currentAnnotation.annotationType())) {
 				continue;
@@ -913,10 +922,12 @@ public abstract class ClassUtils {
 	 */
 	public static <T> T newInstance(Class<T> beanClass) throws ContextException {
 		try {
-			return beanClass.getConstructor().newInstance();
+			final Constructor<T> declaredConstructor = beanClass.getDeclaredConstructor();
+			declaredConstructor.setAccessible(true);
+			return declaredConstructor.newInstance();
 		}
 		catch (Throwable e) {
-			throw new ContextException(e);
+			throw ExceptionUtils.newContextException(e);
 		}
 	}
 
@@ -931,10 +942,10 @@ public abstract class ClassUtils {
 	@SuppressWarnings("unchecked")
 	public static <T> T newInstance(String beanClassName) throws ContextException {
 		try {
-			return (T) forName(beanClassName).getConstructor().newInstance();
+			return (T) newInstance(classLoader.loadClass(beanClassName));
 		}
 		catch (Throwable e) {
-			throw new ContextException(e);
+			throw ExceptionUtils.newContextException(e);
 		}
 	}
 
@@ -960,9 +971,11 @@ public abstract class ClassUtils {
 		}
 		catch (final ContextException e) {
 			if (e.getCause() instanceof NoSuchMethodException) {
-				for (final Constructor<?> constructor : beanClass.getConstructors()) {
+
+				for (final Constructor<?> constructor : beanClass.getDeclaredConstructors()) {
 					final Autowired autowired = constructor.getAnnotation(Autowired.class);
 					if (autowired != null) {
+						constructor.setAccessible(true);
 						return constructor.newInstance(ContextUtils.resolveParameter(constructor, beanFactory));
 					}
 				}
@@ -1044,6 +1057,116 @@ public abstract class ClassUtils {
 
 	public static void setClassCache(Set<Class<?>> classes) {
 		ClassUtils.classesCache = classes;
+	}
+
+	// --------------------------- parameter names discovering
+
+	/**
+	 * Find method parameter list. Uses ObjectWeb's ASM library for analyzing class
+	 * files.
+	 * 
+	 * @param method
+	 *            target method
+	 * @return method parameter list
+	 * @throws ContextException
+	 *             when could not access to the class file
+	 * @since 2.1.6
+	 */
+	public static String[] getMethodArgsNames(Method method) throws ContextException {
+		return PARAMETER_NAMES_CACHE.computeIfAbsent(method.getDeclaringClass(), PARAMETER_NAMES_FUNCTION).get(method);
+	}
+
+	static final Function<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_FUNCTION = new Function<Class<?>, Map<Method, String[]>>() {
+
+		@Override
+		public Map<Method, String[]> apply(Class<?> declaringClass) {
+			final Map<Method, String[]> map = new ConcurrentHashMap<>(32);
+
+			try (InputStream resourceAsStream = getClassLoader()//
+					.getResourceAsStream(//
+							declaringClass.getName().replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)//
+									.concat(Constant.CLASS_FILE_SUFFIX))//
+			) {
+
+				final ClassNode classVisitor = new ClassNode();
+				new ClassReader(resourceAsStream).accept(classVisitor, 0);
+
+				for (MethodNode methodNode : classVisitor.methodNodes) {
+
+					final Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
+					final Class<?>[] argTypes = new Class<?>[argumentTypes.length];
+
+					for (int i = 0; i < argumentTypes.length; i++) {
+						argTypes[i] = forName(argumentTypes[i].getClassName());
+					}
+
+					final Method method = declaringClass.getDeclaredMethod(methodNode.name, argTypes);
+
+					final int parameterCount = method.getParameterCount();
+					if (parameterCount == 0) {
+						map.put(method, Constant.EMPTY_STRING_ARRAY);
+						continue;
+					}
+
+					if (Modifier.isAbstract(method.getModifiers()) || method.isBridge() || method.isSynthetic()) {
+						map.put(method, Stream.of(method.getParameters()).map(Parameter::getName).toArray(String[]::new));
+						continue;
+					}
+					final String[] paramNames = new String[parameterCount];
+					final List<String> localVariables = methodNode.localVariables;
+					if (localVariables.size() >= parameterCount) {
+						final int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
+						for (int i = 0; i < parameterCount; i++) {
+							paramNames[i] = localVariables.get(i + offset);
+						}
+					}
+					map.put(method, paramNames);
+				}
+			}
+			catch (IOException | ClassNotFoundException | NoSuchMethodException | IndexOutOfBoundsException e) {
+				throw new ContextException("When visit declaringClass: [" + declaringClass.getName() + ']', e);
+			}
+			return map;
+		}
+	};
+
+	static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(32);
+
+	final static class ClassNode extends ClassVisitor {
+
+		private final List<MethodNode> methodNodes = new ArrayList<>();
+
+		@Override
+		public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+			if (isSyntheticOrBridged(access) //
+					|| Constant.CONSTRUCTOR_NAME.equals(name) //
+					|| Constant.STATIC_CLASS_INIT.equals(name)) {
+				return null;
+			}
+			final MethodNode methodNode = new MethodNode(name, descriptor);
+			methodNodes.add(methodNode);
+			return methodNode;
+		}
+
+		private final static boolean isSyntheticOrBridged(int access) {
+			return (((access & Opcodes.ACC_SYNTHETIC) | (access & Opcodes.ACC_BRIDGE)) > 0);
+		}
+	}
+
+	final static class MethodNode extends MethodVisitor {
+		private final String name;
+		private final String desc;
+		private final List<String> localVariables = new ArrayList<>();
+
+		MethodNode(final String name, final String desc) {
+			this.name = name;
+			this.desc = desc;
+		}
+
+		@Override
+		public void visitLocalVariable(String name, String descriptor, String signature, Label start, Label end, int index) {
+			localVariables.add(name);
+		}
 	}
 
 }

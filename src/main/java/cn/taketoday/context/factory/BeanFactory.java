@@ -21,6 +21,7 @@ package cn.taketoday.context.factory;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.ApplicationContext;
@@ -145,5 +146,16 @@ public interface BeanFactory {
 	 * @since 2.1.5
 	 */
 	<A extends Annotation, T> List<T> getAnnotatedBeans(Class<A> annotationType);
+
+	/**
+	 * Get a map of beans with given type, this method must invoke after
+	 * {@link ApplicationContext#loadContext(String...)}
+	 * 
+	 * @param requiredType
+	 *            given bean type
+	 * @return a map of beans with given type
+	 * @since 2.1.6
+	 */
+	<T> Map<String, T> getBeansOfType(Class<T> requiredType);
 
 }

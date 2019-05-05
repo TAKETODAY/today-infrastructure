@@ -52,6 +52,6 @@ public class ConfigurationException extends ContextException {
 		LoggerFactory.getLogger(ConfigurationException.class)//
 				.error("Configuration Exception Message: [" + message + "] , Your Application Will Be Shutdown.", args);
 
-		System.exit(0);
+//		System.exit(0);
 	}
 }

@@ -48,7 +48,7 @@ public interface BeanDefinition {
 	public boolean isSingleton();
 
 	Class<?> getBeanClass();
-
+	
 	/**
 	 * Get init methods
 	 * 

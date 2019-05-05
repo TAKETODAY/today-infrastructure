@@ -77,7 +77,7 @@ public class ApplicationContextTest {
 		try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
 			applicationContext.loadContext("test.demo.repository");
 			Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap();
-			
+
 			System.out.println(beanDefinitionsMap);
 
 			boolean containsBean = applicationContext.containsBeanDefinition(DefaultUserRepository.class);
@@ -172,7 +172,7 @@ public class ApplicationContextTest {
 	@Test
 	public void test_Login() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo.service","test.demo.repository")) {
+		try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo.service", "test.demo.repository")) {
 
 			UserService userService = applicationContext.getBean(DefaultUserService.class);
 
@@ -184,7 +184,7 @@ public class ApplicationContextTest {
 			Set<Entry<String, Object>> entrySet = applicationContext.getSingletonsMap().entrySet();
 
 			for (Entry<String, Object> entry : entrySet) {
-				System.err.println(entry.getKey() + "\n" + entry.getValue());
+				System.err.println(entry.getKey() + " == " + entry.getValue());
 			}
 
 			Iterator<Entry<String, BeanDefinition>> iterator = beanDefinitionsMap.entrySet().iterator();
@@ -197,9 +197,10 @@ public class ApplicationContextTest {
 
 			System.out.println(userDaoImpl);
 
-			assert userDao == userDaoImpl;
+			assert userDao != userDaoImpl;
 
 			User login = userService.login(new User(1, "TODAY", 20, "666", "666", "男", new Date()));
+			login = userService.login(new User(1, "TODAY", 20, "666", "666", "男", new Date()));
 
 			assert login != null : "Login failed";
 		}
@@ -260,7 +261,5 @@ public class ApplicationContextTest {
 			assert bean.getUser() != null;
 		}
 	}
-
-
 
 }

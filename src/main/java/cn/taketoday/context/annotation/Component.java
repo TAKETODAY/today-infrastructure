@@ -20,7 +20,6 @@
 package cn.taketoday.context.annotation;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -36,7 +35,6 @@ import cn.taketoday.context.Scope;
  * 
  *         2018-07-2 22:46:39
  */
-@Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Component {
@@ -45,6 +43,7 @@ public @interface Component {
 	 * @return bean name
 	 */
 	String[] value() default {};
+
 	/**
 	 * @return bean's scope
 	 */

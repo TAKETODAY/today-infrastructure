@@ -56,17 +56,19 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.ConditionalImpl;
 import cn.taketoday.context.annotation.DefaultProps;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.bean.StandardBeanDefinition;
 import cn.taketoday.context.env.Environment;
-import cn.taketoday.context.exception.AnnotationException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.PropertyValueResolver;
@@ -290,18 +292,18 @@ public abstract class ContextUtils {
 
 	// ----------------- loader
 
-	//@off
-	@SuppressWarnings("serial")
-	private static final Map<Class<? extends Annotation>, PropertyValueResolver> PROPERTY_VALUE_RESOLVERS = //
-		new HashMap<Class<? extends Annotation>, PropertyValueResolver>(4, 1.0f) {{
-			final AutowiredPropertyResolver autowired = new AutowiredPropertyResolver();
-			put(Resource.class, autowired);
-			put(Autowired.class, autowired);
-			put(Value.class, new ValuePropertyResolver());
-			put(Props.class, new PropsPropertyResolver());
-		}
-	};
-	//@on
+	private static final Map<Class<? extends Annotation>, PropertyValueResolver> PROPERTY_VALUE_RESOLVERS;//
+
+	static {
+		PROPERTY_VALUE_RESOLVERS = new HashMap<>(4, 1.0f);
+		
+		final AutowiredPropertyResolver autowired = new AutowiredPropertyResolver();
+		
+		PROPERTY_VALUE_RESOLVERS.put(Resource.class, autowired);
+		PROPERTY_VALUE_RESOLVERS.put(Autowired.class, autowired);
+		PROPERTY_VALUE_RESOLVERS.put(Value.class, new ValuePropertyResolver());
+		PROPERTY_VALUE_RESOLVERS.put(Props.class, new PropsPropertyResolver());
+	}
 
 	/**
 	 * 
@@ -386,13 +388,11 @@ public abstract class ContextUtils {
 	{
 		final Set<PropertyValue> propertyValues = new HashSet<>(32, 1.0f);
 		for (final Field field : ClassUtils.getFields(beanClass)) {
-			if (supportsProperty(field)) {
-				final PropertyValue created = createPropertyValue(field, applicationContext);
-				// not required
-				if (created != null) {
-					field.setAccessible(true);
-					propertyValues.add(created);
-				}
+			final PropertyValue created = createPropertyValue(field, applicationContext);
+			// not required
+			if (created != null) {
+				field.setAccessible(true);
+				propertyValues.add(created);
 			}
 		}
 		return propertyValues.toArray(new PropertyValue[0]);
@@ -407,33 +407,16 @@ public abstract class ContextUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	static PropertyValue createPropertyValue(Field field, ApplicationContext applicationContext) {
+	static final PropertyValue createPropertyValue(Field field, ApplicationContext applicationContext) {
 
-		for (Annotation annotation : field.getAnnotations()) {
-
-			PropertyValueResolver propertyValueResolver = PROPERTY_VALUE_RESOLVERS.get(annotation.annotationType());
-			if (propertyValueResolver != null) {
-				return propertyValueResolver//
-						.resolveProperty(applicationContext, field);
-			}
-		}
-		throw new AnnotationException("Without regulation annotation present.");
-	}
-
-	/**
-	 * Supports property?
-	 * 
-	 * @param field
-	 *            property
-	 * @return
-	 */
-	static boolean supportsProperty(Field field) {
+		final Map<Class<? extends Annotation>, PropertyValueResolver> propertyValueResolvers = PROPERTY_VALUE_RESOLVERS;
 		for (final Annotation annotation : field.getAnnotations()) {
-			if (PROPERTY_VALUE_RESOLVERS.containsKey(annotation.annotationType())) {
-				return true;
+			final PropertyValueResolver propertyValueResolver = propertyValueResolvers.get(annotation.annotationType());
+			if (propertyValueResolver != null) {
+				return propertyValueResolver.resolveProperty(applicationContext, field);
 			}
 		}
-		return false;
+		return null;
 	}
 
 	/**
@@ -721,6 +704,8 @@ public abstract class ContextUtils {
 		// PreDestroy
 		for (final Method method : methods) {
 			if (method.isAnnotationPresent(PreDestroy.class)) {
+				// fix: can not access a member @since 2.1.6
+				method.setAccessible(true);
 				method.invoke(bean);
 			}
 		}
@@ -728,6 +713,45 @@ public abstract class ContextUtils {
 		if (bean instanceof DisposableBean) {
 			((DisposableBean) bean).destroy();
 		}
+	}
+
+	/**
+	 * Is a context missed bean?
+	 * 
+	 * @param missingBean
+	 *            the {@link Annotation} declaredon the class or a method
+	 * @param beanClass
+	 *            missed bean class
+	 * @param beanFactory
+	 *            the {@link AbstractBeanFactory}
+	 * @return if the bean is missed in context
+	 * @since 2.1.6
+	 */
+	public static boolean isMissedBean(final MissingBean missingBean, final Class<?> beanClass, //
+			final ConfigurableBeanFactory beanFactory) //
+	{
+		if (missingBean == null) {
+			return false;
+		}
+
+		final String beanName = missingBean.value();
+		if (StringUtils.isNotEmpty(beanName) && beanFactory.containsBeanDefinition(beanName)) {
+			return false;
+		}
+		final Class<?> type = missingBean.type();
+
+		if ((type != void.class && beanFactory.containsBeanDefinition(type, true)) || beanFactory.containsBeanDefinition(beanClass)) {
+			// not default type
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @since 2.1.6
+	 */
+	public static boolean equals(Class<?> one, Class<?> two) {
+		return one.getName().equals(two.getName());
 	}
 
 }

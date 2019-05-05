@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import javax.el.ELException;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.env.ConfigurableEnvironment;
@@ -52,16 +53,23 @@ public class ValuePropertyResolver implements PropertyValueResolver {
 
 		if (StringUtils.isEmpty(expression)) {
 			// use field name
-			expression = "#{" + field.getName() + "}";
+			expression = new StringBuilder(Constant.PLACE_HOLDER_PREFIX) //
+					.append(field.getName())//
+					.append(Constant.PLACE_HOLDER_SUFFIX).toString();
 		}
 
 		final Class<?> type = field.getType();
 
+		// fix ELProcessor not process
+		if (expression.charAt(0) == Constant.EL_PREFIX) {
+			return new PropertyValue(environment.getELProcessor().getValue(expression, type), field);
+		}
 		Object resolved = null;
 		try {
 			resolved = ConvertUtils.convert(ContextUtils.resolvePlaceholder(environment.getProperties(), expression, false), type);
 		}
-		catch (NumberFormatException e) {}
+		catch (NumberFormatException e) {
+		}
 		if (resolved == null) {
 			try {
 				resolved = environment.getELProcessor().getValue(expression, type);

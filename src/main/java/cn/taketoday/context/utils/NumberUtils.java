@@ -43,81 +43,89 @@ public abstract class NumberUtils {
 	 */
 	public final static Object toArrayObject(String source[], Class<?> targetClass) throws ConversionException {
 
+		// @since 2.1.6 fix: String[].class can't be resolve
+		if (String[].class == targetClass) {
+			return source;
+		}
 		final int length = source.length;
 		if (int[].class == targetClass) {
-			int[] newInstance = new int[length];
+			final int[] newInstance = new int[length];
 			for (short j = 0; j < length; j++)
 				newInstance[j] = Integer.parseInt(source[j]);
 			return newInstance;
 		}
 		else if (Integer[].class == targetClass) {
-			Integer[] newInstance = new Integer[length];
+			final Integer[] newInstance = new Integer[length];
 			for (short j = 0; j < length; j++)
 				newInstance[j] = Integer.parseInt(source[j]);
 			return newInstance;
 		}
 		else if (long[].class == targetClass) {
-			long[] newInstance = new long[length];
+			final long[] newInstance = new long[length];
 			for (short j = 0; j < length; j++)
 				newInstance[j] = Long.parseLong(source[j]);
 			return newInstance;
 		}
 		else if (Long[].class == targetClass) {
-			Long[] newInstance = new Long[length];
+			final Long[] newInstance = new Long[length];
 			for (short j = 0; j < length; j++)
 				newInstance[j] = Long.parseLong(source[j]);
 			return newInstance;
 		}
 		else if (short[].class == targetClass) {
-			short[] newInstance = new short[length];
+			final short[] newInstance = new short[length];
 			for (short j = 0; j < length; j++)
 				newInstance[j] = Short.parseShort(source[j]);
 			return newInstance;
 		}
 		else if (Short[].class == targetClass) {
-			Short[] newInstance = new Short[length];
+			final Short[] newInstance = new Short[length];
 			for (short j = 0; j < length; j++)
 				newInstance[j] = Short.parseShort(source[j]);
 			return newInstance;
 		}
 		else if (byte[].class == targetClass) {
-			byte[] newInstance = new byte[length];
+			final byte[] newInstance = new byte[length];
 			for (short j = 0; j < length; j++)
 				newInstance[j] = Byte.parseByte(source[j]);
 			return newInstance;
 		}
 		else if (Byte[].class == targetClass) {
-			Byte[] newInstance = new Byte[length];
+			final Byte[] newInstance = new Byte[length];
 			for (short j = 0; j < length; j++)
 				newInstance[j] = Byte.parseByte(source[j]);
 			return newInstance;
 		}
 		else if (float[].class == targetClass) {
-			float[] newInstance = new float[length];
+			final float[] newInstance = new float[length];
 			for (short j = 0; j < length; j++)
 				newInstance[j] = Float.parseFloat(source[j]);
 			return newInstance;
 		}
 		else if (Float[].class == targetClass) {
-			Float[] newInstance = new Float[length];
+			final Float[] newInstance = new Float[length];
 			for (short j = 0; j < length; j++)
 				newInstance[j] = Float.parseFloat(source[j]);
 			return newInstance;
 		}
 		else if (double[].class == targetClass) {
-			double[] newInstance = new double[length];
+			final double[] newInstance = new double[length];
 			for (short j = 0; j < length; j++)
 				newInstance[j] = Double.parseDouble(source[j]);
 			return newInstance;
 		}
 		else if (Double[].class == targetClass) {
-			Double[] newInstance = new Double[length];
+			final Double[] newInstance = new Double[length];
 			for (short j = 0; j < length; j++)
 				newInstance[j] = Double.parseDouble(source[j]);
 			return newInstance;
 		}
-		return null;
-//		throw new ConversionException("can't convert [" + Arrays.toString(source) + "] to [" + targetClass.getName() + "]");
+
+		final Object[] newInstance = new Object[length];
+		for (short j = 0; j < length; j++) {
+			newInstance[j] = ConvertUtils.convert(source[j], targetClass);
+		}
+		return newInstance;
 	}
 
 	public final static <T> T parseArray(String source[], Class<T> targetClass) throws ConversionException {

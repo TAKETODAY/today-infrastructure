@@ -56,7 +56,6 @@ public abstract class ConvertUtils {
 
 		switch (targetClass.getSimpleName()) //
 		{
-
 			case "String" :
 				return value;
 			case "Byte" :

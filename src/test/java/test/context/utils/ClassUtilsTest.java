@@ -185,7 +185,7 @@ public class ClassUtilsTest {
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();
 		for (int i = 0; i < 10; i++) {
-			try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+			try (ApplicationContext applicationContext = new StandardApplicationContext("","")) {
 				System.err.println(applicationContext.getBean(User.class));
 			}
 		}

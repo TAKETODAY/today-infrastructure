@@ -185,10 +185,6 @@ public class ClassReader {
 	 *            the length in bytes of the ClassFile to be read.
 	 */
 	public ClassReader(final byte[] classFileBuffer, final int classFileOffset, final int classFileLength) { // NOPMD(UnusedFormalParameter)
-																												// used
-																												// for
-																												// backward
-																												// compatibility.
 		this(classFileBuffer, classFileOffset, /* checkClassVersion = */ true);
 	}
 
@@ -609,7 +605,7 @@ public class ClassReader {
 		if (nestHostClass != null) {
 			classVisitor.visitNestHost(nestHostClass);
 		}
-
+		
 		// Visit the EnclosingMethod attribute.
 		if (enclosingMethodOffset != 0) {
 			String className = readClass(enclosingMethodOffset, charBuffer);
@@ -1171,8 +1167,8 @@ public class ClassReader {
 		}
 
 		// Visit the method declaration.
-		MethodVisitor methodVisitor = classVisitor.visitMethod(context.currentMethodAccessFlags,
-				context.currentMethodName, context.currentMethodDescriptor,
+		MethodVisitor methodVisitor = //
+				classVisitor.visitMethod(context.currentMethodAccessFlags, context.currentMethodName, context.currentMethodDescriptor,
 				signatureIndex == 0 ? null : readUtf(signatureIndex, charBuffer), exceptions);
 		if (methodVisitor == null) {
 			return currentOffset;

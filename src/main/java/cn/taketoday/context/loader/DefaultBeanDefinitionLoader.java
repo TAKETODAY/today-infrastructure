@@ -173,11 +173,11 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 					.setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))//
 					.setInitMethods(ContextUtils.resolveInitMethod(beanClass, attributes.getStringArray(Constant.INIT_METHODS)));
 		}
-
+		
 		beanDefinition.setPropertyValues(ContextUtils.resolvePropertyValue(beanClass, this.applicationContext));
 		// fix missing @Props injection
 		ContextUtils.resolveProps(beanDefinition, this.applicationContext.getEnvironment());
-
+		
 		return beanDefinition;
 	}
 

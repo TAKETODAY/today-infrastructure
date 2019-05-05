@@ -38,6 +38,7 @@ import cn.taketoday.context.factory.InitializingBean;
  */
 public class DefaultBeanDefinition implements BeanDefinition {
 
+
 	/** bean name. */
 	private String name;
 	/** bean class. */
@@ -50,7 +51,7 @@ public class DefaultBeanDefinition implements BeanDefinition {
 	 * 
 	 * @since 2.3.3
 	 */
-	private Method[] initMethods;
+	private Method[] initMethods = new Method[0];
 
 	/**
 	 * Invoke after when publish
@@ -58,10 +59,10 @@ public class DefaultBeanDefinition implements BeanDefinition {
 	 * 
 	 * @since 2.3.3
 	 */
-	private String[] destroyMethods;
+	private String[] destroyMethods = new String[0];
 
 	/** property values */
-	private PropertyValue[] propertyValues;
+	private PropertyValue[] propertyValues = new PropertyValue[0];
 
 	/**
 	 * <p>

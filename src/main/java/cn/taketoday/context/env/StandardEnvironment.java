@@ -151,10 +151,18 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 			log.warn("The path: [{}] you provided that doesn't exist", properties);
 			return;
 		}
-		final File dir = new File(resource.getPath());
+		final File file = new File(resource.getPath());
 
-		log.debug("Start loading Properties.");
-		doLoad(dir, this.properties);
+		if (file.isDirectory()) {
+			log.debug("Start loading Properties.");
+			doLoadFromDirectory(file, this.properties);
+		}
+		else {
+			log.debug("Found Properties File: [{}]", file.getAbsolutePath());
+			try (InputStream inputStream = new FileInputStream(file)) {
+				this.properties.load(inputStream);
+			}
+		}
 
 		final String profiles = getProperty(Constant.KEY_ACTIVE_PROFILES);
 		if (StringUtils.isNotEmpty(profiles)) {
@@ -171,7 +179,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 	 *            properties
 	 * @throws IOException
 	 */
-	static void doLoad(File dir, Properties properties) throws IOException {
+	static void doLoadFromDirectory(File dir, Properties properties) throws IOException {
 
 		File[] listFiles = dir.listFiles(PROPERTIES_FILE_FILTER);
 
@@ -182,7 +190,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
 		for (File file : listFiles) {
 			if (file.isDirectory()) { // recursive
-				doLoad(file, properties);
+				doLoadFromDirectory(file, properties);
 				continue;
 			}
 			log.debug("Found Properties File: [{}]", file.getAbsolutePath());

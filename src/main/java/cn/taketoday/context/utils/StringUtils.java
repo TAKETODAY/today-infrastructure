@@ -20,8 +20,11 @@
 package cn.taketoday.context.utils;
 
 import java.io.CharArrayWriter;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import cn.taketoday.context.Constant;
 
@@ -266,6 +269,29 @@ public abstract class StringUtils {
 			needToChange = true;
 		}
 		return (needToChange ? out.toString() : s);
+	}
+
+	/**
+	 * 
+	 * @param str
+	 * @param delimiters
+	 * @param trimTokens
+	 * @param ignoreEmptyTokens
+	 * @return
+	 */
+	public static String[] tokenizeToStringArray(final String str, final String delimiters) {
+
+		if (str == null) {
+			return new String[0];
+		}
+
+		StringTokenizer st = new StringTokenizer(str, delimiters);
+		List<String> tokens = new ArrayList<>();
+		while (st.hasMoreTokens()) {
+			String token = st.nextToken();
+			tokens.add(token);
+		}
+		return toStringArray(tokens);
 	}
 
 	/**

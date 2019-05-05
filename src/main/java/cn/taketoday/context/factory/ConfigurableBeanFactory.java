@@ -21,7 +21,9 @@ package cn.taketoday.context.factory;
 
 import java.util.Set;
 
+import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
@@ -146,5 +148,20 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
 	 * @since 2.1.6
 	 */
 	void refresh(Class<?> previousClass, Class<?> currentClass);
+
+	/**
+	 * Enable full {@link Prototype} , now {@link PropertyValue} only support
+	 * interface
+	 * 
+	 * @since 2.1.6
+	 */
+	void enableFullPrototype();
+
+	/**
+	 * Enable full {@link Prototype}'s life cycle, default is not support
+	 * 
+	 * @since 2.1.6
+	 */
+	void enableFullLifecycle();
 
 }

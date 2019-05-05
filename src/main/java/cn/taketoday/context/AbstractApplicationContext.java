@@ -43,6 +43,8 @@ import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.bean.BeanReference;
+import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.el.ValueELContext;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.DefaultBeanNameCreator;
@@ -94,7 +96,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	 * Load all the class in class path
 	 */
 	public void loadContext() {
-		this.loadContext("");
+		this.loadContext(Constant.BLANK);
 	}
 
 	/**
@@ -117,8 +119,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 			prepareBeanFactory(classes);
 			// Initialize other special beans in specific context subclasses.
 			onRefresh();
-			// Initialize all singletons.
-			refresh();
+			if(!getEnvironment().getProperty(Constant.ENABLE_LAZY_LOADING, Boolean::parseBoolean, true)) {
+				// Initialize all singletons.
+				refresh();
+			}
 			// Finish refresh
 			finishRefresh();
 		}
@@ -143,7 +147,16 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
 		try {
 			// prepare properties
-			getEnvironment().loadProperties(propertiesLocation);
+			final ConfigurableEnvironment environment = getEnvironment();
+			environment.loadProperties(propertiesLocation);
+			{// @since 2.1.6
+				if (environment.getProperty(Constant.ENABLE_FULL_PROTOTYPE, Boolean::parseBoolean, false)) {
+					enableFullPrototype();
+				}
+				if (environment.getProperty(Constant.ENABLE_FULL_LIFECYCLE, Boolean::parseBoolean, false)) {
+					enableFullLifecycle();
+				}
+			}
 		}
 		catch (IOException ex) {
 			log.error("An Exception Occurred When Loading Properties, With Msg: [{}]", ex.getMessage(), ex);
@@ -195,8 +208,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	public void prepareBeanFactory(Collection<Class<?>> classes) throws Throwable {
 
 		final AbstractBeanFactory beanFactory = getBeanFactory();
-
-		postProcessBeanFactory(beanFactory);
 
 		final ConfigurableEnvironment environment = getEnvironment();
 		BeanNameCreator beanNameCreator = environment.getBeanNameCreator();
@@ -255,16 +266,29 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 		publishEvent(new DependenciesHandledEvent(this, beanFactory.getDependencies()));
 		// register bean post processors
 		beanFactory.registerBeanPostProcessors();
+
+		postProcessBeanFactory(beanFactory);
 	}
 
 	/**
-	 * Process after {@link #getBeanFactory()}
+	 * Process after {@link #prepareBeanFactory(Collection)}
 	 * 
 	 * @param beanFactory
 	 *            bean factory
 	 */
 	protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
 
+		if (beanFactory.isFullPrototype()) {
+			for (PropertyValue propertyValue : beanFactory.getDependencies()) {
+				final BeanReference beanReference = (BeanReference) propertyValue.getValue();
+				final BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanReference.getName());
+				if (beanDefinition != null) {
+					if (!beanDefinition.isSingleton()) {
+						beanReference.applyPrototype();
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -563,6 +587,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	}
 
 	@Override
+	public <T> Map<String, T> getBeansOfType(Class<T> requiredType) {
+		return getBeanFactory().getBeansOfType(requiredType);
+	}
+
+	@Override
 	public boolean isSingleton(String name) {
 		return getBeanFactory().isSingleton(name);
 	}
@@ -665,6 +694,16 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	@Override
 	public int getBeanDefinitionCount() {
 		return getBeanFactory().getBeanDefinitionCount();
+	}
+
+	@Override
+	public void enableFullPrototype() {
+		getBeanFactory().enableFullPrototype();
+	}
+
+	@Override
+	public void enableFullLifecycle() {
+		getBeanFactory().enableFullLifecycle();
 	}
 
 	// ----------------------
