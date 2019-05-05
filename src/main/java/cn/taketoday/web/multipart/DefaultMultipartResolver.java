@@ -85,8 +85,9 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 				}
 				return multipartFiles;
 			}
+			default :
+				throw new BadRequestException("Not supported type: [" + methodParameter.getParameterClass() + "]");
 		}
-		throw new BadRequestException("Not supported type: [" + methodParameter.getParameterClass() + "]");
 	}
 
 	@Override

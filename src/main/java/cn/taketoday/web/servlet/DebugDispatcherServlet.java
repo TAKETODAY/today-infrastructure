@@ -19,11 +19,8 @@
  */
 package cn.taketoday.web.servlet;
 
-import java.awt.image.RenderedImage;
-import java.io.File;
 import java.util.Arrays;
 
-import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -33,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.utils.ExceptionUtils;
-import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.annotation.WebDebugMode;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
@@ -42,11 +38,8 @@ import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
-import cn.taketoday.web.mapping.RegexMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.ViewResolver;
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,108 +65,51 @@ public class DebugDispatcherServlet extends DispatcherServlet {
 	}
 
 	@Override
-	public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException {
-
+	public void service(final ServletRequest servletRequest, final ServletResponse servletResponse) //
+			throws ServletException //
+	{
 		final long start = System.currentTimeMillis();
 
 		final HttpServletRequest request = (HttpServletRequest) servletRequest;
 		final HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-		// find handler
-		HandlerMapping requestMapping = null;
+		// Find handler mapping
+		final HandlerMapping requestMapping = lookupHandlerMapping(request, response);
 		try {
 
-			String requestURI = request.getMethod() + request.getRequestURI();
-
-			final HandlerMappingRegistry handlerMappingRegistry = getHandlerMappingRegistry();
-			Integer index = handlerMappingRegistry.getIndex(requestURI);
-			if (index == null) {
-				// path variable
-				requestURI = StringUtils.decodeUrl(requestURI);// decode
-				for (RegexMapping regexMapping : handlerMappingRegistry.getRegexMappings()) {
-					if (regexMapping.getPattern().matcher(requestURI).matches()) {
-						index = regexMapping.getIndex();
-						break;
-					}
-				}
-				if (index == null) {
-					log.debug("NOT FOUND -> [{}]", requestURI);
-					response.sendError(404);
-					return;
-				}
+			if (requestMapping == null) {
+				response.sendError(404);
+				return;
 			}
-			
-			requestMapping = handlerMappingRegistry.get(index);
-			// get intercepter s
-			final int[] interceptors = requestMapping.getInterceptors();
-			// invoke intercepter
-			final HandlerInterceptorRegistry handlerInterceptorRegistry = getHandlerInterceptorRegistry();
-			for (Integer interceptor : interceptors) {
-				if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(request, response, requestMapping)) {
-					log.debug("Before HandlerMethod Process: [{}] return false", handlerInterceptorRegistry.get(interceptor));
-					return;
-				}
-			}
-
 			// Handler Method
-			HandlerMethod handlerMethod = requestMapping.getHandlerMethod();
-			// method parameter
-			MethodParameter[] methodParameters = handlerMethod.getParameter();
-			// Handler Method parameter list
-			final Object[] args = new Object[methodParameters.length];
-
-			getParameterResolver().resolveParameter(args, methodParameters, request, response);
-
-			log.debug("Parameter list: {}", Arrays.toString(args));
-			// do dispatch
-			Object result = handlerMethod.getMethod().invoke(requestMapping.getAction(), args); // invoke
-
-			for (Integer interceptor : interceptors) {
-				HandlerInterceptor handlerInterceptor = handlerInterceptorRegistry.get(interceptor);
-				handlerInterceptor.afterProcess(result, request, response);
-				log.debug("After HandlerMethod Process: [{}]", handlerInterceptor);
-			}
-
-			switch (handlerMethod.getReutrnType())
-			{
-				case Constant.RETURN_VIEW : {
-					resolveView(request, response, (String) result, getContextPath(), getViewResolver());
-					break;
-				}
-				case Constant.RETURN_STRING : {
-					response.getWriter().print(result);
-					break;
-				}
-				case Constant.RETURN_FILE : {
-					WebUtils.downloadFile(request, response, (File) result, getDownloadFileBuf());
-					break;
-				}
-				case Constant.RETURN_IMAGE : {
-					// need set content type
-					ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, response.getOutputStream());
-					break;
-				}
-				case Constant.RETURN_JSON : {
-					resolveJsonView(response, result);
-					break;
-				}
-				case Constant.RETURN_MODEL_AND_VIEW : {
-					resolveModelAndView(request, response, (ModelAndView) result);
-					break;
-				}
-				case Constant.RETURN_VOID : {
-					Object attribute = request.getAttribute(Constant.KEY_MODEL_AND_VIEW);
-					if (attribute != null) {
-						resolveModelAndView(request, response, (ModelAndView) attribute);
+			final Object result;
+			final HandlerMethod handlerMethod = requestMapping.getHandlerMethod();
+			if (requestMapping.hasInterceptor()) {
+				// get intercepter s
+				final int[] interceptors = requestMapping.getInterceptors();
+				// invoke intercepter
+				final HandlerInterceptorRegistry handlerInterceptorRegistry = getHandlerInterceptorRegistry();
+				for (final int interceptor : interceptors) {
+					if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(request, response, requestMapping)) {
+						log.debug("Before HandlerMethod Process: [{}] return false", handlerInterceptorRegistry.get(interceptor));
+						return;
 					}
-					break;
 				}
-				case Constant.RETURN_OBJECT : {
-					resolveObject(request, response, result, getViewResolver(), getDownloadFileBuf());
-					break;
+				result = invokeHandler(request, response, handlerMethod, requestMapping);
+				for (final int interceptor : interceptors) {
+					HandlerInterceptor handlerInterceptor = handlerInterceptorRegistry.get(interceptor);
+					handlerInterceptor.afterProcess(result, request, response);
+					log.debug("After HandlerMethod Process: [{}]", handlerInterceptor);
 				}
 			}
-			log.debug("Process [{}] takes: [{}]ms, with result: [{}]", requestURI, (System.currentTimeMillis() - start), result);
+			else {
+				result = invokeHandler(request, response, handlerMethod, requestMapping);
+			}
+
+			resolveResult(request, response, handlerMethod, result);
+
+			log.debug("Process [{}] takes: [{}]ms, with result: [{}]", //
+					request.getRequestURI(), (System.currentTimeMillis() - start), result);
 		}
 		catch (Throwable exception) {
 			try {
@@ -187,4 +123,21 @@ public class DebugDispatcherServlet extends DispatcherServlet {
 			}
 		}
 	}
+
+	@Override
+	protected Object invokeHandler(HttpServletRequest request, HttpServletResponse response, //
+			HandlerMethod handlerMethod,
+			HandlerMapping requestMapping) throws Throwable //
+	{
+		// method parameter
+		final MethodParameter[] methodParameters = handlerMethod.getParameter();
+		// Handler Method parameter list
+		final Object[] args = new Object[methodParameters.length];
+
+		getParameterResolver().resolveParameter(args, methodParameters, request, response);
+
+		log.debug("Parameter list: {}", Arrays.toString(args));
+		return handlerMethod.getMethod().invoke(requestMapping.getAction(), args); // invoke
+	}
+
 }

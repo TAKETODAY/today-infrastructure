@@ -37,6 +37,13 @@ public class HandlerMapping {
 	/** 拦截器 */
 	private int[] interceptors = EMPTY;
 
+	/**
+	 * @return
+	 */
+	public final boolean hasInterceptor() {
+		return interceptors != EMPTY;
+	}
+
 	public Object getAction() {
 		return action;
 	}

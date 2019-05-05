@@ -229,9 +229,9 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 				request.getSession().setAttribute(KEY_REDIRECT_MODEL, redirectModel);
 				return redirectModel;
 			}
+			default: return resolve(request, methodParameter, methodParameterName, methodParameter.getParameterClass());
 		}
 		//@on
-		return resolve(request, methodParameter, methodParameterName, methodParameter.getParameterClass());
 	}
 
 	/**
@@ -340,7 +340,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 		}
 
 		// pojo
-		if (!setBean(request, parameterClass, newInstance, request.getParameterNames(), methodParameter)) {
+		if (!setBean(request, parameterClass, newInstance, request.getParameterNames())) {
 			throw WebUtils.newBadRequest("Can't resolve pojo", methodParameterName, null);
 		}
 		return newInstance;
@@ -416,9 +416,10 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 			case ANNOTATION_REQUEST_ATTRIBUTE : {
 				return request.getAttribute(methodParameterName);
 			}
+			default :
+				throw new BadRequestException("Annotation Parameter: [" + methodParameterName + "] not supported, bad request.");
 		}
 
-		throw new BadRequestException("Annotation Parameter: [" + methodParameterName + "] not supported, bad request.");
 	}
 
 	/**
@@ -526,12 +527,11 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 * @param parameterClass
 	 * @param bean
 	 * @param parameterNames
-	 * @param methodParameter
 	 * @return
 	 * @throws BadRequestException
 	 */
 	private boolean setBean(final HttpServletRequest request, final Class<?> parameterClass, final Object bean, //
-			final Enumeration<String> parameterNames, final MethodParameter methodParameter) throws Throwable //
+			final Enumeration<String> parameterNames) throws Throwable //
 	{
 		try {
 			while (parameterNames.hasMoreElements()) {

@@ -41,7 +41,7 @@ public abstract class AbstractViewResolver implements ViewResolver, ServletConte
 	protected String		encoding		= "UTF-8";
 	protected Locale		locale			= Locale.CHINA;
 
-	ServletContext			servletContext	= null;
+	protected ServletContext	servletContext	= null;
 
 	@Override
 	public void setServletContext(ServletContext servletContext) {

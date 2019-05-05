@@ -536,7 +536,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 				final String parameterName = parameterNames.nextElement();
 				// 寻找参数
 				if (!resolvePojoParameter(request, parameterName, bean, //
-						parameterClass.getDeclaredField(parameterName), methodParameter)) {
+						parameterClass.getDeclaredField(parameterName))) {
 
 					return false;
 				}
@@ -558,7 +558,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 	 * @return
 	 */
 	private boolean resolvePojoParameter(HttpServletRequest request, //
-			String parameterName, Object bean, Field field, MethodParameter methodParameter) throws Throwable //
+			String parameterName, Object bean, Field field) throws Throwable //
 	{
 		Object property = null;
 
@@ -651,7 +651,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 				}
 
 				if (!resolvePojoParameter(request, requestParameter, newInstance, //
-						clazz.getDeclaredField(split[3]), methodParameter)) {// 得到Field准备注入
+						clazz.getDeclaredField(split[3]))) {// 得到Field准备注入
 
 					return list;
 				}
@@ -712,7 +712,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 					newInstance = clazz.getConstructor().newInstance();// default constructor
 				}
 				if (!resolvePojoParameter(request, requestParameter, //
-						newInstance, clazz.getDeclaredField(keyList[3]), methodParameter)) {// 得到Field准备注入
+						newInstance, clazz.getDeclaredField(keyList[3]))) {// 得到Field准备注入
 
 					return map;
 				}

@@ -139,101 +139,38 @@ public class DispatcherServlet implements Servlet {
 		final HttpServletRequest request = (HttpServletRequest) servletRequest;
 		final HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-		// Find handler
-		HandlerMapping requestMapping = null;
+		// Find handler mapping
+		final HandlerMapping requestMapping = lookupHandlerMapping(request, response);
 		try {
-
-			// The key of handler
-			String requestURI = request.getMethod() + request.getRequestURI();
-
-			final HandlerMappingRegistry handlerMappingRegistry = getHandlerMappingRegistry();
-			Integer index = handlerMappingRegistry.getIndex(requestURI);
-			if (index == null) {
-				// path variable
-				requestURI = StringUtils.decodeUrl(requestURI);// decode
-				for (RegexMapping regexMapping : handlerMappingRegistry.getRegexMappings()) {
-					// TODO path matcher
-					if (regexMapping.getPattern().matcher(requestURI).matches()) {
-						index = regexMapping.getIndex();
-						break;
-					}
-				}
-				if (index == null) {
-					log.debug("NOT FOUND -> [{}]", requestURI);
-					response.sendError(404);
-					return;
-				}
+			
+			if (requestMapping == null) {
+				response.sendError(404);
+				return;
 			}
-
-			requestMapping = handlerMappingRegistry.get(index);
-			// get intercepter s
-			final int[] interceptors = requestMapping.getInterceptors();
-			// invoke intercepter
-			final HandlerInterceptorRegistry handlerInterceptorRegistry = getHandlerInterceptorRegistry();
-			for (final int interceptor : interceptors) {
-				if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(request, response, requestMapping)) {
-					log.debug("Interceptor: [{}] return false", handlerInterceptorRegistry.get(interceptor));
-					return;
-				}
-			}
-
 			// Handler Method
+			final Object result;
 			final HandlerMethod handlerMethod = requestMapping.getHandlerMethod();
-			// method parameter
-			final MethodParameter[] methodParameters = handlerMethod.getParameter();
-			// Handler Method parameter list
-			final Object[] args = new Object[methodParameters.length];
-
-			parameterResolver.resolveParameter(args, methodParameters, request, response);
-
-			// log.debug("parameter list -> {}", Arrays.toString(args));
-			// do dispatch
-			final Object result = handlerMethod.getMethod().invoke(requestMapping.getAction(), args); // invoke
-
-			for (final int interceptor : interceptors) {
-				handlerInterceptorRegistry.get(interceptor).afterProcess(result, request, response);
-			}
-
-			switch (handlerMethod.getReutrnType())
-			{
-				case Constant.RETURN_VIEW : {
-					resolveView(request, response, (String) result, contextPath, viewResolver);
-					break;
-				}
-				case Constant.RETURN_STRING : {
-					response.getWriter().print(result);
-					break;
-				}
-				case Constant.RETURN_FILE : {
-					WebUtils.downloadFile(request, response, (File) result, downloadFileBuf);
-					break;
-				}
-				case Constant.RETURN_IMAGE : {
-					// need set content type
-					ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, response.getOutputStream());
-					break;
-				}
-				case Constant.RETURN_JSON : {
-					resolveJsonView(response, result);
-					break;
-				}
-				case Constant.RETURN_MODEL_AND_VIEW : {
-					resolveModelAndView(request, response, (ModelAndView) result);
-					break;
-				}
-				case Constant.RETURN_VOID : {
-					final Object attribute = request.getAttribute(Constant.KEY_MODEL_AND_VIEW);
-					if (attribute != null) {
-						resolveModelAndView(request, response, (ModelAndView) attribute);
+			if (requestMapping.hasInterceptor()) {
+				// get intercepter s
+				final int[] interceptors = requestMapping.getInterceptors();
+				// invoke intercepter
+				final HandlerInterceptorRegistry handlerInterceptorRegistry = getHandlerInterceptorRegistry();
+				for (final int interceptor : interceptors) {
+					if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(request, response, requestMapping)) {
+						log.debug("Interceptor: [{}] return false", handlerInterceptorRegistry.get(interceptor));
+						return;
 					}
-					break;
 				}
-				case Constant.RETURN_OBJECT : {
-					resolveObject(request, response, result, viewResolver, downloadFileBuf);
-					break;
+				result = invokeHandler(request, response, handlerMethod, requestMapping);
+				for (final int interceptor : interceptors) {
+					handlerInterceptorRegistry.get(interceptor).afterProcess(result, request, response);
 				}
 			}
-//			response.flushBuffer();
+			else {
+				result = invokeHandler(request, response, handlerMethod, requestMapping);
+			}
+
+			resolveResult(request, response, handlerMethod, result);
 		}
 		catch (Throwable exception) {
 			try {
@@ -245,6 +182,119 @@ public class DispatcherServlet implements Servlet {
 				log("Handling of [" + exception.getClass().getName() + "]  resulted in Exception: [" + e.getClass().getName() + "]", e);
 				throw new ServletException(e);
 			}
+		}
+	}
+
+	/**
+	 * Invoke Handler
+	 * 
+	 * @param request
+	 *            current request
+	 * @param response
+	 *            current response
+	 * @param handlerMethod
+	 * @param requestMapping
+	 * @return the result of handler
+	 * @throws Throwable
+	 */
+	protected Object invokeHandler(final HttpServletRequest request, final HttpServletResponse response,
+			final HandlerMethod handlerMethod, final HandlerMapping requestMapping) throws Throwable //
+	{
+		// method parameter
+		final MethodParameter[] methodParameters = handlerMethod.getParameter();
+		// Handler Method parameter list
+		final Object[] args = new Object[methodParameters.length];
+
+		parameterResolver.resolveParameter(args, methodParameters, request, response);
+
+		// log.debug("parameter list -> {}", Arrays.toString(args));
+		return handlerMethod.getMethod().invoke(requestMapping.getAction(), args); // invoke
+	}
+
+	/**
+	 * Looking for {@link HandlerMapping}
+	 * 
+	 * @param request
+	 *            current request
+	 * @param response
+	 *            current response
+	 * @return mapped {@link HandlerMapping}
+	 */
+	protected HandlerMapping lookupHandlerMapping(final HttpServletRequest request, final HttpServletResponse response) {
+		// The key of handler
+		String requestURI = request.getMethod() + request.getRequestURI();
+
+		final HandlerMappingRegistry handlerMappingRegistry = getHandlerMappingRegistry();
+		final Integer index = handlerMappingRegistry.getIndex(requestURI);
+		if (index == null) {
+			// path variable
+			requestURI = StringUtils.decodeUrl(requestURI);// decode
+			for (RegexMapping regexMapping : handlerMappingRegistry.getRegexMappings()) {
+				// TODO path matcher
+				if (regexMapping.getPattern().matcher(requestURI).matches()) {
+					return handlerMappingRegistry.get(regexMapping.getIndex());
+				}
+			}
+			log.debug("NOT FOUND -> [{}]", requestURI);
+			return null;
+		}
+		return handlerMappingRegistry.get(index.intValue());
+	}
+
+	/**
+	 * 
+	 * @param request
+	 * @param response
+	 * @param handlerMethod
+	 * @param result
+	 * @throws Throwable
+	 * @throws IOException
+	 */
+	protected void resolveResult(//
+			final HttpServletRequest request, //
+			final HttpServletResponse response, //
+			final HandlerMethod handlerMethod,
+			final Object result) throws Throwable, IOException //
+	{
+		switch (handlerMethod.getReutrnType())
+		{
+			case Constant.RETURN_VIEW : {
+				resolveView(request, response, (String) result, contextPath, viewResolver);
+				break;
+			}
+			case Constant.RETURN_STRING : {
+				response.getWriter().print(result);
+				break;
+			}
+			case Constant.RETURN_FILE : {
+				WebUtils.downloadFile(request, response, (File) result, downloadFileBuf);
+				break;
+			}
+			case Constant.RETURN_IMAGE : {
+				// need set content type
+				ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, response.getOutputStream());
+				break;
+			}
+			case Constant.RETURN_JSON : {
+				resolveJsonView(response, result);
+				break;
+			}
+			case Constant.RETURN_MODEL_AND_VIEW : {
+				resolveModelAndView(request, response, (ModelAndView) result);
+				break;
+			}
+			case Constant.RETURN_VOID : {
+				final Object attribute = request.getAttribute(Constant.KEY_MODEL_AND_VIEW);
+				if (attribute != null) {
+					resolveModelAndView(request, response, (ModelAndView) attribute);
+				}
+				break;
+			}
+			case Constant.RETURN_OBJECT : {
+				resolveObject(request, response, result, viewResolver, downloadFileBuf);
+				break;
+			}
+			default:
 		}
 	}
 

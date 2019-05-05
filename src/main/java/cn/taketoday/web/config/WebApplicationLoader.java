@@ -105,10 +105,6 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 
 	private DocumentBuilder builder;
 
-	public WebApplicationLoader() {
-
-	}
-
 	/**
 	 * Get {@link WebApplicationContext}
 	 * 
@@ -287,7 +283,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 	 * @throws ClassNotFoundException
 	 * @throws BeanDefinitionStoreException
 	 */
-	static Class<?> registerResolver(Element element, Class<?> defaultClass, String name, boolean refresh) //
+	private static Class<?> registerResolver(Element element, Class<?> defaultClass, String name, boolean refresh) //
 			throws ClassNotFoundException, BeanDefinitionStoreException //
 	{
 		String attrClass = element.getAttribute(ATTR_CLASS); // class="cn.taketoday..."

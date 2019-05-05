@@ -123,6 +123,8 @@ public class ViewDispatcher extends GenericServlet {
 					DispatcherServlet.resolveObject(request, response, result, viewResolver, downloadFileBuf);
 					break;
 				}
+				default: 
+					response.sendError(500);
 			}
 		}
 		catch (Throwable exception) {
