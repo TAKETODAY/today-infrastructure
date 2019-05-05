@@ -1,5 +1,8 @@
 # TODAY WEB
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/811723d275dc409ba6a823c9e08a5b3b)](https://app.codacy.com/app/TAKETODAY/today-web?utm_source=github.com&utm_medium=referral&utm_content=TAKETODAY/today-web&utm_campaign=Badge_Grade_Dashboard)
+
+
 :apple: today-web is a servlet based high-performance lightweight web framework
 
 ## 背景
