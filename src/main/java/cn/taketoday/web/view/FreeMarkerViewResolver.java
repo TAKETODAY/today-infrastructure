@@ -20,7 +20,6 @@
 package cn.taketoday.web.view;
 
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -99,11 +98,13 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 		this.applicationModel = new ServletContextHashModel(servletContext, wrapper);
 
 		Map<String, TemplateModel> templateModels = webApplicationContext.getBeansOfType(TemplateModel.class);
-		
-		for (Entry<String, TemplateModel> entry : templateModels.entrySet()) {
-			configuration.setSharedVariable(entry.getKey(), entry.getValue());;
-		}
-		
+
+		templateModels.forEach(configuration::setSharedVariable);
+
+//		for (Entry<String, TemplateModel> entry : templateModels.entrySet()) {
+//			configuration.setSharedVariable(entry.getKey(), entry.getValue());
+//		}
+
 		try {
 			if (settings != null && !settings.isEmpty()) {
 				this.configuration.setSettings(settings);

@@ -90,6 +90,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 	 */
 	@SuppressWarnings("unchecked")
 	public final void register(Class<?> targetClass, Object converter) {
+		LoggerFactory.getLogger(getClass()).info("Mapped ParameterConverter : [{}] -> [{}].", targetClass, converter);
 		supportParameterTypes.put(targetClass, (Converter<String, Object>) converter);
 	}
 
@@ -111,12 +112,13 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 					continue;
 				}
 
-				Object singleton = applicationContext.getBean(beanClass);
+				Object singleton = applicationContext.getBean(beanDefinition.getName());
 				if (singleton == null) {
 					singleton = ClassUtils.newInstance(beanDefinition, applicationContext.getBeanFactory());
-
+					
 					applicationContext.registerSingleton(singleton);
 				}
+				
 				if (!(singleton instanceof Converter)) {
 					throw new ConfigurationException("Component: [{}] which annotated '@ParameterConverter'" + //
 							" must be a [cn.taketoday.context.conversion.Converter]", entry.getKey());
@@ -126,7 +128,6 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 				if (values.length != 0 && values[0] != void.class) {
 					for (Class<?> value : values) {
 						register(value, singleton);
-						log.info("Mapped ParameterConverter : [{}] -> [{}].", value, beanClass.getName());
 					}
 					continue;
 				}
@@ -137,7 +138,6 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 				if (!supportParameterTypes.containsKey(returnType)) {
 					register(returnType, singleton);
 				}
-				log.info("Mapped ParameterConverter: [{}] -> [{}].", returnType, beanClass.getName());
 			}
 		}
 		catch (NoSuchMethodException e) {

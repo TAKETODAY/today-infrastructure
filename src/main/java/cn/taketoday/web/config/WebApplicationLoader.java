@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -438,15 +437,15 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 	 */
 	static void addDefaultServletMapping(String staticMapping) throws Throwable {
 
+		if (StringUtils.isEmpty(staticMapping)) {
+			throw new ConfigurationException("Static sources mapping can't be empty, please check your configuration");
+		}
+
 		final ServletContext servletContext = getWebApplicationContext().getServletContext();
 		final ServletRegistration servletRegistration = servletContext.getServletRegistration(DEFAULT);
 
 		if (servletRegistration == null) {
 			throw new ConfigurationException("There isn't a default servlet, please check your configuration");
-		}
-
-		if (StringUtils.isEmpty(staticMapping)) {
-			throw new ConfigurationException("Static sources mapping can't be empty, please check your configuration");
 		}
 
 		servletRegistration.addMapping(StringUtils.split(staticMapping));
@@ -494,19 +493,20 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 	 * @param classes
 	 *            classes to scan
 	 * @param servletContext
+	 *            {@link ServletContext}
 	 * @return startup Date
 	 */
 	private long prepareApplicationContext(ServletContext servletContext) {
 
 		final Object attribute = servletContext.getAttribute(KEY_WEB_APPLICATION_CONTEXT);
-		if (attribute != null && attribute instanceof WebApplicationContext) {
+		if (attribute instanceof WebApplicationContext) {
 			applicationContext = (WebApplicationContext) attribute;
 			return applicationContext.getStartupDate();
 		}
 
 		final long start = System.currentTimeMillis();
-		log.info("Your Application Starts To Be Initialized At: [{}].", //
-				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(start)));
+		log.info("Your application starts to be initialized at: [{}].", //
+				Constant.DEFAULT_DATE_FORMAT.format(new Date(start)));
 
 		// fix: applicationContext NullPointerException
 		applicationContext = new DefaultWebApplicationContext();
@@ -566,7 +566,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 				);
 			}
 
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> applicationContext.close()));
+			Runtime.getRuntime().addShutdownHook(new Thread(applicationContext::close));
 		}
 		catch (Throwable ex) {
 			ex = ExceptionUtils.unwrapThrowable(ex);

@@ -22,7 +22,7 @@ package cn.taketoday.web.servlet;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.Map;
 
@@ -66,7 +66,7 @@ import cn.taketoday.web.view.ViewResolver;
 /**
  * @author TODAY <br>
  *         2018-06-25 19:47:14
- * @version 2.3.3
+ * @version 2.3.7
  */
 public class DispatcherServlet implements Servlet {
 
@@ -95,7 +95,7 @@ public class DispatcherServlet implements Servlet {
 	/**
 	 * Default json serialize feature
 	 */
-	@Value(value = "#{fastjson.features}", required = false)
+	@Value(value = "#{fastjson.serialize.features}", required = false)
 	private static SerializerFeature[] SERIALIZE_FEATURES = { //
 			SerializerFeature.WriteMapNullValue, //
 			SerializerFeature.WriteNullListAsEmpty, //
@@ -142,13 +142,14 @@ public class DispatcherServlet implements Servlet {
 		// Find handler mapping
 		final HandlerMapping requestMapping = lookupHandlerMapping(request, response);
 		try {
-			
+
 			if (requestMapping == null) {
 				response.sendError(404);
 				return;
 			}
-			// Handler Method
+
 			final Object result;
+			// Handler Method
 			final HandlerMethod handlerMethod = requestMapping.getHandlerMethod();
 			if (requestMapping.hasInterceptor()) {
 				// get intercepter s
@@ -175,7 +176,7 @@ public class DispatcherServlet implements Servlet {
 		catch (Throwable exception) {
 			try {
 				exception = ExceptionUtils.unwrapThrowable(exception);
-				exceptionResolver.resolveException(request, response, exception, requestMapping);
+				getExceptionResolver().resolveException(request, response, exception, requestMapping);
 				log("Catch Throwable: [" + exception + "] With Msg: [" + exception.getMessage() + "]", exception);
 			}
 			catch (Throwable e) {
@@ -307,7 +308,7 @@ public class DispatcherServlet implements Servlet {
 	 * @param viewResolver
 	 * @throws Throwable
 	 */
-	static void resolveView(HttpServletRequest request, HttpServletResponse response,
+	public static void resolveView(HttpServletRequest request, HttpServletResponse response,
 			String resource, String contextPath, ViewResolver viewResolver) throws Throwable //
 	{
 		resolveView(request, response, resource, contextPath, viewResolver, null);
@@ -325,7 +326,7 @@ public class DispatcherServlet implements Servlet {
 	 * @since 2.3.3
 	 */
 	@SuppressWarnings("unchecked")
-	static void resolveView(//
+	public static void resolveView(//
 			final HttpServletRequest request, //
 			final HttpServletResponse response, //
 			final String resource, //
@@ -369,7 +370,7 @@ public class DispatcherServlet implements Servlet {
 	 * @throws Throwable
 	 * @since 2.3.3
 	 */
-	void resolveModelAndView(final HttpServletRequest request, //
+	public void resolveModelAndView(final HttpServletRequest request, //
 			final HttpServletResponse response, final ModelAndView modelAndView) throws Throwable //
 	{
 		if (modelAndView.noView()) {
@@ -405,7 +406,7 @@ public class DispatcherServlet implements Servlet {
 	 *            view instance
 	 * @throws IOException
 	 */
-	static void resolveJsonView(final HttpServletResponse response, final Object view) throws IOException {
+	public static void resolveJsonView(final HttpServletResponse response, final Object view) throws IOException {
 		response.setContentType(Constant.CONTENT_TYPE_JSON);
 		JSON.writeJSONString(response.getWriter(), view, SERIALIZE_FEATURES);
 	}
@@ -420,7 +421,7 @@ public class DispatcherServlet implements Servlet {
 	 * @throws IOException
 	 * @since 2.3.3
 	 */
-	static void resolveImage(final HttpServletResponse response, final RenderedImage image) throws IOException {
+	public static void resolveImage(final HttpServletResponse response, final RenderedImage image) throws IOException {
 		// need set content type
 		ImageIO.write(image, Constant.IMAGE_PNG, response.getOutputStream());
 	}
@@ -435,7 +436,7 @@ public class DispatcherServlet implements Servlet {
 	 * @param viewResolver
 	 * @throws Throwable
 	 */
-	static void resolveObject(final HttpServletRequest request, final HttpServletResponse response, //
+	public static void resolveObject(final HttpServletRequest request, final HttpServletResponse response, //
 			final Object result, final ViewResolver viewResolver, final int downloadFileBuf) throws Throwable //
 	{
 		if (result instanceof String) {
@@ -471,14 +472,14 @@ public class DispatcherServlet implements Servlet {
 	 * @param message
 	 * @param t
 	 */
-	final void log(String message, Throwable t) {
+	public final void log(String message, Throwable t) {
 		applicationContext.getServletContext().log(getServletName() + ": " + message, t);
 	}
 
 	/**
 	 * @param msg
 	 */
-	final void log(String msg) {
+	public final void log(String msg) {
 		applicationContext.getServletContext().log(getServletName() + ": " + msg);
 	}
 
@@ -502,7 +503,9 @@ public class DispatcherServlet implements Servlet {
 
 			if (state != State.CLOSING && state != State.CLOSED) {
 
-				final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				applicationContext.close();
+
+				final DateFormat simpleDateFormat = Constant.DEFAULT_DATE_FORMAT;//
 				final String msg = new StringBuffer()//
 						.append("Your application destroyed at: [")//
 						.append(simpleDateFormat.format(new Date()))//
@@ -511,38 +514,37 @@ public class DispatcherServlet implements Servlet {
 						.append("]")//
 						.toString();
 
-				applicationContext.close();
 				log.info(msg);
 				applicationContext.getServletContext().log(msg);
 			}
 		}
 	}
 
-	final HandlerInterceptorRegistry getHandlerInterceptorRegistry() {
+	public final HandlerInterceptorRegistry getHandlerInterceptorRegistry() {
 		return this.handlerInterceptorRegistry;
 	}
 
-	final HandlerMappingRegistry getHandlerMappingRegistry() {
+	public final HandlerMappingRegistry getHandlerMappingRegistry() {
 		return this.handlerMappingRegistry;
 	}
 
-	final String getContextPath() {
+	public final String getContextPath() {
 		return this.contextPath;
 	}
 
-	final int getDownloadFileBuf() {
+	public final int getDownloadFileBuf() {
 		return this.downloadFileBuf;
 	}
 
-	final ViewResolver getViewResolver() {
+	public final ViewResolver getViewResolver() {
 		return this.viewResolver;
 	}
 
-	final ExceptionResolver getExceptionResolver() {
+	public final ExceptionResolver getExceptionResolver() {
 		return this.exceptionResolver;
 	}
 
-	final ParameterResolver getParameterResolver() {
+	public final ParameterResolver getParameterResolver() {
 		return this.parameterResolver;
 	}
 }

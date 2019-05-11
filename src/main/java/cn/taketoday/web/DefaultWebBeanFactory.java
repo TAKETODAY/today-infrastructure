@@ -93,13 +93,14 @@ public class DefaultWebBeanFactory extends StandardBeanFactory {
 		for (final PropertyValue propertyValue : getDependencies()) {
 			final Class<?> propertyType = propertyValue.getField().getType();
 			if (servletEnv.containsKey(propertyType)) {
+				
 				if (!checked) {
 					webApplicationContext.getEnvironment().setProperty(Constant.ENABLE_REQUEST_CONTEXT, "true");
 					checked = true;
 				}
 
 				final String beanName = ((BeanReference) propertyValue.getValue()).getName();
-
+				
 				registerSingleton(beanName, Proxy.newProxyInstance(propertyType.getClassLoader(), new Class[] { propertyType }, //
 						new ObjectFactoryDelegatingHandler(servletEnv.get(propertyType))//
 				));

@@ -29,8 +29,7 @@ import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-07-10 1:16:17
  */
 public class DefaultWebApplicationContext extends AbstractApplicationContext implements WebApplicationContext {

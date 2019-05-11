@@ -208,24 +208,24 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
 	 * specified element.
 	 * </p>
 	 * 
-	 * If index out of bounds will set the index  
+	 * If index out of bounds will set the index
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
 	public E set(int index, E element) {
-		
+
 		if (index <= array.length - 1) {
 			final Object oldElement = array[index];
 			array[index] = element;
 			return (E) oldElement;
 		}
-		
+
 		Object[] newArray = new Object[index + 1];
 		System.arraycopy(array, 0, newArray, 0, array.length);
 		newArray[index] = element;
-		
+
 		array = newArray;
-		
+
 		return element;
 	}
 
@@ -243,16 +243,16 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
 		array = newArray;
 		return true;
 	}
-	
+
 	public void add(int index, E element) {
 		if (index <= array.length - 1) {
 			array[index] = element;
-			return ;
+			return;
 		}
 		Object[] newArray = new Object[index + 1];
 		System.arraycopy(array, 0, newArray, 0, array.length);
 		newArray[index] = element;
-		
+
 		array = newArray;
 	}
 
@@ -469,9 +469,8 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
 		for (int i = 0; i < array.length; ++i)
 			if (!it.hasNext() || !eq(array[i], it.next()))
 				return false;
-		if (it.hasNext())
-			return false;
-		return true;
+		
+		return !it.hasNext();
 	}
 
 	/**

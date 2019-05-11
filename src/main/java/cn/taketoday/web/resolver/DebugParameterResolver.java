@@ -343,7 +343,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 
 		log.debug("Resolve pojo parameter: [{}]", methodParameterName);
 		// pojo
-		if (!setBean(request, parameterClass, newInstance, request.getParameterNames(), methodParameter)) {
+		if (!setBean(request, parameterClass, newInstance, request.getParameterNames())) {
 			throw newBadRequest("Can't resolve pojo", methodParameterName, null);
 		}
 		return newInstance;
@@ -526,7 +526,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 	 * @throws BadRequestException
 	 */
 	private boolean setBean(HttpServletRequest request, //
-			Class<?> parameterClass, Object bean, Enumeration<String> parameterNames, MethodParameter methodParameter) throws Throwable //
+			Class<?> parameterClass, Object bean, Enumeration<String> parameterNames) throws Throwable //
 	{
 		log.debug("Resolve Pojo: [{}]", parameterClass.getName());
 		try {

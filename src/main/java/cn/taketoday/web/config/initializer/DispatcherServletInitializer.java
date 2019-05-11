@@ -89,10 +89,7 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
 		MultipartConfigElement multipartConfig = //
 				applicationContext.getBean(Constant.MULTIPART_CONFIG_ELEMENT, MultipartConfigElement.class);
 
-		if (multipartConfig != null) {
-			setMultipartConfig(multipartConfig);
-		}
-		else if (multipartResolver instanceof AbstractMultipartResolver) {
+		if (multipartResolver instanceof AbstractMultipartResolver) {
 
 			AbstractMultipartResolver abstractMultipartResolver = (AbstractMultipartResolver) multipartResolver;
 			multipartConfig = new MultipartConfigElement(//
@@ -101,9 +98,11 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
 					abstractMultipartResolver.getMaxRequestSize(), //
 					abstractMultipartResolver.getFileSizeThreshold()//
 			);
+		}
+		
+		if (multipartConfig != null) {
 			setMultipartConfig(multipartConfig);
 		}
-
 		ServletSecurityElement securityConfig = //
 				applicationContext.getBean(Constant.SERVLET_SECURITY_ELEMENT, ServletSecurityElement.class);
 
