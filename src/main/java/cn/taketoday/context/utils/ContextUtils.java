@@ -296,9 +296,9 @@ public abstract class ContextUtils {
 
 	static {
 		PROPERTY_VALUE_RESOLVERS = new HashMap<>(4, 1.0f);
-		
+
 		final AutowiredPropertyResolver autowired = new AutowiredPropertyResolver();
-		
+
 		PROPERTY_VALUE_RESOLVERS.put(Resource.class, autowired);
 		PROPERTY_VALUE_RESOLVERS.put(Autowired.class, autowired);
 		PROPERTY_VALUE_RESOLVERS.put(Value.class, new ValuePropertyResolver());
@@ -350,7 +350,7 @@ public abstract class ContextUtils {
 	 *            init Method name
 	 * @since 2.1.2
 	 */
-	static void addInitMethod(List<Method> methods, Class<?> beanClass, String... initMethods) {
+	private static void addInitMethod(List<Method> methods, Class<?> beanClass, String... initMethods) {
 		for (final Method method : beanClass.getDeclaredMethods()) {
 
 			if (method.isAnnotationPresent(PostConstruct.class)) {
@@ -404,10 +404,10 @@ public abstract class ContextUtils {
 	 * @param field
 	 *            property
 	 * @param applicationContext
-	 * @return
+	 * @return a new {@link PropertyValue}
 	 * @throws Exception
 	 */
-	static final PropertyValue createPropertyValue(Field field, ApplicationContext applicationContext) {
+	public static final PropertyValue createPropertyValue(Field field, ApplicationContext applicationContext) {
 
 		final Map<Class<? extends Annotation>, PropertyValueResolver> propertyValueResolvers = PROPERTY_VALUE_RESOLVERS;
 		for (final Annotation annotation : field.getAnnotations()) {
@@ -560,7 +560,6 @@ public abstract class ContextUtils {
 
 					declaredField.setAccessible(true);
 					declaredField.set(bean, converted);
-					break;
 				}
 			}
 			return bean;
@@ -740,11 +739,8 @@ public abstract class ContextUtils {
 		}
 		final Class<?> type = missingBean.type();
 
-		if ((type != void.class && beanFactory.containsBeanDefinition(type, true)) || beanFactory.containsBeanDefinition(beanClass)) {
-			// not default type
-			return false;
-		}
-		return true;
+		return !((type != void.class && beanFactory.containsBeanDefinition(type, true)) //
+				|| beanFactory.containsBeanDefinition(beanClass));
 	}
 
 	/**

@@ -115,7 +115,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 	 */
 	@Override
 	protected Object doCreate(String currentBeanName, BeanDefinition currentBeanDefinition) throws Throwable {
-		// fix:
+		// fix: #3 when get annotated beans that StandardBeanDefinition missed
 		if (currentBeanDefinition instanceof StandardBeanDefinition) {
 			return initializeSingleton(currentBeanName, currentBeanDefinition);
 		}

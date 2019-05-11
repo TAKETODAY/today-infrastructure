@@ -144,7 +144,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	 * @since 2.1.2
 	 * @return
 	 */
-	<T> Object doGetBeanforType(final Class<T> requiredType) {
+	protected <T> Object doGetBeanforType(final Class<T> requiredType) {
 		Object bean = null;
 		for (Entry<String, BeanDefinition> entry : getBeanDefinitionsMap().entrySet()) {
 			if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
@@ -166,11 +166,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	@Override
 	public <T> T getBean(String name, Class<T> requiredType) {
 
-		Object bean = getBean(name);
-		if (bean != null) {
-			if (requiredType.isInstance(bean)) {
-				return requiredType.cast(bean);
-			}
+		final Object bean = getBean(name);
+		if (bean != null && requiredType.isInstance(bean)) {
+			return requiredType.cast(bean);
 		}
 		// @since 2.1.2
 		return requiredType.cast(doGetBeanforType(requiredType));
@@ -198,16 +196,17 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 		final Set<T> beans = new HashSet<>();
 
 		for (Entry<String, BeanDefinition> entry : getBeanDefinitionsMap().entrySet()) {
-			BeanDefinition value = entry.getValue();
-			if (value.getBeanClass().isAnnotationPresent(annotationType)) {
+			BeanDefinition beanDefinition = entry.getValue();
+			if (beanDefinition.getBeanClass().isAnnotationPresent(annotationType)) {
 				T bean = (T) getBean(entry.getKey());
 				if (bean != null) {
 					beans.add(bean);
 				}
-			} // fix #3: when get annotated beans that StandardBeanDefinition missed @since
-				// v2.1.6
-			else if (value instanceof StandardBeanDefinition) {
-				Method factoryMethod = ((StandardBeanDefinition) value).getFactoryMethod();
+			}
+			else if (beanDefinition instanceof StandardBeanDefinition) {
+				// fix #3: when get annotated beans that StandardBeanDefinition missed
+				// @since v2.1.6
+				Method factoryMethod = ((StandardBeanDefinition) beanDefinition).getFactoryMethod();
 				if (factoryMethod.isAnnotationPresent(annotationType)) {
 					T bean = (T) getBean(entry.getKey());
 					if (bean != null) {
@@ -290,7 +289,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	 * 
 	 * @return a bean
 	 */
-	private Object resolvePropertyValue(BeanReference beanReference) {
+	protected Object resolvePropertyValue(BeanReference beanReference) {
 
 		final Class<?> beanClass = beanReference.getReferenceClass();
 		final String beanName = beanReference.getName();
@@ -765,7 +764,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	@Override
 	public void registerSingleton(String name, Object bean) {
 		if (!name.startsWith(FACTORY_BEAN_PREFIX) && bean instanceof FactoryBean) {// @since v2.1.1
-			name = FACTORY_BEAN_PREFIX + name;
+			name = FACTORY_BEAN_PREFIX.concat(name);
 		}
 		singletons.put(name, bean);
 	}
@@ -1041,11 +1040,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
 	@Override
 	public void refresh(Class<?> previousClass, Class<?> currentClass) {
-		
-		if (previousClass == currentClass || previousClass.isInterface()) {
+
+//		if (previousClass == currentClass || previousClass.isInterface()) {
+		if (previousClass == currentClass) {
 			return;
 		}
-		
+
 		BeanDefinition previousBeanDefinition = //
 				Objects.requireNonNull(getBeanDefinition(previousClass), "No such bean definition : " + previousClass.getName());
 
@@ -1057,7 +1057,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 			updateDependencies(previousBeanName, null);
 			return;
 		}
-		
+
 		// TODO remove all the property bean definition
 		getBeanDefinitionLoader().loadBeanDefinition(currentClass);
 
@@ -1110,7 +1110,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 	 * @param refreshed
 	 *            refreshed object
 	 */
-	private void updateDependencies(final String currentName, final Object refreshed) {
+	protected void updateDependencies(final String currentName, final Object refreshed) {
 
 		try {
 

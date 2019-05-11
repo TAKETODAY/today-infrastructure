@@ -22,6 +22,8 @@ package cn.taketoday.context;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 /**
  * 
@@ -60,7 +62,11 @@ public interface Constant extends Serializable {
 	char 	INNER_CLASS_SEPARATOR 	= '$';
 	String	ENV						= "env";
 	char 	EL_PREFIX 				= INNER_CLASS_SEPARATOR;
-	//
+	
+	String 	DEFAULT_DATE_FORMAT_STR	= "yyyy-MM-dd HH:mm:ss.SSS";
+	
+	DateFormat 	DEFAULT_DATE_FORMAT	= new SimpleDateFormat(DEFAULT_DATE_FORMAT_STR);
+	
 	
 	
 	String	KEY_USE_SIMPLE_NAME		= "context.name.simple";

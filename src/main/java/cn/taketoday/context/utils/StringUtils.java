@@ -130,7 +130,8 @@ public abstract class StringUtils {
 	 * @return
 	 */
 	public static String[] split(String source) {
-		if (source == null) {
+		
+		if (isEmpty(source)) {
 			return null;
 		}
 		return source.split(Constant.SPLIT_REGEXP);
@@ -207,8 +208,8 @@ public abstract class StringUtils {
 
 		boolean needToChange = false;
 		final int length = s.length();
-		StringBuffer out = new StringBuffer(length);
-		CharArrayWriter charArrayWriter = new CharArrayWriter();
+		final StringBuffer out = new StringBuffer(length);
+		final CharArrayWriter charArrayWriter = new CharArrayWriter();
 
 		for (int i = 0; i < length;) {
 			int c = (int) s.charAt(i);
@@ -232,16 +233,14 @@ public abstract class StringUtils {
 				 * the surrogate pairs range occurs outside of a legal surrogate pair. For now,
 				 * just treat it as if it were any other character.
 				 */
-				if (c >= 0xD800 && c <= 0xDBFF) {
+				if (c >= 0xD800 && c <= 0xDBFF && (i + 1) < length) {
 //					System.out.println(Integer.toHexString(c) + " is high surrogate");
-					if ((i + 1) < length) {
-						int d = (int) s.charAt(i + 1);
-//						System.out.println("\tExamining " + Integer.toHexString(d));
-						if (d >= 0xDC00 && d <= 0xDFFF) {
+					int d = (int) s.charAt(i + 1);
+//					System.out.println("\tExamining " + Integer.toHexString(d));
+					if (d >= 0xDC00 && d <= 0xDFFF) {
 //							System.out.println("\t" + Integer.toHexString(d) + " is low surrogate");
-							charArrayWriter.write(d);
-							i++;
-						}
+						charArrayWriter.write(d);
+						i++;
 					}
 				}
 				i++;

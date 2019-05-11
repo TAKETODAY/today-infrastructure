@@ -58,7 +58,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
 	private final Properties properties = new ConcurrentProperties();
 
-	{
+	public StandardEnvironment() {
 		if (System.getSecurityManager() != null) {
 			AccessController.doPrivileged(new PrivilegedAction<Object>() {
 				@Override
@@ -179,7 +179,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 	 *            properties
 	 * @throws IOException
 	 */
-	static void doLoadFromDirectory(File dir, Properties properties) throws IOException {
+	private static void doLoadFromDirectory(File dir, Properties properties) throws IOException {
 
 		File[] listFiles = dir.listFiles(PROPERTIES_FILE_FILTER);
 

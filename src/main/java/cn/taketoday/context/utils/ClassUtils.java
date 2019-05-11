@@ -738,8 +738,8 @@ public abstract class ClassUtils {
 						case Constant.HASH_CODE :		return attributes.hashCode();
 						case Constant.TO_STRING :		return attributes.toString();
 						case Constant.ANNOTATION_TYPE :	return annotationClass;
+						default : 						return attributes.get(method.getName());
 					}
-					return attributes.get(method.getName());
 				}//
 		));
 	}
@@ -860,22 +860,15 @@ public abstract class ClassUtils {
 		if (returnType.isPrimitive()) {
 			switch (returnType.getName())
 			{
-				case "int" :
-					return clazz == Integer.class;
-				case "long" :
-					return clazz == Long.class;
-				case "byte" :
-					return clazz == Byte.class;
-				case "char" :
-					return clazz == Character.class;
-				case "float" :
-					return clazz == Float.class;
-				case "double" :
-					return clazz == Double.class;
-				case "short" :
-					return clazz == Short.class;
-				case "boolean" :
-					return clazz == Boolean.class;
+				case "int" :	return clazz == Integer.class;
+				case "long" :	return clazz == Long.class;
+				case "byte" :	return clazz == Byte.class;
+				case "char" :	return clazz == Character.class;
+				case "float" :	return clazz == Float.class;
+				case "double" :	return clazz == Double.class;
+				case "short" :	return clazz == Short.class;
+				case "boolean" :return clazz == Boolean.class;
+				default 		: return false; 
 			}
 		}
 		return false;

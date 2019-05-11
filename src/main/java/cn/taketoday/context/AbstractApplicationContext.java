@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -119,7 +118,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 			prepareBeanFactory(classes);
 			// Initialize other special beans in specific context subclasses.
 			onRefresh();
-			if(!getEnvironment().getProperty(Constant.ENABLE_LAZY_LOADING, Boolean::parseBoolean, true)) {
+			if (!getEnvironment().getProperty(Constant.ENABLE_LAZY_LOADING, Boolean::parseBoolean, true)) {
 				// Initialize all singletons.
 				refresh();
 			}
@@ -141,7 +140,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
 		this.startupDate = System.currentTimeMillis();
 		log.info("Starting Application Context at [{}].", //
-				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(startupDate)));
+				Constant.DEFAULT_DATE_FORMAT.format(new Date(startupDate)));
 
 		applyState(State.STARTING);
 
@@ -282,10 +281,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 			for (PropertyValue propertyValue : beanFactory.getDependencies()) {
 				final BeanReference beanReference = (BeanReference) propertyValue.getValue();
 				final BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanReference.getName());
-				if (beanDefinition != null) {
-					if (!beanDefinition.isSingleton()) {
-						beanReference.applyPrototype();
-					}
+				if (beanDefinition != null && !beanDefinition.isSingleton()) {
+					beanReference.applyPrototype();
 				}
 			}
 		}
@@ -294,7 +291,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	/**
 	 * Load all the application listeners in context and register it.
 	 */
-	void registerListener() {
+	protected void registerListener() {
 
 		log.debug("Loading Application Listeners.");
 
@@ -361,17 +358,17 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	 *            the event type
 	 * @off
 	 */
-	@SuppressWarnings({ "unchecked", "serial" })
-	static void doRegisterListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners, //
+	@SuppressWarnings({ "unchecked" })
+	private	static void doRegisterListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners, //
 			Object applicationListener, Class<?> eventType) //
 	{
 		if (applicationListeners.containsKey(eventType)) {
 			applicationListeners.get(eventType).add((ApplicationListener<EventObject>) applicationListener);
 			return;
 		}
-		applicationListeners.put(eventType, new ArrayList<ApplicationListener<EventObject>>() {{
-			add((ApplicationListener<EventObject>) applicationListener);
-		}});
+		final ArrayList<ApplicationListener<EventObject>> listeners = new ArrayList<>();
+		listeners.add((ApplicationListener<EventObject>) applicationListener);
+		applicationListeners.put(eventType, listeners);
 	}
 	//@on
 
@@ -457,7 +454,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 		return state;
 	}
 
-	final void applyState(State state) {
+	private final void applyState(State state) {
 		this.state = state;
 	}
 
