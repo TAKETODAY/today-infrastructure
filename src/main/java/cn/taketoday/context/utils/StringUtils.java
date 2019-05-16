@@ -19,12 +19,16 @@
  */
 package cn.taketoday.context.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.UUID;
 
 import cn.taketoday.context.Constant;
 
@@ -130,7 +134,7 @@ public abstract class StringUtils {
 	 * @return
 	 */
 	public static String[] split(String source) {
-		
+
 		if (isEmpty(source)) {
 			return null;
 		}
@@ -343,4 +347,28 @@ public abstract class StringUtils {
 		return fileName.endsWith(Constant.PROPERTIES_SUFFIX) ? fileName : fileName + Constant.PROPERTIES_SUFFIX;
 	}
 
+	public static String getUUIDString() {
+		return UUID.randomUUID().toString();
+	}
+
+	public static String readAsText(InputStream inputStream) throws IOException {
+		final ByteArrayOutputStream result = new ByteArrayOutputStream();
+		final byte[] buffer = new byte[1024];
+		int length;
+		while ((length = inputStream.read(buffer)) != -1) {
+			result.write(buffer, 0, length);
+		}
+		return result.toString();
+	}
+
+	/**
+	 * @param path
+	 * @return
+	 */
+	public static String cleanPath(String path) {
+		if (isEmpty(path)) {
+			return path;
+		}
+		return path.replace(Constant.WINDOWS_PATH_SEPARATOR, Constant.PATH_SEPARATOR);
+	}
 }

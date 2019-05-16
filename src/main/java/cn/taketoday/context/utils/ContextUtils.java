@@ -30,7 +30,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +41,6 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
 
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +56,6 @@ import cn.taketoday.context.annotation.ConditionalImpl;
 import cn.taketoday.context.annotation.DefaultProps;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.bean.StandardBeanDefinition;
@@ -292,17 +289,15 @@ public abstract class ContextUtils {
 
 	// ----------------- loader
 
-	private static final Map<Class<? extends Annotation>, PropertyValueResolver> PROPERTY_VALUE_RESOLVERS;//
-
+	private static final List<PropertyValueResolver> PROPERTY_VALUE_RESOLVERS;
 	static {
-		PROPERTY_VALUE_RESOLVERS = new HashMap<>(4, 1.0f);
+		PROPERTY_VALUE_RESOLVERS = new ArrayList<>(3);
 
-		final AutowiredPropertyResolver autowired = new AutowiredPropertyResolver();
+		PROPERTY_VALUE_RESOLVERS.add(new ValuePropertyResolver());
+		PROPERTY_VALUE_RESOLVERS.add(new PropsPropertyResolver());
+		PROPERTY_VALUE_RESOLVERS.add(new AutowiredPropertyResolver());
 
-		PROPERTY_VALUE_RESOLVERS.put(Resource.class, autowired);
-		PROPERTY_VALUE_RESOLVERS.put(Autowired.class, autowired);
-		PROPERTY_VALUE_RESOLVERS.put(Value.class, new ValuePropertyResolver());
-		PROPERTY_VALUE_RESOLVERS.put(Props.class, new PropsPropertyResolver());
+		OrderUtils.reversedSort(PROPERTY_VALUE_RESOLVERS);
 	}
 
 	/**
@@ -391,7 +386,7 @@ public abstract class ContextUtils {
 			final PropertyValue created = createPropertyValue(field, applicationContext);
 			// not required
 			if (created != null) {
-				field.setAccessible(true);
+				ClassUtils.makeAccessible(field);
 				propertyValues.add(created);
 			}
 		}
@@ -404,15 +399,14 @@ public abstract class ContextUtils {
 	 * @param field
 	 *            property
 	 * @param applicationContext
+	 *            {@link ApplicationContext}
 	 * @return a new {@link PropertyValue}
 	 * @throws Exception
 	 */
 	public static final PropertyValue createPropertyValue(Field field, ApplicationContext applicationContext) {
 
-		final Map<Class<? extends Annotation>, PropertyValueResolver> propertyValueResolvers = PROPERTY_VALUE_RESOLVERS;
-		for (final Annotation annotation : field.getAnnotations()) {
-			final PropertyValueResolver propertyValueResolver = propertyValueResolvers.get(annotation.annotationType());
-			if (propertyValueResolver != null) {
+		for (final PropertyValueResolver propertyValueResolver : PROPERTY_VALUE_RESOLVERS) {
+			if (propertyValueResolver.supports(applicationContext, field)) {
 				return propertyValueResolver.resolveProperty(applicationContext, field);
 			}
 		}
@@ -642,7 +636,9 @@ public abstract class ContextUtils {
 						.iterator();
 
 		while (iterator.hasNext()) {
+
 			final Conditional conditional = iterator.next();
+
 			for (final Class<? extends Condition> conditionClass : conditional.value()) {
 				final Condition condition = ClassUtils.newInstance(conditionClass);
 				if (!condition.matches(applicationContext, annotatedElement)) {
@@ -657,7 +653,9 @@ public abstract class ContextUtils {
 	 * Validate bean definition
 	 * 
 	 * @param beanDefinition
+	 *            target {@link BeanDefinition}
 	 * @param applicationContext
+	 *            application context
 	 */
 	public static void validateBeanDefinition(BeanDefinition beanDefinition, ApplicationContext applicationContext) {
 
@@ -704,8 +702,7 @@ public abstract class ContextUtils {
 		for (final Method method : methods) {
 			if (method.isAnnotationPresent(PreDestroy.class)) {
 				// fix: can not access a member @since 2.1.6
-				method.setAccessible(true);
-				method.invoke(bean);
+				ClassUtils.makeAccessible(method).invoke(bean);
 			}
 		}
 
@@ -718,7 +715,7 @@ public abstract class ContextUtils {
 	 * Is a context missed bean?
 	 * 
 	 * @param missingBean
-	 *            the {@link Annotation} declaredon the class or a method
+	 *            the {@link Annotation} declared on the class or a method
 	 * @param beanClass
 	 *            missed bean class
 	 * @param beanFactory
@@ -739,7 +736,7 @@ public abstract class ContextUtils {
 		}
 		final Class<?> type = missingBean.type();
 
-		return !((type != void.class && beanFactory.containsBeanDefinition(type, true)) //
+		return !((type != void.class && beanFactory.containsBeanDefinition(type, !type.isInterface())) //
 				|| beanFactory.containsBeanDefinition(beanClass));
 	}
 

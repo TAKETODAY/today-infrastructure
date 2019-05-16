@@ -19,17 +19,25 @@
  */
 package cn.taketoday.context.loader;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
+import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.BeanReference;
 import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -37,7 +45,20 @@ import cn.taketoday.context.utils.StringUtils;
  * 
  *         2018-08-04 15:56
  */
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class AutowiredPropertyResolver implements PropertyValueResolver {
+
+	private static final Class<? extends Annotation> NAMED_CLASS = ClassUtils.loadClass("javax.inject.Named");
+	private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.loadClass("javax.inject.Inject");
+
+	@Override
+	public boolean supports(ApplicationContext applicationContext, Field field) {
+
+		return field.isAnnotationPresent(Autowired.class) //
+				|| field.isAnnotationPresent(Resource.class) //
+				|| (INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS))//
+				|| (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS));
+	}
 
 	@Override
 	public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
@@ -51,34 +72,51 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
 		final Class<?> propertyClass = field.getType();
 
 		if (autowired != null) {
-			name = autowired.value();
 			if (StringUtils.isEmpty(name)) {
+				name = autowired.value();
 				name = byType(applicationContext, propertyClass, beanNameCreator);
 			}
-			required = autowired.required(); // class name
+			required = autowired.required();
 		}
 		else if (field.isAnnotationPresent(Resource.class)) {
 			// Resource.class
 			final Resource resource = field.getAnnotation(Resource.class);
 			name = resource.name();
-			if (StringUtils.isEmpty(name)) { // fix  resource.type() != Object.class) {
+			if (StringUtils.isEmpty(name)) { // fix resource.type() != Object.class) {
 				name = byType(applicationContext, propertyClass, beanNameCreator);
 			}
 		}
+		else if (NAMED_CLASS != null) {// @Named
+			final Collection<AnnotationAttributes> annotationAttributes = //
+					ClassUtils.getAnnotationAttributes(field, NAMED_CLASS); // @Named
 
+			if (annotationAttributes.isEmpty()) {
+				name = byType(applicationContext, propertyClass, beanNameCreator);
+			}
+			else {
+				name = annotationAttributes.iterator().next().getString(Constant.VALUE); // name attr
+			}
+		}
+		else {// @Inject
+			name = byType(applicationContext, propertyClass, beanNameCreator);
+		}
 		return new PropertyValue(new BeanReference(name, required, propertyClass), field);
 	}
 
 	/**
+	 * Create bean name by type
+	 * 
 	 * @param applicationContext
+	 *            {@link BeanFactory}
 	 * @param targetClass
-	 * @return
+	 *            target property class
+	 * @return a bean name none null
 	 */
 	private String byType(ApplicationContext applicationContext, Class<?> targetClass, //
 			final BeanNameCreator beanNameCreator) //
 	{
 		if (applicationContext.hasStarted()) {
-			String name = findName(applicationContext, targetClass);
+			final String name = findName(applicationContext, targetClass);
 			if (StringUtils.isNotEmpty(name)) {
 				return name;
 			}
@@ -87,10 +125,13 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
 	}
 
 	/**
+	 * Find bean name in the {@link BeanFactory}
 	 * 
 	 * @param applicationContext
+	 *            factory
 	 * @param propertyClass
-	 * @return
+	 *            property class
+	 * @return a name found in {@link BeanFactory} if not found will returns null
 	 */
 	private String findName(ApplicationContext applicationContext, Class<?> propertyClass) {
 		for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitionsMap().entrySet()) {

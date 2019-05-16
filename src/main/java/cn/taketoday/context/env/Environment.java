@@ -119,7 +119,7 @@ public interface Environment {
 	 */
 	@SuppressWarnings("unchecked")
 	default <S, T> T getProperty(String key, Converter<S, T> converter, T defaultValue) {
-		String property = getProperty(key);
+		final String property = getProperty(key);
 		if (property == null) {
 			return defaultValue;
 		}

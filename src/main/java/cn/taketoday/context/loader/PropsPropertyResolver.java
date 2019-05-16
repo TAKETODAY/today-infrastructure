@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Ordered;
+import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.utils.ContextUtils;
@@ -33,8 +35,14 @@ import cn.taketoday.context.utils.ContextUtils;
  * 
  *         2018-08-04 16:01
  */
+@Order(Ordered.HIGHEST_PRECEDENCE - 2)
 public class PropsPropertyResolver implements PropertyValueResolver {
 
+	@Override
+	public boolean supports(ApplicationContext applicationContext, Field field) {
+		return field.isAnnotationPresent(Props.class);
+	}
+	
 	/**
 	 * Resolve {@link Props} annotation property.
 	 */

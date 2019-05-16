@@ -199,7 +199,7 @@ public abstract class ClassUtils {
 	 *             when class could not be found
 	 * @since 2.1.6
 	 */
-	public static Class<?> forName(String name) throws ClassNotFoundException, LinkageError {
+	public static Class<?> forName(String name) throws ClassNotFoundException {
 
 		Class<?> clazz = resolvePrimitiveClassName(name);
 		if (clazz != null) {
@@ -241,6 +241,40 @@ public abstract class ClassUtils {
 				}
 			}
 			throw ex;
+		}
+	}
+
+	/**
+	 * Load class
+	 * 
+	 * @param <T>
+	 *            return class type
+	 * @param name
+	 *            class full name
+	 * @return class if not found will returns null
+	 */
+	public static final <T> Class<T> loadClass(String name) {
+		return loadClass(name, classLoader);
+	}
+
+	/**
+	 * Load class with given class name and {@link ClassLoader}
+	 * 
+	 * @param <T>
+	 *            return class type
+	 * @param name
+	 *            class gull name
+	 * @param classLoader
+	 *            use this {@link ClassLoader} load the class
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static final <T> Class<T> loadClass(String name, ClassLoader classLoader) {
+		try {
+			return (Class<T>) classLoader.loadClass(name);
+		}
+		catch (ClassNotFoundException e) {
+			return null;
 		}
 	}
 
@@ -329,9 +363,24 @@ public abstract class ClassUtils {
 		if (classesCache == null || classesCache.isEmpty()) {
 
 			final Set<Class<?>> scanClasses = new HashSet<>(2048, 1.0f);
-			// packages = ""
-			if (packages.length == 1 && StringUtils.isEmpty(packages[0])) {
-				scan(scanClasses);
+			if (packages.length == 1) {
+				// packages = ""
+				final String location = packages[0];
+				if (StringUtils.isEmpty(location)) {
+					scan(scanClasses);
+				}
+				else {
+					if (scanAllFreamworkPackage) {
+						// cn.taketoday.xx
+						if (!location.startsWith(Constant.FREAMWORK_PACKAGE)) {
+							scan(scanClasses, location);
+						}
+						scan(scanClasses, Constant.FREAMWORK_PACKAGE);
+					}
+					else {
+						scan(scanClasses, location);
+					}
+				}
 			}
 			else {
 				final Set<String> packagesToScan = new HashSet<>();
@@ -350,7 +399,9 @@ public abstract class ClassUtils {
 						packagesToScan.add(location);
 					}
 				}
-				packagesToScan.add(Constant.FREAMWORK_PACKAGE);
+				if (scanAllFreamworkPackage) {
+					packagesToScan.add(Constant.FREAMWORK_PACKAGE);
+				}
 				for (final String location : packagesToScan) {
 					scan(scanClasses, location);
 				}
@@ -369,20 +420,24 @@ public abstract class ClassUtils {
 	}
 
 	/**
+	 * Scan classes to classes set
+	 * 
 	 * @param scanClasses
+	 *            classes set
 	 * @param packageName
+	 *            package name
 	 */
-	public static void scan(Collection<Class<?>> scanClasses, String packageName) {
+	public static void scan(final Collection<Class<?>> scanClasses, final String packageName) {
 
-		packageName = StringUtils.isEmpty(packageName) //
+		final String packageToUse = StringUtils.isEmpty(packageName) //
 				? Constant.BLANK //
-				: packageName.replace('.', '/');
+				: packageName.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR);
 		try {
 //			log.debug("package: [{}]", packageName);
 
-			final Enumeration<URL> uri = classLoader.getResources(packageName);
+			final Enumeration<URL> uri = classLoader.getResources(packageToUse);
 			while (uri.hasMoreElements()) {
-				scan(scanClasses, new File(uri.nextElement().getFile()), packageName);
+				scan(scanClasses, new File(uri.nextElement().getFile()), packageToUse);
 			}
 		}
 		catch (IOException e) {
@@ -403,7 +458,9 @@ public abstract class ClassUtils {
 	 * @throws IOException
 	 * @since 2.1.6
 	 */
-	static void scan(final Collection<Class<?>> scanClasses, final File file, String packageName) throws IOException {
+	static void scan(final Collection<Class<?>> scanClasses, final File file, final String packageName) //
+			throws IOException //
+	{
 
 		if (file.isDirectory()) {
 			findAllClassWithPackage(packageName, file, scanClasses);
@@ -475,7 +532,8 @@ public abstract class ClassUtils {
 
 		try {
 			scanClasses.add(classLoader.loadClass(//
-					jarEntryName.substring(0, jarEntryName.lastIndexOf(".")).replaceAll("/", ".")//
+					jarEntryName.substring(0, jarEntryName.lastIndexOf(Constant.PACKAGE_SEPARATOR))//
+							.replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR)//
 			));
 		}
 		catch (Error | ClassNotFoundException e) {
@@ -513,30 +571,30 @@ public abstract class ClassUtils {
 			String fileName = file.getName();
 
 			if (file.isDirectory()) { // recursive
-
-				String scanPackage = packageName + "." + fileName;
-				if (scanPackage.startsWith(".")) {
-					scanPackage = scanPackage.replaceFirst("[.]", "");
+				if (StringUtils.isEmpty(packageName)) {
+					findAllClassWithPackage(fileName, file, scanClasses);
 				}
-				findAllClassWithPackage(scanPackage, file, scanClasses);
+				else {
+					findAllClassWithPackage(packageName + Constant.PACKAGE_SEPARATOR + fileName, file, scanClasses);
+				}
 				continue;
 			}
 			if (fileName.startsWith("package-info")) {
 				continue;
 			}
-			String className = new StringBuilder()//
+			final String className = new StringBuilder()//
 					.append(packageName)//
-					.append(".")//
+					.append(Constant.PACKAGE_SEPARATOR)//
 					.append(fileName.substring(0, fileName.length() - 6))//
 					.toString()//
-					.replaceAll("/", ".");
+					.replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
 
 			try {
-
+//				System.err.println(className);
 				scanClasses.add(classLoader.loadClass(className)); // add
 			}
 			catch (ClassNotFoundException | Error e) {
-//				log.warn("Can't find class: [{}]", className);
+				log.warn("Can't find class: [{}]", className);
 			}
 		}
 	}
@@ -638,11 +696,11 @@ public abstract class ClassUtils {
 				// method name must == field name
 				final String name = method.getName();
 				final Field declaredField = implClass.getDeclaredField(name);
-//				final boolean accessible = declaredField.isAccessible(); // access able ?
+				final boolean accessible = declaredField.isAccessible(); // access able ?
 //				try {
-//					if (!accessible) {
+					if (!accessible) {
 						declaredField.setAccessible(true);
-//					}
+					}
 					declaredField.set(instance, source.get(name));
 //				} finally {
 //					declaredField.setAccessible(accessible);
@@ -860,15 +918,24 @@ public abstract class ClassUtils {
 		if (returnType.isPrimitive()) {
 			switch (returnType.getName())
 			{
-				case "int" :	return clazz == Integer.class;
-				case "long" :	return clazz == Long.class;
-				case "byte" :	return clazz == Byte.class;
-				case "char" :	return clazz == Character.class;
-				case "float" :	return clazz == Float.class;
-				case "double" :	return clazz == Double.class;
-				case "short" :	return clazz == Short.class;
-				case "boolean" :return clazz == Boolean.class;
-				default 		: return false; 
+				case "int" :
+					return clazz == Integer.class;
+				case "long" :
+					return clazz == Long.class;
+				case "byte" :
+					return clazz == Byte.class;
+				case "char" :
+					return clazz == Character.class;
+				case "float" :
+					return clazz == Float.class;
+				case "double" :
+					return clazz == Double.class;
+				case "short" :
+					return clazz == Short.class;
+				case "boolean" :
+					return clazz == Boolean.class;
+				default:
+					return false;
 			}
 		}
 		return false;
@@ -906,7 +973,7 @@ public abstract class ClassUtils {
 	}
 
 	/**
-	 * Get instance with bean class
+	 * Get instance with bean class use default {@link Constructor}
 	 * 
 	 * @param beanClass
 	 *            bean class
@@ -915,9 +982,8 @@ public abstract class ClassUtils {
 	 */
 	public static <T> T newInstance(Class<T> beanClass) throws ContextException {
 		try {
-			final Constructor<T> declaredConstructor = beanClass.getDeclaredConstructor();
-			declaredConstructor.setAccessible(true);
-			return declaredConstructor.newInstance();
+
+			return makeAccessible(beanClass.getDeclaredConstructor()).newInstance();
 		}
 		catch (Throwable e) {
 			throw ExceptionUtils.newContextException(e);
@@ -966,10 +1032,11 @@ public abstract class ClassUtils {
 			if (e.getCause() instanceof NoSuchMethodException) {
 
 				for (final Constructor<?> constructor : beanClass.getDeclaredConstructors()) {
-					final Autowired autowired = constructor.getAnnotation(Autowired.class);
-					if (autowired != null) {
-						constructor.setAccessible(true);
-						return constructor.newInstance(ContextUtils.resolveParameter(constructor, beanFactory));
+
+					if (constructor.isAnnotationPresent(Autowired.class)) {
+						return constructor.newInstance(//
+								ContextUtils.resolveParameter(makeAccessible(constructor), beanFactory)//
+						);
 					}
 				}
 			}
@@ -1001,7 +1068,6 @@ public abstract class ClassUtils {
 
 		final List<Field> list = new ArrayList<>(64);
 		do {
-
 			for (Field field : targetClass.getDeclaredFields()) {
 				list.add(field);
 			}
@@ -1077,9 +1143,10 @@ public abstract class ClassUtils {
 
 			try (InputStream resourceAsStream = getClassLoader()//
 					.getResourceAsStream(//
-							declaringClass.getName().replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)//
-									.concat(Constant.CLASS_FILE_SUFFIX))//
-			) {
+							declaringClass.getName()//
+									.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)//
+									.concat(Constant.CLASS_FILE_SUFFIX)//
+			)) {
 
 				final ClassNode classVisitor = new ClassNode();
 				new ClassReader(resourceAsStream).accept(classVisitor, 0);
@@ -1160,6 +1227,65 @@ public abstract class ClassUtils {
 		public void visitLocalVariable(String name, String descriptor, String signature, Label start, Label end, int index) {
 			localVariables.add(name);
 		}
+	}
+
+	// --------------------------
+
+	/**
+	 * Make the given field accessible, explicitly setting it accessible if
+	 * necessary. The {@code setAccessible(true)} method is only called when
+	 * actually necessary, to avoid unnecessary conflicts with a JVM SecurityManager
+	 * (if active).
+	 */
+	public static Field makeAccessible(Field field) {
+
+		if ((!Modifier.isPublic(field.getModifiers()) //
+				|| !Modifier.isPublic(field.getDeclaringClass().getModifiers())) && !field.isAccessible()) {
+
+			field.setAccessible(true);
+		}
+		return field;
+	}
+
+	public static Object invokeMethod(Method method, Object target, Object... args) {
+		try {
+			return method.invoke(target, args);
+		}
+		catch (Exception ex) {
+			if (ex instanceof IllegalAccessException) {
+				return invokeMethod(makeAccessible(method), target, args);
+			}
+			if (ex instanceof RuntimeException) {
+				throw (RuntimeException) ex;
+			}
+			throw ExceptionUtils.newContextException(ExceptionUtils.unwrapThrowable(ex));
+		}
+	}
+
+	public static Method makeAccessible(Method method) {
+
+		if ((!Modifier.isPublic(method.getModifiers()) //
+				|| !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
+			method.setAccessible(true);
+		}
+
+		return method;
+	}
+
+	public static <T> Constructor<T> accessibleConstructor(Class<T> clazz, Class<?>... parameterTypes)
+			throws NoSuchMethodException //
+	{
+		return makeAccessible(clazz.getDeclaredConstructor(parameterTypes));
+	}
+
+	public static <T> Constructor<T> makeAccessible(Constructor<T> constructor) {
+
+		if ((!Modifier.isPublic(constructor.getModifiers()) //
+				|| !Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) && !constructor.isAccessible()) {
+
+			constructor.setAccessible(true);
+		}
+		return constructor;
 	}
 
 }

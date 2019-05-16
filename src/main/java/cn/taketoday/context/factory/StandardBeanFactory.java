@@ -101,7 +101,8 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 				final StandardBeanDefinition standardBeanDefinition = (StandardBeanDefinition) beanDefinition;
 				final Method factoryMethod = standardBeanDefinition.getFactoryMethod();
 
-				return factoryMethod.invoke(getDeclaringInstance(standardBeanDefinition.getDeclaringName()), //
+				return ClassUtils.makeAccessible(factoryMethod).invoke(//
+						getDeclaringInstance(standardBeanDefinition.getDeclaringName()), //
 						ContextUtils.resolveParameter(factoryMethod, this)//
 				);
 			}
@@ -174,8 +175,9 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 				if (!ContextUtils.conditional(method, applicationContext)) {
 					continue; // @Profile
 				}
-
-				Collection<AnnotationAttributes> components = ClassUtils.getAnnotationAttributes(method, Component.class);
+				
+				Collection<AnnotationAttributes> components = //
+						ClassUtils.getAnnotationAttributes(method, Component.class);
 
 				if (components.isEmpty()) {
 					if (method.isAnnotationPresent(MissingBean.class)) {
@@ -242,17 +244,16 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
 		applicationContext.publishEvent(new LoadingMissingBeanEvent(applicationContext, beanClasses));
 
-		final BeanNameCreator beanNameCreator = getBeanNameCreator();
-		final BeanDefinitionLoader beanDefinitionLoader = getBeanDefinitionLoader();
-
 		for (final Class<?> beanClass : beanClasses) {
 
 			final MissingBean missingBean = beanClass.getAnnotation(MissingBean.class);
 
 			if (ContextUtils.isMissedBean(missingBean, beanClass, this)) {
-				registerMissingBean(beanDefinitionLoader, beanNameCreator, missingBean, beanClass, new DefaultBeanDefinition());
+				registerMissingBean(missingBean, beanClass, new DefaultBeanDefinition());
 			}
 		}
+
+		final BeanNameCreator beanNameCreator = getBeanNameCreator();
 
 		for (final Method method : missingMethods) {
 
@@ -275,23 +276,22 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 						beanDefinition.addPropertyValue(resolvedProps);
 					}
 				}
-				registerMissingBean(beanDefinitionLoader, beanNameCreator, missingBean, beanClass, beanDefinition);
+				registerMissingBean(missingBean, beanClass, beanDefinition);
 			}
 		}
 		missingMethods.clear();
 	}
 
-	private final void registerMissingBean(final BeanDefinitionLoader beanDefinitionLoader, //
-			final BeanNameCreator beanNameCreator, final MissingBean missingBean, //
+	private final void registerMissingBean(final MissingBean missingBean, //
 			final Class<?> beanClass, final BeanDefinition beanDefinition) //
 	{
 		String beanName = missingBean.value();
 		if (StringUtils.isEmpty(beanName)) {
-			beanName = beanNameCreator.create(beanClass);
+			beanName = getBeanNameCreator().create(beanClass);
 		}
 
-		beanDefinition.setName(beanName);
-		beanDefinition.setBeanClass(beanClass)//
+		beanDefinition.setName(beanName)//
+				.setBeanClass(beanClass)//
 				.setScope(missingBean.scope())//
 				.setDestroyMethods(missingBean.destroyMethods())//
 				.setInitMethods(ContextUtils.resolveInitMethod(beanClass, missingBean.initMethods()))//
@@ -300,7 +300,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 		ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
 
 		// register missed bean
-		beanDefinitionLoader.register(beanName, beanDefinition);
+		getBeanDefinitionLoader().register(beanName, beanDefinition);
 	}
 
 	@Override

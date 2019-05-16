@@ -19,6 +19,8 @@
  */
 package test.demo.service.impl;
 
+import javax.annotation.Resource;
+
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Service;
@@ -37,7 +39,9 @@ import test.demo.service.UserService;
 @Service
 public class DefaultUserService implements UserService {
 
-	@Autowired
+	@Resource
+//	@Autowired
+//	@Inject
 	private UserRepository userRepository;
 
 //	@Autowired

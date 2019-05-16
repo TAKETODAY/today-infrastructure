@@ -222,10 +222,10 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 	 */
 	private String registerFactoryBean(String beanName, BeanDefinition beanDefinition) throws Throwable {
 
-		final ConfigurableApplicationContext applicationContext = this.applicationContext;
 
 		FactoryBean<?> $factoryBean = //
 				(FactoryBean<?>) applicationContext.getSingleton(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
+
 		boolean registed = true;
 		if ($factoryBean == null) { // If not exist declaring instance, create it
 			$factoryBean = (FactoryBean<?>) ClassUtils.newInstance(beanDefinition.getBeanClass()); // declaring object

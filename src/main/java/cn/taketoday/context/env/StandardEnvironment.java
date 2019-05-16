@@ -154,14 +154,21 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 		final File file = new File(resource.getPath());
 
 		if (file.isDirectory()) {
+			final FileFilter propertiesFileFilter = new FileFilter() {
+				@Override
+				public boolean accept(File file) {
+					if (file.isDirectory()) {
+						return true;
+					}
+					final String name = file.getName();
+					return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
+				}
+			};
 			log.debug("Start loading Properties.");
-			doLoadFromDirectory(file, this.properties);
+			doLoadFromDirectory(file, this.properties, propertiesFileFilter);
 		}
 		else {
-			log.debug("Found Properties File: [{}]", file.getAbsolutePath());
-			try (InputStream inputStream = new FileInputStream(file)) {
-				this.properties.load(inputStream);
-			}
+			doLoad(this.properties, file);
 		}
 
 		final String profiles = getProperty(Constant.KEY_ACTIVE_PROFILES);
@@ -179,9 +186,9 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 	 *            properties
 	 * @throws IOException
 	 */
-	private static void doLoadFromDirectory(File dir, Properties properties) throws IOException {
+	private static void doLoadFromDirectory(File dir, Properties properties, final FileFilter propertiesFileFilter) throws IOException {
 
-		File[] listFiles = dir.listFiles(PROPERTIES_FILE_FILTER);
+		File[] listFiles = dir.listFiles(propertiesFileFilter);
 
 		if (listFiles == null) {
 			log.warn("The path: [{}] you provided that contains nothing", dir.getAbsolutePath());
@@ -190,29 +197,24 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
 		for (File file : listFiles) {
 			if (file.isDirectory()) { // recursive
-				doLoadFromDirectory(file, properties);
+				doLoadFromDirectory(file, properties, propertiesFileFilter);
 				continue;
 			}
-			log.debug("Found Properties File: [{}]", file.getAbsolutePath());
-			try (InputStream inputStream = new FileInputStream(file)) {
-				properties.load(inputStream);
-			}
+			doLoad(properties, file);
 		}
 	}
 
 	/**
-	 * Properties file filter
+	 * @param properties
+	 * @param file
+	 * @throws IOException
 	 */
-	private static final FileFilter PROPERTIES_FILE_FILTER = new FileFilter() {
-		@Override
-		public boolean accept(File file) {
-			if (file.isDirectory()) {
-				return true;
-			}
-			final String name = file.getName();
-			return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
+	private static void doLoad(Properties properties, File file) throws IOException {
+		log.debug("Found Properties File: [{}]", file.getAbsolutePath());
+		try (InputStream inputStream = new FileInputStream(file)) {
+			properties.load(inputStream);
 		}
-	};
+	}
 
 	@Override
 	public ConfigurableEnvironment setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) {

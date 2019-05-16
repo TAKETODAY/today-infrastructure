@@ -59,6 +59,7 @@ public interface Constant extends Serializable {
 	char 	PACKAGE_SEPARATOR 		= '.';
 	/** The path separator character: {@code '/'}. */
 	char 	PATH_SEPARATOR 			= '/';
+	char 	WINDOWS_PATH_SEPARATOR 	= '\\';
 	char 	INNER_CLASS_SEPARATOR 	= '$';
 	String	ENV						= "env";
 	char 	EL_PREFIX 				= INNER_CLASS_SEPARATOR;
@@ -66,9 +67,18 @@ public interface Constant extends Serializable {
 	String 	DEFAULT_DATE_FORMAT_STR	= "yyyy-MM-dd HH:mm:ss.SSS";
 	
 	DateFormat 	DEFAULT_DATE_FORMAT	= new SimpleDateFormat(DEFAULT_DATE_FORMAT_STR);
+
+	/** The CGLIB class separator: {@code "$$"}. */
+	String 	CGLIB_CLASS_SEPARATOR 	= "$$";
+
 	
+	String 	PROTOCOL_JAR 			= "jar";
+	String 	PROTOCOL_FILE 			= "file";
+	String 	JAR_ENTRY_URL_PREFIX 	= "jar:file:/";
+	String 	JAR_SEPARATOR 			= "!/";
+	int[] 	EMPTY_INT_ARRAY 		= new int[0];
 	
-	
+
 	String	KEY_USE_SIMPLE_NAME		= "context.name.simple";
 	String 	KEY_ACTIVE_PROFILES 	= "context.active.profiles";
 	

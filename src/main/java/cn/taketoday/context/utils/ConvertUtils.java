@@ -20,6 +20,7 @@
 package cn.taketoday.context.utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -29,6 +30,7 @@ import java.time.Duration;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.io.Resource;
 
 /**
  * 
@@ -113,6 +115,15 @@ public abstract class ConvertUtils {
 				return DataSize.parse(value);
 			}
 		}
+		// @since 2.1.6
+		if (Resource.class.isAssignableFrom(targetClass)) {
+			try {
+				return ResourceUtils.getResource(value);
+			}
+			catch (IOException e) {
+				return null;
+			}
+		}
 
 		if (targetClass.isEnum()) {
 			return Enum.valueOf((Class<Enum>) targetClass, value);
@@ -128,7 +139,6 @@ public abstract class ConvertUtils {
 		}
 		// use constructor
 		try {
-
 			return targetClass.getConstructor(String.class).newInstance(value);
 		}
 		catch (Throwable e) {

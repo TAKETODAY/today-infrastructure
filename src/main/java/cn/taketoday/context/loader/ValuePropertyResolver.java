@@ -25,6 +25,8 @@ import javax.el.ELException;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.Ordered;
+import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.env.ConfigurableEnvironment;
@@ -34,11 +36,17 @@ import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-08-04 15:58
  */
+@Order(Ordered.HIGHEST_PRECEDENCE - 1)
 public class ValuePropertyResolver implements PropertyValueResolver {
+
+	@Override
+	public boolean supports(ApplicationContext applicationContext, Field field) {
+		return field.isAnnotationPresent(Value.class);
+	}
 
 	/**
 	 * Resolve {@link Value} annotation property.

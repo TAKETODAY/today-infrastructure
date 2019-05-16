@@ -58,7 +58,8 @@ public interface BeanDefinitionRegistry {
 	void removeBeanDefinition(String beanName);
 
 	/**
-	 * Return the BeanDefinition for the given bean name.
+	 * Return the BeanDefinition for the given bean name. Return the BeanDefinition
+	 * for the given bean name.
 	 * 
 	 * @param beanName
 	 *            name of the bean to find a definition for
@@ -67,7 +68,7 @@ public interface BeanDefinitionRegistry {
 	BeanDefinition getBeanDefinition(String beanName);
 
 	/**
-	 * 
+	 * Return the BeanDefinition for the given bean class.
 	 * 
 	 * @param beanClass
 	 *            bean definition bean class

@@ -227,3 +227,4 @@ public void test_Conditional() {
 - :sparkles: feat: lazy loading
 - :bug: fix: no constructor
 - unify date format
+- :sparkles: feat: add Resource api

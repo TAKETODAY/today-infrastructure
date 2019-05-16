@@ -118,9 +118,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 			prepareBeanFactory(classes);
 			// Initialize other special beans in specific context subclasses.
 			onRefresh();
-			if (!getEnvironment().getProperty(Constant.ENABLE_LAZY_LOADING, Boolean::parseBoolean, true)) {
-				// Initialize all singletons.
-				refresh();
+			// Lazy loading
+			if (!getEnvironment().getProperty(Constant.ENABLE_LAZY_LOADING, Boolean::parseBoolean, false)) {
+				refresh(); // Initialize all singletons.
 			}
 			// Finish refresh
 			finishRefresh();
@@ -179,12 +179,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	/**
 	 * Context start success
 	 */
-	private void finishRefresh() {
+	protected void finishRefresh() {
 		// clear cache
 		ClassUtils.clearCache();
 		// start success publish started event
 		publishEvent(new ContextStartedEvent(this));
 		applyState(State.STARTED);
+
+		log.info("Application Context Startup in {}ms", System.currentTimeMillis() - getStartupDate());
 	}
 
 	/**
