@@ -102,6 +102,8 @@ public abstract class ClassUtils {
 	}
 
 	private static final String[] IGNORE_SCAN_JARS;
+	/** for scan cn.taketoday */
+	private static boolean scanAllFreamworkPackage = true;
 
 	static {
 
@@ -151,6 +153,10 @@ public abstract class ClassUtils {
 		IGNORE_ANNOTATION_CLASS.add(Inherited.class);
 		IGNORE_ANNOTATION_CLASS.add(Retention.class);
 		IGNORE_ANNOTATION_CLASS.add(Documented.class);
+	}
+
+	public static void setScanAllFreamworkPackage(final boolean scanAllFreamworkPackage) {
+		ClassUtils.scanAllFreamworkPackage = scanAllFreamworkPackage;
 	}
 
 	/**
@@ -412,13 +418,6 @@ public abstract class ClassUtils {
 		return getClasses(packages);
 	}
 
-	/** for scan cn.taketoday */
-	private static boolean scanAllFreamworkPackage = true;
-
-	public static void setScanAllFreamworkPackage(final boolean scanAllFreamworkPackage) {
-		ClassUtils.scanAllFreamworkPackage = scanAllFreamworkPackage;
-	}
-
 	/**
 	 * Scan classes to classes set
 	 * 
@@ -458,7 +457,7 @@ public abstract class ClassUtils {
 	 * @throws IOException
 	 * @since 2.1.6
 	 */
-	static void scan(final Collection<Class<?>> scanClasses, final File file, final String packageName) //
+	private static void scan(final Collection<Class<?>> scanClasses, final File file, final String packageName) //
 			throws IOException //
 	{
 
@@ -1251,13 +1250,10 @@ public abstract class ClassUtils {
 		try {
 			return method.invoke(target, args);
 		}
+		catch (IllegalAccessException e) {
+			return invokeMethod(makeAccessible(method), target, args);
+		}
 		catch (Exception ex) {
-			if (ex instanceof IllegalAccessException) {
-				return invokeMethod(makeAccessible(method), target, args);
-			}
-			if (ex instanceof RuntimeException) {
-				throw (RuntimeException) ex;
-			}
 			throw ExceptionUtils.newContextException(ExceptionUtils.unwrapThrowable(ex));
 		}
 	}

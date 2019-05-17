@@ -89,7 +89,7 @@ public class UrlBasedResource extends AbstractResource {
 			return this;
 		}
 		if (relativePath.charAt(0) == Constant.PATH_SEPARATOR) {
-			relativePath = relativePath.substring(1);
+			return new UrlBasedResource(new URL(this.url, relativePath.substring(1)));
 		}
 		return new UrlBasedResource(new URL(this.url, relativePath));
 	}

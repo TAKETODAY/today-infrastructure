@@ -81,6 +81,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class ContextUtils {
 
+	private static final List<PropertyValueResolver> PROPERTY_VALUE_RESOLVERS;
+	static {
+		PROPERTY_VALUE_RESOLVERS = new ArrayList<>(3);
+
+		PROPERTY_VALUE_RESOLVERS.add(new ValuePropertyResolver());
+		PROPERTY_VALUE_RESOLVERS.add(new PropsPropertyResolver());
+		PROPERTY_VALUE_RESOLVERS.add(new AutowiredPropertyResolver());
+
+		OrderUtils.reversedSort(PROPERTY_VALUE_RESOLVERS);
+	}
+
 	/**
 	 * Find names
 	 * 
@@ -288,17 +299,6 @@ public abstract class ContextUtils {
 	}
 
 	// ----------------- loader
-
-	private static final List<PropertyValueResolver> PROPERTY_VALUE_RESOLVERS;
-	static {
-		PROPERTY_VALUE_RESOLVERS = new ArrayList<>(3);
-
-		PROPERTY_VALUE_RESOLVERS.add(new ValuePropertyResolver());
-		PROPERTY_VALUE_RESOLVERS.add(new PropsPropertyResolver());
-		PROPERTY_VALUE_RESOLVERS.add(new AutowiredPropertyResolver());
-
-		OrderUtils.reversedSort(PROPERTY_VALUE_RESOLVERS);
-	}
 
 	/**
 	 * 

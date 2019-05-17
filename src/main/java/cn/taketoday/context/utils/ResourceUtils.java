@@ -62,7 +62,12 @@ public abstract class ResourceUtils {
 			return getResource(new URL(location));
 		}
 		catch (IOException e) {
-			return new FileBasedResource(location);
+			try {
+				return new ClassPathResource(location);
+			}
+			catch (NullPointerException nullE) {
+				return new FileBasedResource(location);
+			}
 		}
 	}
 

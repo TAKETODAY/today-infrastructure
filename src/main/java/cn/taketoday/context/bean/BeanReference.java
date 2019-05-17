@@ -59,7 +59,7 @@ public final class BeanReference {
 
 	public BeanReference(String name, boolean required, Class<?> referenceClass) {
 		this.name = name;
-		if(StringUtils.isEmpty(name)) {
+		if (StringUtils.isEmpty(name)) {
 			throw new ContextException("Bean name can't be empty");
 		}
 		this.required = required;
@@ -75,12 +75,9 @@ public final class BeanReference {
 		if (obj instanceof BeanReference) {
 			BeanReference other = (BeanReference) obj;
 
-			if (other.required != this.required || //
-					!other.name.equals(this.name) || //
-					!ContextUtils.equals(other.referenceClass, referenceClass)) {
-				return false;
-			}
-			return true;
+			return (other.required != this.required && //
+					other.name.equals(this.name) && //
+					ContextUtils.equals(other.referenceClass, referenceClass));
 		}
 
 		return false;

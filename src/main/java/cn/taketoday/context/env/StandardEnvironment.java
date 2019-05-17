@@ -58,6 +58,15 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
 	private final Properties properties = new ConcurrentProperties();
 
+	private BeanNameCreator beanNameCreator;
+
+	/** resolve beanDefinition which It is marked annotation */
+	private BeanDefinitionLoader beanDefinitionLoader;
+	/** storage BeanDefinition */
+	private BeanDefinitionRegistry beanDefinitionRegistry;
+
+	private ELProcessor elProcessor;
+
 	public StandardEnvironment() {
 		if (System.getSecurityManager() != null) {
 			AccessController.doPrivileged(new PrivilegedAction<Object>() {
@@ -74,15 +83,6 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 			System.setProperties(properties);
 		}
 	}
-
-	private BeanNameCreator beanNameCreator;
-
-	/** resolve beanDefinition which It is marked annotation */
-	private BeanDefinitionLoader beanDefinitionLoader;
-	/** storage BeanDefinition */
-	private BeanDefinitionRegistry beanDefinitionRegistry;
-
-	private ELProcessor elProcessor;
 
 	@Override
 	public Properties getProperties() {
