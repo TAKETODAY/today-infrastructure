@@ -23,14 +23,12 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.web.Constant;
-
 /**
  * 
  * @author Today <br>
  *         2018-06-25 20:03:11
  */
-public class HandlerMethod {
+public final class HandlerMethod {
 
 	/** action **/
 	private final Method method;
@@ -42,27 +40,24 @@ public class HandlerMethod {
 	 * 
 	 * @since 2.3.1
 	 */
-	private byte reutrnType = Constant.RETURN_VOID;
+	private final byte reutrnType;
 
-	public HandlerMethod(Method method, List<MethodParameter> parameters) {
+	public HandlerMethod(Method method, List<MethodParameter> parameters, byte reutrnType) {
 		this.method = method;
+		this.reutrnType = reutrnType;
 		this.parameter = parameters.toArray(new MethodParameter[0]);
 	}
 
-	public Method getMethod() {
+	public final Method getMethod() {
 		return method;
 	}
 
-	public MethodParameter[] getParameter() {
+	public final MethodParameter[] getParameter() {
 		return parameter;
 	}
 
-	public byte getReutrnType() {
+	public final byte getReutrnType() {
 		return reutrnType;
-	}
-
-	public void setReutrnType(byte reutrnType) {
-		this.reutrnType = reutrnType;
 	}
 
 	@Override

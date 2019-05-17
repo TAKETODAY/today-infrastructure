@@ -28,11 +28,62 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.PathMatcher;
 
 /**
+ * {@link PathMatcher} implementation for Ant-style path patterns.
+ *
+ * <p>
+ * Part of this mapping code has been kindly borrowed from
+ * <a href="https://ant.apache.org">Apache Ant</a>.
+ *
+ * <p>
+ * The mapping matches URLs using the following rules:<br>
+ * <ul>
+ * <li>{@code ?} matches one character</li>
+ * <li>{@code *} matches zero or more characters</li>
+ * <li>{@code **} matches zero or more <em>directories</em> in a path</li>
+ * <li>{@code {spring:[a-z]+}} matches the regexp {@code [a-z]+} as a path
+ * variable named "spring"</li>
+ * </ul>
+ *
+ * <h3>Examples</h3>
+ * <ul>
+ * <li>{@code com/t?st.jsp} &mdash; matches {@code com/test.jsp} but also
+ * {@code com/tast.jsp} or {@code com/txst.jsp}</li>
+ * <li>{@code com/*.jsp} &mdash; matches all {@code .jsp} files in the
+ * {@code com} directory</li>
+ * <li><code>com/&#42;&#42;/test.jsp</code> &mdash; matches all {@code test.jsp}
+ * files underneath the {@code com} path</li>
+ * <li><code>org/springframework/&#42;&#42;/*.jsp</code> &mdash; matches all
+ * {@code .jsp} files underneath the {@code org/springframework} path</li>
+ * <li><code>org/&#42;&#42;/servlet/bla.jsp</code> &mdash; matches
+ * {@code org/springframework/servlet/bla.jsp} but also
+ * {@code org/springframework/testing/servlet/bla.jsp} and
+ * {@code org/servlet/bla.jsp}</li>
+ * <li>{@code com/{filename:\\w+}.jsp} will match {@code com/test.jsp} and
+ * assign the value {@code test} to the {@code filename} variable</li>
+ * </ul>
+ *
+ * <p>
+ * <strong>Note:</strong> a pattern and a path must both be absolute or must
+ * both be relative in order for the two to match. Therefore it is recommended
+ * that users of this implementation to sanitize patterns in order to prefix
+ * them with "/" as it makes sense in the context in which they're used.
+ *
+ * @author Alef Arendsen
+ * @author Juergen Hoeller
+ * @author Rob Harrop
+ * @author Arjen Poutsma
+ * @author Rossen Stoyanchev
+ * @author Sam Brannen
+ * @since 16.07.2003
+ * 
  * @author TODAY <br>
  *         2019-03-26 10:20
+ * @since 2.3.7
  */
 public class AntPathMatcher implements PathMatcher {
 
@@ -57,7 +108,7 @@ public class AntPathMatcher implements PathMatcher {
 
 	private final Map<String, String[]> tokenizedPatternCache = new ConcurrentHashMap<>(256);
 
-	final Map<String, AntPathStringMatcher> stringMatcherCache = new ConcurrentHashMap<>(256);
+	private final Map<String, AntPathStringMatcher> stringMatcherCache = new ConcurrentHashMap<>(256);
 
 	/**
 	 * Create a new instance with the {@link #DEFAULT_PATH_SEPARATOR}.
@@ -72,7 +123,6 @@ public class AntPathMatcher implements PathMatcher {
 	 * 
 	 * @param pathSeparator
 	 *            the path separator to use, must not be {@code null}.
-	 * @since 4.1
 	 */
 	public AntPathMatcher(String pathSeparator) {
 		this.pathSeparator = pathSeparator;
@@ -94,8 +144,6 @@ public class AntPathMatcher implements PathMatcher {
 	 * <p>
 	 * Default is {@code true}. Switch this to {@code false} for case-insensitive
 	 * matching.
-	 * 
-	 * @since 4.2
 	 */
 	public void setCaseSensitive(boolean caseSensitive) {
 		this.caseSensitive = caseSensitive;
@@ -121,7 +169,6 @@ public class AntPathMatcher implements PathMatcher {
 	 * is 65536), assuming that arbitrary permutations of patterns are coming in,
 	 * with little chance for encountering a recurring pattern.
 	 * 
-	 * @since 4.0.1
 	 * @see #getStringMatcher(String)
 	 */
 	public void setCachePatterns(boolean cachePatterns) {
@@ -496,7 +543,7 @@ public class AntPathMatcher implements PathMatcher {
 	@Override
 	public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
 		Map<String, String> variables = new LinkedHashMap<>();
-		
+
 		if (doMatch(pattern, path, true, variables)) {
 			return variables;
 		}
@@ -594,13 +641,14 @@ public class AntPathMatcher implements PathMatcher {
 	 */
 	@Override
 	public String combine(String pattern1, String pattern2) {
-		if (!StringUtils.isNotEmpty(pattern1) && !StringUtils.isNotEmpty(pattern2)) {
-			return "";
+
+		if (StringUtils.isEmpty(pattern1) && StringUtils.isEmpty(pattern2)) {
+			return Constant.BLANK;
 		}
-		if (!StringUtils.isNotEmpty(pattern1)) {
+		if (StringUtils.isEmpty(pattern1)) {
 			return pattern2;
 		}
-		if (!StringUtils.isNotEmpty(pattern2)) {
+		if (StringUtils.isEmpty(pattern2)) {
 			return pattern1;
 		}
 
@@ -632,7 +680,7 @@ public class AntPathMatcher implements PathMatcher {
 		String ext1 = pattern1.substring(starDotPos1 + 1);
 		int dotPos2 = pattern2.indexOf('.');
 		String file2 = (dotPos2 == -1 ? pattern2 : pattern2.substring(0, dotPos2));
-		String ext2 = (dotPos2 == -1 ? "" : pattern2.substring(dotPos2));
+		String ext2 = (dotPos2 == -1 ? Constant.BLANK : pattern2.substring(dotPos2));
 		boolean ext1All = (ext1.equals(".*") || ext1.isEmpty());
 		boolean ext2All = (ext2.equals(".*") || ext2.isEmpty());
 		if (!ext1All && !ext2All) {
@@ -744,7 +792,7 @@ public class AntPathMatcher implements PathMatcher {
 
 		private String quote(String s, int start, int end) {
 			if (start == end) {
-				return "";
+				return Constant.BLANK;
 			}
 			return Pattern.quote(s.substring(start, end));
 		}
@@ -761,7 +809,7 @@ public class AntPathMatcher implements PathMatcher {
 				if (uriTemplateVariables != null) {
 					// SPR-8455
 					if (this.variableNames.size() != matcher.groupCount()) {
-						throw new IllegalArgumentException("The number of capturing groups in the pattern segment " + this.pattern + " does not match the number of URI template variables it defines, " + "which can occur if capturing groups are used in a URI template regex. " + "Use non-capturing groups instead.");
+						throw new IllegalArgumentException("The number of capturing groups in the pattern segment " + this.pattern + " does not match the number of URI template variables it defines, which can occur if capturing groups are used in a URI template regex. Use non-capturing groups instead.");
 					}
 					for (int i = 1; i <= matcher.groupCount(); i++) {
 						String name = this.variableNames.get(i - 1);
@@ -771,9 +819,7 @@ public class AntPathMatcher implements PathMatcher {
 				}
 				return true;
 			}
-			else {
-				return false;
-			}
+			return false;
 		}
 	}
 
@@ -972,7 +1018,7 @@ public class AntPathMatcher implements PathMatcher {
 		private final String endsOnDoubleWildCard;
 
 		public PathSeparatorPatternCache(String pathSeparator) {
-			this.endsOnWildCard = pathSeparator + "*";
+			this.endsOnWildCard = pathSeparator + '*';
 			this.endsOnDoubleWildCard = pathSeparator + "**";
 		}
 
@@ -997,7 +1043,8 @@ public class AntPathMatcher implements PathMatcher {
 
 		System.err.println(extractUriTemplateVariables);
 		System.err.println(System.currentTimeMillis() - start);
-//		System.err.println(match);
+
+		System.err.println(pathMatcher.extractPathWithinPattern("/assets/**", "/assets/admin/js/admin.js"));
 	}
 
 }

@@ -28,6 +28,7 @@ import javax.servlet.ServletSecurityElement;
 
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import lombok.Getter;
@@ -73,7 +74,7 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
 		if (servlet != null) {
 			return servletContext.addServlet(getName(), servlet);
 		}
-		return null;
+		throw new ConfigurationException("servlet can't be null");
 	}
 
 	/**

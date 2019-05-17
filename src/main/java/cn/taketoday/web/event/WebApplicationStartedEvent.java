@@ -17,28 +17,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.event;
 
-import java.util.regex.Pattern;
+import cn.taketoday.context.event.ApplicationEvent;
+import cn.taketoday.web.WebApplicationContext;
 
 /**
  * @author Today <br>
  * 
- *         2018-11-28 18:12
+ *         2018-10-18 14:06
  */
-public final class RegexMapping {
+@SuppressWarnings("serial")
+public class WebApplicationStartedEvent extends ApplicationEvent {
+
+	private final WebApplicationContext applicationContext;
+
+	public WebApplicationStartedEvent(WebApplicationContext applicationContext) {
+		super(applicationContext);
+		this.applicationContext = applicationContext;
+	}
 
 	/**
-	 * @since 2.1.7
+	 * 
+	 * @return
 	 */
-	public final Pattern pattern;
-//	private final String regex;
-
-	public final int index;
-
-	public RegexMapping(final Pattern pattern, final int index) {
-		this.index = index;
-		this.pattern = pattern;
+	public WebApplicationContext getApplicationContext() {
+		return applicationContext;
 	}
 
 }

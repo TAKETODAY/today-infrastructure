@@ -26,21 +26,14 @@ import cn.taketoday.web.mapping.MethodParameter;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-07-04 18:29
  */
+@FunctionalInterface
 public interface ParameterResolver {
 
 	/**
-	 * supports parameter ?
-	 * 
-	 * @param parameter
-	 *            method parameter
-	 * @return supports ?
-	 */
-	boolean supportsParameter(MethodParameter parameter);
-
-	/**
+	 * Resolve parameters
 	 * 
 	 * @param args
 	 *            method parameter instances
@@ -50,7 +43,8 @@ public interface ParameterResolver {
 	 *            current request
 	 * @param response
 	 *            current response
-	 * @throws Exception
+	 * @throws Throwable
+	 *             if any Throwable occurred
 	 */
 	void resolveParameter(Object[] args, MethodParameter[] parameters, HttpServletRequest request, HttpServletResponse response)
 			throws Throwable;

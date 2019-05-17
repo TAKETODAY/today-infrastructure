@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.annotation.WebDebugMode;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
@@ -40,6 +39,7 @@ import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.ViewResolver;
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,7 +74,7 @@ public class DebugDispatcherServlet extends DispatcherServlet {
 		final HttpServletResponse response = (HttpServletResponse) servletResponse;
 
 		// Find handler mapping
-		final HandlerMapping requestMapping = lookupHandlerMapping(request, response);
+		final HandlerMapping requestMapping = lookupHandlerMapping(request);
 		try {
 
 			if (requestMapping == null) {
@@ -112,15 +112,8 @@ public class DebugDispatcherServlet extends DispatcherServlet {
 					request.getRequestURI(), (System.currentTimeMillis() - start), result);
 		}
 		catch (Throwable exception) {
-			try {
-				exception = ExceptionUtils.unwrapThrowable(exception);
-				getExceptionResolver().resolveException(request, response, exception, requestMapping);
-				log("Catch Throwable: [" + exception + "] With Msg: [" + exception.getMessage() + "]", exception);
-			}
-			catch (Throwable e) {
-				log("Handling of [" + exception.getClass().getName() + "]  resulted in Exception: [" + e.getClass().getName() + "]", e);
-				throw new ServletException(e);
-			}
+			WebUtils.resolveException(request, response, //
+					getServletConfig().getServletContext(), getExceptionResolver(), exception);
 		}
 	}
 

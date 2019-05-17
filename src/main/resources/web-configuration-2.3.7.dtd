@@ -33,8 +33,14 @@
 	<!ATTLIST dispatcher-servlet
 		mapping CDATA #REQUIRED
 	>
-<!ELEMENT static-resources (#PCDATA)>
-	<!ATTLIST static-resources
+	
+<!ELEMENT resources (#PCDATA)>
+	<!ATTLIST resources
+		mapping CDATA #REQUIRED
+	>
+	
+<!ELEMENT default-servlet (#PCDATA)>
+	<!ATTLIST default-servlet
 		mapping CDATA #REQUIRED
 	>
 

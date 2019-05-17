@@ -19,6 +19,11 @@
  */
 package cn.taketoday.web.mapping;
 
+import java.util.List;
+import java.util.Objects;
+
+import cn.taketoday.context.Constant;
+
 /**
  * Mapping handler to a request
  * 
@@ -26,49 +31,42 @@ package cn.taketoday.web.mapping;
  * 
  *         2018-06-25 19:59:13
  */
-public class HandlerMapping {
+public final class HandlerMapping {
 
-	private static final int[] EMPTY = new int[0];
+	private static final int[] EMPTY = Constant.EMPTY_INT_ARRAY;
 	/** 处理器类 */
 //	private String				action;
-	private Object action;
+	private final Object action;
 	/** 处理器方法 */
-	private HandlerMethod handlerMethod;
+	private final HandlerMethod handlerMethod;
 	/** 拦截器 */
-	private int[] interceptors = EMPTY;
+	private final int[] interceptors;
 
-	/**
-	 * @return
-	 */
+	public HandlerMapping(Object action, HandlerMethod handlerMethod, List<Integer> interceptors) {
+
+		this.action = action;
+		this.handlerMethod = handlerMethod;
+
+		this.interceptors = //
+				Objects.requireNonNull(interceptors).size() > 0 //
+						? interceptors.stream().mapToInt(Integer::intValue).toArray() //
+						: EMPTY;
+	}
+
 	public final boolean hasInterceptor() {
 		return interceptors != EMPTY;
 	}
 
-	public Object getAction() {
+	public final Object getAction() {
 		return action;
 	}
 
-	public HandlerMapping setAction(Object action) {
-		this.action = action;
-		return this;
-	}
-
-	public int[] getInterceptors() {
+	public final int[] getInterceptors() {
 		return interceptors;
 	}
 
-	public HandlerMapping setInterceptors(int[] interceptors) {
-		this.interceptors = interceptors;
-		return this;
-	}
-
-	public HandlerMethod getHandlerMethod() {
+	public final HandlerMethod getHandlerMethod() {
 		return handlerMethod;
-	}
-
-	public HandlerMapping setHandlerMethod(HandlerMethod handlerMethod) {
-		this.handlerMethod = handlerMethod;
-		return this;
 	}
 
 }

@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -63,11 +62,13 @@ import org.xml.sax.InputSource;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.DataSize;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.DefaultWebApplicationContext;
@@ -77,12 +78,16 @@ import cn.taketoday.web.config.initializer.DispatcherServletInitializer;
 import cn.taketoday.web.config.initializer.WebFilterInitializer;
 import cn.taketoday.web.config.initializer.WebListenerInitializer;
 import cn.taketoday.web.config.initializer.WebServletInitializer;
-import cn.taketoday.web.event.ApplicationStartedEvent;
+import cn.taketoday.web.event.WebApplicationFailedEvent;
+import cn.taketoday.web.event.WebApplicationStartedEvent;
 import cn.taketoday.web.listener.RequestContextHolder;
+import cn.taketoday.web.mapping.ResourceMapping;
+import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.multipart.AbstractMultipartResolver;
 import cn.taketoday.web.multipart.DefaultMultipartResolver;
 import cn.taketoday.web.resolver.DefaultExceptionResolver;
 import cn.taketoday.web.resolver.DefaultParameterResolver;
+import cn.taketoday.web.servlet.ResourceServlet;
 import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.FreeMarkerViewResolver;
 
@@ -116,9 +121,10 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 	/**
 	 * Initialize framework.
 	 * 
-	 * @throws Exception
+	 * @throws Throwable
+	 *             if any Throwable occurred
 	 */
-	private void initFrameWorkFromWebMvcXml(ServletContext servletContext) throws Throwable {
+	private void initFrameWorkFromWebMvcXml(ServletContext servletContext, CompositeWebMvcConfiguration mvcConfiguration) throws Throwable {
 		// find the configure file
 		log.info("TODAY WEB Framework Is Looking For Configuration File.");
 
@@ -142,23 +148,24 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 			if (StringUtils.isEmpty(webMvcConfigLocation)) {
 				String rootPath = servletContext.getRealPath("/");
 				log.debug("Find Configuration File From Root Path: [{}]", rootPath);
-				findConfiguration(new File(rootPath));
+				findConfiguration(new File(rootPath), mvcConfiguration);
 				return;
 			}
 		}
 
-		for (String file : StringUtils.split(webMvcConfigLocation)) {
-			URL resource = ClassUtils.getClassLoader().getResource(file);
+		for (final String file : StringUtils.split(webMvcConfigLocation)) {
+
+			final Resource resource = ResourceUtils.getResource(file);
 			if (resource == null) {
 
-				ConfigurationException configurationException = //
-						new ConfigurationException("Your Provided Configuration File: [" + webMvcConfigLocation + "], Does Not Exist");
+				final ConfigurationException configurationException = //
+						new ConfigurationException("Your Provided Configuration File: [" + file + "], Does Not Exist");
 
 				servletContext.log(configurationException.getMessage(), configurationException);
 				throw configurationException;
 			}
-			try (InputStream inputStream = new FileInputStream(resource.getFile())) {
-				registerXml(builder.parse(inputStream), webMvcConfigLocation);
+			try (InputStream inputStream = resource.getInputStream()) {
+				registerXml(builder.parse(inputStream), file, mvcConfiguration);// fixed
 			}
 		}
 		builder = null;
@@ -171,7 +178,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 	 *            directory
 	 * @throws Exception
 	 */
-	private void findConfiguration(File dir) throws Throwable {
+	private void findConfiguration(File dir, CompositeWebMvcConfiguration mvcConfiguration) throws Throwable {
 		log.debug("Enter [{}]", dir.getAbsolutePath());
 		File[] listFiles = dir.listFiles(path -> (path.isDirectory() || path.getName().endsWith(".xml")));
 		if (listFiles == null) {
@@ -180,12 +187,12 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 		}
 		for (File file : listFiles) {
 			if (file.isDirectory()) { // recursive
-				findConfiguration(file);
+				findConfiguration(file, mvcConfiguration);
 				continue;
 			}
 
 			try (InputStream inputStream = new FileInputStream(file)) {
-				registerXml(builder.parse(inputStream), file.getAbsolutePath());
+				registerXml(builder.parse(inputStream), file.getAbsolutePath(), mvcConfiguration);
 			}
 		}
 	}
@@ -197,11 +204,14 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 	 *            xml file
 	 * @throws Throwable
 	 */
-	private final void registerXml(Document doc, String filePath) throws Throwable {
-		Element root = doc.getDocumentElement();
+	private final void registerXml(final Document doc, final String filePath, //
+			CompositeWebMvcConfiguration mvcConfiguration) throws Throwable //
+	{
+
+		final Element root = doc.getDocumentElement();
 		if (ROOT_ELEMENT.equals(root.getNodeName())) { // root element
 			log.info("Found Configuration File: [{}].", filePath);
-			configStart(root);
+			configStart(root, mvcConfiguration);
 		}
 	}
 
@@ -212,7 +222,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 	 *            rootElement
 	 * @throws Exception
 	 */
-	private void configStart(Element root) throws Throwable {
+	private void configStart(Element root, CompositeWebMvcConfiguration mvcConfiguration) throws Throwable {
 
 		NodeList nl = root.getChildNodes();
 
@@ -229,15 +239,18 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 						// view configuration
 						viewConfiguration.configuration(ele);
 						break;
-					case ELEMENT_STATIC_RESOURCES : {
+					case ELEMENT_DEFAULT_SERVLET : {
 						String mapping = ele.getAttribute(ATTR_MAPPING);
 						if (StringUtils.isNotEmpty(mapping)) {
-							addDefaultServletMapping(mapping);
+							addDefaultServletMapping(mapping, mvcConfiguration);
 						}
 						break;
 					}
+					case ELEMENT_RESOURCES : {
+						break;
+					}
 					case ELEMENT_MULTIPART :
-						multipartResolver(ele);
+						multipartResolver(ele, mvcConfiguration);
 						break;
 					case ELEMENT_VIEW_RESOLVER :
 						viewResolver(ele);
@@ -368,9 +381,10 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 	/**
 	 * 
 	 * @param element
+	 * @param mvcConfiguration
 	 * @throws Throwable
 	 */
-	private void multipartResolver(Element element) throws Throwable {
+	private void multipartResolver(Element element, CompositeWebMvcConfiguration mvcConfiguration) throws Throwable {
 
 		final WebApplicationContext applicationContext = getWebApplicationContext();
 		final Class<?> multipartResolverClass = //
@@ -379,7 +393,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 		final Object multipartResolver = ClassUtils.newInstance(multipartResolverClass);
 
 		if (multipartResolver instanceof AbstractMultipartResolver) {
-			doAbstractMultipartResolver(element, (AbstractMultipartResolver) multipartResolver);
+			doAbstractMultipartResolver(element, (AbstractMultipartResolver) multipartResolver, mvcConfiguration);
 		}
 		// refresh resolver
 		applicationContext.registerSingleton(MULTIPART_RESOLVER, multipartResolver);
@@ -391,8 +405,10 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 	 *            xml element
 	 * @param abstractMultipartResolver
 	 *            Abstract Multipart Resolver instance
+	 * @param mvcConfiguration
 	 */
-	private void doAbstractMultipartResolver(Element element, AbstractMultipartResolver abstractMultipartResolver) {
+	private void doAbstractMultipartResolver(Element element, AbstractMultipartResolver abstractMultipartResolver,
+			CompositeWebMvcConfiguration mvcConfiguration) {
 
 		final Properties properties = getWebApplicationContext().getEnvironment().getProperties();
 		final NodeList childNodes = element.getChildNodes();
@@ -429,13 +445,14 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 				}
 			}
 		}
+		mvcConfiguration.configMultipartResolver(abstractMultipartResolver);
 	}
 
 	/**
 	 * @param staticMapping
 	 * @throws Throwable
 	 */
-	static void addDefaultServletMapping(String staticMapping) throws Throwable {
+	static void addDefaultServletMapping(String staticMapping, CompositeWebMvcConfiguration mvcConfiguration) throws Throwable {
 
 		if (StringUtils.isEmpty(staticMapping)) {
 			throw new ConfigurationException("Static sources mapping can't be empty, please check your configuration");
@@ -449,6 +466,9 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 		}
 
 		servletRegistration.addMapping(StringUtils.split(staticMapping));
+
+		mvcConfiguration.configDefaultServlet(servletRegistration);
+
 		log.debug("Add default servlet mapping: [{}].", servletRegistration.getMappings());
 	}
 
@@ -533,9 +553,13 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 			catch (Throwable e) {
 				// Waiting for Jetty 10.0.0
 			}
+
+			CompositeWebMvcConfiguration mvcConfiguration = //
+					new CompositeWebMvcConfiguration(applicationContext.getBeans(WebMvcConfiguration.class));
+
 			if (environment.getProperty(ENABLE_WEB_MVC_XML, Boolean::parseBoolean, true)) {
 				this.viewConfiguration = applicationContext.getBean(VIEW_CONFIG, ViewConfiguration.class);
-				initFrameWorkFromWebMvcXml(servletContext);
+				initFrameWorkFromWebMvcXml(servletContext, mvcConfiguration);
 			}
 
 			// check all resolver
@@ -544,6 +568,8 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 			// register servlet
 			List<ServletContextInitializer> contextInitializers = //
 					applicationContext.getBeans(ServletContextInitializer.class);
+
+			necessary(contextInitializers, mvcConfiguration);
 
 			applyFilter(applicationContext, contextInitializers);
 			applyServlet(applicationContext, contextInitializers);
@@ -559,7 +585,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 				servletContextInitializer.onStartup(servletContext);
 			}
 
-			applicationContext.publishEvent(new ApplicationStartedEvent(applicationContext));
+			applicationContext.publishEvent(new WebApplicationStartedEvent(applicationContext));
 			if (environment.getProperty(ENABLE_WEB_STARTED_LOG, Boolean::parseBoolean, true)) {
 				log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
 						System.currentTimeMillis() - start//
@@ -570,10 +596,53 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 		}
 		catch (Throwable ex) {
 			ex = ExceptionUtils.unwrapThrowable(ex);
+			applicationContext.publishEvent(new WebApplicationFailedEvent(applicationContext, ex));
 			log.error("Your Application Initialized ERROR: [{}]", ex.getMessage(), ex);
 			throw new ConfigurationException(ex);
 		}
+	}
 
+	private void necessary(List<ServletContextInitializer> contextInitializers, //
+			CompositeWebMvcConfiguration configuration) {
+
+		final ResourceMappingRegistry resourceMappingRegistry = applicationContext.getBean(ResourceMappingRegistry.class);
+
+		configuration.configResourceMappings(resourceMappingRegistry);
+
+		if (resourceMappingRegistry.isEmpty()) {
+			System.err.println(resourceMappingRegistry);
+			return;
+		}
+
+		if (!applicationContext.containsBeanDefinition(ResourceServlet.class)) {
+			applicationContext.registerBean(Constant.RESOURCE_SERVLET, ResourceServlet.class);
+		}
+
+		final ResourceServlet resourceServlet = applicationContext.getBean(ResourceServlet.class);
+
+		WebServletInitializer<ResourceServlet> resourceServletInitializer = new WebServletInitializer<>(resourceServlet);
+
+		final Set<String> urlMappings = new HashSet<>();
+
+		final List<ResourceMapping> resourceHandlerMappings = resourceMappingRegistry.getResourceHandlerMappings();
+		for (ResourceMapping resourceMapping : resourceHandlerMappings) {
+			final String[] pathPatterns = resourceMapping.getPathPatterns();
+			for (String pathPattern : pathPatterns) {
+				if (pathPattern.endsWith("/**")) {
+					urlMappings.add(pathPattern.substring(0, pathPattern.length() - 1));
+				}
+				else {
+					urlMappings.add(pathPattern);
+				}
+			}
+		}
+
+		configuration.configResourceServletUrlMappings(urlMappings);
+		resourceServletInitializer.setUrlMappings(urlMappings);
+		resourceServletInitializer.setName(Constant.RESOURCE_SERVLET);
+
+		log.info("Set ResourceServlet Url Mappings: [{}]", urlMappings);
+		contextInitializers.add(resourceServletInitializer);
 	}
 
 	private void applyFilter(final WebApplicationContext applicationContext, Collection<ServletContextInitializer> contextInitializers) {

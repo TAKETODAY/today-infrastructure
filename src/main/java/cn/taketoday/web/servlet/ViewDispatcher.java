@@ -32,11 +32,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.mapping.ViewMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
+import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.ViewResolver;
 import lombok.extern.slf4j.Slf4j;
 
@@ -123,20 +123,13 @@ public class ViewDispatcher extends GenericServlet {
 					DispatcherServlet.resolveObject(request, response, result, viewResolver, downloadFileBuf);
 					break;
 				}
-				default: 
+				default:
 					response.sendError(500);
 			}
 		}
 		catch (Throwable exception) {
-			try {
-				exception = ExceptionUtils.unwrapThrowable(exception);
-				exceptionResolver.resolveException(request, response, exception, null);
-				log("Catch Throwable: [" + exception + "] With Msg: [" + exception.getMessage() + "]", exception);
-			}
-			catch (Throwable e) {
-				log("Handling of [" + exception.getClass().getName() + "]  resulted in Exception: [" + e.getClass().getName() + "]", e);
-				throw new ServletException(e);
-			}
+			WebUtils.resolveException(request, response, //
+					getServletConfig().getServletContext(), exceptionResolver, exception);
 		}
 	}
 

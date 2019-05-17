@@ -39,6 +39,7 @@ import cn.taketoday.web.annotation.WebDebugMode;
 import cn.taketoday.web.utils.WebUtils;
 import freemarker.ext.jsp.TaglibFactory;
 import freemarker.ext.servlet.AllHttpScopesHashModel;
+import freemarker.ext.servlet.FreemarkerServlet;
 import freemarker.ext.servlet.HttpRequestHashModel;
 import freemarker.ext.servlet.HttpRequestParametersHashModel;
 import freemarker.ext.servlet.HttpSessionHashModel;
@@ -49,7 +50,6 @@ import freemarker.template.ObjectWrapper;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
-import freemarker.template.TemplateModelException;
 import lombok.Getter;
 
 /**
@@ -134,26 +134,23 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 	 * create Model Attributes.
 	 * 
 	 * @param request
-	 * @param response
 	 * @return
-	 * @throws TemplateModelException
 	 */
-	@SuppressWarnings("serial")
-	private final TemplateHashModel createModel(HttpServletRequest request, //
-			HttpServletResponse response) throws TemplateModelException //
-	{
+	protected final TemplateHashModel createModel(HttpServletRequest request) {
 		final ObjectWrapper wrapper = this.wrapper;
-		return new AllHttpScopesHashModel(wrapper, servletContext, request) {
-			{
-				putUnlistedModel(Constant.KEY_JSP_TAGLIBS, taglibFactory);
-				putUnlistedModel(Constant.KEY_APPLICATION, applicationModel);
-				// Create hash model wrapper for request
-				putUnlistedModel(Constant.KEY_REQUEST, new HttpRequestHashModel(request, response, wrapper));
-				putUnlistedModel(Constant.KEY_REQUEST_PARAMETERS, new HttpRequestParametersHashModel(request));
-				// Create hash model wrapper for session
-				putUnlistedModel(Constant.KEY_SESSION, new HttpSessionHashModel(request.getSession(), wrapper));
-			}
-		};
+
+		final AllHttpScopesHashModel allHttpScopesHashModel = //
+				new AllHttpScopesHashModel(wrapper, servletContext, request);
+
+		allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_JSP_TAGLIBS, taglibFactory);
+		allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_APPLICATION, applicationModel);
+		// Create hash model wrapper for request
+		allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_REQUEST, new HttpRequestHashModel(request, wrapper));
+		allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_REQUEST_PARAMETERS, new HttpRequestParametersHashModel(request));
+		// Create hash model wrapper for session
+		allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_SESSION, new HttpSessionHashModel(request.getSession(), wrapper));
+
+		return allHttpScopesHashModel;
 	}
 
 	/**
@@ -164,7 +161,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 			HttpServletRequest request, HttpServletResponse response) throws Throwable //
 	{
 		configuration.getTemplate(templateName + suffix, locale, encoding)//
-				.process(createModel(request, response), response.getWriter());
+				.process(createModel(request), response.getWriter());
 	}
 
 }

@@ -266,3 +266,12 @@ public final class PathVariableAction {
 - :bug: fix: applicationContext NullPointerException
 - refactor: refactor DispatcherServlet
 - unify date format
+- :sparkles: feat: `WebResource` feature
+- :sparkles: feat: use `WebMvcConfiguration` to config web mvc
+- :sparkles: feat: use Spring path matcher to match static resource
+- :sparkles: feat: use `ResourceServlet` to handle static resource request
+- :sparkles: feat: static Resource supports Interceptor
+
+
+
+

@@ -1,9 +1,9 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
- * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,32 +13,30 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ *   
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.resolver;
 
-import java.util.regex.Pattern;
+import cn.taketoday.web.mapping.ResourceMapping;
+import cn.taketoday.web.resource.WebResource;
 
 /**
- * @author Today <br>
- * 
- *         2018-11-28 18:12
+ * @author TODAY <br>
+ *         2019-05-17 11:26
  */
-public final class RegexMapping {
+@FunctionalInterface
+public interface ResourceResolver {
 
 	/**
-	 * @since 2.1.7
+	 * Resolve {@link WebResource}
+	 * 
+	 * @param requestPath
+	 *            {@link WebResource} path
+	 * @param resourceMapping
+	 *            {@link ResourceMapping}
 	 */
-	public final Pattern pattern;
-//	private final String regex;
-
-	public final int index;
-
-	public RegexMapping(final Pattern pattern, final int index) {
-		this.index = index;
-		this.pattern = pattern;
-	}
+	WebResource resolveResource(String requestPath, ResourceMapping resourceMapping) throws Throwable;
 
 }

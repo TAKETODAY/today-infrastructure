@@ -112,7 +112,6 @@ public class HandlerMappingRegistry implements RandomAccess {
 				return i;
 			}
 		}
-
 		HandlerMapping[] newArray = new HandlerMapping[array.length + 1];
 		System.arraycopy(array, 0, newArray, 0, array.length);
 		newArray[array.length] = e;

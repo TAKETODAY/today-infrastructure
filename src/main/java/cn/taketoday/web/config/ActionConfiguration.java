@@ -45,6 +45,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -90,7 +92,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-23 16:20:26<br>
  *         2018-08-21 20:50 change
  */
@@ -164,10 +166,13 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	 * 
 	 * @throws Exception
 	 */
-	void startConfiguration() throws Exception {
+	protected void startConfiguration() throws Exception {
 		// @since 2.3.3
 		for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitionsMap().entrySet()) {
-			buildHandlerMapping(entry.getValue().getBeanClass());
+			final BeanDefinition beanDefinition = entry.getValue();
+			if (!beanDefinition.isAbstract()) {
+				buildHandlerMapping(beanDefinition.getBeanClass());
+			}
 		}
 	}
 
@@ -195,21 +200,14 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	}
 
 	/**
+	 * create a hash set
 	 * 
 	 * @param elements
-	 * @return
-	 * @off
 	 */
 	@SafeVarargs
-	@SuppressWarnings("serial")
 	static <E> Set<E> newHashSet(E... elements) {
-		return new HashSet<E>(8, 1.0f) {{
-			for (E element : elements) {
-				add(element);
-			}
-		}};
+		return Stream.of(elements).collect(Collectors.toSet());
 	}
-	//@on
 
 	/**
 	 * Mapping given HandlerMapping to {@link HandlerMappingRegistry}
@@ -228,6 +226,9 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	{
 		HandlerMethod handlerMethod = handlerMapping.getHandlerMethod();
 
+		// add the mapping
+		final int handlerMappingIndex = handlerMappingRegistry.add(handlerMapping); // index of handler method
+
 		for (AnnotationAttributes handlerMethodMapping : annotationAttributes) {
 			boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
 
@@ -240,11 +241,11 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 				// splice urls and request methods
 				for (RequestMethod requestMethod : requestMethods) {
 					if (exclude || namespaces.isEmpty()) {
-						doMapping(handlerMapping, handlerMethod, checkUrl(urlOnMethod), requestMethod);
+						doMapping(handlerMappingIndex, handlerMethod, checkUrl(urlOnMethod), requestMethod);
 						continue;
 					}
 					for (String namespace : namespaces) {
-						doMapping(handlerMapping, handlerMethod, namespace + checkUrl(urlOnMethod), requestMethod);
+						doMapping(handlerMappingIndex, handlerMethod, namespace + checkUrl(urlOnMethod), requestMethod);
 					}
 				}
 			}
@@ -254,26 +255,26 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	/**
 	 * Mapping to {@link HandlerMappingRegistry}
 	 * 
-	 * @param handlerMapping
+	 * @param handlerMappingIndex
+	 *            index of the {@link HandlerMapping} array
 	 * @param handlerMethod
 	 * @param urlOnMethod
 	 * @param requestMethod
 	 */
-	private void doMapping(HandlerMapping handlerMapping, HandlerMethod handlerMethod, String urlOnMethod, RequestMethod requestMethod) {
+	private void doMapping(final int handlerMappingIndex, HandlerMethod handlerMethod, String urlOnMethod, RequestMethod requestMethod) {
 
-		urlOnMethod = requestMethod.name() //
+		final String url = requestMethod.name() //
 				+ contextPath //
 				+ ContextUtils.resolvePlaceholder(variables, urlOnMethod); // GET/blog/users/1 GET/blog/#{key}/1
 
-		// add the mapping
-		int index = handlerMappingRegistry.add(handlerMapping); // index of handler method
-		if (!doMappingPathVariable(urlOnMethod, //
-				handlerMethod.getParameter(), handlerMethod.getMethod(), index, requestMethod.name())) {
+		if (!doMappingPathVariable(url, //
+				handlerMethod.getParameter(), handlerMethod.getMethod(), handlerMappingIndex, requestMethod.name())) {
 
-			this.requestMappings.put(urlOnMethod, index);
+			this.requestMappings.put(url, Integer.valueOf(handlerMappingIndex));
 			log.info(//
 					"Mapped [{}] -> [{}] interceptors -> {}", //
-					urlOnMethod, handlerMethod.getMethod(), Arrays.toString(handlerMapping.getInterceptors())//
+					url, handlerMethod.getMethod(), //
+					Arrays.toString(handlerMappingRegistry.get(handlerMappingIndex).getInterceptors())//
 			);
 		}
 	}
@@ -377,17 +378,8 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	 */
 	private HandlerMapping createHandlerMapping(Class<?> beanClass, Method method, boolean restful) throws Exception {
 
-		HandlerMapping handlerMapping = new HandlerMapping();
-		Parameter[] parameters = method.getParameters();
-
 		List<MethodParameter> methodParameters = new ArrayList<>();// 处理器方法参数列表
-		setMethodParameter(parameters, methodParameters, method); // 设置 MethodParameter
-
-		// 设置请求处理器
-		HandlerMethod handlerMethod = new HandlerMethod(method, methodParameters);
-
-		handlerMethod.setReutrnType(returnType(method, method.getReturnType(), restful));
-		handlerMapping.setHandlerMethod(handlerMethod);
+		setMethodParameter(method.getParameters(), methodParameters, method); // 设置 MethodParameter
 
 		final Object bean = applicationContext.getBean(beanClass);
 		if (bean == null) {
@@ -396,10 +388,15 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 					beanClass.getName()//
 			);
 		}
-		handlerMapping.setAction(bean);
-		setInterceptor(beanClass, method, handlerMapping);
 
-		return handlerMapping;
+		// 设置请求处理器
+		final HandlerMethod handlerMethod = new HandlerMethod(//
+				method, //
+				methodParameters, //
+				returnType(method, method.getReturnType(), restful)//
+		);
+
+		return new HandlerMapping(bean, handlerMethod, getInterceptor(beanClass, method));
 	}
 
 	/**
@@ -611,7 +608,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 	 * @param requestMapping
 	 *            mapping of request
 	 */
-	private void setInterceptor(Class<?> controllerClass, Method action, HandlerMapping requestMapping) {
+	private List<Integer> getInterceptor(Class<?> controllerClass, Method action) {
 
 		final List<Integer> ids = new ArrayList<>();
 
@@ -634,18 +631,16 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 			}
 		}
 
-		if (ids.size() > 0) {
-			requestMapping.setInterceptors(ids.stream().mapToInt(Integer::intValue).toArray());
-		}
+		return ids;
 	}
 
 	/***
-	 * Register intercepter id into intercepters registry
+	 * Register intercepter id into intercepter registry
 	 * 
 	 * @param interceptors
 	 * @return
 	 */
-	private final List<Integer> addInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
+	public final List<Integer> addInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
 
 		if (interceptors == null || interceptors.length == 0) {
 			return Collections.emptyList();

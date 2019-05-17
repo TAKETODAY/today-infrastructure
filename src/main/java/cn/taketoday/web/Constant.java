@@ -25,13 +25,6 @@ package cn.taketoday.web;
  */
 public interface Constant extends cn.taketoday.context.Constant {
 
-	/**
-	 * 
-	 */
-	String[] DEFAULT_URL_PATTERNS = { //
-			"*.gif", "*.jpg", "*.jpeg", "*.png", "*.js", "*.css", //
-			"*.ico", "*.zip", "*.txt", "*.mp3", "*.woff2", "*.woff" //
-	};
 
 	String ENABLE_WEB_MVC_XML 		= "enable.webmvc.xml";
 	String ENABLE_WEB_STARTED_LOG 	= "enable.started.log";
@@ -54,16 +47,6 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	KEY_REDIRECT_MODEL					= "REDIRECTMODEL";
 	String	KEY_WEB_APPLICATION_CONTEXT 		= "WebApplicationContext";
 
-	/**
-	 * @since 2.3.3
-	 */
-	String 	KEY_REQUEST 						= "Request";
-	String 	KEY_SESSION 						= "Session";
-	String 	KEY_JSP_TAGLIBS 					= "JspTaglibs";
-	String 	KEY_APPLICATION 					= "Application";
-	String 	KEY_REQUEST_PARAMETERS 				= "RequestParameters";
-	/**@deprecated @since 2.1.7*/
-	String 	KEY_REQUEST_URI 					= "REQUESTURI";
 	String	KEY_REPLACED						= "REPLACED";
 	/**
 	 * Framework Attribute Keys End
@@ -73,9 +56,10 @@ public interface Constant extends cn.taketoday.context.Constant {
 
 	String	WEB_INF								= "/WEB-INF";
 
-	String	DISPATCHER_SERVLET_MAPPING			= "/*";
+	String	DISPATCHER_SERVLET_MAPPING			= "/";
 	String	DEFAULT_MAPPINGS[]					= { DISPATCHER_SERVLET_MAPPING };
 	String	VIEW_DISPATCHER						= "viewDispatcher";
+	String	RESOURCE_SERVLET					= "resourceServlet";
 	String	DISPATCHER_SERVLET					= "dispatcherServlet";
 	String	HANDLER_MAPPING_REGISTRY			= "handlerMappingRegistry";
 	String	HANDLER_INTERCEPTOR_REGISTRY		= "handlerInterceptorRegistry";
@@ -118,9 +102,11 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	ATTR_VALUE							= VALUE;
 	String	ATTR_METHOD							= "method";
 	String	ATTR_MAPPING						= "mapping";
+	/** resource location @since 2.3.7 */
+	String	ATTR_LOCATION						= "location";
 	String	ATTR_PREFIX							= "prefix";
 	String	ATTR_SUFFIX							= "suffix";
-	String	ATTR_BASE_PACKAGE					= "base-package";
+//	String	ATTR_BASE_PACKAGE					= "base-package";
 
 	/**
 	 * The resoure's content type
@@ -150,10 +136,13 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	ELEMENT_UPLOAD_FILE_SIZE_THRESHOLD	= "upload-fileSizeThreshold";
 
 	String	ELEMENT_ACTION						= "action";
-	String	ELEMENT_DISPATCHER_SERVLET			= "dispatcher-servlet";
+	/** @since 2.3.7 */
+	String	ELEMENT_RESOURCES					= "resources";
 	String	ELEMENT_CONTROLLER					= "controller";
-	String	ELEMENT_STATIC_RESOURCES			= "static-resources";
 	String	ROOT_ELEMENT						= "Web-Configuration";
+	/** @since 2.3.7 */
+	String	ELEMENT_DEFAULT_SERVLET				= "default-servlet";
+	String	ELEMENT_DISPATCHER_SERVLET			= "dispatcher-servlet";
 
 	byte	ANNOTATION_NULL						= 0x00;
 	byte	ANNOTATION_COOKIE					= 0x01;
@@ -390,9 +379,12 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	PROXY_REVALIDATE					= "proxy-revalidate";
 	String	QUOTED_PRINTABLE					= "quoted-printable";
 	String	MULTIPART_FORM_DATA					= "multipart/form-data";
+	String 	INLINE_FILE_NAME					= "inline;filename=\"";
 	String 	ATTACHMENT_FILE_NAME				= "attachment;filename=\"";
+	String 	APPLICATION_OCTET_STREAM			= "application/octet-stream";
 	String 	APPLICATION_FORCE_DOWNLOAD  		= "application/force-download;";
 	String	APPLICATION_X_WWW_FORM_URLENCODED	= "application/x-www-form-urlencoded";
 	// @on
+
 
 }

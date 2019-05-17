@@ -24,22 +24,37 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLConnection;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.exception.BadRequestException;
+import cn.taketoday.web.resolver.ExceptionResolver;
 
 /**
  * 
  * @author TODAY <br>
  *         2019-03-15 19:53
+ * @since 2.3.7
  */
 public abstract class WebUtils {
+
+	/**
+	 * Get {@link ServletContext}
+	 * 
+	 * @return ServletContext
+	 */
+	public final static ServletContext getServletContext() {
+		return WebApplicationLoader.getWebApplicationContext().getServletContext();
+	}
 
 	/**
 	 * Get {@link WebApplicationContext}
@@ -96,16 +111,68 @@ public abstract class WebUtils {
 				.append(Constant.QUOTATION_MARKS)//
 				.toString()//
 		);
-		
+
 		try (InputStream in = new FileInputStream(download);
 				OutputStream out = response.getOutputStream()) {
 
-			final byte[] buff = new byte[downloadFileBuf];
-			int len = 0;
-			while ((len = in.read(buff)) != -1) {
-				out.write(buff, 0, len);
-			}
+			writeToOutputStream(in, out, downloadFileBuf);
 		}
 	}
 
+	/**
+	 * Write to {@link OutputStream}
+	 * 
+	 * @param source
+	 *            {@link InputStream}
+	 * @param out
+	 *            {@link OutputStream}
+	 * @param bufferSize
+	 *            buffer size
+	 * @throws IOException
+	 *             if any IO exception occurred
+	 */
+	public static void writeToOutputStream(InputStream source, OutputStream out, int bufferSize) throws IOException {
+		final byte[] buff = new byte[bufferSize];
+		int len = 0;
+		while ((len = source.read(buff)) != -1) {
+			out.write(buff, 0, len);
+		}
+	}
+
+	/**
+	 * Resolves the content type of the file.
+	 *
+	 * @param filename
+	 *            name of file or path
+	 * @return file content type
+	 * @since 2.3.7
+	 */
+	public static String resolveFileContentType(String filename) {
+		return URLConnection.getFileNameMap().getContentTypeFor(filename);
+	}
+
+	public static String getEtag(String name, long size, long lastModifid) {
+		return new StringBuilder()//
+				.append(name)//
+				.append(Constant.PATH_SEPARATOR)//
+				.append(size)//
+				.append(Constant.PATH_SEPARATOR)//
+				.append(lastModifid).toString();
+	}
+
+	// ------------
+	public static void resolveException(HttpServletRequest request, final HttpServletResponse response, //
+			ServletContext servletContext, ExceptionResolver exceptionResolver, Throwable exception) throws ServletException //
+	{
+		try {
+			exception = ExceptionUtils.unwrapThrowable(exception);
+			exceptionResolver.resolveException(request, response, exception, null);
+			servletContext.log("Catch Throwable: [" + exception + "] With Msg: [" + exception.getMessage() + "]", exception);
+		}
+		catch (Throwable e) {
+			servletContext.log(
+					"Handling of [" + exception.getClass().getName() + "]  resulted in Exception: [" + e.getClass().getName() + "]", e);
+			throw new ServletException(e);
+		}
+	}
 }

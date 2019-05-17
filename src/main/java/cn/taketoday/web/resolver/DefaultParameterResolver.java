@@ -115,10 +115,10 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 				Object singleton = applicationContext.getBean(beanDefinition.getName());
 				if (singleton == null) {
 					singleton = ClassUtils.newInstance(beanDefinition, applicationContext.getBeanFactory());
-					
+
 					applicationContext.registerSingleton(singleton);
 				}
-				
+
 				if (!(singleton instanceof Converter)) {
 					throw new ConfigurationException("Component: [{}] which annotated '@ParameterConverter'" + //
 							" must be a [cn.taketoday.context.conversion.Converter]", entry.getKey());
@@ -153,7 +153,6 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 		}
 	}
 
-	@Override
 	public boolean supportsParameter(final MethodParameter parameter) {
 		return supportParameterTypes.containsKey(parameter.getParameterClass());
 	}
@@ -416,7 +415,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 			case ANNOTATION_REQUEST_ATTRIBUTE : {
 				return request.getAttribute(methodParameterName);
 			}
-			default :
+			default:
 				throw new BadRequestException("Annotation Parameter: [" + methodParameterName + "] not supported, bad request.");
 		}
 
@@ -505,12 +504,11 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 			final String methodParameterName, final MethodParameter methodParameter) throws BadRequestException //
 	{
 		final Cookie[] cookies = request.getCookies();
-		if (cookies == null) {
-			return null;
-		}
-		for (final Cookie cookie : cookies) {
-			if (methodParameterName.equals(cookie.getName())) {
-				return cookie.getValue();
+		if (cookies != null) {
+			for (final Cookie cookie : cookies) {
+				if (methodParameterName.equals(cookie.getName())) {
+					return cookie.getValue();
+				}
 			}
 		}
 		// no cookie
@@ -626,7 +624,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 			}
 
 			try {
-				
+
 				// fix #2 JSONObject could be null
 				final String formData = request.getReader().readLine();
 				if (StringUtils.isEmpty(formData)) {
@@ -660,7 +658,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 					newInstance = clazz.getConstructor().newInstance();
 				}
 
-				if (!resolvePojoParameter(request, requestParameter,//
+				if (!resolvePojoParameter(request, requestParameter, //
 						newInstance, clazz.getDeclaredField(split[3]))) {// 得到Field准备注入
 
 					return list;

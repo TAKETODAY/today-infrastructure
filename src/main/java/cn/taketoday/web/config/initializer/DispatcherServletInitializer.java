@@ -99,7 +99,7 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
 					abstractMultipartResolver.getFileSizeThreshold()//
 			);
 		}
-		
+
 		if (multipartConfig != null) {
 			setMultipartConfig(multipartConfig);
 		}

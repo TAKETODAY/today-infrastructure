@@ -46,7 +46,7 @@ import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
@@ -68,7 +68,7 @@ import cn.taketoday.web.view.ViewResolver;
  *         2018-06-25 19:47:14
  * @version 2.3.7
  */
-public class DispatcherServlet implements Servlet {
+public class DispatcherServlet implements Servlet, InitializingBean {
 
 	private static final Logger log = LoggerFactory.getLogger(DispatcherServlet.class);
 
@@ -127,7 +127,6 @@ public class DispatcherServlet implements Servlet {
 		}
 		this.handlerMappingRegistry = handlerMappingRegistry;
 		this.handlerInterceptorRegistry = handlerInterceptorRegistry;
-
 		this.applicationContext = WebUtils.getWebApplicationContext();
 		this.contextPath = this.applicationContext.getServletContext().getContextPath();
 	}
@@ -140,7 +139,7 @@ public class DispatcherServlet implements Servlet {
 		final HttpServletResponse response = (HttpServletResponse) servletResponse;
 
 		// Find handler mapping
-		final HandlerMapping requestMapping = lookupHandlerMapping(request, response);
+		final HandlerMapping requestMapping = lookupHandlerMapping(request);
 		try {
 
 			if (requestMapping == null) {
@@ -174,15 +173,7 @@ public class DispatcherServlet implements Servlet {
 			resolveResult(request, response, handlerMethod, result);
 		}
 		catch (Throwable exception) {
-			try {
-				exception = ExceptionUtils.unwrapThrowable(exception);
-				getExceptionResolver().resolveException(request, response, exception, requestMapping);
-				log("Catch Throwable: [" + exception + "] With Msg: [" + exception.getMessage() + "]", exception);
-			}
-			catch (Throwable e) {
-				log("Handling of [" + exception.getClass().getName() + "]  resulted in Exception: [" + e.getClass().getName() + "]", e);
-				throw new ServletException(e);
-			}
+			WebUtils.resolveException(request, response, applicationContext.getServletContext(), exceptionResolver, exception);
 		}
 	}
 
@@ -217,11 +208,9 @@ public class DispatcherServlet implements Servlet {
 	 * 
 	 * @param request
 	 *            current request
-	 * @param response
-	 *            current response
 	 * @return mapped {@link HandlerMapping}
 	 */
-	protected HandlerMapping lookupHandlerMapping(final HttpServletRequest request, final HttpServletResponse response) {
+	protected HandlerMapping lookupHandlerMapping(final HttpServletRequest request) {
 		// The key of handler
 		String requestURI = request.getMethod() + request.getRequestURI();
 
@@ -230,10 +219,10 @@ public class DispatcherServlet implements Servlet {
 		if (index == null) {
 			// path variable
 			requestURI = StringUtils.decodeUrl(requestURI);// decode
-			for (RegexMapping regexMapping : handlerMappingRegistry.getRegexMappings()) {
-				// TODO path matcher
-				if (regexMapping.getPattern().matcher(requestURI).matches()) {
-					return handlerMappingRegistry.get(regexMapping.getIndex());
+			for (final RegexMapping regexMapping : handlerMappingRegistry.getRegexMappings()) {
+				// TODO path matcher pathMatcher.match(requestURI, requestURI)
+				if (regexMapping.pattern.matcher(requestURI).matches()) {
+					return handlerMappingRegistry.get(regexMapping.index);
 				}
 			}
 			log.debug("NOT FOUND -> [{}]", requestURI);
@@ -469,21 +458,6 @@ public class DispatcherServlet implements Servlet {
 	}
 
 	/**
-	 * @param message
-	 * @param t
-	 */
-	public final void log(String message, Throwable t) {
-		applicationContext.getServletContext().log(getServletName() + ": " + message, t);
-	}
-
-	/**
-	 * @param msg
-	 */
-	public final void log(String msg) {
-		applicationContext.getServletContext().log(getServletName() + ": " + msg);
-	}
-
-	/**
 	 * @return
 	 */
 	public String getServletName() {
@@ -492,7 +466,7 @@ public class DispatcherServlet implements Servlet {
 
 	@Override
 	public String getServletInfo() {
-		return "DispatcherServlet, Copyright © Today & 2017 - 2019 All Rights Reserved";
+		return "DispatcherServlet, Copyright © TODAY & 2017 - 2019 All Rights Reserved";
 	}
 
 	@Override
@@ -546,5 +520,10 @@ public class DispatcherServlet implements Servlet {
 
 	public final ParameterResolver getParameterResolver() {
 		return this.parameterResolver;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		System.err.println(this);
 	}
 }
