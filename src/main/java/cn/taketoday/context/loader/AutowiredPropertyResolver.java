@@ -72,8 +72,8 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
 		final Class<?> propertyClass = field.getType();
 
 		if (autowired != null) {
+			name = autowired.value(); 
 			if (StringUtils.isEmpty(name)) {
-				name = autowired.value();
 				name = byType(applicationContext, propertyClass, beanNameCreator);
 			}
 			required = autowired.required();
