@@ -19,16 +19,13 @@
  */
 package cn.taketoday.context.utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.Duration;
 
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.io.Resource;
 
@@ -48,6 +45,7 @@ public abstract class ConvertUtils {
      * @param targetClass
      *            targetClass
      * @return converted object
+     * @throws IOException
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Object convert(String value, Class<?> targetClass) {
@@ -86,17 +84,12 @@ public abstract class ConvertUtils {
             case "BigDecimal" :
                 return new BigDecimal(value);
             case "File" : {
-                if (value.startsWith(Constant.CLASS_PATH_PREFIX)) {
-
-                    final String resourceString = value.substring(Constant.CLASS_PATH_PREFIX.length());
-                    final URL resource = ClassUtils.getClassLoader().getResource(resourceString);
-
-                    if (resource == null) {
-                        throw new ContextException("ClassPath Recource: [" + resourceString + "] Doesn't exist");
-                    }
-                    return new File(resource.getPath());
+                try {
+                    return ResourceUtils.getResource(value).getFile();// @since 2.1.6
                 }
-                return new File(value);
+                catch (IOException e) {
+                    throw ExceptionUtils.newContextException(e);
+                }
             }
             case "Charset" :
                 return Charset.forName(value);
@@ -121,7 +114,7 @@ public abstract class ConvertUtils {
                 return ResourceUtils.getResource(value);
             }
             catch (IOException e) {
-                return null;
+                throw ExceptionUtils.newContextException(e);
             }
         }
 
