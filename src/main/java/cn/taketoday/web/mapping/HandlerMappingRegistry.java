@@ -38,91 +38,91 @@ import cn.taketoday.web.Constant;
 @Singleton(Constant.HANDLER_MAPPING_REGISTRY)
 public class HandlerMappingRegistry implements RandomAccess {
 
-	/** pool **/
-	private HandlerMapping[] array;
-	/** regex **/
-	private RegexMapping[] regexMappings;
-	/** mapping */
-	private Map<String, Integer> requestMappings;
+    /** pool **/
+    private HandlerMapping[] array;
+    /** regex **/
+    private RegexMapping[] regexMappings;
+    /** mapping */
+    private Map<String, Integer> requestMappings;
 
-	public HandlerMappingRegistry setRegexMappings(Map<String, Integer> regexMappings) {
-		this.regexMappings = new RegexMapping[regexMappings.size()];
-		int i = 0;
-		for (Entry<String, Integer> entry : regexMappings.entrySet()) {
-			this.regexMappings[i++] = new RegexMapping(Pattern.compile(entry.getKey()), entry.getValue());
-		}
-		return this;
-	}
+    public HandlerMappingRegistry setRegexMappings(Map<String, Integer> regexMappings) {
+        this.regexMappings = new RegexMapping[regexMappings.size()];
+        int i = 0;
+        for (Entry<String, Integer> entry : regexMappings.entrySet()) {
+            this.regexMappings[i++] = new RegexMapping(Pattern.compile(entry.getKey()), entry.getValue());
+        }
+        return this;
+    }
 
-	public HandlerMappingRegistry setRequestMappings(Map<String, Integer> requestMappings) {
-		this.requestMappings = requestMappings;
-		return this;
-	}
+    public HandlerMappingRegistry setRequestMappings(Map<String, Integer> requestMappings) {
+        this.requestMappings = requestMappings;
+        return this;
+    }
 
-	public HandlerMappingRegistry() {
-		array = new HandlerMapping[0];
-	}
+    public HandlerMappingRegistry() {
+        array = new HandlerMapping[0];
+    }
 
-	public final RegexMapping[] getRegexMappings() {
-		return regexMappings;
-	}
+    public final RegexMapping[] getRegexMappings() {
+        return regexMappings;
+    }
 
-	/**
-	 * Get HandlerMapping count.
-	 * 
-	 * @return HandlerMapping count
-	 */
-	public int size() {
-		return array.length;
-	}
+    /**
+     * Get HandlerMapping count.
+     * 
+     * @return HandlerMapping count
+     */
+    public int size() {
+        return array.length;
+    }
 
-	/**
-	 * Get handler index in array
-	 * 
-	 * @param key
-	 *            request method and request uri
-	 * @return
-	 */
-	public final Integer getIndex(String key) {
-		return requestMappings.get(key);
-	}
+    /**
+     * Get handler index in array
+     * 
+     * @param key
+     *            request method and request uri
+     * @return
+     */
+    public final Integer getIndex(String key) {
+        return requestMappings.get(key);
+    }
 
-	/**
-	 * Get HandlerMapping instance.
-	 * 
-	 * @param index
-	 *            the HandlerMapping number
-	 * @return
-	 */
-	public final HandlerMapping get(int index) {
-		return array[index];
-	}
+    /**
+     * Get HandlerMapping instance.
+     * 
+     * @param index
+     *            the HandlerMapping number
+     * @return
+     */
+    public final HandlerMapping get(int index) {
+        return array[index];
+    }
 
-	/**
-	 * Add HandlerMapping to pool.
-	 * 
-	 * @param e
-	 *            HandlerMapping instance
-	 * @return
-	 */
-	public int add(HandlerMapping e) {
+    /**
+     * Add HandlerMapping to pool.
+     * 
+     * @param e
+     *            HandlerMapping instance
+     * @return
+     */
+    public int add(HandlerMapping e) {
 
-		for (int i = 0; i < array.length; i++) {
-			if (e.equals(array[i])) {
-				return i;
-			}
-		}
-		HandlerMapping[] newArray = new HandlerMapping[array.length + 1];
-		System.arraycopy(array, 0, newArray, 0, array.length);
-		newArray[array.length] = e;
+        for (int i = 0; i < array.length; i++) {
+            if (e.equals(array[i])) {
+                return i;
+            }
+        }
+        HandlerMapping[] newArray = new HandlerMapping[array.length + 1];
+        System.arraycopy(array, 0, newArray, 0, array.length);
+        newArray[array.length] = e;
 
-		array = newArray;
+        array = newArray;
 
-		return array.length - 1;
-	}
+        return array.length - 1;
+    }
 
-	public String toString() {
-		return Arrays.toString(array);
-	}
+    public String toString() {
+        return Arrays.toString(array);
+    }
 
 }

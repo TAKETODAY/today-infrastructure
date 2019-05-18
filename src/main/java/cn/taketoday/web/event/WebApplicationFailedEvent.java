@@ -30,22 +30,22 @@ import cn.taketoday.web.WebApplicationContext;
 @SuppressWarnings("serial")
 public class WebApplicationFailedEvent extends ApplicationEvent {
 
-	private final WebApplicationContext applicationContext;
+    private final WebApplicationContext applicationContext;
 
-	private final Throwable cause;
+    private final Throwable cause;
 
-	public WebApplicationFailedEvent(WebApplicationContext applicationContext, Throwable cause) {
-		super(applicationContext);
-		this.cause = cause;
-		this.applicationContext = applicationContext;
-	}
+    public WebApplicationFailedEvent(WebApplicationContext applicationContext, Throwable cause) {
+        super(applicationContext);
+        this.cause = cause;
+        this.applicationContext = applicationContext;
+    }
 
-	public WebApplicationContext getApplicationContext() {
-		return applicationContext;
-	}
+    public WebApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 
-	public final Throwable getCause() {
-		return cause;
-	}
+    public final Throwable getCause() {
+        return cause;
+    }
 
 }

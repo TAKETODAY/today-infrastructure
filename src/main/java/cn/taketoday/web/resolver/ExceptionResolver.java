@@ -32,20 +32,20 @@ import cn.taketoday.web.mapping.HandlerMapping;
 @FunctionalInterface
 public interface ExceptionResolver {
 
-	/**
-	 * Resolve exception
-	 * 
-	 * @param request
-	 *            current request
-	 * @param response
-	 *            current response
-	 * @param exception
-	 *            the exception occurred
-	 * @param handlerMapping
-	 *            current handler mapping info
-	 * @throws Throwable
-	 */
-	void resolveException(HttpServletRequest request, //
-			HttpServletResponse response, Throwable exception, HandlerMapping handlerMapping) throws Throwable;
+    /**
+     * Resolve exception
+     * 
+     * @param request
+     *            current request
+     * @param response
+     *            current response
+     * @param exception
+     *            the exception occurred
+     * @param handlerMapping
+     *            current handler mapping info
+     * @throws Throwable
+     */
+    void resolveException(HttpServletRequest request, //
+            HttpServletResponse response, Throwable exception, HandlerMapping handlerMapping) throws Throwable;
 
 }

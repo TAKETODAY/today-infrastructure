@@ -37,39 +37,39 @@ import cn.taketoday.web.utils.WebUtils;
 @MissingBean
 public class ResourceMappingRegistry {
 
-	private final List<ResourceMapping> resourceMappings = new ArrayList<>();
+    private final List<ResourceMapping> resourceMappings = new ArrayList<>();
 
-	public ResourceMapping addResourceMapping(String... pathPatterns) {
-		ResourceMapping resourceMapping = new ResourceMapping(null, pathPatterns);
+    public ResourceMapping addResourceMapping(String... pathPatterns) {
+        ResourceMapping resourceMapping = new ResourceMapping(null, pathPatterns);
 
-		getResourceHandlerMappings().add(resourceMapping);
-		return resourceMapping;
-	}
+        getResourceHandlerMappings().add(resourceMapping);
+        return resourceMapping;
+    }
 
-	@SafeVarargs
-	public final <T extends HandlerInterceptor> ResourceMapping addResourceMapping(Class<T>... handlerInterceptors) {
+    @SafeVarargs
+    public final <T extends HandlerInterceptor> ResourceMapping addResourceMapping(Class<T>... handlerInterceptors) {
 
-		final ActionConfiguration actionConfiguration = //
-				WebUtils.getWebApplicationContext().getBean(Constant.ACTION_CONFIG, ActionConfiguration.class);
+        final ActionConfiguration actionConfiguration = //
+                WebUtils.getWebApplicationContext().getBean(Constant.ACTION_CONFIG, ActionConfiguration.class);
 
-		ResourceMapping resourceHandlerMapping = //
-				new ResourceMapping(actionConfiguration.addInterceptors(handlerInterceptors));
+        ResourceMapping resourceHandlerMapping = //
+                new ResourceMapping(actionConfiguration.addInterceptors(handlerInterceptors));
 
-		this.getResourceHandlerMappings().add(resourceHandlerMapping);
-		return resourceHandlerMapping;
-	}
+        this.getResourceHandlerMappings().add(resourceHandlerMapping);
+        return resourceHandlerMapping;
+    }
 
-	public boolean isEmpty() {
-		return resourceMappings.isEmpty();
-	}
+    public boolean isEmpty() {
+        return resourceMappings.isEmpty();
+    }
 
-	public List<ResourceMapping> getResourceHandlerMappings() {
-		return resourceMappings;
-	}
+    public List<ResourceMapping> getResourceHandlerMappings() {
+        return resourceMappings;
+    }
 
-	public ResourceMappingRegistry sortResourceMappings() {
-		OrderUtils.reversedSort(resourceMappings);
-		return this;
-	}
+    public ResourceMappingRegistry sortResourceMappings() {
+        OrderUtils.reversedSort(resourceMappings);
+        return this;
+    }
 
 }

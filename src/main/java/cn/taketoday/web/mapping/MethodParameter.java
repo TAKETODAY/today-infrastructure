@@ -33,7 +33,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class MethodParameter {
-	//@off
+    //@off
 	/** 是否不能为空 */
 	private final boolean	required;
 	/** 参数名 */
@@ -61,32 +61,32 @@ public class MethodParameter {
 	
 	//@on
 
-	public MethodParameter() {
-		this(false, null, null, null, Constant.ANNOTATION_COOKIE, null, Constant.ANNOTATION_NULL);
-	}
+    public MethodParameter() {
+        this(false, null, null, null, Constant.ANNOTATION_COOKIE, null, Constant.ANNOTATION_NULL);
+    }
 
-	public final boolean hasPathVariable() {
-		return annotation == Constant.ANNOTATION_PATH_VARIABLE;
-	}
+    public final boolean hasPathVariable() {
+        return annotation == Constant.ANNOTATION_PATH_VARIABLE;
+    }
 
-	public final boolean isRequestBody() {
-		return annotation == Constant.ANNOTATION_REQUEST_BODY;
-	}
+    public final boolean isRequestBody() {
+        return annotation == Constant.ANNOTATION_REQUEST_BODY;
+    }
 
-	public final boolean hasAnnotation() {
-		return annotation != Constant.ANNOTATION_NULL;
-	}
+    public final boolean hasAnnotation() {
+        return annotation != Constant.ANNOTATION_NULL;
+    }
 
-	public MethodParameter(boolean required, String parameterName, Class<?> parameterClass, Class<?> genericityClass, byte annotation,
-			String defaultValue, byte parameterType) {
-		this.required = required;
-		this.parameterName = parameterName;
-		this.parameterClass = parameterClass;
-		this.genericityClass = genericityClass;
-		this.annotation = annotation;
-		this.defaultValue = defaultValue;
-		this.parameterType = parameterType;
-	}
+    public MethodParameter(boolean required, String parameterName, Class<?> parameterClass, Class<?> genericityClass, byte annotation,
+            String defaultValue, byte parameterType) {
+        this.required = required;
+        this.parameterName = parameterName;
+        this.parameterClass = parameterClass;
+        this.genericityClass = genericityClass;
+        this.annotation = annotation;
+        this.defaultValue = defaultValue;
+        this.parameterType = parameterType;
+    }
 
 //	@Override
 //	public String toString() {

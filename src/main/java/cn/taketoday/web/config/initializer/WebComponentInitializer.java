@@ -42,72 +42,72 @@ import lombok.Setter;
 @Setter
 public abstract class WebComponentInitializer<D extends Registration.Dynamic> implements OrderedInitializer {
 
-	private String name;
-	/** Startup order */
-	private int order = LOWEST_PRECEDENCE;
+    private String name;
+    /** Startup order */
+    private int order = LOWEST_PRECEDENCE;
 
-	private boolean asyncSupported = false;
+    private boolean asyncSupported = false;
 
-	private Set<String> urlMappings = new LinkedHashSet<>();
+    private Set<String> urlMappings = new LinkedHashSet<>();
 
-	private Map<String, String> initParameters = new LinkedHashMap<>();
+    private Map<String, String> initParameters = new LinkedHashMap<>();
 
-	private ServletContext servletContext;
+    private ServletContext servletContext;
 
-	@Override
-	public void onStartup(ServletContext servletContext) throws ServletException {
+    @Override
+    public void onStartup(ServletContext servletContext) throws ServletException {
 
-		setServletContext(servletContext);
+        setServletContext(servletContext);
 
-		D registration = addRegistration(servletContext);
-		if (registration == null) {
-			return;
-		}
-		configureRegistration(registration);
-	}
+        D registration = addRegistration(servletContext);
+        if (registration == null) {
+            return;
+        }
+        configureRegistration(registration);
+    }
 
-	protected abstract D addRegistration(ServletContext servletContext);
+    protected abstract D addRegistration(ServletContext servletContext);
 
-	protected void configureRegistration(D registration) {
-		registration.setAsyncSupported(this.asyncSupported);
-		if (!this.initParameters.isEmpty()) {
-			registration.setInitParameters(this.initParameters);
-		}
-	}
+    protected void configureRegistration(D registration) {
+        registration.setAsyncSupported(this.asyncSupported);
+        if (!this.initParameters.isEmpty()) {
+            registration.setInitParameters(this.initParameters);
+        }
+    }
 
-	public void setInitParameters(Map<String, String> initParameters) {
-		this.initParameters = new LinkedHashMap<>(initParameters);
-	}
+    public void setInitParameters(Map<String, String> initParameters) {
+        this.initParameters = new LinkedHashMap<>(initParameters);
+    }
 
-	public void addInitParameter(String name, String value) {
-		this.initParameters.put(name, value);
-	}
+    public void addInitParameter(String name, String value) {
+        this.initParameters.put(name, value);
+    }
 
-	public Map<String, String> getInitParameters() {
-		return this.initParameters;
-	}
+    public Map<String, String> getInitParameters() {
+        return this.initParameters;
+    }
 
-	public void setUrlMappings(Collection<String> urlMappings) {
-		Objects.requireNonNull(urlMappings, "UrlMappings must not be null");
-		this.urlMappings = new LinkedHashSet<>(urlMappings);
-	}
+    public void setUrlMappings(Collection<String> urlMappings) {
+        Objects.requireNonNull(urlMappings, "UrlMappings must not be null");
+        this.urlMappings = new LinkedHashSet<>(urlMappings);
+    }
 
-	public Collection<String> getUrlMappings() {
-		return this.urlMappings;
-	}
+    public Collection<String> getUrlMappings() {
+        return this.urlMappings;
+    }
 
-	public void addUrlMappings(String... urlMappings) {
-		Objects.requireNonNull(urlMappings, "UrlMappings must not be null");
-		this.urlMappings.addAll(Arrays.asList(urlMappings));
-	}
+    public void addUrlMappings(String... urlMappings) {
+        Objects.requireNonNull(urlMappings, "UrlMappings must not be null");
+        this.urlMappings.addAll(Arrays.asList(urlMappings));
+    }
 
-	@Override
-	public int getOrder() {
-		return order;
-	}
+    @Override
+    public int getOrder() {
+        return order;
+    }
 
-	public void setOrder(int order) {
-		this.order = order;
-	}
+    public void setOrder(int order) {
+        this.order = order;
+    }
 
 }

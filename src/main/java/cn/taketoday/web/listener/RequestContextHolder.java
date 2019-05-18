@@ -29,27 +29,27 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class RequestContextHolder implements ServletRequestListener {
 
-	private static final ThreadLocal<HttpServletRequest> CURRENT_SERVLET_REQUEST = new ThreadLocal<>();
+    private static final ThreadLocal<HttpServletRequest> CURRENT_SERVLET_REQUEST = new ThreadLocal<>();
 
-	@Override
-	public void requestDestroyed(ServletRequestEvent sre) {
-		resetContext();
-	}
+    @Override
+    public void requestDestroyed(ServletRequestEvent sre) {
+        resetContext();
+    }
 
-	public static void resetContext() {
-		CURRENT_SERVLET_REQUEST.remove();
-	}
+    public static void resetContext() {
+        CURRENT_SERVLET_REQUEST.remove();
+    }
 
-	/**
-	 * @return
-	 */
-	public static final HttpServletRequest currentRequest() {
-		return CURRENT_SERVLET_REQUEST.get();
-	}
+    /**
+     * @return
+     */
+    public static final HttpServletRequest currentRequest() {
+        return CURRENT_SERVLET_REQUEST.get();
+    }
 
-	@Override
-	public void requestInitialized(ServletRequestEvent sre) {
-		CURRENT_SERVLET_REQUEST.set((HttpServletRequest) sre.getServletRequest());
-	}
+    @Override
+    public void requestInitialized(ServletRequestEvent sre) {
+        CURRENT_SERVLET_REQUEST.set((HttpServletRequest) sre.getServletRequest());
+    }
 
 }

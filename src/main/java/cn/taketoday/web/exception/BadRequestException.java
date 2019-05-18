@@ -28,23 +28,23 @@ import org.slf4j.LoggerFactory;
  */
 public final class BadRequestException extends RuntimeException {
 
-	private static final long serialVersionUID = 905584282760902885L;
+    private static final long serialVersionUID = 905584282760902885L;
 
-	public BadRequestException(Throwable cause) {
-		super(cause);
-	}
+    public BadRequestException(Throwable cause) {
+        super(cause);
+    }
 
-	public BadRequestException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public BadRequestException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public BadRequestException(String message) {
-		super(message);
-		LoggerFactory.getLogger(BadRequestException.class).error(message);
-	}
+    public BadRequestException(String message) {
+        super(message);
+        LoggerFactory.getLogger(BadRequestException.class).error(message);
+    }
 
-	public BadRequestException() {
+    public BadRequestException() {
 
-	}
+    }
 
 }

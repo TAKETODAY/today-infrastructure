@@ -37,18 +37,18 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping(method = RequestMethod.GET)
 public @interface GET {
 
-	/**
-	 * urls
-	 * 
-	 * @return
-	 */
-	String[] value() default Constant.BLANK;
-	
-	/**
-	 * Exclude url on class
-	 * 
-	 * @return
-	 */
-	boolean exclude() default false;
-	
+    /**
+     * urls
+     * 
+     * @return
+     */
+    String[] value() default Constant.BLANK;
+
+    /**
+     * Exclude url on class
+     * 
+     * @return
+     */
+    boolean exclude() default false;
+
 }

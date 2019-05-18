@@ -41,144 +41,144 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultResourceResolver implements ResourceResolver {
 
-	private final PathMatcher pathMatcher;
+    private final PathMatcher pathMatcher;
 
-	@Autowired
-	public DefaultResourceResolver(PathMatcher pathMatcher) {
-		this.pathMatcher = pathMatcher;
-	}
+    @Autowired
+    public DefaultResourceResolver(PathMatcher pathMatcher) {
+        this.pathMatcher = pathMatcher;
+    }
 
-	@Override
-	public WebResource resolveResource(String requestPath, ResourceMapping resourceMapping) throws Throwable {
+    @Override
+    public WebResource resolveResource(String requestPath, ResourceMapping resourceMapping) throws Throwable {
 
-		if (StringUtils.isEmpty(requestPath) || isInvalidPath(requestPath)) {
-			return null;
-		}
+        if (StringUtils.isEmpty(requestPath) || isInvalidPath(requestPath)) {
+            return null;
+        }
 
-		String matchedPattern = null;
-		for (final String requestPathPattern : resourceMapping.getPathPatterns()) {
-			if (pathMatcher.match(requestPathPattern, requestPath)) {
-				matchedPattern = requestPathPattern;
-			}
-		}
+        String matchedPattern = null;
+        for (final String requestPathPattern : resourceMapping.getPathPatterns()) {
+            if (pathMatcher.match(requestPathPattern, requestPath)) {
+                matchedPattern = requestPathPattern;
+            }
+        }
 
-		final String extractPathWithinPattern;
-		if (pathMatcher.isPattern(matchedPattern)) {
-			extractPathWithinPattern = pathMatcher.extractPathWithinPattern(matchedPattern, requestPath);
-		}
-		else {
-			extractPathWithinPattern = requestPath;
-		}
-		log.info("resource: [{}]", extractPathWithinPattern);
-		
-		for (String location : resourceMapping.getLocations()) {
-			try {
+        final String extractPathWithinPattern;
+        if (pathMatcher.isPattern(matchedPattern)) {
+            extractPathWithinPattern = pathMatcher.extractPathWithinPattern(matchedPattern, requestPath);
+        }
+        else {
+            extractPathWithinPattern = requestPath;
+        }
+        log.info("resource: [{}]", extractPathWithinPattern);
 
-				log.info("look in: [{}]", location);
-				// TODO
-				final Resource createRelative = ResourceUtils.getResource(location)//
-						.createRelative(extractPathWithinPattern);
+        for (String location : resourceMapping.getLocations()) {
+            try {
 
-				if (createRelative.exists()) {
-					log.info("Relative Resource: [{}]", createRelative);
-					return new DefaultDelegateWebResource(createRelative);
-				}
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return null;
-	}
+                log.info("look in: [{}]", location);
+                // TODO
+                final Resource createRelative = ResourceUtils.getResource(location)//
+                        .createRelative(extractPathWithinPattern);
 
-	protected boolean isInvalidPath(final String path) {
-		if (path.contains("WEB-INF") || path.contains("META-INF")) {
-			if (log.isWarnEnabled()) {
-				log.warn("Path with \"WEB-INF\" or \"META-INF\": [{}]", path);
-			}
-			return true;
-		}
-		return false;
-	}
+                if (createRelative.exists()) {
+                    log.info("Relative Resource: [{}]", createRelative);
+                    return new DefaultDelegateWebResource(createRelative);
+                }
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
 
-	public static class DefaultDelegateWebResource implements WebResource {
+    protected boolean isInvalidPath(final String path) {
+        if (path.contains("WEB-INF") || path.contains("META-INF")) {
+            if (log.isWarnEnabled()) {
+                log.warn("Path with \"WEB-INF\" or \"META-INF\": [{}]", path);
+            }
+            return true;
+        }
+        return false;
+    }
 
-		private final String etag;
-		private final String name;
-		private final long contentLength;
-		private final String contentType;
+    public static class DefaultDelegateWebResource implements WebResource {
 
-		private final long lastModified;
+        private final String etag;
+        private final String name;
+        private final long contentLength;
+        private final String contentType;
 
-		private final Resource resource;
+        private final long lastModified;
 
-		public DefaultDelegateWebResource(Resource resource) throws IOException {
-			this.name = resource.getName();
-			this.resource = resource;
-			this.lastModified = resource.lastModified();
-			this.contentLength = resource.contentLength();
-			this.contentType = WebUtils.resolveFileContentType(resource.getLocation().getPath());
-			this.etag = WebUtils.getEtag(getName(), contentLength(), lastModified());
-		}
+        private final Resource resource;
 
-		@Override
-		public String getName() {
-			return name;
-		}
+        public DefaultDelegateWebResource(Resource resource) throws IOException {
+            this.name = resource.getName();
+            this.resource = resource;
+            this.lastModified = resource.lastModified();
+            this.contentLength = resource.contentLength();
+            this.contentType = WebUtils.resolveFileContentType(resource.getLocation().getPath());
+            this.etag = WebUtils.getEtag(getName(), contentLength(), lastModified());
+        }
 
-		@Override
-		public InputStream getInputStream() throws IOException {
-			return resource.getInputStream();
-		}
+        @Override
+        public String getName() {
+            return name;
+        }
 
-		@Override
-		public long contentLength() {
-			return contentLength;
-		}
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return resource.getInputStream();
+        }
 
-		@Override
-		public String getContentType() {
-			return contentType;
-		}
+        @Override
+        public long contentLength() {
+            return contentLength;
+        }
 
-		@Override
-		public String getETag() {
-			return etag;
-		}
+        @Override
+        public String getContentType() {
+            return contentType;
+        }
 
-		@Override
-		public long lastModified() {
-			return lastModified;
-		}
+        @Override
+        public String getETag() {
+            return etag;
+        }
 
-		@Override
-		public URL getLocation() throws IOException {
-			return resource.getLocation();
-		}
+        @Override
+        public long lastModified() {
+            return lastModified;
+        }
 
-		@Override
-		public boolean exists() {
-			return resource.exists();
-		}
+        @Override
+        public URL getLocation() throws IOException {
+            return resource.getLocation();
+        }
 
-		@Override
-		public File getFile() throws IOException {
-			return resource.getFile();
-		}
+        @Override
+        public boolean exists() {
+            return resource.exists();
+        }
 
-		@Override
-		public Resource createRelative(String relativePath) throws IOException {
-			return resource.createRelative(relativePath);
-		}
+        @Override
+        public File getFile() throws IOException {
+            return resource.getFile();
+        }
 
-		@Override
-		public boolean isDirectory() throws IOException {
-			return resource.isDirectory();
-		}
+        @Override
+        public Resource createRelative(String relativePath) throws IOException {
+            return resource.createRelative(relativePath);
+        }
 
-		@Override
-		public String[] list() throws IOException {
-			return resource.list();
-		}
-	}
+        @Override
+        public boolean isDirectory() throws IOException {
+            return resource.isDirectory();
+        }
+
+        @Override
+        public String[] list() throws IOException {
+            return resource.list();
+        }
+    }
 }

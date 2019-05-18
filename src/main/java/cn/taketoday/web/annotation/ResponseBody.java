@@ -33,10 +33,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ResponseBody {
 
-	/**
-	 * 
-	 * @return
-	 */
-	boolean value() default true;
+    /**
+     * 
+     * @return
+     */
+    boolean value() default true;
 
 }

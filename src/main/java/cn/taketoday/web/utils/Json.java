@@ -39,67 +39,67 @@ import lombok.Setter;
 @SuppressWarnings("serial")
 public class Json implements Serializable {
 
-	private String msg;
-	private Object data;
-	private int code = 200;
-	private boolean success;
+    private String msg;
+    private Object data;
+    private int code = 200;
+    private boolean success;
 
-	public Json(boolean success) {
-		this.success = success;
-	}
+    public Json(boolean success) {
+        this.success = success;
+    }
 
-	public Json(boolean success, String msg) {
-		this(success, msg, 200, null);
-	}
+    public Json(boolean success, String msg) {
+        this(success, msg, 200, null);
+    }
 
-	public Json(String msg, int code, boolean success) {
-		this(success, msg, code, null);
-	}
+    public Json(String msg, int code, boolean success) {
+        this(success, msg, code, null);
+    }
 
-	public Json(int code, boolean success) {
-		this(success, null, code, null);
-	}
+    public Json(int code, boolean success) {
+        this(success, null, code, null);
+    }
 
-	public Json(boolean success, String msg, Object obj) {
-		this(success, msg, 200, obj);
-	}
+    public Json(boolean success, String msg, Object obj) {
+        this(success, msg, 200, obj);
+    }
 
-	public Json(boolean success, String msg, int code, Object obj) {
-		this.success = success;
-		this.msg = msg;
-		this.data = obj;
-		this.code = code;
-	}
+    public Json(boolean success, String msg, int code, Object obj) {
+        this.success = success;
+        this.msg = msg;
+        this.data = obj;
+        this.code = code;
+    }
 
-	public final static Json newJson() {
-		return new Json();
-	}
+    public final static Json newJson() {
+        return new Json();
+    }
 
-	public final static Json newJson(int code, boolean success) {
-		return new Json(code, success);
-	}
+    public final static Json newJson(int code, boolean success) {
+        return new Json(code, success);
+    }
 
-	public final static Json newJson(boolean success, String msg) {
-		return new Json(success, msg, 200, null);
-	}
+    public final static Json newJson(boolean success, String msg) {
+        return new Json(success, msg, 200, null);
+    }
 
-	public final static Json newJson(boolean success, String msg, Object data) {
-		return new Json(success, msg, 200, data);
-	}
+    public final static Json newJson(boolean success, String msg, Object data) {
+        return new Json(success, msg, 200, data);
+    }
 
-	public final static Json newJson(boolean success, String msg, int code, Object obj) {
-		return new Json(success, msg, code, obj);
-	}
+    public final static Json newJson(boolean success, String msg, int code, Object obj) {
+        return new Json(success, msg, code, obj);
+    }
 
-	@Override
-	public String toString() {
-		return new StringBuilder()//
-				.append("{\"msg\":\"").append(msg)//
-				.append("\",\"code\":\"").append(code)//
-				.append("\",\"data\":\"").append(data)//
-				.append("\",\"success\":\"").append(success)//
-				.append("\"}")//
-				.toString();
-	}
+    @Override
+    public String toString() {
+        return new StringBuilder()//
+                .append("{\"msg\":\"").append(msg)//
+                .append("\",\"code\":\"").append(code)//
+                .append("\",\"data\":\"").append(data)//
+                .append("\",\"success\":\"").append(success)//
+                .append("\"}")//
+                .toString();
+    }
 
 }

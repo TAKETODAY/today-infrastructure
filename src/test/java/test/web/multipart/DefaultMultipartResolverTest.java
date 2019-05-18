@@ -29,16 +29,16 @@ import org.junit.Test;
  */
 public class DefaultMultipartResolverTest {
 
-	@Before
-	public void setUp() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+    }
 
-	@Test
-	public void testResolveMultipart() {
-	}
+    @Test
+    public void testResolveMultipart() {
+    }
 
-	@Test
-	public void testCleanupMultipart() {
-	}
+    @Test
+    public void testCleanupMultipart() {
+    }
 
 }

@@ -31,17 +31,17 @@ import javax.servlet.http.HttpServletResponse;
 @FunctionalInterface
 public interface ViewResolver {
 
-	/**
-	 * Resolve View.
-	 * 
-	 * @param templateName
-	 *            template name
-	 * @param request
-	 *            current request
-	 * @param response
-	 *            current response
-	 * @throws Exception
-	 */
-	void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response) throws Throwable;
+    /**
+     * Resolve View.
+     * 
+     * @param templateName
+     *            template name
+     * @param request
+     *            current request
+     * @param response
+     *            current response
+     * @throws Exception
+     */
+    void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response) throws Throwable;
 
 }

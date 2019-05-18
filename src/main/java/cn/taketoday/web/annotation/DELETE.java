@@ -37,18 +37,18 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping(method = RequestMethod.DELETE)
 public @interface DELETE {
 
-	/**
-	 * urls
-	 * 
-	 * @return
-	 */
-	String[] value() default Constant.BLANK;
-	
-	/**
-	 * Exclude url on class
-	 * 
-	 * @return
-	 */
-	boolean exclude() default false;
+    /**
+     * urls
+     * 
+     * @return
+     */
+    String[] value() default Constant.BLANK;
+
+    /**
+     * Exclude url on class
+     * 
+     * @return
+     */
+    boolean exclude() default false;
 
 }

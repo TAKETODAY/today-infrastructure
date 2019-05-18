@@ -35,11 +35,11 @@ import cn.taketoday.web.Constant;
 @RequestParam(type = Constant.ANNOTATION_REQUEST_ATTRIBUTE)
 public @interface RequestAttribute {
 
-	/**
-	 * Request attribute name.
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+    /**
+     * Request attribute name.
+     * 
+     * @return
+     */
+    String value() default Constant.BLANK;
 
 }

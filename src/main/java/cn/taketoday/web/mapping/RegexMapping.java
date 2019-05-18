@@ -28,17 +28,17 @@ import java.util.regex.Pattern;
  */
 public final class RegexMapping {
 
-	/**
-	 * @since 2.1.7
-	 */
-	public final Pattern pattern;
+    /**
+     * @since 2.1.7
+     */
+    public final Pattern pattern;
 //	private final String regex;
 
-	public final int index;
+    public final int index;
 
-	public RegexMapping(final Pattern pattern, final int index) {
-		this.index = index;
-		this.pattern = pattern;
-	}
+    public RegexMapping(final Pattern pattern, final int index) {
+        this.index = index;
+        this.pattern = pattern;
+    }
 
 }

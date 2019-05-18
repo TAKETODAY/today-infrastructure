@@ -32,21 +32,21 @@ import cn.taketoday.web.mapping.MethodParameter;
 @FunctionalInterface
 public interface ParameterResolver {
 
-	/**
-	 * Resolve parameters
-	 * 
-	 * @param args
-	 *            method parameter instances
-	 * @param parameters
-	 *            parameters
-	 * @param request
-	 *            current request
-	 * @param response
-	 *            current response
-	 * @throws Throwable
-	 *             if any Throwable occurred
-	 */
-	void resolveParameter(Object[] args, MethodParameter[] parameters, HttpServletRequest request, HttpServletResponse response)
-			throws Throwable;
+    /**
+     * Resolve parameters
+     * 
+     * @param args
+     *            method parameter instances
+     * @param parameters
+     *            parameters
+     * @param request
+     *            current request
+     * @param response
+     *            current response
+     * @throws Throwable
+     *             if any Throwable occurred
+     */
+    void resolveParameter(Object[] args, MethodParameter[] parameters, HttpServletRequest request, HttpServletResponse response)
+            throws Throwable;
 
 }

@@ -29,16 +29,16 @@ import org.junit.Test;
  */
 public class ActionConfigurationTest {
 
-	@Before
-	public void setUp() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+    }
 
-	@Test
-	public void testInit() {
-	}
+    @Test
+    public void testInit() {
+    }
 
-	@Test
-	public void testSetConfiguration() {
-	}
+    @Test
+    public void testSetConfiguration() {
+    }
 
 }

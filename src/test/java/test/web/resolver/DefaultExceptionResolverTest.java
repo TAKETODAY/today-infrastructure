@@ -24,18 +24,18 @@ import org.junit.Test;
 
 /**
  * @author Today <br>
- * 	
- *		2018-12-11 11:28
+ * 
+ *         2018-12-11 11:28
  */
 public class DefaultExceptionResolverTest {
 
-	@Before
-	public void setUp() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+    }
 
-	@Test
-	public void testResolveException() {
-		
-	}
+    @Test
+    public void testResolveException() {
+
+    }
 
 }

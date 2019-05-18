@@ -37,11 +37,11 @@ import cn.taketoday.web.Constant;
 @RequestParam(type = Constant.ANNOTATION_SESSION)
 public @interface Session {
 
-	/**
-	 * Session attribute name.
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+    /**
+     * Session attribute name.
+     * 
+     * @return
+     */
+    String value() default Constant.BLANK;
 
 }

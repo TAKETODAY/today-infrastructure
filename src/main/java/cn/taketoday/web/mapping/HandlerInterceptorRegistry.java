@@ -37,55 +37,55 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 @Singleton(Constant.HANDLER_INTERCEPTOR_REGISTRY)
 public class HandlerInterceptorRegistry implements RandomAccess {
 
-	private HandlerInterceptor[] array;
+    private HandlerInterceptor[] array;
 
-	public HandlerInterceptorRegistry() {
-		array = new HandlerInterceptor[0];
-	}
+    public HandlerInterceptorRegistry() {
+        array = new HandlerInterceptor[0];
+    }
 
-	public int size() {
-		return array.length;
-	}
+    public int size() {
+        return array.length;
+    }
 
-	public int indexOf(Class<? extends HandlerInterceptor> handlerInterceptorClass) {
-		if (handlerInterceptorClass == null) {
-			for (int i = 0; i < array.length; i++)
-				if (array[i] == null)
-					return i;
-		}
-		else {
-			final String className = handlerInterceptorClass.getName();
-			for (int i = 0; i < array.length; i++) {
-				if (className.equals(array[i].getClass().getName()))
-					return i;
-			}
-		}
-		return -1;
-	}
+    public int indexOf(Class<? extends HandlerInterceptor> handlerInterceptorClass) {
+        if (handlerInterceptorClass == null) {
+            for (int i = 0; i < array.length; i++)
+                if (array[i] == null)
+                    return i;
+        }
+        else {
+            final String className = handlerInterceptorClass.getName();
+            for (int i = 0; i < array.length; i++) {
+                if (className.equals(array[i].getClass().getName()))
+                    return i;
+            }
+        }
+        return -1;
+    }
 
-	public HandlerInterceptor[] toArray() {
-		return array;
-	}
+    public HandlerInterceptor[] toArray() {
+        return array;
+    }
 
-	public final HandlerInterceptor get(int index) {
-		return array[index];
-	}
+    public final HandlerInterceptor get(int index) {
+        return array[index];
+    }
 
-	public int add(HandlerInterceptor e) {
+    public int add(HandlerInterceptor e) {
 
-		Objects.requireNonNull(e, "HandlerInterceptor instance can't be null");
+        Objects.requireNonNull(e, "HandlerInterceptor instance can't be null");
 
-		HandlerInterceptor[] newArray = new HandlerInterceptor[array.length + 1];
-		System.arraycopy(array, 0, newArray, 0, array.length);
-		newArray[array.length] = e;
-		array = newArray;
+        HandlerInterceptor[] newArray = new HandlerInterceptor[array.length + 1];
+        System.arraycopy(array, 0, newArray, 0, array.length);
+        newArray[array.length] = e;
+        array = newArray;
 
-		return array.length - 1;
-	}
+        return array.length - 1;
+    }
 
-	@Override
-	public String toString() {
-		return Arrays.toString(array);
-	}
+    @Override
+    public String toString() {
+        return Arrays.toString(array);
+    }
 
 }

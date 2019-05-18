@@ -29,16 +29,16 @@ import org.junit.Test;
  */
 public class DefaultParameterResolverTest {
 
-	@Before
-	public void setUp() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+    }
 
-	@Test
-	public void test_ResolveParameter() {
-	}
+    @Test
+    public void test_ResolveParameter() {
+    }
 
-	@Test
-	public void test_SupportsParameter() {
-	}
+    @Test
+    public void test_SupportsParameter() {
+    }
 
 }

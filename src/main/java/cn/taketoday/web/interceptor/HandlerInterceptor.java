@@ -35,35 +35,35 @@ import cn.taketoday.web.mapping.HandlerMethod;
 @FunctionalInterface
 public interface HandlerInterceptor {
 
-	/**
-	 * Before {@link HandlerMethod} process.
-	 * 
-	 * @param request
-	 *            request
-	 * @param response
-	 *            response
-	 * @param handlerMapping
-	 *            request mapping
-	 * @return
-	 * @throws Throwable
-	 */
-	boolean beforeProcess(HttpServletRequest request, HttpServletResponse response, HandlerMapping handlerMapping)
-			throws Throwable;
+    /**
+     * Before {@link HandlerMethod} process.
+     * 
+     * @param request
+     *            request
+     * @param response
+     *            response
+     * @param handlerMapping
+     *            request mapping
+     * @return
+     * @throws Throwable
+     */
+    boolean beforeProcess(HttpServletRequest request, HttpServletResponse response, HandlerMapping handlerMapping)
+            throws Throwable;
 
-	/**
-	 * After {@link HandlerMethod} process.
-	 * 
-	 * @param result
-	 *            HandlerMethod returned value
-	 * @param request
-	 *            request
-	 * @param response
-	 *            response
-	 * @throws Throwable
-	 */
-	default void afterProcess(Object result, HttpServletRequest request, HttpServletResponse response)
-			throws Throwable {
+    /**
+     * After {@link HandlerMethod} process.
+     * 
+     * @param result
+     *            HandlerMethod returned value
+     * @param request
+     *            request
+     * @param response
+     *            response
+     * @throws Throwable
+     */
+    default void afterProcess(Object result, HttpServletRequest request, HttpServletResponse response)
+            throws Throwable {
 
-	}
+    }
 
 }

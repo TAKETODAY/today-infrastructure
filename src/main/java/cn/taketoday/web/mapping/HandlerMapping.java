@@ -33,40 +33,40 @@ import cn.taketoday.context.Constant;
  */
 public final class HandlerMapping {
 
-	private static final int[] EMPTY = Constant.EMPTY_INT_ARRAY;
-	/** 处理器类 */
+    private static final int[] EMPTY = Constant.EMPTY_INT_ARRAY;
+    /** 处理器类 */
 //	private String				action;
-	private final Object action;
-	/** 处理器方法 */
-	private final HandlerMethod handlerMethod;
-	/** 拦截器 */
-	private final int[] interceptors;
+    private final Object action;
+    /** 处理器方法 */
+    private final HandlerMethod handlerMethod;
+    /** 拦截器 */
+    private final int[] interceptors;
 
-	public HandlerMapping(Object action, HandlerMethod handlerMethod, List<Integer> interceptors) {
+    public HandlerMapping(Object action, HandlerMethod handlerMethod, List<Integer> interceptors) {
 
-		this.action = action;
-		this.handlerMethod = handlerMethod;
+        this.action = action;
+        this.handlerMethod = handlerMethod;
 
-		this.interceptors = //
-				Objects.requireNonNull(interceptors).size() > 0 //
-						? interceptors.stream().mapToInt(Integer::intValue).toArray() //
-						: EMPTY;
-	}
+        this.interceptors = //
+                Objects.requireNonNull(interceptors).size() > 0 //
+                        ? interceptors.stream().mapToInt(Integer::intValue).toArray() //
+                        : EMPTY;
+    }
 
-	public final boolean hasInterceptor() {
-		return interceptors != EMPTY;
-	}
+    public final boolean hasInterceptor() {
+        return interceptors != EMPTY;
+    }
 
-	public final Object getAction() {
-		return action;
-	}
+    public final Object getAction() {
+        return action;
+    }
 
-	public final int[] getInterceptors() {
-		return interceptors;
-	}
+    public final int[] getInterceptors() {
+        return interceptors;
+    }
 
-	public final HandlerMethod getHandlerMethod() {
-		return handlerMethod;
-	}
+    public final HandlerMethod getHandlerMethod() {
+        return handlerMethod;
+    }
 
 }

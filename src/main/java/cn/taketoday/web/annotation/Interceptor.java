@@ -34,12 +34,12 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Interceptor {
 
-	/** 配置拦截器 执行的先后顺序由拦截器的位置有关 */
-	Class<? extends HandlerInterceptor>[] value() default {};
+    /** 配置拦截器 执行的先后顺序由拦截器的位置有关 */
+    Class<? extends HandlerInterceptor>[] value() default {};
 
-	/**
-	 * Exclude {@link HandlerInterceptor}
-	 */
-	Class<? extends HandlerInterceptor>[] exclude() default {};
+    /**
+     * Exclude {@link HandlerInterceptor}
+     */
+    Class<? extends HandlerInterceptor>[] exclude() default {};
 
 }

@@ -33,23 +33,23 @@ package cn.taketoday.web;
  */
 public abstract class Version {
 
-	public static String getVersion() {
-		return "2.3.5.RELEASE";
-	}
+    public static String getVersion() {
+        return "2.3.5.RELEASE";
+    }
 
-	public static String[] getHistoryVersion() {
-		return new String[] { //
-				"1.0.0", //
-				"1.1.1", //
-				"2.0.0", //
-				"2.1.0.RELEASE", //
-				"2.2.0.RELEASE", //
-				"2.2.2.RELEASE", //
-				"2.2.3.RELEASE", //
-				"2.3.1.RELEASE", //
-				"2.3.3.RELEASE", //
-				"2.3.4.RELEASE", //
-				"2.3.5.RELEASE" //
-		};
-	}
+    public static String[] getHistoryVersion() {
+        return new String[] { //
+                "1.0.0", //
+                "1.1.1", //
+                "2.0.0", //
+                "2.1.0.RELEASE", //
+                "2.2.0.RELEASE", //
+                "2.2.2.RELEASE", //
+                "2.2.3.RELEASE", //
+                "2.3.1.RELEASE", //
+                "2.3.3.RELEASE", //
+                "2.3.4.RELEASE", //
+                "2.3.5.RELEASE" //
+        };
+    }
 }

@@ -33,38 +33,38 @@ import cn.taketoday.web.multipart.AbstractMultipartResolver;
  */
 final class CompositeWebMvcConfiguration implements WebMvcConfiguration {
 
-	private final List<WebMvcConfiguration> webMvcConfigurations;
+    private final List<WebMvcConfiguration> webMvcConfigurations;
 
-	public CompositeWebMvcConfiguration(List<WebMvcConfiguration> webMvcConfigurations) {
-		this.webMvcConfigurations = webMvcConfigurations;
-	}
+    public CompositeWebMvcConfiguration(List<WebMvcConfiguration> webMvcConfigurations) {
+        this.webMvcConfigurations = webMvcConfigurations;
+    }
 
-	@Override
-	public void configResourceMappings(ResourceMappingRegistry registry) {
-		for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
-			webMvcConfiguration.configResourceMappings(registry);
-		}
-	}
+    @Override
+    public void configResourceMappings(ResourceMappingRegistry registry) {
+        for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
+            webMvcConfiguration.configResourceMappings(registry);
+        }
+    }
 
-	@Override
-	public void configResourceServletUrlMappings(Set<String> urlMappings) {
-		for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
-			webMvcConfiguration.configResourceServletUrlMappings(urlMappings);
-		}
-	}
+    @Override
+    public void configResourceServletUrlMappings(Set<String> urlMappings) {
+        for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
+            webMvcConfiguration.configResourceServletUrlMappings(urlMappings);
+        }
+    }
 
-	@Override
-	public void configDefaultServlet(ServletRegistration servletRegistration) {
-		for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
-			webMvcConfiguration.configDefaultServlet(servletRegistration);
-		}
-	}
+    @Override
+    public void configDefaultServlet(ServletRegistration servletRegistration) {
+        for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
+            webMvcConfiguration.configDefaultServlet(servletRegistration);
+        }
+    }
 
-	public void configMultipartResolver(AbstractMultipartResolver multipartResolver) {
+    public void configMultipartResolver(AbstractMultipartResolver multipartResolver) {
 
-		for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
-			webMvcConfiguration.configMultipartResolver(multipartResolver);
-		}
-	}
+        for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
+            webMvcConfiguration.configMultipartResolver(multipartResolver);
+        }
+    }
 
 }

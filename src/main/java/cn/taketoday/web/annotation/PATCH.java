@@ -37,17 +37,17 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping(method = RequestMethod.PATCH)
 public @interface PATCH {
 
-	/**
-	 * 
-	 * @return
-	 */
-	String[] value() default Constant.BLANK;
-	
-	/**
-	 * Exclude url on class
-	 * 
-	 * @return
-	 */
-	boolean exclude() default false;
+    /**
+     * 
+     * @return
+     */
+    String[] value() default Constant.BLANK;
+
+    /**
+     * Exclude url on class
+     * 
+     * @return
+     */
+    boolean exclude() default false;
 
 }

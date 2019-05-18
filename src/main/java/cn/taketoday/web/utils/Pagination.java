@@ -35,58 +35,58 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Pagination<T> {
 
-	private String msg;
-	private int code = 200;
-	private boolean success;
+    private String msg;
+    private int code = 200;
+    private boolean success;
 
-	/**
-	 * amount of page
-	 */
-	private long num;
+    /**
+     * amount of page
+     */
+    private long num;
 
-	/**
-	 * all row in database
-	 */
-	private long all;
+    /**
+     * all row in database
+     */
+    private long all;
 
-	/**
-	 * every page size
-	 */
-	private int size;
+    /**
+     * every page size
+     */
+    private int size;
 
-	/**
-	 * current page
-	 */
-	private int current;
+    /**
+     * current page
+     */
+    private int current;
 
-	/**
-	 * data
-	 */
-	private List<T> data;
+    /**
+     * data
+     */
+    private List<T> data;
 
-	/**
-	 * @return
-	 */
-	public Pagination<T> setNum() {
-		num = (all - 1) / size + 1;
-		return this;
-	}
+    /**
+     * @return
+     */
+    public Pagination<T> setNum() {
+        num = (all - 1) / size + 1;
+        return this;
+    }
 
-	public Pagination<T> setData(List<T> data) {
-		this.data = data;
-		return this;
-	}
+    public Pagination<T> setData(List<T> data) {
+        this.data = data;
+        return this;
+    }
 
-	@Override
-	public String toString() {
-		return new StringBuilder()//
-				.append("{\"num\":\"").append(num)//
-				.append("\",\"all\":\"").append(all)//
-				.append("\",\"size\":\"").append(size)//
-				.append("\",\"current\":\"").append(current)//
-				.append("\",\"success\":\"").append(success)//
-				.append("\"}")//
-				.toString();
-	}
+    @Override
+    public String toString() {
+        return new StringBuilder()//
+                .append("{\"num\":\"").append(num)//
+                .append("\",\"all\":\"").append(all)//
+                .append("\",\"size\":\"").append(size)//
+                .append("\",\"current\":\"").append(current)//
+                .append("\",\"success\":\"").append(success)//
+                .append("\"}")//
+                .toString();
+    }
 
 }

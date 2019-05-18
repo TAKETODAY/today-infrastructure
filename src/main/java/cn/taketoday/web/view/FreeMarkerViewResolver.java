@@ -62,106 +62,106 @@ import lombok.Getter;
 @Singleton(Constant.VIEW_RESOLVER)
 public class FreeMarkerViewResolver extends AbstractViewResolver implements InitializingBean {
 
-	private final ObjectWrapper wrapper;
+    private final ObjectWrapper wrapper;
 
-	@Getter
-	private final Configuration configuration;
-	private final TaglibFactory taglibFactory;
+    @Getter
+    private final Configuration configuration;
+    private final TaglibFactory taglibFactory;
 
-	private final ServletContextHashModel applicationModel;
+    private final ServletContextHashModel applicationModel;
 
-	@Autowired
-	public FreeMarkerViewResolver(//
-			@Autowired(required = false) ObjectWrapper wrapper, //
-			@Autowired(required = false) Configuration configuration, //
-			@Autowired(required = false) TaglibFactory taglibFactory, //
-			@Props(prefix = "freemarker.", replace = true) Properties settings) //
-	{
-		WebApplicationContext webApplicationContext = WebUtils.getWebApplicationContext();
-		if (configuration == null) {
-			configuration = new Configuration(Configuration.VERSION_2_3_28);
-			webApplicationContext.registerSingleton(configuration.getClass().getName(), configuration);
-		}
+    @Autowired
+    public FreeMarkerViewResolver(//
+            @Autowired(required = false) ObjectWrapper wrapper, //
+            @Autowired(required = false) Configuration configuration, //
+            @Autowired(required = false) TaglibFactory taglibFactory, //
+            @Props(prefix = "freemarker.", replace = true) Properties settings) //
+    {
+        WebApplicationContext webApplicationContext = WebUtils.getWebApplicationContext();
+        if (configuration == null) {
+            configuration = new Configuration(Configuration.VERSION_2_3_28);
+            webApplicationContext.registerSingleton(configuration.getClass().getName(), configuration);
+        }
 
-		this.configuration = configuration;
-		if (wrapper == null) {
-			wrapper = new DefaultObjectWrapper(Configuration.VERSION_2_3_28);
-		}
-		this.wrapper = wrapper;
-		ServletContext servletContext = webApplicationContext.getServletContext();
-		if (taglibFactory == null) {
-			taglibFactory = new TaglibFactory(servletContext);
-		}
-		this.taglibFactory = taglibFactory;
-		this.configuration.setObjectWrapper(wrapper);
-		// Create hash model wrapper for servlet context (the application)
-		this.applicationModel = new ServletContextHashModel(servletContext, wrapper);
+        this.configuration = configuration;
+        if (wrapper == null) {
+            wrapper = new DefaultObjectWrapper(Configuration.VERSION_2_3_28);
+        }
+        this.wrapper = wrapper;
+        ServletContext servletContext = webApplicationContext.getServletContext();
+        if (taglibFactory == null) {
+            taglibFactory = new TaglibFactory(servletContext);
+        }
+        this.taglibFactory = taglibFactory;
+        this.configuration.setObjectWrapper(wrapper);
+        // Create hash model wrapper for servlet context (the application)
+        this.applicationModel = new ServletContextHashModel(servletContext, wrapper);
 
-		Map<String, TemplateModel> templateModels = webApplicationContext.getBeansOfType(TemplateModel.class);
+        Map<String, TemplateModel> templateModels = webApplicationContext.getBeansOfType(TemplateModel.class);
 
-		templateModels.forEach(configuration::setSharedVariable);
+        templateModels.forEach(configuration::setSharedVariable);
 
 //		for (Entry<String, TemplateModel> entry : templateModels.entrySet()) {
 //			configuration.setSharedVariable(entry.getKey(), entry.getValue());
 //		}
 
-		try {
-			if (settings != null && !settings.isEmpty()) {
-				this.configuration.setSettings(settings);
-			}
-		}
-		catch (TemplateException e) {
-			throw new ConfigurationException("Set FreeMarker's Properties Error, With Msg: [{}]", e.getMessage(), e);
-		}
-	}
+        try {
+            if (settings != null && !settings.isEmpty()) {
+                this.configuration.setSettings(settings);
+            }
+        }
+        catch (TemplateException e) {
+            throw new ConfigurationException("Set FreeMarker's Properties Error, With Msg: [{}]", e.getMessage(), e);
+        }
+    }
 
-	/**
-	 * Use {@link afterPropertiesSet}
-	 * 
-	 * @since 2.3.3
-	 */
-	@Override
-	public void afterPropertiesSet() throws ConfigurationException {
+    /**
+     * Use {@link afterPropertiesSet}
+     * 
+     * @since 2.3.3
+     */
+    @Override
+    public void afterPropertiesSet() throws ConfigurationException {
 
-		this.configuration.setLocale(locale);
-		this.configuration.setDefaultEncoding(encoding);
-		this.configuration.setServletContextForTemplateLoading(servletContext, prefix); // prefix -> /WEB-INF/..
+        this.configuration.setLocale(locale);
+        this.configuration.setDefaultEncoding(encoding);
+        this.configuration.setServletContextForTemplateLoading(servletContext, prefix); // prefix -> /WEB-INF/..
 
-		LoggerFactory.getLogger(getClass()).info("Configuration FreeMarker View Resolver Success.");
-	}
+        LoggerFactory.getLogger(getClass()).info("Configuration FreeMarker View Resolver Success.");
+    }
 
-	/**
-	 * create Model Attributes.
-	 * 
-	 * @param request
-	 * @return
-	 */
-	protected final TemplateHashModel createModel(HttpServletRequest request) {
-		final ObjectWrapper wrapper = this.wrapper;
+    /**
+     * create Model Attributes.
+     * 
+     * @param request
+     * @return
+     */
+    protected final TemplateHashModel createModel(HttpServletRequest request) {
+        final ObjectWrapper wrapper = this.wrapper;
 
-		final AllHttpScopesHashModel allHttpScopesHashModel = //
-				new AllHttpScopesHashModel(wrapper, servletContext, request);
+        final AllHttpScopesHashModel allHttpScopesHashModel = //
+                new AllHttpScopesHashModel(wrapper, servletContext, request);
 
-		allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_JSP_TAGLIBS, taglibFactory);
-		allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_APPLICATION, applicationModel);
-		// Create hash model wrapper for request
-		allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_REQUEST, new HttpRequestHashModel(request, wrapper));
-		allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_REQUEST_PARAMETERS, new HttpRequestParametersHashModel(request));
-		// Create hash model wrapper for session
-		allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_SESSION, new HttpSessionHashModel(request.getSession(), wrapper));
+        allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_JSP_TAGLIBS, taglibFactory);
+        allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_APPLICATION, applicationModel);
+        // Create hash model wrapper for request
+        allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_REQUEST, new HttpRequestHashModel(request, wrapper));
+        allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_REQUEST_PARAMETERS, new HttpRequestParametersHashModel(request));
+        // Create hash model wrapper for session
+        allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_SESSION, new HttpSessionHashModel(request.getSession(), wrapper));
 
-		return allHttpScopesHashModel;
-	}
+        return allHttpScopesHashModel;
+    }
 
-	/**
-	 * Resolve FreeMarker View.
-	 */
-	@Override
-	public void resolveView(String templateName, //
-			HttpServletRequest request, HttpServletResponse response) throws Throwable //
-	{
-		configuration.getTemplate(templateName + suffix, locale, encoding)//
-				.process(createModel(request), response.getWriter());
-	}
+    /**
+     * Resolve FreeMarker View.
+     */
+    @Override
+    public void resolveView(String templateName, //
+            HttpServletRequest request, HttpServletResponse response) throws Throwable //
+    {
+        configuration.getTemplate(templateName + suffix, locale, encoding)//
+                .process(createModel(request), response.getWriter());
+    }
 
 }

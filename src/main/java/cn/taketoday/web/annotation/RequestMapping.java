@@ -37,25 +37,25 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping
 public @interface RequestMapping {
 
-	/**
-	 * urls
-	 * 
-	 * @return
-	 */
-	String[] value() default Constant.BLANK;
+    /**
+     * urls
+     * 
+     * @return
+     */
+    String[] value() default Constant.BLANK;
 
-	/**
-	 * Exclude url on class
-	 * 
-	 * @return
-	 */
-	boolean exclude() default false;
+    /**
+     * Exclude url on class
+     * 
+     * @return
+     */
+    boolean exclude() default false;
 
-	/**
-	 * request methods
-	 * 
-	 * @return
-	 */
-	RequestMethod[] method() default {};
+    /**
+     * request methods
+     * 
+     * @return
+     */
+    RequestMethod[] method() default {};
 
 }

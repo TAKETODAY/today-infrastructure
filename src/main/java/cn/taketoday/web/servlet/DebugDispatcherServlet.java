@@ -53,84 +53,84 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton(Constant.DISPATCHER_SERVLET)
 public class DebugDispatcherServlet extends DispatcherServlet {
 
-	@Autowired
-	public DebugDispatcherServlet(//
-			ViewResolver viewResolver, //
-			ParameterResolver parameterResolver, //
-			ExceptionResolver exceptionResolver,
-			HandlerMappingRegistry handlerMappingRegistry, //
-			HandlerInterceptorRegistry handlerInterceptorRegistry) //
-	{
-		super(viewResolver, parameterResolver, exceptionResolver, handlerMappingRegistry, handlerInterceptorRegistry);
-	}
+    @Autowired
+    public DebugDispatcherServlet(//
+            ViewResolver viewResolver, //
+            ParameterResolver parameterResolver, //
+            ExceptionResolver exceptionResolver,
+            HandlerMappingRegistry handlerMappingRegistry, //
+            HandlerInterceptorRegistry handlerInterceptorRegistry) //
+    {
+        super(viewResolver, parameterResolver, exceptionResolver, handlerMappingRegistry, handlerInterceptorRegistry);
+    }
 
-	@Override
-	public void service(final ServletRequest servletRequest, final ServletResponse servletResponse) //
-			throws ServletException //
-	{
-		final long start = System.currentTimeMillis();
+    @Override
+    public void service(final ServletRequest servletRequest, final ServletResponse servletResponse) //
+            throws ServletException //
+    {
+        final long start = System.currentTimeMillis();
 
-		final HttpServletRequest request = (HttpServletRequest) servletRequest;
-		final HttpServletResponse response = (HttpServletResponse) servletResponse;
+        final HttpServletRequest request = (HttpServletRequest) servletRequest;
+        final HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-		// Find handler mapping
-		final HandlerMapping requestMapping = lookupHandlerMapping(request);
-		try {
+        // Find handler mapping
+        final HandlerMapping requestMapping = lookupHandlerMapping(request);
+        try {
 
-			if (requestMapping == null) {
-				response.sendError(404);
-				return;
-			}
-			// Handler Method
-			final Object result;
-			final HandlerMethod handlerMethod = requestMapping.getHandlerMethod();
-			if (requestMapping.hasInterceptor()) {
-				// get intercepter s
-				final int[] interceptors = requestMapping.getInterceptors();
-				// invoke intercepter
-				final HandlerInterceptorRegistry handlerInterceptorRegistry = getHandlerInterceptorRegistry();
-				for (final int interceptor : interceptors) {
-					if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(request, response, requestMapping)) {
-						log.debug("Before HandlerMethod Process: [{}] return false", handlerInterceptorRegistry.get(interceptor));
-						return;
-					}
-				}
-				result = invokeHandler(request, response, handlerMethod, requestMapping);
-				for (final int interceptor : interceptors) {
-					HandlerInterceptor handlerInterceptor = handlerInterceptorRegistry.get(interceptor);
-					handlerInterceptor.afterProcess(result, request, response);
-					log.debug("After HandlerMethod Process: [{}]", handlerInterceptor);
-				}
-			}
-			else {
-				result = invokeHandler(request, response, handlerMethod, requestMapping);
-			}
+            if (requestMapping == null) {
+                response.sendError(404);
+                return;
+            }
+            // Handler Method
+            final Object result;
+            final HandlerMethod handlerMethod = requestMapping.getHandlerMethod();
+            if (requestMapping.hasInterceptor()) {
+                // get intercepter s
+                final int[] interceptors = requestMapping.getInterceptors();
+                // invoke intercepter
+                final HandlerInterceptorRegistry handlerInterceptorRegistry = getHandlerInterceptorRegistry();
+                for (final int interceptor : interceptors) {
+                    if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(request, response, requestMapping)) {
+                        log.debug("Before HandlerMethod Process: [{}] return false", handlerInterceptorRegistry.get(interceptor));
+                        return;
+                    }
+                }
+                result = invokeHandler(request, response, handlerMethod, requestMapping);
+                for (final int interceptor : interceptors) {
+                    HandlerInterceptor handlerInterceptor = handlerInterceptorRegistry.get(interceptor);
+                    handlerInterceptor.afterProcess(result, request, response);
+                    log.debug("After HandlerMethod Process: [{}]", handlerInterceptor);
+                }
+            }
+            else {
+                result = invokeHandler(request, response, handlerMethod, requestMapping);
+            }
 
-			resolveResult(request, response, handlerMethod, result);
+            resolveResult(request, response, handlerMethod, result);
 
-			log.debug("Process [{}] takes: [{}]ms, with result: [{}]", //
-					request.getRequestURI(), (System.currentTimeMillis() - start), result);
-		}
-		catch (Throwable exception) {
-			WebUtils.resolveException(request, response, //
-					getServletConfig().getServletContext(), getExceptionResolver(), exception);
-		}
-	}
+            log.debug("Process [{}] takes: [{}]ms, with result: [{}]", //
+                    request.getRequestURI(), (System.currentTimeMillis() - start), result);
+        }
+        catch (Throwable exception) {
+            WebUtils.resolveException(request, response, //
+                    getServletConfig().getServletContext(), getExceptionResolver(), exception);
+        }
+    }
 
-	@Override
-	protected Object invokeHandler(HttpServletRequest request, HttpServletResponse response, //
-			HandlerMethod handlerMethod,
-			HandlerMapping requestMapping) throws Throwable //
-	{
-		// method parameter
-		final MethodParameter[] methodParameters = handlerMethod.getParameter();
-		// Handler Method parameter list
-		final Object[] args = new Object[methodParameters.length];
+    @Override
+    protected Object invokeHandler(HttpServletRequest request, HttpServletResponse response, //
+            HandlerMethod handlerMethod,
+            HandlerMapping requestMapping) throws Throwable //
+    {
+        // method parameter
+        final MethodParameter[] methodParameters = handlerMethod.getParameter();
+        // Handler Method parameter list
+        final Object[] args = new Object[methodParameters.length];
 
-		getParameterResolver().resolveParameter(args, methodParameters, request, response);
+        getParameterResolver().resolveParameter(args, methodParameters, request, response);
 
-		log.debug("Parameter list: {}", Arrays.toString(args));
-		return handlerMethod.getMethod().invoke(requestMapping.getAction(), args); // invoke
-	}
+        log.debug("Parameter list: {}", Arrays.toString(args));
+        return handlerMethod.getMethod().invoke(requestMapping.getAction(), args); // invoke
+    }
 
 }

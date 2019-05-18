@@ -29,14 +29,14 @@ import cn.taketoday.web.resource.WebResource;
 @FunctionalInterface
 public interface ResourceResolver {
 
-	/**
-	 * Resolve {@link WebResource}
-	 * 
-	 * @param requestPath
-	 *            {@link WebResource} path
-	 * @param resourceMapping
-	 *            {@link ResourceMapping}
-	 */
-	WebResource resolveResource(String requestPath, ResourceMapping resourceMapping) throws Throwable;
+    /**
+     * Resolve {@link WebResource}
+     * 
+     * @param requestPath
+     *            {@link WebResource} path
+     * @param resourceMapping
+     *            {@link ResourceMapping}
+     */
+    WebResource resolveResource(String requestPath, ResourceMapping resourceMapping) throws Throwable;
 
 }

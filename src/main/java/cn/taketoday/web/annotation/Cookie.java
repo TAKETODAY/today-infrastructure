@@ -37,26 +37,26 @@ import cn.taketoday.web.Constant;
 @RequestParam(type = Constant.ANNOTATION_COOKIE)
 public @interface Cookie {
 
-	/**
-	 * 
-	 * required ?
-	 * 
-	 * @return
-	 */
-	boolean required() default false;
+    /**
+     * 
+     * required ?
+     * 
+     * @return
+     */
+    boolean required() default false;
 
-	/**
-	 * The name of cookie.
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+    /**
+     * The name of cookie.
+     * 
+     * @return
+     */
+    String value() default Constant.BLANK;
 
-	/**
-	 * When required == false, and parameter == null. use default value.
-	 * 
-	 * @return
-	 */
-	String defaultValue() default Constant.BLANK;
+    /**
+     * When required == false, and parameter == null. use default value.
+     * 
+     * @return
+     */
+    String defaultValue() default Constant.BLANK;
 
 }

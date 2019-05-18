@@ -40,48 +40,48 @@ import cn.taketoday.web.servlet.ViewDispatcher;
 @MissingBean
 public class ViewDispatcherInitializer extends WebServletInitializer<ViewDispatcher> implements WebApplicationContextAware {
 
-	private WebApplicationContext applicationContext;
+    private WebApplicationContext applicationContext;
 
-	@Override
-	public void setWebApplicationContext(WebApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
+    @Override
+    public void setWebApplicationContext(WebApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
-	@Override
-	public ViewDispatcher getServlet() {
+    @Override
+    public ViewDispatcher getServlet() {
 
-		ViewDispatcher viewDispatcher = super.getServlet();
-		if (viewDispatcher == null) {
+        ViewDispatcher viewDispatcher = super.getServlet();
+        if (viewDispatcher == null) {
 
-			final Set<String> urls = ViewDispatcher.getMappings().keySet();
+            final Set<String> urls = ViewDispatcher.getMappings().keySet();
 
-			if (urls.size() > 0) {// register
-				ServletContext servletContext = getServletContext();
+            if (urls.size() > 0) {// register
+                ServletContext servletContext = getServletContext();
 
-				if (!applicationContext.containsBeanDefinition(Constant.VIEW_DISPATCHER)) {
-					applicationContext.registerBean(Constant.VIEW_DISPATCHER, ViewDispatcher.class);
-				}
-				viewDispatcher = applicationContext.getBean(Constant.VIEW_DISPATCHER, ViewDispatcher.class);
+                if (!applicationContext.containsBeanDefinition(Constant.VIEW_DISPATCHER)) {
+                    applicationContext.registerBean(Constant.VIEW_DISPATCHER, ViewDispatcher.class);
+                }
+                viewDispatcher = applicationContext.getBean(Constant.VIEW_DISPATCHER, ViewDispatcher.class);
 
-				final String contextPath = servletContext.getContextPath();
+                final String contextPath = servletContext.getContextPath();
 
-				setUrlMappings(urls.stream()//
-						.map(ac -> ac.replaceFirst(contextPath, Constant.BLANK))//
-						.collect(Collectors.toSet()));
+                setUrlMappings(urls.stream()//
+                        .map(ac -> ac.replaceFirst(contextPath, Constant.BLANK))//
+                        .collect(Collectors.toSet()));
 
-				final Logger log = LoggerFactory.getLogger(ViewDispatcherInitializer.class);
+                final Logger log = LoggerFactory.getLogger(ViewDispatcherInitializer.class);
 
-				log.info("Register View Dispatcher Servlet: [{}] With Url Mappings: {}", viewDispatcher, getUrlMappings());
+                log.info("Register View Dispatcher Servlet: [{}] With Url Mappings: {}", viewDispatcher, getUrlMappings());
 
-				setName(Constant.VIEW_DISPATCHER);
-				setServlet(viewDispatcher);
-			}
-		}
-		return viewDispatcher;
-	}
+                setName(Constant.VIEW_DISPATCHER);
+                setServlet(viewDispatcher);
+            }
+        }
+        return viewDispatcher;
+    }
 
-	@Override
-	public int getOrder() {
-		return LOWEST_PRECEDENCE - 100;
-	}
+    @Override
+    public int getOrder() {
+        return LOWEST_PRECEDENCE - 100;
+    }
 }

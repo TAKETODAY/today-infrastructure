@@ -42,129 +42,127 @@ import cn.taketoday.web.Constant;
  */
 public class WebFilterInitializer<T extends Filter> extends WebComponentInitializer<FilterRegistration.Dynamic> {
 
-	private T filter;
-	private boolean matchAfter;
-	private DispatcherType[] dispatcherTypes;
+    private T filter;
+    private boolean matchAfter;
+    private DispatcherType[] dispatcherTypes;
 
-	private Set<String> servletNames = new LinkedHashSet<>();
+    private Set<String> servletNames = new LinkedHashSet<>();
 
-	public WebFilterInitializer() {
+    public WebFilterInitializer() {
 
-	}
+    }
 
-	public WebFilterInitializer(T filter) {
-		this.filter = filter;
-	}
+    public WebFilterInitializer(T filter) {
+        this.filter = filter;
+    }
 
-	@Override
-	protected Dynamic addRegistration(ServletContext servletContext) {
-		final T filter = getFilter();
-		if (filter != null) {
-			return servletContext.addFilter(getName(), filter);
-		}
-		return null;
-	}
+    @Override
+    protected Dynamic addRegistration(ServletContext servletContext) {
+        final T filter = getFilter();
+        if (filter != null) {
+            return servletContext.addFilter(getName(), filter);
+        }
+        return null;
+    }
 
-	@Override
-	protected void configureRegistration(Dynamic registration) {
+    @Override
+    protected void configureRegistration(Dynamic registration) {
 
-		LoggerFactory.getLogger(WebFilterInitializer.class).debug("Configure filter registration: [{}]", this);
+        LoggerFactory.getLogger(WebFilterInitializer.class).debug("Configure filter registration: [{}]", this);
 
-		super.configureRegistration(registration);
+        super.configureRegistration(registration);
 
-		EnumSet<DispatcherType> dispatcherTypes = null;
+        EnumSet<DispatcherType> dispatcherTypes = null;
 
-		if (this.dispatcherTypes == null) {
-			dispatcherTypes = EnumSet.of(DispatcherType.REQUEST);
-		}
-		else {
-			dispatcherTypes = EnumSet.noneOf(DispatcherType.class);
-			dispatcherTypes.addAll(Arrays.asList(this.dispatcherTypes));
-		}
+        if (this.dispatcherTypes == null) {
+            dispatcherTypes = EnumSet.of(DispatcherType.REQUEST);
+        }
+        else {
+            dispatcherTypes = EnumSet.noneOf(DispatcherType.class);
+            dispatcherTypes.addAll(Arrays.asList(this.dispatcherTypes));
+        }
 
-		final Collection<String> urlMappings = getUrlMappings();
+        final Collection<String> urlMappings = getUrlMappings();
 
-		if (servletNames.isEmpty() && urlMappings.isEmpty()) {
-			registration.addMappingForUrlPatterns(dispatcherTypes, this.matchAfter, Constant.DEFAULT_MAPPINGS);
-		}
-		else {
-			if (!servletNames.isEmpty()) {
-				registration.addMappingForServletNames(dispatcherTypes, this.matchAfter, StringUtils.toStringArray(servletNames));
-			}
-			if (!urlMappings.isEmpty()) {
-				registration.addMappingForUrlPatterns(dispatcherTypes, this.matchAfter, StringUtils.toStringArray(urlMappings));
-			}
-		}
-	}
+        if (servletNames.isEmpty() && urlMappings.isEmpty()) {
+            registration.addMappingForUrlPatterns(dispatcherTypes, this.matchAfter, Constant.DEFAULT_MAPPINGS);
+        }
+        else {
+            if (!servletNames.isEmpty()) {
+                registration.addMappingForServletNames(dispatcherTypes, this.matchAfter, StringUtils.toStringArray(servletNames));
+            }
+            if (!urlMappings.isEmpty()) {
+                registration.addMappingForUrlPatterns(dispatcherTypes, this.matchAfter, StringUtils.toStringArray(urlMappings));
+            }
+        }
+    }
 
-	public T getFilter() {
-		return filter;
-	}
+    public T getFilter() {
+        return filter;
+    }
 
-	public boolean isMatchAfter() {
-		return matchAfter;
-	}
+    public boolean isMatchAfter() {
+        return matchAfter;
+    }
 
-	public DispatcherType[] getDispatcherTypes() {
-		return dispatcherTypes;
-	}
+    public DispatcherType[] getDispatcherTypes() {
+        return dispatcherTypes;
+    }
 
-	public Set<String> getServletNames() {
-		return servletNames;
-	}
+    public Set<String> getServletNames() {
+        return servletNames;
+    }
 
-	public WebFilterInitializer<T> setFilter(T filter) {
-		this.filter = filter;
-		return this;
-	}
+    public WebFilterInitializer<T> setFilter(T filter) {
+        this.filter = filter;
+        return this;
+    }
 
-	public WebFilterInitializer<T> setMatchAfter(boolean matchAfter) {
-		this.matchAfter = matchAfter;
-		return this;
-	}
+    public WebFilterInitializer<T> setMatchAfter(boolean matchAfter) {
+        this.matchAfter = matchAfter;
+        return this;
+    }
 
-	public WebFilterInitializer<T> setDispatcherTypes(DispatcherType[] dispatcherTypes) {
-		this.dispatcherTypes = dispatcherTypes;
-		return this;
-	}
+    public WebFilterInitializer<T> setDispatcherTypes(DispatcherType[] dispatcherTypes) {
+        this.dispatcherTypes = dispatcherTypes;
+        return this;
+    }
 
-	public WebFilterInitializer<T> setServletNames(Set<String> servletNames) {
-		this.servletNames = servletNames;
-		return this;
-	}
+    public WebFilterInitializer<T> setServletNames(Set<String> servletNames) {
+        this.servletNames = servletNames;
+        return this;
+    }
 
-	public WebFilterInitializer<T> addServletNames(String... servletNames) {
-		for (String name : servletNames) {
-			this.servletNames.add(name);
-		}
-		return this;
-	}
+    public WebFilterInitializer<T> addServletNames(String... servletNames) {
+        for (String name : servletNames) {
+            this.servletNames.add(name);
+        }
+        return this;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("{\n\t\"filter\":\"");
-		builder.append(filter);
-		builder.append("\",\n\t\"matchAfter\":\"");
-		builder.append(matchAfter);
-		builder.append("\",\n\t\"dispatcherTypes\":\"");
-		builder.append(Arrays.toString(dispatcherTypes));
-		builder.append("\",\n\t\"servletNames\":\"");
-		builder.append(servletNames);
-		builder.append("\",\n\t\"initParameters\":\"");
-		builder.append(getInitParameters());
-		builder.append("\",\n\t\"urlMappings\":\"");
-		builder.append(getUrlMappings());
-		builder.append("\",\n\t\"order\":\"");
-		builder.append(getOrder());
-		builder.append("\",\n\t\"name\":\"");
-		builder.append(getName());
-		builder.append("\",\n\t\"asyncSupported\":\"");
-		builder.append(isAsyncSupported());
-		builder.append("\"\n}");
-		return builder.toString();
-	}
-
-
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{\n\t\"filter\":\"");
+        builder.append(filter);
+        builder.append("\",\n\t\"matchAfter\":\"");
+        builder.append(matchAfter);
+        builder.append("\",\n\t\"dispatcherTypes\":\"");
+        builder.append(Arrays.toString(dispatcherTypes));
+        builder.append("\",\n\t\"servletNames\":\"");
+        builder.append(servletNames);
+        builder.append("\",\n\t\"initParameters\":\"");
+        builder.append(getInitParameters());
+        builder.append("\",\n\t\"urlMappings\":\"");
+        builder.append(getUrlMappings());
+        builder.append("\",\n\t\"order\":\"");
+        builder.append(getOrder());
+        builder.append("\",\n\t\"name\":\"");
+        builder.append(getName());
+        builder.append("\",\n\t\"asyncSupported\":\"");
+        builder.append(isAsyncSupported());
+        builder.append("\"\n}");
+        return builder.toString();
+    }
 
 }

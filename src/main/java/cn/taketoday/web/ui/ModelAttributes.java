@@ -37,184 +37,184 @@ import cn.taketoday.web.exception.InternalServerException;
  */
 public class ModelAttributes implements Model, Map<String, Object> {
 
-	private final HttpServletRequest request;
+    private final HttpServletRequest request;
 
-	public ModelAttributes(HttpServletRequest request) {
-		this.request = request;
-	}
+    public ModelAttributes(HttpServletRequest request) {
+        this.request = request;
+    }
 
-	@Override
-	public ModelAttributes addAttribute(String attributeName, Object attributeValue) {
-		if (attributeName != null) {
-			request.setAttribute(attributeName, attributeValue);
-		}
-		return this;
-	}
+    @Override
+    public ModelAttributes addAttribute(String attributeName, Object attributeValue) {
+        if (attributeName != null) {
+            request.setAttribute(attributeName, attributeValue);
+        }
+        return this;
+    }
 
-	@Override
-	public ModelAttributes addAllAttributes(Map<String, Object> attributes) {
-		attributes.forEach(request::setAttribute);
-		return this;
-	}
+    @Override
+    public ModelAttributes addAllAttributes(Map<String, Object> attributes) {
+        attributes.forEach(request::setAttribute);
+        return this;
+    }
 
-	public boolean containsAttribute(String attributeName) {
-		return request.getAttribute(attributeName) == null;
-	}
+    public boolean containsAttribute(String attributeName) {
+        return request.getAttribute(attributeName) == null;
+    }
 
-	@Override
-	public Map<String, Object> asMap() {
-		Map<String, Object> map = new HashMap<>();
-		Enumeration<String> attributeNames = request.getAttributeNames();
-		while (attributeNames.hasMoreElements()) {
-			String name = attributeNames.nextElement();
-			map.put(name, request.getAttribute(name));
-		}
-		return map;
-	}
+    @Override
+    public Map<String, Object> asMap() {
+        Map<String, Object> map = new HashMap<>();
+        Enumeration<String> attributeNames = request.getAttributeNames();
+        while (attributeNames.hasMoreElements()) {
+            String name = attributeNames.nextElement();
+            map.put(name, request.getAttribute(name));
+        }
+        return map;
+    }
 
-	@Override
-	public void removeAttribute(String name) {
-		request.removeAttribute(name);
-	}
+    @Override
+    public void removeAttribute(String name) {
+        request.removeAttribute(name);
+    }
 
-	@Override
-	public Collection<String> getAttributeNames() {
-		Enumeration<String> enumeration = request.getAttributeNames();
-		Collection<String> attributeNames = new HashSet<>();
-		while (enumeration.hasMoreElements()) {
-			attributeNames.add(enumeration.nextElement());
-		}
-		return attributeNames;
-	}
+    @Override
+    public Collection<String> getAttributeNames() {
+        Enumeration<String> enumeration = request.getAttributeNames();
+        Collection<String> attributeNames = new HashSet<>();
+        while (enumeration.hasMoreElements()) {
+            attributeNames.add(enumeration.nextElement());
+        }
+        return attributeNames;
+    }
 
-	@Override
-	public int size() {
-		int size = 0;
-		while (request.getAttributeNames().hasMoreElements()) {
-			size++;
-		}
-		return size;
-	}
+    @Override
+    public int size() {
+        int size = 0;
+        while (request.getAttributeNames().hasMoreElements()) {
+            size++;
+        }
+        return size;
+    }
 
-	@Override
-	public boolean isEmpty() {
-		return size() == 0;
-	}
+    @Override
+    public boolean isEmpty() {
+        return size() == 0;
+    }
 
-	@Override
-	public boolean containsKey(Object key) {
-		return containsAttribute((String) key);
-	}
+    @Override
+    public boolean containsKey(Object key) {
+        return containsAttribute((String) key);
+    }
 
-	@Override
-	public boolean containsValue(Object value) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	public Object get(Object key) {
-		if (!(key instanceof String)) {
-			throw new RuntimeException("Attribute name must be a String");
-		}
-		return request.getAttribute((String) key);
-	}
+    @Override
+    public boolean containsValue(Object value) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public Object put(String key, Object value) {
-		request.setAttribute(key, value);
-		return null;
-	}
+    @Override
+    public Object get(Object key) {
+        if (!(key instanceof String)) {
+            throw new RuntimeException("Attribute name must be a String");
+        }
+        return request.getAttribute((String) key);
+    }
 
-	@Override
-	public Object remove(Object name) {
-		if (name instanceof String) {
-			request.removeAttribute((String) name);
-			return null;
-		}
-		throw new InternalServerException("Attribute name must be a String");
-	}
+    @Override
+    public Object put(String key, Object value) {
+        request.setAttribute(key, value);
+        return null;
+    }
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public void putAll(Map<? extends String, ? extends Object> attributes) {
-		addAllAttributes((Map<String, Object>) attributes);
-	}
+    @Override
+    public Object remove(Object name) {
+        if (name instanceof String) {
+            request.removeAttribute((String) name);
+            return null;
+        }
+        throw new InternalServerException("Attribute name must be a String");
+    }
 
-	@Override
-	public void clear() {
-		Enumeration<String> attributeNames = request.getAttributeNames();
-		while (attributeNames.hasMoreElements()) {
-			request.removeAttribute(attributeNames.nextElement());
-		}
-	}
+    @Override
+    @SuppressWarnings("unchecked")
+    public void putAll(Map<? extends String, ? extends Object> attributes) {
+        addAllAttributes((Map<String, Object>) attributes);
+    }
 
-	@Override
-	public Set<String> keySet() {
-		Set<String> keySet = new HashSet<>();
-		Enumeration<String> attributeNames = request.getAttributeNames();
-		while (attributeNames.hasMoreElements()) {
-			keySet.add(attributeNames.nextElement());
-		}
-		return keySet;
-	}
+    @Override
+    public void clear() {
+        Enumeration<String> attributeNames = request.getAttributeNames();
+        while (attributeNames.hasMoreElements()) {
+            request.removeAttribute(attributeNames.nextElement());
+        }
+    }
 
-	@Override
-	public Collection<Object> values() {
-		Set<Object> valueSet = new HashSet<>();
-		Enumeration<String> attributeNames = request.getAttributeNames();
-		while (attributeNames.hasMoreElements()) {
-			valueSet.add(request.getAttribute(attributeNames.nextElement()));
-		}
-		return valueSet;
-	}
+    @Override
+    public Set<String> keySet() {
+        Set<String> keySet = new HashSet<>();
+        Enumeration<String> attributeNames = request.getAttributeNames();
+        while (attributeNames.hasMoreElements()) {
+            keySet.add(attributeNames.nextElement());
+        }
+        return keySet;
+    }
 
-	@Override
-	public Set<Entry<String, Object>> entrySet() {
-		Set<Entry<String, Object>> entries = new HashSet<>();
-		Enumeration<String> attributeNames = request.getAttributeNames();
-		while (attributeNames.hasMoreElements()) {
-			String currentKey = attributeNames.nextElement();
-			entries.add(new Node(currentKey, request.getAttribute(currentKey)));
-		}
-		return entries;
-	}
+    @Override
+    public Collection<Object> values() {
+        Set<Object> valueSet = new HashSet<>();
+        Enumeration<String> attributeNames = request.getAttributeNames();
+        while (attributeNames.hasMoreElements()) {
+            valueSet.add(request.getAttribute(attributeNames.nextElement()));
+        }
+        return valueSet;
+    }
 
-	@Override
-	public Object getAttribute(String name) {
-		return get(name);
-	}
+    @Override
+    public Set<Entry<String, Object>> entrySet() {
+        Set<Entry<String, Object>> entries = new HashSet<>();
+        Enumeration<String> attributeNames = request.getAttributeNames();
+        while (attributeNames.hasMoreElements()) {
+            String currentKey = attributeNames.nextElement();
+            entries.add(new Node(currentKey, request.getAttribute(currentKey)));
+        }
+        return entries;
+    }
 
-	@Override
-	public <T> T getAttribute(String name, Class<T> targetClass) {
-		return targetClass.cast(get(name));
-	}
+    @Override
+    public Object getAttribute(String name) {
+        return get(name);
+    }
 
-	private static final class Node implements Entry<String, Object> {
+    @Override
+    public <T> T getAttribute(String name, Class<T> targetClass) {
+        return targetClass.cast(get(name));
+    }
 
-		private final String key;
-		private Object value;
+    private static final class Node implements Entry<String, Object> {
 
-		public Node(String key, Object value) {
-			this.key = key;
-			this.value = value;
-		}
+        private final String key;
+        private Object value;
 
-		@Override
-		public final Object setValue(Object value) {
-			Object oldValue = this.value;
-			this.value = value;
-			return oldValue;
-		}
+        public Node(String key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
 
-		@Override
-		public final Object getValue() {
-			return value;
-		}
+        @Override
+        public final Object setValue(Object value) {
+            Object oldValue = this.value;
+            this.value = value;
+            return oldValue;
+        }
 
-		@Override
-		public final String getKey() {
-			return key;
-		}
-	}
+        @Override
+        public final Object getValue() {
+            return value;
+        }
+
+        @Override
+        public final String getKey() {
+            return key;
+        }
+    }
 
 }

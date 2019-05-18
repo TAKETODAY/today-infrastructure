@@ -48,104 +48,104 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CommonsMultipartResolver extends AbstractMultipartResolver implements InitializingBean {
 
-	private final ServletFileUpload servletFileUpload = new ServletFileUpload(new DiskFileItemFactory());
+    private final ServletFileUpload servletFileUpload = new ServletFileUpload(new DiskFileItemFactory());
 
-	@Override
-	public void afterPropertiesSet() {
+    @Override
+    public void afterPropertiesSet() {
 
-		servletFileUpload.setHeaderEncoding(getEncoding());
-		servletFileUpload.setSizeMax(getMaxRequestSize());
-		servletFileUpload.setFileSizeMax(getMaxFileSize());
-	}
+        servletFileUpload.setHeaderEncoding(getEncoding());
+        servletFileUpload.setSizeMax(getMaxRequestSize());
+        servletFileUpload.setFileSizeMax(getMaxFileSize());
+    }
 
-	@Override
-	public boolean isMultipart(HttpServletRequest request) {
-		return ServletFileUpload.isMultipartContent(request);
-	}
+    @Override
+    public boolean isMultipart(HttpServletRequest request) {
+        return ServletFileUpload.isMultipartContent(request);
+    }
 
-	@Override
-	public Object resolveMultipart(HttpServletRequest request, String methodParameterName, MethodParameter methodParameter) //
-			throws BadRequestException, FileSizeExceededException //
-	{
+    @Override
+    public Object resolveMultipart(HttpServletRequest request, String methodParameterName, MethodParameter methodParameter) //
+            throws BadRequestException, FileSizeExceededException //
+    {
 
-		if (getMaxRequestSize() < request.getContentLengthLong()) {// exceed max size?
-			throw new FileSizeExceededException(getMaxRequestSize(), null).setActual(request.getContentLengthLong());
-		}
+        if (getMaxRequestSize() < request.getContentLengthLong()) {// exceed max size?
+            throw new FileSizeExceededException(getMaxRequestSize(), null).setActual(request.getContentLengthLong());
+        }
 
-		try {
-			return parseFileItems(servletFileUpload.parseRequest(request), methodParameterName, methodParameter);
-		}
-		catch (FileSizeLimitExceededException e) {
-			throw new FileSizeExceededException(getMaxRequestSize(), e).setActual(e.getActualSize());
-		}
-		catch (FileUploadException ex) {
-			throw new BadRequestException(//
-					"Failed to parse multipart servlet request With Msg:[" + ex.getMessage() + "]", ex//
-			);
-		}
-	}
+        try {
+            return parseFileItems(servletFileUpload.parseRequest(request), methodParameterName, methodParameter);
+        }
+        catch (FileSizeLimitExceededException e) {
+            throw new FileSizeExceededException(getMaxRequestSize(), e).setActual(e.getActualSize());
+        }
+        catch (FileUploadException ex) {
+            throw new BadRequestException(//
+                    "Failed to parse multipart servlet request With Msg:[" + ex.getMessage() + "]", ex//
+            );
+        }
+    }
 
-	/**
-	 * Parse file items
-	 * 
-	 * @param fileItems
-	 * @param methodParameterName
-	 * @param methodParameter
-	 * @return
-	 * @throws BadRequestException
-	 */
-	private Object parseFileItems(List<FileItem> fileItems, //
-			String methodParameterName, MethodParameter methodParameter) throws BadRequestException //
-	{
-		switch (methodParameter.getParameterType())
-		{
-			case Constant.TYPE_MULTIPART_FILE : {
-				for (FileItem fileItem : fileItems) {
-					if (methodParameterName.equals(fileItem.getFieldName())) {
-						return new CommonsMultipartFile(fileItem);
-					}
-				}
-				throw WebUtils.newBadRequest("Multipart", methodParameterName, null);
-			}
-			case Constant.TYPE_ARRAY_MULTIPART_FILE : {
-				return multipartFile(fileItems, new ArrayList<>(), methodParameterName)//
-						.toArray(new MultipartFile[0]);
-			}
-			case Constant.TYPE_SET_MULTIPART_FILE : {
-				return multipartFile(fileItems, new HashSet<>(), methodParameterName);
-			}
-			case Constant.TYPE_LIST_MULTIPART_FILE : {
-				return multipartFile(fileItems, new ArrayList<>(), methodParameterName);
-			}
-			default:
-				throw new BadRequestException("Not supported type: [" + methodParameter.getParameterClass() + "]");
-		}
-	}
+    /**
+     * Parse file items
+     * 
+     * @param fileItems
+     * @param methodParameterName
+     * @param methodParameter
+     * @return
+     * @throws BadRequestException
+     */
+    private Object parseFileItems(List<FileItem> fileItems, //
+            String methodParameterName, MethodParameter methodParameter) throws BadRequestException //
+    {
+        switch (methodParameter.getParameterType())
+        {
+            case Constant.TYPE_MULTIPART_FILE : {
+                for (FileItem fileItem : fileItems) {
+                    if (methodParameterName.equals(fileItem.getFieldName())) {
+                        return new CommonsMultipartFile(fileItem);
+                    }
+                }
+                throw WebUtils.newBadRequest("Multipart", methodParameterName, null);
+            }
+            case Constant.TYPE_ARRAY_MULTIPART_FILE : {
+                return multipartFile(fileItems, new ArrayList<>(), methodParameterName)//
+                        .toArray(new MultipartFile[0]);
+            }
+            case Constant.TYPE_SET_MULTIPART_FILE : {
+                return multipartFile(fileItems, new HashSet<>(), methodParameterName);
+            }
+            case Constant.TYPE_LIST_MULTIPART_FILE : {
+                return multipartFile(fileItems, new ArrayList<>(), methodParameterName);
+            }
+            default:
+                throw new BadRequestException("Not supported type: [" + methodParameter.getParameterClass() + "]");
+        }
+    }
 
-	/**
-	 * parse a set of {@link MultipartFile}
-	 * 
-	 * @param fileItems
-	 *            upload files
-	 * @param multipartFiles
-	 *            the collection of {@link MultipartFile}
-	 * @param methodParameterName
-	 * @return
-	 */
-	private final Collection<MultipartFile> multipartFile(List<FileItem> fileItems, //
-			Collection<MultipartFile> multipartFiles, String methodParameterName) //
-	{
-		for (FileItem fileItem : fileItems) {
-			if (methodParameterName.equals(fileItem.getFieldName())) {
-				multipartFiles.add(new CommonsMultipartFile(fileItem));
-			}
-		}
-		return multipartFiles;
-	}
+    /**
+     * parse a set of {@link MultipartFile}
+     * 
+     * @param fileItems
+     *            upload files
+     * @param multipartFiles
+     *            the collection of {@link MultipartFile}
+     * @param methodParameterName
+     * @return
+     */
+    private final Collection<MultipartFile> multipartFile(List<FileItem> fileItems, //
+            Collection<MultipartFile> multipartFiles, String methodParameterName) //
+    {
+        for (FileItem fileItem : fileItems) {
+            if (methodParameterName.equals(fileItem.getFieldName())) {
+                multipartFiles.add(new CommonsMultipartFile(fileItem));
+            }
+        }
+        return multipartFiles;
+    }
 
-	@Override
-	public void cleanupMultipart(HttpServletRequest request) {
+    @Override
+    public void cleanupMultipart(HttpServletRequest request) {
 
-	}
+    }
 
 }

@@ -36,79 +36,79 @@ import org.apache.commons.fileupload.FileItem;
  */
 public interface MultipartFile extends Serializable {
 
-	/**
-	 * Get upload file input stream.
-	 * 
-	 * @return upload file input stream
-	 * @throws IOException
-	 */
-	InputStream getInputStream() throws IOException;
+    /**
+     * Get upload file input stream.
+     * 
+     * @return upload file input stream
+     * @throws IOException
+     */
+    InputStream getInputStream() throws IOException;
 
-	/**
-	 * Get upload file content type.
-	 * 
-	 * @return upload file content type
-	 */
-	String getContentType();
+    /**
+     * Get upload file content type.
+     * 
+     * @return upload file content type
+     */
+    String getContentType();
 
-	/**
-	 * Return the size of the file in bytes.
-	 * 
-	 * @return the size of the file, or 0 if empty
-	 */
-	long getSize();
+    /**
+     * Return the size of the file in bytes.
+     * 
+     * @return the size of the file, or 0 if empty
+     */
+    long getSize();
 
-	/**
-	 * Gets the name of this part.
-	 *
-	 * @return The name of this part as a <tt>String</tt>
-	 */
-	String getName();
+    /**
+     * Gets the name of this part.
+     *
+     * @return The name of this part as a <tt>String</tt>
+     */
+    String getName();
 
-	/**
-	 * Return the original filename in the client's file system.
-	 */
-	String getFileName();
+    /**
+     * Return the original filename in the client's file system.
+     */
+    String getFileName();
 
-	/**
-	 * Save upload file to server.
-	 * 
-	 * @param dest
-	 *            the file path
-	 * @return
-	 */
-	boolean save(File dest);
+    /**
+     * Save upload file to server.
+     * 
+     * @param dest
+     *            the file path
+     * @return
+     */
+    boolean save(File dest);
 
-	/**
-	 * 
-	 * @return
-	 */
-	boolean isEmpty();
+    /**
+     * 
+     * @return
+     */
+    boolean isEmpty();
 
-	/**
-	 * Returns the contents of the file item as an array of bytes.
-	 * 
-	 * @since 2.3.3
-	 * @throws IOException
-	 */
-	byte[] getBytes() throws IOException;
+    /**
+     * Returns the contents of the file item as an array of bytes.
+     * 
+     * @since 2.3.3
+     * @throws IOException
+     */
+    byte[] getBytes() throws IOException;
 
-	/**
-	 * Get {@link Part} or {@link FileItem} ...
-	 * 
-	 * @since 2.3.3
-	 * @return
-	 */
-	Object getOriginalResource();
+    /**
+     * Get {@link Part} or {@link FileItem} ...
+     * 
+     * @since 2.3.3
+     * @return
+     */
+    Object getOriginalResource();
 
-	/**
-	 * Deletes the underlying storage for a file item, including deleting any
-	 * associated temporary disk file.
-	 * 
-	 * @since 2.3.3
-	 * @throws IOException
-	 *             if an error occurs.
-	 */
-	public void delete() throws IOException;
+    /**
+     * Deletes the underlying storage for a file item, including deleting any
+     * associated temporary disk file.
+     * 
+     * @since 2.3.3
+     * @throws IOException
+     *             if an error occurs.
+     */
+    public void delete() throws IOException;
 
 }

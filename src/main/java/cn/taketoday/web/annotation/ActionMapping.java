@@ -36,24 +36,24 @@ import cn.taketoday.web.RequestMethod;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface ActionMapping {
 
-	/**
-	 * urls
-	 * 
-	 * @return
-	 */
-	String[] value() default Constant.BLANK;
+    /**
+     * urls
+     * 
+     * @return
+     */
+    String[] value() default Constant.BLANK;
 
-	/**
-	 * Exclude url on class
-	 * 
-	 * @return
-	 */
-	boolean exclude() default false;
+    /**
+     * Exclude url on class
+     * 
+     * @return
+     */
+    boolean exclude() default false;
 
-	/**
-	 * 
-	 * @return
-	 */
-	RequestMethod[] method() default { RequestMethod.GET };
+    /**
+     * 
+     * @return
+     */
+    RequestMethod[] method() default { RequestMethod.GET };
 
 }

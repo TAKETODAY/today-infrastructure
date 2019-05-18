@@ -29,14 +29,14 @@ import javax.servlet.ServletContext;
 @FunctionalInterface
 public interface ServletContextInitializer {
 
-	/**
-	 * Configure the given {@link ServletContext} with any servlets, filters,
-	 * listeners context-params and attributes necessary for initialization.
-	 * 
-	 * @param servletContext
-	 *            the {@code ServletContext} to initialize
-	 * @throws Throwable
-	 *             if any call {@link Throwable} occurred
-	 */
-	void onStartup(ServletContext servletContext) throws Throwable;
+    /**
+     * Configure the given {@link ServletContext} with any servlets, filters,
+     * listeners context-params and attributes necessary for initialization.
+     * 
+     * @param servletContext
+     *            the {@code ServletContext} to initialize
+     * @throws Throwable
+     *             if any call {@link Throwable} occurred
+     */
+    void onStartup(ServletContext servletContext) throws Throwable;
 }

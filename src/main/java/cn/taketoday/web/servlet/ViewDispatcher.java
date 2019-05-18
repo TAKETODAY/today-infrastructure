@@ -51,91 +51,91 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings("serial")
 public class ViewDispatcher extends GenericServlet {
 
-	@Autowired(Constant.VIEW_RESOLVER)
-	protected ViewResolver viewResolver;
-	/** exception Resolver */
-	@Autowired(Constant.EXCEPTION_RESOLVER)
-	private ExceptionResolver exceptionResolver;
+    @Autowired(Constant.VIEW_RESOLVER)
+    protected ViewResolver viewResolver;
+    /** exception Resolver */
+    @Autowired(Constant.EXCEPTION_RESOLVER)
+    private ExceptionResolver exceptionResolver;
 
-	@Value(value = "#{download.buff.size}", required = false)
-	private int downloadFileBuf = 10240;
+    @Value(value = "#{download.buff.size}", required = false)
+    private int downloadFileBuf = 10240;
 
-	/** view 视图映射池 */
-	private static final Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>(16, 1f);
+    /** view 视图映射池 */
+    private static final Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>(16, 1f);
 
-	public static final Map<String, ViewMapping> getMappings() {
-		return VIEW_REQUEST_MAPPING;
-	}
+    public static final Map<String, ViewMapping> getMappings() {
+        return VIEW_REQUEST_MAPPING;
+    }
 
-	public static final void register(String name, ViewMapping viewMapping) {
-		VIEW_REQUEST_MAPPING.put(name, viewMapping);
-	}
+    public static final void register(String name, ViewMapping viewMapping) {
+        VIEW_REQUEST_MAPPING.put(name, viewMapping);
+    }
 
-	@Override
-	public void service(ServletRequest req, ServletResponse res) throws ServletException {
+    @Override
+    public void service(ServletRequest req, ServletResponse res) throws ServletException {
 
-		final HttpServletRequest request = (HttpServletRequest) req;
-		final HttpServletResponse response = (HttpServletResponse) res;
+        final HttpServletRequest request = (HttpServletRequest) req;
+        final HttpServletResponse response = (HttpServletResponse) res;
 
-		final ViewMapping mapping = VIEW_REQUEST_MAPPING.get(request.getRequestURI());
+        final ViewMapping mapping = VIEW_REQUEST_MAPPING.get(request.getRequestURI());
 
-		try {
+        try {
 
-			if (mapping == null) {
-				response.sendError(404);
-				log.debug("NOT FOUND -> [{}]", request.getRequestURI());
-				return;
-			}
+            if (mapping == null) {
+                response.sendError(404);
+                log.debug("NOT FOUND -> [{}]", request.getRequestURI());
+                return;
+            }
 
-			Object result = null;
-			if (mapping.hasAction()) {
-				result = mapping.getAction().invoke(mapping.getController(), request, response);
-			}
-			if (response.isCommitted()) {
-				return;
-			}
-			if (mapping.getStatus() != 0) {
-				response.setStatus(mapping.getStatus());
-			}
-			final String contentType = mapping.getContentType();
-			if (StringUtils.isNotEmpty(contentType)) {
-				response.setContentType(contentType);
-			}
-			switch (mapping.getReturnType())
-			{
-				case Constant.TYPE_FORWARD : {
-					viewResolver.resolveView(mapping.getAssetsPath(), request, response);
-					return;
-				}
-				case Constant.TYPE_REDIRECT : {
-					response.sendRedirect(mapping.getAssetsPath());
-					return;
-				}
-				case Constant.RETURN_IMAGE : {
-					DispatcherServlet.resolveImage(response, (RenderedImage) result);
-					return;
-				}
-				case Constant.RETURN_STRING : {
-					response.getWriter().print(result);
-					break;
-				}
-				case Constant.RETURN_OBJECT : {
-					DispatcherServlet.resolveObject(request, response, result, viewResolver, downloadFileBuf);
-					break;
-				}
-				default:
-					response.sendError(500);
-			}
-		}
-		catch (Throwable exception) {
-			WebUtils.resolveException(request, response, //
-					getServletConfig().getServletContext(), exceptionResolver, exception);
-		}
-	}
+            Object result = null;
+            if (mapping.hasAction()) {
+                result = mapping.getAction().invoke(mapping.getController(), request, response);
+            }
+            if (response.isCommitted()) {
+                return;
+            }
+            if (mapping.getStatus() != 0) {
+                response.setStatus(mapping.getStatus());
+            }
+            final String contentType = mapping.getContentType();
+            if (StringUtils.isNotEmpty(contentType)) {
+                response.setContentType(contentType);
+            }
+            switch (mapping.getReturnType())
+            {
+                case Constant.TYPE_FORWARD : {
+                    viewResolver.resolveView(mapping.getAssetsPath(), request, response);
+                    return;
+                }
+                case Constant.TYPE_REDIRECT : {
+                    response.sendRedirect(mapping.getAssetsPath());
+                    return;
+                }
+                case Constant.RETURN_IMAGE : {
+                    DispatcherServlet.resolveImage(response, (RenderedImage) result);
+                    return;
+                }
+                case Constant.RETURN_STRING : {
+                    response.getWriter().print(result);
+                    break;
+                }
+                case Constant.RETURN_OBJECT : {
+                    DispatcherServlet.resolveObject(request, response, result, viewResolver, downloadFileBuf);
+                    break;
+                }
+                default:
+                    response.sendError(500);
+            }
+        }
+        catch (Throwable exception) {
+            WebUtils.resolveException(request, response, //
+                    getServletConfig().getServletContext(), exceptionResolver, exception);
+        }
+    }
 
-	@Override
-	public String getServletInfo() {
-		return "ViewDispatcher, Copyright © Today & 2017 - 2018 All Rights Reserved";
-	}
+    @Override
+    public String getServletInfo() {
+        return "ViewDispatcher, Copyright © Today & 2017 - 2018 All Rights Reserved";
+    }
 
 }

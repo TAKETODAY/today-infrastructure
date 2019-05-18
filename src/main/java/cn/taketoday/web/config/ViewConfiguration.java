@@ -57,149 +57,149 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton(Constant.VIEW_CONFIG)
 public class ViewConfiguration implements WebApplicationContextAware {
 
-	private String contextPath;
-	private Properties variables;
-	private ELProcessor elProcessor;
-	private BeanNameCreator beanNameCreator;
-	private WebApplicationContext applicationContext;
+    private String contextPath;
+    private Properties variables;
+    private ELProcessor elProcessor;
+    private BeanNameCreator beanNameCreator;
+    private WebApplicationContext applicationContext;
 
-	/**
-	 * 
-	 * Start configuration
-	 * 
-	 * @param controller
-	 *            the controller element
-	 * @throws Exception
-	 *             if any {@link Exception} occurred
-	 */
-	public void configuration(Element controller) throws Exception {
+    /**
+     * 
+     * Start configuration
+     * 
+     * @param controller
+     *            the controller element
+     * @throws Exception
+     *             if any {@link Exception} occurred
+     */
+    public void configuration(Element controller) throws Exception {
 
-		Objects.requireNonNull(controller, "'controller' element can't be null");
+        Objects.requireNonNull(controller, "'controller' element can't be null");
 
-		// <controller/> element
-		String name = controller.getAttribute(Constant.ATTR_NAME); // controller name
-		String prefix = controller.getAttribute(Constant.ATTR_PREFIX); // prefix
-		String suffix = controller.getAttribute(Constant.ATTR_SUFFIX); // suffix
-		String className = controller.getAttribute(Constant.ATTR_CLASS); // class
+        // <controller/> element
+        String name = controller.getAttribute(Constant.ATTR_NAME); // controller name
+        String prefix = controller.getAttribute(Constant.ATTR_PREFIX); // prefix
+        String suffix = controller.getAttribute(Constant.ATTR_SUFFIX); // suffix
+        String className = controller.getAttribute(Constant.ATTR_CLASS); // class
 
-		// @since 2.3.3
-		Class<?> beanClass = null;
-		Object controllerBean = null;
-		if (StringUtils.isNotEmpty(className)) {
-			beanClass = ClassUtils.forName(className);
-			if (StringUtils.isEmpty(name)) {
-				name = beanNameCreator.create(beanClass);
-			}
-			if (!applicationContext.containsBeanDefinition(beanClass)) {
-				applicationContext.registerBean(name, new DefaultBeanDefinition(name, beanClass));
-				applicationContext.refresh(name);
-			}
-			controllerBean = applicationContext.getBean(beanClass);
-		}
+        // @since 2.3.3
+        Class<?> beanClass = null;
+        Object controllerBean = null;
+        if (StringUtils.isNotEmpty(className)) {
+            beanClass = ClassUtils.forName(className);
+            if (StringUtils.isEmpty(name)) {
+                name = beanNameCreator.create(beanClass);
+            }
+            if (!applicationContext.containsBeanDefinition(beanClass)) {
+                applicationContext.registerBean(name, new DefaultBeanDefinition(name, beanClass));
+                applicationContext.refresh(name);
+            }
+            controllerBean = applicationContext.getBean(beanClass);
+        }
 
-		NodeList nl = controller.getChildNodes();
-		for (int i = 0; i < nl.getLength(); i++) {
-			Node node = nl.item(i);
-			if (node instanceof Element) {
-				String nodeName = node.getNodeName();
-				// @since 2.3.3
-				if (nodeName.equals(Constant.ELEMENT_ACTION)) {// <action/>
-					processAction(prefix, suffix, (Element) node, beanClass)//
-							.setController(controllerBean);
-				}
-				else {
-					log.warn("This element: [{}] is not supported.", nodeName);
-				}
-			}
-		}
-	}
+        NodeList nl = controller.getChildNodes();
+        for (int i = 0; i < nl.getLength(); i++) {
+            Node node = nl.item(i);
+            if (node instanceof Element) {
+                String nodeName = node.getNodeName();
+                // @since 2.3.3
+                if (nodeName.equals(Constant.ELEMENT_ACTION)) {// <action/>
+                    processAction(prefix, suffix, (Element) node, beanClass)//
+                            .setController(controllerBean);
+                }
+                else {
+                    log.warn("This element: [{}] is not supported.", nodeName);
+                }
+            }
+        }
+    }
 
-	/**
-	 * @param prefix
-	 * @param suffix
-	 * @param action
-	 * @param class_
-	 * @return
-	 * @throws Exception
-	 */
-	private ViewMapping processAction(String prefix, String suffix, Element action, Class<?> class_) throws Exception {
+    /**
+     * @param prefix
+     * @param suffix
+     * @param action
+     * @param class_
+     * @return
+     * @throws Exception
+     */
+    private ViewMapping processAction(String prefix, String suffix, Element action, Class<?> class_) throws Exception {
 
-		ViewMapping mapping = new ViewMapping();
+        ViewMapping mapping = new ViewMapping();
 
-		String name = action.getAttribute(Constant.ATTR_NAME); // action name
-		String type = action.getAttribute(Constant.ATTR_TYPE); // action type
-		String method = action.getAttribute(Constant.ATTR_METHOD); // handler method
-		String resource = action.getAttribute(Constant.ATTR_RESOURCE); // resource
-		String contentType = action.getAttribute(Constant.ATTR_CONTENT_TYPE); // content type
-		final String status = action.getAttribute(Constant.ATTR_STATUS); // status
+        String name = action.getAttribute(Constant.ATTR_NAME); // action name
+        String type = action.getAttribute(Constant.ATTR_TYPE); // action type
+        String method = action.getAttribute(Constant.ATTR_METHOD); // handler method
+        String resource = action.getAttribute(Constant.ATTR_RESOURCE); // resource
+        String contentType = action.getAttribute(Constant.ATTR_CONTENT_TYPE); // content type
+        final String status = action.getAttribute(Constant.ATTR_STATUS); // status
 
-		if (StringUtils.isNotEmpty(status)) {
-			mapping.setStatus(Integer.parseInt(status));
-		}
-		
-		if (StringUtils.isEmpty(name)) {
-			throw new ConfigurationException(//
-					"You must specify a 'name' attribute like this: [<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]"//
-			);
-		}
+        if (StringUtils.isNotEmpty(status)) {
+            mapping.setStatus(Integer.parseInt(status));
+        }
 
-		if (StringUtils.isNotEmpty(method)) {
-			Method handelrMethod = class_.getDeclaredMethod(method, HttpServletRequest.class, HttpServletResponse.class);
-			mapping.setAction(handelrMethod);
-			Class<?> returnType = handelrMethod.getReturnType();
+        if (StringUtils.isEmpty(name)) {
+            throw new ConfigurationException(//
+                    "You must specify a 'name' attribute like this: [<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]"//
+            );
+        }
 
-			if (returnType == String.class) {
-				mapping.setReturnType(Constant.RETURN_STRING);
-			}
-			else if (Image.class.isAssignableFrom(returnType) || RenderedImage.class.isAssignableFrom(returnType)) {
-				mapping.setReturnType(Constant.RETURN_IMAGE);
-			}
-			else if (returnType == void.class) {
-				mapping.setReturnType(Constant.RETURN_VOID);
-			}
-			else {
-				mapping.setReturnType(Constant.RETURN_OBJECT);
-			}
-		}
+        if (StringUtils.isNotEmpty(method)) {
+            Method handelrMethod = class_.getDeclaredMethod(method, HttpServletRequest.class, HttpServletResponse.class);
+            mapping.setAction(handelrMethod);
+            Class<?> returnType = handelrMethod.getReturnType();
 
-		resource = ContextUtils.resolvePlaceholder(variables, prefix + resource + suffix, false);
-		if (resource == null) {
-			resource = elProcessor.getValue(prefix + resource + suffix, String.class);
-		}
-		if (Constant.VALUE_REDIRECT.equals(type)) { // redirect
-			mapping.setReturnType(Constant.TYPE_REDIRECT);
-			if (!resource.startsWith(Constant.HTTP)) {
-				resource = contextPath + resource;
-			}
-		}
-		else if (Constant.VALUE_FORWARD.equals(type)) { // forward
-			mapping.setReturnType(Constant.TYPE_FORWARD);
-		}
+            if (returnType == String.class) {
+                mapping.setReturnType(Constant.RETURN_STRING);
+            }
+            else if (Image.class.isAssignableFrom(returnType) || RenderedImage.class.isAssignableFrom(returnType)) {
+                mapping.setReturnType(Constant.RETURN_IMAGE);
+            }
+            else if (returnType == void.class) {
+                mapping.setReturnType(Constant.RETURN_VOID);
+            }
+            else {
+                mapping.setReturnType(Constant.RETURN_OBJECT);
+            }
+        }
 
-		mapping.setAssetsPath(resource);
-		{ // @since 2.3.3
-			if (StringUtils.isNotEmpty(contentType)) {
-				mapping.setContentType(contentType);
-			}
-		}
+        resource = ContextUtils.resolvePlaceholder(variables, prefix + resource + suffix, false);
+        if (resource == null) {
+            resource = elProcessor.getValue(prefix + resource + suffix, String.class);
+        }
+        if (Constant.VALUE_REDIRECT.equals(type)) { // redirect
+            mapping.setReturnType(Constant.TYPE_REDIRECT);
+            if (!resource.startsWith(Constant.HTTP)) {
+                resource = contextPath + resource;
+            }
+        }
+        else if (Constant.VALUE_FORWARD.equals(type)) { // forward
+            mapping.setReturnType(Constant.TYPE_FORWARD);
+        }
 
-		name = ContextUtils.resolvePlaceholder(variables, //
-				contextPath + (name.startsWith("/") ? name : "/" + name));
+        mapping.setAssetsPath(resource);
+        { // @since 2.3.3
+            if (StringUtils.isNotEmpty(contentType)) {
+                mapping.setContentType(contentType);
+            }
+        }
 
-		ViewDispatcher.register(name, mapping);
-		log.info("View Mapped [{} -> {}]", name, mapping);
-		return mapping;
-	}
+        name = ContextUtils.resolvePlaceholder(variables, //
+                contextPath + (name.startsWith("/") ? name : "/" + name));
 
-	@Override
-	public void setWebApplicationContext(WebApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-		final ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        ViewDispatcher.register(name, mapping);
+        log.info("View Mapped [{} -> {}]", name, mapping);
+        return mapping;
+    }
 
-		this.variables = environment.getProperties();
-		this.elProcessor = environment.getELProcessor();
-		this.beanNameCreator = environment.getBeanNameCreator();
-		this.contextPath = applicationContext.getServletContext().getContextPath();
-	}
+    @Override
+    public void setWebApplicationContext(WebApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+        final ConfigurableEnvironment environment = applicationContext.getEnvironment();
+
+        this.variables = environment.getProperties();
+        this.elProcessor = environment.getELProcessor();
+        this.beanNameCreator = environment.getBeanNameCreator();
+        this.contextPath = applicationContext.getServletContext().getContextPath();
+    }
 
 }

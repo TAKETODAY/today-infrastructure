@@ -32,20 +32,20 @@ import cn.taketoday.web.multipart.AbstractMultipartResolver;
  */
 public interface WebMvcConfiguration {
 
-	default void configResourceMappings(ResourceMappingRegistry registry) {
+    default void configResourceMappings(ResourceMappingRegistry registry) {
 
-	}
+    }
 
-	default void configResourceServletUrlMappings(Set<String> urlMappings) {
+    default void configResourceServletUrlMappings(Set<String> urlMappings) {
 
-	}
+    }
 
-	default void configDefaultServlet(ServletRegistration servletRegistration) {
+    default void configDefaultServlet(ServletRegistration servletRegistration) {
 
-	}
+    }
 
-	default void configMultipartResolver(AbstractMultipartResolver multipartResolver) {
-	
-	}
+    default void configMultipartResolver(AbstractMultipartResolver multipartResolver) {
+
+    }
 
 }

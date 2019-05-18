@@ -26,21 +26,21 @@ package cn.taketoday.web.exception;
  */
 public class NotFoundException extends RuntimeException {
 
-	private static final long serialVersionUID = 8715305996905591689L;
+    private static final long serialVersionUID = 8715305996905591689L;
 
-	public NotFoundException(Throwable cause) {
-		super(cause);
-	}
+    public NotFoundException(Throwable cause) {
+        super(cause);
+    }
 
-	public NotFoundException(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public NotFoundException(String message) {
-		super(message);
-	}
+    public NotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public NotFoundException() {
+    public NotFoundException(String message) {
+        super(message);
+    }
 
-	}
+    public NotFoundException() {
+
+    }
 }

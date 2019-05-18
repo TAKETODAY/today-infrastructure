@@ -29,13 +29,13 @@ import org.junit.Test;
  */
 public class ViewDispatcherTest {
 
-	@Before
-	public void setUp() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+    }
 
-	@Test
-	public void test_Service() {
+    @Test
+    public void test_Service() {
 
-	}
+    }
 
 }

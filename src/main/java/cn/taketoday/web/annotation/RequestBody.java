@@ -37,11 +37,11 @@ import cn.taketoday.web.Constant;
 @RequestParam(type = Constant.ANNOTATION_REQUEST_BODY)
 public @interface RequestBody {
 
-	/**
-	 * Request body name.
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+    /**
+     * Request body name.
+     * 
+     * @return
+     */
+    String value() default Constant.BLANK;
 
 }

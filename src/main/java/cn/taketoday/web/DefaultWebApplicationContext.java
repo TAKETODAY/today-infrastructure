@@ -34,87 +34,87 @@ import cn.taketoday.context.utils.StringUtils;
  */
 public class DefaultWebApplicationContext extends AbstractApplicationContext implements WebApplicationContext {
 
-	/**
-	 * Servlet context
-	 */
-	private ServletContext servletContext;
+    /**
+     * Servlet context
+     */
+    private ServletContext servletContext;
 
-	private final DefaultWebBeanFactory beanFactory;
+    private final DefaultWebBeanFactory beanFactory;
 
-	@Override
-	public ServletContext getServletContext() {
-		return servletContext;
-	}
+    @Override
+    public ServletContext getServletContext() {
+        return servletContext;
+    }
 
-	@Override
-	public void setServletContext(ServletContext servletContext) {
-		this.servletContext = servletContext;
-	}
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
 
-	public DefaultWebApplicationContext() {
-		this.beanFactory = new DefaultWebBeanFactory(this);
-	}
+    public DefaultWebApplicationContext() {
+        this.beanFactory = new DefaultWebBeanFactory(this);
+    }
 
-	@Override
-	public AbstractBeanFactory getBeanFactory() {
-		return this.beanFactory;
-	}
+    @Override
+    public AbstractBeanFactory getBeanFactory() {
+        return this.beanFactory;
+    }
 
-	/**
-	 * @param servletContext
-	 */
-	public DefaultWebApplicationContext(ServletContext servletContext) {
-		this();
-		this.servletContext = servletContext;
-		loadContext();
-	}
+    /**
+     * @param servletContext
+     */
+    public DefaultWebApplicationContext(ServletContext servletContext) {
+        this();
+        this.servletContext = servletContext;
+        loadContext();
+    }
 
-	/**
-	 * @param classes
-	 *            class set
-	 * @param servletContext
-	 * @since 2.3.3
-	 */
-	public DefaultWebApplicationContext(Set<Class<?>> classes, ServletContext servletContext) {
-		this();
-		this.servletContext = servletContext;
-		loadContext(classes);
-	}
+    /**
+     * @param classes
+     *            class set
+     * @param servletContext
+     * @since 2.3.3
+     */
+    public DefaultWebApplicationContext(Set<Class<?>> classes, ServletContext servletContext) {
+        this();
+        this.servletContext = servletContext;
+        loadContext(classes);
+    }
 
-	/**
-	 * @param servletContext
-	 * @param properties
-	 *            properties location
-	 * @param locations
-	 *            package locations
-	 * @since 2.3.3
-	 */
-	public DefaultWebApplicationContext(ServletContext servletContext, String propertiesLocation, String... locations) {
-		this();
-		if (StringUtils.isNotEmpty(propertiesLocation)) {
-			setPropertiesLocation(propertiesLocation);
-		}
-		this.servletContext = servletContext;
-		loadContext(locations);
-	}
+    /**
+     * @param servletContext
+     * @param properties
+     *            properties location
+     * @param locations
+     *            package locations
+     * @since 2.3.3
+     */
+    public DefaultWebApplicationContext(ServletContext servletContext, String propertiesLocation, String... locations) {
+        this();
+        if (StringUtils.isNotEmpty(propertiesLocation)) {
+            setPropertiesLocation(propertiesLocation);
+        }
+        this.servletContext = servletContext;
+        loadContext(locations);
+    }
 
-	public DefaultWebApplicationContext(DefaultWebBeanFactory beanFactory) {
-		this.beanFactory = beanFactory;
-	}
+    public DefaultWebApplicationContext(DefaultWebBeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+    }
 
-	@Override
-	protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
-		// register WebApplicationContext
-		registerSingleton(beanFactory.getBeanNameCreator().create(WebApplicationContext.class), this);
-		
-		super.postProcessBeanFactory(beanFactory);
-	}
+    @Override
+    protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
+        // register WebApplicationContext
+        registerSingleton(beanFactory.getBeanNameCreator().create(WebApplicationContext.class), this);
 
-	@Override
-	protected void doLoadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
-		super.doLoadBeanDefinitions(beanFactory, beanClasses);
-		this.beanFactory.loadConfigurationBeans();
-		this.beanFactory.loadMissingBean(beanClasses);
-	}
+        super.postProcessBeanFactory(beanFactory);
+    }
+
+    @Override
+    protected void doLoadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
+        super.doLoadBeanDefinitions(beanFactory, beanClasses);
+        this.beanFactory.loadConfigurationBeans();
+        this.beanFactory.loadMissingBean(beanClasses);
+    }
 
 }

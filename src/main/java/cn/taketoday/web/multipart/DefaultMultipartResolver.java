@@ -44,64 +44,64 @@ import cn.taketoday.web.mapping.MethodParameter;
 @Singleton(Constant.MULTIPART_RESOLVER)
 public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
-	@Override
-	public Object resolveMultipart(HttpServletRequest request, //
-			String methodParameterName, MethodParameter methodParameter) throws Throwable //
-	{
-		
-		if (getMaxRequestSize() < request.getContentLengthLong()) { // exceed max size?
-			throw new FileSizeExceededException(getMaxRequestSize(), null).setActual(request.getContentLengthLong());
-		}
+    @Override
+    public Object resolveMultipart(HttpServletRequest request, //
+            String methodParameterName, MethodParameter methodParameter) throws Throwable //
+    {
 
-		switch (methodParameter.getParameterType())
-		{
-			case Constant.TYPE_MULTIPART_FILE : {
-				return new DefaultMultipartFile(request.getPart(methodParameterName));
-			}
-			case Constant.TYPE_ARRAY_MULTIPART_FILE : {
-				Set<DefaultMultipartFile> multipartFiles = new HashSet<>();
-				for (Part part : request.getParts()) {
-					if (methodParameterName.equals(part.getName())) {
-						multipartFiles.add(new DefaultMultipartFile(part));
-					}
-				}
-				return multipartFiles.toArray(new DefaultMultipartFile[0]);
-			}
-			case Constant.TYPE_SET_MULTIPART_FILE : {
-				Set<DefaultMultipartFile> multipartFiles = new HashSet<>();
-				for (Part part : request.getParts()) {
-					if (methodParameterName.equals(part.getName())) {
-						multipartFiles.add(new DefaultMultipartFile(part));
-					}
-				}
-				return multipartFiles;
-			}
-			case Constant.TYPE_LIST_MULTIPART_FILE : {
-				List<DefaultMultipartFile> multipartFiles = new ArrayList<>();
-				for (Part part : request.getParts()) {
-					if (methodParameterName.equals(part.getName())) {
-						multipartFiles.add(new DefaultMultipartFile(part));
-					}
-				}
-				return multipartFiles;
-			}
-			default :
-				throw new BadRequestException("Not supported type: [" + methodParameter.getParameterClass() + "]");
-		}
-	}
+        if (getMaxRequestSize() < request.getContentLengthLong()) { // exceed max size?
+            throw new FileSizeExceededException(getMaxRequestSize(), null).setActual(request.getContentLengthLong());
+        }
 
-	@Override
-	public void cleanupMultipart(HttpServletRequest request) {
+        switch (methodParameter.getParameterType())
+        {
+            case Constant.TYPE_MULTIPART_FILE : {
+                return new DefaultMultipartFile(request.getPart(methodParameterName));
+            }
+            case Constant.TYPE_ARRAY_MULTIPART_FILE : {
+                Set<DefaultMultipartFile> multipartFiles = new HashSet<>();
+                for (Part part : request.getParts()) {
+                    if (methodParameterName.equals(part.getName())) {
+                        multipartFiles.add(new DefaultMultipartFile(part));
+                    }
+                }
+                return multipartFiles.toArray(new DefaultMultipartFile[0]);
+            }
+            case Constant.TYPE_SET_MULTIPART_FILE : {
+                Set<DefaultMultipartFile> multipartFiles = new HashSet<>();
+                for (Part part : request.getParts()) {
+                    if (methodParameterName.equals(part.getName())) {
+                        multipartFiles.add(new DefaultMultipartFile(part));
+                    }
+                }
+                return multipartFiles;
+            }
+            case Constant.TYPE_LIST_MULTIPART_FILE : {
+                List<DefaultMultipartFile> multipartFiles = new ArrayList<>();
+                for (Part part : request.getParts()) {
+                    if (methodParameterName.equals(part.getName())) {
+                        multipartFiles.add(new DefaultMultipartFile(part));
+                    }
+                }
+                return multipartFiles;
+            }
+            default:
+                throw new BadRequestException("Not supported type: [" + methodParameter.getParameterClass() + "]");
+        }
+    }
 
-		try {
+    @Override
+    public void cleanupMultipart(HttpServletRequest request) {
 
-			for (Part part : request.getParts()) {
-				part.delete();
-			}
-		} //
-		catch (Exception ex) {
-			LoggerFactory.getLogger(DefaultMultipartResolver.class).error("cleanup cache error", ex);
-		}
-	}
+        try {
+
+            for (Part part : request.getParts()) {
+                part.delete();
+            }
+        } //
+        catch (Exception ex) {
+            LoggerFactory.getLogger(DefaultMultipartResolver.class).error("cleanup cache error", ex);
+        }
+    }
 
 }

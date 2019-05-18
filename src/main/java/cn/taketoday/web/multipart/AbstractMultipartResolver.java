@@ -35,26 +35,26 @@ import lombok.Setter;
 @Getter
 public abstract class AbstractMultipartResolver implements MultipartResolver {
 
-	/*** file upload location */
-	private String location = System.getProperty("java.io.tmpdir");
+    /*** file upload location */
+    private String location = System.getProperty("java.io.tmpdir");
 
-	private String encoding = Constant.DEFAULT_ENCODING;
+    private String encoding = Constant.DEFAULT_ENCODING;
 
-	/**
-	 * Maximum size of a single uploaded file.
-	 */
-	private long maxFileSize = DataSize.ofMegabytes(512).toBytes(); // every single file
-	private long maxRequestSize = DataSize.ofGigabytes(1).toBytes(); // total size in every single request
-	private int fileSizeThreshold = new Long(DataSize.ofGigabytes(1).toBytes()).intValue(); // cache
+    /**
+     * Maximum size of a single uploaded file.
+     */
+    private long maxFileSize = DataSize.ofMegabytes(512).toBytes(); // every single file
+    private long maxRequestSize = DataSize.ofGigabytes(1).toBytes(); // total size in every single request
+    private int fileSizeThreshold = new Long(DataSize.ofGigabytes(1).toBytes()).intValue(); // cache
 
-	@Override
-	public boolean isMultipart(HttpServletRequest request) {
+    @Override
+    public boolean isMultipart(HttpServletRequest request) {
 
-		if (!"POST".equals(request.getMethod())) {
-			return false;
-		}
-		String contentType = request.getContentType();
-		return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
-	}
+        if (!"POST".equals(request.getMethod())) {
+            return false;
+        }
+        String contentType = request.getContentType();
+        return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
+    }
 
 }

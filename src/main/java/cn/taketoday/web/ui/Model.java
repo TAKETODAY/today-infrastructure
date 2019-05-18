@@ -29,82 +29,82 @@ import java.util.Map;
  */
 public interface Model {
 
-	/**
-	 * Contains a attribute with given {@link attributeName}
-	 * 
-	 * @param attributeName
-	 *            Attribute name
-	 * @return
-	 */
-	boolean containsAttribute(String attributeName);
+    /**
+     * Contains a attribute with given {@link attributeName}
+     * 
+     * @param attributeName
+     *            Attribute name
+     * @return
+     */
+    boolean containsAttribute(String attributeName);
 
-	/**
-	 * get attribute
-	 * 
-	 * @param name
-	 *            Attribute name
-	 * @return
-	 */
-	Object getAttribute(String name);
+    /**
+     * get attribute
+     * 
+     * @param name
+     *            Attribute name
+     * @return
+     */
+    Object getAttribute(String name);
 
-	/**
-	 * Get a attribute with given name and required type
-	 * 
-	 * @param name
-	 *            Attribute name
-	 * @param targetClass
-	 *            Required type
-	 * @return
-	 */
-	<T> T getAttribute(String name, Class<T> targetClass);
+    /**
+     * Get a attribute with given name and required type
+     * 
+     * @param name
+     *            Attribute name
+     * @param targetClass
+     *            Required type
+     * @return
+     */
+    <T> T getAttribute(String name, Class<T> targetClass);
 
-	/**
-	 * Add the attributes from map
-	 * 
-	 * @param attributes
-	 *            The attributes
-	 * @return
-	 */
-	Model addAllAttributes(Map<String, Object> attributes);
+    /**
+     * Add the attributes from map
+     * 
+     * @param attributes
+     *            The attributes
+     * @return
+     */
+    Model addAllAttributes(Map<String, Object> attributes);
 
-	/**
-	 * Add a attribute in model
-	 * 
-	 * @param attributeName
-	 *            Attribute name
-	 * @param attributeValue
-	 *            Attribute value
-	 * @return
-	 */
-	Model addAttribute(String attributeName, Object attributeValue);
+    /**
+     * Add a attribute in model
+     * 
+     * @param attributeName
+     *            Attribute name
+     * @param attributeValue
+     *            Attribute value
+     * @return
+     */
+    Model addAttribute(String attributeName, Object attributeValue);
 
-	/**
-	 * convert this model to a {@link Map}
-	 * 
-	 * @return
-	 */
-	Map<String, Object> asMap();
+    /**
+     * convert this model to a {@link Map}
+     * 
+     * @return
+     */
+    Map<String, Object> asMap();
 
-	/**
-	 * Delete attribute
-	 * 
-	 * @param name
-	 *            Attribute name
-	 */
-	void removeAttribute(String name);
+    /**
+     * Delete attribute
+     * 
+     * @param name
+     *            Attribute name
+     */
+    void removeAttribute(String name);
 
-	/**
-	 * Get all the attribute names
-	 * 
-	 * @return
-	 */
-	Collection<String> getAttributeNames();
+    /**
+     * Get all the attribute names
+     * 
+     * @return
+     */
+    Collection<String> getAttributeNames();
 
-	/**
-	 * Clear all attributes
-	 * 
-	 * @since 2.3.3
-	 */
-	void clear();
+    /**
+     * Clear all attributes
+     * 
+     * @since 2.3.3
+     */
+    void clear();
 
 }

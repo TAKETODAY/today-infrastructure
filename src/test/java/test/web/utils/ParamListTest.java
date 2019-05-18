@@ -34,183 +34,183 @@ import cn.taketoday.web.utils.ParamList;
  */
 public class ParamListTest {
 
-	@Before
-	public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 
-	}
+    }
 
-	@Test
-	public void test_IsEmpty() {
-		List<Integer> params = new ParamList<>();
-		for (int i = 0; i < 10; i++) {
-			params.add(i);
-		}
-		assert !params.isEmpty();
-	}
+    @Test
+    public void test_IsEmpty() {
+        List<Integer> params = new ParamList<>();
+        for (int i = 0; i < 10; i++) {
+            params.add(i);
+        }
+        assert !params.isEmpty();
+    }
 
-	@Test
-	public void test_Contains() {
-		List<Integer> params = new ParamList<>();
-		for (int i = 0; i < 10; i++) {
-			params.add(i);
-		}
-		for (int i = 0; i < 10; i++) {
-			assert params.contains(i);
-		}
-		List<String> params_ = new ParamList<>();
-		for (int i = 0; i < 10; i++) {
-			params_.add(i + "today");
-		}
-		for (int i = 0; i < 10; i++) {
-			assert params_.contains(i + "today");
-		}
-	}
+    @Test
+    public void test_Contains() {
+        List<Integer> params = new ParamList<>();
+        for (int i = 0; i < 10; i++) {
+            params.add(i);
+        }
+        for (int i = 0; i < 10; i++) {
+            assert params.contains(i);
+        }
+        List<String> params_ = new ParamList<>();
+        for (int i = 0; i < 10; i++) {
+            params_.add(i + "today");
+        }
+        for (int i = 0; i < 10; i++) {
+            assert params_.contains(i + "today");
+        }
+    }
 
-	@Test
-	public void test_IndexOfObject() {
-		List<Integer> params = new ParamList<>();
-		for (int i = 0; i < 10; i++) {
-			params.add(i);
-		}
-		for (int i = 0; i < 10; i++) {
-			assert params.indexOf(i) == i;
-		}
-		List<String> params_ = new ParamList<>();
-		for (int i = 0; i < 10; i++) {
-			params_.add(i + "today");
-		}
-		for (int i = 0; i < 10; i++) {
-			assert params_.indexOf(i + "today") == i;
-		}
-	}
+    @Test
+    public void test_IndexOfObject() {
+        List<Integer> params = new ParamList<>();
+        for (int i = 0; i < 10; i++) {
+            params.add(i);
+        }
+        for (int i = 0; i < 10; i++) {
+            assert params.indexOf(i) == i;
+        }
+        List<String> params_ = new ParamList<>();
+        for (int i = 0; i < 10; i++) {
+            params_.add(i + "today");
+        }
+        for (int i = 0; i < 10; i++) {
+            assert params_.indexOf(i + "today") == i;
+        }
+    }
 
-	@Test
-	public void test_LastIndexOfObject() {
-		List<Integer> params = new ParamList<>();
-		for (int i = 0; i < 10; i++) {
-			params.add(i);
-		}
-		for (int i = 0; i < 10; i++) {
-			assert params.lastIndexOf(i) == i;
-		}
+    @Test
+    public void test_LastIndexOfObject() {
+        List<Integer> params = new ParamList<>();
+        for (int i = 0; i < 10; i++) {
+            params.add(i);
+        }
+        for (int i = 0; i < 10; i++) {
+            assert params.lastIndexOf(i) == i;
+        }
 
-		List<String> params_ = new ParamList<>();
-		for (int i = 0; i < 10; i++) {
-			params_.add(i + "today");
-		}
-		for (int i = 0; i < 10; i++) {
-			assert params_.lastIndexOf(i + "today") == i;
-		}
-	}
+        List<String> params_ = new ParamList<>();
+        for (int i = 0; i < 10; i++) {
+            params_.add(i + "today");
+        }
+        for (int i = 0; i < 10; i++) {
+            assert params_.lastIndexOf(i + "today") == i;
+        }
+    }
 
-	@Test
-	public void test_ToArray() {
-		List<Integer> params = new ParamList<>();
-		for (int i = 0; i < 10; i++) {
-			params.add(i);
-		}
-		Object[] array = params.toArray();
-		assert array.length == 10;
+    @Test
+    public void test_ToArray() {
+        List<Integer> params = new ParamList<>();
+        for (int i = 0; i < 10; i++) {
+            params.add(i);
+        }
+        Object[] array = params.toArray();
+        assert array.length == 10;
 
-		for (int i = 0; i < 10; i++) {
-			assert (int) array[i] == i;
-		}
-		List<String> params_ = new ParamList<>();
-		for (int i = 0; i < 10; i++) {
-			params_.add(i + "today");
-		}
-		Object[] array_ = params_.toArray();
-		assert array_.length == 10;
-		for (int i = 0; i < 10; i++) {
-			assert array_[i].equals(i + "today");
-		}
-	}
+        for (int i = 0; i < 10; i++) {
+            assert (int) array[i] == i;
+        }
+        List<String> params_ = new ParamList<>();
+        for (int i = 0; i < 10; i++) {
+            params_.add(i + "today");
+        }
+        Object[] array_ = params_.toArray();
+        assert array_.length == 10;
+        for (int i = 0; i < 10; i++) {
+            assert array_[i].equals(i + "today");
+        }
+    }
 
-	@Test
-	public void test_Get() {
-		List<Integer> params = new ParamList<>();
-		for (int i = 0; i < 10; i++) {
-			params.add(i);
-		}
+    @Test
+    public void test_Get() {
+        List<Integer> params = new ParamList<>();
+        for (int i = 0; i < 10; i++) {
+            params.add(i);
+        }
 
-		for (int i = 0; i < 10; i++) {
-			assert (int) params.get(i) == i;
-		}
+        for (int i = 0; i < 10; i++) {
+            assert (int) params.get(i) == i;
+        }
 
-		List<String> params_ = new ParamList<>();
-		for (int i = 0; i < 10; i++) {
-			params_.add(i + "today");
-		}
+        List<String> params_ = new ParamList<>();
+        for (int i = 0; i < 10; i++) {
+            params_.add(i + "today");
+        }
 
-		for (int i = 0; i < 10; i++) {
-			assert params_.get(i).equals(i + "today");
-		}
-	}
+        for (int i = 0; i < 10; i++) {
+            assert params_.get(i).equals(i + "today");
+        }
+    }
 
-	@Test
-	public void test_Set() {
+    @Test
+    public void test_Set() {
 
-	}
+    }
 
-	@Test
-	public void test_AddE() {
+    @Test
+    public void test_AddE() {
 
-		List<Object> params = new ParamList<>();
-		Json json = new Json();
-		json.setCode(100);
-		json.setMsg("today");
-		params.add(json);
-		params.add(json);
-		params.add(json);
+        List<Object> params = new ParamList<>();
+        Json json = new Json();
+        json.setCode(100);
+        json.setMsg("today");
+        params.add(json);
+        params.add(json);
+        params.add(json);
 
-		assert params.size() == 3;
-	}
+        assert params.size() == 3;
+    }
 
-	@Test
-	public void test_AddIntE() {
+    @Test
+    public void test_AddIntE() {
 
-		List<Object> params = new ParamList<>();
-		Json json = new Json();
-		json.setCode(100);
-		json.setMsg("today");
-		params.add(json);
-		params.add(5, json);
-		assert params.get(5).equals(params.get(0));
-	}
+        List<Object> params = new ParamList<>();
+        Json json = new Json();
+        json.setCode(100);
+        json.setMsg("today");
+        params.add(json);
+        params.add(5, json);
+        assert params.get(5).equals(params.get(0));
+    }
 
-	@Test
-	public void test_RemoveInt() {
+    @Test
+    public void test_RemoveInt() {
 
-		List<Object> params = new ParamList<>();
-		Json json = new Json();
-		json.setCode(100);
-		json.setMsg("today");
+        List<Object> params = new ParamList<>();
+        Json json = new Json();
+        json.setCode(100);
+        json.setMsg("today");
 
-		params.add(json);
-		params.add(5, json);
-		Object remove = params.remove(4);
+        params.add(json);
+        params.add(5, json);
+        Object remove = params.remove(4);
 
-		assert remove == null;
-		assert params.get(5) == null;
+        assert remove == null;
+        assert params.get(5) == null;
 
-		assert params.get(4).equals(params.get(0));
-	}
+        assert params.get(4).equals(params.get(0));
+    }
 
-	@Test
-	public void test_RemoveObject() {
+    @Test
+    public void test_RemoveObject() {
 
-		List<Object> params = new ParamList<>();
-		Json json = new Json()//
-				.setCode(100)//
-				.setMsg("today");
+        List<Object> params = new ParamList<>();
+        Json json = new Json()//
+                .setCode(100)//
+                .setMsg("today");
 
-		params.add(json);
-		params.add(5, json);
+        params.add(json);
+        params.add(5, json);
 
-		assert params.remove(json);
-		assert params.size() == 5;
-		assert params.get(5) == null;
-		assert params.get(4).equals(json);
-	}
+        assert params.remove(json);
+        assert params.size() == 5;
+        assert params.get(5) == null;
+        assert params.get(4).equals(json);
+    }
 
 }

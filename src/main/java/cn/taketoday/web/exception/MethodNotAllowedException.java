@@ -25,21 +25,21 @@ package cn.taketoday.web.exception;
  */
 public final class MethodNotAllowedException extends Exception {
 
-	private static final long serialVersionUID = -2685676809973234020L;
+    private static final long serialVersionUID = -2685676809973234020L;
 
-	public MethodNotAllowedException(Throwable cause) {
-		super(cause);
-	}
+    public MethodNotAllowedException(Throwable cause) {
+        super(cause);
+    }
 
-	public MethodNotAllowedException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public MethodNotAllowedException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public MethodNotAllowedException(String message) {
-		super(message);
-	}
+    public MethodNotAllowedException(String message) {
+        super(message);
+    }
 
-	public MethodNotAllowedException() {
+    public MethodNotAllowedException() {
 
-	}
+    }
 }

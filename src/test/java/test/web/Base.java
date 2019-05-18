@@ -43,41 +43,41 @@ import lombok.Setter;
 @Setter
 public class Base {
 
-	private ServletContext servletContext;
+    private ServletContext servletContext;
 
-	private WebApplicationContext applicationContext;
-	long start = System.currentTimeMillis();
+    private WebApplicationContext applicationContext;
+    long start = System.currentTimeMillis();
 
-	@Before
-	public void before() {
+    @Before
+    public void before() {
 
-		servletContext = Mockito.mock(ServletContext.class);
-		Mockito.when(servletContext.getContextPath()).thenReturn("");
-		applicationContext = new DefaultWebApplicationContext();
+        servletContext = Mockito.mock(ServletContext.class);
+        Mockito.when(servletContext.getContextPath()).thenReturn("");
+        applicationContext = new DefaultWebApplicationContext();
 
-		((DefaultWebApplicationContext) applicationContext).setServletContext(servletContext);
+        ((DefaultWebApplicationContext) applicationContext).setServletContext(servletContext);
 
-		applicationContext.getEnvironment().addActiveProfile("test");
-		applicationContext.loadContext("test.web");
-	}
+        applicationContext.getEnvironment().addActiveProfile("test");
+        applicationContext.loadContext("test.web");
+    }
 
-	@After
-	public void after() {
-		if (applicationContext != null) {
-			applicationContext.close();
-		}
-	}
+    @After
+    public void after() {
+        if (applicationContext != null) {
+            applicationContext.close();
+        }
+    }
 
-	@Test
-	public void test_() {
-		System.err.println(System.currentTimeMillis() - start);
-		Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitionsMap();
+    @Test
+    public void test_() {
+        System.err.println(System.currentTimeMillis() - start);
+        Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitionsMap();
 
-		System.err.println(beanDefinitionsMap);
+        System.err.println(beanDefinitionsMap);
 //		for (Class<?> class1 : ClassUtils.getClassCache()) {
 //			System.err.println(class1);
 //		}
 
-	}
+    }
 
 }

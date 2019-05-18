@@ -38,43 +38,43 @@ import cn.taketoday.context.factory.InitializingBean;
  */
 public class ThymeleafViewResolver extends AbstractViewResolver implements InitializingBean {
 
-	private final TemplateEngine templateEngine;
+    private final TemplateEngine templateEngine;
 
-	@Value(value = "#{thymeleaf.cacheable}", required = false)
-	private boolean cacheable = true;
+    @Value(value = "#{thymeleaf.cacheable}", required = false)
+    private boolean cacheable = true;
 
-	public ThymeleafViewResolver() {
-		templateEngine = new TemplateEngine();
-	}
-	
-	/**
-	 * Init Thymeleaf View Resolver.
-	 */
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		
-		ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
+    public ThymeleafViewResolver() {
+        templateEngine = new TemplateEngine();
+    }
 
-		templateResolver.setPrefix(prefix);
-		templateResolver.setSuffix(suffix);
-		templateResolver.setCacheable(cacheable);
-		templateResolver.setCharacterEncoding(encoding);
-		templateResolver.setTemplateMode(TemplateMode.HTML);
+    /**
+     * Init Thymeleaf View Resolver.
+     */
+    @Override
+    public void afterPropertiesSet() throws Exception {
 
-		templateEngine.setTemplateResolver(templateResolver);
+        ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
 
-		LoggerFactory.getLogger(getClass()).info("Configuration Thymeleaf View Resolver Success.");
-	}
+        templateResolver.setPrefix(prefix);
+        templateResolver.setSuffix(suffix);
+        templateResolver.setCacheable(cacheable);
+        templateResolver.setCharacterEncoding(encoding);
+        templateResolver.setTemplateMode(TemplateMode.HTML);
 
-	/**
-	 * resolve Thymeleaf View.
-	 */
-	@Override
-	public void resolveView(String templateName, //
-			HttpServletRequest request, HttpServletResponse response) throws Throwable //
-	{
-		templateEngine.process(templateName, //
-				new WebContext(request, response, servletContext, locale), response.getWriter());
-	}
+        templateEngine.setTemplateResolver(templateResolver);
+
+        LoggerFactory.getLogger(getClass()).info("Configuration Thymeleaf View Resolver Success.");
+    }
+
+    /**
+     * resolve Thymeleaf View.
+     */
+    @Override
+    public void resolveView(String templateName, //
+            HttpServletRequest request, HttpServletResponse response) throws Throwable //
+    {
+        templateEngine.process(templateName, //
+                new WebContext(request, response, servletContext, locale), response.getWriter());
+    }
 
 }

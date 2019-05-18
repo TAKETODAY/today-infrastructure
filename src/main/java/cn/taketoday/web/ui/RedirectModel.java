@@ -28,5 +28,5 @@ package cn.taketoday.web.ui;
  * @since 2.3.3
  */
 public interface RedirectModel extends Model {
-	
+
 }

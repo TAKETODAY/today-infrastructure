@@ -32,73 +32,73 @@ import cn.taketoday.web.RequestMethod;
 @SuppressWarnings("all")
 public class ActionMappingImpl implements ActionMapping {
 
-	private String[] value;
-	private boolean exclude;
-	private RequestMethod[] method;
+    private String[] value;
+    private boolean exclude;
+    private RequestMethod[] method;
 
-	@Override
-	public Class<? extends Annotation> annotationType() {
-		return ActionMapping.class;
-	}
+    @Override
+    public Class<? extends Annotation> annotationType() {
+        return ActionMapping.class;
+    }
 
-	@Override
-	public String[] value() {
-		return value;
-	}
+    @Override
+    public String[] value() {
+        return value;
+    }
 
-	@Override
-	public RequestMethod[] method() {
-		return method;
-	}
+    @Override
+    public RequestMethod[] method() {
+        return method;
+    }
 
-	@Override
-	public String toString() {
-		return new StringBuilder().append("@")//
-				.append(ActionMapping.class.getName())//
-				.append("(value=")//
-				.append(Arrays.toString(value))//
-				.append(", method=")//
-				.append(Arrays.toString(method))//
-				.append(")")//
-				.toString();
-	}
+    @Override
+    public String toString() {
+        return new StringBuilder().append("@")//
+                .append(ActionMapping.class.getName())//
+                .append("(value=")//
+                .append(Arrays.toString(value))//
+                .append(", method=")//
+                .append(Arrays.toString(method))//
+                .append(")")//
+                .toString();
+    }
 
-	@Override
-	public boolean exclude() {
-		return exclude;
-	}
+    @Override
+    public boolean exclude() {
+        return exclude;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
+    @Override
+    public boolean equals(Object obj) {
 
-		if (obj == this) {
-			return true;
-		}
+        if (obj == this) {
+            return true;
+        }
 
-		if (!(obj instanceof ActionMapping)) {
-			return false;
-		}
+        if (!(obj instanceof ActionMapping)) {
+            return false;
+        }
 
-		ActionMapping actionMapping = (ActionMapping) obj;
-		RequestMethod[] otherMethods = actionMapping.method();
-		String[] otherValues = actionMapping.value();
-		if (actionMapping.exclude() != exclude || //
-				otherValues.length != value.length || //
-				method.length != otherMethods.length) {
+        ActionMapping actionMapping = (ActionMapping) obj;
+        RequestMethod[] otherMethods = actionMapping.method();
+        String[] otherValues = actionMapping.value();
+        if (actionMapping.exclude() != exclude || //
+                otherValues.length != value.length || //
+                method.length != otherMethods.length) {
 
-			return false;
-		}
-		for (int i = 0; i < method.length; i++) {
-			if (!otherMethods[i].equals(method[i])) {
-				return false;
-			}
-		}
-		for (int i = 0; i < value.length; i++) {
-			if (!otherValues[i].equals(value[i])) {
-				return false;
-			}
-		}
-		return true;
-	}
+            return false;
+        }
+        for (int i = 0; i < method.length; i++) {
+            if (!otherMethods[i].equals(method[i])) {
+                return false;
+            }
+        }
+        for (int i = 0; i < value.length; i++) {
+            if (!otherValues[i].equals(value[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

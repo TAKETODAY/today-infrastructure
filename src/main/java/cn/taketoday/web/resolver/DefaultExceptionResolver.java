@@ -57,151 +57,151 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton(Constant.EXCEPTION_RESOLVER)
 public class DefaultExceptionResolver implements ExceptionResolver {
 
-	@Override
-	public void resolveException(HttpServletRequest request, //
-			HttpServletResponse response, Throwable ex, HandlerMapping handlerMapping) throws Throwable //
-	{
-		try {
+    @Override
+    public void resolveException(HttpServletRequest request, //
+            HttpServletResponse response, Throwable ex, HandlerMapping handlerMapping) throws Throwable //
+    {
+        try {
 
-			response.reset();
-			if (handlerMapping != null) {
+            response.reset();
+            if (handlerMapping != null) {
 
-				final HandlerMethod handlerMethod = handlerMapping.getHandlerMethod();
-				final Method method = handlerMethod.getMethod();
-				ResponseStatus responseStatus = method.getAnnotation(ResponseStatus.class);
-				if (responseStatus == null) {
-					responseStatus = method.getDeclaringClass().getAnnotation(ResponseStatus.class);
-				}
-				int status = getStatus(ex);
-				String msg = ex.getMessage();
-				String redirect = null;
-				if (responseStatus != null) {
-					msg = responseStatus.msg();
-					int value = responseStatus.value();
-					status = value == 0 ? status : value;
-					redirect = responseStatus.redirect();
-				}
-				response.setStatus(status);
-				switch (handlerMethod.getReutrnType())
-				{
-					case Constant.RETURN_FILE :
-					case Constant.RETURN_VOID :
-					case Constant.RETURN_JSON :
-					case Constant.RETURN_STRING :
+                final HandlerMethod handlerMethod = handlerMapping.getHandlerMethod();
+                final Method method = handlerMethod.getMethod();
+                ResponseStatus responseStatus = method.getAnnotation(ResponseStatus.class);
+                if (responseStatus == null) {
+                    responseStatus = method.getDeclaringClass().getAnnotation(ResponseStatus.class);
+                }
+                int status = getStatus(ex);
+                String msg = ex.getMessage();
+                String redirect = null;
+                if (responseStatus != null) {
+                    msg = responseStatus.msg();
+                    int value = responseStatus.value();
+                    status = value == 0 ? status : value;
+                    redirect = responseStatus.redirect();
+                }
+                response.setStatus(status);
+                switch (handlerMethod.getReutrnType())
+                {
+                    case Constant.RETURN_FILE :
+                    case Constant.RETURN_VOID :
+                    case Constant.RETURN_JSON :
+                    case Constant.RETURN_STRING :
 
-						response.setContentType(Constant.CONTENT_TYPE_JSON);
-						JSON.writeJSONString(response.getWriter(), new Json(msg, status, false),
-								SerializerFeature.WriteMapNullValue, //
-								SerializerFeature.WriteNullListAsEmpty, //
-								SerializerFeature.DisableCircularReferenceDetect//
-						);
-						break;
-					case Constant.RETURN_IMAGE :
-						resolveImageException(ex, response);
-						break;
-					case Constant.RETURN_VIEW :
-					case Constant.RETURN_OBJECT :
-					case Constant.RETURN_MODEL_AND_VIEW :
-						if (StringUtils.isNotEmpty(redirect)) {
-							response.sendRedirect(request.getContextPath() + redirect);
-						}
-						else
-							resolveViewException(ex, response, status, msg);
-				}
-			}
-			else {
-				resolveViewException(ex, response, 500, ex.getMessage());
-			}
+                        response.setContentType(Constant.CONTENT_TYPE_JSON);
+                        JSON.writeJSONString(response.getWriter(), new Json(msg, status, false),
+                                SerializerFeature.WriteMapNullValue, //
+                                SerializerFeature.WriteNullListAsEmpty, //
+                                SerializerFeature.DisableCircularReferenceDetect//
+                        );
+                        break;
+                    case Constant.RETURN_IMAGE :
+                        resolveImageException(ex, response);
+                        break;
+                    case Constant.RETURN_VIEW :
+                    case Constant.RETURN_OBJECT :
+                    case Constant.RETURN_MODEL_AND_VIEW :
+                        if (StringUtils.isNotEmpty(redirect)) {
+                            response.sendRedirect(request.getContextPath() + redirect);
+                        }
+                        else
+                            resolveViewException(ex, response, status, msg);
+                }
+            }
+            else {
+                resolveViewException(ex, response, 500, ex.getMessage());
+            }
 
-			log.error("Catch Throwable: [{}] With Msg: [{}]", ex, ex.getMessage(), ex);
-		}
-		catch (Throwable handlerException) {
-			log.error("Handling of [{}] resulted in Exception: [{}]", //
-					ex.getClass().getName(), handlerException.getClass().getName(), handlerException);
+            log.error("Catch Throwable: [{}] With Msg: [{}]", ex, ex.getMessage(), ex);
+        }
+        catch (Throwable handlerException) {
+            log.error("Handling of [{}] resulted in Exception: [{}]", //
+                    ex.getClass().getName(), handlerException.getClass().getName(), handlerException);
 
-			throw handlerException;
-		}
-	}
+            throw handlerException;
+        }
+    }
 
-	private int getStatus(Throwable ex) {
+    private int getStatus(Throwable ex) {
 
-		if (ex instanceof MethodNotAllowedException) {
-			return HttpServletResponse.SC_METHOD_NOT_ALLOWED;
-		}
-		else if (ex instanceof BadRequestException || //
-				ex instanceof ConversionException || //
-				ex instanceof FileSizeExceededException) //
-		{
-			return HttpServletResponse.SC_BAD_REQUEST;
-		}
-		else if (ex instanceof NotFoundException) {
-			return HttpServletResponse.SC_NOT_FOUND;
-		}
-		else if (ex instanceof AccessForbiddenException) {
-			return HttpServletResponse.SC_FORBIDDEN;
-		}
-		return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-	}
+        if (ex instanceof MethodNotAllowedException) {
+            return HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+        }
+        else if (ex instanceof BadRequestException || //
+                ex instanceof ConversionException || //
+                ex instanceof FileSizeExceededException) //
+        {
+            return HttpServletResponse.SC_BAD_REQUEST;
+        }
+        else if (ex instanceof NotFoundException) {
+            return HttpServletResponse.SC_NOT_FOUND;
+        }
+        else if (ex instanceof AccessForbiddenException) {
+            return HttpServletResponse.SC_FORBIDDEN;
+        }
+        return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+    }
 
-	/**
-	 * resolve view exception
-	 * 
-	 * @param ex
-	 * @param response
-	 * @param status
-	 * @param msg
-	 * @throws IOException
-	 */
-	public static void resolveViewException(Throwable ex, //
-			HttpServletResponse response, int status, String msg) throws IOException //
-	{
-		if (ex instanceof MethodNotAllowedException) {
-			response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, msg);
-		}
-		else if (ex instanceof BadRequestException || //
-				ex instanceof ConversionException || //
-				ex instanceof FileSizeExceededException) //
-		{
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, msg);
-		}
-		else if (ex instanceof NotFoundException) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
-		}
-		else if (ex instanceof AccessForbiddenException) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, msg);
-		}
-		else {
-			response.sendError(status, msg);
-		}
-	}
+    /**
+     * resolve view exception
+     * 
+     * @param ex
+     * @param response
+     * @param status
+     * @param msg
+     * @throws IOException
+     */
+    public static void resolveViewException(Throwable ex, //
+            HttpServletResponse response, int status, String msg) throws IOException //
+    {
+        if (ex instanceof MethodNotAllowedException) {
+            response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, msg);
+        }
+        else if (ex instanceof BadRequestException || //
+                ex instanceof ConversionException || //
+                ex instanceof FileSizeExceededException) //
+        {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, msg);
+        }
+        else if (ex instanceof NotFoundException) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
+        }
+        else if (ex instanceof AccessForbiddenException) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, msg);
+        }
+        else {
+            response.sendError(status, msg);
+        }
+    }
 
-	/**
-	 * resolve image
-	 * 
-	 * @param ex
-	 * @param response
-	 * @throws IOException
-	 */
-	public static void resolveImageException(Throwable ex, HttpServletResponse response) throws IOException {
-		response.setContentType(Constant.CONTENT_TYPE_IMAGE);
-		String fileName = "/error/500.png";
-		if (ex instanceof MethodNotAllowedException) {
-			fileName = "/error/405.png";
-		} //
-		else if (ex instanceof BadRequestException || ex instanceof ConversionException) {
-			fileName = "/error/400.png";
-		} //
-		else if (ex instanceof NotFoundException) {
-			fileName = "/error/404.png";
-		} //
-		else if (ex instanceof AccessForbiddenException) {
-			fileName = "/error/403.png";
-		}
-		ImageIO.write(//
-				ImageIO.read(ClassUtils.getClassLoader().getResource(fileName)), //
-				Constant.IMAGE_PNG, //
-				response.getOutputStream()//
-		);
-	}
+    /**
+     * resolve image
+     * 
+     * @param ex
+     * @param response
+     * @throws IOException
+     */
+    public static void resolveImageException(Throwable ex, HttpServletResponse response) throws IOException {
+        response.setContentType(Constant.CONTENT_TYPE_IMAGE);
+        String fileName = "/error/500.png";
+        if (ex instanceof MethodNotAllowedException) {
+            fileName = "/error/405.png";
+        } //
+        else if (ex instanceof BadRequestException || ex instanceof ConversionException) {
+            fileName = "/error/400.png";
+        } //
+        else if (ex instanceof NotFoundException) {
+            fileName = "/error/404.png";
+        } //
+        else if (ex instanceof AccessForbiddenException) {
+            fileName = "/error/403.png";
+        }
+        ImageIO.write(//
+                ImageIO.read(ClassUtils.getClassLoader().getResource(fileName)), //
+                Constant.IMAGE_PNG, //
+                response.getOutputStream()//
+        );
+    }
 
 }

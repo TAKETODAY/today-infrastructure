@@ -32,50 +32,50 @@ import java.util.Map;
 @SuppressWarnings("serial")
 public class RedirectModelAttributes extends HashMap<String, Object> implements RedirectModel {
 
-	public RedirectModelAttributes() {
-		super(8, 1.0f);
-	}
+    public RedirectModelAttributes() {
+        super(8, 1.0f);
+    }
 
-	@Override
-	public Object getAttribute(String name) {
-		return get(name);
-	}
+    @Override
+    public Object getAttribute(String name) {
+        return get(name);
+    }
 
-	@Override
-	public <T> T getAttribute(String name, Class<T> targetClass) {
-		return targetClass.cast(get(name));
-	}
+    @Override
+    public <T> T getAttribute(String name, Class<T> targetClass) {
+        return targetClass.cast(get(name));
+    }
 
-	@Override
-	public RedirectModel addAttribute(String attributeName, Object attributeValue) {
-		put(attributeName, attributeValue);
-		return this;
-	}
+    @Override
+    public RedirectModel addAttribute(String attributeName, Object attributeValue) {
+        put(attributeName, attributeValue);
+        return this;
+    }
 
-	@Override
-	public boolean containsAttribute(String attributeName) {
-		return containsKey(attributeName);
-	}
+    @Override
+    public boolean containsAttribute(String attributeName) {
+        return containsKey(attributeName);
+    }
 
-	@Override
-	public Map<String, Object> asMap() {
-		return this;
-	}
+    @Override
+    public Map<String, Object> asMap() {
+        return this;
+    }
 
-	@Override
-	public void removeAttribute(String name) {
-		remove(name);
-	}
+    @Override
+    public void removeAttribute(String name) {
+        remove(name);
+    }
 
-	@Override
-	public Collection<String> getAttributeNames() {
-		return keySet();
-	}
+    @Override
+    public Collection<String> getAttributeNames() {
+        return keySet();
+    }
 
-	@Override
-	public RedirectModel addAllAttributes(Map<String, Object> attributes) {
-		putAll(attributes);
-		return this;
-	}
+    @Override
+    public RedirectModel addAllAttributes(Map<String, Object> attributes) {
+        putAll(attributes);
+        return this;
+    }
 
 }

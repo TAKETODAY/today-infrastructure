@@ -1,10 +1,11 @@
 package cn.taketoday.web.utils;
 
 /*************************************************
- *  MD5 算法的Java Bean
+ * MD5 算法的Java Bean
  *
- *  md5 类实现了RSA Data Security, Inc.在提交给IETF 的RFC1321中的MD5 message-digest 算法。
- *  @author:Topcat Tuppin Last Modified:10,Mar,2001
+ * md5 类实现了RSA Data Security, Inc.在提交给IETF 的RFC1321中的MD5 message-digest 算法。
+ * 
+ * @author:Topcat Tuppin Last Modified:10,Mar,2001
  */
 public final class MD5 {
 
@@ -28,7 +29,7 @@ public final class MD5 {
     static final int S42 = 10;
     static final int S43 = 15;
     static final int S44 = 21;
-    static final byte[] PADDING = {//
+    static final byte[] PADDING = { //
             -128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, //
@@ -49,7 +50,7 @@ public final class MD5 {
      * 因为java中的byte的toString无法实现这一点，我们又没有C语言中的 sprintf(outbuf,"%02X",ib)
      */
     public static String byteHEX(byte ib) {
-        char[] Digit = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+        char[] Digit = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
         char[] ob = new char[2];
         ob[0] = Digit[(ib >>> 4) & 0X0F];
         ob[1] = Digit[ib & 0X0F];
@@ -90,8 +91,7 @@ public final class MD5 {
     private void Decode(long[] output, byte[] input, int len) {
         int i, j;
         for (i = 0, j = 0; j < len; i++, j += 4)
-            output[i] = b2iu(input[j]) | (b2iu(input[j + 1]) << 8) | (b2iu(input[j + 2]) << 16)
-                    | (b2iu(input[j + 3]) << 24);
+            output[i] = b2iu(input[j]) | (b2iu(input[j + 1]) << 8) | (b2iu(input[j + 2]) << 16) | (b2iu(input[j + 3]) << 24);
         return;
     }
 
@@ -316,7 +316,8 @@ public final class MD5 {
                 md5Transform(block);
             }
             index = 0;
-        } else
+        }
+        else
             i = 0;
         /// * Buffer remaining input */
         md5Memcpy(buffer, inbuf, index, i, inputLen - i);

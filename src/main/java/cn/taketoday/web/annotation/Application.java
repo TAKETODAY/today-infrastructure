@@ -36,11 +36,11 @@ import cn.taketoday.web.Constant;
 @RequestParam(type = Constant.ANNOTATION_SERVLET_CONTEXT)
 public @interface Application {
 
-	/**
-	 * Servlet Context attribute name
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+    /**
+     * Servlet Context attribute name
+     * 
+     * @return
+     */
+    String value() default Constant.BLANK;
 
 }

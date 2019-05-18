@@ -28,9 +28,9 @@ import cn.taketoday.context.aware.Aware;
  */
 public interface WebApplicationContextAware extends Aware {
 
-	/**
-	 * 
-	 * @param applicationContext
-	 */
-	void setWebApplicationContext(WebApplicationContext applicationContext);
+    /**
+     * 
+     * @param applicationContext
+     */
+    void setWebApplicationContext(WebApplicationContext applicationContext);
 }

@@ -37,84 +37,84 @@ import cn.taketoday.web.exception.InternalServerException;
 @SuppressWarnings("serial")
 public class CommonsMultipartFile implements MultipartFile {
 
-	private final FileItem fileItem;
+    private final FileItem fileItem;
 
-	/**
-	 * Create an instance wrapping the given FileItem.
-	 * 
-	 * @param fileItem
-	 *            the FileItem to wrap
-	 */
-	public CommonsMultipartFile(FileItem fileItem) {
-		this.fileItem = fileItem;
-	}
+    /**
+     * Create an instance wrapping the given FileItem.
+     * 
+     * @param fileItem
+     *            the FileItem to wrap
+     */
+    public CommonsMultipartFile(FileItem fileItem) {
+        this.fileItem = fileItem;
+    }
 
-	public final FileItem getFileItem() {
-		return this.fileItem;
-	}
+    public final FileItem getFileItem() {
+        return this.fileItem;
+    }
 
-	@Override
-	public String getName() {
-		return this.fileItem.getFieldName();
-	}
+    @Override
+    public String getName() {
+        return this.fileItem.getFieldName();
+    }
 
-	@Override
-	public String getContentType() {
-		return this.fileItem.getContentType();
-	}
+    @Override
+    public String getContentType() {
+        return this.fileItem.getContentType();
+    }
 
-	@Override
-	public boolean isEmpty() {
-		return (this.getSize() == 0);
-	}
+    @Override
+    public boolean isEmpty() {
+        return (this.getSize() == 0);
+    }
 
-	@Override
-	public long getSize() {
-		return this.fileItem.getSize();
-	}
+    @Override
+    public long getSize() {
+        return this.fileItem.getSize();
+    }
 
-	@Override
-	public InputStream getInputStream() throws IOException {
-		return this.fileItem.getInputStream();
-	}
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return this.fileItem.getInputStream();
+    }
 
-	@Override
-	public String getFileName() {
-		return fileItem.getName();
-	}
+    @Override
+    public String getFileName() {
+        return fileItem.getName();
+    }
 
-	@Override
-	public boolean save(File dest) {
+    @Override
+    public boolean save(File dest) {
 
-		try {
+        try {
 
-			// fix #3 Upload file not found exception
-			File parentFile = dest.getParentFile();
-			if (!parentFile.exists()) {
-				parentFile.mkdirs();
-			}
+            // fix #3 Upload file not found exception
+            File parentFile = dest.getParentFile();
+            if (!parentFile.exists()) {
+                parentFile.mkdirs();
+            }
 
-			fileItem.write(dest);
-			return true;
-		} //
-		catch (Exception e) {
-			throw new InternalServerException("File: [" + getFileName() + "] upload failure.", e);
-		}
-	}
+            fileItem.write(dest);
+            return true;
+        } //
+        catch (Exception e) {
+            throw new InternalServerException("File: [" + getFileName() + "] upload failure.", e);
+        }
+    }
 
-	@Override
-	public byte[] getBytes() {
-		return fileItem.get();
-	}
+    @Override
+    public byte[] getBytes() {
+        return fileItem.get();
+    }
 
-	@Override
-	public Object getOriginalResource() {
-		return fileItem;
-	}
+    @Override
+    public Object getOriginalResource() {
+        return fileItem;
+    }
 
-	@Override
-	public void delete() throws IOException {
-		fileItem.delete();
-	}
+    @Override
+    public void delete() throws IOException {
+        fileItem.delete();
+    }
 
 }

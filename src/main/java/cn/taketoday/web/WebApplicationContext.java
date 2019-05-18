@@ -30,16 +30,16 @@ import cn.taketoday.context.ConfigurableApplicationContext;
  */
 public interface WebApplicationContext extends ConfigurableApplicationContext {
 
-	/**
-	 * Return the standard Servlet API ServletContext for this application.
-	 */
-	ServletContext getServletContext();
+    /**
+     * Return the standard Servlet API ServletContext for this application.
+     */
+    ServletContext getServletContext();
 
-	/**
-	 * Set ServletContext
-	 * 
-	 * @param servletContext
-	 */
-	void setServletContext(ServletContext servletContext);
+    /**
+     * Set ServletContext
+     * 
+     * @param servletContext
+     */
+    void setServletContext(ServletContext servletContext);
 
 }

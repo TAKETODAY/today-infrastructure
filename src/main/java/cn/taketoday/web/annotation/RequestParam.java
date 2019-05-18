@@ -35,33 +35,33 @@ import cn.taketoday.web.Constant;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestParam {
 
-	/**
-	 * If required == true when request parameter is null, will be return bad
-	 * request.
-	 * 
-	 * @return
-	 */
-	boolean required() default false;
+    /**
+     * If required == true when request parameter is null, will be return bad
+     * request.
+     * 
+     * @return
+     */
+    boolean required() default false;
 
-	/**
-	 * Parameter name.
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+    /**
+     * Parameter name.
+     * 
+     * @return
+     */
+    String value() default Constant.BLANK;
 
-	/**
-	 * When required == false, and parameter == null. use default value.
-	 * 
-	 * @return
-	 */
-	String defaultValue() default Constant.BLANK;
+    /**
+     * When required == false, and parameter == null. use default value.
+     * 
+     * @return
+     */
+    String defaultValue() default Constant.BLANK;
 
-	/**
-	 * Annotation type
-	 * 
-	 * @return
-	 */
-	byte type() default Constant.ANNOTATION_NULL;
+    /**
+     * Annotation type
+     * 
+     * @return
+     */
+    byte type() default Constant.ANNOTATION_NULL;
 
 }

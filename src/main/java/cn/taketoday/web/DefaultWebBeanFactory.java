@@ -50,94 +50,94 @@ import cn.taketoday.web.listener.RequestContextHolder;
  */
 public class DefaultWebBeanFactory extends StandardBeanFactory {
 
-	private final WebApplicationContext webApplicationContext;
+    private final WebApplicationContext webApplicationContext;
 
-	public DefaultWebBeanFactory(AbstractApplicationContext applicationContext) {
-		super(applicationContext);
-		this.webApplicationContext = (WebApplicationContext) applicationContext;
-	}
+    public DefaultWebBeanFactory(AbstractApplicationContext applicationContext) {
+        super(applicationContext);
+        this.webApplicationContext = (WebApplicationContext) applicationContext;
+    }
 
-	@Override
-	protected void aware(Object bean, String name) {
-		if (bean instanceof Aware) {
-			if (bean instanceof ServletContextAware) {
-				((ServletContextAware) bean).setServletContext(webApplicationContext.getServletContext());
-			}
-			if (bean instanceof ApplicationContextAware) {
-				((ApplicationContextAware) bean).setApplicationContext(webApplicationContext);
-			}
-			if (bean instanceof WebApplicationContextAware) {
-				((WebApplicationContextAware) bean).setWebApplicationContext(webApplicationContext);
-			}
-			if (bean instanceof BeanNameAware) {
-				((BeanNameAware) bean).setBeanName(name);
-			}
-			if (bean instanceof BeanFactoryAware) {
-				((BeanFactoryAware) bean).setBeanFactory(this);
-			}
-			if (bean instanceof EnvironmentAware) {
-				((EnvironmentAware) bean).setEnvironment(webApplicationContext.getEnvironment());
-			}
-		}
-	}
+    @Override
+    protected void aware(Object bean, String name) {
+        if (bean instanceof Aware) {
+            if (bean instanceof ServletContextAware) {
+                ((ServletContextAware) bean).setServletContext(webApplicationContext.getServletContext());
+            }
+            if (bean instanceof ApplicationContextAware) {
+                ((ApplicationContextAware) bean).setApplicationContext(webApplicationContext);
+            }
+            if (bean instanceof WebApplicationContextAware) {
+                ((WebApplicationContextAware) bean).setWebApplicationContext(webApplicationContext);
+            }
+            if (bean instanceof BeanNameAware) {
+                ((BeanNameAware) bean).setBeanName(name);
+            }
+            if (bean instanceof BeanFactoryAware) {
+                ((BeanFactoryAware) bean).setBeanFactory(this);
+            }
+            if (bean instanceof EnvironmentAware) {
+                ((EnvironmentAware) bean).setEnvironment(webApplicationContext.getEnvironment());
+            }
+        }
+    }
 
-	@Override
-	public void handleDependency() {
+    @Override
+    public void handleDependency() {
 
-		final Map<Class<?>, ObjectFactory<?>> servletEnv = new HashMap<Class<?>, ObjectFactory<?>>();
-		servletEnv.put(HttpServletRequest.class, RequestContextHolder::currentRequest);
-		servletEnv.put(ServletContext.class, () -> webApplicationContext.getServletContext());
-		servletEnv.put(HttpSession.class, () -> RequestContextHolder.currentRequest().getSession());
+        final Map<Class<?>, ObjectFactory<?>> servletEnv = new HashMap<Class<?>, ObjectFactory<?>>();
+        servletEnv.put(HttpServletRequest.class, RequestContextHolder::currentRequest);
+        servletEnv.put(ServletContext.class, () -> webApplicationContext.getServletContext());
+        servletEnv.put(HttpSession.class, () -> RequestContextHolder.currentRequest().getSession());
 
-		boolean checked = false;
-		for (final PropertyValue propertyValue : getDependencies()) {
-			final Class<?> propertyType = propertyValue.getField().getType();
-			if (servletEnv.containsKey(propertyType)) {
-				
-				if (!checked) {
-					webApplicationContext.getEnvironment().setProperty(Constant.ENABLE_REQUEST_CONTEXT, "true");
-					checked = true;
-				}
+        boolean checked = false;
+        for (final PropertyValue propertyValue : getDependencies()) {
+            final Class<?> propertyType = propertyValue.getField().getType();
+            if (servletEnv.containsKey(propertyType)) {
 
-				final String beanName = ((BeanReference) propertyValue.getValue()).getName();
-				
-				registerSingleton(beanName, Proxy.newProxyInstance(propertyType.getClassLoader(), new Class[] { propertyType }, //
-						new ObjectFactoryDelegatingHandler(servletEnv.get(propertyType))//
-				));
-				registerBeanDefinition(//
-						beanName, //
-						new DefaultBeanDefinition()//
-								.setAbstract(true)//
-								.setName(beanName)//
-								.setBeanClass(propertyType)//
-				);
-			}
-		}
-		super.handleDependency();
-	}
+                if (!checked) {
+                    webApplicationContext.getEnvironment().setProperty(Constant.ENABLE_REQUEST_CONTEXT, "true");
+                    checked = true;
+                }
 
-	/**
-	 * Reflective InvocationHandler for lazy access to the current target object.
-	 */
-	@SuppressWarnings("serial")
-	private static class ObjectFactoryDelegatingHandler implements InvocationHandler, Serializable {
+                final String beanName = ((BeanReference) propertyValue.getValue()).getName();
 
-		private final ObjectFactory<?> objectFactory;
+                registerSingleton(beanName, Proxy.newProxyInstance(propertyType.getClassLoader(), new Class[] { propertyType }, //
+                        new ObjectFactoryDelegatingHandler(servletEnv.get(propertyType))//
+                ));
+                registerBeanDefinition(//
+                        beanName, //
+                        new DefaultBeanDefinition()//
+                                .setAbstract(true)//
+                                .setName(beanName)//
+                                .setBeanClass(propertyType)//
+                );
+            }
+        }
+        super.handleDependency();
+    }
 
-		public ObjectFactoryDelegatingHandler(ObjectFactory<?> objectFactory) {
-			this.objectFactory = objectFactory;
-		}
+    /**
+     * Reflective InvocationHandler for lazy access to the current target object.
+     */
+    @SuppressWarnings("serial")
+    private static class ObjectFactoryDelegatingHandler implements InvocationHandler, Serializable {
 
-		@Override
-		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        private final ObjectFactory<?> objectFactory;
 
-			try {
-				return method.invoke(objectFactory.getObject(), args);
-			}
-			catch (InvocationTargetException ex) {
-				throw ex.getTargetException();
-			}
-		}
-	}
+        public ObjectFactoryDelegatingHandler(ObjectFactory<?> objectFactory) {
+            this.objectFactory = objectFactory;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
+            try {
+                return method.invoke(objectFactory.getObject(), args);
+            }
+            catch (InvocationTargetException ex) {
+                throw ex.getTargetException();
+            }
+        }
+    }
 
 }

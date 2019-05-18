@@ -36,18 +36,18 @@ import cn.taketoday.web.Constant;
 @RequestParam(type = Constant.ANNOTATION_PATH_VARIABLE)
 public @interface PathVariable {
 
-	/**
-	 * request parameter name in path
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+    /**
+     * request parameter name in path
+     * 
+     * @return
+     */
+    String value() default Constant.BLANK;
 
-	/**
-	 * regular expression.
-	 * 
-	 * @return
-	 */
-	String regex() default Constant.BLANK;
+    /**
+     * regular expression.
+     * 
+     * @return
+     */
+    String regex() default Constant.BLANK;
 
 }

@@ -29,12 +29,12 @@ import org.junit.Test;
  */
 public class DefaultWebApplicationContextTest {
 
-	@Before
-	public void setUp() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+    }
 
-	@Test
-	public void testAware() {
-	}
+    @Test
+    public void testAware() {
+    }
 
 }

@@ -26,21 +26,21 @@ package cn.taketoday.web.exception;
  */
 public class AccessForbiddenException extends RuntimeException {
 
-	private static final long serialVersionUID = 4289414897540303299L;
+    private static final long serialVersionUID = 4289414897540303299L;
 
-	public AccessForbiddenException(Throwable cause) {
-		super(cause);
-	}
+    public AccessForbiddenException(Throwable cause) {
+        super(cause);
+    }
 
-	public AccessForbiddenException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public AccessForbiddenException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public AccessForbiddenException(String message) {
-		super(message);
-	}
-	
-	public AccessForbiddenException() {
+    public AccessForbiddenException(String message) {
+        super(message);
+    }
 
-	}
+    public AccessForbiddenException() {
+
+    }
 }

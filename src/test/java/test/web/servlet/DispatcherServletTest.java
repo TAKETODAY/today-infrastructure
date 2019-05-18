@@ -24,19 +24,19 @@ import org.junit.Test;
 
 /**
  * @author Today <br>
- * 	
- *		2018-12-11 11:23
+ * 
+ *         2018-12-11 11:23
  */
 public class DispatcherServletTest {
 
-	@Before
-	public void setUp() throws Exception {
-		
-	}
+    @Before
+    public void setUp() throws Exception {
 
-	@Test
-	public void test_Service() {
-		
-	}
+    }
+
+    @Test
+    public void test_Service() {
+
+    }
 
 }

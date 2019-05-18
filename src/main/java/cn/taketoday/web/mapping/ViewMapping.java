@@ -39,44 +39,44 @@ import lombok.Setter;
 @SuppressWarnings("serial")
 public class ViewMapping implements Serializable {
 
-	/** 返回类型 */
-	private byte returnType = Constant.TYPE_FORWARD; // default -> forward
-	/** 资源路径 */
-	private String assetsPath = "";
+    /** 返回类型 */
+    private byte returnType = Constant.TYPE_FORWARD; // default -> forward
+    /** 资源路径 */
+    private String assetsPath = "";
 
-	/**
-	 * Bean instance
-	 * 
-	 * @since 2.3.3
-	 */
-	private Object controller;
-	/**
-	 * Handler method
-	 * 
-	 * @since 2.3.3
-	 */
-	private Method action;
+    /**
+     * Bean instance
+     * 
+     * @since 2.3.3
+     */
+    private Object controller;
+    /**
+     * Handler method
+     * 
+     * @since 2.3.3
+     */
+    private Method action;
 
-	/**
-	 * The resource's content type
-	 * 
-	 * @since 2.3.3
-	 */
-	private String contentType = null;
-	/**
-	 * The request status
-	 * 
-	 * @since 2.3.7
-	 */
-	private int status;
+    /**
+     * The resource's content type
+     * 
+     * @since 2.3.3
+     */
+    private String contentType = null;
+    /**
+     * The request status
+     * 
+     * @since 2.3.7
+     */
+    private int status;
 
-	public final boolean hasAction() {
-		return action != null;
-	}
+    public final boolean hasAction() {
+        return action != null;
+    }
 
-	@Override
-	public String toString() {
-		return "[returnType=" + returnType + ", assetsPath=" + assetsPath + ", contentType=" + contentType + "]";
-	}
+    @Override
+    public String toString() {
+        return "[returnType=" + returnType + ", assetsPath=" + assetsPath + ", contentType=" + contentType + "]";
+    }
 
 }

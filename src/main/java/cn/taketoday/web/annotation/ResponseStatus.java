@@ -35,25 +35,25 @@ import cn.taketoday.context.Constant;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ResponseStatus {
 
-	/**
-	 * Status code
-	 * 
-	 * @return
-	 */
-	int value() default 0;
+    /**
+     * Status code
+     * 
+     * @return
+     */
+    int value() default 0;
 
-	/**
-	 * The descriptive message
-	 * 
-	 * @return
-	 */
-	String msg() default Constant.BLANK;
+    /**
+     * The descriptive message
+     * 
+     * @return
+     */
+    String msg() default Constant.BLANK;
 
-	/**
-	 * Error page
-	 * 
-	 * @return
-	 */
-	String redirect() default Constant.BLANK;
+    /**
+     * Error page
+     * 
+     * @return
+     */
+    String redirect() default Constant.BLANK;
 
 }

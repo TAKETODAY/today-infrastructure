@@ -28,18 +28,18 @@ import cn.taketoday.context.io.Resource;
  */
 public interface WebResource extends Resource {
 
-	/**
-	 * Get content type
-	 * 
-	 * @return content type
-	 */
-	String getContentType();
+    /**
+     * Get content type
+     * 
+     * @return content type
+     */
+    String getContentType();
 
-	/**
-	 * Get Etag
-	 *
-	 * @return Etag
-	 */
-	String getETag();
+    /**
+     * Get Etag
+     *
+     * @return Etag
+     */
+    String getETag();
 
 }

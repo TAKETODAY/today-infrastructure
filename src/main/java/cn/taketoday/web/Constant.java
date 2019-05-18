@@ -25,12 +25,11 @@ package cn.taketoday.web;
  */
 public interface Constant extends cn.taketoday.context.Constant {
 
-
-	String ENABLE_WEB_MVC_XML 		= "enable.webmvc.xml";
-	String ENABLE_WEB_STARTED_LOG 	= "enable.started.log";
-	// @since 2.3.7
-	String ENABLE_REQUEST_CONTEXT 	= "enable.request.context";
-	//@off
+    String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
+    String ENABLE_WEB_STARTED_LOG = "enable.started.log";
+    // @since 2.3.7
+    String ENABLE_REQUEST_CONTEXT = "enable.request.context";
+    //@off
 	/**
 	 * mode
 	 */
@@ -385,6 +384,5 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String 	APPLICATION_FORCE_DOWNLOAD  		= "application/force-download;";
 	String	APPLICATION_X_WWW_FORM_URLENCODED	= "application/x-www-form-urlencoded";
 	// @on
-
 
 }

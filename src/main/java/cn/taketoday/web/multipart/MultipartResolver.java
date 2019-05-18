@@ -31,33 +31,33 @@ import cn.taketoday.web.mapping.MethodParameter;
  */
 public interface MultipartResolver {
 
-	/**
-	 * Is multipart request ?
-	 * 
-	 * @param request
-	 *            request
-	 * @return
-	 */
-	boolean isMultipart(HttpServletRequest request);
+    /**
+     * Is multipart request ?
+     * 
+     * @param request
+     *            request
+     * @return
+     */
+    boolean isMultipart(HttpServletRequest request);
 
-	/**
-	 * resolve request.
-	 * 
-	 * @param request
-	 * @param methodParameterName
-	 *            handler method parameter name
-	 * @param methodParameter
-	 * @return
-	 * @throws Exception
-	 */
-	Object resolveMultipart(HttpServletRequest request, String methodParameterName, MethodParameter methodParameter)
-			throws Throwable;
+    /**
+     * resolve request.
+     * 
+     * @param request
+     * @param methodParameterName
+     *            handler method parameter name
+     * @param methodParameter
+     * @return
+     * @throws Exception
+     */
+    Object resolveMultipart(HttpServletRequest request, String methodParameterName, MethodParameter methodParameter)
+            throws Throwable;
 
-	/**
-	 * clean up.
-	 * 
-	 * @param request
-	 */
-	void cleanupMultipart(HttpServletRequest request);
+    /**
+     * clean up.
+     * 
+     * @param request
+     */
+    void cleanupMultipart(HttpServletRequest request);
 
 }

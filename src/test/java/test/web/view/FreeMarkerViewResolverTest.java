@@ -24,18 +24,18 @@ import org.junit.Test;
 
 /**
  * @author Today <br>
- * 	
- *		2018-12-11 11:26
+ * 
+ *         2018-12-11 11:26
  */
 public class FreeMarkerViewResolverTest {
 
-	@Before
-	public void setUp() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+    }
 
-	@Test
-	public void test_ResolveView() {
-		
-	}
+    @Test
+    public void test_ResolveView() {
+
+    }
 
 }

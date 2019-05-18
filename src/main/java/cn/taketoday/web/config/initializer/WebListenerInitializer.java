@@ -36,43 +36,43 @@ import lombok.Setter;
 @Getter
 public class WebListenerInitializer<T extends EventListener> implements OrderedInitializer {
 
-	private T listener;
-	private int order = LOWEST_PRECEDENCE;
+    private T listener;
+    private int order = LOWEST_PRECEDENCE;
 
-	public WebListenerInitializer() {
+    public WebListenerInitializer() {
 
-	}
+    }
 
-	public WebListenerInitializer(T listener) {
-		this.listener = listener;
-	}
+    public WebListenerInitializer(T listener) {
+        this.listener = listener;
+    }
 
-	@Override
-	public void onStartup(ServletContext servletContext) throws Throwable {
-		final T listener = getListener();
-		if (listener != null) {
-			LoggerFactory.getLogger(WebListenerInitializer.class).debug("Configure listener registration: [{}]", this);
-			servletContext.addListener(listener);
-		}
-	}
+    @Override
+    public void onStartup(ServletContext servletContext) throws Throwable {
+        final T listener = getListener();
+        if (listener != null) {
+            LoggerFactory.getLogger(WebListenerInitializer.class).debug("Configure listener registration: [{}]", this);
+            servletContext.addListener(listener);
+        }
+    }
 
-	@Override
-	public int getOrder() {
-		return order;
-	}
+    @Override
+    public int getOrder() {
+        return order;
+    }
 
-	public void setOrder(int order) {
-		this.order = order;
-	}
+    public void setOrder(int order) {
+        this.order = order;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("{\n\t\"listener\":\"");
-		builder.append(listener);
-		builder.append("\",\n\t\"order\":\"");
-		builder.append(order);
-		builder.append("\"\n}");
-		return builder.toString();
-	}
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{\n\t\"listener\":\"");
+        builder.append(listener);
+        builder.append("\",\n\t\"order\":\"");
+        builder.append(order);
+        builder.append("\"\n}");
+        return builder.toString();
+    }
 }

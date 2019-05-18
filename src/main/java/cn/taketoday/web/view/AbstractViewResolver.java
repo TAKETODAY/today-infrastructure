@@ -36,16 +36,16 @@ import lombok.Setter;
 @Getter
 public abstract class AbstractViewResolver implements ViewResolver, ServletContextAware {
 
-	protected String		prefix			= "/WEB-INF/ftl";
-	protected String		suffix			= ".ftl";
-	protected String		encoding		= "UTF-8";
-	protected Locale		locale			= Locale.CHINA;
+    protected String prefix = "/WEB-INF/ftl";
+    protected String suffix = ".ftl";
+    protected String encoding = "UTF-8";
+    protected Locale locale = Locale.CHINA;
 
-	protected ServletContext	servletContext	= null;
+    protected ServletContext servletContext = null;
 
-	@Override
-	public void setServletContext(ServletContext servletContext) {
-		this.servletContext = servletContext;
-	}
-	
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
+
 }

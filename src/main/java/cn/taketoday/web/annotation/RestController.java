@@ -34,10 +34,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RestController {
 
-	/**
-	 * bean name
-	 * 
-	 * @return
-	 */
-	String[] value() default {};
+    /**
+     * bean name
+     * 
+     * @return
+     */
+    String[] value() default {};
 }

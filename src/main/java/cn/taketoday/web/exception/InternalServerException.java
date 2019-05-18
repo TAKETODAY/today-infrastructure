@@ -29,21 +29,21 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("serial")
 public class InternalServerException extends RuntimeException {
 
-	public InternalServerException(Throwable cause) {
-		super(cause);
-	}
+    public InternalServerException(Throwable cause) {
+        super(cause);
+    }
 
-	public InternalServerException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public InternalServerException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public InternalServerException(String message) {
-		super(message);
-		LoggerFactory.getLogger(InternalServerException.class).error(message);
-	}
+    public InternalServerException(String message) {
+        super(message);
+        LoggerFactory.getLogger(InternalServerException.class).error(message);
+    }
 
-	public InternalServerException() {
+    public InternalServerException() {
 
-	}
+    }
 
 }

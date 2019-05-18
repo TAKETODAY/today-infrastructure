@@ -39,50 +39,50 @@ import cn.taketoday.context.utils.ClassUtils;
  */
 public class JstlViewResolver extends AbstractViewResolver implements InitializingBean {
 
-	@Override
-	public void resolveView(String templateName, //
-			HttpServletRequest request, HttpServletResponse response) throws Throwable//
-	{
-		request.getRequestDispatcher(build(templateName))//
-				.forward(request, response);
-	}
+    @Override
+    public void resolveView(String templateName, //
+            HttpServletRequest request, HttpServletResponse response) throws Throwable//
+    {
+        request.getRequestDispatcher(build(templateName))//
+                .forward(request, response);
+    }
 
-	private final String build(String templateName) {
-		return new StringBuilder(32)//
-				.append(prefix)//
-				.append(templateName)//
-				.append(suffix)//
-				.toString();
-	}
+    private final String build(String templateName) {
+        return new StringBuilder(32)//
+                .append(prefix)//
+                .append(templateName)//
+                .append(suffix)//
+                .toString();
+    }
 
-	/**
-	 * 
-	 * @see cn.taketoday.context.factory.InitializingBean#afterPropertiesSet()
-	 * @since 2.3.3
-	 */
-	@Override
-	public void afterPropertiesSet() throws Exception {
+    /**
+     * 
+     * @see cn.taketoday.context.factory.InitializingBean#afterPropertiesSet()
+     * @since 2.3.3
+     */
+    @Override
+    public void afterPropertiesSet() throws Exception {
 
-		final String jspServlet = "org.apache.jasper.servlet.JspServlet";
+        final String jspServlet = "org.apache.jasper.servlet.JspServlet";
 
-		if (!ClassUtils.isPresent(jspServlet)) {
-			throw new ConfigurationException("You must provide: [] to your application's class path", jspServlet);
-		}
+        if (!ClassUtils.isPresent(jspServlet)) {
+            throw new ConfigurationException("You must provide: [] to your application's class path", jspServlet);
+        }
 
-		boolean register = true;
-		for (Entry<String, ? extends ServletRegistration> entry : servletContext.getServletRegistrations().entrySet()) {
-			if (jspServlet.equals(entry.getValue().getClassName())) {
-				register = false;
-				break;
-			}
-		}
+        boolean register = true;
+        for (Entry<String, ? extends ServletRegistration> entry : servletContext.getServletRegistrations().entrySet()) {
+            if (jspServlet.equals(entry.getValue().getClassName())) {
+                register = false;
+                break;
+            }
+        }
 
-		// register
-		if (!register) {
-			Dynamic servletRegistration = servletContext.addServlet("jsp", jspServlet);
-			servletRegistration.addMapping("*.jsp", "*.jspx");
-		}
-		LoggerFactory.getLogger(getClass()).info("Configuration Jstl View Resolver Success.");
-	}
+        // register
+        if (!register) {
+            Dynamic servletRegistration = servletContext.addServlet("jsp", jspServlet);
+            servletRegistration.addMapping("*.jsp", "*.jspx");
+        }
+        LoggerFactory.getLogger(getClass()).info("Configuration Jstl View Resolver Success.");
+    }
 
 }

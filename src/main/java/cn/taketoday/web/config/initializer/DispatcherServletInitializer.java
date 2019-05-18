@@ -45,75 +45,75 @@ import lombok.Setter;
 @MissingBean
 public class DispatcherServletInitializer extends WebServletInitializer<DispatcherServlet> implements WebApplicationContextAware {
 
-	private WebApplicationContext applicationContext;
+    private WebApplicationContext applicationContext;
 
-	private String dispatcherServletMapping = Constant.DISPATCHER_SERVLET_MAPPING;
+    private String dispatcherServletMapping = Constant.DISPATCHER_SERVLET_MAPPING;
 
-	@Override
-	public void setWebApplicationContext(WebApplicationContext applicationContext) {
-		this.applicationContext = applicationContext;
-	}
+    @Override
+    public void setWebApplicationContext(WebApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
-	@Override
-	public DispatcherServlet getServlet() {
+    @Override
+    public DispatcherServlet getServlet() {
 
-		DispatcherServlet dispatcherServlet = super.getServlet();
-		if (dispatcherServlet == null) {
+        DispatcherServlet dispatcherServlet = super.getServlet();
+        if (dispatcherServlet == null) {
 
-			multipartConfig();
+            multipartConfig();
 
-			addUrlMappings(StringUtils.split(dispatcherServletMapping));
+            addUrlMappings(StringUtils.split(dispatcherServletMapping));
 
-			if (!applicationContext.containsBeanDefinition(Constant.DISPATCHER_SERVLET)) {
-				applicationContext.registerBean(Constant.DISPATCHER_SERVLET, DispatcherServlet.class);
-			}
-			dispatcherServlet = applicationContext.getBean(Constant.DISPATCHER_SERVLET, DispatcherServlet.class);
-			final Logger log = LoggerFactory.getLogger(DispatcherServletInitializer.class);
+            if (!applicationContext.containsBeanDefinition(Constant.DISPATCHER_SERVLET)) {
+                applicationContext.registerBean(Constant.DISPATCHER_SERVLET, DispatcherServlet.class);
+            }
+            dispatcherServlet = applicationContext.getBean(Constant.DISPATCHER_SERVLET, DispatcherServlet.class);
+            final Logger log = LoggerFactory.getLogger(DispatcherServletInitializer.class);
 
-			log.info("Register Dispatcher Servlet: [{}] With Url Mappings: {}", dispatcherServlet, getUrlMappings());
+            log.info("Register Dispatcher Servlet: [{}] With Url Mappings: {}", dispatcherServlet, getUrlMappings());
 
-			setName(Constant.DISPATCHER_SERVLET);
-			setServlet(dispatcherServlet);
-		}
-		return dispatcherServlet;
-	}
+            setName(Constant.DISPATCHER_SERVLET);
+            setServlet(dispatcherServlet);
+        }
+        return dispatcherServlet;
+    }
 
-	/**
-	 * 
-	 */
-	private void multipartConfig() {
+    /**
+     * 
+     */
+    private void multipartConfig() {
 
-		MultipartResolver multipartResolver = //
-				applicationContext.getBean(Constant.MULTIPART_RESOLVER, MultipartResolver.class);
+        MultipartResolver multipartResolver = //
+                applicationContext.getBean(Constant.MULTIPART_RESOLVER, MultipartResolver.class);
 
-		MultipartConfigElement multipartConfig = //
-				applicationContext.getBean(Constant.MULTIPART_CONFIG_ELEMENT, MultipartConfigElement.class);
+        MultipartConfigElement multipartConfig = //
+                applicationContext.getBean(Constant.MULTIPART_CONFIG_ELEMENT, MultipartConfigElement.class);
 
-		if (multipartResolver instanceof AbstractMultipartResolver) {
+        if (multipartResolver instanceof AbstractMultipartResolver) {
 
-			AbstractMultipartResolver abstractMultipartResolver = (AbstractMultipartResolver) multipartResolver;
-			multipartConfig = new MultipartConfigElement(//
-					abstractMultipartResolver.getLocation(), //
-					abstractMultipartResolver.getMaxFileSize(), //
-					abstractMultipartResolver.getMaxRequestSize(), //
-					abstractMultipartResolver.getFileSizeThreshold()//
-			);
-		}
+            AbstractMultipartResolver abstractMultipartResolver = (AbstractMultipartResolver) multipartResolver;
+            multipartConfig = new MultipartConfigElement(//
+                    abstractMultipartResolver.getLocation(), //
+                    abstractMultipartResolver.getMaxFileSize(), //
+                    abstractMultipartResolver.getMaxRequestSize(), //
+                    abstractMultipartResolver.getFileSizeThreshold()//
+            );
+        }
 
-		if (multipartConfig != null) {
-			setMultipartConfig(multipartConfig);
-		}
-		ServletSecurityElement securityConfig = //
-				applicationContext.getBean(Constant.SERVLET_SECURITY_ELEMENT, ServletSecurityElement.class);
+        if (multipartConfig != null) {
+            setMultipartConfig(multipartConfig);
+        }
+        ServletSecurityElement securityConfig = //
+                applicationContext.getBean(Constant.SERVLET_SECURITY_ELEMENT, ServletSecurityElement.class);
 
-		if (securityConfig != null) {
-			setServletSecurity(securityConfig);
-		}
-	}
+        if (securityConfig != null) {
+            setServletSecurity(securityConfig);
+        }
+    }
 
-	@Override
-	public int getOrder() {
-		return HIGHEST_PRECEDENCE - 100;
-	}
+    @Override
+    public int getOrder() {
+        return HIGHEST_PRECEDENCE - 100;
+    }
 
 }

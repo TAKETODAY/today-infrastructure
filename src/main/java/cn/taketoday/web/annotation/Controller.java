@@ -36,17 +36,17 @@ import cn.taketoday.context.annotation.Component;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Controller {
 
-	/**
-	 * Controller name or a bean name
-	 * 
-	 * @return
-	 */
-	String[] value() default {};
+    /**
+     * Controller name or a bean name
+     * 
+     * @return
+     */
+    String[] value() default {};
 
-	/**
-	 * rest ?
-	 * 
-	 * @return
-	 */
-	boolean restful() default false;
+    /**
+     * rest ?
+     * 
+     * @return
+     */
+    boolean restful() default false;
 }

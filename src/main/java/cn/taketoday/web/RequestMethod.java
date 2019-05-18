@@ -27,5 +27,5 @@ package cn.taketoday.web;
  */
 public enum RequestMethod {
 
-	GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS;
+    GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS;
 }

@@ -36,25 +36,25 @@ import cn.taketoday.web.Constant;
 @RequestParam(type = Constant.ANNOTATION_HEADER)
 public @interface Header {
 
-	/**
-	 * required ?
-	 * 
-	 * @return
-	 */
-	boolean required() default false;
+    /**
+     * required ?
+     * 
+     * @return
+     */
+    boolean required() default false;
 
-	/**
-	 * Header name.
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+    /**
+     * Header name.
+     * 
+     * @return
+     */
+    String value() default Constant.BLANK;
 
-	/**
-	 * When required == false and parameter == null. use default value.
-	 * 
-	 * @return
-	 */
-	String defaultValue() default Constant.BLANK;
+    /**
+     * When required == false and parameter == null. use default value.
+     * 
+     * @return
+     */
+    String defaultValue() default Constant.BLANK;
 
 }

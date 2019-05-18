@@ -37,121 +37,121 @@ import cn.taketoday.web.Constant;
  */
 public final class CacheControl {
 
-	private final StringBuilder cacheControl = new StringBuilder();
+    private final StringBuilder cacheControl = new StringBuilder();
 
-	public static CacheControl newInstance() {
-		return new CacheControl();
-	}
+    public static CacheControl newInstance() {
+        return new CacheControl();
+    }
 
-	/**
-	 * The cache must verify the status of the stale resources before using it and
-	 * expired ones should not be used.
-	 */
-	public CacheControl mustRevalidate() {
-		return doAppendSettings(Constant.MUST_REVALIDATE);
-	}
+    /**
+     * The cache must verify the status of the stale resources before using it and
+     * expired ones should not be used.
+     */
+    public CacheControl mustRevalidate() {
+        return doAppendSettings(Constant.MUST_REVALIDATE);
+    }
 
-	/**
-	 * Forces caches to submit the request to the origin server for validation
-	 * before releasing a cached copy.
-	 */
-	public CacheControl noCache() {
-		return doAppendSettings(Constant.NO_CACHE);
-	}
+    /**
+     * Forces caches to submit the request to the origin server for validation
+     * before releasing a cached copy.
+     */
+    public CacheControl noCache() {
+        return doAppendSettings(Constant.NO_CACHE);
+    }
 
-	/**
-	 * The cache should not store anything about the client request or server
-	 * response.
-	 */
-	public CacheControl noStore() {
-		return doAppendSettings(Constant.NO_STORE);
-	}
+    /**
+     * The cache should not store anything about the client request or server
+     * response.
+     */
+    public CacheControl noStore() {
+        return doAppendSettings(Constant.NO_STORE);
+    }
 
-	/**
-	 * No transformations or conversions should be made to the resource. The
-	 * Content-Encoding, Content-Range, Content-Type headers must not be modified by
-	 * a proxy. A non- transparent proxy might, for example, convert between image
-	 * formats in order to save cache space or to reduce the amount of traffic on a
-	 * slow link. The no-transform directive disallows this.
-	 */
-	public CacheControl noTransform() {
-		return doAppendSettings(Constant.NO_TRANSFORM);
-	}
+    /**
+     * No transformations or conversions should be made to the resource. The
+     * Content-Encoding, Content-Range, Content-Type headers must not be modified by
+     * a proxy. A non- transparent proxy might, for example, convert between image
+     * formats in order to save cache space or to reduce the amount of traffic on a
+     * slow link. The no-transform directive disallows this.
+     */
+    public CacheControl noTransform() {
+        return doAppendSettings(Constant.NO_TRANSFORM);
+    }
 
-	/**
-	 * Indicates that the response may be cached by any cache, even if the response
-	 * would normally be non-cacheable (e.g. if the response does not contain a
-	 * max-age directive or the Expires header).
-	 */
-	public CacheControl publicCache() {
-		return doAppendSettings(Constant.PUBLIC);
-	}
+    /**
+     * Indicates that the response may be cached by any cache, even if the response
+     * would normally be non-cacheable (e.g. if the response does not contain a
+     * max-age directive or the Expires header).
+     */
+    public CacheControl publicCache() {
+        return doAppendSettings(Constant.PUBLIC);
+    }
 
-	/**
-	 * Indicates that the response is intended for a single user and must not be
-	 * stored by a shared cache. A private cache may store the response.
-	 */
-	public CacheControl privateCache() {
-		return doAppendSettings(Constant.PRIVATE);
-	}
+    /**
+     * Indicates that the response is intended for a single user and must not be
+     * stored by a shared cache. A private cache may store the response.
+     */
+    public CacheControl privateCache() {
+        return doAppendSettings(Constant.PRIVATE);
+    }
 
-	/**
-	 * Same as must-revalidate, but it only applies to shared caches (e.g., proxies)
-	 * and is ignored by a private cache.
-	 */
-	public CacheControl proxyRevalidate() {
-		return doAppendSettings(Constant.PROXY_REVALIDATE);
-	}
+    /**
+     * Same as must-revalidate, but it only applies to shared caches (e.g., proxies)
+     * and is ignored by a private cache.
+     */
+    public CacheControl proxyRevalidate() {
+        return doAppendSettings(Constant.PROXY_REVALIDATE);
+    }
 
-	/**
-	 * Specifies the maximum amount of time a resource will be considered fresh.
-	 * Contrary to Expires, this directive is relative to the time of the request.
-	 *
-	 * @param duration
-	 *            duration
-	 * @param unit
-	 *            time unit
-	 */
-	public CacheControl maxAge(long duration, TimeUnit unit) {
-		return appendSettings(Constant.MAX_AGE, duration, unit);
-	}
+    /**
+     * Specifies the maximum amount of time a resource will be considered fresh.
+     * Contrary to Expires, this directive is relative to the time of the request.
+     *
+     * @param duration
+     *            duration
+     * @param unit
+     *            time unit
+     */
+    public CacheControl maxAge(long duration, TimeUnit unit) {
+        return appendSettings(Constant.MAX_AGE, duration, unit);
+    }
 
-	/**
-	 * Takes precedence over max-age or the Expires header, but it only applies to
-	 * shared caches (e.g., proxies) and is ignored by a private cache.
-	 *
-	 * @param duration
-	 *            duration
-	 * @param unit
-	 *            time unit
-	 */
-	public CacheControl sMaxAge(long duration, TimeUnit unit) {
-		return appendSettings(Constant.S_MAXAGE, duration, unit);
-	}
+    /**
+     * Takes precedence over max-age or the Expires header, but it only applies to
+     * shared caches (e.g., proxies) and is ignored by a private cache.
+     *
+     * @param duration
+     *            duration
+     * @param unit
+     *            time unit
+     */
+    public CacheControl sMaxAge(long duration, TimeUnit unit) {
+        return appendSettings(Constant.S_MAXAGE, duration, unit);
+    }
 
-	@Override
-	public String toString() {
-		return cacheControl.toString();
-	}
+    @Override
+    public String toString() {
+        return cacheControl.toString();
+    }
 
-	/**
-	 * Returns {@code true} if no cache-control was added.
-	 *
-	 * @return {@code true} if it is empty
-	 */
-	public boolean isEmpty() {
-		return cacheControl.length() == 0;
-	}
+    /**
+     * Returns {@code true} if no cache-control was added.
+     *
+     * @return {@code true} if it is empty
+     */
+    public boolean isEmpty() {
+        return cacheControl.length() == 0;
+    }
 
-	private CacheControl appendSettings(String cacheControl, long duration, TimeUnit unit) {
-		return doAppendSettings(cacheControl + "=" + unit.toSeconds(duration));
-	}
+    private CacheControl appendSettings(String cacheControl, long duration, TimeUnit unit) {
+        return doAppendSettings(cacheControl + "=" + unit.toSeconds(duration));
+    }
 
-	private CacheControl doAppendSettings(String s) {
-		if (!isEmpty()) {
-			cacheControl.append(", ");
-		}
-		cacheControl.append(s);
-		return this;
-	}
+    private CacheControl doAppendSettings(String s) {
+        if (!isEmpty()) {
+            cacheControl.append(", ");
+        }
+        cacheControl.append(s);
+        return this;
+    }
 }

@@ -34,51 +34,51 @@ import lombok.Setter;
 @Setter
 public class ModelAndView {
 
-	private Object view;
-	private String contentType = null;
-	private final Map<String, Object> dataModel;
+    private Object view;
+    private String contentType = null;
+    private final Map<String, Object> dataModel;
 
-	public ModelAndView() {
-		dataModel = new HashMap<>(16, 1.0f);
-	}
+    public ModelAndView() {
+        dataModel = new HashMap<>(16, 1.0f);
+    }
 
-	public ModelAndView(Object view) {
-		this();
-		this.view = view;
-	}
+    public ModelAndView(Object view) {
+        this();
+        this.view = view;
+    }
 
-	public ModelAndView(Object view, Map<String, Object> dataModel) {
-		this.view = view;
-		this.dataModel = dataModel;
-	}
+    public ModelAndView(Object view, Map<String, Object> dataModel) {
+        this.view = view;
+        this.dataModel = dataModel;
+    }
 
-	public ModelAndView(Object view, String modelName, Object modelObject) {
-		this();
-		this.view = view;
-		addAttribute(modelName, modelObject);
-	}
+    public ModelAndView(Object view, String modelName, Object modelObject) {
+        this();
+        this.view = view;
+        addAttribute(modelName, modelObject);
+    }
 
-	public ModelAndView setView(Object view) {
-		this.view = view;
-		return this;
-	}
+    public ModelAndView setView(Object view) {
+        this.view = view;
+        return this;
+    }
 
-	/**
-	 * 
-	 * @return
-	 */
-	public final boolean noView() {
-		return this.view == null;
-	}
+    /**
+     * 
+     * @return
+     */
+    public final boolean noView() {
+        return this.view == null;
+    }
 
-	public ModelAndView addAttribute(String attributeName, Object attributeValue) {
-		dataModel.put(attributeName, attributeValue);
-		return this;
-	}
+    public ModelAndView addAttribute(String attributeName, Object attributeValue) {
+        dataModel.put(attributeName, attributeValue);
+        return this;
+    }
 
-	public ModelAndView addAllAttributes(Map<String, Object> attributes) {
-		dataModel.putAll(attributes);
-		return this;
-	}
+    public ModelAndView addAllAttributes(Map<String, Object> attributes) {
+        dataModel.putAll(attributes);
+        return this;
+    }
 
 }

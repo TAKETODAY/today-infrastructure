@@ -32,18 +32,18 @@ import lombok.Setter;
 @SuppressWarnings("serial")
 public class FileSizeExceededException extends Exception {
 
-	/**
-	 * The actual size of the request.
-	 */
-	private long actual;
-	/**
-	 * The maximum permitted size of the request.
-	 */
-	private long permitted;
+    /**
+     * The actual size of the request.
+     */
+    private long actual;
+    /**
+     * The maximum permitted size of the request.
+     */
+    private long permitted;
 
-	public FileSizeExceededException(long permitted, Throwable cause) {
-		super("The upload file exceeds its maximum permitted size " + permitted + " bytes", cause);
-		this.permitted = permitted;
-	}
+    public FileSizeExceededException(long permitted, Throwable cause) {
+        super("The upload file exceeds its maximum permitted size " + permitted + " bytes", cause);
+        this.permitted = permitted;
+    }
 
 }

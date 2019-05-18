@@ -29,9 +29,9 @@ import cn.taketoday.web.ServletContextInitializer;
 @FunctionalInterface
 public interface OrderedInitializer extends ServletContextInitializer, Ordered {
 
-	@Override
-	default public int getOrder() {
-		return HIGHEST_PRECEDENCE;
-	}
-	
+    @Override
+    default public int getOrder() {
+        return HIGHEST_PRECEDENCE;
+    }
+
 }
