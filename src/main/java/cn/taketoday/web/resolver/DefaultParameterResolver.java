@@ -21,6 +21,7 @@ package cn.taketoday.web.resolver;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -348,11 +349,11 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
     /**
      * resolve annotation parameter
      *
-     * @param request
      * @param methodParameterName
+     * @param request
      * @param methodParameter
      * @return
-     * @throws BadRequestException
+     * @throws Throwable
      */
     private Object resolveAnnotationParameter(final String methodParameterName, final HttpServletRequest request, //
             final MethodParameter methodParameter) throws Throwable //
@@ -393,7 +394,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
             case ANNOTATION_REQUEST_BODY : { // request body
                 final Object requestBody = request.getAttribute(KEY_REQUEST_BODY);
                 if (requestBody != null) {
-                    return toJavaObject(methodParameterName, methodParameter.getParameterClass(), (JSONObject) requestBody);
+                    return toJavaObject(methodParameterName, methodParameter, requestBody);
                 }
                 try {
                     // fixed #2 JSONObject could be null
@@ -401,9 +402,12 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
                     if (StringUtils.isEmpty(formData)) {
                         throw WebUtils.newBadRequest("Request body", methodParameterName, null);
                     }
-                    final JSONObject parsedJson = JSON.parseObject(formData);
+                    // fix
+                    final Object parsedJson = JSON.parse(formData);
+
                     request.setAttribute(KEY_REQUEST_BODY, parsedJson);
-                    return toJavaObject(methodParameterName, methodParameter.getParameterClass(), parsedJson);
+
+                    return toJavaObject(methodParameterName, methodParameter, parsedJson);
                 }
                 catch (IOException e) {
                     throw WebUtils.newBadRequest("Request body", methodParameterName, e);
@@ -423,16 +427,44 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 
     /**
      * @param methodParameterName
-     * @param parameterClass
+     * @param methodParameter
      * @param requestBody
      * @return
+     * @since 2.3.7
      */
-    static Object toJavaObject(final String methodParameterName, final Class<?> parameterClass, final JSONObject requestBody) {
-        final JSONObject obj = requestBody.getJSONObject(methodParameterName);
-        if (obj == null) {
-            return requestBody.toJavaObject(parameterClass);
+    private static Object toJavaObject(final String methodParameterName, //
+            final MethodParameter methodParameter, final Object parsedJson) //
+    {
+        if (parsedJson instanceof JSONArray) {// array
+            // style: [{'name'='today','age'=21},{'name'="YHJ",'age'=22}]
+            final Class<?> parameterClass = methodParameter.getParameterClass();
+
+            if (Collection.class.isAssignableFrom(parameterClass)) {
+                return ((JSONArray) parsedJson).toJavaList(methodParameter.getGenericityClass());
+            }
         }
-        return obj.toJavaObject(parameterClass);
+        else if (parsedJson instanceof JSONObject) {
+            final JSONObject requestBody = (JSONObject) parsedJson;
+
+            final Class<?> parameterClass = methodParameter.getParameterClass();
+
+            if (Collection.class.isAssignableFrom(parameterClass)) {
+                final JSONArray array = requestBody.getJSONArray(methodParameterName);
+                if (array == null) { // style: {'users':[{'name'='today','age'=21},{'name'="YHJ",'age'=22}],...}
+                    throw WebUtils.newBadRequest("Request body", methodParameterName, null);
+                }
+                return array.toJavaList(methodParameter.getGenericityClass());
+            }
+            else {
+                final JSONObject obj = requestBody.getJSONObject(methodParameterName);
+                if (obj == null) { // only one request body
+                    return requestBody.toJavaObject(parameterClass); // style: {'name'='today','age'=21}
+                }
+                return obj.toJavaObject(parameterClass); // style: {'user':{'name'='today','age'=21},...}
+            }
+        }
+
+        throw WebUtils.newBadRequest("Request body", methodParameterName, null);
     }
 
     /**
@@ -610,38 +642,6 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
     private List<?> resolveListParameter(final HttpServletRequest request, //
             final String parameterName, final MethodParameter methodParameter) throws Throwable //
     {
-        if (methodParameter.isRequestBody()) {
-
-            final Object requestBody = request.getAttribute(KEY_REQUEST_BODY);
-            if (requestBody != null) {
-
-                final JSONObject parsedJson = (JSONObject) requestBody;
-                final JSONArray array = parsedJson.getJSONArray(parameterName);
-                if (array == null) {
-                    return JSONObject.parseArray(parsedJson.toJSONString(), methodParameter.getGenericityClass());
-                }
-                return array.toJavaList(methodParameter.getGenericityClass());
-            }
-
-            try {
-
-                // fix #2 JSONObject could be null
-                final String formData = request.getReader().readLine();
-                if (StringUtils.isEmpty(formData)) {
-                    throw WebUtils.newBadRequest("Request body", parameterName, null);
-                }
-                final JSONObject parsedJson = JSON.parseObject(formData);
-                request.setAttribute(KEY_REQUEST_BODY, parsedJson);
-                final JSONArray array = parsedJson.getJSONArray(parameterName);
-                if (array == null) {
-                    return JSONArray.parseArray(formData, methodParameter.getGenericityClass());
-                }
-                return array.toJavaList(methodParameter.getGenericityClass());
-            }
-            catch (IOException e) {
-                throw WebUtils.newBadRequest("Collection request body", parameterName, e);
-            }
-        }
         // https://taketoday.cn/today/user/list?user%5b0%5d.userId=90&user%5b2%5d.userId=98&user%5b1%5d.userName=Today
 
         final List<Object> list = new ParamList<>();

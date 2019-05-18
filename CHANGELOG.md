@@ -273,5 +273,6 @@ public final class PathVariableAction {
 - :sparkles: feat: static Resource supports Interceptor
 - refactor: extract comment code
 
+- :bug: fix: #5 Request Body Read Error
 
 

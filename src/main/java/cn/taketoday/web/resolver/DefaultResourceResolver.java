@@ -69,8 +69,12 @@ public class DefaultResourceResolver implements ResourceResolver {
         else {
             extractPathWithinPattern = requestPath;
         }
-        log.debug("resource: [{}]", extractPathWithinPattern);
 
+        if (StringUtils.isEmpty(extractPathWithinPattern)) {
+            return null;
+        }
+
+        log.debug("resource: [{}]", extractPathWithinPattern);
         for (String location : resourceMapping.getLocations()) {
             try {
 
@@ -85,7 +89,6 @@ public class DefaultResourceResolver implements ResourceResolver {
                 }
             }
             catch (IOException e) {
-                e.printStackTrace();
             }
         }
         return null;

@@ -245,7 +245,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
                         break;
                     }
                     case ELEMENT_RESOURCES : {
-                        resourceMappingRegistry(ele);
+//                        resourceMappingRegistry(ele);
                         break;
                     }
                     case ELEMENT_MULTIPART :
@@ -279,14 +279,12 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
         }
     }
 
-    private void resourceMappingRegistry(Element ele) {
-        final ResourceMappingRegistry resourceMappingRegistry = applicationContext.getBean(ResourceMappingRegistry.class);
-
-        
-        
-//        resourceMappingRegistry.
-        
-    }
+//    private void resourceMappingRegistry(Element ele) {
+//        final ResourceMappingRegistry resourceMappingRegistry = applicationContext.getBean(ResourceMappingRegistry.class);
+//
+////        resourceMappingRegistry.
+//
+//    }
 
     /**
      * Register resolver to application context.
