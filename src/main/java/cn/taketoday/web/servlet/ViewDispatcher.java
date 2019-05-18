@@ -112,7 +112,7 @@ public class ViewDispatcher extends GenericServlet {
                     return;
                 }
                 case Constant.RETURN_IMAGE : {
-                    DispatcherServlet.resolveImage(response, (RenderedImage) result);
+                    WebUtils.resolveImage(response, (RenderedImage) result);
                     return;
                 }
                 case Constant.RETURN_STRING : {
@@ -120,7 +120,7 @@ public class ViewDispatcher extends GenericServlet {
                     break;
                 }
                 case Constant.RETURN_OBJECT : {
-                    DispatcherServlet.resolveObject(request, response, result, viewResolver, downloadFileBuf);
+                    WebUtils.resolveObject(request, response, result, viewResolver, downloadFileBuf);
                     break;
                 }
                 default:

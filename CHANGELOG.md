@@ -271,7 +271,7 @@ public final class PathVariableAction {
 - :sparkles: feat: use Spring path matcher to match static resource
 - :sparkles: feat: use `ResourceServlet` to handle static resource request
 - :sparkles: feat: static Resource supports Interceptor
-
+- refactor: extract comment code
 
 
 

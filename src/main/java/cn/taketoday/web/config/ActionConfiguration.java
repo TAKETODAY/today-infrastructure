@@ -205,7 +205,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
      * @param elements
      */
     @SafeVarargs
-    static <E> Set<E> newHashSet(E... elements) {
+    private static <E> Set<E> newHashSet(E... elements) {
         return Stream.of(elements).collect(Collectors.toSet());
     }
 

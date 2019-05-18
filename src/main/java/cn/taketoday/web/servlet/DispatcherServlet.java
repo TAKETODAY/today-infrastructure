@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.servlet.Servlet;
@@ -35,7 +34,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +45,7 @@ import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
@@ -92,16 +91,6 @@ public class DispatcherServlet implements Servlet {
 
     private ServletConfig servletConfig;
 
-    /**
-     * Default json serialize feature
-     */
-    @Value(value = "#{fastjson.serialize.features}", required = false)
-    private static SerializerFeature[] SERIALIZE_FEATURES = { //
-            SerializerFeature.WriteMapNullValue, //
-            SerializerFeature.WriteNullListAsEmpty, //
-            SerializerFeature.DisableCircularReferenceDetect//
-    };
-
     @Autowired
     public DispatcherServlet(//
             ViewResolver viewResolver, //
@@ -129,8 +118,23 @@ public class DispatcherServlet implements Servlet {
         this.handlerInterceptorRegistry = handlerInterceptorRegistry;
         this.applicationContext = WebUtils.getWebApplicationContext();
         this.contextPath = this.applicationContext.getServletContext().getContextPath();
+
+        // @since 2.3.7
+        final String property = applicationContext.getEnvironment()//
+                .getProperty("fastjson.serialize.features");
+        
+        if (StringUtils.isNotEmpty(property)) {
+            WebUtils.SERIALIZE_FEATURES = (SerializerFeature[]) ConvertUtils.convert(property, SerializerFeature[].class);
+        }
     }
 
+    /**
+     * 
+     * TODO return value resolver <br>
+     * method arguments resolver <br>
+     * path matcher <br>
+     * handler mapping
+     */
     @Override
     public void service(final ServletRequest servletRequest, final ServletResponse servletResponse) //
             throws ServletException //
@@ -157,7 +161,9 @@ public class DispatcherServlet implements Servlet {
                 final HandlerInterceptorRegistry handlerInterceptorRegistry = getHandlerInterceptorRegistry();
                 for (final int interceptor : interceptors) {
                     if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(request, response, requestMapping)) {
-                        log.debug("Interceptor: [{}] return false", handlerInterceptorRegistry.get(interceptor));
+                        if (log.isDebugEnabled()) {
+                            log.debug("Interceptor: [{}] return false", handlerInterceptorRegistry.get(interceptor));
+                        }
                         return;
                     }
                 }
@@ -173,7 +179,8 @@ public class DispatcherServlet implements Servlet {
             resolveResult(request, response, handlerMethod, result);
         }
         catch (Throwable exception) {
-            WebUtils.resolveException(request, response, applicationContext.getServletContext(), exceptionResolver, exception);
+            WebUtils.resolveException(request, response, //
+                    applicationContext.getServletContext(), exceptionResolver, exception);
         }
     }
 
@@ -188,6 +195,7 @@ public class DispatcherServlet implements Servlet {
      * @param requestMapping
      * @return the result of handler
      * @throws Throwable
+     * @since 2.3.7
      */
     protected Object invokeHandler(final HttpServletRequest request, final HttpServletResponse response,
             final HandlerMethod handlerMethod, final HandlerMapping requestMapping) throws Throwable //
@@ -209,6 +217,7 @@ public class DispatcherServlet implements Servlet {
      * @param request
      *            current request
      * @return mapped {@link HandlerMapping}
+     * @since 2.3.7
      */
     protected HandlerMapping lookupHandlerMapping(final HttpServletRequest request) {
         // The key of handler
@@ -239,6 +248,7 @@ public class DispatcherServlet implements Servlet {
      * @param result
      * @throws Throwable
      * @throws IOException
+     * @since 2.3.7
      */
     protected void resolveResult(//
             final HttpServletRequest request, //
@@ -249,7 +259,7 @@ public class DispatcherServlet implements Servlet {
         switch (handlerMethod.getReutrnType())
         {
             case Constant.RETURN_VIEW : {
-                resolveView(request, response, (String) result, contextPath, viewResolver);
+                WebUtils.resolveView(request, response, (String) result, contextPath, viewResolver);
                 break;
             }
             case Constant.RETURN_STRING : {
@@ -266,7 +276,7 @@ public class DispatcherServlet implements Servlet {
                 break;
             }
             case Constant.RETURN_JSON : {
-                resolveJsonView(response, result);
+                WebUtils.resolveJsonView(response, result);
                 break;
             }
             case Constant.RETURN_MODEL_AND_VIEW : {
@@ -281,7 +291,7 @@ public class DispatcherServlet implements Servlet {
                 break;
             }
             case Constant.RETURN_OBJECT : {
-                resolveObject(request, response, result, viewResolver, downloadFileBuf);
+                WebUtils.resolveObject(request, response, result, viewResolver, downloadFileBuf);
                 break;
             }
             default:
@@ -289,67 +299,7 @@ public class DispatcherServlet implements Servlet {
     }
 
     /**
-     * 
-     * @param request
-     * @param response
-     * @param resource
-     * @param contextPath
-     * @param viewResolver
-     * @throws Throwable
-     */
-    public static void resolveView(HttpServletRequest request, HttpServletResponse response,
-            String resource, String contextPath, ViewResolver viewResolver) throws Throwable //
-    {
-        resolveView(request, response, resource, contextPath, viewResolver, null);
-    }
-
-    /**
-     * Resolve String type
-     *
-     * @param request
-     *            current request
-     * @param response
-     *            current response
-     * @param result
-     *            String value
-     * @since 2.3.3
-     */
-    @SuppressWarnings("unchecked")
-    public static void resolveView(//
-            final HttpServletRequest request, //
-            final HttpServletResponse response, //
-            final String resource, //
-            final String contextPath, //
-            final ViewResolver viewResolver, //
-            final Map<String, Object> dataModel) throws Throwable //
-    {
-        if (resource.startsWith(Constant.REDIRECT_URL_PREFIX)) {
-            // @since 2.3.7
-            final String redirect = resource.substring(Constant.REDIRECT_URL_PREFIX_LENGTH);
-            if (StringUtils.isEmpty(redirect) || redirect.startsWith(Constant.HTTP)) {
-                response.sendRedirect(redirect);
-            }
-            else {
-                response.sendRedirect(contextPath + redirect);
-            }
-            return;
-        }
-        if (dataModel != null) {
-            dataModel.forEach(request::setAttribute);
-        }
-        {
-            final HttpSession session = request.getSession();
-            final Object attribute = session.getAttribute(Constant.KEY_REDIRECT_MODEL);
-            if (attribute instanceof Map) {
-                ((Map<String, Object>) attribute).forEach(request::setAttribute);
-                session.removeAttribute(Constant.KEY_REDIRECT_MODEL);
-            }
-        }
-
-        viewResolver.resolveView(resource, request, response);
-    }
-
-    /**
+     * Resolve {@link ModelAndView} return type
      * 
      * @param request
      *            current request
@@ -371,7 +321,7 @@ public class DispatcherServlet implements Servlet {
         }
         final Object view = modelAndView.getView();
         if (view instanceof String) {
-            resolveView(request, response, (String) view, contextPath, viewResolver, modelAndView.getDataModel());
+            WebUtils.resolveView(request, response, (String) view, contextPath, viewResolver, modelAndView.getDataModel());
         }
         else if (view instanceof StringBuilder || view instanceof StringBuffer) {
             response.getWriter().print(view.toString());
@@ -380,71 +330,10 @@ public class DispatcherServlet implements Servlet {
             WebUtils.downloadFile(request, response, (File) view, downloadFileBuf);
         }
         else if (view instanceof RenderedImage) {
-            resolveImage(response, (RenderedImage) view);
+            WebUtils.resolveImage(response, (RenderedImage) view);
         }
         else
-            resolveJsonView(response, view);
-    }
-
-    /**
-     * Resolve json view
-     * 
-     * @param response
-     *            current response
-     * @param view
-     *            view instance
-     * @throws IOException
-     */
-    public static void resolveJsonView(final HttpServletResponse response, final Object view) throws IOException {
-        response.setContentType(Constant.CONTENT_TYPE_JSON);
-        JSON.writeJSONString(response.getWriter(), view, SERIALIZE_FEATURES);
-    }
-
-    /**
-     * Resolve image
-     * 
-     * @param response
-     *            current response
-     * @param image
-     *            image instance
-     * @throws IOException
-     * @since 2.3.3
-     */
-    public static void resolveImage(final HttpServletResponse response, final RenderedImage image) throws IOException {
-        // need set content type
-        ImageIO.write(image, Constant.IMAGE_PNG, response.getOutputStream());
-    }
-
-    /**
-     * @param request
-     *            current request
-     * @param response
-     *            current response
-     * @param result
-     *            result instance
-     * @param viewResolver
-     * @throws Throwable
-     */
-    public static void resolveObject(final HttpServletRequest request, final HttpServletResponse response, //
-            final Object result, final ViewResolver viewResolver, final int downloadFileBuf) throws Throwable //
-    {
-        if (result instanceof String) {
-            resolveView(request, response, (String) result, request.getContextPath(), viewResolver);
-            return;
-        }
-        else if (result instanceof StringBuilder || result instanceof StringBuffer) {
-            response.getWriter().print(result.toString());
-            return;
-        }
-        else if (result instanceof RenderedImage) {
-            resolveImage(response, (RenderedImage) result);
-            return;
-        }
-        else if (result instanceof File) {
-            WebUtils.downloadFile(request, response, (File) result, downloadFileBuf);
-            return;
-        }
-        resolveJsonView(response, result);
+            WebUtils.resolveJsonView(response, view);
     }
 
     @Override
