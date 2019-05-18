@@ -146,7 +146,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
         if (StringUtils.isEmpty(webMvcConfigLocation)) {
             webMvcConfigLocation = servletContext.getInitParameter(WEB_MVC_CONFIG_LOCATION);
             if (StringUtils.isEmpty(webMvcConfigLocation)) {
-                String rootPath = servletContext.getRealPath("/");
+                final String rootPath = servletContext.getRealPath("/");
                 log.debug("Find Configuration File From Root Path: [{}]", rootPath);
                 findConfiguration(new File(rootPath), mvcConfiguration);
                 return;
@@ -157,10 +157,8 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 
             final Resource resource = ResourceUtils.getResource(file);
             if (resource == null) {
-
                 final ConfigurationException configurationException = //
                         new ConfigurationException("Your Provided Configuration File: [" + file + "], Does Not Exist");
-
                 servletContext.log(configurationException.getMessage(), configurationException);
                 throw configurationException;
             }
@@ -247,6 +245,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
                         break;
                     }
                     case ELEMENT_RESOURCES : {
+                        resourceMappingRegistry(ele);
                         break;
                     }
                     case ELEMENT_MULTIPART :
@@ -278,6 +277,15 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
                 }
             }
         }
+    }
+
+    private void resourceMappingRegistry(Element ele) {
+        final ResourceMappingRegistry resourceMappingRegistry = applicationContext.getBean(ResourceMappingRegistry.class);
+
+        
+        
+//        resourceMappingRegistry.
+        
     }
 
     /**
@@ -569,7 +577,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
             List<ServletContextInitializer> contextInitializers = //
                     applicationContext.getBeans(ServletContextInitializer.class);
 
-            necessary(contextInitializers, mvcConfiguration);
+            configResourceRegistry(contextInitializers, mvcConfiguration);
 
             applyFilter(applicationContext, contextInitializers);
             applyServlet(applicationContext, contextInitializers);
@@ -602,7 +610,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
         }
     }
 
-    private void necessary(List<ServletContextInitializer> contextInitializers, //
+    private void configResourceRegistry(List<ServletContextInitializer> contextInitializers, //
             CompositeWebMvcConfiguration configuration) {
 
         final ResourceMappingRegistry resourceMappingRegistry = applicationContext.getBean(ResourceMappingRegistry.class);
@@ -610,7 +618,6 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
         configuration.configResourceMappings(resourceMappingRegistry);
 
         if (resourceMappingRegistry.isEmpty()) {
-            System.err.println(resourceMappingRegistry);
             return;
         }
 

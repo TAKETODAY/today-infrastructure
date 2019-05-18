@@ -106,7 +106,7 @@ public class ResourceServlet extends GenericServlet {
                     lookupResourceHandlerMapping(path, pathMatcher, registry.getResourceHandlerMappings());
 
             if (resourceMapping == null) {
-                log.info("resourceHandlerMapping == null 404");
+                log.debug("NOT FOUND -> [{}]", path);
                 response.sendError(404);
                 return;
             }
@@ -135,8 +135,7 @@ public class ResourceServlet extends GenericServlet {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
             } // TODO Directory
             else {
-                WebResourceWriter.newInstance(resource, resourceMapping)//
-                        .write(request, response);
+                resolveResult(request, response, resource, resourceMapping);
             }
         }
         catch (Throwable exception) {
@@ -166,219 +165,184 @@ public class ResourceServlet extends GenericServlet {
         return null;
     }
 
-    public static class WebResourceWriter {
-
-        private String contentType;
-        private final WebResource resource;
-        private final ResourceMapping resourceHandlerMapping;
-
-        private WebResourceWriter(WebResource resource, ResourceMapping resourceHandlerMapping) {
-
-            this.resource = resource;
-            final String contentType = resource.getContentType();
+    protected void resolveResult(final HttpServletRequest request, //
+            final HttpServletResponse response, WebResource resource, ResourceMapping resourceMapping) throws Throwable//
+    {
+        String contentType = resource.getContentType();
+        if (StringUtils.isEmpty(contentType)) {
+            contentType = WebUtils.getServletContext().getMimeType(resource.getName());
             if (StringUtils.isEmpty(contentType)) {
-                this.contentType = WebUtils.getServletContext().getMimeType(resource.getName());
-                if (StringUtils.isEmpty(this.contentType)) {
-                    this.contentType = Constant.BLANK;
-                }
-            }
-            else {
-                this.contentType = contentType;
-            }
-            this.resourceHandlerMapping = resourceHandlerMapping;
-        }
-
-        static WebResourceWriter newInstance(WebResource resource, ResourceMapping resourceHandlerMapping) {
-            return new WebResourceWriter(resource, resourceHandlerMapping);
-        }
-
-        /**
-         * Send the resource to the client. The methods will check the request method,
-         * if the request method is head the resource will be send without content.
-         *
-         * @param request
-         *            current request
-         * @param response
-         *            current response
-         * @throws IOException
-         *             If an input or output exception occurs
-         */
-        public final void write(HttpServletRequest request, HttpServletResponse response) throws IOException {
-            prepareWrite(request, response, !isHeadRequest(request));
-        }
-
-        private static boolean isHeadRequest(HttpServletRequest request) {
-            return "HEAD".equalsIgnoreCase(request.getMethod());
-        }
-
-        private void prepareWrite(final HttpServletRequest request, //
-                final HttpServletResponse response, final boolean send) throws IOException //
-        {
-            // Validate request headers for caching
-            // ---------------------------------------------------
-
-            // If-None-Match header should contain "*" or ETag. If so, then return 304
-            final String ifNoneMatch = request.getHeader(Constant.IF_NONE_MATCH);
-            final String eTag = resource.getETag();
-            if (matches(ifNoneMatch, eTag)) {
-                response.setHeader(Constant.ETAG, eTag); // 304.
-                response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-                return;
-            }
-
-            // If-Modified-Since header should be greater than LastModified
-            // If so, then return 304
-            // This header is ignored if any If-None-Match header is specified
-            final long ifModifiedSince = request.getDateHeader(Constant.IF_MODIFIED_SINCE);// If-Modified-Since
-            final long lastModified = resource.lastModified();
-            if (ifNoneMatch == null && (ifModifiedSince > 0 && lastModified != 0 && ifModifiedSince >= lastModified)) {
-//			if (ifNoneMatch == null && ge(ifModifiedSince, lastModified)) {
-                response.setDateHeader(Constant.LAST_MODIFIED, lastModified); // 304
-                response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-                return;
-            }
-
-            // Validate request headers for resume
-            // ----------------------------------------------------
-
-            // If-Match header should contain "*" or ETag. If not, then return 412
-            final String ifMatch = request.getHeader(Constant.IF_MATCH);
-            if (ifMatch != null && !matches(ifMatch, eTag)) {
-                response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED);
-                return;
-            }
-
-            // If-Unmodified-Since header should be greater than LastModified.
-            // If not, then return 412.
-            final long ifUnmodifiedSince = request.getDateHeader(Constant.IF_UNMODIFIED_SINCE);// "If-Unmodified-Since"
-
-            if (ifUnmodifiedSince > 0 && lastModified > 0 && ifUnmodifiedSince <= lastModified) {
-                response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED);
-                return;
-            }
-
-            response.setStatus(HttpServletResponse.SC_OK);
-            applyHeaders(response, lastModified, eTag);
-
-            if (send) {
-                if (isGZipEnabled()) {
-                    writeCompressed(resource, response);
-                }
-                else {
-                    write(resource, response);
-                }
+                contentType = Constant.BLANK;
             }
         }
+        // Validate request headers for caching
+        // ---------------------------------------------------
 
-        /**
-         * Whether gZip enable
-         * 
-         * @return whether gZip enable
-         * @throws IOException
-         *             if any IO exception occurred
-         */
-        private final boolean isGZipEnabled() throws IOException {
-            return resourceHandlerMapping.isGzip() //
-                    && isContentCompressable() //
-                    && resource.contentLength() > resourceHandlerMapping.getGzipMinLength();
+        // If-None-Match header should contain "*" or ETag. If so, then return 304
+        final String ifNoneMatch = request.getHeader(Constant.IF_NONE_MATCH);
+        final String eTag = resource.getETag();
+        if (matches(ifNoneMatch, eTag)) {
+            response.setHeader(Constant.ETAG, eTag); // 304.
+            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            return;
         }
 
-        private final boolean isContentCompressable() {
-            return "image/svg+xml".equals(contentType) //
-                    || !contentType.startsWith("image") //
-                            && !contentType.startsWith("video");
+        // If-Modified-Since header should be greater than LastModified
+        // If so, then return 304
+        // This header is ignored if any If-None-Match header is specified
+        final long ifModifiedSince = request.getDateHeader(Constant.IF_MODIFIED_SINCE);// If-Modified-Since
+        final long lastModified = resource.lastModified();
+        if (ifNoneMatch == null && (ifModifiedSince > 0 && lastModified != 0 && ifModifiedSince >= lastModified)) {
+//      if (ifNoneMatch == null && ge(ifModifiedSince, lastModified)) {
+            response.setDateHeader(Constant.LAST_MODIFIED, lastModified); // 304
+            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            return;
         }
 
-        /**
-         * Create a {@link GZIPOutputStream} with given response
-         * 
-         * @param response
-         *            current response
-         * @return a {@link GZIPOutputStream}
-         * @throws IOException
-         *             if any IO exception occurred
-         */
-        private GZIPOutputStream gzipOutputStream(HttpServletResponse response) throws IOException {
-            return new GZIPOutputStream(response.getOutputStream(), resourceHandlerMapping.getBufferSize());
+        // Validate request headers for resume
+        // ----------------------------------------------------
+
+        // If-Match header should contain "*" or ETag. If not, then return 412
+        final String ifMatch = request.getHeader(Constant.IF_MATCH);
+        if (ifMatch != null && !matches(ifMatch, eTag)) {
+            response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED);
+            return;
         }
 
-        /**
-         * Write compressed {@link Resource} to the client
-         * 
-         * @param resource
-         *            {@link Resource}
-         * @param response
-         *            current response
-         * @throws IOException
-         *             if any IO exception occurred
-         */
-        private void writeCompressed(Resource resource, HttpServletResponse response) throws IOException {
+        // If-Unmodified-Since header should be greater than LastModified.
+        // If not, then return 412.
+        final long ifUnmodifiedSince = request.getDateHeader(Constant.IF_UNMODIFIED_SINCE);// "If-Unmodified-Since"
 
-            response.setHeader(Constant.CONTENT_ENCODING, Constant.GZIP);
-
-            try (InputStream source = resource.getInputStream(); //
-                    OutputStream outputStream = gzipOutputStream(response)) {
-
-                WebUtils.writeToOutputStream(source, outputStream, resourceHandlerMapping.getBufferSize());
-            }
+        if (ifUnmodifiedSince > 0 && lastModified > 0 && ifUnmodifiedSince <= lastModified) {
+            response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED);
+            return;
         }
 
-        /**
-         * Write compressed {@link Resource} to the client
-         * 
-         * @param resource
-         *            {@link Resource}
-         * @param response
-         *            current response
-         * @throws IOException
-         *             if any IO exception occurred
-         */
-        private void write(Resource resource, HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_OK);
 
-            response.setContentLengthLong(resource.contentLength());
+        applyHeaders(response, contentType, lastModified, eTag, resourceMapping);
 
-            try (InputStream source = resource.getInputStream(); //
-                    OutputStream sink = response.getOutputStream()) {
-
-                WebUtils.writeToOutputStream(source, sink, resourceHandlerMapping.getBufferSize());
-            }
+        if (isHeadRequest(request)) {
+            return;
         }
 
-        private static boolean matches(String matchHeader, String etag) {
-            if (matchHeader != null && StringUtils.isNotEmpty(etag)) {
-                return "*".equals(etag) || matchHeader.equals(etag);
-            }
-            return false;
+        if (isGZipEnabled(resource, resourceMapping, contentType)) {
+            writeCompressed(resource, response, resourceMapping);
         }
-
-        /**
-         * Apply the Content-Type, Last-Modified, ETag, Cache-Control, Expires
-         * 
-         * @param request
-         *            current request
-         * @param response
-         *            current response
-         * @throws IOException
-         *             if last modify read error
-         */
-        private void applyHeaders(HttpServletResponse response, //
-                long lastModified, String eTag) throws IOException //
-        {
-            response.setHeader(Constant.CONTENT_TYPE, contentType);
-            if (lastModified > 0) {
-                response.setDateHeader(Constant.LAST_MODIFIED, lastModified);
-            }
-            if (StringUtils.isNotEmpty(eTag)) {
-                response.setHeader(Constant.ETAG, eTag);
-            }
-            if (resourceHandlerMapping.getCacheControl() != null) {
-                response.setHeader(Constant.CACHE_CONTROL, resourceHandlerMapping.getCacheControl().toString());
-            }
-            if (resourceHandlerMapping.getExpires() > 0) {
-                response.setDateHeader(Constant.EXPIRES, System.currentTimeMillis() + resourceHandlerMapping.getExpires());
-            }
+        else {
+            write(resource, response, resourceMapping);
         }
+    }
 
+    private static boolean isHeadRequest(HttpServletRequest request) {
+        return "HEAD".equalsIgnoreCase(request.getMethod());
+    }
+
+    /**
+     * Whether gZip enable
+     * 
+     * @param resource
+     * @param resourceMapping
+     * @param contentType
+     * @return whether gZip enable
+     * @throws IOException
+     *             if any IO exception occurred
+     */
+    private static final boolean isGZipEnabled(final WebResource resource, //
+            ResourceMapping resourceMapping, String contentType) throws IOException //
+    {
+        return resourceMapping.isGzip() //
+                && isContentCompressable(contentType) //
+                && resource.contentLength() > resourceMapping.getGzipMinLength();
+    }
+
+    private static final boolean isContentCompressable(String contentType) {
+        return "image/svg+xml".equals(contentType) //
+                || !contentType.startsWith("image") //
+                        && !contentType.startsWith("video");
+    }
+
+    /**
+     * Write compressed {@link Resource} to the client
+     * 
+     * @param resource
+     *            {@link Resource}
+     * @param response
+     *            current response
+     * @throws IOException
+     *             if any IO exception occurred
+     */
+    private static final void writeCompressed(Resource resource, HttpServletResponse response, //
+            ResourceMapping resourceMapping) throws IOException //
+    {
+        response.setHeader(Constant.CONTENT_ENCODING, Constant.GZIP);
+
+        final int bufferSize = resourceMapping.getBufferSize();
+
+        try (InputStream source = resource.getInputStream(); //
+                OutputStream outputStream = //
+                        new GZIPOutputStream(response.getOutputStream(), bufferSize)) {
+
+            WebUtils.writeToOutputStream(source, outputStream, bufferSize);
+        }
+    }
+
+    /**
+     * Write compressed {@link Resource} to the client
+     * 
+     * @param resource
+     *            {@link Resource}
+     * @param response
+     *            current response
+     * @throws IOException
+     *             if any IO exception occurred
+     */
+    private static final void write(Resource resource, HttpServletResponse response, //
+            ResourceMapping resourceMapping) throws IOException //
+    {
+
+        response.setContentLengthLong(resource.contentLength());
+
+        try (InputStream source = resource.getInputStream(); //
+                OutputStream sink = response.getOutputStream()) {
+
+            WebUtils.writeToOutputStream(source, sink, resourceMapping.getBufferSize());
+        }
+    }
+
+    private static final boolean matches(String matchHeader, String etag) {
+        if (matchHeader != null && StringUtils.isNotEmpty(etag)) {
+            return "*".equals(etag) || matchHeader.equals(etag);
+        }
+        return false;
+    }
+
+    /**
+     * Apply the Content-Type, Last-Modified, ETag, Cache-Control, Expires
+     * 
+     * @param request
+     *            current request
+     * @param response
+     *            current response
+     * @throws IOException
+     *             if last modify read error
+     */
+    private static final void applyHeaders(HttpServletResponse response, //
+            String contentType, long lastModified, String eTag, ResourceMapping resourceMapping) throws IOException //
+    {
+        response.setHeader(Constant.CONTENT_TYPE, contentType);
+        if (lastModified > 0) {
+            response.setDateHeader(Constant.LAST_MODIFIED, lastModified);
+        }
+        if (StringUtils.isNotEmpty(eTag)) {
+            response.setHeader(Constant.ETAG, eTag);
+        }
+        if (resourceMapping.getCacheControl() != null) {
+            response.setHeader(Constant.CACHE_CONTROL, resourceMapping.getCacheControl().toString());
+        }
+        if (resourceMapping.getExpires() > 0) {
+            response.setDateHeader(Constant.EXPIRES, System.currentTimeMillis() + resourceMapping.getExpires());
+        }
     }
 
 }

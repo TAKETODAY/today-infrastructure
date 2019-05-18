@@ -254,7 +254,7 @@ public class DispatcherServlet implements Servlet {
             final HttpServletRequest request, //
             final HttpServletResponse response, //
             final HandlerMethod handlerMethod,
-            final Object result) throws Throwable, IOException //
+            final Object result) throws Throwable //
     {
         switch (handlerMethod.getReutrnType())
         {
