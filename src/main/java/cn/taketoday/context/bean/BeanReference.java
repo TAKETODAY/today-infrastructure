@@ -36,21 +36,13 @@ public final class BeanReference {
 
 	/** reference name */
 	private final String name;
-	/** required? **/
+	/** property is required? **/
 	private final boolean required;
 
-	/**
-	 * record reference type
-	 * 
-	 * @since v2.1.2
-	 */
+	/** record reference type @since v2.1.2 */
 	private final Class<?> referenceClass;
 
-	/**
-	 * record reference type
-	 * 
-	 * @since v2.1.6
-	 */
+	/** record if property is prototype @since v2.1.6 */
 	private boolean prototype = false;
 
 	public void applyPrototype() {
@@ -64,6 +56,11 @@ public final class BeanReference {
 		}
 		this.required = required;
 		this.referenceClass = referenceClass;
+	}
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
 	}
 
 	@Override

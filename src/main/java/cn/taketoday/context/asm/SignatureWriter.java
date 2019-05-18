@@ -243,7 +243,9 @@ public class SignatureWriter extends SignatureVisitor {
 		// the type whose visit is now ending. We therefore need to append a '>', and to
 		// pop one element
 		// from the stack.
-		if (argumentStack % 2 == 1) {
+
+//		if (argumentStack % 2 == 1) {
+		if (argumentStack % 2 != 0) { // fix won't work for negative numbers in
 			stringBuilder.append('>');
 		}
 		argumentStack /= 2;

@@ -25,9 +25,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * Property
+ * Bean property
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-23 11:28:01
  */
 @Getter
@@ -40,12 +40,8 @@ public class PropertyValue {
 	private final Field field;
 
 	@Override
-	public String toString() {
-		return new StringBuilder()//
-				.append("{\"value\":\"").append(value)//
-				.append("\",\"field\":\"").append(field)//
-				.append("\"}")//
-				.toString();
+	public int hashCode() {
+		return field.hashCode();
 	}
 
 	@Override
@@ -59,11 +55,17 @@ public class PropertyValue {
 				return false;
 			}
 			Field otherField = other.field;
-			return (otherField.getDeclaringClass().getName().equals(this.field.getDeclaringClass().getName())) //
-					&& (otherField.getName().equals(this.field.getName())) //
-					&& (otherField.getType().getName().equals(this.field.getType().getName()));
+			return otherField.equals(field);
 		}
+		return false;
+	}
 
-		return super.equals(obj);
+	@Override
+	public String toString() {
+		return new StringBuilder()//
+				.append("{\"value\":\"").append(value)//
+				.append("\",\"field\":\"").append(field)//
+				.append("\"}")//
+				.toString();
 	}
 }

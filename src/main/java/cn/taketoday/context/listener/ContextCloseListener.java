@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.listener;
 
-import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
 		final Logger log = LoggerFactory.getLogger(getClass());
 
 		log.info("Closing: [{}] at [{}]", applicationContext,
-				Constant.DEFAULT_DATE_FORMAT.format(new Date(event.getTimestamp())));
+				new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(event.getTimestamp()));
 
 		// environment
 		if (applicationContext instanceof AbstractApplicationContext) {

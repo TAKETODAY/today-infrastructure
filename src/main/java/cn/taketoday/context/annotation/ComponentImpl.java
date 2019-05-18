@@ -57,11 +57,11 @@ public final class ComponentImpl implements Component {
 	@Override
 	public boolean equals(Object obj) {
 
-		if (!(obj instanceof Component)) {
-			return false;
-		}
 		if (obj == this) {
 			return true;
+		}
+		if (!(obj instanceof Component)) {
+			return false;
 		}
 		Component component = (Component) obj;
 		if (component.value().length != value.length) {
@@ -80,6 +80,16 @@ public final class ComponentImpl implements Component {
 	}
 
 	@Override
+	public String[] initMethods() {
+		return initMethods;
+	}
+
+	@Override
+	public String[] destroyMethods() {
+		return destroyMethods;
+	}
+
+	@Override
 	public String toString() {
 		return new StringBuilder()//
 				.append("@")//
@@ -91,15 +101,4 @@ public final class ComponentImpl implements Component {
 				.append(")")//
 				.toString();
 	}
-
-	@Override
-	public String[] initMethods() {
-		return initMethods;
-	}
-
-	@Override
-	public String[] destroyMethods() {
-		return destroyMethods;
-	}
-
 }

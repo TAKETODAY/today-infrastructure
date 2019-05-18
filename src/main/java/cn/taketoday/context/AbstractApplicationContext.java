@@ -23,9 +23,9 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
@@ -140,7 +140,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
 		this.startupDate = System.currentTimeMillis();
 		log.info("Starting Application Context at [{}].", //
-				Constant.DEFAULT_DATE_FORMAT.format(new Date(startupDate)));
+				new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
 
 		applyState(State.STARTING);
 

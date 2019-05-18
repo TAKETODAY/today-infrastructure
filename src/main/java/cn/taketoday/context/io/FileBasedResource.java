@@ -119,7 +119,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
 		if (this.file != null) {
 			long length = this.file.length();
 			if (length == 0L && !this.file.exists()) {
-				throw new FileNotFoundException(getName() + " cannot be resolved in the file system for checking its content length");
+				throw new FileNotFoundException(getName() + " cannot be resolved its content length");
 			}
 			return length;
 		}
@@ -157,7 +157,16 @@ public class FileBasedResource extends AbstractResource implements WritableResou
 
 	@Override
 	public String getName() {
-		return (this.file != null ? this.file.getName() : this.filePath.getFileName().toString());
+		if (file != null) {
+			return file.getName();
+		}
+		if (filePath != null) {
+			final Path fileName = filePath.getFileName();
+			if (fileName != null) {
+				return fileName.toString();
+			}
+		}
+		return new File(path).getName();
 	}
 
 	@Override
