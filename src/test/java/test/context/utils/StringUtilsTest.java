@@ -31,51 +31,51 @@ import cn.taketoday.context.utils.StringUtils;
  */
 public class StringUtilsTest {
 
-	@Before
-	public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 
-	}
+    }
 
-	@Test
-	public void test_IsEmpty() {
-		assert !StringUtils.isEmpty("1234");
-		assert !StringUtils.isEmpty(" ");
-		assert StringUtils.isEmpty("");
-		assert StringUtils.isEmpty(null);
-	}
+    @Test
+    public void test_IsEmpty() {
+        assert !StringUtils.isEmpty("1234");
+        assert !StringUtils.isEmpty(" ");
+        assert StringUtils.isEmpty("");
+        assert StringUtils.isEmpty(null);
+    }
 
-	@Test
-	public void test_IsNotEmpty() {
-		assert !StringUtils.isArrayNotEmpty((String[]) null);
-		assert !StringUtils.isNotEmpty("");
-		assert StringUtils.isNotEmpty(" ");
-		assert StringUtils.isNotEmpty("1333r");
-	}
+    @Test
+    public void test_IsNotEmpty() {
+        assert !StringUtils.isArrayNotEmpty((String[]) null);
+        assert !StringUtils.isNotEmpty("");
+        assert StringUtils.isNotEmpty(" ");
+        assert StringUtils.isNotEmpty("1333r");
+    }
 
-	@Test
-	public void test_Split() {
+    @Test
+    public void test_Split() {
 
-		String split[] = StringUtils.split("today;yhj,take");
-		assert split.length == 3;
-		assert split[0].equals("today");
-		assert split[1].equals("yhj");
-		assert split[2].equals("take");
+        String split[] = StringUtils.split("today;yhj,take");
+        assert split.length == 3;
+        assert split[0].equals("today");
+        assert split[1].equals("yhj");
+        assert split[2].equals("take");
 
-		String split_[] = StringUtils.split("todayyhjtake");
-		assert split_.length == 1;
-		assert split_[0].equals("todayyhjtake");
-	}
+        String split_[] = StringUtils.split("todayyhjtake");
+        assert split_.length == 1;
+        assert split_[0].equals("todayyhjtake");
+    }
 
-	@Test
-	public void testDecodeUrl() {
+    @Test
+    public void testDecodeUrl() {
 
-		assert "四川".equals(StringUtils.decodeUrl("%e5%9b%9b%e5%b7%9d"));
-	}
+        assert "四川".equals(StringUtils.decodeUrl("%e5%9b%9b%e5%b7%9d"));
+    }
 
-	@Test
-	public void testEncodeUrl() {
+    @Test
+    public void testEncodeUrl() {
 
-		assert StringUtils.encodeUrl("四川").equalsIgnoreCase("%e5%9b%9b%e5%b7%9d");
-	}
+        assert StringUtils.encodeUrl("四川").equalsIgnoreCase("%e5%9b%9b%e5%b7%9d");
+    }
 
 }

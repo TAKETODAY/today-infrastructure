@@ -30,24 +30,24 @@ import cn.taketoday.context.Constant;
 @SuppressWarnings("all")
 public class DefaultProps implements Props, Annotation {
 
-	@Override
-	public Class<? extends Annotation> annotationType() {
-		return Props.class;
-	}
+    @Override
+    public Class<? extends Annotation> annotationType() {
+        return Props.class;
+    }
 
-	@Override
-	public String[] value() {
-		return new String[0];
-	}
+    @Override
+    public String[] value() {
+        return new String[0];
+    }
 
-	@Override
-	public String[] prefix() {
-		return new String[] { Constant.BLANK };
-	}
+    @Override
+    public String[] prefix() {
+        return new String[] { Constant.BLANK };
+    }
 
-	@Override
-	public boolean replace() {
-		return false;
-	}
+    @Override
+    public boolean replace() {
+        return false;
+    }
 
 }

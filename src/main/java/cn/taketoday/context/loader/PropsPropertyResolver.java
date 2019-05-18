@@ -38,29 +38,29 @@ import cn.taketoday.context.utils.ContextUtils;
 @Order(Ordered.HIGHEST_PRECEDENCE - 2)
 public class PropsPropertyResolver implements PropertyValueResolver {
 
-	@Override
-	public boolean supports(ApplicationContext applicationContext, Field field) {
-		return field.isAnnotationPresent(Props.class);
-	}
-	
-	/**
-	 * Resolve {@link Props} annotation property.
-	 */
-	@Override
-	public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
+    @Override
+    public boolean supports(ApplicationContext applicationContext, Field field) {
+        return field.isAnnotationPresent(Props.class);
+    }
 
-		Props props = field.getAnnotation(Props.class);
+    /**
+     * Resolve {@link Props} annotation property.
+     */
+    @Override
+    public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
 
-		Properties properties = //
-				ContextUtils.loadProps(props, applicationContext.getEnvironment().getProperties());
+        Props props = field.getAnnotation(Props.class);
 
-		// feat: Enhance `Props`
-		final Class<?> propertyClass = field.getType();
-		if (!Map.class.isAssignableFrom(propertyClass)) {
+        Properties properties = //
+                ContextUtils.loadProps(props, applicationContext.getEnvironment().getProperties());
 
-			return new PropertyValue(ContextUtils.resolveProps(props.prefix(), propertyClass, properties), field);
-		}
-		return new PropertyValue(properties, field);
-	}
+        // feat: Enhance `Props`
+        final Class<?> propertyClass = field.getType();
+        if (!Map.class.isAssignableFrom(propertyClass)) {
+
+            return new PropertyValue(ContextUtils.resolveProps(props.prefix(), propertyClass, properties), field);
+        }
+        return new PropertyValue(properties, field);
+    }
 
 }

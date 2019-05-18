@@ -34,75 +34,75 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
  */
 public interface BeanDefinitionLoader {
 
-	/**
-	 * Create a bean definition with given class type
-	 * 
-	 * @param beanClass
-	 *            the bean type
-	 * @return A new {@link BeanDefinition} with out DestroyMethods
-	 */
-	BeanDefinition createBeanDefinition(Class<?> beanClass);
+    /**
+     * Create a bean definition with given class type
+     * 
+     * @param beanClass
+     *            the bean type
+     * @return A new {@link BeanDefinition} with out DestroyMethods
+     */
+    BeanDefinition createBeanDefinition(Class<?> beanClass);
 
-	/**
-	 * Get registered bean definition registry
-	 * 
-	 * @return registry
-	 */
-	BeanDefinitionRegistry getRegistry();
+    /**
+     * Get registered bean definition registry
+     * 
+     * @return registry
+     */
+    BeanDefinitionRegistry getRegistry();
 
-	/**
-	 * Load bean definitions with given bean collection.
-	 * 
-	 * @param beans
-	 *            beans collection
-	 * @throws BeanDefinitionStoreException
-	 *             BeanDefinition could not be store
-	 */
-	void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException;
+    /**
+     * Load bean definitions with given bean collection.
+     * 
+     * @param beans
+     *            beans collection
+     * @throws BeanDefinitionStoreException
+     *             BeanDefinition could not be store
+     */
+    void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException;
 
-	/**
-	 * Load bean definition with given bean class.
-	 * 
-	 * @param clazz
-	 *            bean class
-	 * @throws BeanDefinitionStoreException
-	 *             BeanDefinition could not be store
-	 */
-	void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException;
+    /**
+     * Load bean definition with given bean class.
+     * 
+     * @param clazz
+     *            bean class
+     * @throws BeanDefinitionStoreException
+     *             BeanDefinition could not be store
+     */
+    void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException;
 
-	/**
-	 * Load bean definition with given bean class and bean name.
-	 * 
-	 * @param name
-	 *            bean name
-	 * @param beanClass
-	 *            bean class
-	 * @throws BeanDefinitionStoreException
-	 *             BeanDefinition could not be store
-	 */
-	void loadBeanDefinition(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
+    /**
+     * Load bean definition with given bean class and bean name.
+     * 
+     * @param name
+     *            bean name
+     * @param beanClass
+     *            bean class
+     * @throws BeanDefinitionStoreException
+     *             BeanDefinition could not be store
+     */
+    void loadBeanDefinition(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
 
-	/**
-	 * Register bean definition with given class
-	 * 
-	 * @param clazz
-	 *            bean class
-	 * @throws BeanDefinitionStoreException
-	 *             BeanDefinition could not be store
-	 */
-	void register(Class<?> clazz) throws BeanDefinitionStoreException;
+    /**
+     * Register bean definition with given class
+     * 
+     * @param clazz
+     *            bean class
+     * @throws BeanDefinitionStoreException
+     *             BeanDefinition could not be store
+     */
+    void register(Class<?> clazz) throws BeanDefinitionStoreException;
 
-	/**
-	 * Register bean definition with given name , and resolve property values
-	 * 
-	 * @param name
-	 *            bean name
-	 * @param beanDefinition
-	 *            bean definition instance
-	 * @throws BeanDefinitionStoreException
-	 *             BeanDefinition could not be store
-	 * 
-	 */
-	void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
+    /**
+     * Register bean definition with given name , and resolve property values
+     * 
+     * @param name
+     *            bean name
+     * @param beanDefinition
+     *            bean definition instance
+     * @throws BeanDefinitionStoreException
+     *             BeanDefinition could not be store
+     * 
+     */
+    void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
 
 }

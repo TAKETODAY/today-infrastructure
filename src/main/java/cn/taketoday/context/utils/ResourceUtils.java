@@ -36,75 +36,75 @@ import cn.taketoday.context.io.UrlBasedResource;
  */
 public abstract class ResourceUtils {
 
-	/**
-	 * @param location
-	 * @return
-	 * @throws IOException
-	 */
-	public static Resource getResource(String location) throws IOException {
+    /**
+     * @param location
+     * @return
+     * @throws IOException
+     */
+    public static Resource getResource(String location) throws IOException {
 
-		if (location.charAt(0) == Constant.PATH_SEPARATOR) {
-			return new ClassPathResource(location.substring(1));
-		}
+        if (location.charAt(0) == Constant.PATH_SEPARATOR) {
+            return new ClassPathResource(location.substring(1));
+        }
 
-		if (location.startsWith(Constant.CLASS_PATH_PREFIX)) {
+        if (location.startsWith(Constant.CLASS_PATH_PREFIX)) {
 
-			final String path = location.substring(Constant.CLASS_PATH_PREFIX.length());
+            final String path = location.substring(Constant.CLASS_PATH_PREFIX.length());
 
-			if (path.charAt(0) == Constant.PATH_SEPARATOR) {
-				return new ClassPathResource(path.substring(1));
-			}
+            if (path.charAt(0) == Constant.PATH_SEPARATOR) {
+                return new ClassPathResource(path.substring(1));
+            }
 
-			return new ClassPathResource(path);
-		}
+            return new ClassPathResource(path);
+        }
 
-		try {
-			return getResource(new URL(location));
-		}
-		catch (IOException e) {
-			try {
-				return new ClassPathResource(location);
-			}
-			catch (NullPointerException nullE) {
-				return new FileBasedResource(location);
-			}
-		}
-	}
+        try {
+            return getResource(new URL(location));
+        }
+        catch (IOException e) {
+            try {
+                return new ClassPathResource(location);
+            }
+            catch (NullPointerException nullE) {
+                return new FileBasedResource(location);
+            }
+        }
+    }
 
-	public static Resource getResource(URL url) throws IOException {
+    public static Resource getResource(URL url) throws IOException {
 
-		switch (url.getProtocol()) //@off
+        switch (url.getProtocol()) //@off
 		{
 			case Constant.PROTOCOL_FILE : 	return new FileBasedResource(url.getPath());
 			case Constant.PROTOCOL_JAR :	return new JarEntryResource(url.getPath());
 			default:						return new UrlBasedResource(url); //@on
-		}
-	}
+        }
+    }
 
-	/**
-	 * Create a new relative path from a file path.
-	 * <p>
-	 * Note: When building relative path, it makes a difference whether the
-	 * specified resource base path here ends with a slash or not. In the case of
-	 * "C:/dir1/", relative paths will be built underneath that root: e.g. relative
-	 * path "dir2" -> "C:/dir1/dir2". In the case of "C:/dir1", relative paths will
-	 * apply at the same directory level: relative path "dir2" -> "C:/dir2".
-	 * 
-	 */
-	public static String getRelativePath(String path, String relativePath) {
+    /**
+     * Create a new relative path from a file path.
+     * <p>
+     * Note: When building relative path, it makes a difference whether the
+     * specified resource base path here ends with a slash or not. In the case of
+     * "C:/dir1/", relative paths will be built underneath that root: e.g. relative
+     * path "dir2" -> "C:/dir1/dir2". In the case of "C:/dir1", relative paths will
+     * apply at the same directory level: relative path "dir2" -> "C:/dir2".
+     * 
+     */
+    public static String getRelativePath(String path, String relativePath) {
 
-		final int separatorIndex = path.lastIndexOf(Constant.PATH_SEPARATOR);
+        final int separatorIndex = path.lastIndexOf(Constant.PATH_SEPARATOR);
 
-		if (separatorIndex != -1) {
+        if (separatorIndex != -1) {
 
-			final StringBuilder newPath = new StringBuilder(path.substring(0, separatorIndex));
+            final StringBuilder newPath = new StringBuilder(path.substring(0, separatorIndex));
 
-			if (relativePath.charAt(0) != Constant.PATH_SEPARATOR) {
-				newPath.append(Constant.PATH_SEPARATOR);
-			}
-			return newPath.append(relativePath).toString();
-		}
-		return relativePath;
-	}
+            if (relativePath.charAt(0) != Constant.PATH_SEPARATOR) {
+                newPath.append(Constant.PATH_SEPARATOR);
+            }
+            return newPath.append(relativePath).toString();
+        }
+        return relativePath;
+    }
 
 }

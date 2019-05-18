@@ -33,24 +33,24 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("serial")
 public class NoSuchBeanDefinitionException extends ContextException {
 
-	public NoSuchBeanDefinitionException(Throwable cause) {
-		super(cause);
-	}
+    public NoSuchBeanDefinitionException(Throwable cause) {
+        super(cause);
+    }
 
-	public NoSuchBeanDefinitionException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public NoSuchBeanDefinitionException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public NoSuchBeanDefinitionException(String name) {
-		super("No such bean definition named: [" + name + "]");
-		LoggerFactory.getLogger(NoSuchBeanDefinitionException.class)//
-				.error("No such bean definition named: [{}]", name, this);
-	}
+    public NoSuchBeanDefinitionException(String name) {
+        super("No such bean definition named: [" + name + "]");
+        LoggerFactory.getLogger(NoSuchBeanDefinitionException.class)//
+                .error("No such bean definition named: [{}]", name, this);
+    }
 
-	public NoSuchBeanDefinitionException(Class<?> targetClass) {
-		super("No such target class: [" + targetClass + "] bean definition");
-		LoggerFactory.getLogger(NoSuchBeanDefinitionException.class)//
-				.error("No such target class: [{}] bean definition: ", targetClass, this);
-	}
+    public NoSuchBeanDefinitionException(Class<?> targetClass) {
+        super("No such target class: [" + targetClass + "] bean definition");
+        LoggerFactory.getLogger(NoSuchBeanDefinitionException.class)//
+                .error("No such target class: [{}] bean definition: ", targetClass, this);
+    }
 
 }

@@ -39,40 +39,40 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 public class BaseTest {
 
-	private long start;
+    private long start;
 
-	private static ConfigurableApplicationContext applicationContext = //
-			new StandardApplicationContext("", "test.context.factory", "test.demo.config");
+    private static ConfigurableApplicationContext applicationContext = //
+            new StandardApplicationContext("", "test.context.factory", "test.demo.config");
 
-	private String process;
+    private String process;
 
-	@Setter
-	@Getter
-	private static ConfigurableBeanFactory beanFactory;
+    @Setter
+    @Getter
+    private static ConfigurableBeanFactory beanFactory;
 
-	static {
-		setBeanFactory(getApplicationContext().getBeanFactory());
-	}
+    static {
+        setBeanFactory(getApplicationContext().getBeanFactory());
+    }
 
-	public static ConfigurableApplicationContext getApplicationContext() {
-		return applicationContext;
-	}
+    public static ConfigurableApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 
-	@Before
-	public void start() {
-		setStart(System.currentTimeMillis());
-	}
+    @Before
+    public void start() {
+        setStart(System.currentTimeMillis());
+    }
 
-	@After
-	public void end() {
-		log.debug("process: [{}] takes {} ms.", getProcess(), (System.currentTimeMillis() - getStart()));
-	}
+    @After
+    public void end() {
+        log.debug("process: [{}] takes {} ms.", getProcess(), (System.currentTimeMillis() - getStart()));
+    }
 
-	@AfterClass
-	public static void endClass() {
-		ConfigurableApplicationContext applicationContext = getApplicationContext();
-		if (applicationContext != null) {
-			applicationContext.close();
-		}
-	}
+    @AfterClass
+    public static void endClass() {
+        ConfigurableApplicationContext applicationContext = getApplicationContext();
+        if (applicationContext != null) {
+            applicationContext.close();
+        }
+    }
 }

@@ -38,18 +38,18 @@ import cn.taketoday.context.utils.ClassUtils;
  */
 public class ProfileCondition implements Condition {
 
-	@Override
-	public boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement) {
+    @Override
+    public boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement) {
 
-		final ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        final ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
-		for (AnnotationAttributes attributes : ClassUtils.getAnnotationAttributes(annotatedElement, Profile.class)) {
+        for (AnnotationAttributes attributes : ClassUtils.getAnnotationAttributes(annotatedElement, Profile.class)) {
 
-			if (environment.acceptsProfiles(attributes.getStringArray(Constant.VALUE))) {
-				return true;
-			}
-		}
-		return false;
-	}
+            if (environment.acceptsProfiles(attributes.getStringArray(Constant.VALUE))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

@@ -35,10 +35,10 @@ import cn.taketoday.context.Condition;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Conditional {
 
-	/**
-	 * All {@link Condition}s that must {@linkplain Condition#matches match} in
-	 * order for the component to be registered.
-	 */
-	Class<? extends Condition>[] value();
+    /**
+     * All {@link Condition}s that must {@linkplain Condition#matches match} in
+     * order for the component to be registered.
+     */
+    Class<? extends Condition>[] value();
 
 }

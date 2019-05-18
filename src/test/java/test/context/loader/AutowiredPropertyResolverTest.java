@@ -37,24 +37,24 @@ import cn.taketoday.context.loader.PropertyValueResolver;
  */
 public class AutowiredPropertyResolverTest {
 
-	@Autowired
-	private String name;
+    @Autowired
+    private String name;
 
-	@Test
-	public void test_() throws Throwable {
+    @Test
+    public void test_() throws Throwable {
 
-		PropertyValueResolver autowiredPropertyResolver = new AutowiredPropertyResolver();
+        PropertyValueResolver autowiredPropertyResolver = new AutowiredPropertyResolver();
 
-		ConfigurableApplicationContext applicationContext = new StandardApplicationContext(new HashSet<>());
+        ConfigurableApplicationContext applicationContext = new StandardApplicationContext(new HashSet<>());
 
-		applicationContext.getEnvironment().getBeanDefinitionLoader();
+        applicationContext.getEnvironment().getBeanDefinitionLoader();
 
-		PropertyValue resolveProperty = autowiredPropertyResolver.resolveProperty(applicationContext,
-				AutowiredPropertyResolverTest.class.getDeclaredField("name"));
+        PropertyValue resolveProperty = autowiredPropertyResolver.resolveProperty(applicationContext,
+                AutowiredPropertyResolverTest.class.getDeclaredField("name"));
 
-		System.err.println(resolveProperty);
-		assert resolveProperty != null;
+        System.err.println(resolveProperty);
+        assert resolveProperty != null;
 
-	}
+    }
 
 }

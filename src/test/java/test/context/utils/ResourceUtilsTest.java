@@ -34,57 +34,58 @@ import cn.taketoday.context.utils.StringUtils;
  */
 public class ResourceUtilsTest {
 
-	@Test
-	public void testGetRelativePath() throws IOException {
-		final String relativePath = ResourceUtils.getRelativePath("D:/java/", "1.txt");
-		final String relativePath1 = ResourceUtils.getRelativePath("D:/java", "1.txt");
-		final String relativePath2 = ResourceUtils.getRelativePath("D:/java/2.txt", "1.txt");
+    @Test
+    public void testGetRelativePath() throws IOException {
+        final String relativePath = ResourceUtils.getRelativePath("D:/java/", "1.txt");
+        final String relativePath1 = ResourceUtils.getRelativePath("D:/java", "1.txt");
+        final String relativePath2 = ResourceUtils.getRelativePath("D:/java/2.txt", "1.txt");
 
-		System.err.println(relativePath);
-		assert relativePath.equals("D:/java/1.txt");
+        System.err.println(relativePath);
+        assert relativePath.equals("D:/java/1.txt");
 
-		System.err.println(relativePath1);
-		assert relativePath1.equals("D:/1.txt");
+        System.err.println(relativePath1);
+        assert relativePath1.equals("D:/1.txt");
 
-		System.err.println(relativePath2);
-		assert relativePath2.equals("D:/java/1.txt");
+        System.err.println(relativePath2);
+        assert relativePath2.equals("D:/java/1.txt");
 
-	}
+    }
 
-	@Test
-	public void testGetResource() throws IOException {
+    @Test
+    public void testGetResource() throws IOException {
 
 //		final Resource resource = ResourceUtils.getResource("/META-INF/maven/cn.taketoday/today-expression/pom.properties");
-		Resource resource = ResourceUtils.getResource("classpath:/META-INF/maven/cn.taketoday/today-expression/pom.properties");
+        Resource resource = ResourceUtils.getResource("classpath:/META-INF/maven/cn.taketoday/today-expression/pom.properties");
 
-		System.err.println(resource);
-		Resource createRelative = resource.createRelative("pom.xml");
-		System.err.println(createRelative);
+        System.err.println(resource);
+        Resource createRelative = resource.createRelative("pom.xml");
+        System.err.println(createRelative);
 
-		assert createRelative.exists();
-		assert resource.exists();
+        assert createRelative.exists();
+        assert resource.exists();
 
-		resource = ResourceUtils.getResource("file:/G:/Projects/Git/github/today-context/src/main/resources/ignore/jar-prefix");
+        resource = ResourceUtils.getResource("file:/G:/Projects/Git/github/today-context/src/main/resources/ignore/jar-prefix");
 
-		System.err.println(resource);
+        System.err.println(resource);
 
-		assert resource.exists();
+        assert resource.exists();
 
-		System.err.println(StringUtils.readAsText(resource.getInputStream()));
+        System.err.println(StringUtils.readAsText(resource.getInputStream()));
 
-		resource = ResourceUtils.getResource("jar:file:/G:/Projects/Git/github/today-context/src/test/resources/test.jar!/META-INF/");
-		System.err.println(resource);
+        resource = ResourceUtils.getResource("jar:file:/G:/Projects/Git/github/today-context/src/test/resources/test.jar!/META-INF/");
+        System.err.println(resource);
 
-		if (resource instanceof JarEntryResource) {
+        if (resource instanceof JarEntryResource) {
 
-			JarEntryResource jarEntryResource = (JarEntryResource) resource.createRelative("/maven/cn.taketoday/today-expression/pom.properties");
-			if (jarEntryResource.exists()) {
-				System.out.println(StringUtils.readAsText(jarEntryResource.getInputStream()));
-			}
+            JarEntryResource jarEntryResource = (JarEntryResource) resource.createRelative(
+                    "/maven/cn.taketoday/today-expression/pom.properties");
+            if (jarEntryResource.exists()) {
+                System.out.println(StringUtils.readAsText(jarEntryResource.getInputStream()));
+            }
 
-			System.err.println(jarEntryResource);
-		}
+            System.err.println(jarEntryResource);
+        }
 
-	}
+    }
 
 }

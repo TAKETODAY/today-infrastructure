@@ -31,33 +31,33 @@ import cn.taketoday.context.exception.ContextException;
  */
 public abstract class ExceptionUtils {
 
-	/**
-	 * Unwrap
-	 * 
-	 * @param ex
-	 *            target {@link Throwable}
-	 * @return unwrapped {@link Throwable}
-	 */
-	public static Throwable unwrapThrowable(Throwable ex) {
-		Throwable unwrapped = ex;
-		while (true) {
-			if (unwrapped instanceof InvocationTargetException) {
-				unwrapped = ((InvocationTargetException) unwrapped).getTargetException();
-			}
-			else if (unwrapped instanceof UndeclaredThrowableException) {
-				unwrapped = ((UndeclaredThrowableException) unwrapped).getUndeclaredThrowable();
-			}
-			else {
-				return unwrapped;
-			}
-		}
-	}
+    /**
+     * Unwrap
+     * 
+     * @param ex
+     *            target {@link Throwable}
+     * @return unwrapped {@link Throwable}
+     */
+    public static Throwable unwrapThrowable(Throwable ex) {
+        Throwable unwrapped = ex;
+        while (true) {
+            if (unwrapped instanceof InvocationTargetException) {
+                unwrapped = ((InvocationTargetException) unwrapped).getTargetException();
+            }
+            else if (unwrapped instanceof UndeclaredThrowableException) {
+                unwrapped = ((UndeclaredThrowableException) unwrapped).getUndeclaredThrowable();
+            }
+            else {
+                return unwrapped;
+            }
+        }
+    }
 
-	public static ContextException newContextException(Throwable ex) {
-		if (ex instanceof ContextException) {
-			return (ContextException) ex;
-		}
-		return new ContextException(ex);
-	}
+    public static ContextException newContextException(Throwable ex) {
+        if (ex instanceof ContextException) {
+            return (ContextException) ex;
+        }
+        return new ContextException(ex);
+    }
 
 }

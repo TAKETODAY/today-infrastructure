@@ -38,11 +38,11 @@ import cn.taketoday.context.env.ProfileCondition;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Profile {
 
-	/**
-	 * Accept profiles, using '!' to exclude profiles
-	 * 
-	 * @return
-	 */
-	String[] value();
+    /**
+     * Accept profiles, using '!' to exclude profiles
+     * 
+     * @return
+     */
+    String[] value();
 
 }

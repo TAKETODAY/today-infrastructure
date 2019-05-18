@@ -45,39 +45,39 @@ import cn.taketoday.context.utils.ExceptionUtils;
 @Order(Ordered.LOWEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE)
 public class ContextCloseListener implements ApplicationListener<ContextCloseEvent> {
 
-	@Override
-	public void onApplicationEvent(ContextCloseEvent event) {
+    @Override
+    public void onApplicationEvent(ContextCloseEvent event) {
 
-		final ApplicationContext applicationContext = event.getApplicationContext();
+        final ApplicationContext applicationContext = event.getApplicationContext();
 
-		final Logger log = LoggerFactory.getLogger(getClass());
+        final Logger log = LoggerFactory.getLogger(getClass());
 
-		log.info("Closing: [{}] at [{}]", applicationContext,
-				new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(event.getTimestamp()));
+        log.info("Closing: [{}] at [{}]", applicationContext,
+                new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(event.getTimestamp()));
 
-		// environment
-		if (applicationContext instanceof AbstractApplicationContext) {
-			AbstractBeanFactory beanFactory = ((AbstractApplicationContext) applicationContext).getBeanFactory();
-			beanFactory.getDependencies().clear();
-			beanFactory.getPostProcessors().clear();
-		}
+        // environment
+        if (applicationContext instanceof AbstractApplicationContext) {
+            AbstractBeanFactory beanFactory = ((AbstractApplicationContext) applicationContext).getBeanFactory();
+            beanFactory.getDependencies().clear();
+            beanFactory.getPostProcessors().clear();
+        }
 
-		try {
+        try {
 
-			for (final String name : applicationContext.getBeanDefinitionsMap().keySet()) {
-				applicationContext.destroyBean(name);
-			}
+            for (final String name : applicationContext.getBeanDefinitionsMap().keySet()) {
+                applicationContext.destroyBean(name);
+            }
 
-			for (final Object bean : applicationContext.getSingletonsMap().values()) {
-				ContextUtils.destroyBean(bean, bean.getClass().getDeclaredMethods());
-			}
-		}
-		catch (Throwable e) {
-			log.error("An Exception Occurred When Destroy Beans");
-			throw ExceptionUtils.newContextException(e);
-		} finally {
-			ClassUtils.clearCache();
-		}
-	}
+            for (final Object bean : applicationContext.getSingletonsMap().values()) {
+                ContextUtils.destroyBean(bean, bean.getClass().getDeclaredMethods());
+            }
+        }
+        catch (Throwable e) {
+            log.error("An Exception Occurred When Destroy Beans");
+            throw ExceptionUtils.newContextException(e);
+        } finally {
+            ClassUtils.clearCache();
+        }
+    }
 
 }

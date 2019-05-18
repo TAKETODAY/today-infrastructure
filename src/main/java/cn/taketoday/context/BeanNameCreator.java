@@ -28,9 +28,9 @@ package cn.taketoday.context;
 @FunctionalInterface
 public interface BeanNameCreator {
 
-	/**
-	 * Create a bean name for the given bean definition.
-	 */
-	String create(Class<?> beanClass);
+    /**
+     * Create a bean name for the given bean definition.
+     */
+    String create(Class<?> beanClass);
 
 }

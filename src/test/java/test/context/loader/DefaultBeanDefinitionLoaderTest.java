@@ -46,68 +46,68 @@ import test.demo.config.User;
  */
 public final class DefaultBeanDefinitionLoaderTest {
 
-	private long start;
+    private long start;
 
-	@Before
-	public void start() {
+    @Before
+    public void start() {
 
-		start = System.currentTimeMillis();
-	}
+        start = System.currentTimeMillis();
+    }
 
-	@After
-	public void end() {
-		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-	}
+    @After
+    public void end() {
+        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+    }
 
-	@Test
-	public void test_LoadBeanDefinition() throws BeanDefinitionStoreException, ConfigurationException {
+    @Test
+    public void test_LoadBeanDefinition() throws BeanDefinitionStoreException, ConfigurationException {
 
-		try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext(new HashSet<>())) {
+        try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext(new HashSet<>())) {
 
-			BeanDefinitionRegistry registry = applicationContext.getEnvironment().getBeanDefinitionRegistry();
+            BeanDefinitionRegistry registry = applicationContext.getEnvironment().getBeanDefinitionRegistry();
 
-			BeanDefinitionLoader beanDefinitionLoader = applicationContext.getEnvironment().getBeanDefinitionLoader();
+            BeanDefinitionLoader beanDefinitionLoader = applicationContext.getEnvironment().getBeanDefinitionLoader();
 
-			beanDefinitionLoader.loadBeanDefinition(User.class); // will not register
-			beanDefinitionLoader.loadBeanDefinition("user", User.class);
+            beanDefinitionLoader.loadBeanDefinition(User.class); // will not register
+            beanDefinitionLoader.loadBeanDefinition("user", User.class);
 
-			Map<String, BeanDefinition> beanDefinitionsMap = registry.getBeanDefinitionsMap();
+            Map<String, BeanDefinition> beanDefinitionsMap = registry.getBeanDefinitionsMap();
 
-			assert beanDefinitionsMap.size() == 1;
+            assert beanDefinitionsMap.size() == 1;
 
-			System.out.println(beanDefinitionsMap);
+            System.out.println(beanDefinitionsMap);
 
-			User user = applicationContext.getBeanFactory().getBean(User.class);
-			User bean = applicationContext.getBean(User.class);
-			assert user == bean;
-			System.err.println(bean);
-		}
-	}
+            User user = applicationContext.getBeanFactory().getBean(User.class);
+            User bean = applicationContext.getBean(User.class);
+            assert user == bean;
+            System.err.println(bean);
+        }
+    }
 
-	@Test
-	public void test_createBeanDefinition() {
+    @Test
+    public void test_createBeanDefinition() {
 
-		try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
+        try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
 
-			ConfigurableEnvironment environment = new StandardEnvironment();
-			DefaultBeanNameCreator beanNameCreator = new DefaultBeanNameCreator(environment);
+            ConfigurableEnvironment environment = new StandardEnvironment();
+            DefaultBeanNameCreator beanNameCreator = new DefaultBeanNameCreator(environment);
 
-			environment.setBeanDefinitionRegistry(applicationContext);
-			environment.setBeanNameCreator(beanNameCreator);
+            environment.setBeanDefinitionRegistry(applicationContext);
+            environment.setBeanNameCreator(beanNameCreator);
 
-			applicationContext.setEnvironment(environment);
+            applicationContext.setEnvironment(environment);
 
-			BeanDefinitionLoader beanDefinitionLoader = new DefaultBeanDefinitionLoader(applicationContext);
-			BeanDefinition createBeanDefinition = beanDefinitionLoader.createBeanDefinition(User.class);
-			System.err.println(createBeanDefinition);
+            BeanDefinitionLoader beanDefinitionLoader = new DefaultBeanDefinitionLoader(applicationContext);
+            BeanDefinition createBeanDefinition = beanDefinitionLoader.createBeanDefinition(User.class);
+            System.err.println(createBeanDefinition);
 
-			assert createBeanDefinition.getBeanClass() == User.class;
-			assert createBeanDefinition.getName().equals(beanNameCreator.create(createBeanDefinition.getBeanClass()));
-			assert createBeanDefinition.getScope() == Scope.SINGLETON;
-			assert !createBeanDefinition.isAbstract();
-			assert !createBeanDefinition.isFactoryBean();
-			assert !createBeanDefinition.isInitialized();
-		}
-	}
+            assert createBeanDefinition.getBeanClass() == User.class;
+            assert createBeanDefinition.getName().equals(beanNameCreator.create(createBeanDefinition.getBeanClass()));
+            assert createBeanDefinition.getScope() == Scope.SINGLETON;
+            assert !createBeanDefinition.isAbstract();
+            assert !createBeanDefinition.isFactoryBean();
+            assert !createBeanDefinition.isInitialized();
+        }
+    }
 
 }

@@ -34,15 +34,15 @@ import lombok.extern.slf4j.Slf4j;
 @ContextListener
 public class BeanDefinitionLoadedListener_3 implements ApplicationListener<BeanDefinitionLoadedEvent>, Ordered {
 
-	@Override
-	public void onApplicationEvent(BeanDefinitionLoadedEvent event) {
-		log.debug("BeanDefinitionLoadedListener_3");
-	}
+    @Override
+    public void onApplicationEvent(BeanDefinitionLoadedEvent event) {
+        log.debug("BeanDefinitionLoadedListener_3");
+    }
 
-	@Override
-	public int getOrder() {
+    @Override
+    public int getOrder() {
 
-		return 3;
-	}
+        return 3;
+    }
 
 }

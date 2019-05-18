@@ -35,15 +35,15 @@ import cn.taketoday.context.bean.PropertyValue;
 @SuppressWarnings("serial")
 public class DependenciesHandledEvent extends ApplicationContextEvent {
 
-	private final Set<PropertyValue> dependencies;
+    private final Set<PropertyValue> dependencies;
 
-	public DependenciesHandledEvent(ApplicationContext source, Set<PropertyValue> dependencies) {
-		super(source);
-		this.dependencies = dependencies;
-	}
+    public DependenciesHandledEvent(ApplicationContext source, Set<PropertyValue> dependencies) {
+        super(source);
+        this.dependencies = dependencies;
+    }
 
-	public final Set<PropertyValue> getDependencies() {
-		return dependencies;
-	}
+    public final Set<PropertyValue> getDependencies() {
+        return dependencies;
+    }
 
 }

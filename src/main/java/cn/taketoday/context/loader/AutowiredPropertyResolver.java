@@ -48,98 +48,98 @@ import cn.taketoday.context.utils.StringUtils;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class AutowiredPropertyResolver implements PropertyValueResolver {
 
-	private static final Class<? extends Annotation> NAMED_CLASS = ClassUtils.loadClass("javax.inject.Named");
-	private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.loadClass("javax.inject.Inject");
+    private static final Class<? extends Annotation> NAMED_CLASS = ClassUtils.loadClass("javax.inject.Named");
+    private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.loadClass("javax.inject.Inject");
 
-	@Override
-	public boolean supports(ApplicationContext applicationContext, Field field) {
+    @Override
+    public boolean supports(ApplicationContext applicationContext, Field field) {
 
-		return field.isAnnotationPresent(Autowired.class) //
-				|| field.isAnnotationPresent(Resource.class) //
-				|| (INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS))//
-				|| (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS));
-	}
+        return field.isAnnotationPresent(Autowired.class) //
+                || field.isAnnotationPresent(Resource.class) //
+                || (INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS))//
+                || (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS));
+    }
 
-	@Override
-	public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
+    @Override
+    public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
 
-		final BeanNameCreator beanNameCreator = applicationContext.getEnvironment().getBeanNameCreator();
+        final BeanNameCreator beanNameCreator = applicationContext.getEnvironment().getBeanNameCreator();
 
-		final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
+        final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
 
-		String name = null;
-		boolean required = true;
-		final Class<?> propertyClass = field.getType();
+        String name = null;
+        boolean required = true;
+        final Class<?> propertyClass = field.getType();
 
-		if (autowired != null) {
-			name = autowired.value(); 
-			if (StringUtils.isEmpty(name)) {
-				name = byType(applicationContext, propertyClass, beanNameCreator);
-			}
-			required = autowired.required();
-		}
-		else if (field.isAnnotationPresent(Resource.class)) {
-			// Resource.class
-			final Resource resource = field.getAnnotation(Resource.class);
-			name = resource.name();
-			if (StringUtils.isEmpty(name)) { // fix resource.type() != Object.class) {
-				name = byType(applicationContext, propertyClass, beanNameCreator);
-			}
-		}
-		else if (NAMED_CLASS != null) {// @Named
-			final Collection<AnnotationAttributes> annotationAttributes = //
-					ClassUtils.getAnnotationAttributes(field, NAMED_CLASS); // @Named
+        if (autowired != null) {
+            name = autowired.value();
+            if (StringUtils.isEmpty(name)) {
+                name = byType(applicationContext, propertyClass, beanNameCreator);
+            }
+            required = autowired.required();
+        }
+        else if (field.isAnnotationPresent(Resource.class)) {
+            // Resource.class
+            final Resource resource = field.getAnnotation(Resource.class);
+            name = resource.name();
+            if (StringUtils.isEmpty(name)) { // fix resource.type() != Object.class) {
+                name = byType(applicationContext, propertyClass, beanNameCreator);
+            }
+        }
+        else if (NAMED_CLASS != null) {// @Named
+            final Collection<AnnotationAttributes> annotationAttributes = //
+                    ClassUtils.getAnnotationAttributes(field, NAMED_CLASS); // @Named
 
-			if (annotationAttributes.isEmpty()) {
-				name = byType(applicationContext, propertyClass, beanNameCreator);
-			}
-			else {
-				name = annotationAttributes.iterator().next().getString(Constant.VALUE); // name attr
-			}
-		}
-		else {// @Inject
-			name = byType(applicationContext, propertyClass, beanNameCreator);
-		}
-		return new PropertyValue(new BeanReference(name, required, propertyClass), field);
-	}
+            if (annotationAttributes.isEmpty()) {
+                name = byType(applicationContext, propertyClass, beanNameCreator);
+            }
+            else {
+                name = annotationAttributes.iterator().next().getString(Constant.VALUE); // name attr
+            }
+        }
+        else {// @Inject
+            name = byType(applicationContext, propertyClass, beanNameCreator);
+        }
+        return new PropertyValue(new BeanReference(name, required, propertyClass), field);
+    }
 
-	/**
-	 * Create bean name by type
-	 * 
-	 * @param applicationContext
-	 *            {@link BeanFactory}
-	 * @param targetClass
-	 *            target property class
-	 * @return a bean name none null
-	 */
-	private String byType(ApplicationContext applicationContext, Class<?> targetClass, //
-			final BeanNameCreator beanNameCreator) //
-	{
-		if (applicationContext.hasStarted()) {
-			final String name = findName(applicationContext, targetClass);
-			if (StringUtils.isNotEmpty(name)) {
-				return name;
-			}
-		}
-		return beanNameCreator.create(targetClass);
-	}
+    /**
+     * Create bean name by type
+     * 
+     * @param applicationContext
+     *            {@link BeanFactory}
+     * @param targetClass
+     *            target property class
+     * @return a bean name none null
+     */
+    private String byType(ApplicationContext applicationContext, Class<?> targetClass, //
+            final BeanNameCreator beanNameCreator) //
+    {
+        if (applicationContext.hasStarted()) {
+            final String name = findName(applicationContext, targetClass);
+            if (StringUtils.isNotEmpty(name)) {
+                return name;
+            }
+        }
+        return beanNameCreator.create(targetClass);
+    }
 
-	/**
-	 * Find bean name in the {@link BeanFactory}
-	 * 
-	 * @param applicationContext
-	 *            factory
-	 * @param propertyClass
-	 *            property class
-	 * @return a name found in {@link BeanFactory} if not found will returns null
-	 */
-	private String findName(ApplicationContext applicationContext, Class<?> propertyClass) {
-		for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitionsMap().entrySet()) {
-			if (propertyClass.isAssignableFrom(entry.getValue().getBeanClass())) {
-				return entry.getKey();
-			}
-		}
-		return null;
-	}
+    /**
+     * Find bean name in the {@link BeanFactory}
+     * 
+     * @param applicationContext
+     *            factory
+     * @param propertyClass
+     *            property class
+     * @return a name found in {@link BeanFactory} if not found will returns null
+     */
+    private String findName(ApplicationContext applicationContext, Class<?> propertyClass) {
+        for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitionsMap().entrySet()) {
+            if (propertyClass.isAssignableFrom(entry.getValue().getBeanClass())) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
 
 }

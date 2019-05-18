@@ -32,81 +32,81 @@ import java.net.URL;
  */
 public interface Resource {
 
-	/**
-	 * Get the name of the resource.
-	 *
-	 * @return name
-	 */
-	String getName();
+    /**
+     * Get the name of the resource.
+     *
+     * @return name
+     */
+    String getName();
 
-	/**
-	 * Get the content of the resource as input stream.
-	 *
-	 * @return input stream of {@link Resource} content
-	 *
-	 * @throws IOException
-	 *             If an input or output exception occurs
-	 */
-	InputStream getInputStream() throws IOException;
+    /**
+     * Get the content of the resource as input stream.
+     *
+     * @return input stream of {@link Resource} content
+     *
+     * @throws IOException
+     *             If an input or output exception occurs
+     */
+    InputStream getInputStream() throws IOException;
 
-	/**
-	 * Get content length
-	 *
-	 * @return content length
-	 */
-	long contentLength() throws IOException;
+    /**
+     * Get content length
+     *
+     * @return content length
+     */
+    long contentLength() throws IOException;
 
-	/**
-	 * Get last modified
-	 *
-	 * @return last modified
-	 */
-	long lastModified() throws IOException;
+    /**
+     * Get last modified
+     *
+     * @return last modified
+     */
+    long lastModified() throws IOException;
 
-	/**
-	 * Get location of this resource.
-	 * 
-	 * @throws IOException
-	 *             if the resource is not available
-	 */
-	URL getLocation() throws IOException;
+    /**
+     * Get location of this resource.
+     * 
+     * @throws IOException
+     *             if the resource is not available
+     */
+    URL getLocation() throws IOException;
 
-	/**
-	 * 
-	 * @return
-	 */
-	File getFile() throws IOException;
+    /**
+     * 
+     * @return
+     */
+    File getFile() throws IOException;
 
-	/**
-	 * Whether this resource actually exists.
-	 */
-	boolean exists();
+    /**
+     * Whether this resource actually exists.
+     */
+    boolean exists();
 
-	/**
-	 * Is a directory?
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	boolean isDirectory() throws IOException;
+    /**
+     * Is a directory?
+     * 
+     * @return
+     * @throws IOException
+     */
+    boolean isDirectory() throws IOException;
 
-	/**
-	 * list {@link Resource} under the directory
-	 * 
-	 * @return {@link Resource} names
-	 * @throws IOException 
-	 */
-	String[] list() throws IOException;
+    /**
+     * list {@link Resource} under the directory
+     * 
+     * @return {@link Resource} names
+     * @throws IOException
+     */
+    String[] list() throws IOException;
 
-	/**
-	 * Create a resource relative to this resource.
-	 * 
-	 * @param relativePath
-	 *            the relative path (relative to this resource)
-	 * @return the resource handle for the relative resource
-	 * @throws IOException
-	 *             if the relative resource cannot be determined
-	 */
-	Resource createRelative(String relativePath) throws IOException;
+    /**
+     * Create a resource relative to this resource.
+     * 
+     * @param relativePath
+     *            the relative path (relative to this resource)
+     * @return the resource handle for the relative resource
+     * @throws IOException
+     *             if the relative resource cannot be determined
+     */
+    Resource createRelative(String relativePath) throws IOException;
 
 }

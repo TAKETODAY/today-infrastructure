@@ -34,32 +34,29 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
  */
 public class ApplicationListenerTest {
 
-	private long start;
+    private long start;
 
-	@Before
-	public void start() {
-		start = System.currentTimeMillis();
-	}
+    @Before
+    public void start() {
+        start = System.currentTimeMillis();
+    }
 
-	@After
-	public void end() {
-		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-	}
+    @After
+    public void end() {
+        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+    }
 
-	/**
-	 * test ApplicationContext
-	 * 
-	 * @throws NoSuchBeanDefinitionException
-	 */
-	@Test
-	public void test_ApplicationListener() throws NoSuchBeanDefinitionException {
+    /**
+     * test ApplicationContext
+     * 
+     * @throws NoSuchBeanDefinitionException
+     */
+    @Test
+    public void test_ApplicationListener() throws NoSuchBeanDefinitionException {
 
-		ApplicationContext applicationContext = new StandardApplicationContext();
-		applicationContext.loadContext("test.demo.dao");
-		applicationContext.close();
-	}
+        ApplicationContext applicationContext = new StandardApplicationContext();
+        applicationContext.loadContext("test.demo.dao");
+        applicationContext.close();
+    }
 
 }
-
-
-

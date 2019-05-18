@@ -24,12 +24,12 @@ import test.demo.config.User;
 /**
  * 
  * @author Today <br>
- * 		2018-11-15 16:50
+ *         2018-11-15 16:50
  */
 public interface UserService {
 
-	public boolean register(User user);
+    public boolean register(User user);
 
-	public User login(User user);
+    public User login(User user);
 
 }

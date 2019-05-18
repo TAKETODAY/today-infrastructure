@@ -27,11 +27,11 @@ package cn.taketoday.context.factory;
  */
 public interface DisposableBean {
 
-	/**
-	 * Invoked by a ApplicationContext on destruction of a singleton.
-	 * 
-	 * @throws Exception
-	 *             in case of errors
-	 */
-	void destroy() throws Exception;
+    /**
+     * Invoked by a ApplicationContext on destruction of a singleton.
+     * 
+     * @throws Exception
+     *             in case of errors
+     */
+    void destroy() throws Exception;
 }

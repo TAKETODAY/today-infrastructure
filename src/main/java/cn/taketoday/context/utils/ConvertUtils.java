@@ -40,141 +40,141 @@ import cn.taketoday.context.io.Resource;
 // @Slf4j
 public abstract class ConvertUtils {
 
-	/**
-	 * Convert string to target type
-	 * 
-	 * @param value
-	 *            value
-	 * @param targetClass
-	 *            targetClass
-	 * @return converted object
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static Object convert(String value, Class<?> targetClass) {
+    /**
+     * Convert string to target type
+     * 
+     * @param value
+     *            value
+     * @param targetClass
+     *            targetClass
+     * @return converted object
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static Object convert(String value, Class<?> targetClass) {
 
-		if (StringUtils.isEmpty(value)) {
-			return value;
-		}
+        if (StringUtils.isEmpty(value)) {
+            return value;
+        }
 
-		switch (targetClass.getSimpleName()) //
-		{
-			case "String" :
-				return value;
-			case "Byte" :
-			case "byte" :
-				return Byte.parseByte(value);
-			case "short" :
-			case "Short" :
-				return Short.parseShort(value);
-			case "int" :
-			case "Integer" :
-				return Integer.parseInt(value);
-			case "long" :
-			case "Long" :
-				return Long.parseLong(value);
-			case "float" :
-			case "Float" :
-				return Float.parseFloat(value);
-			case "double" :
-			case "Double" :
-				return Double.parseDouble(value);
-			case "boolean" :
-			case "Boolean" :
-				return Boolean.parseBoolean(value);
-			case "BigInteger" :
-				return new BigInteger(value);
-			case "BigDecimal" :
-				return new BigDecimal(value);
-			case "File" : {
-				if (value.startsWith(Constant.CLASS_PATH_PREFIX)) {
+        switch (targetClass.getSimpleName()) //
+        {
+            case "String" :
+                return value;
+            case "Byte" :
+            case "byte" :
+                return Byte.parseByte(value);
+            case "short" :
+            case "Short" :
+                return Short.parseShort(value);
+            case "int" :
+            case "Integer" :
+                return Integer.parseInt(value);
+            case "long" :
+            case "Long" :
+                return Long.parseLong(value);
+            case "float" :
+            case "Float" :
+                return Float.parseFloat(value);
+            case "double" :
+            case "Double" :
+                return Double.parseDouble(value);
+            case "boolean" :
+            case "Boolean" :
+                return Boolean.parseBoolean(value);
+            case "BigInteger" :
+                return new BigInteger(value);
+            case "BigDecimal" :
+                return new BigDecimal(value);
+            case "File" : {
+                if (value.startsWith(Constant.CLASS_PATH_PREFIX)) {
 
-					final String resourceString = value.substring(Constant.CLASS_PATH_PREFIX.length());
-					final URL resource = ClassUtils.getClassLoader().getResource(resourceString);
+                    final String resourceString = value.substring(Constant.CLASS_PATH_PREFIX.length());
+                    final URL resource = ClassUtils.getClassLoader().getResource(resourceString);
 
-					if (resource == null) {
-						throw new ContextException("ClassPath Recource: [" + resourceString + "] Doesn't exist");
-					}
-					return new File(resource.getPath());
-				}
-				return new File(value);
-			}
-			case "Charset" :
-				return Charset.forName(value);
-			case "Class" : {
-				try {
-					return Class.forName(value);
-				}
-				catch (ClassNotFoundException e) {
-					throw new ContextException(e);
-				}
-			}
-			case "Duration" : {
-				return convertDuration(value);
-			}
-			case "DataSize" : {
-				return DataSize.parse(value);
-			}
-		}
-		// @since 2.1.6
-		if (Resource.class.isAssignableFrom(targetClass)) {
-			try {
-				return ResourceUtils.getResource(value);
-			}
-			catch (IOException e) {
-				return null;
-			}
-		}
+                    if (resource == null) {
+                        throw new ContextException("ClassPath Recource: [" + resourceString + "] Doesn't exist");
+                    }
+                    return new File(resource.getPath());
+                }
+                return new File(value);
+            }
+            case "Charset" :
+                return Charset.forName(value);
+            case "Class" : {
+                try {
+                    return Class.forName(value);
+                }
+                catch (ClassNotFoundException e) {
+                    throw new ContextException(e);
+                }
+            }
+            case "Duration" : {
+                return convertDuration(value);
+            }
+            case "DataSize" : {
+                return DataSize.parse(value);
+            }
+        }
+        // @since 2.1.6
+        if (Resource.class.isAssignableFrom(targetClass)) {
+            try {
+                return ResourceUtils.getResource(value);
+            }
+            catch (IOException e) {
+                return null;
+            }
+        }
 
-		if (targetClass.isEnum()) {
-			return Enum.valueOf((Class<Enum>) targetClass, value);
-		}
-		if (targetClass.isArray()) {
-			final Class<?> componentType = targetClass.getComponentType();
-			final String[] split = StringUtils.split(value);
-			final Object arrayValue = Array.newInstance(componentType, split.length);
-			for (int i = 0; i < split.length; i++) {
-				Array.set(arrayValue, i, convert(split[i], componentType));
-			}
-			return arrayValue;
-		}
-		// use constructor
-		try {
-			return targetClass.getConstructor(String.class).newInstance(value);
-		}
-		catch (Throwable e) {
-			//
-		}
-		return null;
-	}
+        if (targetClass.isEnum()) {
+            return Enum.valueOf((Class<Enum>) targetClass, value);
+        }
+        if (targetClass.isArray()) {
+            final Class<?> componentType = targetClass.getComponentType();
+            final String[] split = StringUtils.split(value);
+            final Object arrayValue = Array.newInstance(componentType, split.length);
+            for (int i = 0; i < split.length; i++) {
+                Array.set(arrayValue, i, convert(split[i], componentType));
+            }
+            return arrayValue;
+        }
+        // use constructor
+        try {
+            return targetClass.getConstructor(String.class).newInstance(value);
+        }
+        catch (Throwable e) {
+            //
+        }
+        return null;
+    }
 
-	/**
-	 * Convert a string to {@link Duration}
-	 * 
-	 * @param value
-	 * @return
-	 */
-	public static Duration convertDuration(String value) {
+    /**
+     * Convert a string to {@link Duration}
+     * 
+     * @param value
+     * @return
+     */
+    public static Duration convertDuration(String value) {
 
-		if (value.endsWith("s")) {
-			return Duration.ofSeconds(Long.parseLong(value.substring(0, value.length() - 1)));
-		}
-		if (value.endsWith("h")) {
-			return Duration.ofHours(Long.parseLong(value.substring(0, value.length() - 1)));
-		}
-		if (value.endsWith("ns")) {
-			return Duration.ofNanos(Long.parseLong(value.substring(0, value.length() - 2)));
-		}
-		if (value.endsWith("ms")) {
-			return Duration.ofMillis(Long.parseLong(value.substring(0, value.length() - 2)));
-		}
-		if (value.endsWith("min")) {
-			return Duration.ofMinutes(Long.parseLong(value.substring(0, value.length() - 3)));
-		}
-		if (value.endsWith("d")) {
-			return Duration.ofDays(Long.parseLong(value.substring(0, value.length() - 1)));
-		}
+        if (value.endsWith("s")) {
+            return Duration.ofSeconds(Long.parseLong(value.substring(0, value.length() - 1)));
+        }
+        if (value.endsWith("h")) {
+            return Duration.ofHours(Long.parseLong(value.substring(0, value.length() - 1)));
+        }
+        if (value.endsWith("ns")) {
+            return Duration.ofNanos(Long.parseLong(value.substring(0, value.length() - 2)));
+        }
+        if (value.endsWith("ms")) {
+            return Duration.ofMillis(Long.parseLong(value.substring(0, value.length() - 2)));
+        }
+        if (value.endsWith("min")) {
+            return Duration.ofMinutes(Long.parseLong(value.substring(0, value.length() - 3)));
+        }
+        if (value.endsWith("d")) {
+            return Duration.ofDays(Long.parseLong(value.substring(0, value.length() - 1)));
+        }
 
-		return Duration.parse(value);
-	}
+        return Duration.parse(value);
+    }
 
 }

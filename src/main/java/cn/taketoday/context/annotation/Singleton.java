@@ -38,16 +38,16 @@ import cn.taketoday.context.Scope;
 @Component(scope = Scope.SINGLETON)
 public @interface Singleton {
 
-	// bean name
-	String[] value() default {};
+    // bean name
+    String[] value() default {};
 
-	/**
-	 * @return
-	 */
-	String[] initMethods() default {};
+    /**
+     * @return
+     */
+    String[] initMethods() default {};
 
-	/**
-	 * @return
-	 */
-	String[] destroyMethods() default {};
+    /**
+     * @return
+     */
+    String[] destroyMethods() default {};
 }

@@ -37,37 +37,37 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
  */
 public class AwareTest {
 
-	private long start;
+    private long start;
 
-	@Before
-	public void start() {
-		start = System.currentTimeMillis();
-	}
+    @Before
+    public void start() {
+        start = System.currentTimeMillis();
+    }
 
-	@After
-	public void end() {
-		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-	}
+    @After
+    public void end() {
+        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+    }
 
-	@Test
-	public void test_AwareBean()
-			throws BeanDefinitionStoreException, NoSuchBeanDefinitionException, ConfigurationException {
+    @Test
+    public void test_AwareBean()
+            throws BeanDefinitionStoreException, NoSuchBeanDefinitionException, ConfigurationException {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+        try (ApplicationContext applicationContext = new StandardApplicationContext()) {
 
-			applicationContext.registerBean(AwareBean.class);
-			applicationContext.refresh();
+            applicationContext.registerBean(AwareBean.class);
+            applicationContext.refresh();
 
-			AwareBean bean = applicationContext.getBean(AwareBean.class);
-			assert bean.getApplicationContext() != null : "applicationContext == null";
-			assert bean.getBeanFactory() != null : "bean factory == null";
-			assert bean.getBeanName() != null : "bean name == null";
-			assert bean.getEnvironment() != null : "env == null";
+            AwareBean bean = applicationContext.getBean(AwareBean.class);
+            assert bean.getApplicationContext() != null : "applicationContext == null";
+            assert bean.getBeanFactory() != null : "bean factory == null";
+            assert bean.getBeanName() != null : "bean name == null";
+            assert bean.getEnvironment() != null : "env == null";
 
-			System.out.println(bean);
+            System.out.println(bean);
 
-		}
+        }
 
-	}
+    }
 
 }

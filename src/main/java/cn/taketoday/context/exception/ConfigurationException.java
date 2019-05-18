@@ -32,26 +32,26 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("serial")
 public class ConfigurationException extends ContextException {
 
-	public ConfigurationException() {
-		this("");
-	}
+    public ConfigurationException() {
+        this("");
+    }
 
-	public ConfigurationException(Throwable cause) {
-		super(cause);
-	}
-	
-	public ConfigurationException(String message) {
-		super(message);
-		LoggerFactory.getLogger(ConfigurationException.class)//
-				.error("Configuration Exception Message: [" + message + "]");
-	}
-	
-	public ConfigurationException(String message, Object... args) {
-		super(message);
-		
-		LoggerFactory.getLogger(ConfigurationException.class)//
-				.error("Configuration Exception Message: [" + message + "] , Your Application Will Be Shutdown.", args);
+    public ConfigurationException(Throwable cause) {
+        super(cause);
+    }
+
+    public ConfigurationException(String message) {
+        super(message);
+        LoggerFactory.getLogger(ConfigurationException.class)//
+                .error("Configuration Exception Message: [" + message + "]");
+    }
+
+    public ConfigurationException(String message, Object... args) {
+        super(message);
+
+        LoggerFactory.getLogger(ConfigurationException.class)//
+                .error("Configuration Exception Message: [" + message + "] , Your Application Will Be Shutdown.", args);
 
 //		System.exit(0);
-	}
+    }
 }

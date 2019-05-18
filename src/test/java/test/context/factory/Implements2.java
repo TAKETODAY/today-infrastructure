@@ -31,9 +31,9 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton
 public class Implements2 implements Interface {
 
-	@Override
-	public void test() {
-		log.debug("Implements2");
-	}
+    @Override
+    public void test() {
+        log.debug("Implements2");
+    }
 
 }

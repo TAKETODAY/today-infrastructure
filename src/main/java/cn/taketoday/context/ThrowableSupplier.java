@@ -31,11 +31,11 @@ package cn.taketoday.context;
 @FunctionalInterface
 public interface ThrowableSupplier<T, E extends Throwable> {
 
-	/**
-	 * Gets the the result.
-	 *
-	 * @return result
-	 */
-	T get() throws E;
+    /**
+     * Gets the the result.
+     *
+     * @return result
+     */
+    T get() throws E;
 
 }

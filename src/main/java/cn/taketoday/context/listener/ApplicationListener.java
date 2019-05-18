@@ -30,12 +30,12 @@ import java.util.EventObject;
 @FunctionalInterface
 public interface ApplicationListener<E extends EventObject> extends EventListener {
 
-	/**
-	 * On event
-	 * 
-	 * @param event
-	 *            event instance
-	 */
-	void onApplicationEvent(E event);
+    /**
+     * On event
+     * 
+     * @param event
+     *            event instance
+     */
+    void onApplicationEvent(E event);
 
 }

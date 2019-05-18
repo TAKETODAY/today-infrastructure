@@ -26,20 +26,20 @@ package cn.taketoday.context.exception;
 @SuppressWarnings("serial")
 public class ContextException extends RuntimeException {
 
-	public ContextException() {
-		
-	}
+    public ContextException() {
 
-	public ContextException(String message) {
-		super(message);
-	}
+    }
 
-	public ContextException(Throwable cause) {
-		super(cause);
-	}
+    public ContextException(String message) {
+        super(message);
+    }
 
-	public ContextException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public ContextException(Throwable cause) {
+        super(cause);
+    }
+
+    public ContextException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

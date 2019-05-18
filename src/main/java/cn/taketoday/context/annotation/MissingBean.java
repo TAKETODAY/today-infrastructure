@@ -39,19 +39,19 @@ import cn.taketoday.context.Scope;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface MissingBean {
 
-	/**
-	 * Missing bean name
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+    /**
+     * Missing bean name
+     * 
+     * @return
+     */
+    String value() default Constant.BLANK;
 
-	Class<?> type() default void.class;
+    Class<?> type() default void.class;
 
-	Scope scope() default Scope.SINGLETON;
+    Scope scope() default Scope.SINGLETON;
 
-	String[] initMethods() default {};
+    String[] initMethods() default {};
 
-	String[] destroyMethods() default {};
+    String[] destroyMethods() default {};
 
 }

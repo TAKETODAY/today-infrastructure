@@ -31,16 +31,16 @@ import cn.taketoday.context.Condition;
 @SuppressWarnings("all")
 public class ConditionalImpl implements Conditional {
 
-	private Class<? extends Condition>[] value = null;
+    private Class<? extends Condition>[] value = null;
 
-	@Override
-	public Class<? extends Annotation> annotationType() {
-		return Conditional.class;
-	}
+    @Override
+    public Class<? extends Annotation> annotationType() {
+        return Conditional.class;
+    }
 
-	@Override
-	public Class<? extends Condition>[] value() {
-		return value;
-	}
+    @Override
+    public Class<? extends Condition>[] value() {
+        return value;
+    }
 
 }

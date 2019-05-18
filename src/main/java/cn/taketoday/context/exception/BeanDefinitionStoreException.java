@@ -30,20 +30,20 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("serial")
 public class BeanDefinitionStoreException extends ConfigurationException {
 
-	public BeanDefinitionStoreException(Throwable cause) {
-		super(cause);
-	}
+    public BeanDefinitionStoreException(Throwable cause) {
+        super(cause);
+    }
 
-	public BeanDefinitionStoreException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public BeanDefinitionStoreException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public BeanDefinitionStoreException(String message) {
-		super(message);
-	}
+    public BeanDefinitionStoreException(String message) {
+        super(message);
+    }
 
-	public BeanDefinitionStoreException(String message, Object... args) {
-		super(message, args);
-	}
+    public BeanDefinitionStoreException(String message, Object... args) {
+        super(message, args);
+    }
 
 }

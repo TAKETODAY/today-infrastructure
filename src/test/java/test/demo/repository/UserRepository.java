@@ -27,8 +27,8 @@ import test.demo.config.User;
  */
 public interface UserRepository {
 
-	public boolean save(User user);
+    public boolean save(User user);
 
-	public User login(User user);
+    public User login(User user);
 
 }

@@ -34,63 +34,63 @@ import cn.taketoday.context.utils.StringUtils;
  */
 public class StandardApplicationContext extends AbstractApplicationContext implements ConfigurableApplicationContext {
 
-	private final StandardBeanFactory beanFactory;
+    private final StandardBeanFactory beanFactory;
 
-	/**
-	 * Start with given class set
-	 *
-	 * @param classes
-	 *            class set
-	 */
-	public StandardApplicationContext(Collection<Class<?>> classes) {
-		this(Constant.BLANK);
-		loadContext(classes);
-	}
+    /**
+     * Start with given class set
+     *
+     * @param classes
+     *            class set
+     */
+    public StandardApplicationContext(Collection<Class<?>> classes) {
+        this(Constant.BLANK);
+        loadContext(classes);
+    }
 
-	/**
-	 * Set given properties location
-	 * 
-	 * @param propertiesLocation
-	 *            a file or a directory to scan
-	 */
-	public StandardApplicationContext(String propertiesLocation) {
-		this();
-		if (StringUtils.isNotEmpty(propertiesLocation)) {
-			setPropertiesLocation(propertiesLocation);
-		}
-	}
+    /**
+     * Set given properties location
+     * 
+     * @param propertiesLocation
+     *            a file or a directory to scan
+     */
+    public StandardApplicationContext(String propertiesLocation) {
+        this();
+        if (StringUtils.isNotEmpty(propertiesLocation)) {
+            setPropertiesLocation(propertiesLocation);
+        }
+    }
 
-	/**
-	 * Start context with given properties location and base scan packages
-	 * 
-	 * @param propertiesLocation
-	 *            a file or a directory contains
-	 * @param locations
-	 *            scan classes from packages
-	 */
-	public StandardApplicationContext(String propertiesLocation, String... locations) {
-		this(propertiesLocation);
-		loadContext(locations);
-	}
+    /**
+     * Start context with given properties location and base scan packages
+     * 
+     * @param propertiesLocation
+     *            a file or a directory contains
+     * @param locations
+     *            scan classes from packages
+     */
+    public StandardApplicationContext(String propertiesLocation, String... locations) {
+        this(propertiesLocation);
+        loadContext(locations);
+    }
 
-	public StandardApplicationContext(StandardBeanFactory beanFactory) {
-		this.beanFactory = beanFactory;
-	}
-	
-	public StandardApplicationContext() {
-		this.beanFactory = new StandardBeanFactory(this);
-	}
-	
-	@Override
-	public AbstractBeanFactory getBeanFactory() {
-		return this.beanFactory;
-	}
+    public StandardApplicationContext(StandardBeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+    }
 
-	@Override
-	protected void doLoadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
-		super.doLoadBeanDefinitions(beanFactory, beanClasses);
-		this.beanFactory.loadConfigurationBeans();
-		this.beanFactory.loadMissingBean(beanClasses);
-	}
+    public StandardApplicationContext() {
+        this.beanFactory = new StandardBeanFactory(this);
+    }
+
+    @Override
+    public AbstractBeanFactory getBeanFactory() {
+        return this.beanFactory;
+    }
+
+    @Override
+    protected void doLoadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
+        super.doLoadBeanDefinitions(beanFactory, beanClasses);
+        this.beanFactory.loadConfigurationBeans();
+        this.beanFactory.loadMissingBean(beanClasses);
+    }
 
 }

@@ -27,22 +27,22 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Today <br>
- * 	
- *		2018-11-08 20:38
+ * 
+ *         2018-11-08 20:38
  */
 @Slf4j
 @ContextListener
-public class BeanDefinitionLoadedListener_2 implements ApplicationListener<BeanDefinitionLoadedEvent>, Ordered{
-	
-	@Override
-	public void onApplicationEvent(BeanDefinitionLoadedEvent event) {
-		log.debug("BeanDefinitionLoadedListener_2");
-	}
+public class BeanDefinitionLoadedListener_2 implements ApplicationListener<BeanDefinitionLoadedEvent>, Ordered {
 
-	@Override
-	public int getOrder() {
-		
-		return 2;
-	}
-	
+    @Override
+    public void onApplicationEvent(BeanDefinitionLoadedEvent event) {
+        log.debug("BeanDefinitionLoadedListener_2");
+    }
+
+    @Override
+    public int getOrder() {
+
+        return 2;
+    }
+
 }

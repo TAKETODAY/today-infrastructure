@@ -35,9 +35,9 @@ import lombok.extern.slf4j.Slf4j;
 @ContextListener
 public class BeanDefinitionLoadingListener_2 implements ApplicationListener<BeanDefinitionLoadingEvent> {
 
-	@Override
-	public void onApplicationEvent(BeanDefinitionLoadingEvent event) {
-		log.debug("BeanDefinitionLoadingListener_2");
-	}
+    @Override
+    public void onApplicationEvent(BeanDefinitionLoadingEvent event) {
+        log.debug("BeanDefinitionLoadingListener_2");
+    }
 
 }

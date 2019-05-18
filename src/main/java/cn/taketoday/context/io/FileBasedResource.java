@@ -39,144 +39,144 @@ import cn.taketoday.context.utils.StringUtils;
  */
 public class FileBasedResource extends AbstractResource implements WritableResource {
 
-	private final File file;
-	private final String path;
-	private final Path filePath;
+    private final File file;
+    private final String path;
+    private final Path filePath;
 
-	public FileBasedResource(String path) {
-		this.path = StringUtils.cleanPath(path);
-		this.file = new File(path);
-		this.filePath = this.file.toPath();
-	}
+    public FileBasedResource(String path) {
+        this.path = StringUtils.cleanPath(path);
+        this.file = new File(path);
+        this.filePath = this.file.toPath();
+    }
 
-	public FileBasedResource(File file) {
-		this.path = StringUtils.cleanPath(file.getPath());
-		this.file = file;
-		this.filePath = file.toPath();
-	}
+    public FileBasedResource(File file) {
+        this.path = StringUtils.cleanPath(file.getPath());
+        this.file = file;
+        this.filePath = file.toPath();
+    }
 
-	public FileBasedResource(Path filePath) {
-		this.path = StringUtils.cleanPath(filePath.toString());
-		this.file = null;
-		this.filePath = filePath;
-	}
+    public FileBasedResource(Path filePath) {
+        this.path = StringUtils.cleanPath(filePath.toString());
+        this.file = null;
+        this.filePath = filePath;
+    }
 
-	/**
-	 * Return the file path for this resource.
-	 */
-	public final String getPath() {
-		return this.path;
-	}
+    /**
+     * Return the file path for this resource.
+     */
+    public final String getPath() {
+        return this.path;
+    }
 
-	/**
-	 * This implementation returns whether the underlying file exists.
-	 * 
-	 */
-	@Override
-	public boolean exists() {
-		return (this.file != null ? this.file.exists() : Files.exists(this.filePath));
-	}
+    /**
+     * This implementation returns whether the underlying file exists.
+     * 
+     */
+    @Override
+    public boolean exists() {
+        return (this.file != null ? this.file.exists() : Files.exists(this.filePath));
+    }
 
-	/**
-	 * This implementation opens a NIO file stream for the underlying file.
-	 */
-	@Override
-	public InputStream getInputStream() throws IOException {
-		return Files.newInputStream(this.filePath);
-	}
+    /**
+     * This implementation opens a NIO file stream for the underlying file.
+     */
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return Files.newInputStream(this.filePath);
+    }
 
-	/**
-	 * This implementation opens a FileOutputStream for the underlying file.
-	 * 
-	 * @see java.io.FileOutputStream
-	 */
-	@Override
-	public OutputStream getOutputStream() throws IOException {
-		return Files.newOutputStream(this.filePath);
-	}
+    /**
+     * This implementation opens a FileOutputStream for the underlying file.
+     * 
+     * @see java.io.FileOutputStream
+     */
+    @Override
+    public OutputStream getOutputStream() throws IOException {
+        return Files.newOutputStream(this.filePath);
+    }
 
-	/**
-	 * This implementation returns a URL for the underlying file.
-	 */
-	@Override
-	public URL getLocation() throws IOException {
-		return (this.file != null ? this.file.toURI().toURL() : this.filePath.toUri().toURL());
-	}
+    /**
+     * This implementation returns a URL for the underlying file.
+     */
+    @Override
+    public URL getLocation() throws IOException {
+        return (this.file != null ? this.file.toURI().toURL() : this.filePath.toUri().toURL());
+    }
 
-	/**
-	 * This implementation returns the underlying File reference.
-	 */
-	@Override
-	public File getFile() {
-		return (this.file != null ? this.file : this.filePath.toFile());
-	}
+    /**
+     * This implementation returns the underlying File reference.
+     */
+    @Override
+    public File getFile() {
+        return (this.file != null ? this.file : this.filePath.toFile());
+    }
 
-	/**
-	 * This implementation returns the underlying File/Path length.
-	 */
-	@Override
-	public long contentLength() throws IOException {
-		if (this.file != null) {
-			long length = this.file.length();
-			if (length == 0L && !this.file.exists()) {
-				throw new FileNotFoundException(getName() + " cannot be resolved its content length");
-			}
-			return length;
-		}
-		try {
-			return Files.size(this.filePath);
-		}
-		catch (NoSuchFileException ex) {
-			throw new FileNotFoundException(ex.getMessage());
-		}
-	}
+    /**
+     * This implementation returns the underlying File/Path length.
+     */
+    @Override
+    public long contentLength() throws IOException {
+        if (this.file != null) {
+            long length = this.file.length();
+            if (length == 0L && !this.file.exists()) {
+                throw new FileNotFoundException(getName() + " cannot be resolved its content length");
+            }
+            return length;
+        }
+        try {
+            return Files.size(this.filePath);
+        }
+        catch (NoSuchFileException ex) {
+            throw new FileNotFoundException(ex.getMessage());
+        }
+    }
 
-	/**
-	 * This implementation returns the underlying File/Path last-modified time.
-	 */
-	@Override
-	public long lastModified() throws IOException {
-		if (this.file != null) {
-			return super.lastModified();
-		}
-		try {
-			return Files.getLastModifiedTime(this.filePath).toMillis();
-		}
-		catch (NoSuchFileException ex) {
-			throw new FileNotFoundException(ex.getMessage());
-		}
-	}
+    /**
+     * This implementation returns the underlying File/Path last-modified time.
+     */
+    @Override
+    public long lastModified() throws IOException {
+        if (this.file != null) {
+            return super.lastModified();
+        }
+        try {
+            return Files.getLastModifiedTime(this.filePath).toMillis();
+        }
+        catch (NoSuchFileException ex) {
+            throw new FileNotFoundException(ex.getMessage());
+        }
+    }
 
-	@Override
-	public Resource createRelative(String relativePath) throws IOException {
-		final String pathToUse = ResourceUtils.getRelativePath(path, relativePath);
-		return (this.file != null //
-				? new FileBasedResource(pathToUse) //
-				: new FileBasedResource(this.filePath.getFileSystem().getPath(pathToUse).normalize()));
-	}
+    @Override
+    public Resource createRelative(String relativePath) throws IOException {
+        final String pathToUse = ResourceUtils.getRelativePath(path, relativePath);
+        return (this.file != null //
+                ? new FileBasedResource(pathToUse) //
+                : new FileBasedResource(this.filePath.getFileSystem().getPath(pathToUse).normalize()));
+    }
 
-	@Override
-	public String getName() {
-		if (file != null) {
-			return file.getName();
-		}
-		if (filePath != null) {
-			final Path fileName = filePath.getFileName();
-			if (fileName != null) {
-				return fileName.toString();
-			}
-		}
-		return new File(path).getName();
-	}
+    @Override
+    public String getName() {
+        if (file != null) {
+            return file.getName();
+        }
+        if (filePath != null) {
+            final Path fileName = filePath.getFileName();
+            if (fileName != null) {
+                return fileName.toString();
+            }
+        }
+        return new File(path).getName();
+    }
 
-	@Override
-	public boolean equals(Object other) {
-		return (this == other || (other instanceof FileBasedResource && this.path.equals(((FileBasedResource) other).path)));
-	}
+    @Override
+    public boolean equals(Object other) {
+        return (this == other || (other instanceof FileBasedResource && this.path.equals(((FileBasedResource) other).path)));
+    }
 
-	@Override
-	public int hashCode() {
-		return this.path.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return this.path.hashCode();
+    }
 
 }

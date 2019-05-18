@@ -34,26 +34,26 @@ import cn.taketoday.context.loader.ValuePropertyResolver;
  */
 public class ValuePropertyResolveTest {
 
-	@Value("#{site.host}")
-	private String host = null;
+    @Value("#{site.host}")
+    private String host = null;
 
-	@Test
-	public void test_() throws Exception {
+    @Test
+    public void test_() throws Exception {
 
-		ValuePropertyResolver propertyResolver = new ValuePropertyResolver();
+        ValuePropertyResolver propertyResolver = new ValuePropertyResolver();
 
-		ApplicationContext applicationContext = new StandardApplicationContext();
+        ApplicationContext applicationContext = new StandardApplicationContext();
 
-		PropertyValue resolveProperty = propertyResolver.resolveProperty(applicationContext,
-				ValuePropertyResolveTest.class.getDeclaredField("host"));
+        PropertyValue resolveProperty = propertyResolver.resolveProperty(applicationContext,
+                ValuePropertyResolveTest.class.getDeclaredField("host"));
 
-		assert resolveProperty.getValue() != null;
+        assert resolveProperty.getValue() != null;
 
-		System.out.println("====================");
-		System.out.println("Site -> " + resolveProperty.getValue());
-		System.out.println("====================");
-		applicationContext.close();
+        System.out.println("====================");
+        System.out.println("Site -> " + resolveProperty.getValue());
+        System.out.println("====================");
+        applicationContext.close();
 
-	}
+    }
 
 }

@@ -35,23 +35,23 @@ import cn.taketoday.context.exception.ContextException;
 @FunctionalInterface
 public interface PropertyValueResolver {
 
-	/**
-	 * Whether the given field is supported by this resolver.
-	 */
-	default boolean supports(ApplicationContext applicationContext, Field field) {
-		return false;
-	}
+    /**
+     * Whether the given field is supported by this resolver.
+     */
+    default boolean supports(ApplicationContext applicationContext, Field field) {
+        return false;
+    }
 
-	/**
-	 * Resolve {@link PropertyValue}.
-	 * 
-	 * @param applicationContext
-	 *            Bean definition registry
-	 * @param field
-	 *            bean's field
-	 * @return property value
-	 * @throws ContextException
-	 */
-	PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) throws ContextException;
+    /**
+     * Resolve {@link PropertyValue}.
+     * 
+     * @param applicationContext
+     *            Bean definition registry
+     * @param field
+     *            bean's field
+     * @return property value
+     * @throws ContextException
+     */
+    PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) throws ContextException;
 
 }

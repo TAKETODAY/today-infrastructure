@@ -42,45 +42,45 @@ import lombok.extern.slf4j.Slf4j;
 @Prototype
 public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean {
 
-	@PostConstruct
-	@Order(Ordered.LOWEST_PRECEDENCE)
-	public void init1() {
-		log.info("ConfigFactoryBean.init1()");
-	}
+    @PostConstruct
+    @Order(Ordered.LOWEST_PRECEDENCE)
+    public void init1() {
+        log.info("ConfigFactoryBean.init1()");
+    }
 
-	@PostConstruct
-	@Order(Ordered.HIGHEST_PRECEDENCE)
-	public void init2() {
-		log.info("ConfigFactoryBean.init2()");
-	}
+    @PostConstruct
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public void init2() {
+        log.info("ConfigFactoryBean.init2()");
+    }
 
-	@Props(value = "info", prefix = "site.")
-	private Properties pro;
+    @Props(value = "info", prefix = "site.")
+    private Properties pro;
 
-	private Config bean;
+    private Config bean;
 
-	@Override
-	public Config getBean() {
-		return bean;
-	}
+    @Override
+    public Config getBean() {
+        return bean;
+    }
 
-	@Override
-	public String getBeanName() {
-		return "FactoryBean-Config";
-	}
+    @Override
+    public String getBeanName() {
+        return "FactoryBean-Config";
+    }
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		bean = new Config();
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        bean = new Config();
 
-		bean.setCdn(pro.getProperty("site.cdn"));
-		bean.setHost(pro.getProperty("site.host"));
-		bean.setCopyright(pro.getProperty("site.copyright"));
-	}
+        bean.setCdn(pro.getProperty("site.cdn"));
+        bean.setHost(pro.getProperty("site.host"));
+        bean.setCopyright(pro.getProperty("site.copyright"));
+    }
 
-	@Override
-	public Class<Config> getBeanClass() {
-		return Config.class;
-	}
+    @Override
+    public Class<Config> getBeanClass() {
+        return Config.class;
+    }
 
 }

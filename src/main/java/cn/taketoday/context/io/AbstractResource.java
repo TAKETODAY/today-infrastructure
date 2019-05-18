@@ -32,80 +32,80 @@ import java.net.URL;
  */
 public abstract class AbstractResource implements Resource {
 
-	@Override
-	public String getName() {
-		try {
-			return getFile().getName();
-		}
-		catch (IOException e) {
-			return null;
-		}
-	}
+    @Override
+    public String getName() {
+        try {
+            return getFile().getName();
+        }
+        catch (IOException e) {
+            return null;
+        }
+    }
 
-	@Override
-	public boolean exists() {
+    @Override
+    public boolean exists() {
 
-		try (InputStream inputStream = getInputStream()) {
-			return inputStream != null;
-		}
-		catch (IOException e) {
-			return false;
-		}
-	}
+        try (InputStream inputStream = getInputStream()) {
+            return inputStream != null;
+        }
+        catch (IOException e) {
+            return false;
+        }
+    }
 
-	@Override
-	public URL getLocation() throws IOException {
-		throw new FileNotFoundException(getName() + " cannot be resolved to URL");
-	}
+    @Override
+    public URL getLocation() throws IOException {
+        throw new FileNotFoundException(getName() + " cannot be resolved to URL");
+    }
 
-	@Override
-	public File getFile() throws IOException {
-		throw new FileNotFoundException(getName() + " cannot be resolved to absolute file path");
-	}
+    @Override
+    public File getFile() throws IOException {
+        throw new FileNotFoundException(getName() + " cannot be resolved to absolute file path");
+    }
 
-	@Override
-	public boolean isDirectory() throws IOException {
-		return getFile().isDirectory();
-	}
+    @Override
+    public boolean isDirectory() throws IOException {
+        return getFile().isDirectory();
+    }
 
-	@Override
-	public String[] list() throws IOException {
-		return getFile().list();
-	}
+    @Override
+    public String[] list() throws IOException {
+        return getFile().list();
+    }
 
-	@Override
-	public long contentLength() throws IOException {
-		return getFile().length();
-	}
+    @Override
+    public long contentLength() throws IOException {
+        return getFile().length();
+    }
 
-	@Override
-	public long lastModified() throws IOException {
-		return getFile().lastModified();
-	}
+    @Override
+    public long lastModified() throws IOException {
+        return getFile().lastModified();
+    }
 
-	@Override
-	public Resource createRelative(String relativePath) throws IOException {
-		throw new FileNotFoundException(relativePath + " cannot be resolved relative file path");
-	}
+    @Override
+    public Resource createRelative(String relativePath) throws IOException {
+        throw new FileNotFoundException(relativePath + " cannot be resolved relative file path");
+    }
 
-	@Override
-	public String toString() {
-		try {
-			StringBuilder builder = new StringBuilder();
-			builder.append("{\n\t\"name\":\"");
-			builder.append(getName());
-			builder.append("\",\n\t\"exists\":\"");
-			builder.append(exists());
-			builder.append("\",\n\t\"location\":\"");
-			builder.append(getLocation());
-			builder.append("\",\n\t\"file\":\"");
-			builder.append(getFile());
-			builder.append("\"\n}");
-			return builder.toString();
-		}
-		catch (IOException e) {
-			return super.toString();
-		}
-	}
+    @Override
+    public String toString() {
+        try {
+            StringBuilder builder = new StringBuilder();
+            builder.append("{\n\t\"name\":\"");
+            builder.append(getName());
+            builder.append("\",\n\t\"exists\":\"");
+            builder.append(exists());
+            builder.append("\",\n\t\"location\":\"");
+            builder.append(getLocation());
+            builder.append("\",\n\t\"file\":\"");
+            builder.append(getFile());
+            builder.append("\"\n}");
+            return builder.toString();
+        }
+        catch (IOException e) {
+            return super.toString();
+        }
+    }
 
 }

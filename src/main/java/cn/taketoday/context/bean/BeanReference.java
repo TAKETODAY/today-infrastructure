@@ -34,50 +34,50 @@ import lombok.Getter;
 @Getter
 public final class BeanReference {
 
-	/** reference name */
-	private final String name;
-	/** property is required? **/
-	private final boolean required;
+    /** reference name */
+    private final String name;
+    /** property is required? **/
+    private final boolean required;
 
-	/** record reference type @since v2.1.2 */
-	private final Class<?> referenceClass;
+    /** record reference type @since v2.1.2 */
+    private final Class<?> referenceClass;
 
-	/** record if property is prototype @since v2.1.6 */
-	private boolean prototype = false;
+    /** record if property is prototype @since v2.1.6 */
+    private boolean prototype = false;
 
-	public void applyPrototype() {
-		this.prototype = true;
-	}
+    public void applyPrototype() {
+        this.prototype = true;
+    }
 
-	public BeanReference(String name, boolean required, Class<?> referenceClass) {
-		this.name = name;
-		if (StringUtils.isEmpty(name)) {
-			throw new ContextException("Bean name can't be empty");
-		}
-		this.required = required;
-		this.referenceClass = referenceClass;
-	}
+    public BeanReference(String name, boolean required, Class<?> referenceClass) {
+        this.name = name;
+        if (StringUtils.isEmpty(name)) {
+            throw new ContextException("Bean name can't be empty");
+        }
+        this.required = required;
+        this.referenceClass = referenceClass;
+    }
 
-	@Override
-	public int hashCode() {
-		return super.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this) {
-			return true;
-		}
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
 
-		if (obj instanceof BeanReference) {
-			BeanReference other = (BeanReference) obj;
+        if (obj instanceof BeanReference) {
+            BeanReference other = (BeanReference) obj;
 
-			return (other.required != this.required && //
-					other.name.equals(this.name) && //
-					ContextUtils.equals(other.referenceClass, referenceClass));
-		}
+            return (other.required != this.required && //
+                    other.name.equals(this.name) && //
+                    ContextUtils.equals(other.referenceClass, referenceClass));
+        }
 
-		return false;
-	}
+        return false;
+    }
 
 }

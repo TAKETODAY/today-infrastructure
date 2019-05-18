@@ -43,74 +43,74 @@ import cn.taketoday.context.utils.ClassUtils;
  */
 public class StandardEnvironmentTest {
 
-	private long start;
+    private long start;
 
-	@Before
-	public void start() {
-		start = System.currentTimeMillis();
-	}
+    @Before
+    public void start() {
+        start = System.currentTimeMillis();
+    }
 
-	@After
-	public void end() {
-		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-	}
+    @After
+    public void end() {
+        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+    }
 
-	@Test
-	public void test_AutoloadProperties()
-			throws BeanDefinitionStoreException, NoSuchBeanDefinitionException, ConfigurationException {
+    @Test
+    public void test_AutoloadProperties()
+            throws BeanDefinitionStoreException, NoSuchBeanDefinitionException, ConfigurationException {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
-			Environment environment = applicationContext.getEnvironment();
-			Properties properties = environment.getProperties();
-			assert "https://taketoday.cn".equals(properties.getProperty("site.host"));
-		}
-	}
+        try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
+            Environment environment = applicationContext.getEnvironment();
+            Properties properties = environment.getProperties();
+            assert "https://taketoday.cn".equals(properties.getProperty("site.host"));
+        }
+    }
 
-	@Test
-	public void test_loadProperties() throws IOException {
-		System.err.println(ClassUtils.getClassLoader());
-		ConfigurableEnvironment environment = new StandardEnvironment();
-		environment.loadProperties(""); // provide a path
-		Properties properties = environment.getProperties();
+    @Test
+    public void test_loadProperties() throws IOException {
+        System.err.println(ClassUtils.getClassLoader());
+        ConfigurableEnvironment environment = new StandardEnvironment();
+        environment.loadProperties(""); // provide a path
+        Properties properties = environment.getProperties();
 
-		assert "https://taketoday.cn".equals(properties.getProperty("site.host"));
-	}
+        assert "https://taketoday.cn".equals(properties.getProperty("site.host"));
+    }
 
-	@Test
-	public void test_ActiveProfile() throws IOException {
+    @Test
+    public void test_ActiveProfile() throws IOException {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
-			Environment environment = applicationContext.getEnvironment();
+        try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
+            Environment environment = applicationContext.getEnvironment();
 
-			String[] activeProfiles = environment.getActiveProfiles();
-			for (String string : activeProfiles) {
-				System.err.println(string);
-			}
-			assert "test".equals(activeProfiles[0]);
-		}
-	}
+            String[] activeProfiles = environment.getActiveProfiles();
+            for (String string : activeProfiles) {
+                System.err.println(string);
+            }
+            assert "test".equals(activeProfiles[0]);
+        }
+    }
 
-	@Test
-	public void test_AddActiveProfile() throws IOException {
+    @Test
+    public void test_AddActiveProfile() throws IOException {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
-			ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
+            ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
-			environment.addActiveProfile("prod");
-			String[] activeProfiles = environment.getActiveProfiles();
-			assert activeProfiles.length == 3;
-			assert environment.acceptsProfiles("prod");
-		}
-	}
+            environment.addActiveProfile("prod");
+            String[] activeProfiles = environment.getActiveProfiles();
+            assert activeProfiles.length == 3;
+            assert environment.acceptsProfiles("prod");
+        }
+    }
 
-	@Test
-	public void test_AcceptsProfiles() throws IOException {
+    @Test
+    public void test_AcceptsProfiles() throws IOException {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
-			ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
+            ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
-			assert environment.acceptsProfiles("test");
-		}
-	}
+            assert environment.acceptsProfiles("test");
+        }
+    }
 
 }

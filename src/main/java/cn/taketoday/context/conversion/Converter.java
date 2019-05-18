@@ -30,14 +30,14 @@ import cn.taketoday.context.exception.ConversionException;
 @FunctionalInterface
 public interface Converter<S, T> {
 
-	/**
-	 * Convert source object to target class {@link T}
-	 * 
-	 * @param source
-	 *            source instance
-	 * @return A converted instance
-	 * @throws ConversionException
-	 */
-	T doConvert(S source) throws ConversionException;
+    /**
+     * Convert source object to target class {@link T}
+     * 
+     * @param source
+     *            source instance
+     * @return A converted instance
+     * @throws ConversionException
+     */
+    T doConvert(S source) throws ConversionException;
 
 }

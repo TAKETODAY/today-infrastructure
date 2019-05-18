@@ -42,53 +42,53 @@ import test.demo.repository.UserRepository;
 //@Repository
 public class DefaultUserRepository implements UserRepository, BeanNameAware {
 
-	private Map<String, User> users = new HashMap<>();
-	
-	public DefaultUserRepository() {
-		
-	}
+    private Map<String, User> users = new HashMap<>();
 
-	@PostConstruct
-	public void initData() {
-		log.info("init data: [{}]", this);
-		users.put("666", new User(1, "杨海健", 20, "666", "666", "男", new Date()));
-		users.put("6666", new User(2, "杨海健1", 20, "6666", "6666", "男", new Date()));
-		users.put("66666", new User(3, "杨海健2", 20, "66666", "66666", "男", new Date()));
-		users.put("666666", new User(4, "杨海健3", 20, "666666", "666666", "男", new Date()));
-	}
+    public DefaultUserRepository() {
 
-	@Override
-	public boolean save(User user) {
+    }
 
-		users.put(user.getUserId(), user);
+    @PostConstruct
+    public void initData() {
+        log.info("init data: [{}]", this);
+        users.put("666", new User(1, "杨海健", 20, "666", "666", "男", new Date()));
+        users.put("6666", new User(2, "杨海健1", 20, "6666", "6666", "男", new Date()));
+        users.put("66666", new User(3, "杨海健2", 20, "66666", "66666", "男", new Date()));
+        users.put("666666", new User(4, "杨海健3", 20, "666666", "666666", "男", new Date()));
+    }
 
-		return true;
-	}
+    @Override
+    public boolean save(User user) {
 
-	@PreDestroy
-	public void exit() {
-		log.info("destory: [{}]", this);
-		users = null;
-	}
+        users.put(user.getUserId(), user);
 
-	@Override
-	public User login(User user) {
-		if (user == null) {
-			return null;
-		}
-		User user_ = users.get(user.getUserId());
+        return true;
+    }
 
-		if (user_ == null) {
-			return null;
-		}
-		if (!user_.getPasswd().equals(user.getPasswd())) {
-			return null;
-		}
-		return user_;
-	}
+    @PreDestroy
+    public void exit() {
+        log.info("destory: [{}]", this);
+        users = null;
+    }
 
-	@Override
-	public void setBeanName(String name) {
-		log.info("[{}] named: [{}]", this, name);
-	}
+    @Override
+    public User login(User user) {
+        if (user == null) {
+            return null;
+        }
+        User user_ = users.get(user.getUserId());
+
+        if (user_ == null) {
+            return null;
+        }
+        if (!user_.getPasswd().equals(user.getPasswd())) {
+            return null;
+        }
+        return user_;
+    }
+
+    @Override
+    public void setBeanName(String name) {
+        log.info("[{}] named: [{}]", this, name);
+    }
 }

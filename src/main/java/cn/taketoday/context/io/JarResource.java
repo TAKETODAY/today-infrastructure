@@ -30,10 +30,10 @@ import java.util.jar.JarOutputStream;
  */
 public interface JarResource extends WritableResource {
 
-	@Override
-	JarOutputStream getOutputStream() throws IOException;
+    @Override
+    JarOutputStream getOutputStream() throws IOException;
 
-	default JarFile getJarFile() throws IOException {
-		return new JarFile(getFile());
-	}
+    default JarFile getJarFile() throws IOException {
+        return new JarFile(getFile());
+    }
 }

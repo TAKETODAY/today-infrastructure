@@ -24,16 +24,16 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Today <br>
- * 	
- *		2019-01-22 19:41
+ * 
+ *         2019-01-22 19:41
  */
 @Slf4j
 @Singleton
-public class Implements3 implements Interface{
+public class Implements3 implements Interface {
 
-	@Override
-	public void test() {
-		log.debug("Implements3");
-	}
+    @Override
+    public void test() {
+        log.debug("Implements3");
+    }
 
 }

@@ -31,10 +31,10 @@ import cn.taketoday.context.env.Environment;
  */
 public interface EnvironmentAware extends Aware {
 
-	/**
-	 * 
-	 * @param environment
-	 */
-	void setEnvironment(Environment environment);
+    /**
+     * 
+     * @param environment
+     */
+    void setEnvironment(Environment environment);
 
 }

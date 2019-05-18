@@ -42,135 +42,135 @@ import cn.taketoday.context.utils.ResourceUtils;
  */
 public class JarEntryResource extends UrlBasedResource implements JarResource {
 
-	private final String name;
-	private final File jarFile;
+    private final String name;
+    private final File jarFile;
 
-	public JarEntryResource(URL url) throws IOException {
-		this(url, new File(getJarFilePath(url.getPath())), getJarEntryName(url.getPath()));
-	}
+    public JarEntryResource(URL url) throws IOException {
+        this(url, new File(getJarFilePath(url.getPath())), getJarEntryName(url.getPath()));
+    }
 
-	public JarEntryResource(String path) throws IOException {
-		this(new URL(getJarUrl(path)), new File(getJarFilePath(path)), getJarEntryName(path));
-	}
+    public JarEntryResource(String path) throws IOException {
+        this(new URL(getJarUrl(path)), new File(getJarFilePath(path)), getJarEntryName(path));
+    }
 
-	public JarEntryResource(URL url, File jarFile, String name) throws IOException {
-		super(url);
-		this.name = name;
-		this.jarFile = jarFile;
-	}
+    public JarEntryResource(URL url, File jarFile, String name) throws IOException {
+        super(url);
+        this.name = name;
+        this.jarFile = jarFile;
+    }
 
-	private static String getJarUrl(String path) {
+    private static String getJarUrl(String path) {
 
-		final StringBuilder url = new StringBuilder(256);
+        final StringBuilder url = new StringBuilder(256);
 
-		if (!path.startsWith(Constant.JAR_ENTRY_URL_PREFIX)) {
-			url.append(Constant.JAR_ENTRY_URL_PREFIX);
-		}
+        if (!path.startsWith(Constant.JAR_ENTRY_URL_PREFIX)) {
+            url.append(Constant.JAR_ENTRY_URL_PREFIX);
+        }
 
-		return url.append(path).toString();
-	}
+        return url.append(path).toString();
+    }
 
-	private static String getJarFilePath(String path) {
+    private static String getJarFilePath(String path) {
 
-		if (path.startsWith("file:/")) {
-			return path.substring(6, path.indexOf(Constant.JAR_SEPARATOR));
-		}
-		// jar:file:/xxxxxx.jar!/x
-		return path.substring(0, path.indexOf(Constant.JAR_SEPARATOR));
-	}
+        if (path.startsWith("file:/")) {
+            return path.substring(6, path.indexOf(Constant.JAR_SEPARATOR));
+        }
+        // jar:file:/xxxxxx.jar!/x
+        return path.substring(0, path.indexOf(Constant.JAR_SEPARATOR));
+    }
 
-	private static String getJarEntryName(String path) {
+    private static String getJarEntryName(String path) {
 
-		if (path.charAt(0) == Constant.PATH_SEPARATOR) {
-			return path.substring(1);
-		}
-		// jar:file:/xxxxxx.jar!/x
-		return path.substring(path.indexOf(Constant.JAR_SEPARATOR) + 2);
-	}
+        if (path.charAt(0) == Constant.PATH_SEPARATOR) {
+            return path.substring(1);
+        }
+        // jar:file:/xxxxxx.jar!/x
+        return path.substring(path.indexOf(Constant.JAR_SEPARATOR) + 2);
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public InputStream getInputStream() throws IOException {
+    @Override
+    public InputStream getInputStream() throws IOException {
 
-		final JarFile jarFile = getJarFile();
+        final JarFile jarFile = getJarFile();
 
-		return new JarEntryInputStream(jarFile.getInputStream(jarFile.getEntry(name)), jarFile);
-	}
+        return new JarEntryInputStream(jarFile.getInputStream(jarFile.getEntry(name)), jarFile);
+    }
 
-	@Override
-	public JarOutputStream getOutputStream() throws IOException {
-		return new JarOutputStream(Files.newOutputStream(getFile().toPath()));
-	}
+    @Override
+    public JarOutputStream getOutputStream() throws IOException {
+        return new JarOutputStream(Files.newOutputStream(getFile().toPath()));
+    }
 
-	@Override
-	public File getFile() {
-		return jarFile;
-	}
+    @Override
+    public File getFile() {
+        return jarFile;
+    }
 
-	@Override
-	public boolean exists() {
-		try (final JarFile jarFile = getJarFile()) {
-			return jarFile.getEntry(name) != null;
-		}
-		catch (IOException e) {
-			return false;
-		}
-	}
+    @Override
+    public boolean exists() {
+        try (final JarFile jarFile = getJarFile()) {
+            return jarFile.getEntry(name) != null;
+        }
+        catch (IOException e) {
+            return false;
+        }
+    }
 
-	@Override
-	public boolean isDirectory() throws IOException {
-		try (final JarFile jarFile = getJarFile()) {
-			return jarFile.getEntry(name).isDirectory();
-		}
-	}
+    @Override
+    public boolean isDirectory() throws IOException {
+        try (final JarFile jarFile = getJarFile()) {
+            return jarFile.getEntry(name).isDirectory();
+        }
+    }
 
-	@Override
-	public String[] list() throws IOException {
-		try (final JarFile jarFile = getJarFile()) {
+    @Override
+    public String[] list() throws IOException {
+        try (final JarFile jarFile = getJarFile()) {
 
-			Set<String> result = new HashSet<>();
-			final Enumeration<JarEntry> entries = jarFile.entries();
-			while (entries.hasMoreElements()) {
-				JarEntry jarEntry = entries.nextElement();
-				final String entryName = jarEntry.getName();
-				if (!entryName.equals(name) && entryName.startsWith(name)) {
-					final String substring = entryName.substring(name.length());
-					final int index = substring.indexOf(Constant.PATH_SEPARATOR);
+            Set<String> result = new HashSet<>();
+            final Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry jarEntry = entries.nextElement();
+                final String entryName = jarEntry.getName();
+                if (!entryName.equals(name) && entryName.startsWith(name)) {
+                    final String substring = entryName.substring(name.length());
+                    final int index = substring.indexOf(Constant.PATH_SEPARATOR);
 
-					if (index > -1) { // is dir
-						result.add(substring.substring(0, index));
-					}
-					else {
-						result.add(substring);
-					}
-				}
-			}
-			return result.toArray(Constant.EMPTY_STRING_ARRAY);
-		}
-	}
+                    if (index > -1) { // is dir
+                        result.add(substring.substring(0, index));
+                    }
+                    else {
+                        result.add(substring);
+                    }
+                }
+            }
+            return result.toArray(Constant.EMPTY_STRING_ARRAY);
+        }
+    }
 
-	@Override
-	public Resource createRelative(String relativePath) throws IOException {
-		return new JarEntryResource(new URL(getLocation(), relativePath), getFile(), ResourceUtils.getRelativePath(name, relativePath));
-	}
+    @Override
+    public Resource createRelative(String relativePath) throws IOException {
+        return new JarEntryResource(new URL(getLocation(), relativePath), getFile(), ResourceUtils.getRelativePath(name, relativePath));
+    }
 
-	private static class JarEntryInputStream extends FilterInputStream {
+    private static class JarEntryInputStream extends FilterInputStream {
 
-		private final JarFile jarFile;
+        private final JarFile jarFile;
 
-		protected JarEntryInputStream(InputStream in, JarFile jarFile) throws IOException {
-			super(in);
-			this.jarFile = jarFile;
-		}
+        protected JarEntryInputStream(InputStream in, JarFile jarFile) throws IOException {
+            super(in);
+            this.jarFile = jarFile;
+        }
 
-		public void close() throws IOException {
-			in.close();
-			jarFile.close();
-		}
-	}
+        public void close() throws IOException {
+            in.close();
+            jarFile.close();
+        }
+    }
 
 }

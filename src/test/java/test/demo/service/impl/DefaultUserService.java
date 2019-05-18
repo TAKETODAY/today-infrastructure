@@ -39,29 +39,29 @@ import test.demo.service.UserService;
 @Service
 public class DefaultUserService implements UserService {
 
-	@Resource
+    @Resource
 //	@Autowired
 //	@Inject
-	private UserRepository userRepository;
+    private UserRepository userRepository;
 
 //	@Autowired
 //	public DefaultUserService(@Autowired(required = true) UserRepository userDao, @Props(prefix = "site.") Config config) {
 //		this.userRepository = userDao;
 //	}
 
-	@Autowired
-	public DefaultUserService(@Props(prefix = "site.") Config config) {
-		log.info("Creating 'UserService'");
-	}
+    @Autowired
+    public DefaultUserService(@Props(prefix = "site.") Config config) {
+        log.info("Creating 'UserService'");
+    }
 
-	@Override
-	public User login(User user) {
-		return userRepository.login(user);
-	}
+    @Override
+    public User login(User user) {
+        return userRepository.login(user);
+    }
 
-	@Override
-	public boolean register(User user) {
-		return userRepository.save(user);
-	}
+    @Override
+    public boolean register(User user) {
+        return userRepository.save(user);
+    }
 
 }

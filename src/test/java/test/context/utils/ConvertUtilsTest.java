@@ -34,32 +34,32 @@ import cn.taketoday.context.utils.ConvertUtils;
  */
 public class ConvertUtilsTest {
 
-	private long start;
+    private long start;
 
-	@Before
-	public void start() {
-		start = System.currentTimeMillis();
-	}
+    @Before
+    public void start() {
+        start = System.currentTimeMillis();
+    }
 
-	@After
-	public void end() {
-		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-	}
+    @After
+    public void end() {
+        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+    }
 
-	@Test
-	public void test_Convert() {
-		Object convert = ConvertUtils.convert("123", Integer.class);
-		assert convert.getClass() == Integer.class;
-		assert convert.equals(123);
+    @Test
+    public void test_Convert() {
+        Object convert = ConvertUtils.convert("123", Integer.class);
+        assert convert.getClass() == Integer.class;
+        assert convert.equals(123);
 
-		Integer[] convertArray = (Integer[]) ConvertUtils.convert("12;456,121", Integer[].class);
+        Integer[] convertArray = (Integer[]) ConvertUtils.convert("12;456,121", Integer[].class);
 
-		System.err.println(Arrays.toString(convertArray));
+        System.err.println(Arrays.toString(convertArray));
 
-		assert convertArray.getClass().isArray();
-		assert convertArray.length == 3;
-		assert convertArray[0] == 12;
+        assert convertArray.getClass().isArray();
+        assert convertArray.length == 3;
+        assert convertArray[0] == 12;
 
-	}
+    }
 
 }

@@ -43,108 +43,108 @@ import lombok.ToString;
 @Singleton
 public class ELFieldTest {
 
-	private static long start;
+    private static long start;
 
-	@BeforeClass
-	public static void start() {
-		start = System.currentTimeMillis();
-	}
+    @BeforeClass
+    public static void start() {
+        start = System.currentTimeMillis();
+    }
 
-	@AfterClass
-	public static void end() {
-		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-	}
+    @AfterClass
+    public static void end() {
+        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+    }
 
-	@Value("#{235.1}")
-	private double testDouble;
+    @Value("#{235.1}")
+    private double testDouble;
 
-	@Value("#{235.1}")
-	private float testFloat;
+    @Value("#{235.1}")
+    private float testFloat;
 
-	@Value(required = false, value = "#{user}")
-	private User user;
-	
-	@Value(value = "${env['site.name']}")
-	private String siteName;
-	
-	@Getter
-	@Setter
-	@ToString
-	static class User {
-		Integer id;
-		String sex;
-		Integer age;
-		String passwd;
-		Date brithday;
-		String userId;
-		String userName;
-	}
+    @Value(required = false, value = "#{user}")
+    private User user;
 
-	@Test
-	public void test_Number() {
+    @Value(value = "${env['site.name']}")
+    private String siteName;
 
-		try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
+    @Getter
+    @Setter
+    @ToString
+    static class User {
+        Integer id;
+        String sex;
+        Integer age;
+        String passwd;
+        Date brithday;
+        String userId;
+        String userName;
+    }
 
-			applicationContext.loadContext("test.context.el");
+    @Test
+    public void test_Number() {
 
-			ELFieldTest bean = applicationContext.getBean(getClass());
-			System.err.println(bean.testFloat);
-			System.err.println(bean.testDouble);
+        try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
 
-			assert bean.testFloat == 235.1f;
-			assert bean.testDouble == 235.1;
-			assert bean.user == user;
-		}
-	}
+            applicationContext.loadContext("test.context.el");
 
-	@Test
-	public void testEnv() {
-		try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
+            ELFieldTest bean = applicationContext.getBean(getClass());
+            System.err.println(bean.testFloat);
+            System.err.println(bean.testDouble);
 
-			ELProcessor processor = new ELProcessor();
-			applicationContext.getEnvironment().setELProcessor(processor);
+            assert bean.testFloat == 235.1f;
+            assert bean.testDouble == 235.1;
+            assert bean.user == user;
+        }
+    }
 
-			processor.getELManager().setELContext(new ValueELContext(applicationContext));
+    @Test
+    public void testEnv() {
+        try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
 
-			User user = new User();
-			user.setAge(20)//
-					.setBrithday(new Date())//
-					.setId(1);
+            ELProcessor processor = new ELProcessor();
+            applicationContext.getEnvironment().setELProcessor(processor);
 
-			processor.defineBean("user", user);
+            processor.getELManager().setELContext(new ValueELContext(applicationContext));
 
-			applicationContext.loadContext("test.context.el");
+            User user = new User();
+            user.setAge(20)//
+                    .setBrithday(new Date())//
+                    .setId(1);
 
-			ELFieldTest bean = applicationContext.getBean(getClass());
-			System.err.println(bean);
-			assert bean.user == user;
-			assert bean.siteName.equals("TODAY BLOG");
-		}
-	}
+            processor.defineBean("user", user);
 
-	@Test
-	public void testDefineBean() {
+            applicationContext.loadContext("test.context.el");
 
-		try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
+            ELFieldTest bean = applicationContext.getBean(getClass());
+            System.err.println(bean);
+            assert bean.user == user;
+            assert bean.siteName.equals("TODAY BLOG");
+        }
+    }
 
-			ELProcessor processor = new ELProcessor();
-			applicationContext.getEnvironment().setELProcessor(processor);
+    @Test
+    public void testDefineBean() {
 
-			processor.getELManager().setELContext(new ValueELContext(applicationContext));
+        try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
 
-			User user = new User();
-			user.setAge(20)//
-					.setBrithday(new Date())//
-					.setId(1);
+            ELProcessor processor = new ELProcessor();
+            applicationContext.getEnvironment().setELProcessor(processor);
 
-			processor.defineBean("user", user);
+            processor.getELManager().setELContext(new ValueELContext(applicationContext));
 
-			applicationContext.loadContext("test.context.el");
+            User user = new User();
+            user.setAge(20)//
+                    .setBrithday(new Date())//
+                    .setId(1);
 
-			ELFieldTest bean = applicationContext.getBean(getClass());
-			System.err.println(bean);
-			assert bean.user == user;
-		}
-	}
+            processor.defineBean("user", user);
+
+            applicationContext.loadContext("test.context.el");
+
+            ELFieldTest bean = applicationContext.getBean(getClass());
+            System.err.println(bean);
+            assert bean.user == user;
+        }
+    }
 
 }

@@ -39,18 +39,18 @@ import cn.taketoday.context.Scope;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Component {
 
-	/**
-	 * @return bean name
-	 */
-	String[] value() default {};
+    /**
+     * @return bean name
+     */
+    String[] value() default {};
 
-	/**
-	 * @return bean's scope
-	 */
-	Scope scope() default Scope.SINGLETON;
+    /**
+     * @return bean's scope
+     */
+    Scope scope() default Scope.SINGLETON;
 
-	String[] initMethods() default {};
+    String[] initMethods() default {};
 
-	String[] destroyMethods() default {};
+    String[] destroyMethods() default {};
 
 }

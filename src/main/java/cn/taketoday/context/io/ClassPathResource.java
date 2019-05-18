@@ -35,72 +35,72 @@ import cn.taketoday.context.utils.ResourceUtils;
  */
 public class ClassPathResource implements Resource, WritableResource {
 
-	private final Resource resource;
+    private final Resource resource;
 
-	public ClassPathResource(URL location) throws IOException {
-		this.resource = ResourceUtils.getResource(location);
-	}
+    public ClassPathResource(URL location) throws IOException {
+        this.resource = ResourceUtils.getResource(location);
+    }
 
-	public ClassPathResource(String location) throws IOException {
-		this(Objects.requireNonNull(ClassUtils.getClassLoader().getResource(location), location));
-	}
+    public ClassPathResource(String location) throws IOException {
+        this(Objects.requireNonNull(ClassUtils.getClassLoader().getResource(location), location));
+    }
 
-	@Override
-	public InputStream getInputStream() throws IOException {
-		return resource.getInputStream();
-	}
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return resource.getInputStream();
+    }
 
-	@Override
-	public long contentLength() throws IOException {
-		return resource.contentLength();
-	}
+    @Override
+    public long contentLength() throws IOException {
+        return resource.contentLength();
+    }
 
-	@Override
-	public String getName() {
-		return resource.getName();
-	}
+    @Override
+    public String getName() {
+        return resource.getName();
+    }
 
-	@Override
-	public long lastModified() throws IOException {
-		return resource.lastModified();
-	}
+    @Override
+    public long lastModified() throws IOException {
+        return resource.lastModified();
+    }
 
-	@Override
-	public URL getLocation() throws IOException {
-		return resource.getLocation();
-	}
+    @Override
+    public URL getLocation() throws IOException {
+        return resource.getLocation();
+    }
 
-	@Override
-	public File getFile() throws IOException {
-		return resource.getFile();
-	}
+    @Override
+    public File getFile() throws IOException {
+        return resource.getFile();
+    }
 
-	@Override
-	public boolean exists() {
-		return resource.exists();
-	}
+    @Override
+    public boolean exists() {
+        return resource.exists();
+    }
 
-	@Override
-	public boolean isDirectory() throws IOException {
-		return resource.isDirectory();
-	}
+    @Override
+    public boolean isDirectory() throws IOException {
+        return resource.isDirectory();
+    }
 
-	@Override
-	public String[] list() throws IOException {
-		return resource.list();
-	}
+    @Override
+    public String[] list() throws IOException {
+        return resource.list();
+    }
 
-	@Override
-	public Resource createRelative(String relativePath) throws IOException {
-		return resource.createRelative(relativePath);
-	}
+    @Override
+    public Resource createRelative(String relativePath) throws IOException {
+        return resource.createRelative(relativePath);
+    }
 
-	@Override
-	public OutputStream getOutputStream() throws IOException {
-		if (resource instanceof WritableResource) {
-			return ((WritableResource) resource).getOutputStream();
-		}
-		throw new IOException("Writable operation is not supported");
-	}
+    @Override
+    public OutputStream getOutputStream() throws IOException {
+        if (resource instanceof WritableResource) {
+            return ((WritableResource) resource).getOutputStream();
+        }
+        throw new IOException("Writable operation is not supported");
+    }
 
 }

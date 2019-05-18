@@ -26,28 +26,28 @@ package cn.taketoday.context.factory;
  */
 public interface FactoryBean<T> {
 
-	/**
-	 * get bean instance
-	 * 
-	 * @return bean instance
-	 */
-	T getBean();
+    /**
+     * get bean instance
+     * 
+     * @return bean instance
+     */
+    T getBean();
 
-	/**
-	 * get bean name
-	 * 
-	 * @return bean name
-	 */
-	default String getBeanName() {
-		return null;
-	}
+    /**
+     * get bean name
+     * 
+     * @return bean name
+     */
+    default String getBeanName() {
+        return null;
+    }
 
-	/**
-	 * Get bean class
-	 * 
-	 * @return bean class
-	 * @since 2.1.2
-	 */
-	Class<T> getBeanClass();
+    /**
+     * Get bean class
+     * 
+     * @return bean class
+     * @since 2.1.2
+     */
+    Class<T> getBeanClass();
 
 }

@@ -27,12 +27,12 @@ package cn.taketoday.context.factory;
  */
 public interface InitializingBean {
 
-	/**
-	 * After bean instance properties set.
-	 * 
-	 * @throws Exception
-	 *             in case of errors
-	 */
-	void afterPropertiesSet() throws Exception;
+    /**
+     * After bean instance properties set.
+     * 
+     * @throws Exception
+     *             in case of errors
+     */
+    void afterPropertiesSet() throws Exception;
 
 }

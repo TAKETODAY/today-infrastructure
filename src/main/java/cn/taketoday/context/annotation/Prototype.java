@@ -37,16 +37,16 @@ import cn.taketoday.context.Scope;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Prototype {
 
-	// bean name
-	String[] value() default {};
+    // bean name
+    String[] value() default {};
 
-	/**
-	 * @return
-	 */
-	String[] initMethods() default {};
+    /**
+     * @return
+     */
+    String[] initMethods() default {};
 
-	/**
-	 * @return
-	 */
-	String[] destroyMethods() default {};
+    /**
+     * @return
+     */
+    String[] destroyMethods() default {};
 }

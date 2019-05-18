@@ -35,25 +35,25 @@ import cn.taketoday.context.factory.AbstractBeanFactory;
  */
 public class BeanFactoryResolver extends BeanNameResolver {
 
-	private final AbstractBeanFactory beanFactory;
+    private final AbstractBeanFactory beanFactory;
 
-	public BeanFactoryResolver(AbstractApplicationContext applicationContext) {
-		this.beanFactory = applicationContext.getBeanFactory();
-	}
+    public BeanFactoryResolver(AbstractApplicationContext applicationContext) {
+        this.beanFactory = applicationContext.getBeanFactory();
+    }
 
-	@Override
-	public boolean isReadOnly(String beanName) {
-		return true;
-	}
+    @Override
+    public boolean isReadOnly(String beanName) {
+        return true;
+    }
 
-	@Override
-	public boolean isNameResolved(String beanName) {
-		return beanFactory.containsBeanDefinition(beanName);
-	}
+    @Override
+    public boolean isNameResolved(String beanName) {
+        return beanFactory.containsBeanDefinition(beanName);
+    }
 
-	@Override
-	public Object getBean(String beanName) {
-		return beanFactory.getBean(beanName);
-	}
+    @Override
+    public Object getBean(String beanName) {
+        return beanFactory.getBean(beanName);
+    }
 
 }

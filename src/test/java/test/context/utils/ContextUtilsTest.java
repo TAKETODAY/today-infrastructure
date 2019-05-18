@@ -50,160 +50,160 @@ import lombok.ToString;
  */
 public class ContextUtilsTest {
 
-	private long start;
+    private long start;
 
-	@Before
-	public void start() {
-		start = System.currentTimeMillis();
-	}
+    @Before
+    public void start() {
+        start = System.currentTimeMillis();
+    }
 
-	@After
-	public void end() {
-		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-	}
+    @After
+    public void end() {
+        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+    }
 
-	@Test
-	public void test_FindInProperties() throws ConfigurationException {
+    @Test
+    public void test_FindInProperties() throws ConfigurationException {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
+        try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
 
-			Properties properties = applicationContext.getEnvironment().getProperties();
+            Properties properties = applicationContext.getEnvironment().getProperties();
 
-			properties.setProperty("Name", "#{siteName}");
-			properties.setProperty("siteName", "#{site.name}");
+            properties.setProperty("Name", "#{siteName}");
+            properties.setProperty("siteName", "#{site.name}");
 
-			String name = ContextUtils.resolvePlaceholder(properties, "/#{Name}\\");
-			String findInProperties = ContextUtils.resolvePlaceholder(properties, "/#{site.name}\\");
-			String findInProperties_ = ContextUtils.resolvePlaceholder(properties, "/TODAY BLOG\\");
+            String name = ContextUtils.resolvePlaceholder(properties, "/#{Name}\\");
+            String findInProperties = ContextUtils.resolvePlaceholder(properties, "/#{site.name}\\");
+            String findInProperties_ = ContextUtils.resolvePlaceholder(properties, "/TODAY BLOG\\");
 
-			assert findInProperties.equals(findInProperties_);
-			assert findInProperties.equals(name);
-			assert name.equals(findInProperties_);
+            assert findInProperties.equals(findInProperties_);
+            assert findInProperties.equals(name);
+            assert name.equals(findInProperties_);
 
-			System.err.println(name);
-			System.out.println(findInProperties);
-			System.out.println(findInProperties_);
-		}
-	}
+            System.err.println(name);
+            System.out.println(findInProperties);
+            System.out.println(findInProperties_);
+        }
+    }
 
-	@Test
-	public void test_GetResourceAsStream() throws IOException {
-		InputStream resourceAsStream = ContextUtils.getResourceAsStream("info.properties");
+    @Test
+    public void test_GetResourceAsStream() throws IOException {
+        InputStream resourceAsStream = ContextUtils.getResourceAsStream("info.properties");
 
-		assert resourceAsStream != null;
-	}
+        assert resourceAsStream != null;
+    }
 
-	@Test
-	public void test_GetResourceAsProperties() throws IOException {
-		Properties resourceAsProperties = ContextUtils.getResourceAsProperties("info.properties");
-		assert "TODAY BLOG".equals(resourceAsProperties.getProperty("site.name"));
-	}
+    @Test
+    public void test_GetResourceAsProperties() throws IOException {
+        Properties resourceAsProperties = ContextUtils.getResourceAsProperties("info.properties");
+        assert "TODAY BLOG".equals(resourceAsProperties.getProperty("site.name"));
+    }
 
-	@Test
-	public void test_GetUrlAsStream() throws IOException {
-		URL resource = ClassUtils.getClassLoader().getResource("info.properties");
+    @Test
+    public void test_GetUrlAsStream() throws IOException {
+        URL resource = ClassUtils.getClassLoader().getResource("info.properties");
 
-		InputStream urlAsStream = ContextUtils.getUrlAsStream(resource.getProtocol() + ":" + resource.getPath());
+        InputStream urlAsStream = ContextUtils.getUrlAsStream(resource.getProtocol() + ":" + resource.getPath());
 
-		assert resource.getProtocol().equals("file");
-		assert urlAsStream != null;
-	}
+        assert resource.getProtocol().equals("file");
+        assert urlAsStream != null;
+    }
 
-	@Test
-	public void test_GetUrlAsProperties() throws IOException {
-		URL resource = ClassUtils.getClassLoader().getResource("info.properties");
-		Properties properties = ContextUtils.getUrlAsProperties(resource.getProtocol() + ":" + resource.getPath());
+    @Test
+    public void test_GetUrlAsProperties() throws IOException {
+        URL resource = ClassUtils.getClassLoader().getResource("info.properties");
+        Properties properties = ContextUtils.getUrlAsProperties(resource.getProtocol() + ":" + resource.getPath());
 
-		assert resource.getProtocol().equals("file");
-		assert "TODAY BLOG".equals(properties.getProperty("site.name"));
-	}
+        assert resource.getProtocol().equals("file");
+        assert "TODAY BLOG".equals(properties.getProperty("site.name"));
+    }
 
-	@Props(prefix = "site.")
-	Config test;
+    @Props(prefix = "site.")
+    Config test;
 
-	@Test
-	public void test_ResolveProps() throws NoSuchFieldException, SecurityException, IOException {
+    @Test
+    public void test_ResolveProps() throws NoSuchFieldException, SecurityException, IOException {
 
-		Field declaredField = ContextUtilsTest.class.getDeclaredField("test");
-		Props declaredAnnotation = declaredField.getDeclaredAnnotation(Props.class);
+        Field declaredField = ContextUtilsTest.class.getDeclaredField("test");
+        Props declaredAnnotation = declaredField.getDeclaredAnnotation(Props.class);
 
-		URL resource = ClassUtils.getClassLoader().getResource("info.properties");
-		Properties properties = ContextUtils.getUrlAsProperties(resource.getProtocol() + ":" + resource.getPath());
-		properties.list(System.err);
-		Config resolveProps = ContextUtils.resolveProps(declaredAnnotation.prefix(), Config.class, properties);
+        URL resource = ClassUtils.getClassLoader().getResource("info.properties");
+        Properties properties = ContextUtils.getUrlAsProperties(resource.getProtocol() + ":" + resource.getPath());
+        properties.list(System.err);
+        Config resolveProps = ContextUtils.resolveProps(declaredAnnotation.prefix(), Config.class, properties);
 
-		System.err.println(resolveProps);
+        System.err.println(resolveProps);
 
-		assert "TODAY BLOG".equals(resolveProps.getDescription());
-		assert "https://cdn.taketoday.cn".equals(resolveProps.getCdn());
+        assert "TODAY BLOG".equals(resolveProps.getDescription());
+        assert "https://cdn.taketoday.cn".equals(resolveProps.getCdn());
 
-		assert 21 == resolveProps.getAdmin().getAge();
-		assert "666".equals(resolveProps.getAdmin().getUserId());
-		assert "TODAY".equals(resolveProps.getAdmin().getUserName());
-	}
+        assert 21 == resolveProps.getAdmin().getAge();
+        assert "666".equals(resolveProps.getAdmin().getUserId());
+        assert "TODAY".equals(resolveProps.getAdmin().getUserName());
+    }
 
-	@Test
-	public void test_ResolveParameter() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException {
+    @Test
+    public void test_ResolveParameter() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.utils")) {
+        try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.utils")) {
 
-			Constructor<Config> constructor = Config.class.getConstructor(UserModel.class, Properties.class);
-			Object[] resolveParameter = ContextUtils.resolveParameter(constructor, applicationContext);
+            Constructor<Config> constructor = Config.class.getConstructor(UserModel.class, Properties.class);
+            Object[] resolveParameter = ContextUtils.resolveParameter(constructor, applicationContext);
 
-			Config newInstance = constructor.newInstance(resolveParameter);
-			System.err.println(newInstance);
+            Config newInstance = constructor.newInstance(resolveParameter);
+            System.err.println(newInstance);
 
-			assert resolveParameter.length == 2;
+            assert resolveParameter.length == 2;
 
-			assert resolveParameter[0] instanceof UserModel;
+            assert resolveParameter[0] instanceof UserModel;
 
-			UserModel userModel = (UserModel) resolveParameter[0];
-			assert userModel.getAge() == 21;
-			assert userModel.getUserId().equals("666");
-			assert userModel.getUserName().equals("TODAY");
+            UserModel userModel = (UserModel) resolveParameter[0];
+            assert userModel.getAge() == 21;
+            assert userModel.getUserId().equals("666");
+            assert userModel.getUserName().equals("TODAY");
 
-			assert resolveParameter[1] instanceof Properties;
+            assert resolveParameter[1] instanceof Properties;
 
-		}
-	}
+        }
+    }
 
-	@Getter
-	@Setter
-	@ToString
-	@NoArgsConstructor
-	public static class Config {
+    @Getter
+    @Setter
+    @ToString
+    @NoArgsConstructor
+    public static class Config {
 
-		private String cdn;
-		private String icp;
-		private String host;
-		private File index;
-		private File upload;
-		private String keywords;
-		private String siteName;
-		private String copyright;
-		private File serverPath;
-		private String description;
+        private String cdn;
+        private String icp;
+        private String host;
+        private File index;
+        private File upload;
+        private String keywords;
+        private String siteName;
+        private String copyright;
+        private File serverPath;
+        private String description;
 
-		@Props
-		UserModel admin;
+        @Props
+        UserModel admin;
 
-		public Config(@Props(prefix = "site.admin.") UserModel model, @Props(prefix = "site.") Properties properties) {
-			System.err.println("model -> " + model);
-			properties.list(System.err);
-			System.err.println(properties.getClass());
-		}
-	}
+        public Config(@Props(prefix = "site.admin.") UserModel model, @Props(prefix = "site.") Properties properties) {
+            System.err.println("model -> " + model);
+            properties.list(System.err);
+            System.err.println(properties.getClass());
+        }
+    }
 
-	@Getter
-	@Setter
-	@ToString
-	@NoArgsConstructor
-	public static class UserModel {
+    @Getter
+    @Setter
+    @ToString
+    @NoArgsConstructor
+    public static class UserModel {
 
-		private String userId;
-		private String userName;
-		private Integer age;
-	}
+        private String userId;
+        private String userName;
+        private Integer age;
+    }
 
 }

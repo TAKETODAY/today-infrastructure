@@ -38,6 +38,6 @@ import cn.taketoday.context.Scope;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Repository {
 
-	// bean name
-	String[] value() default {};
+    // bean name
+    String[] value() default {};
 }

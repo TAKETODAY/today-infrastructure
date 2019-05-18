@@ -29,14 +29,14 @@ import java.util.EventObject;
 @SuppressWarnings("serial")
 public abstract class ApplicationEvent extends EventObject {
 
-	private final long timestamp;
+    private final long timestamp;
 
-	public ApplicationEvent(Object source) {
-		super(source);
-		this.timestamp = System.currentTimeMillis();
-	}
+    public ApplicationEvent(Object source) {
+        super(source);
+        this.timestamp = System.currentTimeMillis();
+    }
 
-	public final long getTimestamp() {
-		return this.timestamp;
-	}
+    public final long getTimestamp() {
+        return this.timestamp;
+    }
 }

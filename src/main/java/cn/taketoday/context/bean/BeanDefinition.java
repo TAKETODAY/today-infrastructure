@@ -35,98 +35,98 @@ import cn.taketoday.context.factory.FactoryBean;
  */
 public interface BeanDefinition {
 
-	/**
-	 * Get a property
-	 * 
-	 * @param name
-	 *            the name of property
-	 * @return
-	 * @throws NoSuchPropertyException
-	 */
-	PropertyValue getPropertyValue(String name) throws NoSuchPropertyException;
+    /**
+     * Get a property
+     * 
+     * @param name
+     *            the name of property
+     * @return
+     * @throws NoSuchPropertyException
+     */
+    PropertyValue getPropertyValue(String name) throws NoSuchPropertyException;
 
-	public boolean isSingleton();
+    public boolean isSingleton();
 
-	Class<?> getBeanClass();
-	
-	/**
-	 * Get init methods
-	 * 
-	 * @return get all the init methods
-	 */
-	Method[] getInitMethods();
+    Class<?> getBeanClass();
 
-	/**
-	 * @return all the destroy methods name
-	 */
-	String[] getDestroyMethods();
+    /**
+     * Get init methods
+     * 
+     * @return get all the init methods
+     */
+    Method[] getInitMethods();
 
-	/**
-	 * @return Bean {@link Scope}
-	 */
-	Scope getScope();
+    /**
+     * @return all the destroy methods name
+     */
+    String[] getDestroyMethods();
 
-	/**
-	 * Get bean name
-	 * 
-	 * @return bean name
-	 */
-	String getName();
+    /**
+     * @return Bean {@link Scope}
+     */
+    Scope getScope();
 
-	/**
-	 * if bean is a {@link FactoryBean}
-	 * 
-	 * @return if is a {@link FactoryBean}
-	 */
-	boolean isFactoryBean();
+    /**
+     * Get bean name
+     * 
+     * @return bean name
+     */
+    String getName();
 
-	/**
-	 * if a {@link Singleton} has initialized
-	 * 
-	 * @return if its initialized
-	 */
-	boolean isInitialized();
+    /**
+     * if bean is a {@link FactoryBean}
+     * 
+     * @return if is a {@link FactoryBean}
+     */
+    boolean isFactoryBean();
 
-	/**
-	 * if it is from abstract class
-	 * 
-	 * @return if it is from abstract class
-	 */
-	boolean isAbstract();
+    /**
+     * if a {@link Singleton} has initialized
+     * 
+     * @return if its initialized
+     */
+    boolean isInitialized();
 
-	/**
-	 * Get all the {@link PropertyValue}s
-	 * 
-	 * @return all {@link PropertyValue}
-	 */
-	PropertyValue[] getPropertyValues();
+    /**
+     * if it is from abstract class
+     * 
+     * @return if it is from abstract class
+     */
+    boolean isAbstract();
 
-	// ----------------- Configurable
-	/**
-	 * Add PropertyValue to list.
-	 * 
-	 * @param propertyValue
-	 */
-	void addPropertyValue(PropertyValue... propertyValues_);
+    /**
+     * Get all the {@link PropertyValue}s
+     * 
+     * @return all {@link PropertyValue}
+     */
+    PropertyValue[] getPropertyValues();
 
-	void addPropertyValue(Collection<PropertyValue> propertyValues);
+    // ----------------- Configurable
+    /**
+     * Add PropertyValue to list.
+     * 
+     * @param propertyValue
+     */
+    void addPropertyValue(PropertyValue... propertyValues_);
 
-	BeanDefinition setInitialized(boolean initialized);
+    void addPropertyValue(Collection<PropertyValue> propertyValues);
 
-	BeanDefinition setAbstract(boolean Abstract);
+    BeanDefinition setInitialized(boolean initialized);
 
-	BeanDefinition setName(String name);
+    BeanDefinition setAbstract(boolean Abstract);
 
-	BeanDefinition setScope(Scope scope);
+    BeanDefinition setName(String name);
 
-	BeanDefinition setBeanClass(Class<?> beanClass);
+    BeanDefinition setScope(Scope scope);
 
-	BeanDefinition setInitMethods(Method[] initMethods);
+    BeanDefinition setBeanClass(Class<?> beanClass);
 
-	BeanDefinition setDestroyMethods(String[] destroyMethods);
+    BeanDefinition setInitMethods(Method[] initMethods);
 
-	BeanDefinition setPropertyValues(PropertyValue[] propertyValues);
+    BeanDefinition setDestroyMethods(String[] destroyMethods);
 
-	BeanDefinition setFactoryBean(boolean factoryBean);
+    BeanDefinition setPropertyValues(PropertyValue[] propertyValues);
+
+    BeanDefinition setFactoryBean(boolean factoryBean);
 
 }

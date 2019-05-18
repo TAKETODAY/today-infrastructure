@@ -34,16 +34,16 @@ import lombok.extern.slf4j.Slf4j;
 //@Singleton
 public class BeanPostProcessorBean implements BeanPostProcessor {
 
-	@Override
-	public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) {
-		log.debug("BeanPostProcessorBean Before named :[{}]", beanDefinition.getName());
-		return bean;
-	}
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) {
+        log.debug("BeanPostProcessorBean Before named :[{}]", beanDefinition.getName());
+        return bean;
+    }
 
-	@Override
-	public Object postProcessAfterInitialization(Object bean, String beanName) {
-		log.debug("BeanPostProcessorBean After named :[{}]", beanName);
-		return bean;
-	}
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) {
+        log.debug("BeanPostProcessorBean After named :[{}]", beanName);
+        return bean;
+    }
 
 }

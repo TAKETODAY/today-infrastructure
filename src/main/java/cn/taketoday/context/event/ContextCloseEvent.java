@@ -31,8 +31,8 @@ import cn.taketoday.context.ApplicationContext;
 @SuppressWarnings("serial")
 public class ContextCloseEvent extends ApplicationContextEvent {
 
-	public ContextCloseEvent(ApplicationContext applicationContext) {
-		super(applicationContext);
-	}
+    public ContextCloseEvent(ApplicationContext applicationContext) {
+        super(applicationContext);
+    }
 
 }

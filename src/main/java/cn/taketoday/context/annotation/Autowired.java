@@ -35,18 +35,18 @@ import cn.taketoday.context.Constant;
 @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR })
 public @interface Autowired {
 
-	/**
-	 * Bean name
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+    /**
+     * Bean name
+     * 
+     * @return
+     */
+    String value() default Constant.BLANK;
 
-	/**
-	 * is required ?
-	 * 
-	 * @return
-	 */
-	boolean required() default true;
+    /**
+     * is required ?
+     * 
+     * @return
+     */
+    boolean required() default true;
 
 }

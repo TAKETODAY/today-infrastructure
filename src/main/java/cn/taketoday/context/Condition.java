@@ -29,11 +29,11 @@ import java.lang.reflect.AnnotatedElement;
 @FunctionalInterface
 public interface Condition {
 
-	/**
-	 * @param applicationContext
-	 * @param annotatedElement
-	 * @return
-	 */
-	boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement);
+    /**
+     * @param applicationContext
+     * @param annotatedElement
+     * @return
+     */
+    boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement);
 
 }

@@ -34,107 +34,107 @@ import cn.taketoday.context.listener.ApplicationEventPublisher;
  */
 public interface ApplicationContext extends ConfigurableBeanFactory, ApplicationEventPublisher, Closeable {
 
-	/**
-	 * Get {@link ConfigurableEnvironment}
-	 * 
-	 * @return {@link ConfigurableEnvironment}
-	 */
-	ConfigurableEnvironment getEnvironment();
+    /**
+     * Get {@link ConfigurableEnvironment}
+     * 
+     * @return {@link ConfigurableEnvironment}
+     */
+    ConfigurableEnvironment getEnvironment();
 
-	/**
-	 * Refresh factory, initialize singleton
-	 * 
-	 * @since 2.0.1
-	 */
-	void refresh();
+    /**
+     * Refresh factory, initialize singleton
+     * 
+     * @since 2.0.1
+     */
+    void refresh();
 
-	/**
-	 * Load Application Context.
-	 * 
-	 * <p>
-	 * First of all, it will load all the properties files in the given path. If you
-	 * use <b>""</b> instead of a exact path like <b>/config</b> ,it will load all
-	 * the properties files in the application.
-	 * </p>
-	 * <p>
-	 * And then locations parameter decided where to load the beans.
-	 * </p>
-	 * <p>
-	 * when all the bean definition stores in the {@link BeanDefinitionRegistry}.
-	 * then resolve dependency
-	 * </p>
-	 * <p>
-	 * Then It will find all the bean post processor,and initialize it. Last refresh
-	 * context.
-	 * </p>
-	 * 
-	 * @param locations
-	 *            packages to scan
-	 */
-	void loadContext(String... locations);
+    /**
+     * Load Application Context.
+     * 
+     * <p>
+     * First of all, it will load all the properties files in the given path. If you
+     * use <b>""</b> instead of a exact path like <b>/config</b> ,it will load all
+     * the properties files in the application.
+     * </p>
+     * <p>
+     * And then locations parameter decided where to load the beans.
+     * </p>
+     * <p>
+     * when all the bean definition stores in the {@link BeanDefinitionRegistry}.
+     * then resolve dependency
+     * </p>
+     * <p>
+     * Then It will find all the bean post processor,and initialize it. Last refresh
+     * context.
+     * </p>
+     * 
+     * @param locations
+     *            packages to scan
+     */
+    void loadContext(String... locations);
 
-	/**
-	 * load context from given classes
-	 * 
-	 * @param classes
-	 *            class set
-	 * @since 2.1.2
-	 */
-	void loadContext(Collection<Class<?>> classes);
+    /**
+     * load context from given classes
+     * 
+     * @param classes
+     *            class set
+     * @since 2.1.2
+     */
+    void loadContext(Collection<Class<?>> classes);
 
-	/**
-	 * Close context and destroy all singletons
-	 */
-	@Override
-	void close();
+    /**
+     * Close context and destroy all singletons
+     */
+    @Override
+    void close();
 
-	/**
-	 * Context has started
-	 * 
-	 * @return is started
-	 */
-	boolean hasStarted();
+    /**
+     * Context has started
+     * 
+     * @return is started
+     */
+    boolean hasStarted();
 
-	/**
-	 * Get the context startup time stamp
-	 * 
-	 * @return startup timestamp
-	 */
-	long getStartupDate();
+    /**
+     * Get the context startup time stamp
+     * 
+     * @return startup timestamp
+     */
+    long getStartupDate();
 
-	/**
-	 * Get context's state
-	 * 
-	 * @return context's state
-	 * @since 2.1.5
-	 */
-	State getState();
+    /**
+     * Get context's state
+     * 
+     * @return context's state
+     * @since 2.1.5
+     */
+    State getState();
 
-	public enum State {
-		/**
-		 * context instantiated
-		 */
-		NONE,
-		/**
-		 * context is loading
-		 */
-		STARTING,
-		/**
-		 * context is started
-		 */
-		STARTED,
-		/**
-		 * context failed to start
-		 */
-		FAILED,
-		/**
-		 * context is closing
-		 */
-		CLOSING,
-		/**
-		 * context is closed
-		 */
-		CLOSED;
-	}
+    public enum State {
+        /**
+         * context instantiated
+         */
+        NONE,
+        /**
+         * context is loading
+         */
+        STARTING,
+        /**
+         * context is started
+         */
+        STARTED,
+        /**
+         * context failed to start
+         */
+        FAILED,
+        /**
+         * context is closing
+         */
+        CLOSING,
+        /**
+         * context is closed
+         */
+        CLOSED;
+    }
 
 }

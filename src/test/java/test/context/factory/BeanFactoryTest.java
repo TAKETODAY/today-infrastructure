@@ -38,138 +38,138 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BeanFactoryTest extends BaseTest {
 
-	@Test
-	public void test_GetBeanWithType() throws NoSuchBeanDefinitionException {
+    @Test
+    public void test_GetBeanWithType() throws NoSuchBeanDefinitionException {
 
-		setProcess("Get bean by given type");
+        setProcess("Get bean by given type");
 
-		ConfigurableBeanFactory beanFactory = getBeanFactory();
+        ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-		Object bean = beanFactory.getBean(Interface.class);
+        Object bean = beanFactory.getBean(Interface.class);
 
-		Object implements1 = beanFactory.getBean(Implements1.class);
-		Object implements2 = beanFactory.getBean(Implements2.class);
-		Object implements3 = beanFactory.getBean(Implements3.class);
+        Object implements1 = beanFactory.getBean(Implements1.class);
+        Object implements2 = beanFactory.getBean(Implements2.class);
+        Object implements3 = beanFactory.getBean(Implements3.class);
 
-		assert bean != null;
-		assert implements1 != null;
-		assert implements2 != null;
-		assert implements3 != null;
-	}
+        assert bean != null;
+        assert implements1 != null;
+        assert implements2 != null;
+        assert implements3 != null;
+    }
 
-	@Test
-	public void test_GetBeanWithName() throws NoSuchBeanDefinitionException {
+    @Test
+    public void test_GetBeanWithName() throws NoSuchBeanDefinitionException {
 
-		setProcess("Get bean by given bean name");
+        setProcess("Get bean by given bean name");
 
-		ConfigurableBeanFactory beanFactory = getBeanFactory();
+        ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-		BeanNameCreator beanNameCreator = getApplicationContext().getEnvironment().getBeanNameCreator();
-		Object bean = beanFactory.getBean(beanNameCreator.create(Interface.class));
+        BeanNameCreator beanNameCreator = getApplicationContext().getEnvironment().getBeanNameCreator();
+        Object bean = beanFactory.getBean(beanNameCreator.create(Interface.class));
 
-		Object implements1 = beanFactory.getBean(beanNameCreator.create(Implements1.class));
-		Object implements2 = beanFactory.getBean(beanNameCreator.create(Implements2.class));
-		Object implements3 = beanFactory.getBean(beanNameCreator.create(Implements3.class));
+        Object implements1 = beanFactory.getBean(beanNameCreator.create(Implements1.class));
+        Object implements2 = beanFactory.getBean(beanNameCreator.create(Implements2.class));
+        Object implements3 = beanFactory.getBean(beanNameCreator.create(Implements3.class));
 
-		assert bean == null; // there isn't a bean named Interface
+        assert bean == null; // there isn't a bean named Interface
 
-		assert implements1 != null;
-		assert implements2 != null;
-		assert implements3 != null;
-	}
+        assert implements1 != null;
+        assert implements2 != null;
+        assert implements3 != null;
+    }
 
-	@Test
-	public void test_GetBeans() throws NoSuchBeanDefinitionException {
+    @Test
+    public void test_GetBeans() throws NoSuchBeanDefinitionException {
 
-		setProcess("Get beans by given type");
+        setProcess("Get beans by given type");
 
-		ConfigurableBeanFactory beanFactory = getBeanFactory();
+        ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-		List<Interface> beans = beanFactory.getBeans(Interface.class);
+        List<Interface> beans = beanFactory.getBeans(Interface.class);
 
-		log.debug("beans: {}", beans);
+        log.debug("beans: {}", beans);
 
-		assert beans.size() == 3;
-		assert beans.contains(beanFactory.getBean(Interface.class));
-		assert beans.contains(beanFactory.getBean(Implements1.class));
-		assert beans.contains(beanFactory.getBean(Implements2.class));
-		assert beans.contains(beanFactory.getBean(Implements3.class));
-	}
+        assert beans.size() == 3;
+        assert beans.contains(beanFactory.getBean(Interface.class));
+        assert beans.contains(beanFactory.getBean(Implements1.class));
+        assert beans.contains(beanFactory.getBean(Implements2.class));
+        assert beans.contains(beanFactory.getBean(Implements3.class));
+    }
 
-	@Test
-	public void test_GetAnnotatedBeans() throws NoSuchBeanDefinitionException {
+    @Test
+    public void test_GetAnnotatedBeans() throws NoSuchBeanDefinitionException {
 
-		setProcess("Get Annotated Beans");
+        setProcess("Get Annotated Beans");
 
-		ConfigurableBeanFactory beanFactory = getBeanFactory();
+        ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-		List<Object> annotatedBeans = beanFactory.getAnnotatedBeans(Singleton.class);
-		log.debug("beans: {}", annotatedBeans);
-		assert annotatedBeans.size() == 7;
-	}
+        List<Object> annotatedBeans = beanFactory.getAnnotatedBeans(Singleton.class);
+        log.debug("beans: {}", annotatedBeans);
+        assert annotatedBeans.size() == 7;
+    }
 
-	@Test
-	public void test_GetType() throws NoSuchBeanDefinitionException {
-		setProcess("Get bean's type");
-		ConfigurableBeanFactory beanFactory = getBeanFactory();
-		BeanNameCreator beanNameCreator = getApplicationContext().getEnvironment().getBeanNameCreator();
-		Class<?> type = beanFactory.getType(beanNameCreator.create(Implements1.class));
-		log.debug("type: {}", type);
-		assert Implements1.class == type;
-	}
+    @Test
+    public void test_GetType() throws NoSuchBeanDefinitionException {
+        setProcess("Get bean's type");
+        ConfigurableBeanFactory beanFactory = getBeanFactory();
+        BeanNameCreator beanNameCreator = getApplicationContext().getEnvironment().getBeanNameCreator();
+        Class<?> type = beanFactory.getType(beanNameCreator.create(Implements1.class));
+        log.debug("type: {}", type);
+        assert Implements1.class == type;
+    }
 
-	@Test
-	public void test_GetAliases() throws NoSuchBeanDefinitionException {
+    @Test
+    public void test_GetAliases() throws NoSuchBeanDefinitionException {
 
-		setProcess("Get bean's aliases by given type");
+        setProcess("Get bean's aliases by given type");
 
-		ConfigurableBeanFactory beanFactory = getBeanFactory();
-		Set<String> aliases = beanFactory.getAliases(Interface.class);
+        ConfigurableBeanFactory beanFactory = getBeanFactory();
+        Set<String> aliases = beanFactory.getAliases(Interface.class);
 
-		log.debug("Aliases: {}", aliases);
-		assert aliases.size() == 3;
-	}
+        log.debug("Aliases: {}", aliases);
+        assert aliases.size() == 3;
+    }
 
-	@Test
-	public void test_GetBeanName() throws NoSuchBeanDefinitionException {
+    @Test
+    public void test_GetBeanName() throws NoSuchBeanDefinitionException {
 
-		setProcess("Get bean name by given type");
+        setProcess("Get bean name by given type");
 
-		ConfigurableBeanFactory beanFactory = getBeanFactory();
+        ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-		BeanNameCreator beanNameCreator = getApplicationContext().getEnvironment().getBeanNameCreator();
+        BeanNameCreator beanNameCreator = getApplicationContext().getEnvironment().getBeanNameCreator();
 
-		String name = beanFactory.getBeanName(Implements1.class);
-		String beanName = beanFactory.getBeanName(Interface.class);
+        String name = beanFactory.getBeanName(Implements1.class);
+        String beanName = beanFactory.getBeanName(Interface.class);
 
-		assert beanName == null;
-		assert beanNameCreator.create(Implements1.class).equals(name);
-	}
+        assert beanName == null;
+        assert beanNameCreator.create(Implements1.class).equals(name);
+    }
 
-	@Test
-	public void test_IsPrototype() throws NoSuchBeanDefinitionException {
+    @Test
+    public void test_IsPrototype() throws NoSuchBeanDefinitionException {
 
-		setProcess("Whether bean is a prototype");
+        setProcess("Whether bean is a prototype");
 
-		ConfigurableBeanFactory beanFactory = getBeanFactory();
+        ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-		assert beanFactory.isPrototype("FactoryBean-Config");
-	}
+        assert beanFactory.isPrototype("FactoryBean-Config");
+    }
 
-	@Test
-	public void test_IsSingleton() throws NoSuchBeanDefinitionException {
+    @Test
+    public void test_IsSingleton() throws NoSuchBeanDefinitionException {
 
-		setProcess("Whether bean is a singleton");
+        setProcess("Whether bean is a singleton");
 
-		ConfigurableBeanFactory beanFactory = getBeanFactory();
+        ConfigurableBeanFactory beanFactory = getBeanFactory();
 
-		BeanNameCreator beanNameCreator = //
-				getApplicationContext()//
-						.getEnvironment()//
-						.getBeanNameCreator();
+        BeanNameCreator beanNameCreator = //
+                getApplicationContext()//
+                        .getEnvironment()//
+                        .getBeanNameCreator();
 
-		assert beanFactory.isSingleton(beanNameCreator.create(Implements1.class));
+        assert beanFactory.isSingleton(beanNameCreator.create(Implements1.class));
 
-	}
+    }
 
 }

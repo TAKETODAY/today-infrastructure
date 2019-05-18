@@ -31,12 +31,12 @@ import cn.taketoday.context.Condition;
  */
 public class WindowsCondition implements Condition {
 
-	@Override
-	public boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement) {
-		String system = applicationContext.getEnvironment().getProperty("os.name");
-		if (system != null && system.contains("Windows")) {
-			return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement) {
+        String system = applicationContext.getEnvironment().getProperty("os.name");
+        if (system != null && system.contains("Windows")) {
+            return true;
+        }
+        return false;
+    }
 }

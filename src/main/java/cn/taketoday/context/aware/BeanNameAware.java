@@ -28,11 +28,11 @@ package cn.taketoday.context.aware;
  */
 public interface BeanNameAware extends Aware {
 
-	/**
-	 * aware bean name.
-	 * 
-	 * @param name
-	 */
-	void setBeanName(String name);
+    /**
+     * aware bean name.
+     * 
+     * @param name
+     */
+    void setBeanName(String name);
 
 }

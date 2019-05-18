@@ -37,60 +37,60 @@ import cn.taketoday.context.utils.StringUtils;
  */
 public class UrlBasedResource extends AbstractResource {
 
-	/**
-	 * Original URL, used for actual access.
-	 */
-	private final URL url;
+    /**
+     * Original URL, used for actual access.
+     */
+    private final URL url;
 
-	public UrlBasedResource(URL url) {
-		this.url = url;
-	}
+    public UrlBasedResource(URL url) {
+        this.url = url;
+    }
 
-	public UrlBasedResource(URI uri) throws MalformedURLException {
-		this.url = uri.toURL();
-	}
+    public UrlBasedResource(URI uri) throws MalformedURLException {
+        this.url = uri.toURL();
+    }
 
-	public UrlBasedResource(String path) throws MalformedURLException {
-		this.url = new URL(path);
-	}
+    public UrlBasedResource(String path) throws MalformedURLException {
+        this.url = new URL(path);
+    }
 
-	public UrlBasedResource(String protocol, String location) throws URISyntaxException, MalformedURLException {
-		this.url = new URI(protocol, location, null).toURL();
-	}
+    public UrlBasedResource(String protocol, String location) throws URISyntaxException, MalformedURLException {
+        this.url = new URI(protocol, location, null).toURL();
+    }
 
-	@Override
-	public InputStream getInputStream() throws IOException {
-		return this.url.openStream();
-	}
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return this.url.openStream();
+    }
 
-	@Override
-	public URL getLocation() throws IOException {
-		return url;
-	}
+    @Override
+    public URL getLocation() throws IOException {
+        return url;
+    }
 
-	@Override
-	public File getFile() {
-		return new File(url.getPath());
-	}
+    @Override
+    public File getFile() {
+        return new File(url.getPath());
+    }
 
-	@Override
-	public boolean equals(Object other) {
-		return (this == other || (other instanceof UrlBasedResource && this.url.equals(((UrlBasedResource) other).url)));
-	}
+    @Override
+    public boolean equals(Object other) {
+        return (this == other || (other instanceof UrlBasedResource && this.url.equals(((UrlBasedResource) other).url)));
+    }
 
-	@Override
-	public int hashCode() {
-		return this.url.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return this.url.hashCode();
+    }
 
-	@Override
-	public Resource createRelative(String relativePath) throws IOException {
-		if (StringUtils.isEmpty(relativePath)) {
-			return this;
-		}
-		if (relativePath.charAt(0) == Constant.PATH_SEPARATOR) {
-			return new UrlBasedResource(new URL(this.url, relativePath.substring(1)));
-		}
-		return new UrlBasedResource(new URL(this.url, relativePath));
-	}
+    @Override
+    public Resource createRelative(String relativePath) throws IOException {
+        if (StringUtils.isEmpty(relativePath)) {
+            return this;
+        }
+        if (relativePath.charAt(0) == Constant.PATH_SEPARATOR) {
+            return new UrlBasedResource(new URL(this.url, relativePath.substring(1)));
+        }
+        return new UrlBasedResource(new URL(this.url, relativePath));
+    }
 }

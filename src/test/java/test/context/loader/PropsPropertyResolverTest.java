@@ -37,43 +37,43 @@ import cn.taketoday.context.loader.PropsPropertyResolver;
  */
 public class PropsPropertyResolverTest {
 
-	@Props(value = "info", prefix = "site")
-	private Properties properties;
+    @Props(value = "info", prefix = "site")
+    private Properties properties;
 
-	@Props(value = "info", prefix = "site")
-	private String name;
+    @Props(value = "info", prefix = "site")
+    private String name;
 
-	@Test
-	public void test_() throws Throwable {
-		PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
+    @Test
+    public void test_() throws Throwable {
+        PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
 
-		try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
+        try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
 
-			PropertyValue resolveProperty = //
-					propertyResolver.resolveProperty(applicationContext, //
-							PropsPropertyResolverTest.class.getDeclaredField("properties"));
+            PropertyValue resolveProperty = //
+                    propertyResolver.resolveProperty(applicationContext, //
+                            PropsPropertyResolverTest.class.getDeclaredField("properties"));
 
-			assert resolveProperty.getValue() != null;
+            assert resolveProperty.getValue() != null;
 
-			System.out.println("====================");
-			System.out.println(resolveProperty.getValue());
+            System.out.println("====================");
+            System.out.println(resolveProperty.getValue());
 
-		}
-	}
+        }
+    }
 
-	@Test
-	public void test_Error() throws Throwable {
-		PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
+    @Test
+    public void test_Error() throws Throwable {
+        PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
 
-		ApplicationContext applicationContext = new StandardApplicationContext();
+        ApplicationContext applicationContext = new StandardApplicationContext();
 
-		try {
+        try {
 
-			propertyResolver.resolveProperty(applicationContext, PropsPropertyResolverTest.class.getDeclaredField("name"));
-		} finally {
-			applicationContext.close();
-		}
+            propertyResolver.resolveProperty(applicationContext, PropsPropertyResolverTest.class.getDeclaredField("name"));
+        } finally {
+            applicationContext.close();
+        }
 
-	}
+    }
 
 }

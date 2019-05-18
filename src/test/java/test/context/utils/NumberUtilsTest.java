@@ -34,64 +34,62 @@ import cn.taketoday.context.utils.NumberUtils;
  */
 public class NumberUtilsTest {
 
-	private long start;
+    private long start;
 
-	@Before
-	public void start() {
-		start = System.currentTimeMillis();
-	}
+    @Before
+    public void start() {
+        start = System.currentTimeMillis();
+    }
 
-	@After
-	public void end() {
-		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-	}
+    @After
+    public void end() {
+        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+    }
 
-	@Test
-	public void test_ParseArray() throws ConversionException {
-		int[] parseArray = NumberUtils.parseArray(new String[] {
-				"12", "12222", "12121", "56723562"
-		}, int[].class);
+    @Test
+    public void test_ParseArray() throws ConversionException {
+        int[] parseArray = NumberUtils.parseArray(new String[] { "12", "12222", "12121", "56723562"
+        }, int[].class);
 
-		assert parseArray.length == 4;
-		assert parseArray[0] == 12;
-		assert parseArray[3] == 56723562;
+        assert parseArray.length == 4;
+        assert parseArray[0] == 12;
+        assert parseArray[3] == 56723562;
 
-		System.out.println(Arrays.toString(parseArray));
-	}
+        System.out.println(Arrays.toString(parseArray));
+    }
 
-	@Test
-	public void test_IsNumber() throws ConversionException {
-		assert NumberUtils.isNumber(int.class);
-		assert NumberUtils.isNumber(short.class);
-		assert NumberUtils.isNumber(Short.class);
-		assert NumberUtils.isNumber(Integer.class);
-	}
+    @Test
+    public void test_IsNumber() throws ConversionException {
+        assert NumberUtils.isNumber(int.class);
+        assert NumberUtils.isNumber(short.class);
+        assert NumberUtils.isNumber(Short.class);
+        assert NumberUtils.isNumber(Integer.class);
+    }
 
-	@Test
-	public void test_ParseDigit() throws ConversionException {
-		Object parseDigit = NumberUtils.parseDigit("12121", Integer.class);
+    @Test
+    public void test_ParseDigit() throws ConversionException {
+        Object parseDigit = NumberUtils.parseDigit("12121", Integer.class);
 
-		assert parseDigit.equals(12121);
-		assert parseDigit.getClass() == Integer.class;
-	}
+        assert parseDigit.equals(12121);
+        assert parseDigit.getClass() == Integer.class;
+    }
 
-	@Test
-	public void test_ParseNumber() throws ConversionException {
-		Integer parseNumber = NumberUtils.parseNumber("12121", Integer.class);
+    @Test
+    public void test_ParseNumber() throws ConversionException {
+        Integer parseNumber = NumberUtils.parseNumber("12121", Integer.class);
 
-		assert parseNumber.equals(12121);
-		assert parseNumber.getClass() == Integer.class;
-	}
+        assert parseNumber.equals(12121);
+        assert parseNumber.getClass() == Integer.class;
+    }
 
-	@Test
-	public void test_toArrayObject() throws ConversionException {
-		Object arrayObject = NumberUtils.toArrayObject(new String[] {
-				"12121", "121212121"
-		}, Integer[].class);
+    @Test
+    public void test_toArrayObject() throws ConversionException {
+        Object arrayObject = NumberUtils.toArrayObject(new String[] { "12121", "121212121"
+        }, Integer[].class);
 
-		assert arrayObject.getClass().equals(Integer[].class);
+        assert arrayObject.getClass().equals(Integer[].class);
 
-		assert ((Integer[]) arrayObject)[0] == 12121;
-	}
+        assert ((Integer[]) arrayObject)[0] == 12121;
+    }
 
 }

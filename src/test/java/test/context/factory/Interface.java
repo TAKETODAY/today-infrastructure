@@ -25,7 +25,7 @@ package test.context.factory;
  *         2019-01-22 19:34
  */
 public interface Interface {
-	
-	void test();
-	
+
+    void test();
+
 }

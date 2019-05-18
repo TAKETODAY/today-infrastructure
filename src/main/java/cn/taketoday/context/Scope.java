@@ -27,5 +27,5 @@ package cn.taketoday.context;
  */
 public enum Scope {
 
-	SINGLETON, PROTOTYPE;
+    SINGLETON, PROTOTYPE;
 }

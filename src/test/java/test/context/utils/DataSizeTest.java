@@ -29,14 +29,14 @@ import cn.taketoday.context.utils.DataSize;
  */
 public class DataSizeTest {
 
-	@Test
-	public void test_Parse() {
+    @Test
+    public void test_Parse() {
 
-		DataSize parse = DataSize.parse("10MB");
-		DataSize gb = DataSize.parse("1GB");
-		
-		assert gb.equals(DataSize.ofGigabytes(1));
-		assert parse.equals(DataSize.ofMegabytes(10));
-	}
+        DataSize parse = DataSize.parse("10MB");
+        DataSize gb = DataSize.parse("1GB");
+
+        assert gb.equals(DataSize.ofGigabytes(1));
+        assert parse.equals(DataSize.ofMegabytes(10));
+    }
 
 }

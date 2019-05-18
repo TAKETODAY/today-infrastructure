@@ -34,33 +34,33 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PropsBean implements InitializingBean, DisposableBean {
 
-	final Bean bean;
+    final Bean bean;
 
-	@Autowired
-	public PropsBean(@Props(prefix = "site.") Bean bean) {
-		this.bean = bean;
-	}
+    @Autowired
+    public PropsBean(@Props(prefix = "site.") Bean bean) {
+        this.bean = bean;
+    }
 
-	@PostConstruct
-	public void initData() {
-		log.info("@PostConstruct : {}", this);
-	}
+    @PostConstruct
+    public void initData() {
+        log.info("@PostConstruct : {}", this);
+    }
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		log.info("After Property Set: {}", this);
-	}
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        log.info("After Property Set: {}", this);
+    }
 
-	@Override
-	public void destroy() throws Exception {
-		log.info("Destroy: {}", this);
-	}
+    @Override
+    public void destroy() throws Exception {
+        log.info("Destroy: {}", this);
+    }
 
-	public static class Bean {
-		String cdn;
-		String icp;
-		String host;
-		String index;
-	}
+    public static class Bean {
+        String cdn;
+        String icp;
+        String host;
+        String index;
+    }
 
 }

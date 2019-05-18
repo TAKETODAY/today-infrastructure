@@ -31,25 +31,25 @@ import cn.taketoday.context.Constant;
  */
 public class DefaultBeanNameCreator implements BeanNameCreator {
 
-	private final boolean useSimpleName;
+    private final boolean useSimpleName;
 
-	public DefaultBeanNameCreator(ConfigurableEnvironment environment) {
-		final String useSimpleName = environment.getProperty(Constant.KEY_USE_SIMPLE_NAME);
-		if (useSimpleName != null)
-			this.useSimpleName = Boolean.parseBoolean(useSimpleName);
-		else
-			this.useSimpleName = true;
-	}
+    public DefaultBeanNameCreator(ConfigurableEnvironment environment) {
+        final String useSimpleName = environment.getProperty(Constant.KEY_USE_SIMPLE_NAME);
+        if (useSimpleName != null)
+            this.useSimpleName = Boolean.parseBoolean(useSimpleName);
+        else
+            this.useSimpleName = true;
+    }
 
-	@Override
-	public String create(Class<?> beanClass) {
-		if (beanClass == null) {
-			return Constant.DEFAULT;
-		}
-		if (useSimpleName) {
-			final String simpleName = beanClass.getSimpleName();
-			return (simpleName.charAt(0) + "").toLowerCase() + simpleName.substring(1);
-		}
-		return beanClass.getName(); // full name
-	};
+    @Override
+    public String create(Class<?> beanClass) {
+        if (beanClass == null) {
+            return Constant.DEFAULT;
+        }
+        if (useSimpleName) {
+            final String simpleName = beanClass.getSimpleName();
+            return (simpleName.charAt(0) + "").toLowerCase() + simpleName.substring(1);
+        }
+        return beanClass.getName(); // full name
+    };
 }

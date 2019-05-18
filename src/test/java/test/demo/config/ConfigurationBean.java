@@ -38,43 +38,43 @@ import test.context.condition.WindowsCondition;
 @Configuration
 public class ConfigurationBean {
 
-	@PostConstruct
-	public void init() {
-		log.info("ConfigurationBean.init()");
-	}
+    @PostConstruct
+    public void init() {
+        log.info("ConfigurationBean.init()");
+    }
 
-	@Prototype("prototype_user")
-	public User user() {
-		return new User().setId(12);
-	}
+    @Prototype("prototype_user")
+    public User user() {
+        return new User().setId(12);
+    }
 
-	@Singleton("user__")
-	public User user__() {
-		return new User().setId(12);
-	}
+    @Singleton("user__")
+    public User user__() {
+        return new User().setId(12);
+    }
 
-	@Profile("test")
-	@Prototype("user")
-	public User testUser() {
-		return new User().setUserName("TEST");
-	}
+    @Profile("test")
+    @Prototype("user")
+    public User testUser() {
+        return new User().setUserName("TEST");
+    }
 
-	@Profile("prod")
-	@Singleton("user")
-	public User prodUser() {
-		return new User().setUserName("PROD");
-	}
+    @Profile("prod")
+    @Singleton("user")
+    public User prodUser() {
+        return new User().setUserName("PROD");
+    }
 
-	@Singleton("yhj")
-	@Profile("!test")
-	public User yhj() {
-		return new User().setUserName("yhj");
-	}
+    @Singleton("yhj")
+    @Profile("!test")
+    public User yhj() {
+        return new User().setUserName("yhj");
+    }
 
-	@Singleton("user_")
-	@Conditional(WindowsCondition.class)
-	public User windowsUser() {
-		return new User().setUserName("Windows");
-	}
+    @Singleton("user_")
+    @Conditional(WindowsCondition.class)
+    public User windowsUser() {
+        return new User().setUserName("Windows");
+    }
 
 }

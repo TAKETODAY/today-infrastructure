@@ -26,13 +26,13 @@ package cn.taketoday.context;
  */
 public interface Ordered {
 
-	int HIGHEST_PRECEDENCE = Integer.MAX_VALUE / 2;
+    int HIGHEST_PRECEDENCE = Integer.MAX_VALUE / 2;
 
-	int LOWEST_PRECEDENCE = 0;
-	
-	/**
-	 * Get the order value of this object.
-	 */
-	int getOrder();
+    int LOWEST_PRECEDENCE = 0;
+
+    /**
+     * Get the order value of this object.
+     */
+    int getOrder();
 
 }

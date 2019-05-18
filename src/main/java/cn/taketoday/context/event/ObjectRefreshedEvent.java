@@ -35,13 +35,13 @@ import lombok.Getter;
 @SuppressWarnings("serial")
 public class ObjectRefreshedEvent extends ApplicationContextEvent {
 
-	/** which bean definition refreshed **/
-	@Getter
-	private final BeanDefinition beanDefinition;
+    /** which bean definition refreshed **/
+    @Getter
+    private final BeanDefinition beanDefinition;
 
-	public ObjectRefreshedEvent(BeanDefinition beanDefinition, ApplicationContext applicationContext) {
-		super(applicationContext);
-		this.beanDefinition = beanDefinition;
-	}
+    public ObjectRefreshedEvent(BeanDefinition beanDefinition, ApplicationContext applicationContext) {
+        super(applicationContext);
+        this.beanDefinition = beanDefinition;
+    }
 
 }

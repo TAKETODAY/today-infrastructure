@@ -31,29 +31,29 @@ import cn.taketoday.context.StandardApplicationContext;
  */
 public class PropsTest {
 
-	@Test
-	public void test_Props() {
-		try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.props")) {
+    @Test
+    public void test_Props() {
+        try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.props")) {
 
-			Config_ bean = applicationContext.getBean(Config_.class);
-			assert "https://taketoday.cn".equals(bean.getHost());
-		}
-	}
+            Config_ bean = applicationContext.getBean(Config_.class);
+            assert "https://taketoday.cn".equals(bean.getHost());
+        }
+    }
 
-	@Test
-	public void test_PropsOnConstructor() {
+    @Test
+    public void test_PropsOnConstructor() {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+        try (ApplicationContext applicationContext = new StandardApplicationContext()) {
 
-			applicationContext.registerBean("testBean", PropsBean.class);
+            applicationContext.registerBean("testBean", PropsBean.class);
 //			applicationContext.refresh();
 
-			PropsBean bean = applicationContext.getBean(PropsBean.class);
+            PropsBean bean = applicationContext.getBean(PropsBean.class);
 
-			assert bean != null : "@Props function error";
+            assert bean != null : "@Props function error";
 
-			System.err.println(bean);
-		}
-	}
+            System.err.println(bean);
+        }
+    }
 
 }

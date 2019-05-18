@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets;
  */
 public interface Constant extends Serializable {
 
-	//@off
+    //@off
 	/** Bytes per Kilobyte.*/
 	long 	BYTES_PER_KB 			= 1024;
 	/** Bytes per Megabyte. */

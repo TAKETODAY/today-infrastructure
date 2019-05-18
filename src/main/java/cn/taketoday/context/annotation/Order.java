@@ -35,13 +35,13 @@ import cn.taketoday.context.Ordered;
 @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER })
 public @interface Order {
 
-	/**
-	 * The order value.
-	 * <p>
-	 * Default is {@link Ordered#LOWEST_PRECEDENCE}.
-	 * 
-	 * @see Ordered#getOrder()
-	 */
-	int value() default Ordered.LOWEST_PRECEDENCE;
+    /**
+     * The order value.
+     * <p>
+     * Default is {@link Ordered#LOWEST_PRECEDENCE}.
+     * 
+     * @see Ordered#getOrder()
+     */
+    int value() default Ordered.LOWEST_PRECEDENCE;
 
 }

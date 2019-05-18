@@ -34,38 +34,38 @@ import lombok.Getter;
 @AllArgsConstructor
 public class PropertyValue {
 
-	/** property value */
-	private final Object value;
-	/** field info */
-	private final Field field;
+    /** property value */
+    private final Object value;
+    /** field info */
+    private final Field field;
 
-	@Override
-	public int hashCode() {
-		return field.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return field.hashCode();
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj instanceof PropertyValue) {
-			PropertyValue other = ((PropertyValue) obj);
-			if (!other.value.equals(this.value)) {
-				return false;
-			}
-			Field otherField = other.field;
-			return otherField.equals(field);
-		}
-		return false;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof PropertyValue) {
+            PropertyValue other = ((PropertyValue) obj);
+            if (!other.value.equals(this.value)) {
+                return false;
+            }
+            Field otherField = other.field;
+            return otherField.equals(field);
+        }
+        return false;
+    }
 
-	@Override
-	public String toString() {
-		return new StringBuilder()//
-				.append("{\"value\":\"").append(value)//
-				.append("\",\"field\":\"").append(field)//
-				.append("\"}")//
-				.toString();
-	}
+    @Override
+    public String toString() {
+        return new StringBuilder()//
+                .append("{\"value\":\"").append(value)//
+                .append("\",\"field\":\"").append(field)//
+                .append("\"}")//
+                .toString();
+    }
 }

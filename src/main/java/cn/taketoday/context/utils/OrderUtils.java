@@ -33,44 +33,44 @@ import cn.taketoday.context.annotation.Order;
  */
 public abstract class OrderUtils {
 
-	/**
-	 * @param annotated
-	 * @return
-	 */
-	public static final int getOrder(AnnotatedElement annotated) {
-		Order order = annotated.getAnnotation(Order.class);
-		if (order != null) {
-			return order.value();
-		}
-		return Ordered.LOWEST_PRECEDENCE;
-	}
+    /**
+     * @param annotated
+     * @return
+     */
+    public static final int getOrder(AnnotatedElement annotated) {
+        Order order = annotated.getAnnotation(Order.class);
+        if (order != null) {
+            return order.value();
+        }
+        return Ordered.LOWEST_PRECEDENCE;
+    }
 
-	/**
-	 * @param obj
-	 * @return
-	 */
-	public static final int getOrder(Object obj) {
-		if (obj instanceof Ordered) {
-			return ((Ordered) obj).getOrder();
-		}
-		if (obj instanceof AnnotatedElement) {
-			return getOrder((AnnotatedElement) obj);
-		}
-		return getOrder(obj.getClass());
-	}
+    /**
+     * @param obj
+     * @return
+     */
+    public static final int getOrder(Object obj) {
+        if (obj instanceof Ordered) {
+            return ((Ordered) obj).getOrder();
+        }
+        if (obj instanceof AnnotatedElement) {
+            return getOrder((AnnotatedElement) obj);
+        }
+        return getOrder(obj.getClass());
+    }
 
-	/**
-	 * @return
-	 */
-	public static Comparator<Object> getReversedComparator() {
-		return Comparator.comparingInt(OrderUtils::getOrder).reversed();
-	}
+    /**
+     * @return
+     */
+    public static Comparator<Object> getReversedComparator() {
+        return Comparator.comparingInt(OrderUtils::getOrder).reversed();
+    }
 
-	/**
-	 * @param list
-	 */
-	public static <T> void reversedSort(List<T> list) {
-		list.sort(getReversedComparator());
-	}
+    /**
+     * @param list
+     */
+    public static <T> void reversedSort(List<T> list) {
+        list.sort(getReversedComparator());
+    }
 
 }

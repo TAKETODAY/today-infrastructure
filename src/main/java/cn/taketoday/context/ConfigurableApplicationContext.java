@@ -30,28 +30,28 @@ import cn.taketoday.context.factory.ConfigurableBeanFactory;
  */
 public interface ConfigurableApplicationContext extends ApplicationContext {
 
-	/**
-	 * Setting the {@link Environment}
-	 * 
-	 * @param environment
-	 *            {@link Environment} instance
-	 * @since 2.1.0
-	 */
-	void setEnvironment(ConfigurableEnvironment environment);
+    /**
+     * Setting the {@link Environment}
+     * 
+     * @param environment
+     *            {@link Environment} instance
+     * @since 2.1.0
+     */
+    void setEnvironment(ConfigurableEnvironment environment);
 
-	/**
-	 * Get configurable environment
-	 * 
-	 * @since 2.1.0
-	 */
-	@Override
-	ConfigurableEnvironment getEnvironment();
+    /**
+     * Get configurable environment
+     * 
+     * @since 2.1.0
+     */
+    @Override
+    ConfigurableEnvironment getEnvironment();
 
-	/**
-	 * Get AbstractBeanFactory
-	 * 
-	 * @return A bean factory
-	 */
-	ConfigurableBeanFactory getBeanFactory();
+    /**
+     * Get AbstractBeanFactory
+     * 
+     * @return A bean factory
+     */
+    ConfigurableBeanFactory getBeanFactory();
 
 }

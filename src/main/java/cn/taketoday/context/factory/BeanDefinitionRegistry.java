@@ -34,88 +34,88 @@ import cn.taketoday.context.bean.BeanDefinition;
  */
 public interface BeanDefinitionRegistry {
 
-	/**
-	 * 
-	 * @return
-	 */
-	Map<String, BeanDefinition> getBeanDefinitionsMap();
+    /**
+     * 
+     * @return
+     */
+    Map<String, BeanDefinition> getBeanDefinitionsMap();
 
-	/**
-	 * register a bean with the given name and type
-	 * 
-	 * @param beanDefinition
-	 *            bean definition
-	 * @since 1.2.0
-	 */
-	void registerBeanDefinition(String name, BeanDefinition beanDefinition);
+    /**
+     * register a bean with the given name and type
+     * 
+     * @param beanDefinition
+     *            bean definition
+     * @since 1.2.0
+     */
+    void registerBeanDefinition(String name, BeanDefinition beanDefinition);
 
-	/**
-	 * Remove the BeanDefinition for the given name.
-	 * 
-	 * @param beanName
-	 *            the name of the bean instance to register
-	 */
-	void removeBeanDefinition(String beanName);
+    /**
+     * Remove the BeanDefinition for the given name.
+     * 
+     * @param beanName
+     *            the name of the bean instance to register
+     */
+    void removeBeanDefinition(String beanName);
 
-	/**
-	 * Return the BeanDefinition for the given bean name. Return the BeanDefinition
-	 * for the given bean name.
-	 * 
-	 * @param beanName
-	 *            name of the bean to find a definition for
-	 * @return the BeanDefinition for the given name (never {@code null})
-	 */
-	BeanDefinition getBeanDefinition(String beanName);
+    /**
+     * Return the BeanDefinition for the given bean name. Return the BeanDefinition
+     * for the given bean name.
+     * 
+     * @param beanName
+     *            name of the bean to find a definition for
+     * @return the BeanDefinition for the given name (never {@code null})
+     */
+    BeanDefinition getBeanDefinition(String beanName);
 
-	/**
-	 * Return the BeanDefinition for the given bean class.
-	 * 
-	 * @param beanClass
-	 *            bean definition bean class
-	 */
-	BeanDefinition getBeanDefinition(Class<?> beanClass);
+    /**
+     * Return the BeanDefinition for the given bean class.
+     * 
+     * @param beanClass
+     *            bean definition bean class
+     */
+    BeanDefinition getBeanDefinition(Class<?> beanClass);
 
-	/**
-	 * Check if this registry contains a bean definition with the given name.
-	 * 
-	 * @param beanName
-	 *            the name of the bean to look for
-	 * @return if this registry contains a bean definition with the given name
-	 */
-	boolean containsBeanDefinition(String beanName);
+    /**
+     * Check if this registry contains a bean definition with the given name.
+     * 
+     * @param beanName
+     *            the name of the bean to look for
+     * @return if this registry contains a bean definition with the given name
+     */
+    boolean containsBeanDefinition(String beanName);
 
-	/**
-	 * Whether there is a bean with the given type.
-	 * 
-	 * @param type
-	 *            bean type
-	 * @return if exist a bean with given type
-	 */
-	boolean containsBeanDefinition(Class<?> type);
+    /**
+     * Whether there is a bean with the given type.
+     * 
+     * @param type
+     *            bean type
+     * @return if exist a bean with given type
+     */
+    boolean containsBeanDefinition(Class<?> type);
 
-	/**
-	 * Whether there is a bean with the given type.
-	 * 
-	 * @param type
-	 * @param equals
-	 *            must equals type
-	 * @return
-	 */
-	boolean containsBeanDefinition(Class<?> type, boolean equals);
+    /**
+     * Whether there is a bean with the given type.
+     * 
+     * @param type
+     * @param equals
+     *            must equals type
+     * @return
+     */
+    boolean containsBeanDefinition(Class<?> type, boolean equals);
 
-	/**
-	 * Return the names of all beans defined in this registry.
-	 * 
-	 * @return the names of all beans defined in this registry, or an empty set if
-	 *         none defined
-	 */
-	Set<String> getBeanDefinitionNames();
+    /**
+     * Return the names of all beans defined in this registry.
+     * 
+     * @return the names of all beans defined in this registry, or an empty set if
+     *         none defined
+     */
+    Set<String> getBeanDefinitionNames();
 
-	/**
-	 * Return the number of beans defined in the registry.
-	 * 
-	 * @return the number of beans defined in the registry
-	 */
-	int getBeanDefinitionCount();
+    /**
+     * Return the number of beans defined in the registry.
+     * 
+     * @return the number of beans defined in the registry
+     */
+    int getBeanDefinitionCount();
 
 }

@@ -37,17 +37,17 @@ import cn.taketoday.context.Constant;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Value {
 
-	/**
-	 * {@link Properties} key
-	 * 
-	 * @return
-	 */
-	String value() default Constant.BLANK;
+    /**
+     * {@link Properties} key
+     * 
+     * @return
+     */
+    String value() default Constant.BLANK;
 
-	/**
-	 * is required ?
-	 * 
-	 * @return
-	 */
-	boolean required() default true;
+    /**
+     * is required ?
+     * 
+     * @return
+     */
+    boolean required() default true;
 }

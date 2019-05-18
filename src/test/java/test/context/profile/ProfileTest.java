@@ -36,40 +36,40 @@ import test.demo.config.User;
  */
 public class ProfileTest {
 
-	private long start;
+    private long start;
 
-	@Before
-	public void start() {
-		start = System.currentTimeMillis();
-	}
+    @Before
+    public void start() {
+        start = System.currentTimeMillis();
+    }
 
-	@After
-	public void end() {
-		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-	}
+    @After
+    public void end() {
+        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+    }
 
-	@Test
-	public void test_Profile() {
+    @Test
+    public void test_Profile() {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("","test.demo.config")) {
+        try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo.config")) {
 
-			User user = applicationContext.getBean("user", User.class);
-			System.out.println(user);
-			assert "TEST".equals(user.getUserName());
-		}
-	}
+            User user = applicationContext.getBean("user", User.class);
+            System.out.println(user);
+            assert "TEST".equals(user.getUserName());
+        }
+    }
 
-	@Test
-	public void test_Conditional() {
+    @Test
+    public void test_Conditional() {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("","test.demo.config")) {
-			User yhj = applicationContext.getBean("yhj", User.class);
-			User user = applicationContext.getBean("user_", User.class);
-			assert yhj != null;
-			System.out.println(user);
-			System.err.println(Arrays.toString(applicationContext.getEnvironment().getActiveProfiles()));
-			assert "Windows".equals(user.getUserName());
-		}
-	}
+        try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo.config")) {
+            User yhj = applicationContext.getBean("yhj", User.class);
+            User user = applicationContext.getBean("user_", User.class);
+            assert yhj != null;
+            System.out.println(user);
+            System.err.println(Arrays.toString(applicationContext.getEnvironment().getActiveProfiles()));
+            assert "Windows".equals(user.getUserName());
+        }
+    }
 
 }

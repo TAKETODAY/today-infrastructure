@@ -54,216 +54,216 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class StandardEnvironment implements ConfigurableEnvironment {
 
-	private Set<String> activeProfiles = new HashSet<>();
+    private Set<String> activeProfiles = new HashSet<>();
 
-	private final Properties properties = new ConcurrentProperties();
+    private final Properties properties = new ConcurrentProperties();
 
-	private BeanNameCreator beanNameCreator;
+    private BeanNameCreator beanNameCreator;
 
-	/** resolve beanDefinition which It is marked annotation */
-	private BeanDefinitionLoader beanDefinitionLoader;
-	/** storage BeanDefinition */
-	private BeanDefinitionRegistry beanDefinitionRegistry;
+    /** resolve beanDefinition which It is marked annotation */
+    private BeanDefinitionLoader beanDefinitionLoader;
+    /** storage BeanDefinition */
+    private BeanDefinitionRegistry beanDefinitionRegistry;
 
-	private ELProcessor elProcessor;
+    private ELProcessor elProcessor;
 
-	public StandardEnvironment() {
-		if (System.getSecurityManager() != null) {
-			AccessController.doPrivileged(new PrivilegedAction<Object>() {
-				@Override
-				public Object run() {
-					properties.putAll(System.getProperties());
-					System.setProperties(properties);
-					return null;
-				}
-			});
-		}
-		else {
-			properties.putAll(System.getProperties());
-			System.setProperties(properties);
-		}
-	}
+    public StandardEnvironment() {
+        if (System.getSecurityManager() != null) {
+            AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                @Override
+                public Object run() {
+                    properties.putAll(System.getProperties());
+                    System.setProperties(properties);
+                    return null;
+                }
+            });
+        }
+        else {
+            properties.putAll(System.getProperties());
+            System.setProperties(properties);
+        }
+    }
 
-	@Override
-	public Properties getProperties() {
-		return properties;
-	}
+    @Override
+    public Properties getProperties() {
+        return properties;
+    }
 
-	@Override
-	public boolean containsProperty(String key) {
-		return properties.containsKey(key);
-	}
+    @Override
+    public boolean containsProperty(String key) {
+        return properties.containsKey(key);
+    }
 
-	@Override
-	public String getProperty(String key) {
-		return properties.getProperty(key);
-	}
+    @Override
+    public String getProperty(String key) {
+        return properties.getProperty(key);
+    }
 
-	@Override
-	public String getProperty(String key, String defaultValue) {
-		return properties.getProperty(key, defaultValue);
-	}
+    @Override
+    public String getProperty(String key, String defaultValue) {
+        return properties.getProperty(key, defaultValue);
+    }
 
-	@Override
-	public BeanDefinitionRegistry getBeanDefinitionRegistry() {
-		return beanDefinitionRegistry;
-	}
+    @Override
+    public BeanDefinitionRegistry getBeanDefinitionRegistry() {
+        return beanDefinitionRegistry;
+    }
 
-	@Override
-	public BeanDefinitionLoader getBeanDefinitionLoader() {
-		return beanDefinitionLoader;
-	}
+    @Override
+    public BeanDefinitionLoader getBeanDefinitionLoader() {
+        return beanDefinitionLoader;
+    }
 
-	@Override
-	public String[] getActiveProfiles() {
-		return StringUtils.toStringArray(activeProfiles);
-	}
+    @Override
+    public String[] getActiveProfiles() {
+        return StringUtils.toStringArray(activeProfiles);
+    }
 
-	// ---ConfigurableEnvironment
+    // ---ConfigurableEnvironment
 
-	@Override
-	public void setActiveProfiles(String... profiles) {
-		this.activeProfiles.addAll(Arrays.asList(profiles));
-		log.info("Active profiles: {}", activeProfiles);
-	}
+    @Override
+    public void setActiveProfiles(String... profiles) {
+        this.activeProfiles.addAll(Arrays.asList(profiles));
+        log.info("Active profiles: {}", activeProfiles);
+    }
 
-	@Override
-	public void setProperty(String key, String value) {
-		properties.setProperty(key, value);
-	}
+    @Override
+    public void setProperty(String key, String value) {
+        properties.setProperty(key, value);
+    }
 
-	@Override
-	public void addActiveProfile(String profile) {
-		log.info("Add active profile: [{}]", profile);
-		this.activeProfiles.add(profile);
-	}
+    @Override
+    public void addActiveProfile(String profile) {
+        log.info("Add active profile: [{}]", profile);
+        this.activeProfiles.add(profile);
+    }
 
-	/**
-	 * Load properties file with given path
-	 */
-	@Override
-	public void loadProperties(String properties) throws IOException {
+    /**
+     * Load properties file with given path
+     */
+    @Override
+    public void loadProperties(String properties) throws IOException {
 
-		Objects.requireNonNull(properties, "Properties dir can't be null");
+        Objects.requireNonNull(properties, "Properties dir can't be null");
 
-		URL resource = ClassUtils.getClassLoader().getResource(properties);
-		if (resource == null) {
-			log.warn("The path: [{}] you provided that doesn't exist", properties);
-			return;
-		}
-		final File file = new File(resource.getPath());
+        URL resource = ClassUtils.getClassLoader().getResource(properties);
+        if (resource == null) {
+            log.warn("The path: [{}] you provided that doesn't exist", properties);
+            return;
+        }
+        final File file = new File(resource.getPath());
 
-		if (file.isDirectory()) {
-			final FileFilter propertiesFileFilter = new FileFilter() {
-				@Override
-				public boolean accept(File file) {
-					if (file.isDirectory()) {
-						return true;
-					}
-					final String name = file.getName();
-					return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
-				}
-			};
-			log.debug("Start loading Properties.");
-			doLoadFromDirectory(file, this.properties, propertiesFileFilter);
-		}
-		else {
-			doLoad(this.properties, file);
-		}
+        if (file.isDirectory()) {
+            final FileFilter propertiesFileFilter = new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    if (file.isDirectory()) {
+                        return true;
+                    }
+                    final String name = file.getName();
+                    return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
+                }
+            };
+            log.debug("Start loading Properties.");
+            doLoadFromDirectory(file, this.properties, propertiesFileFilter);
+        }
+        else {
+            doLoad(this.properties, file);
+        }
 
-		final String profiles = getProperty(Constant.KEY_ACTIVE_PROFILES);
-		if (StringUtils.isNotEmpty(profiles)) {
-			setActiveProfiles(StringUtils.split(profiles));
-		}
-	}
+        final String profiles = getProperty(Constant.KEY_ACTIVE_PROFILES);
+        if (StringUtils.isNotEmpty(profiles)) {
+            setActiveProfiles(StringUtils.split(profiles));
+        }
+    }
 
-	/**
-	 * Do load
-	 * 
-	 * @param dir
-	 *            base dir
-	 * @param properties
-	 *            properties
-	 * @throws IOException
-	 */
-	private static void doLoadFromDirectory(File dir, Properties properties, final FileFilter propertiesFileFilter) throws IOException {
+    /**
+     * Do load
+     * 
+     * @param dir
+     *            base dir
+     * @param properties
+     *            properties
+     * @throws IOException
+     */
+    private static void doLoadFromDirectory(File dir, Properties properties, final FileFilter propertiesFileFilter) throws IOException {
 
-		File[] listFiles = dir.listFiles(propertiesFileFilter);
+        File[] listFiles = dir.listFiles(propertiesFileFilter);
 
-		if (listFiles == null) {
-			log.warn("The path: [{}] you provided that contains nothing", dir.getAbsolutePath());
-			return;
-		}
+        if (listFiles == null) {
+            log.warn("The path: [{}] you provided that contains nothing", dir.getAbsolutePath());
+            return;
+        }
 
-		for (File file : listFiles) {
-			if (file.isDirectory()) { // recursive
-				doLoadFromDirectory(file, properties, propertiesFileFilter);
-				continue;
-			}
-			doLoad(properties, file);
-		}
-	}
+        for (File file : listFiles) {
+            if (file.isDirectory()) { // recursive
+                doLoadFromDirectory(file, properties, propertiesFileFilter);
+                continue;
+            }
+            doLoad(properties, file);
+        }
+    }
 
-	/**
-	 * @param properties
-	 * @param file
-	 * @throws IOException
-	 */
-	private static void doLoad(Properties properties, File file) throws IOException {
-		log.debug("Found Properties File: [{}]", file.getAbsolutePath());
-		try (InputStream inputStream = new FileInputStream(file)) {
-			properties.load(inputStream);
-		}
-	}
+    /**
+     * @param properties
+     * @param file
+     * @throws IOException
+     */
+    private static void doLoad(Properties properties, File file) throws IOException {
+        log.debug("Found Properties File: [{}]", file.getAbsolutePath());
+        try (InputStream inputStream = new FileInputStream(file)) {
+            properties.load(inputStream);
+        }
+    }
 
-	@Override
-	public ConfigurableEnvironment setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) {
-		this.beanDefinitionRegistry = beanDefinitionRegistry;
-		return this;
-	}
+    @Override
+    public ConfigurableEnvironment setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) {
+        this.beanDefinitionRegistry = beanDefinitionRegistry;
+        return this;
+    }
 
-	@Override
-	public ConfigurableEnvironment setBeanDefinitionLoader(BeanDefinitionLoader beanDefinitionLoader) {
-		this.beanDefinitionLoader = beanDefinitionLoader;
-		return this;
-	}
+    @Override
+    public ConfigurableEnvironment setBeanDefinitionLoader(BeanDefinitionLoader beanDefinitionLoader) {
+        this.beanDefinitionLoader = beanDefinitionLoader;
+        return this;
+    }
 
-	@Override
-	public boolean acceptsProfiles(String... profiles) {
+    @Override
+    public boolean acceptsProfiles(String... profiles) {
 
-		for (String profile : profiles) {
-			if (StringUtils.isNotEmpty(profile) && profile.charAt(0) == '!') {
-				if (!activeProfiles.contains(profile.substring(1))) {
-					return true;
-				}
-			}
-			else if (activeProfiles.contains(profile)) {
-				return true;
-			}
-		}
-		return false;
-	}
+        for (String profile : profiles) {
+            if (StringUtils.isNotEmpty(profile) && profile.charAt(0) == '!') {
+                if (!activeProfiles.contains(profile.substring(1))) {
+                    return true;
+                }
+            }
+            else if (activeProfiles.contains(profile)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	@Override
-	public ConfigurableEnvironment setBeanNameCreator(BeanNameCreator beanNameCreator) {
-		this.beanNameCreator = beanNameCreator;
-		return this;
-	}
+    @Override
+    public ConfigurableEnvironment setBeanNameCreator(BeanNameCreator beanNameCreator) {
+        this.beanNameCreator = beanNameCreator;
+        return this;
+    }
 
-	@Override
-	public BeanNameCreator getBeanNameCreator() {
-		return beanNameCreator;
-	}
+    @Override
+    public BeanNameCreator getBeanNameCreator() {
+        return beanNameCreator;
+    }
 
-	@Override
-	public ELProcessor getELProcessor() {
-		return elProcessor;
-	}
+    @Override
+    public ELProcessor getELProcessor() {
+        return elProcessor;
+    }
 
-	@Override
-	public ConfigurableEnvironment setELProcessor(final ELProcessor elProcessor) {
-		this.elProcessor = elProcessor;
-		return this;
-	}
+    @Override
+    public ConfigurableEnvironment setELProcessor(final ELProcessor elProcessor) {
+        this.elProcessor = elProcessor;
+        return this;
+    }
 
 }

@@ -31,13 +31,13 @@ import java.io.OutputStream;
  */
 public interface WritableResource extends Resource {
 
-	/**
-	 * Return an {@link OutputStream} for the underlying resource, allowing to
-	 * (over-)write its content.
-	 * 
-	 * @throws IOException
-	 *             if the stream could not be opened
-	 */
-	OutputStream getOutputStream() throws IOException;
+    /**
+     * Return an {@link OutputStream} for the underlying resource, allowing to
+     * (over-)write its content.
+     * 
+     * @throws IOException
+     *             if the stream could not be opened
+     */
+    OutputStream getOutputStream() throws IOException;
 
 }

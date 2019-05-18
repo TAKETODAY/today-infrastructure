@@ -27,6 +27,6 @@ package cn.taketoday.context.factory;
 @FunctionalInterface
 public interface ObjectFactory<T> {
 
-	T getObject();
+    T getObject();
 
 }

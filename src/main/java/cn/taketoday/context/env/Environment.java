@@ -37,138 +37,138 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
  */
 public interface Environment {
 
-	/**
-	 * Get properties
-	 */
-	Properties getProperties();
+    /**
+     * Get properties
+     */
+    Properties getProperties();
 
-	/**
-	 * Return whether the given property key is available for resolution
-	 * 
-	 * @param key
-	 *            key
-	 * @return if contains
-	 */
-	boolean containsProperty(String key);
+    /**
+     * Return whether the given property key is available for resolution
+     * 
+     * @param key
+     *            key
+     * @return if contains
+     */
+    boolean containsProperty(String key);
 
-	/**
-	 * Return the property value associated with the given key, or {@code null} if
-	 * the key cannot be resolved.
-	 * 
-	 * @param key
-	 *            the property name to resolve
-	 * @return
-	 */
-	String getProperty(String key);
+    /**
+     * Return the property value associated with the given key, or {@code null} if
+     * the key cannot be resolved.
+     * 
+     * @param key
+     *            the property name to resolve
+     * @return
+     */
+    String getProperty(String key);
 
-	/**
-	 * Return the property value associated with the given key, or
-	 * {@code defaultValue} if the key cannot be resolved.
-	 * 
-	 * @param key
-	 *            the property name to resolve
-	 * @param defaultValue
-	 *            the default value to return if no value is found
-	 * @return the property value associated with the given key, or
-	 *         {@code defaultValue} if the key cannot be resolved.
-	 */
-	String getProperty(String key, String defaultValue);
+    /**
+     * Return the property value associated with the given key, or
+     * {@code defaultValue} if the key cannot be resolved.
+     * 
+     * @param key
+     *            the property name to resolve
+     * @param defaultValue
+     *            the default value to return if no value is found
+     * @return the property value associated with the given key, or
+     *         {@code defaultValue} if the key cannot be resolved.
+     */
+    String getProperty(String key, String defaultValue);
 
-	/**
-	 * Return the property value associated with the given key, or {@code null} if
-	 * the key cannot be resolved.
-	 * 
-	 * @param key
-	 *            the property name to resolve
-	 * @param targetType
-	 *            the expected type of the property value
-	 * @return the property value associated with the given key, or {@code null} if
-	 *         the key cannot be resolved
-	 */
-	default <T> T getProperty(String key, Class<T> targetType) {
-		return getProperty(key, targetType, null);
-	}
+    /**
+     * Return the property value associated with the given key, or {@code null} if
+     * the key cannot be resolved.
+     * 
+     * @param key
+     *            the property name to resolve
+     * @param targetType
+     *            the expected type of the property value
+     * @return the property value associated with the given key, or {@code null} if
+     *         the key cannot be resolved
+     */
+    default <T> T getProperty(String key, Class<T> targetType) {
+        return getProperty(key, targetType, null);
+    }
 
-	/**
-	 * Return the property value associated with the given key, or
-	 * {@link defaultValue} if the key cannot be resolved.
-	 * 
-	 * @param key
-	 *            the property name to resolve
-	 * @param targetType
-	 *            the expected type of the property value
-	 * @param defaultValue
-	 *            if the key cannot be resolved will return this value
-	 * @return the property value associated with the given key, or
-	 *         {@link defaultValue} if the key cannot be resolved
-	 * @since 2.1.6
-	 */
-	default <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
-		return getProperty(key, (s) -> targetType.cast(s), defaultValue);
-	}
+    /**
+     * Return the property value associated with the given key, or
+     * {@link defaultValue} if the key cannot be resolved.
+     * 
+     * @param key
+     *            the property name to resolve
+     * @param targetType
+     *            the expected type of the property value
+     * @param defaultValue
+     *            if the key cannot be resolved will return this value
+     * @return the property value associated with the given key, or
+     *         {@link defaultValue} if the key cannot be resolved
+     * @since 2.1.6
+     */
+    default <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
+        return getProperty(key, (s) -> targetType.cast(s), defaultValue);
+    }
 
-	/**
-	 * @param key
-	 *            the property name to resolve
-	 * @param converter
-	 *            converter to convert a source value to target type value
-	 * @param defaultValue
-	 *            if the key cannot be resolved will return this value
-	 * @return the property value associated with the given key and convert to
-	 *         target type, or {@link defaultValue} if the key cannot be resolved
-	 */
-	@SuppressWarnings("unchecked")
-	default <S, T> T getProperty(String key, Converter<S, T> converter, T defaultValue) {
-		final String property = getProperty(key);
-		if (property == null) {
-			return defaultValue;
-		}
-		return converter.doConvert((S) property);
-	}
+    /**
+     * @param key
+     *            the property name to resolve
+     * @param converter
+     *            converter to convert a source value to target type value
+     * @param defaultValue
+     *            if the key cannot be resolved will return this value
+     * @return the property value associated with the given key and convert to
+     *         target type, or {@link defaultValue} if the key cannot be resolved
+     */
+    @SuppressWarnings("unchecked")
+    default <S, T> T getProperty(String key, Converter<S, T> converter, T defaultValue) {
+        final String property = getProperty(key);
+        if (property == null) {
+            return defaultValue;
+        }
+        return converter.doConvert((S) property);
+    }
 
-	/**
-	 * Return the set of profiles explicitly made active for this environment.
-	 * 
-	 * @return active profiles
-	 */
-	String[] getActiveProfiles();
+    /**
+     * Return the set of profiles explicitly made active for this environment.
+     * 
+     * @return active profiles
+     */
+    String[] getActiveProfiles();
 
-	/**
-	 * If active profiles is empty return false. If active profiles is not empty
-	 * then will compare all active profiles.
-	 * 
-	 * @param profiles
-	 *            profiles
-	 * @return if accepted
-	 */
-	boolean acceptsProfiles(String... profiles);
+    /**
+     * If active profiles is empty return false. If active profiles is not empty
+     * then will compare all active profiles.
+     * 
+     * @param profiles
+     *            profiles
+     * @return if accepted
+     */
+    boolean acceptsProfiles(String... profiles);
 
-	/**
-	 * Get a bean name creator
-	 * 
-	 * @return {@link BeanNameCreator}
-	 */
-	BeanNameCreator getBeanNameCreator();
+    /**
+     * Get a bean name creator
+     * 
+     * @return {@link BeanNameCreator}
+     */
+    BeanNameCreator getBeanNameCreator();
 
-	/**
-	 * Get bean definition loader
-	 * 
-	 * @return {@link BeanDefinitionLoader}
-	 */
-	BeanDefinitionLoader getBeanDefinitionLoader();
+    /**
+     * Get bean definition loader
+     * 
+     * @return {@link BeanDefinitionLoader}
+     */
+    BeanDefinitionLoader getBeanDefinitionLoader();
 
-	/**
-	 * Get the bean definition registry
-	 * 
-	 * @return {@link BeanDefinitionRegistry}
-	 */
-	BeanDefinitionRegistry getBeanDefinitionRegistry();
+    /**
+     * Get the bean definition registry
+     * 
+     * @return {@link BeanDefinitionRegistry}
+     */
+    BeanDefinitionRegistry getBeanDefinitionRegistry();
 
-	/**
-	 * Get {@link ELProcessor}
-	 * 
-	 * @return {@link ELProcessor}
-	 * @since 2.1.5
-	 */
-	ELProcessor getELProcessor();
+    /**
+     * Get {@link ELProcessor}
+     * 
+     * @return {@link ELProcessor}
+     * @since 2.1.5
+     */
+    ELProcessor getELProcessor();
 }

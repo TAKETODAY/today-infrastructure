@@ -35,40 +35,40 @@ import lombok.Setter;
 @Setter
 public class StandardBeanDefinition extends DefaultBeanDefinition implements BeanDefinition {
 
-	/**
-	 * Declaring name
-	 * 
-	 * @since 2.1.2
-	 */
-	private String declaringName;
+    /**
+     * Declaring name
+     * 
+     * @since 2.1.2
+     */
+    private String declaringName;
 
-	private Method factoryMethod;
+    private Method factoryMethod;
 
-	public String getDeclaringName() {
-		return declaringName;
-	}
+    public String getDeclaringName() {
+        return declaringName;
+    }
 
-	public StandardBeanDefinition setDeclaringName(String declaringName) {
-		this.declaringName = declaringName;
-		return this;
-	}
+    public StandardBeanDefinition setDeclaringName(String declaringName) {
+        this.declaringName = declaringName;
+        return this;
+    }
 
-	@Override
-	public String toString() {
-		return new StringBuilder()//
-				.append("{\n\t\"name\":\"").append(getName())//
-				.append("\",\n\t\"declaringName\":\"").append(getDeclaringName())//
-				.append("\",\n\t\"beanClass\":\"").append(getBeanClass())//
-				.append("\",\n\t\"scope\":\"").append(getScope())//
-				.append("\",\n\t\"factoryMethod\":\"").append(factoryMethod)//
-				.append("\",\n\t\"initMethods\":\"").append(Arrays.toString(getInitMethods()))//
-				.append("\",\n\t\"destroyMethods\":\"").append(Arrays.toString(getDestroyMethods()))//
-				.append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(getPropertyValues()))//
-				.append("\",\n\t\"initialized\":\"").append(isInitialized())//
-				.append("\",\n\t\"factoryBean\":\"").append(isFactoryBean())//
-				.append("\",\n\t\"Abstract\":\"").append(isAbstract())//
-				.append("\"\n}")//
-				.toString();
-	}
+    @Override
+    public String toString() {
+        return new StringBuilder()//
+                .append("{\n\t\"name\":\"").append(getName())//
+                .append("\",\n\t\"declaringName\":\"").append(getDeclaringName())//
+                .append("\",\n\t\"beanClass\":\"").append(getBeanClass())//
+                .append("\",\n\t\"scope\":\"").append(getScope())//
+                .append("\",\n\t\"factoryMethod\":\"").append(factoryMethod)//
+                .append("\",\n\t\"initMethods\":\"").append(Arrays.toString(getInitMethods()))//
+                .append("\",\n\t\"destroyMethods\":\"").append(Arrays.toString(getDestroyMethods()))//
+                .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(getPropertyValues()))//
+                .append("\",\n\t\"initialized\":\"").append(isInitialized())//
+                .append("\",\n\t\"factoryBean\":\"").append(isFactoryBean())//
+                .append("\",\n\t\"Abstract\":\"").append(isAbstract())//
+                .append("\"\n}")//
+                .toString();
+    }
 
 }

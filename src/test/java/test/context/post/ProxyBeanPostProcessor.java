@@ -35,16 +35,16 @@ import lombok.extern.slf4j.Slf4j;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ProxyBeanPostProcessor implements BeanPostProcessor {
 
-	@Override
-	public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) {
-		log.debug("ProxyBeanPostProcessor Before named :[{}]", beanDefinition.getName());
-		return bean;
-	}
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) {
+        log.debug("ProxyBeanPostProcessor Before named :[{}]", beanDefinition.getName());
+        return bean;
+    }
 
-	@Override
-	public Object postProcessAfterInitialization(Object bean, String beanName) {
-		log.debug("ProxyBeanPostProcessor After :[{}]", beanName);
-		return bean;
-	}
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) {
+        log.debug("ProxyBeanPostProcessor After :[{}]", beanName);
+        return bean;
+    }
 
 }

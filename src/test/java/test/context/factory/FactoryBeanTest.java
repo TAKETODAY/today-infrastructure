@@ -34,33 +34,33 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
  */
 public class FactoryBeanTest {
 
-	private long start;
+    private long start;
 
-	@Before
-	public void start() {
-		start = System.currentTimeMillis();
-	}
+    @Before
+    public void start() {
+        start = System.currentTimeMillis();
+    }
 
-	@After
-	public void end() {
-		System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-	}
+    @After
+    public void end() {
+        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+    }
 
-	@Test
-	public void test_PrototypeFactoryBean() throws NoSuchBeanDefinitionException {
+    @Test
+    public void test_PrototypeFactoryBean() throws NoSuchBeanDefinitionException {
 
-		try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
-			applicationContext.loadContext("");
-			
-			Object bean = applicationContext.getBean("FactoryBean-Config");
-			Object bean2 = applicationContext.getBean("FactoryBean-Config");
-			
-			System.err.println(bean);
-			System.err.println(bean2);
-			assert bean != bean2;
-			applicationContext.close();
+        try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
+            applicationContext.loadContext("");
 
-		}
-	}
+            Object bean = applicationContext.getBean("FactoryBean-Config");
+            Object bean2 = applicationContext.getBean("FactoryBean-Config");
+
+            System.err.println(bean);
+            System.err.println(bean2);
+            assert bean != bean2;
+            applicationContext.close();
+
+        }
+    }
 
 }

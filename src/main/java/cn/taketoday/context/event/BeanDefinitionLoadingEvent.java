@@ -32,8 +32,8 @@ import cn.taketoday.context.bean.BeanDefinition;
 @SuppressWarnings("serial")
 public class BeanDefinitionLoadingEvent extends ApplicationContextEvent {
 
-	public BeanDefinitionLoadingEvent(ApplicationContext applicationContext) {
-		super(applicationContext);
-	}
+    public BeanDefinitionLoadingEvent(ApplicationContext applicationContext) {
+        super(applicationContext);
+    }
 
 }
