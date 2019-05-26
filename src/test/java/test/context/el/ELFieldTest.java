@@ -23,6 +23,7 @@ import java.util.Date;
 
 import javax.el.ELProcessor;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -52,20 +53,30 @@ public class ELFieldTest {
 
     @AfterClass
     public static void end() {
+
         System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
     }
 
-    @Value("#{235.1}")
+    @After
+    public void ends() {
+        if (applicationContext != null) {
+            applicationContext.close();
+        }
+    }
+
+    @Value("${235.1}")
     private double testDouble;
 
-    @Value("#{235.1}")
+    @Value("${235.1}")
     private float testFloat;
 
-    @Value(required = false, value = "#{user}")
+    @Value(required = false, value = "${user}")
     private User user;
 
     @Value(value = "${env['site.name']}")
     private String siteName;
+
+    StandardApplicationContext applicationContext = new StandardApplicationContext("");
 
     @Getter
     @Setter
@@ -83,68 +94,59 @@ public class ELFieldTest {
     @Test
     public void test_Number() {
 
-        try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
+        applicationContext.loadContext("test.context.el");
 
-            applicationContext.loadContext("test.context.el");
+        ELFieldTest bean = applicationContext.getBean(getClass());
+        System.err.println(bean.testFloat);
+        System.err.println(bean.testDouble);
 
-            ELFieldTest bean = applicationContext.getBean(getClass());
-            System.err.println(bean.testFloat);
-            System.err.println(bean.testDouble);
-
-            assert bean.testFloat == 235.1f;
-            assert bean.testDouble == 235.1;
-            assert bean.user == user;
-        }
+        assert bean.testFloat == 235.1f;
+        assert bean.testDouble == 235.1;
     }
 
     @Test
     public void testEnv() {
-        try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
 
-            ELProcessor processor = new ELProcessor();
-            applicationContext.getEnvironment().setELProcessor(processor);
+        ELProcessor processor = new ELProcessor();
+        applicationContext.getEnvironment().setELProcessor(processor);
 
-            processor.getELManager().setELContext(new ValueELContext(applicationContext));
+        processor.getELManager().setELContext(new ValueELContext(applicationContext));
 
-            User user = new User();
-            user.setAge(20)//
-                    .setBrithday(new Date())//
-                    .setId(1);
+        User user = new User();
+        user.setAge(20)//
+                .setBrithday(new Date())//
+                .setId(1);
 
-            processor.defineBean("user", user);
+        processor.defineBean("user", user);
 
-            applicationContext.loadContext("test.context.el");
+        applicationContext.loadContext("test.context.el");
 
-            ELFieldTest bean = applicationContext.getBean(getClass());
-            System.err.println(bean);
-            assert bean.user == user;
-            assert bean.siteName.equals("TODAY BLOG");
-        }
+        ELFieldTest bean = applicationContext.getBean(getClass());
+        System.err.println(bean);
+        assert bean.user == user;
+        assert bean.siteName.equals("TODAY BLOG");
     }
 
     @Test
     public void testDefineBean() {
 
-        try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
+        ELProcessor processor = new ELProcessor();
+        applicationContext.getEnvironment().setELProcessor(processor);
 
-            ELProcessor processor = new ELProcessor();
-            applicationContext.getEnvironment().setELProcessor(processor);
+        processor.getELManager().setELContext(new ValueELContext(applicationContext));
 
-            processor.getELManager().setELContext(new ValueELContext(applicationContext));
+        User user = new User();
+        user.setAge(20)//
+                .setBrithday(new Date())//
+                .setId(1);
 
-            User user = new User();
-            user.setAge(20)//
-                    .setBrithday(new Date())//
-                    .setId(1);
+        processor.defineBean("user", user);
 
-            processor.defineBean("user", user);
+        applicationContext.loadContext("test.context.el");
 
-            applicationContext.loadContext("test.context.el");
-
-            ELFieldTest bean = applicationContext.getBean(getClass());
-            System.err.println(bean);
-            assert bean.user == user;
-        }
+        ELFieldTest bean = applicationContext.getBean(getClass());
+        System.err.println(bean);
+        assert bean.user == user;
     }
 
 }

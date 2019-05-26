@@ -229,3 +229,10 @@ public void test_Conditional() {
 - unify date format
 - :sparkles: feat: add Resource api
 
+
+- :bug: fix: #6 Properties not found
+- :bug: fix: #6 ConfigurationException detail message
+
+
+
+

@@ -22,6 +22,7 @@ package cn.taketoday.context;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
+import cn.taketoday.context.listener.ApplicationListener;
 
 /**
  * @author Today <br>
@@ -53,5 +54,16 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
      * @return A bean factory
      */
     ConfigurableBeanFactory getBeanFactory();
+
+    /**
+     * Add an {@link ApplicationListener} that will be notified on context events
+     * such as context refresh and context shutdown.
+     * <p>
+     * 
+     * @param listener
+     *            the {@link ApplicationListener}
+     * @since 2.1.6
+     */
+    void addApplicationListener(ApplicationListener<?> listener);
 
 }

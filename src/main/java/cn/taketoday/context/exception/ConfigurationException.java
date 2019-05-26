@@ -21,36 +21,33 @@ package cn.taketoday.context.exception;
 
 import org.slf4j.LoggerFactory;
 
+import lombok.NoArgsConstructor;
+
 /**
  * 
  * configuration exception
  * 
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-08-08 09:55
  */
-@SuppressWarnings("serial")
+@NoArgsConstructor
+@SuppressWarnings("all")
 public class ConfigurationException extends ContextException {
-
-    public ConfigurationException() {
-        this("");
-    }
 
     public ConfigurationException(Throwable cause) {
         super(cause);
     }
 
-    public ConfigurationException(String message) {
-        super(message);
-        LoggerFactory.getLogger(ConfigurationException.class)//
-                .error("Configuration Exception Message: [" + message + "]");
+    public ConfigurationException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public ConfigurationException(String message, Object... args) {
+    public ConfigurationException(String message) {
         super(message);
 
         LoggerFactory.getLogger(ConfigurationException.class)//
-                .error("Configuration Exception Message: [" + message + "] , Your Application Will Be Shutdown.", args);
+                .error("Configuration Exception Message: [" + message + "]");
 
 //		System.exit(0);
     }

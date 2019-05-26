@@ -19,12 +19,8 @@
  */
 package cn.taketoday.context.env;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
@@ -39,8 +35,11 @@ import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.io.ResourceFilter;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ContextUtils;
+import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,8 +63,6 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     private BeanDefinitionLoader beanDefinitionLoader;
     /** storage BeanDefinition */
     private BeanDefinitionRegistry beanDefinitionRegistry;
-
-    private ELProcessor elProcessor;
 
     public StandardEnvironment() {
         if (System.getSecurityManager() != null) {
@@ -146,17 +143,17 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
         Objects.requireNonNull(properties, "Properties dir can't be null");
 
-        URL resource = ClassUtils.getClassLoader().getResource(properties);
-        if (resource == null) {
+        final Resource resource = ResourceUtils.getResource(properties);
+
+        if (!resource.exists()) {
             log.warn("The path: [{}] you provided that doesn't exist", properties);
             return;
         }
-        final File file = new File(resource.getPath());
-
-        if (file.isDirectory()) {
-            final FileFilter propertiesFileFilter = new FileFilter() {
+        if (resource.isDirectory()) {
+            log.debug("Start scanning properties resource.");
+            final ResourceFilter propertiesFileFilter = new ResourceFilter() {
                 @Override
-                public boolean accept(File file) {
+                public boolean accept(Resource file) throws IOException {
                     if (file.isDirectory()) {
                         return true;
                     }
@@ -164,11 +161,10 @@ public class StandardEnvironment implements ConfigurableEnvironment {
                     return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
                 }
             };
-            log.debug("Start loading Properties.");
-            doLoadFromDirectory(file, this.properties, propertiesFileFilter);
+            doLoadFromDirectory(resource, this.properties, propertiesFileFilter);
         }
         else {
-            doLoad(this.properties, file);
+            doLoad(this.properties, resource);
         }
 
         final String profiles = getProperty(Constant.KEY_ACTIVE_PROFILES);
@@ -186,32 +182,34 @@ public class StandardEnvironment implements ConfigurableEnvironment {
      *            properties
      * @throws IOException
      */
-    private static void doLoadFromDirectory(File dir, Properties properties, final FileFilter propertiesFileFilter) throws IOException {
+    private static void doLoadFromDirectory(final Resource directory, //
+            Properties properties, final ResourceFilter propertiesFileFilter) throws IOException //
+    {
 
-        File[] listFiles = dir.listFiles(propertiesFileFilter);
-
-        if (listFiles == null) {
-            log.warn("The path: [{}] you provided that contains nothing", dir.getAbsolutePath());
-            return;
-        }
-
-        for (File file : listFiles) {
-            if (file.isDirectory()) { // recursive
-                doLoadFromDirectory(file, properties, propertiesFileFilter);
+        final Resource[] listResources = directory.list(propertiesFileFilter);
+//        if (listResources.length == 0) {
+//            log.warn("The path: [{}] you provided that contains nothing", directory.getLocation());
+//            return;
+//        }
+        for (final Resource resource : listResources) {
+            if (resource.isDirectory()) { // recursive
+                doLoadFromDirectory(resource, properties, propertiesFileFilter);
                 continue;
             }
-            doLoad(properties, file);
+            doLoad(properties, resource);
         }
     }
 
     /**
      * @param properties
-     * @param file
+     * @param resource
      * @throws IOException
      */
-    private static void doLoad(Properties properties, File file) throws IOException {
-        log.debug("Found Properties File: [{}]", file.getAbsolutePath());
-        try (InputStream inputStream = new FileInputStream(file)) {
+    private static void doLoad(Properties properties, final Resource resource) throws IOException {
+
+        log.debug("Found Properties Resource: [{}]", resource.getLocation());
+
+        try (InputStream inputStream = resource.getInputStream()) {
             properties.load(inputStream);
         }
     }
@@ -257,12 +255,12 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
     @Override
     public ELProcessor getELProcessor() {
-        return elProcessor;
+        return ContextUtils.getELProcessor();
     }
 
     @Override
     public ConfigurableEnvironment setELProcessor(final ELProcessor elProcessor) {
-        this.elProcessor = elProcessor;
+        ContextUtils.setELProcessor(elProcessor);
         return this;
     }
 

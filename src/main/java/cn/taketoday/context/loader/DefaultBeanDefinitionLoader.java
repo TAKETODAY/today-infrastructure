@@ -142,10 +142,10 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
+
             throw new ConfigurationException(//
-                    "An Exception Occurred When Build Bean Definition: [{}], With Msg: [{}] ", //
-                    beanClass, ex.getMessage(), ex//
-            );
+                    "An Exception Occurred When Build Bean Definition: [" + //
+                            beanClass.getName() + "], With Msg: [" + ex.getMessage() + "]", ex);
         }
     }
 
@@ -205,8 +205,8 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            throw new BeanDefinitionStoreException("An Exception Occurred When Register Bean Definition: [{}], With Msg: [{}]", //
-                    name, ex.getMessage(), ex);
+            throw new BeanDefinitionStoreException("An Exception Occurred When Register Bean Definition: [" + //
+                    name + "], With Msg: [" + ex.getMessage() + "]", ex);
         }
     }
 
@@ -268,8 +268,8 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
             throw new BeanDefinitionStoreException(//
-                    "An Exception Occurred When Create A Bean Definition, With Msg: [{}]", //
-                    ex.getMessage(), ex//
+                    "An Exception Occurred When Create A Bean Definition, With Msg: [" + ex.getMessage() + "]", //
+                    ex//
             );
         }
     }

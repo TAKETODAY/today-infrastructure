@@ -43,14 +43,17 @@ public abstract class ResourceUtils {
      */
     public static Resource getResource(String location) throws IOException {
 
+        // fix location is empty
+        if (StringUtils.isEmpty(location)) {
+            return new ClassPathResource(Constant.BLANK);
+        }
+
         if (location.charAt(0) == Constant.PATH_SEPARATOR) {
             return new ClassPathResource(location.substring(1));
         }
 
         if (location.startsWith(Constant.CLASS_PATH_PREFIX)) {
-
             final String path = location.substring(Constant.CLASS_PATH_PREFIX.length());
-
             if (path.charAt(0) == Constant.PATH_SEPARATOR) {
                 return new ClassPathResource(path.substring(1));
             }

@@ -42,8 +42,4 @@ public class BeanDefinitionStoreException extends ConfigurationException {
         super(message);
     }
 
-    public BeanDefinitionStoreException(String message, Object... args) {
-        super(message, args);
-    }
-
 }

@@ -33,7 +33,7 @@ import cn.taketoday.context.Constant;
  * 
  *         2018-08-04 15:57
  */
-@Target(ElementType.FIELD)
+@Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Value {
 

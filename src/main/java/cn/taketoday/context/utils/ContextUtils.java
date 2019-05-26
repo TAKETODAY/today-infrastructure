@@ -41,6 +41,8 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.el.ELException;
+import javax.el.ELProcessor;
 
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +58,7 @@ import cn.taketoday.context.annotation.ConditionalImpl;
 import cn.taketoday.context.annotation.DefaultProps;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.bean.StandardBeanDefinition;
@@ -92,6 +95,28 @@ public abstract class ContextUtils {
         OrderUtils.reversedSort(PROPERTY_VALUE_RESOLVERS);
     }
 
+    // @since 2.1.6 // shared elProcessor
+    private static ELProcessor elProcessor;
+
+    /**
+     * GEt shared {@link ELProcessor}
+     * 
+     * @return shared {@link ELProcessor}
+     */
+    public static ELProcessor getELProcessor() {
+        return elProcessor;
+    }
+
+    /**
+     * {@link ELProcessor}
+     * 
+     * @param elProcessor
+     *            a new elProcessor
+     */
+    public static void setELProcessor(final ELProcessor elProcessor) {
+        ContextUtils.elProcessor = elProcessor;
+    }
+
     /**
      * Find names
      * 
@@ -106,6 +131,30 @@ public abstract class ContextUtils {
             return new String[] { defaultName }; // default name
         }
         return names;
+    }
+
+    /**
+     * replace a placeholder or eval el
+     * 
+     * @param expression
+     *            expression {@link String}
+     * @param type
+     *            value type
+     * @return
+     * @since 2.1.6
+     */
+    public static Object resolveValue(final String expression, final Class<?> type) {
+        if (expression.charAt(0) == '#') {
+            final String replaced = resolvePlaceholder(System.getProperties(), expression, false);
+            return ConvertUtils.convert(replaced, type);
+        }
+        try {
+
+            return getELProcessor().getValue(expression, type);
+        }
+        catch (ELException e) {
+            return null;
+        }
     }
 
     /**
@@ -132,7 +181,6 @@ public abstract class ContextUtils {
         for (int i = 0; i < parameterLength; i++) {
 
             final Parameter parameter = parameters[i];
-            final Autowired autowiredOnParamter = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
             final Class<?> type = parameter.getType();
 
             // if it is a Map
@@ -144,8 +192,22 @@ public abstract class ContextUtils {
                 args[i] = loadProps(props, System.getProperties());
                 continue;
             }
+            // @since 2.1.6
+            if (parameter.isAnnotationPresent(Value.class)) {
+                final Value value = parameter.getAnnotation(Value.class);
+                final Object resolveValue = resolveValue(value.value(), type);
+                if (resolveValue == null && value.required()) {
+
+                    throw new ConfigurationException("Can't resolve executable parameter: [" + //
+                            parameter + "] -> [" + value.value() + "].");
+                }
+                args[i] = resolveValue;
+                continue;
+            }
 
             boolean required = true;
+
+            final Autowired autowiredOnParamter = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
 
             Object bean; // bean instance
             if (autowiredOnParamter != null) {
@@ -192,7 +254,7 @@ public abstract class ContextUtils {
      */
     public static final InputStream getResourceAsStream(String resource) throws IOException {
 
-        InputStream in = ClassUtils.getClassLoader().getResourceAsStream(resource);
+        InputStream in = ResourceUtils.getResource(resource).getInputStream();
         if (in == null) {
             throw new IOException("Could not find resource " + resource);
         }
@@ -208,7 +270,7 @@ public abstract class ContextUtils {
     public static final Properties getResourceAsProperties(String resource) throws IOException {
         Properties props = new ConcurrentProperties();
 
-        try (InputStream in = ClassUtils.getClassLoader().getResourceAsStream(StringUtils.checkPropertiesName(resource))) {
+        try (InputStream in = ResourceUtils.getResource(StringUtils.checkPropertiesName(resource)).getInputStream()) {
             props.load(in);
         }
 
@@ -283,7 +345,7 @@ public abstract class ContextUtils {
             final Object property = properties.get(key);
             if (property == null) {
                 if (throw_) {
-                    throw new ConfigurationException("Properties -> [{}] , must specify a value.", key);
+                    throw new ConfigurationException("Properties -> [" + key + "] , must specify a value.");
                 }
                 LoggerFactory.getLogger(ContextUtils.class).debug("There is no property for key: [{}]", key);
                 return null;
@@ -451,7 +513,7 @@ public abstract class ContextUtils {
             annotatedClass = ((Method) annotatedElement).getReturnType();
         }
         else {
-            throw new ConfigurationException("Not support annotated element: [{}]", annotatedElement);
+            throw new ConfigurationException("Not support annotated element: [" + annotatedElement + "]");
         }
 
         log.debug("Loading Properties For: [{}]", annotatedClass.getName());
@@ -605,6 +667,7 @@ public abstract class ContextUtils {
             if (!(key_ instanceof String)) {
                 continue;
             }
+
             String key = (String) key_;
             for (String prefix : prefixs) {
                 if (Constant.BLANK.equals(prefix) || key.startsWith(prefix)) { // start with prefix
@@ -613,7 +676,7 @@ public abstract class ContextUtils {
                         key = key.replaceFirst(prefix, Constant.BLANK);
                     }
                     ret.put(key, //
-                            ContextUtils.resolvePlaceholder(ret, (String) entry.getValue()));
+                            ContextUtils.resolvePlaceholder(propertiesToUse, (String) entry.getValue()));
                 }
             }
         }
@@ -663,15 +726,15 @@ public abstract class ContextUtils {
             final StandardBeanDefinition standardBeanDefinition = ((StandardBeanDefinition) beanDefinition);
 
             if (StringUtils.isEmpty(standardBeanDefinition.getDeclaringName())) {
-                throw new ConfigurationException("Declaring name can't be null", beanDefinition);
+                throw new ConfigurationException("Declaring name can't be null");
             }
             if (standardBeanDefinition.getFactoryMethod() == null) {
-                throw new ConfigurationException("Factory Method can't be null", beanDefinition);
+                throw new ConfigurationException("Factory Method can't be null");
             }
         }
 
         if (beanDefinition.getBeanClass() == null) {
-            throw new ConfigurationException("Definition's bean class can't be null", beanDefinition);
+            throw new ConfigurationException("Definition's bean class can't be null");
         }
         if (beanDefinition.getDestroyMethods() == null) {
             beanDefinition.setDestroyMethods(new String[0]);

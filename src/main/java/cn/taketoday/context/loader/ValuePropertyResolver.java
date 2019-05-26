@@ -21,18 +21,14 @@ package cn.taketoday.context.loader;
 
 import java.lang.reflect.Field;
 
-import javax.el.ELException;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ContextUtils;
-import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -57,8 +53,6 @@ public class ValuePropertyResolver implements PropertyValueResolver {
         Value annotation = field.getAnnotation(Value.class);
         String expression = annotation.value();
 
-        ConfigurableEnvironment environment = applicationContext.getEnvironment();
-
         if (StringUtils.isEmpty(expression)) {
             // use field name
             expression = new StringBuilder(Constant.PLACE_HOLDER_PREFIX) //
@@ -66,29 +60,13 @@ public class ValuePropertyResolver implements PropertyValueResolver {
                     .append(Constant.PLACE_HOLDER_SUFFIX).toString();
         }
 
-        final Class<?> type = field.getType();
-
-        // fix ELProcessor not process
-        if (expression.charAt(0) == Constant.EL_PREFIX) {
-            return new PropertyValue(environment.getELProcessor().getValue(expression, type), field);
-        }
-        Object resolved = null;
-        try {
-            resolved = ConvertUtils.convert(ContextUtils.resolvePlaceholder(environment.getProperties(), expression, false), type);
-        }
-        catch (NumberFormatException e) {
-        }
+        final Object resolved = ContextUtils.resolveValue(expression, field.getType());
         if (resolved == null) {
-            try {
-                resolved = environment.getELProcessor().getValue(expression, type);
+
+            if (annotation.required()) {
+                throw new ConfigurationException("Can't resolve field: [" + field + "] -> [" + expression + "].");
             }
-            catch (ELException e) {
-                if (annotation.required()) {
-                    throw new ConfigurationException("Cannot handle: [{}] -> [{}].", field, expression, e);
-                }
-            }
-            if (resolved == null)
-                return null;
+            return null;
         }
         return new PropertyValue(resolved, field);
     }

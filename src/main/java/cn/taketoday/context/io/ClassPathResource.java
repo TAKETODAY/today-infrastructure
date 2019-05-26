@@ -24,8 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.Objects;
 
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 
@@ -42,7 +42,17 @@ public class ClassPathResource implements Resource, WritableResource {
     }
 
     public ClassPathResource(String location) throws IOException {
-        this(Objects.requireNonNull(ClassUtils.getClassLoader().getResource(location), location));
+        final URL resource = ClassUtils.getClassLoader().getResource(location);
+        // linux path start with '/'
+        if (resource == null) {
+            this.resource = new FileBasedResource(location);
+            if (!this.resource.exists()) {
+                throw new ConfigurationException("There isn't exists a resource with location: [" + location + "]");
+            }
+        }
+        else {
+            this.resource = ResourceUtils.getResource(resource);
+        }
     }
 
     @Override
@@ -103,4 +113,13 @@ public class ClassPathResource implements Resource, WritableResource {
         throw new IOException("Writable operation is not supported");
     }
 
+    @Override
+    public String toString() {
+        return resource.toString();
+    }
+
+    @Override
+    public Resource[] list(ResourceFilter filter) throws IOException {
+        return resource.list(filter);
+    }
 }

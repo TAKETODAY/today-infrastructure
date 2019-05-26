@@ -24,6 +24,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY <br>
@@ -71,6 +75,23 @@ public abstract class AbstractResource implements Resource {
     @Override
     public String[] list() throws IOException {
         return getFile().list();
+    }
+
+    @Override
+    public Resource[] list(ResourceFilter filter) throws IOException {
+        final String names[] = list();
+
+        if (StringUtils.isArrayEmpty(names)) {
+            return new Resource[0];
+        }
+
+        List<Resource> resources = new ArrayList<>();
+        for (String name : names) {
+            Resource resource = createRelative(name);
+            if ((filter == null) || filter.accept(resource))
+                resources.add(resource);
+        }
+        return resources.toArray(new Resource[0]);
     }
 
     @Override

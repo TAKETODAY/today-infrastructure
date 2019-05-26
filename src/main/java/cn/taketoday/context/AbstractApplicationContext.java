@@ -319,8 +319,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
                 return;
             }
             if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
-                throw new ConfigurationException("[{}] must be a [{}]", //
-                        listenerClass.getName(), ApplicationListener.class.getClass().getName());
+
+                throw new ConfigurationException("[" + listenerClass.getName() + "] must be a [" + //
+                        ApplicationListener.class.getClass().getName() + "]");
             }
             final String name = getEnvironment().getBeanNameCreator().create(listenerClass);
             // if exist bean
@@ -331,21 +332,30 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
                 registerSingleton(name, applicationListener);
             }
 
-            for (final Method method : listenerClass.getDeclaredMethods()) {
-                // onApplicationEvent
-                if (method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
-                    if (method.isBridge()) {
-                        continue;
-                    }
-                    // register listener
-                    doRegisterListener(this.applicationListeners, applicationListener, method.getParameterTypes()[0]);
-                }
-            }
+            addApplicationListener((ApplicationListener<?>) applicationListener);
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
             log.error("An Exception Occurred When Register Application Listener, With Msg: [{}]", ex.getMessage(), ex);
             throw ExceptionUtils.newContextException(ex);
+        }
+    }
+
+    @Override
+    @SuppressWarnings("rawtypes")
+    public void addApplicationListener(ApplicationListener<?> applicationListener) {
+
+        final Class<? extends ApplicationListener> listenerClass = applicationListener.getClass();
+
+        for (final Method method : listenerClass.getDeclaredMethods()) {
+            // onApplicationEvent
+            if (method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
+                if (method.isBridge()) {
+                    continue;
+                }
+                // register listener
+                doRegisterListener(this.applicationListeners, applicationListener, method.getParameterTypes()[0]);
+            }
         }
     }
 

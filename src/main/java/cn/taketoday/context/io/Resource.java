@@ -99,6 +99,16 @@ public interface Resource {
     String[] list() throws IOException;
 
     /**
+     * list {@link Resource} under the directory
+     * 
+     * @param filter
+     *            filter {@link Resource}
+     * @return {@link Resource} names
+     * @throws IOException
+     */
+    Resource[] list(ResourceFilter filter) throws IOException;
+
+    /**
      * Create a resource relative to this resource.
      * 
      * @param relativePath
