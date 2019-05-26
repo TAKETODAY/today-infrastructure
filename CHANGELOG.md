@@ -228,10 +228,9 @@ public void test_Conditional() {
 - :bug: fix: no constructor
 - unify date format
 - :sparkles: feat: add Resource api
-
-
+- :sparkles: feat: add ResourceFilter to filter Resource
 - :bug: fix: #6 Properties not found
-- :bug: fix: #6 ConfigurationException detail message
+- :bug: fix: ConfigurationException detail message
 
 
 
