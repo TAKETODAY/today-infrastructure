@@ -91,19 +91,25 @@ public abstract class ClassUtils {
     private static Set<Class<?>> classesCache;
 
     private static final Map<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32, 1f);
-
+    
     /**
      * @since 2.1.1
      */
     private static final Set<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS;//
 
-    public static void addIgnoreAnnotationClass(Class<? extends Annotation> annotationClass) {
-        IGNORE_ANNOTATION_CLASS.add(annotationClass);
-    }
-
     private static final String[] IGNORE_SCAN_JARS;
     /** for scan cn.taketoday */
     private static boolean scanAllFreamworkPackage = true;
+
+    /** Class file filter */
+    private static final FileFilter CLASS_FILE_FILTER = new FileFilter() {
+        @Override
+        public boolean accept(File file) {
+            return (file.isDirectory()) || (file.getName().endsWith(Constant.CLASS_FILE_SUFFIX));
+        }
+    };
+    
+    static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(32);
 
     static {
 
@@ -153,6 +159,10 @@ public abstract class ClassUtils {
         IGNORE_ANNOTATION_CLASS.add(Inherited.class);
         IGNORE_ANNOTATION_CLASS.add(Retention.class);
         IGNORE_ANNOTATION_CLASS.add(Documented.class);
+    }
+
+    public static void addIgnoreAnnotationClass(Class<? extends Annotation> annotationClass) {
+        IGNORE_ANNOTATION_CLASS.add(annotationClass);
     }
 
     public static void setScanAllFreamworkPackage(final boolean scanAllFreamworkPackage) {
@@ -597,16 +607,6 @@ public abstract class ClassUtils {
             }
         }
     }
-
-    /**
-     * Class file filter
-     */
-    private static final FileFilter CLASS_FILE_FILTER = new FileFilter() {
-        @Override
-        public boolean accept(File file) {
-            return (file.isDirectory()) || (file.getName().endsWith(Constant.CLASS_FILE_SUFFIX));
-        }
-    };
 
     /**
      * Get the array of {@link Annotation} instance
@@ -1189,7 +1189,6 @@ public abstract class ClassUtils {
         }
     };
 
-    static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(32);
 
     final static class ClassNode extends ClassVisitor {
 
