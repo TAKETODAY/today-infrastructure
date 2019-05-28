@@ -31,7 +31,7 @@
 - [DEMO](https://github.com/TAKETODAY/today-web-demo)
 
 ## 文档
-- [Wiki](https://gitee.com/TAKETODAY/today_web/wikis)
+- [Wiki](https://gitee.com/I-TAKE-TODAY/today_web/wikis)
 
 ## 使用说明
 
