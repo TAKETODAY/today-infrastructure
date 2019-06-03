@@ -30,7 +30,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @SuppressWarnings("serial")
-public class FileSizeExceededException extends Exception {
+public class FileSizeExceededException extends WebRuntimeException {
 
     /**
      * The actual size of the request.

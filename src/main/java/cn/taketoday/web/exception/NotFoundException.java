@@ -24,9 +24,8 @@ package cn.taketoday.web.exception;
  * 
  *         2018-11-26 20:04
  */
-public class NotFoundException extends RuntimeException {
-
-    private static final long serialVersionUID = 8715305996905591689L;
+@SuppressWarnings("serial")
+public class NotFoundException extends WebRuntimeException {
 
     public NotFoundException(Throwable cause) {
         super(cause);

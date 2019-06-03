@@ -26,6 +26,7 @@ import java.net.URL;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.io.ResourceFilter;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.PathMatcher;
@@ -182,6 +183,11 @@ public class DefaultResourceResolver implements ResourceResolver {
         @Override
         public String[] list() throws IOException {
             return resource.list();
+        }
+
+        @Override
+        public Resource[] list(ResourceFilter filter) throws IOException {
+            return resource.list(filter);
         }
     }
 }

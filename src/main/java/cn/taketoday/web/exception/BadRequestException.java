@@ -26,9 +26,8 @@ import org.slf4j.LoggerFactory;
  * @author Today <br>
  *         2018-10-30 16:51
  */
-public final class BadRequestException extends RuntimeException {
-
-    private static final long serialVersionUID = 905584282760902885L;
+@SuppressWarnings("serial")
+public class BadRequestException extends WebRuntimeException {
 
     public BadRequestException(Throwable cause) {
         super(cause);

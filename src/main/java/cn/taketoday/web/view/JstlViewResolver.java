@@ -66,7 +66,7 @@ public class JstlViewResolver extends AbstractViewResolver implements Initializi
         final String jspServlet = "org.apache.jasper.servlet.JspServlet";
 
         if (!ClassUtils.isPresent(jspServlet)) {
-            throw new ConfigurationException("You must provide: [] to your application's class path", jspServlet);
+            throw new ConfigurationException("You must provide: [" + jspServlet + "] to your application's class path");
         }
 
         boolean register = true;

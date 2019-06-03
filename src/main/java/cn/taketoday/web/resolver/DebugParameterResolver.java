@@ -21,6 +21,7 @@ package cn.taketoday.web.resolver;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,6 +60,7 @@ import cn.taketoday.web.ui.ModelAttributes;
 import cn.taketoday.web.ui.RedirectModel;
 import cn.taketoday.web.ui.RedirectModelAttributes;
 import cn.taketoday.web.utils.ParamList;
+import cn.taketoday.web.utils.WebUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -107,8 +109,8 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
                     continue;
                 }
                 if (!Converter.class.isAssignableFrom(beanClass)) {
-                    throw new ConfigurationException("Component: [{}] which annotated '@ParameterConverter'" + //
-                            " must be a [cn.taketoday.context.conversion.Converter]", entry.getKey());
+                    throw new ConfigurationException("Component: [" + entry.getKey() + "] which annotated '@ParameterConverter'" + //
+                            " must be a [cn.taketoday.context.conversion.Converter]");
                 }
                 Object singleton = applicationContext.getBean(beanClass);
                 Class<?>[] values = converter.value();
@@ -131,7 +133,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
         }
         catch (NoSuchMethodException e) {
             throw new ConfigurationException(//
-                    "The method of {}'s parameter only support [java.lang.String]", Constant.CONVERT_METHOD, e//
+                    "The method of " + Constant.CONVERT_METHOD + "'s parameter only support [java.lang.String]", e//
             );
         }
         if (supportParameterTypes.size() < 1) {
@@ -395,22 +397,25 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
             }
             case ANNOTATION_REQUEST_BODY : { // request body
                 log.debug("Resolve request body: [{}]", methodParameterName);
-                Object requestBody = request.getAttribute(KEY_REQUEST_BODY);
+                final Object requestBody = request.getAttribute(KEY_REQUEST_BODY);
                 if (requestBody != null) {
-                    return ((JSONObject) requestBody).getObject(methodParameterName, methodParameter.getParameterClass());
+                    return toJavaObject(methodParameterName, methodParameter, requestBody);
                 }
                 try {
                     // fixed #2 JSONObject could be null
-                    String readLine = request.getReader().readLine();
-                    if (readLine == null) {
-                        throw newBadRequest("Request body", methodParameterName, null);
+                    final String formData = request.getReader().readLine();
+                    if (StringUtils.isEmpty(formData)) {
+                        throw WebUtils.newBadRequest("Request body", methodParameterName, null);
                     }
-                    JSONObject object = JSON.parseObject(readLine);
-                    request.setAttribute(KEY_REQUEST_BODY, object);
-                    return object.getObject(methodParameterName, methodParameter.getParameterClass());
+                    // fix
+                    final Object parsedJson = JSON.parse(formData);
+
+                    request.setAttribute(KEY_REQUEST_BODY, parsedJson);
+
+                    return toJavaObject(methodParameterName, methodParameter, parsedJson);
                 }
                 catch (IOException e) {
-                    throw newBadRequest("Request body", methodParameterName, e);
+                    throw WebUtils.newBadRequest("Request body", methodParameterName, e);
                 }
             }
             case ANNOTATION_SERVLET_CONTEXT : { // servlet context attribute
@@ -421,6 +426,48 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
             }
         }
         throw new BadRequestException("Annotation Parameter: [" + methodParameterName + "] not supported, bad request.");
+    }
+
+    /**
+     * @param methodParameterName
+     * @param methodParameter
+     * @param requestBody
+     * @return
+     * @since 2.3.7
+     */
+    private static Object toJavaObject(final String methodParameterName, //
+            final MethodParameter methodParameter, final Object parsedJson) //
+    {
+        if (parsedJson instanceof JSONArray) {// array
+            // style: [{'name':'today','age':21},{'name':"YHJ",'age':22}]
+            final Class<?> parameterClass = methodParameter.getParameterClass();
+
+            if (Collection.class.isAssignableFrom(parameterClass)) {
+                return ((JSONArray) parsedJson).toJavaList(methodParameter.getGenericityClass());
+            }
+        }
+        else if (parsedJson instanceof JSONObject) {
+            final JSONObject requestBody = (JSONObject) parsedJson;
+
+            final Class<?> parameterClass = methodParameter.getParameterClass();
+
+            if (Collection.class.isAssignableFrom(parameterClass)) {
+                final JSONArray array = requestBody.getJSONArray(methodParameterName);
+                if (array == null) { // style: {'users':[{'name':'today','age':21},{'name':"YHJ",'age':22}],...}
+                    throw WebUtils.newBadRequest("Request body", methodParameterName, null);
+                }
+                return array.toJavaList(methodParameter.getGenericityClass());
+            }
+            else {
+                final JSONObject obj = requestBody.getJSONObject(methodParameterName);
+                if (obj == null) { // only one request body
+                    return requestBody.toJavaObject(parameterClass); // style: {'name':'today','age':21}
+                }
+                return obj.toJavaObject(parameterClass); // style: {'user':{'name':'today','age':21},...}
+            }
+        }
+
+        throw WebUtils.newBadRequest("Request body", methodParameterName, null);
     }
 
     /**
@@ -609,30 +656,6 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
             String parameterName, MethodParameter methodParameter) throws Throwable //
     {
         log.debug("Resolve List Parameter: [{}]", parameterName);
-        if (methodParameter.isRequestBody()) {
-            log.debug("List parameter is request body");
-            Object requestBody = request.getAttribute(KEY_REQUEST_BODY);
-            if (requestBody != null) {
-                return JSONArray.parseArray(//
-                        ((JSONObject) requestBody).getString(parameterName), methodParameter.getGenericityClass()//
-                );
-            }
-
-            try {
-
-                // fix #2 JSONObject could be null
-                String readLine = request.getReader().readLine();
-                if (readLine == null) {
-                    throw newBadRequest("Request body", parameterName, null);
-                }
-                JSONObject object = JSON.parseObject(readLine);
-                request.setAttribute(KEY_REQUEST_BODY, object);
-                JSONArray.parseArray(object.getString(parameterName), methodParameter.getGenericityClass());
-            }
-            catch (IOException e) {
-                throw new BadRequestException("Collection request body: [" + parameterName + "] read error.", e);
-            }
-        }
         // https://taketoday.cn/today/user/list?user%5b0%5d.userId=90&user%5b2%5d.userId=98&user%5b1%5d.userName=Today
 
         Enumeration<String> parameterNames = request.getParameterNames();// all request parameter name

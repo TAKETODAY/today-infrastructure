@@ -111,7 +111,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
             }
         }
         catch (TemplateException e) {
-            throw new ConfigurationException("Set FreeMarker's Properties Error, With Msg: [{}]", e.getMessage(), e);
+            throw new ConfigurationException("Set FreeMarker's Properties Error, With Msg: [" + e.getMessage() + "]", e);
         }
     }
 

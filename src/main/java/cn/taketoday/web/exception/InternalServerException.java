@@ -22,12 +22,11 @@ package cn.taketoday.web.exception;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-12-02 09:14
  */
 @SuppressWarnings("serial")
-public class InternalServerException extends RuntimeException {
+public class InternalServerException extends WebRuntimeException {
 
     public InternalServerException(Throwable cause) {
         super(cause);

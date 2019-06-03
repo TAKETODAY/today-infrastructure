@@ -384,8 +384,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
         final Object bean = applicationContext.getBean(beanClass);
         if (bean == null) {
             throw new ConfigurationException(//
-                    "An unexpected exception occurred: [Can't get bean with given type: [{}]]", //
-                    beanClass.getName()//
+                    "An unexpected exception occurred: [Can't get bean with given type: [" + beanClass.getName() + "]]"//
             );
         }
 
@@ -670,7 +669,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
                 }
             }
             catch (Exception e) {
-                throw new ConfigurationException("Interceptor: [{}] register error", interceptor.getName(), e);
+                throw new ConfigurationException("Interceptor: [" + interceptor.getName() + "] register error", e);
             }
         }
         return ids;

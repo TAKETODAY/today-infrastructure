@@ -1,9 +1,9 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
- * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,33 +13,37 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ *   
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.web.exception;
 
 /**
- * @author Today <br>
- * 
- *         2018-11-26 20:06
+ * @author TODAY <br>
+ *         2019-06-03 10:27
  */
 @SuppressWarnings("serial")
-public class AccessForbiddenException extends WebRuntimeException {
+public class WebRuntimeException extends RuntimeException {
 
-    public AccessForbiddenException(Throwable cause) {
-        super(cause);
+    public WebRuntimeException() {
+        super();
     }
 
-    public AccessForbiddenException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public AccessForbiddenException(String message) {
+    public WebRuntimeException(String message) {
         super(message);
     }
 
-    public AccessForbiddenException() {
-
+    public WebRuntimeException(Throwable cause) {
+        super(cause);
     }
+
+    public WebRuntimeException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public WebRuntimeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
 }

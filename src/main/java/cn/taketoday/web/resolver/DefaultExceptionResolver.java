@@ -26,9 +26,6 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.ClassUtils;
@@ -43,7 +40,6 @@ import cn.taketoday.web.exception.MethodNotAllowedException;
 import cn.taketoday.web.exception.NotFoundException;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.utils.Json;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -90,11 +86,14 @@ public class DefaultExceptionResolver implements ExceptionResolver {
                     case Constant.RETURN_STRING :
 
                         response.setContentType(Constant.CONTENT_TYPE_JSON);
-                        JSON.writeJSONString(response.getWriter(), new Json(msg, status, false),
-                                SerializerFeature.WriteMapNullValue, //
-                                SerializerFeature.WriteNullListAsEmpty, //
-                                SerializerFeature.DisableCircularReferenceDetect//
+
+                        response.getWriter().print(new StringBuilder()//
+                                .append("{\"msg\":\"").append(msg)//
+                                .append("\",\"code\":").append(status)//
+                                .append(",\"success\":false}")//
+                                .toString()//
                         );
+
                         break;
                     case Constant.RETURN_IMAGE :
                         resolveImageException(ex, response);

@@ -20,12 +20,12 @@
 package cn.taketoday.web.exception;
 
 /**
- * @author Today
- * @date 2018年7月1日 下午7:38:39
+ * 
+ * @author TODAY <br>
+ *         2018-7-1 19:38:39
  */
-public final class MethodNotAllowedException extends Exception {
-
-    private static final long serialVersionUID = -2685676809973234020L;
+@SuppressWarnings("serial")
+public class MethodNotAllowedException extends WebRuntimeException {
 
     public MethodNotAllowedException(Throwable cause) {
         super(cause);

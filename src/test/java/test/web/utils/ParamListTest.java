@@ -19,13 +19,17 @@
  */
 package test.web.utils;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.web.utils.Json;
 import cn.taketoday.web.utils.ParamList;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * @author Today <br>
@@ -211,6 +215,47 @@ public class ParamListTest {
         assert params.size() == 5;
         assert params.get(5) == null;
         assert params.get(4).equals(json);
+    }
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @SuppressWarnings("serial")
+    public class Json implements Serializable {
+
+        private String msg;
+        private Object data;
+        private int code = 200;
+        private boolean success;
+
+        public Json(boolean success) {
+            this.success = success;
+        }
+
+        public Json(boolean success, String msg) {
+            this(success, msg, 200, null);
+        }
+
+        public Json(String msg, int code, boolean success) {
+            this(success, msg, code, null);
+        }
+
+        public Json(int code, boolean success) {
+            this(success, null, code, null);
+        }
+
+        public Json(boolean success, String msg, Object obj) {
+            this(success, msg, 200, obj);
+        }
+
+        public Json(boolean success, String msg, int code, Object obj) {
+            this.success = success;
+            this.msg = msg;
+            this.data = obj;
+            this.code = code;
+        }
+
     }
 
 }
