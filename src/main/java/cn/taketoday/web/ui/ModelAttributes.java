@@ -29,6 +29,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import cn.taketoday.web.exception.InternalServerException;
+import cn.taketoday.web.exception.WebRuntimeException;
 
 /**
  * 
@@ -114,7 +115,7 @@ public class ModelAttributes implements Model, Map<String, Object> {
     @Override
     public Object get(Object key) {
         if (!(key instanceof String)) {
-            throw new RuntimeException("Attribute name must be a String");
+            throw new WebRuntimeException("Attribute name must be a String");
         }
         return request.getAttribute((String) key);
     }

@@ -241,32 +241,11 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
         final String requestParameter = request.getParameter(methodParameterName);
         if (StringUtils.isEmpty(requestParameter)) {
             if (methodParameter.isRequired()) {
-                throw newBadRequest(null, methodParameterName, null);
+                throw WebUtils.newBadRequest(null, methodParameterName, null);
             }
             return converter.doConvert(methodParameter.getDefaultValue());
         }
         return converter.doConvert(requestParameter);
-    }
-
-    /**
-     * @param type
-     *            type
-     * @param methodParameterName
-     *            parameter name
-     */
-    static BadRequestException newBadRequest(String type, String methodParameterName, Throwable ex) {
-        StringBuilder msg = new StringBuilder(64);
-
-        if (StringUtils.isNotEmpty(type)) {
-            msg.append(type);
-        }
-        else {
-            msg.append("Parameter");
-        }
-
-        msg.append(": [").append(methodParameterName).append("] is required and it can't be resolve, bad request.");
-
-        return new BadRequestException(msg.toString(), ex);
     }
 
     /**
@@ -285,7 +264,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 
         if (StringUtils.isEmpty(requestParameter)) {
             if (methodParameter.isRequired()) {
-                throw newBadRequest(null, methodParameterName, null);
+                throw WebUtils.newBadRequest(null, methodParameterName, null);
             }
             return methodParameter.getDefaultValue();
         }
@@ -307,7 +286,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
         String[] parameterValues = request.getParameterValues(methodParameterName);
         if (parameterValues == null || parameterValues.length == 0) {
             if (methodParameter.isRequired()) {
-                throw newBadRequest(null, methodParameterName, null);
+                throw WebUtils.newBadRequest(null, methodParameterName, null);
             }
             return null;
         }
@@ -339,13 +318,13 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
             newInstance = parameterClass.getConstructor().newInstance();
         } //
         catch (Throwable e) {
-            throw newBadRequest("Can't resolve pojo", methodParameterName, null);
+            throw WebUtils.newBadRequest("Can't resolve pojo", methodParameterName, null);
         }
 
         log.debug("Resolve pojo parameter: [{}]", methodParameterName);
         // pojo
         if (!setBean(request, parameterClass, newInstance, request.getParameterNames())) {
-            throw newBadRequest("Can't resolve pojo", methodParameterName, null);
+            throw WebUtils.newBadRequest("Can't resolve pojo", methodParameterName, null);
         }
         return newInstance;
     }
@@ -386,7 +365,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
                 final String header = request.getHeader(methodParameterName);
                 if (StringUtils.isEmpty(header)) {
                     if (methodParameter.isRequired()) {
-                        throw newBadRequest("Header", methodParameterName, null);
+                        throw WebUtils.newBadRequest("Header", methodParameterName, null);
                     }
                     return methodParameter.getDefaultValue();
                 }
@@ -525,9 +504,9 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 			}
 		}
 		catch (Throwable e) {
-			throw newBadRequest("Path variable", methodParameterName, e);
+			throw WebUtils.newBadRequest("Path variable", methodParameterName, e);
 		}
-		throw newBadRequest("Path variable", methodParameterName, null);
+		throw WebUtils.newBadRequest("Path variable", methodParameterName, null);
 	}
 	//@on
 
@@ -555,7 +534,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
         }
         // no cookie
         if (methodParameter.isRequired()) {
-            throw newBadRequest("Cookie", methodParameterName, null);
+            throw WebUtils.newBadRequest("Cookie", methodParameterName, null);
         }
         return methodParameter.getDefaultValue(); // return default value.
     }

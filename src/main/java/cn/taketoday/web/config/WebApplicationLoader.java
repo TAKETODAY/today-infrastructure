@@ -454,11 +454,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
         mvcConfiguration.configMultipartResolver(abstractMultipartResolver);
     }
 
-    /**
-     * @param staticMapping
-     * @throws Throwable
-     */
-    static void addDefaultServletMapping(String staticMapping, CompositeWebMvcConfiguration mvcConfiguration) throws Throwable {
+    private static void addDefaultServletMapping(String staticMapping, CompositeWebMvcConfiguration mvcConfiguration) throws Throwable {
 
         if (StringUtils.isEmpty(staticMapping)) {
             throw new ConfigurationException("Static sources mapping can't be empty, please check your configuration");
@@ -483,7 +479,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
      * 
      * @throws BeanDefinitionStoreException
      */
-    static void checkFrameWorkResolvers() throws BeanDefinitionStoreException {
+    private static void checkFrameWorkResolvers() throws BeanDefinitionStoreException {
 
         WebApplicationContext applicationContext = getWebApplicationContext();
 
