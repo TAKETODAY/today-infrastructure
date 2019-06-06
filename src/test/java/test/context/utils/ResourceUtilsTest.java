@@ -20,9 +20,12 @@
 package test.context.utils;
 
 import java.io.IOException;
+import java.net.URL;
+import java.nio.file.InvalidPathException;
 
 import org.junit.Test;
 
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.JarEntryResource;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ResourceUtils;
@@ -49,6 +52,8 @@ public class ResourceUtilsTest {
         System.err.println(relativePath2);
         assert relativePath2.equals("D:/java/1.txt");
 
+        assert ResourceUtils.getRelativePath("index", "TODAY").equals("TODAY");
+
     }
 
     @Test
@@ -64,7 +69,7 @@ public class ResourceUtilsTest {
         assert createRelative.exists();
         assert resource.exists();
 
-        resource = ResourceUtils.getResource("file:/G:/Projects/Git/github/today-context/src/main/resources/ignore/jar-prefix");
+        resource = ResourceUtils.getResource("file:/G:/Projects/Git/github/today-context/src/main/resources/META-INF/ignore/jar-prefix");
 
         System.err.println(resource);
 
@@ -85,6 +90,35 @@ public class ResourceUtilsTest {
 
             System.err.println(jarEntryResource);
         }
+        // location is empty
+        final Resource classpath = ResourceUtils.getResource("");
+        assert classpath.createRelative("/info.properties").exists();
+        // start with '/'
+        assert ResourceUtils.getResource("/info.properties").exists();
+        assert ResourceUtils.getResource("classpath:info.properties").exists();
+
+        try {
+            ResourceUtils.getResource("today://info");
+        }
+        catch (InvalidPathException e) {
+            System.err.println(e);
+        }
+        ResourceUtils.getResource("info.properties");
+
+        try {
+            ResourceUtils.getResource("info"); // ConfigurationException
+        }
+        catch (ConfigurationException e) {
+            System.err.println(e);
+        }
+
+        // getResource(URL)
+
+        final Resource taketoday = ResourceUtils.getResource(new URL("https://taketoday.cn"));
+
+        assert taketoday.exists();
+        assert StringUtils.readAsText(taketoday.getInputStream()) != null;
+        System.err.println(StringUtils.readAsText(taketoday.getInputStream()));
 
     }
 

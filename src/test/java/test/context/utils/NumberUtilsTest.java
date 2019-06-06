@@ -75,14 +75,6 @@ public class NumberUtilsTest {
     }
 
     @Test
-    public void test_ParseNumber() throws ConversionException {
-        Integer parseNumber = NumberUtils.parseNumber("12121", Integer.class);
-
-        assert parseNumber.equals(12121);
-        assert parseNumber.getClass() == Integer.class;
-    }
-
-    @Test
     public void test_toArrayObject() throws ConversionException {
         Object arrayObject = NumberUtils.toArrayObject(new String[] { "12121", "121212121"
         }, Integer[].class);

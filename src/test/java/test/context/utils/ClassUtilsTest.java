@@ -2,15 +2,17 @@ package test.context.utils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Component;
@@ -23,7 +25,6 @@ import test.context.props.Config_;
 import test.context.utils.Bean.C;
 import test.context.utils.Bean.S;
 import test.demo.config.Config;
-import test.demo.config.User;
 
 /**
  * 
@@ -60,17 +61,34 @@ public class ClassUtilsTest {
         assert classCache.size() > 0 : "cache error";
     }
 
+    private @interface TEST {
+
+    }
+
     @Test
     public void test_Scan() {
+        ClassUtils.setScanAllFreamworkPackage(false);
+        ClassUtils.addIgnoreAnnotationClass(TEST.class);
         setProcess("test_Scan");
         Collection<Class<?>> scanPackage = ClassUtils.scan("test");
         for (Class<?> class1 : scanPackage) {
             System.err.println(class1);
         }
 
-        Collection<Class<?>> scan = ClassUtils.scan("test.context.utils");
+        System.err.println("===========================");
+
+        Collection<Class<?>> scan = ClassUtils.scan("test.context.utils", "cn.taketoday");
+        for (Class<?> class1 : scan) {
+            System.err.println(class1);
+        }
         assert !scan.contains(Config_.class);
         assert scanPackage.size() > 0 : "scan error";
+        // in jar
+
+        ClassUtils.setClassCache(null);
+
+        final Set<Class<?>> scan2 = ClassUtils.scan("com.sun.el");
+        assert scan2.size() == 0;
     }
 
     @Test
@@ -182,15 +200,15 @@ public class ClassUtilsTest {
         }
     }
 
-    public static void main(String[] args) {
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < 10; i++) {
-            try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
-                System.err.println(applicationContext.getBean(User.class));
-            }
-        }
-        System.err.println(System.currentTimeMillis() - start + "ms");
-    }
+//    public static void main(String[] args) {
+//        long start = System.currentTimeMillis();
+//        for (int i = 0; i < 10; i++) {
+//            try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
+//                System.err.println(applicationContext.getBean(User.class));
+//            }
+//        }
+//        System.err.println(System.currentTimeMillis() - start + "ms");
+//    }
 
     public String getProcess() {
         return process;
@@ -198,6 +216,62 @@ public class ClassUtilsTest {
 
     public void setProcess(String process) {
         this.process = process;
+    }
+
+    @Test
+    public void resolvePrimitiveClassName() {
+        setProcess("resolvePrimitiveClassName");
+
+        assert ClassUtils.resolvePrimitiveClassName("java.lang.Float") == null;
+        assert ClassUtils.resolvePrimitiveClassName("float") == float.class;
+        assert ClassUtils.resolvePrimitiveClassName(null) == null;
+    }
+
+    @Test
+    public void isCollection() throws ClassNotFoundException {
+
+        setProcess("isCollection");
+
+        assert ClassUtils.isCollection(List.class);
+        assert ClassUtils.isCollection(Set.class);
+        assert !ClassUtils.isCollection(INNER.class);
+        assert ClassUtils.isCollection(ArrayList.class);
+    }
+
+    @Test
+    public void forName() throws ClassNotFoundException {
+        setProcess("forName");
+
+        assert ClassUtils.forName("java.lang.Float") == Float.class;
+        assert ClassUtils.forName("float") == float.class;
+        assert ClassUtils.forName("java.lang.String[]") == String[].class;
+        assert ClassUtils.forName("[Ljava.lang.String;") == String[].class;
+        assert ClassUtils.forName("[[Ljava.lang.String;") == String[][].class;
+
+        try {
+            ClassUtils.forName("Float");
+        }
+        catch (ClassNotFoundException e) {
+        }
+        assert ClassUtils.forName("test.context.utils.ClassUtilsTest.INNER") == INNER.class;
+        try {
+            ClassUtils.forName("test.context.utils.ClassUtilsTest.INNERs");//
+        }
+        catch (ClassNotFoundException e) {
+        }
+
+    }
+
+    private static class INNER {
+
+    }
+
+    @Test
+    public void isPresent() {
+        setProcess("isPresent");
+
+        assert ClassUtils.isPresent("java.lang.Float");
+        assert !ClassUtils.isPresent("Float");
     }
 
 }

@@ -37,6 +37,10 @@ public class ClassPathResource implements Resource, WritableResource {
 
     private final Resource resource;
 
+    public Resource getOriginalResource() {
+        return resource;
+    }
+
     public ClassPathResource(URL location) throws IOException {
         this.resource = ResourceUtils.getResource(location);
     }
@@ -122,4 +126,5 @@ public class ClassPathResource implements Resource, WritableResource {
     public Resource[] list(ResourceFilter filter) throws IOException {
         return resource.list(filter);
     }
+
 }

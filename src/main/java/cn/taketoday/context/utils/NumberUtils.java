@@ -132,11 +132,6 @@ public abstract class NumberUtils {
         return targetClass.cast(toArrayObject(source, targetClass));
     }
 
-    public final static <T extends Number> T parseNumber(String text, Class<T> targetClass) throws ConversionException {
-
-        return targetClass.cast(parseDigit(text, targetClass));
-    }
-
     public static final Object parseDigit(String text, Class<?> targetClass) throws ConversionException {
 
         if (StringUtils.isEmpty(text)) {

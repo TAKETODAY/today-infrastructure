@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.io.JarEntryResource;
@@ -68,7 +69,7 @@ public abstract class ResourceUtils {
             try {
                 return new ClassPathResource(location);
             }
-            catch (NullPointerException nullE) {
+            catch (ConfigurationException nullE) {
                 return new FileBasedResource(location);
             }
         }
@@ -98,7 +99,7 @@ public abstract class ResourceUtils {
 
         final int separatorIndex = path.lastIndexOf(Constant.PATH_SEPARATOR);
 
-        if (separatorIndex != -1) {
+        if (separatorIndex > 0) {
 
             final StringBuilder newPath = new StringBuilder(path.substring(0, separatorIndex));
 

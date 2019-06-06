@@ -19,26 +19,36 @@
  */
 package cn.taketoday.context.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.Ordered;
+import cn.taketoday.context.conversion.Converter;
+import cn.taketoday.context.conversion.StringTypeConverter;
+import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.io.Resource;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-07-12 20:43:53
  */
 // @Slf4j
 public abstract class ConvertUtils {
 
+    private static TypeConverter[] converters;
+
     /**
-     * Convert string to target type
+     * Convert source to target type
      * 
      * @param value
      *            value
@@ -47,97 +57,249 @@ public abstract class ConvertUtils {
      * @return converted object
      * @throws IOException
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static Object convert(String value, Class<?> targetClass) {
+    public static Object convert(Object source, Class<?> targetClass) {
 
-        if (StringUtils.isEmpty(value)) {
-            return value;
+        if (targetClass.isInstance(source)) {
+            return targetClass.cast(source);
         }
 
-        switch (targetClass.getSimpleName()) //
-        {
-            case "String" :
-                return value;
-            case "Byte" :
-            case "byte" :
-                return Byte.parseByte(value);
-            case "short" :
-            case "Short" :
-                return Short.parseShort(value);
-            case "int" :
-            case "Integer" :
-                return Integer.parseInt(value);
-            case "long" :
-            case "Long" :
-                return Long.parseLong(value);
-            case "float" :
-            case "Float" :
-                return Float.parseFloat(value);
-            case "double" :
-            case "Double" :
-                return Double.parseDouble(value);
-            case "boolean" :
-            case "Boolean" :
-                return Boolean.parseBoolean(value);
-            case "BigInteger" :
-                return new BigInteger(value);
-            case "BigDecimal" :
-                return new BigDecimal(value);
-            case "File" : {
-                try {
-                    return ResourceUtils.getResource(value).getFile();// @since 2.1.6
-                }
-                catch (IOException e) {
-                    throw ExceptionUtils.newContextException(e);
-                }
-            }
-            case "Charset" :
-                return Charset.forName(value);
-            case "Class" : {
-                try {
-                    return Class.forName(value);
-                }
-                catch (ClassNotFoundException e) {
-                    throw new ContextException(e);
-                }
-            }
-            case "Duration" : {
-                return convertDuration(value);
-            }
-            case "DataSize" : {
-                return DataSize.parse(value);
+        for (TypeConverter converter : getConverters()) {
+            if (converter.supports(targetClass, source)) {
+                return converter.convert(targetClass, source);
             }
         }
-        // @since 2.1.6
-        if (Resource.class.isAssignableFrom(targetClass)) {
+        return null;
+    }
+
+    public static TypeConverter[] getConverters() {
+        return converters;
+    }
+
+    public static void setConverters(TypeConverter[] converters) {
+        ConvertUtils.converters = converters;
+    }
+
+    /**
+     * Add {@link TypeConverter} to {@link #converters}
+     * 
+     * @param converters
+     *            {@link TypeConverter} object
+     * @since 2.1.6
+     */
+    public static void addConverter(TypeConverter... converters) {
+
+        final List<TypeConverter> typeConverters = new ArrayList<>();
+
+        if (getConverters() != null) {
+            Collections.addAll(typeConverters, getConverters());
+        }
+
+        Collections.addAll(typeConverters, converters);
+
+        OrderUtils.reversedSort(typeConverters);
+
+        setConverters(typeConverters.toArray(new TypeConverter[0]));
+    }
+
+    static {
+        addConverter(//
+                new StringEnumConverter(), //
+                new StringArrayConverter(), //
+                new StringNumberConverter(), //
+                new StringResourceConverter(), //
+                new StringConstructorConverter(), //
+                new DelegatingStringTypeConverter<>(Class.class, source -> {
+                    try {
+                        return Class.forName(source);
+                    }
+                    catch (ClassNotFoundException e) {
+                        throw new ConversionException(e);
+                    }
+                }), //
+                new DelegatingStringTypeConverter<>(DataSize.class, DataSize::parse), //
+                new DelegatingStringTypeConverter<>(Charset.class, Charset::forName), //
+                new DelegatingStringTypeConverter<>(Duration.class, ConvertUtils::parseDuration)//
+        );
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-06-06 15:51
+     * @since 2.1.6
+     */
+    public static class StringNumberConverter extends StringTypeConverter {
+
+        @Override
+        public int getOrder() {
+            return Ordered.HIGHEST_PRECEDENCE;
+        }
+
+        @Override
+        public boolean supports(Class<?> targetClass) {
+            return NumberUtils.isNumber(targetClass);
+        }
+
+        @Override
+        protected Object convertInternal(Class<?> targetClass, String source) {
+            return NumberUtils.parseDigit(source, targetClass);
+        }
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-06-06 15:50
+     * @since 2.1.6
+     */
+    public static class StringResourceConverter extends StringTypeConverter {
+
+        @Override
+        public int getOrder() {
+            return Ordered.HIGHEST_PRECEDENCE;
+        }
+
+        @Override
+        public boolean supports(Class<?> targetClass) {
+            return Resource.class == targetClass //
+                    || targetClass == URI.class//
+                    || targetClass == URL.class//
+                    || targetClass == File.class;
+        }
+
+        @Override
+        protected Object convertInternal(Class<?> targetClass, String source) {
+
             try {
-                return ResourceUtils.getResource(value);
+                final Resource resource = ResourceUtils.getResource(source);
+                if (targetClass == File.class) {
+                    return resource.getFile();
+                }
+                if (targetClass == URL.class) {
+                    return resource.getLocation();
+                }
+                if (targetClass == URI.class) {
+                    return resource.getLocation().toURI();
+                }
+                return resource;
             }
-            catch (IOException e) {
-                throw ExceptionUtils.newContextException(e);
+            catch (Throwable e) {
+                throw new ConversionException(e);
             }
+        }
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-06-06 15:50
+     * @since 2.1.6
+     */
+    public static class StringEnumConverter extends StringTypeConverter {
+
+        @Override
+        public int getOrder() {
+            return Ordered.HIGHEST_PRECEDENCE;
         }
 
-        if (targetClass.isEnum()) {
-            return Enum.valueOf((Class<Enum>) targetClass, value);
+        @Override
+        public boolean supports(Class<?> targetClass) {
+            return targetClass.isEnum();
         }
-        if (targetClass.isArray()) {
+
+        @Override
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        protected Object convertInternal(Class<?> targetClass, String source) {
+            return Enum.valueOf((Class<Enum>) targetClass, source);
+        }
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-06-06 16:06
+     * @since 2.1.6
+     */
+    public static class DelegatingStringTypeConverter<T> extends StringTypeConverter {
+
+        @Override
+        public int getOrder() {
+            return Ordered.HIGHEST_PRECEDENCE;
+        }
+
+        private final Class<?> targetClass;
+        private final Converter<String, T> converter;
+
+        @Override
+        public boolean supports(Class<?> targetClass) {
+            return targetClass == this.targetClass;
+        }
+
+        public DelegatingStringTypeConverter(Class<?> targetClass, Converter<String, T> converter) {
+            this.converter = converter;
+            this.targetClass = targetClass;
+        }
+
+        @Override
+        protected Object convertInternal(Class<?> targetClass, String source) throws ConversionException {
+            return converter.convert(source);
+        }
+
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-06-06 15:50
+     * @since 2.1.6
+     */
+    public static class StringArrayConverter extends StringTypeConverter {
+
+        @Override
+        public int getOrder() {
+            return Ordered.HIGHEST_PRECEDENCE;
+        }
+
+        @Override
+        public boolean supports(Class<?> targetClass) {
+            return targetClass.isArray();
+        }
+
+        @Override
+        protected Object convertInternal(Class<?> targetClass, String source) {
             final Class<?> componentType = targetClass.getComponentType();
-            final String[] split = StringUtils.split(value);
+
+            final String[] split = StringUtils.split(source);
+
             final Object arrayValue = Array.newInstance(componentType, split.length);
             for (int i = 0; i < split.length; i++) {
-                Array.set(arrayValue, i, convert(split[i], componentType));
+                Array.set(arrayValue, i, ConvertUtils.convert(split[i], componentType));
             }
             return arrayValue;
         }
-        // use constructor
-        try {
-            return targetClass.getConstructor(String.class).newInstance(value);
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-06-06 16:12
+     */
+    public static class StringConstructorConverter extends StringTypeConverter {
+
+        @Override
+        public boolean supports(Class<?> targetClass) {
+            try {
+                targetClass.getConstructor(String.class);
+                return true;
+            }
+            catch (NoSuchMethodException e) {
+                return false;
+            }
         }
-        catch (Throwable e) {
-            //
+
+        @Override
+        protected Object convertInternal(Class<?> targetClass, String source) {
+            try {
+                return ClassUtils.makeAccessible(targetClass.getConstructor(String.class)).newInstance(source);
+            }
+            catch (Throwable e) {
+                throw new ConversionException(e);
+            }
         }
-        return null;
     }
 
     /**
@@ -146,14 +308,8 @@ public abstract class ConvertUtils {
      * @param value
      * @return
      */
-    public static Duration convertDuration(String value) {
+    public static Duration parseDuration(String value) {
 
-        if (value.endsWith("s")) {
-            return Duration.ofSeconds(Long.parseLong(value.substring(0, value.length() - 1)));
-        }
-        if (value.endsWith("h")) {
-            return Duration.ofHours(Long.parseLong(value.substring(0, value.length() - 1)));
-        }
         if (value.endsWith("ns")) {
             return Duration.ofNanos(Long.parseLong(value.substring(0, value.length() - 2)));
         }
@@ -163,11 +319,17 @@ public abstract class ConvertUtils {
         if (value.endsWith("min")) {
             return Duration.ofMinutes(Long.parseLong(value.substring(0, value.length() - 3)));
         }
+
+        if (value.endsWith("s")) {
+            return Duration.ofSeconds(Long.parseLong(value.substring(0, value.length() - 1)));
+        }
+        if (value.endsWith("h")) {
+            return Duration.ofHours(Long.parseLong(value.substring(0, value.length() - 1)));
+        }
         if (value.endsWith("d")) {
             return Duration.ofDays(Long.parseLong(value.substring(0, value.length() - 1)));
         }
 
         return Duration.parse(value);
     }
-
 }

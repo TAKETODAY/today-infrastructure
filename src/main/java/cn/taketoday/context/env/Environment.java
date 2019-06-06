@@ -123,7 +123,7 @@ public interface Environment {
         if (property == null) {
             return defaultValue;
         }
-        return converter.doConvert((S) property);
+        return converter.convert((S) property);
     }
 
     /**

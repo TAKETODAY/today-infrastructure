@@ -12,7 +12,7 @@
 <!-- 
 	<root level="INFO">
  -->
-	<root level="INFO, DEBUG">
+	<root level="TRACE">
 		<appender-ref ref="STDOUT"/>
 	</root>
 

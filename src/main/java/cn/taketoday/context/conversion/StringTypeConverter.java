@@ -17,42 +17,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.annotation;
+package cn.taketoday.context.conversion;
 
-import java.lang.annotation.Annotation;
-
-import cn.taketoday.context.Constant;
+import cn.taketoday.context.exception.ConversionException;
 
 /**
  * @author TODAY <br>
- *         2019-03-15 23:18
+ *         2019-06-06 15:31
+ * @since 2.1.6
  */
-@SuppressWarnings("all")
-public class DefaultProps implements Props, Annotation {
+public abstract class StringTypeConverter implements TypeConverter {
 
-    @Override
-    public Class<? extends Annotation> annotationType() {
-        return Props.class;
+    public boolean supports(Class<?> targetClass, Object source) {
+        return source instanceof String && supports(targetClass);
+    }
+
+    public boolean supports(Class<?> targetClass) {
+        return true;
     }
 
     @Override
-    public String[] value() {
-        return new String[0];
+    public Object convert(Class<?> targetClass, Object source) throws ConversionException {
+        return convertInternal(targetClass, (String) source);
     }
 
-    @Override
-    public String[] prefix() {
-        return new String[] { Constant.BLANK };
-    }
-
-    @Override
-    public boolean replace() {
-        return false;
-    }
-
-    @Override
-    public Class<?>[] nested() {
-        return new Class<?>[0];
-    }
-
+    protected abstract Object convertInternal(Class<?> targetClass, String source) throws ConversionException;
 }

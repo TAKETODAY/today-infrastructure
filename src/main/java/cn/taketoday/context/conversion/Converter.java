@@ -38,6 +38,6 @@ public interface Converter<S, T> {
      * @return A converted instance
      * @throws ConversionException
      */
-    T doConvert(S source) throws ConversionException;
+    T convert(S source) throws ConversionException;
 
 }

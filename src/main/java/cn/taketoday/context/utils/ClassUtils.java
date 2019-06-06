@@ -20,8 +20,6 @@
 package cn.taketoday.context.utils;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -65,6 +63,7 @@ import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.ThrowableSupplier;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.asm.ClassReader;
 import cn.taketoday.context.asm.ClassVisitor;
@@ -75,6 +74,10 @@ import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.io.FileBasedResource;
+import cn.taketoday.context.io.JarEntryResource;
+import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.io.ResourceFilter;
 
 /**
  * 
@@ -85,31 +88,34 @@ public abstract class ClassUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
+    static boolean traceEnabled = log.isTraceEnabled();
+
     /** class loader **/
     private static ClassLoader classLoader;
     /** scanned classes */
     private static Set<Class<?>> classesCache;
 
     private static final Map<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32, 1f);
-    
-    /**
-     * @since 2.1.1
-     */
+
+    /** @since 2.1.1 */
     private static final Set<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS;//
 
     private static final String[] IGNORE_SCAN_JARS;
     /** for scan cn.taketoday */
     private static boolean scanAllFreamworkPackage = true;
 
+    static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(32);
+
     /** Class file filter */
-    private static final FileFilter CLASS_FILE_FILTER = new FileFilter() {
+    private static final ResourceFilter CLASS_RESOURCE_FILTER = new ResourceFilter() {
         @Override
-        public boolean accept(File file) {
-            return (file.isDirectory()) || (file.getName().endsWith(Constant.CLASS_FILE_SUFFIX));
+        public boolean accept(Resource resource) throws IOException {
+            if (resource.getName().startsWith("package-info")) {
+                return false;
+            }
+            return (resource.isDirectory()) || (resource.getName().endsWith(Constant.CLASS_FILE_SUFFIX));
         }
     };
-    
-    static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(32);
 
     static {
 
@@ -124,7 +130,7 @@ public abstract class ClassUtils {
         final Set<String> ignoreScanJars = new HashSet<>();
 
         try { // @since 2.1.6
-            final Enumeration<URL> resources = classLoader.getResources("ignore/jar-prefix");
+            final Enumeration<URL> resources = classLoader.getResources("META-INF/ignore/jar-prefix");
             while (resources.hasMoreElements()) {
                 final BufferedReader inputStream = new BufferedReader(//
                         new InputStreamReader(resources.nextElement().openStream(), Constant.DEFAULT_CHARSET)//
@@ -155,10 +161,10 @@ public abstract class ClassUtils {
 
         IGNORE_ANNOTATION_CLASS = new HashSet<>();
 
-        IGNORE_ANNOTATION_CLASS.add(Target.class);
-        IGNORE_ANNOTATION_CLASS.add(Inherited.class);
-        IGNORE_ANNOTATION_CLASS.add(Retention.class);
-        IGNORE_ANNOTATION_CLASS.add(Documented.class);
+        addIgnoreAnnotationClass(Target.class);
+        addIgnoreAnnotationClass(Inherited.class);
+        addIgnoreAnnotationClass(Retention.class);
+        addIgnoreAnnotationClass(Documented.class);
     }
 
     public static void addIgnoreAnnotationClass(Class<? extends Annotation> annotationClass) {
@@ -169,25 +175,21 @@ public abstract class ClassUtils {
         ClassUtils.scanAllFreamworkPackage = scanAllFreamworkPackage;
     }
 
-    /**
-     * 
-     * @param cls
-     * @return
-     */
     public static final boolean isCollection(Class<?> cls) {
         return Collection.class.isAssignableFrom(cls);
     }
 
     /**
+     * Whether given class name present in class path
      * 
      * @param className
-     * @return
+     *            class name
+     * @return whether given class name present in class path
      */
     public static boolean isPresent(String className) {
-        Objects.requireNonNull(className, "class name can't be null");
-        try {
 
-            forName(className);
+        try {
+            forName(Objects.requireNonNull(className, "class name can't be null"));
             return true;
         }
         catch (Throwable ex) {
@@ -248,7 +250,9 @@ public abstract class ClassUtils {
         catch (ClassNotFoundException ex) {
             int lastDotIndex = name.lastIndexOf(Constant.PACKAGE_SEPARATOR);
             if (lastDotIndex != -1) {
-                String innerClassName = name.substring(0, lastDotIndex) + Constant.INNER_CLASS_SEPARATOR + name.substring(lastDotIndex + 1);
+                String innerClassName = name.substring(0, lastDotIndex) //
+                        + Constant.INNER_CLASS_SEPARATOR //
+                        + name.substring(lastDotIndex + 1);
                 try {
                     return Class.forName(innerClassName, false, classLoader);
                 }
@@ -329,9 +333,6 @@ public abstract class ClassUtils {
         return filter(clazz -> clazz.getName().startsWith(packageName) && superClass.isAssignableFrom(clazz));
     }
 
-    /**
-     * @param predicate
-     */
     public static final <T> Set<Class<?>> filter(final Predicate<Class<?>> predicate) {
         return getClassCache()//
 //				.stream()//
@@ -378,25 +379,9 @@ public abstract class ClassUtils {
 
         if (classesCache == null || classesCache.isEmpty()) {
 
-            final Set<Class<?>> scanClasses = new HashSet<>(2048, 1.0f);
+            final Set<Class<?>> scanClasses = new HashSet<>(2048);
             if (packages.length == 1) {
-                // packages = ""
-                final String location = packages[0];
-                if (StringUtils.isEmpty(location)) {
-                    scan(scanClasses);
-                }
-                else {
-                    if (scanAllFreamworkPackage) {
-                        // cn.taketoday.xx
-                        if (!location.startsWith(Constant.FREAMWORK_PACKAGE)) {
-                            scan(scanClasses, location);
-                        }
-                        scan(scanClasses, Constant.FREAMWORK_PACKAGE);
-                    }
-                    else {
-                        scan(scanClasses, location);
-                    }
-                }
+                scanOne(scanClasses, packages[0]); // packages = ""
             }
             else {
                 final Set<String> packagesToScan = new HashSet<>();
@@ -428,6 +413,25 @@ public abstract class ClassUtils {
         return getClasses(packages);
     }
 
+    private static void scanOne(final Set<Class<?>> scanClasses, final String location) {
+
+        if (StringUtils.isEmpty(location)) {
+            scan(scanClasses);
+        }
+        else {
+            if (scanAllFreamworkPackage) {
+                // cn.taketoday.xx
+                if (!location.startsWith(Constant.FREAMWORK_PACKAGE)) {
+                    scan(scanClasses, location);
+                }
+                scan(scanClasses, Constant.FREAMWORK_PACKAGE);
+            }
+            else {
+                scan(scanClasses, location);
+            }
+        }
+    }
+
     /**
      * Scan classes to classes set
      * 
@@ -438,15 +442,14 @@ public abstract class ClassUtils {
      */
     public static void scan(final Collection<Class<?>> scanClasses, final String packageName) {
 
-        final String packageToUse = StringUtils.isEmpty(packageName) //
-                ? Constant.BLANK //
-                : packageName.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR);
+        final String resourceToUse = packageName.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR);
         try {
-//			log.debug("package: [{}]", packageName);
-
-            final Enumeration<URL> uri = classLoader.getResources(packageToUse);
+            if (traceEnabled) {
+                log.trace("Scan package: [{}]", packageName);
+            }
+            final Enumeration<URL> uri = classLoader.getResources(resourceToUse);
             while (uri.hasMoreElements()) {
-                scan(scanClasses, new File(uri.nextElement().getFile()), packageToUse);
+                scan(scanClasses, ResourceUtils.getResource(uri.nextElement()), packageName);
             }
         }
         catch (IOException e) {
@@ -456,39 +459,61 @@ public abstract class ClassUtils {
     }
 
     /**
-     * Scan class in a file
+     * Scan class in a {@link Resource}
      * 
      * @param scanClasses
      *            class set
-     * @param file
-     *            file in class maybe a jar file or class directory
+     * @param resource
+     *            {@link Resource} in class maybe a jar file or class directory
      * @param packageName
-     *            if file is a directory will use this packageName
+     *            if {@link Resource} is a directory will use this packageName
      * @throws IOException
      * @since 2.1.6
      */
-    private static void scan(final Collection<Class<?>> scanClasses, final File file, final String packageName) //
-            throws IOException //
-    {
+    private static void scan(final Collection<Class<?>> scanClasses, final Resource resource, String packageName) throws IOException {
 
-        if (file.isDirectory()) {
-            findAllClassWithPackage(packageName, file, scanClasses);
-            return;
+        if (resource instanceof FileBasedResource) {
+            if (resource.isDirectory()) {
+                findInDirectory(resource, scanClasses);
+                return;
+            }
+            final String fileName = resource.getName();
+            if (fileName.endsWith(".jar")) {
+                scanInJarFile(scanClasses, resource, fileName, packageName, () -> new JarFile(resource.getFile()));
+            }
         }
-        final String fileName = file.getName();
-        if (fileName.endsWith(".jar")) {
-            for (final String ignoreJarName : IGNORE_SCAN_JARS) {
-                if (fileName.startsWith(ignoreJarName)) {
-                    return;
-                }
+        else if (resource instanceof JarEntryResource) {
+            scanInJarFile(scanClasses, resource, resource.getFile().getName(), packageName,
+                    () -> ((JarEntryResource) resource).getJarFile());
+        }
+//        else if (resource instanceof ClassPathResource) {
+//            scan(scanClasses, ((ClassPathResource) resource).getOriginalResource(), packageName);
+//        }
+    }
+
+    private static void scanInJarFile(final Collection<Class<?>> scanClasses, final Resource resource, //
+            final String fileName, String packageName, final ThrowableSupplier<JarFile, IOException> supplier) throws IOException//
+    {
+        for (final String ignoreJarName : IGNORE_SCAN_JARS) {
+            if (fileName.startsWith(ignoreJarName)) {
+                return;
             }
-//			log.debug("scan in: [{}]", file);
-            try (final JarFile jarFile = new JarFile(file)) {
-                final Enumeration<JarEntry> jarEntries = jarFile.entries();
-                while (jarEntries.hasMoreElements()) {
-                    loadClassInJar(jarEntries.nextElement(), Constant.BLANK, scanClasses);
-                }
+        }
+        if (traceEnabled) {
+            log.trace("Scan in jar file: [{}]", resource.getLocation());
+        }
+        try (final JarFile jarFile = supplier.get()) {
+            final Enumeration<JarEntry> jarEntries = jarFile.entries();
+            while (jarEntries.hasMoreElements()) {
+                loadClassInJar(jarEntries.nextElement(), packageName, scanClasses);
             }
+        }
+    }
+
+    private static String getClassName(final Resource resource) throws IOException {
+        try (final InputStream inputStream = resource.getInputStream()) {
+            return new ClassReader(inputStream).getClassName()//
+                    .replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
         }
     }
 
@@ -505,7 +530,7 @@ public abstract class ClassUtils {
             if (classLoader instanceof URLClassLoader) {
                 // fix: protocol is file not a jar protocol
                 for (final URL url : ((URLClassLoader) classLoader).getURLs()) {
-                    scan(scanClasses, new File(url.getFile()), Constant.BLANK);
+                    scan(scanClasses, ResourceUtils.getResource(url), Constant.BLANK);
                 }
             }
         }
@@ -535,7 +560,7 @@ public abstract class ClassUtils {
 
         if (StringUtils.isNotEmpty(packageName) && //
                 !jarEntryName.startsWith(packageName) && //
-                !jarEntryName.startsWith(Constant.FREAMWORK_PACKAGE)) {
+                (!scanAllFreamworkPackage || !jarEntryName.startsWith(Constant.FREAMWORK_PACKAGE))) {
             return;
         }
 
@@ -551,59 +576,40 @@ public abstract class ClassUtils {
     }
 
     /**
+     * <p>
+     * Find in directory.
+     * </p>
+     * Note: don't need packageName
      * 
-     * @param packageName
-     *            the name of package
      * @param packagePath
      *            the package physical path
      * @param scanClasses
      *            class set
+     * @throws IOException
      */
-    private static void findAllClassWithPackage(String packageName, File directory, Collection<Class<?>> scanClasses) {
-
-        if (!directory.exists() || !directory.isDirectory()) {
-            log.error("The package -> [{}] you provided that contains nothing", packageName);
+    private static void findInDirectory(Resource directory, Collection<Class<?>> scanClasses) //
+            throws IOException //
+    {
+        if (!directory.exists()) {
+            log.error("The location: [{}] you provided that does not exist", directory.getLocation());
             return;
         }
 
-//		log.debug("enter package -> [{}]", packageName);
-        File[] directoryFiles = directory.listFiles(CLASS_FILE_FILTER);
-
-        if (directoryFiles == null) {
-            log.error("The package -> [{}] you provided that contains nothing", packageName);
-            return;
-        }
         // exists
-
-        for (File file : directoryFiles) { //
-
-            String fileName = file.getName();
-
-            if (file.isDirectory()) { // recursive
-                if (StringUtils.isEmpty(packageName)) {
-                    findAllClassWithPackage(fileName, file, scanClasses);
+        if (traceEnabled) {
+            log.trace("Enter: [{}]", directory.getLocation());
+        }
+        for (Resource resource : directory.list(CLASS_RESOURCE_FILTER)) {
+            if (resource.isDirectory()) { // recursive
+                findInDirectory(resource, scanClasses);
+            }
+            else {
+                try {
+                    scanClasses.add(classLoader.loadClass(getClassName(resource))); // add
                 }
-                else {
-                    findAllClassWithPackage(packageName + Constant.PACKAGE_SEPARATOR + fileName, file, scanClasses);
+                catch (ClassNotFoundException | Error e) {
+                    // log.warn("Can't find class: [{}]", className);
                 }
-                continue;
-            }
-            if (fileName.startsWith("package-info")) {
-                continue;
-            }
-            final String className = new StringBuilder()//
-                    .append(packageName)//
-                    .append(Constant.PACKAGE_SEPARATOR)//
-                    .append(fileName.substring(0, fileName.length() - 6))//
-                    .toString()//
-                    .replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
-
-            try {
-//				System.err.println(className);
-                scanClasses.add(classLoader.loadClass(className)); // add
-            }
-            catch (ClassNotFoundException | Error e) {
-                log.warn("Can't find class: [{}]", className);
             }
         }
     }
@@ -690,31 +696,20 @@ public abstract class ClassUtils {
     {
         final Class<?> implClass = instance.getClass();
         try {
-            // @off
-			for (final Method method : annotationClass.getDeclaredMethods()) {
-				// method name must == field name
-				final String name = method.getName();
-				final Field declaredField = implClass.getDeclaredField(name);
-				final boolean accessible = declaredField.isAccessible(); // access able ?
-//				try {
-					if (!accessible) {
-						declaredField.setAccessible(true);
-					}
-					declaredField.set(instance, source.get(name));
-//				} finally {
-//					declaredField.setAccessible(accessible);
-//				}
-			}
-			// @on
+            for (final Method method : annotationClass.getDeclaredMethods()) {
+                // method name must == field name
+                final String name = method.getName();
+                makeAccessible(implClass.getDeclaredField(name)).set(instance, source.get(name));
+            }
             return instance;
         }
         catch (NoSuchFieldException e) {
-            log.error("You Must Specify A Field: [{}] In Class: [{}]", e.getMessage(), implClass.getName(), e);
+            log.error("You Must Specify A Field: [{}] In Class: [{}]", implClass.getName(), e.getMessage(), e);
             throw new ContextException(e);
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Getting Annotation, With Msg: [{}]", ex.getMessage(), ex);
+            log.error("An Exception Occurred When Inject Attributes Attributes, With Msg: [{}]", ex.getMessage(), ex);
             throw ExceptionUtils.newContextException(ex);
         }
     }
@@ -758,8 +753,8 @@ public abstract class ClassUtils {
      * @return the {@link Collection} of {@link Annotation} instance
      * @since 2.1.1
      */
-    public static <T extends Annotation> Collection<T> getAnnotation(AnnotatedElement annotatedElement, //
-            Class<T> annotationClass) throws ContextException//
+    public static <T extends Annotation> Collection<T> //
+            getAnnotation(AnnotatedElement annotatedElement, Class<T> annotationClass) throws ContextException//
     {
         Objects.requireNonNull(annotationClass, "annotation class can't be null");
 
@@ -870,8 +865,8 @@ public abstract class ClassUtils {
      * @return {@link AnnotationAttributes}
      * @since 2.1.1
      */
-    public static <T extends Annotation> AnnotationAttributes getAnnotationAttributes(Annotation annotation, //
-            Class<T> annotationClass) throws ContextException//
+    public static <T extends Annotation> AnnotationAttributes //
+            getAnnotationAttributes(Annotation annotation, Class<T> annotationClass) throws ContextException//
     {
         try {
             if (annotation == null) {
@@ -1108,7 +1103,7 @@ public abstract class ClassUtils {
     public static Set<Class<?>> getClassCache() {
 
         if (classesCache == null || classesCache.isEmpty()) {
-            setClassCache(scan(""));
+            setClassCache(scan(Constant.BLANK));
         }
         return classesCache;
     }
@@ -1189,10 +1184,14 @@ public abstract class ClassUtils {
         }
     };
 
-
     final static class ClassNode extends ClassVisitor {
 
         private final List<MethodNode> methodNodes = new ArrayList<>();
+
+        @Override
+        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+            super.visit(version, access, name, signature, superName, interfaces);
+        }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
@@ -1231,9 +1230,7 @@ public abstract class ClassUtils {
 
     /**
      * Make the given field accessible, explicitly setting it accessible if
-     * necessary. The {@code setAccessible(true)} method is only called when
-     * actually necessary, to avoid unnecessary conflicts with a JVM SecurityManager
-     * (if active).
+     * necessary.
      */
     public static Field makeAccessible(Field field) {
 

@@ -214,7 +214,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         BeanNameCreator beanNameCreator = environment.getBeanNameCreator();
         // check name creator
         if (beanNameCreator == null) {
-            beanNameCreator = new DefaultBeanNameCreator(environment);
+            beanNameCreator = createBeanNameCreator();
             environment.setBeanNameCreator(beanNameCreator);
         }
         // must not be null

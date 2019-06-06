@@ -231,7 +231,8 @@ public void test_Conditional() {
 - :sparkles: feat: add ResourceFilter to filter Resource
 - :bug: fix: #6 Properties not found
 - :bug: fix: ConfigurationException detail message
-
-
-
+- :sparkles: feat: add `TypeConverter`,`StringTypeConverter` api
+- :white_check_mark: add `ConvertUtils` test code 
+- :wrench: move jar-prefix to META-INF/jar-prefix
+- :sparkles: feat: Props nested class feature
 

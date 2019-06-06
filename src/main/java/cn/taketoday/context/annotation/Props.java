@@ -55,4 +55,6 @@ public @interface Props {
      */
     boolean replace() default false;
 
+    Class<?>[] nested() default {};
+
 }

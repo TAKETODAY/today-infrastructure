@@ -28,6 +28,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -153,6 +155,24 @@ public class FileBasedResource extends AbstractResource implements WritableResou
         return (this.file != null //
                 ? new FileBasedResource(pathToUse) //
                 : new FileBasedResource(this.filePath.getFileSystem().getPath(pathToUse).normalize()));
+    }
+
+    @Override
+    public Resource[] list(ResourceFilter filter) throws IOException {
+
+        final String names[] = list();
+
+        if (StringUtils.isArrayEmpty(names)) {
+            return new Resource[0];
+        }
+
+        List<Resource> resources = new ArrayList<>();
+        for (String name : names) { // this resource is a directory
+            FileBasedResource resource = new FileBasedResource(new File(path, name));
+            if ((filter == null) || filter.accept(resource))
+                resources.add(resource);
+        }
+        return resources.toArray(new Resource[0]);
     }
 
     @Override
