@@ -16,7 +16,7 @@ import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Component;
-import cn.taketoday.context.annotation.ComponentImpl;
+import cn.taketoday.context.annotation.DefaultComponent;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.utils.ClassUtils;
@@ -109,7 +109,7 @@ public class ClassUtilsTest {
         setProcess("getAnnotation");
 
         // test: use reflect build the annotation
-        Collection<Component> classAnntation = ClassUtils.getAnnotation(Config.class, Component.class, ComponentImpl.class);
+        Collection<Component> classAnntation = ClassUtils.getAnnotation(Config.class, Component.class, DefaultComponent.class);
 
         for (Component component : classAnntation) {
             log.info("component: [{}]", component);
@@ -163,7 +163,7 @@ public class ClassUtilsTest {
         setProcess("getAnnotations");
 
         // test: use reflect build the annotation
-        Collection<Component> components = ClassUtils.getAnnotation(Config.class, Component.class, ComponentImpl.class);
+        Collection<Component> components = ClassUtils.getAnnotation(Config.class, Component.class, DefaultComponent.class);
 
         for (Component component : components) {
             System.err.println(component);
@@ -175,7 +175,7 @@ public class ClassUtilsTest {
         setProcess("getAnnotationArray");
 
         // test: use reflect build the annotation
-        Component[] components = ClassUtils.getAnnotationArray(Config.class, Component.class, ComponentImpl.class);
+        Component[] components = ClassUtils.getAnnotationArray(Config.class, Component.class, DefaultComponent.class);
 
         for (Component component : components) {
             System.err.println(component);

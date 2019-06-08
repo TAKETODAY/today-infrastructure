@@ -80,6 +80,37 @@ public abstract class ConvertUtils {
     }
 
     /**
+     * Convert a string to {@link Duration}
+     * 
+     * @param value
+     * @return
+     */
+    public static Duration parseDuration(String value) {
+
+        if (value.endsWith("ns")) {
+            return Duration.ofNanos(Long.parseLong(value.substring(0, value.length() - 2)));
+        }
+        if (value.endsWith("ms")) {
+            return Duration.ofMillis(Long.parseLong(value.substring(0, value.length() - 2)));
+        }
+        if (value.endsWith("min")) {
+            return Duration.ofMinutes(Long.parseLong(value.substring(0, value.length() - 3)));
+        }
+
+        if (value.endsWith("s")) {
+            return Duration.ofSeconds(Long.parseLong(value.substring(0, value.length() - 1)));
+        }
+        if (value.endsWith("h")) {
+            return Duration.ofHours(Long.parseLong(value.substring(0, value.length() - 1)));
+        }
+        if (value.endsWith("d")) {
+            return Duration.ofDays(Long.parseLong(value.substring(0, value.length() - 1)));
+        }
+
+        return Duration.parse(value);
+    }
+
+    /**
      * Add {@link TypeConverter} to {@link #converters}
      * 
      * @param converters
@@ -218,22 +249,28 @@ public abstract class ConvertUtils {
      */
     public static class DelegatingStringTypeConverter<T> extends StringTypeConverter {
 
-        @Override
-        public int getOrder() {
-            return Ordered.HIGHEST_PRECEDENCE;
-        }
-
+        private final int order;
         private final Class<?> targetClass;
         private final Converter<String, T> converter;
+
+        public DelegatingStringTypeConverter(Class<?> targetClass, Converter<String, T> converter) {
+            this(targetClass, converter, Ordered.HIGHEST_PRECEDENCE);
+        }
+
+        public DelegatingStringTypeConverter(Class<?> targetClass, Converter<String, T> converter, int order) {
+            this.converter = converter;
+            this.targetClass = targetClass;
+            this.order = order;
+        }
+
+        @Override
+        public int getOrder() {
+            return order;
+        }
 
         @Override
         public boolean supports(Class<?> targetClass) {
             return targetClass == this.targetClass;
-        }
-
-        public DelegatingStringTypeConverter(Class<?> targetClass, Converter<String, T> converter) {
-            this.converter = converter;
-            this.targetClass = targetClass;
         }
 
         @Override
@@ -302,34 +339,4 @@ public abstract class ConvertUtils {
         }
     }
 
-    /**
-     * Convert a string to {@link Duration}
-     * 
-     * @param value
-     * @return
-     */
-    public static Duration parseDuration(String value) {
-
-        if (value.endsWith("ns")) {
-            return Duration.ofNanos(Long.parseLong(value.substring(0, value.length() - 2)));
-        }
-        if (value.endsWith("ms")) {
-            return Duration.ofMillis(Long.parseLong(value.substring(0, value.length() - 2)));
-        }
-        if (value.endsWith("min")) {
-            return Duration.ofMinutes(Long.parseLong(value.substring(0, value.length() - 3)));
-        }
-
-        if (value.endsWith("s")) {
-            return Duration.ofSeconds(Long.parseLong(value.substring(0, value.length() - 1)));
-        }
-        if (value.endsWith("h")) {
-            return Duration.ofHours(Long.parseLong(value.substring(0, value.length() - 1)));
-        }
-        if (value.endsWith("d")) {
-            return Duration.ofDays(Long.parseLong(value.substring(0, value.length() - 1)));
-        }
-
-        return Duration.parse(value);
-    }
 }

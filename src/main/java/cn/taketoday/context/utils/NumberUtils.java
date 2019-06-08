@@ -172,17 +172,13 @@ public abstract class NumberUtils {
      * @return
      */
     public static final boolean isNumber(Class<?> targetClass) {
-
-        if (Number.class.isAssignableFrom(targetClass) //
+        return Number.class.isAssignableFrom(targetClass) //
                 || targetClass == int.class//
                 || targetClass == long.class//
                 || targetClass == float.class//
                 || targetClass == double.class//
                 || targetClass == short.class//
-                || targetClass == byte.class) {
-            return true;
-        }
-        return false;
+                || targetClass == byte.class;
     }
 
 }

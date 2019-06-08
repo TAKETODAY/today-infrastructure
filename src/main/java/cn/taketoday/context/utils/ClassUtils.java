@@ -81,14 +81,14 @@ import cn.taketoday.context.io.ResourceFilter;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-0? ?
  */
 public abstract class ClassUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
-    static boolean traceEnabled = log.isTraceEnabled();
+    public static boolean traceEnabled = log.isTraceEnabled();
 
     /** class loader **/
     private static ClassLoader classLoader;
@@ -98,13 +98,13 @@ public abstract class ClassUtils {
     private static final Map<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32, 1f);
 
     /** @since 2.1.1 */
-    private static final Set<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS;//
+    private static final Set<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();//
 
     private static final String[] IGNORE_SCAN_JARS;
     /** for scan cn.taketoday */
     private static boolean scanAllFreamworkPackage = true;
 
-    static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(32);
+    private static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(32);
 
     /** Class file filter */
     private static final ResourceFilter CLASS_RESOURCE_FILTER = new ResourceFilter() {
@@ -132,12 +132,13 @@ public abstract class ClassUtils {
         try { // @since 2.1.6
             final Enumeration<URL> resources = classLoader.getResources("META-INF/ignore/jar-prefix");
             while (resources.hasMoreElements()) {
-                final BufferedReader inputStream = new BufferedReader(//
-                        new InputStreamReader(resources.nextElement().openStream(), Constant.DEFAULT_CHARSET)//
-                );
-                String str;
-                while ((str = inputStream.readLine()) != null) {
-                    ignoreScanJars.add(str);
+                try (final BufferedReader reader = new BufferedReader(//
+                        new InputStreamReader(resources.nextElement().openStream(), //
+                                Constant.DEFAULT_CHARSET))) { // fix
+                    String str;
+                    while ((str = reader.readLine()) != null) {
+                        ignoreScanJars.add(str);
+                    }
                 }
             }
         }
@@ -158,8 +159,6 @@ public abstract class ClassUtils {
         for (Class<?> primitiveType : primitiveTypes) {
             PRIMITIVE_CACHE.put(primitiveType.getName(), primitiveType);
         }
-
-        IGNORE_ANNOTATION_CLASS = new HashSet<>();
 
         addIgnoreAnnotationClass(Target.class);
         addIgnoreAnnotationClass(Inherited.class);
@@ -809,15 +808,17 @@ public abstract class ClassUtils {
      * @throws InvocationTargetException
      * @since 2.1.1
      */
-    private static Object eq(AnnotationAttributes attributes, Object[] args) throws IllegalAccessException, InvocationTargetException {
-        Object object = args[0];
+    private static Object eq(final AnnotationAttributes attributes, final Object[] args)//
+            throws IllegalAccessException, InvocationTargetException //
+    {
+        final Object object = args[0];
         if (attributes == object) {
             return true;
         }
         if (object instanceof Annotation) {
-            for (Method method_ : object.getClass().getDeclaredMethods()) {
-                Object value_ = attributes.get(method_.getName());
-                Object value = method_.invoke(object);
+            for (final Method method_ : object.getClass().getDeclaredMethods()) {
+                final Object value_ = attributes.get(method_.getName());
+                final Object value = method_.invoke(object);
                 if (value == null || value_ == null || !value.equals(value_)) {
                     return false;
                 }
@@ -1129,69 +1130,66 @@ public abstract class ClassUtils {
         return PARAMETER_NAMES_CACHE.computeIfAbsent(method.getDeclaringClass(), PARAMETER_NAMES_FUNCTION).get(method);
     }
 
-    static final Function<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_FUNCTION = new Function<Class<?>, Map<Method, String[]>>() {
+    //@on
+    private static final Function<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_FUNCTION = //
+            new Function<Class<?>, Map<Method, String[]>>() {
+                @Override
+                public Map<Method, String[]> apply(Class<?> declaringClass) {
+                    final Map<Method, String[]> map = new ConcurrentHashMap<>(32);
 
-        @Override
-        public Map<Method, String[]> apply(Class<?> declaringClass) {
-            final Map<Method, String[]> map = new ConcurrentHashMap<>(32);
+                    try (InputStream resourceAsStream = getClassLoader()//
+                            .getResourceAsStream(//
+                                    declaringClass.getName()//
+                                            .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)//
+                                            .concat(Constant.CLASS_FILE_SUFFIX)//
+                    )) {
 
-            try (InputStream resourceAsStream = getClassLoader()//
-                    .getResourceAsStream(//
-                            declaringClass.getName()//
-                                    .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)//
-                                    .concat(Constant.CLASS_FILE_SUFFIX)//
-            )) {
+                        final ClassNode classVisitor = new ClassNode();
+                        new ClassReader(resourceAsStream).accept(classVisitor, 0);
 
-                final ClassNode classVisitor = new ClassNode();
-                new ClassReader(resourceAsStream).accept(classVisitor, 0);
+                        for (MethodNode methodNode : classVisitor.methodNodes) {
 
-                for (MethodNode methodNode : classVisitor.methodNodes) {
+                            final Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
+                            final Class<?>[] argTypes = new Class<?>[argumentTypes.length];
 
-                    final Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-                    final Class<?>[] argTypes = new Class<?>[argumentTypes.length];
+                            for (int i = 0; i < argumentTypes.length; i++) {
+                                argTypes[i] = forName(argumentTypes[i].getClassName());
+                            }
 
-                    for (int i = 0; i < argumentTypes.length; i++) {
-                        argTypes[i] = forName(argumentTypes[i].getClassName());
-                    }
+                            final Method method = declaringClass.getDeclaredMethod(methodNode.name, argTypes);
 
-                    final Method method = declaringClass.getDeclaredMethod(methodNode.name, argTypes);
+                            final int parameterCount = method.getParameterCount();
+                            if (parameterCount == 0) {
+                                map.put(method, Constant.EMPTY_STRING_ARRAY);
+                                continue;
+                            }
 
-                    final int parameterCount = method.getParameterCount();
-                    if (parameterCount == 0) {
-                        map.put(method, Constant.EMPTY_STRING_ARRAY);
-                        continue;
-                    }
-
-                    if (Modifier.isAbstract(method.getModifiers()) || method.isBridge() || method.isSynthetic()) {
-                        map.put(method, Stream.of(method.getParameters()).map(Parameter::getName).toArray(String[]::new));
-                        continue;
-                    }
-                    final String[] paramNames = new String[parameterCount];
-                    final List<String> localVariables = methodNode.localVariables;
-                    if (localVariables.size() >= parameterCount) {
-                        final int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
-                        for (int i = 0; i < parameterCount; i++) {
-                            paramNames[i] = localVariables.get(i + offset);
+                            if (Modifier.isAbstract(method.getModifiers()) || method.isBridge() || method.isSynthetic()) {
+                                map.put(method, Stream.of(method.getParameters()).map(Parameter::getName).toArray(String[]::new));
+                                continue;
+                            }
+                            final String[] paramNames = new String[parameterCount];
+                            final List<String> localVariables = methodNode.localVariables;
+                            if (localVariables.size() >= parameterCount) {
+                                final int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
+                                for (int i = 0; i < parameterCount; i++) {
+                                    paramNames[i] = localVariables.get(i + offset);
+                                }
+                            }
+                            map.put(method, paramNames);
                         }
                     }
-                    map.put(method, paramNames);
+                    catch (IOException | ClassNotFoundException | NoSuchMethodException | IndexOutOfBoundsException e) {
+                        throw new ContextException("When visit declaring class: [" + declaringClass.getName() + ']', e);
+                    }
+                    return map;
                 }
-            }
-            catch (IOException | ClassNotFoundException | NoSuchMethodException | IndexOutOfBoundsException e) {
-                throw new ContextException("When visit declaringClass: [" + declaringClass.getName() + ']', e);
-            }
-            return map;
-        }
-    };
+            };
 
+    //@off
     final static class ClassNode extends ClassVisitor {
 
         private final List<MethodNode> methodNodes = new ArrayList<>();
-
-        @Override
-        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-            super.visit(version, access, name, signature, superName, interfaces);
-        }
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {

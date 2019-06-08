@@ -21,23 +21,25 @@ package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Objects;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import lombok.NoArgsConstructor;
 
 /**
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-08-22 17:29
  */
 @NoArgsConstructor
 @SuppressWarnings("all")
-public final class ComponentImpl implements Component {
+public final class DefaultComponent implements Component {
 
-    private Scope scope;
-    private String[] value;
-    private String[] initMethods;
-    private String[] destroyMethods;
+    private Scope scope = Scope.SINGLETON;
+    private String[] value = Constant.EMPTY_STRING_ARRAY;
+    private String[] initMethods = Constant.EMPTY_STRING_ARRAY;
+    private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
 
     @Override
     public Class<? extends Annotation> annotationType() {
@@ -55,31 +57,6 @@ public final class ComponentImpl implements Component {
     }
 
     @Override
-    public boolean equals(Object obj) {
-
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof Component)) {
-            return false;
-        }
-        Component component = (Component) obj;
-        if (component.value().length != value.length) {
-            return false;
-        }
-        if (!component.scope().equals(scope)) {
-            return false;
-        }
-
-        for (int i = 0; i < value.length; i++) {
-            if (!component.value()[i].equals(value[i])) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public String[] initMethods() {
         return initMethods;
     }
@@ -87,6 +64,35 @@ public final class ComponentImpl implements Component {
     @Override
     public String[] destroyMethods() {
         return destroyMethods;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(scope, value, initMethods, destroyMethods);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj != this) {
+            if (!(obj instanceof Component)) {
+                return false;
+            }
+            Component component = (Component) obj;
+            if (component.value().length != value.length) {
+                return false;
+            }
+            if (!component.scope().equals(scope)) {
+                return false;
+            }
+
+            for (int i = 0; i < value.length; i++) {
+                if (!component.value()[i].equals(value[i])) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
@@ -98,7 +104,12 @@ public final class ComponentImpl implements Component {
                 .append(Arrays.toString(value))//
                 .append(", scope=")//
                 .append(scope)//
+                .append(", initMethods=")//
+                .append(Arrays.toString(initMethods))//
+                .append(", destroyMethods=")//
+                .append(Arrays.toString(destroyMethods))//
                 .append(")")//
                 .toString();
     }
+
 }
