@@ -235,4 +235,5 @@ public void test_Conditional() {
 - :white_check_mark: add `ConvertUtils` test code 
 - :wrench: move jar-prefix to META-INF/jar-prefix
 - :sparkles: feat: Props nested class feature
+- :bug: fix: #7 The bean is not initialized due to the startup sequence not found
 

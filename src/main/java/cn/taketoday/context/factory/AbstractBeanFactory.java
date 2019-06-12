@@ -83,11 +83,23 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     @Override
     public Object getBean(String name) throws ContextException {
 
-        final Object bean = singletons.get(name);
+        final BeanDefinition beanDefinition = getBeanDefinition(name);
+        if (beanDefinition != null) {
 
-        if (bean == null) {
-            final BeanDefinition beanDefinition = getBeanDefinition(name);
-            if (beanDefinition != null) {
+            final Object bean = singletons.get(name);
+
+            if (bean != null) {
+                if (beanDefinition.isInitialized()) {
+                    try {
+                        return initializingBean(bean, name, beanDefinition);
+                    }
+                    catch (Exception e) {
+                        throw ExceptionUtils.newContextException(e);
+                    }
+                }
+                return bean;
+            }
+            else {
                 try {
                     if (beanDefinition.isSingleton()) {
                         return doCreateBean(beanDefinition, name);
@@ -103,7 +115,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 }
             }
         }
-        return bean;
+
+        throw new NoSuchBeanDefinitionException(name);
     }
 
     /**
