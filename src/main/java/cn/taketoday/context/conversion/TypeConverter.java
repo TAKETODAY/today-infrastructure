@@ -19,7 +19,6 @@
  */
 package cn.taketoday.context.conversion;
 
-import cn.taketoday.context.Ordered;
 import cn.taketoday.context.exception.ConversionException;
 
 /**
@@ -30,15 +29,7 @@ import cn.taketoday.context.exception.ConversionException;
  * @since 2.1.6
  */
 @FunctionalInterface
-public interface TypeConverter extends Ordered {
-
-    /**
-     * Converter's priority
-     */
-    @Override
-    default int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
-    }
+public interface TypeConverter {
 
     /**
      * whether this {@link TypeConverter} supports to convert source object to

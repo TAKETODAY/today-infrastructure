@@ -57,7 +57,7 @@ import cn.taketoday.context.utils.StringUtils;
  */
 public class StandardBeanFactory extends AbstractBeanFactory implements ConfigurableBeanFactory {
 
-    private final Collection<Method> missingMethods = new HashSet<>(32, 1.0f);
+    private final Collection<Method> missingMethods = new HashSet<>(32);
 
     private final AbstractApplicationContext applicationContext;
 
@@ -272,9 +272,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                     final List<PropertyValue> resolvedProps = //
                             ContextUtils.resolveProps(method, applicationContext.getEnvironment().getProperties());
 
-                    if (!resolvedProps.isEmpty()) {
-                        beanDefinition.addPropertyValue(resolvedProps);
-                    }
+                    beanDefinition.addPropertyValue(resolvedProps);
                 }
                 registerMissingBean(missingBean, beanClass, beanDefinition);
             }

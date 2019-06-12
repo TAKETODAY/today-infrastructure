@@ -103,7 +103,11 @@ public class ConvertUtilsTest {
         assert ConvertUtils.convert("123", double.class).equals(123d);
         assert ConvertUtils.convert("123", float.class).equals(123f);
 
-        assert ConvertUtils.convert(".Float", ConvertUtilsTest.class) == null;
+        try {
+            ConvertUtils.convert(".Float", ConvertUtilsTest.class);
+        }
+        catch (ConversionException e) {
+        }
         // -- Class
         assert ConvertUtils.convert("java.lang.Float", Class.class).equals(Float.class);
         try {
@@ -158,7 +162,11 @@ public class ConvertUtilsTest {
         final Object test = ConvertUtils.convert("123", TEST.class);
         assert test instanceof TEST;
         assert ((TEST) test).test.equals("123");
-        assert ConvertUtils.convert("123", TEST_NONE.class) == null;
+        try {
+            ConvertUtils.convert("123", TEST_NONE.class);
+        }
+        catch (ConversionException e) {
+        }
 
         try {
             ConvertUtils.convert("123", TEST_THROW.class);

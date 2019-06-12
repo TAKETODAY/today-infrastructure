@@ -30,6 +30,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -62,6 +64,7 @@ import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.bean.StandardBeanDefinition;
+import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
@@ -84,19 +87,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class ContextUtils {
 
-    private static final List<PropertyValueResolver> PROPERTY_VALUE_RESOLVERS;
-    static {
-        PROPERTY_VALUE_RESOLVERS = new ArrayList<>(3);
-
-        PROPERTY_VALUE_RESOLVERS.add(new ValuePropertyResolver());
-        PROPERTY_VALUE_RESOLVERS.add(new PropsPropertyResolver());
-        PROPERTY_VALUE_RESOLVERS.add(new AutowiredPropertyResolver());
-
-        OrderUtils.reversedSort(PROPERTY_VALUE_RESOLVERS);
-    }
+    private static PropertyValueResolver[] propertyValueResolvers;
 
     // @since 2.1.6 // shared elProcessor
     private static ELProcessor elProcessor;
+
+    static {
+        addPropertyValueResolver(new ValuePropertyResolver(), new PropsPropertyResolver(), new AutowiredPropertyResolver());
+    }
 
     /**
      * GEt shared {@link ELProcessor}
@@ -118,6 +116,42 @@ public abstract class ContextUtils {
     }
 
     /**
+     * @since 2.1.6
+     */
+    public static PropertyValueResolver[] getPropertyValueResolvers() {
+        return propertyValueResolvers;
+    }
+
+    /**
+     * @since 2.1.6
+     */
+    public static void setPropertyValueResolvers(PropertyValueResolver[] propertyValueResolvers) {
+        ContextUtils.propertyValueResolvers = propertyValueResolvers;
+    }
+
+    /**
+     * Add {@link PropertyValueResolver} to {@link #propertyValueResolvers}
+     * 
+     * @param resolvers
+     *            {@link TypeConverter} object
+     * @since 2.1.6
+     */
+    public static void addPropertyValueResolver(PropertyValueResolver... resolvers) {
+
+        final List<PropertyValueResolver> propertyValueResolvers = new ArrayList<>();
+
+        if (getPropertyValueResolvers() != null) {
+            Collections.addAll(propertyValueResolvers, getPropertyValueResolvers());
+        }
+
+        Collections.addAll(propertyValueResolvers, resolvers);
+
+        OrderUtils.reversedSort(propertyValueResolvers);
+
+        setPropertyValueResolvers(propertyValueResolvers.toArray(new PropertyValueResolver[0]));
+    }
+
+    /**
      * Find names
      * 
      * @param defaultName
@@ -134,27 +168,47 @@ public abstract class ContextUtils {
     }
 
     /**
+     * Replace a placeholder or eval el
+     * 
+     * @param expression
+     *            expression {@link String}
+     * @param expectedType
+     *            expected value type
+     * @return
+     * @since 2.1.6
+     */
+    public static <T> T resolveValue(final String expression, final Class<T> expectedType) throws ConfigurationException {
+        return resolveValue(expression, expectedType, System.getProperties());
+    }
+
+    /**
      * replace a placeholder or eval el
      * 
      * @param expression
      *            expression {@link String}
-     * @param type
-     *            value type
+     * @param expectedType
+     *            expected value type
      * @return
      * @since 2.1.6
      */
-    public static Object resolveValue(final String expression, final Class<?> type) {
-        if (expression.charAt(0) == '#') {
-            final String replaced = resolvePlaceholder(System.getProperties(), expression, false);
-            return ConvertUtils.convert(replaced, type);
+    @SuppressWarnings("unchecked")
+    public static <T> T resolveValue(final String expression, //
+            final Class<T> expectedType, final Properties variables) throws ConfigurationException //
+    {
+        if (expression.contains(Constant.PLACE_HOLDER_PREFIX)) {
+            final String replaced = resolvePlaceholder(variables, expression, false);
+            return (T) ConvertUtils.convert(replaced, expectedType);
         }
-        try {
 
-            return getELProcessor().getValue(expression, type);
+        if (expression.contains(Constant.EL_PREFIX)) {
+            try {
+                return getELProcessor().getValue(expression, expectedType);
+            }
+            catch (ELException e) {
+                throw new ConfigurationException(e);
+            }
         }
-        catch (ELException e) {
-            return null;
-        }
+        return (T) ConvertUtils.convert(expression, expectedType);
     }
 
     /**
@@ -229,10 +283,10 @@ public abstract class ContextUtils {
                 final Props props = parameter.getAnnotation(Props.class);
                 if (bean != null) {
                     // Environment.getProperties()
-                    bean = resolveProps(props.prefix(), bean, loadProps(props, System.getProperties()));
+                    bean = resolveProps(props, bean, loadProps(props, System.getProperties()));
                 }
                 else {
-                    bean = resolveProps(props.prefix(), type, loadProps(props, System.getProperties()));
+                    bean = resolveProps(props, type, loadProps(props, System.getProperties()));
                 }
             }
             if (bean == null && required) {
@@ -467,7 +521,7 @@ public abstract class ContextUtils {
      */
     public static final PropertyValue createPropertyValue(Field field, ApplicationContext applicationContext) {
 
-        for (final PropertyValueResolver propertyValueResolver : PROPERTY_VALUE_RESOLVERS) {
+        for (final PropertyValueResolver propertyValueResolver : getPropertyValueResolvers()) {
             if (propertyValueResolver.supports(applicationContext, field)) {
                 return propertyValueResolver.resolveProperty(applicationContext, field);
             }
@@ -502,44 +556,87 @@ public abstract class ContextUtils {
         final Props props = annotatedElement.getAnnotation(Props.class);
 
         if (props == null) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
-        Class<?> annotatedClass = null;
+        final Class<?> type;
         if (annotatedElement instanceof Class) {
-            annotatedClass = (Class<?>) annotatedElement;
+            type = (Class<?>) annotatedElement;
         }
         else if (annotatedElement instanceof Method) {
-            annotatedClass = ((Method) annotatedElement).getReturnType();
+            type = ((Method) annotatedElement).getReturnType();
         }
         else {
             throw new ConfigurationException("Not support annotated element: [" + annotatedElement + "]");
         }
 
-        log.debug("Loading Properties For: [{}]", annotatedClass.getName());
+        log.debug("Loading Properties For: [{}]", type.getName());
 
         final List<PropertyValue> propertyValues = new ArrayList<>();
         final String[] prefixs = props.prefix();
+        final List<Class<?>> nested = Arrays.asList(props.nested());
 
-        for (final Field declaredField : ClassUtils.getFields(annotatedClass)) {
-            for (final String prefix : prefixs) { // maybe a default value: ""
-
-                final String key = prefix + declaredField.getName();
-                final String value = properties.getProperty(key);
-                if (value == null) { // just null not include empty
-                    continue;
-                }
-                log.debug("Found Properties key: [{}]", key);
-
-                declaredField.setAccessible(true);
-                final Object converted = //
-                        ConvertUtils.convert(ContextUtils.resolvePlaceholder(properties, value), //
-                                declaredField.getType());
-
+        for (final Field declaredField : ClassUtils.getFields(type)) {
+            final Object converted = resolveProps(declaredField, nested, prefixs, properties);
+            if (converted != null) {
+                ClassUtils.makeAccessible(declaredField);
                 propertyValues.add(new PropertyValue(converted, declaredField));
             }
         }
         return propertyValues;
+    }
+
+    /**
+     * @param declaredField
+     * @param nested
+     * @param prefixs
+     * @param properties
+     * @return
+     */
+    public static Object resolveProps(final Field declaredField, //
+            final List<Class<?>> nested, final String[] prefixs, Properties properties) //
+    {
+        final Class<?> fieldType = declaredField.getType();
+
+        for (final String prefix : prefixs) {// maybe a default value: ""
+
+            final String key = prefix + declaredField.getName();
+
+            Object value = properties.get(key);
+            if (value == null) { // just null not include empty
+                // inject nested Props
+                final DefaultProps nestedProps;
+                if (declaredField.isAnnotationPresent(Props.class)) {
+                    nestedProps = new DefaultProps(declaredField.getAnnotation(Props.class));
+                }
+                else {
+                    if (!nested.contains(fieldType)) {
+                        continue;
+                    }
+                    nestedProps = new DefaultProps();
+                }
+                final boolean replace = nestedProps.replace();
+                String[] prefixsToUse = nestedProps.prefix();
+                for (int i = 0; i < prefixsToUse.length; i++) {
+                    String str = prefixsToUse[i];
+                    if (StringUtils.isEmpty(str)) {
+                        prefixsToUse[i] = key.concat(".");
+                    }
+                    else if (!replace) { // don't replace the parent prefix
+                        prefixsToUse[i] = prefix.concat(str);
+                    }
+                }
+                value = resolveProps(nestedProps.setPrefix(prefixsToUse), fieldType, properties);
+            }
+            if (value instanceof String) {
+                log.debug("Found Properties key: [{}]", key);
+                return resolveValue((String) value, fieldType, properties);
+            }
+            if (fieldType.isInstance(value)) {
+                return value;
+            }
+        }
+        return null;
     }
 
     /**
@@ -552,8 +649,8 @@ public abstract class ContextUtils {
      * @return
      * @since 2.1.5
      */
-    public static <T> T resolveProps(String[] prefixs, Class<T> beanClass, Properties properties) {
-        return resolveProps(prefixs, ClassUtils.newInstance(beanClass), properties);
+    public static <T> T resolveProps(final Props props, Class<T> beanClass, Properties properties) {
+        return resolveProps(props, ClassUtils.newInstance(beanClass), properties);
     }
 
     /**
@@ -566,54 +663,15 @@ public abstract class ContextUtils {
      * @return
      * @since 2.1.5
      */
-    public static <T> T resolveProps(String[] prefixs, T bean, Properties properties) {
+    public static <T> T resolveProps(final Props props, T bean, Properties properties) {
 
+        final String[] prefixs = props.prefix();
+        final List<Class<?>> nested = Arrays.asList(props.nested());
         try {
 
             for (final Field declaredField : ClassUtils.getFields(bean)) {
-                for (final String prefix : prefixs) { // maybe a default value: ""
-
-                    final String key = prefix + declaredField.getName();
-                    Object value = properties.get(key);
-                    Class<?> type = declaredField.getType();
-                    if (value == null) { // just null not include empty
-                        // inject nested Props
-                        final Props props = declaredField.getAnnotation(Props.class);
-                        if (props == null) {
-                            continue;
-                        }
-                        final boolean replace = props.replace();
-                        String[] prefixsToUse = props.prefix();
-                        if (StringUtils.isArrayEmpty(prefixsToUse)) {
-                            prefixsToUse = new String[] { key.concat(".") };
-                        }
-                        else {
-                            for (int i = 0; i < prefixsToUse.length; i++) {
-                                String str = prefixsToUse[i];
-                                if (StringUtils.isEmpty(str)) {
-                                    prefixsToUse[i] = key.concat(".");
-                                }
-                                else if (!replace) { // replace the parent prefix
-                                    prefixsToUse[i] = prefix.concat(str);
-                                }
-                            }
-                        }
-                        value = resolveProps(prefixsToUse, type, properties);
-                    }
-                    final Object converted;
-                    if (value instanceof String) {
-                        log.debug("Found Properties key: [{}]", key);
-                        converted = ConvertUtils.convert(//
-                                ContextUtils.resolvePlaceholder(properties, (String) value), type//
-                        );
-                    }
-                    else if (type.isInstance(value)) {
-                        converted = value;
-                    }
-                    else {
-                        continue;
-                    }
-
+                final Object converted = resolveProps(declaredField, nested, prefixs, properties);
+                if (converted != null) {
                     declaredField.setAccessible(true);
                     declaredField.set(bean, converted);
                 }
@@ -675,8 +733,8 @@ public abstract class ContextUtils {
                         // replace the prefix
                         key = key.replaceFirst(prefix, Constant.BLANK);
                     }
-                    ret.put(key, //
-                            ContextUtils.resolvePlaceholder(propertiesToUse, (String) entry.getValue()));
+                    // resolvePlaceholder(propertiesToUse, (String) entry.getValue())
+                    ret.put(key, resolveValue((String) entry.getValue(), Object.class, propertiesToUse));
                 }
             }
         }

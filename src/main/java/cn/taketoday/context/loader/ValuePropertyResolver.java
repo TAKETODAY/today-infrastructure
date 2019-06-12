@@ -50,7 +50,7 @@ public class ValuePropertyResolver implements PropertyValueResolver {
     @Override
     public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
 
-        Value annotation = field.getAnnotation(Value.class);
+        final Value annotation = field.getAnnotation(Value.class);
         String expression = annotation.value();
 
         if (StringUtils.isEmpty(expression)) {
@@ -59,16 +59,24 @@ public class ValuePropertyResolver implements PropertyValueResolver {
                     .append(field.getName())//
                     .append(Constant.PLACE_HOLDER_SUFFIX).toString();
         }
+        try {
 
-        final Object resolved = ContextUtils.resolveValue(expression, field.getType());
-        if (resolved == null) {
-
-            if (annotation.required()) {
-                throw new ConfigurationException("Can't resolve field: [" + field + "] -> [" + expression + "].");
+            final Object resolved = ContextUtils.resolveValue(expression, field.getType());
+            if (resolved == null) {
+                return required(field, annotation, expression);
             }
-            return null;
+            return new PropertyValue(resolved, field);
         }
-        return new PropertyValue(resolved, field);
+        catch (ConfigurationException e) {
+            return required(field, annotation, expression);
+        }
+    }
+
+    private final PropertyValue required(Field field, final Value annotation, String expression) {
+        if (annotation.required()) {
+            throw new ConfigurationException("Can't resolve field: [" + field + "] -> [" + expression + "].");
+        }
+        return null;
     }
 
 }

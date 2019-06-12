@@ -60,7 +60,7 @@ public interface Constant extends Serializable {
 	char 	WINDOWS_PATH_SEPARATOR 	= '\\';
 	char 	INNER_CLASS_SEPARATOR 	= '$';
 	String	ENV						= "env";
-	char 	EL_PREFIX 				= INNER_CLASS_SEPARATOR;
+	String 	EL_PREFIX 				= "${";
 	
 	String 	DEFAULT_DATE_FORMAT		= "yyyy-MM-dd HH:mm:ss.SSS";
 

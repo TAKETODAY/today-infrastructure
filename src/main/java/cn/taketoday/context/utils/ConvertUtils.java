@@ -29,8 +29,10 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import cn.taketoday.context.Ordered;
+import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.conversion.StringTypeConverter;
 import cn.taketoday.context.conversion.TypeConverter;
@@ -58,17 +60,19 @@ public abstract class ConvertUtils {
      * @throws IOException
      */
     public static Object convert(Object source, Class<?> targetClass) {
-
-        if (targetClass.isInstance(source)) {
-            return targetClass.cast(source);
+        if (source == null) {
+            return null;
         }
-
-        for (TypeConverter converter : getConverters()) {
-            if (converter.supports(targetClass, source)) {
-                return converter.convert(targetClass, source);
+        if (!targetClass.isInstance(source)) {
+            for (TypeConverter converter : getConverters()) {
+                if (converter.supports(targetClass, source)) {
+                    return converter.convert(targetClass, source);
+                }
             }
+            throw new ConversionException("There isn't a 'cn.taketoday.context.conversion.TypeConverter' to convert: [" //
+                    + source + "] to target class: [" + targetClass + "]");
         }
-        return null;
+        return targetClass.cast(source);
     }
 
     public static TypeConverter[] getConverters() {
@@ -139,7 +143,8 @@ public abstract class ConvertUtils {
                 new StringNumberConverter(), //
                 new StringResourceConverter(), //
                 new StringConstructorConverter(), //
-                new DelegatingStringTypeConverter<>(Class.class, source -> {
+
+                new DelegatingStringTypeConverter<>((c) -> c == Class.class, source -> {
                     try {
                         return Class.forName(source);
                     }
@@ -147,9 +152,11 @@ public abstract class ConvertUtils {
                         throw new ConversionException(e);
                     }
                 }), //
-                new DelegatingStringTypeConverter<>(DataSize.class, DataSize::parse), //
-                new DelegatingStringTypeConverter<>(Charset.class, Charset::forName), //
-                new DelegatingStringTypeConverter<>(Duration.class, ConvertUtils::parseDuration)//
+
+                new DelegatingStringTypeConverter<>((c) -> c == DataSize.class, DataSize::parse), //
+                new DelegatingStringTypeConverter<>((c) -> c == Charset.class, Charset::forName), //
+                new DelegatingStringTypeConverter<>((c) -> c == Duration.class, ConvertUtils::parseDuration), //
+                new DelegatingStringTypeConverter<>((c) -> c == Boolean.class || c == boolean.class, Boolean::parseBoolean)//
         );
     }
 
@@ -158,12 +165,8 @@ public abstract class ConvertUtils {
      *         2019-06-06 15:51
      * @since 2.1.6
      */
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public static class StringNumberConverter extends StringTypeConverter {
-
-        @Override
-        public int getOrder() {
-            return Ordered.HIGHEST_PRECEDENCE;
-        }
 
         @Override
         public boolean supports(Class<?> targetClass) {
@@ -181,12 +184,8 @@ public abstract class ConvertUtils {
      *         2019-06-06 15:50
      * @since 2.1.6
      */
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public static class StringResourceConverter extends StringTypeConverter {
-
-        @Override
-        public int getOrder() {
-            return Ordered.HIGHEST_PRECEDENCE;
-        }
 
         @Override
         public boolean supports(Class<?> targetClass) {
@@ -223,12 +222,8 @@ public abstract class ConvertUtils {
      *         2019-06-06 15:50
      * @since 2.1.6
      */
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public static class StringEnumConverter extends StringTypeConverter {
-
-        @Override
-        public int getOrder() {
-            return Ordered.HIGHEST_PRECEDENCE;
-        }
 
         @Override
         public boolean supports(Class<?> targetClass) {
@@ -247,20 +242,22 @@ public abstract class ConvertUtils {
      *         2019-06-06 16:06
      * @since 2.1.6
      */
-    public static class DelegatingStringTypeConverter<T> extends StringTypeConverter {
+    public static class DelegatingStringTypeConverter<T> extends StringTypeConverter implements Ordered {
 
         private final int order;
-        private final Class<?> targetClass;
         private final Converter<String, T> converter;
+        private final Function<Class<?>, Boolean> supportsFunction;
 
-        public DelegatingStringTypeConverter(Class<?> targetClass, Converter<String, T> converter) {
-            this(targetClass, converter, Ordered.HIGHEST_PRECEDENCE);
+        public DelegatingStringTypeConverter(Function<Class<?>, Boolean> supportsFunction, Converter<String, T> converter) {
+            this(supportsFunction, converter, Ordered.HIGHEST_PRECEDENCE);
         }
 
-        public DelegatingStringTypeConverter(Class<?> targetClass, Converter<String, T> converter, int order) {
-            this.converter = converter;
-            this.targetClass = targetClass;
+        public DelegatingStringTypeConverter(Function<Class<?>, Boolean> supportsFunction, //
+                Converter<String, T> converter, int order) //
+        {
             this.order = order;
+            this.converter = converter;
+            this.supportsFunction = supportsFunction;
         }
 
         @Override
@@ -270,7 +267,7 @@ public abstract class ConvertUtils {
 
         @Override
         public boolean supports(Class<?> targetClass) {
-            return targetClass == this.targetClass;
+            return supportsFunction.apply(targetClass);
         }
 
         @Override
@@ -285,12 +282,8 @@ public abstract class ConvertUtils {
      *         2019-06-06 15:50
      * @since 2.1.6
      */
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public static class StringArrayConverter extends StringTypeConverter {
-
-        @Override
-        public int getOrder() {
-            return Ordered.HIGHEST_PRECEDENCE;
-        }
 
         @Override
         public boolean supports(Class<?> targetClass) {
@@ -315,12 +308,13 @@ public abstract class ConvertUtils {
      * @author TODAY <br>
      *         2019-06-06 16:12
      */
+    @Order(Ordered.LOWEST_PRECEDENCE)
     public static class StringConstructorConverter extends StringTypeConverter {
 
         @Override
         public boolean supports(Class<?> targetClass) {
             try {
-                targetClass.getConstructor(String.class);
+                targetClass.getDeclaredConstructor(String.class);
                 return true;
             }
             catch (NoSuchMethodException e) {
@@ -331,7 +325,7 @@ public abstract class ConvertUtils {
         @Override
         protected Object convertInternal(Class<?> targetClass, String source) {
             try {
-                return ClassUtils.makeAccessible(targetClass.getConstructor(String.class)).newInstance(source);
+                return ClassUtils.accessibleConstructor(targetClass, String.class).newInstance(source);
             }
             catch (Throwable e) {
                 throw new ConversionException(e);

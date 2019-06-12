@@ -58,7 +58,7 @@ public class PropsPropertyResolver implements PropertyValueResolver {
         final Class<?> propertyClass = field.getType();
         if (!Map.class.isAssignableFrom(propertyClass)) {
 
-            return new PropertyValue(ContextUtils.resolveProps(props.prefix(), propertyClass, properties), field);
+            return new PropertyValue(ContextUtils.resolveProps(props, propertyClass, properties), field);
         }
         return new PropertyValue(properties, field);
     }

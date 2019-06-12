@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.bean;
 
+import java.util.Objects;
+
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -60,7 +62,7 @@ public final class BeanReference {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return Objects.hash(name, required, referenceClass, prototype);
     }
 
     @Override

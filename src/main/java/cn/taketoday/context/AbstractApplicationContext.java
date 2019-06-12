@@ -79,7 +79,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     private static final Logger log = LoggerFactory.getLogger(AbstractApplicationContext.class);
 
     private long startupDate;
-    private String propertiesLocation = ""; // default ""
+    private String propertiesLocation = Constant.BLANK; // default ""
     private ConfigurableEnvironment environment;
 
     // @since 2.1.5

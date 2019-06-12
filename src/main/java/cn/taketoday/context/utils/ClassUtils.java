@@ -978,7 +978,7 @@ public abstract class ClassUtils {
     public static <T> T newInstance(Class<T> beanClass) throws ContextException {
         try {
 
-            return makeAccessible(beanClass.getDeclaredConstructor()).newInstance();
+            return accessibleConstructor(beanClass).newInstance();
         }
         catch (Throwable e) {
             throw ExceptionUtils.newContextException(e);

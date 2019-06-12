@@ -130,7 +130,7 @@ public class ContextUtilsTest {
         URL resource = ClassUtils.getClassLoader().getResource("info.properties");
         Properties properties = ContextUtils.getUrlAsProperties(resource.getProtocol() + ":" + resource.getPath());
         properties.list(System.err);
-        Config resolveProps = ContextUtils.resolveProps(declaredAnnotation.prefix(), Config.class, properties);
+        Config resolveProps = ContextUtils.resolveProps(declaredAnnotation, Config.class, properties);
 
         System.err.println(resolveProps);
 
