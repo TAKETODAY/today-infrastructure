@@ -86,37 +86,21 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         final BeanDefinition beanDefinition = getBeanDefinition(name);
         if (beanDefinition != null) {
 
-            final Object bean = singletons.get(name);
-
-            if (bean != null) {
-                if (beanDefinition.isInitialized()) {
-                    try {
-                        return initializingBean(bean, name, beanDefinition);
-                    }
-                    catch (Exception e) {
-                        throw ExceptionUtils.newContextException(e);
-                    }
+            try {
+                if (beanDefinition.isSingleton()) {
+                    return doCreateBean(beanDefinition, name);
                 }
-                return bean;
+                // prototype
+                return doCreatePrototype(beanDefinition, name);
             }
-            else {
-                try {
-                    if (beanDefinition.isSingleton()) {
-                        return doCreateBean(beanDefinition, name);
-                    }
-                    // prototype
-                    return doCreatePrototype(beanDefinition, name);
-                }
-                catch (Throwable ex) {
-                    ex = ExceptionUtils.unwrapThrowable(ex);
-                    log.error("An Exception Occurred When Getting A Bean Named: [{}], With Msg: [{}]", //
-                            name, ex.getMessage(), ex);
-                    throw ExceptionUtils.newContextException(ex);
-                }
+            catch (Throwable ex) {
+                ex = ExceptionUtils.unwrapThrowable(ex);
+                log.error("An Exception Occurred When Getting A Bean Named: [{}], With Msg: [{}]", //
+                        name, ex.getMessage(), ex);
+                throw ExceptionUtils.newContextException(ex);
             }
         }
-
-        throw new NoSuchBeanDefinitionException(name);
+        return getSingleton(name); // if not exits a bean definition return a bean may exits in singletons cache
     }
 
     /**
@@ -490,6 +474,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @throws Throwable
      */
     protected Object initializeSingleton(String name, BeanDefinition beanDefinition) throws Throwable {
+
+        if (beanDefinition.isInitialized()) { // fix #7
+            return getSingleton(name);
+        }
+
         Object bean = initializingBean(createBeanInstance(beanDefinition), name, beanDefinition);
         log.debug("Singleton bean is being stored in the name of [{}]", name);
 
