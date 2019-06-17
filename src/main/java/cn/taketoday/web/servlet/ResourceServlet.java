@@ -68,11 +68,12 @@ public class ResourceServlet extends GenericServlet {
 
     @Autowired
     public ResourceServlet(//
-            ExceptionResolver exceptionResolver, //
             ResourceMappingRegistry registry, //
+            ExceptionResolver exceptionResolver, //
             @Autowired(required = false) PathMatcher pathMatcher, //
             HandlerInterceptorRegistry handlerInterceptorRegistry,
-            @Autowired(required = false) ResourceResolver resourceResolver) {
+            @Autowired(required = false) ResourceResolver resourceResolver) //
+    {
 
         this.registry = registry;
         registry.sortResourceMappings();
@@ -99,8 +100,8 @@ public class ResourceServlet extends GenericServlet {
         final HttpServletResponse response = (HttpServletResponse) res;
 
         try {
-
-            final String path = request.getRequestURI().substring(contextPathLength);
+            // fix
+            final String path = StringUtils.decodeUrl(request.getRequestURI().substring(contextPathLength));
 
             final ResourceMapping resourceMapping = //
                     lookupResourceHandlerMapping(path, pathMatcher, registry.getResourceHandlerMappings());
@@ -131,9 +132,9 @@ public class ResourceServlet extends GenericServlet {
                 resource = resourceResolver.resolveResource(path, resourceMapping); // may be null
             }
 
-            if (resource == null || resource.isDirectory()) {
+            if (resource == null || resource.isDirectory()) {// TODO Directory listing
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            } // TODO Directory
+            }
             else {
                 resolveResult(request, response, resource, resourceMapping);
             }
@@ -249,14 +250,14 @@ public class ResourceServlet extends GenericServlet {
      *             if any IO exception occurred
      */
     private static final boolean isGZipEnabled(final WebResource resource, //
-            ResourceMapping resourceMapping, String contentType) throws IOException //
+            final ResourceMapping resourceMapping, final String contentType) throws IOException //
     {
         return resourceMapping.isGzip() //
                 && isContentCompressable(contentType) //
                 && resource.contentLength() > resourceMapping.getGzipMinLength();
     }
 
-    private static final boolean isContentCompressable(String contentType) {
+    private static final boolean isContentCompressable(final String contentType) {
         return "image/svg+xml".equals(contentType) //
                 || !contentType.startsWith("image") //
                         && !contentType.startsWith("video");
@@ -272,15 +273,15 @@ public class ResourceServlet extends GenericServlet {
      * @throws IOException
      *             if any IO exception occurred
      */
-    private static final void writeCompressed(Resource resource, HttpServletResponse response, //
-            ResourceMapping resourceMapping) throws IOException //
+    private static final void writeCompressed(final Resource resource, final HttpServletResponse response, //
+            final ResourceMapping resourceMapping) throws IOException //
     {
         response.setHeader(Constant.CONTENT_ENCODING, Constant.GZIP);
 
         final int bufferSize = resourceMapping.getBufferSize();
 
-        try (InputStream source = resource.getInputStream(); //
-                OutputStream outputStream = //
+        try (final InputStream source = resource.getInputStream(); //
+                final OutputStream outputStream = //
                         new GZIPOutputStream(response.getOutputStream(), bufferSize)) {
 
             WebUtils.writeToOutputStream(source, outputStream, bufferSize);
@@ -297,20 +298,19 @@ public class ResourceServlet extends GenericServlet {
      * @throws IOException
      *             if any IO exception occurred
      */
-    private static final void write(Resource resource, HttpServletResponse response, //
-            ResourceMapping resourceMapping) throws IOException //
+    private static final void write(final Resource resource, final HttpServletResponse response, //
+            final ResourceMapping resourceMapping) throws IOException //
     {
-
         response.setContentLengthLong(resource.contentLength());
 
-        try (InputStream source = resource.getInputStream(); //
-                OutputStream sink = response.getOutputStream()) {
+        try (final InputStream source = resource.getInputStream(); //
+                final OutputStream sink = response.getOutputStream()) {
 
             WebUtils.writeToOutputStream(source, sink, resourceMapping.getBufferSize());
         }
     }
 
-    private static final boolean matches(String matchHeader, String etag) {
+    private static final boolean matches(final String matchHeader, final String etag) {
         if (matchHeader != null && StringUtils.isNotEmpty(etag)) {
             return "*".equals(etag) || matchHeader.equals(etag);
         }
@@ -327,8 +327,9 @@ public class ResourceServlet extends GenericServlet {
      * @throws IOException
      *             if last modify read error
      */
-    private static final void applyHeaders(HttpServletResponse response, //
-            String contentType, long lastModified, String eTag, ResourceMapping resourceMapping) throws IOException //
+    private static final void applyHeaders(final HttpServletResponse response, //
+            final String contentType, final long lastModified, //
+            final String eTag, final ResourceMapping resourceMapping) throws IOException //
     {
         response.setHeader(Constant.CONTENT_TYPE, contentType);
         if (lastModified > 0) {

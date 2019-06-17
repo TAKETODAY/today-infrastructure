@@ -274,5 +274,6 @@ public final class PathVariableAction {
 - refactor: extract comment code
 
 - :bug: fix: #5 Request Body Read Error
+- :bug: fix: #6 ResourceServlet can't resolve Chinese Url
 
 

@@ -97,9 +97,7 @@ public class DefaultResourceResolver implements ResourceResolver {
 
     protected boolean isInvalidPath(final String path) {
         if (path.contains("WEB-INF") || path.contains("META-INF")) {
-            if (log.isWarnEnabled()) {
-                log.warn("Path with \"WEB-INF\" or \"META-INF\": [{}]", path);
-            }
+            log.warn("Path with \"WEB-INF\" or \"META-INF\": [{}]", path);
             return true;
         }
         return false;
