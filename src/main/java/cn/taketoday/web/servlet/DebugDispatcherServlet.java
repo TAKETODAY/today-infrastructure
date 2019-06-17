@@ -113,7 +113,7 @@ public class DebugDispatcherServlet extends DispatcherServlet {
         }
         catch (Throwable exception) {
             WebUtils.resolveException(request, response, //
-                    getServletConfig().getServletContext(), getExceptionResolver(), exception);
+                    getServletConfig().getServletContext(), getExceptionResolver(), requestMapping, exception);
         }
     }
 

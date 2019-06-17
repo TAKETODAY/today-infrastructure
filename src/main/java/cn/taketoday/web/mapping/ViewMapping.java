@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.mapping;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import cn.taketoday.web.Constant;
@@ -37,37 +36,23 @@ import lombok.Setter;
 @Setter
 @Getter
 @SuppressWarnings("serial")
-public class ViewMapping implements Serializable {
+public class ViewMapping implements WebMapping {
 
     /** 返回类型 */
     private byte returnType = Constant.TYPE_FORWARD; // default -> forward
     /** 资源路径 */
     private String assetsPath = "";
 
-    /**
-     * Bean instance
-     * 
-     * @since 2.3.3
-     */
+    /** Bean instance @since 2.3.3 */
     private Object controller;
-    /**
-     * Handler method
-     * 
-     * @since 2.3.3
-     */
+
+    /** Handler method @since 2.3.3 */
     private Method action;
 
-    /**
-     * The resource's content type
-     * 
-     * @since 2.3.3
-     */
+    /** The resource's content type @since 2.3.3 */
     private String contentType = null;
-    /**
-     * The request status
-     * 
-     * @since 2.3.7
-     */
+    
+    /** The request status @since 2.3.7 */
     private int status;
 
     public final boolean hasAction() {

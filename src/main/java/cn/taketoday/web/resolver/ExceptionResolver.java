@@ -22,7 +22,7 @@ package cn.taketoday.web.resolver;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.web.mapping.HandlerMapping;
+import cn.taketoday.web.mapping.WebMapping;
 
 /**
  * 
@@ -41,11 +41,11 @@ public interface ExceptionResolver {
      *            current response
      * @param exception
      *            the exception occurred
-     * @param handlerMapping
+     * @param mvcMapping
      *            current handler mapping info
      * @throws Throwable
      */
     void resolveException(HttpServletRequest request, //
-            HttpServletResponse response, Throwable exception, HandlerMapping handlerMapping) throws Throwable;
+            HttpServletResponse response, Throwable exception, WebMapping mvcMapping) throws Throwable;
 
 }

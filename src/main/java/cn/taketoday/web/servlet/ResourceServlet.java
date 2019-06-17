@@ -141,7 +141,7 @@ public class ResourceServlet extends GenericServlet {
         }
         catch (Throwable exception) {
             WebUtils.resolveException(request, response, //
-                    getServletConfig().getServletContext(), exceptionResolver, exception);
+                    getServletConfig().getServletContext(), exceptionResolver, null, exception);
         }
 
     }

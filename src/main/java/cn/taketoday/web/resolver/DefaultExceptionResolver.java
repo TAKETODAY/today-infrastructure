@@ -40,6 +40,7 @@ import cn.taketoday.web.exception.MethodNotAllowedException;
 import cn.taketoday.web.exception.NotFoundException;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.mapping.WebMapping;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -55,12 +56,14 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 
     @Override
     public void resolveException(HttpServletRequest request, //
-            HttpServletResponse response, Throwable ex, HandlerMapping handlerMapping) throws Throwable //
+            HttpServletResponse response, Throwable ex, WebMapping webMapping) throws Throwable //
     {
         try {
 
             response.reset();
-            if (handlerMapping != null) {
+            if (webMapping instanceof HandlerMapping) {
+
+                HandlerMapping handlerMapping = (HandlerMapping) webMapping;
 
                 final HandlerMethod handlerMethod = handlerMapping.getHandlerMethod();
                 final Method method = handlerMethod.getMethod();

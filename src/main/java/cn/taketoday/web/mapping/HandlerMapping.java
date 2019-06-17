@@ -31,7 +31,8 @@ import cn.taketoday.context.Constant;
  * 
  *         2018-06-25 19:59:13
  */
-public final class HandlerMapping {
+@SuppressWarnings("serial")
+public final class HandlerMapping implements WebMapping {
 
     private static final int[] EMPTY = Constant.EMPTY_INT_ARRAY;
     /** 处理器类 */

@@ -44,6 +44,7 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.exception.BadRequestException;
+import cn.taketoday.web.mapping.WebMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.view.ViewResolver;
 
@@ -177,11 +178,12 @@ public abstract class WebUtils {
     // ------------
 
     public static void resolveException(HttpServletRequest request, final HttpServletResponse response, //
-            ServletContext servletContext, ExceptionResolver exceptionResolver, Throwable exception) throws ServletException //
+            ServletContext servletContext, ExceptionResolver exceptionResolver, WebMapping webMapping, Throwable exception)
+            throws ServletException //
     {
         try {
             exception = ExceptionUtils.unwrapThrowable(exception);
-            exceptionResolver.resolveException(request, response, exception, null);
+            exceptionResolver.resolveException(request, response, exception, webMapping);
             servletContext.log("Catch Throwable: [" + exception + "] With Msg: [" + exception.getMessage() + "]", exception);
         }
         catch (Throwable e) {

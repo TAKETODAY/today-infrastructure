@@ -37,7 +37,8 @@ import lombok.Getter;
  * @since 2.3.7
  */
 @Getter
-public final class ResourceMapping implements Ordered {
+@SuppressWarnings("serial")
+public final class ResourceMapping implements WebMapping, Ordered {
 
     private static final int[] EMPTY = Constant.EMPTY_INT_ARRAY;
     private static final int DEFAULT_BUFFER_SIZE = 8192;

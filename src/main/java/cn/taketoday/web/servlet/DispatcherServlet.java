@@ -124,7 +124,7 @@ public class DispatcherServlet implements Servlet {
                 .getProperty("fastjson.serialize.features");
 
         if (StringUtils.isNotEmpty(property)) {
-            
+
             WebUtils.SERIALIZE_FEATURES = //
                     (SerializerFeature[]) ConvertUtils.convert(property, SerializerFeature[].class);
         }
@@ -182,7 +182,7 @@ public class DispatcherServlet implements Servlet {
         }
         catch (Throwable exception) {
             WebUtils.resolveException(request, response, //
-                    applicationContext.getServletContext(), exceptionResolver, exception);
+                    applicationContext.getServletContext(), exceptionResolver, requestMapping, exception);
         }
     }
 
