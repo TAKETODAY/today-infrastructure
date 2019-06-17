@@ -28,8 +28,7 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
 /**
  * Create bean definition
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-06-23 11:18:22
  */
 public interface BeanDefinitionLoader {
@@ -39,7 +38,7 @@ public interface BeanDefinitionLoader {
      * 
      * @param beanClass
      *            the bean type
-     * @return A new {@link BeanDefinition} with out DestroyMethods
+     * @return A new {@link BeanDefinition}
      */
     BeanDefinition createBeanDefinition(Class<?> beanClass);
 
@@ -101,7 +100,6 @@ public interface BeanDefinitionLoader {
      *            bean definition instance
      * @throws BeanDefinitionStoreException
      *             BeanDefinition could not be store
-     * 
      */
     void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
 

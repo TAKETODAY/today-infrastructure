@@ -71,7 +71,7 @@ public final class DefaultBeanDefinitionLoaderTest {
             beanDefinitionLoader.loadBeanDefinition(User.class); // will not register
             beanDefinitionLoader.loadBeanDefinition("user", User.class);
 
-            Map<String, BeanDefinition> beanDefinitionsMap = registry.getBeanDefinitionsMap();
+            Map<String, BeanDefinition> beanDefinitionsMap = registry.getBeanDefinitions();
 
             assert beanDefinitionsMap.size() == 1;
 

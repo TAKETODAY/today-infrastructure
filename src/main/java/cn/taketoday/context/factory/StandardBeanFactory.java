@@ -115,12 +115,12 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * 
      */
     @Override
-    protected Object doCreate(String currentBeanName, BeanDefinition currentBeanDefinition) throws Throwable {
+    protected Object getImplementation(String currentBeanName, BeanDefinition currentBeanDefinition) throws Throwable {
         // fix: #3 when get annotated beans that StandardBeanDefinition missed
         if (currentBeanDefinition instanceof StandardBeanDefinition) {
             return initializeSingleton(currentBeanName, currentBeanDefinition);
         }
-        return super.doCreate(currentBeanName, currentBeanDefinition);
+        return super.getImplementation(currentBeanName, currentBeanDefinition);
     }
 
     // -----------------------------------------
@@ -134,7 +134,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @throws Throwable
      */
     private Object getDeclaringInstance(String declaringName) throws Throwable {
-        BeanDefinition declaringBeanDefinition = getBeanDefinition(declaringName);
+        final BeanDefinition declaringBeanDefinition = getBeanDefinition(declaringName);
 
         if (declaringBeanDefinition.isInitialized()) {
             return getSingleton(declaringName);
@@ -161,7 +161,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      */
     public void loadConfigurationBeans() {
 
-        for (Entry<String, BeanDefinition> entry : getBeanDefinitionsMap().entrySet()) {
+        for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
 
             final BeanDefinition beanDefinition = entry.getValue();
 

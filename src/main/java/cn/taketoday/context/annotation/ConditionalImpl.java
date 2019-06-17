@@ -40,7 +40,7 @@ public class ConditionalImpl implements Conditional {
 
     @Override
     public Class<? extends Condition>[] value() {
-        return value;
+        return value == null ? new Class[0] : value;
     }
 
 }

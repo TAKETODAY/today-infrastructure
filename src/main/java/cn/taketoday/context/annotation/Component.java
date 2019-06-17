@@ -31,22 +31,17 @@ import cn.taketoday.context.Scope;
  * This annotation indicates that an annotated element is a bean component in
  * your application
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-07-2 22:46:39
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Component {
 
-    /**
-     * @return bean name
-     */
+    /** @return bean name */
     String[] value() default {};
 
-    /**
-     * @return bean's scope
-     */
+    /** @return bean's scope */
     Scope scope() default Scope.SINGLETON;
 
     String[] initMethods() default {};

@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.Environment;
@@ -93,7 +94,7 @@ public class StandardEnvironmentTest {
     @Test
     public void test_AddActiveProfile() throws IOException {
 
-        try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
+        try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext("", "")) {
             ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
             environment.addActiveProfile("prod");
@@ -106,7 +107,7 @@ public class StandardEnvironmentTest {
     @Test
     public void test_AcceptsProfiles() throws IOException {
 
-        try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
+        try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext("", "")) {
             ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
             assert environment.acceptsProfiles("test");

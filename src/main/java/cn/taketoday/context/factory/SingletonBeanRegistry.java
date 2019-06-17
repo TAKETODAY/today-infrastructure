@@ -56,7 +56,7 @@ public interface SingletonBeanRegistry {
      * 
      * @return the map of singletons
      */
-    Map<String, Object> getSingletonsMap();
+    Map<String, Object> getSingletons();
 
     /**
      * get bean instance, one {@link BeanDefinition} can have a lot of names, so

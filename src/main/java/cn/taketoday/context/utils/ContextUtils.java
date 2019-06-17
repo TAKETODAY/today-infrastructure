@@ -31,9 +31,9 @@ import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -436,7 +436,7 @@ public abstract class ContextUtils {
     public static Method[] resolveInitMethod(Class<?> beanClass, String... initMethods) {
 
         if (initMethods == null) {
-            initMethods = new String[0];
+            initMethods = Constant.EMPTY_STRING_ARRAY;
         }
         final List<Method> methods = new ArrayList<>(4);
 
@@ -497,7 +497,7 @@ public abstract class ContextUtils {
     public static PropertyValue[] resolvePropertyValue(Class<?> beanClass, //
             ApplicationContext applicationContext) //
     {
-        final Set<PropertyValue> propertyValues = new HashSet<>(32, 1.0f);
+        final Set<PropertyValue> propertyValues = new HashSet<>(32);
         for (final Field field : ClassUtils.getFields(beanClass)) {
             final PropertyValue created = createPropertyValue(field, applicationContext);
             // not required
@@ -752,13 +752,11 @@ public abstract class ContextUtils {
      */
     public static boolean conditional(AnnotatedElement annotatedElement, ConfigurableApplicationContext applicationContext) {
 
-        final Iterator<Conditional> iterator = //
-                ClassUtils.getAnnotation(annotatedElement, Conditional.class, ConditionalImpl.class)//
-                        .iterator();
+        final Collection<Conditional> annotations = //
+                ClassUtils.getAnnotation(annotatedElement, Conditional.class, ConditionalImpl.class);
 
-        while (iterator.hasNext()) {
-
-            final Conditional conditional = iterator.next();
+        OrderUtils.reversedSort((List<Conditional>) annotations);
+        for (Conditional conditional : annotations) {
 
             for (final Class<? extends Condition> conditionClass : conditional.value()) {
                 final Condition condition = ClassUtils.newInstance(conditionClass);
@@ -767,6 +765,7 @@ public abstract class ContextUtils {
                 }
             }
         }
+
         return true;
     }
 

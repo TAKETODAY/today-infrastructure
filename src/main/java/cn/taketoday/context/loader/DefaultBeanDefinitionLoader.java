@@ -23,6 +23,8 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Objects;
 
+import org.slf4j.LoggerFactory;
+
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -44,16 +46,16 @@ import cn.taketoday.context.utils.StringUtils;
 /**
  * Default Bean Definition Loader implements
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-23 11:18:22
  */
 public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
-    private final BeanDefinitionRegistry registry;
     /** bean definition registry */
-    private final ConfigurableApplicationContext applicationContext;
-    /**	 */
+    private final BeanDefinitionRegistry registry;
+    /** bean name creator */
     private final BeanNameCreator beanNameCreator;
+    private final ConfigurableApplicationContext applicationContext;
 
     public DefaultBeanDefinitionLoader(ConfigurableApplicationContext applicationContext) {
 
@@ -61,7 +63,6 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
                 Objects.requireNonNull(applicationContext, "applicationContext can't be null");
 
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
-
         this.registry = environment.getBeanDefinitionRegistry();
         this.beanNameCreator = environment.getBeanNameCreator();
     }
@@ -74,17 +75,16 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
     @Override
     public void loadBeanDefinition(Class<?> beanClass) throws BeanDefinitionStoreException {
 
-        if (Modifier.isAbstract(beanClass.getModifiers())) {
-            return; // don't load abstract class
-        }
-        try {
+        if (!Modifier.isAbstract(beanClass.getModifiers())) { // don't load abstract class
+            try {
 
-            if (ContextUtils.conditional(beanClass, applicationContext)) {
-                register(beanClass);
+                if (ContextUtils.conditional(beanClass, applicationContext)) {
+                    register(beanClass);
+                }
             }
-        }
-        catch (Throwable ex) {
-            throw new BeanDefinitionStoreException(ExceptionUtils.unwrapThrowable(ex));
+            catch (Throwable ex) {
+                throw new BeanDefinitionStoreException(ExceptionUtils.unwrapThrowable(ex));
+            }
         }
     }
 
@@ -121,28 +121,29 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
      * @param beanClass
      *            bean class
      * @throws BeanDefinitionStoreException
+     *             if {@link BeanDefinition} can't store
      */
     @Override
     public void register(Class<?> beanClass) throws BeanDefinitionStoreException {
+
+        Collection<AnnotationAttributes> annotationAttributes = //
+                ClassUtils.getAnnotationAttributes(beanClass, Component.class);
+
+        if (annotationAttributes.isEmpty()) {
+            return;
+        }
+
         try {
 
-            Collection<AnnotationAttributes> annotationAttributes = ClassUtils.getAnnotationAttributes(beanClass, Component.class);
-            if (annotationAttributes.isEmpty()) {
-                return;
-            }
-
             final String defaultBeanName = beanNameCreator.create(beanClass);
-            for (AnnotationAttributes attributes : annotationAttributes) {
-                for (String name : ContextUtils.findNames(defaultBeanName, attributes.getStringArray(Constant.VALUE))) {
-                    if (!applicationContext.containsBeanDefinition(name)) {
-                        register(name, build(beanClass, attributes, name));
-                    }
+            for (final AnnotationAttributes attributes : annotationAttributes) {
+                for (final String name : ContextUtils.findNames(defaultBeanName, attributes.getStringArray(Constant.VALUE))) {
+                    register(name, build(beanClass, attributes, name));
                 }
             }
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-
             throw new ConfigurationException(//
                     "An Exception Occurred When Build Bean Definition: [" + //
                             beanClass.getName() + "], With Msg: [" + ex.getMessage() + "]", ex);
@@ -156,16 +157,17 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
      *            given bean class
      * @param attributes
      *            {@link AnnotationAttributes}
-     * @param name
+     * @param beanName
      *            bean name
      * @return
      * @throws Throwable
      */
-    private BeanDefinition build(Class<?> beanClass, AnnotationAttributes attributes, String name) throws Throwable {
+    protected BeanDefinition build(Class<?> beanClass, AnnotationAttributes attributes, String beanName) throws Throwable {
 
-        final BeanDefinition beanDefinition = new DefaultBeanDefinition(name, beanClass);//
+        final BeanDefinition beanDefinition = new DefaultBeanDefinition(beanName, beanClass);//
+
         if (attributes == null) {
-            beanDefinition.setDestroyMethods(new String[0])//
+            beanDefinition.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)//
                     .setInitMethods(ContextUtils.resolveInitMethod(beanClass));//
         }
         else {
@@ -193,14 +195,26 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
     @Override
     public void register(String name, final BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
 
+        ContextUtils.validateBeanDefinition(beanDefinition, applicationContext);
+
         try {
 
-            ContextUtils.validateBeanDefinition(beanDefinition, applicationContext);
+            final Class<?> beanClass = beanDefinition.getBeanClass();
 
-            if (FactoryBean.class.isAssignableFrom(beanDefinition.getBeanClass())) {
-                // process FactoryBean
+            if (applicationContext.containsBeanDefinition(name)) {
+                final BeanDefinition existBeanDefinition = applicationContext.getBeanDefinition(name);
+                if (beanClass.equals(existBeanDefinition.getBeanClass())) {
+
+                    LoggerFactory.getLogger(DefaultBeanDefinitionLoader.class)//
+                            .warn("There is already a bean called: [{}], its bean class: [{}]", //
+                                    name, beanClass);
+                }
+            }
+
+            if (FactoryBean.class.isAssignableFrom(beanClass)) { // process FactoryBean
                 name = registerFactoryBean(name, beanDefinition);
             }
+
             registry.registerBeanDefinition(name, beanDefinition);
         }
         catch (Throwable ex) {
@@ -232,38 +246,37 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
             registed = false;
         }
 
+        final Class<?> beanClass = $factoryBean.getBeanClass();
+
         beanName = $factoryBean.getBeanName();
         if (StringUtils.isEmpty(beanName)) {
-            beanName = beanNameCreator.create($factoryBean.getBeanClass());
+            beanName = beanNameCreator.create(beanClass);
         }
-
-        beanDefinition.setFactoryBean(true);
-        if (StringUtils.isEmpty(beanDefinition.getName())) {
-            beanDefinition.setName(beanName);
-        }
+        
+        // fix
+        beanDefinition.setFactoryBean(true)//
+                .setBeanClass(beanClass)//
+                .setName(beanName);
 
         if (!registed) {// register it
             applicationContext.registerSingleton(beanName, $factoryBean);
         }
+
         return beanName;
     }
 
     @Override
     public BeanDefinition createBeanDefinition(Class<?> beanClass) {
 
-        final BeanDefinition beanDefinition = //
-                new DefaultBeanDefinition(beanNameCreator.create(beanClass), beanClass)//
-                        .setDestroyMethods(new String[0])//
-                        .setAbstract(Modifier.isAbstract(beanClass.getModifiers()))//
-                        .setFactoryBean(FactoryBean.class.isAssignableFrom(beanClass));
+        final Collection<AnnotationAttributes> annotationAttributes = //
+                ClassUtils.getAnnotationAttributes(beanClass, Component.class);
 
         try {
 
-            ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
-
-            // process property and init methods
-            return beanDefinition.setInitMethods(ContextUtils.resolveInitMethod(beanClass))//
-                    .setPropertyValues(ContextUtils.resolvePropertyValue(beanClass, this.applicationContext));
+            if (annotationAttributes.isEmpty()) {
+                return build(beanClass, null, beanNameCreator.create(beanClass));
+            }
+            return build(beanClass, annotationAttributes.iterator().next(), beanNameCreator.create(beanClass));
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);

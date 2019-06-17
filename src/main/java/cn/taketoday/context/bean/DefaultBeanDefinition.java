@@ -20,8 +20,10 @@
 package cn.taketoday.context.bean;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
@@ -150,13 +152,11 @@ public class DefaultBeanDefinition implements BeanDefinition {
 
     @Override
     public boolean isInitialized() {
-
         return initialized;
     }
 
     @Override
     public boolean isAbstract() {
-
         return Abstract;
     }
 
@@ -168,14 +168,14 @@ public class DefaultBeanDefinition implements BeanDefinition {
     // -----------------------
 
     @Override
-    public BeanDefinition setFactoryBean(boolean factoryBean) {
-        this.factoryBean = factoryBean;
+    public BeanDefinition setInitialized(boolean initialized) {
+        this.initialized = initialized;
         return this;
     }
 
     @Override
-    public BeanDefinition setInitialized(boolean initialized) {
-        this.initialized = initialized;
+    public BeanDefinition setFactoryBean(boolean factoryBean) {
+        this.factoryBean = factoryBean;
         return this;
     }
 
@@ -204,19 +204,19 @@ public class DefaultBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    public BeanDefinition setInitMethods(Method[] initMethods) {
+    public BeanDefinition setInitMethods(Method... initMethods) {
         this.initMethods = initMethods;
         return this;
     }
 
     @Override
-    public BeanDefinition setDestroyMethods(String[] destroyMethods) {
+    public BeanDefinition setDestroyMethods(String... destroyMethods) {
         this.destroyMethods = destroyMethods;
         return this;
     }
 
     @Override
-    public BeanDefinition setPropertyValues(PropertyValue[] propertyValues) {
+    public BeanDefinition setPropertyValues(PropertyValue... propertyValues) {
         this.propertyValues = propertyValues;
         return this;
     }
@@ -224,42 +224,46 @@ public class DefaultBeanDefinition implements BeanDefinition {
     @Override
     public void addPropertyValue(PropertyValue... propertyValues_) {
 
-        if (propertyValues == null) {
-            propertyValues = propertyValues_;
-            return;
+        if (this.propertyValues == null) {
+            this.propertyValues = propertyValues_;
         }
-        List<PropertyValue> asList = Arrays.asList(propertyValues);
-        for (PropertyValue propertyValue : propertyValues_) {
-            asList.add(propertyValue);
+        else {
+            List<PropertyValue> propertyValues = new ArrayList<>();
+            Collections.addAll(propertyValues, propertyValues_);
+
+            this.propertyValues = propertyValues.toArray(new PropertyValue[0]);
         }
-        propertyValues = asList.toArray(new PropertyValue[0]);
     }
 
     @Override
     public void addPropertyValue(Collection<PropertyValue> propertyValues) {
+
         if (propertyValues.isEmpty()) {
             return;
         }
+
         if (this.propertyValues == null) {
             this.propertyValues = propertyValues.toArray(new PropertyValue[0]);
-            return;
         }
-        // not null
-        propertyValues.addAll(Arrays.asList(this.propertyValues));
-        this.propertyValues = propertyValues.toArray(new PropertyValue[0]);
+        else {
+            // not null
+            Collections.addAll(propertyValues, this.propertyValues);
+            this.propertyValues = propertyValues.toArray(new PropertyValue[0]);
+        }
     }
 
     @Override
     public String toString() {
         return new StringBuilder()//
                 .append("{\n\t\"name\":\"").append(name)//
-                .append("\",\n\t\"beanClass\":\"").append(beanClass)//
                 .append("\",\n\t\"scope\":\"").append(scope)//
+                .append("\",\n\t\"beanClass\":\"").append(beanClass)//
                 .append("\",\n\t\"initMethods\":\"").append(Arrays.toString(initMethods))//
                 .append("\",\n\t\"destroyMethods\":\"").append(Arrays.toString(destroyMethods))//
                 .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(propertyValues))//
-                .append("\",\n\t\"initialized\":\"").append(initialized).append("\",\n\t\"factoryBean\":\"").append(factoryBean)//
-                .append("\",\n\t\"Abstract\":\"").append(Abstract)//
+                .append("\",\n\t\"initialized\":\"").append(initialized)//
+                .append("\",\n\t\"factoryBean\":\"").append(factoryBean)//
+                .append("\",\n\t\"abstract\":\"").append(Abstract)//
                 .append("\"\n}")//
                 .toString();
     }

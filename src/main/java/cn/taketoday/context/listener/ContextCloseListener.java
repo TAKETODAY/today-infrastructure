@@ -64,11 +64,11 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
 
         try {
 
-            for (final String name : applicationContext.getBeanDefinitionsMap().keySet()) {
+            for (final String name : applicationContext.getBeanDefinitions().keySet()) {
                 applicationContext.destroyBean(name);
             }
 
-            for (final Object bean : applicationContext.getSingletonsMap().values()) {
+            for (final Object bean : applicationContext.getSingletons().values()) {
                 ContextUtils.destroyBean(bean, bean.getClass().getDeclaredMethods());
             }
         }

@@ -35,7 +35,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
@@ -79,7 +79,7 @@ public class ApplicationContextTest {
     public void test_ApplicationContext() throws NoSuchBeanDefinitionException {
         try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
             applicationContext.loadContext("test.demo.repository");
-            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap();
+            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
 
             System.out.println(beanDefinitionsMap);
 
@@ -128,7 +128,7 @@ public class ApplicationContextTest {
             PropertyValue propertyValue = beanDefinition.getPropertyValue("pro");
             ConfigFactoryBean bean = applicationContext.getBean("$FactoryBean-Config", ConfigFactoryBean.class);
 
-            Map<String, Object> singletonsMap = applicationContext.getSingletonsMap();
+            Map<String, Object> singletonsMap = applicationContext.getSingletons();
 
             for (Entry<String, Object> entry : singletonsMap.entrySet()) {
                 System.err.println(entry.getKey() + "==" + entry.getValue());
@@ -162,7 +162,7 @@ public class ApplicationContextTest {
             applicationContext.registerBean("user_", User.class);
 //			applicationContext.onRefresh(); // init bean
 
-            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap();
+            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
 
             System.out.println(beanDefinitionsMap);
 
@@ -182,9 +182,9 @@ public class ApplicationContextTest {
             UserRepository userDao = applicationContext.getBean(UserRepository.class);
             DefaultUserRepository userDaoImpl = applicationContext.getBean(DefaultUserRepository.class);
 
-            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap();
+            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
 
-            Set<Entry<String, Object>> entrySet = applicationContext.getSingletonsMap().entrySet();
+            Set<Entry<String, Object>> entrySet = applicationContext.getSingletons().entrySet();
 
             for (Entry<String, Object> entry : entrySet) {
                 System.err.println(entry.getKey() + " == " + entry.getValue());
@@ -219,7 +219,7 @@ public class ApplicationContextTest {
 
             User bean = applicationContext.getBean(User.class);
             System.err.println(System.currentTimeMillis() - start + "ms");
-            System.err.println(applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitionsMap());
+            System.err.println(applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions());
 
             bean.setAge(12);
 
@@ -238,9 +238,9 @@ public class ApplicationContextTest {
 
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
             applicationContext.loadContext("");
-            ConfigurableEnvironment environment = applicationContext.getEnvironment();
+            Environment environment = applicationContext.getEnvironment();
             BeanDefinitionRegistry beanDefinitionRegistry = environment.getBeanDefinitionRegistry();
-            System.err.println(beanDefinitionRegistry.getBeanDefinitionsMap());
+            System.err.println(beanDefinitionRegistry.getBeanDefinitions());
 
             Config bean = applicationContext.getBean(Config.class);
             System.out.println(bean);
@@ -256,7 +256,7 @@ public class ApplicationContextTest {
 //            applicationContext.loadContext("");
 //            ConfigurableEnvironment environment = applicationContext.getEnvironment();
 //            BeanDefinitionRegistry beanDefinitionRegistry = environment.getBeanDefinitionRegistry();
-//            System.err.println(beanDefinitionRegistry.getBeanDefinitionsMap());
+//            System.err.println(beanDefinitionRegistry.getBeanDefinitions());
 //
 //            Config bean = applicationContext.getBean(Config.class);
 //            System.out.println(bean);

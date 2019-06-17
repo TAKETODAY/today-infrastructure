@@ -67,6 +67,7 @@ public final class BeanReference {
 
     @Override
     public boolean equals(Object obj) {
+
         if (obj == this) {
             return true;
         }
@@ -74,12 +75,28 @@ public final class BeanReference {
         if (obj instanceof BeanReference) {
             BeanReference other = (BeanReference) obj;
 
-            return (other.required != this.required && //
+            return (other.required == this.required && //
+                    other.prototype == this.prototype && //
                     other.name.equals(this.name) && //
                     ContextUtils.equals(other.referenceClass, referenceClass));
         }
 
         return false;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{\n\t\"name\":\"");
+        builder.append(name);
+        builder.append("\",\n\t\"required\":\"");
+        builder.append(required);
+        builder.append("\",\n\t\"referenceClass\":\"");
+        builder.append(referenceClass);
+        builder.append("\",\n\t\"prototype\":\"");
+        builder.append(prototype);
+        builder.append("\"\n}");
+        return builder.toString();
     }
 
 }

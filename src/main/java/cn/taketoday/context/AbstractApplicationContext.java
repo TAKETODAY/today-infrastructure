@@ -237,8 +237,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         {// fix: ensure ExpressionFactory's instance consistent @since 2.1.6
             Field declaredField = ClassUtils.forName("javax.el.ELUtil").getDeclaredField("exprFactory");
-            declaredField.setAccessible(true);
-            declaredField.set(null, ExpressionFactory.newInstance(environment.getProperties()));
+            ClassUtils.makeAccessible(declaredField)//
+                    .set(null, ExpressionFactory.newInstance(environment.getProperties()));
         }
         ELProcessor elProcessor = environment.getELProcessor();
         if (elProcessor == null) {
@@ -261,7 +261,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         publishEvent(new BeanDefinitionLoadingEvent(this));
         doLoadBeanDefinitions(beanFactory, classes);
         // bean definitions loaded
-        publishEvent(new BeanDefinitionLoadedEvent(this));
+        publishEvent(new BeanDefinitionLoadedEvent(this, beanFactory.getBeanDefinitions()));
         // handle dependency : register bean dependencies definition
         beanFactory.handleDependency();
         publishEvent(new DependenciesHandledEvent(this, beanFactory.getDependencies()));
@@ -552,23 +552,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         getBeanFactory().removeBeanPostProcessor(beanPostProcessor);
     }
 
-    @Override
-    public void refresh(Class<?> previousClass, Class<?> currentClass) {
-
-        try {
-
-            getBeanFactory().refresh(previousClass, currentClass);
-
-            // object refreshed
-            publishEvent(new ObjectRefreshedEvent(getBeanDefinition(currentClass), this));
-        }
-        catch (Throwable ex) {
-            ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("Can't refresh a bean: [{}], With Msg: [{}]", previousClass, ex.getMessage(), ex);
-            throw ExceptionUtils.newContextException(ex);
-        }
-    }
-
     // ------------------- BeanFactory
     @Override
     public Object getBean(String name) {
@@ -598,6 +581,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     @Override
     public <T> Map<String, T> getBeansOfType(Class<T> requiredType) {
         return getBeanFactory().getBeansOfType(requiredType);
+    }
+
+    @Override
+    public Map<String, BeanDefinition> getBeanDefinitions() {
+        return getBeanFactory().getBeanDefinitions();
     }
 
     @Override
@@ -636,8 +624,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
-    public Map<String, Object> getSingletonsMap() {
-        return getBeanFactory().getSingletonsMap();
+    public Map<String, Object> getSingletons() {
+        return getBeanFactory().getSingletons();
     }
 
     @Override
@@ -653,11 +641,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     @Override
     public boolean containsSingleton(String name) {
         return getBeanFactory().containsSingleton(name);
-    }
-
-    @Override
-    public Map<String, BeanDefinition> getBeanDefinitionsMap() {
-        return getBeanFactory().getBeanDefinitionsMap();
     }
 
     @Override

@@ -22,24 +22,24 @@ package cn.taketoday.context;
 import java.io.Closeable;
 import java.util.Collection;
 
-import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.listener.ApplicationEventPublisher;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-23 16:39:36
  */
 public interface ApplicationContext extends ConfigurableBeanFactory, ApplicationEventPublisher, Closeable {
 
     /**
-     * Get {@link ConfigurableEnvironment}
+     * Get {@link Environment}
      * 
-     * @return {@link ConfigurableEnvironment}
+     * @return {@link Environment}
      */
-    ConfigurableEnvironment getEnvironment();
+    Environment getEnvironment();
 
     /**
      * Refresh factory, initialize singleton
@@ -111,29 +111,18 @@ public interface ApplicationContext extends ConfigurableBeanFactory, Application
     State getState();
 
     public enum State {
-        /**
-         * context instantiated
-         */
+
+        /** context instantiated */
         NONE,
-        /**
-         * context is loading
-         */
+        /** context is loading */
         STARTING,
-        /**
-         * context is started
-         */
+        /** context is started */
         STARTED,
-        /**
-         * context failed to start
-         */
+        /** context failed to start */
         FAILED,
-        /**
-         * context is closing
-         */
+        /** context is closing */
         CLOSING,
-        /**
-         * context is closed
-         */
+        /** context is closed */
         CLOSED;
     }
 

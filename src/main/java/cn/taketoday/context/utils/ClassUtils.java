@@ -441,7 +441,9 @@ public abstract class ClassUtils {
      */
     public static void scan(final Collection<Class<?>> scanClasses, final String packageName) {
 
-        final String resourceToUse = packageName.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR);
+        final String resourceToUse = //
+                packageName.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR);
+        
         try {
             if (traceEnabled) {
                 log.trace("Scan package: [{}]", packageName);
@@ -838,7 +840,7 @@ public abstract class ClassUtils {
      *            The annotated element
      * @param annotationClass
      *            The annotation class
-     * @return
+     * @return a set of {@link AnnotationAttributes}
      * @since 2.1.1
      */
     public static <T extends Annotation> Collection<AnnotationAttributes> //
@@ -1005,21 +1007,39 @@ public abstract class ClassUtils {
 
     /**
      * 
-     * Use {@link Constructor} to create bean instance.
+     * Use default {@link Constructor} or Annotated {@link Autowired}
+     * {@link Constructor} to create bean instance.
      * 
      * @param beanDefinition
      *            target bean's definition
      * @param beanFactory
      *            bean factory
-     * @return bean class 's instance
+     * @return {@link BeanDefinition} 's instance
      * @throws ReflectiveOperationException
      *             if any reflective operation exception occurred
      * @since 2.1.5
      */
-    public static Object newInstance(BeanDefinition beanDefinition, BeanFactory beanFactory) //
+    public static Object newInstance(final BeanDefinition beanDefinition, final BeanFactory beanFactory) //
             throws ReflectiveOperationException //
     {
-        final Class<?> beanClass = beanDefinition.getBeanClass();
+        return newInstance(beanDefinition.getBeanClass(), beanFactory);
+    }
+
+    /**
+     * Use default {@link Constructor} or Annotated {@link Autowired}
+     * {@link Constructor} to create bean instance.
+     * 
+     * @param beanClass
+     *            target bean class
+     * @param beanFactory
+     *            bean factory
+     * @return bean class 's instance
+     * @throws ReflectiveOperationException
+     *             if any reflective operation exception occurred
+     */
+    public static Object newInstance(final Class<?> beanClass, final BeanFactory beanFactory) //
+            throws ReflectiveOperationException //
+    {
         try {
             return ClassUtils.newInstance(beanClass);
         }

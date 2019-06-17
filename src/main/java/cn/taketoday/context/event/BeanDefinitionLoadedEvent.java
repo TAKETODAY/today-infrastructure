@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.event;
 
+import java.util.Map;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.bean.BeanDefinition;
 
@@ -32,8 +34,15 @@ import cn.taketoday.context.bean.BeanDefinition;
 @SuppressWarnings("serial")
 public class BeanDefinitionLoadedEvent extends ApplicationContextEvent {
 
-    public BeanDefinitionLoadedEvent(ApplicationContext applicationContext) {
+    private final Map<String, BeanDefinition> beanDefinitions;
+
+    public BeanDefinitionLoadedEvent(ApplicationContext applicationContext, Map<String, BeanDefinition> beanDefinitions) {
         super(applicationContext);
+        this.beanDefinitions = beanDefinitions;
+    }
+
+    public Map<String, BeanDefinition> getBeanDefinitions() {
+        return beanDefinitions;
     }
 
 }

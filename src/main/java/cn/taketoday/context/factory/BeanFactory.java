@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
@@ -157,5 +158,13 @@ public interface BeanFactory {
      * @since 2.1.6
      */
     <T> Map<String, T> getBeansOfType(Class<T> requiredType);
+
+    /**
+     * Get all {@link BeanDefinition}s
+     * 
+     * @return all {@link BeanDefinition}s
+     * @since 2.1.6
+     */
+    Map<String, BeanDefinition> getBeanDefinitions();
 
 }

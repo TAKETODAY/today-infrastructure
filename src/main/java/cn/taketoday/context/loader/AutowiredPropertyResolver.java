@@ -134,7 +134,7 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
      * @return a name found in {@link BeanFactory} if not found will returns null
      */
     private String findName(ApplicationContext applicationContext, Class<?> propertyClass) {
-        for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitionsMap().entrySet()) {
+        for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitions().entrySet()) {
             if (propertyClass.isAssignableFrom(entry.getValue().getBeanClass())) {
                 return entry.getKey();
             }

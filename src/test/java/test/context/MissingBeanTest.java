@@ -92,9 +92,9 @@ public class MissingBeanTest {
 
         User bean = applicationContext.getBean("user", User.class);
 
-        System.err.println(applicationContext.getBeanDefinitionsMap());
+        System.err.println(applicationContext.getBeanDefinitions());
 
-        assert applicationContext.getBeanDefinitionsMap().size() == 2;
+        assert applicationContext.getBeanDefinitions().size() == 2;
         assert bean.getUserName().equals("default user");
 
         System.err.println(bean);

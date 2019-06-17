@@ -139,17 +139,6 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
     void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor);
 
     /**
-     * Refresh a bean which has already in context
-     * 
-     * @param previousClass
-     *            Previous Class
-     * @param currentClass
-     *            Swap {@link Class}
-     * @since 2.1.6
-     */
-    void refresh(Class<?> previousClass, Class<?> currentClass);
-
-    /**
      * Enable full {@link Prototype} , now {@link PropertyValue} only support
      * interface
      * 

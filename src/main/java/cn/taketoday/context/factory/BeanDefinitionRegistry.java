@@ -34,11 +34,8 @@ import cn.taketoday.context.bean.BeanDefinition;
  */
 public interface BeanDefinitionRegistry {
 
-    /**
-     * 
-     * @return
-     */
-    Map<String, BeanDefinition> getBeanDefinitionsMap();
+    /** */
+    Map<String, BeanDefinition> getBeanDefinitions();
 
     /**
      * register a bean with the given name and type

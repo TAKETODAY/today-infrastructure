@@ -107,7 +107,7 @@ public interface BeanDefinition {
      * 
      * @param propertyValue
      */
-    void addPropertyValue(PropertyValue... propertyValues_);
+    void addPropertyValue(PropertyValue... propertyValues);
 
     void addPropertyValue(Collection<PropertyValue> propertyValues);
 
@@ -121,11 +121,11 @@ public interface BeanDefinition {
 
     BeanDefinition setBeanClass(Class<?> beanClass);
 
-    BeanDefinition setInitMethods(Method[] initMethods);
+    BeanDefinition setInitMethods(Method... initMethods);
 
-    BeanDefinition setDestroyMethods(String[] destroyMethods);
+    BeanDefinition setDestroyMethods(String... destroyMethods);
 
-    BeanDefinition setPropertyValues(PropertyValue[] propertyValues);
+    BeanDefinition setPropertyValues(PropertyValue... propertyValues);
 
     BeanDefinition setFactoryBean(boolean factoryBean);
 
