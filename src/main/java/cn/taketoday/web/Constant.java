@@ -51,7 +51,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	 * Framework Attribute Keys End
 	 **********************************************************/
 
-	String	CONVERT_METHOD						= "doConvert";
+	String	CONVERT_METHOD						= "convert";
 
 	String	WEB_INF								= "/WEB-INF";
 

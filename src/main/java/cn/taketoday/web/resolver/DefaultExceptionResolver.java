@@ -98,6 +98,8 @@ public class DefaultExceptionResolver implements ExceptionResolver {
                     case Constant.RETURN_IMAGE :
                         resolveImageException(ex, response);
                         break;
+
+                    default:
                     case Constant.RETURN_VIEW :
                     case Constant.RETURN_OBJECT :
                     case Constant.RETURN_MODEL_AND_VIEW :
@@ -106,6 +108,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
                         }
                         else
                             resolveViewException(ex, response, status, msg);
+                        break;
                 }
             }
             else {

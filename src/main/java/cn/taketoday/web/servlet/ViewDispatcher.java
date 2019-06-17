@@ -125,6 +125,7 @@ public class ViewDispatcher extends GenericServlet {
                 }
                 default:
                     response.sendError(500);
+                    break;
             }
         }
         catch (Throwable exception) {

@@ -122,9 +122,11 @@ public class DispatcherServlet implements Servlet {
         // @since 2.3.7
         final String property = applicationContext.getEnvironment()//
                 .getProperty("fastjson.serialize.features");
-        
+
         if (StringUtils.isNotEmpty(property)) {
-            WebUtils.SERIALIZE_FEATURES = (SerializerFeature[]) ConvertUtils.convert(property, SerializerFeature[].class);
+            
+            WebUtils.SERIALIZE_FEATURES = //
+                    (SerializerFeature[]) ConvertUtils.convert(property, SerializerFeature[].class);
         }
     }
 

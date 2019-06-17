@@ -104,7 +104,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 
             final WebApplicationContext applicationContext = this.applicationContext;
 
-            for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitionsMap().entrySet()) {
+            for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitions().entrySet()) {
 
                 final BeanDefinition beanDefinition = entry.getValue();
                 final Class<?> beanClass = beanDefinition.getBeanClass();
@@ -256,9 +256,9 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
             if (methodParameter.isRequired()) {
                 throw WebUtils.newBadRequest(null, methodParameterName, null);
             }
-            return converter.doConvert(methodParameter.getDefaultValue());
+            return converter.convert(methodParameter.getDefaultValue());
         }
-        return converter.doConvert(requestParameter);
+        return converter.convert(requestParameter);
     }
 
     /**
@@ -326,7 +326,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
         if (this.supportsParameter(methodParameter)) {
             // log.debug("set other support parameter -> {}", methodParameterName);
             return supportParameterTypes.get(methodParameter.getParameterClass())//
-                    .doConvert(request.getParameter(methodParameterName));
+                    .convert(request.getParameter(methodParameterName));
         }
         // resolve pojo
 //		log.debug("set pojo parameter -> {}", methodParameterName);
@@ -510,7 +510,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
 				case TYPE_FLOAT :	return Float.parseFloat(pathVariable);
 				default:	 		{
 					if (this.supportsParameter(methodParameter)) {
-						return supportParameterTypes.get(methodParameter.getParameterClass()).doConvert(pathVariable);
+						return supportParameterTypes.get(methodParameter.getParameterClass()).convert(pathVariable);
 					}
 				}
 			}
@@ -614,7 +614,7 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
                 // if has supported type
                 final Converter<String, Object> converter = supportParameterTypes.get(type);
                 if (converter != null) {
-                    property = converter.doConvert(parameter);
+                    property = converter.convert(parameter);
                 }
                 else {
                     // not supported

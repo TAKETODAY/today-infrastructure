@@ -71,7 +71,7 @@ public class Base {
     @Test
     public void test_() {
         System.err.println(System.currentTimeMillis() - start);
-        Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitionsMap();
+        Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitions();
 
         System.err.println(beanDefinitionsMap);
 //		for (Class<?> class1 : ClassUtils.getClassCache()) {

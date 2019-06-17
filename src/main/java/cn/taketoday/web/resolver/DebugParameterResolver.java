@@ -101,7 +101,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 
             WebApplicationContext applicationContext = this.applicationContext;
 
-            for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitionsMap().entrySet()) {
+            for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitions().entrySet()) {
                 BeanDefinition beanDefinition = entry.getValue();
                 Class<? extends Object> beanClass = beanDefinition.getBeanClass();
                 ParameterConverter converter = beanClass.getAnnotation(ParameterConverter.class);
@@ -216,9 +216,9 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 				request.getSession().setAttribute(KEY_REDIRECT_MODEL, redirectModel);
 				return redirectModel;
 			}
+			default: return resolve(request, methodParameter, methodParameterName, methodParameter.getParameterClass());
 		}
 		//@on
-        return resolve(request, methodParameter, methodParameterName, methodParameter.getParameterClass());
     }
 
     /**
@@ -243,9 +243,9 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
             if (methodParameter.isRequired()) {
                 throw WebUtils.newBadRequest(null, methodParameterName, null);
             }
-            return converter.doConvert(methodParameter.getDefaultValue());
+            return converter.convert(methodParameter.getDefaultValue());
         }
-        return converter.doConvert(requestParameter);
+        return converter.convert(requestParameter);
     }
 
     /**
@@ -309,7 +309,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
         if (this.supportsParameter(methodParameter)) {
             log.debug("Resolve custom parameter: [{}]", methodParameterName);
             return supportParameterTypes.get(methodParameter.getParameterClass())//
-                    .doConvert(request.getParameter(methodParameterName));
+                    .convert(request.getParameter(methodParameterName));
         }
         // resolve pojo
         Object newInstance = null;
@@ -498,7 +498,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
 				case TYPE_FLOAT :	return Float.parseFloat(pathVariable);
 				default: 			{
 					if (this.supportsParameter(methodParameter)) {
-						return supportParameterTypes.get(methodParameter.getParameterClass()).doConvert(pathVariable);
+						return supportParameterTypes.get(methodParameter.getParameterClass()).convert(pathVariable);
 					}
 				}
 			}
@@ -606,7 +606,7 @@ public class DebugParameterResolver implements ParameterResolver, Constant, Init
                 // if has supported type
                 Converter<String, Object> converter = supportParameterTypes.get(type);
                 if (converter != null) {
-                    property = converter.doConvert(parameter);
+                    property = converter.convert(parameter);
                 }
                 else {
                     // not supported

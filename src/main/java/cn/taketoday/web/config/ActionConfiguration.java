@@ -118,10 +118,6 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 
     private Properties variables;
 
-    public ActionConfiguration() {
-
-    }
-
     /**
      * Build {@link HandlerMapping}
      * 
@@ -168,7 +164,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
      */
     protected void startConfiguration() throws Exception {
         // @since 2.3.3
-        for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitionsMap().entrySet()) {
+        for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitions().entrySet()) {
             final BeanDefinition beanDefinition = entry.getValue();
             if (!beanDefinition.isAbstract()) {
                 buildHandlerMapping(beanDefinition.getBeanClass());
@@ -265,7 +261,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 
         final String url = requestMethod.name() //
                 + contextPath //
-                + ContextUtils.resolvePlaceholder(variables, urlOnMethod); // GET/blog/users/1 GET/blog/#{key}/1
+                + ContextUtils.resolveValue(urlOnMethod, String.class, variables); // GET/blog/users/1 GET/blog/#{key}/1
 
         if (!doMappingPathVariable(url, //
                 handlerMethod.getParameter(), handlerMethod.getMethod(), handlerMappingIndex, requestMethod.name())) {

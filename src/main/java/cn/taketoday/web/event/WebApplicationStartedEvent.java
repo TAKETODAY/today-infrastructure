@@ -37,10 +37,6 @@ public class WebApplicationStartedEvent extends ApplicationEvent {
         this.applicationContext = applicationContext;
     }
 
-    /**
-     * 
-     * @return
-     */
     public WebApplicationContext getApplicationContext() {
         return applicationContext;
     }
