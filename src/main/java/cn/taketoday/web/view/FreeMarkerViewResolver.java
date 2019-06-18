@@ -37,6 +37,7 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.WebDebugMode;
 import cn.taketoday.web.utils.WebUtils;
+import freemarker.cache.TemplateLoader;
 import freemarker.ext.jsp.TaglibFactory;
 import freemarker.ext.servlet.AllHttpScopesHashModel;
 import freemarker.ext.servlet.FreemarkerServlet;
@@ -67,7 +68,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
     @Getter
     private final Configuration configuration;
     private final TaglibFactory taglibFactory;
-
+    private final TemplateLoader templateLoader;
     private final ServletContextHashModel applicationModel;
 
     @Autowired
@@ -75,6 +76,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
             @Autowired(required = false) ObjectWrapper wrapper, //
             @Autowired(required = false) Configuration configuration, //
             @Autowired(required = false) TaglibFactory taglibFactory, //
+            @Autowired(required = false) TemplateLoader templateLoader, //
             @Props(prefix = "freemarker.", replace = true) Properties settings) //
     {
         WebApplicationContext webApplicationContext = WebUtils.getWebApplicationContext();
@@ -97,14 +99,11 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
         // Create hash model wrapper for servlet context (the application)
         this.applicationModel = new ServletContextHashModel(servletContext, wrapper);
 
-        Map<String, TemplateModel> templateModels = webApplicationContext.getBeansOfType(TemplateModel.class);
+        final Map<String, TemplateModel> templateModels = webApplicationContext.getBeansOfType(TemplateModel.class);
 
         templateModels.forEach(configuration::setSharedVariable);
 
-//		for (Entry<String, TemplateModel> entry : templateModels.entrySet()) {
-//			configuration.setSharedVariable(entry.getKey(), entry.getValue());
-//		}
-
+        this.templateLoader = templateLoader;
         try {
             if (settings != null && !settings.isEmpty()) {
                 this.configuration.setSettings(settings);
@@ -125,8 +124,12 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 
         this.configuration.setLocale(locale);
         this.configuration.setDefaultEncoding(encoding);
-        this.configuration.setServletContextForTemplateLoading(servletContext, prefix); // prefix -> /WEB-INF/..
-
+        if (templateLoader == null) {
+            this.configuration.setServletContextForTemplateLoading(servletContext, prefix); // prefix -> /WEB-INF/..
+        }
+        else {
+            configuration.setTemplateLoader(templateLoader);
+        }
         LoggerFactory.getLogger(getClass()).info("Configuration FreeMarker View Resolver Success.");
     }
 
