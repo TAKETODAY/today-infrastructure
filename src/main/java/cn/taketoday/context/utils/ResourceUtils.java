@@ -19,11 +19,11 @@
  */
 package cn.taketoday.context.utils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 
 import cn.taketoday.context.Constant;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.io.JarEntryResource;
@@ -69,7 +69,7 @@ public abstract class ResourceUtils {
             try {
                 return new ClassPathResource(location);
             }
-            catch (ConfigurationException nullE) {
+            catch (FileNotFoundException nullE) {
                 return new FileBasedResource(location);
             }
         }

@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -247,5 +249,21 @@ public class ConcurrentProperties extends Properties implements ConcurrentMap<Ob
     @Override
     public boolean equals(Object o) {
         return map.equals(o);
+    }
+
+    @Override
+    public void list(PrintStream out) {
+        final PrintWriter printWriter = new PrintWriter(out);
+        list(printWriter);
+        printWriter.flush();
+    }
+
+    @Override
+    public void list(PrintWriter out) {
+        out.println("-- listing properties --");
+        for (java.util.Map.Entry<Object, Object> entry : map.entrySet()) {
+            out.println(entry.getKey() + " = " + entry.getValue());
+        }
+        
     }
 }

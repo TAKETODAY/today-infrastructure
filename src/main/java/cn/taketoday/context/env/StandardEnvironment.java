@@ -140,18 +140,20 @@ public class StandardEnvironment implements ConfigurableEnvironment {
         this.activeProfiles.add(profile);
     }
 
-    @Override
-    public void loadProperties(String propertiesLocation) throws IOException {
+    /**
+     * Load properties from {@link Resource}
+     * 
+     * @param propertiesResource
+     *            {@link Resource}
+     * @throws IOException
+     */
+    protected void loadProperties(final Resource propertiesResource) throws IOException {
 
-        Objects.requireNonNull(propertiesLocation, "Properties dir can't be null");
-
-        final Resource resource = ResourceUtils.getResource(propertiesLocation);
-
-        if (!resource.exists()) {
+        if (!propertiesResource.exists()) {
             log.warn("The path: [{}] you provided that doesn't exist", propertiesLocation);
             return;
         }
-        if (resource.isDirectory()) {
+        if (propertiesResource.isDirectory()) {
             log.debug("Start scanning properties resource.");
             final ResourceFilter propertiesFileFilter = new ResourceFilter() {
                 @Override
@@ -163,11 +165,16 @@ public class StandardEnvironment implements ConfigurableEnvironment {
                     return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
                 }
             };
-            doLoadFromDirectory(resource, this.properties, propertiesFileFilter);
+            doLoadFromDirectory(propertiesResource, this.properties, propertiesFileFilter);
         }
         else {
-            doLoad(this.properties, resource);
+            doLoad(this.properties, propertiesResource);
         }
+    }
+
+    @Override
+    public void loadProperties(String propertiesLocation) throws IOException {
+        loadProperties(ResourceUtils.getResource(Objects.requireNonNull(propertiesLocation, "Properties dir can't be null")));
     }
 
     /**
@@ -176,10 +183,10 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     @Override
     public void loadProperties() throws IOException {
 
-        for (final String propertiesLocation : StringUtils.split(getPropertiesLocation())) {
+        for (final String propertiesLocation : StringUtils.split(propertiesLocation)) {
             loadProperties(propertiesLocation);
         }
-
+        
         refreshActiveProfiles();
     }
 
