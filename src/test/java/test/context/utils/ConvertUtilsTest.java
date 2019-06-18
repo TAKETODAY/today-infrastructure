@@ -20,6 +20,7 @@
 package test.context.utils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -120,7 +121,7 @@ public class ConvertUtilsTest {
             ConvertUtils.convert("/info", Resource.class);
         }
         catch (ConversionException e) {
-            assert e.getCause().getClass().equals(ConfigurationException.class);
+            assert e.getCause().getClass().equals(FileNotFoundException.class);
         }
 
         // --Resource

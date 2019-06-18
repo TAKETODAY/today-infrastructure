@@ -19,13 +19,13 @@
  */
 package test.context.utils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.InvalidPathException;
 
 import org.junit.Test;
 
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.JarEntryResource;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ResourceUtils;
@@ -108,7 +108,7 @@ public class ResourceUtilsTest {
         try {
             ResourceUtils.getResource("info"); // ConfigurationException
         }
-        catch (ConfigurationException e) {
+        catch (FileNotFoundException e) {
             System.err.println(e);
         }
 

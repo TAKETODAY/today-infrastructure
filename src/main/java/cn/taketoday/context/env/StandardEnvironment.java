@@ -31,6 +31,9 @@ import java.util.Set;
 
 import javax.el.ELProcessor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Constant;
@@ -41,7 +44,6 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Standard implementation of {@link Environment}
@@ -50,8 +52,9 @@ import lombok.extern.slf4j.Slf4j;
  * 
  *         2018-11-14 21:23
  */
-@Slf4j
 public class StandardEnvironment implements ConfigurableEnvironment {
+
+    private static final Logger log = LoggerFactory.getLogger(StandardEnvironment.class);
 
     private Set<String> activeProfiles = new HashSet<>();
 
@@ -63,6 +66,8 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     private BeanDefinitionLoader beanDefinitionLoader;
     /** storage BeanDefinition */
     private BeanDefinitionRegistry beanDefinitionRegistry;
+
+    private String propertiesLocation = Constant.BLANK; // default ""
 
     public StandardEnvironment() {
         if (System.getSecurityManager() != null) {
@@ -135,18 +140,15 @@ public class StandardEnvironment implements ConfigurableEnvironment {
         this.activeProfiles.add(profile);
     }
 
-    /**
-     * Load properties file with given path
-     */
     @Override
-    public void loadProperties(String properties) throws IOException {
+    public void loadProperties(String propertiesLocation) throws IOException {
 
-        Objects.requireNonNull(properties, "Properties dir can't be null");
+        Objects.requireNonNull(propertiesLocation, "Properties dir can't be null");
 
-        final Resource resource = ResourceUtils.getResource(properties);
+        final Resource resource = ResourceUtils.getResource(propertiesLocation);
 
         if (!resource.exists()) {
-            log.warn("The path: [{}] you provided that doesn't exist", properties);
+            log.warn("The path: [{}] you provided that doesn't exist", propertiesLocation);
             return;
         }
         if (resource.isDirectory()) {
@@ -166,8 +168,28 @@ public class StandardEnvironment implements ConfigurableEnvironment {
         else {
             doLoad(this.properties, resource);
         }
+    }
+
+    /**
+     * Load properties file with given path
+     */
+    @Override
+    public void loadProperties() throws IOException {
+
+        for (final String propertiesLocation : StringUtils.split(getPropertiesLocation())) {
+            loadProperties(propertiesLocation);
+        }
+
+        refreshActiveProfiles();
+    }
+
+    /**
+     * Set active profiles from properties
+     */
+    protected void refreshActiveProfiles() {
 
         final String profiles = getProperty(Constant.KEY_ACTIVE_PROFILES);
+
         if (StringUtils.isNotEmpty(profiles)) {
             setActiveProfiles(StringUtils.split(profiles));
         }
@@ -182,7 +204,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
      *            properties
      * @throws IOException
      */
-    private static void doLoadFromDirectory(final Resource directory, //
+    public static void doLoadFromDirectory(final Resource directory, //
             Properties properties, final ResourceFilter propertiesFileFilter) throws IOException //
     {
 
@@ -205,7 +227,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
      * @param resource
      * @throws IOException
      */
-    private static void doLoad(Properties properties, final Resource resource) throws IOException {
+    public static void doLoad(Properties properties, final Resource resource) throws IOException {
 
         log.debug("Found Properties Resource: [{}]", resource.getLocation());
 
@@ -262,6 +284,16 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     public ConfigurableEnvironment setELProcessor(final ELProcessor elProcessor) {
         ContextUtils.setELProcessor(elProcessor);
         return this;
+    }
+
+    @Override
+    public ConfigurableEnvironment setPropertiesLocation(String propertiesLocation) {
+        this.propertiesLocation = propertiesLocation;
+        return this;
+    }
+
+    public String getPropertiesLocation() {
+        return propertiesLocation;
     }
 
 }

@@ -130,12 +130,14 @@ public abstract class StringUtils {
     }
 
     /**
+     * Split with {@link Constant#SPLIT_REGEXP}
+     * 
      * @param source
-     * @return
+     *            source string
+     * @return if source is null this will returns null
      */
     public static String[] split(String source) {
-
-        if (isEmpty(source)) {
+        if (source == null) { // fix
             return null;
         }
         return source.split(Constant.SPLIT_REGEXP);

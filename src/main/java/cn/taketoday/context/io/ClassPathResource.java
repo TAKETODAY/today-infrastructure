@@ -20,12 +20,12 @@
 package cn.taketoday.context.io;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 
@@ -50,8 +50,8 @@ public class ClassPathResource implements Resource, WritableResource {
         // linux path start with '/'
         if (resource == null) {
             this.resource = new FileBasedResource(location);
-            if (!this.resource.exists()) {
-                throw new ConfigurationException("There isn't exists a resource with location: [" + location + "]");
+            if (!this.resource.exists()) { // fix
+                throw new FileNotFoundException("There isn't exists a resource with location: [" + location + "]");
             }
         }
         else {

@@ -54,12 +54,21 @@ public interface ConfigurableEnvironment extends Environment {
     /**
      * Load properties configuration file. No specific name required.
      * 
-     * @param properties
-     *            properties directory
+     * @param propertiesLocation
+     *            The properties file location
      * @throws IOException
      *             when could not access to a properties file
      */
-    void loadProperties(String properties) throws IOException;
+    void loadProperties(String propertiesLocation) throws IOException;
+
+    /**
+     * Load properties configuration file, and set active profiles.
+     * 
+     * @throws IOException
+     *             when could not access to a properties file
+     * @since 2.1.6
+     */
+    void loadProperties() throws IOException;
 
     /**
      * Set {@link Environment} property
@@ -101,9 +110,18 @@ public interface ConfigurableEnvironment extends Environment {
     /**
      * Set {@link ELProcessor}
      * 
-     * @return {@link ELProcessor}
+     * @return {@link ConfigurableEnvironment}
      * @since 2.1.5
      */
     ConfigurableEnvironment setELProcessor(ELProcessor processor);
+
+    /**
+     * Config properties location
+     * 
+     * @param propertiesLocation
+     *            The location of properties file
+     * @return {@link ConfigurableEnvironment}
+     */
+    ConfigurableEnvironment setPropertiesLocation(String propertiesLocation);
 
 }

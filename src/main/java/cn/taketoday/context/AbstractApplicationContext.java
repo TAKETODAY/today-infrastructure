@@ -79,7 +79,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     private static final Logger log = LoggerFactory.getLogger(AbstractApplicationContext.class);
 
     private long startupDate;
-    private String propertiesLocation = Constant.BLANK; // default ""
+   
     private ConfigurableEnvironment environment;
 
     // @since 2.1.5
@@ -147,7 +147,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         try {
             // prepare properties
             final ConfigurableEnvironment environment = getEnvironment();
-            environment.loadProperties(propertiesLocation);
+            
+            
+                environment.loadProperties();
+            
+
             {// @since 2.1.6
                 if (environment.getProperty(Constant.ENABLE_FULL_PROTOTYPE, Boolean::parseBoolean, false)) {
                     enableFullPrototype();
@@ -701,7 +705,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // ----------------------
 
     public void setPropertiesLocation(String propertiesLocation) {
-        this.propertiesLocation = propertiesLocation;
+        getEnvironment().setPropertiesLocation(propertiesLocation);
     }
 
 }

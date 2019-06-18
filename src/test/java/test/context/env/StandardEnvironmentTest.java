@@ -71,7 +71,7 @@ public class StandardEnvironmentTest {
     public void test_loadProperties() throws IOException {
         System.err.println(ClassUtils.getClassLoader());
         ConfigurableEnvironment environment = new StandardEnvironment();
-        environment.loadProperties(""); // provide a path
+        environment.loadProperties(); // provide a path
         Properties properties = environment.getProperties();
 
         assert "https://taketoday.cn".equals(properties.getProperty("site.host"));
