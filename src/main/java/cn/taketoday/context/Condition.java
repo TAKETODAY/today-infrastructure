@@ -22,17 +22,20 @@ package cn.taketoday.context;
 import java.lang.reflect.AnnotatedElement;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-11-10 13:44
  */
 @FunctionalInterface
 public interface Condition {
 
     /**
+     * Matches condition
+     * 
      * @param applicationContext
+     *            application context
      * @param annotatedElement
-     * @return
+     *            annotated element
+     * @return Return {@code false} to indicate that the bean should not be created
      */
     boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement);
 
