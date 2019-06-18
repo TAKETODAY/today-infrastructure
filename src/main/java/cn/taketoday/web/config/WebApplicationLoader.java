@@ -85,11 +85,15 @@ import cn.taketoday.web.mapping.ResourceMapping;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.multipart.AbstractMultipartResolver;
 import cn.taketoday.web.multipart.DefaultMultipartResolver;
+import cn.taketoday.web.multipart.MultipartResolver;
 import cn.taketoday.web.resolver.DefaultExceptionResolver;
 import cn.taketoday.web.resolver.DefaultParameterResolver;
+import cn.taketoday.web.resolver.ExceptionResolver;
+import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.servlet.ResourceServlet;
 import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.FreeMarkerViewResolver;
+import cn.taketoday.web.view.ViewResolver;
 
 /**
  * Initialize Web application in a server like tomcat, jetty, undertow
@@ -413,8 +417,9 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
      *            Abstract Multipart Resolver instance
      * @param mvcConfiguration
      */
-    private void doAbstractMultipartResolver(Element element, AbstractMultipartResolver abstractMultipartResolver,
-            CompositeWebMvcConfiguration mvcConfiguration) {
+    private void doAbstractMultipartResolver(Element element, //
+            AbstractMultipartResolver abstractMultipartResolver, CompositeWebMvcConfiguration mvcConfiguration)//
+    {
 
         final Properties properties = getWebApplicationContext().getEnvironment().getProperties();
         final NodeList childNodes = element.getChildNodes();
@@ -477,35 +482,42 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
     /**
      * Check resolvers
      * 
+     * @param mvcConfiguration
+     * 
      * @throws BeanDefinitionStoreException
      */
-    private static void checkFrameWorkResolvers() throws BeanDefinitionStoreException {
+    private static void checkFrameWorkResolvers(CompositeWebMvcConfiguration mvcConfiguration) {
 
         WebApplicationContext applicationContext = getWebApplicationContext();
 
-        if (!applicationContext.containsBeanDefinition(EXCEPTION_RESOLVER)) {
+        if (!applicationContext.containsBeanDefinition(ExceptionResolver.class)) {
             applicationContext.registerBean(EXCEPTION_RESOLVER, DefaultExceptionResolver.class);
             applicationContext.refresh(EXCEPTION_RESOLVER);
             log.info("Use default exception resolver: [{}].", DefaultExceptionResolver.class);
         }
 
-        if (!applicationContext.containsBeanDefinition(MULTIPART_RESOLVER)) {
+        if (!applicationContext.containsBeanDefinition(MultipartResolver.class)) {
             // default multipart resolver
             applicationContext.registerBean(MULTIPART_RESOLVER, DefaultMultipartResolver.class);
             applicationContext.refresh(MULTIPART_RESOLVER);
             log.info("Use default multipart resolver: [{}].", DefaultMultipartResolver.class);
         }
-        if (!applicationContext.containsBeanDefinition(VIEW_RESOLVER)) {
+        if (!applicationContext.containsBeanDefinition(ViewResolver.class)) {
             // use freemarker view resolver
             applicationContext.registerBean(VIEW_RESOLVER, FreeMarkerViewResolver.class);
             applicationContext.refresh(VIEW_RESOLVER);
             log.info("Use default view resolver: [{}].", FreeMarkerViewResolver.class);
         }
-        if (!applicationContext.containsBeanDefinition(PARAMETER_RESOLVER)) {
+        if (!applicationContext.containsBeanDefinition(ParameterResolver.class)) {
             // use default parameter resolver
             applicationContext.registerBean(PARAMETER_RESOLVER, DefaultParameterResolver.class);
             applicationContext.refresh(PARAMETER_RESOLVER);
             log.info("Use default parameter resolver: [{}].", DefaultParameterResolver.class);
+        }
+
+        final AbstractViewResolver bean = applicationContext.getBean(AbstractViewResolver.class);
+        if (bean != null) {
+            mvcConfiguration.configViewResolver(bean);
         }
     }
 
@@ -565,7 +577,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
             }
 
             // check all resolver
-            checkFrameWorkResolvers();
+            checkFrameWorkResolvers(mvcConfiguration);
 
             // register servlet
             List<ServletContextInitializer> contextInitializers = //
@@ -604,8 +616,9 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
         }
     }
 
-    private void configResourceRegistry(List<ServletContextInitializer> contextInitializers, //
-            CompositeWebMvcConfiguration configuration) {
+    protected void configResourceRegistry(List<ServletContextInitializer> contextInitializers, //
+            CompositeWebMvcConfiguration configuration)//
+    {
 
         final ResourceMappingRegistry resourceMappingRegistry = applicationContext.getBean(ResourceMappingRegistry.class);
 

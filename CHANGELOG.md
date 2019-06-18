@@ -276,4 +276,6 @@ public final class PathVariableAction {
 - :bug: fix: #5 Request Body Read Error
 - :bug: fix: #6 ResourceServlet can't resolve Chinese Url
 
+- :sparkles: feat: config ViewResolver
+- :sparkles: feat: add ControllerAdvice,ExceptionHandler
 

@@ -26,6 +26,7 @@ import javax.servlet.ServletRegistration;
 
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.multipart.AbstractMultipartResolver;
+import cn.taketoday.web.view.AbstractViewResolver;
 
 /**
  * @author TODAY <br>
@@ -37,6 +38,13 @@ final class CompositeWebMvcConfiguration implements WebMvcConfiguration {
 
     public CompositeWebMvcConfiguration(List<WebMvcConfiguration> webMvcConfigurations) {
         this.webMvcConfigurations = webMvcConfigurations;
+    }
+
+    @Override
+    public void configViewResolver(AbstractViewResolver viewResolver) {
+        for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
+            webMvcConfiguration.configViewResolver(viewResolver);
+        }
     }
 
     @Override

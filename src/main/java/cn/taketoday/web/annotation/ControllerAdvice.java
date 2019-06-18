@@ -17,40 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.config;
+package cn.taketoday.web.annotation;
 
-import java.util.Set;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import javax.servlet.ServletRegistration;
-
-import cn.taketoday.web.mapping.ResourceMappingRegistry;
-import cn.taketoday.web.multipart.AbstractMultipartResolver;
-import cn.taketoday.web.view.AbstractViewResolver;
+import cn.taketoday.context.annotation.Component;
 
 /**
  * @author TODAY <br>
- *         2019-05-17 17:46
+ *         2019-06-18 14:27
+ * @since 2.1.6
  */
-public interface WebMvcConfiguration {
+@Component
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ControllerAdvice {
 
-    default void configViewResolver(AbstractViewResolver viewResolver) {
-        
-    }    
-    
-    default void configResourceMappings(ResourceMappingRegistry registry) {
-
-    }
-
-    default void configResourceServletUrlMappings(Set<String> urlMappings) {
-
-    }
-
-    default void configDefaultServlet(ServletRegistration servletRegistration) {
-
-    }
-
-    default void configMultipartResolver(AbstractMultipartResolver multipartResolver) {
-
-    }
+    String[] value() default {};//
 
 }
