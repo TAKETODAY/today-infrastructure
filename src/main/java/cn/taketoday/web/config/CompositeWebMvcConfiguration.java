@@ -41,37 +41,37 @@ final class CompositeWebMvcConfiguration implements WebMvcConfiguration {
     }
 
     @Override
-    public void configViewResolver(AbstractViewResolver viewResolver) {
+    public void configureViewResolver(AbstractViewResolver viewResolver) {
         for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
-            webMvcConfiguration.configViewResolver(viewResolver);
+            webMvcConfiguration.configureViewResolver(viewResolver);
         }
     }
 
     @Override
-    public void configResourceMappings(ResourceMappingRegistry registry) {
+    public void configureResourceMappings(ResourceMappingRegistry registry) {
         for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
-            webMvcConfiguration.configResourceMappings(registry);
+            webMvcConfiguration.configureResourceMappings(registry);
         }
     }
 
     @Override
-    public void configResourceServletUrlMappings(Set<String> urlMappings) {
+    public void configureResourceServletUrlMappings(Set<String> urlMappings) {
         for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
-            webMvcConfiguration.configResourceServletUrlMappings(urlMappings);
+            webMvcConfiguration.configureResourceServletUrlMappings(urlMappings);
         }
     }
 
     @Override
-    public void configDefaultServlet(ServletRegistration servletRegistration) {
+    public void configureDefaultServlet(ServletRegistration servletRegistration) {
         for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
-            webMvcConfiguration.configDefaultServlet(servletRegistration);
+            webMvcConfiguration.configureDefaultServlet(servletRegistration);
         }
     }
 
-    public void configMultipartResolver(AbstractMultipartResolver multipartResolver) {
+    public void configureMultipartResolver(AbstractMultipartResolver multipartResolver) {
 
         for (WebMvcConfiguration webMvcConfiguration : webMvcConfigurations) {
-            webMvcConfiguration.configMultipartResolver(multipartResolver);
+            webMvcConfiguration.configureMultipartResolver(multipartResolver);
         }
     }
 

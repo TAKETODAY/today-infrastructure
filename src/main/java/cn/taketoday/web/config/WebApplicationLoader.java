@@ -456,7 +456,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
                 }
             }
         }
-        mvcConfiguration.configMultipartResolver(abstractMultipartResolver);
+        mvcConfiguration.configureMultipartResolver(abstractMultipartResolver);
     }
 
     private static void addDefaultServletMapping(String staticMapping, CompositeWebMvcConfiguration mvcConfiguration) throws Throwable {
@@ -474,7 +474,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 
         servletRegistration.addMapping(StringUtils.split(staticMapping));
 
-        mvcConfiguration.configDefaultServlet(servletRegistration);
+        mvcConfiguration.configureDefaultServlet(servletRegistration);
 
         log.debug("Add default servlet mapping: [{}].", servletRegistration.getMappings());
     }
@@ -517,7 +517,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 
         final AbstractViewResolver bean = applicationContext.getBean(AbstractViewResolver.class);
         if (bean != null) {
-            mvcConfiguration.configViewResolver(bean);
+            mvcConfiguration.configureViewResolver(bean);
         }
     }
 
@@ -622,7 +622,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 
         final ResourceMappingRegistry resourceMappingRegistry = applicationContext.getBean(ResourceMappingRegistry.class);
 
-        configuration.configResourceMappings(resourceMappingRegistry);
+        configuration.configureResourceMappings(resourceMappingRegistry);
 
         if (resourceMappingRegistry.isEmpty()) {
             return;
@@ -651,7 +651,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
             }
         }
 
-        configuration.configResourceServletUrlMappings(urlMappings);
+        configuration.configureResourceServletUrlMappings(urlMappings);
         resourceServletInitializer.setUrlMappings(urlMappings);
         resourceServletInitializer.setName(Constant.RESOURCE_SERVLET);
 
