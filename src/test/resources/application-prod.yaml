@@ -1,0 +1,9 @@
+server:
+   port: 8080
+  
+redis:
+   address: redis://127.0.0.1:6379
+
+site:
+   path: /home/site/docs
+   

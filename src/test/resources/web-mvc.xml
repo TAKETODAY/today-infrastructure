@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+  Copyright © Today & 2017 - 2018 All Rights Reserved.
+  
+  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ 
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+
+<!DOCTYPE Web-Configuration PUBLIC 
+			"-//TODAY BLOG//Web - Configuration DTD 2.0//"
+				"https://taketoday.cn/framework/web/dtd/web-configuration-2.3.3.dtd">
+
+<Web-Configuration>
+
+<!-- 
+	<static-resources mapping="/assets/*;/favicon.ico"/>
+	<multipart class="cn.taketoday.web.multipart.CommonsMultipartResolver">
+-->
+	<multipart class="cn.taketoday.web.multipart.DefaultMultipartResolver">
+		<upload-encoding>#{upload.encoding}</upload-encoding>
+		<upload-maxFileSize>#{upload.maxFileSize}</upload-maxFileSize>
+		<upload-maxRequestSize>#{upload.maxRequestSize}</upload-maxRequestSize>
+		<upload-fileSizeThreshold>#{upload.fileSizeThreshold}</upload-fileSizeThreshold>
+	</multipart>
+
+	<view-resolver class="cn.taketoday.web.view.FreeMarkerViewResolver">
+		<view-prefix>/WEB-INF/ftl</view-prefix>
+		<view-suffix>.ftl</view-suffix>
+		<view-encoding>UTF-8</view-encoding>
+	</view-resolver>
+
+	<controller prefix="/error/" >
+		<action resource="400" name="BadRequest" status="400"/>
+		<action resource="403" name="Forbidden" status="403"/>
+		<action resource="404" name="NotFound" status="404"/>
+		<action resource="405" name="MethodNotAllowed" status="405"/>
+		<action resource="500" name="ServerIsBusy" status="500"/>
+	</controller>
+
+	<controller prefix="/feed">
+		<action name="rss.xml" resource="/rss" content-type="application/rss+xml;charset=utf-8"/>
+		<action name="atom.xml" resource="/atom" content-type="application/xml;charset=utf-8"/>
+	</controller>
+	
+	<controller>
+		<action name="tags" resource="/tags/index"/>
+		<!-- <action name="/github/login" resource="#{github.redrict}" type="redirect"/> -->
+		<action name="categories" resource="/categories/index"/>
+		<action name="sitemap.xml" resource="/core/sitemap" content-type="application/xml"/>
+	</controller>
+
+</Web-Configuration>
+

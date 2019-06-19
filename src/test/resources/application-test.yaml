@@ -1,0 +1,9 @@
+server:
+   port: 80
+  
+redis:
+   address: redis://127.0.0.1:6379
+
+site:
+   path: "/path/to/site"
+   Access-Control-Allow-Origin: 'http://go.taketoday.cn'
