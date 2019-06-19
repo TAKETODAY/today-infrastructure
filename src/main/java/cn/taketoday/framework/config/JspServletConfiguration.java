@@ -19,11 +19,10 @@
  */
 package cn.taketoday.framework.config;
 
-import cn.taketoday.context.annotation.Props;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.context.annotation.Props;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -41,7 +40,7 @@ public class JspServletConfiguration {
     private String[] urlMappings = { "*.jsp", "*.jspx" };
 
     private String className = "org.apache.jasper.servlet.JspServlet";
-    
+
     private Map<String, String> initParameters = new HashMap<>();
 
     public JspServletConfiguration() {

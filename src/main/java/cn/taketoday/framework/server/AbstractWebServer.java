@@ -72,8 +72,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2019-01-26 11:08
  */
 @Getter
@@ -88,11 +87,10 @@ public abstract class AbstractWebServer implements //
     private String contextPath = "";
     private String serverHeader = null;
     private boolean enableHttp2 = false;
+
     private String displayName = "Web-App";
 
-    /**
-     * Application Class
-     */
+    /** Application Class */
     private Class<?> startupClass;
 
     @Autowired

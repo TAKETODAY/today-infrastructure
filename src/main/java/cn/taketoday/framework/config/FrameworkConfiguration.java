@@ -29,6 +29,4 @@ import cn.taketoday.context.annotation.Props;
 @Props(prefix = "web.mvc.")
 public class FrameworkConfiguration {
 
-    
-    
 }

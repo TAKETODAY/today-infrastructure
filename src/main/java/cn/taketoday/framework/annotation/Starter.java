@@ -19,14 +19,14 @@
  */
 package cn.taketoday.framework.annotation;
 
-import cn.taketoday.context.Scope;
-import cn.taketoday.context.annotation.Component;
-import cn.taketoday.framework.Constant;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.context.Scope;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.framework.Constant;
 
 /**
  * @author Today <br>

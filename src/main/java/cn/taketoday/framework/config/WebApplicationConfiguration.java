@@ -95,6 +95,6 @@ public interface WebApplicationConfiguration {
      *            {@link MimeMappings}
      */
     default void configureMimeMappings(MimeMappings mimeMappings) {
-        
+
     }
 }

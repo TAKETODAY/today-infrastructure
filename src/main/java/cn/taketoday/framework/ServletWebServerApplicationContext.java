@@ -94,7 +94,7 @@ public class ServletWebServerApplicationContext extends DefaultWebApplicationCon
                 ((AbstractWebServer) webServer).getWebApplicationConfiguration()//
                         .configureWebServer((AbstractWebServer) webServer);
             }
-            
+
             ((ConfigurableWebServer) webServer).initialize(getContextInitializer());
         }
         super.onRefresh();

@@ -37,7 +37,7 @@ public class StandardWebServletEnvironmentTest {
 
         StandardWebServletEnvironment environment = //
                 new StandardWebServletEnvironment(StandardWebServletEnvironmentTest.class);
-        
+
         environment.loadProperties();
 
         final Properties properties = environment.getProperties();

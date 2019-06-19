@@ -63,7 +63,7 @@ public class SessionConfiguration {
             return ApplicationUtils.getTemporalDirectory(startupClass, "web-app-sessions");
         }
 
-        LoggerFactory.getLogger(getClass()).info("Use store directory: [{}]", storeDirectory);
+        LoggerFactory.getLogger(getClass()).info("Use directory: [{}] to store sessions", storeDirectory);
         return storeDirectory.getFile();
     }
 

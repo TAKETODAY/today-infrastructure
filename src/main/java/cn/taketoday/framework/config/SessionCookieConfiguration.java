@@ -19,11 +19,10 @@
  */
 package cn.taketoday.framework.config;
 
-import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.Props;
-
 import java.time.Duration;
 
+import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Props;
 import lombok.Getter;
 import lombok.Setter;
 

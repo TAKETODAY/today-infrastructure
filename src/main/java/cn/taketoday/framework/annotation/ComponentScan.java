@@ -19,13 +19,13 @@
  */
 package cn.taketoday.framework.annotation;
 
-import cn.taketoday.context.BeanNameCreator;
-import cn.taketoday.context.env.DefaultBeanNameCreator;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.env.DefaultBeanNameCreator;
 
 /**
  * @author Today <br>
