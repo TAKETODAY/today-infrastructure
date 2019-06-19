@@ -1,1 +1,10 @@
-/target/
+*.class
+
+*.jar
+*.war
+*.ear
+/target
+/.settings
+/.classpath
+/.project
+/tomcat.8080
