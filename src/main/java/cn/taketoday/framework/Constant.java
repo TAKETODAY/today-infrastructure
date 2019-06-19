@@ -20,8 +20,8 @@
 package cn.taketoday.framework;
 
 /**
- * @author Today <br>
- *         2018,1,6 2018 1 16
+ * @author TODAY <br>
+ *         2019-06-19 21:50
  */
 public interface Constant extends cn.taketoday.web.Constant {
 
