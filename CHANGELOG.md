@@ -1,11 +1,186 @@
+# TODAY web CHANGE LOG
 
-## v1.0.1
-> 除去字符编码只用UTF-8
+:apple: today-web is a servlet based high-performance lightweight web framework
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/811723d275dc409ba6a823c9e08a5b3b)](https://app.codacy.com/app/TAKETODAY/today-web?utm_source=github.com&utm_medium=referral&utm_content=TAKETODAY/today-web&utm_campaign=Badge_Grade_Dashboard)
+
+## 背景
+<details>
+  <summary>先不看</summary>
+<blockquote>
+    <p>
+  本人大学生一枚，专业是电子信息工程，大三在读。大一开始学Java，准确的说是高三最后的几周开始的. 果然兴趣是最好的老师， 在大一下学期自己独自一人从前端到后台写了我的个人网站：<a href="https://taketoday.cn">TODAY BLOG</a> 。 从注册域名到备案再到网站成功上线，我遇到过的困难数不计其数。因为感兴趣所以我坚持了下来。第一个版本使用的纯Servlet写的。后来了解到Java有很多开源框架可以简化我的开发。于是又投入到新一轮的学习之中...... 学了Struts2后自己学着写了一个小框架：<a href="https://gitee.com/TAKETODAY/today_web/tree/v1.1.1/">TODAY WEB</a>，几百行搞定从解析xml定义的action到处理对应的请求。学了Spring MVC后，我写了此项目：<a href="https://gitee.com/TAKETODAY/today_web">TODAY WEB 2.0</a>。
+    </p>
+</blockquote>
+ 
+</details>
+
+## 安装
+
+```xml
+<dependency>
+    <groupId>cn.taketoday</groupId>
+    <artifactId>today-web</artifactId>
+    <version>2.3.6.RELEASE</version>
+</dependency>
+```
+- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-web/2.3.6.RELEASE/jar)
+
+
+
+
+## v2.3.7
+- :sparkles: feat: allow rebuild Controllers
+- :sparkles: :zap: add WebUtils api
+- :sparkles: feat: status feature
+- :sparkles: feat: @Interceptor exclude feature
+- :bug: fix: applicationContext NullPointerException
+- refactor: refactor DispatcherServlet
+- unify date format
+- :sparkles: feat: `WebResource` feature
+- :sparkles: feat: use `WebMvcConfiguration` to config web mvc
+- :sparkles: feat: use Spring path matcher to match static resource
+- :sparkles: feat: use `ResourceServlet` to handle static resource request
+- :sparkles: feat: static Resource supports Interceptor
+- refactor: extract comment code
+
+- :bug: fix: #5 Request Body Read Error
+- :bug: fix: #6 ResourceServlet can't resolve Chinese Url
+
+- :sparkles: feat: config ViewResolver
+- :sparkles: feat: add ControllerAdvice,ExceptionHandler
+- :bug: fix: #7 filter can't be null
+
+
+## v2.3.6
+- add new today-context version
+- :sparkles: feat: auto register `Servlet`,`Filter`,`Listener`
+
+
+## v2.3.5
+- add new today-context version
+- adjust: adjust `DispatcherServlet`.`destroy()`
+- :sparkles: feat: add `Reader`, `Writer`,request `Locale`, `OutputStream`, `InputStream`, `java.security.Principal`. parameter types
+
+
+## v2.3.4
+- Sync to maven Central
+- Waiting for Jetty 10.0.0
+
+## v2.3.3
+- fix path variable不能匹配中文字符
+- view add content type 
+- fix #3 upload file not found exception
+- add some test code
+
+## v2.3.2
+- fix #1
+- fix #2 JSONObject could be null
+- use `HandlerMappingRegistry` instead of `HandlerMappingPool`
+
+## v2.3.1
+![LOGO](https://taketoday.cn/display.action?userId=666)
+- 修复@Application 空指针
+- [重构 `ViewDispatcher`](/src/main/java/cn/taketoday/web/servlet/ViewDispatcher.java)
+- [重构 `DispatcherServlet`](/src/main/java/cn/taketoday/web/servlet/DispatcherServlet.java)
+- [优化 path variable 参数注入](/src/main/java/cn/taketoday/web/resolver/DefaultParameterResolver.java#L337)
+- [修复exception resolver InvocationTargetException](/src/main/java/cn/taketoday/web/resolver/DefaultExceptionResolver.java#L49)
+- [优化requestBody注解参数注入](/src/main/java/cn/taketoday/web/resolver/DefaultParameterResolver.java#L304)
+- [优化MultipartResolver](/src/main/java/cn/taketoday/web/multipart/CommonsMultipartResolver.java#L80)
+- [update web-configuration-2.3.0.dtd](/src/main/resources/web-configuration-2.3.0.dtd)
+- [增加WebMvcConfigLocation，自定义web-mvc配置文件路径，加快启动速度](/src/main/java/cn/taketoday/web/Constant.java#L51)
+- 去掉Optional类型参数
+
+## v2.3.0
+
+- 修复 path variable 参数不匹配
+- 增加 @Application注解，可注入ServletContxet Attribute
+- 重构参数转换器
+
+
+## v2.2.4
+- requestMapping.setAction(clazz.getSimpleName());
+
+
+## v2.2.3
+> ### 修复ServletContext 注入过晚
+> ### JSON.toJSON(invoke) -> JSON.toJSONString(invoke, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty)
+
+
+## v2.2.2
+> ### `HandlerMapping` private Class<?> actionProcessor 改为 private String action
+> ### 更改 `Freemarker` 版本 解决 `AllHttpScopesHashModel` 构造函数不可视问题, 去掉 `AllScopesModel` 类
+> ### 添加单元测试
+> ### 优化拦截器
+> ### 添加 web-configuration-2.2.0.dtd
+> ### 改进freemarker view
+> ### 修改@RequestParam 逻辑
+> ### 启用defaultValue
+> ### 优化参数转换器
+> ### @ActionProcessor @RestProcessor 改名 @Controller @RestController @RequestMapping
+> ### 更改包名cn.taketoday.web.core -> cn.taketoday.web
+
+## v2.2.1 加入`@PathVariable` `Optional<T>`
     
-## v1.2.0
-> - 取消tags
-> - 取消后缀
-> - Java1.8 通过反射得到参数名称
+```java
+@RestProcessor
+public final class OptionalAction {
+
+    public OptionalAction() {
+    
+    }
+
+    @GET("/optional")
+    public String optional(Optional<String> opt) {
+        
+        opt.ifPresent(opts -> {
+            System.out.println(opts);
+        });
+            
+        return "Optional";
+    }
+}
+@RestProcessor
+public final class PathVariableAction {
+
+    @ActionMapping(value = {"/path/{id}"}, method = RequestMethod.GET)
+    public String pathVariable(@PathVariable Integer id) {
+        
+    return "id -> " + id;
+    }
+    
+    @ActionMapping(value = {"/p/**/yhj.html"}, method = RequestMethod.GET)
+    public String path() {
+        
+    return "/path/**";
+    }
+    
+    @ActionMapping(value = {"/pa/{i}"}, method = RequestMethod.GET)
+    public String path(@PathVariable Integer i) {
+        
+    return "/path/"+ i;
+    }
+    
+    @ActionMapping(value = {"/paths/{name}"}, method = RequestMethod.GET)
+    public String path(@PathVariable String name) {
+        return name;
+    }
+
+    @ActionMapping(value = {"/path/{name}/{id}.html"}, method = RequestMethod.GET)
+    public String path_(@PathVariable String name,@PathVariable Integer id) {
+        return "name -> " + name + "/id -> " + id;
+    }
+    
+    @ActionMapping(value = {"/path/{name}/{id}-{today}.html"}, method = RequestMethod.GET)
+    public String path_(@PathVariable String name,@PathVariable Integer id, @PathVariable Integer today) {
+        return "name -> " + name + "/id -> " + id + "/today->" + today;
+    }
+    
+}
+
+```
+
+
 
 ## v2.0 `2018-06-26`
 > ### 优化架构，简化配置几乎可以做到零配置
@@ -134,149 +309,13 @@ public final BufferedImage captcha(HttpServletRequest request, HttpServletRespon
 > IOC容器：[today-context](https://gitee.com/TAKETODAY/today_context)
 
 
-## v2.2.1 加入`@PathVariable` `Optional<T>`
+## v1.2.0
+> - 取消tags
+> - 取消后缀
+> - Java1.8 通过反射得到参数名称
+
+
+## v1.0.1
+> 除去字符编码只用UTF-8
     
-```java
-@RestProcessor
-public final class OptionalAction {
-
-    public OptionalAction() {
-	
-    }
-
-    @GET("/optional")
-    public String optional(Optional<String> opt) {
-		
-		opt.ifPresent(opts -> {
-			System.out.println(opts);
-		});
-			
-		return "Optional";
-    }
-}
-@RestProcessor
-public final class PathVariableAction {
-
-    @ActionMapping(value = {"/path/{id}"}, method = RequestMethod.GET)
-    public String pathVariable(@PathVariable Integer id) {
-		
-	return "id -> " + id;
-    }
-	
-    @ActionMapping(value = {"/p/**/yhj.html"}, method = RequestMethod.GET)
-    public String path() {
-		
-	return "/path/**";
-    }
-	
-    @ActionMapping(value = {"/pa/{i}"}, method = RequestMethod.GET)
-    public String path(@PathVariable Integer i) {
-		
-	return "/path/"+ i;
-    }
-	
-    @ActionMapping(value = {"/paths/{name}"}, method = RequestMethod.GET)
-    public String path(@PathVariable String name) {
-    	return name;
-    }
-
-    @ActionMapping(value = {"/path/{name}/{id}.html"}, method = RequestMethod.GET)
-    public String path_(@PathVariable String name,@PathVariable Integer id) {
-    	return "name -> " + name + "/id -> " + id;
-    }
-    
-    @ActionMapping(value = {"/path/{name}/{id}-{today}.html"}, method = RequestMethod.GET)
-    public String path_(@PathVariable String name,@PathVariable Integer id, @PathVariable Integer today) {
-    	return "name -> " + name + "/id -> " + id + "/today->" + today;
-    }
-	
-}
-
-```
-
-## v2.2.2
-> ### `HandlerMapping` private Class<?> actionProcessor 改为 private String action
-> ### 更改 `Freemarker` 版本 解决 `AllHttpScopesHashModel` 构造函数不可视问题, 去掉 `AllScopesModel` 类
-> ### 添加单元测试
-> ### 优化拦截器
-> ### 添加 web-configuration-2.2.0.dtd
-> ### 改进freemarker view
-> ### 修改@RequestParam 逻辑
-> ### 启用defaultValue
-> ### 优化参数转换器
-> ### @ActionProcessor @RestProcessor 改名 @Controller @RestController @RequestMapping
-> ### 更改包名cn.taketoday.web.core -> cn.taketoday.web
-
-## v2.2.3
-> ### 修复ServletContext 注入过晚
-> ### JSON.toJSON(invoke) -> JSON.toJSONString(invoke, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteNullListAsEmpty)
-
-## v2.2.4
-
-- requestMapping.setAction(clazz.getSimpleName());
-
-## v2.3.0
-
-- 修复 path variable 参数不匹配
-- 增加 @Application注解，可注入ServletContxet Attribute
-- 重构参数转换器
-
-## v2.3.1
-![LOGO](https://taketoday.cn/display.action?userId=666)
-- 修复@Application 空指针
-- [重构 `ViewDispatcher`](/src/main/java/cn/taketoday/web/servlet/ViewDispatcher.java)
-- [重构 `DispatcherServlet`](/src/main/java/cn/taketoday/web/servlet/DispatcherServlet.java)
-- [优化 path variable 参数注入](/src/main/java/cn/taketoday/web/resolver/DefaultParameterResolver.java#L337)
-- [修复exception resolver InvocationTargetException](/src/main/java/cn/taketoday/web/resolver/DefaultExceptionResolver.java#L49)
-- [优化requestBody注解参数注入](/src/main/java/cn/taketoday/web/resolver/DefaultParameterResolver.java#L304)
-- [优化MultipartResolver](/src/main/java/cn/taketoday/web/multipart/CommonsMultipartResolver.java#L80)
-- [update web-configuration-2.3.0.dtd](/src/main/resources/web-configuration-2.3.0.dtd)
-- [增加WebMvcConfigLocation，自定义web-mvc配置文件路径，加快启动速度](/src/main/java/cn/taketoday/web/Constant.java#L51)
-- 去掉Optional类型参数
-
-## v2.3.2
-- fix #1
-- fix #2 JSONObject could be null
-- use `HandlerMappingRegistry` instead of `HandlerMappingPool`
-
-## v2.3.3
-- fix path variable不能匹配中文字符
-- view add content type 
-- fix #3 upload file not found exception
-- add some test code
-
-## v2.3.4
-- Sync to maven Central
-- Waiting for Jetty 10.0.0
-
-## v2.3.5
-- add new today-context version
-- adjust: adjust `DispatcherServlet`.`destroy()`
-- :sparkles: feat: add `Reader`, `Writer`,request `Locale`, `OutputStream`, `InputStream`, `java.security.Principal`. parameter types
-
-## v2.3.6
-- add new today-context version
-- :sparkles: feat: auto register `Servlet`,`Filter`,`Listener`
-
-## v2.3.7
-- :sparkles: feat: allow rebuild Controllers
-- :sparkles: :zap: add WebUtils api
-- :sparkles: feat: status feature
-- :sparkles: feat: @Interceptor exclude feature
-- :bug: fix: applicationContext NullPointerException
-- refactor: refactor DispatcherServlet
-- unify date format
-- :sparkles: feat: `WebResource` feature
-- :sparkles: feat: use `WebMvcConfiguration` to config web mvc
-- :sparkles: feat: use Spring path matcher to match static resource
-- :sparkles: feat: use `ResourceServlet` to handle static resource request
-- :sparkles: feat: static Resource supports Interceptor
-- refactor: extract comment code
-
-- :bug: fix: #5 Request Body Read Error
-- :bug: fix: #6 ResourceServlet can't resolve Chinese Url
-
-- :sparkles: feat: config ViewResolver
-- :sparkles: feat: add ControllerAdvice,ExceptionHandler
-- :bug: fix: #7 filter can't be null
 
