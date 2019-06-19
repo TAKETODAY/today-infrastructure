@@ -634,9 +634,6 @@ public abstract class ContextUtils {
             if (value instanceof String) {
                 return resolveValue((String) value, fieldType, properties);
             }
-            if (fieldType.isInstance(value)) {
-                return value;
-            }
             if (value != null) {
                 return ConvertUtils.convert(value, fieldType);
             }

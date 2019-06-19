@@ -63,16 +63,17 @@ public abstract class ConvertUtils {
         if (source == null) {
             return null;
         }
-        if (!targetClass.isInstance(source)) {
-            for (TypeConverter converter : getConverters()) {
-                if (converter.supports(targetClass, source)) {
-                    return converter.convert(targetClass, source);
-                }
-            }
-            throw new ConversionException("There isn't a 'cn.taketoday.context.conversion.TypeConverter' to convert: [" //
-                    + source + "] to target class: [" + targetClass + "]");
+        if (targetClass.isInstance(source)) {
+            return source;
         }
-        return targetClass.cast(source);
+        for (TypeConverter converter : getConverters()) {
+            if (converter.supports(targetClass, source)) {
+                return converter.convert(targetClass, source);
+            }
+        }
+        throw new ConversionException("There isn't a 'cn.taketoday.context.conversion.TypeConverter' to convert: [" //
+                + source + "] to target class: [" + targetClass + "]");
+
     }
 
     public static TypeConverter[] getConverters() {
