@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration.Dynamic;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,21 +31,23 @@ import org.slf4j.LoggerFactory;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebApplicationContextAware;
 import cn.taketoday.web.servlet.ViewDispatcher;
+import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
  *         2019-02-03 14:43
  */
 @MissingBean
-public class ViewDispatcherInitializer extends WebServletInitializer<ViewDispatcher> implements WebApplicationContextAware {
-
-    private WebApplicationContext applicationContext;
+public class ViewDispatcherInitializer extends WebServletInitializer<ViewDispatcher> {
 
     @Override
-    public void setWebApplicationContext(WebApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    protected Dynamic addRegistration(ServletContext servletContext) {
+        final ViewDispatcher servlet = getServlet();
+        if (servlet != null) {
+            return servletContext.addServlet(getName(), servlet);
+        }
+        return null;
     }
 
     @Override
@@ -57,6 +60,7 @@ public class ViewDispatcherInitializer extends WebServletInitializer<ViewDispatc
 
             if (urls.size() > 0) {// register
                 ServletContext servletContext = getServletContext();
+                final WebApplicationContext applicationContext = WebUtils.getWebApplicationContext();
 
                 if (!applicationContext.containsBeanDefinition(Constant.VIEW_DISPATCHER)) {
                     applicationContext.registerBean(Constant.VIEW_DISPATCHER, ViewDispatcher.class);

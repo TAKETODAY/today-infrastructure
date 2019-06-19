@@ -33,6 +33,7 @@ import javax.servlet.ServletContext;
 
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 
@@ -62,7 +63,7 @@ public class WebFilterInitializer<T extends Filter> extends WebComponentInitiali
         if (filter != null) {
             return servletContext.addFilter(getName(), filter);
         }
-        return null;
+        throw new ConfigurationException("filter can't be null");
     }
 
     @Override

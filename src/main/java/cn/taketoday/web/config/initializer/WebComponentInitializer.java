@@ -60,10 +60,9 @@ public abstract class WebComponentInitializer<D extends Registration.Dynamic> im
         setServletContext(servletContext);
 
         D registration = addRegistration(servletContext);
-        if (registration == null) {
-            return;
+        if (registration != null) {
+            configureRegistration(registration);
         }
-        configureRegistration(registration);
     }
 
     protected abstract D addRegistration(ServletContext servletContext);

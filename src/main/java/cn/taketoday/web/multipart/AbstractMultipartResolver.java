@@ -21,8 +21,8 @@ package cn.taketoday.web.multipart;
 
 import javax.servlet.http.HttpServletRequest;
 
-import cn.taketoday.web.Constant;
 import cn.taketoday.context.utils.DataSize;
+import cn.taketoday.web.Constant;
 import lombok.Getter;
 import lombok.Setter;
 
