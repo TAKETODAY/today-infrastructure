@@ -72,8 +72,10 @@ public interface Resource {
     URL getLocation() throws IOException;
 
     /**
+     * Return a File handle for this resource.
      * 
-     * @return
+     * @throws IOException
+     *             in case of general resolution/reading failures
      */
     File getFile() throws IOException;
 

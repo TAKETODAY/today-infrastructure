@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.utils;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
@@ -83,6 +84,18 @@ public abstract class ResourceUtils {
 			case Constant.PROTOCOL_JAR :	return new JarEntryResource(url.getPath());
 			default:						return new UrlBasedResource(url); //@on
         }
+    }
+
+    /**
+     * Get {@link Resource} from a file
+     * 
+     * @param file
+     *            source
+     * @return a {@link FileBasedResource}
+     * @throws IOException
+     */
+    public static Resource getResource(File file) {
+        return new FileBasedResource(file);
     }
 
     /**

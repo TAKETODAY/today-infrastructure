@@ -261,9 +261,9 @@ public class ConcurrentProperties extends Properties implements ConcurrentMap<Ob
     @Override
     public void list(PrintWriter out) {
         out.println("-- listing properties --");
-        for (java.util.Map.Entry<Object, Object> entry : map.entrySet()) {
+        for (Entry<Object, Object> entry : map.entrySet()) {
             out.println(entry.getKey() + " = " + entry.getValue());
         }
-        
+
     }
 }

@@ -94,4 +94,9 @@ public class UrlBasedResource extends AbstractResource {
         return new UrlBasedResource(new URL(this.url, relativePath));
     }
 
+    @Override
+    public String toString() {
+        return url.toString();
+    }
+
 }

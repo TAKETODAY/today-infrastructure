@@ -199,4 +199,9 @@ public class FileBasedResource extends AbstractResource implements WritableResou
         return this.path.hashCode();
     }
 
+    @Override
+    public String toString() {
+        return path;
+    }
+
 }
