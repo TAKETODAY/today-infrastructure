@@ -95,7 +95,7 @@ public abstract class ClassUtils {
     /** scanned classes */
     private static Set<Class<?>> classesCache;
 
-    private static final Map<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32, 1f);
+    private static final Map<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32);
 
     /** @since 2.1.1 */
     private static final Set<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();//
@@ -443,7 +443,7 @@ public abstract class ClassUtils {
 
         final String resourceToUse = //
                 packageName.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR);
-        
+
         try {
             if (traceEnabled) {
                 log.trace("Scan package: [{}]", packageName);

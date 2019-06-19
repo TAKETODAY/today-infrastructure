@@ -20,12 +20,7 @@
 - [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/2.1.5.RELEASE/jar)
 
 
-## 开源协议
-
-请查看 [GNU GENERAL PUBLIC LICENSE](https://github.com/TAKETODAY/today-context/blob/master/LICENSE)
-
-
-//-----------------------------------------------
+# 当前版本
 
 ## v2.1.6
 - :sparkles: feat: hot swap supports
@@ -55,7 +50,7 @@
 - :sparkles: feat: Props nested class feature
 - :bug: fix: #7 The bean is not initialized due to the startup sequence not found
 - :sparkles: feat: add new annotations: ConditionalOnClass, ConditionalOnExpression,ConditionalOnMissingClass,ConditionalOnProperty,ConditionalOnResource
-
+- :bug: fix: #8 Property inject failure
 
 
 ## v2.1.5
@@ -67,7 +62,6 @@
 - :sparkles: feat: Add el support
 - :bug: fix: When manually load context some properties can't be loaded
 - :bug: fix: el Messages resource bundle not found
-
 
 
 ## v2.1.4

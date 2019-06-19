@@ -252,7 +252,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         if (StringUtils.isEmpty(beanName)) {
             beanName = beanNameCreator.create(beanClass);
         }
-        
+
         // fix
         beanDefinition.setFactoryBean(true)//
                 .setBeanClass(beanClass)//

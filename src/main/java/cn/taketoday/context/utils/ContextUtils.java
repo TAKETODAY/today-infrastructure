@@ -628,12 +628,17 @@ public abstract class ContextUtils {
                 }
                 value = resolveProps(nestedProps.setPrefix(prefixsToUse), fieldType, properties);
             }
+
+            log.debug("Found Property: [{}] = [{}]", key, value);
+
             if (value instanceof String) {
-                log.debug("Found Properties key: [{}]", key);
                 return resolveValue((String) value, fieldType, properties);
             }
             if (fieldType.isInstance(value)) {
                 return value;
+            }
+            if (value != null) {
+                return ConvertUtils.convert(value, fieldType);
             }
         }
         return null;

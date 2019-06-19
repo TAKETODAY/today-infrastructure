@@ -186,7 +186,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
         for (final String propertiesLocation : StringUtils.split(propertiesLocation)) {
             loadProperties(propertiesLocation);
         }
-        
+
         refreshActiveProfiles();
     }
 
@@ -216,10 +216,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     {
 
         final Resource[] listResources = directory.list(propertiesFileFilter);
-//        if (listResources.length == 0) {
-//            log.warn("The path: [{}] you provided that contains nothing", directory.getLocation());
-//            return;
-//        }
+
         for (final Resource resource : listResources) {
             if (resource.isDirectory()) { // recursive
                 doLoadFromDirectory(resource, properties, propertiesFileFilter);
@@ -236,7 +233,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
      */
     public static void doLoad(Properties properties, final Resource resource) throws IOException {
 
-        log.debug("Found Properties Resource: [{}]", resource.getLocation());
+        log.info("Found Properties Resource: [{}]", resource.getLocation());
 
         try (InputStream inputStream = resource.getInputStream()) {
             properties.load(inputStream);

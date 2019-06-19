@@ -142,6 +142,7 @@ public abstract class ConvertUtils {
                 new StringArrayConverter(), //
                 new StringNumberConverter(), //
                 new StringResourceConverter(), //
+                new PrimitiveClassConverter(),
                 new StringConstructorConverter(), //
 
                 new DelegatingStringTypeConverter<>((c) -> c == Class.class, source -> {
@@ -152,7 +153,6 @@ public abstract class ConvertUtils {
                         throw new ConversionException(e);
                     }
                 }), //
-
                 new DelegatingStringTypeConverter<>((c) -> c == DataSize.class, DataSize::parse), //
                 new DelegatingStringTypeConverter<>((c) -> c == Charset.class, Charset::forName), //
                 new DelegatingStringTypeConverter<>((c) -> c == Duration.class, ConvertUtils::parseDuration), //
@@ -331,6 +331,37 @@ public abstract class ConvertUtils {
                 throw new ConversionException(e);
             }
         }
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-06-19 12:28
+     */
+    @Order(Ordered.LOWEST_PRECEDENCE)
+    public static class PrimitiveClassConverter implements TypeConverter {
+
+        @Override
+        public boolean supports(Class<?> targetClass, Object source) {
+
+            if (targetClass.isArray()) {
+                targetClass = targetClass.getComponentType();
+            }
+
+            return (targetClass == boolean.class && source instanceof Boolean) //
+                    || (targetClass == long.class && source instanceof Long)//
+                    || (targetClass == int.class && source instanceof Integer)//
+                    || (targetClass == float.class && source instanceof Float)//
+                    || (targetClass == short.class && source instanceof Short)//
+                    || (targetClass == double.class && source instanceof Double)//
+                    || (targetClass == char.class && source instanceof Character)//
+                    || (targetClass == byte.class && source instanceof Byte);
+        }
+
+        @Override
+        public Object convert(Class<?> targetClass, Object source) throws ConversionException {
+            return source; // auto convert
+        }
+
     }
 
 }

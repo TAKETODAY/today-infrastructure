@@ -72,7 +72,7 @@ class OnClassCondition implements Condition {
                 }
             }
         }
-        
+
         return true;
     }
 
