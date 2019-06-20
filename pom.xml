@@ -3,12 +3,18 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.taketoday</groupId>
     <artifactId>today-framework-parent</artifactId>
+    
+<!-- 
+    <version>1.0.0.RELEASE</version> 
+-->
+
     <version>latest</version>
+
     <packaging>pom</packaging>
 
     <name>TODAY Framework</name>
 
-    <description>today-framework is a servlet based high-performance lightweight framework.</description>
+    <description>today-framework is a high-performance lightweight web framework.</description>
 
     <dependencies>
 
