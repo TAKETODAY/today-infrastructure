@@ -7,79 +7,47 @@
         <version>latest</version>
     </parent>
     <artifactId>today-framework-tomcat</artifactId>
-	
-	<name>today-tomcat-1.0.0.RELEASE</name>
-	<description>Today Tomcat Web Server Plugin</description>
 
-	<url>https://taketoday.cn</url>
-	<organization>
-		<name>Today</name>
-		<url>https://taketoday.cn</url>
-	</organization>
-    
-	<profiles>
-		<profile>
-			<id>jdk-1.8</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-				<jdk>1.8</jdk>
-			</activation>
-			<properties>
-				<embed.tomcat.version>9.0.20</embed.tomcat.version>
-				<maven.compiler.source>1.8</maven.compiler.source>
-				<maven.compiler.target>1.8</maven.compiler.target>
-				<maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
-			</properties>
-		</profile>
+    <name>tomcat plugin</name>
 
-	</profiles>
-	<dependencies>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.0</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.2.3</version>
-			<scope>provided</scope>
-		</dependency>
+    <description>Tomcat Web Server Plugin</description>
+
+
+    <dependencies>
+
 		<!-- https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core -->
-		<dependency>
-			<groupId>org.apache.tomcat.embed</groupId>
-			<artifactId>tomcat-embed-core</artifactId>
-			<version>${embed.tomcat.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.tomcat.embed</groupId>
-			<artifactId>tomcat-embed-websocket</artifactId>
-			<version>${embed.tomcat.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>${embed.tomcat.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-websocket</artifactId>
+            <version>${embed.tomcat.version}</version>
+        </dependency>
 
-		<dependency>
-			<groupId>org.apache.tomcat.embed</groupId>
-			<artifactId>tomcat-embed-jasper</artifactId>
-			<version>${embed.tomcat.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.eclipse.jdt</groupId>
-					<artifactId>ecj</artifactId>
-				</exclusion>
-			</exclusions>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>cn.taketoday</groupId>
-			<artifactId>today-framework</artifactId>
-			<version>latest</version>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+            <version>${embed.tomcat.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jdt</groupId>
+                    <artifactId>ecj</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>provided</scope>
-		</dependency>
+        </dependency>
 
-	</dependencies>
+        <dependency>
+            <groupId>cn.taketoday</groupId>
+            <artifactId>today-framework</artifactId>
+            <version>latest</version>
+            <scope>provided</scope>
+        </dependency>
 
-	
+    </dependencies>
+
+
 </project>
