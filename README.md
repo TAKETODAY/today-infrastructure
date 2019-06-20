@@ -7,7 +7,28 @@
 
 ```java
 
+@RestController
+@PropertiesSource("classpath:info.properties")
+public class TestApplication implements WebMvcConfiguration {
 
+    public static void main(String[] args) {
+        WebApplication.run(TestApplication.class, args);
+    }
+
+    @GET("index/{q}")
+    public String index(@PathVariable String q, HttpSession httpSession) {
+        return q;
+    }
+
+    @Override
+    public void configureResourceMappings(ResourceMappingRegistry registry) {
+
+        registry.addResourceMapping("/assets/**")//
+                .addLocations("classpath:assets/");
+
+    }
+
+}
 ```
 
 ## 联系方式
