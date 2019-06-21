@@ -98,7 +98,7 @@ import cn.taketoday.web.view.ViewResolver;
 /**
  * Initialize Web application in a server like tomcat, jetty, undertow
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2019-01-12 17:28
  */
 @SuppressWarnings("serial")

@@ -20,10 +20,20 @@
 package cn.taketoday.web;
 
 /**
- * @author Today <br>
- *         2018,1,6 2018 1 16
+ * @author TODAY <br>
+ * 
+ * @version 2.3.7
+ * @time 2018 1 ? - 2018 3 8 <br>
+ *       <b>2.2.2.RELEASE -> 2018-08-23 14:53</b><br>
+ *       <b>2.2.4.RELEASE -> 2018-09-09 18:37</b><br>
+ *       <b>2.3.1.RELEASE -> 2018-10-18 20:26</b><br>
+ *       ...<br>
+ *       <b>2.3.3.RELEASE -> 2018-12-07 21:28</b><br>
+ *       <b>2.3.4.RELEASE -> 2019-02-10 18:03</b><br>
  */
 public interface Constant extends cn.taketoday.context.Constant {
+
+    String WEB_VERSION = "2.3.7.RELEASE";
 
     String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
     String ENABLE_WEB_STARTED_LOG = "enable.started.log";
