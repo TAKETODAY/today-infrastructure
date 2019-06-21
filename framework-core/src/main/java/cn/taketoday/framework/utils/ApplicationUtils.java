@@ -155,17 +155,18 @@ public abstract class ApplicationUtils {
      */
     private static File findHomeDir(File homeDir) {
 
-        if (homeDir == null) {
-            String userDir = System.getProperty("user.dir");
-            homeDir = new File(StringUtils.isNotEmpty(userDir) ? userDir : ".");
+        File ret = homeDir;
+        if (ret == null) {
+            final String userDir = System.getProperty("user.dir");
+            ret = new File(StringUtils.isNotEmpty(userDir) ? userDir : ".");
         }
-        if (homeDir.isFile()) {
-            homeDir = homeDir.getParentFile();
+        if (ret.isFile()) {
+            ret = homeDir.getParentFile();
         }
-        if (!homeDir.exists()) {
-            homeDir = new File(".");
+        if (!ret.exists()) {
+            ret = new File(".");
         }
-        return homeDir.getAbsoluteFile();
+        return ret.getAbsoluteFile();
     }
 
 }

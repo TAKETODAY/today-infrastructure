@@ -75,6 +75,7 @@ import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.config.ApplicationInitializer;
 import cn.taketoday.framework.config.CompressionConfiguration;
+import cn.taketoday.framework.config.JspServletConfiguration;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.web.ServletContextInitializer;
@@ -402,7 +403,8 @@ public class TomcatServer extends AbstractWebServer {
         loader.setDelegate(true);
         context.setLoader(loader);
 
-        if (getJspServletConfiguration() != null) {
+        final JspServletConfiguration jspServletConfiguration = getJspServletConfiguration();
+        if (jspServletConfiguration != null && jspServletConfiguration.isEnable()) {
             context.addServletContainerInitializer(new JasperInitializer(), null);
         }
 

@@ -150,12 +150,12 @@ public abstract class UndertowCompressionUtils {
             return testExcludeUserAgents(userAgent) || testIncludeUserAgents(userAgent);
         }
 
-        boolean testExcludeUserAgents(final String userAgent) {
+        private boolean testExcludeUserAgents(final String userAgent) {
             return !(contains(excludeUserAgents, excludedUserAgent -> excludedUserAgent.equals(userAgent)) && //
                     contains(excludeAgentPatterns, excludeAgentPattern -> excludeAgentPattern.matcher(userAgent).matches()));
         }
 
-        boolean testIncludeUserAgents(final String userAgent) {
+        private boolean testIncludeUserAgents(final String userAgent) {
 
             if (includeAgentPatterns != null) {
                 return contains(includeAgentPatterns, //
@@ -174,7 +174,7 @@ public abstract class UndertowCompressionUtils {
         private final String[] excludeMethods;
         private final String[] includeMethods;
 
-        RequestPathAndMethodPredicate(final CompressionConfiguration compression) {
+        private RequestPathAndMethodPredicate(final CompressionConfiguration compression) {
             this.excludePaths = compression.getExcludePaths();
             this.includedPaths = compression.getIncludedPaths();
 
@@ -191,12 +191,12 @@ public abstract class UndertowCompressionUtils {
             return testExclude(requestMethod, requestPath) || testInclude(requestMethod, requestPath);
         }
 
-        boolean testExclude(final HttpString requestMethod, final String requestPath) {
+        private boolean testExclude(final HttpString requestMethod, final String requestPath) {
             return !(contains(excludePaths, requestPath::equals) //
                     && contains(excludeMethods, requestMethod::equalToString));
         }
 
-        boolean testInclude(final HttpString requestMethod, final String requestPath) {
+        private boolean testInclude(final HttpString requestMethod, final String requestPath) {
             return contains(includedPaths, requestPath::equals) //
                     || contains(includeMethods, requestMethod::equalToString);
         }
@@ -206,7 +206,7 @@ public abstract class UndertowCompressionUtils {
 
         private final String[] mimeTypes;
 
-        MimeTypesPredicate(String... mimeTypes) {
+        private MimeTypesPredicate(String... mimeTypes) {
             this.mimeTypes = mimeTypes;
         }
 
