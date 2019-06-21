@@ -19,12 +19,16 @@
  */
 package cn.taketoday.framework.config;
 
+import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.server.AbstractWebServer;
+import cn.taketoday.web.ServletContextInitializer;
 
 /**
  * @author TODAY <br>
@@ -85,6 +89,28 @@ public class CompositeWebApplicationConfiguration implements WebApplicationConfi
     public void configureMimeMappings(MimeMappings mimeMappings) {
         for (WebApplicationConfiguration webApplicationConfiguration : webApplicationConfigurations) {
             webApplicationConfiguration.configureMimeMappings(mimeMappings);
+        }
+    }
+
+    @Override
+    public void configureWelcomePages(Set<String> welcomePages) {
+        for (WebApplicationConfiguration webApplicationConfiguration : webApplicationConfigurations) {
+            webApplicationConfiguration.configureWelcomePages(welcomePages);
+        }
+    }
+
+    @Override
+    public void configureLocaleCharsetMapping(Map<Locale, Charset> localeCharsetMappings) {
+        for (WebApplicationConfiguration webApplicationConfiguration : webApplicationConfigurations) {
+            webApplicationConfiguration.configureLocaleCharsetMapping(localeCharsetMappings);
+        }
+    }
+
+    @Override
+    public void configureServletContextInitializer(List<ServletContextInitializer> initializer) {
+        
+        for (WebApplicationConfiguration webApplicationConfiguration : webApplicationConfigurations) {
+            webApplicationConfiguration.configureServletContextInitializer(initializer);
         }
     }
 }

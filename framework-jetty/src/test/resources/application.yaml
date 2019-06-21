@@ -1,0 +1,38 @@
+server:
+   port: 8080
+   upload: 100MB
+   
+   
+context:
+   active:
+      profiles: test
+
+#catalina:
+#   home: G:/Projects/Git/github/today-framework/src/test/resources/
+   
+jdbc:
+   url: jdbc:mysql://127.0.0.1:3306/today?useUnicode=true&characterEncoding=utf8&useSSL=true&autoReconnect=true
+   userName: root
+   passwd: 'null'
+   driver: com.mysql.jdbc.Driver
+
+redis:
+   timeout: 3s
+   database: 1
+#   address: redis://127.0.0.1:6379
+   clientName: Redis
+   pool:
+      maxActive: 20
+      maxIdle: 30
+      minIdle: 32
+      maxTotal: 100
+      maxWait: 3000
+      connectTimeout: 3000
+      testOnBorrow: false
+      testOnReturn: false
+
+site:
+   path: /home/temp/docs
+   Access-Control-Allow-Origin: '*'
+   
+

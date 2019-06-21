@@ -130,11 +130,11 @@ public class ServletWebServerApplicationContext extends DefaultWebApplicationCon
 
         setServletContext(servletContext);
         final Object attribute = servletContext.getAttribute(Constant.KEY_WEB_APPLICATION_CONTEXT);
-        if (attribute != null) {
-            return;
+
+        if (attribute == null) {
+            LoggerFactory.getLogger(getClass()).info("ServletContext: [{}] Configure Success.", servletContext);
+            servletContext.setAttribute(Constant.KEY_WEB_APPLICATION_CONTEXT, this);
         }
-        LoggerFactory.getLogger(getClass()).info("ServletContext: [{}] Configure Success.", servletContext);
-        servletContext.setAttribute(Constant.KEY_WEB_APPLICATION_CONTEXT, this);
     }
 
     @Override

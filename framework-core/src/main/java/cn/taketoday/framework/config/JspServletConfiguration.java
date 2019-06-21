@@ -22,6 +22,7 @@ package cn.taketoday.framework.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,8 +35,11 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@MissingBean
 @Props(prefix = "server.servlet.jsp.")
 public class JspServletConfiguration {
+
+    private boolean enable;
 
     private String[] urlMappings = { "*.jsp", "*.jspx" };
 

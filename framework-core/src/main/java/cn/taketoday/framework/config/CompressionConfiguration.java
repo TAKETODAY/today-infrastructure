@@ -37,13 +37,21 @@ public class CompressionConfiguration {
     private String level = "on";
     private boolean enable = false;
 
+    private String[] excludePaths;
+    private String[] includedPaths;
+    private String[] excludeMethods;
+    private String[] includeMethods;
+
+    private String[] excludeUserAgents;
+    private String[] excludeAgentPatterns;
+
+    private String[] includeAgentPatterns;
+
+    private DataSize minResponseSize = DataSize.ofKilobytes(2);
+
     private String[] mimeTypes = new String[] { //
             "text/html", "text/xml", "text/plain", //
             "text/javascript", "application/javascript", //
             "text/css", "text/javascript", "application/xml"//
     };
-
-    private String[] excludedUserAgents = null;
-    private DataSize minResponseSize = DataSize.ofKilobytes(2);
-
 }

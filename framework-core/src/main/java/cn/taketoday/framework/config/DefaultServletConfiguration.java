@@ -22,6 +22,7 @@ package cn.taketoday.framework.config;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,9 +33,11 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@MissingBean
 @Props(prefix = "server.servlet.default.")
 public class DefaultServletConfiguration {
 
+    private boolean enable;
     private String[] urlMappings;
 
     private Map<String, String> initParameters = new HashMap<>();

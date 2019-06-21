@@ -31,6 +31,7 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.framework.utils.ApplicationUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -62,9 +63,14 @@ public class SessionConfiguration {
         if (this.storeDirectory == null || !this.storeDirectory.exists()) {
             return ApplicationUtils.getTemporalDirectory(startupClass, "web-app-sessions");
         }
+        
+        if (storeDirectory.isDirectory()) {
 
-        LoggerFactory.getLogger(getClass()).info("Use directory: [{}] to store sessions", storeDirectory);
-        return storeDirectory.getFile();
+            LoggerFactory.getLogger(getClass()).info("Use directory: [{}] to store sessions", storeDirectory);
+            return storeDirectory.getFile();
+        }
+        
+        throw ExceptionUtils.newConfigurationException(null, "Store directory must be a 'directory'");
     }
 
 }

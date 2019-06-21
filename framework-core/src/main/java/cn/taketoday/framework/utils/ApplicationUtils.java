@@ -41,6 +41,9 @@ public abstract class ApplicationUtils {
      * @return
      */
     public static File getTemporalDirectory(Class<?> startupClass, String subdir) {
+        if (StringUtils.isEmpty(subdir)) {
+            return getBaseTemporalDirectory(startupClass);
+        }
         final File dir = new File(getBaseTemporalDirectory(startupClass), subdir);
         dir.mkdirs();
         return dir;
@@ -68,13 +71,17 @@ public abstract class ApplicationUtils {
             throw new IllegalStateException("Temp location " + baseTempDir + " is not a directory");
         }
 
-        File directory = new File(baseTempDir, startupClass.getName());
-
-        directory.mkdirs();
+        final File directory = new File(baseTempDir, startupClass.getName());
 
         if (!directory.exists()) {
-            throw new IllegalStateException("Unable to create temp directory " + directory);
+
+            directory.mkdirs();
+
+            if (!directory.exists()) {
+                throw new IllegalStateException("Unable to create temp directory " + directory);
+            }
         }
+
         return directory;
     }
 

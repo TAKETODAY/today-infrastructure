@@ -20,23 +20,25 @@
 package cn.taketoday.framework.bean;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
 /**
- * 
- * @author Today <br>
+ * Simple server-independent abstraction for mime mappings. Roughly equivalent
+ * to the {@literal <mime-mapping>} element traditionally found in web.xml.
+ *
+ * @author Phillip Webb
+ * @author TODAY <br>
  *         2019-01-25 19:06
  */
 public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
 
-    /**
-     * Default mime mapping commonly used.
-     */
+    /** Default mime mapping commonly used. */
     public static final MimeMappings DEFAULT;
+
+    private final Map<String, Mapping> map;
 
     static {
         MimeMappings mappings = new MimeMappings();
@@ -216,26 +218,15 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
         mappings.add("wspolicy", "application/wspolicy+xml");
         mappings.add("z", "application/x-compress");
         mappings.add("zip", "application/zip");
-        DEFAULT = unmodifiableMappings(mappings);
-    }
 
-    private final Map<String, Mapping> map;
+        DEFAULT = new MimeMappings(mappings);
+    }
 
     /**
      * Create a new empty {@link MimeMappings} instance.
      */
     public MimeMappings() {
         this.map = new LinkedHashMap<>();
-    }
-
-    /**
-     * Create a new {@link MimeMappings} instance from the specified mappings.
-     * 
-     * @param mappings
-     *            the source mappings
-     */
-    public MimeMappings(MimeMappings mappings) {
-        this(mappings, true);
     }
 
     /**
@@ -247,21 +238,15 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
      */
     public MimeMappings(Map<String, String> mappings) {
         Objects.requireNonNull(mappings, "Mappings must not be null");
+
         this.map = new LinkedHashMap<>();
         mappings.forEach(this::add);
     }
 
-    /**
-     * Internal constructor.
-     * 
-     * @param mappings
-     *            source mappings
-     * @param mutable
-     *            if the new object should be mutable.
-     */
-    private MimeMappings(MimeMappings mappings, boolean mutable) {
+    public MimeMappings(MimeMappings mappings) {
         Objects.requireNonNull(mappings, "Mappings must not be null");
-        this.map = (mutable ? new LinkedHashMap<>(mappings.map) : Collections.unmodifiableMap(mappings.map));
+
+        this.map = new LinkedHashMap<>(mappings.map);
     }
 
     @Override
@@ -318,15 +303,11 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
         if (obj == this) {
             return true;
         }
         if (obj instanceof MimeMappings) {
-            MimeMappings other = (MimeMappings) obj;
-            return this.map.equals(other.map);
+            return this.map.equals(((MimeMappings) obj).map);
         }
         return false;
     }
@@ -334,18 +315,6 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
     @Override
     public int hashCode() {
         return this.map.hashCode();
-    }
-
-    /**
-     * Create a new unmodifiable view of the specified mapping. Methods that attempt
-     * to modify the returned map will throw {@link UnsupportedOperationException}s.
-     * 
-     * @param mappings
-     *            the mappings
-     * @return an unmodifiable view of the specified mappings.
-     */
-    public static MimeMappings unmodifiableMappings(MimeMappings mappings) {
-        return new MimeMappings(mappings, false);
     }
 
     /**
@@ -358,8 +327,10 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
         private final String mimeType;
 
         public Mapping(String extension, String mimeType) {
+
             Objects.requireNonNull(extension, "Extension must not be null");
             Objects.requireNonNull(mimeType, "MimeType must not be null");
+
             this.extension = extension;
             this.mimeType = mimeType;
         }
@@ -374,9 +345,6 @@ public final class MimeMappings implements Iterable<MimeMappings.Mapping> {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
-            }
             if (obj == this) {
                 return true;
             }

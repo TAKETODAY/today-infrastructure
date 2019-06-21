@@ -56,7 +56,6 @@ import cn.taketoday.framework.annotation.Starter;
 import cn.taketoday.framework.aware.WebServerApplicationContextAware;
 import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
-import cn.taketoday.framework.bean.WebDocResource;
 import cn.taketoday.framework.config.CompositeWebApplicationConfiguration;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.DefaultServletConfiguration;
@@ -64,6 +63,7 @@ import cn.taketoday.framework.config.JspServletConfiguration;
 import cn.taketoday.framework.config.SessionConfiguration;
 import cn.taketoday.framework.config.SessionCookieConfiguration;
 import cn.taketoday.framework.config.WebApplicationConfiguration;
+import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.framework.utils.ApplicationUtils;
 import cn.taketoday.web.ServletContextInitializer;
 import cn.taketoday.web.config.initializer.OrderedInitializer;
@@ -90,6 +90,8 @@ public abstract class AbstractWebServer implements //
 
     private String displayName = "Web-App";
 
+    private String deployName = "deploy-web-app";
+
     /** Application Class */
     private Class<?> startupClass;
 
@@ -106,12 +108,15 @@ public abstract class AbstractWebServer implements //
     private DefaultServletConfiguration defaultServletConfiguration;
 
     private Set<ErrorPage> errorPages = new LinkedHashSet<>();
+
+    private Set<String> welcomePages = new LinkedHashSet<>();
+
     private Map<Locale, Charset> localeCharsetMappings = new HashMap<>();
     private List<ServletContextInitializer> initializers = new ArrayList<>();
-    private MimeMappings mimeMappings = new MimeMappings(MimeMappings.DEFAULT);
+    private final MimeMappings mimeMappings = new MimeMappings(MimeMappings.DEFAULT);
 
     @Autowired
-    private WebDocResource webDocResource;
+    private WebDocumentConfiguration webDocumentConfiguration;
 
     /**
      * Context init parameters
@@ -160,13 +165,22 @@ public abstract class AbstractWebServer implements //
      */
     protected void addJspServlet() throws Throwable {
 
-        if (jspServletConfiguration != null) {
+        final JspServletConfiguration jspServletConfiguration = this.jspServletConfiguration;
 
-            // config jsp servlet
-            getWebApplicationConfiguration().configureJspServlet(jspServletConfiguration);
+        if (jspServletConfiguration == null) {
+            return;
+        }
+        // config jsp servlet
+        getWebApplicationConfiguration().configureJspServlet(jspServletConfiguration);
+
+        if (jspServletConfiguration.isEnable()) {
 
             final Servlet jspServlet = ClassUtils.newInstance(jspServletConfiguration.getClassName());
+
             if (jspServlet != null) {
+
+                log.info("Jsp is enabled, use jsp servlet: [{}]", jspServlet.getServletInfo());
+
                 WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(jspServlet);
 
                 initializer.setName("jsp");
@@ -184,13 +198,20 @@ public abstract class AbstractWebServer implements //
      */
     protected void addDefaultServlet() {
 
-        if (defaultServletConfiguration != null) {
-            // config default servlet
+        final DefaultServletConfiguration defaultServletConfiguration = this.defaultServletConfiguration;
 
-            getWebApplicationConfiguration().configureDefaultServlet(defaultServletConfiguration);
+        if (defaultServletConfiguration == null) {
+            return;
+        }
+        // config default servlet
+        getWebApplicationConfiguration().configureDefaultServlet(defaultServletConfiguration);
+
+        if (defaultServletConfiguration.isEnable()) {
 
             final Servlet defaultServlet = getDefaultServlet();
             if (defaultServlet != null) {
+
+                log.info("Default servlet is enabled, use servlet: [{}]", defaultServlet.getServletInfo());
 
                 WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(defaultServlet);
 
@@ -206,7 +227,7 @@ public abstract class AbstractWebServer implements //
 
     protected ServletContextInitializer[] getAllInitializers(ServletContextInitializer... initializers) {
 
-        List<ServletContextInitializer> mergedInitializers = new ArrayList<>();
+        final List<ServletContextInitializer> mergedInitializers = new ArrayList<>();
 
         mergedInitializers.add((servletContext) -> this.contextInitParameters.forEach(servletContext::setInitParameter));
 
@@ -236,6 +257,8 @@ public abstract class AbstractWebServer implements //
                 }
             }
         });
+        // config initializers
+        getWebApplicationConfiguration().configureServletContextInitializer(mergedInitializers);
 
         OrderUtils.reversedSort(mergedInitializers);
 
@@ -332,6 +355,20 @@ public abstract class AbstractWebServer implements //
                 new CompositeWebApplicationConfiguration(applicationContext.getBeans(WebApplicationConfiguration.class));
     }
 
+    /**
+     * Get base temporal directory
+     * 
+     * @return base temporal directory
+     */
+    protected File getTemporalDirectory() {
+        return getTemporalDirectory(null);
+    }
+
+    /**
+     * Get a temporal directory with sub directory
+     * 
+     * @return temporal directory with sub directory
+     */
     protected File getTemporalDirectory(String dir) {
         return ApplicationUtils.getTemporalDirectory(startupClass, dir);
     }

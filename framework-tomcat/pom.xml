@@ -13,6 +13,10 @@
     <description>Tomcat Web Server Plugin</description>
 
 
+    <properties>
+        <embed.tomcat.version>9.0.20</embed.tomcat.version>
+    </properties>
+    
     <dependencies>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core -->

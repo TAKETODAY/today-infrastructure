@@ -19,6 +19,8 @@
  */
 package cn.taketoday.framework.bean;
 
+import java.util.Objects;
+
 import lombok.Getter;
 
 /**
@@ -52,20 +54,24 @@ public class ErrorPage {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(status, path, exception);
+    }
+
+    @Override
     public boolean equals(Object obj) {
+
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
         if (obj instanceof ErrorPage) {
-            final ErrorPage err = ((ErrorPage) obj);
-            if (err.exception != exception || (err.path != null && !err.path.equals(path)) || err.status != status) {
-                return false;
-            }
+            final ErrorPage other = ((ErrorPage) obj);
+
+            return other.exception == this.exception //
+                    && (this.path != null && this.path.equals(other.path)) //
+                    && other.status == status;
         }
-        return true;
+        return false;
     }
 
 }

@@ -16,6 +16,14 @@
 
     <description>today-framework is a high-performance lightweight web framework.</description>
 
+    <properties>
+        <skipTests>true</skipTests>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+    </properties>
+
+
     <dependencies>
 
         <dependency>
@@ -72,35 +80,6 @@
             <scope>test</scope>
         </dependency>
 
-
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-core</artifactId>
-            <version>${embed.tomcat.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-el</artifactId>
-            <version>${embed.tomcat.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-jasper</artifactId>
-            <version>${embed.tomcat.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.eclipse.jdt</groupId>
-                    <artifactId>ecj</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>test</scope>
-        </dependency>
-
-
-
     </dependencies>
 
     <!--  -->
@@ -138,16 +117,6 @@
         <system>Github Issues</system>
         <url>https://github.com/TAKETODAY/today-framework/issues</url>
     </issueManagement>
-
-    <properties>
-        <skipTests>true</skipTests>
-        <embed.tomcat.version>9.0.20</embed.tomcat.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
-    </properties>
-
-
 
 
     <distributionManagement>
@@ -259,5 +228,6 @@
         <module>framework-core</module>
         <module>framework-tomcat</module>
         <module>framework-undertow</module>
+        <module>framework-jetty</module>
     </modules>
 </project>

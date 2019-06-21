@@ -20,6 +20,7 @@
 package cn.taketoday.framework.server.tomcat;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.PreDestroy;
@@ -74,6 +76,7 @@ import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.config.ApplicationInitializer;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.server.AbstractWebServer;
+import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.web.ServletContextInitializer;
 import lombok.Getter;
 import lombok.Setter;
@@ -81,13 +84,12 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
- * 
  *         2018-10-15 20:44
  */
 @Slf4j
 @Setter
 @Getter
-@MissingBean
+@MissingBean(type = WebServer.class)
 @Props(prefix = { "server.", "server.tomcat." })
 public class TomcatServer extends AbstractWebServer {
 
@@ -339,7 +341,7 @@ public class TomcatServer extends AbstractWebServer {
         if (compression != null && compression.isEnable()) {
             final ProtocolHandler handler = connector.getProtocolHandler();
             if (handler instanceof AbstractHttp11Protocol) {
-                configureProtocol(compression, (AbstractHttp11Protocol<?>) handler);
+                configureCompressionProtocol(compression, (AbstractHttp11Protocol<?>) handler);
             }
         }
 
@@ -351,24 +353,25 @@ public class TomcatServer extends AbstractWebServer {
      * @param compression
      * @param protocol
      */
-    private void configureProtocol(CompressionConfiguration compression, AbstractHttp11Protocol<?> protocol) {
+    private void configureCompressionProtocol(CompressionConfiguration compression, AbstractHttp11Protocol<?> protocol) {
 
         if (isEnableHttp2()) {
             protocol.addUpgradeProtocol(new Http2Protocol());
         }
 
         protocol.setCompression(compression.getLevel());
+
         protocol.setCompressionMinSize((int) compression.getMinResponseSize().toBytes());
         protocol.setCompressibleMimeType(StringUtils.arrayToString(compression.getMimeTypes()));
 
-        if (compression.getExcludedUserAgents() != null) {
-            protocol.setNoCompressionUserAgents(StringUtils.arrayToString(compression.getExcludedUserAgents()));
+        if (StringUtils.isArrayNotEmpty(compression.getExcludeUserAgents())) {
+            protocol.setNoCompressionUserAgents(StringUtils.arrayToString(compression.getExcludeUserAgents()));
         }
     }
 
-    protected void doPrepareContext(Host host, ServletContextInitializer[] initializers) throws Throwable {
+    protected void doPrepareContext(Host host, ServletContextInitializer... initializers) throws Throwable {
 
-        final Resource validDocBase = getWebDocResource().getValidDocumentDirectory();
+        final Resource validDocBase = getWebDocumentConfiguration().getValidDocumentDirectory();
 
         File documentRoot = validDocBase.getFile();
 
@@ -420,9 +423,11 @@ public class TomcatServer extends AbstractWebServer {
     /**
      * @param context
      */
-    private void addLocaleMappings(TomcatEmbeddedContext context) {
-        getLocaleCharsetMappings().forEach((locale, charset) -> //
-        context.addLocaleEncodingMappingParameter(locale.toString(), charset.toString()));
+    protected void addLocaleMappings(TomcatEmbeddedContext context) {
+
+        for (Entry<Locale, Charset> entry : getLocaleCharsetMappings().entrySet()) {
+            context.addLocaleEncodingMappingParameter(entry.getKey().toString(), entry.getValue().toString());
+        }
     }
 
     @Override
@@ -470,7 +475,8 @@ public class TomcatServer extends AbstractWebServer {
             }
         }
 
-        configureErrorPage(context);
+        configureErrorPages(context);
+        configureWelcomePages(context);
 
         final MimeMappings mimeMappings = getMimeMappings();
         // config MimeMappings
@@ -482,10 +488,17 @@ public class TomcatServer extends AbstractWebServer {
         configureSession(context);
     }
 
+    protected void configureWelcomePages(Context context) {
+        final Set<String> welcomePages = getWelcomePages();
+        getWebApplicationConfiguration().configureWelcomePages(welcomePages);
+
+        welcomePages.forEach(context::addWelcomeFile);
+    }
+
     /**
      * 
      */
-    protected void configureErrorPage(Context context) {
+    protected void configureErrorPages(Context context) {
 
         final Set<ErrorPage> errorPages = getErrorPages();
 

@@ -10,5 +10,42 @@
     <name>undertow plugin</name>
 
     <description>Undertow Web Server Plugin</description>
-    
+
+    <properties>
+        <undertow.version>2.0.21.Final</undertow.version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-core</artifactId>
+            <version>${undertow.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-servlet</artifactId>
+            <version>${undertow.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jboss.spec.javax.servlet</groupId>
+                    <artifactId>jboss-servlet-api_4.0_spec</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-websockets-jsr</artifactId>
+            <version>${undertow.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.taketoday</groupId>
+            <artifactId>today-framework</artifactId>
+            <version>latest</version>
+        </dependency>
+
+    </dependencies>
 </project>

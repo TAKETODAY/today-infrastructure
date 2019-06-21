@@ -19,12 +19,17 @@
  */
 package cn.taketoday.framework.config;
 
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.WebServer;
+import cn.taketoday.web.ServletContextInitializer;
 
 /**
  * @author TODAY <br>
@@ -95,6 +100,23 @@ public interface WebApplicationConfiguration {
      *            {@link MimeMappings}
      */
     default void configureMimeMappings(MimeMappings mimeMappings) {
+
+    }
+
+    /**
+     * Configure welcome pages
+     * 
+     * @param welcomePages
+     */
+    default void configureWelcomePages(Set<String> welcomePages) {
+
+    }
+
+    default void configureLocaleCharsetMapping(Map<Locale, Charset> localeMappings) {
+        
+    }
+
+    default void configureServletContextInitializer(List<ServletContextInitializer> initializer) {
 
     }
 }
