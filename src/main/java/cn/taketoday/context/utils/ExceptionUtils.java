@@ -27,7 +27,7 @@ import cn.taketoday.context.exception.ContextException;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-13 21:25
  */
 public abstract class ExceptionUtils {
@@ -67,10 +67,7 @@ public abstract class ExceptionUtils {
      * @return
      */
     public static ConfigurationException newConfigurationException(Throwable ex) {
-        if (ex instanceof ConfigurationException) {
-            return (ConfigurationException) ex;
-        }
-        return new ConfigurationException(ex);
+        return newConfigurationException(ex, null);
     }
 
     /**
@@ -78,11 +75,11 @@ public abstract class ExceptionUtils {
      * @param ex
      * @return
      */
-    public static ConfigurationException newConfigurationException(Throwable ex, String message, Object... args) {
+    public static ConfigurationException newConfigurationException(Throwable ex, String message) {
         if (ex instanceof ConfigurationException) {
             return (ConfigurationException) ex;
         }
-        return new ConfigurationException(ex);
+        return new ConfigurationException(message, ex);
     }
 
 }

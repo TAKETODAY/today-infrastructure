@@ -25,10 +25,12 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-01-16 10:56
  */
 public interface Constant extends Serializable {
+
+    String CONTEXT_VERSION = "2.1.6";
 
     //@off
 	/** Bytes per Kilobyte.*/
