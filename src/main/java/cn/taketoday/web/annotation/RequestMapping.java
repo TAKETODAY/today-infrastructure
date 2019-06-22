@@ -28,13 +28,12 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.web.RequestMethod;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-08-23 10:18 change
  */
+@ActionMapping
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@ActionMapping
 public @interface RequestMapping {
 
     /**

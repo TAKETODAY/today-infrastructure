@@ -568,8 +568,11 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
                 // Waiting for Jetty 10.0.0
             }
 
-            CompositeWebMvcConfiguration mvcConfiguration = //
-                    new CompositeWebMvcConfiguration(applicationContext.getBeans(WebMvcConfiguration.class));
+            final List<WebMvcConfiguration> webMvcConfigurations = applicationContext.getBeans(WebMvcConfiguration.class);
+
+            OrderUtils.reversedSort(webMvcConfigurations);
+
+            final CompositeWebMvcConfiguration mvcConfiguration = new CompositeWebMvcConfiguration(webMvcConfigurations);
 
             if (environment.getProperty(ENABLE_WEB_MVC_XML, Boolean::parseBoolean, true)) {
                 this.viewConfiguration = applicationContext.getBean(VIEW_CONFIG, ViewConfiguration.class);

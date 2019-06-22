@@ -36,8 +36,6 @@ public interface MessageConverter<T> {
      *            the type of object to return. This type must have previously been
      *            passed to the {@link #canRead canRead} method of this interface,
      *            which must have returned {@code true}.
-     * @param inputMessage
-     *            the HTTP input message to read from
      * @return the converted object
      * @throws IOException
      *             in case of I/O errors
@@ -51,14 +49,6 @@ public interface MessageConverter<T> {
      *            the object to write to the output message. The type of this object
      *            must have previously been passed to the {@link #canWrite canWrite}
      *            method of this interface, which must have returned {@code true}.
-     * @param contentType
-     *            the content type to use when writing. May be {@code null} to
-     *            indicate that the default content type of the converter must be
-     *            used. If not {@code null}, this media type must have previously
-     *            been passed to the {@link #canWrite canWrite} method of this
-     *            interface, which must have returned {@code true}.
-     * @param outputMessage
-     *            the message to write to
      * @throws IOException
      *             in case of I/O errors
      */

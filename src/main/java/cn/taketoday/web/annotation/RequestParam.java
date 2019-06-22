@@ -27,8 +27,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.Constant;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-08-21 18:51 change
  */
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })

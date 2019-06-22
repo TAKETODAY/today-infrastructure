@@ -33,7 +33,7 @@ import cn.taketoday.context.factory.InitializingBean;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-26 11:26:01
  */
 public class ThymeleafViewResolver extends AbstractViewResolver implements InitializingBean {
@@ -53,7 +53,7 @@ public class ThymeleafViewResolver extends AbstractViewResolver implements Initi
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
+        final ServletContextTemplateResolver templateResolver = new ServletContextTemplateResolver(servletContext);
 
         templateResolver.setPrefix(prefix);
         templateResolver.setSuffix(suffix);

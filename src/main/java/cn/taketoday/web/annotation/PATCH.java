@@ -29,7 +29,7 @@ import cn.taketoday.web.RequestMethod;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-17 21:24
  */
 @Target({ ElementType.METHOD })
@@ -37,10 +37,6 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping(method = RequestMethod.PATCH)
 public @interface PATCH {
 
-    /**
-     * 
-     * @return
-     */
     String[] value() default Constant.BLANK;
 
     /**

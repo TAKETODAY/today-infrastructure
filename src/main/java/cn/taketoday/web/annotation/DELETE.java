@@ -28,8 +28,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.web.RequestMethod;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-07-01 14:05:15
  */
 @Target({ ElementType.METHOD })

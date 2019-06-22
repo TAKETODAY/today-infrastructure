@@ -34,7 +34,7 @@ import cn.taketoday.context.utils.ClassUtils;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-26 11:53:43
  */
 public class JstlViewResolver extends AbstractViewResolver implements InitializingBean {
