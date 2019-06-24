@@ -24,28 +24,27 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-25 20:03:11
  */
-public final class HandlerMethod {
+public class HandlerMethod {
 
     /** action **/
     private final Method method;
     /** parameter list **/
     private final MethodParameter[] parameter;
 
-    /**
-     * use switch case instead of if else
-     * 
-     * @since 2.3.1
-     */
+    /** use switch case instead of if else @since 2.3.1 */
     private final byte reutrnType;
 
     public HandlerMethod(Method method, List<MethodParameter> parameters, byte reutrnType) {
+        this(method, reutrnType, parameters.toArray(new MethodParameter[0]));
+    }
+
+    public HandlerMethod(Method method, byte reutrnType, MethodParameter... parameters) {
         this.method = method;
+        this.parameter = parameters;
         this.reutrnType = reutrnType;
-        this.parameter = parameters.toArray(new MethodParameter[0]);
     }
 
     public final Method getMethod() {

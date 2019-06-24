@@ -23,7 +23,6 @@ import java.awt.Image;
 import java.awt.image.RenderedImage;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -364,18 +363,15 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
     }
 
     /**
-     * Set Handler Mapping.
+     * Create {@link HandlerMapping}.
      * 
      * @param beanClass
      * @param method
      * @param restful
-     * @return
-     * @throws Exception
      */
     private HandlerMapping createHandlerMapping(Class<?> beanClass, Method method, boolean restful) throws Exception {
 
-        List<MethodParameter> methodParameters = new ArrayList<>();// 处理器方法参数列表
-        setMethodParameter(method.getParameters(), methodParameters, method); // 设置 MethodParameter
+        final List<MethodParameter> methodParameters = createMethodParameters(method);
 
         final Object bean = applicationContext.getBean(beanClass);
         if (bean == null) {
@@ -384,14 +380,17 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
             );
         }
 
-        // 设置请求处理器
-        final HandlerMethod handlerMethod = new HandlerMethod(//
+        final HandlerMethod handlerMethod = createHandlerMethod(method, restful, methodParameters);
+
+        return new HandlerMapping(bean, handlerMethod, getInterceptor(beanClass, method));
+    }
+
+    public static HandlerMethod createHandlerMethod(Method method, boolean restful, final List<MethodParameter> methodParameters) {
+        return new HandlerMethod(//
                 method, //
                 methodParameters, //
                 returnType(method, method.getReturnType(), restful)//
         );
-
-        return new HandlerMapping(bean, handlerMethod, getInterceptor(beanClass, method));
     }
 
     /**
@@ -406,7 +405,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
      *            class rest?
      * @return
      */
-    private byte returnType(Method method, Class<?> returnType, boolean restful) {
+    public static byte returnType(Method method, Class<?> returnType, boolean restful) {
         if (Object.class == returnType) { // @since 2.3.3
             return Constant.RETURN_OBJECT;
         }
@@ -445,23 +444,22 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
     }
 
     /***
-     * set method parameter list
-     * 
-     * @param parameters
-     * @param methodParameters
-     * @throws IOException
+     * Build method parameter list
      */
-    private void setMethodParameter(Parameter[] parameters, //
-            List<MethodParameter> methodParameters, Method method) throws IOException //
-    {
-        String[] methodArgsNames = ClassUtils.getMethodArgsNames(method);
+    public static List<MethodParameter> createMethodParameters(Method method) {
+
+        final Parameter[] parameters = method.getParameters();
+
+        final List<MethodParameter> methodParameters = new ArrayList<>();
+        final String[] methodArgsNames = ClassUtils.getMethodArgsNames(method);
 
         for (int i = 0; i < parameters.length; i++) {
             methodParameters.add(createMethodParameter(parameters[i], methodArgsNames[i]));
         }
+        return methodParameters;
     }
 
-    private MethodParameter createMethodParameter(Parameter parameter, String methodArgsName) {
+    public static MethodParameter createMethodParameter(Parameter parameter, String methodArgsName) {
 
         Class<?> genericityClass = null;
         String parameterName = Constant.BLANK;
@@ -603,7 +601,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
      * @param requestMapping
      *            mapping of request
      */
-    private List<Integer> getInterceptor(Class<?> controllerClass, Method action) {
+    protected List<Integer> getInterceptor(Class<?> controllerClass, Method action) {
 
         final List<Integer> ids = new ArrayList<>();
 
@@ -635,7 +633,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
      * @param interceptors
      * @return
      */
-    public final List<Integer> addInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
+    public List<Integer> addInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
 
         if (interceptors == null || interceptors.length == 0) {
             return Collections.emptyList();

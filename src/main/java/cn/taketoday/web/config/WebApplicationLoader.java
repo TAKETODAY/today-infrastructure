@@ -86,7 +86,7 @@ import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.multipart.AbstractMultipartResolver;
 import cn.taketoday.web.multipart.DefaultMultipartResolver;
 import cn.taketoday.web.multipart.MultipartResolver;
-import cn.taketoday.web.resolver.DefaultExceptionResolver;
+import cn.taketoday.web.resolver.ControllerAdviceExceptionResolver;
 import cn.taketoday.web.resolver.DefaultParameterResolver;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.resolver.ParameterResolver;
@@ -259,7 +259,7 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
                         viewResolver(ele);
                         break;
                     case ELEMENT_EXCEPTION_RESOLVER :
-                        registerResolver(ele, DefaultExceptionResolver.class, EXCEPTION_RESOLVER, true);
+                        registerResolver(ele, ControllerAdviceExceptionResolver.class, EXCEPTION_RESOLVER, true);
                         break;
                     case ELEMENT_PARAMETER_RESOLVER :
                         registerResolver(ele, DefaultParameterResolver.class, PARAMETER_RESOLVER, true);
@@ -282,13 +282,6 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
             }
         }
     }
-
-//    private void resourceMappingRegistry(Element ele) {
-//        final ResourceMappingRegistry resourceMappingRegistry = applicationContext.getBean(ResourceMappingRegistry.class);
-//
-////        resourceMappingRegistry.
-//
-//    }
 
     /**
      * Register resolver to application context.
@@ -490,12 +483,6 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
 
         WebApplicationContext applicationContext = getWebApplicationContext();
 
-        if (!applicationContext.containsBeanDefinition(ExceptionResolver.class)) {
-            applicationContext.registerBean(EXCEPTION_RESOLVER, DefaultExceptionResolver.class);
-            applicationContext.refresh(EXCEPTION_RESOLVER);
-            log.info("Use default exception resolver: [{}].", DefaultExceptionResolver.class);
-        }
-
         if (!applicationContext.containsBeanDefinition(MultipartResolver.class)) {
             // default multipart resolver
             applicationContext.registerBean(MULTIPART_RESOLVER, DefaultMultipartResolver.class);
@@ -513,6 +500,11 @@ public class WebApplicationLoader implements ServletContainerInitializer, Consta
             applicationContext.registerBean(PARAMETER_RESOLVER, DefaultParameterResolver.class);
             applicationContext.refresh(PARAMETER_RESOLVER);
             log.info("Use default parameter resolver: [{}].", DefaultParameterResolver.class);
+        }
+        if (!applicationContext.containsBeanDefinition(ExceptionResolver.class)) {
+            applicationContext.registerBean(EXCEPTION_RESOLVER, ControllerAdviceExceptionResolver.class);
+            applicationContext.refresh(EXCEPTION_RESOLVER);
+            log.info("Use default exception resolver: [{}].", ControllerAdviceExceptionResolver.class);
         }
 
         final AbstractViewResolver bean = applicationContext.getBean(AbstractViewResolver.class);

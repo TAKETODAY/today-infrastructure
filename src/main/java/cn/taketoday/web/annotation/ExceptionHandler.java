@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 /**
  * @author TODAY <br>
  *         2019-06-18 14:30
- * @since 2.1.6
+ * @since 2.3.7
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -37,6 +37,6 @@ public @interface ExceptionHandler {
      * Exceptions handled by the annotated method. If empty, will default to any
      * exceptions listed in the method argument list.
      */
-    Class<? extends Throwable>[] value() default {};
+    Class<? extends Throwable>[] value() default { Throwable.class };
 
 }

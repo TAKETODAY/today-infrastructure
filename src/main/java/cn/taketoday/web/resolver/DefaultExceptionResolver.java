@@ -45,8 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-06-25 20:27:22
  */
 @Slf4j
@@ -128,7 +127,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
         }
     }
 
-    private int getStatus(Throwable ex) {
+    public static int getStatus(Throwable ex) {
 
         if (ex instanceof MethodNotAllowedException) {
             return HttpServletResponse.SC_METHOD_NOT_ALLOWED;

@@ -43,7 +43,6 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -80,8 +79,7 @@ public class DispatcherServlet implements Servlet {
     /** context path */
     private final String contextPath;
     /** download file buffer */
-    @Value(value = "#{download.buff.size}", required = false)
-    private int downloadFileBuf = 10240;
+    private final int downloadFileBuf;
     /** Action mapping registry */
     private final HandlerMappingRegistry handlerMappingRegistry;
     /** intercepter registry */
@@ -118,6 +116,15 @@ public class DispatcherServlet implements Servlet {
         this.handlerInterceptorRegistry = handlerInterceptorRegistry;
         this.applicationContext = WebUtils.getWebApplicationContext();
         this.contextPath = this.applicationContext.getServletContext().getContextPath();
+
+        // @since 2.3.7
+        final String downloadBuff = applicationContext.getEnvironment().getProperty("download.buff.size");
+        if (StringUtils.isEmpty(downloadBuff)) {
+            this.downloadFileBuf = 10240;
+        }
+        else {
+            this.downloadFileBuf = Integer.parseInt(downloadBuff);
+        }
 
         // @since 2.3.7
         final String property = applicationContext.getEnvironment()//
@@ -255,8 +262,7 @@ public class DispatcherServlet implements Servlet {
     protected void resolveResult(//
             final HttpServletRequest request, //
             final HttpServletResponse response, //
-            final HandlerMethod handlerMethod,
-            final Object result) throws Throwable //
+            final HandlerMethod handlerMethod, final Object result) throws Throwable //
     {
         switch (handlerMethod.getReutrnType())
         {

@@ -24,17 +24,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Component;
-
 /**
  * @author TODAY <br>
  *         2019-06-18 14:27
  * @since 2.3.7
  */
-@Component
 @Target(ElementType.TYPE)
+@ControllerAdvice(restful = true)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ControllerAdvice {
+public @interface RestControllerAdvice {
 
-    boolean restful() default false;
 }
