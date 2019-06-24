@@ -351,8 +351,13 @@ public abstract class AbstractWebServer implements //
             startupClass = applicationContext.getStartupClass();
         }
 
+        final List<WebApplicationConfiguration> webApplicationConfigurations = //
+                applicationContext.getBeans(WebApplicationConfiguration.class);
+
+        OrderUtils.reversedSort(webApplicationConfigurations);
+
         this.webApplicationConfiguration = //
-                new CompositeWebApplicationConfiguration(applicationContext.getBeans(WebApplicationConfiguration.class));
+                new CompositeWebApplicationConfiguration(webApplicationConfigurations);
     }
 
     /**
