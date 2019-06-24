@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
@@ -50,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -104,16 +106,21 @@ public abstract class ClassUtils {
     /** for scan cn.taketoday */
     private static boolean scanAllFreamworkPackage = true;
 
-    private static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(32);
+    private static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(256);
 
-    /** Class file filter */
+    private static final Map<AnnotationKey<?>, Collection<? extends Annotation>> ANNOTATIONS //
+            = new WeakHashMap<>(128);
+
+    private static final Map<AnnotationKey<?>, Collection<AnnotationAttributes>> ANNOTATION_ATTRIBUTES//
+            = new WeakHashMap<>(128);
+
+    /** Class resource filter */
     private static final ResourceFilter CLASS_RESOURCE_FILTER = new ResourceFilter() {
         @Override
         public boolean accept(Resource resource) throws IOException {
-            if (resource.getName().startsWith("package-info")) {
-                return false;
-            }
-            return (resource.isDirectory()) || (resource.getName().endsWith(Constant.CLASS_FILE_SUFFIX));
+            return resource.isDirectory()//
+                    || (resource.getName().endsWith(Constant.CLASS_FILE_SUFFIX) //
+                            && !resource.getName().startsWith("package-info"));
         }
     };
 
@@ -177,6 +184,41 @@ public abstract class ClassUtils {
     public static final boolean isCollection(Class<?> cls) {
         return Collection.class.isAssignableFrom(cls);
     }
+
+    /**
+     * clear cache
+     */
+    public static void clearCache() {
+        setClassCache(null);
+
+        ANNOTATIONS.clear();
+        ANNOTATION_ATTRIBUTES.clear();
+    }
+
+    public static void setClassLoader(ClassLoader classLoader) {
+        ClassUtils.classLoader = classLoader;
+    }
+
+    public static ClassLoader getClassLoader() {
+        return ClassUtils.classLoader;
+    }
+
+    /**
+     * get all classes loaded in class path
+     */
+    public static Set<Class<?>> getClassCache() {
+
+        if (classesCache == null || classesCache.isEmpty()) {
+            setClassCache(scan(Constant.BLANK));
+        }
+        return classesCache;
+    }
+
+    public static void setClassCache(Set<Class<?>> classes) {
+        ClassUtils.classesCache = classes;
+    }
+
+    // ------------------------------------------ Class Scan
 
     /**
      * Whether given class name present in class path
@@ -615,6 +657,8 @@ public abstract class ClassUtils {
         }
     }
 
+    // -------------------------------------------------Annotation
+
     /**
      * Get the array of {@link Annotation} instance
      * 
@@ -661,15 +705,19 @@ public abstract class ClassUtils {
      * @return the {@link Collection} of {@link Annotation} instance
      * @since 2.0.x
      */
+    @SuppressWarnings("unchecked")
     public static <A extends Annotation> Collection<A> getAnnotation(AnnotatedElement annotatedElement, //
             Class<A> annotationClass, Class<? extends A> implClass) throws ContextException//
     {
         try {
-            Collection<A> result = new LinkedList<>();
-            for (AnnotationAttributes attributes : getAnnotationAttributes(annotatedElement, annotationClass)) {
-                result.add(injectAttributes(attributes, annotationClass, newInstance(implClass)));
-            }
-            return result;
+
+            return (Collection<A>) ANNOTATIONS.computeIfAbsent(new AnnotationKey<A>(annotatedElement, annotationClass), (k) -> {
+                Collection<A> result = new LinkedList<>();
+                for (AnnotationAttributes attributes : getAnnotationAttributes(annotatedElement, annotationClass)) {
+                    result.add(injectAttributes(attributes, annotationClass, newInstance(implClass)));
+                }
+                return result;
+            });
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
@@ -723,7 +771,7 @@ public abstract class ClassUtils {
      * @return {@link AnnotationAttributes}
      * @since 2.1.1
      */
-    public static AnnotationAttributes getAnnotationAttributes(Annotation annotation) throws ContextException {
+    public static AnnotationAttributes getAnnotationAttributes(final Annotation annotation) throws ContextException {
 
         try {
 
@@ -754,16 +802,19 @@ public abstract class ClassUtils {
      * @return the {@link Collection} of {@link Annotation} instance
      * @since 2.1.1
      */
-    public static <T extends Annotation> Collection<T> //
-            getAnnotation(AnnotatedElement annotatedElement, Class<T> annotationClass) throws ContextException//
+    @SuppressWarnings("unchecked")
+    public static <T extends Annotation> Collection<T> getAnnotation(//
+            final AnnotatedElement annotatedElement, final Class<T> annotationClass) throws ContextException//
     {
         Objects.requireNonNull(annotationClass, "annotation class can't be null");
 
-        Collection<T> annotations = new LinkedList<>();
-        for (AnnotationAttributes attributes : getAnnotationAttributes(annotatedElement, annotationClass)) {
-            annotations.add(getAnnotationProxy(annotationClass, attributes));
-        }
-        return annotations;
+        return (Collection<T>) ANNOTATIONS.computeIfAbsent(new AnnotationKey<>(annotatedElement, annotationClass), (k) -> {
+            final Collection<T> annotations = new LinkedList<>();
+            for (AnnotationAttributes attributes : getAnnotationAttributes(annotatedElement, annotationClass)) {
+                annotations.add(getAnnotationProxy(annotationClass, attributes));
+            }
+            return annotations;
+        });
     }
 
     /**
@@ -848,14 +899,50 @@ public abstract class ClassUtils {
     {
         Objects.requireNonNull(annotatedElement, "annotated element can't be null");
 
-        final Collection<AnnotationAttributes> result = new HashSet<>();
-        for (Annotation annotation : annotatedElement.getDeclaredAnnotations()) {
-            AnnotationAttributes annotationAttributes = getAnnotationAttributes(annotation, annotationClass);
-            if (annotationAttributes != null) {
-                result.add(annotationAttributes);
+        return ANNOTATION_ATTRIBUTES.computeIfAbsent(new AnnotationKey<>(annotatedElement, annotationClass), (k) -> {
+            final Collection<AnnotationAttributes> result = new HashSet<>();
+            for (Annotation annotation : annotatedElement.getDeclaredAnnotations()) {
+                AnnotationAttributes annotationAttributes = getAnnotationAttributes(annotation, annotationClass);
+                if (annotationAttributes != null) {
+                    result.add(annotationAttributes);
+                }
             }
+            return result;
+        });
+    }
+
+    @SuppressWarnings("serial")
+    private static class AnnotationKey<T> implements Serializable {
+
+        private final int hash;
+        private final Class<T> annotationClass;
+        private final AnnotatedElement annotatedElement;
+
+        public AnnotationKey(AnnotatedElement annotatedElement, Class<T> annotationClass) {
+            this.annotationClass = annotationClass;
+            this.annotatedElement = annotatedElement;
+            this.hash = Objects.hash(annotatedElement, annotationClass);
         }
-        return result;
+
+        @Override
+        public int hashCode() {
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+
+            if (obj instanceof AnnotationKey) {
+                AnnotationKey<?> other = (AnnotationKey<?>) obj;
+
+                return annotatedElement.equals(other.annotatedElement) //
+                        && annotationClass.equals(other.annotationClass);
+            }
+            return false;
+        }
     }
 
     /**
@@ -872,6 +959,7 @@ public abstract class ClassUtils {
             getAnnotationAttributes(Annotation annotation, Class<T> annotationClass) throws ContextException//
     {
         try {
+
             if (annotation == null) {
                 return null;
             }
@@ -887,6 +975,7 @@ public abstract class ClassUtils {
             // find the default value of annotation
             final AnnotationAttributes annotationAttributes = // recursive
                     getTargetAnnotationAttributes(annotationClass, annotationType);
+
             if (annotationAttributes == null) { // there is no an annotation
                 return null;
             }
@@ -949,8 +1038,8 @@ public abstract class ClassUtils {
      */
     public static <T extends Annotation> AnnotationAttributes getTargetAnnotationAttributes(//
             final Class<T> targetAnnotationType, //
-            final Class<? extends Annotation> annotationType//
-    ) {
+            final Class<? extends Annotation> annotationType)//
+    {
 
         for (final Annotation currentAnnotation : annotationType.getAnnotations()) {
 
@@ -960,14 +1049,39 @@ public abstract class ClassUtils {
             if (currentAnnotation.annotationType() == targetAnnotationType) {
                 return getAnnotationAttributes(currentAnnotation); // found it
             }
+
             AnnotationAttributes attributes = // recursive
                     getTargetAnnotationAttributes(targetAnnotationType, currentAnnotation.annotationType());
+
             if (attributes != null) {
                 return attributes;
             }
         }
         return null;
     }
+
+    /**
+     * Whether a {@link Annotation} present on {@link AnnotatedElement}
+     * 
+     * @param <A>
+     *            {@link Annotation} type
+     * @param annotatedElement
+     *            target {@link AnnotatedElement}
+     * @param annotationType
+     *            target annotation type
+     * @return Whether it's present
+     */
+    public static <A extends Annotation> boolean //
+            isAnnotationPresent(AnnotatedElement annotatedElement, Class<A> annotationType) {
+
+        if (annotatedElement.isAnnotationPresent(annotationType)) {
+            return true;
+        }
+
+        return !getAnnotation(annotatedElement, annotationType).isEmpty();
+    }
+
+    // ----------------------------- new instance
 
     /**
      * Get instance with bean class use default {@link Constructor}
@@ -1059,6 +1173,8 @@ public abstract class ClassUtils {
         }
     }
 
+    // --------------------------------- Field
+
     /**
      * Get bean instance's {@link Field}
      * 
@@ -1101,36 +1217,6 @@ public abstract class ClassUtils {
      */
     public static Field[] getFieldArray(Class<?> targetClass) {
         return getFields(targetClass).toArray(new Field[0]);
-    }
-
-    /**
-     * clear cache
-     */
-    public static void clearCache() {
-        setClassCache(null);
-    }
-
-    public static void setClassLoader(ClassLoader classLoader) {
-        ClassUtils.classLoader = classLoader;
-    }
-
-    public static ClassLoader getClassLoader() {
-        return ClassUtils.classLoader;
-    }
-
-    /**
-     * get all classes loaded in class path
-     */
-    public static Set<Class<?>> getClassCache() {
-
-        if (classesCache == null || classesCache.isEmpty()) {
-            setClassCache(scan(Constant.BLANK));
-        }
-        return classesCache;
-    }
-
-    public static void setClassCache(Set<Class<?>> classes) {
-        ClassUtils.classesCache = classes;
     }
 
     // --------------------------- parameter names discovering
@@ -1244,7 +1330,7 @@ public abstract class ClassUtils {
         }
     }
 
-    // --------------------------
+    //--------------------------------access
 
     /**
      * Make the given field accessible, explicitly setting it accessible if
@@ -1271,6 +1357,7 @@ public abstract class ClassUtils {
             throw ExceptionUtils.newContextException(ExceptionUtils.unwrapThrowable(ex));
         }
     }
+    
 
     public static Method makeAccessible(Method method) {
 
@@ -1297,5 +1384,7 @@ public abstract class ClassUtils {
         }
         return constructor;
     }
+
+   
 
 }

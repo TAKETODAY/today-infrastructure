@@ -93,7 +93,12 @@ public abstract class ContextUtils {
     private static ELProcessor elProcessor;
 
     static {
-        addPropertyValueResolver(new ValuePropertyResolver(), new PropsPropertyResolver(), new AutowiredPropertyResolver());
+        
+        addPropertyValueResolver(//
+                new ValuePropertyResolver(), //
+                new PropsPropertyResolver(), //
+                new AutowiredPropertyResolver()//
+        );
     }
 
     /**

@@ -27,6 +27,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -171,7 +172,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public <T> List<T> getBeans(Class<T> requiredType) {
-        final Set<T> beans = new HashSet<>();
+        final Set<T> beans = new LinkedHashSet<>();
 
         for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
             if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
@@ -188,12 +189,13 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     @Override
     @SuppressWarnings("unchecked") //
     public <A extends Annotation, T> List<T> getAnnotatedBeans(Class<A> annotationType) {
-        final Set<T> beans = new HashSet<>();
+        final Set<T> beans = new LinkedHashSet<>();
 
-        for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-            BeanDefinition beanDefinition = entry.getValue();
-            if (beanDefinition.getBeanClass().isAnnotationPresent(annotationType)) {
-                T bean = (T) getBean(entry.getKey());
+        for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+            final BeanDefinition beanDefinition = entry.getValue();
+
+            if (ClassUtils.isAnnotationPresent(beanDefinition.getBeanClass(), annotationType)) {// extend
+                final T bean = (T) getBean(entry.getKey());
                 if (bean != null) {
                     beans.add(bean);
                 }
@@ -201,9 +203,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             else if (beanDefinition instanceof StandardBeanDefinition) {
                 // fix #3: when get annotated beans that StandardBeanDefinition missed
                 // @since v2.1.6
-                Method factoryMethod = ((StandardBeanDefinition) beanDefinition).getFactoryMethod();
-                if (factoryMethod.isAnnotationPresent(annotationType)) {
-                    T bean = (T) getBean(entry.getKey());
+                final Method factoryMethod = ((StandardBeanDefinition) beanDefinition).getFactoryMethod();
+                if (ClassUtils.isAnnotationPresent(factoryMethod, annotationType)) { // extend
+                    final T bean = (T) getBean(entry.getKey());
                     if (bean != null) {
                         beans.add(bean);
                     }
