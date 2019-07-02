@@ -26,6 +26,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import cn.taketoday.context.utils.StringUtils;
 
@@ -167,6 +169,30 @@ public abstract class ApplicationUtils {
             ret = new File(".");
         }
         return ret.getAbsoluteFile();
+    }
+
+    // -------------------args
+
+    /**
+     * Parse command arguments
+     * 
+     * @param args
+     *            arguments
+     * @return key-value
+     */
+    public static Map<String, String> parseCommandArguments(final String... args) {
+        final Map<String, String> argsMap = new LinkedHashMap<>();
+
+        if (StringUtils.isArrayEmpty(args)) {
+            return argsMap;
+        }
+        for (final String arg : args) {
+            if (arg.startsWith("--") && arg.contains("=")) {
+                final String[] param = arg.substring(2).split("=");
+                argsMap.put(param[0], param[1]);
+            }
+        }
+        return argsMap;
     }
 
 }

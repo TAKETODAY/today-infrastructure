@@ -29,7 +29,7 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.framework.annotation.ComponentScan;
-import cn.taketoday.framework.env.StandardWebServletEnvironment;
+import cn.taketoday.framework.env.StandardWebEnvironment;
 import cn.taketoday.framework.server.WebServer;
 import lombok.Getter;
 
@@ -73,13 +73,12 @@ public class WebApplication {
     }
 
     /**
-     * 
      * @param args
      * @return
      */
     public WebServerApplicationContext run(String... args) {
 
-        ServletWebServerApplicationContext applicationContext = getApplicationContext();
+        final ServletWebServerApplicationContext applicationContext = getApplicationContext();
 
         try {
 
@@ -87,7 +86,9 @@ public class WebApplication {
 
             applicationContext.registerSingleton(WebApplication.class.getName(), this);
 
-            ConfigurableEnvironment environment = new StandardWebServletEnvironment(applicationClass);
+            final ConfigurableEnvironment environment = //
+                    new StandardWebEnvironment(applicationClass, args);
+
             applicationContext.setEnvironment(environment);
 
             ComponentScan componentScan = applicationClass.getAnnotation(ComponentScan.class);
@@ -119,13 +120,12 @@ public class WebApplication {
             log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
                     System.currentTimeMillis() - applicationContext.getStartupDate()//
             );
-
         }
         catch (Throwable e) {
             e = ExceptionUtils.unwrapThrowable(e);
             applicationContext.close();
             log.error("Your Application Initialized ERROR: [{}]", e.getMessage(), e);
-            throw new ConfigurationException(e);
+            throw ExceptionUtils.newConfigurationException(e);
         }
         return applicationContext;
     }

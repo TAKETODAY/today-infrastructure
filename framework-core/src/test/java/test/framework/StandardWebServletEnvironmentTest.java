@@ -24,7 +24,7 @@ import java.util.Properties;
 
 import org.junit.Test;
 
-import cn.taketoday.framework.env.StandardWebServletEnvironment;
+import cn.taketoday.framework.env.StandardWebEnvironment;
 
 /**
  * @author TODAY <br>
@@ -35,8 +35,8 @@ public class StandardWebServletEnvironmentTest {
     @Test
     public void testLoadProperties() throws IOException {
 
-        StandardWebServletEnvironment environment = //
-                new StandardWebServletEnvironment(StandardWebServletEnvironmentTest.class);
+        StandardWebEnvironment environment = //
+                new StandardWebEnvironment(StandardWebServletEnvironmentTest.class);
 
         environment.loadProperties();
 
