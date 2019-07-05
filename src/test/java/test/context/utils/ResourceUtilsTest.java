@@ -21,7 +21,6 @@ package test.context.utils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.InvalidPathException;
 
 import org.junit.Test;
@@ -114,11 +113,11 @@ public class ResourceUtilsTest {
 
         // getResource(URL)
 
-        final Resource taketoday = ResourceUtils.getResource(new URL("https://taketoday.cn"));
-
-        assert taketoday.exists();
-        assert StringUtils.readAsText(taketoday.getInputStream()) != null;
-        System.err.println(StringUtils.readAsText(taketoday.getInputStream()));
+//        final Resource taketoday = ResourceUtils.getResource(new URL("https://taketoday.cn"));
+//
+//        assert taketoday.exists();
+//        assert StringUtils.readAsText(taketoday.getInputStream()) != null;
+//        System.err.println(StringUtils.readAsText(taketoday.getInputStream()));
 
     }
 

@@ -27,6 +27,7 @@ import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.utils.ConvertUtils;
 
 /**
  * 
@@ -103,8 +104,9 @@ public interface Environment {
      *         {@link defaultValue} if the key cannot be resolved
      * @since 2.1.6
      */
+    @SuppressWarnings("unchecked")
     default <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
-        return getProperty(key, (s) -> targetType.cast(s), defaultValue);
+        return getProperty(key, (s) -> (T) ConvertUtils.convert(s, targetType), defaultValue);
     }
 
     /**
