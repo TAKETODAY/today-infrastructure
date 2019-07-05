@@ -53,7 +53,6 @@ import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebApplicationContextAware;
 import cn.taketoday.web.annotation.ParameterConverter;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.mapping.MethodParameter;
@@ -67,22 +66,29 @@ import cn.taketoday.web.utils.WebUtils;
 
 /**
  *
- * @author Today <br>
+ * @author TODAY <br>
  * @version 2.0.0<br>
  *          2018-06-25 20:35:04 <br>
  *          2018-08-21 21:05 <b>change:</b> add default value feature.
  */
 @SuppressWarnings("serial")
-public class DefaultParameterResolver implements ParameterResolver, Constant, InitializingBean, WebApplicationContextAware {
+public class DefaultParameterResolver implements ParameterResolver, Constant, InitializingBean {
 
-    private ServletContext servletContext;
+    private final ServletContext servletContext;
 
-    @Autowired(Constant.MULTIPART_RESOLVER)
-    private MultipartResolver multipartResolver;
+//    @Autowired(Constant.MULTIPART_RESOLVER)
+    private final MultipartResolver multipartResolver;
 
-    private WebApplicationContext applicationContext;
+    private final WebApplicationContext applicationContext;
 
-    private final Map<Class<?>, Converter<String, Object>> supportParameterTypes = new HashMap<>(8, 1.0f);;
+    private final Map<Class<?>, Converter<String, Object>> supportParameterTypes = new HashMap<>(8, 1.0f);
+
+    @Autowired
+    public DefaultParameterResolver(MultipartResolver multipartResolver, WebApplicationContext applicationContext) {
+        this.multipartResolver = multipartResolver;
+        this.applicationContext = applicationContext;
+        this.servletContext = applicationContext.getServletContext();
+    }
 
     /**
      * @param targetClass
@@ -726,12 +732,6 @@ public class DefaultParameterResolver implements ParameterResolver, Constant, In
             }
         }
         return map;
-    }
-
-    @Override
-    public void setWebApplicationContext(WebApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-        this.servletContext = applicationContext.getServletContext();
     }
 
 }

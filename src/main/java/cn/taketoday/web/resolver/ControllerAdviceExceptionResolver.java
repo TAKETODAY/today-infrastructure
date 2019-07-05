@@ -43,6 +43,7 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
+import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.annotation.WebDebugMode;
 import cn.taketoday.web.config.ActionConfiguration;
 import cn.taketoday.web.mapping.HandlerMapping;
@@ -151,6 +152,15 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
                 break;
             }
             default:
+        }
+        final Method method = handlerMethod.getMethod();
+        ResponseStatus responseStatus = method.getAnnotation(ResponseStatus.class);
+        if (responseStatus == null) {
+            responseStatus = method.getDeclaringClass().getAnnotation(ResponseStatus.class);
+        }
+
+        if (responseStatus != null) {
+            response.setStatus(responseStatus.value());
         }
     }
 
