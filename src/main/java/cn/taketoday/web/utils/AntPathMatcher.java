@@ -1031,20 +1031,20 @@ public class AntPathMatcher implements PathMatcher {
         }
     }
 
-    public static void main(String[] args) {
-        AntPathMatcher pathMatcher = new AntPathMatcher();
-
-        long start = System.currentTimeMillis();
-
-        final String pattern = "/index/{id}ds/yhj/{tt}";
-        final String path = "/index/sdsds/yhj/32";
-//		final boolean match = pathMatcher.match(pattern, path);
-        final Map<String, String> extractUriTemplateVariables = pathMatcher.extractUriTemplateVariables(pattern, path);
-
-        System.err.println(extractUriTemplateVariables);
-        System.err.println(System.currentTimeMillis() - start);
-
-        System.err.println(pathMatcher.extractPathWithinPattern("/assets/**", "/assets/admin/js/admin.js"));
-    }
+//    public static void main(String[] args) {
+//        AntPathMatcher pathMatcher = new AntPathMatcher();
+//
+//        long start = System.currentTimeMillis();
+//
+//        final String pattern = "/index/{id}ds/yhj/{tt}";
+//        final String path = "/index/sdsds/yhj/32";
+////		final boolean match = pathMatcher.match(pattern, path);
+//        final Map<String, String> extractUriTemplateVariables = pathMatcher.extractUriTemplateVariables(pattern, path);
+//
+//        System.err.println(extractUriTemplateVariables);
+//        System.err.println(System.currentTimeMillis() - start);
+//
+//        System.err.println(pathMatcher.extractPathWithinPattern("/assets/**", "/assets/admin/js/admin.js"));
+//    }
 
 }

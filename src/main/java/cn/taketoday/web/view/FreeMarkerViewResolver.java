@@ -71,7 +71,6 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
     private final TemplateLoader templateLoader;
     private final ServletContextHashModel applicationModel;
 
-    
     public FreeMarkerViewResolver(Configuration configuration, //
             TaglibFactory taglibFactory, TemplateLoader templateLoader, Properties settings) //
     {

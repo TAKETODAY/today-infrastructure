@@ -26,13 +26,11 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.annotation.WebDebugMode;
 import cn.taketoday.web.exception.AccessForbiddenException;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.exception.FileSizeExceededException;
@@ -49,8 +47,6 @@ import lombok.extern.slf4j.Slf4j;
  *         2018-06-25 20:27:22
  */
 @Slf4j
-@WebDebugMode
-@Singleton(Constant.EXCEPTION_RESOLVER)
 public class DefaultExceptionResolver implements ExceptionResolver {
 
     @Override

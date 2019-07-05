@@ -34,6 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.utils.ClassUtils;
@@ -42,6 +43,7 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
+import cn.taketoday.web.annotation.WebDebugMode;
 import cn.taketoday.web.config.ActionConfiguration;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
@@ -56,6 +58,8 @@ import cn.taketoday.web.view.ViewResolver;
  *         2019-06-22 19:17
  * @since 2.3.7
  */
+@WebDebugMode
+@Singleton(Constant.EXCEPTION_RESOLVER)
 public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver implements BeanFactoryAware {
 
     /** context path */
@@ -159,7 +163,6 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
      *            current response
      * @param modelAndView
      * @throws Throwable
-     * @since 2.3.3
      */
     public void resolveModelAndView(final HttpServletRequest request, //
             final HttpServletResponse response, final ModelAndView modelAndView) throws Throwable //

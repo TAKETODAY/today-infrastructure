@@ -235,7 +235,7 @@ public class ResourceServlet extends GenericServlet {
         }
     }
 
-    private static boolean isHeadRequest(HttpServletRequest request) {
+    protected static boolean isHeadRequest(HttpServletRequest request) {
         return "HEAD".equalsIgnoreCase(request.getMethod());
     }
 
@@ -249,7 +249,7 @@ public class ResourceServlet extends GenericServlet {
      * @throws IOException
      *             if any IO exception occurred
      */
-    private static final boolean isGZipEnabled(final WebResource resource, //
+    protected static final boolean isGZipEnabled(final WebResource resource, //
             final ResourceMapping resourceMapping, final String contentType) throws IOException //
     {
         return resourceMapping.isGzip() //
@@ -257,7 +257,7 @@ public class ResourceServlet extends GenericServlet {
                 && resource.contentLength() > resourceMapping.getGzipMinLength();
     }
 
-    private static final boolean isContentCompressable(final String contentType) {
+    protected static final boolean isContentCompressable(final String contentType) {
         return "image/svg+xml".equals(contentType) //
                 || !contentType.startsWith("image") //
                         && !contentType.startsWith("video");
@@ -273,7 +273,7 @@ public class ResourceServlet extends GenericServlet {
      * @throws IOException
      *             if any IO exception occurred
      */
-    private static final void writeCompressed(final Resource resource, final HttpServletResponse response, //
+    protected static final void writeCompressed(final Resource resource, final HttpServletResponse response, //
             final ResourceMapping resourceMapping) throws IOException //
     {
         response.setHeader(Constant.CONTENT_ENCODING, Constant.GZIP);
@@ -298,7 +298,7 @@ public class ResourceServlet extends GenericServlet {
      * @throws IOException
      *             if any IO exception occurred
      */
-    private static final void write(final Resource resource, final HttpServletResponse response, //
+    protected static final void write(final Resource resource, final HttpServletResponse response, //
             final ResourceMapping resourceMapping) throws IOException //
     {
         response.setContentLengthLong(resource.contentLength());
@@ -310,7 +310,7 @@ public class ResourceServlet extends GenericServlet {
         }
     }
 
-    private static final boolean matches(final String matchHeader, final String etag) {
+    protected static final boolean matches(final String matchHeader, final String etag) {
         if (matchHeader != null && StringUtils.isNotEmpty(etag)) {
             return "*".equals(etag) || matchHeader.equals(etag);
         }
@@ -327,7 +327,7 @@ public class ResourceServlet extends GenericServlet {
      * @throws IOException
      *             if last modify read error
      */
-    private static final void applyHeaders(final HttpServletResponse response, //
+    protected static final void applyHeaders(final HttpServletResponse response, //
             final String contentType, final long lastModified, //
             final String eTag, final ResourceMapping resourceMapping) throws IOException //
     {

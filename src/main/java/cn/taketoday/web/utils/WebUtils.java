@@ -182,6 +182,7 @@ public abstract class WebUtils {
             throws ServletException //
     {
         try {
+
             exception = ExceptionUtils.unwrapThrowable(exception);
             exceptionResolver.resolveException(request, response, exception, webMapping);
             servletContext.log("Catch Throwable: [" + exception + "] With Msg: [" + exception.getMessage() + "]", exception);

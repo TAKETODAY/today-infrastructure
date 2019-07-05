@@ -24,8 +24,7 @@ import javax.servlet.ServletContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-07-10 13:13:57
  */
 public interface WebApplicationContext extends ConfigurableApplicationContext {

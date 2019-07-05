@@ -28,7 +28,6 @@
 
 
 
-
 ## v2.3.7
 - :sparkles: feat: allow rebuild Controllers
 - :sparkles: :zap: add WebUtils api
@@ -51,7 +50,6 @@
 - :sparkles: feat: add ControllerAdvice,ExceptionHandler
 - :bug: fix: #7 filter can't be null
 - :sparkles: feat: use ControllerAdviceExceptionResolver as default ExceptionResolver
-
 
 
 ## v2.3.6

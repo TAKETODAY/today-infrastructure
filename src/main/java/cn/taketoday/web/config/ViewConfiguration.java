@@ -49,8 +49,7 @@ import cn.taketoday.web.servlet.ViewDispatcher;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-23 16:19:53
  */
 @Slf4j
