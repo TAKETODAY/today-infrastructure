@@ -22,8 +22,8 @@ package cn.taketoday.web.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.mapping.WebMapping;
 
 /**
  * Handler Intercepter process around Handler.
@@ -47,7 +47,7 @@ public interface HandlerInterceptor {
      * @return
      * @throws Throwable
      */
-    boolean beforeProcess(HttpServletRequest request, HttpServletResponse response, HandlerMapping handlerMapping)
+    boolean beforeProcess(HttpServletRequest request, HttpServletResponse response, WebMapping handlerMapping)
             throws Throwable;
 
     /**

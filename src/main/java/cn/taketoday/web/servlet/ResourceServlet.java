@@ -118,7 +118,7 @@ public class ResourceServlet extends GenericServlet {
                 // invoke intercepter
                 final HandlerInterceptorRegistry handlerInterceptorRegistry = this.handlerInterceptorRegistry;
                 for (final int interceptor : interceptors) {
-                    if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(request, response, null)) {
+                    if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(request, response, resourceMapping)) {
                         log.debug("Resource Interceptor: [{}] return false", handlerInterceptorRegistry.get(interceptor));
                         return;
                     }
