@@ -102,7 +102,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
             final Collection<AnnotationAttributes> annotationAttributes = //
                     ClassUtils.getAnnotationAttributes(beanClass, Component.class);
-            
+
             if (annotationAttributes.isEmpty()) {
                 register(name, build(beanClass, null, name));
             }

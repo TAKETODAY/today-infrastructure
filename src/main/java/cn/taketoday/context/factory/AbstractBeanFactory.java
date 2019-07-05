@@ -794,6 +794,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     @Override
+    public Map<String, Object> getSingletonsMap() {
+        return singletons;
+    }
+
+    @Override
     public Object getSingleton(String name) {
         return singletons.get(name);
     }

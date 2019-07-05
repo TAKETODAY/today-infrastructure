@@ -28,7 +28,7 @@ import cn.taketoday.context.utils.StringUtils;
 /**
  * Standard {@link ApplicationContext}
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         <p>
  *         2018-09-06 13:47
  */

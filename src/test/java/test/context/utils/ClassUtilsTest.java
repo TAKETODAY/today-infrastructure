@@ -275,18 +275,19 @@ public class ClassUtilsTest {
         assert ClassUtils.isPresent("java.lang.Float");
         assert !ClassUtils.isPresent("Float");
     }
-    
+
     @Test
     public void test() throws IOException {
 //        jar:file:/file:/C:/Users/TODAY/Desktop/test/blog-web-2.1.0.RELEASE.jar!/BOOT-INF/classes!/cn/taketoday
-        
+
         final Resource resource = //
-                ResourceUtils.getResource("jar:file:/C:/Users/TODAY/Desktop/test/blog-web-2.1.0.RELEASE.jar!/BOOT-INF/lib/today-framework-latest.jar!/cn/taketoday");
-        
+                ResourceUtils.getResource(
+                        "jar:file:/C:/Users/TODAY/Desktop/test/blog-web-2.1.0.RELEASE.jar!/BOOT-INF/lib/today-framework-latest.jar!/cn/taketoday");
+
         System.err.println(resource.exists());
-        
+
         System.err.println(resource);
-        
+
     }
 
 }
