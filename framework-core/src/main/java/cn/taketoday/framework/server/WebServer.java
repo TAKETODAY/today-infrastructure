@@ -20,8 +20,7 @@
 package cn.taketoday.framework.server;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-10-15 20:35
  */
 public interface WebServer {
