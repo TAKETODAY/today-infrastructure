@@ -32,7 +32,7 @@
 - :sparkles: feat: allow rebuild Controllers
 - :sparkles: :zap: add WebUtils api
 - :sparkles: feat: status feature
-- :sparkles: feat: @Interceptor exclude feature
+- :sparkles: feat: `@Interceptor` exclude feature
 - :bug: fix: applicationContext NullPointerException
 - refactor: refactor DispatcherServlet
 - unify date format
@@ -44,13 +44,13 @@
 - refactor: extract comment code
 
 - :bug: fix: #5 Request Body Read Error
-- :bug: fix: #6 ResourceServlet can't resolve Chinese Url
+- :bug: fix: #6 `ResourceServlet` can't resolve Chinese Url
 
-- :sparkles: feat: config ViewResolver
-- :sparkles: feat: add ControllerAdvice,ExceptionHandler
+- :sparkles: feat: config `ViewResolver`
+- :sparkles: feat: add `ControllerAdvice`,`ExceptionHandler`
 - :bug: fix: #7 filter can't be null
-- :sparkles: feat: use ControllerAdviceExceptionResolver as default ExceptionResolver
-- refactor: refactor HandlerInterceptor
+- :sparkles: feat: use `ControllerAdviceExceptionResolver` as default `ExceptionResolver`
+- refactor: refactor `HandlerInterceptor`
 
 
 ## v2.3.6
