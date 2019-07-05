@@ -591,6 +591,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
+    public Map<String, BeanDefinition> getBeanDefinitionsMap() {
+        return getBeanFactory().getBeanDefinitionsMap();
+    }
+
+    @Override
     public boolean isSingleton(String name) {
         return getBeanFactory().isSingleton(name);
     }

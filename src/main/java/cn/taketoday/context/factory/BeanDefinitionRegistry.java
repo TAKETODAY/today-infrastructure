@@ -27,15 +27,26 @@ import cn.taketoday.context.bean.BeanDefinition;
 /**
  * Store bean definitions.
  * 
- * 
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-07-08 19:56:53 2018-08-06 11:07
  */
 public interface BeanDefinitionRegistry {
 
-    /** */
+    /**
+     * Get {@link BeanDefinition}s map
+     */
     Map<String, BeanDefinition> getBeanDefinitions();
+
+    /**
+     * Get {@link BeanDefinition}s map
+     * 
+     * @deprecated since 2.1.6 use
+     *             {@link BeanDefinitionRegistry#getBeanDefinitions()} instead
+     * @see BeanDefinitionRegistry#getBeanDefinitions()
+     */
+    @Deprecated
+    Map<String, BeanDefinition> getBeanDefinitionsMap();
 
     /**
      * register a bean with the given name and type

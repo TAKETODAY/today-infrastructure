@@ -236,6 +236,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         return beanDefinitionMap;
     }
 
+    @Override
+    public Map<String, BeanDefinition> getBeanDefinitionsMap() {
+        return beanDefinitionMap;
+    }
+
     /**
      * create bean use default constructor
      *
