@@ -300,19 +300,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         log.debug("Loading Application Listeners.");
 
-        for (Class<?> listenerClass : ClassUtils.getImplClasses(ApplicationListener.class)) {
-            forEach(listenerClass);
-        }
+        ClassUtils.getImplClasses(ApplicationListener.class).forEach(this::forEach);
+
         // sort
         for (Entry<Class<?>, List<ApplicationListener<EventObject>>> entry : this.applicationListeners.entrySet()) {
             OrderUtils.reversedSort(entry.getValue());
         }
     }
 
-    /**
-     * @param listenerClass
-     *            Listener class
-     */
     private void forEach(Class<?> listenerClass) {
 
         try {
@@ -321,11 +316,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             if (contextListener == null) {
                 return;
             }
-            if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
 
-                throw new ConfigurationException("[" + listenerClass.getName() + "] must be a [" + //
-                        ApplicationListener.class.getClass().getName() + "]");
-            }
             final String name = getEnvironment().getBeanNameCreator().create(listenerClass);
             // if exist bean
             Object applicationListener = getSingleton(name);
@@ -353,11 +344,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         for (final Method method : listenerClass.getDeclaredMethods()) {
             // onApplicationEvent
             if (method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
-                if (method.isBridge()) {
-                    continue;
+                if (!method.isBridge()) {
+                    // register listener
+                    doRegisterListener(this.applicationListeners, applicationListener, method.getParameterTypes()[0]);
                 }
-                // register listener
-                doRegisterListener(this.applicationListeners, applicationListener, method.getParameterTypes()[0]);
             }
         }
     }
