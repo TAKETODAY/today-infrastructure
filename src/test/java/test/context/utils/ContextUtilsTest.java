@@ -35,6 +35,8 @@ import org.junit.Test;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.Value;
+import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
@@ -146,15 +148,25 @@ public class ContextUtilsTest {
     public void test_ResolveParameter() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
 
+        ClassUtils.clearCache();
         try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.utils")) {
 
-            Constructor<Config> constructor = Config.class.getConstructor(UserModel.class, Properties.class);
+            System.err.println(applicationContext.getBeanDefinitions());
+
+            final Environment environment = applicationContext.getEnvironment();
+            // placeHolder
+            environment.getProperties().setProperty("placeHolder", "12345");
+
+            Constructor<Config> constructor = //
+                    Config.class.getConstructor(UserModel.class, Properties.class, //
+                            Properties.class, int.class);
+
             Object[] resolveParameter = ContextUtils.resolveParameter(constructor, applicationContext);
 
             Config newInstance = constructor.newInstance(resolveParameter);
             System.err.println(newInstance);
 
-            assert resolveParameter.length == 2;
+            assert resolveParameter.length == 4;
 
             assert resolveParameter[0] instanceof UserModel;
 
@@ -188,9 +200,13 @@ public class ContextUtilsTest {
         @Props
         UserModel admin;
 
-        public Config(@Props(prefix = "site.admin.") UserModel model, @Props(prefix = "site.") Properties properties) {
+        public Config(@Props(prefix = "site.admin.") UserModel model, //
+                @Props(prefix = "site.") Properties properties, //
+                Properties emptyProperties, //
+                @Value("#{placeHolder}") int placeHolder) //
+        {
+            assert placeHolder == 12345;
             System.err.println("model -> " + model);
-            properties.list(System.err);
             System.err.println(properties.getClass());
         }
     }

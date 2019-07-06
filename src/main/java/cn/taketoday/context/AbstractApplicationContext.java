@@ -233,10 +233,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
         beanFactory.setBeanDefinitionLoader(beanDefinitionLoader);
 
-        // setting el manager @since 2.1.5
-
-        final ELManager elManager = new ELManager();
-
         {// fix: ensure ExpressionFactory's instance consistent @since 2.1.6
             Field declaredField = ClassUtils.forName("javax.el.ELUtil").getDeclaredField("exprFactory");
             ClassUtils.makeAccessible(declaredField)//
@@ -244,13 +240,18 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
         ELProcessor elProcessor = environment.getELProcessor();
         if (elProcessor == null) {
+            // setting el manager @since 2.1.5
+            final ELManager elManager = new ELManager();
+            elManager.setELContext(new ValueELContext(this));
+
             elProcessor = new ELProcessor(elManager);
             environment.setELProcessor(elProcessor);
-            elManager.setELContext(new ValueELContext(this));
         }
 
         // register ELManager @since 2.1.5
-        registerSingleton(beanNameCreator.create(ELManager.class), elManager);
+        // fix @since 2.1.6 elManager my be null
+        registerSingleton(beanNameCreator.create(ELManager.class), elProcessor.getELManager());
+
         registerSingleton(beanNameCreator.create(ELProcessor.class), elProcessor);
         // register Environment
         registerSingleton(beanNameCreator.create(Environment.class), environment);

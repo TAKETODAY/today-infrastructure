@@ -51,7 +51,7 @@
 - :sparkles: feat: add new annotations: ConditionalOnClass, ConditionalOnExpression,ConditionalOnMissingClass,ConditionalOnProperty,ConditionalOnResource
 - :bug: fix: #8 Property inject failure
 - :bug: fix: NumberUtils#toArrayObject()
-
+- :bug: fix: @since 2.1.6 elManager my be null
 
 ## v2.1.5
 - :sparkles: feat: Add context `state` feature
