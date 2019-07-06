@@ -80,8 +80,10 @@ import cn.taketoday.context.loader.ValuePropertyResolver;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author Today <br>
+ * This class provides el, {@link Properties} loading, {@link Parameter}
+ * resolving
  * 
+ * @author TODAY <br>
  *         2019-01-16 20:04
  */
 @Slf4j
@@ -102,9 +104,9 @@ public abstract class ContextUtils {
     }
 
     /**
-     * GEt shared {@link ELProcessor}
+     * Get shared {@link ELProcessor}
      * 
-     * @return shared {@link ELProcessor}
+     * @return Shared {@link ELProcessor}
      */
     public static ELProcessor getELProcessor() {
         return elProcessor;
@@ -114,7 +116,7 @@ public abstract class ContextUtils {
      * {@link ELProcessor}
      * 
      * @param elProcessor
-     *            a new elProcessor
+     *            A new elProcessor
      */
     public static void setELProcessor(final ELProcessor elProcessor) {
         ContextUtils.elProcessor = elProcessor;
@@ -157,13 +159,13 @@ public abstract class ContextUtils {
     }
 
     /**
-     * Find names
+     * Find bean names
      * 
      * @param defaultName
-     *            default bean name
+     *            Default bean name
      * @param names
-     *            annotation values
-     * @return
+     *            Annotation values
+     * @return Bean names
      */
     public static String[] findNames(String defaultName, String... names) {
         if (StringUtils.isArrayEmpty(names)) {
@@ -173,13 +175,13 @@ public abstract class ContextUtils {
     }
 
     /**
-     * Replace a placeholder or eval el
+     * Replace a placeholder use default {@link System} properties source or eval el
      * 
      * @param expression
      *            expression {@link String}
      * @param expectedType
      *            expected value type
-     * @return
+     * @return A resolved value object
      * @since 2.1.6
      */
     public static <T> T resolveValue(final String expression, final Class<T> expectedType) throws ConfigurationException {
@@ -193,7 +195,7 @@ public abstract class ContextUtils {
      *            expression {@link String}
      * @param expectedType
      *            expected value type
-     * @return
+     * @return A resolved value object
      * @since 2.1.6
      */
     @SuppressWarnings("unchecked")
@@ -220,11 +222,11 @@ public abstract class ContextUtils {
      * Resolve parameters list
      * 
      * @param executable
-     *            target executable instance {@link Method} or a {@link Constructor}
+     *            Target executable instance {@link Method} or a {@link Constructor}
      * @param beanFactory
-     *            bean factory
+     *            Bean factory
      * @since 2.1.2
-     * @return parameter list
+     * @return Parameter list
      */
     public static Object[] resolveParameter(Executable executable, BeanFactory beanFactory) {
 
@@ -297,7 +299,7 @@ public abstract class ContextUtils {
             if (bean == null && required) {
                 // if it is required
                 LoggerFactory.getLogger(ContextUtils.class)//
-                        .error("[{}] is required.", parameter);
+                        .error("[{}] is required and there isn't a [{}] bean", parameter, type);
                 throw new NoSuchBeanDefinitionException(type);
             }
             args[i] = bean;
@@ -307,9 +309,13 @@ public abstract class ContextUtils {
     }
 
     /**
+     * Get a {@link InputStream} from given resource string
+     * 
      * @param resource
-     * @return
+     *            Target resource string
+     * @return A {@link InputStream}
      * @throws IOException
+     *             If any IO {@link Exception} occurred
      */
     public static final InputStream getResourceAsStream(String resource) throws IOException {
 
@@ -337,20 +343,26 @@ public abstract class ContextUtils {
     }
 
     /**
+     * Get {@link InputStream} from a url stirng
      * 
      * @param urlString
-     * @return
+     *            Target url string
+     * @return {@link InputStream}
      * @throws IOException
+     *             If can't get the stream
      */
     public static final InputStream getUrlAsStream(String urlString) throws IOException {
         return new URL(urlString).openConnection().getInputStream();
     }
 
     /**
+     * Load {@link Properties} from a url string
      * 
      * @param urlString
-     * @return
+     *            Target url string
+     * @return {@link Properties}
      * @throws IOException
+     *             If any IO {@link Exception} occurred
      */
     public static final Properties getUrlAsProperties(String urlString) throws IOException {
         Properties props = new ConcurrentProperties();
@@ -367,8 +379,9 @@ public abstract class ContextUtils {
      *            {@link Properties}
      * @param value
      *            the value will as a key, if don't exist return itself
-     * @return
+     * @return A resolved string
      * @throws ConfigurationException
+     *             If not exist target property
      */
     public static String resolvePlaceholder(Map<Object, Object> properties, String value) throws ConfigurationException {
         return resolvePlaceholder(properties, value, true);
@@ -378,11 +391,14 @@ public abstract class ContextUtils {
      * Resolve placeholder s
      * 
      * @param properties
+     *            {@link Properties} variables source
      * @param input
+     *            Input expression
      * @param throw_
      *            If there doesn't exist the key throw {@link Exception}
-     * @return
+     * @return A resolved string
      * @throws ConfigurationException
+     *             If not exist target property
      */
     public static String resolvePlaceholder(Map<Object, Object> properties, String input, boolean throw_) //
             throws ConfigurationException //
@@ -422,9 +438,12 @@ public abstract class ContextUtils {
     // ----------------- loader
 
     /**
+     * Set init methods to {@link BeanDefinition}
      * 
      * @param beanDefinition
+     *            Target {@link BeanDefinition}
      * @param initMethods
+     *            Resolved init methods
      * @since 2.1.3
      */
     public static void resolveInitMethod(BeanDefinition beanDefinition, String... initMethods) {
@@ -433,9 +452,9 @@ public abstract class ContextUtils {
 
     /**
      * @param beanClass
-     *            bean class
+     *            Bean class
      * @param initMethods
-     *            init Method s
+     *            Init Method s
      * @since 2.1.2
      */
     public static Method[] resolveInitMethod(Class<?> beanClass, String... initMethods) {
@@ -459,11 +478,11 @@ public abstract class ContextUtils {
      * Add a method which annotated with {@link PostConstruct}
      * 
      * @param methods
-     *            method list
+     *            Method list
      * @param beanClass
-     *            bean class
+     *            Bean class
      * @param initMethods
-     *            init Method name
+     *            Init Method name
      * @since 2.1.2
      */
     private static void addInitMethod(List<Method> methods, Class<?> beanClass, String... initMethods) {
@@ -482,9 +501,12 @@ public abstract class ContextUtils {
     }
 
     /**
+     * Set {@link PropertyValue} to the target {@link BeanDefinition}
+     * 
      * @param beanDefinition
-     *            bean definition
+     *            target bean definition
      * @param applicationContext
+     *            {@link ApplicationContext}
      * @since 2.1.3
      */
     public static void resolvePropertyValue(final BeanDefinition beanDefinition, ApplicationContext applicationContext) {
@@ -495,8 +517,9 @@ public abstract class ContextUtils {
      * Process bean's property (field)
      * 
      * @param beanClass
-     *            bean class
+     *            Bean class
      * @param applicationContext
+     *            {@link ApplicationContext}
      * @since 2.1.2
      */
     public static PropertyValue[] resolvePropertyValue(Class<?> beanClass, //
@@ -518,11 +541,10 @@ public abstract class ContextUtils {
      * Create property value
      * 
      * @param field
-     *            property
+     *            Property
      * @param applicationContext
      *            {@link ApplicationContext}
-     * @return a new {@link PropertyValue}
-     * @throws Exception
+     * @return A new {@link PropertyValue}
      */
     public static final PropertyValue createPropertyValue(Field field, ApplicationContext applicationContext) {
 
@@ -538,8 +560,9 @@ public abstract class ContextUtils {
      * Properties injection
      *
      * @param beanDefinition
-     *            target bean definition
+     *            Target bean definition
      * @param environment
+     *            Application {@link Environment}
      */
     public static void resolveProps(BeanDefinition beanDefinition, Environment environment) throws ConfigurationException {
         Class<?> beanClass = beanDefinition.getBeanClass();
@@ -549,11 +572,14 @@ public abstract class ContextUtils {
     }
 
     /**
-     * Resolve Properties
+     * Resolve {@link PropertyValue}s from target {@link Method} or {@link Class}
      * 
      * @param annotatedElement
+     *            Target {@link AnnotatedElement}
      * @param properties
+     *            {@link Properties} variables source
      * @throws ConfigurationException
+     *             If not support {@link AnnotatedElement}
      */
     public static List<PropertyValue> resolveProps(AnnotatedElement annotatedElement, Properties properties)
             throws ConfigurationException //
@@ -592,11 +618,16 @@ public abstract class ContextUtils {
     }
 
     /**
+     * Resolve target {@link Field} object
+     * 
      * @param declaredField
      * @param nested
+     *            Field class's field class
      * @param prefixs
+     *            {@link Properties}'s prefix
      * @param properties
-     * @return
+     *            {@link Properties} variables source
+     * @return Resolved field object
      */
     public static Object resolveProps(final Field declaredField, //
             final List<Class<?>> nested, final String[] prefixs, Properties properties) //
@@ -647,13 +678,14 @@ public abstract class ContextUtils {
     }
 
     /**
+     * Resolve target object with {@link Props} and target object's class
+     * 
      * @param prefixs
      *            {@link Props#prefix()}
      * @param beanClass
-     *            target class, must have default {@link Constructor}
+     *            Target class, must have default {@link Constructor}
      * @param properties
-     *            {@link Properties} source
-     * @return
+     *            {@link Properties} variables source
      * @since 2.1.5
      */
     public static <T> T resolveProps(final Props props, Class<T> beanClass, Properties properties) {
@@ -661,13 +693,14 @@ public abstract class ContextUtils {
     }
 
     /**
+     * Resolve target object with {@link Props} and target object's instance
+     * 
      * @param prefixs
      *            {@link Props#prefix()}
      * @param bean
-     *            bean instance
+     *            Bean instance
      * @param properties
-     *            {@link Properties} source
-     * @return
+     *            {@link Properties} variables source
      * @since 2.1.5
      */
     public static <T> T resolveProps(final Props props, T bean, Properties properties) {
@@ -696,8 +729,7 @@ public abstract class ContextUtils {
      * @param props
      *            {@link Props}
      * @param aplicationProps
-     *            application's {@link Properties}
-     * @return
+     *            Application's {@link Properties}
      * @since 2.1.5
      */
     public static Properties loadProps(Props props, Properties aplicationProps) {
@@ -749,10 +781,10 @@ public abstract class ContextUtils {
     }
 
     /**
-     * If matched
+     * Decide whether to load the bean
      * 
      * @param annotatedElement
-     *            target class or a method
+     *            Target class or a method
      * @param applicationContext
      *            {@link ApplicationContext}
      * @return If matched
@@ -780,9 +812,9 @@ public abstract class ContextUtils {
      * Validate bean definition
      * 
      * @param beanDefinition
-     *            target {@link BeanDefinition}
+     *            Target {@link BeanDefinition}
      * @param applicationContext
-     *            application context
+     *            Application context
      */
     public static void validateBeanDefinition(BeanDefinition beanDefinition, ApplicationContext applicationContext) {
 
@@ -818,10 +850,11 @@ public abstract class ContextUtils {
      * Destroy bean instance
      * 
      * @param bean
-     *            bean instance
+     *            Bean instance
      * @param methods
-     *            methods
+     *            Bean class's methods
      * @throws Throwable
+     *             When destroy a bean
      */
     public static void destroyBean(Object bean, Method[] methods) throws Throwable {
 
@@ -842,12 +875,12 @@ public abstract class ContextUtils {
      * Is a context missed bean?
      * 
      * @param missingBean
-     *            the {@link Annotation} declared on the class or a method
+     *            The {@link Annotation} declared on the class or a method
      * @param beanClass
-     *            missed bean class
+     *            Missed bean class
      * @param beanFactory
-     *            the {@link AbstractBeanFactory}
-     * @return if the bean is missed in context
+     *            The {@link AbstractBeanFactory}
+     * @return If the bean is missed in context
      * @since 2.1.6
      */
     public static boolean isMissedBean(final MissingBean missingBean, final Class<?> beanClass, //

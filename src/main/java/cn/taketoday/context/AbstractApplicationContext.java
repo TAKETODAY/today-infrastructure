@@ -145,6 +145,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         applyState(State.STARTING);
 
         try {
+
             // prepare properties
             final ConfigurableEnvironment environment = getEnvironment();
 

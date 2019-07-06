@@ -33,7 +33,6 @@ import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY <br>
- * 
  *         2018-08-04 15:58
  */
 @Order(Ordered.HIGHEST_PRECEDENCE - 1)
@@ -54,8 +53,10 @@ public class ValuePropertyResolver implements PropertyValueResolver {
         String expression = annotation.value();
 
         if (StringUtils.isEmpty(expression)) {
-            // use field name
+            // use class full name and field name
             expression = new StringBuilder(Constant.PLACE_HOLDER_PREFIX) //
+                    .append(field.getDeclaringClass().getName())//
+                    .append(Constant.PACKAGE_SEPARATOR)//
                     .append(field.getName())//
                     .append(Constant.PLACE_HOLDER_SUFFIX).toString();
         }

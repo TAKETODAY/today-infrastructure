@@ -41,8 +41,10 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
- * @author Today <br>
+ * This class supports field that annotated {@link Autowired},
+ * {@link javax.inject.Inject} or {@link javax.inject.Named}
  * 
+ * @author TODAY <br>
  *         2018-08-04 15:56
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -56,8 +58,8 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
 
         return field.isAnnotationPresent(Autowired.class) //
                 || field.isAnnotationPresent(Resource.class) //
-                || (INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS))//
-                || (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS));
+                || (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS))//
+                || (INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS));
     }
 
     @Override
@@ -112,7 +114,7 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
      *            target property class
      * @return a bean name none null
      */
-    private String byType(ApplicationContext applicationContext, Class<?> targetClass, //
+    protected String byType(ApplicationContext applicationContext, Class<?> targetClass, //
             final BeanNameCreator beanNameCreator) //
     {
         if (applicationContext.hasStarted()) {
@@ -133,7 +135,7 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
      *            property class
      * @return a name found in {@link BeanFactory} if not found will returns null
      */
-    private String findName(ApplicationContext applicationContext, Class<?> propertyClass) {
+    protected String findName(ApplicationContext applicationContext, Class<?> propertyClass) {
         for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitions().entrySet()) {
             if (propertyClass.isAssignableFrom(entry.getValue().getBeanClass())) {
                 return entry.getKey();

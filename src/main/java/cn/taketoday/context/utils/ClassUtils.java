@@ -140,8 +140,8 @@ public abstract class ClassUtils {
             final Enumeration<URL> resources = classLoader.getResources("META-INF/ignore/jar-prefix");
             while (resources.hasMoreElements()) {
                 try (final BufferedReader reader = new BufferedReader(//
-                        new InputStreamReader(resources.nextElement().openStream(), //
-                                Constant.DEFAULT_CHARSET))) { // fix
+                        new InputStreamReader(resources.nextElement().openStream(), Constant.DEFAULT_CHARSET))) { // fix
+
                     String str;
                     while ((str = reader.readLine()) != null) {
                         ignoreScanJars.add(str);
@@ -149,11 +149,11 @@ public abstract class ClassUtils {
                 }
             }
         }
-        catch (IOException e) {//
+        catch (IOException e) {
             log.error("IOException occurred when load 'ignore/jar-prefix'");
             throw ExceptionUtils.newContextException(e);
         }
-        IGNORE_SCAN_JARS = ignoreScanJars.toArray(new String[0]);
+        IGNORE_SCAN_JARS = ignoreScanJars.toArray(Constant.EMPTY_STRING_ARRAY);
 
         final Set<Class<?>> primitiveTypes = new HashSet<>(32);
         Collections.addAll(primitiveTypes, //
@@ -1003,26 +1003,17 @@ public abstract class ClassUtils {
         }
         if (returnType.isPrimitive()) {
             switch (returnType.getName())
-            {
-                case "int" :
-                    return clazz == Integer.class;
-                case "long" :
-                    return clazz == Long.class;
-                case "byte" :
-                    return clazz == Byte.class;
-                case "char" :
-                    return clazz == Character.class;
-                case "float" :
-                    return clazz == Float.class;
-                case "double" :
-                    return clazz == Double.class;
-                case "short" :
-                    return clazz == Short.class;
-                case "boolean" :
-                    return clazz == Boolean.class;
-                default:
-                    return false;
-            }
+            {//@off
+                case "int" :    return clazz == Integer.class;
+                case "long" :   return clazz == Long.class;
+                case "byte" :   return clazz == Byte.class;
+                case "char" :   return clazz == Character.class;
+                case "float" :  return clazz == Float.class;
+                case "double" : return clazz == Double.class;
+                case "short" :  return clazz == Short.class;
+                case "boolean" :return clazz == Boolean.class;
+                default:        return false;
+            } //@on
         }
         return false;
     }
@@ -1155,7 +1146,7 @@ public abstract class ClassUtils {
             throws ReflectiveOperationException //
     {
         try {
-            return ClassUtils.newInstance(beanClass);
+            return newInstance(beanClass);
         }
         catch (final ContextException e) {
             if (e.getCause() instanceof NoSuchMethodException) {

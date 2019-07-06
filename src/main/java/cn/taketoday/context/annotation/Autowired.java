@@ -28,25 +28,17 @@ import cn.taketoday.context.Constant;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-?-? ?:?
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR })
 public @interface Autowired {
 
-    /**
-     * Bean name
-     * 
-     * @return
-     */
+    /** @return Bean name */
     String value() default Constant.BLANK;
 
-    /**
-     * is required ?
-     * 
-     * @return
-     */
+    /** @return property is required ? */
     boolean required() default true;
 
 }

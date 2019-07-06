@@ -28,8 +28,7 @@ import cn.taketoday.context.exception.ContextException;
 /**
  * Resolve field property
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-08-04 15:04
  */
 @FunctionalInterface

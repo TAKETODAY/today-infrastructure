@@ -30,7 +30,7 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 /**
  * Configurable {@link Environment}
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-14 19:35
  */
 public interface ConfigurableEnvironment extends Environment {
@@ -47,7 +47,7 @@ public interface ConfigurableEnvironment extends Environment {
      * Add a profile to the current set of active profiles.
      * 
      * @param profile
-     *            add a active profile
+     *            Add a active profile
      */
     void addActiveProfile(String profile);
 
@@ -57,7 +57,7 @@ public interface ConfigurableEnvironment extends Environment {
      * @param propertiesLocation
      *            The properties file location
      * @throws IOException
-     *             when could not access to a properties file
+     *             When could not access to a properties file
      */
     void loadProperties(String propertiesLocation) throws IOException;
 
@@ -65,7 +65,7 @@ public interface ConfigurableEnvironment extends Environment {
      * Load properties configuration file, and set active profiles.
      * 
      * @throws IOException
-     *             when could not access to a properties file
+     *             When could not access to a properties file
      * @since 2.1.6
      */
     void loadProperties() throws IOException;
@@ -74,14 +74,14 @@ public interface ConfigurableEnvironment extends Environment {
      * Set {@link Environment} property
      * 
      * @param key
-     *            key
+     *            Key
      * @param value
-     *            value
+     *            Value
      */
     void setProperty(String key, String value);
 
     /**
-     * Set the bean definition registry
+     * Configure the bean definition registry
      * 
      * @param beanDefinitionRegistry
      *            {@link BeanDefinitionRegistry} instance
@@ -90,7 +90,7 @@ public interface ConfigurableEnvironment extends Environment {
     ConfigurableEnvironment setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry);
 
     /**
-     * set bean definition loader
+     * Configure bean definition loader
      * 
      * @param beanDefinitionLoader
      *            {@link BeanDefinitionLoader} instance
@@ -99,6 +99,7 @@ public interface ConfigurableEnvironment extends Environment {
     ConfigurableEnvironment setBeanDefinitionLoader(BeanDefinitionLoader beanDefinitionLoader);
 
     /**
+     * Configure {@link BeanNameCreator}
      * 
      * @param beanNameCreator
      *            {@link BeanNameCreator} instance
@@ -108,15 +109,17 @@ public interface ConfigurableEnvironment extends Environment {
     ConfigurableEnvironment setBeanNameCreator(BeanNameCreator beanNameCreator);
 
     /**
-     * Set {@link ELProcessor}
+     * Configure {@link ELProcessor}
      * 
+     * @param processor
+     *            EL processor
      * @return {@link ConfigurableEnvironment}
      * @since 2.1.5
      */
     ConfigurableEnvironment setELProcessor(ELProcessor processor);
 
     /**
-     * Config properties location
+     * Configure properties location
      * 
      * @param propertiesLocation
      *            The location of properties file
