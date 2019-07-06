@@ -45,12 +45,12 @@
 - :bug: fix: #6 Properties not found
 - :bug: fix: ConfigurationException detail message
 - :sparkles: feat: add `TypeConverter`,`StringTypeConverter` api
-- :white_check_mark: add `ConvertUtils` test code 
 - :wrench: move jar-prefix to META-INF/jar-prefix
 - :sparkles: feat: Props nested class feature
 - :bug: fix: #7 The bean is not initialized due to the startup sequence not found
 - :sparkles: feat: add new annotations: ConditionalOnClass, ConditionalOnExpression,ConditionalOnMissingClass,ConditionalOnProperty,ConditionalOnResource
 - :bug: fix: #8 Property inject failure
+- :bug: fix: NumberUtils#toArrayObject()
 
 
 ## v2.1.5

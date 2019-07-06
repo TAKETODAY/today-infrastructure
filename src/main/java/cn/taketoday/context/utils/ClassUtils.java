@@ -371,7 +371,10 @@ public abstract class ClassUtils {
      * @return a {@link Collection} of impl class
      */
     public static Set<Class<?>> getImplClasses(Class<?> superClass, String packageName) {
-        return filter(clazz -> clazz.getName().startsWith(packageName) && superClass.isAssignableFrom(clazz));
+        return filter(clazz -> clazz.getName().startsWith(packageName) //
+                && superClass != clazz//
+                && superClass.isAssignableFrom(clazz) //
+        );
     }
 
     public static final <T> Set<Class<?>> filter(final Predicate<Class<?>> predicate) {

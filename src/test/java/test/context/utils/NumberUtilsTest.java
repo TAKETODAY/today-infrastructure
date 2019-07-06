@@ -19,6 +19,8 @@
  */
 package test.context.utils;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 
 import org.junit.After;
@@ -68,20 +70,158 @@ public class NumberUtilsTest {
 
     @Test
     public void test_ParseDigit() throws ConversionException {
-        Object parseDigit = NumberUtils.parseDigit("12121", Integer.class);
 
-        assert parseDigit.equals(12121);
-        assert parseDigit.getClass() == Integer.class;
+        assert NumberUtils.parseDigit("", int.class).equals(0);
+
+        Object parseint = NumberUtils.parseDigit("12121", int.class);
+
+        assert parseint.equals(12121);
+        assert parseint.getClass() == Integer.class;
+
+        Object parseInteger = NumberUtils.parseDigit("12121", Integer.class);
+        assert parseInteger.equals(12121);
+        assert parseInteger.getClass() == Integer.class;
+
+        Object parselong = NumberUtils.parseDigit("12121", long.class);
+        assert parselong.equals(12121l);
+        assert parselong.getClass() == Long.class;
+
+        Object parseLong = NumberUtils.parseDigit("12121", Long.class);
+        assert parseLong.equals(12121l);
+        assert parseLong.getClass() == Long.class;
+
+        Object parseshort = NumberUtils.parseDigit("12345", short.class);
+        assert parseshort.equals((short) 12345);
+        assert parseshort.getClass() == Short.class;
+
+        Object parseShort = NumberUtils.parseDigit("12345", Short.class);
+        assert parseShort.equals((short) 12345);
+        assert parseShort.getClass() == Short.class;
+
+        Object parsebyte = NumberUtils.parseDigit("123", byte.class);
+        assert parsebyte.equals((byte) 123);
+        assert parsebyte.getClass() == Byte.class;
+
+        Object parseByte = NumberUtils.parseDigit("123", Byte.class);
+        assert parseByte.equals((byte) 123);
+        assert parseByte.getClass() == Byte.class;
+
+        Object parseBigInteger = NumberUtils.parseDigit("123", BigInteger.class);
+        assert parseBigInteger.equals(new BigInteger("123"));
+        assert parseBigInteger.getClass() == BigInteger.class;
+
+        Object parsefloat = NumberUtils.parseDigit("123.45", float.class);
+        assert parsefloat.equals(123.45f);
+        assert parsefloat.getClass() == Float.class;
+
+        Object parseFloat = NumberUtils.parseDigit("123.45", Float.class);
+        assert parseFloat.equals(123.45f);
+        assert parseFloat.getClass() == Float.class;
+
+        Object parsedouble = NumberUtils.parseDigit("123.45", double.class);
+        assert parsedouble.equals(123.45d);
+        assert parsedouble.getClass() == Double.class;
+
+        Object parseDouble = NumberUtils.parseDigit("123.45", Double.class);
+        assert parseDouble.equals(123.45d);
+        assert parseDouble.getClass() == Double.class;
+
+        Object parseBigDecimal = NumberUtils.parseDigit("123.45", BigDecimal.class);
+        assert parseBigDecimal.equals(new BigDecimal("123.45"));
+        assert parseBigDecimal.getClass() == BigDecimal.class;
+
+        Object parseNumber = NumberUtils.parseDigit("123.45", Number.class);
+        assert parseNumber.equals(new BigDecimal("123.45"));
+        assert parseNumber.getClass() == BigDecimal.class;
+
+        try {
+            NumberUtils.parseDigit("123.45", getClass());
+            assert false;
+        }
+        catch (Exception e) {
+            assert true;
+        }
+
     }
 
+    @SuppressWarnings("rawtypes")
     @Test
     public void test_toArrayObject() throws ConversionException {
-        Object arrayObject = NumberUtils.toArrayObject(new String[] { "12121", "121212121"
-        }, Integer[].class);
 
-        assert arrayObject.getClass().equals(Integer[].class);
+        // int[]
+        Object arrayObject = NumberUtils.toArrayObject(new String[] { "12121", "121212121" }, int[].class);
+        assert arrayObject.getClass().equals(int[].class);
+        assert ((int[]) arrayObject)[0] == 12121;
 
-        assert ((Integer[]) arrayObject)[0] == 12121;
+        // Integer[]
+        Object integerarrayObject = NumberUtils.toArrayObject(new String[] { "12121", "121212121" }, Integer[].class);
+        assert integerarrayObject.getClass().equals(Integer[].class);
+        assert ((Integer[]) integerarrayObject)[0] == 12121;
+
+        // Long[]
+        final Object LongArrayObject = NumberUtils.toArrayObject(new String[] { "12121", "121212121" }, Long[].class);
+        assert LongArrayObject.getClass().equals(Long[].class);
+        assert ((Long[]) LongArrayObject)[0] == 12121l;
+
+        // long[]
+        final Object longArrayObject = NumberUtils.toArrayObject(new String[] { "12121", "121212121" }, long[].class);
+        assert longArrayObject.getClass().equals(long[].class);
+        assert ((long[]) longArrayObject)[0] == 12121l;
+
+        // String[]
+        String[] inputString = new String[] { "12121", "121212121" };
+        final Object stringArrayObject = NumberUtils.toArrayObject(inputString, String[].class);
+        assert stringArrayObject == inputString;
+
+        // short[]
+        final Object shortArrayObject = NumberUtils.toArrayObject(new String[] { "1212", "12345" }, short[].class);
+        assert shortArrayObject.getClass().equals(short[].class);
+        assert ((short[]) shortArrayObject)[0] == 1212;
+
+        // Short[]
+        final Object ShortArrayObject = NumberUtils.toArrayObject(new String[] { "1212", "12345" }, Short[].class);
+        assert ShortArrayObject.getClass().equals(Short[].class);
+        assert ((Short[]) ShortArrayObject)[0] == 1212;
+
+        // byte[]
+        final Object byteArrayObject = NumberUtils.toArrayObject(new String[] { "125", "12" }, byte[].class);
+        assert byteArrayObject.getClass().equals(byte[].class);
+        assert ((byte[]) byteArrayObject)[0] == 125;
+
+        // Byte[]
+        final Object ByteArrayObject = NumberUtils.toArrayObject(new String[] { "125", "12" }, Byte[].class);
+        assert ByteArrayObject.getClass().equals(Byte[].class);
+        assert ((Byte[]) ByteArrayObject)[0] == 125;
+
+        // float[]
+        final Object floatArrayObject = NumberUtils.toArrayObject(new String[] { "125.45", "12.898" }, float[].class);
+        assert floatArrayObject.getClass().equals(float[].class);
+        assert ((float[]) floatArrayObject)[0] == 125.45f;
+
+        // Float[]
+        final Object FloatArrayObject = NumberUtils.toArrayObject(new String[] { "125.45", "12.898" }, Float[].class);
+        assert FloatArrayObject.getClass().equals(Float[].class);
+        assert ((Float[]) FloatArrayObject)[0] == 125.45f;
+
+        // double[]
+        final Object doubleArrayObject = NumberUtils.toArrayObject(new String[] { "125.45", "12.898" }, double[].class);
+        assert doubleArrayObject.getClass().equals(double[].class);
+        assert ((double[]) doubleArrayObject)[0] == 125.45d;
+
+        // Double[]
+        final Object DoubleArrayObject = NumberUtils.toArrayObject(new String[] { "125.45", "12.898" }, Double[].class);
+        assert DoubleArrayObject.getClass().equals(Double[].class);
+        assert ((Double[]) DoubleArrayObject)[0] == 125.45d;
+
+        // Object[]
+        final Class<Class[]> clazz = Class[].class;
+        final Object classArrayObject = NumberUtils.toArrayObject(new String[] { //
+                "test.context.utils.Bean", "test.context.utils.ClassUtilsTest" //
+        }, clazz);
+
+        assert classArrayObject.getClass().equals(clazz);
+        assert ((Class[]) classArrayObject)[1] == ClassUtilsTest.class;
+
     }
 
 }

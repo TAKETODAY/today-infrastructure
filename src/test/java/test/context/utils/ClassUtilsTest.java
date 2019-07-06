@@ -7,6 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,6 +48,14 @@ public class ClassUtilsTest {
     private long start;
 
     private String process;
+
+    public String getProcess() {
+        return process;
+    }
+
+    public void setProcess(String process) {
+        this.process = process;
+    }
 
     @Before
     public void start() {
@@ -116,6 +125,9 @@ public class ClassUtilsTest {
         assert ClassUtils.scan("").size() > 0; // for scanOne
 
         ClassUtils.setScanAllFreamworkPackage(true);
+
+        ClassUtils.clearCache();
+        assert ClassUtils.scan("cn.taketoday").size() == ClassUtils.getClasses("cn.taketoday").size();
     }
 
     @Test
@@ -157,6 +169,24 @@ public class ClassUtilsTest {
         assert annotation.annotationType() == C.class;
         assert annotation.scope() == Scope.SINGLETON;
         assert annotations.size() == 2;
+
+        try {
+
+            ClassUtils.getAnnotationAttributes(null);
+
+            assert false;
+        }
+        catch (Exception e) {
+            assert true;
+        }
+        try {
+            ClassUtils.injectAttributes(attributes, null, attributes);
+            assert false;
+        }
+        catch (Exception e) {
+            assert true;
+        }
+
     }
 
     @Test
@@ -204,9 +234,11 @@ public class ClassUtilsTest {
         // test: use reflect build the annotation
         Component[] components = ClassUtils.getAnnotationArray(Config.class, Component.class, DefaultComponent.class);
 
-        for (Component component : components) {
-            System.err.println(component);
-        }
+        final Component[] annotationArray = ClassUtils.getAnnotationArray(Config.class, Component.class);
+        assert components.length > 0;
+        assert annotationArray.length > 0;
+        assert annotationArray.length == annotationArray.length;
+
     }
 
     @Test
@@ -216,15 +248,20 @@ public class ClassUtilsTest {
         Collection<Field> fields = ClassUtils.getFields(StandardApplicationContext.class);
 
         long start = System.currentTimeMillis();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             ClassUtils.getFields(StandardApplicationContext.class);
         }
 
         System.err.println(System.currentTimeMillis() - start);
 
-        for (Field field : fields) {
-            System.err.println(field);
-        }
+//        for (Field field : fields) {
+//            System.err.println(field);
+//        }
+
+        final Field[] fieldArray = ClassUtils.getFieldArray(StandardApplicationContext.class);
+
+        assert fields.size() == fieldArray.length;
+
     }
 
 //    public static void main(String[] args) {
@@ -236,14 +273,6 @@ public class ClassUtilsTest {
 //        }
 //        System.err.println(System.currentTimeMillis() - start + "ms");
 //    }
-
-    public String getProcess() {
-        return process;
-    }
-
-    public void setProcess(String process) {
-        this.process = process;
-    }
 
     @Test
     public void resolvePrimitiveClassName() {
@@ -304,6 +333,8 @@ public class ClassUtilsTest {
     @Test
     public void testAutowiredOnConstructor() {
 
+        setProcess("AutowiredOnConstructor");
+
         try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
             System.err.println(applicationContext.getBean(AutowiredOnConstructor.class));
             applicationContext.registerBean("testAutowiredOnConstructorThrow", AutowiredOnConstructorThrow.class);
@@ -321,18 +352,70 @@ public class ClassUtilsTest {
 
     @Test
     public void testIsAnnotationPresent() {
+        setProcess("isAnnotationPresent");
 
         assert ClassUtils.isAnnotationPresent(AutowiredOnConstructor.class, Singleton.class);
         assert ClassUtils.isAnnotationPresent(AutowiredOnConstructor.class, MySingleton.class);
 
+        assert ClassUtils.loadClass("") == null;
+
+        ClassUtils.clearCache();
+        assert ClassUtils.getAnnotatedClasses(Singleton.class).size() > 0;
+        
+        final int size = ClassUtils.getImplClasses(ApplicationContext.class).size();
+        final int size2 = ClassUtils.getImplClasses(ApplicationContext.class, "cn.taketoday").size();
+
+        assert size > 0;
+        assert size2 > 0;
+        assert size == size2;
+        
+        ClassUtils.clearCache();
+
+    }
+
+    @Test
+    public void testOther() throws NoSuchMethodException, SecurityException {
+        setProcess("invokeMethod");
+
+        final Method method = AutowiredOnConstructor.class.getDeclaredMethod("test");
+        ClassUtils.invokeMethod(method, new AutowiredOnConstructor(null));
+
+        assert ClassUtils.newInstance(ClassUtilsTest.class.getName()) != null;
+
+        try {
+            ClassUtils.newInstance("not found");
+            assert false;
+        }
+        catch (Exception e) {
+            assert true;
+        }
+        try {
+
+            final Method throwing = AutowiredOnConstructor.class.getDeclaredMethod("throwing");
+            ClassUtils.invokeMethod(throwing, new AutowiredOnConstructor(null));
+
+            assert false;
+        }
+        catch (Exception e) {
+            assert true;
+        }
     }
 
     @MySingleton
+    @SuppressWarnings("unused")
     private static class AutowiredOnConstructor {
 
         @Autowired
         public AutowiredOnConstructor(ApplicationContext applicationContext) {
             System.err.println("init");
+        }
+
+        private void test() {
+            System.err.println("test");
+        }
+
+        private void throwing() {
+            throw new ContextException();
         }
     }
 

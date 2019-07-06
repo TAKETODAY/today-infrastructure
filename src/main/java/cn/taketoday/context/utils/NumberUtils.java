@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.utils;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -120,12 +121,16 @@ public abstract class NumberUtils {
                 newInstance[j] = Double.parseDouble(source[j]);
             return newInstance;
         }
-
-        final Object[] newInstance = new Object[length];
-        for (short j = 0; j < length; j++) {
-            newInstance[j] = ConvertUtils.convert(source[j], targetClass);
+        { // fix @since 2.1.6
+            if (targetClass.isArray()) {
+                targetClass = targetClass.getComponentType();
+            }
+            final Object newInstance = Array.newInstance(targetClass, length);
+            for (short i = 0; i < length; i++) {
+                Array.set(newInstance, i, ConvertUtils.convert(source[i], targetClass));
+            }
+            return newInstance;
         }
-        return newInstance;
     }
 
     public final static <T> T parseArray(String source[], Class<T> targetClass) throws ConversionException {
