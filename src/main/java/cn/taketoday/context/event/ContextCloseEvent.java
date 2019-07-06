@@ -24,7 +24,7 @@ import cn.taketoday.context.ApplicationContext;
 /**
  * When close {@link ApplicationContext} will publish this event
  * 
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-09-10 07:55
  */

@@ -28,7 +28,7 @@ import lombok.Getter;
  * 
  * {@link Singleton} bean Initialized event
  * 
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-09-20 16:48
  */

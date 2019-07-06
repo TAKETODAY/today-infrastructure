@@ -22,7 +22,7 @@ package cn.taketoday.context.event;
 import java.util.EventObject;
 
 /**
- * @author Today <br>
+ * @author TODAY<br>
  * 
  *         2018-09-09 21:23
  */

@@ -27,7 +27,7 @@ import cn.taketoday.context.bean.BeanDefinition;
 /**
  * {@link BeanDefinition} Loaded event
  * 
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-09-10 10:46
  */

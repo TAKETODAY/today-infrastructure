@@ -70,8 +70,7 @@ import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
 /**
- * @author Today <br>
- *         <p>
+ * @author TODAY <br>
  *         2018-09-09 22:02
  */
 public abstract class AbstractApplicationContext implements ConfigurableApplicationContext {
@@ -308,7 +307,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
     }
 
-    private void forEach(Class<?> listenerClass) {
+    protected void forEach(Class<?> listenerClass) {
 
         try {
 
@@ -336,18 +335,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
-    public void addApplicationListener(ApplicationListener<?> applicationListener) {
+    public void addApplicationListener(final ApplicationListener<?> applicationListener) {
 
-        final Class<? extends ApplicationListener> listenerClass = applicationListener.getClass();
-
-        for (final Method method : listenerClass.getDeclaredMethods()) {
+        for (final Method method : applicationListener.getClass().getDeclaredMethods()) {
             // onApplicationEvent
-            if (method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
-                if (!method.isBridge()) {
-                    // register listener
-                    doRegisterListener(this.applicationListeners, applicationListener, method.getParameterTypes()[0]);
-                }
+            if (!method.isBridge() && method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
+                // register listener
+                doRegisterListener(this.applicationListeners, applicationListener, method.getParameterTypes()[0]);
             }
         }
     }
@@ -356,11 +350,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 	 * Register to registry
 	 * 
 	 * @param applicationListeners 
-	 * 				registry
+	 * 				Registry
 	 * @param applicationListener
-	 *            the instance of application listener
+	 *            The instance of application listener
 	 * @param eventType
-	 *            the event type
+	 *            The event type
 	 * @off
 	 */
 	@SuppressWarnings({ "unchecked" })
@@ -399,6 +393,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     // --------ApplicationEventPublisher
+
     @Override
     public void publishEvent(EventObject event) {
 
@@ -455,11 +450,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
-    public final State getState() {
+    public State getState() {
         return state;
     }
 
-    private final void applyState(State state) {
+    protected void applyState(State state) {
         this.state = state;
     }
 
@@ -546,6 +541,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     // ------------------- BeanFactory
+
     @Override
     public Object getBean(String name) {
         return getBeanFactory().getBean(name);

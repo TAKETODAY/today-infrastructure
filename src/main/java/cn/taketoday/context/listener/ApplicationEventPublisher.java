@@ -22,8 +22,7 @@ package cn.taketoday.context.listener;
 import java.util.EventObject;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-09-09 21:26
  */
 @FunctionalInterface
@@ -33,7 +32,7 @@ public interface ApplicationEventPublisher {
      * Publish event
      * 
      * @param event
-     *            event object
+     *            Event object
      */
     void publishEvent(EventObject event);
 }

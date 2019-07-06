@@ -25,7 +25,7 @@ import cn.taketoday.context.ApplicationContext;
  * 
  * Context started and all the singletons are initialized
  * 
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-09-10 10:52
  */

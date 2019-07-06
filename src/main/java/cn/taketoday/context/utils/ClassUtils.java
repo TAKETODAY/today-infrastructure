@@ -412,8 +412,8 @@ public abstract class ClassUtils {
      * Scan class with given package.
      * 
      * @param packages
-     *            the packages to scan
-     * @return class set
+     *            The packages to scan
+     * @return Class set
      */
     public static Set<Class<?>> scan(final String... packages) {
         Objects.requireNonNull(packages, "scan package can't be null");
@@ -422,7 +422,7 @@ public abstract class ClassUtils {
 
             final Set<Class<?>> scanClasses = new HashSet<>(2048);
             if (packages.length == 1) {
-                scanOne(scanClasses, packages[0]); // packages = ""
+                scanOne(scanClasses, packages[0]); // packages.length == 1
             }
             else {
                 final Set<String> packagesToScan = new HashSet<>();
@@ -432,7 +432,7 @@ public abstract class ClassUtils {
                         // maybe cn.taketoday.xxx will scan all cn.taketoday
                         packagesToScan.add(Constant.FREAMWORK_PACKAGE);
                     }
-                    else if (StringUtils.isEmpty(location)) {
+                    else if (StringUtils.isEmpty(location)) { // contains "" scan all class
                         scan(scanClasses);
                         setClassCache(scanClasses);
                         return scanClasses;
@@ -461,10 +461,11 @@ public abstract class ClassUtils {
         }
         else {
             if (scanAllFreamworkPackage) {
-                // cn.taketoday.xx
+
                 if (!location.startsWith(Constant.FREAMWORK_PACKAGE)) {
                     scan(scanClasses, location);
                 }
+                // cn.taketoday.xx
                 scan(scanClasses, Constant.FREAMWORK_PACKAGE);
             }
             else {
@@ -1057,19 +1058,16 @@ public abstract class ClassUtils {
      * @param <A>
      *            {@link Annotation} type
      * @param annotatedElement
-     *            target {@link AnnotatedElement}
+     *            Target {@link AnnotatedElement}
      * @param annotationType
-     *            target annotation type
+     *            Target annotation type
      * @return Whether it's present
      */
     public static <A extends Annotation> boolean //
             isAnnotationPresent(AnnotatedElement annotatedElement, Class<A> annotationType) {
 
-        if (annotatedElement.isAnnotationPresent(annotationType)) {
-            return true;
-        }
-
-        return !getAnnotation(annotatedElement, annotationType).isEmpty();
+        return annotatedElement.isAnnotationPresent(annotationType)//
+                || !getAnnotation(annotatedElement, annotationType).isEmpty();
     }
 
     // ----------------------------- new instance

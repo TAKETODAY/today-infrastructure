@@ -1,6 +1,11 @@
 package test.context.utils;
 
 import java.io.IOException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,15 +18,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.DefaultComponent;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ResourceUtils;
 import lombok.extern.slf4j.Slf4j;
 import test.context.props.Config_;
 import test.context.utils.Bean.C;
@@ -69,7 +75,6 @@ public class ClassUtilsTest {
 
     @Test
     public void test_Scan() {
-        ClassUtils.setScanAllFreamworkPackage(false);
         ClassUtils.addIgnoreAnnotationClass(TEST.class);
         setProcess("test_Scan");
         Collection<Class<?>> scanPackage = ClassUtils.scan("test");
@@ -79,10 +84,12 @@ public class ClassUtilsTest {
 
         System.err.println("===========================");
 
+        ClassUtils.clearCache();
+
         Collection<Class<?>> scan = ClassUtils.scan("test.context.utils", "cn.taketoday");
-        for (Class<?> class1 : scan) {
-            System.err.println(class1);
-        }
+//        for (Class<?> class1 : scan) {
+//            System.err.println(class1);
+//        }
         assert !scan.contains(Config_.class);
         assert scanPackage.size() > 0 : "scan error";
         // in jar
@@ -90,7 +97,25 @@ public class ClassUtilsTest {
         ClassUtils.setClassCache(null);
 
         final Set<Class<?>> scan2 = ClassUtils.scan("com.sun.el");
-        assert scan2.size() == 0;
+        assert scan2.size() != 0;
+
+        ClassUtils.setClassCache(null);
+        final Set<Class<?>> scanEmpty = ClassUtils.scan("cn.taketoday", "");
+
+        assert scanEmpty.size() > 0;
+
+        // don't clear cache
+        assert ClassUtils.scan("").size() > 0;
+
+        ClassUtils.setClassCache(null);
+
+        assert ClassUtils.scan("").size() > 0; // for scanOne
+
+        ClassUtils.setScanAllFreamworkPackage(false);
+
+        assert ClassUtils.scan("").size() > 0; // for scanOne
+
+        ClassUtils.setScanAllFreamworkPackage(true);
     }
 
     @Test
@@ -277,16 +302,54 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void test() throws IOException {
-//        jar:file:/file:/C:/Users/TODAY/Desktop/test/blog-web-2.1.0.RELEASE.jar!/BOOT-INF/classes!/cn/taketoday
+    public void testAutowiredOnConstructor() {
 
-        final Resource resource = //
-                ResourceUtils.getResource(
-                        "jar:file:/C:/Users/TODAY/Desktop/test/blog-web-2.1.0.RELEASE.jar!/BOOT-INF/lib/today-framework-latest.jar!/cn/taketoday");
+        try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
+            System.err.println(applicationContext.getBean(AutowiredOnConstructor.class));
+            applicationContext.registerBean("testAutowiredOnConstructorThrow", AutowiredOnConstructorThrow.class);
 
-        System.err.println(resource.exists());
+            try {
+                applicationContext.getBean(AutowiredOnConstructorThrow.class);
 
-        System.err.println(resource);
+                assert false;
+            }
+            catch (Exception e) {
+                assert true;
+            }
+        }
+    }
+
+    @Test
+    public void testIsAnnotationPresent() {
+
+        assert ClassUtils.isAnnotationPresent(AutowiredOnConstructor.class, Singleton.class);
+        assert ClassUtils.isAnnotationPresent(AutowiredOnConstructor.class, MySingleton.class);
+
+    }
+
+    @MySingleton
+    private static class AutowiredOnConstructor {
+
+        @Autowired
+        public AutowiredOnConstructor(ApplicationContext applicationContext) {
+            System.err.println("init");
+        }
+    }
+
+    @Singleton
+    @Inherited
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ ElementType.TYPE, ElementType.METHOD })
+    @interface MySingleton {
+
+    }
+
+    static class AutowiredOnConstructorThrow {
+
+        public AutowiredOnConstructorThrow(ApplicationContext applicationContext) {
+            System.err.println("init");
+            throw new ContextException();
+        }
 
     }
 
