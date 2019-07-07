@@ -108,11 +108,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Create prototype bean instance.
      *
      * @param beanDefinition
-     *            bean definition
+     *            Bean definition
      * @param name
-     *            bean name
-     * @return a initialized Prototype bean instance
+     *            Bean name
+     * @return A initialized Prototype bean instance
      * @throws Throwable
+     *             If any {@link Exception} occurred when create prototype
      */
     protected Object doCreatePrototype(BeanDefinition beanDefinition, String name) throws Throwable {
 
@@ -136,9 +137,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Get bean for required type
      * 
      * @param requiredType
-     *            bean type
+     *            Bean type
      * @since 2.1.2
-     * @return
      */
     protected <T> Object doGetBeanforType(final Class<T> requiredType) {
         Object bean = null;
@@ -242,12 +242,13 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     /**
-     * create bean use default constructor
+     * Create bean instance
      *
      * @param beanDefinition
-     *            bean definition
-     * @return bean instance
+     *            Bean definition
+     * @return Target bean instance
      * @throws Throwable
+     *             If any {@link Exception} occurred when create bean instance
      */
     protected Object createBeanInstance(BeanDefinition beanDefinition) throws Throwable {
         final Object bean = getSingleton(beanDefinition.getName());
@@ -261,10 +262,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Apply property values.
      *
      * @param bean
-     *            bean instance
+     *            Bean instance
      * @param propertyValues
-     *            property list
+     *            Property list
      * @throws IllegalAccessException
+     *             If any {@link Exception} occurred when apply
+     *             {@link PropertyValue}s
      */
     protected void applyPropertyValues(Object bean, PropertyValue... propertyValues) throws IllegalAccessException {
 
@@ -293,8 +296,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * 
      * @param beanReference
      *            {@link BeanReference} record a reference of bean
-     * 
-     * @return a bean
+     * @return a {@link PropertyValue} bean
      */
     protected Object resolvePropertyValue(BeanReference beanReference) {
 
@@ -330,13 +332,14 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     /**
-     * Invoke Init Methods
+     * Invoke initialize methods
      * 
      * @param bean
-     *            bean instance
+     *            Bean instance
      * @param methods
-     *            initialize methods
+     *            Initialize methods
      * @throws Exception
+     *             If any {@link Exception} occurred when invoke init methods
      */
     protected void invokeInitMethods(Object bean, Method... methods) throws Exception {
 
@@ -354,10 +357,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Create {@link Singleton} bean
      *
      * @param beanDefinition
-     *            bean definition
+     *            Bean definition
      * @param name
-     * @return
+     *            Bean name
+     * @return Bean instance
      * @throws Throwable
+     *             If any {@link Exception} occurred when create singleton
      */
     protected Object doCreateSingleton(BeanDefinition beanDefinition, String name) throws Throwable {
 
@@ -387,8 +392,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Create singleton bean.
      * 
      * @param beanDefinition
-     *            current {@link BeanDefinition}
+     *            Current {@link BeanDefinition}
      * @throws Throwable
+     *             If any {@link Exception} occurred when initialize singleton
      */
     protected void initializeSingleton(final BeanDefinition beanDefinition) throws Throwable {
 
@@ -417,13 +423,16 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     /**
-     *
+     * Get current {@link BeanDefinition} implementation
+     * 
      * @param currentBeanName
-     *            bean name
+     *            Bean name
      * @param currentBeanDefinition
-     *            bean definition
-     * @return
+     *            Bean definition
+     * @return Current {@link BeanDefinition} implementation
      * @throws Throwable
+     *             If any {@link Exception} occurred when get current
+     *             {@link BeanDefinition} implementation
      */
     protected Object getImplementation(String currentBeanName, BeanDefinition currentBeanDefinition) throws Throwable {
 
@@ -482,11 +491,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Initialize a singleton bean with given name and it's definition.
      *
      * @param name
-     *            bean name
+     *            Bean name
      * @param beanDefinition
-     *            bean definition
+     *            Bean definition
      * @return A initialized singleton bean
      * @throws Throwable
+     *             If any {@link Exception} occurred when initialize singleton
      */
     protected Object initializeSingleton(String name, BeanDefinition beanDefinition) throws Throwable {
 
@@ -507,9 +517,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Find a abstract implementation bean
      *
      * @param currentBeanName
-     *            the target abstract bean name
+     *            The target abstract bean name
      * @param currentBeanDefinition
-     *            the target abstract bean definition
+     *            The target abstract bean definition
      * @return if found a abstract implementation bean?
      */
     protected boolean findImplementation(final String currentBeanName, final BeanDefinition currentBeanDefinition) {
@@ -590,7 +600,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     /**
-     * Handle interface dependencies
+     * Handle abstract dependencies
      */
     public void handleDependency() {
 
@@ -640,13 +650,14 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Initializing bean.
      *
      * @param bean
-     *            bean instance
+     *            Bean instance
      * @param name
-     *            bean name
+     *            Bean name
      * @param beanDefinition
-     *            bean definition
-     * @return a initialized object
-     * @throws Exception
+     *            Bean definition
+     * @return A initialized object
+     * @throws Throwable
+     *             If any {@link Exception} occurred when initialize bean
      */
     protected Object initializingBean(Object bean, String name, BeanDefinition beanDefinition) throws Throwable {
 
@@ -665,13 +676,19 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     /**
+     * Initialize with {@link BeanPostProcessor}s
      * 
      * @param bean
+     *            Bean instance
      * @param name
+     *            Bean name
      * @param beanDefinition
+     *            Current {@link BeanDefinition}
      * @param postProcessors
-     * @return
+     *            {@link BeanPostProcessor}s
+     * @return Initialized bean
      * @throws Exception
+     *             If any {@link Exception} occurred when initialize with processors
      */
     private Object initWithPostProcessors(Object bean, String name, BeanDefinition beanDefinition, //
             List<BeanPostProcessor> postProcessors) throws Exception //
@@ -695,9 +712,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Inject FrameWork {@link Component}s to application
      *
      * @param bean
-     *            bean instance
+     *            Bean instance
      * @param name
-     *            bean name
+     *            Bean name
      */
     protected abstract void aware(Object bean, String name);
 
@@ -719,7 +736,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     @Override
     public Class<?> getType(String name) throws NoSuchBeanDefinitionException {
 
-        BeanDefinition type = getBeanDefinition(name);
+        final BeanDefinition type = getBeanDefinition(name);
 
         if (type == null) {
             throw new NoSuchBeanDefinitionException(name);
@@ -807,9 +824,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Get target singleton
      * 
      * @param name
-     *            bean name
+     *            Bean name
      * @param targetClass
-     * @return
+     *            Target class
+     * @return Target singleton
      */
     public <T> T getSingleton(String name, Class<T> targetClass) {
         return targetClass.cast(getSingleton(name));
@@ -850,9 +868,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Destroy a bean with bean instance and bean definition
      * 
      * @param beanInstance
-     *            bean instance
+     *            Bean instance
      * @param beanDefinition
-     *            bean definition
+     *            Bean definition
      */
     public void destroyBean(Object beanInstance, BeanDefinition beanDefinition) {
 
@@ -901,7 +919,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 return entry.getKey();
             }
         }
-        return null;
+        throw new NoSuchBeanDefinitionException(targetClass);
     }
 
     @Override
@@ -990,8 +1008,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Initialization singletons that has already in context
-     * 
-     * @throws Throwable
      */
     public void preInitialization() throws Throwable {
 
@@ -1056,9 +1072,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     // -----------------------------
-    /**
-     * @return
-     */
+
     public abstract BeanDefinitionLoader getBeanDefinitionLoader();
 
     public abstract void setBeanDefinitionLoader(BeanDefinitionLoader beanDefinitionLoader);

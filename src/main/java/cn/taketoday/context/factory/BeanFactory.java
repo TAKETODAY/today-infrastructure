@@ -32,7 +32,7 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 /**
  * Bean factory
  * 
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-06-23 11:22:26
  */
@@ -44,12 +44,12 @@ public interface BeanFactory {
     String FACTORY_BEAN_PREFIX = "$";
 
     /**
-     * find the bean with the given type, throw an NoSuchBeanDefinitionException if
+     * Find the bean with the given type, throw an NoSuchBeanDefinitionException if
      * it doesn't exist
      * 
      * @param name
-     *            bean name
-     * @return get bean instance
+     *            Bean name
+     * @return Bet bean instance
      * @throws ContextException
      *             Exception Occurred When Getting A Named Bean
      */
@@ -60,79 +60,82 @@ public interface BeanFactory {
      * it doesn't exist
      * 
      * @param requiredType
-     *            bean type
-     * @return get safe casted bean instance
+     *            Bean type
+     * @return Get safe casted bean instance
      */
     <T> T getBean(Class<T> requiredType);
 
     /**
-     * find the bean with the given name and cast to required type, throw an
+     * Find the bean with the given name and cast to required type, throw an
      * NoSuchBeanDefinitionException if it doesn't exist.
      * 
      * @param name
-     *            bean name
+     *            Bean name
      * @param requiredType
-     *            cast to required type
+     *            Cast to required type
      * @return get casted bean instance
      */
     <T> T getBean(String name, Class<T> requiredType);
 
     /**
-     * is Singleton ?
+     * Is Singleton ?
      * 
      * @param name
-     * @return if this bean is a singleton
+     *            Bean name
+     * @return If this bean is a singleton
      * @throws NoSuchBeanDefinitionException
-     *             if a bean does not exist
+     *             If a bean does not exist
      */
     boolean isSingleton(String name) throws NoSuchBeanDefinitionException;
 
     /**
-     * is Prototype ?
+     * Is Prototype ?
      * 
      * @param name
-     * @return
+     *            Bean name
+     * @return If this bean is a prototype
      * @throws NoSuchBeanDefinitionException
-     *             if a bean does not exist
+     *             If a bean does not exist
      */
     boolean isPrototype(String name) throws NoSuchBeanDefinitionException;
 
     /**
-     * get bean type
+     * Get bean type
      * 
      * @param name
-     *            bean name
-     * @return
+     *            Bean name
+     * @return Target bean type
      * @throws NoSuchBeanDefinitionException
-     *             if a bean does not exist
+     *             If a bean does not exist
      */
     Class<?> getType(String name) throws NoSuchBeanDefinitionException;
 
     /**
-     * get all bean name
+     * Get all bean name
      * 
      * @param type
-     *            bean type
-     * @return a set of names with given type
+     *            Bean type
+     * @return A set of names with given type
      */
     Set<String> getAliases(Class<?> type);
 
     /**
      * Get the target class's name
      * 
-     * @param requiredType
-     * @return
+     * @param beanType
+     *            bean type
+     * @return Get bane name
      * @since 2.1.2
      */
-    String getBeanName(Class<?> requiredType);
+    String getBeanName(Class<?> beanType) throws NoSuchBeanDefinitionException;
 
     /**
      * Get a set of beans with given type, this method must invoke after
      * {@link ApplicationContext#loadContext(String...)}
      * 
      * @param requiredType
-     *            given bean type
-     * @return a set of beans with given type
+     *            Given bean type
+     * @return A set of beans with given type
      * @since 2.1.2
      */
     <T> List<T> getBeans(Class<T> requiredType);
@@ -143,7 +146,7 @@ public interface BeanFactory {
      * 
      * @param annotationType
      *            {@link Annotation} type
-     * @return list of annotated beans
+     * @return List of annotated beans
      * @since 2.1.5
      */
     <A extends Annotation, T> List<T> getAnnotatedBeans(Class<A> annotationType);
@@ -153,8 +156,8 @@ public interface BeanFactory {
      * {@link ApplicationContext#loadContext(String...)}
      * 
      * @param requiredType
-     *            given bean type
-     * @return a map of beans with given type
+     *            Given bean type
+     * @return A map of beans with given type
      * @since 2.1.6
      */
     <T> Map<String, T> getBeansOfType(Class<T> requiredType);
@@ -162,7 +165,7 @@ public interface BeanFactory {
     /**
      * Get all {@link BeanDefinition}s
      * 
-     * @return all {@link BeanDefinition}s
+     * @return All {@link BeanDefinition}s
      * @since 2.1.6
      */
     Map<String, BeanDefinition> getBeanDefinitions();

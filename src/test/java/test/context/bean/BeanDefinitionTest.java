@@ -88,6 +88,17 @@ public class BeanDefinitionTest {
                     new PropertyValue(123.123, testDouble)//
             );
 
+            beanDefinition.getPropertyValue("test");
+            assert beanDefinition.isSingleton();
+            
+            try {
+                beanDefinition.getPropertyValue("test1");
+                assert false;
+            }
+            catch (Exception e) {
+                assert true;
+            }
+            
             beanDefinition.addPropertyValue(propertyValues);
 
             applicationContext.registerBean("testBean", beanDefinition);

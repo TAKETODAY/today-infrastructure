@@ -54,11 +54,27 @@ public class BeanReferenceTest {
             System.err.println(value);
             assert value.equals(beanReference);
 
+            final BeanReference beanReference2 = new BeanReference("test", true, TEST.class);
+            final BeanReference beanReference3 = new BeanReference("test", true, TEST.class);
+            
+            assert beanReference2.equals(beanReference2);
+            assert beanReference2.equals(beanReference3);
+            assert !beanReference2.equals(null);
+            
+            beanReference2.hashCode();
+            beanReference2.applyPrototype();
+            
+            assert beanReference2.isRequired();
+            assert beanReference2.isPrototype();
+            assert beanReference2.getName().equals("test");
+            assert beanReference2.getReferenceClass().equals(TEST.class);
+            
+            
             try {
                 new BeanReference(null, true, TEST.class);
             }
             catch (ContextException e) {
-                e.getMessage().equals("Bean name can't be empty");
+               assert e.getMessage().equals("Bean name can't be empty");
             }
 
         }

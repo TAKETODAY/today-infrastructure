@@ -20,6 +20,7 @@
 package test.context.factory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
@@ -149,9 +150,14 @@ public class BeanFactoryTest extends BaseTest {
         BeanNameCreator beanNameCreator = getApplicationContext().getEnvironment().getBeanNameCreator();
 
         String name = beanFactory.getBeanName(Implements1.class);
-        String beanName = beanFactory.getBeanName(Interface.class);
+        try {
+            beanFactory.getBeanName(Interface.class);
+            assert false;
+        }
+        catch (Exception e) {
+            assert true;
+        }
 
-        assert beanName == null;
         assert beanNameCreator.create(Implements1.class).equals(name);
     }
 
@@ -221,6 +227,7 @@ public class BeanFactoryTest extends BaseTest {
 
     @Prototype
     @ToString
+//    @Singleton("test.context.factory.BeanFactoryTest.FactoryBeanTestBean")
     public static class FactoryBeanTestBean implements FactoryBean<TEST>, InitializingBean {
 
         @Value("${env['upload.maxFileSize']}")
@@ -252,7 +259,7 @@ public class BeanFactoryTest extends BaseTest {
 
     @Test
     public void testFactoryBean() {
-        setProcess("Add Bean Post Processor");
+        setProcess("Factory Bean");
         final ConfigurableBeanFactory beanFactory = getBeanFactory();
         final TEST bean = beanFactory.getBean("testBean", TEST.class);
 
@@ -261,6 +268,21 @@ public class BeanFactoryTest extends BaseTest {
         final BeanDefinition beanDefinition = beanFactory.getBeanDefinition("testBean");
         System.err.println(beanDefinition);
         System.err.println(beanFactory.getBean(BeanFactory.FACTORY_BEAN_PREFIX + "testBean"));
+    }
+
+    @Test
+    public void testGetBeansOfType() {
+
+        setProcess("Get Beans Of Type");
+
+        final ConfigurableBeanFactory beanFactory = getBeanFactory();
+
+        final Map<String, Interface> beansOfType = beanFactory.getBeansOfType(Interface.class);
+
+        System.err.println(beansOfType);
+
+        assert beansOfType.size() == 3;
+
     }
 
 }

@@ -35,11 +35,7 @@ import lombok.Setter;
 @Setter
 public class StandardBeanDefinition extends DefaultBeanDefinition implements BeanDefinition {
 
-    /**
-     * Declaring name
-     * 
-     * @since 2.1.2
-     */
+    /** Declaring name @since 2.1.2 */
     private String declaringName;
 
     private Method factoryMethod;

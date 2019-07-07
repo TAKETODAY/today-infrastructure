@@ -144,11 +144,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         applyState(State.STARTING);
 
         try {
-
             // prepare properties
             final ConfigurableEnvironment environment = getEnvironment();
 
             environment.loadProperties();
+            postProcessLoadProperties(environment);
 
             {// @since 2.1.6
                 if (environment.getProperty(Constant.ENABLE_FULL_PROTOTYPE, Boolean::parseBoolean, false)) {
@@ -166,15 +166,24 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     /**
+     * Post process after load properties
      * 
+     * @param environment
+     *            {@link Environment}
+     */
+    protected void postProcessLoadProperties(ConfigurableEnvironment environment) {
+
+    }
+
+    /**
      * Load bean definitions
      * 
      * @param beanFactory
-     *            bean factory
+     *            Bean factory
      * @param beanClasses
-     *            bean classes
+     *            Bean classes
      */
-    protected void doLoadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
+    protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
         beanFactory.getBeanDefinitionLoader().loadBeanDefinitions(beanClasses);
     }
 
@@ -259,10 +268,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         registerSingleton(beanNameCreator.create(ApplicationContext.class), this);
 
         // register listener
-        registerListener();
+        registerListener(applicationListeners);
+        postProcessRegisterListener(applicationListeners);
+
         // start loading bean definitions ; publish loading bean definition event
         publishEvent(new BeanDefinitionLoadingEvent(this));
-        doLoadBeanDefinitions(beanFactory, classes);
+        loadBeanDefinitions(beanFactory, classes);
         // bean definitions loaded
         publishEvent(new BeanDefinitionLoadedEvent(this, beanFactory.getBeanDefinitions()));
         // handle dependency : register bean dependencies definition
@@ -295,15 +306,18 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * Load all the application listeners in context and register it.
+     * 
+     * @param applicationListeners
+     *            {@link ApplicationListener} cache
      */
-    protected void registerListener() {
+    protected void registerListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners) {
 
         log.debug("Loading Application Listeners.");
 
         ClassUtils.getImplClasses(ApplicationListener.class).forEach(this::forEach);
 
         // sort
-        for (Entry<Class<?>, List<ApplicationListener<EventObject>>> entry : this.applicationListeners.entrySet()) {
+        for (Entry<Class<?>, List<ApplicationListener<EventObject>>> entry : applicationListeners.entrySet()) {
             OrderUtils.reversedSort(entry.getValue());
         }
     }
@@ -371,6 +385,16 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 		applicationListeners.put(eventType, listeners);
 	}
 	//@on
+
+    /**
+     * Process after {@link #registerListener()}
+     * 
+     * @param applicationListeners
+     *            {@link ApplicationListener} cache
+     */
+    protected void postProcessRegisterListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners) {
+
+    }
 
     @Override
     public void refresh() throws ContextException {

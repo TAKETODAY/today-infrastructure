@@ -30,7 +30,7 @@ import lombok.Getter;
  * 
  * Reference to a bean
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-23 11:27:30
  */
 @Getter

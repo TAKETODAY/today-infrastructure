@@ -37,8 +37,7 @@ import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-09-09 23:20
  */
 @ContextListener
@@ -55,7 +54,6 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
         log.info("Closing: [{}] at [{}]", applicationContext,
                 new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(event.getTimestamp()));
 
-        // environment
         if (applicationContext instanceof AbstractApplicationContext) {
             AbstractBeanFactory beanFactory = ((AbstractApplicationContext) applicationContext).getBeanFactory();
             beanFactory.getDependencies().clear();

@@ -99,12 +99,6 @@ public class DefaultBeanDefinition implements BeanDefinition {
         this.name = name;
     }
 
-    public DefaultBeanDefinition(String name, Class<? extends Object> beanClass, Scope scope) {
-        this.name = name;
-        this.scope = scope;
-        this.beanClass = beanClass;
-    }
-
     @Override
     public PropertyValue getPropertyValue(String name) throws NoSuchPropertyException {
         for (PropertyValue propertyValue : propertyValues) {

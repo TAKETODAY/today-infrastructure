@@ -241,14 +241,15 @@ public final class DataSize implements Comparable<DataSize> {
 
     @Override
     public boolean equals(Object other) {
+
         if (this == other) {
             return true;
         }
-        if (other == null || getClass() != other.getClass()) {
-            return false;
+
+        if (other instanceof DataSize) {
+            return this.bytes == ((DataSize) other).bytes;
         }
-        final DataSize otherSize = (DataSize) other;
-        return (this.bytes == otherSize.bytes);
+        return false;
     }
 
     @Override
