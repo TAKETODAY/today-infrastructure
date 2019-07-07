@@ -33,8 +33,7 @@ import java.util.UUID;
 import cn.taketoday.context.Constant;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-26 21:19:09
  */
 public abstract class StringUtils {
@@ -91,40 +90,18 @@ public abstract class StringUtils {
         dontNeedEncoding.set('*');
     }
 
-    /**
-     * 
-     * @param str
-     * @return
-     */
     public final static boolean isEmpty(String str) {
         return str == null || str.length() == 0;
     }
 
-    /**
-     * 
-     * @param str
-     * @return
-     */
     public final static boolean isNotEmpty(String str) {
         return str != null && str.length() != 0;
     }
 
-    /**
-     * 
-     * @param strs
-     *            array of string
-     * @return
-     */
     public final static boolean isArrayNotEmpty(String... strs) {
         return strs != null && strs.length != 0;
     }
 
-    /**
-     * 
-     * @param strs
-     *            array of string
-     * @return
-     */
     public final static boolean isArrayEmpty(String... strs) {
         return strs == null || strs.length == 0;
     }
@@ -143,13 +120,6 @@ public abstract class StringUtils {
         return source.split(Constant.SPLIT_REGEXP);
     }
 
-    /**
-     * Decode url
-     * 
-     * @param s
-     *            url
-     * @return
-     */
     public static String decodeUrl(String s) {
 
         boolean needToChange = false;
@@ -205,11 +175,6 @@ public abstract class StringUtils {
         return (needToChange ? sb.toString() : s);
     }
 
-    /**
-     * 
-     * @param s
-     * @return
-     */
     public static String encodeUrl(String s) {
 
         boolean needToChange = false;
@@ -277,12 +242,13 @@ public abstract class StringUtils {
     }
 
     /**
+     * Use StringTokenizer to split string to string array
      * 
      * @param str
+     *            Input string
      * @param delimiters
-     * @param trimTokens
-     * @param ignoreEmptyTokens
-     * @return
+     *            Input delimiters
+     * @return Returns the splitted string array
      */
     public static String[] tokenizeToStringArray(final String str, final String delimiters) {
 
@@ -300,29 +266,35 @@ public abstract class StringUtils {
     }
 
     /**
+     * {@link Collection} to string array
+     * 
      * @param collection
-     * @return
+     *            All element must be a string
+     * @return String array
      */
     public static String[] toStringArray(Collection<String> collection) {
         return collection.toArray(Constant.EMPTY_STRING_ARRAY);
     }
 
     /**
-     * String Array to String
+     * Use default delimiters:',' append array to a string
      * 
      * @param array
-     * @return
+     *            Input array object
      */
     public static String arrayToString(Object[] array) {
         return arrayToString(array, ",");
     }
 
     /**
+     * Array to string
+     * 
      * @param array
-     * @param suffix
-     * @return
+     *            Input array object
+     * @param delimiters
+     *            Delimiters string
      */
-    public static String arrayToString(Object[] array, String suffix) {
+    public static String arrayToString(final Object[] array, final String delimiters) {
         if (array == null) {
             return "null";
         }
@@ -335,25 +307,42 @@ public abstract class StringUtils {
         for (int i = 0; i < length; i++) {
             builder.append(array[i]);
             if (i != length - 1) {
-                builder.append(suffix);
+                builder.append(delimiters);
             }
         }
         return builder.toString();
     }
 
     /**
+     * Check properties file name
+     * 
      * @param fileName
-     * @return
+     *            Input file name
+     * @return checked properties file name
      */
-    public static String checkPropertiesName(String fileName) {
+    public static String checkPropertiesName(final String fileName) {
         return fileName.endsWith(Constant.PROPERTIES_SUFFIX) ? fileName : fileName + Constant.PROPERTIES_SUFFIX;
     }
 
+    /**
+     * Use {@link UUID} to get random uuid string
+     * 
+     * @return Random uuid string
+     */
     public static String getUUIDString() {
         return UUID.randomUUID().toString();
     }
 
-    public static String readAsText(InputStream inputStream) throws IOException {
+    /**
+     * Read the {@link InputStream} to text string
+     * 
+     * @param inputStream
+     *            Input stream
+     * @return String
+     * @throws IOException
+     *             If can't read the string
+     */
+    public static String readAsText(final InputStream inputStream) throws IOException {
         final ByteArrayOutputStream result = new ByteArrayOutputStream();
         final byte[] buffer = new byte[1024];
         int length;
@@ -364,10 +353,13 @@ public abstract class StringUtils {
     }
 
     /**
+     * Replace all "\\" to "/"
+     * 
      * @param path
-     * @return
+     *            Input path string
+     * @return Replace path
      */
-    public static String cleanPath(String path) {
+    public static String cleanPath(final String path) {
         if (isEmpty(path)) {
             return path;
         }
