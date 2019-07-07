@@ -23,7 +23,6 @@
 # 当前版本
 
 ## v2.1.6
-- :sparkles: feat: hot swap supports
 - :sparkles: feat: add `Environment` new api to get property
 - :sparkles: feat: add jar-prefix file to ignore jar scanning
 - :bug: fix: ensure ExpressionFactory's instance consistent

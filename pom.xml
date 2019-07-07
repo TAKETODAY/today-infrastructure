@@ -20,7 +20,7 @@
         </license>
     </licenses>
 
-    <url>https://taketoday.cn</url>
+    <url>https://github.com/TAKETODAY/today-context</url>
     <organization>
         <name>TODAY</name>
         <url>https://taketoday.cn</url>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>cn.taketoday</groupId>
             <artifactId>today-expression</artifactId>
-            <version>latest</version>
+            <version>0.0.2.RELEASE</version>
         </dependency>
 
         <dependency>
