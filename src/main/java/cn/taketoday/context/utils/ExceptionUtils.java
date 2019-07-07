@@ -61,20 +61,10 @@ public abstract class ExceptionUtils {
         return new ContextException(ex);
     }
 
-    /**
-     * 
-     * @param ex
-     * @return
-     */
     public static ConfigurationException newConfigurationException(Throwable ex) {
         return newConfigurationException(ex, null);
     }
 
-    /**
-     * 
-     * @param ex
-     * @return
-     */
     public static ConfigurationException newConfigurationException(Throwable ex, String message) {
         if (ex instanceof ConfigurationException) {
             return (ConfigurationException) ex;

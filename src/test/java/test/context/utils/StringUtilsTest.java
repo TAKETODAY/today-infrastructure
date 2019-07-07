@@ -22,6 +22,7 @@ package test.context.utils;
 import org.junit.Before;
 import org.junit.Test;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -64,11 +65,42 @@ public class StringUtilsTest {
         String split_[] = StringUtils.split("todayyhjtake");
         assert split_.length == 1;
         assert split_[0].equals("todayyhjtake");
+
+        assert StringUtils.split(null) == null;
+
+        assert !StringUtils.isArrayEmpty(split_);
+        assert StringUtils.isArrayNotEmpty(split_);
+        assert !StringUtils.isArrayNotEmpty();
+        assert StringUtils.isArrayEmpty();
+    }
+
+    @Test
+    public void testArrayToString() {
+
+        String split[] = StringUtils.split("today;yhj,take");
+        assert StringUtils.arrayToString(split).equals("today,yhj,take");
+        assert StringUtils.arrayToString(null) == null;
+
+        assert StringUtils.arrayToString(new String[] { "today" }).equals("today");
+    }
+
+    @Test
+    public void testCheckPropertiesName() {
+        assert StringUtils.checkPropertiesName("info").equals("info.properties");
+        assert StringUtils.checkPropertiesName("info.properties").equals("info.properties");
+        StringUtils.getUUIDString();
+    }
+
+    @Test
+    public void testCleanPath() {
+
+        assert StringUtils.cleanPath(null) == (null);
+        assert StringUtils.cleanPath("").equals("");
+        assert StringUtils.cleanPath("C:\\test\\").equals("C:/test/");
     }
 
     @Test
     public void testDecodeUrl() {
-
         assert "四川".equals(StringUtils.decodeUrl("%e5%9b%9b%e5%b7%9d"));
     }
 
@@ -78,4 +110,17 @@ public class StringUtilsTest {
         assert StringUtils.encodeUrl("四川").equalsIgnoreCase("%e5%9b%9b%e5%b7%9d");
     }
 
+    @Test
+    public void testTokenizeToStringArray() {
+
+        final String[] tokenizeToStringArray = StringUtils.tokenizeToStringArray("i,take,today", ",");
+        assert tokenizeToStringArray.length == 3;
+
+        final String[] tokenizeToStringArray2 = StringUtils.tokenizeToStringArray("i;take;today", ";");
+        assert tokenizeToStringArray2.length == 3;
+        assert tokenizeToStringArray.length == tokenizeToStringArray2.length;
+
+        assert StringUtils.tokenizeToStringArray(null, null) == Constant.EMPTY_STRING_ARRAY;
+
+    }
 }

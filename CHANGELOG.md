@@ -13,7 +13,7 @@
 <dependency>
     <groupId>cn.taketoday</groupId>
     <artifactId>today-context</artifactId>
-    <version>2.1.5.RELEASE</version>
+    <version>2.1.6.RELEASE</version>
 </dependency>
 ```
 
@@ -27,7 +27,6 @@
 - :sparkles: feat: add jar-prefix file to ignore jar scanning
 - :bug: fix: ensure ExpressionFactory's instance consistent
 - :bug: fix: DataSize.parse()
-- :white_check_mark: add some test code 
 - :zap: add ConcurrentProperties 
 - :bug: fix #3 when get annotated beans that StandardBeanDefinition missed
 - :bug: fix: NumberUtils String[].class can't be resolve
@@ -51,6 +50,7 @@
 - :bug: fix: #8 Property inject failure
 - :bug: fix: NumberUtils#toArrayObject()
 - :bug: fix: @since 2.1.6 elManager my be null
+
 
 ## v2.1.5
 - :sparkles: feat: Add context `state` feature

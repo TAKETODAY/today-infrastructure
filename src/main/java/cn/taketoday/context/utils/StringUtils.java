@@ -246,17 +246,17 @@ public abstract class StringUtils {
      * 
      * @param str
      *            Input string
-     * @param delimiters
-     *            Input delimiters
+     * @param delimiter
+     *            Input delimiter
      * @return Returns the splitted string array
      */
-    public static String[] tokenizeToStringArray(final String str, final String delimiters) {
+    public static String[] tokenizeToStringArray(final String str, final String delimiter) {
 
         if (str == null) {
-            return new String[0];
+            return Constant.EMPTY_STRING_ARRAY;
         }
 
-        StringTokenizer st = new StringTokenizer(str, delimiters);
+        StringTokenizer st = new StringTokenizer(str, delimiter);
         List<String> tokens = new ArrayList<>();
         while (st.hasMoreTokens()) {
             String token = st.nextToken();
@@ -277,7 +277,7 @@ public abstract class StringUtils {
     }
 
     /**
-     * Use default delimiters:',' append array to a string
+     * Use default delimiter:',' append array to a string
      * 
      * @param array
      *            Input array object
@@ -291,12 +291,12 @@ public abstract class StringUtils {
      * 
      * @param array
      *            Input array object
-     * @param delimiters
-     *            Delimiters string
+     * @param delimiter
+     *            Delimiter string
      */
-    public static String arrayToString(final Object[] array, final String delimiters) {
+    public static String arrayToString(final Object[] array, final String delimiter) {
         if (array == null) {
-            return "null";
+            return null;
         }
         final int length = array.length;
         if (length == 1) {
@@ -307,7 +307,7 @@ public abstract class StringUtils {
         for (int i = 0; i < length; i++) {
             builder.append(array[i]);
             if (i != length - 1) {
-                builder.append(delimiters);
+                builder.append(delimiter);
             }
         }
         return builder.toString();
