@@ -90,7 +90,7 @@ public class BeanDefinitionTest {
 
             beanDefinition.getPropertyValue("test");
             assert beanDefinition.isSingleton();
-            
+
             try {
                 beanDefinition.getPropertyValue("test1");
                 assert false;
@@ -98,7 +98,7 @@ public class BeanDefinitionTest {
             catch (Exception e) {
                 assert true;
             }
-            
+
             beanDefinition.addPropertyValue(propertyValues);
 
             applicationContext.registerBean("testBean", beanDefinition);

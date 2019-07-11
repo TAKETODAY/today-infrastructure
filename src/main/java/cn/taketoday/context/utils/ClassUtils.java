@@ -106,6 +106,7 @@ public abstract class ClassUtils {
     /** for scan cn.taketoday */
     private static boolean scanAllFreamworkPackage = true;
 
+    private static final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
     private static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(256);
 
     private static final Map<AnnotationKey<?>, Collection<? extends Annotation>> ANNOTATIONS //
@@ -1228,63 +1229,63 @@ public abstract class ClassUtils {
         return PARAMETER_NAMES_CACHE.computeIfAbsent(method.getDeclaringClass(), PARAMETER_NAMES_FUNCTION).get(method);
     }
 
-    //@on
-    private static final Function<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_FUNCTION = //
-            new Function<Class<?>, Map<Method, String[]>>() {
-                @Override
-                public Map<Method, String[]> apply(Class<?> declaringClass) {
-                    final Map<Method, String[]> map = new ConcurrentHashMap<>(32);
+    final static class ParameterFunction implements Function<Class<?>, Map<Method, String[]>> {
 
-                    try (InputStream resourceAsStream = getClassLoader()//
-                            .getResourceAsStream(//
-                                    declaringClass.getName()//
-                                            .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)//
-                                            .concat(Constant.CLASS_FILE_SUFFIX)//
-                    )) {
+        @Override
+        public Map<Method, String[]> apply(Class<?> declaringClass) {
 
-                        final ClassNode classVisitor = new ClassNode();
-                        new ClassReader(resourceAsStream).accept(classVisitor, 0);
+            final Map<Method, String[]> map = new ConcurrentHashMap<>(32);
 
-                        for (MethodNode methodNode : classVisitor.methodNodes) {
+            try (InputStream resourceAsStream = getClassLoader()//
+                    .getResourceAsStream(declaringClass.getName()//
+                            .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)//
+                            .concat(Constant.CLASS_FILE_SUFFIX))) //
+            {
 
-                            final Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
-                            final Class<?>[] argTypes = new Class<?>[argumentTypes.length];
+                final ClassNode classVisitor = new ClassNode();
+                new ClassReader(resourceAsStream).accept(classVisitor, 0);
 
-                            for (int i = 0; i < argumentTypes.length; i++) {
-                                argTypes[i] = forName(argumentTypes[i].getClassName());
-                            }
+                for (final MethodNode methodNode : classVisitor.methodNodes) {
 
-                            final Method method = declaringClass.getDeclaredMethod(methodNode.name, argTypes);
+                    final Type[] argumentTypes = Type.getArgumentTypes(methodNode.desc);
+                    final Class<?>[] argTypes = new Class<?>[argumentTypes.length];
+                    int i = 0;
+                    for (final Type argumentType : argumentTypes) {
+                        argTypes[i++] = forName(argumentType.getClassName());
+                    }
 
-                            final int parameterCount = method.getParameterCount();
-                            if (parameterCount == 0) {
-                                map.put(method, Constant.EMPTY_STRING_ARRAY);
-                                continue;
-                            }
+                    final Method method = declaringClass.getDeclaredMethod(methodNode.name, argTypes);
 
-                            if (Modifier.isAbstract(method.getModifiers()) || method.isBridge() || method.isSynthetic()) {
-                                map.put(method, Stream.of(method.getParameters()).map(Parameter::getName).toArray(String[]::new));
-                                continue;
-                            }
-                            final String[] paramNames = new String[parameterCount];
-                            final List<String> localVariables = methodNode.localVariables;
-                            if (localVariables.size() >= parameterCount) {
-                                final int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
-                                for (int i = 0; i < parameterCount; i++) {
-                                    paramNames[i] = localVariables.get(i + offset);
-                                }
-                            }
-                            map.put(method, paramNames);
+                    final int parameterCount = method.getParameterCount();
+                    if (parameterCount == 0) {
+                        map.put(method, Constant.EMPTY_STRING_ARRAY);
+                        continue;
+                    }
+
+                    if (Modifier.isAbstract(method.getModifiers()) || method.isBridge() || method.isSynthetic()) {
+                        map.put(method, Stream.of(method.getParameters()).map(Parameter::getName).toArray(String[]::new));
+                        continue;
+                    }
+
+                    final String[] paramNames = new String[parameterCount];
+                    final List<String> localVariables = methodNode.localVariables;
+                    if (localVariables.size() >= parameterCount) {
+                        final int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
+                        for (i = 0; i < parameterCount; i++) {
+                            paramNames[i] = localVariables.get(i + offset);
                         }
                     }
-                    catch (IOException | ClassNotFoundException | NoSuchMethodException | IndexOutOfBoundsException e) {
-                        throw new ContextException("When visit declaring class: [" + declaringClass.getName() + ']', e);
-                    }
-                    return map;
+                    map.put(method, paramNames);
                 }
-            };
+            }
+            catch (IOException | ClassNotFoundException | NoSuchMethodException | IndexOutOfBoundsException e) {
+                throw new ContextException("When visit declaring class: [" + declaringClass.getName() + ']', e);
+            }
+            return map;
+        }
 
-    //@off
+    }
+
     final static class ClassNode extends ClassVisitor {
 
         private final List<MethodNode> methodNodes = new ArrayList<>();
@@ -1322,7 +1323,7 @@ public abstract class ClassUtils {
         }
     }
 
-    //--------------------------------access
+    // --------------------------------access
 
     /**
      * Make the given field accessible, explicitly setting it accessible if
@@ -1349,7 +1350,6 @@ public abstract class ClassUtils {
             throw ExceptionUtils.newContextException(ExceptionUtils.unwrapThrowable(ex));
         }
     }
-    
 
     public static Method makeAccessible(Method method) {
 
@@ -1376,7 +1376,5 @@ public abstract class ClassUtils {
         }
         return constructor;
     }
-
-   
 
 }

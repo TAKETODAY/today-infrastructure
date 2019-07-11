@@ -361,14 +361,14 @@ public class ClassUtilsTest {
 
         ClassUtils.clearCache();
         assert ClassUtils.getAnnotatedClasses(Singleton.class).size() > 0;
-        
+
         final int size = ClassUtils.getImplClasses(ApplicationContext.class).size();
         final int size2 = ClassUtils.getImplClasses(ApplicationContext.class, "cn.taketoday").size();
 
         assert size > 0;
         assert size2 > 0;
         assert size == size2;
-        
+
         ClassUtils.clearCache();
 
     }

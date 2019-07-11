@@ -42,6 +42,9 @@ import org.slf4j.LoggerFactory;
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.aware.Aware;
+import cn.taketoday.context.aware.BeanFactoryAware;
+import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.BeanReference;
 import cn.taketoday.context.bean.DefaultBeanDefinition;
@@ -716,7 +719,22 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @param name
      *            Bean name
      */
-    protected abstract void aware(Object bean, String name);
+    protected void aware(Object bean, String name) {
+
+        if (bean instanceof Aware) {
+            awareInternal(bean, name);
+        }
+    }
+
+    protected void awareInternal(Object bean, String name) {
+
+        if (bean instanceof BeanNameAware) {
+            ((BeanNameAware) bean).setBeanName(name);
+        }
+        if (bean instanceof BeanFactoryAware) {
+            ((BeanFactoryAware) bean).setBeanFactory(this);
+        }
+    }
 
     @Override
     public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {

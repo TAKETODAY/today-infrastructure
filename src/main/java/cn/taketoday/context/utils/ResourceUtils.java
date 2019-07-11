@@ -39,9 +39,12 @@ import cn.taketoday.context.io.UrlBasedResource;
 public abstract class ResourceUtils {
 
     /**
+     * Get {@link Resource} with given location
+     * 
      * @param location
-     * @return
+     *            resource location
      * @throws IOException
+     *             if any IO exception occurred
      */
     public static Resource getResource(String location) throws IOException {
 

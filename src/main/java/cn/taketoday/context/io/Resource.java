@@ -21,7 +21,6 @@ package cn.taketoday.context.io;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 
 /**
@@ -30,7 +29,7 @@ import java.net.URL;
  *         2019-05-14 19:55
  * @since 2.1.6
  */
-public interface Resource {
+public interface Resource extends Readable {
 
     /**
      * Get the name of the resource.
@@ -38,16 +37,6 @@ public interface Resource {
      * @return name
      */
     String getName();
-
-    /**
-     * Get the content of the resource as input stream.
-     *
-     * @return input stream of {@link Resource} content
-     *
-     * @throws IOException
-     *             If an input or output exception occurs
-     */
-    InputStream getInputStream() throws IOException;
 
     /**
      * Get content length

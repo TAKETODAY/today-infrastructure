@@ -35,9 +35,6 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.context.aware.Aware;
-import cn.taketoday.context.aware.BeanFactoryAware;
-import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.DefaultBeanDefinition;
@@ -69,22 +66,15 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     }
 
     @Override
-    protected void aware(Object bean, String name) {
+    protected void awareInternal(Object bean, String name) {
+        super.awareInternal(bean, name);
 
-        if (bean instanceof Aware) {
-            // aware
-            if (bean instanceof BeanNameAware) {
-                ((BeanNameAware) bean).setBeanName(name);
-            }
-            if (bean instanceof ApplicationContextAware) {
-                ((ApplicationContextAware) bean).setApplicationContext(applicationContext);
-            }
-            if (bean instanceof BeanFactoryAware) {
-                ((BeanFactoryAware) bean).setBeanFactory(this);
-            }
-            if (bean instanceof EnvironmentAware) {
-                ((EnvironmentAware) bean).setEnvironment(applicationContext.getEnvironment());
-            }
+        if (bean instanceof ApplicationContextAware) {
+            ((ApplicationContextAware) bean).setApplicationContext(applicationContext);
+        }
+
+        if (bean instanceof EnvironmentAware) {
+            ((EnvironmentAware) bean).setEnvironment(applicationContext.getEnvironment());
         }
     }
 

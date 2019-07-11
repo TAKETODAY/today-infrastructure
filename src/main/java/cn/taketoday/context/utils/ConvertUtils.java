@@ -71,16 +71,16 @@ public abstract class ConvertUtils {
                 return converter.convert(targetClass, source);
             }
         }
+
         throw new ConversionException("There isn't a 'cn.taketoday.context.conversion.TypeConverter' to convert: [" //
                 + source + "] to target class: [" + targetClass + "]");
-
     }
 
     public static TypeConverter[] getConverters() {
         return converters;
     }
 
-    public static void setConverters(TypeConverter[] converters) {
+    public static void setConverters(TypeConverter... converters) {
         ConvertUtils.converters = converters;
     }
 

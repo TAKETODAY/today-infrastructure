@@ -17,45 +17,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.conversion;
+package cn.taketoday.context.io;
 
-import cn.taketoday.context.exception.ConversionException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+
+import cn.taketoday.context.Constant;
 
 /**
- * Type converter
- * 
  * @author TODAY <br>
- *         2019-06-06 14:17
+ *         2019-07-08 00:11
  * @since 2.1.6
  */
 @FunctionalInterface
-public interface TypeConverter {
+public interface Writable {
 
     /**
-     * whether this {@link TypeConverter} supports to convert source object to
-     * target class object
+     * Return an {@link OutputStream} for the underlying resource, allowing to
+     * (over-)write its content.
      * 
-     * @param targetClass
-     *            target class
-     * @param source
-     *            source object
-     * @return whether this {@link TypeConverter} supports to convert source object
-     *         to target class object
+     * @throws IOException
+     *             if the stream could not be opened
      */
-    default boolean supports(Class<?> targetClass, Object source) {
-        return true;
+    OutputStream getOutputStream() throws IOException;
+
+    /**
+     * Get {@link Writer}
+     * 
+     * @throws IOException
+     *             if the stream could not be opened
+     */
+    default Writer getWriter() throws IOException {
+        return new OutputStreamWriter(getOutputStream(), Constant.DEFAULT_CHARSET);
     }
-
-    /**
-     * Convert source object to target object
-     * 
-     * @param targetClass
-     *            target type
-     * @param source
-     *            source object
-     * @return a converted object
-     * @throws ConversionException
-     *             if can't convert to target object
-     */
-    Object convert(Class<?> targetClass, Object source) throws ConversionException;
 }

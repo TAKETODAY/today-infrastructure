@@ -19,13 +19,37 @@
  */
 package cn.taketoday.context.io;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+
 /**
- * Extended interface for a resource that supports writing to it.
- * 
  * @author TODAY <br>
- *         2019-05-14 20:56
+ *         2019-07-08 00:12
  * @since 2.1.6
  */
-public interface WritableResource extends Resource, Writable {
+@FunctionalInterface
+public interface Readable {
+
+    /**
+     * Get the content of the resource as input stream.
+     *
+     * @return input stream of {@link Resource} content
+     *
+     * @throws IOException
+     *             If an input exception occurs
+     */
+    InputStream getInputStream() throws IOException;
+
+    /**
+     * Get {@link Reader}
+     * 
+     * @throws IOException
+     *             If an input exception occurs
+     */
+    default Reader getReader() throws IOException {
+        return new InputStreamReader(getInputStream());
+    }
 
 }
