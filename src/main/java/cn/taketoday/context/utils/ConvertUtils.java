@@ -49,6 +49,19 @@ public abstract class ConvertUtils {
 
     private static TypeConverter[] converters;
 
+    public static boolean supports(Object source, Class<?> targetClass) {
+        return getTypeConverter(source, targetClass) != null;
+    }
+
+    public static TypeConverter getTypeConverter(Object source, Class<?> targetClass) {
+        for (TypeConverter converter : getConverters()) {
+            if (converter.supports(targetClass, source)) {
+                return converter;//
+            }
+        }
+        return null;
+    }
+
     /**
      * Convert source to target type
      * 
@@ -66,14 +79,12 @@ public abstract class ConvertUtils {
         if (targetClass.isInstance(source)) {
             return source;
         }
-        for (TypeConverter converter : getConverters()) {
-            if (converter.supports(targetClass, source)) {
-                return converter.convert(targetClass, source);
-            }
+        final TypeConverter typeConverter = getTypeConverter(source, targetClass);
+        if (typeConverter == null) {
+            throw new ConversionException("There isn't a 'cn.taketoday.context.conversion.TypeConverter' to convert: [" //
+                    + source + "] to target class: [" + targetClass + "]");
         }
-
-        throw new ConversionException("There isn't a 'cn.taketoday.context.conversion.TypeConverter' to convert: [" //
-                + source + "] to target class: [" + targetClass + "]");
+        return typeConverter.convert(targetClass, source);
     }
 
     public static TypeConverter[] getConverters() {

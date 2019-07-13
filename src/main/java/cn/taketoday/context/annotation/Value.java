@@ -28,8 +28,7 @@ import java.util.Properties;
 import cn.taketoday.context.Constant;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-08-04 15:57
  */
@@ -50,4 +49,8 @@ public @interface Value {
      * @return
      */
     boolean required() default true;
+
+    /** Default value */
+    String defaultValue() default Constant.BLANK;
+
 }

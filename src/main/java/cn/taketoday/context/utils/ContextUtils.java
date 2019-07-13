@@ -175,6 +175,28 @@ public abstract class ContextUtils {
     }
 
     /**
+     * Resolve {@link Value} {@link Annotation}
+     * 
+     * @param value
+     *            {@link Value} {@link Annotation}
+     * @param expectedType
+     *            expected value type
+     * @return A resolved value object
+     * @since 2.1.6
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T resolveValue(final Value value, final Class<T> expectedType) throws ConfigurationException {
+
+        final Object resolveValue = resolveValue(value.value(), expectedType);
+        if (resolveValue == null) {
+            if (value.required())
+                throw new ConfigurationException("Can't resolve expression: [" + value.value() + "]");
+            return resolveValue(value.defaultValue(), expectedType, System.getProperties());
+        }
+        return (T) resolveValue;
+    }
+
+    /**
      * Replace a placeholder use default {@link System} properties source or eval el
      * 
      * @param expression
@@ -255,14 +277,7 @@ public abstract class ContextUtils {
             }
             // @since 2.1.6
             if (parameter.isAnnotationPresent(Value.class)) {
-                final Value value = parameter.getAnnotation(Value.class);
-                final Object resolveValue = resolveValue(value.value(), type);
-                if (resolveValue == null && value.required()) {
-
-                    throw new ConfigurationException("Can't resolve executable parameter: [" + //
-                            parameter + "] -> [" + value.value() + "].");
-                }
-                args[i] = resolveValue;
+                args[i] = resolveValue(parameter.getAnnotation(Value.class), type);
                 continue;
             }
 

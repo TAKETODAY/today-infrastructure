@@ -50,7 +50,7 @@
 - :bug: fix: #8 Property inject failure
 - :bug: fix: NumberUtils#toArrayObject()
 - :bug: fix: @since 2.1.6 elManager my be null
-
+- :sparkles: feat: @Value default value feature
 
 ## v2.1.5
 - :sparkles: feat: Add context `state` feature

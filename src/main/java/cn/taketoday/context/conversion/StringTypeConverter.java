@@ -37,7 +37,7 @@ public abstract class StringTypeConverter implements TypeConverter {
     }
 
     @Override
-    public Object convert(Class<?> targetClass, Object source) throws ConversionException {
+    public final Object convert(Class<?> targetClass, Object source) throws ConversionException {
         return convertInternal(targetClass, (String) source);
     }
 
