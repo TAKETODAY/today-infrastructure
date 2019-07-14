@@ -51,6 +51,7 @@
 - :bug: fix: NumberUtils#toArrayObject()
 - :bug: fix: @since 2.1.6 elManager my be null
 - :sparkles: feat: @Value default value feature
+- :sparkles: feat: add @Env
 
 ## v2.1.5
 - :sparkles: feat: Add context `state` feature

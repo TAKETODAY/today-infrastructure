@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
+import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.PropertyValue;
@@ -40,17 +41,31 @@ public class ValuePropertyResolver implements PropertyValueResolver {
 
     @Override
     public boolean supports(ApplicationContext applicationContext, Field field) {
-        return field.isAnnotationPresent(Value.class);
+        return field.isAnnotationPresent(Value.class) || field.isAnnotationPresent(Env.class);
     }
 
     /**
-     * Resolve {@link Value} annotation property.
+     * Resolve {@link Value} and {@link Env} annotation property.
      */
     @Override
     public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
 
-        final Value annotation = field.getAnnotation(Value.class);
-        String expression = annotation.value();
+        String expression;
+        final boolean required;
+
+        final Value value = field.getAnnotation(Value.class);
+        if (value != null) {
+            expression = value.value();
+            required = value.required();
+        }
+        else {
+            final Env env = field.getAnnotation(Env.class);
+            required = env.required();
+            expression = new StringBuilder()//
+                    .append(Constant.PLACE_HOLDER_PREFIX)//
+                    .append(env.value())//
+                    .append(Constant.PLACE_HOLDER_SUFFIX).toString();
+        }
 
         if (StringUtils.isEmpty(expression)) {
             // use class full name and field name
@@ -64,17 +79,17 @@ public class ValuePropertyResolver implements PropertyValueResolver {
 
             final Object resolved = ContextUtils.resolveValue(expression, field.getType());
             if (resolved == null) {
-                return required(field, annotation, expression);
+                return required(field, required, expression);
             }
             return new PropertyValue(resolved, field);
         }
         catch (ConfigurationException e) {
-            return required(field, annotation, expression);
+            return required(field, required, expression);
         }
     }
 
-    private final PropertyValue required(Field field, final Value annotation, String expression) {
-        if (annotation.required()) {
+    private final PropertyValue required(final Field field, final boolean required, final String expression) {
+        if (required) {
             throw new ConfigurationException("Can't resolve field: [" + field + "] -> [" + expression + "].");
         }
         return null;

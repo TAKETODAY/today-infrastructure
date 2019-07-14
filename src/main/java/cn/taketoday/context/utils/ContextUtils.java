@@ -58,6 +58,7 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.ConditionalImpl;
 import cn.taketoday.context.annotation.DefaultProps;
+import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Value;
@@ -175,6 +176,39 @@ public abstract class ContextUtils {
     }
 
     /**
+     * Resolve {@link Env} {@link Annotation}
+     * 
+     * @param value
+     *            {@link Env} {@link Annotation}
+     * @param expectedType
+     *            expected value type
+     * @return A resolved value object
+     * @since 2.1.6
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T resolveValue(final Env value, final Class<T> expectedType) throws ConfigurationException {
+
+        final Object resolveValue = resolveValue(new StringBuilder()//
+                .append(Constant.PLACE_HOLDER_PREFIX)//
+                .append(value.value())//
+                .append(Constant.PLACE_HOLDER_SUFFIX).toString(), expectedType//
+        );
+
+        if (resolveValue != null) {
+            return (T) resolveValue;
+        }
+        if (value.required()) {
+            throw new ConfigurationException("Can't resolve property: [" + value.value() + "]");
+        }
+
+        final String defaultValue = value.defaultValue();
+        if (StringUtils.isEmpty(defaultValue)) {
+            return null;
+        }
+        return resolveValue(defaultValue, expectedType, System.getProperties());
+    }
+
+    /**
      * Resolve {@link Value} {@link Annotation}
      * 
      * @param value
@@ -188,12 +222,17 @@ public abstract class ContextUtils {
     public static <T> T resolveValue(final Value value, final Class<T> expectedType) throws ConfigurationException {
 
         final Object resolveValue = resolveValue(value.value(), expectedType);
-        if (resolveValue == null) {
-            if (value.required())
-                throw new ConfigurationException("Can't resolve expression: [" + value.value() + "]");
-            return resolveValue(value.defaultValue(), expectedType, System.getProperties());
+        if (resolveValue != null) {
+            return (T) resolveValue;
         }
-        return (T) resolveValue;
+        if (value.required()) {
+            throw new ConfigurationException("Can't resolve expression: [" + value.value() + "]");
+        }
+        final String defaultValue = value.defaultValue();
+        if (StringUtils.isEmpty(defaultValue)) {
+            return null;
+        }
+        return resolveValue(defaultValue, expectedType, System.getProperties());
     }
 
     /**
@@ -278,6 +317,11 @@ public abstract class ContextUtils {
             // @since 2.1.6
             if (parameter.isAnnotationPresent(Value.class)) {
                 args[i] = resolveValue(parameter.getAnnotation(Value.class), type);
+                continue;
+            }
+            // @since 2.1.6
+            if (parameter.isAnnotationPresent(Env.class)) {
+                args[i] = resolveValue(parameter.getAnnotation(Env.class), type);
                 continue;
             }
 
