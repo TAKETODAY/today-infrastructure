@@ -28,7 +28,7 @@ import java.util.Set;
 import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.server.AbstractWebServer;
-import cn.taketoday.web.ServletContextInitializer;
+import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 
 /**
  * @author TODAY <br>

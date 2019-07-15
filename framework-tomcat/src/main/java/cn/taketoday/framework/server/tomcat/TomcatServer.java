@@ -78,7 +78,7 @@ import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.JspServletConfiguration;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.WebServer;
-import cn.taketoday.web.ServletContextInitializer;
+import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

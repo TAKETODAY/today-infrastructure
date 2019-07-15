@@ -65,9 +65,9 @@ import cn.taketoday.framework.config.SessionCookieConfiguration;
 import cn.taketoday.framework.config.WebApplicationConfiguration;
 import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.framework.utils.ApplicationUtils;
-import cn.taketoday.web.ServletContextInitializer;
-import cn.taketoday.web.config.initializer.OrderedInitializer;
-import cn.taketoday.web.config.initializer.WebServletInitializer;
+import cn.taketoday.web.servlet.initializer.OrderedInitializer;
+import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
+import cn.taketoday.web.servlet.initializer.WebServletInitializer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -302,26 +302,23 @@ public abstract class AbstractWebServer implements //
         MultipartConfig multipartConfig = startupClass.getAnnotation(MultipartConfig.class);
         if (multipartConfig != null) {
 
-            if (applicationContext.containsBeanDefinition(Constant.MULTIPART_CONFIG_ELEMENT)) {
+            if (applicationContext.containsBeanDefinition(MultipartConfigElement.class)) {
                 log.info("Multiple: [{}] Overriding its bean definition", MultipartConfigElement.class.getName());
             }
-            applicationContext.registerSingleton(Constant.MULTIPART_CONFIG_ELEMENT, //
-                    new MultipartConfigElement(multipartConfig));
+            applicationContext.registerSingleton(new MultipartConfigElement(multipartConfig));
 
-            applicationContext.registerBean(Constant.MULTIPART_CONFIG_ELEMENT, MultipartConfigElement.class);
+            applicationContext.registerBean("multipartConfigElement", MultipartConfigElement.class);
         }
 
         ServletSecurity servletSecurity = startupClass.getAnnotation(ServletSecurity.class);
         if (servletSecurity != null) {
 
-            if (applicationContext.containsBeanDefinition(Constant.SERVLET_SECURITY_ELEMENT)) {
+            if (applicationContext.containsBeanDefinition(ServletSecurityElement.class)) {
                 log.info("Multiple: [{}] Overriding its bean definition", ServletSecurityElement.class.getName());
             }
 
-            applicationContext.registerSingleton(Constant.SERVLET_SECURITY_ELEMENT, //
-                    new ServletSecurityElement(servletSecurity));
-
-            applicationContext.registerBean(Constant.SERVLET_SECURITY_ELEMENT, ServletSecurityElement.class);
+            applicationContext.registerSingleton(new ServletSecurityElement(servletSecurity));
+            applicationContext.registerBean("servletSecurityElement", ServletSecurityElement.class);
         }
 
         addDefaultServlet();

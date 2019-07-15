@@ -33,17 +33,19 @@ import cn.taketoday.framework.aware.WebServerApplicationContextAware;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.ConfigurableWebServer;
 import cn.taketoday.framework.server.WebServer;
-import cn.taketoday.web.DefaultWebApplicationContext;
 import cn.taketoday.web.WebApplicationContextAware;
-import cn.taketoday.web.config.WebApplicationLoader;
-import cn.taketoday.web.config.initializer.OrderedInitializer;
+import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.servlet.WebServletApplicationLoader;
+import cn.taketoday.web.servlet.initializer.OrderedInitializer;
 
 /**
  * @author Today <br>
  * 
  *         2019-01-17 15:54
  */
-public class ServletWebServerApplicationContext extends DefaultWebApplicationContext implements WebServerApplicationContext {
+public class ServletWebServerApplicationContext //
+        extends StandardWebServletApplicationContext implements WebServerApplicationContext, WebServletApplicationContext {
 
     private WebServer webServer;
 
@@ -113,7 +115,7 @@ public class ServletWebServerApplicationContext extends DefaultWebApplicationCon
 
                 prepareServletContext(servletContext);
 
-                new WebApplicationLoader().onStartup(null, servletContext);
+                new WebServletApplicationLoader().onStartup(null, servletContext);
             }
 
             @Override

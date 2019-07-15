@@ -19,7 +19,7 @@
  */
 package cn.taketoday.framework.server;
 
-import cn.taketoday.web.ServletContextInitializer;
+import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 
 /**
  * @author Today <br>

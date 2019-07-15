@@ -26,7 +26,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import cn.taketoday.context.utils.ExceptionUtils;
-import cn.taketoday.web.ServletContextInitializer;
+import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 
 /**
  * 
