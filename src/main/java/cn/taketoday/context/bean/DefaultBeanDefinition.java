@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.factory.FactoryBean;
@@ -60,7 +61,7 @@ public class DefaultBeanDefinition implements BeanDefinition {
      * 
      * @since 2.3.3
      */
-    private String[] destroyMethods = new String[0];
+    private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
 
     /** property values */
     private PropertyValue[] propertyValues = new PropertyValue[0];

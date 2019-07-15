@@ -1153,7 +1153,14 @@ public abstract class ClassUtils {
         catch (final ContextException e) {
             if (e.getCause() instanceof NoSuchMethodException) {
 
-                for (final Constructor<?> constructor : beanClass.getDeclaredConstructors()) {
+                final Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
+                if (constructors.length == 1) {
+                    final Constructor<?> constructor = constructors[0];
+                    return constructor.newInstance(//
+                            ContextUtils.resolveParameter(makeAccessible(constructor), beanFactory)//
+                    );
+                }
+                for (final Constructor<?> constructor : constructors) {
 
                     if (constructor.isAnnotationPresent(Autowired.class)) {
                         return constructor.newInstance(//

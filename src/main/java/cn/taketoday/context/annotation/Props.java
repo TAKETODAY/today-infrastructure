@@ -36,23 +36,17 @@ import cn.taketoday.context.Constant;
 public @interface Props {
 
     /**
-     * @return properties file name
+     * @return Properties file name
      */
     String[] value() default {};
 
     /**
-     * prefix of the key <br>
-     * default ""
-     * 
-     * @return
+     * Prefix of the key <br>
+     * * default ""
      */
     String[] prefix() default Constant.BLANK;
 
-    /**
-     * replace prefix.
-     * 
-     * @return
-     */
+    /** Replace prefix. */
     boolean replace() default false;
 
     Class<?>[] nested() default {};

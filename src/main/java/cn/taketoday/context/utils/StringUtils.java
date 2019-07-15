@@ -365,4 +365,20 @@ public abstract class StringUtils {
         }
         return path.replace(Constant.WINDOWS_PATH_SEPARATOR, Constant.PATH_SEPARATOR);
     }
+
+    /**
+     * Check Url, format url like :
+     * 
+     * <pre>
+     * users    -> /users
+     * /users   -> /users
+     * </pre>
+     * 
+     * @param url
+     *            Input url
+     * @return
+     */
+    public static String checkUrl(String url) {
+        return StringUtils.isEmpty(url) ? Constant.BLANK : (url.startsWith("/") ? url : "/" + url);
+    }
 }

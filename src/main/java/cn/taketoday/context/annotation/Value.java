@@ -29,11 +29,10 @@ import cn.taketoday.context.Constant;
 
 /**
  * @author TODAY <br>
- * 
  *         2018-08-04 15:57
  */
-@Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.FIELD, ElementType.PARAMETER })
 public @interface Value {
 
     /** {@link Properties} key or el */
