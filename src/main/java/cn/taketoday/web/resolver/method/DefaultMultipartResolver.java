@@ -1,0 +1,203 @@
+/**
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *   
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+package cn.taketoday.web.resolver.method;
+
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.utils.DataSize;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.exception.FileSizeExceededException;
+import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.multipart.DefaultMultipartFile;
+import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.utils.WebUtils;
+
+/**
+ * @author TODAY <br>
+ *         2019-07-11 07:59
+ */
+@Singleton
+public class DefaultMultipartResolver extends AbstractMultipartResolver {
+
+    @Autowired
+    public DefaultMultipartResolver(MultipartConfiguration multipartConfiguration) {
+        super(multipartConfiguration);
+    }
+
+    @Override
+    public boolean supports(final MethodParameter parameter) {
+        final Class<?> parameterClass = parameter.getParameterClass();
+        return parameterClass == MultipartFile.class //
+                || parameterClass == DefaultMultipartFile.class;
+    }
+
+    @Override
+    protected Object resolveInternal(final RequestContext requestContext, //
+            final MethodParameter parameter, final List<MultipartFile> multipartFiles) throws Throwable //
+    {
+        return multipartFiles.get(0);
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-07-12 18:18
+     */
+    @Singleton
+    public class CollectionMultipartResolver extends AbstractMultipartResolver {
+
+        @Autowired
+        public CollectionMultipartResolver(MultipartConfiguration multipartConfiguration) {
+            super(multipartConfiguration);
+        }
+
+        @Override
+        public boolean supports(final MethodParameter parameter) {
+
+            final Class<?> parameterClass = parameter.getParameterClass();
+
+            return (parameterClass == Collection.class || parameterClass == List.class || parameterClass == Set.class) //
+                    && (parameter.isGenericPresent(MultipartFile.class, 0) //
+                            || parameter.isGenericPresent(DefaultMultipartFile.class, 0));
+        }
+
+        @Override
+        protected Object resolveInternal(final RequestContext requestContext, //
+                final MethodParameter parameter, final List<MultipartFile> multipartFiles) throws Throwable //
+        {
+            if (parameter.getParameterClass() == Set.class) {
+                return new HashSet<>(multipartFiles);
+            }
+
+            return multipartFiles;
+        }
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-07-12 17:43
+     */
+    @Singleton
+    public class ArrayMultipartResolver extends AbstractMultipartResolver {
+
+        @Autowired
+        public ArrayMultipartResolver(MultipartConfiguration multipartConfiguration) {
+            super(multipartConfiguration);
+        }
+
+        @Override
+        public boolean supports(final MethodParameter parameter) {
+
+            final Class<?> parameterClass;
+
+            return parameter.isArray() //
+                    && ((parameterClass = parameter.getParameterClass().getComponentType()) == MultipartFile.class //
+                            || parameterClass == DefaultMultipartFile.class);
+        }
+
+        @Override
+        protected Object resolveInternal(final RequestContext requestContext, //
+                final MethodParameter parameter, final List<MultipartFile> multipartFiles) throws Throwable //
+        {
+            return multipartFiles.toArray(new MultipartFile[0]);
+        }
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-07-11 23:35
+     */
+    @Singleton
+    public class MapMultipartParameterResolver extends MapParameterResolver implements ParameterResolver {
+
+        private final MultipartConfiguration multipartConfiguration;
+
+        @Autowired
+        public MapMultipartParameterResolver(MultipartConfiguration multipartConfiguration) {
+            this.multipartConfiguration = multipartConfiguration;
+        }
+
+        @Override
+        protected boolean supportsInternal(MethodParameter parameter) {
+
+            if (parameter.isGenericPresent(String.class, 0)) { // Map<String, >
+                if (parameter.isGenericPresent(List.class, 1)) { // Map<String, List<>>
+
+                    final Type type = parameter.getGenericityClass()[1];
+
+                    if (type instanceof ParameterizedType) {
+                        Type t = ((ParameterizedType) type).getActualTypeArguments()[0];
+                        return t.equals(MultipartFile.class) || t.equals(DefaultMultipartFile.class);
+                    }
+                }
+                else {
+                    return parameter.isGenericPresent(MultipartFile.class, 1) //
+                            || parameter.isGenericPresent(DefaultMultipartFile.class, 1);
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+            if (WebUtils.isMultipart(requestContext)) {
+
+                if (multipartConfiguration.getMaxRequestSize().toBytes() < requestContext.contentLength()) { // exceed max size?
+
+                    throw new FileSizeExceededException(multipartConfiguration.getMaxRequestSize(), null)//
+                            .setActual(DataSize.of(requestContext.contentLength()));
+                }
+
+                try {
+                    final Map<String, List<MultipartFile>> multipartFiles = requestContext.multipartFiles();
+
+                    if (multipartFiles.isEmpty()) {
+                        throw WebUtils.newBadRequest("Multipart file must not be empty", parameter.getName(), null);
+                    }
+
+                    if (parameter.isGenericPresent(List.class, 1)) {
+                        return multipartFiles;
+                    }
+
+                    final HashMap<String, MultipartFile> files = new HashMap<>();
+
+                    multipartFiles.forEach((k, v) -> {
+                        files.put(k, v.get(0));
+                    });
+
+                    return files;
+                } finally {
+                    cleanupMultipart(requestContext);
+                }
+            }
+            throw WebUtils.newBadRequest("This is not a multipart request", parameter.getName(), null);
+        }
+    }
+
+}

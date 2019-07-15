@@ -36,9 +36,10 @@ public interface Constant extends cn.taketoday.context.Constant {
     String WEB_VERSION = "2.3.7.RELEASE";
 
     String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
+    String DOWNLOAD_BUFF_SIZE = "download.buff.size";
     String ENABLE_WEB_STARTED_LOG = "enable.started.log";
-    // @since 2.3.7
-    String ENABLE_REQUEST_CONTEXT = "enable.request.context";
+    String FAST_JSON_SERIALIZE_FEATURES = "fastjson.serialize.features";
+
     //@off
 	/**
 	 * mode
@@ -51,12 +52,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	/**********************************************************
 	 * Framework Attribute Keys
 	 */
-	String 	KEY_REQUEST_BODY					= "REQUESTBODY";
-	String	KEY_MODEL_AND_VIEW					= "MODELANDVIEW";
-	String	KEY_REDIRECT_MODEL					= "REDIRECTMODEL";
 	String	KEY_WEB_APPLICATION_CONTEXT 		= "WebApplicationContext";
-
-	String	KEY_REPLACED						= "REPLACED";
 	/**
 	 * Framework Attribute Keys End
 	 **********************************************************/
@@ -76,14 +72,12 @@ public interface Constant extends cn.taketoday.context.Constant {
 	/**
 	 * @since 2.3.3
 	 */
-	String 	SERVLET_SECURITY_ELEMENT 			= "servletSecurity";	
-	String 	MULTIPART_CONFIG_ELEMENT 			= "multipartConfig";
+//	String 	SERVLET_SECURITY_ELEMENT 			= "servletSecurity";	
+//	String 	MULTIPART_CONFIG_ELEMENT 			= "multipartConfig";
 	
 	// Resolver
 	String	VIEW_RESOLVER						= "viewResolver";
 	String	EXCEPTION_RESOLVER					= "exceptionResolver";
-	String	MULTIPART_RESOLVER					= "multipartResolver";
-	String	PARAMETER_RESOLVER					= "parameterResolver";
 	String	VIEW_CONFIG							= "viewConfig";
 	String	ACTION_CONFIG						= "actionConfig";
 	// the dtd
@@ -106,7 +100,6 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	ATTR_ID								= "id";
 	String	ATTR_CLASS							= "class";
 	String	ATTR_RESOURCE						= "resource";
-	String	ATTR_TYPE							= "type";
 	String	ATTR_NAME							= "name";
 	String	ATTR_VALUE							= VALUE;
 	String	ATTR_METHOD							= "method";
@@ -115,7 +108,6 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	ATTR_LOCATION						= "location";
 	String	ATTR_PREFIX							= "prefix";
 	String	ATTR_SUFFIX							= "suffix";
-//	String	ATTR_BASE_PACKAGE					= "base-package";
 
 	/**
 	 * The resoure's content type
@@ -128,112 +120,15 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String  VALUE_FORWARD 						= "forward";
 	String  VALUE_REDIRECT 						= "redirect";
 
-	String	ELEMENT_EXCEPTION_RESOLVER			= "exception-resolver";
-	String	ELEMENT_PARAMETER_RESOLVER			= "parameter-resolver";
-
-	String	ELEMENT_VIEW_RESOLVER				= "view-resolver";
-	String	ELEMENT_VIEW_PREFIX					= "view-prefix";
-	String	ELEMENT_VIEW_LOCALE					= "view-locale";
-	String	ELEMENT_VIEW_SUFFIX					= "view-suffix";
-	String	ELEMENT_VIEW_ENCODING				= "view-encoding";
-
-	String	ELEMENT_MULTIPART					= "multipart";
-	String	ELEMENT_UPLOAD_ENCODING				= "upload-encoding";
-	String	ELEMENT_UPLOAD_LOCATION				= "upload-location";
-	String	ELEMENT_UPLOAD_MAX_FILE_SIZE		= "upload-maxFileSize";
-	String	ELEMENT_UPLOAD_MAX_REQUEST_SIZE		= "upload-maxRequestSize";
-	String	ELEMENT_UPLOAD_FILE_SIZE_THRESHOLD	= "upload-fileSizeThreshold";
-
 	String	ELEMENT_ACTION						= "action";
 	/** @since 2.3.7 */
 	String	ELEMENT_RESOURCES					= "resources";
 	String	ELEMENT_CONTROLLER					= "controller";
 	String	ROOT_ELEMENT						= "Web-Configuration";
 	/** @since 2.3.7 */
-	String	ELEMENT_DEFAULT_SERVLET				= "default-servlet";
+//	String	ELEMENT_DEFAULT_SERVLET				= "default-servlet";
 	String	ELEMENT_DISPATCHER_SERVLET			= "dispatcher-servlet";
 
-	byte	ANNOTATION_NULL						= 0x00;
-	byte	ANNOTATION_COOKIE					= 0x01;
-	byte	ANNOTATION_SESSION					= 0x02;
-	byte	ANNOTATION_HEADER					= 0x03;
-	byte	ANNOTATION_PATH_VARIABLE			= 0x04;
-	byte	ANNOTATION_SERVLET_CONTEXT			= 0x05;
-
-	// byte ANNOTATION_REQUEST_PARAM = 0x05;//不需要设置
-	byte	ANNOTATION_MULTIPART				= 0x06;
-	byte	ANNOTATION_REQUEST_BODY				= 0x07;
-	byte	ANNOTATION_REQUEST_ATTRIBUTE		= 0x08;
-
-	/*************************************************
-	 * Parameter Types
-	 */
-	byte	TYPE_OTHER							= 0x00;
-	byte 	TYPE_ARRAY							= 0x01;
-
-	byte	TYPE_BYTE							= 0x02;
-	byte	TYPE_INT							= 0x03;
-	byte	TYPE_SHORT							= 0x04;
-	byte	TYPE_LONG							= 0x05;
-	byte	TYPE_DOUBLE							= 0x06;
-	byte	TYPE_FLOAT							= 0x07;
-	byte	TYPE_STRING							= 0x08;
-	byte	TYPE_BOOLEAN						= 0x09;
-
-	byte	TYPE_HTTP_SESSION					= 0x0A;
-	byte	TYPE_SERVLET_CONTEXT				= 0x0B;
-	byte	TYPE_HTTP_SERVLET_REQUEST			= 0x0C;
-	byte	TYPE_HTTP_SERVLET_RESPONSE			= 0x0D;
-
-	byte	TYPE_MAP							= 0x0E;
-	byte	TYPE_SET							= 0x0F;
-	byte	TYPE_LIST							= 0x10;
-
-	byte	TYPE_MODEL							= 0x12;
-	// multi
-//	byte	TYPE_FILE_ITEM						= 0x13;
-//	byte	TYPE_ARRAY_FILE_ITEM				= TYPE_ARRAY + TYPE_FILE_ITEM;
-	
-	byte	TYPE_MULTIPART_FILE					= 0x15;
-	byte	TYPE_ARRAY_MULTIPART_FILE			= TYPE_ARRAY + TYPE_MULTIPART_FILE;
-
-//	byte	TYPE_SET_FILE_ITEM					= TYPE_SET + TYPE_FILE_ITEM;
-//	byte	TYPE_LIST_FILE_ITEM					= TYPE_LIST + TYPE_FILE_ITEM;
-
-	byte	TYPE_SET_MULTIPART_FILE				= TYPE_SET + TYPE_MULTIPART_FILE;
-	byte	TYPE_LIST_MULTIPART_FILE			= TYPE_LIST + TYPE_MULTIPART_FILE;
-
-	/**
-	 * {@link cn.taketoday.web.ui.ModelAndView}
-	 *
-	 * @since 2.3.3
-	 */
-	byte 	TYPE_MODEL_AND_VIEW					= 0x16;
-	/**
-	 *
-	 * {@link cn.taketoday.web.ui.RedirectModel}
-	 *
-	 * @since 2.3.3
-	 */
-	byte	TYPE_REDIRECT_MODEL					= 0x17;
-	
-	/**
-	 * @since 2.1.5
-	 */
-	byte	TYPE_INPUT_STREAM					= 0x18;
-	byte	TYPE_OUT_STREAM						= 0x19;
-	byte	TYPE_READER							= 0x1A;
-	byte	TYPE_WRITER							= 0x1B;
-	byte	TYPE_LOCALE							= 0x1C;
-	byte	TYPE_PRINCIPAL						= 0x1D;
-
-	/**
-	 * END  Parameter Types 
-	 ***************************************************/
-
-	/***************************************************
-	 * return types
-	 */
 	byte 	RETURN_VOID							= 0x00;
 	byte 	RETURN_JSON							= 0x01;
 	byte 	RETURN_VIEW							= 0x02;
@@ -247,14 +142,10 @@ public interface Constant extends cn.taketoday.context.Constant {
 	/** @since 2.3.3 */
 	byte 	RETURN_OBJECT						= 0x07;
 	
-	
 	byte 	TYPE_FORWARD						= 0x01;
 	byte 	TYPE_REDIRECT						= 0x02;
-	
-	/**
-	 * End return types
-	 **************************************************/
 
+	
 	String	CONTENT_TYPE_IMAGE					= "image/jpeg";
 
 	String	REDIRECT_URL_PREFIX					= "redirect:";
@@ -263,10 +154,10 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	IMAGE_PNG							= "png";
 	String	HTTP								= "http";
 	String	HTTPS								= "https";
-	// default font
 	/*****************************************************
 	 * default values
 	 */
+	// default font
 	String	DEFAULT_FONT						= "Verdana";
 	/** @since 2.3.3 */
 	String 	DEFAULT_CONTENT_TYPE				= "text/html;charset=UTF-8";

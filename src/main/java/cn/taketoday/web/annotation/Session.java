@@ -27,21 +27,16 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.Constant;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY<br>
  *         2018-08-21 20:19 <br>
  *         <b>change:</b> add defaultValue()
  */
+@RequestParam
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@RequestParam(type = Constant.ANNOTATION_SESSION)
 public @interface Session {
 
-    /**
-     * Session attribute name.
-     * 
-     * @return
-     */
+    /** Session attribute name */
     String value() default Constant.BLANK;
 
 }

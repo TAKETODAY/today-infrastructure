@@ -19,13 +19,15 @@
  */
 package cn.taketoday.web.ui;
 
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.context.utils.ConvertUtils;
+
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-12-10 16:31
  * @since 2.3.3
  */
@@ -37,24 +39,20 @@ public class RedirectModelAttributes extends HashMap<String, Object> implements 
     }
 
     @Override
-    public Object getAttribute(String name) {
+    public Object attribute(String name) {
         return get(name);
     }
 
     @Override
-    public <T> T getAttribute(String name, Class<T> targetClass) {
-        return targetClass.cast(get(name));
+    @SuppressWarnings("unchecked")
+    public <T> T attribute(String name, Class<T> targetClass) {
+        return (T) ConvertUtils.convert(get(name), targetClass);
     }
 
     @Override
-    public RedirectModel addAttribute(String attributeName, Object attributeValue) {
+    public RedirectModel attribute(String attributeName, Object attributeValue) {
         put(attributeName, attributeValue);
         return this;
-    }
-
-    @Override
-    public boolean containsAttribute(String attributeName) {
-        return containsKey(attributeName);
     }
 
     @Override
@@ -63,19 +61,20 @@ public class RedirectModelAttributes extends HashMap<String, Object> implements 
     }
 
     @Override
-    public void removeAttribute(String name) {
+    public Model removeAttribute(String name) {
         remove(name);
+        return this;
     }
 
     @Override
-    public Collection<String> getAttributeNames() {
-        return keySet();
-    }
-
-    @Override
-    public RedirectModel addAllAttributes(Map<String, Object> attributes) {
+    public RedirectModel attributes(Map<String, Object> attributes) {
         putAll(attributes);
         return this;
+    }
+
+    @Override
+    public Enumeration<String> attributes() {
+        return Collections.enumeration(keySet());
     }
 
 }

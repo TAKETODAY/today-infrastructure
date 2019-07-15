@@ -27,8 +27,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.annotation.Component;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-08-23 11:16
  */
 @Component
@@ -38,15 +37,6 @@ public @interface Controller {
 
     /**
      * Controller name or a bean name
-     * 
-     * @return
      */
     String[] value() default {};
-
-    /**
-     * rest ?
-     * 
-     * @return
-     */
-    boolean restful() default false;
 }

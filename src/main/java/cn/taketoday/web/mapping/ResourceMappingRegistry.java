@@ -42,7 +42,7 @@ public class ResourceMappingRegistry {
     public ResourceMapping addResourceMapping(String... pathPatterns) {
         ResourceMapping resourceMapping = new ResourceMapping(null, pathPatterns);
 
-        getResourceHandlerMappings().add(resourceMapping);
+        getResourceMappings().add(resourceMapping);
         return resourceMapping;
     }
 
@@ -55,7 +55,7 @@ public class ResourceMappingRegistry {
         ResourceMapping resourceHandlerMapping = //
                 new ResourceMapping(actionConfiguration.addInterceptors(handlerInterceptors));
 
-        this.getResourceHandlerMappings().add(resourceHandlerMapping);
+        this.getResourceMappings().add(resourceHandlerMapping);
         return resourceHandlerMapping;
     }
 
@@ -63,7 +63,7 @@ public class ResourceMappingRegistry {
         return resourceMappings.isEmpty();
     }
 
-    public List<ResourceMapping> getResourceHandlerMappings() {
+    public List<ResourceMapping> getResourceMappings() {
         return resourceMappings;
     }
 

@@ -27,27 +27,24 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.Constant;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY<br>
  *         2018-06-29 16:27:12
  */
+@RequestParam
 @Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
-@RequestParam(type = Constant.ANNOTATION_PATH_VARIABLE)
 public @interface PathVariable {
 
-    /**
-     * request parameter name in path
-     * 
-     * @return
-     */
+    /** Request parameter name in path */
     String value() default Constant.BLANK;
 
+    /** Regular expression */
+    String pattern() default Constant.BLANK;
+
     /**
-     * regular expression.
-     * 
-     * @return
+     * @deprecated since 2.3.7 use {@link #pattern()}
      */
+    @Deprecated
     String regex() default Constant.BLANK;
 
 }

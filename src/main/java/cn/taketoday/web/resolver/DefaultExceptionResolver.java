@@ -19,17 +19,19 @@
  */
 package cn.taketoday.web.resolver;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.exception.AccessForbiddenException;
 import cn.taketoday.web.exception.BadRequestException;
@@ -39,6 +41,7 @@ import cn.taketoday.web.exception.NotFoundException;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.WebMapping;
+import cn.taketoday.web.ui.ModelAndView;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -50,15 +53,15 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultExceptionResolver implements ExceptionResolver {
 
     @Override
-    public void resolveException(HttpServletRequest request, //
-            HttpServletResponse response, Throwable ex, WebMapping webMapping) throws Throwable //
+    public void resolveException(RequestContext requestContext, //
+            Throwable ex, WebMapping mvcMapping) throws Throwable //
     {
         try {
 
-            response.reset();
-            if (webMapping instanceof HandlerMapping) {
+            requestContext.reset();
+            if (mvcMapping instanceof HandlerMapping) {
 
-                HandlerMapping handlerMapping = (HandlerMapping) webMapping;
+                HandlerMapping handlerMapping = (HandlerMapping) mvcMapping;
 
                 final HandlerMethod handlerMethod = handlerMapping.getHandlerMethod();
                 final Method method = handlerMethod.getMethod();
@@ -75,42 +78,34 @@ public class DefaultExceptionResolver implements ExceptionResolver {
                     status = value == 0 ? status : value;
                     redirect = responseStatus.redirect();
                 }
-                response.setStatus(status);
-                switch (handlerMethod.getReutrnType())
-                {
-                    case Constant.RETURN_FILE :
-                    case Constant.RETURN_VOID :
-                    case Constant.RETURN_JSON :
-                    case Constant.RETURN_STRING :
 
-                        response.setContentType(Constant.CONTENT_TYPE_JSON);
+                requestContext.status(status);
 
-                        response.getWriter().print(new StringBuilder()//
-                                .append("{\"msg\":\"").append(msg)//
-                                .append("\",\"code\":").append(status)//
-                                .append(",\"success\":false}")//
-                                .toString()//
-                        );
-
-                        break;
-                    case Constant.RETURN_IMAGE :
-                        resolveImageException(ex, response);
-                        break;
-
-                    default:
-                    case Constant.RETURN_VIEW :
-                    case Constant.RETURN_OBJECT :
-                    case Constant.RETURN_MODEL_AND_VIEW :
-                        if (StringUtils.isNotEmpty(redirect)) {
-                            response.sendRedirect(request.getContextPath() + redirect);
-                        }
-                        else
-                            resolveViewException(ex, response, status, msg);
-                        break;
+                if (handlerMethod.isAssignableFrom(RenderedImage.class)) {
+                    handlerMethod.resolveResult(requestContext, resolveImageException(ex, requestContext));
+                }
+                else if (handlerMethod.is(void.class) //
+                        || handlerMethod.is(Object.class)//
+                        || handlerMethod.is(ModelAndView.class)) {
+                    // has redirect
+                    if (StringUtils.isNotEmpty(redirect)) {
+                        requestContext.redirect(requestContext.contextPath() + redirect);
+                    }
+                    else {
+                        resolveViewException(ex, requestContext, 500, ex.getMessage());
+                    }
+                }
+                else {
+                    requestContext.getWriter().write(new StringBuilder()//
+                            .append("{\"msg\":\"").append(msg)//
+                            .append("\",\"status\":").append(status)//
+                            .append(",\"success\":false}")//
+                            .toString()//
+                    );
                 }
             }
             else {
-                resolveViewException(ex, response, 500, ex.getMessage());
+                resolveViewException(ex, requestContext, 500, ex.getMessage());
             }
 
             log.error("Catch Throwable: [{}] With Msg: [{}]", ex, ex.getMessage(), ex);
@@ -153,37 +148,35 @@ public class DefaultExceptionResolver implements ExceptionResolver {
      * @throws IOException
      */
     public static void resolveViewException(Throwable ex, //
-            HttpServletResponse response, int status, String msg) throws IOException //
+            final RequestContext requestContext, int status, String msg) throws IOException //
     {
         if (ex instanceof MethodNotAllowedException) {
-            response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, msg);
+            requestContext.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, msg);
         }
         else if (ex instanceof BadRequestException || //
                 ex instanceof ConversionException || //
                 ex instanceof FileSizeExceededException) //
         {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, msg);
+            requestContext.sendError(HttpServletResponse.SC_BAD_REQUEST, msg);
         }
         else if (ex instanceof NotFoundException) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
+            requestContext.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
         }
         else if (ex instanceof AccessForbiddenException) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, msg);
+            requestContext.sendError(HttpServletResponse.SC_FORBIDDEN, msg);
         }
         else {
-            response.sendError(status, msg);
+            requestContext.sendError(status, msg);
         }
     }
 
     /**
      * resolve image
-     * 
-     * @param ex
-     * @param response
-     * @throws IOException
      */
-    public static void resolveImageException(Throwable ex, HttpServletResponse response) throws IOException {
-        response.setContentType(Constant.CONTENT_TYPE_IMAGE);
+    public static BufferedImage resolveImageException(final Throwable ex, final RequestContext requestContext) throws IOException {
+
+        requestContext.contentType(Constant.CONTENT_TYPE_IMAGE);
+
         String fileName = "/error/500.png";
         if (ex instanceof MethodNotAllowedException) {
             fileName = "/error/405.png";
@@ -197,11 +190,8 @@ public class DefaultExceptionResolver implements ExceptionResolver {
         else if (ex instanceof AccessForbiddenException) {
             fileName = "/error/403.png";
         }
-        ImageIO.write(//
-                ImageIO.read(ClassUtils.getClassLoader().getResource(fileName)), //
-                Constant.IMAGE_PNG, //
-                response.getOutputStream()//
-        );
+
+        return ImageIO.read(ClassUtils.getClassLoader().getResource(fileName));
     }
 
 }

@@ -1,9 +1,9 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
- * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,32 +13,28 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ *   
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.web;
-
-import javax.servlet.ServletContext;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 
 /**
  * @author TODAY <br>
- *         2018-07-10 13:13:57
+ *         2019-07-10 22:03
  */
 public interface WebApplicationContext extends ConfigurableApplicationContext {
 
     /**
-     * Return the standard Servlet API ServletContext for this application.
+     * Returns the portion of the request URI that indicates the context of the
+     * request. The context path always comes first in a request URI. The path
+     * starts with a "" character but does not end with a "" character. The
+     * container does not decode this string.
+     *
+     * @return a <code>String</code> specifying the portion of the request URI that
+     *         indicates the context of the request
      */
-    ServletContext getServletContext();
-
-    /**
-     * Set ServletContext
-     * 
-     * @param servletContext
-     */
-    void setServletContext(ServletContext servletContext);
-
+    String getContextPath();
 }

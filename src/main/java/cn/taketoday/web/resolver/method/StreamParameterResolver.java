@@ -1,0 +1,79 @@
+/**
+ * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
+ *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *   
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ */
+package cn.taketoday.web.resolver.method;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
+
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.io.Readable;
+import cn.taketoday.context.io.Writable;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.ui.Model;
+
+/**
+ * @author TODAY <br>
+ *         2019-07-09 22:49
+ */
+@Singleton
+public class StreamParameterResolver implements ParameterResolver {
+
+    @Override
+    public boolean supports(final MethodParameter parameter) {
+
+        final Class<?> parameterClass = parameter.getParameterClass();
+        return parameterClass == Readable.class//
+                || parameterClass == Writable.class//
+                || parameterClass == Reader.class//
+                || parameterClass == Writer.class//
+                || parameterClass == InputStream.class//
+                || parameterClass == OutputStream.class;
+    }
+
+    /**
+     * Resolve {@link Model} parameter.
+     */
+    @Override
+    public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+
+        final Class<?> parameterClass = parameter.getParameterClass();
+
+        if (parameterClass == Readable.class || parameterClass == Writable.class) {
+            return requestContext;
+        }
+
+        if (parameterClass == Reader.class) {
+            return requestContext.getReader();
+        }
+        if (parameterClass == Writer.class) {
+            return requestContext.getWriter();
+        }
+
+        if (parameterClass == InputStream.class) {
+            return requestContext.getInputStream();
+        }
+
+        return requestContext.getOutputStream();
+    }
+
+}

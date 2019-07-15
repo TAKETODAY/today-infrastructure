@@ -19,19 +19,10 @@
  */
 package cn.taketoday.web.config;
 
-import java.awt.Image;
-import java.awt.image.RenderedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.Writer;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
-import java.security.Principal;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,7 +30,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -47,12 +37,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
@@ -73,31 +59,21 @@ import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RequestParam;
-import cn.taketoday.web.annotation.ResponseBody;
-import cn.taketoday.web.config.initializer.OrderedInitializer;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.mapping.HandlerInterceptorRegistry;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
-import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.ui.Model;
-import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.ui.ModelAttributes;
-import cn.taketoday.web.ui.RedirectModel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
  * @author TODAY <br>
- *         2018-06-23 16:20:26<br>
- *         2018-08-21 20:50 change
  */
 @Slf4j
 @Singleton(Constant.ACTION_CONFIG)
-public class ActionConfiguration implements OrderedInitializer, WebApplicationContextAware, DisposableBean {
+public class ActionConfiguration implements Ordered, DisposableBean, WebApplicationContextAware, WebApplicationInitializer {
 
     @Getter
     private String contextPath;
@@ -144,15 +120,13 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
         if (!controllerMappings.isEmpty()) {
             ActionMapping controllerMapping = controllerMappings.iterator().next(); // get first mapping on class
             for (String value : controllerMapping.value()) {
-                namespaces.add(checkUrl(value));
+                namespaces.add(StringUtils.checkUrl(value));
             }
             Collections.addAll(methodsOnClass, controllerMapping.method());
         }
 
-        final boolean restful = controllerAttributes.iterator().next().getBoolean("restful"); // restful
-
         for (Method method : beanClass.getDeclaredMethods()) {
-            this.setActionMapping(beanClass, method, namespaces, methodsOnClass, restful);
+            this.setActionMapping(beanClass, method, namespaces, methodsOnClass);
         }
     }
 
@@ -178,18 +152,17 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
      * @param method
      * @param namespaces
      * @param methodsOnClass
-     * @param restful
      * @throws Exception
      */
     private void setActionMapping(Class<?> beanClass, Method method, //
-            Set<String> namespaces, Set<RequestMethod> methodsOnClass, boolean restful) throws Exception //
+            Set<String> namespaces, Set<RequestMethod> methodsOnClass) throws Exception //
     {
         final Collection<AnnotationAttributes> annotationAttributes = //
                 ClassUtils.getAnnotationAttributes(method, ActionMapping.class);
 
         if (!annotationAttributes.isEmpty()) {
             // do mapping url
-            this.mappingHandlerMapping(this.createHandlerMapping(beanClass, method, restful), // create HandlerMapping
+            this.mappingHandlerMapping(this.createHandlerMapping(beanClass, method), // create HandlerMapping
                     namespaces, methodsOnClass, annotationAttributes);
         }
     }
@@ -236,11 +209,11 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
                 // splice urls and request methods
                 for (RequestMethod requestMethod : requestMethods) {
                     if (exclude || namespaces.isEmpty()) {
-                        doMapping(handlerMappingIndex, handlerMethod, checkUrl(urlOnMethod), requestMethod);
+                        doMapping(handlerMappingIndex, handlerMethod, StringUtils.checkUrl(urlOnMethod), requestMethod);
                         continue;
                     }
                     for (String namespace : namespaces) {
-                        doMapping(handlerMappingIndex, handlerMethod, namespace + checkUrl(urlOnMethod), requestMethod);
+                        doMapping(handlerMappingIndex, handlerMethod, namespace + StringUtils.checkUrl(urlOnMethod), requestMethod);
                     }
                 }
             }
@@ -263,7 +236,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
                 + ContextUtils.resolveValue(urlOnMethod, String.class, variables); // GET/blog/users/1 GET/blog/#{key}/1
 
         if (!doMappingPathVariable(url, //
-                handlerMethod.getParameter(), handlerMethod.getMethod(), handlerMappingIndex, requestMethod.name())) {
+                handlerMethod.getParameters(), handlerMethod.getMethod(), handlerMappingIndex, requestMethod.name())) {
 
             this.requestMappings.put(url, Integer.valueOf(handlerMappingIndex));
             log.info(//
@@ -298,7 +271,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             MethodParameter methodParameter = methodParameters[i];
-            if (!methodParameter.hasPathVariable()) {
+            if (!methodParameter.isAnnotationPresent(PathVariable.class)) {
                 continue;
             }
             Class<?> parameterClass = methodParameter.getParameterClass();
@@ -309,7 +282,10 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
                         "You must specify a @PathVariable Like this: [public String update(@PathVariable int id, ..) {...}]"//
                 );
             }
-            String regex = pathVariable.regex(); // customize regex
+            String regex = pathVariable.pattern(); // customize regex
+            if (StringUtils.isEmpty(regex)) {
+                regex = pathVariable.regex();
+            }
             if (StringUtils.isEmpty(regex)) {
                 if (parameterClass == String.class) {
                     regex = Constant.STRING_REGEXP;
@@ -319,7 +295,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
                 }
             }
 
-            String parameterName = methodParameter.getParameterName();
+            String parameterName = methodParameter.getName();
             regexUrl = regexUrl.replace('{' + parameterName + '}', regex);
 
             String[] splitRegex = methodUrl.split(Constant.PATH_VARIABLE_REGEXP);
@@ -348,28 +324,12 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
     }
 
     /**
-     * Check Url, format url like :
-     * 
-     * <pre>
-     * users	-> /users
-     * /users	-> /users
-     * </pre>
-     * 
-     * @param url
-     * @return
-     */
-    private static String checkUrl(String url) {
-        return StringUtils.isEmpty(url) ? Constant.BLANK : (url.startsWith("/") ? url : "/" + url);
-    }
-
-    /**
      * Create {@link HandlerMapping}.
      * 
      * @param beanClass
      * @param method
-     * @param restful
      */
-    private HandlerMapping createHandlerMapping(Class<?> beanClass, Method method, boolean restful) throws Exception {
+    private HandlerMapping createHandlerMapping(Class<?> beanClass, Method method) throws Exception {
 
         final List<MethodParameter> methodParameters = createMethodParameters(method);
 
@@ -380,67 +340,17 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
             );
         }
 
-        final HandlerMethod handlerMethod = createHandlerMethod(method, restful, methodParameters);
+        final HandlerMethod handlerMethod = createHandlerMethod(method, methodParameters);
 
         return new HandlerMapping(bean, handlerMethod, getInterceptor(beanClass, method));
     }
 
-    public static HandlerMethod createHandlerMethod(Method method, boolean restful, final List<MethodParameter> methodParameters) {
+    public static HandlerMethod createHandlerMethod(Method method, final List<MethodParameter> methodParameters) {
         return new HandlerMethod(//
                 method, //
                 methodParameters, //
-                returnType(method, method.getReturnType(), restful)//
+                method.getReturnType()//
         );
-    }
-
-    /**
-     * 
-     * Resolve Handler Method's return type
-     * 
-     * @param method
-     *            handler method
-     * @param reutrnType
-     *            return type
-     * @param restful
-     *            class rest?
-     * @return
-     */
-    public static byte returnType(Method method, Class<?> returnType, boolean restful) {
-        if (Object.class == returnType) { // @since 2.3.3
-            return Constant.RETURN_OBJECT;
-        }
-        // image
-        if (Image.class.isAssignableFrom(returnType) || RenderedImage.class.isAssignableFrom(returnType)) {
-            return Constant.RETURN_IMAGE;
-        }
-        // file
-        if (File.class == returnType) {
-            return Constant.RETURN_FILE;
-        }
-        // void
-        if (void.class == returnType) {
-            return Constant.RETURN_VOID;
-        }
-        // rest
-        ResponseBody annotation = method.getAnnotation(ResponseBody.class);
-        if (annotation != null) {
-            restful = annotation.value();
-        }
-
-        if (ModelAndView.class == returnType) {// @since v2.3.3
-            return Constant.RETURN_MODEL_AND_VIEW;
-        }
-        if (returnType == StringBuilder.class || returnType == StringBuffer.class) {
-            return Constant.RETURN_STRING;
-        }
-        // view
-        if (String.class == returnType) {
-            if (restful) { // @since v2.3.3
-                return Constant.RETURN_STRING;
-            }
-            return Constant.RETURN_VIEW;
-        }
-        return Constant.RETURN_JSON;
     }
 
     /***
@@ -461,118 +371,22 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
 
     public static MethodParameter createMethodParameter(Parameter parameter, String methodArgsName) {
 
-        Class<?> genericityClass = null;
+        Type[] genericityClass = null;
         String parameterName = Constant.BLANK;
-        byte parameterType = Constant.TYPE_OTHER;
         Class<?> parameterClass = parameter.getType();
         // annotation
         boolean required = false;
         String defaultValue = null;
-        byte annotation = Constant.ANNOTATION_NULL;
 
-        if (Set.class.isAssignableFrom(parameterClass)) {
-            parameterType = Constant.TYPE_SET;
-            ParameterizedType paramType = (ParameterizedType) parameter.getParameterizedType();
-            genericityClass = (Class<?>) paramType.getActualTypeArguments()[0];
-        }
-        else if (List.class.isAssignableFrom(parameterClass)) {
-            parameterType = Constant.TYPE_LIST;
-            ParameterizedType paramType = (ParameterizedType) parameter.getParameterizedType();
-            genericityClass = (Class<?>) paramType.getActualTypeArguments()[0];
-        }
-        else if (Map.class.isAssignableFrom(parameterClass) && !Model.class.isAssignableFrom(parameterClass)) {
-            parameterType = Constant.TYPE_MAP;
-            ParameterizedType paramType = (ParameterizedType) parameter.getParameterizedType();
-            genericityClass = (Class<?>) paramType.getActualTypeArguments()[1];
-            // Model Map
-            if (genericityClass == Object.class) {
-                parameterType = Constant.TYPE_MODEL;
-            }
-        }
-        else if (parameterClass == int.class || parameterClass == Integer.class) {
-            parameterType = Constant.TYPE_INT;
-        }
-        else if (parameterClass == long.class || parameterClass == Long.class) {
-            parameterType = Constant.TYPE_LONG;
-        }
-        else if (parameterClass == short.class || parameterClass == Short.class) {
-            parameterType = Constant.TYPE_SHORT;
-        }
-        else if (parameterClass == byte.class || parameterClass == Byte.class) {
-            parameterType = Constant.TYPE_BYTE;
-        }
-        else if (parameterClass == double.class || parameterClass == Double.class) {
-            parameterType = Constant.TYPE_DOUBLE;
-        }
-        else if (parameterClass == float.class || parameterClass == Float.class) {
-            parameterType = Constant.TYPE_FLOAT;
-        }
-        else if (parameterClass == boolean.class || parameterClass == Boolean.class) {
-            parameterType = Constant.TYPE_BOOLEAN;
-        }
-        else if (parameterClass == HttpServletRequest.class) {
-            parameterType = Constant.TYPE_HTTP_SERVLET_REQUEST;
-        }
-        else if (parameterClass == HttpServletResponse.class) {
-            parameterType = Constant.TYPE_HTTP_SERVLET_RESPONSE;
-        }
-        else if (parameterClass == HttpSession.class) {
-            parameterType = Constant.TYPE_HTTP_SESSION;
-        }
-        else if (parameterClass == ServletContext.class) {
-            parameterType = Constant.TYPE_SERVLET_CONTEXT;
-        }
-        else if (parameterClass == Model.class || parameterClass == ModelAttributes.class) {
-            parameterType = Constant.TYPE_MODEL;
-        }
-        else if (parameterClass == String.class) {
-            parameterType = Constant.TYPE_STRING;
-        }
-        else if (MultipartFile.class.isAssignableFrom(parameterClass)) {
-            parameterType = Constant.TYPE_MULTIPART_FILE;
-        }
-        else if (RedirectModel.class.isAssignableFrom(parameterClass)) {
-            parameterType = Constant.TYPE_REDIRECT_MODEL;
-        }
-        else if (ModelAndView.class == parameterClass) {
-            parameterType = Constant.TYPE_MODEL_AND_VIEW;
-        }
-        else if (Reader.class == parameterClass || BufferedReader.class == parameterClass) {
-            parameterType = Constant.TYPE_READER;
-        }
-        else if (Writer.class == parameterClass || PrintWriter.class == parameterClass) {
-            parameterType = Constant.TYPE_WRITER;
-        }
-        else if (InputStream.class == parameterClass) {
-            parameterType = Constant.TYPE_INPUT_STREAM;
-        }
-        else if (OutputStream.class == parameterClass) {
-            parameterType = Constant.TYPE_OUT_STREAM;
-        }
-        else if (Locale.class == parameterClass) {
-            parameterType = Constant.TYPE_LOCALE;
-        }
-        else if (Principal.class == parameterClass) {
-            parameterType = Constant.TYPE_PRINCIPAL;
-        }
-
-        // array
-        if (parameterClass.isArray()) {
-            parameterType = Constant.TYPE_ARRAY;
-            if (parameterClass.getComponentType() == MultipartFile.class) {
-                parameterType += Constant.TYPE_MULTIPART_FILE;
-            }
-        }
-        // multipart
-        if (genericityClass == MultipartFile.class) {
-            parameterType += Constant.TYPE_MULTIPART_FILE;
+        final Type parameterizedType = parameter.getParameterizedType();
+        if (parameterizedType instanceof ParameterizedType) {
+            genericityClass = ((ParameterizedType) parameterizedType).getActualTypeArguments();
         }
 
         Collection<RequestParam> requestParams = ClassUtils.getAnnotation(parameter, RequestParam.class);
 
         if (!requestParams.isEmpty()) {
-            RequestParam requestParam = requestParams.iterator().next();
-            annotation = requestParam.type();
+            final RequestParam requestParam = requestParams.iterator().next();
             required = requestParam.required();
             parameterName = requestParam.value();
             defaultValue = requestParam.defaultValue();
@@ -583,12 +397,9 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
         }
 
         if (StringUtils.isEmpty(parameterName)) {
-            // use method parameter name
-            parameterName = methodArgsName;
+            parameterName = methodArgsName; // use method parameter name
         }
-
-        return new MethodParameter(required, parameterName, parameterClass, //
-                genericityClass, annotation, defaultValue, parameterType);
+        return new MethodParameter(parameterName, required, defaultValue, parameter, genericityClass, parameterClass);
     }
 
     /**
@@ -670,15 +481,6 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
     }
 
     @Override
-    public void setWebApplicationContext(WebApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-        this.contextPath = applicationContext.getServletContext().getContextPath();
-        ConfigurableEnvironment environment = this.applicationContext.getEnvironment();
-        this.variables = environment.getProperties();
-        this.beanDefinitionLoader = environment.getBeanDefinitionLoader();
-    }
-
-    @Override
     public void destroy() throws Exception {
         if (regexUrls != null) {
             this.regexUrls.clear();
@@ -689,7 +491,7 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
     }
 
     @Override
-    public void onStartup(ServletContext servletContext) throws Throwable {
+    public void onStartup(WebApplicationContext applicationContext) throws Throwable {
 
         log.info("Initializing Controllers");
         startConfiguration();
@@ -712,6 +514,15 @@ public class ActionConfiguration implements OrderedInitializer, WebApplicationCo
     @Override
     public int getOrder() {
         return HIGHEST_PRECEDENCE - 99;
+    }
+
+    @Override
+    public void setWebApplicationContext(WebApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+        this.contextPath = applicationContext.getContextPath();
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        this.variables = environment.getProperties();
+        this.beanDefinitionLoader = environment.getBeanDefinitionLoader();
     }
 
 }

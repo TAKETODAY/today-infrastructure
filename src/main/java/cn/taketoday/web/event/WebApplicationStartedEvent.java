@@ -23,8 +23,7 @@ import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.web.WebApplicationContext;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-10-18 14:06
  */
 @SuppressWarnings("serial")

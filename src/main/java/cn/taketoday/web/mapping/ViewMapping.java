@@ -19,11 +19,9 @@
  */
 package cn.taketoday.web.mapping;
 
-import java.lang.reflect.Method;
-
-import cn.taketoday.web.Constant;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * views request mapping
@@ -33,35 +31,76 @@ import lombok.Setter;
  *         2018-06-25 19:58:07
  * @version 2.0.0
  */
-@Setter
-@Getter
 @SuppressWarnings("serial")
-public class ViewMapping implements WebMapping {
+public class ViewMapping extends HandlerMapping implements WebMapping {
 
-    /** 返回类型 */
-    private byte returnType = Constant.TYPE_FORWARD; // default -> forward
+    public ViewMapping(Object bean, HandlerMethod handlerMethod) {
+        super(bean, handlerMethod, Collections.emptyList());
+    }
+
     /** 资源路径 */
     private String assetsPath = "";
-
-    /** Bean instance @since 2.3.3 */
-    private Object controller;
-
-    /** Handler method @since 2.3.3 */
-    private Method action;
-
     /** The resource's content type @since 2.3.3 */
     private String contentType = null;
 
     /** The request status @since 2.3.7 */
     private int status;
 
+    /** view 视图映射池 */
+    private static final Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>(16, 1f);
+
     public final boolean hasAction() {
-        return action != null;
+        return getHandlerMethod() != null;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getAssetsPath() {
+        return assetsPath;
+    }
+
+    public void setAssetsPath(String assetsPath) {
+        this.assetsPath = assetsPath;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     @Override
     public String toString() {
-        return "[returnType=" + returnType + ", assetsPath=" + assetsPath + ", contentType=" + contentType + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("{\n\t\"assetsPath\":\"");
+        builder.append(assetsPath);
+        builder.append("\",\n\t\"contentType\":\"");
+        builder.append(contentType);
+        builder.append("\",\n\t\"status\":\"");
+        builder.append(status);
+        builder.append("\"\n}");
+        return builder.toString();
     }
 
+    // ---------------static
+
+    public static ViewMapping get(String key) {
+        return VIEW_REQUEST_MAPPING.get(key);
+    }
+
+    public static Map<String, ViewMapping> getMappings() {
+        return VIEW_REQUEST_MAPPING;
+    }
+
+    public static void register(String name, ViewMapping viewMapping) {
+        VIEW_REQUEST_MAPPING.put(name, viewMapping);
+    }
 }

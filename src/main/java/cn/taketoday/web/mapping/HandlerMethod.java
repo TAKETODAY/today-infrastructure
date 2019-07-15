@@ -19,9 +19,21 @@
  */
 package cn.taketoday.web.mapping;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.resolver.result.ResultResolver;
 
 /**
  * @author TODAY <br>
@@ -32,35 +44,167 @@ public class HandlerMethod {
     /** action **/
     private final Method method;
     /** parameter list **/
-    private final MethodParameter[] parameter;
+    private final MethodParameter[] parameters;
 
-    /** use switch case instead of if else @since 2.3.1 */
-    private final byte reutrnType;
+    /** @since 2.3.7 */
+    private final Class<?> reutrnType;
+    /** @since 2.3.7 */
+    private final Type[] genericityClass;
 
-    public HandlerMethod(Method method, List<MethodParameter> parameters, byte reutrnType) {
+    private final ResultResolver resultResolver;
+
+    private static final List<ResultResolver> RESULT_RESOLVERS = new ArrayList<>();
+
+    /**
+     * Get correspond result resolver, If there isn't a suitable resolver will be
+     * throw {@link ConfigurationException}
+     * 
+     * @return A suitable {@link ResultResolver}
+     */
+    protected ResultResolver obtainResolver() throws ConfigurationException {
+
+        for (final ResultResolver resolver : RESULT_RESOLVERS) {
+            if (resolver.supports(this)) {
+                return resolver;
+            }
+        }
+
+        throw ExceptionUtils.newConfigurationException(null,
+                "There isn't have a result resolver to resolve : [" + toString() + "]");
+    }
+
+    public HandlerMethod(Method method, List<MethodParameter> parameters, Class<?> reutrnType) {
         this(method, reutrnType, parameters.toArray(new MethodParameter[0]));
     }
 
-    public HandlerMethod(Method method, byte reutrnType, MethodParameter... parameters) {
+    public HandlerMethod(Method method, Class<?> reutrnType, MethodParameter... parameters) {
         this.method = method;
-        this.parameter = parameters;
+        this.parameters = parameters;
         this.reutrnType = reutrnType;
+
+        final Type parameterizedType = reutrnType.getGenericSuperclass();
+        if (parameterizedType instanceof ParameterizedType) {
+            genericityClass = ((ParameterizedType) parameterizedType).getActualTypeArguments();
+        }
+        else {
+            genericityClass = null;
+        }
+        this.resultResolver = obtainResolver();
     }
 
     public final Method getMethod() {
         return method;
     }
 
-    public final MethodParameter[] getParameter() {
-        return parameter;
+    public final MethodParameter[] getParameters() {
+        return parameters;
     }
 
-    public final byte getReutrnType() {
+    public final Class<?> getReutrnType() {
         return reutrnType;
+    }
+
+    // ----
+    public boolean isInterface() {
+        return reutrnType.isInterface();
+    }
+
+    public boolean isArray() {
+        return reutrnType.isArray();
+    }
+
+    public boolean isAssignableFrom(Class<?> superClass) {
+        return superClass.isAssignableFrom(reutrnType);
+    }
+
+    public boolean is(Class<?> reutrnType) {
+        return reutrnType == this.reutrnType;
+    }
+
+    public Type getGenericityClass(int index) {
+
+        if (genericityClass != null) {
+            if (genericityClass.length > index) {
+                return genericityClass[index];
+            }
+        }
+        return null;
+    }
+
+    public boolean isGenericPresent(final Type requiredType, int index) {
+
+        if (genericityClass != null) {
+            if (genericityClass.length > index) {
+                return genericityClass[index].equals(requiredType);
+            }
+        }
+        return false;
+    }
+
+    public boolean isGenericPresent(final Type requiredType) {
+
+        if (genericityClass != null) {
+            for (final Type type : genericityClass) {
+                if (type.equals(requiredType)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isDeclaringClassPresent(Class<? extends Annotation> annotationClass) {
+        return getDeclaringClassAnnotation(annotationClass) != null;
+    }
+
+    public boolean isMethodPresent(Class<? extends Annotation> annotationClass) {
+        return getMethodAnnotation(annotationClass) != null;
+    }
+
+    public <A extends Annotation> A getDeclaringClassAnnotation(Class<A> annotation) {
+        return getAnnotation(method.getDeclaringClass(), annotation);
+    }
+
+    public <A extends Annotation> A getMethodAnnotation(Class<A> annotation) {
+        return getAnnotation(method, annotation);
+    }
+
+    public <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotation) {
+
+        final Collection<A> a = ClassUtils.getAnnotation(element, annotation);
+        if (a.isEmpty()) {
+            return null;
+        }
+
+        return a.iterator().next();
+    }
+
+    // -------------
+
+    public void resolveResult(final RequestContext requestContext, final Object result) throws Throwable {
+        resultResolver.resolveResult(requestContext, result);
+    }
+
+    public Object[] resolveParameters(final RequestContext requestContext) throws Throwable {
+        // log.debug("set parameter start");
+        final Object[] args = new Object[parameters.length];
+        int i = 0;
+        for (final MethodParameter parameter : parameters) {
+            args[i++] = parameter.resolveParameter(requestContext);
+        }
+        return args;
+    }
+
+    public static void addResolver(ResultResolver... parameterResolver) {
+        RESULT_RESOLVERS.addAll(Arrays.asList(parameterResolver));
+    }
+
+    public static void addResolver(List<ResultResolver> parameterResolver) {
+        RESULT_RESOLVERS.addAll(parameterResolver);
     }
 
     @Override
     public String toString() {
-        return "{method=" + getMethod() + ", parameter=[" + Arrays.toString(getParameter()) + "]}";
+        return "{method=" + getMethod() + ", parameter=[" + Arrays.toString(getParameters()) + "]}";
     }
 }

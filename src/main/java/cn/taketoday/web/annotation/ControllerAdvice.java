@@ -36,5 +36,4 @@ import cn.taketoday.context.annotation.Component;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ControllerAdvice {
 
-    boolean restful() default false;
 }

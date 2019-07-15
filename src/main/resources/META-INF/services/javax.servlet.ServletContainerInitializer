@@ -1,1 +1,1 @@
-cn.taketoday.web.config.WebApplicationLoader
+cn.taketoday.web.servlet.WebServletApplicationLoader

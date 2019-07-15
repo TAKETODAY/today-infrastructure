@@ -19,15 +19,9 @@
  */
 package cn.taketoday.web.config;
 
-import java.awt.Image;
-import java.awt.image.RenderedImage;
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Properties;
-
-import javax.el.ELProcessor;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -35,7 +29,6 @@ import org.w3c.dom.NodeList;
 
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.bean.DefaultBeanDefinition;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
@@ -44,8 +37,8 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextAware;
+import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.ViewMapping;
-import cn.taketoday.web.servlet.ViewDispatcher;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -58,7 +51,6 @@ public class ViewConfiguration implements WebApplicationContextAware {
 
     private String contextPath;
     private Properties variables;
-    private ELProcessor elProcessor;
     private BeanNameCreator beanNameCreator;
     private WebApplicationContext applicationContext;
 
@@ -90,7 +82,7 @@ public class ViewConfiguration implements WebApplicationContextAware {
                 name = beanNameCreator.create(beanClass);
             }
             if (!applicationContext.containsBeanDefinition(beanClass)) {
-                applicationContext.registerBean(name, new DefaultBeanDefinition(name, beanClass));
+                applicationContext.registerBean(name, beanClass); // fix
                 applicationContext.refresh(name);
             }
             controllerBean = applicationContext.getBean(beanClass);
@@ -103,8 +95,7 @@ public class ViewConfiguration implements WebApplicationContextAware {
                 String nodeName = node.getNodeName();
                 // @since 2.3.3
                 if (nodeName.equals(Constant.ELEMENT_ACTION)) {// <action/>
-                    processAction(prefix, suffix, (Element) node, beanClass)//
-                            .setController(controllerBean);
+                    processAction(prefix, suffix, (Element) node, beanClass, controllerBean);
                 }
                 else {
                     log.warn("This element: [{}] is not supported.", nodeName);
@@ -118,23 +109,23 @@ public class ViewConfiguration implements WebApplicationContextAware {
      * @param suffix
      * @param action
      * @param class_
+     * @param controllerBean
      * @return
      * @throws Exception
      */
-    private ViewMapping processAction(String prefix, String suffix, Element action, Class<?> class_) throws Exception {
-
-        ViewMapping mapping = new ViewMapping();
+    protected ViewMapping processAction(//
+            final String prefix, //
+            final String suffix, //
+            final Element action, //
+            final Class<?> class_, //
+            final Object controllerBean) throws Exception //
+    {
 
         String name = action.getAttribute(Constant.ATTR_NAME); // action name
-        String type = action.getAttribute(Constant.ATTR_TYPE); // action type
         String method = action.getAttribute(Constant.ATTR_METHOD); // handler method
         String resource = action.getAttribute(Constant.ATTR_RESOURCE); // resource
         String contentType = action.getAttribute(Constant.ATTR_CONTENT_TYPE); // content type
         final String status = action.getAttribute(Constant.ATTR_STATUS); // status
-
-        if (StringUtils.isNotEmpty(status)) {
-            mapping.setStatus(Integer.parseInt(status));
-        }
 
         if (StringUtils.isEmpty(name)) {
             throw new ConfigurationException(//
@@ -142,39 +133,29 @@ public class ViewConfiguration implements WebApplicationContextAware {
             );
         }
 
+        HandlerMethod handlerMethod = null;
+
         if (StringUtils.isNotEmpty(method)) {
-            Method handelrMethod = class_.getDeclaredMethod(method, HttpServletRequest.class, HttpServletResponse.class);
-            mapping.setAction(handelrMethod);
-            Class<?> returnType = handelrMethod.getReturnType();
 
-            if (returnType == String.class) {
-                mapping.setReturnType(Constant.RETURN_STRING);
-            }
-            else if (Image.class.isAssignableFrom(returnType) || RenderedImage.class.isAssignableFrom(returnType)) {
-                mapping.setReturnType(Constant.RETURN_IMAGE);
-            }
-            else if (returnType == void.class) {
-                mapping.setReturnType(Constant.RETURN_VOID);
-            }
-            else {
-                mapping.setReturnType(Constant.RETURN_OBJECT);
+            for (final Method targetMethod : class_.getDeclaredMethods()) {
+
+                if (!targetMethod.isBridge() && method.equals(targetMethod.getName())) {
+                    handlerMethod = ActionConfiguration.createHandlerMethod(targetMethod,
+                            ActionConfiguration.createMethodParameters(targetMethod));
+                    break;
+                }
             }
         }
 
-        resource = ContextUtils.resolvePlaceholder(variables, prefix + resource + suffix, false);
-        if (resource == null) {
-            resource = elProcessor.getValue(prefix + resource + suffix, String.class);
-        }
-        if (Constant.VALUE_REDIRECT.equals(type)) { // redirect
-            mapping.setReturnType(Constant.TYPE_REDIRECT);
-            if (!resource.startsWith(Constant.HTTP)) {
-                resource = contextPath + resource;
-            }
-        }
-        else if (Constant.VALUE_FORWARD.equals(type)) { // forward
-            mapping.setReturnType(Constant.TYPE_FORWARD);
+        final ViewMapping mapping = new ViewMapping(controllerBean, handlerMethod);
+
+        if (StringUtils.isNotEmpty(status)) {
+            mapping.setStatus(Integer.parseInt(status));
         }
 
+        if (StringUtils.isNotEmpty(resource)) {
+            resource = ContextUtils.resolveValue(prefix + resource + suffix, String.class, variables);
+        }
         mapping.setAssetsPath(resource);
         { // @since 2.3.3
             if (StringUtils.isNotEmpty(contentType)) {
@@ -182,10 +163,9 @@ public class ViewConfiguration implements WebApplicationContextAware {
             }
         }
 
-        name = ContextUtils.resolvePlaceholder(variables, //
-                contextPath + (name.startsWith("/") ? name : "/" + name));
+        name = ContextUtils.resolveValue(contextPath + StringUtils.checkUrl(name), String.class, variables);
 
-        ViewDispatcher.register(name, mapping);
+        ViewMapping.register(name, mapping);
         log.info("View Mapped [{} -> {}]", name, mapping);
         return mapping;
     }
@@ -196,9 +176,8 @@ public class ViewConfiguration implements WebApplicationContextAware {
         final ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
         this.variables = environment.getProperties();
-        this.elProcessor = environment.getELProcessor();
         this.beanNameCreator = environment.getBeanNameCreator();
-        this.contextPath = applicationContext.getServletContext().getContextPath();
+        this.contextPath = applicationContext.getContextPath();
     }
 
 }

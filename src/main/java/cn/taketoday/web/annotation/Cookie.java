@@ -27,35 +27,24 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.Constant;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-07-01 14:10:04 <br>
  *         2018-08-21 19:16 <b>change</b> add defaultValue()
  */
+@RequestParam
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@RequestParam(type = Constant.ANNOTATION_COOKIE)
 public @interface Cookie {
 
-    /**
-     * 
-     * required ?
-     * 
-     * @return
-     */
     boolean required() default false;
 
     /**
      * The name of cookie.
-     * 
-     * @return
      */
     String value() default Constant.BLANK;
 
     /**
      * When required == false, and parameter == null. use default value.
-     * 
-     * @return
      */
     String defaultValue() default Constant.BLANK;
 

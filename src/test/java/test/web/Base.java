@@ -29,8 +29,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.web.DefaultWebApplicationContext;
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -45,7 +45,7 @@ public class Base {
 
     private ServletContext servletContext;
 
-    private WebApplicationContext applicationContext;
+    private WebServletApplicationContext applicationContext;
     long start = System.currentTimeMillis();
 
     @Before
@@ -53,9 +53,9 @@ public class Base {
 
         servletContext = Mockito.mock(ServletContext.class);
         Mockito.when(servletContext.getContextPath()).thenReturn("");
-        applicationContext = new DefaultWebApplicationContext();
+        applicationContext = new StandardWebServletApplicationContext();
 
-        ((DefaultWebApplicationContext) applicationContext).setServletContext(servletContext);
+        ((StandardWebServletApplicationContext) applicationContext).setServletContext(servletContext);
 
         applicationContext.getEnvironment().addActiveProfile("test");
         applicationContext.loadContext("test.web");

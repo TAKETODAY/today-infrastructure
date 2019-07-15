@@ -28,39 +28,21 @@ import cn.taketoday.web.Constant;
 
 /**
  * @author TODAY <br>
- *         2018-08-21 18:51 change
  */
-@Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 public @interface RequestParam {
 
     /**
      * If required == true when request parameter is null, will be return bad
      * request.
-     * 
-     * @return
      */
     boolean required() default false;
 
-    /**
-     * Parameter name.
-     * 
-     * @return
-     */
+    /** Parameter name. */
     String value() default Constant.BLANK;
 
-    /**
-     * When required == false, and parameter == null. use default value.
-     * 
-     * @return
-     */
+    /** When required == false, and parameter == null. use default value. */
     String defaultValue() default Constant.BLANK;
-
-    /**
-     * Annotation type
-     * 
-     * @return
-     */
-    byte type() default Constant.ANNOTATION_NULL;
 
 }

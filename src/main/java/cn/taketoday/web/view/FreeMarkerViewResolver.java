@@ -19,12 +19,10 @@
  */
 package cn.taketoday.web.view;
 
-import java.util.Map;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +32,9 @@ import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.web.Constant;
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.WebDebugMode;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.utils.WebUtils;
 import freemarker.cache.TemplateLoader;
 import freemarker.ext.jsp.TaglibFactory;
@@ -86,7 +85,10 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
             @Autowired(required = false) TemplateLoader templateLoader, //
             @Props(prefix = "freemarker.", replace = true) Properties settings) //
     {
-        WebApplicationContext webApplicationContext = WebUtils.getWebApplicationContext();
+
+        WebServletApplicationContext webApplicationContext = //
+                (WebServletApplicationContext) WebUtils.getWebApplicationContext();
+
         if (configuration == null) {
             configuration = new Configuration(Configuration.VERSION_2_3_28);
             webApplicationContext.registerSingleton(configuration.getClass().getName(), configuration);
@@ -106,9 +108,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
         // Create hash model wrapper for servlet context (the application)
         this.applicationModel = new ServletContextHashModel(servletContext, wrapper);
 
-        final Map<String, TemplateModel> templateModels = webApplicationContext.getBeansOfType(TemplateModel.class);
-
-        templateModels.forEach(configuration::setSharedVariable);
+        webApplicationContext.getBeansOfType(TemplateModel.class).forEach(configuration::setSharedVariable);
 
         this.templateLoader = templateLoader;
         try {
@@ -141,13 +141,16 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
     }
 
     /**
-     * create Model Attributes.
+     * Create Model Attributes.
      * 
-     * @param request
-     * @return
+     * @param requestContext
+     *            Current request context
+     * @return {@link TemplateHashModel}
      */
-    protected final TemplateHashModel createModel(HttpServletRequest request) {
+    protected TemplateHashModel createModel(RequestContext requestContext) {
         final ObjectWrapper wrapper = this.wrapper;
+
+        final HttpServletRequest request = requestContext.nativeRequest();
 
         final AllHttpScopesHashModel allHttpScopesHashModel = //
                 new AllHttpScopesHashModel(wrapper, servletContext, request);
@@ -158,7 +161,8 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
         allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_REQUEST, new HttpRequestHashModel(request, wrapper));
         allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_REQUEST_PARAMETERS, new HttpRequestParametersHashModel(request));
         // Create hash model wrapper for session
-        allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_SESSION, new HttpSessionHashModel(request.getSession(), wrapper));
+        allHttpScopesHashModel.putUnlistedModel(FreemarkerServlet.KEY_SESSION,
+                new HttpSessionHashModel(requestContext.nativeSession(), wrapper));
 
         return allHttpScopesHashModel;
     }
@@ -167,11 +171,10 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
      * Resolve FreeMarker View.
      */
     @Override
-    public void resolveView(String templateName, //
-            HttpServletRequest request, HttpServletResponse response) throws Throwable //
-    {
-        configuration.getTemplate(templateName + suffix, locale, encoding)//
-                .process(createModel(request), response.getWriter());
+    public void resolveView(final String template, final RequestContext requestContext) throws Throwable {
+
+        configuration.getTemplate(template + suffix, locale, encoding)//
+                .process(createModel(requestContext), requestContext.getWriter());
     }
 
 }

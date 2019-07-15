@@ -19,16 +19,14 @@
  */
 package cn.taketoday.web.config;
 
-import java.util.Set;
-
-import javax.servlet.Registration;
-import javax.servlet.ServletRegistration;
+import java.util.List;
 
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.web.annotation.Multipart;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
-import cn.taketoday.web.multipart.AbstractMultipartResolver;
-import cn.taketoday.web.multipart.MultipartResolver;
-import cn.taketoday.web.servlet.ResourceServlet;
+import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.resolver.method.ParameterResolver;
+import cn.taketoday.web.resolver.result.ResultResolver;
 import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.ViewResolver;
 
@@ -37,6 +35,20 @@ import cn.taketoday.web.view.ViewResolver;
  *         2019-05-17 17:46
  */
 public interface WebMvcConfiguration {
+
+    /**
+     * Configure {@link ParameterResolver}
+     * 
+     * @param parameterResolvers
+     *            List of {@link ParameterResolver}
+     */
+    default void configureParameterResolver(List<ParameterResolver> parameterResolvers) {
+
+    }
+
+    default void configureResultResolver(List<ResultResolver> resultResolvers) {
+
+    }
 
     /**
      * Configure {@link ViewResolver}
@@ -59,32 +71,12 @@ public interface WebMvcConfiguration {
     }
 
     /**
-     * Configure {@link ResourceServlet}'s mappings
+     * Configure {@link Multipart}
      * 
-     * @param urlMappings
-     *            {@link ResourceServlet} url mappings
+     * @param multipartConfiguration
+     *            {@link MultipartConfiguration}
      */
-    default void configureResourceServletUrlMappings(Set<String> urlMappings) {
-
-    }
-
-    /**
-     * Configure default servlet
-     * 
-     * @param servletRegistration
-     *            default servlet {@link Registration}
-     */
-    default void configureDefaultServlet(ServletRegistration servletRegistration) {
-
-    }
-
-    /**
-     * Configure {@link MultipartResolver}
-     * 
-     * @param multipartResolver
-     *            {@link AbstractMultipartResolver}
-     */
-    default void configureMultipartResolver(AbstractMultipartResolver multipartResolver) {
+    default void configureMultipart(MultipartConfiguration multipartConfiguration) {
 
     }
 

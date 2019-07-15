@@ -19,9 +19,6 @@
  */
 package cn.taketoday.web.view;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
@@ -30,6 +27,7 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.web.RequestContext;
 
 /**
  * 
@@ -67,14 +65,14 @@ public class ThymeleafViewResolver extends AbstractViewResolver implements Initi
     }
 
     /**
-     * resolve Thymeleaf View.
+     * Resolve Thymeleaf View.
      */
     @Override
-    public void resolveView(String templateName, //
-            HttpServletRequest request, HttpServletResponse response) throws Throwable //
-    {
-        templateEngine.process(templateName, //
-                new WebContext(request, response, servletContext, locale), response.getWriter());
+    public void resolveView(final String template, final RequestContext requestContext) throws Throwable {
+
+        templateEngine.process(template, //
+                new WebContext(requestContext.nativeRequest(), //
+                        requestContext.nativeResponse(), servletContext, locale), requestContext.getWriter());
     }
 
 }

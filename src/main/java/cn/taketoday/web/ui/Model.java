@@ -19,12 +19,13 @@
  */
 package cn.taketoday.web.ui;
 
-import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Map;
 
+import cn.taketoday.context.utils.ConvertUtils;
+
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-10-14 20:30
  */
 public interface Model {
@@ -32,31 +33,13 @@ public interface Model {
     /**
      * Contains a attribute with given {@link attributeName}
      * 
-     * @param attributeName
-     *            Attribute name
-     * @return
-     */
-    boolean containsAttribute(String attributeName);
-
-    /**
-     * get attribute
-     * 
      * @param name
      *            Attribute name
-     * @return
+     * @return if contains the attribute
      */
-    Object getAttribute(String name);
-
-    /**
-     * Get a attribute with given name and required type
-     * 
-     * @param name
-     *            Attribute name
-     * @param targetClass
-     *            Required type
-     * @return
-     */
-    <T> T getAttribute(String name, Class<T> targetClass);
+    default boolean containsAttribute(String name) {
+        return attribute(name) == null;
+    }
 
     /**
      * Add the attributes from map
@@ -65,45 +48,72 @@ public interface Model {
      *            The attributes
      * @return
      */
-    Model addAllAttributes(Map<String, Object> attributes);
+    Model attributes(Map<String, Object> attributes);
 
     /**
-     * Add a attribute in model
+     * Returns an <code>Enumeration</code> containing the names of the attributes
+     * available to this request. This method returns an empty
+     * <code>Enumeration</code> if the request has no attributes available to it.
      * 
-     * @param attributeName
-     *            Attribute name
-     * @param attributeValue
-     *            Attribute value
-     * @return
+     * @return an <code>Enumeration</code> of strings containing the names of the
+     *         request's attributes
      */
-    Model addAttribute(String attributeName, Object attributeValue);
+    Enumeration<String> attributes();
 
     /**
-     * convert this model to a {@link Map}
-     * 
-     * @return
+     * Returns the value of the named attribute as an <code>Object</code>, or
+     * <code>null</code> if no attribute of the given name exists.
+     *
+     * @param name
+     *            a <code>String</code> specifying the name of the attribute
+     *
+     * @return an <code>Object</code> containing the value of the attribute, or
+     *         <code>null</code> if the attribute does not exist
+     */
+    Object attribute(String name);
+
+    /**
+     * Returns the value of the named attribute as an <code>Object</code>, or
+     * <code>null</code> if no attribute of the given name exists.
+     *
+     * @param name
+     *            a <code>String</code> specifying the name of the attribute
+     *
+     * @param targetClass
+     *            attribute will be use {@link ConvertUtils} convert to target class
+     * @return an converted <code>Object</code> containing the value of the
+     *         attribute, or <code>null</code> if the attribute does not exist
+     */
+    <T> T attribute(String name, Class<T> targetClass);
+
+    /**
+     * Stores an attribute in this request. Attributes are reset between requests..
+     *
+     * @param name
+     *            a <code>String</code> specifying the name of the attribute
+     * @param value
+     *            the <code>Object</code> to be stored
+     */
+    Model attribute(String name, Object value);
+
+    /**
+     *
+     * Removes an attribute from this request. This method is not generally needed
+     * as attributes only persist as long as the request is being handled.
+     *
+     * @param name
+     *            a <code>String</code> specifying the name of the attribute to
+     *            remove
+     */
+    Model removeAttribute(String name);
+
+    /**
+     * Convert this model to a {@link Map}
      */
     Map<String, Object> asMap();
 
     /**
-     * Delete attribute
-     * 
-     * @param name
-     *            Attribute name
-     */
-    void removeAttribute(String name);
-
-    /**
-     * Get all the attribute names
-     * 
-     * @return
-     */
-    Collection<String> getAttributeNames();
-
-    /**
      * Clear all attributes
-     * 
-     * @since 2.3.3
      */
     void clear();
 

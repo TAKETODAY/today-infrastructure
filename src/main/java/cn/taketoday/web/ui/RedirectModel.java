@@ -22,8 +22,7 @@ package cn.taketoday.web.ui;
 /**
  * Redirect data model
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-11-18 16:39
  * @since 2.3.3
  */

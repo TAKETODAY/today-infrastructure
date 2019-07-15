@@ -27,20 +27,15 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.Constant;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-17 21:24
  */
+@RequestParam
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@RequestParam(type = Constant.ANNOTATION_MULTIPART)
 public @interface Multipart {
 
-    /**
-     * multipart name
-     * 
-     * @return
-     */
+    /** multi part name */
     String value() default Constant.BLANK;
 
 }

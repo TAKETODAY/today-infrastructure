@@ -21,28 +21,13 @@ package cn.taketoday.web.multipart;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 
-import javax.servlet.http.Part;
-
-import org.apache.commons.fileupload.FileItem;
-
 /**
- * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-07-11 13:02:52
  */
-public interface MultipartFile extends Serializable {
-
-    /**
-     * Get upload file input stream.
-     * 
-     * @return upload file input stream
-     * @throws IOException
-     */
-    InputStream getInputStream() throws IOException;
+public interface MultipartFile extends Serializable, cn.taketoday.context.io.Readable {
 
     /**
      * Get upload file content type.
@@ -77,10 +62,9 @@ public interface MultipartFile extends Serializable {
      *            the file path
      * @return
      */
-    boolean save(File dest);
+    void save(File dest) throws IOException;
 
     /**
-     * 
      * @return
      */
     boolean isEmpty();
@@ -94,10 +78,10 @@ public interface MultipartFile extends Serializable {
     byte[] getBytes() throws IOException;
 
     /**
-     * Get {@link Part} or {@link FileItem} ...
+     * Get original resource
      * 
      * @since 2.3.3
-     * @return
+     * @return Original resource
      */
     Object getOriginalResource();
 
@@ -109,6 +93,6 @@ public interface MultipartFile extends Serializable {
      * @throws IOException
      *             if an error occurs.
      */
-    public void delete() throws IOException;
+    void delete() throws IOException;
 
 }

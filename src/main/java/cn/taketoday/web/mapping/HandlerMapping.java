@@ -27,25 +27,24 @@ import cn.taketoday.context.Constant;
 /**
  * Mapping handler to a request
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-06-25 19:59:13
  */
 @SuppressWarnings("serial")
-public final class HandlerMapping implements WebMapping {
+public class HandlerMapping implements WebMapping {
 
     private static final int[] EMPTY = Constant.EMPTY_INT_ARRAY;
     /** 处理器类 */
 //	private String				action;
-    private final Object action;
+    private final Object bean;
     /** 处理器方法 */
     private final HandlerMethod handlerMethod;
     /** 拦截器 */
     private final int[] interceptors;
 
-    public HandlerMapping(Object action, HandlerMethod handlerMethod, List<Integer> interceptors) {
+    public HandlerMapping(Object bean, HandlerMethod handlerMethod, List<Integer> interceptors) {
 
-        this.action = action;
+        this.bean = bean;
         this.handlerMethod = handlerMethod;
 
         this.interceptors = //
@@ -58,8 +57,8 @@ public final class HandlerMapping implements WebMapping {
         return interceptors != EMPTY;
     }
 
-    public final Object getAction() {
-        return action;
+    public final Object getBean() {
+        return bean;
     }
 
     public final int[] getInterceptors() {

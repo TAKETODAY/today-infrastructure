@@ -19,66 +19,106 @@
  */
 package cn.taketoday.web.ui;
 
-import java.util.HashMap;
+import java.util.Enumeration;
 import java.util.Map;
 
-import lombok.Getter;
-import lombok.Setter;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.servlet.RequestContextHolder;
 
 /**
- * @author Today <br>
- *
+ * @author TODAY <br>
  *         2018-12-02 19:54
  */
-@Getter
-@Setter
-public class ModelAndView {
+public class ModelAndView implements Model {
 
     private Object view;
-    private String contentType = null;
-    private final Map<String, Object> dataModel;
+    private final RequestContext dataModel;
 
     public ModelAndView() {
-        dataModel = new HashMap<>(16, 1.0f);
+        this(null, RequestContextHolder.currentContext());
     }
 
     public ModelAndView(Object view) {
-        this();
-        this.view = view;
+        this(view, RequestContextHolder.currentContext());
     }
 
-    public ModelAndView(Object view, Map<String, Object> dataModel) {
-        this.view = view;
+    public ModelAndView(Object view, RequestContext dataModel) {
+        this.setView(view);
         this.dataModel = dataModel;
     }
 
-    public ModelAndView(Object view, String modelName, Object modelObject) {
-        this();
-        this.view = view;
-        addAttribute(modelName, modelObject);
+    public ModelAndView(Object view, String name, Object value) {
+        this(view);
+        attribute(name, value);
     }
 
+    public String getContentType() {
+        return dataModel.contentType();
+    }
+
+    public ModelAndView setContentType(String contentType) {
+        dataModel.contentType(contentType);
+        return this;
+    }
+
+    /**
+     * Set view
+     * 
+     * @param view
+     *            View object
+     * @return Current {@link ModelAndView}
+     */
     public ModelAndView setView(Object view) {
         this.view = view;
         return this;
     }
 
-    /**
-     * 
-     * @return
-     */
-    public final boolean noView() {
-        return this.view == null;
+    public final boolean hasView() {
+        return view != null;
     }
 
-    public ModelAndView addAttribute(String attributeName, Object attributeValue) {
-        dataModel.put(attributeName, attributeValue);
-        return this;
+    public Object getView() {
+        return view;
     }
 
-    public ModelAndView addAllAttributes(Map<String, Object> attributes) {
-        dataModel.putAll(attributes);
-        return this;
+    @Override
+    public Model attributes(Map<String, Object> attributes) {
+        return dataModel.attributes(attributes);
+    }
+
+    @Override
+    public Enumeration<String> attributes() {
+        return dataModel.attributes();
+    }
+
+    @Override
+    public Object attribute(String name) {
+        return dataModel.attribute(name);
+    }
+
+    @Override
+    public <T> T attribute(String name, Class<T> targetClass) {
+        return dataModel.attribute(name, targetClass);
+    }
+
+    @Override
+    public Model attribute(String name, Object value) {
+        return dataModel.attribute(name, value);
+    }
+
+    @Override
+    public Model removeAttribute(String name) {
+        return dataModel.removeAttribute(name);
+    }
+
+    @Override
+    public Map<String, Object> asMap() {
+        return dataModel.asMap();
+    }
+
+    @Override
+    public void clear() {
+        dataModel.clear();
     }
 
 }

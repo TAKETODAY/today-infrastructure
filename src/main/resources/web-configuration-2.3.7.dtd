@@ -2,13 +2,9 @@
 <!DOCTYPE Web-Configuration PUBLIC
 		"-//TODAY BLOG//Web-View Configuration DTD 2.0//CN"
 			"https://taketoday.cn/framework/web/dtd/web-configuration-2.3.7.dtd">
-
-<!ELEMENT Web-Configuration (static-resources*, component-scan*, common*, bean*)>
-		class CDATA #IMPLIED
-
 -->
 
-<!ELEMENT Web-Configuration (#PCDATA|dispatcher-servlet|static-resources|controller|view-resolver|multipart|exception-resolver|parameter-resolver)*>
+<!ELEMENT Web-Configuration (#PCDATA|controller)*>
 
 <!-- action common configure -->
 <!ELEMENT controller (action)*>
@@ -28,49 +24,4 @@
 		content-type CDATA "text/html;charset=UTF-8"
 		type (forward|redirect) #IMPLIED
 	>
-<!-- static sources configure -->
-<!ELEMENT dispatcher-servlet (#PCDATA)>
-	<!ATTLIST dispatcher-servlet
-		mapping CDATA #REQUIRED
-	>
 	
-<!ELEMENT resources (#PCDATA)>
-	<!ATTLIST resources
-		mapping CDATA #REQUIRED
-	>
-	
-<!ELEMENT default-servlet (#PCDATA)>
-	<!ATTLIST default-servlet
-		mapping CDATA #REQUIRED
-	>
-
-<!ELEMENT view-resolver (#PCDATA|view-suffix|view-prefix|view-encoding|view-locale)*>
-	<!ATTLIST view-resolver
-		class CDATA "cn.taketoday.web.view.FreeMarkerViewResolver"
-	>
-<!ELEMENT view-suffix (#PCDATA)>
-<!ELEMENT view-prefix (#PCDATA)>
-<!ELEMENT view-encoding (#PCDATA)>
-<!ELEMENT view-locale (#PCDATA)>
-	
-<!ELEMENT parameter-resolver (#PCDATA)>
-	<!ATTLIST parameter-resolver
-		class CDATA "cn.taketoday.web.resolver.DefaultParameterResolver"
-	>
-<!ELEMENT exception-resolver (#PCDATA)>
-	<!ATTLIST exception-resolver
-		class CDATA "cn.taketoday.web.resolver.DefaultExceptionResolver"
-	>
-	
-<!ELEMENT multipart (#PCDATA|upload-location|upload-maxFileSize|upload-maxRequestSize|upload-fileSizeThreshold|upload-encoding)*>
-	<!ATTLIST multipart
-		class CDATA "cn.taketoday.web.multipart.DefaultMultipartResolver" 
-	>
-	
-<!ELEMENT upload-encoding (#PCDATA)>
-<!ELEMENT upload-location (#PCDATA)>
-<!ELEMENT upload-maxFileSize (#PCDATA)>
-<!ELEMENT upload-maxRequestSize (#PCDATA)>
-<!ELEMENT upload-fileSizeThreshold (#PCDATA)>
-
-

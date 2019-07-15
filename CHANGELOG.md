@@ -27,7 +27,6 @@
 - [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-web/2.3.6.RELEASE/jar)
 
 
-
 ## v2.3.7
 - :sparkles: feat: allow rebuild Controllers
 - :sparkles: :zap: add WebUtils api
@@ -51,7 +50,9 @@
 - :bug: fix: #7 filter can't be null
 - :sparkles: feat: use `ControllerAdviceExceptionResolver` as default `ExceptionResolver`
 - refactor: refactor `HandlerInterceptor`
-
+- :hammer: :zap: refactoring `ParameterResolver` to improve performance
+- :hammer: add `ResultResolver` to resolve handler result
+- :hammer: add `RequestContext` 
 
 ## v2.3.6
 - add new today-context version

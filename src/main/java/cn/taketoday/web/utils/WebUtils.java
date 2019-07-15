@@ -19,34 +19,17 @@
  */
 package cn.taketoday.web.utils;
 
-import java.awt.image.RenderedImage;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
-import java.util.Map;
 
-import javax.imageio.ImageIO;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-
-import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.exception.BadRequestException;
-import cn.taketoday.web.mapping.WebMapping;
-import cn.taketoday.web.resolver.ExceptionResolver;
-import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.mapping.MethodParameter;
 
 /**
  * 
@@ -56,20 +39,7 @@ import cn.taketoday.web.view.ViewResolver;
  */
 public abstract class WebUtils {
 
-    public static SerializerFeature[] SERIALIZE_FEATURES = { //
-            SerializerFeature.WriteMapNullValue, //
-            SerializerFeature.WriteNullListAsEmpty, //
-            SerializerFeature.DisableCircularReferenceDetect//
-    };
-
-    /**
-     * Get {@link ServletContext}
-     * 
-     * @return ServletContext
-     */
-    public final static ServletContext getServletContext() {
-        return WebApplicationLoader.getWebApplicationContext().getServletContext();
-    }
+    private static WebApplicationContext applicationContext;
 
     /**
      * Get {@link WebApplicationContext}
@@ -77,7 +47,21 @@ public abstract class WebUtils {
      * @return WebApplicationContext
      */
     public final static WebApplicationContext getWebApplicationContext() {
-        return WebApplicationLoader.getWebApplicationContext();
+        return applicationContext;
+    }
+
+    public static void setWebApplicationContext(WebApplicationContext applicationContext) {
+        WebUtils.applicationContext = applicationContext;
+    }
+
+    /**
+     * @param type
+     *            type
+     * @param methodParameterName
+     *            parameter name
+     */
+    public final static BadRequestException newBadRequest(String type, MethodParameter parameter, Throwable ex) {
+        return newBadRequest(type, parameter.getName(), ex);
     }
 
     /**
@@ -102,39 +86,6 @@ public abstract class WebUtils {
     }
 
     /**
-     * Download file to client.
-     *
-     * @param request
-     *            current request
-     * @param response
-     *            current response
-     * @param download
-     *            file to download
-     * @param downloadFileBuf
-     *            download buff
-     * @since 2.1.x
-     */
-    public final static void downloadFile(HttpServletRequest request, //
-            HttpServletResponse response, File download, int downloadFileBuf) throws IOException //
-    {
-        response.setContentLengthLong(download.length());
-        response.setContentType(Constant.APPLICATION_FORCE_DOWNLOAD);
-
-        response.setHeader(Constant.CONTENT_TRANSFER_ENCODING, Constant.BINARY);
-        response.setHeader(Constant.CONTENT_DISPOSITION, new StringBuilder(Constant.ATTACHMENT_FILE_NAME)//
-                .append(StringUtils.encodeUrl(download.getName()))//
-                .append(Constant.QUOTATION_MARKS)//
-                .toString()//
-        );
-
-        try (InputStream in = new FileInputStream(download);
-                OutputStream out = response.getOutputStream()) {
-
-            writeToOutputStream(in, out, downloadFileBuf);
-        }
-    }
-
-    /**
      * Write to {@link OutputStream}
      * 
      * @param source
@@ -146,7 +97,9 @@ public abstract class WebUtils {
      * @throws IOException
      *             if any IO exception occurred
      */
-    public static void writeToOutputStream(InputStream source, OutputStream out, int bufferSize) throws IOException {
+    public static void writeToOutputStream(final InputStream source, //
+            final OutputStream out, final int bufferSize) throws IOException //
+    {
         final byte[] buff = new byte[bufferSize];
         int len = 0;
         while ((len = source.read(buff)) != -1) {
@@ -175,148 +128,14 @@ public abstract class WebUtils {
                 .append(lastModifid).toString();
     }
 
-    // ------------
+    // ---
+    public static boolean isMultipart(final RequestContext requestContext) {
 
-    public static void resolveException(HttpServletRequest request, final HttpServletResponse response, //
-            ServletContext servletContext, ExceptionResolver exceptionResolver, WebMapping webMapping, Throwable exception)
-            throws ServletException //
-    {
-        try {
-
-            exception = ExceptionUtils.unwrapThrowable(exception);
-            exceptionResolver.resolveException(request, response, exception, webMapping);
-            servletContext.log("Catch Throwable: [" + exception + "] With Msg: [" + exception.getMessage() + "]", exception);
+        if (!"POST".equals(requestContext.method())) {
+            return false;
         }
-        catch (Throwable e) {
-            servletContext.log(
-                    "Handling of [" + exception.getClass().getName() + "]  resulted in Exception: [" + e.getClass().getName() + "]", e);
-            throw new ServletException(e);
-        }
+        final String contentType = requestContext.contentType();
+        return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
     }
 
-    /**
-     * Resolve String type
-     *
-     * @param request
-     *            current request
-     * @param response
-     *            current response
-     * @param result
-     *            String value
-     * @since 2.3.3
-     */
-    @SuppressWarnings("unchecked")
-    public static void resolveView(//
-            final HttpServletRequest request, //
-            final HttpServletResponse response, //
-            final String resource, //
-            final String contextPath, //
-            final ViewResolver viewResolver, //
-            final Map<String, Object> dataModel) throws Throwable //
-    {
-        if (resource.startsWith(Constant.REDIRECT_URL_PREFIX)) {
-            // @since 2.3.7
-            final String redirect = resource.substring(Constant.REDIRECT_URL_PREFIX_LENGTH);
-            if (StringUtils.isEmpty(redirect) || redirect.startsWith(Constant.HTTP)) {
-                response.sendRedirect(redirect);
-            }
-            else {
-                response.sendRedirect(contextPath + redirect);
-            }
-            return;
-        }
-        if (dataModel != null) {
-            dataModel.forEach(request::setAttribute);
-        }
-        {
-            final HttpSession session = request.getSession();
-            final Object attribute = session.getAttribute(Constant.KEY_REDIRECT_MODEL);
-            if (attribute instanceof Map) {
-                ((Map<String, Object>) attribute).forEach(request::setAttribute);
-                session.removeAttribute(Constant.KEY_REDIRECT_MODEL);
-            }
-        }
-
-        viewResolver.resolveView(resource, request, response);
-    }
-
-    /**
-     * 
-     * @param request
-     * @param response
-     * @param resource
-     * @param contextPath
-     * @param viewResolver
-     * @throws Throwable
-     */
-    public static void resolveView(HttpServletRequest request, HttpServletResponse response,
-            String resource, String contextPath, ViewResolver viewResolver) throws Throwable //
-    {
-        resolveView(request, response, resource, contextPath, viewResolver, null);
-    }
-
-    /**
-     * @param request
-     *            current request
-     * @param response
-     *            current response
-     * @param result
-     *            result instance
-     * @param viewResolver
-     * @throws Throwable
-     */
-    public static void resolveObject(//
-            final HttpServletRequest request, //
-            final HttpServletResponse response, //
-            final Object result, //
-            final ViewResolver viewResolver, //
-            final int downloadFileBuf) throws Throwable //
-    {
-        if (result instanceof String) {
-            WebUtils.resolveView(request, response, (String) result, request.getContextPath(), viewResolver);
-            return;
-        }
-        else if (result instanceof StringBuilder || result instanceof StringBuffer) {
-            response.getWriter().print(result.toString());
-            return;
-        }
-        else if (result instanceof RenderedImage) {
-            resolveImage(response, (RenderedImage) result);
-            return;
-        }
-        else if (result instanceof File) {
-            WebUtils.downloadFile(request, response, (File) result, downloadFileBuf);
-            return;
-        }
-        resolveJsonView(response, result);
-    }
-
-    /**
-     * Resolve json view
-     * 
-     * @param response
-     *            current response
-     * @param view
-     *            view instance
-     * @throws IOException
-     */
-    public static void resolveJsonView(final HttpServletResponse response, final Object view) throws IOException {
-        response.setContentType(Constant.CONTENT_TYPE_JSON);
-        JSON.writeJSONString(response.getWriter(), view, SERIALIZE_FEATURES);
-    }
-
-    /**
-     * Resolve image
-     * 
-     * @param response
-     *            current response
-     * @param image
-     *            image instance
-     * @throws IOException
-     * @since 2.3.3
-     */
-    public static void resolveImage(final HttpServletResponse response, final RenderedImage image) throws IOException {
-        // need set content type
-        ImageIO.write(image, Constant.IMAGE_PNG, response.getOutputStream());
-    }
 }

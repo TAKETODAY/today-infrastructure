@@ -19,9 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.WebMapping;
 
 /**
@@ -35,17 +33,12 @@ public interface ExceptionResolver {
     /**
      * Resolve exception
      * 
-     * @param request
-     *            current request
-     * @param response
-     *            current response
      * @param exception
      *            the exception occurred
      * @param mvcMapping
      *            current handler mapping info
      * @throws Throwable
      */
-    void resolveException(HttpServletRequest request, //
-            HttpServletResponse response, Throwable exception, WebMapping mvcMapping) throws Throwable;
+    void resolveException(RequestContext requestContext, Throwable exception, WebMapping mvcMapping) throws Throwable;
 
 }

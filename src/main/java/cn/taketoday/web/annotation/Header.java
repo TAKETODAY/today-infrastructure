@@ -27,33 +27,21 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.Constant;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY<br>
  *         2018-08-21 19:19 change
  */
+@RequestParam
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@RequestParam(type = Constant.ANNOTATION_HEADER)
 public @interface Header {
 
-    /**
-     * required ?
-     * 
-     * @return
-     */
     boolean required() default false;
 
-    /**
-     * Header name.
-     * 
-     * @return
-     */
+    /** Header name */
     String value() default Constant.BLANK;
 
     /**
      * When required == false and parameter == null. use default value.
-     * 
-     * @return
      */
     String defaultValue() default Constant.BLANK;
 

@@ -27,19 +27,16 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.Constant;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-09-16 14:18
  */
+@RequestParam
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@RequestParam(type = Constant.ANNOTATION_SERVLET_CONTEXT)
 public @interface Application {
 
     /**
      * Servlet Context attribute name
-     * 
-     * @return
      */
     String value() default Constant.BLANK;
 

@@ -31,8 +31,7 @@ import cn.taketoday.web.Constant;
 /**
  * Store {@link HandlerMapping}
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-07-1 20:47:06
  */
 @Singleton(Constant.HANDLER_MAPPING_REGISTRY)
@@ -81,7 +80,6 @@ public class HandlerMappingRegistry implements RandomAccess {
      * 
      * @param key
      *            request method and request uri
-     * @return
      */
     public final Integer getIndex(String key) {
         return requestMappings.get(key);
@@ -92,7 +90,6 @@ public class HandlerMappingRegistry implements RandomAccess {
      * 
      * @param index
      *            the HandlerMapping number
-     * @return
      */
     public final HandlerMapping get(int index) {
         return array[index];
@@ -103,7 +100,6 @@ public class HandlerMappingRegistry implements RandomAccess {
      * 
      * @param e
      *            HandlerMapping instance
-     * @return
      */
     public int add(HandlerMapping e) {
 

@@ -19,14 +19,12 @@
  */
 package cn.taketoday.web.servlet;
 
-import java.awt.image.RenderedImage;
-import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.imageio.ImageIO;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -38,158 +36,108 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
-import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerInterceptorRegistry;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.mapping.RegexMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
-import cn.taketoday.web.resolver.ParameterResolver;
-import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.utils.WebUtils;
-import cn.taketoday.web.view.AbstractViewResolver;
-import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.utils.ResultUtils;
 
 /**
  * @author TODAY <br>
  *         2018-06-25 19:47:14
  * @version 2.3.7
  */
-public class DispatcherServlet implements Servlet {
+@SuppressWarnings("serial")
+public class DispatcherServlet implements Servlet, Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(DispatcherServlet.class);
 
-    /** view resolver **/
-    private final ViewResolver viewResolver;
-    /** parameter resolver */
-    private final ParameterResolver parameterResolver;
     /** exception resolver */
     private final ExceptionResolver exceptionResolver;
-    /** context path */
-    private final String contextPath;
-    /** download file buffer */
-    private final int downloadFileBuf;
     /** Action mapping registry */
     private final HandlerMappingRegistry handlerMappingRegistry;
     /** intercepter registry */
     private final HandlerInterceptorRegistry handlerInterceptorRegistry;
 
-    private final WebApplicationContext applicationContext;
+    private final WebServletApplicationContext applicationContext;
 
     private ServletConfig servletConfig;
 
     @Autowired
     public DispatcherServlet(//
-            ViewResolver viewResolver, //
-            ParameterResolver parameterResolver, //
             ExceptionResolver exceptionResolver, //
             HandlerMappingRegistry handlerMappingRegistry, //
+            WebServletApplicationContext applicationContext,
             HandlerInterceptorRegistry handlerInterceptorRegistry) //
     {
-        this.viewResolver = viewResolver;
-
         if (exceptionResolver == null) {
             throw new ConfigurationException("You must provide an 'exceptionResolver'");
         }
         this.exceptionResolver = exceptionResolver;
 
-        if (parameterResolver == null) {
-            throw new ConfigurationException("You must provide a 'parameterResolver'");
-        }
-        this.parameterResolver = parameterResolver;
-
-        if (viewResolver instanceof AbstractViewResolver) {
-            JSON.defaultLocale = ((AbstractViewResolver) viewResolver).getLocale();
-        }
+        this.applicationContext = applicationContext;
         this.handlerMappingRegistry = handlerMappingRegistry;
         this.handlerInterceptorRegistry = handlerInterceptorRegistry;
-        this.applicationContext = WebUtils.getWebApplicationContext();
-        this.contextPath = this.applicationContext.getServletContext().getContextPath();
-
-        // @since 2.3.7
-        final String downloadBuff = applicationContext.getEnvironment().getProperty("download.buff.size");
-        if (StringUtils.isEmpty(downloadBuff)) {
-            this.downloadFileBuf = 10240;
-        }
-        else {
-            this.downloadFileBuf = Integer.parseInt(downloadBuff);
-        }
-
-        // @since 2.3.7
-        final String property = applicationContext.getEnvironment()//
-                .getProperty("fastjson.serialize.features");
-
-        if (StringUtils.isNotEmpty(property)) {
-
-            WebUtils.SERIALIZE_FEATURES = //
-                    (SerializerFeature[]) ConvertUtils.convert(property, SerializerFeature[].class);
-        }
     }
 
-    /**
-     * 
-     * TODO return value resolver <br>
-     * method arguments resolver <br>
-     * path matcher <br>
-     * handler mapping
-     */
+    public static RequestContext prepareContext(final ServletRequest request, final ServletResponse response) {
+        return RequestContextHolder.prepareContext(//
+                new ServletRequestContext((HttpServletRequest) request, (HttpServletResponse) response)//
+        );
+    }
+
     @Override
-    public void service(final ServletRequest servletRequest, final ServletResponse servletResponse) //
-            throws ServletException //
+    public void service(final ServletRequest req, final ServletResponse res) //
+            throws ServletException, IOException //
     {
-        final HttpServletRequest request = (HttpServletRequest) servletRequest;
-        final HttpServletResponse response = (HttpServletResponse) servletResponse;
+        // Lookup handler mapping
+        final HandlerMapping mapping = lookupHandlerMapping((HttpServletRequest) req);
 
-        // Find handler mapping
-        final HandlerMapping requestMapping = lookupHandlerMapping(request);
+        if (mapping == null) {
+            ((HttpServletResponse) res).sendError(404);
+            return;
+        }
+
+        final RequestContext context = prepareContext(req, res);
         try {
-
-            if (requestMapping == null) {
-                response.sendError(404);
-                return;
-            }
 
             final Object result;
             // Handler Method
-            final HandlerMethod handlerMethod = requestMapping.getHandlerMethod();
-            if (requestMapping.hasInterceptor()) {
+            final HandlerMethod method;// = requestMapping.getHandlerMethod();
+            if (mapping.hasInterceptor()) {
                 // get intercepter s
-                final int[] interceptors = requestMapping.getInterceptors();
+                final int[] its = mapping.getInterceptors();
                 // invoke intercepter
-                final HandlerInterceptorRegistry handlerInterceptorRegistry = getHandlerInterceptorRegistry();
-                for (final int interceptor : interceptors) {
-                    if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(request, response, requestMapping)) {
+                final HandlerInterceptorRegistry registry = getHandlerInterceptorRegistry();
+                for (final int i : its) {
+                    if (!registry.get(i).beforeProcess(context, mapping)) {
                         if (log.isDebugEnabled()) {
-                            log.debug("Interceptor: [{}] return false", handlerInterceptorRegistry.get(interceptor));
+                            log.debug("Interceptor: [{}] return false", registry.get(i));
                         }
                         return;
                     }
                 }
-                result = invokeHandler(request, response, handlerMethod, requestMapping);
-                for (final int interceptor : interceptors) {
-                    handlerInterceptorRegistry.get(interceptor).afterProcess(result, request, response);
+                result = invokeHandler(context, method = mapping.getHandlerMethod(), mapping);
+                for (final int i : its) {
+                    registry.get(i).afterProcess(context, mapping, result);
                 }
             }
             else {
-                result = invokeHandler(request, response, handlerMethod, requestMapping);
+                result = invokeHandler(context, method = mapping.getHandlerMethod(), mapping);
             }
 
-            resolveResult(request, response, handlerMethod, result);
+            method.resolveResult(context, result);
         }
-        catch (Throwable exception) {
-            WebUtils.resolveException(request, response, //
-                    applicationContext.getServletContext(), exceptionResolver, requestMapping, exception);
+        catch (Throwable e) {
+            ResultUtils.resolveException(context, exceptionResolver, mapping, e);
         }
     }
 
@@ -197,151 +145,48 @@ public class DispatcherServlet implements Servlet {
      * Invoke Handler
      * 
      * @param request
-     *            current request
-     * @param response
-     *            current response
-     * @param handlerMethod
-     * @param requestMapping
+     *            Current request Context
+     * @param method
+     * @param mapping
      * @return the result of handler
      * @throws Throwable
      * @since 2.3.7
      */
-    protected Object invokeHandler(final HttpServletRequest request, final HttpServletResponse response,
-            final HandlerMethod handlerMethod, final HandlerMapping requestMapping) throws Throwable //
+    protected Object invokeHandler(final RequestContext request,
+            final HandlerMethod method, final HandlerMapping mapping) throws Throwable //
     {
-        // method parameter
-        final MethodParameter[] methodParameters = handlerMethod.getParameter();
-        // Handler Method parameter list
-        final Object[] args = new Object[methodParameters.length];
-
-        parameterResolver.resolveParameter(args, methodParameters, request, response);
-
-        // log.debug("parameter list -> {}", Arrays.toString(args));
-        return handlerMethod.getMethod().invoke(requestMapping.getAction(), args); // invoke
+        // log.debug("set parameter start");
+        return method.getMethod()//
+                .invoke(mapping.getBean(), method.resolveParameters(request)); // invoke
     }
 
     /**
-     * Looking for {@link HandlerMapping}
+     * O Looking for {@link HandlerMapping}
      * 
-     * @param request
-     *            current request
+     * @param req
+     *            Current request
      * @return mapped {@link HandlerMapping}
      * @since 2.3.7
      */
-    protected HandlerMapping lookupHandlerMapping(final HttpServletRequest request) {
+    protected HandlerMapping lookupHandlerMapping(final HttpServletRequest req) {
         // The key of handler
-        String requestURI = request.getMethod() + request.getRequestURI();
+        String uri = req.getMethod() + req.getRequestURI();
 
-        final HandlerMappingRegistry handlerMappingRegistry = getHandlerMappingRegistry();
-        final Integer index = handlerMappingRegistry.getIndex(requestURI);
-        if (index == null) {
+        final HandlerMappingRegistry registry = getHandlerMappingRegistry();
+        final Integer i = registry.getIndex(uri); // index of handler mapping
+        if (i == null) {
             // path variable
-            requestURI = StringUtils.decodeUrl(requestURI);// decode
-            for (final RegexMapping regexMapping : handlerMappingRegistry.getRegexMappings()) {
+            uri = StringUtils.decodeUrl(uri);// decode
+            for (final RegexMapping regex : registry.getRegexMappings()) {
                 // TODO path matcher pathMatcher.match(requestURI, requestURI)
-                if (regexMapping.pattern.matcher(requestURI).matches()) {
-                    return handlerMappingRegistry.get(regexMapping.index);
+                if (regex.pattern.matcher(uri).matches()) {
+                    return registry.get(regex.index);
                 }
             }
-            log.debug("NOT FOUND -> [{}]", requestURI);
+            log.debug("NOT FOUND -> [{}]", uri);
             return null;
         }
-        return handlerMappingRegistry.get(index.intValue());
-    }
-
-    /**
-     * 
-     * @param request
-     * @param response
-     * @param handlerMethod
-     * @param result
-     * @throws Throwable
-     * @throws IOException
-     * @since 2.3.7
-     */
-    protected void resolveResult(//
-            final HttpServletRequest request, //
-            final HttpServletResponse response, //
-            final HandlerMethod handlerMethod, final Object result) throws Throwable //
-    {
-        switch (handlerMethod.getReutrnType())
-        {
-            case Constant.RETURN_VIEW : {
-                WebUtils.resolveView(request, response, (String) result, contextPath, viewResolver);
-                break;
-            }
-            case Constant.RETURN_STRING : {
-                response.getWriter().print(result);
-                break;
-            }
-            case Constant.RETURN_FILE : {
-                WebUtils.downloadFile(request, response, (File) result, downloadFileBuf);
-                break;
-            }
-            case Constant.RETURN_IMAGE : {
-                // need set content type
-                ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, response.getOutputStream());
-                break;
-            }
-            case Constant.RETURN_JSON : {
-                WebUtils.resolveJsonView(response, result);
-                break;
-            }
-            case Constant.RETURN_MODEL_AND_VIEW : {
-                resolveModelAndView(request, response, (ModelAndView) result);
-                break;
-            }
-            case Constant.RETURN_VOID : {
-                final Object attribute = request.getAttribute(Constant.KEY_MODEL_AND_VIEW);
-                if (attribute != null) {
-                    resolveModelAndView(request, response, (ModelAndView) attribute);
-                }
-                break;
-            }
-            case Constant.RETURN_OBJECT : {
-                WebUtils.resolveObject(request, response, result, viewResolver, downloadFileBuf);
-                break;
-            }
-            default:
-        }
-    }
-
-    /**
-     * Resolve {@link ModelAndView} return type
-     * 
-     * @param request
-     *            current request
-     * @param response
-     *            current response
-     * @param modelAndView
-     * @throws Throwable
-     * @since 2.3.3
-     */
-    public void resolveModelAndView(final HttpServletRequest request, //
-            final HttpServletResponse response, final ModelAndView modelAndView) throws Throwable //
-    {
-        if (modelAndView.noView()) {
-            return;
-        }
-        final String contentType = modelAndView.getContentType();
-        if (StringUtils.isNotEmpty(contentType)) {
-            response.setContentType(contentType);
-        }
-        final Object view = modelAndView.getView();
-        if (view instanceof String) {
-            WebUtils.resolveView(request, response, (String) view, contextPath, viewResolver, modelAndView.getDataModel());
-        }
-        else if (view instanceof StringBuilder || view instanceof StringBuffer) {
-            response.getWriter().print(view.toString());
-        }
-        else if (view instanceof File) {
-            WebUtils.downloadFile(request, response, (File) view, downloadFileBuf);
-        }
-        else if (view instanceof RenderedImage) {
-            WebUtils.resolveImage(response, (RenderedImage) view);
-        }
-        else
-            WebUtils.resolveJsonView(response, view);
+        return registry.get(i.intValue());
     }
 
     @Override
@@ -354,9 +199,6 @@ public class DispatcherServlet implements Servlet {
         return servletConfig;
     }
 
-    /**
-     * @return
-     */
     public String getServletName() {
         return "DispatcherServlet";
     }
@@ -399,24 +241,8 @@ public class DispatcherServlet implements Servlet {
         return this.handlerMappingRegistry;
     }
 
-    public final String getContextPath() {
-        return this.contextPath;
-    }
-
-    public final int getDownloadFileBuf() {
-        return this.downloadFileBuf;
-    }
-
-    public final ViewResolver getViewResolver() {
-        return this.viewResolver;
-    }
-
     public final ExceptionResolver getExceptionResolver() {
         return this.exceptionResolver;
-    }
-
-    public final ParameterResolver getParameterResolver() {
-        return this.parameterResolver;
     }
 
 }

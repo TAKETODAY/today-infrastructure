@@ -32,16 +32,12 @@ import cn.taketoday.web.Constant;
  *         2018-07-01 14:06:43 <br>
  *         2018-08-21 20:17 change
  */
+@RequestParam
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@RequestParam(type = Constant.ANNOTATION_REQUEST_BODY)
 public @interface RequestBody {
 
-    /**
-     * Request body name.
-     * 
-     * @return
-     */
+    /** Request body name */
     String value() default Constant.BLANK;
 
 }

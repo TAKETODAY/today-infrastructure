@@ -25,12 +25,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY<br>
  *         2018-11-17 21:26
  */
+@Controller
+@ResponseBody
 @Target(ElementType.TYPE)
-@Controller(restful = true)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RestController {
 

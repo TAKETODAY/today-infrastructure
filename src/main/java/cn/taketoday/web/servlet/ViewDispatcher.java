@@ -19,9 +19,7 @@
  */
 package cn.taketoday.web.servlet;
 
-import java.awt.image.RenderedImage;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletException;
@@ -31,19 +29,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.ViewMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
-import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.utils.ResultUtils;
 import cn.taketoday.web.view.ViewResolver;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-06-25 19:48:28
  * @version 2.0.0
  */
@@ -51,92 +48,72 @@ import lombok.extern.slf4j.Slf4j;
 @SuppressWarnings("serial")
 public class ViewDispatcher extends GenericServlet {
 
-    @Autowired(Constant.VIEW_RESOLVER)
-    protected ViewResolver viewResolver;
     /** exception Resolver */
     @Autowired(Constant.EXCEPTION_RESOLVER)
     private ExceptionResolver exceptionResolver;
 
-    @Value(value = "#{download.buff.size}", required = false)
-    private int downloadFileBuf = 10240;
-
-    /** view 视图映射池 */
-    private static final Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>(16, 1f);
-
-    public static final Map<String, ViewMapping> getMappings() {
-        return VIEW_REQUEST_MAPPING;
-    }
-
-    public static final void register(String name, ViewMapping viewMapping) {
-        VIEW_REQUEST_MAPPING.put(name, viewMapping);
-    }
+    @Autowired(Constant.VIEW_RESOLVER)
+    protected ViewResolver viewResolver;
 
     @Override
-    public void service(ServletRequest req, ServletResponse res) throws ServletException {
+    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
 
         final HttpServletRequest request = (HttpServletRequest) req;
-        final HttpServletResponse response = (HttpServletResponse) res;
 
-        final ViewMapping mapping = VIEW_REQUEST_MAPPING.get(request.getRequestURI());
+        final ViewMapping mapping = ViewMapping.get(request.getRequestURI());
 
+        if (mapping == null) {
+            ((HttpServletResponse) res).sendError(404);
+            log.debug("NOT FOUND -> [{}]", request.getRequestURI());
+            return;
+        }
+
+        final RequestContext requestContext = DispatcherServlet.prepareContext(request, res);
         try {
 
-            if (mapping == null) {
-                response.sendError(404);
-                log.debug("NOT FOUND -> [{}]", request.getRequestURI());
+            if (mapping.hasAction()) {
+
+                final HandlerMethod handlerMethod = mapping.getHandlerMethod();
+
+                final Object result = handlerMethod.getMethod()//
+                        .invoke(mapping.getBean(), handlerMethod.resolveParameters(requestContext));
+
+                if (handlerMethod.is(void.class)) {
+                    ResultUtils.resolveView(mapping.getAssetsPath(), viewResolver, requestContext);
+                }
+                else {
+                    handlerMethod.resolveResult(requestContext, result);
+                }
+            }
+            else {
+                ResultUtils.resolveView(mapping.getAssetsPath(), viewResolver, requestContext);
+            }
+
+            if (requestContext.committed()) {
                 return;
             }
 
-            Object result = null;
-            if (mapping.hasAction()) {
-                result = mapping.getAction().invoke(mapping.getController(), request, response);
-            }
-            if (response.isCommitted()) {
-                return;
-            }
             if (mapping.getStatus() != 0) {
-                response.setStatus(mapping.getStatus());
+                requestContext.status(mapping.getStatus());
             }
+
             final String contentType = mapping.getContentType();
             if (StringUtils.isNotEmpty(contentType)) {
-                response.setContentType(contentType);
-            }
-            switch (mapping.getReturnType())
-            {
-                case Constant.TYPE_FORWARD : {
-                    viewResolver.resolveView(mapping.getAssetsPath(), request, response);
-                    return;
-                }
-                case Constant.TYPE_REDIRECT : {
-                    response.sendRedirect(mapping.getAssetsPath());
-                    return;
-                }
-                case Constant.RETURN_IMAGE : {
-                    WebUtils.resolveImage(response, (RenderedImage) result);
-                    return;
-                }
-                case Constant.RETURN_STRING : {
-                    response.getWriter().print(result);
-                    break;
-                }
-                case Constant.RETURN_OBJECT : {
-                    WebUtils.resolveObject(request, response, result, viewResolver, downloadFileBuf);
-                    break;
-                }
-                default:
-                    response.sendError(500);
-                    break;
+                requestContext.contentType(contentType);
             }
         }
-        catch (Throwable exception) {
-            WebUtils.resolveException(request, response, //
-                    getServletConfig().getServletContext(), exceptionResolver, mapping, exception);
+        catch (Throwable e) {
+            ResultUtils.resolveException(requestContext, exceptionResolver, mapping, e);
         }
+    }
+
+    public String getServletName() {
+        return "ViewDispatcher";
     }
 
     @Override
     public String getServletInfo() {
-        return "ViewDispatcher, Copyright © Today & 2017 - 2018 All Rights Reserved";
+        return "ViewDispatcher, Copyright © TODAY & 2017 - 2019 All Rights Reserved";
     }
 
 }

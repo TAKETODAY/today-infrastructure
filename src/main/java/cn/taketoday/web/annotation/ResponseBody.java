@@ -25,18 +25,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-17 21:26
  */
-@Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface ResponseBody {
 
-    /**
-     * 
-     * @return
-     */
     boolean value() default true;
 
 }

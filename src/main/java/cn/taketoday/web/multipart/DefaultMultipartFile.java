@@ -23,15 +23,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import javax.servlet.http.Part;
 
 import cn.taketoday.web.exception.BadRequestException;
-import cn.taketoday.web.exception.InternalServerException;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-28 22:40:32
  */
 @SuppressWarnings("serial")
@@ -85,25 +84,18 @@ public class DefaultMultipartFile implements MultipartFile {
      * 
      * @param dest
      *            File Destination
-     * @return
+     * @throws IOException
      */
     @Override
-    public boolean save(File dest) {
+    public void save(File dest) throws IOException {
 
-        try {
-
-            // fix #3 Upload file not found exception
-            File parentFile = dest.getParentFile();
-            if (!parentFile.exists()) {
-                parentFile.mkdirs();
-            }
-
-            part.write(dest.getAbsolutePath());
-            return true;
-        } //
-        catch (Exception e) {
-            throw new InternalServerException("File: [" + getFileName() + "] upload failure.", e);
+        // fix #3 Upload file not found exception
+        File parentFile = dest.getParentFile();
+        if (!parentFile.exists()) {
+            parentFile.mkdirs();
         }
+
+        part.write(dest.getAbsolutePath());
     }
 
     @Override
@@ -114,21 +106,29 @@ public class DefaultMultipartFile implements MultipartFile {
     @Override
     public byte[] getBytes() throws IOException {
 
-        try (InputStream in = getInputStream()) {
+        try (final InputStream in = getInputStream()) {
             if (in == null) {
                 return new byte[0];
             }
-
-            try (ByteArrayOutputStream out = new ByteArrayOutputStream(BUFFER_SIZE)) {
-                byte[] buffer = new byte[BUFFER_SIZE];
-                int bytesRead = -1;
-                while ((bytesRead = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, bytesRead);
-                }
-                out.flush();
-                return out.toByteArray();
+            final ByteArrayOutputStream out = new ByteArrayOutputStream(BUFFER_SIZE);
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int bytesRead = -1;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
             }
+            return out.toByteArray();
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(part);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj //
+                || (part instanceof DefaultMultipartFile && part.equals(((DefaultMultipartFile) obj).part));
     }
 
     @Override

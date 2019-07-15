@@ -19,89 +19,156 @@
  */
 package cn.taketoday.web.mapping;
 
-import cn.taketoday.web.Constant;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.resolver.method.ParameterResolver;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
- * @author Today
- * 
- * @version 2.2.2 <br>
- *          2018-06-25 20:01:52
+ * @author TODAY
+ * @version 2.3.7 <br>
  */
 @Setter
 @Getter
 public class MethodParameter {
-    //@off
-	/** 是否不能为空 */
-	private final boolean	required;
-	/** 参数名 */
-	private final String	parameterName;
-	/** 参数类型 */
-	private final Class<?>	parameterClass;
-	/** 泛型参数类型 */
-	private final Class<?>	genericityClass;
-	/** 注解支持 */
-	private final byte		annotation;
-	/**	*/
-	private int				pathIndex		= 0;
-	/** the default value */
-	private final String	defaultValue;
-	
-	/**
-	 * @since 2.3.0
-	 */
-	private final byte		parameterType;
 
-	/**
-	 * @since 2.3.1
-	 */
-	private String[]		splitMethodUrl  = null;
-	
-	//@on
+    private final String name;
+    private final boolean required;
+    private final Class<?> parameterClass;
 
-    public MethodParameter() {
-        this(false, null, null, null, Constant.ANNOTATION_COOKIE, null, Constant.ANNOTATION_NULL);
-    }
+    private int pathIndex = 0;
+    /** the default value */
+    private final String defaultValue;
+    /** @since 2.3.1 */
+    private String[] splitMethodUrl = null;
 
-    public final boolean hasPathVariable() {
-        return annotation == Constant.ANNOTATION_PATH_VARIABLE;
-    }
+    private final Type[] genericityClass;
 
-    public final boolean isRequestBody() {
-        return annotation == Constant.ANNOTATION_REQUEST_BODY;
-    }
+    private final ParameterResolver resolver;
 
-    public final boolean hasAnnotation() {
-        return annotation != Constant.ANNOTATION_NULL;
-    }
+    private final Parameter parameter; // reflect parameter instance
 
-    public MethodParameter(boolean required, String parameterName, Class<?> parameterClass, Class<?> genericityClass, byte annotation,
-            String defaultValue, byte parameterType) {
+    private static final List<ParameterResolver> PARAMETER_RESOLVERS = new ArrayList<>();
+
+    public MethodParameter(//
+            String name, //
+            boolean required, //
+            String defaultValue,
+            Parameter parameter,
+            Type[] genericityClass, //
+            Class<?> parameterClass)//
+    {
+        this.name = name;
         this.required = required;
-        this.parameterName = parameterName;
+        this.parameter = parameter;
+        this.defaultValue = defaultValue;
         this.parameterClass = parameterClass;
         this.genericityClass = genericityClass;
-        this.annotation = annotation;
-        this.defaultValue = defaultValue;
-        this.parameterType = parameterType;
+        this.resolver = obtainResolver();
     }
 
-//	@Override
-//	public String toString() {
-//		return new StringBuilder()//
-//				.append("{\n\t\"required\":\"")//
-//				.append(required)//
-//				.append("\",\n\t\"parameterName\":\"")//
-//				.append(parameterName).append("\",\n\t\"parameterClass\":\"")//
-//				.append(parameterClass)//
-//				.append("\",\n\t\"genericityClass\":\"")//
-//				.append(genericityClass)//
-//				.append("\",\n\t\"annotation\":\"").append(annotation)//
-//				.append("\",\n\t\"pathIndex\":\"")//
-//				.append(pathIndex).append("\"\n}")//
-//				.toString();
-//	}
+    public boolean isInterface() {
+        return parameterClass.isInterface();
+    }
 
+    public boolean isArray() {
+        return parameterClass.isArray();
+    }
+
+    public boolean is(Class<?> type) {
+        return type == this.parameterClass;
+    }
+
+    public boolean isAssignableFrom(Class<?> superClass) {
+        return superClass.isAssignableFrom(parameterClass);
+    }
+
+    public Type getGenericityClass(int index) {
+
+        if (genericityClass != null) {
+            if (genericityClass.length > index) {
+                return genericityClass[index];
+            }
+        }
+        return null;
+    }
+
+    public boolean isGenericPresent(final Type requiredType, int index) {
+
+        if (genericityClass != null) {
+            if (genericityClass.length > index) {
+                return genericityClass[index].equals(requiredType);
+            }
+        }
+        return false;
+    }
+
+    public boolean isGenericPresent(final Type requiredType) {
+
+        if (genericityClass != null) {
+            for (final Type type : genericityClass) {
+                if (type.equals(requiredType)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
+        return getAnnotation(annotationClass) != null;
+    }
+
+    public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
+
+        final Collection<A> annotation = ClassUtils.getAnnotation(parameter, annotationClass);
+        if (annotation.isEmpty()) {
+            return null;
+        }
+        return annotation.iterator().next();
+    }
+
+    // ----- resolver
+
+    Object resolveParameter(final RequestContext requestContext) throws Throwable {
+        return resolver.resolveParameter(requestContext, this);
+    }
+
+    /**
+     * Get correspond parameter resolver, If there isn't a suitable resolver will be
+     * throw {@link ConfigurationException}
+     * 
+     * @return A suitable {@link ParameterResolver}
+     */
+    protected ParameterResolver obtainResolver() throws ConfigurationException {
+
+        for (final ParameterResolver resolver : PARAMETER_RESOLVERS) {
+            if (resolver.supports(this)) {
+                return resolver;
+            }
+        }
+
+        throw ExceptionUtils.newConfigurationException(null,
+                "There isn't have a parameter resolver to resolve parameter: [" //
+                        + getParameterClass() + "] called: [" + getName() + "] ");
+    }
+
+    public static void addResolver(ParameterResolver... parameterResolver) {
+        PARAMETER_RESOLVERS.addAll(Arrays.asList(parameterResolver));
+    }
+
+    public static void addResolver(List<ParameterResolver> parameterResolver) {
+        PARAMETER_RESOLVERS.addAll(parameterResolver);
+    }
 }

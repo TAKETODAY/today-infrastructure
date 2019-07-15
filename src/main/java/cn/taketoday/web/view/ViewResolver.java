@@ -19,12 +19,10 @@
  */
 package cn.taketoday.web.view;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import cn.taketoday.web.RequestContext;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-06-23 11:59:50
  */
@@ -36,12 +34,9 @@ public interface ViewResolver {
      * 
      * @param templateName
      *            template name
-     * @param request
-     *            current request
-     * @param response
-     *            current response
-     * @throws Exception
+     * @param requestContext
+     * @throws Throwable
      */
-    void resolveView(String templateName, HttpServletRequest request, HttpServletResponse response) throws Throwable;
+    void resolveView(String templateName, RequestContext requestContext) throws Throwable;
 
 }

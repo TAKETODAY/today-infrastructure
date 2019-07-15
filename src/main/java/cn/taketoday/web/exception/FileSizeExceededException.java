@@ -19,12 +19,12 @@
  */
 package cn.taketoday.web.exception;
 
+import cn.taketoday.context.utils.DataSize;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-07-10 21:42:16
  */
 @Setter
@@ -32,17 +32,13 @@ import lombok.Setter;
 @SuppressWarnings("serial")
 public class FileSizeExceededException extends WebRuntimeException {
 
-    /**
-     * The actual size of the request.
-     */
-    private long actual;
-    /**
-     * The maximum permitted size of the request.
-     */
-    private long permitted;
+    /** The actual size of the request. */
+    private DataSize actual;
+    /** The maximum permitted size of the request. */
+    private final DataSize permitted;
 
-    public FileSizeExceededException(long permitted, Throwable cause) {
-        super("The upload file exceeds its maximum permitted size " + permitted + " bytes", cause);
+    public FileSizeExceededException(DataSize permitted, Throwable cause) {
+        super("The upload file exceeds its maximum permitted size: [" + permitted + "]", cause);
         this.permitted = permitted;
     }
 

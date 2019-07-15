@@ -19,17 +19,14 @@
  */
 package cn.taketoday.web.interceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.WebMapping;
 
 /**
  * Handler Intercepter process around Handler.
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-06-25 20:06:11
  */
 @FunctionalInterface
@@ -38,32 +35,27 @@ public interface HandlerInterceptor {
     /**
      * Before {@link HandlerMethod} process.
      * 
-     * @param request
-     *            request
-     * @param response
-     *            response
-     * @param handlerMapping
+     * @param requestContext
+     *            Current request Context
+     * @param webMapping
      *            request mapping
      * @return
      * @throws Throwable
      */
-    boolean beforeProcess(HttpServletRequest request, HttpServletResponse response, WebMapping handlerMapping)
-            throws Throwable;
+    boolean beforeProcess(RequestContext requestContext, WebMapping webMapping) throws Throwable;
 
     /**
      * After {@link HandlerMethod} process.
      * 
+     * @param requestContext
+     *            Current request Context
+     * @param webMapping
+     *            request mapping
      * @param result
      *            HandlerMethod returned value
-     * @param request
-     *            request
-     * @param response
-     *            response
      * @throws Throwable
      */
-    default void afterProcess(Object result, HttpServletRequest request, HttpServletResponse response)
-            throws Throwable {
+    default void afterProcess(RequestContext requestContext, WebMapping webMapping, Object result) throws Throwable {
 
     }
-
 }

@@ -22,14 +22,13 @@ package cn.taketoday.web.mapping;
 import java.util.regex.Pattern;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-11-28 18:12
  */
 public final class RegexMapping {
 
     /**
-     * @since 2.1.7
+     * @since 2.3.7
      */
     public final Pattern pattern;
 //	private final String regex;

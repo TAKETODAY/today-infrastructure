@@ -30,16 +30,12 @@ import cn.taketoday.web.Constant;
  * @author TODAY <br>
  *         2019-02-16 11:34
  */
+@RequestParam
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@RequestParam(type = Constant.ANNOTATION_REQUEST_ATTRIBUTE)
 public @interface RequestAttribute {
 
-    /**
-     * Request attribute name.
-     * 
-     * @return
-     */
+    /** Request attribute name */
     String value() default Constant.BLANK;
 
 }

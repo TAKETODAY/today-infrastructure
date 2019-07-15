@@ -29,8 +29,9 @@ import java.lang.annotation.Target;
  *         2019-06-18 14:27
  * @since 2.3.7
  */
+@ResponseBody
+@ControllerAdvice
 @Target(ElementType.TYPE)
-@ControllerAdvice(restful = true)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RestControllerAdvice {
 

@@ -34,6 +34,7 @@ import cn.taketoday.context.annotation.Component;
  * @author Today <br>
  *         2018-10-14 18:30
  */
+@Deprecated
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Component(scope = Scope.SINGLETON)

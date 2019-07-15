@@ -24,13 +24,13 @@ import java.util.Map.Entry;
 import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.web.RequestContext;
 
 /**
  * 
@@ -40,23 +40,22 @@ import cn.taketoday.context.utils.ClassUtils;
 public class JstlViewResolver extends AbstractViewResolver implements InitializingBean {
 
     @Override
-    public void resolveView(String templateName, //
-            HttpServletRequest request, HttpServletResponse response) throws Throwable//
-    {
-        request.getRequestDispatcher(build(templateName))//
-                .forward(request, response);
+    public void resolveView(final String template, final RequestContext requestContext) throws Throwable {
+
+        final HttpServletRequest request = requestContext.nativeRequest();
+        request.getRequestDispatcher(build(template))//
+                .forward(request, requestContext.nativeResponse());
     }
 
-    private final String build(String templateName) {
+    private final String build(String template) {
         return new StringBuilder(32)//
                 .append(prefix)//
-                .append(templateName)//
+                .append(template)//
                 .append(suffix)//
                 .toString();
     }
 
     /**
-     * 
      * @see cn.taketoday.context.factory.InitializingBean#afterPropertiesSet()
      * @since 2.3.3
      */
