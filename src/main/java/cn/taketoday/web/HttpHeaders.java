@@ -238,7 +238,7 @@ public interface HttpHeaders {
      * 
      * @see #responseDateHeader
      */
-    RequestContext addResponseDateHeader(String name, long date);
+    HttpHeaders addResponseDateHeader(String name, long date);
 
     /**
      * Sets a response header with the given name and integer value. If the header
@@ -294,5 +294,5 @@ public interface HttpHeaders {
      * @see #getOutputStream
      * @see #getWriter
      */
-    RequestContext contentType(String contentType);
+    HttpHeaders contentType(String contentType);
 }

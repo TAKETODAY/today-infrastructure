@@ -22,7 +22,6 @@ package cn.taketoday.web.resolver.result;
 import java.io.File;
 
 import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.web.Constant;
@@ -34,7 +33,6 @@ import cn.taketoday.web.utils.ResultUtils;
  * @author TODAY <br>
  *         2019-07-14 11:18
  */
-@Singleton
 public class ResourceResultResolver implements ResultResolver {
 
     private final int bufferSize;

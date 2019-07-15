@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.MethodParameter;
@@ -35,15 +34,14 @@ import cn.taketoday.web.utils.ParamList;
  * @author TODAY <br>
  *         2019-07-09 22:49
  */
-@Singleton
 public class CollectionParameterResolver implements ParameterResolver {
 
     @Override
     public final boolean supports(final MethodParameter parameter) {
 
-        final Class<?> parameterClass = parameter.getParameterClass();
-        return (parameterClass == Collection.class || parameterClass == List.class || parameterClass == Set.class) //
-                && supportsInternal(parameter);
+        return (parameter.is(Collection.class) //
+                || parameter.is(List.class) //
+                || parameter.is(Set.class)) && supportsInternal(parameter);
     }
 
     protected boolean supportsInternal(final MethodParameter parameter) {

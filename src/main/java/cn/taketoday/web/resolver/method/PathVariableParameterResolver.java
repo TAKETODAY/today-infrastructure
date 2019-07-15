@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.resolver.method;
 
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -32,7 +31,6 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-07-09 22:49
  */
-@Singleton
 public class PathVariableParameterResolver implements ParameterResolver {
 
     @Override

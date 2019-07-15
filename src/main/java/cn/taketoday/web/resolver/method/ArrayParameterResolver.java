@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.resolver.method;
 
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -30,13 +29,7 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-07-07 23:24
  */
-@Singleton
 public class ArrayParameterResolver implements OrderedParameterResolver {
-
-    @Override
-    public int getOrder() {
-        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE;
-    }
 
     @Override
     public boolean supports(final MethodParameter parameter) {
@@ -62,4 +55,8 @@ public class ArrayParameterResolver implements OrderedParameterResolver {
         return NumberUtils.toArrayObject(parameterValues, parameter.getParameterClass());
     }
 
+    @Override
+    public int getOrder() {
+        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 70;
+    }
 }

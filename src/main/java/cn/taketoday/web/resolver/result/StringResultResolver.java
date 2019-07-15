@@ -20,7 +20,6 @@
 package cn.taketoday.web.resolver.result;
 
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.mapping.HandlerMethod;
@@ -31,7 +30,6 @@ import cn.taketoday.web.view.ViewResolver;
  * @author TODAY <br>
  *         2019-07-14 11:32
  */
-@Singleton
 public class StringResultResolver implements ResultResolver {
 
     /** view resolver **/

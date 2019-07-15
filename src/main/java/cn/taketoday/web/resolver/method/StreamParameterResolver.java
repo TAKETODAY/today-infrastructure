@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.io.Readable;
 import cn.taketoday.context.io.Writable;
 import cn.taketoday.web.RequestContext;
@@ -35,7 +34,6 @@ import cn.taketoday.web.ui.Model;
  * @author TODAY <br>
  *         2019-07-09 22:49
  */
-@Singleton
 public class StreamParameterResolver implements ParameterResolver {
 
     @Override

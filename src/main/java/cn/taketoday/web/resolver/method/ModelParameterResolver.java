@@ -19,7 +19,9 @@
  */
 package cn.taketoday.web.resolver.method;
 
-import cn.taketoday.context.annotation.Singleton;
+import java.util.Map;
+
+import cn.taketoday.web.HttpHeaders;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.ui.Model;
@@ -31,12 +33,16 @@ import cn.taketoday.web.ui.RedirectModelAttributes;
  * @author TODAY <br>
  *         2019-07-09 22:49
  */
-@Singleton
 public class ModelParameterResolver implements ParameterResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
-        return parameter.isAssignableFrom(Model.class);
+        return parameter.isAssignableFrom(Model.class) //
+                || parameter.is(HttpHeaders.class)//
+                || (parameter.is(Map.class) //
+                        && parameter.isGenericPresent(String.class, 0)//
+                        && parameter.isGenericPresent(Object.class, 1)//
+                );
     }
 
     /**

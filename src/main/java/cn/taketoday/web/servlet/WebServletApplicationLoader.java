@@ -58,7 +58,9 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.event.WebApplicationFailedEvent;
 import cn.taketoday.web.mapping.ResourceMapping;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
+import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.method.ParameterResolver;
+import cn.taketoday.web.resolver.method.ServletParameterResolver;
 import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
 import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
@@ -156,22 +158,33 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     }
 
     @Override
-    protected void configureParameterResolver(List<ParameterResolver> parameterResolvers, WebMvcConfiguration mvcConfiguration) {
+    protected void configureParameterResolver(List<ParameterResolver> resolvers, //
+            MultipartConfiguration multipartConfiguration, WebMvcConfiguration mvcConfiguration) {
 
-//        parameterResolvers.add(new ParameterResolver() {
-//            @Override
-//            public boolean supports(MethodParameter parameter) {
-//                return parameter.isAnnotationPresent(Session.class);
-//            }
-//
-//            @Override
-//            public Object resolveParameter(RequestContext requestContext, MethodParameter parameter) throws Throwable {
-//                return requestContext.nativeSession(HttpSession.class).getAttribute(parameter.getName());
-//            }
-//        });
-//        
+        // Servlet cookies parameter
+        // ----------------------------
 
-        super.configureParameterResolver(parameterResolvers, mvcConfiguration);
+        resolvers.add(new ServletParameterResolver.ServletCookieParameterResolver());
+        resolvers.add(new ServletParameterResolver.ServletCookieArrayParameterResolver());
+        resolvers.add(new ServletParameterResolver.ServletCookieCollectionParameterResolver());
+        resolvers.add(new ServletParameterResolver.ServletContextAttributeParameterResolver());
+
+        // Servlet components parameter
+        // ----------------------------
+
+        resolvers.add(new ServletParameterResolver.HttpSessionParameterResolver());
+        resolvers.add(new ServletParameterResolver.ServletContextParameterResolver());
+        resolvers.add(new ServletParameterResolver.ServletRequestParameterResolver());
+        resolvers.add(new ServletParameterResolver.ServletResponseParameterResolver());
+
+        // Attributes
+        // ------------------------
+
+        resolvers.add(new ServletParameterResolver.HttpSessionAttributeParameterResolver());
+        resolvers.add(new ServletParameterResolver.ServletContextAttributeParameterResolver());
+        resolvers.add(new ServletParameterResolver.ServletRequestAttributeParameterResolver());
+
+        super.configureParameterResolver(resolvers, multipartConfiguration, mvcConfiguration);
     }
 
     @Override

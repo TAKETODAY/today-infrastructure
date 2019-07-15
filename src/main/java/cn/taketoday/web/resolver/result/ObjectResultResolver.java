@@ -20,7 +20,6 @@
 package cn.taketoday.web.resolver.result;
 
 import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
@@ -30,7 +29,6 @@ import cn.taketoday.web.view.ViewResolver;
  * @author TODAY <br>
  *         2019-07-14 17:41
  */
-@Singleton
 public class ObjectResultResolver extends AbstractResultResolver implements ResultResolver {
 
     public ObjectResultResolver(ViewResolver viewResolver, //

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Cookie;
 import cn.taketoday.web.mapping.MethodParameter;
@@ -34,12 +33,11 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-07-12 23:39
  */
-@Singleton
 public class CookieParameterResolver implements ParameterResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
-        return parameter.getParameterClass() == HttpCookie.class;
+        return parameter.is(HttpCookie.class);
     }
 
     @Override
@@ -59,8 +57,7 @@ public class CookieParameterResolver implements ParameterResolver {
         return null;
     }
 
-    @Singleton
-    public class CookieAnnotationParameterResolver extends TypeConverterParameterResolver implements ParameterResolver {
+    public static class CookieAnnotationParameterResolver extends TypeConverterParameterResolver implements ParameterResolver {
 
         @Override
         public boolean supports(MethodParameter parameter) {
@@ -85,11 +82,9 @@ public class CookieParameterResolver implements ParameterResolver {
             }
             return parameter.getDefaultValue();
         }
-
     }
 
-    @Singleton
-    public class CookieArrayParameterResolver implements ParameterResolver {
+    public static class CookieArrayParameterResolver implements ParameterResolver {
 
         @Override
         public boolean supports(MethodParameter parameter) {
@@ -102,8 +97,7 @@ public class CookieParameterResolver implements ParameterResolver {
         }
     }
 
-    @Singleton
-    public class CookieCollectionParameterResolver extends CollectionParameterResolver implements ParameterResolver {
+    public static class CookieCollectionParameterResolver extends CollectionParameterResolver implements ParameterResolver {
 
         @Override
         protected boolean supportsInternal(MethodParameter parameter) {

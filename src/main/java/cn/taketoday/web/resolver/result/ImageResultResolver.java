@@ -23,7 +23,6 @@ import java.awt.image.RenderedImage;
 
 import javax.imageio.ImageIO;
 
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
@@ -32,7 +31,6 @@ import cn.taketoday.web.mapping.HandlerMethod;
  * @author TODAY <br>
  *         2019-07-14 15:15
  */
-@Singleton
 public class ImageResultResolver implements ResultResolver {
 
     @Override

@@ -96,6 +96,8 @@ public class DefaultExceptionResolver implements ExceptionResolver {
                     }
                 }
                 else {
+
+                    requestContext.contentType(Constant.CONTENT_TYPE_JSON);
                     requestContext.getWriter().write(new StringBuilder()//
                             .append("{\"msg\":\"").append(msg)//
                             .append("\",\"status\":").append(status)//

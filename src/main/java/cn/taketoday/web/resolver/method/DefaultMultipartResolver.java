@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.utils.DataSize;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.FileSizeExceededException;
@@ -43,7 +42,6 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-07-11 07:59
  */
-@Singleton
 public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
     @Autowired
@@ -69,8 +67,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
      * @author TODAY <br>
      *         2019-07-12 18:18
      */
-    @Singleton
-    public class CollectionMultipartResolver extends AbstractMultipartResolver {
+    public static class CollectionMultipartResolver extends AbstractMultipartResolver {
 
         @Autowired
         public CollectionMultipartResolver(MultipartConfiguration multipartConfiguration) {
@@ -103,8 +100,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
      * @author TODAY <br>
      *         2019-07-12 17:43
      */
-    @Singleton
-    public class ArrayMultipartResolver extends AbstractMultipartResolver {
+    public static class ArrayMultipartResolver extends AbstractMultipartResolver {
 
         @Autowired
         public ArrayMultipartResolver(MultipartConfiguration multipartConfiguration) {
@@ -133,8 +129,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
      * @author TODAY <br>
      *         2019-07-11 23:35
      */
-    @Singleton
-    public class MapMultipartParameterResolver extends MapParameterResolver implements ParameterResolver {
+    public static class MapMultipartParameterResolver extends MapParameterResolver implements ParameterResolver {
 
         private final MultipartConfiguration multipartConfiguration;
 
@@ -198,6 +193,14 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
             }
             throw WebUtils.newBadRequest("This is not a multipart request", parameter.getName(), null);
         }
+
+        @Override
+        public int getOrder() {
+            return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 80;
+        }
+
+        //@off
+        protected void cleanupMultipart(final RequestContext request) {} //@on
     }
 
 }

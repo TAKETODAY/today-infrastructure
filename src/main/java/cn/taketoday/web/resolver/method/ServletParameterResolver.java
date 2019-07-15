@@ -30,9 +30,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.Application;
+import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.annotation.Session;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.utils.WebUtils;
@@ -43,10 +43,7 @@ import cn.taketoday.web.utils.WebUtils;
  */
 public class ServletParameterResolver {
 
-    @Singleton
     public static class ServletRequestParameterResolver implements ParameterResolver {
-
-        private final Class<?> servletRequest = ClassUtils.loadClass("javax.servlet.ServletRequest");
 
         @Override
         public boolean supports(final MethodParameter parameter) {
@@ -59,10 +56,20 @@ public class ServletParameterResolver {
         }
     }
 
-    @Singleton
-    public static class ServletResponseParameterResolver implements ParameterResolver {
+    public static class ServletRequestAttributeParameterResolver implements ParameterResolver {
 
-        private final Class<?> servletResponse = ClassUtils.loadClass("javax.servlet.ServletResponse");
+        @Override
+        public boolean supports(final MethodParameter parameter) {
+            return parameter.isAnnotationPresent(RequestAttribute.class);
+        }
+
+        @Override
+        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+            return requestContext.attribute(parameter.getName());
+        }
+    }
+
+    public static class ServletResponseParameterResolver implements ParameterResolver {
 
         @Override
         public boolean supports(final MethodParameter parameter) {
@@ -75,14 +82,11 @@ public class ServletParameterResolver {
         }
     }
 
-    @Singleton
-    public static class SessionParameterResolver implements ParameterResolver {
-
-        private final Class<?> httpSession = ClassUtils.loadClass("javax.servlet.http.HttpSession");
+    public static class HttpSessionParameterResolver implements ParameterResolver {
 
         @Override
         public boolean supports(final MethodParameter parameter) {
-            return parameter.isInterface() && parameter.isAssignableFrom(HttpSession.class);
+            return parameter.is(HttpSession.class);
         }
 
         @Override
@@ -91,30 +95,39 @@ public class ServletParameterResolver {
         }
     }
 
-    @Singleton
-    public static class ServletContextParameterResolver implements ParameterResolver {
-
-        private final Class<?> servletContext = ClassUtils.loadClass("javax.servlet.ServletContext");
+    public static class HttpSessionAttributeParameterResolver implements ParameterResolver {
 
         @Override
-        public boolean supports(final MethodParameter parameter) {
-            return parameter.getParameterClass() == ServletContext.class;
+        public boolean supports(MethodParameter parameter) {
+            return parameter.isAnnotationPresent(Session.class);
         }
 
         @Override
         public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-            return requestContext.nativeSession();
+            return requestContext.nativeSession(HttpSession.class).getAttribute(parameter.getName());
+        }
+    }
+
+    public static class ServletContextParameterResolver implements ParameterResolver {
+
+        @Override
+        public boolean supports(final MethodParameter parameter) {
+            return parameter.is(ServletContext.class);
+        }
+
+        @Override
+        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+            return requestContext.nativeRequest(HttpServletRequest.class).getServletContext();
         }
     }
 
     // ------------- cookie
 
-    @Singleton
     public static class ServletCookieParameterResolver implements ParameterResolver {
 
         @Override
         public boolean supports(final MethodParameter parameter) {
-            return parameter.getParameterClass() == Cookie.class;
+            return parameter.is(Cookie.class);
         }
 
         @Override
@@ -134,12 +147,11 @@ public class ServletParameterResolver {
         }
     }
 
-    @Singleton
     public static class ServletCookieCollectionParameterResolver extends CollectionParameterResolver implements ParameterResolver {
 
         @Override
         protected boolean supportsInternal(MethodParameter parameter) {
-            return parameter.getParameterClass() == Cookie.class;
+            return parameter.is(Cookie.class);
         }
 
         @Override
@@ -152,7 +164,6 @@ public class ServletParameterResolver {
         }
     }
 
-    @Singleton
     public static class ServletCookieArrayParameterResolver implements ParameterResolver {
 
         @Override
@@ -166,18 +177,18 @@ public class ServletParameterResolver {
         }
     }
 
-//----------- session
-    @Singleton
-    public static class ServletSessionAttributeParameterResolver implements ParameterResolver {
+    public static class ServletContextAttributeParameterResolver implements ParameterResolver {
 
         @Override
         public boolean supports(MethodParameter parameter) {
-            return parameter.isAnnotationPresent(Session.class);
+            return parameter.isAnnotationPresent(Application.class);
         }
 
         @Override
         public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-            return requestContext.nativeSession(HttpSession.class).getAttribute(parameter.getName());
+            return requestContext.nativeRequest(HttpServletRequest.class)//
+                    .getServletContext()//
+                    .getAttribute(parameter.getName());
         }
     }
 }

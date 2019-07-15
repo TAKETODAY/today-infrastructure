@@ -23,7 +23,6 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
@@ -33,7 +32,6 @@ import cn.taketoday.web.utils.ResultUtils;
  * @author TODAY <br>
  *         2019-07-14 01:19
  */
-@Singleton
 public class ResponseBodyResultResolver implements OrderedResultResolver {
 
     @Autowired
@@ -56,7 +54,7 @@ public class ResponseBodyResultResolver implements OrderedResultResolver {
 
     @Override
     public int getOrder() {
-        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE;
+        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100;
     }
 
 }

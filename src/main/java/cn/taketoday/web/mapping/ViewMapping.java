@@ -34,10 +34,6 @@ import java.util.Map;
 @SuppressWarnings("serial")
 public class ViewMapping extends HandlerMapping implements WebMapping {
 
-    public ViewMapping(Object bean, HandlerMethod handlerMethod) {
-        super(bean, handlerMethod, Collections.emptyList());
-    }
-
     /** 资源路径 */
     private String assetsPath = "";
     /** The resource's content type @since 2.3.3 */
@@ -48,6 +44,10 @@ public class ViewMapping extends HandlerMapping implements WebMapping {
 
     /** view 视图映射池 */
     private static final Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>(16, 1f);
+
+    public ViewMapping(Object bean, HandlerMethod handlerMethod) {
+        super(bean, handlerMethod, Collections.emptyList());
+    }
 
     public final boolean hasAction() {
         return getHandlerMethod() != null;
@@ -80,13 +80,13 @@ public class ViewMapping extends HandlerMapping implements WebMapping {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("{\n\t\"assetsPath\":\"");
+        builder.append("[assetsPath=");
         builder.append(assetsPath);
-        builder.append("\",\n\t\"contentType\":\"");
+        builder.append(", contentType=");
         builder.append(contentType);
-        builder.append("\",\n\t\"status\":\"");
+        builder.append(", status=");
         builder.append(status);
-        builder.append("\"\n}");
+        builder.append("]");
         return builder.toString();
     }
 

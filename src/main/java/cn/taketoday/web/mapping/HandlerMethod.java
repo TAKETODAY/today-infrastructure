@@ -123,22 +123,14 @@ public class HandlerMethod {
 
     public Type getGenericityClass(int index) {
 
-        if (genericityClass != null) {
-            if (genericityClass.length > index) {
-                return genericityClass[index];
-            }
+        if (genericityClass != null && genericityClass.length > index) {
+            return genericityClass[index];
         }
         return null;
     }
 
     public boolean isGenericPresent(final Type requiredType, int index) {
-
-        if (genericityClass != null) {
-            if (genericityClass.length > index) {
-                return genericityClass[index].equals(requiredType);
-            }
-        }
-        return false;
+        return requiredType.equals(getGenericityClass(index));
     }
 
     public boolean isGenericPresent(final Type requiredType) {

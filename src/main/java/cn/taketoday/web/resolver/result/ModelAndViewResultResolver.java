@@ -21,7 +21,6 @@ package cn.taketoday.web.resolver.result;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
@@ -32,19 +31,18 @@ import cn.taketoday.web.view.ViewResolver;
  * @author TODAY <br>
  *         2019-07-14 01:14
  */
-@Singleton
 public class ModelAndViewResultResolver extends AbstractResultResolver implements ResultResolver {
-
-    @Override
-    public boolean supports(HandlerMethod handlerMethod) {
-        return handlerMethod.isAssignableFrom(ModelAndView.class);
-    }
 
     @Autowired
     public ModelAndViewResultResolver(ViewResolver viewResolver, //
             @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) //
     {
         super(viewResolver, downloadFileBuf);
+    }
+
+    @Override
+    public boolean supports(HandlerMethod handlerMethod) {
+        return handlerMethod.isAssignableFrom(ModelAndView.class);
     }
 
     @Override

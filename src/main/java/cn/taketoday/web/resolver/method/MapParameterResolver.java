@@ -23,7 +23,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.MethodParameter;
@@ -32,12 +31,11 @@ import cn.taketoday.web.mapping.MethodParameter;
  * @author TODAY <br>
  *         2019-07-09 22:49
  */
-@Singleton
-public class MapParameterResolver implements ParameterResolver {
+public class MapParameterResolver implements OrderedParameterResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
-        return parameter.getParameterClass() == Map.class && supportsInternal(parameter);
+        return parameter.is(Map.class) && supportsInternal(parameter);
     }
 
     protected boolean supportsInternal(final MethodParameter parameter) {
@@ -51,10 +49,7 @@ public class MapParameterResolver implements ParameterResolver {
     public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
 
         // parameter class
-        final Class<?> clazz = (Class<?>) parameter.getGenericityClass()[0];
-        if (clazz == Object.class) { // model
-            return requestContext;
-        }
+        final Class<?> clazz = (Class<?>) parameter.getGenericityClass()[1];
 
         final String parameterName = parameter.getName();
         final Enumeration<String> parameterNames = requestContext.parameterNames();// all parameter
@@ -84,4 +79,8 @@ public class MapParameterResolver implements ParameterResolver {
 //        throw WebUtils.newBadRequest("Collection variable", parameter.getParameterName(), null);
     }
 
+    @Override
+    public int getOrder() {
+        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 90;
+    }
 }

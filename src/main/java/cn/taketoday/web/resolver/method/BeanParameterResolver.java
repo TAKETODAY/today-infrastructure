@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.resolver.method;
 
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.MethodParameter;
 
@@ -27,7 +26,6 @@ import cn.taketoday.web.mapping.MethodParameter;
  * @author TODAY <br>
  *         2019-07-13 01:11
  */
-@Singleton
 public class BeanParameterResolver implements OrderedParameterResolver {
 
     @Override
@@ -37,7 +35,6 @@ public class BeanParameterResolver implements OrderedParameterResolver {
 
     @Override
     public Object resolveParameter(RequestContext requestContext, MethodParameter parameter) throws Throwable {
-
         return null;
     }
 

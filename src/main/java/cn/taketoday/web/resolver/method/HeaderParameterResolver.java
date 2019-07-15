@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.resolver.method;
 
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Header;
 import cn.taketoday.web.mapping.MethodParameter;
@@ -28,7 +27,6 @@ import cn.taketoday.web.mapping.MethodParameter;
  * @author TODAY <br>
  *         2019-07-13 11:11
  */
-@Singleton
 public class HeaderParameterResolver extends TypeConverterParameterResolver implements ParameterResolver {
 
     @Override
@@ -40,4 +38,5 @@ public class HeaderParameterResolver extends TypeConverterParameterResolver impl
     protected Object resolveSource(final RequestContext requestContext, final MethodParameter parameter) {
         return requestContext.requestHeader(parameter.getName());
     }
+
 }

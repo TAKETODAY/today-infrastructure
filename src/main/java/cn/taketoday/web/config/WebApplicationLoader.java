@@ -19,6 +19,9 @@
  */
 package cn.taketoday.web.config;
 
+import static cn.taketoday.context.utils.ContextUtils.resolveProps;
+import static cn.taketoday.context.utils.ContextUtils.resolveValue;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +39,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.alibaba.fastjson.serializer.SerializerFeature;
+
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Props;
@@ -46,7 +52,6 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -59,10 +64,27 @@ import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.ControllerAdviceExceptionResolver;
 import cn.taketoday.web.resolver.ExceptionResolver;
+import cn.taketoday.web.resolver.method.ArrayParameterResolver;
+import cn.taketoday.web.resolver.method.BeanParameterResolver;
 import cn.taketoday.web.resolver.method.ConverterParameterResolver;
+import cn.taketoday.web.resolver.method.CookieParameterResolver;
+import cn.taketoday.web.resolver.method.DefaultMultipartResolver;
 import cn.taketoday.web.resolver.method.DelegatingParameterResolver;
+import cn.taketoday.web.resolver.method.HeaderParameterResolver;
+import cn.taketoday.web.resolver.method.MapParameterResolver;
+import cn.taketoday.web.resolver.method.ModelParameterResolver;
 import cn.taketoday.web.resolver.method.ParameterResolver;
+import cn.taketoday.web.resolver.method.PathVariableParameterResolver;
+import cn.taketoday.web.resolver.method.RequestBodyParameterResolver;
+import cn.taketoday.web.resolver.method.StreamParameterResolver;
+import cn.taketoday.web.resolver.result.ImageResultResolver;
+import cn.taketoday.web.resolver.result.ModelAndViewResultResolver;
+import cn.taketoday.web.resolver.result.ObjectResultResolver;
+import cn.taketoday.web.resolver.result.ResourceResultResolver;
+import cn.taketoday.web.resolver.result.ResponseBodyResultResolver;
 import cn.taketoday.web.resolver.result.ResultResolver;
+import cn.taketoday.web.resolver.result.StringResultResolver;
+import cn.taketoday.web.resolver.result.VoidResultResolver;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.FreeMarkerViewResolver;
@@ -78,6 +100,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
     private static final Logger log = LoggerFactory.getLogger(WebApplicationLoader.class);
 
+    private DocumentBuilder builder;
     private ViewConfiguration viewConfiguration;
 
     /** context **/
@@ -92,8 +115,6 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         return applicationContext;
     }
 
-    private DocumentBuilder builder;
-
     @Override
     public void onStartup(WebApplicationContext applicationContext) throws Throwable {
 
@@ -101,12 +122,12 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration();
 
-        configureMultipart(applicationContext.getBean(MultipartConfiguration.class), mvcConfiguration);
-
         configureResultResolver(applicationContext.getBeans(ResultResolver.class), mvcConfiguration);
 
-        configureParameterResolver(applicationContext.getBeans(ParameterResolver.class), mvcConfiguration);
         configureViewResolver(applicationContext.getBean(AbstractViewResolver.class), mvcConfiguration);
+
+        configureParameterResolver(applicationContext.getBeans(ParameterResolver.class), //
+                applicationContext.getBean(MultipartConfiguration.class), mvcConfiguration);
 
         configureResourceRegistry(applicationContext.getBean(ResourceMappingRegistry.class), mvcConfiguration);
 
@@ -132,75 +153,155 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         System.gc();
     }
 
-    protected void configureResultResolver(List<ResultResolver> resultResolvers, WebMvcConfiguration mvcConfiguration) {
+    /**
+     * Configure {@link ResultResolver} to resolve handler method result
+     * 
+     * @param resolvers
+     *            Resolvers registry
+     * @param mvcConfiguration
+     *            All {@link WebMvcConfiguration} object
+     */
+    protected void configureResultResolver(List<ResultResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
 
-        mvcConfiguration.configureResultResolver(resultResolvers);
-        OrderUtils.reversedSort(resultResolvers);
+        final ViewResolver viewResolver = getWebApplicationContext().getBean(ViewResolver.class);
 
-        HandlerMethod.addResolver(resultResolvers);
+        final ConfigurableEnvironment environment = getWebApplicationContext().getEnvironment();
+        int bufferSize = Integer.parseInt(environment.getProperty(DOWNLOAD_BUFF_SIZE, "10240"));
+
+        resolvers.add(new ImageResultResolver());
+        resolvers.add(new ResourceResultResolver(bufferSize));
+        resolvers.add(new StringResultResolver(viewResolver));
+        resolvers.add(new VoidResultResolver(viewResolver, bufferSize));
+        resolvers.add(new ObjectResultResolver(viewResolver, bufferSize));
+        resolvers.add(new ModelAndViewResultResolver(viewResolver, bufferSize));
+
+        resolvers.add(new ResponseBodyResultResolver(environment.getProperty(FAST_JSON_SERIALIZE_FEATURES, SerializerFeature[].class)));
+
+        mvcConfiguration.configureResultResolver(resolvers);
+        OrderUtils.reversedSort(resolvers);
+
+        HandlerMethod.addResolver(resolvers);
     }
 
-    protected void configureParameterResolver(List<ParameterResolver> parameterResolvers, WebMvcConfiguration mvcConfiguration) {
+    /**
+     * Configure {@link ParameterResolver}s to resolve handler method arguments
+     * 
+     * @param resolvers
+     *            Resolvers registry
+     * @param mvcConfiguration
+     *            All {@link WebMvcConfiguration} object
+     */
+    protected void configureParameterResolver(List<ParameterResolver> resolvers, //
+            MultipartConfiguration multipartConfiguration, WebMvcConfiguration mvcConfiguration) {
 
-        parameterResolvers.add(new ConverterParameterResolver((m) -> m.is(String.class), (s) -> s));
-        parameterResolvers.add(new ConverterParameterResolver((m) -> m.is(Long.class) || m.is(long.class), Long::parseLong));
-        parameterResolvers.add(new ConverterParameterResolver((m) -> m.is(Integer.class) || m.is(int.class), Integer::parseInt));
-        parameterResolvers.add(new ConverterParameterResolver((m) -> m.is(Short.class) || m.is(short.class), Short::parseShort));
-        parameterResolvers.add(new ConverterParameterResolver((m) -> m.is(Float.class) || m.is(float.class), Float::parseFloat));
-        parameterResolvers.add(new ConverterParameterResolver((m) -> m.is(Double.class) || m.is(double.class), Double::parseDouble));
-        parameterResolvers.add(new ConverterParameterResolver((m) -> m.is(Boolean.class) || m.is(boolean.class), Boolean::parseBoolean));
+        // Use ConverterParameterResolver to resolve primitive types
+        // --------------------------------------------------------------------------
 
-        parameterResolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Value.class), //
-                (context, parameter) -> ContextUtils.resolveValue(parameter.getAnnotation(Value.class), parameter.getParameterClass())//
+        resolvers.add(new ConverterParameterResolver((m) -> m.is(String.class), (s) -> s));
+        resolvers.add(new ConverterParameterResolver((m) -> m.is(Long.class) || m.is(long.class), Long::parseLong));
+        resolvers.add(new ConverterParameterResolver((m) -> m.is(Integer.class) || m.is(int.class), Integer::parseInt));
+        resolvers.add(new ConverterParameterResolver((m) -> m.is(Short.class) || m.is(short.class), Short::parseShort));
+        resolvers.add(new ConverterParameterResolver((m) -> m.is(Float.class) || m.is(float.class), Float::parseFloat));
+        resolvers.add(new ConverterParameterResolver((m) -> m.is(Double.class) || m.is(double.class), Double::parseDouble));
+        resolvers.add(new ConverterParameterResolver((m) -> m.is(Boolean.class) || m.is(boolean.class), Boolean::parseBoolean));
+
+        // For some useful context annotations
+        // --------------------------------------------
+
+        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Value.class), //
+                (ctx, m) -> resolveValue(m.getAnnotation(Value.class), m.getParameterClass())//
         ));
-
-        parameterResolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Env.class), //
-                (context, parameter) -> ContextUtils.resolveValue(parameter.getAnnotation(Env.class), parameter.getParameterClass())//
+        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Env.class), //
+                (ctx, m) -> resolveValue(m.getAnnotation(Env.class), m.getParameterClass())//
         ));
-        parameterResolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Props.class), //
-                (context, parameter) -> ContextUtils.resolveProps(parameter.getAnnotation(Props.class), parameter.getParameterClass(), null)//
+        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Props.class), //
+                (ctx, m) -> resolveProps(m.getAnnotation(Props.class), m.getParameterClass(), null)//
         ));
-
-        parameterResolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Autowired.class), //
-                (context, parameter) -> {
-                    final Autowired autowired = parameter.getAnnotation(Autowired.class);
+        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Autowired.class), //
+                (ctx, m) -> {
+                    final Autowired autowired = m.getAnnotation(Autowired.class);
                     final String name = autowired.value();
 
                     final Object bean;
                     if (StringUtils.isEmpty(name)) {
-                        bean = applicationContext.getBean(parameter.getParameterClass());
+                        bean = applicationContext.getBean(m.getParameterClass());
                     }
                     else {
-                        bean = applicationContext.getBean(name, parameter.getParameterClass());
+                        bean = applicationContext.getBean(name, m.getParameterClass());
                     }
                     if (bean == null && autowired.required()) {
-                        throw new NoSuchBeanDefinitionException(parameter.getParameterClass());
+                        throw new NoSuchBeanDefinitionException(m.getParameterClass());
                     }
                     return bean;
                 }//
         ));
 
-        mvcConfiguration.configureParameterResolver(parameterResolvers);
+        // For cookies
+        // ------------------------------------------
+        resolvers.add(new CookieParameterResolver());
+        resolvers.add(new CookieParameterResolver.CookieArrayParameterResolver());
+        resolvers.add(new CookieParameterResolver.CookieAnnotationParameterResolver());
+        resolvers.add(new CookieParameterResolver.CookieCollectionParameterResolver());
 
-        OrderUtils.reversedSort(parameterResolvers);
-
-        MethodParameter.addResolver(parameterResolvers);
-    }
-
-    private void configureMultipart(MultipartConfiguration multipartConfiguration, WebMvcConfiguration mvcConfiguration) {
+        // For multipart
+        // -------------------------------------------
         mvcConfiguration.configureMultipart(multipartConfiguration);
+
+        resolvers.add(new DefaultMultipartResolver(multipartConfiguration));
+        resolvers.add(new DefaultMultipartResolver.ArrayMultipartResolver(multipartConfiguration));
+        resolvers.add(new DefaultMultipartResolver.CollectionMultipartResolver(multipartConfiguration));
+        resolvers.add(new DefaultMultipartResolver.MapMultipartParameterResolver(multipartConfiguration));
+
+        // Header
+        resolvers.add(new HeaderParameterResolver());
+
+        resolvers.add(new MapParameterResolver());
+        resolvers.add(new ModelParameterResolver());
+        resolvers.add(new ArrayParameterResolver());
+        resolvers.add(new StreamParameterResolver());
+        resolvers.add(new RequestBodyParameterResolver());
+        resolvers.add(new PathVariableParameterResolver());
+
+        resolvers.add(new BeanParameterResolver());
+
+        // User customize parameter resolver
+        // ------------------------------------------
+
+        mvcConfiguration.configureParameterResolver(resolvers); // user configure
+
+        OrderUtils.reversedSort(resolvers);
+
+        MethodParameter.addResolver(resolvers);
     }
 
+    /**
+     * @param registry
+     * @param mvcConfiguration
+     *            All {@link WebMvcConfiguration} object
+     */
     protected void configureResourceRegistry(ResourceMappingRegistry registry, WebMvcConfiguration mvcConfiguration) {
         mvcConfiguration.configureResourceMappings(registry);
     }
 
+    /**
+     * @param viewResolver
+     * @param mvcConfiguration
+     *            All {@link WebMvcConfiguration} object
+     */
     protected void configureViewResolver(AbstractViewResolver viewResolver, WebMvcConfiguration mvcConfiguration) {
         if (viewResolver != null) {
             mvcConfiguration.configureViewResolver(viewResolver);
         }
     }
 
+    /**
+     * Invoke all {@link WebApplicationInitializer}s
+     * 
+     * @param applicationContext
+     *            {@link ApplicationContext} object
+     * @throws Throwable
+     *             If any initialize exception occurred
+     */
     protected void initializerStartup(WebApplicationContext applicationContext) throws Throwable {
         for (final WebApplicationInitializer initializer : getInitializers(applicationContext)) {
             initializer.onStartup(applicationContext);
