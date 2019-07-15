@@ -14,7 +14,7 @@
 
 
     <properties>
-        <embed.tomcat.version>9.0.20</embed.tomcat.version>
+        <embed.tomcat.version>9.0.22</embed.tomcat.version>
     </properties>
     
     <dependencies>
