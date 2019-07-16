@@ -85,41 +85,26 @@ public class DateConverter implements Converter<String, Date> {
 
 <Web-Configuration>
 
-    <dispatcher-servlet mapping="/;*.do"/>
-    <static-resources mapping="/assets/*;*.js"/>
-    
-<!-- 不配置默认使用：<multipart class="cn.taketoday.web.multipart.DefaultMultipartResolver"> 支持自定义-->
-    <multipart class="cn.taketoday.web.multipart.CommonsMultipartResolver">
-        <upload-encoding>UTF-8</upload-encoding>
-        <!-- <upload-location>D:/upload</upload-location> -->
-        <upload-maxFileSize>10240000</upload-maxFileSize>
-        <upload-maxRequestSize>1024000000</upload-maxRequestSize>
-        <upload-fileSizeThreshold>1000000000</upload-fileSizeThreshold>
-    </multipart>
+        <controller prefix="/error/">
+        <action resource="400" name="BadRequest" status="400" />
+        <action resource="403" name="Forbidden" status="403" />
+        <action resource="404" name="NotFound" status="404" />
+        <action resource="500" name="ServerIsBusy" status="500" />
+        <action resource="405" name="MethodNotAllowed" status="405" />
+    </controller>
 
-<!-- 不配置默认使用：<view-resolver class="cn.taketoday.web.view.JstlViewResolver"> 同样支持自定义-->
-    <view-resolver class="cn.taketoday.web.view.FreeMarkerViewResolver">
-        <view-suffix>.ftl</view-suffix>
-        <view-encoding>UTF-8</view-encoding>
-        <view-prefix>/WEB-INF/view</view-prefix>
-    </view-resolver>
-
-	<exception-resolver class="cn.taketoday.web.resolver.DefaultExceptionResolver"/>
-	<parameter-resolver class="cn.taketoday.web.resolver.DefaultParameterResolver"/>
-    
-    <!-- 视图 -->
     <controller>
-        <action resource="http://pipe.b3log.org/blogs/Today" name="today-blog-pipe" type="redirect"/>
-        <action resource="https://taketoday.cn" name="today" type="redirect"/>
-        <action resource="https://github.com" name="github" type="redirect"/>
-        <action resource="/login" name="login.do" type="redirect"/>
+        <action resource="redirect:http://pipe.b3log.org/blogs/Today" name="today-blog-pipe" />
+        <action resource="redirect:https://taketoday.cn" name="today" />
+        <action resource="redirect:https://github.com" name="github" />
+        <action resource="redirect:/login" name="login.do" />
     </controller>
-    
-    <controller class="cn.taketoday.demo.controller.XMLController" name="xmlController" prefix="/xml/">
-        <action name="obj" method="obj"/>
-        <action name="test" resource="test" method="test" type="forward"/>
+
+    <controller class="cn.taketoday.web.demo.controller.XMLController" name="xmlController" prefix="/xml/">
+        <action name="obj" method="obj" />
+        <action name="test" resource="test" method="test"/>
     </controller>
-    
+
 </Web-Configuration>
 ```
 >  登录实例
