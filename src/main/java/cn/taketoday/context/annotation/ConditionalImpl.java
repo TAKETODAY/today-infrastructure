@@ -24,8 +24,7 @@ import java.lang.annotation.Annotation;
 import cn.taketoday.context.Condition;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-11-14 22:32
  */
 @SuppressWarnings("all")

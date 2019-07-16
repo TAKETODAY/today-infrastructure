@@ -27,8 +27,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.Ordered;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY<br>
  *         2018-11-07 13:15
  */
 @Retention(RetentionPolicy.RUNTIME)

@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.Constant;
 
 /**
- * 
  * @author TODAY <br>
  *         2018-?-? ?:?
  */

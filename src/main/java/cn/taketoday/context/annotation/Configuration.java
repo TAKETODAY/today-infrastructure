@@ -27,8 +27,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.Scope;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-09-06 14:05
  */
 @Target(ElementType.TYPE)

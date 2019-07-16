@@ -29,7 +29,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author TODAY <br>
- * 
  *         2018-08-22 17:29
  */
 @NoArgsConstructor

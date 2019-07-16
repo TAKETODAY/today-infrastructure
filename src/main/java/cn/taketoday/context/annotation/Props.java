@@ -26,13 +26,12 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.context.Constant;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER })
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-08-04 13:13
  */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.FIELD, ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER })
 public @interface Props {
 
     /**

@@ -27,7 +27,6 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.Scope;
 
 /**
- * 
  * This annotation indicates that an annotated element is a bean component in
  * your application
  * 
