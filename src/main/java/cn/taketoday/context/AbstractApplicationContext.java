@@ -84,7 +84,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // @since 2.1.5
     private State state;
     /** application listeners **/
-    private final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = new HashMap<>(10, 1.0f);
+    private final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = new HashMap<>(32, 1.0f);
 
     public AbstractApplicationContext() {
         applyState(State.NONE);
@@ -101,7 +101,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      * Load class with given package locations in class path
      *
      * @param locations
-     *            given packages
+     *            Given packages
      */
     @Override
     public void loadContext(String... locations) {

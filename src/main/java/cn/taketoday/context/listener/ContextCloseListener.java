@@ -28,7 +28,6 @@ import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.context.factory.AbstractBeanFactory;
@@ -40,7 +39,6 @@ import cn.taketoday.context.utils.ExceptionUtils;
  * @author TODAY <br>
  *         2018-09-09 23:20
  */
-@ContextListener
 @Order(Ordered.LOWEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE)
 public class ContextCloseListener implements ApplicationListener<ContextCloseEvent> {
 

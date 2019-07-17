@@ -20,9 +20,14 @@
 package cn.taketoday.context;
 
 import java.util.Collection;
+import java.util.EventObject;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.StandardBeanFactory;
+import cn.taketoday.context.listener.ApplicationListener;
+import cn.taketoday.context.listener.ContextCloseListener;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -91,6 +96,14 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
         super.loadBeanDefinitions(beanFactory, beanClasses);
         this.beanFactory.loadConfigurationBeans();
         this.beanFactory.loadMissingBean(beanClasses);
+    }
+
+    @Override
+    protected void registerListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners) {
+
+        addApplicationListener(new ContextCloseListener());
+
+        super.registerListener(applicationListeners);
     }
 
 }
