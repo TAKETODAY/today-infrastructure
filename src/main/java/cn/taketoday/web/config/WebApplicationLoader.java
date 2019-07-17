@@ -39,8 +39,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.alibaba.fastjson.serializer.SerializerFeature;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
@@ -56,6 +54,7 @@ import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
 import cn.taketoday.web.mapping.HandlerMethod;
@@ -87,7 +86,6 @@ import cn.taketoday.web.resolver.result.StringResultResolver;
 import cn.taketoday.web.resolver.result.VoidResultResolver;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.view.AbstractViewResolver;
-import cn.taketoday.web.view.FreeMarkerViewResolver;
 import cn.taketoday.web.view.ViewResolver;
 
 /**
@@ -137,7 +135,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         }
 
         // check all resolver
-        checkFrameWorkResolvers();
+        checkFrameWorkResolvers(applicationContext);
 
         initializerStartup(applicationContext);
 
@@ -168,14 +166,16 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         final ConfigurableEnvironment environment = getWebApplicationContext().getEnvironment();
         int bufferSize = Integer.parseInt(environment.getProperty(DOWNLOAD_BUFF_SIZE, "10240"));
 
+        final MessageConverter messageConverter = getWebApplicationContext().getBean(MessageConverter.class);
+
         resolvers.add(new ImageResultResolver());
         resolvers.add(new ResourceResultResolver(bufferSize));
         resolvers.add(new StringResultResolver(viewResolver));
-        resolvers.add(new VoidResultResolver(viewResolver, bufferSize));
-        resolvers.add(new ObjectResultResolver(viewResolver, bufferSize));
-        resolvers.add(new ModelAndViewResultResolver(viewResolver, bufferSize));
+        resolvers.add(new VoidResultResolver(viewResolver, messageConverter, bufferSize));
+        resolvers.add(new ObjectResultResolver(viewResolver, messageConverter, bufferSize));
+        resolvers.add(new ModelAndViewResultResolver(viewResolver, messageConverter, bufferSize));
 
-        resolvers.add(new ResponseBodyResultResolver(environment.getProperty(FAST_JSON_SERIALIZE_FEATURES, SerializerFeature[].class)));
+        resolvers.add(new ResponseBodyResultResolver(messageConverter));
 
         mvcConfiguration.configureResultResolver(resolvers);
         OrderUtils.reversedSort(resolvers);
@@ -259,7 +259,10 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         resolvers.add(new ModelParameterResolver());
         resolvers.add(new ArrayParameterResolver());
         resolvers.add(new StreamParameterResolver());
-        resolvers.add(new RequestBodyParameterResolver());
+        
+        final MessageConverter bean = getWebApplicationContext().getBean(MessageConverter.class);
+        
+        resolvers.add(new RequestBodyParameterResolver(bean));
         resolvers.add(new PathVariableParameterResolver());
 
         resolvers.add(new BeanParameterResolver());
@@ -270,7 +273,6 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         mvcConfiguration.configureParameterResolver(resolvers); // user configure
 
         OrderUtils.reversedSort(resolvers);
-
         MethodParameter.addResolver(resolvers);
     }
 
@@ -478,16 +480,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     /**
      * Check resolvers
      */
-    protected static void checkFrameWorkResolvers() {
-
-        WebApplicationContext applicationContext = getWebApplicationContext();
-
-        if (!applicationContext.containsBeanDefinition(ViewResolver.class)) {
-            // use freemarker view resolver
-            applicationContext.registerBean(VIEW_RESOLVER, FreeMarkerViewResolver.class);
-            applicationContext.refresh(VIEW_RESOLVER);
-            log.info("Use default view resolver: [{}].", FreeMarkerViewResolver.class);
-        }
+    protected void checkFrameWorkResolvers(WebApplicationContext applicationContext) {
 
         if (!applicationContext.containsBeanDefinition(ExceptionResolver.class)) {
             applicationContext.registerBean(EXCEPTION_RESOLVER, ControllerAdviceExceptionResolver.class);

@@ -21,6 +21,7 @@ package cn.taketoday.web.resolver.result;
 
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.view.ViewResolver;
@@ -31,9 +32,9 @@ import cn.taketoday.web.view.ViewResolver;
  */
 public class ObjectResultResolver extends AbstractResultResolver implements ResultResolver {
 
-    public ObjectResultResolver(ViewResolver viewResolver, //
+    public ObjectResultResolver(ViewResolver viewResolver, MessageConverter messageConverter,
             @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) {
-        super(viewResolver, downloadFileBuf);
+        super(viewResolver, messageConverter, downloadFileBuf);
     }
 
     @Override

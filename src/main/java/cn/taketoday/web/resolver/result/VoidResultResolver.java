@@ -22,6 +22,7 @@ package cn.taketoday.web.resolver.result;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.ui.ModelAndView;
@@ -34,10 +35,10 @@ import cn.taketoday.web.view.ViewResolver;
 public class VoidResultResolver extends ModelAndViewResultResolver {
 
     @Autowired
-    public VoidResultResolver(ViewResolver viewResolver, //
+    public VoidResultResolver(ViewResolver viewResolver, MessageConverter messageConverter,
             @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) //
     {
-        super(viewResolver, downloadFileBuf);
+        super(viewResolver, messageConverter, downloadFileBuf);
     }
 
     @Override

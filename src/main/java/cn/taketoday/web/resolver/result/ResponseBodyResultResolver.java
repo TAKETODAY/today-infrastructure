@@ -19,14 +19,9 @@
  */
 package cn.taketoday.web.resolver.result;
 
-import com.alibaba.fastjson.serializer.SerializerFeature;
-
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Env;
-import cn.taketoday.web.Constant;
+import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.utils.ResultUtils;
 
 /**
  * @author TODAY <br>
@@ -34,12 +29,10 @@ import cn.taketoday.web.utils.ResultUtils;
  */
 public class ResponseBodyResultResolver implements OrderedResultResolver {
 
-    @Autowired
-    public ResponseBodyResultResolver(@Env(value = Constant.FAST_JSON_SERIALIZE_FEATURES) SerializerFeature[] serializerFeature) {
+    private final MessageConverter messageConverter;
 
-        if (serializerFeature != null) {
-            ResultUtils.SERIALIZE_FEATURES = serializerFeature;
-        }
+    public ResponseBodyResultResolver(MessageConverter messageConverter) {
+        this.messageConverter = messageConverter;
     }
 
     @Override
@@ -49,7 +42,7 @@ public class ResponseBodyResultResolver implements OrderedResultResolver {
 
     @Override
     public void resolveResult(RequestContext requestContext, Object result) throws Throwable {
-        ResultUtils.responseBody(requestContext, result);
+        messageConverter.write(requestContext, result);
     }
 
     @Override

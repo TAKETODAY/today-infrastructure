@@ -40,12 +40,18 @@ public interface WebMvcConfiguration {
      * Configure {@link ParameterResolver}
      * 
      * @param parameterResolvers
-     *            List of {@link ParameterResolver}
+     *            {@link ParameterResolver} registry
      */
     default void configureParameterResolver(List<ParameterResolver> parameterResolvers) {
 
     }
 
+    /**
+     * Configure {@link ResultResolver}
+     * 
+     * @param resultResolvers
+     *            {@link ResultResolver} registry
+     */
     default void configureResultResolver(List<ResultResolver> resultResolvers) {
 
     }

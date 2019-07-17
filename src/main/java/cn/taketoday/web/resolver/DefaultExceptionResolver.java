@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.utils.ClassUtils;
@@ -45,6 +44,7 @@ import cn.taketoday.web.ui.ModelAndView;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * Default implementation
  * 
  * @author TODAY <br>
  *         2018-06-25 20:27:22
@@ -123,21 +123,21 @@ public class DefaultExceptionResolver implements ExceptionResolver {
     public static int getStatus(Throwable ex) {
 
         if (ex instanceof MethodNotAllowedException) {
-            return HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+            return 405;
         }
         else if (ex instanceof BadRequestException || //
                 ex instanceof ConversionException || //
                 ex instanceof FileSizeExceededException) //
         {
-            return HttpServletResponse.SC_BAD_REQUEST;
+            return 400;
         }
         else if (ex instanceof NotFoundException) {
-            return HttpServletResponse.SC_NOT_FOUND;
+            return 404;
         }
         else if (ex instanceof AccessForbiddenException) {
-            return HttpServletResponse.SC_FORBIDDEN;
+            return 403;
         }
-        return HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+        return 500;
     }
 
     /**
@@ -153,19 +153,19 @@ public class DefaultExceptionResolver implements ExceptionResolver {
             final RequestContext requestContext, int status, String msg) throws IOException //
     {
         if (ex instanceof MethodNotAllowedException) {
-            requestContext.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, msg);
+            requestContext.sendError(405, msg);
         }
         else if (ex instanceof BadRequestException || //
                 ex instanceof ConversionException || //
                 ex instanceof FileSizeExceededException) //
         {
-            requestContext.sendError(HttpServletResponse.SC_BAD_REQUEST, msg);
+            requestContext.sendError(400, msg);
         }
         else if (ex instanceof NotFoundException) {
-            requestContext.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
+            requestContext.sendError(404, msg);
         }
         else if (ex instanceof AccessForbiddenException) {
-            requestContext.sendError(HttpServletResponse.SC_FORBIDDEN, msg);
+            requestContext.sendError(403, msg);
         }
         else {
             requestContext.sendError(status, msg);

@@ -65,6 +65,8 @@ import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
 import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
 import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.view.FreeMarkerViewResolver;
+import cn.taketoday.web.view.ViewResolver;
 
 /**
  * Initialize Web application in a server like tomcat, jetty, undertow
@@ -185,6 +187,19 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         resolvers.add(new ServletParameterResolver.ServletRequestAttributeParameterResolver());
 
         super.configureParameterResolver(resolvers, multipartConfiguration, mvcConfiguration);
+    }
+
+    @Override
+    protected void checkFrameWorkResolvers(WebApplicationContext applicationContext) {
+        
+        if (!applicationContext.containsBeanDefinition(ViewResolver.class)) {
+            // use freemarker view resolver
+            applicationContext.registerBean(VIEW_RESOLVER, FreeMarkerViewResolver.class);
+            applicationContext.refresh(VIEW_RESOLVER);
+            log.info("Use default view resolver: [{}].", FreeMarkerViewResolver.class);
+        }
+
+        super.checkFrameWorkResolvers(applicationContext);
     }
 
     @Override

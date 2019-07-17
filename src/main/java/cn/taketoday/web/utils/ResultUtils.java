@@ -27,9 +27,6 @@ import java.util.Map.Entry;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -45,12 +42,6 @@ import cn.taketoday.web.view.ViewResolver;
  *         2019-07-14 16:28
  */
 public abstract class ResultUtils {
-
-    public static SerializerFeature[] SERIALIZE_FEATURES = { //
-            SerializerFeature.WriteMapNullValue, //
-            SerializerFeature.WriteNullListAsEmpty, //
-            SerializerFeature.DisableCircularReferenceDetect//
-    };
 
     /**
      * Download file to client.
@@ -142,14 +133,4 @@ public abstract class ResultUtils {
         ImageIO.write(image, Constant.IMAGE_PNG, requestContext.getOutputStream());
     }
 
-    public static void responseBody(RequestContext requestContext, Object result) throws IOException {
-
-        if (result instanceof CharSequence) {
-            requestContext.getWriter().write(((CharSequence) result).toString());
-        }
-        else {
-            requestContext.contentType(Constant.CONTENT_TYPE_JSON);
-            JSON.writeJSONString(requestContext.getWriter(), result, SERIALIZE_FEATURES); // TODO message converter
-        }
-    }
 }

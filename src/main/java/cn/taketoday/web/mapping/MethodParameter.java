@@ -133,7 +133,7 @@ public class MethodParameter {
 
     // ----- resolver
 
-    Object resolveParameter(final RequestContext requestContext) throws Throwable {
+    final Object resolveParameter(final RequestContext requestContext) throws Throwable {
         return resolver.resolveParameter(requestContext, this);
     }
 

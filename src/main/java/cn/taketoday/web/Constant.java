@@ -69,12 +69,6 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	HANDLER_MAPPING_REGISTRY			= "handlerMappingRegistry";
 	String	HANDLER_INTERCEPTOR_REGISTRY		= "handlerInterceptorRegistry";
 	
-	/**
-	 * @since 2.3.3
-	 */
-//	String 	SERVLET_SECURITY_ELEMENT 			= "servletSecurity";	
-//	String 	MULTIPART_CONFIG_ELEMENT 			= "multipartConfig";
-	
 	// Resolver
 	String	VIEW_RESOLVER						= "viewResolver";
 	String	EXCEPTION_RESOLVER					= "exceptionResolver";
@@ -114,7 +108,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	 * @since 2.3.3
 	 */
 	String	ATTR_CONTENT_TYPE					= "content-type";
-	/** The response status @since 2.3.7*/
+	/** The response status @since 2.3.7 */
 	String	ATTR_STATUS							= "status";
 
 	String  VALUE_FORWARD 						= "forward";
@@ -125,27 +119,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	ELEMENT_RESOURCES					= "resources";
 	String	ELEMENT_CONTROLLER					= "controller";
 	String	ROOT_ELEMENT						= "Web-Configuration";
-	/** @since 2.3.7 */
-//	String	ELEMENT_DEFAULT_SERVLET				= "default-servlet";
-	String	ELEMENT_DISPATCHER_SERVLET			= "dispatcher-servlet";
 
-	byte 	RETURN_VOID							= 0x00;
-	byte 	RETURN_JSON							= 0x01;
-	byte 	RETURN_VIEW							= 0x02;
-	
-	byte 	RETURN_FILE							= 0x03;
-	byte 	RETURN_IMAGE						= 0x04;
-	/** @since 2.3.3 */
-	byte 	RETURN_STRING						= 0x05;
-	/** @since 2.3.3 */
-	byte 	RETURN_MODEL_AND_VIEW				= 0x06;
-	/** @since 2.3.3 */
-	byte 	RETURN_OBJECT						= 0x07;
-	
-	byte 	TYPE_FORWARD						= 0x01;
-	byte 	TYPE_REDIRECT						= 0x02;
-
-	
 	String	CONTENT_TYPE_IMAGE					= "image/jpeg";
 
 	String	REDIRECT_URL_PREFIX					= "redirect:";
@@ -167,8 +141,8 @@ public interface Constant extends cn.taketoday.context.Constant {
 	 * default values end
 	 *******************************************************/
 	
-	///////////////////////////////////////////////////////////////
-	// headers
+	// Headers
+	//-------------------------------------------------------
 	String	TE									= "TE";
 	String	AGE									= "Age";
 	String	VIA									= "Via";
@@ -245,8 +219,8 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	ACCESS_CONTROL_REQUEST_HEADERS		= "Access-Control-Request-Headers";
 	String	ACCESS_CONTROL_ALLOW_CREDENTIALS	= "Access-Control-Allow-Credentials";
 
-	/////////////////////////////////////////////////
 	// Values
+	//----------------------------------------------------
 	String	NONE								= "none";
 	String	GZIP								= "gzip";
 	String	BYTES								= "bytes";

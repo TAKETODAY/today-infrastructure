@@ -23,8 +23,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.WebMapping;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-10-24 19:18
  */
 @FunctionalInterface
@@ -34,10 +33,11 @@ public interface ExceptionResolver {
      * Resolve exception
      * 
      * @param exception
-     *            the exception occurred
+     *            The exception occurred
      * @param mvcMapping
-     *            current handler mapping info
+     *            Current handler mapping info
      * @throws Throwable
+     *             If any {@link Exception} occurred
      */
     void resolveException(RequestContext requestContext, Throwable exception, WebMapping mvcMapping) throws Throwable;
 

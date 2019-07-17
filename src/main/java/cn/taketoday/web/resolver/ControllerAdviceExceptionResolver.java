@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.web.Constant;
@@ -43,8 +42,7 @@ import cn.taketoday.web.mapping.WebMapping;
  *         2019-06-22 19:17
  * @since 2.3.7
  */
-@MissingBean
-@Singleton(Constant.EXCEPTION_RESOLVER)
+@MissingBean(value = Constant.EXCEPTION_RESOLVER, type = ExceptionResolver.class)
 public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver implements BeanFactoryAware {
 
     private final Map<Class<? extends Throwable>, ExceptionHandlerMapping> exceptionHandlers = new HashMap<>();

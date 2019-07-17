@@ -53,7 +53,6 @@ import freemarker.template.TemplateModel;
 import lombok.Getter;
 
 /**
- * 
  * @author TODAY <br>
  *         2018-06-26 19:16:46
  */

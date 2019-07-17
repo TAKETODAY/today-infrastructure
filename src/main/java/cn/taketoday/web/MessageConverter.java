@@ -17,35 +17,41 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.method;
+package cn.taketoday.web;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.web.MessageConverter;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.RequestBody;
+import java.io.IOException;
+
 import cn.taketoday.web.mapping.MethodParameter;
 
 /**
  * @author TODAY <br>
- *         2019-07-12 22:23
+ *         2019-07-17 13:31
  */
-public class RequestBodyParameterResolver implements ParameterResolver {
+public interface MessageConverter {
 
-    private final MessageConverter messageConverter;
+    /**
+     * Write message to client
+     * 
+     * @param requestContext
+     *            Current request context
+     * @param message
+     *            The message write to client
+     * @throws IOException
+     *             If any input output exception occurred
+     */
+    void write(RequestContext requestContext, Object message) throws IOException;
 
-    @Autowired
-    public RequestBodyParameterResolver(MessageConverter messageConverter) {
-        this.messageConverter = messageConverter;
-    }
-
-    @Override
-    public boolean supports(final MethodParameter parameter) {
-        return parameter.isAnnotationPresent(RequestBody.class);
-    }
-
-    @Override
-    public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-        return messageConverter.read(requestContext, parameter);
-    }
+    /**
+     * Read The request body and convert it to Target object
+     * 
+     * @param requestContext
+     *            Current request context
+     * @param parameter
+     *            Handler method parameter
+     * @return The handler method parameter object
+     * @throws IOException
+     *             If any input output exception occurred
+     */
+    Object read(RequestContext requestContext, MethodParameter parameter) throws IOException;
 
 }

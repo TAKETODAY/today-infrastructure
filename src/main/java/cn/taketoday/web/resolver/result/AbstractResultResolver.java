@@ -22,14 +22,12 @@ package cn.taketoday.web.resolver.result;
 import java.awt.image.RenderedImage;
 import java.io.File;
 
-import com.alibaba.fastjson.JSON;
-
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ResourceUtils;
+import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.utils.ResultUtils;
-import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.ViewResolver;
 
 /**
@@ -41,14 +39,12 @@ public abstract class AbstractResultResolver implements ResultResolver {
     private final int downloadFileBuf;
     /** view resolver **/
     private final ViewResolver viewResolver;
+    private final MessageConverter messageConverter;
 
-    public AbstractResultResolver(ViewResolver viewResolver, int downloadFileBuf) {
-        this.downloadFileBuf = downloadFileBuf;
-
-        if (viewResolver instanceof AbstractViewResolver) {
-            JSON.defaultLocale = ((AbstractViewResolver) viewResolver).getLocale();
-        }
+    public AbstractResultResolver(ViewResolver viewResolver, MessageConverter messageConverter, int downloadFileBuf) {
         this.viewResolver = viewResolver;
+        this.downloadFileBuf = downloadFileBuf;
+        this.messageConverter = messageConverter;
     }
 
     public void resolveObject(final RequestContext requestContext, final Object view) throws Throwable {
@@ -69,15 +65,12 @@ public abstract class AbstractResultResolver implements ResultResolver {
             ResultUtils.resolveImage(requestContext, (RenderedImage) view);
         }
         else {
-            ResultUtils.responseBody(requestContext, view);
+            messageConverter.write(requestContext, view);
         }
     }
 
     /**
      * Resolve {@link ModelAndView} return type
-     * 
-     * @param modelAndView
-     * @throws Throwable
      * @since 2.3.3
      */
     public void resolveModelAndView(final RequestContext requestContext, final ModelAndView modelAndView) throws Throwable {
