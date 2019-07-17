@@ -25,14 +25,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.LoggerFactory;
+
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.aware.BeanFactoryAware;
-import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.config.ActionConfiguration;
+import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.WebMapping;
@@ -43,7 +45,7 @@ import cn.taketoday.web.mapping.WebMapping;
  * @since 2.3.7
  */
 @MissingBean(value = Constant.EXCEPTION_RESOLVER, type = ExceptionResolver.class)
-public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver implements BeanFactoryAware {
+public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver implements WebApplicationInitializer {
 
     private final Map<Class<? extends Throwable>, ExceptionHandlerMapping> exceptionHandlers = new HashMap<>();
 
@@ -51,14 +53,26 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
     public void resolveException(RequestContext requestContext, Throwable ex, WebMapping mvcMapping) throws Throwable {
 
         if (mvcMapping instanceof HandlerMapping) {
-            final ExceptionHandlerMapping exceptionHandler = exceptionHandlers.get(ex.getClass());
+
+            final ExceptionHandlerMapping exceptionHandler = lookupExceptionHandlerMapping(ex);//
             if (exceptionHandler != null) {
-                final Object result = invokeExceptionHandler(requestContext, exceptionHandler);
-                exceptionHandler.resolveResult(requestContext, result);
+                requestContext.attribute(Constant.KEY_THROWABLE, ex);
+                exceptionHandler.resolveResult(requestContext, invokeExceptionHandler(requestContext, exceptionHandler));
                 return;
             }
         }
         super.resolveException(requestContext, ex, mvcMapping);
+    }
+
+    /**
+     * Looking for exception handler mapping
+     * 
+     * @param ex
+     *            Target {@link Exception}
+     * @return Mapped {@link Exception} handler mapping
+     */
+    protected ExceptionHandlerMapping lookupExceptionHandlerMapping(Throwable ex) {
+        return exceptionHandlers.get(ex.getClass());
     }
 
     protected Object invokeExceptionHandler(//
@@ -70,7 +84,9 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
     }
 
     @Override
-    public void setBeanFactory(BeanFactory beanFactory) {
+    public void onStartup(WebApplicationContext beanFactory) throws Throwable {
+
+        LoggerFactory.getLogger(getClass()).info("Initialize ExceptionResolver");
 
         final List<Object> handlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
 
@@ -110,4 +126,5 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
             return handler;
         }
     }
+
 }

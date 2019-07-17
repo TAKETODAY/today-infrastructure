@@ -53,6 +53,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	 * Framework Attribute Keys
 	 */
 	String	KEY_WEB_APPLICATION_CONTEXT 		= "WebApplicationContext";
+	String	KEY_THROWABLE 		                = "THROWABLE";
 	/**
 	 * Framework Attribute Keys End
 	 **********************************************************/

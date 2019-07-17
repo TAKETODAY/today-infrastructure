@@ -41,6 +41,7 @@ import cn.taketoday.web.resolver.result.ResultResolver;
  */
 public class HandlerMethod {
 
+    private static final MethodParameter[] EMPTY = new MethodParameter[0];
     /** action **/
     private final Method method;
     /** parameter list **/
@@ -74,12 +75,11 @@ public class HandlerMethod {
     }
 
     public HandlerMethod(Method method, List<MethodParameter> parameters, Class<?> reutrnType) {
-        this(method, reutrnType, parameters.toArray(new MethodParameter[0]));
+        this(method, reutrnType, parameters.toArray(EMPTY));
     }
 
     public HandlerMethod(Method method, Class<?> reutrnType, MethodParameter... parameters) {
         this.method = method;
-        this.parameters = parameters;
         this.reutrnType = reutrnType;
 
         final Type parameterizedType = reutrnType.getGenericSuperclass();
@@ -88,6 +88,12 @@ public class HandlerMethod {
         }
         else {
             genericityClass = null;
+        }
+        if (parameters == null || parameters.length == 0) {
+            this.parameters = EMPTY;
+        }
+        else {
+            this.parameters = parameters;
         }
         this.resultResolver = obtainResolver();
     }
@@ -179,6 +185,10 @@ public class HandlerMethod {
 
     public Object[] resolveParameters(final RequestContext requestContext) throws Throwable {
         // log.debug("set parameter start");
+        final MethodParameter[] parameters = getParameters();
+        if (parameters == EMPTY) {
+            return null;
+        }
         final Object[] args = new Object[parameters.length];
         int i = 0;
         for (final MethodParameter parameter : parameters) {
