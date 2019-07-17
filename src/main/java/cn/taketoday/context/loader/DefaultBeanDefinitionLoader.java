@@ -156,13 +156,14 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
      * Build a bean definition
      * 
      * @param beanClass
-     *            given bean class
+     *            Given bean class
      * @param attributes
      *            {@link AnnotationAttributes}
      * @param beanName
-     *            bean name
-     * @return
+     *            Bean name
+     * @return A default {@link BeanDefinition}
      * @throws Throwable
+     *             If any {@link Exception} occurred
      */
     protected BeanDefinition build(Class<?> beanClass, AnnotationAttributes attributes, String beanName) throws Throwable {
 
