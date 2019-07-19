@@ -31,7 +31,6 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.bean.DefaultBeanDefinition;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -121,9 +120,9 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
      * Register with given class
      * 
      * @param beanClass
-     *            bean class
+     *            Bean class
      * @throws BeanDefinitionStoreException
-     *             if {@link BeanDefinition} can't store
+     *             If {@link BeanDefinition} can't store
      */
     @Override
     public void register(Class<?> beanClass) throws BeanDefinitionStoreException {
@@ -167,33 +166,18 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
      */
     protected BeanDefinition build(Class<?> beanClass, AnnotationAttributes attributes, String beanName) throws Throwable {
 
-        final BeanDefinition beanDefinition = new DefaultBeanDefinition(beanName, beanClass);//
-
-        if (attributes == null) {
-            beanDefinition.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)//
-                    .setInitMethods(ContextUtils.resolveInitMethod(beanClass));//
-        }
-        else {
-            beanDefinition.setScope(attributes.getEnum(Constant.SCOPE))//
-                    .setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))//
-                    .setInitMethods(ContextUtils.resolveInitMethod(beanClass, attributes.getStringArray(Constant.INIT_METHODS)));
-        }
-
-        beanDefinition.setPropertyValues(ContextUtils.resolvePropertyValue(beanClass, this.applicationContext));
-        // fix missing @Props injection
-        ContextUtils.resolveProps(beanDefinition, this.applicationContext.getEnvironment());
-
-        return beanDefinition;
+        return ContextUtils.buildBeanDefinition(beanClass, attributes, beanName);
     }
 
     /**
      * Register bean definition with given name
      * 
      * @param name
-     *            bean name
+     *            Bean name
      * @param beanDefinition
-     *            definition
+     *            Bean definition
      * @throws BeanDefinitionStoreException
+     *             If can't store bean
      */
     @Override
     public void register(String name, final BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
@@ -231,13 +215,14 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
      * If bean definition is a {@link FactoryBean} register its factory's instance
      * 
      * @param beanName
-     *            old bean name
+     *            Old bean name
      * @param beanDefinition
-     *            definition
+     *            Bean definition
      * @return returns a new bean name
      * @throws Throwable
+     *             If any {@link Exception} occurred
      */
-    private String registerFactoryBean(String beanName, BeanDefinition beanDefinition) throws Throwable {
+    protected String registerFactoryBean(String beanName, BeanDefinition beanDefinition) throws Throwable {
 
         FactoryBean<?> $factoryBean = //
                 (FactoryBean<?>) applicationContext.getSingleton(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
@@ -251,6 +236,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
         final Class<?> beanClass = $factoryBean.getBeanClass();
 
+        // build a new name
         beanName = $factoryBean.getBeanName();
         if (StringUtils.isEmpty(beanName)) {
             beanName = beanNameCreator.create(beanClass);
@@ -268,6 +254,9 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         return beanName;
     }
 
+    /**
+     *
+     */
     @Override
     public BeanDefinition createBeanDefinition(Class<?> beanClass) {
 

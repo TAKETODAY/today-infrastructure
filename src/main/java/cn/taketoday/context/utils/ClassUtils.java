@@ -40,13 +40,13 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -135,13 +135,17 @@ public abstract class ClassUtils {
             classLoader = ClassLoader.getSystemClassLoader();
         }
         setClassLoader(classLoader);
+
+        // Load the META-INF/ignore/jar-prefix to ignore some jars
+        // --------------------------------------------------------------
         final Set<String> ignoreScanJars = new HashSet<>();
 
         try { // @since 2.1.6
             final Enumeration<URL> resources = classLoader.getResources("META-INF/ignore/jar-prefix");
+            final Charset charset = Constant.DEFAULT_CHARSET;
             while (resources.hasMoreElements()) {
                 try (final BufferedReader reader = new BufferedReader(//
-                        new InputStreamReader(resources.nextElement().openStream(), Constant.DEFAULT_CHARSET))) { // fix
+                        new InputStreamReader(resources.nextElement().openStream(), charset))) { // fix
 
                     String str;
                     while ((str = reader.readLine()) != null) {
@@ -151,11 +155,13 @@ public abstract class ClassUtils {
             }
         }
         catch (IOException e) {
-            log.error("IOException occurred when load 'ignore/jar-prefix'");
+            log.error("IOException occurred when load 'META-INF/ignore/jar-prefix'", e);
             throw ExceptionUtils.newContextException(e);
         }
         IGNORE_SCAN_JARS = ignoreScanJars.toArray(Constant.EMPTY_STRING_ARRAY);
 
+        // Map primitive types
+        // -------------------------------------------
         final Set<Class<?>> primitiveTypes = new HashSet<>(32);
         Collections.addAll(primitiveTypes, //
                 boolean.class, byte.class, char.class, int.class, //
@@ -168,6 +174,7 @@ public abstract class ClassUtils {
             PRIMITIVE_CACHE.put(primitiveType.getName(), primitiveType);
         }
 
+        // Add ignore annotation
         addIgnoreAnnotationClass(Target.class);
         addIgnoreAnnotationClass(Inherited.class);
         addIgnoreAnnotationClass(Retention.class);
@@ -717,7 +724,7 @@ public abstract class ClassUtils {
         try {
 
             return (Collection<A>) ANNOTATIONS.computeIfAbsent(new AnnotationKey<A>(annotatedElement, annotationClass), (k) -> {
-                Collection<A> result = new LinkedList<>();
+                Collection<A> result = new ArrayList<>();
                 for (AnnotationAttributes attributes : getAnnotationAttributes(annotatedElement, annotationClass)) {
                     result.add(injectAttributes(attributes, annotationClass, newInstance(implClass)));
                 }
@@ -814,7 +821,7 @@ public abstract class ClassUtils {
         Objects.requireNonNull(annotationClass, "annotation class can't be null");
 
         return (Collection<T>) ANNOTATIONS.computeIfAbsent(new AnnotationKey<>(annotatedElement, annotationClass), (k) -> {
-            final Collection<T> annotations = new LinkedList<>();
+            final Collection<T> annotations = new ArrayList<>();
             for (AnnotationAttributes attributes : getAnnotationAttributes(annotatedElement, annotationClass)) {
                 annotations.add(getAnnotationProxy(annotationClass, attributes));
             }

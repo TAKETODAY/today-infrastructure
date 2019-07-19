@@ -66,6 +66,7 @@ import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.DefaultBeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
@@ -88,6 +89,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     public AbstractApplicationContext() {
         applyState(State.NONE);
+        ContextUtils.applicationContext = this; // @since 2.1.6
     }
 
     /**
@@ -184,6 +186,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      *            Bean classes
      */
     protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
+        // load from given class set
         beanFactory.getBeanDefinitionLoader().loadBeanDefinitions(beanClasses);
     }
 

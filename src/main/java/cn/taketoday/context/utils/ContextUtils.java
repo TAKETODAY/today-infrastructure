@@ -48,6 +48,7 @@ import javax.el.ELProcessor;
 
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Condition;
@@ -55,6 +56,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.ConditionalImpl;
 import cn.taketoday.context.annotation.DefaultProps;
@@ -63,6 +65,7 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.bean.DefaultBeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.bean.StandardBeanDefinition;
 import cn.taketoday.context.conversion.TypeConverter;
@@ -94,6 +97,9 @@ public abstract class ContextUtils {
 
     // @since 2.1.6 // shared elProcessor
     private static ELProcessor elProcessor;
+
+    // @since 2.1.6 shared applicationContext
+    public static ApplicationContext applicationContext;
 
     static {
 
@@ -135,6 +141,15 @@ public abstract class ContextUtils {
      */
     public static void setPropertyValueResolvers(PropertyValueResolver[] propertyValueResolvers) {
         ContextUtils.propertyValueResolvers = propertyValueResolvers;
+    }
+
+    /**
+     * Get {@link ApplicationContext}
+     * 
+     * @return {@link ApplicationContext}
+     */
+    public static ApplicationContext getApplicationContext() {
+        return applicationContext;
     }
 
     /**
@@ -964,6 +979,58 @@ public abstract class ContextUtils {
      */
     public static boolean equals(Class<?> one, Class<?> two) {
         return one.getName().equals(two.getName());
+    }
+
+    // bean definition
+
+    /**
+     * Build for a bean class with given default bean name
+     * 
+     * @param beanClass
+     *            Target bean class
+     * @param defaultName
+     *            Default bean name
+     * @return List of {@link BeanDefinition}s
+     */
+    public static List<BeanDefinition> buildBeanDefinitions(Class<?> beanClass, String defaultName) {
+
+        final Collection<AnnotationAttributes> componentAttributes = //
+                ClassUtils.getAnnotationAttributes(beanClass, Component.class);
+
+        final List<BeanDefinition> ret = new ArrayList<>(componentAttributes.size());
+
+        if (componentAttributes.isEmpty()) {
+            ret.add(buildBeanDefinition(beanClass, null, defaultName));
+        }
+        else {
+
+            for (AnnotationAttributes attributes : componentAttributes) {
+                for (final String name : ContextUtils.findNames(defaultName, attributes.getStringArray(Constant.VALUE))) {
+
+                    ret.add(buildBeanDefinition(beanClass, attributes, name));
+                }
+            }
+        }
+        return ret;
+    }
+
+    public static BeanDefinition buildBeanDefinition(Class<?> beanClass, AnnotationAttributes attributes, String beanName) {
+        final BeanDefinition beanDefinition = new DefaultBeanDefinition(beanName, beanClass);//
+
+        if (attributes == null) {
+            beanDefinition.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)//
+                    .setInitMethods(ContextUtils.resolveInitMethod(beanClass));//
+        }
+        else {
+            beanDefinition.setScope(attributes.getEnum(Constant.SCOPE))//
+                    .setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))//
+                    .setInitMethods(ContextUtils.resolveInitMethod(beanClass, attributes.getStringArray(Constant.INIT_METHODS)));
+        }
+
+        beanDefinition.setPropertyValues(ContextUtils.resolvePropertyValue(beanClass, applicationContext));
+        // fix missing @Props injection
+        ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
+        return beanDefinition;
     }
 
 }

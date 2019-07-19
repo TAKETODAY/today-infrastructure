@@ -33,12 +33,12 @@ public class DefaultBeanNameCreator implements BeanNameCreator {
 
     private final boolean useSimpleName;
 
+    public DefaultBeanNameCreator(boolean useSimpleName) {
+        this.useSimpleName = useSimpleName;
+    }
+
     public DefaultBeanNameCreator(ConfigurableEnvironment environment) {
-        final String useSimpleName = environment.getProperty(Constant.KEY_USE_SIMPLE_NAME);
-        if (useSimpleName != null)
-            this.useSimpleName = Boolean.parseBoolean(useSimpleName);
-        else
-            this.useSimpleName = true;
+        this(environment.getProperty(Constant.KEY_USE_SIMPLE_NAME, boolean.class, true));
     }
 
     @Override
@@ -51,5 +51,5 @@ public class DefaultBeanNameCreator implements BeanNameCreator {
             return (simpleName.charAt(0) + "").toLowerCase() + simpleName.substring(1);
         }
         return beanClass.getName(); // full name
-    };
+    }
 }

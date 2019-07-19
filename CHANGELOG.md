@@ -52,6 +52,8 @@
 - :bug: fix: @since 2.1.6 elManager my be null
 - :sparkles: feat: @Value default value feature
 - :sparkles: feat: add @Env
+- :sparkles: feat: add META-INF/beans to avoid scan all jar file
+
 
 
 ## v2.1.5

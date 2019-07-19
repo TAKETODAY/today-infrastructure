@@ -96,6 +96,8 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
         super.loadBeanDefinitions(beanFactory, beanClasses);
         this.beanFactory.loadConfigurationBeans();
         this.beanFactory.loadMissingBean(beanClasses);
+        // @since 2.1.6
+        this.beanFactory.loadMetaInfoBeans();
     }
 
     @Override

@@ -19,11 +19,21 @@
  */
 package cn.taketoday.context.factory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
+
+import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.AnnotationAttributes;
@@ -46,6 +56,7 @@ import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
+import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -145,9 +156,6 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Resolve bean from a class which annotated with @{@link Configuration}
-     * 
-     * @throws Throwable
-     *             when exception occurred
      */
     public void loadConfigurationBeans() {
 
@@ -175,20 +183,20 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                     }
                     continue;
                 }
-                doRegisterDefinition(method, components);
+                registerConfigurationBean(method, components);
             }
         }
     }
 
     /**
-     * Create bean definition, and register it
+     * Create {@link Configuration} bean definition, and register it
      *
      * @param method
      *            factory method
      * @param components
      *            {@link AnnotationAttributes}
      */
-    private final void doRegisterDefinition(Method method, Collection<AnnotationAttributes> components) //
+    protected void registerConfigurationBean(Method method, Collection<AnnotationAttributes> components) //
             throws BeanDefinitionStoreException //
     {
 
@@ -229,8 +237,9 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * Load missing beans, default beans
      * 
      * @param beanClasses
+     *            Class set
      */
-    public final void loadMissingBean(Collection<Class<?>> beanClasses) {
+    public void loadMissingBean(Collection<Class<?>> beanClasses) {
 
         applicationContext.publishEvent(new LoadingMissingBeanEvent(applicationContext, beanClasses));
 
@@ -270,7 +279,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         missingMethods.clear();
     }
 
-    private final void registerMissingBean(final MissingBean missingBean, //
+    protected void registerMissingBean(final MissingBean missingBean, //
             final Class<?> beanClass, final BeanDefinition beanDefinition) //
     {
         String beanName = missingBean.value();
@@ -291,13 +300,56 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         getBeanDefinitionLoader().register(beanName, beanDefinition);
     }
 
+    /**
+     * Resolve bean from META-INF/beans
+     */
+    public void loadMetaInfoBeans() {
+
+        // Load the META-INF/beans
+        // ---------------------------------------------------
+        final Set<Class<?>> beans = new HashSet<>();
+
+        try { // @since 2.1.6
+            final ClassLoader classLoader = ClassUtils.getClassLoader();
+            final Enumeration<URL> resources = classLoader.getResources("META-INF/beans");
+            final Charset charset = Constant.DEFAULT_CHARSET;
+
+            while (resources.hasMoreElements()) {
+                try (final BufferedReader reader = new BufferedReader(//
+                        new InputStreamReader(resources.nextElement().openStream(), charset))) { // fix
+
+                    String str;
+                    while ((str = reader.readLine()) != null) {
+                        beans.add(classLoader.loadClass(str));
+                    }
+                }
+            }
+        }
+        catch (IOException | ClassNotFoundException e) {
+            LoggerFactory.getLogger(getClass()).error("Exception occurred when load 'META-INF/beans'", e);
+            throw ExceptionUtils.newContextException(e);
+        }
+
+        final BeanDefinitionLoader beanDefinitionLoader = getBeanDefinitionLoader();
+
+        final BeanNameCreator beanNameCreator = getBeanNameCreator();
+        for (final Class<?> beanClass : beans) {
+
+            if (ContextUtils.conditional(beanClass, applicationContext)) {
+
+                ContextUtils.buildBeanDefinitions(beanClass, beanNameCreator.create(beanClass))//
+                        .forEach(beanDefinitionLoader::register);
+            }
+        }
+    }
+
     @Override
     public BeanDefinitionLoader getBeanDefinitionLoader() {
         if (beanDefinitionLoader == null) {
             try {
                 // fix: when manually load context some properties can't be loaded
                 // not initialize
-                applicationContext.loadContext(new HashSet<>());
+                applicationContext.loadContext(Collections.emptySet());
             }
             catch (Throwable e) {
                 throw new ContextException(e);

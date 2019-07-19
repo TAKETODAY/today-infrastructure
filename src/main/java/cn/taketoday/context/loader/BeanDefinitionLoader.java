@@ -37,7 +37,7 @@ public interface BeanDefinitionLoader {
      * Create a bean definition with given class type
      * 
      * @param beanClass
-     *            the bean type
+     *            The bean type
      * @return A new {@link BeanDefinition}
      */
     BeanDefinition createBeanDefinition(Class<?> beanClass);
@@ -53,9 +53,9 @@ public interface BeanDefinitionLoader {
      * Load bean definitions with given bean collection.
      * 
      * @param beans
-     *            beans collection
+     *            Beans collection
      * @throws BeanDefinitionStoreException
-     *             BeanDefinition could not be store
+     *             If BeanDefinition could not be store
      */
     void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException;
 
@@ -63,9 +63,9 @@ public interface BeanDefinitionLoader {
      * Load bean definition with given bean class.
      * 
      * @param clazz
-     *            bean class
+     *            Bean class
      * @throws BeanDefinitionStoreException
-     *             BeanDefinition could not be store
+     *             If BeanDefinition could not be store
      */
     void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException;
 
@@ -73,11 +73,11 @@ public interface BeanDefinitionLoader {
      * Load bean definition with given bean class and bean name.
      * 
      * @param name
-     *            bean name
+     *            Bean name
      * @param beanClass
-     *            bean class
+     *            Bean class
      * @throws BeanDefinitionStoreException
-     *             BeanDefinition could not be store
+     *             If BeanDefinition could not be store
      */
     void loadBeanDefinition(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
 
@@ -85,22 +85,33 @@ public interface BeanDefinitionLoader {
      * Register bean definition with given class
      * 
      * @param clazz
-     *            bean class
+     *            Bean class
      * @throws BeanDefinitionStoreException
-     *             BeanDefinition could not be store
+     *             If BeanDefinition could not be store
      */
     void register(Class<?> clazz) throws BeanDefinitionStoreException;
 
     /**
-     * Register bean definition with given name , and resolve property values
+     * Register bean definition with given name
      * 
      * @param name
-     *            bean name
+     *            Bean name
      * @param beanDefinition
-     *            bean definition instance
+     *            Bean definition instance
      * @throws BeanDefinitionStoreException
-     *             BeanDefinition could not be store
+     *             If BeanDefinition could not be store
      */
     void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
 
+    /**
+     * Register bean definition with {@link BeanDefinition#getName()}
+     * 
+     * @param beanDefinition
+     *            Target {@link BeanDefinition}
+     * @throws BeanDefinitionStoreException
+     *             If BeanDefinition could not be store
+     */
+    default void register(BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
+        register(beanDefinition.getName(), beanDefinition);
+    }
 }
