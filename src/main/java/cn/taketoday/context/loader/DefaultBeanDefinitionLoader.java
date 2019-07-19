@@ -222,10 +222,10 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
-    protected String registerFactoryBean(String beanName, BeanDefinition beanDefinition) throws Throwable {
+    protected String registerFactoryBean(final String oldBeanName, final BeanDefinition beanDefinition) throws Throwable {
 
         FactoryBean<?> $factoryBean = //
-                (FactoryBean<?>) applicationContext.getSingleton(BeanFactory.FACTORY_BEAN_PREFIX + beanName);
+                (FactoryBean<?>) applicationContext.getSingleton(BeanFactory.FACTORY_BEAN_PREFIX + oldBeanName);
 
         boolean registed = true;
         if ($factoryBean == null) { // If not exist declaring instance, create it
@@ -237,7 +237,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         final Class<?> beanClass = $factoryBean.getBeanClass();
 
         // build a new name
-        beanName = $factoryBean.getBeanName();
+        String beanName = $factoryBean.getBeanName();
         if (StringUtils.isEmpty(beanName)) {
             beanName = beanNameCreator.create(beanClass);
         }
