@@ -27,13 +27,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.WebDebugMode;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.utils.WebUtils;
 import freemarker.cache.TemplateLoader;
@@ -56,9 +55,8 @@ import lombok.Getter;
  * @author TODAY <br>
  *         2018-06-26 19:16:46
  */
-@WebDebugMode
 @Props(prefix = "web.mvc.view.")
-@Singleton(Constant.VIEW_RESOLVER)
+@MissingBean(value = Constant.VIEW_RESOLVER, type = ViewResolver.class)
 public class FreeMarkerViewResolver extends AbstractViewResolver implements InitializingBean {
 
     private final ObjectWrapper wrapper;

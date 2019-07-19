@@ -1,0 +1,6 @@
+cn.taketoday.web.config.ViewConfiguration
+cn.taketoday.web.config.ActionConfiguration
+cn.taketoday.web.view.FreeMarkerViewResolver
+cn.taketoday.web.mapping.HandlerMappingRegistry
+cn.taketoday.web.mapping.ResourceMappingRegistry
+cn.taketoday.web.mapping.HandlerInterceptorRegistry

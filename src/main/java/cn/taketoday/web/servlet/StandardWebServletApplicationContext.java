@@ -19,27 +19,23 @@
  */
 package cn.taketoday.web.servlet;
 
-import java.util.Collection;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import cn.taketoday.context.AbstractApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.factory.AbstractBeanFactory;
+import cn.taketoday.context.factory.StandardBeanFactory;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY <br>
  *         2018-07-10 1:16:17
  */
-public class StandardWebServletApplicationContext extends AbstractApplicationContext implements WebServletApplicationContext {
+public class StandardWebServletApplicationContext extends StandardApplicationContext implements WebServletApplicationContext {
 
-    /**
-     * Servlet context
-     */
+    /** Servlet context */
     private ServletContext servletContext;
-
-    private final StandardWebServletBeanFactory beanFactory;
 
     @Override
     public ServletContext getServletContext() {
@@ -52,12 +48,7 @@ public class StandardWebServletApplicationContext extends AbstractApplicationCon
     }
 
     public StandardWebServletApplicationContext() {
-        this.beanFactory = new StandardWebServletBeanFactory(this);
-    }
-
-    @Override
-    public AbstractBeanFactory getBeanFactory() {
-        return this.beanFactory;
+        
     }
 
     public StandardWebServletApplicationContext(ServletContext servletContext) {
@@ -95,8 +86,13 @@ public class StandardWebServletApplicationContext extends AbstractApplicationCon
         loadContext(locations);
     }
 
-    public StandardWebServletApplicationContext(StandardWebServletBeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public StandardWebServletApplicationContext(StandardBeanFactory beanFactory) {
+        super(beanFactory);
+    }
+
+    @Override
+    protected StandardBeanFactory createBeanFactory() {
+        return new StandardWebServletBeanFactory(this);
     }
 
     @Override
@@ -105,13 +101,6 @@ public class StandardWebServletApplicationContext extends AbstractApplicationCon
         registerSingleton(beanFactory.getBeanNameCreator().create(WebServletApplicationContext.class), this);
 
         super.postProcessBeanFactory(beanFactory);
-    }
-
-    @Override
-    protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
-        super.loadBeanDefinitions(beanFactory, beanClasses);
-        this.beanFactory.loadConfigurationBeans();
-        this.beanFactory.loadMissingBean(beanClasses);
     }
 
     @Override
