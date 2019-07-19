@@ -180,7 +180,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
      *             If can't store bean
      */
     @Override
-    public void register(String name, final BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
+    public void register(final String name, final BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
 
         ContextUtils.validateBeanDefinition(beanDefinition, applicationContext);
 
@@ -197,12 +197,14 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
                                     name, beanClass);
                 }
             }
-
+            final String beanName;
             if (FactoryBean.class.isAssignableFrom(beanClass)) { // process FactoryBean
-                name = registerFactoryBean(name, beanDefinition);
+                beanName = registerFactoryBean(name, beanDefinition);
             }
-
-            registry.registerBeanDefinition(name, beanDefinition);
+            else {
+                beanName = name;
+            }
+            registry.registerBeanDefinition(beanName, beanDefinition);
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
