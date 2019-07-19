@@ -39,7 +39,7 @@ import cn.taketoday.context.utils.StringUtils;
  */
 public class StandardApplicationContext extends AbstractApplicationContext implements ConfigurableApplicationContext {
 
-    private final StandardBeanFactory beanFactory;
+    private StandardBeanFactory beanFactory;
 
     /**
      * Start with given class set
@@ -83,12 +83,20 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
     }
 
     public StandardApplicationContext() {
-        this.beanFactory = new StandardBeanFactory(this);
+
     }
 
     @Override
     public AbstractBeanFactory getBeanFactory() {
+
+        if (this.beanFactory == null) {
+            this.beanFactory = createBeanFactory();
+        }
         return this.beanFactory;
+    }
+
+    protected StandardBeanFactory createBeanFactory() {
+        return new StandardBeanFactory(this);
     }
 
     @Override
