@@ -52,7 +52,7 @@ public interface BeanDefinitionRegistry {
      * register a bean with the given name and type
      * 
      * @param beanDefinition
-     *            bean definition
+     *            Bean definition
      * @since 1.2.0
      */
     void registerBeanDefinition(String name, BeanDefinition beanDefinition);
@@ -61,7 +61,7 @@ public interface BeanDefinitionRegistry {
      * Remove the BeanDefinition for the given name.
      * 
      * @param beanName
-     *            the name of the bean instance to register
+     *            The name of the bean instance to register
      */
     void removeBeanDefinition(String beanName);
 
@@ -70,7 +70,7 @@ public interface BeanDefinitionRegistry {
      * for the given bean name.
      * 
      * @param beanName
-     *            name of the bean to find a definition for
+     *            Name of the bean to find a definition for
      * @return the BeanDefinition for the given name (never {@code null})
      */
     BeanDefinition getBeanDefinition(String beanName);
@@ -79,7 +79,7 @@ public interface BeanDefinitionRegistry {
      * Return the BeanDefinition for the given bean class.
      * 
      * @param beanClass
-     *            bean definition bean class
+     *            Bean definition bean class
      */
     BeanDefinition getBeanDefinition(Class<?> beanClass);
 
@@ -87,8 +87,8 @@ public interface BeanDefinitionRegistry {
      * Check if this registry contains a bean definition with the given name.
      * 
      * @param beanName
-     *            the name of the bean to look for
-     * @return if this registry contains a bean definition with the given name
+     *            The name of the bean to look for
+     * @return If this registry contains a bean definition with the given name
      */
     boolean containsBeanDefinition(String beanName);
 
@@ -96,8 +96,8 @@ public interface BeanDefinitionRegistry {
      * Whether there is a bean with the given type.
      * 
      * @param type
-     *            bean type
-     * @return if exist a bean with given type
+     *            Bean type
+     * @return If exist a bean with given type
      */
     boolean containsBeanDefinition(Class<?> type);
 
@@ -105,6 +105,7 @@ public interface BeanDefinitionRegistry {
      * Whether there is a bean with the given type.
      * 
      * @param type
+     *            Target type
      * @param equals
      *            must equals type
      * @return
@@ -125,5 +126,16 @@ public interface BeanDefinitionRegistry {
      * @return the number of beans defined in the registry
      */
     int getBeanDefinitionCount();
+
+    /**
+     * Register {@link BeanDefinition} with {@link BeanDefinition#getName()}
+     * 
+     * @param beanDefinition
+     *            Target {@link BeanDefinition}
+     * @since 2.1.6
+     */
+    default void registerBeanDefinition(BeanDefinition beanDefinition) {
+        registerBeanDefinition(beanDefinition.getName(), beanDefinition);
+    }
 
 }

@@ -110,6 +110,7 @@ public interface BeanDefinitionLoader {
      *            Target {@link BeanDefinition}
      * @throws BeanDefinitionStoreException
      *             If BeanDefinition could not be store
+     * @since 2.1.6
      */
     default void register(BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
         register(beanDefinition.getName(), beanDefinition);
