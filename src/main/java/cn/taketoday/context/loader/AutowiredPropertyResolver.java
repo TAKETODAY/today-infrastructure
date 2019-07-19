@@ -38,6 +38,7 @@ import cn.taketoday.context.bean.BeanReference;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -54,7 +55,7 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
     private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.loadClass("javax.inject.Inject");
 
     @Override
-    public boolean supports(ApplicationContext applicationContext, Field field) {
+    public boolean supports(Field field) {
 
         return field.isAnnotationPresent(Autowired.class) //
                 || field.isAnnotationPresent(Resource.class) //
@@ -63,8 +64,9 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
     }
 
     @Override
-    public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
+    public PropertyValue resolveProperty(Field field) {
 
+        final ApplicationContext applicationContext = ContextUtils.getApplicationContext();
         final BeanNameCreator beanNameCreator = applicationContext.getEnvironment().getBeanNameCreator();
 
         final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired

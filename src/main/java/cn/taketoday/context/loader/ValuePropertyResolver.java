@@ -21,7 +21,6 @@ package cn.taketoday.context.loader;
 
 import java.lang.reflect.Field;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Env;
@@ -40,7 +39,7 @@ import cn.taketoday.context.utils.StringUtils;
 public class ValuePropertyResolver implements PropertyValueResolver {
 
     @Override
-    public boolean supports(ApplicationContext applicationContext, Field field) {
+    public boolean supports(Field field) {
         return field.isAnnotationPresent(Value.class) || field.isAnnotationPresent(Env.class);
     }
 
@@ -48,7 +47,7 @@ public class ValuePropertyResolver implements PropertyValueResolver {
      * Resolve {@link Value} and {@link Env} annotation property.
      */
     @Override
-    public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
+    public PropertyValue resolveProperty(Field field) {
 
         String expression;
         final boolean required;

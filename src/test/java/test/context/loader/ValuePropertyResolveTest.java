@@ -42,17 +42,16 @@ public class ValuePropertyResolveTest {
 
         ValuePropertyResolver propertyResolver = new ValuePropertyResolver();
 
-        ApplicationContext applicationContext = new StandardApplicationContext();
+        try (ApplicationContext applicationContext = new StandardApplicationContext()) {
 
-        PropertyValue resolveProperty = propertyResolver.resolveProperty(applicationContext,
-                ValuePropertyResolveTest.class.getDeclaredField("host"));
+            PropertyValue resolveProperty = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("host"));
 
-        assert resolveProperty.getValue() != null;
+            assert resolveProperty.getValue() != null;
 
-        System.out.println("====================");
-        System.out.println("Site -> " + resolveProperty.getValue());
-        System.out.println("====================");
-        applicationContext.close();
+            System.out.println("====================");
+            System.out.println("Site -> " + resolveProperty.getValue());
+            System.out.println("====================");
+        }
 
     }
 

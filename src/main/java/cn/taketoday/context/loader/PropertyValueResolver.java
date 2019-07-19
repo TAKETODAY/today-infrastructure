@@ -21,7 +21,6 @@ package cn.taketoday.context.loader;
 
 import java.lang.reflect.Field;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.ContextException;
 
@@ -37,7 +36,7 @@ public interface PropertyValueResolver {
     /**
      * Whether the given field is supported by this resolver.
      */
-    default boolean supports(ApplicationContext applicationContext, Field field) {
+    default boolean supports(Field field) {
         return false;
     }
 
@@ -51,6 +50,6 @@ public interface PropertyValueResolver {
      * @return property value
      * @throws ContextException
      */
-    PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) throws ContextException;
+    PropertyValue resolveProperty(Field field) throws ContextException;
 
 }

@@ -182,7 +182,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
     @Override
     public void register(final String name, final BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
 
-        ContextUtils.validateBeanDefinition(beanDefinition, applicationContext);
+        ContextUtils.validateBeanDefinition(beanDefinition);
 
         try {
 

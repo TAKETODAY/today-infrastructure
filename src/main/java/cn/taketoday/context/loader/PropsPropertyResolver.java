@@ -23,7 +23,6 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Props;
@@ -39,7 +38,7 @@ import cn.taketoday.context.utils.ContextUtils;
 public class PropsPropertyResolver implements PropertyValueResolver {
 
     @Override
-    public boolean supports(ApplicationContext applicationContext, Field field) {
+    public boolean supports(Field field) {
         return field.isAnnotationPresent(Props.class);
     }
 
@@ -47,12 +46,12 @@ public class PropsPropertyResolver implements PropertyValueResolver {
      * Resolve {@link Props} annotation property.
      */
     @Override
-    public PropertyValue resolveProperty(ApplicationContext applicationContext, Field field) {
+    public PropertyValue resolveProperty(Field field) {
 
         Props props = field.getAnnotation(Props.class);
 
         Properties properties = //
-                ContextUtils.loadProps(props, applicationContext.getEnvironment().getProperties());
+                ContextUtils.loadProps(props, ContextUtils.getApplicationContext().getEnvironment().getProperties());
 
         // feat: Enhance `Props`
         final Class<?> propertyClass = field.getType();

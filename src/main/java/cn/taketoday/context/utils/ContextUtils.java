@@ -583,8 +583,8 @@ public abstract class ContextUtils {
      *            {@link ApplicationContext}
      * @since 2.1.3
      */
-    public static void resolvePropertyValue(final BeanDefinition beanDefinition, ApplicationContext applicationContext) {
-        beanDefinition.setPropertyValues(resolvePropertyValue(beanDefinition.getBeanClass(), applicationContext));
+    public static void resolvePropertyValue(final BeanDefinition beanDefinition) {
+        beanDefinition.setPropertyValues(resolvePropertyValue(beanDefinition.getBeanClass()));
     }
 
     /**
@@ -596,12 +596,10 @@ public abstract class ContextUtils {
      *            {@link ApplicationContext}
      * @since 2.1.2
      */
-    public static PropertyValue[] resolvePropertyValue(Class<?> beanClass, //
-            ApplicationContext applicationContext) //
-    {
+    public static PropertyValue[] resolvePropertyValue(Class<?> beanClass) {
         final Set<PropertyValue> propertyValues = new HashSet<>(32);
         for (final Field field : ClassUtils.getFields(beanClass)) {
-            final PropertyValue created = createPropertyValue(field, applicationContext);
+            final PropertyValue created = createPropertyValue(field);
             // not required
             if (created != null) {
                 ClassUtils.makeAccessible(field);
@@ -620,11 +618,11 @@ public abstract class ContextUtils {
      *            {@link ApplicationContext}
      * @return A new {@link PropertyValue}
      */
-    public static final PropertyValue createPropertyValue(Field field, ApplicationContext applicationContext) {
+    public static final PropertyValue createPropertyValue(Field field) {
 
         for (final PropertyValueResolver propertyValueResolver : getPropertyValueResolvers()) {
-            if (propertyValueResolver.supports(applicationContext, field)) {
-                return propertyValueResolver.resolveProperty(applicationContext, field);
+            if (propertyValueResolver.supports(field)) {
+                return propertyValueResolver.resolveProperty(field);
             }
         }
         return null;
@@ -890,7 +888,7 @@ public abstract class ContextUtils {
      * @param applicationContext
      *            Application context
      */
-    public static void validateBeanDefinition(BeanDefinition beanDefinition, ApplicationContext applicationContext) {
+    public static void validateBeanDefinition(BeanDefinition beanDefinition) {
 
         if (beanDefinition instanceof StandardBeanDefinition) {
             final StandardBeanDefinition standardBeanDefinition = ((StandardBeanDefinition) beanDefinition);
@@ -913,7 +911,7 @@ public abstract class ContextUtils {
             beanDefinition.setInitMethods(resolveInitMethod(beanDefinition.getBeanClass()));
         }
         if (beanDefinition.getPropertyValues() == null) {
-            beanDefinition.setPropertyValues(resolvePropertyValue(beanDefinition.getBeanClass(), applicationContext));
+            beanDefinition.setPropertyValues(resolvePropertyValue(beanDefinition.getBeanClass()));
         }
         if (beanDefinition.getScope() == null) {
             beanDefinition.setScope(Scope.SINGLETON);
@@ -1027,7 +1025,7 @@ public abstract class ContextUtils {
                     .setInitMethods(ContextUtils.resolveInitMethod(beanClass, attributes.getStringArray(Constant.INIT_METHODS)));
         }
 
-        beanDefinition.setPropertyValues(ContextUtils.resolvePropertyValue(beanClass, applicationContext));
+        beanDefinition.setPropertyValues(ContextUtils.resolvePropertyValue(beanClass));
         // fix missing @Props injection
         ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
         return beanDefinition;

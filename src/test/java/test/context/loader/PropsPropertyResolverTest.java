@@ -50,8 +50,7 @@ public class PropsPropertyResolverTest {
         try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
 
             PropertyValue resolveProperty = //
-                    propertyResolver.resolveProperty(applicationContext, //
-                            PropsPropertyResolverTest.class.getDeclaredField("properties"));
+                    propertyResolver.resolveProperty(PropsPropertyResolverTest.class.getDeclaredField("properties"));
 
             assert resolveProperty.getValue() != null;
 
@@ -65,13 +64,9 @@ public class PropsPropertyResolverTest {
     public void test_Error() throws Throwable {
         PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
 
-        ApplicationContext applicationContext = new StandardApplicationContext();
+        try (ApplicationContext applicationContext = new StandardApplicationContext()) {
 
-        try {
-
-            propertyResolver.resolveProperty(applicationContext, PropsPropertyResolverTest.class.getDeclaredField("name"));
-        } finally {
-            applicationContext.close();
+            propertyResolver.resolveProperty(PropsPropertyResolverTest.class.getDeclaredField("name"));
         }
 
     }

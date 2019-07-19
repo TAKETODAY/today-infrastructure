@@ -44,17 +44,18 @@ public class AutowiredPropertyResolverTest {
     public void test_() throws Throwable {
 
         PropertyValueResolver autowiredPropertyResolver = new AutowiredPropertyResolver();
+        try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext(new HashSet<>())) {
 
-        ConfigurableApplicationContext applicationContext = new StandardApplicationContext(new HashSet<>());
+            applicationContext.getEnvironment().getBeanDefinitionLoader();
 
-        applicationContext.getEnvironment().getBeanDefinitionLoader();
+            PropertyValue resolveProperty = autowiredPropertyResolver.resolveProperty(//
+                    AutowiredPropertyResolverTest.class.getDeclaredField("name")//
+            );
 
-        PropertyValue resolveProperty = autowiredPropertyResolver.resolveProperty(applicationContext,
-                AutowiredPropertyResolverTest.class.getDeclaredField("name"));
+            System.err.println(resolveProperty);
+            assert resolveProperty != null;
 
-        System.err.println(resolveProperty);
-        assert resolveProperty != null;
-
+        }
     }
 
 }

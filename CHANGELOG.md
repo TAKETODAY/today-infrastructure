@@ -53,6 +53,7 @@
 - :sparkles: feat: @Value default value feature
 - :sparkles: feat: add @Env
 - :sparkles: feat: add META-INF/beans to avoid scan all jar file
+- :sparkles: feat: Use static method ContextUtils#getApplicationContext() to get ApplicationContext
 
 
 
