@@ -22,11 +22,11 @@ package cn.taketoday.context.env;
 import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.context.AnnotationAttributes;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ContextUtils;
 
 /**
  * 
@@ -38,9 +38,9 @@ import cn.taketoday.context.utils.ClassUtils;
 public class ProfileCondition implements Condition {
 
     @Override
-    public boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement) {
+    public boolean matches(AnnotatedElement annotatedElement) {
 
-        final Environment environment = applicationContext.getEnvironment();
+        final Environment environment = ContextUtils.getApplicationContext().getEnvironment();
 
         for (AnnotationAttributes attributes : ClassUtils.getAnnotationAttributes(annotatedElement, Profile.class)) {
 

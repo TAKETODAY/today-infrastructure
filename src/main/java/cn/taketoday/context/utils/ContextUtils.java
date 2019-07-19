@@ -52,7 +52,6 @@ import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Condition;
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Autowired;
@@ -861,7 +860,7 @@ public abstract class ContextUtils {
      *            {@link ApplicationContext}
      * @return If matched
      */
-    public static boolean conditional(AnnotatedElement annotatedElement, ConfigurableApplicationContext applicationContext) {
+    public static boolean conditional(AnnotatedElement annotatedElement) {
 
         final Collection<Conditional> annotations = //
                 ClassUtils.getAnnotation(annotatedElement, Conditional.class, ConditionalImpl.class);
@@ -871,7 +870,7 @@ public abstract class ContextUtils {
 
             for (final Class<? extends Condition> conditionClass : conditional.value()) {
                 final Condition condition = ClassUtils.newInstance(conditionClass);
-                if (!condition.matches(applicationContext, annotatedElement)) {
+                if (!condition.matches(annotatedElement)) {
                     return false; // can't match
                 }
             }

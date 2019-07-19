@@ -25,11 +25,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.env.Environment;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -65,11 +65,12 @@ public @interface ConditionalOnProperty {
 class OnPropertyCondition implements Condition {
 
     @Override
-    public boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement) {
+    public boolean matches(AnnotatedElement annotatedElement) {
 
         final ConditionalOnProperty conditionalOnProperty = annotatedElement.getAnnotation(ConditionalOnProperty.class);
         final String prefix = conditionalOnProperty.prefix();
-        final Environment environment = applicationContext.getEnvironment();
+
+        final Environment environment = ContextUtils.getApplicationContext().getEnvironment();
         if (StringUtils.isEmpty(prefix)) {
             for (String key : conditionalOnProperty.value()) {
                 if (environment.getProperty(key) == null) {

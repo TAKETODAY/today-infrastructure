@@ -33,7 +33,6 @@ import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.FactoryBean;
@@ -77,7 +76,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         if (!Modifier.isAbstract(beanClass.getModifiers())) { // don't load abstract class
             try {
 
-                if (ContextUtils.conditional(beanClass, applicationContext)) {
+                if (ContextUtils.conditional(beanClass)) {
                     register(beanClass);
                 }
             }
@@ -97,22 +96,17 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
     @Override
     public void loadBeanDefinition(String name, Class<?> beanClass) throws BeanDefinitionStoreException {
         // register
-        try {
 
-            final Collection<AnnotationAttributes> annotationAttributes = //
-                    ClassUtils.getAnnotationAttributes(beanClass, Component.class);
+        final Collection<AnnotationAttributes> annotationAttributes = //
+                ClassUtils.getAnnotationAttributes(beanClass, Component.class);
 
-            if (annotationAttributes.isEmpty()) {
-                register(name, build(beanClass, null, name));
-            }
-            else {
-                for (AnnotationAttributes attributes : annotationAttributes) {
-                    register(name, build(beanClass, attributes, name));
-                }
-            }
+        if (annotationAttributes.isEmpty()) {
+            register(name, build(beanClass, null, name));
         }
-        catch (Throwable e) {
-            throw new BeanDefinitionStoreException(ExceptionUtils.unwrapThrowable(e));
+        else {
+            for (AnnotationAttributes attributes : annotationAttributes) {
+                register(name, build(beanClass, attributes, name));
+            }
         }
     }
 
@@ -134,20 +128,11 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
             return;
         }
 
-        try {
-
-            final String defaultBeanName = beanNameCreator.create(beanClass);
-            for (final AnnotationAttributes attributes : annotationAttributes) {
-                for (final String name : ContextUtils.findNames(defaultBeanName, attributes.getStringArray(Constant.VALUE))) {
-                    register(name, build(beanClass, attributes, name));
-                }
+        final String defaultBeanName = beanNameCreator.create(beanClass);
+        for (final AnnotationAttributes attributes : annotationAttributes) {
+            for (final String name : ContextUtils.findNames(defaultBeanName, attributes.getStringArray(Constant.VALUE))) {
+                register(name, build(beanClass, attributes, name));
             }
-        }
-        catch (Throwable ex) {
-            ex = ExceptionUtils.unwrapThrowable(ex);
-            throw new ConfigurationException(//
-                    "An Exception Occurred When Build Bean Definition: [" + //
-                            beanClass.getName() + "], With Msg: [" + ex.getMessage() + "]", ex);
         }
     }
 
@@ -164,7 +149,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
-    protected BeanDefinition build(Class<?> beanClass, AnnotationAttributes attributes, String beanName) throws Throwable {
+    protected BeanDefinition build(Class<?> beanClass, AnnotationAttributes attributes, String beanName) {
 
         return ContextUtils.buildBeanDefinition(beanClass, attributes, beanName);
     }
@@ -265,20 +250,10 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         final Collection<AnnotationAttributes> annotationAttributes = //
                 ClassUtils.getAnnotationAttributes(beanClass, Component.class);
 
-        try {
-
-            if (annotationAttributes.isEmpty()) {
-                return build(beanClass, null, beanNameCreator.create(beanClass));
-            }
-            return build(beanClass, annotationAttributes.iterator().next(), beanNameCreator.create(beanClass));
+        if (annotationAttributes.isEmpty()) {
+            return build(beanClass, null, beanNameCreator.create(beanClass));
         }
-        catch (Throwable ex) {
-            ex = ExceptionUtils.unwrapThrowable(ex);
-            throw new BeanDefinitionStoreException(//
-                    "An Exception Occurred When Create A Bean Definition, With Msg: [" + ex.getMessage() + "]", //
-                    ex//
-            );
-        }
+        return build(beanClass, annotationAttributes.iterator().next(), beanNameCreator.create(beanClass));
     }
 
 }

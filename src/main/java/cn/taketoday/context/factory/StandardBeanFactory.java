@@ -161,29 +161,24 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
         for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
 
-            final BeanDefinition beanDefinition = entry.getValue();
+            final Class<? extends Object> beanClass = entry.getValue().getBeanClass();
+            if (beanClass.isAnnotationPresent(Configuration.class)) {
+                // @Configuration bean
+                for (Method method : beanClass.getDeclaredMethods()) {
 
-            final Class<? extends Object> beanClass = beanDefinition.getBeanClass();
-            if (!beanClass.isAnnotationPresent(Configuration.class)) {
-                continue; // not a @Configuration bean
-            }
+                    if (ContextUtils.conditional(method)) { // pass the condition
 
-            for (Method method : beanClass.getDeclaredMethods()) {
+                        Collection<AnnotationAttributes> components = //
+                                ClassUtils.getAnnotationAttributes(method, Component.class);
 
-                if (!ContextUtils.conditional(method, applicationContext)) {
-                    continue; // @Profile
-                }
-
-                Collection<AnnotationAttributes> components = //
-                        ClassUtils.getAnnotationAttributes(method, Component.class);
-
-                if (components.isEmpty()) {
-                    if (method.isAnnotationPresent(MissingBean.class)) {
-                        missingMethods.add(method);
+                        if (components.isEmpty() && method.isAnnotationPresent(MissingBean.class)) {
+                            missingMethods.add(method);
+                        }
+                        else {
+                            registerConfigurationBean(method, components);
+                        }
                     }
-                    continue;
                 }
-                registerConfigurationBean(method, components);
             }
         }
     }
@@ -303,7 +298,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     /**
      * Resolve bean from META-INF/beans
      */
-    public void loadMetaInfoBeans() {
+    public Set<Class<?>> loadMetaInfoBeans() {
 
         // Load the META-INF/beans
         // ---------------------------------------------------
@@ -335,12 +330,13 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         final BeanNameCreator beanNameCreator = getBeanNameCreator();
         for (final Class<?> beanClass : beans) {
 
-            if (ContextUtils.conditional(beanClass, applicationContext)) {
+            if (ContextUtils.conditional(beanClass)) {
 
                 ContextUtils.buildBeanDefinitions(beanClass, beanNameCreator.create(beanClass))//
                         .forEach(beanDefinitionLoader::register);
             }
         }
+        return beans;
     }
 
     @Override

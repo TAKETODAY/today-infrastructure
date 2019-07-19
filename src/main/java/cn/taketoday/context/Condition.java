@@ -31,12 +31,10 @@ public interface Condition {
     /**
      * Matches condition
      * 
-     * @param applicationContext
-     *            application context
      * @param annotatedElement
-     *            annotated element
+     *            Annotated element
      * @return Return {@code false} to indicate that the bean should not be created
      */
-    boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement);
+    boolean matches(AnnotatedElement annotatedElement);
 
 }

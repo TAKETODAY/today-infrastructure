@@ -21,8 +21,8 @@ package test.context.condition;
 
 import java.lang.reflect.AnnotatedElement;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
+import cn.taketoday.context.utils.ContextUtils;
 
 /**
  * @author Today <br>
@@ -32,8 +32,8 @@ import cn.taketoday.context.Condition;
 public class WindowsCondition implements Condition {
 
     @Override
-    public boolean matches(ApplicationContext applicationContext, AnnotatedElement annotatedElement) {
-        String system = applicationContext.getEnvironment().getProperty("os.name");
+    public boolean matches(AnnotatedElement annotatedElement) {
+        String system = ContextUtils.getApplicationContext().getEnvironment().getProperty("os.name");
         if (system != null && system.contains("Windows")) {
             return true;
         }
