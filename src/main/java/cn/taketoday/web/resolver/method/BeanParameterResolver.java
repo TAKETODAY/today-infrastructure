@@ -19,6 +19,13 @@
  */
 package cn.taketoday.web.resolver.method;
 
+import static cn.taketoday.context.utils.NumberUtils.toArrayObject;
+
+import java.lang.reflect.Field;
+import java.util.Enumeration;
+
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.MethodParameter;
 
@@ -35,7 +42,45 @@ public class BeanParameterResolver implements OrderedParameterResolver {
 
     @Override
     public Object resolveParameter(RequestContext requestContext, MethodParameter parameter) throws Throwable {
-        return null;
+
+        final Class<?> parameterClass = parameter.getParameterClass();
+
+        final Object bean = ClassUtils.newInstance(parameterClass);
+
+        final Enumeration<String> parameterNames = requestContext.parameterNames();
+
+        while (parameterNames.hasMoreElements()) {
+            // 遍历参数
+            final String parameterName = parameterNames.nextElement();
+            // 寻找参数
+            try {
+                resolvePojoParameter(requestContext, parameterName, bean, //
+                        parameterClass.getDeclaredField(parameterName), parameter);
+            }
+            catch (NoSuchFieldException e) {
+                // continue;
+            }
+        }
+
+        return bean;
+    }
+
+    private void resolvePojoParameter(RequestContext request, //
+            String parameterName, Object bean, Field field, MethodParameter methodParameter) throws Throwable //
+    {
+
+        final Class<?> type = field.getType();
+        if (type.isArray()) {
+            ClassUtils.makeAccessible(field)//
+                    .set(bean, toArrayObject(request.parameters(parameterName), type));
+        }
+        else {
+            final String parameter = request.parameter(parameterName);
+            if (parameter != null) {
+                ClassUtils.makeAccessible(field)//
+                        .set(bean, ConvertUtils.convert(parameter, type));
+            }
+        }
     }
 
     @Override
