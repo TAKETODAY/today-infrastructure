@@ -37,6 +37,7 @@ import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.exception.FileSizeExceededException;
 import cn.taketoday.web.exception.MethodNotAllowedException;
 import cn.taketoday.web.exception.NotFoundException;
+import cn.taketoday.web.exception.UnauthorizedException;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.WebMapping;
@@ -92,7 +93,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
                         requestContext.redirect(requestContext.contextPath() + redirect);
                     }
                     else {
-                        resolveViewException(ex, requestContext, 500, ex.getMessage());
+                        resolveViewException(ex, requestContext, ex.getMessage());
                     }
                 }
                 else {
@@ -107,7 +108,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
                 }
             }
             else {
-                resolveViewException(ex, requestContext, 500, ex.getMessage());
+                resolveViewException(ex, requestContext, ex.getMessage());
             }
 
             log.error("Catch Throwable: [{}] With Msg: [{}]", ex, ex.getMessage(), ex);
@@ -134,6 +135,9 @@ public class DefaultExceptionResolver implements ExceptionResolver {
         else if (ex instanceof NotFoundException) {
             return 404;
         }
+        else if (ex instanceof UnauthorizedException) {
+            return 401;
+        }
         else if (ex instanceof AccessForbiddenException) {
             return 403;
         }
@@ -144,32 +148,15 @@ public class DefaultExceptionResolver implements ExceptionResolver {
      * resolve view exception
      * 
      * @param ex
-     * @param response
-     * @param status
+     *            Target {@link Exception}
+     * @param requestContext
+     *            Current request context
      * @param msg
-     * @throws IOException
      */
     public static void resolveViewException(Throwable ex, //
-            final RequestContext requestContext, int status, String msg) throws IOException //
+            final RequestContext requestContext, String msg) throws IOException //
     {
-        if (ex instanceof MethodNotAllowedException) {
-            requestContext.sendError(405, msg);
-        }
-        else if (ex instanceof BadRequestException || //
-                ex instanceof ConversionException || //
-                ex instanceof FileSizeExceededException) //
-        {
-            requestContext.sendError(400, msg);
-        }
-        else if (ex instanceof NotFoundException) {
-            requestContext.sendError(404, msg);
-        }
-        else if (ex instanceof AccessForbiddenException) {
-            requestContext.sendError(403, msg);
-        }
-        else {
-            requestContext.sendError(status, msg);
-        }
+        requestContext.sendError(getStatus(ex), msg);
     }
 
     /**
@@ -179,21 +166,11 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 
         requestContext.contentType(Constant.CONTENT_TYPE_IMAGE);
 
-        String fileName = "/error/500.png";
-        if (ex instanceof MethodNotAllowedException) {
-            fileName = "/error/405.png";
-        } //
-        else if (ex instanceof BadRequestException || ex instanceof ConversionException) {
-            fileName = "/error/400.png";
-        } //
-        else if (ex instanceof NotFoundException) {
-            fileName = "/error/404.png";
-        } //
-        else if (ex instanceof AccessForbiddenException) {
-            fileName = "/error/403.png";
-        }
-
-        return ImageIO.read(ClassUtils.getClassLoader().getResource(fileName));
+        return ImageIO.read(ClassUtils.getClassLoader().getResource(new StringBuilder()//
+                .append("/error/")//
+                .append(getStatus(ex))//
+                .append(".png").toString())//
+        );
     }
 
 }
