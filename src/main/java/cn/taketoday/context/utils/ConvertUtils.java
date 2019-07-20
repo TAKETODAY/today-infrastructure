@@ -54,6 +54,7 @@ public abstract class ConvertUtils {
     }
 
     public static TypeConverter getTypeConverter(Object source, Class<?> targetClass) {
+
         for (TypeConverter converter : getConverters()) {
             if (converter.supports(targetClass, source)) {
                 return converter;//
@@ -155,8 +156,8 @@ public abstract class ConvertUtils {
                 new StringNumberConverter(), //
                 new StringResourceConverter(), //
                 new PrimitiveClassConverter(),
+                new ArrayStringArrayConverter(),//
                 new StringConstructorConverter(), //
-
                 new DelegatingStringTypeConverter<>((c) -> c == Class.class, source -> {
                     try {
                         return Class.forName(source);
@@ -313,6 +314,32 @@ public abstract class ConvertUtils {
                 Array.set(arrayValue, i, ConvertUtils.convert(split[i], componentType));
             }
             return arrayValue;
+        }
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-07-20 00:54
+     * @since 2.1.6
+     */
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public static class ArrayStringArrayConverter implements TypeConverter {
+
+        @Override
+        public boolean supports(Class<?> targetClass, Object source) {
+            return targetClass.isArray() && source.getClass().isArray();
+        }
+
+        @Override
+        public Object convert(Class<?> targetClass, Object source) throws ConversionException {
+
+            final Object[] sources = (Object[]) source;
+
+            final Class<?> componentType = targetClass.getComponentType();
+            for (int i = 0; i < sources.length; i++) {
+                sources[i] = ConvertUtils.convert(sources[i], componentType);
+            }
+            return sources;
         }
     }
 
