@@ -21,8 +21,6 @@ package cn.taketoday.web.servlet;
 
 import java.util.Set;
 
-import javax.servlet.ServletRegistration;
-
 import cn.taketoday.web.config.WebMvcConfiguration;
 
 /**
@@ -41,7 +39,4 @@ public interface ServletWebMvcConfiguration extends WebMvcConfiguration {
 
     }
 
-    default void configureDefaultServlet(ServletRegistration servletRegistration) {
-
-    }
 }

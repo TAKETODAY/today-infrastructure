@@ -21,6 +21,7 @@ package cn.taketoday.web.config;
 
 import java.util.List;
 
+import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.web.annotation.Multipart;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
@@ -83,6 +84,16 @@ public interface WebMvcConfiguration {
      *            {@link MultipartConfiguration}
      */
     default void configureMultipart(MultipartConfiguration multipartConfiguration) {
+
+    }
+
+    /**
+     * Use {@link TypeConverter}s to convert request parameters
+     * 
+     * @param typeConverters
+     *            {@link TypeConverter} registry
+     */
+    default void configureTypeConverter(List<TypeConverter> typeConverters) {
 
     }
 

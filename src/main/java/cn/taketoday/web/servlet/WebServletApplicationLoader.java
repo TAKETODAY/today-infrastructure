@@ -35,7 +35,6 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
 import javax.servlet.ServletSecurityElement;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.ServletSecurity;
@@ -191,7 +190,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
 
     @Override
     protected void checkFrameWorkResolvers(WebApplicationContext applicationContext) {
-        
+
         if (!applicationContext.containsBeanDefinition(ViewResolver.class)) {
             // use freemarker view resolver
             applicationContext.registerBean(VIEW_RESOLVER, FreeMarkerViewResolver.class);
@@ -371,15 +370,6 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
             for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
                 if (webMvcConfiguration instanceof ServletWebMvcConfiguration) {
                     ((ServletWebMvcConfiguration) webMvcConfiguration).configureResourceServletUrlMappings(urlMappings);
-                }
-            }
-        }
-
-        @Override
-        public void configureDefaultServlet(ServletRegistration servletRegistration) {
-            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                if (webMvcConfiguration instanceof ServletWebMvcConfiguration) {
-                    ((ServletWebMvcConfiguration) webMvcConfiguration).configureDefaultServlet(servletRegistration);
                 }
             }
         }

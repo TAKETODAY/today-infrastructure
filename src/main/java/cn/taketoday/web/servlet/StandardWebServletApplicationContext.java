@@ -48,7 +48,7 @@ public class StandardWebServletApplicationContext extends StandardApplicationCon
     }
 
     public StandardWebServletApplicationContext() {
-        
+
     }
 
     public StandardWebServletApplicationContext(ServletContext servletContext) {

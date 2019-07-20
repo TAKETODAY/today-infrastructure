@@ -44,12 +44,14 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Value;
+import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -125,6 +127,8 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         configureViewResolver(applicationContext.getBean(AbstractViewResolver.class), mvcConfiguration);
 
+        configureTypeConverter(applicationContext.getBeans(TypeConverter.class), mvcConfiguration);
+
         configureParameterResolver(applicationContext.getBeans(ParameterResolver.class), //
                 applicationContext.getBean(MultipartConfiguration.class), mvcConfiguration);
 
@@ -150,6 +154,21 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         Runtime.getRuntime().addShutdownHook(new Thread(applicationContext::close));
 
         System.gc();
+    }
+
+    /**
+     * Configure {@link TypeConverter} to resolve convert request parameters
+     * 
+     * @param typeConverters
+     *            Type converters
+     * @param mvcConfiguration
+     *            All {@link WebMvcConfiguration} object
+     */
+    protected void configureTypeConverter(List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
+
+        mvcConfiguration.configureTypeConverter(typeConverters);
+
+        ConvertUtils.addConverter(typeConverters);
     }
 
     /**
@@ -260,7 +279,6 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         resolvers.add(new ModelParameterResolver());
         resolvers.add(new ArrayParameterResolver());
         resolvers.add(new StreamParameterResolver());
-
 
         resolvers.add(new PathVariableParameterResolver());
         final MessageConverter bean = getWebApplicationContext().getBean(MessageConverter.class);
@@ -520,6 +538,37 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
             }
         }
 
+        @Override
+        public void configureParameterResolver(List<ParameterResolver> parameterResolvers) {
+            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+                webMvcConfiguration.configureParameterResolver(parameterResolvers);
+            }
+        }
+
+        @Override
+        public void configureResultResolver(List<ResultResolver> resultResolvers) {
+            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+                webMvcConfiguration.configureResultResolver(resultResolvers);
+            }
+        }
+
+        @Override
+        public void configureMultipart(MultipartConfiguration multipartConfiguration) {
+            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+                webMvcConfiguration.configureMultipart(multipartConfiguration);
+            }
+        }
+
+        @Override
+        public void configureTypeConverter(List<TypeConverter> typeConverters) {
+            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+                webMvcConfiguration.configureTypeConverter(typeConverters);
+            }
+        }
+
+        /**
+         * Get all {@link WebMvcConfiguration} beans
+         */
         public List<WebMvcConfiguration> getWebMvcConfigurations() {
             return webMvcConfigurations;
         }
