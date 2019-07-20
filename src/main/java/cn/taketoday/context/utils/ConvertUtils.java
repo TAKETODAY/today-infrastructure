@@ -138,15 +138,26 @@ public abstract class ConvertUtils {
 
         final List<TypeConverter> typeConverters = new ArrayList<>();
 
+        Collections.addAll(typeConverters, converters);
+        addConverter(typeConverters);
+    }
+
+    /**
+     * Add a list of {@link TypeConverter} to {@link #converters}
+     * 
+     * @param converters
+     *            {@link TypeConverter} object
+     * @since 2.1.6
+     */
+    public static void addConverter(List<TypeConverter> converters) {
+
         if (getConverters() != null) {
-            Collections.addAll(typeConverters, getConverters());
+            Collections.addAll(converters, getConverters());
         }
 
-        Collections.addAll(typeConverters, converters);
+        OrderUtils.reversedSort(converters);
 
-        OrderUtils.reversedSort(typeConverters);
-
-        setConverters(typeConverters.toArray(new TypeConverter[0]));
+        setConverters(converters.toArray(new TypeConverter[0]));
     }
 
     static {
@@ -156,7 +167,7 @@ public abstract class ConvertUtils {
                 new StringNumberConverter(), //
                 new StringResourceConverter(), //
                 new PrimitiveClassConverter(),
-                new ArrayStringArrayConverter(),//
+                new ArrayStringArrayConverter(), //
                 new StringConstructorConverter(), //
                 new DelegatingStringTypeConverter<>((c) -> c == Class.class, source -> {
                     try {
