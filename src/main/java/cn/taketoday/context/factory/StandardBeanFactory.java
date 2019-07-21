@@ -297,6 +297,8 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Resolve bean from META-INF/beans
+     * 
+     * @since 2.1.6
      */
     public Set<Class<?>> loadMetaInfoBeans() {
 

@@ -54,7 +54,8 @@
 - :sparkles: feat: add @Env
 - :sparkles: feat: add META-INF/beans to avoid scan all jar file
 - :sparkles: feat: Use static method ContextUtils#getApplicationContext() to get ApplicationContext
-
+- :bug: fix: #9 Some listener in a jar can't be load
+- :bug: fix: #10 classes loading from a jar can't be load
 
 
 ## v2.1.5

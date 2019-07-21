@@ -19,15 +19,27 @@
  */
 package cn.taketoday.context;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.EventObject;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.StandardBeanFactory;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.listener.ContextCloseListener;
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -112,11 +124,47 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
     }
 
     @Override
-    protected void registerListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners) {
-
+    protected void postProcessRegisterListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners) {
         addApplicationListener(new ContextCloseListener());
 
-        super.registerListener(applicationListeners);
+        for (final Class<?> listener : loadMetaInfoListeners()) {
+            registerListener(listener);
+        }
+    }
+
+    /**
+     * Load the META-INF/listeners
+     * 
+     * @since 2.1.6
+     */
+    public Set<Class<?>> loadMetaInfoListeners() { // fixed #9 Some listener in a jar can't be load
+
+        // Load the META-INF/listeners
+        // ---------------------------------------------------
+        final Set<Class<?>> beans = new HashSet<>();
+
+        try {
+
+            final ClassLoader classLoader = ClassUtils.getClassLoader();
+            final Enumeration<URL> resources = classLoader.getResources("META-INF/listeners");
+            final Charset charset = Constant.DEFAULT_CHARSET;
+
+            while (resources.hasMoreElements()) {
+                try (final BufferedReader reader = new BufferedReader(//
+                        new InputStreamReader(resources.nextElement().openStream(), charset))) { // fix
+
+                    String str;
+                    while ((str = reader.readLine()) != null) {
+                        beans.add(classLoader.loadClass(str));
+                    }
+                }
+            }
+        }
+        catch (IOException | ClassNotFoundException e) {
+            LoggerFactory.getLogger(getClass()).error("Exception occurred when load 'META-INF/listeners'", e);
+            throw ExceptionUtils.newContextException(e);
+        }
+        return beans;
     }
 
 }

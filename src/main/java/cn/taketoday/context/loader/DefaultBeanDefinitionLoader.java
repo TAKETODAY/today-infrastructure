@@ -241,9 +241,6 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         return beanName;
     }
 
-    /**
-     *
-     */
     @Override
     public BeanDefinition createBeanDefinition(Class<?> beanClass) {
 

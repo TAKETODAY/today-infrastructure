@@ -153,10 +153,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             postProcessLoadProperties(environment);
 
             {// @since 2.1.6
-                if (environment.getProperty(Constant.ENABLE_FULL_PROTOTYPE, Boolean::parseBoolean, false)) {
+                if (environment.getProperty(Constant.ENABLE_FULL_PROTOTYPE, boolean.class, false)) {
                     enableFullPrototype();
                 }
-                if (environment.getProperty(Constant.ENABLE_FULL_LIFECYCLE, Boolean::parseBoolean, false)) {
+                if (environment.getProperty(Constant.ENABLE_FULL_LIFECYCLE, boolean.class, false)) {
                     enableFullLifecycle();
                 }
             }
@@ -272,7 +272,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         // register listener
         registerListener(applicationListeners);
-        postProcessRegisterListener(applicationListeners);
 
         // start loading bean definitions ; publish loading bean definition event
         publishEvent(new BeanDefinitionLoadingEvent(this));
@@ -317,7 +316,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         log.debug("Loading Application Listeners.");
 
-        ClassUtils.getImplClasses(ApplicationListener.class).forEach(this::forEach);
+        for (final Class<?> contextListener : ClassUtils.getAnnotatedClasses(ContextListener.class)) {
+            registerListener(contextListener);
+        }
+
+        postProcessRegisterListener(applicationListeners);
 
         // sort
         for (Entry<Class<?>, List<ApplicationListener<EventObject>>> entry : applicationListeners.entrySet()) {
@@ -325,14 +328,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
     }
 
-    protected void forEach(Class<?> listenerClass) {
+    protected void registerListener(Class<?> listenerClass) {
+
+        if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
+            throw ExceptionUtils.newConfigurationException(null, "ContextListener must be a 'ApplicationListener'");
+        }
 
         try {
-
-            final ContextListener contextListener = listenerClass.getAnnotation(ContextListener.class);
-            if (contextListener == null) {
-                return;
-            }
 
             final String name = getEnvironment().getBeanNameCreator().create(listenerClass);
             // if exist bean
