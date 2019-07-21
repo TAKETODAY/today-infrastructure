@@ -103,8 +103,8 @@ public abstract class ClassUtils {
     private static final Set<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();//
 
     private static final String[] IGNORE_SCAN_JARS;
-    /** for scan cn.taketoday */
-    private static boolean scanAllFreamworkPackage = true;
+
+    private static boolean ignoreScanJarsPrefix = true;
 
     private static final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
     private static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(256);
@@ -185,10 +185,6 @@ public abstract class ClassUtils {
         IGNORE_ANNOTATION_CLASS.add(annotationClass);
     }
 
-    public static void setScanAllFreamworkPackage(final boolean scanAllFreamworkPackage) {
-        ClassUtils.scanAllFreamworkPackage = scanAllFreamworkPackage;
-    }
-
     public static final boolean isCollection(Class<?> cls) {
         return Collection.class.isAssignableFrom(cls);
     }
@@ -209,6 +205,14 @@ public abstract class ClassUtils {
 
     public static ClassLoader getClassLoader() {
         return ClassUtils.classLoader;
+    }
+
+    public static boolean isIgnoreScanJarsPrefix() {
+        return ignoreScanJarsPrefix;
+    }
+
+    public static void setIgnoreScanJarsPrefix(boolean ignoreScanJars) {
+        ClassUtils.ignoreScanJarsPrefix = ignoreScanJars;
     }
 
     /**
@@ -411,7 +415,7 @@ public abstract class ClassUtils {
         return filter(clazz -> {
             final String name = clazz.getName();
             for (final String prefix : packages) {
-                if (StringUtils.isEmpty(prefix) || name.startsWith(prefix) || name.startsWith(Constant.FREAMWORK_PACKAGE)) {
+                if (StringUtils.isEmpty(prefix) || name.startsWith(prefix)) {
                     return true;
                 }
             }
@@ -427,6 +431,7 @@ public abstract class ClassUtils {
      * @return Class set
      */
     public static Set<Class<?>> scan(final String... packages) {
+
         Objects.requireNonNull(packages, "scan package can't be null");
 
         if (classesCache == null || classesCache.isEmpty()) {
@@ -436,14 +441,10 @@ public abstract class ClassUtils {
                 scanOne(scanClasses, packages[0]); // packages.length == 1
             }
             else {
-                final Set<String> packagesToScan = new HashSet<>();
+                final Set<String> packagesToScan = new HashSet<>(8);
                 for (final String location : packages) {
 
-                    if (scanAllFreamworkPackage && location.startsWith(Constant.FREAMWORK_PACKAGE)) {
-                        // maybe cn.taketoday.xxx will scan all cn.taketoday
-                        packagesToScan.add(Constant.FREAMWORK_PACKAGE);
-                    }
-                    else if (StringUtils.isEmpty(location)) { // contains "" scan all class
+                    if (StringUtils.isEmpty(location)) { // contains "" scan all class
                         scan(scanClasses);
                         setClassCache(scanClasses);
                         return scanClasses;
@@ -451,9 +452,6 @@ public abstract class ClassUtils {
                     else {
                         packagesToScan.add(location);
                     }
-                }
-                if (scanAllFreamworkPackage) {
-                    packagesToScan.add(Constant.FREAMWORK_PACKAGE);
                 }
                 for (final String location : packagesToScan) {
                     scan(scanClasses, location);
@@ -465,23 +463,13 @@ public abstract class ClassUtils {
         return getClasses(packages);
     }
 
-    private static void scanOne(final Set<Class<?>> scanClasses, final String location) {
+    protected static void scanOne(final Set<Class<?>> scanClasses, final String location) {
 
         if (StringUtils.isEmpty(location)) {
             scan(scanClasses);
         }
         else {
-            if (scanAllFreamworkPackage) {
-
-                if (!location.startsWith(Constant.FREAMWORK_PACKAGE)) {
-                    scan(scanClasses, location);
-                }
-                // cn.taketoday.xx
-                scan(scanClasses, Constant.FREAMWORK_PACKAGE);
-            }
-            else {
-                scan(scanClasses, location);
-            }
+            scan(scanClasses, location);
         }
     }
 
@@ -549,9 +537,11 @@ public abstract class ClassUtils {
     private static void scanInJarFile(final Collection<Class<?>> scanClasses, final Resource resource, //
             final String fileName, String packageName, final ThrowableSupplier<JarFile, IOException> supplier) throws IOException//
     {
-        for (final String ignoreJarName : IGNORE_SCAN_JARS) {
-            if (fileName.startsWith(ignoreJarName)) {
-                return;
+        if (ignoreScanJarsPrefix) {
+            for (final String ignoreJarName : IGNORE_SCAN_JARS) {
+                if (fileName.startsWith(ignoreJarName)) {
+                    return;
+                }
             }
         }
         if (traceEnabled) {
@@ -604,29 +594,24 @@ public abstract class ClassUtils {
      *            class set
      */
     public static void loadClassInJar(JarEntry jarEntry, String packageName, Collection<Class<?>> scanClasses) {
-        final String jarEntryName = jarEntry.getName();
 
-        if (jarEntry.isDirectory() || //
-                jarEntryName.startsWith("module-info") || //
-                jarEntryName.startsWith("package-info") || //
-                !jarEntryName.endsWith(Constant.CLASS_FILE_SUFFIX)) {
+        if (jarEntry.isDirectory()) {
             return;
         }
+        final String jarEntryName = jarEntry.getName(); // cn/taketoday/xxx/yyy.class
+        if (jarEntryName.endsWith(Constant.CLASS_FILE_SUFFIX)) {
 
-        if (StringUtils.isNotEmpty(packageName) && //
-                !jarEntryName.startsWith(packageName) && //
-                (!scanAllFreamworkPackage || !jarEntryName.startsWith(Constant.FREAMWORK_PACKAGE))) {
-            return;
-        }
+            // fix #10 classes loading from a jar can't be load @off
+            final String nameToUse = jarEntryName.replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
 
-        try {
-            scanClasses.add(classLoader.loadClass(//
-                    jarEntryName.substring(0, jarEntryName.lastIndexOf(Constant.PACKAGE_SEPARATOR))//
-                            .replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR)//
-            ));
-        }
-        catch (Error | ClassNotFoundException e) {
-//			log.warn("[{}] Occur , With Msg:[{}]", e, e.getMessage());
+            if (StringUtils.isEmpty(packageName) || nameToUse.startsWith(packageName)) {
+                try {
+                    scanClasses.add(classLoader.loadClass(//
+                            nameToUse.substring(0, nameToUse.lastIndexOf(Constant.PACKAGE_SEPARATOR))//
+                    ));
+                }
+                catch (Error | ClassNotFoundException e) {} //@on
+            }
         }
     }
 

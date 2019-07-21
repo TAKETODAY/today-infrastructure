@@ -106,7 +106,13 @@ public class ClassUtilsTest {
         ClassUtils.setClassCache(null);
 
         final Set<Class<?>> scan2 = ClassUtils.scan("com.sun.el");
-        assert scan2.size() != 0;
+        assert scan2.size() == 0;
+
+        ClassUtils.setClassCache(null);
+        ClassUtils.setIgnoreScanJarsPrefix(false);
+        final Set<Class<?>> scan3 = ClassUtils.scan("com.sun.el");
+        assert scan3.size() != 0;
+        ClassUtils.setIgnoreScanJarsPrefix(true);
 
         ClassUtils.setClassCache(null);
         final Set<Class<?>> scanEmpty = ClassUtils.scan("cn.taketoday", "");
@@ -120,11 +126,7 @@ public class ClassUtilsTest {
 
         assert ClassUtils.scan("").size() > 0; // for scanOne
 
-        ClassUtils.setScanAllFreamworkPackage(false);
-
         assert ClassUtils.scan("").size() > 0; // for scanOne
-
-        ClassUtils.setScanAllFreamworkPackage(true);
 
         ClassUtils.clearCache();
         assert ClassUtils.scan("cn.taketoday").size() == ClassUtils.getClasses("cn.taketoday").size();
