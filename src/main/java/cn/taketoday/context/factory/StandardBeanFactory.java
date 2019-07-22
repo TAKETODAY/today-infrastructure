@@ -332,7 +332,8 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         final BeanNameCreator beanNameCreator = getBeanNameCreator();
         for (final Class<?> beanClass : beans) {
 
-            if (ContextUtils.conditional(beanClass)) {
+            if (ContextUtils.conditional(beanClass) && !beanClass.isAnnotationPresent(MissingBean.class)) {
+                // can't be a missed bean
 
                 ContextUtils.buildBeanDefinitions(beanClass, beanNameCreator.create(beanClass))//
                         .forEach(beanDefinitionLoader::register);
