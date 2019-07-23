@@ -30,6 +30,10 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings("serial")
 public class BeanDefinitionStoreException extends ConfigurationException {
 
+    public BeanDefinitionStoreException(Class<?> beanClass, Throwable cause) {
+        super("Can't store: [" + beanClass.getName() + "]", cause);
+    }
+
     public BeanDefinitionStoreException(Throwable cause) {
         super(cause);
     }
