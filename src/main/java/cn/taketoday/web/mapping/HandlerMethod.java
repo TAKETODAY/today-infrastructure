@@ -46,7 +46,6 @@ public class HandlerMethod {
     private final Method method;
     /** parameter list **/
     private final MethodParameter[] parameters;
-
     /** @since 2.3.7 */
     private final Class<?> reutrnType;
     /** @since 2.3.7 */
@@ -64,7 +63,7 @@ public class HandlerMethod {
      */
     protected ResultResolver obtainResolver() throws ConfigurationException {
 
-        for (final ResultResolver resolver : RESULT_RESOLVERS) {
+        for (final ResultResolver resolver : getResultResolvers()) {
             if (resolver.supports(this)) {
                 return resolver;
             }
@@ -93,9 +92,20 @@ public class HandlerMethod {
             this.parameters = EMPTY;
         }
         else {
+            for (final MethodParameter parameter : parameters) {
+                parameter.setHandlerMethod(this);
+            }
             this.parameters = parameters;
         }
         this.resultResolver = obtainResolver();
+    }
+
+    public static HandlerMethod create(Method method, final List<MethodParameter> methodParameters) {
+        return new HandlerMethod(//
+                method, //
+                methodParameters, //
+                method.getReturnType()//
+        );
     }
 
     public final Method getMethod() {
@@ -110,7 +120,7 @@ public class HandlerMethod {
         return reutrnType;
     }
 
-    // ----
+    // ---- useful methods
     public boolean isInterface() {
         return reutrnType.isInterface();
     }
@@ -177,7 +187,7 @@ public class HandlerMethod {
         return a.iterator().next();
     }
 
-    // -------------
+    // ------------- resolver
 
     public void resolveResult(final RequestContext requestContext, final Object result) throws Throwable {
         resultResolver.resolveResult(requestContext, result);
@@ -198,15 +208,20 @@ public class HandlerMethod {
     }
 
     public static void addResolver(ResultResolver... parameterResolver) {
-        RESULT_RESOLVERS.addAll(Arrays.asList(parameterResolver));
+        getResultResolvers().addAll(Arrays.asList(parameterResolver));
     }
 
     public static void addResolver(List<ResultResolver> parameterResolver) {
-        RESULT_RESOLVERS.addAll(parameterResolver);
+        getResultResolvers().addAll(parameterResolver);
+    }
+
+    public static List<ResultResolver> getResultResolvers() {
+        return RESULT_RESOLVERS;
     }
 
     @Override
     public String toString() {
         return "{method=" + getMethod() + ", parameter=[" + Arrays.toString(getParameters()) + "]}";
     }
+
 }

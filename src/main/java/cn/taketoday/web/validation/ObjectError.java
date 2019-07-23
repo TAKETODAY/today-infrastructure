@@ -17,31 +17,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.method;
-
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.MethodParameter;
+package cn.taketoday.web.validation;
 
 /**
  * @author TODAY <br>
- *         2019-07-17 22:41
+ *         2019-07-21 14:30
  */
-public class ThrowableHandlerParameterResolver implements OrderedParameterResolver {
+public class ObjectError {
 
-    @Override
-    public boolean supports(MethodParameter parameter) {
-        return parameter.isAssignableFrom(Throwable.class);
+    private final String field;
+    private final String message;
+
+    public ObjectError(String message, String field) {
+        this.message = message;
+        this.field = field;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getField() {
+        return field;
     }
 
     @Override
-    public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-        return requestContext.attribute(Constant.KEY_THROWABLE);
-    }
-
-    @Override
-    public int getOrder() {
-        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 60;
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("{\n\t\"field\":\"");
+        builder.append(field);
+        builder.append("\",\n\t\"message\":\"");
+        builder.append(message);
+        builder.append("\"\n}");
+        return builder.toString();
     }
 
 }

@@ -23,18 +23,17 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.RandomAccess;
 
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
  * Intercept registry.
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-06-25 20:04:46
  */
-@Singleton(Constant.HANDLER_INTERCEPTOR_REGISTRY)
+@MissingBean(value = Constant.HANDLER_INTERCEPTOR_REGISTRY, type = HandlerInterceptorRegistry.class)
 public class HandlerInterceptorRegistry implements RandomAccess {
 
     private HandlerInterceptor[] array;

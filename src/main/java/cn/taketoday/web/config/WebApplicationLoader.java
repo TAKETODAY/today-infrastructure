@@ -71,7 +71,6 @@ import cn.taketoday.web.resolver.method.ConverterParameterResolver;
 import cn.taketoday.web.resolver.method.CookieParameterResolver;
 import cn.taketoday.web.resolver.method.DefaultMultipartResolver;
 import cn.taketoday.web.resolver.method.DelegatingParameterResolver;
-import cn.taketoday.web.resolver.method.ExceptionHandlerParameterResolver;
 import cn.taketoday.web.resolver.method.HeaderParameterResolver;
 import cn.taketoday.web.resolver.method.MapParameterResolver;
 import cn.taketoday.web.resolver.method.ModelParameterResolver;
@@ -79,6 +78,7 @@ import cn.taketoday.web.resolver.method.ParameterResolver;
 import cn.taketoday.web.resolver.method.PathVariableParameterResolver;
 import cn.taketoday.web.resolver.method.RequestBodyParameterResolver;
 import cn.taketoday.web.resolver.method.StreamParameterResolver;
+import cn.taketoday.web.resolver.method.ThrowableHandlerParameterResolver;
 import cn.taketoday.web.resolver.result.ImageResultResolver;
 import cn.taketoday.web.resolver.result.ModelAndViewResultResolver;
 import cn.taketoday.web.resolver.result.ObjectResultResolver;
@@ -283,7 +283,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         resolvers.add(new PathVariableParameterResolver());
         final MessageConverter bean = getWebApplicationContext().getBean(MessageConverter.class);
         resolvers.add(new RequestBodyParameterResolver(bean));
-        resolvers.add(new ExceptionHandlerParameterResolver());
+        resolvers.add(new ThrowableHandlerParameterResolver());
 
         resolvers.add(new BeanParameterResolver());
 

@@ -42,6 +42,7 @@ import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.WebMapping;
 import cn.taketoday.web.ui.ModelAndView;
+import cn.taketoday.web.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -127,6 +128,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
             return 405;
         }
         else if (ex instanceof BadRequestException || //
+                ex instanceof ValidationException || //
                 ex instanceof ConversionException || //
                 ex instanceof FileSizeExceededException) //
         {

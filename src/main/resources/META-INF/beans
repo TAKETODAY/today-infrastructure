@@ -9,3 +9,6 @@ cn.taketoday.web.multipart.MultipartConfiguration
 cn.taketoday.web.resolver.ControllerAdviceExceptionResolver
 cn.taketoday.web.servlet.initializer.ViewDispatcherInitializer
 cn.taketoday.web.servlet.initializer.DispatcherServletInitializer
+cn.taketoday.web.validation.DefaultValidator
+cn.taketoday.web.validation.ErrorsParameterResolver
+cn.taketoday.web.validation.ValidationParameterResolver

@@ -52,7 +52,10 @@
 - refactor: refactor `HandlerInterceptor`
 - :hammer: :zap: refactoring `ParameterResolver` to improve performance
 - :hammer: add `ResultResolver` to resolve handler result
-- :hammer: add `RequestContext` 
+- :sparkles: feat: add validation feature
+
+
+
 
 ## v2.3.6
 - add new today-context version

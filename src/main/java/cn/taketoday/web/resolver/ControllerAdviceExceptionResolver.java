@@ -72,7 +72,12 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
      * @return Mapped {@link Exception} handler mapping
      */
     protected ExceptionHandlerMapping lookupExceptionHandlerMapping(Throwable ex) {
-        return exceptionHandlers.get(ex.getClass());
+
+        final ExceptionHandlerMapping ret = exceptionHandlers.get(ex.getClass());
+        if (ret == null) {
+            return exceptionHandlers.get(Throwable.class); // Global exception handler
+        }
+        return ret;
     }
 
     protected Object invokeExceptionHandler(//
@@ -86,11 +91,12 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
     @Override
     public void onStartup(WebApplicationContext beanFactory) throws Throwable {
 
-        LoggerFactory.getLogger(getClass()).info("Initialize ExceptionResolver");
+        LoggerFactory.getLogger(getClass()).info("Initialize controller advice exception resolver");
 
-        final List<Object> handlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
+        // get all error handlers
+        final List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
 
-        for (final Object handler : handlers) {
+        for (final Object handler : errorHandlers) {
 
             final Class<? extends Object> handlerClass = handler.getClass();
 
@@ -98,14 +104,14 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
                 if (method.isAnnotationPresent(ExceptionHandler.class)) {
 
                     final HandlerMethod handlerMethod = //
-                            ActionConfiguration.createHandlerMethod(method, ActionConfiguration.createMethodParameters(method));
+                            HandlerMethod.create(method, ActionConfiguration.createMethodParameters(method));
 
-                    final Object bean = beanFactory.getBean(handlerClass);
+                    final Object errorHandlerBean = beanFactory.getBean(handlerClass);
 
-                    final ExceptionHandlerMapping mapping = new ExceptionHandlerMapping(bean, handlerMethod);
+                    final ExceptionHandlerMapping mapping = new ExceptionHandlerMapping(errorHandlerBean, handlerMethod);
 
-                    for (Class<? extends Throwable> value : method.getAnnotation(ExceptionHandler.class).value()) {
-                        exceptionHandlers.put(value, mapping);
+                    for (Class<? extends Throwable> exceptionClass : method.getAnnotation(ExceptionHandler.class).value()) {
+                        exceptionHandlers.put(exceptionClass, mapping);
                     }
                 }
             }

@@ -108,6 +108,13 @@
             <version>3.0.11.RELEASE</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.0.17.Final</version>
+            <scope>provided</scope>
+        </dependency>
 		
 		<!-- test -->
 

@@ -340,17 +340,9 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
             );
         }
 
-        final HandlerMethod handlerMethod = createHandlerMethod(method, methodParameters);
+        final HandlerMethod handlerMethod = HandlerMethod.create(method, methodParameters);
 
         return new HandlerMapping(bean, handlerMethod, getInterceptor(beanClass, method));
-    }
-
-    public static HandlerMethod createHandlerMethod(Method method, final List<MethodParameter> methodParameters) {
-        return new HandlerMethod(//
-                method, //
-                methodParameters, //
-                method.getReturnType()//
-        );
     }
 
     /***
@@ -369,6 +361,15 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
         return methodParameters;
     }
 
+    /**
+     * Create a method parameter
+     * 
+     * @param parameter
+     *            Reflect parameter
+     * @param methodArgsName
+     *            method parameter namesM
+     * @return {@link MethodParameter}
+     */
     public static MethodParameter createMethodParameter(Parameter parameter, String methodArgsName) {
 
         Type[] genericityClass = null;
@@ -468,7 +469,6 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
                     else {
                         newInstance = (HandlerInterceptor) applicationContext//
                                 .refresh(beanDefinitionLoader.createBeanDefinition(interceptor));
-
                     }
                     ids.add(Integer.valueOf(handlerInterceptorRegistry.add(newInstance)));
                 }
@@ -501,7 +501,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
 
     public void reBuiltControllers() throws Throwable {
 
-        log.info("rebuilding Controllers");
+        log.info("Rebuilding Controllers");
 
         regexUrls.clear();
         requestMappings.clear();

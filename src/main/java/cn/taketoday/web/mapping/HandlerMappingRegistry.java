@@ -25,7 +25,7 @@ import java.util.Map.Entry;
 import java.util.RandomAccess;
 import java.util.regex.Pattern;
 
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.web.Constant;
 
 /**
@@ -34,7 +34,7 @@ import cn.taketoday.web.Constant;
  * @author TODAY <br>
  *         2018-07-1 20:47:06
  */
-@Singleton(Constant.HANDLER_MAPPING_REGISTRY)
+@MissingBean(value = Constant.HANDLER_MAPPING_REGISTRY, type = HandlerMappingRegistry.class)
 public class HandlerMappingRegistry implements RandomAccess {
 
     /** pool **/

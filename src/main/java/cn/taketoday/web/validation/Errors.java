@@ -17,31 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.method;
+package cn.taketoday.web.validation;
 
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.MethodParameter;
+import java.util.Set;
 
 /**
  * @author TODAY <br>
- *         2019-07-17 22:41
+ *         2019-07-21 14:26
  */
-public class ThrowableHandlerParameterResolver implements OrderedParameterResolver {
+public interface Errors {
 
-    @Override
-    public boolean supports(MethodParameter parameter) {
-        return parameter.isAssignableFrom(Throwable.class);
-    }
+    /**
+     * Return if there were any errors.
+     */
+    boolean hasErrors();
 
-    @Override
-    public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-        return requestContext.attribute(Constant.KEY_THROWABLE);
-    }
+    /**
+     * Return the total number of errors.
+     */
+    int getErrorCount();
 
-    @Override
-    public int getOrder() {
-        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 60;
-    }
+    /**
+     * Get all errors
+     * 
+     * @return a list of {@link ObjectError} instances
+     */
+    Set<ObjectError> getAllErrors();
 
 }

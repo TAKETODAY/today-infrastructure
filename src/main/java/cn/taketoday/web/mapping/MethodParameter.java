@@ -59,6 +59,8 @@ public class MethodParameter {
 
     private final Parameter parameter; // reflect parameter instance
 
+    private HandlerMethod handlerMethod;
+
     private static final List<ParameterResolver> PARAMETER_RESOLVERS = new ArrayList<>();
 
     public MethodParameter(//
@@ -124,6 +126,10 @@ public class MethodParameter {
 
     public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
 
+        if (annotationClass == null) {
+            return null;
+        }
+
         final Collection<A> annotation = ClassUtils.getAnnotation(parameter, annotationClass);
         if (annotation.isEmpty()) {
             return null;
@@ -145,7 +151,7 @@ public class MethodParameter {
      */
     protected ParameterResolver obtainResolver() throws ConfigurationException {
 
-        for (final ParameterResolver resolver : PARAMETER_RESOLVERS) {
+        for (final ParameterResolver resolver : getParameterResolvers()) {
             if (resolver.supports(this)) {
                 return resolver;
             }
@@ -157,10 +163,25 @@ public class MethodParameter {
     }
 
     public static void addResolver(ParameterResolver... parameterResolver) {
-        PARAMETER_RESOLVERS.addAll(Arrays.asList(parameterResolver));
+        getParameterResolvers().addAll(Arrays.asList(parameterResolver));
     }
 
     public static void addResolver(List<ParameterResolver> parameterResolver) {
-        PARAMETER_RESOLVERS.addAll(parameterResolver);
+        getParameterResolvers().addAll(parameterResolver);
+    }
+
+    public static List<ParameterResolver> getParameterResolvers() {
+        return PARAMETER_RESOLVERS;
+    }
+
+    public int getIndex() {
+
+        final Parameter[] parameters = parameter.getDeclaringExecutable().getParameters();
+        for (int i = 0; i < parameters.length; i++) {
+            if (parameters[i].equals(this.parameter)) {
+                return i;
+            }
+        }
+        return 0;
     }
 }

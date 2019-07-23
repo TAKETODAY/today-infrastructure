@@ -17,31 +17,47 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.method;
+package cn.taketoday.web.validation;
 
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.MethodParameter;
+import java.util.HashSet;
+import java.util.Set;
+
+import cn.taketoday.web.exception.WebRuntimeException;
 
 /**
  * @author TODAY <br>
- *         2019-07-17 22:41
+ *         2019-07-21 14:35
  */
-public class ThrowableHandlerParameterResolver implements OrderedParameterResolver {
+@SuppressWarnings("serial")
+public class ValidationException extends WebRuntimeException implements Errors {
 
-    @Override
-    public boolean supports(MethodParameter parameter) {
-        return parameter.isAssignableFrom(Throwable.class);
+    private final Set<ObjectError> errors;
+
+    public ValidationException() {
+        this.errors = new HashSet<>();
+    }
+
+    public ValidationException(Errors errors) {
+        this.errors = errors.getAllErrors();
     }
 
     @Override
-    public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-        return requestContext.attribute(Constant.KEY_THROWABLE);
+    public boolean hasErrors() {
+        return !errors.isEmpty();
     }
 
     @Override
-    public int getOrder() {
-        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 60;
+    public int getErrorCount() {
+        return errors.size();
+    }
+
+    public void addError(ObjectError error) {
+        this.errors.add(error);
+    }
+
+    @Override
+    public Set<ObjectError> getAllErrors() {
+        return errors;
     }
 
 }

@@ -17,31 +17,58 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.method;
+package cn.taketoday.web.validation;
 
+import java.util.Collections;
+import java.util.Set;
+
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.resolver.method.OrderedParameterResolver;
 
 /**
  * @author TODAY <br>
- *         2019-07-17 22:41
+ *         2019-07-20 17:00
  */
-public class ThrowableHandlerParameterResolver implements OrderedParameterResolver {
+@MissingBean(type = ErrorsParameterResolver.class)
+public class ErrorsParameterResolver implements OrderedParameterResolver {
+
+    private static final Errors EMPTY = new Errors() {
+
+        @Override
+        public boolean hasErrors() {
+            return false;
+        }
+
+        @Override
+        public int getErrorCount() {
+            return 0;
+        }
+
+        @Override
+        public Set<ObjectError> getAllErrors() {
+            return Collections.emptySet();
+        }
+    };
 
     @Override
     public boolean supports(MethodParameter parameter) {
-        return parameter.isAssignableFrom(Throwable.class);
+        return parameter.isAssignableFrom(Errors.class);
     }
 
     @Override
     public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-        return requestContext.attribute(Constant.KEY_THROWABLE);
+        final Object error = requestContext.attribute(Constant.VALIDATION_ERRORS);
+        if (error == null) {
+            return EMPTY;
+        }
+        return error;
     }
 
     @Override
     public int getOrder() {
-        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 60;
+        return HIGHEST_PRECEDENCE;
     }
-
 }

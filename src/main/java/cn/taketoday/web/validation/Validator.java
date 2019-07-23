@@ -17,31 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.method;
-
-import cn.taketoday.web.Constant;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.MethodParameter;
+package cn.taketoday.web.validation;
 
 /**
  * @author TODAY <br>
- *         2019-07-17 22:41
+ *         2019-07-21 14:22
  */
-public class ThrowableHandlerParameterResolver implements OrderedParameterResolver {
+@FunctionalInterface
+public interface Validator {
 
-    @Override
-    public boolean supports(MethodParameter parameter) {
-        return parameter.isAssignableFrom(Throwable.class);
-    }
-
-    @Override
-    public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-        return requestContext.attribute(Constant.KEY_THROWABLE);
-    }
-
-    @Override
-    public int getOrder() {
-        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 60;
-    }
+    /**
+     * Validates all constraints on {@code object}.
+     *
+     * @param object
+     *            object to validate
+     * @param groups
+     *            the group or list of groups targeted for validation
+     * @return a set of the constraint violations caused by this validation; will be
+     *         null if no error occurs
+     */
+    Errors validate(Object object);
 
 }

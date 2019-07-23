@@ -140,7 +140,7 @@ public class ViewConfiguration implements WebApplicationContextAware {
             for (final Method targetMethod : class_.getDeclaredMethods()) {
 
                 if (!targetMethod.isBridge() && method.equals(targetMethod.getName())) {
-                    handlerMethod = ActionConfiguration.createHandlerMethod(targetMethod,
+                    handlerMethod = HandlerMethod.create(targetMethod,
                             ActionConfiguration.createMethodParameters(targetMethod));
                     break;
                 }
