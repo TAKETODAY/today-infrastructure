@@ -56,7 +56,7 @@
 - :sparkles: feat: Use static method ContextUtils#getApplicationContext() to get ApplicationContext
 - :bug: fix: #9 Some listener in a jar can't be load
 - :bug: fix: #10 classes loading from a jar can't be load
-
+- :bookmark: release v2.1.6 2019/7/24-1:37
 
 ## v2.1.5
 - :sparkles: feat: Add context `state` feature

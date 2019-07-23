@@ -5,10 +5,10 @@
     <groupId>cn.taketoday</groupId>
     <artifactId>today-context</artifactId>
 <!-- 
-	<version>2.1.6.RELEASE</version> 
--->
     <version>latest</version>
+-->
     <name>Today Context</name>
+    <version>2.1.6.RELEASE</version>
 
     <description>today-context is a lightweight dependency injection framework.</description>
 
