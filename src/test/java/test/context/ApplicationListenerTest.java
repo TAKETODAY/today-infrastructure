@@ -23,9 +23,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.event.ContextCloseEvent;
+import cn.taketoday.context.event.ContextStartedEvent;
+import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.listener.ApplicationListener;
 
 /**
  * 
@@ -46,17 +51,52 @@ public class ApplicationListenerTest {
         System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
     }
 
-    /**
-     * test ApplicationContext
-     * 
-     * @throws NoSuchBeanDefinitionException
-     */
-    @Test
-    public void test_ApplicationListener() throws NoSuchBeanDefinitionException {
+    boolean i = false;
 
-        ApplicationContext applicationContext = new StandardApplicationContext();
-        applicationContext.loadContext("test.demo.dao");
-        applicationContext.close();
+    @Test
+    public void testAddApplicationListener() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
+
+        try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
+
+            applicationContext.addApplicationListener(new ApplicationListener<ContextStartedEvent>() {
+
+                @Override
+                public void onApplicationEvent(ContextStartedEvent event) {
+                    i = true;
+                    System.err.println(i);
+                }
+            });
+
+            applicationContext.loadContext("");
+
+            assert i;
+        }
+    }
+
+    @Test
+    public void testLoadMetaInfoListeners() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
+
+        try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
+            applicationContext.loadContext("");
+        } // auto close
+
+        assert testLoadedMetaInfoListener;
+    }
+
+    private static boolean testLoadedMetaInfoListener = false;
+
+    public static class ContextCloseMetaInfoListener implements ApplicationListener<ContextCloseEvent>, Ordered {
+
+        @Override
+        public void onApplicationEvent(ContextCloseEvent event) {
+            System.err.println("context is closing");
+            testLoadedMetaInfoListener = true;
+        }
+
+        @Override
+        public int getOrder() {
+            return HIGHEST_PRECEDENCE;
+        }
     }
 
 }

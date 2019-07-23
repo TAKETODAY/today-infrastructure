@@ -31,16 +31,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.env.Environment;
-import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.listener.ApplicationListener;
 import lombok.extern.slf4j.Slf4j;
 import test.demo.config.Config;
 import test.demo.config.ConfigFactoryBean;
@@ -246,44 +243,6 @@ public class ApplicationContextTest {
             System.out.println(bean);
             assert bean != null;
             assert bean.getUser() != null;
-        }
-    }
-
-//    @Test
-//    public void test_OnConstructor() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
-//
-//        try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-//            applicationContext.loadContext("");
-//            ConfigurableEnvironment environment = applicationContext.getEnvironment();
-//            BeanDefinitionRegistry beanDefinitionRegistry = environment.getBeanDefinitionRegistry();
-//            System.err.println(beanDefinitionRegistry.getBeanDefinitions());
-//
-//            Config bean = applicationContext.getBean(Config.class);
-//            System.out.println(bean);
-//            assert bean != null;
-//            assert bean.getUser() != null;
-//        }
-//    }
-
-    boolean i = false;
-
-    @Test
-    public void testAddApplicationListener() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
-
-        try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
-
-            applicationContext.addApplicationListener(new ApplicationListener<ContextStartedEvent>() {
-
-                @Override
-                public void onApplicationEvent(ContextStartedEvent event) {
-                    i = true;
-                    System.err.println(i);
-                }
-            });
-
-            applicationContext.loadContext("");
-
-            assert i;
         }
     }
 
