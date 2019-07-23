@@ -19,15 +19,21 @@
  */
 package cn.taketoday.context;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -63,6 +69,7 @@ import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.listener.ApplicationListener;
+import cn.taketoday.context.listener.ContextCloseListener;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.DefaultBeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
@@ -399,11 +406,52 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      */
     protected void postProcessRegisterListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners) {
 
+        addApplicationListener(new ContextCloseListener());
+
+        for (final Class<?> listener : loadMetaInfoListeners()) {
+            registerListener(listener);
+        }
+    }
+
+    /**
+     * Load the META-INF/listeners
+     * 
+     * @since 2.1.6
+     */
+    public Set<Class<?>> loadMetaInfoListeners() { // fixed #9 Some listener in a jar can't be load
+
+        // Load the META-INF/listeners
+        // ---------------------------------------------------
+        final Set<Class<?>> listeners = new HashSet<>();
+
+        try {
+
+            final ClassLoader classLoader = ClassUtils.getClassLoader();
+            final Enumeration<URL> resources = classLoader.getResources("META-INF/listeners");
+            final Charset charset = Constant.DEFAULT_CHARSET;
+
+            while (resources.hasMoreElements()) {
+                try (final BufferedReader reader = new BufferedReader(//
+                        new InputStreamReader(resources.nextElement().openStream(), charset))) { // fix
+
+                    String str;
+                    while ((str = reader.readLine()) != null) {
+                        listeners.add(classLoader.loadClass(str));
+                    }
+                }
+            }
+        }
+        catch (IOException | ClassNotFoundException e) {
+            LoggerFactory.getLogger(getClass()).error("Exception occurred when load 'META-INF/listeners'", e);
+            throw ExceptionUtils.newContextException(e);
+        }
+        return listeners;
     }
 
     @Override
     public void refresh() throws ContextException {
         try {
+
             // refresh object instance
             publishEvent(new ContextRefreshEvent(this));
             getBeanFactory().initializeSingletons();
