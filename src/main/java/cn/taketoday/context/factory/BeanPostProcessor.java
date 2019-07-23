@@ -22,39 +22,37 @@ package cn.taketoday.context.factory;
 import cn.taketoday.context.bean.BeanDefinition;
 
 /**
- * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-07-18 1:01:19
  */
 public interface BeanPostProcessor {
 
     /**
      * 
-     * before property set
+     * Before property set
      * 
      * @param bean
-     *            bean instance
+     *            Bean instance
      * @param beanDefinition
-     *            bean definition
-     * @return bean instance
+     *            Bean definition
+     * @return Bean instance
      * @throws Exception
-     *             in case of errors
+     *             In case of errors
      */
     default Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) throws Exception {
         return bean;
     }
 
     /**
-     * after property set
+     * After property set
      * 
      * @param bean
-     *            bean instance
+     *            Bean instance
      * @param beanName
-     *            bean name
-     * @return bean instance
+     *            Bean name
+     * @return Bean instance
      * @throws Exception
-     *             in case of errors
+     *             In case of errors
      */
     default Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
         return bean;

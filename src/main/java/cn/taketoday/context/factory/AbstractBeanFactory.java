@@ -574,32 +574,16 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     /**
-     * register {@link BeanPostProcessor}s to pool
+     * Register {@link BeanPostProcessor}s to register
      */
     public void registerBeanPostProcessors() {
 
         log.debug("Start loading BeanPostProcessor.");
-        try {
+        
+        final List<BeanPostProcessor> postProcessors = getPostProcessors();
 
-            List<BeanPostProcessor> postProcessors = this.getPostProcessors();
-
-            for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-                BeanDefinition beanDefinition = entry.getValue();
-                if (!BeanPostProcessor.class.isAssignableFrom(beanDefinition.getBeanClass())) {
-                    continue;
-                }
-                log.debug("Find a BeanPostProcessor: [{}]", beanDefinition.getBeanClass());
-                postProcessors.add((BeanPostProcessor) initializeSingleton(entry.getKey(), beanDefinition));
-            }
-            OrderUtils.reversedSort(postProcessors);
-        }
-        catch (Throwable ex) {
-            ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Adding Post Processor To Context: [{}] With Msg: [{}]", //
-                    this, ex.getMessage(), ex);
-
-            throw ExceptionUtils.newContextException(ex);
-        }
+        postProcessors.addAll(getBeans(BeanPostProcessor.class));
+        OrderUtils.reversedSort(postProcessors);
     }
 
     /**

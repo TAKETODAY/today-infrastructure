@@ -288,8 +288,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         // handle dependency : register bean dependencies definition
         beanFactory.handleDependency();
         publishEvent(new DependenciesHandledEvent(this, beanFactory.getDependencies()));
-        // register bean post processors
-        beanFactory.registerBeanPostProcessors();
 
         postProcessBeanFactory(beanFactory);
     }
@@ -301,6 +299,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      *            bean factory
      */
     protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
+
+        // register bean post processors
+        beanFactory.registerBeanPostProcessors();
 
         if (beanFactory.isFullPrototype()) {
             for (PropertyValue propertyValue : beanFactory.getDependencies()) {
