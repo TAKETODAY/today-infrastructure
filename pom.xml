@@ -86,7 +86,7 @@
         <dependency>
             <groupId>cn.taketoday</groupId>
             <artifactId>today-context</artifactId>
-            <version>latest</version>
+            <version>2.1.6.RELEASE</version>
         </dependency>
 
         <dependency>

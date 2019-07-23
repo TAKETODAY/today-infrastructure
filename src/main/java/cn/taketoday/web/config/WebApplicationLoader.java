@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -63,8 +64,6 @@ import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.multipart.MultipartConfiguration;
-import cn.taketoday.web.resolver.ControllerAdviceExceptionResolver;
-import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.resolver.method.ArrayParameterResolver;
 import cn.taketoday.web.resolver.method.BeanParameterResolver;
 import cn.taketoday.web.resolver.method.ConverterParameterResolver;
@@ -234,9 +233,13 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Env.class), //
                 (ctx, m) -> resolveValue(m.getAnnotation(Env.class), m.getParameterClass())//
         ));
+
+        final Properties properties = applicationContext.getEnvironment().getProperties();
+
         resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Props.class), //
-                (ctx, m) -> resolveProps(m.getAnnotation(Props.class), m.getParameterClass(), null)//
+                (ctx, m) -> resolveProps(m.getAnnotation(Props.class), m.getParameterClass(), properties)//
         ));
+
         resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Autowired.class), //
                 (ctx, m) -> {
                     final Autowired autowired = m.getAnnotation(Autowired.class);
@@ -502,11 +505,6 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      */
     protected void checkFrameWorkResolvers(WebApplicationContext applicationContext) {
 
-        if (!applicationContext.containsBeanDefinition(ExceptionResolver.class)) {
-            applicationContext.registerBean(EXCEPTION_RESOLVER, ControllerAdviceExceptionResolver.class);
-            applicationContext.refresh(EXCEPTION_RESOLVER);
-            log.info("Use default exception resolver: [{}].", ControllerAdviceExceptionResolver.class);
-        }
     }
 
     // -------------------------------------

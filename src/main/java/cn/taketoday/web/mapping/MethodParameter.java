@@ -96,6 +96,10 @@ public class MethodParameter {
         return superClass.isAssignableFrom(parameterClass);
     }
 
+    public boolean isInstance(Object obj) {
+        return parameterClass.isInstance(obj);
+    }
+
     public Type getGenericityClass(int index) {
 
         if (genericityClass != null && genericityClass.length > index) {

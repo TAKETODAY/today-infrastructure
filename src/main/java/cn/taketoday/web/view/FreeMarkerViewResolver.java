@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.view;
 
+import java.util.List;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -31,8 +32,13 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.SharedVariable;
+import cn.taketoday.web.config.WebMvcConfiguration;
+import cn.taketoday.web.resolver.method.DelegatingParameterResolver;
+import cn.taketoday.web.resolver.method.ParameterResolver;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.utils.WebUtils;
 import freemarker.cache.TemplateLoader;
@@ -43,6 +49,7 @@ import freemarker.ext.servlet.HttpRequestHashModel;
 import freemarker.ext.servlet.HttpRequestParametersHashModel;
 import freemarker.ext.servlet.HttpSessionHashModel;
 import freemarker.ext.servlet.ServletContextHashModel;
+import freemarker.ext.util.WrapperTemplateModel;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.ObjectWrapper;
@@ -57,7 +64,7 @@ import lombok.Getter;
  */
 @Props(prefix = "web.mvc.view.")
 @MissingBean(value = Constant.VIEW_RESOLVER, type = ViewResolver.class)
-public class FreeMarkerViewResolver extends AbstractViewResolver implements InitializingBean {
+public class FreeMarkerViewResolver extends AbstractViewResolver implements InitializingBean, WebMvcConfiguration {
 
     private final ObjectWrapper wrapper;
 
@@ -135,6 +142,32 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
             configuration.setTemplateLoader(templateLoader);
         }
         LoggerFactory.getLogger(getClass()).info("Configuration FreeMarker View Resolver Success.");
+    }
+
+    @Override
+    public void configureParameterResolver(List<ParameterResolver> resolvers) {
+
+        resolvers.add(new DelegatingParameterResolver((m) -> m.isAssignableFrom(Configuration.class), //
+                (ctx, m) -> configuration//
+        ));
+
+        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(SharedVariable.class), (ctx, m) -> {
+            final TemplateModel sharedVariable = configuration.getSharedVariable(m.getName());
+
+            if (m.isInstance(sharedVariable)) {
+                return sharedVariable;
+            }
+
+            if (sharedVariable instanceof WrapperTemplateModel) {
+                final Object wrappedObject = ((WrapperTemplateModel) sharedVariable).getWrappedObject();
+                if (m.isInstance(wrappedObject)) {
+                    return wrappedObject;
+                }
+                throw ExceptionUtils.newConfigurationException(null, "Not a instance of: " + m.getParameterClass());
+            }
+            return null;
+        }));
+
     }
 
     /**

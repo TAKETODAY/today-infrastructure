@@ -53,6 +53,7 @@
 - :hammer: :zap: refactoring `ParameterResolver` to improve performance
 - :hammer: add `ResultResolver` to resolve handler result
 - :sparkles: feat: add validation feature
+- :sparkles: feat: add `SharedVariable`
 
 
 
