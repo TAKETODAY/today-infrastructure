@@ -844,7 +844,13 @@ public abstract class ContextUtils {
                         key = key.replaceFirst(prefix, Constant.BLANK);
                     }
                     // resolvePlaceholder(propertiesToUse, (String) entry.getValue())
-                    ret.put(key, resolveValue((String) entry.getValue(), Object.class, propertiesToUse));
+                    final Object value = entry.getValue();
+                    if (value instanceof String) { // fix only support String
+                        ret.put(key, resolveValue((String) value, Object.class, propertiesToUse));
+                    }
+                    else {
+                        ret.put(key, value);
+                    }
                 }
             }
         }
@@ -957,7 +963,7 @@ public abstract class ContextUtils {
     public static boolean isMissedBean(final MissingBean missingBean, final Class<?> beanClass, //
             final ConfigurableBeanFactory beanFactory) //
     {
-        if (missingBean == null) {
+        if (missingBean == null || !conditional(beanClass)) { // fix @Conditional not 
             return false;
         }
 
