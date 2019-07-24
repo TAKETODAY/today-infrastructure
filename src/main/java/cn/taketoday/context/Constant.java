@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets;
  */
 public interface Constant extends Serializable {
 
-    String CONTEXT_VERSION = "2.1.6";
+    String CONTEXT_VERSION = "2.1.7";
 
     //@off
 	/** Bytes per Kilobyte.*/

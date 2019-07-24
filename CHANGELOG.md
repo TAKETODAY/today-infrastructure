@@ -13,14 +13,19 @@
 <dependency>
     <groupId>cn.taketoday</groupId>
     <artifactId>today-context</artifactId>
-    <version>2.1.6.RELEASE</version>
+    <version>2.1.7.RELEASE</version>
 </dependency>
 ```
 
-- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/2.1.5.RELEASE/jar)
+- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/2.1.7.RELEASE/jar)
 
 
 # 当前版本
+
+## v2.1.7
+:bug: fix: loadBeanDefinition can't be catch exception
+:bug: fix: ContextUtils#loadProps() only support String
+
 
 ## v2.1.6
 - :sparkles: feat: add `Environment` new api to get property
