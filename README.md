@@ -827,6 +827,71 @@ public class LifecycleBean //
 
 }
 
+=======
+
+```java
+package test.context;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+import org.junit.Test;
+
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.factory.DisposableBean;
+import cn.taketoday.context.factory.InitializingBean;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * @author TODAY <br>
+ *         2019-07-25 22:44
+ */
+@Slf4j
+@Singleton
+public class LifecycleBean implements InitializingBean, DisposableBean {
+
+    @PostConstruct
+    public void initData() {
+        log.info("@PostConstruct");
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        log.info("afterPropertiesSet");
+    }
+
+    @PreDestroy
+    public void preDestroy() {
+        log.info("preDestroy");
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        log.info("destroy");
+    }
+
+    @Test
+    public void testLifecycle() {
+
+        final Set<Class<?>> beans = new HashSet<>();
+        beans.add(LifecycleBean.class);
+
+        try (final ApplicationContext applicationContext = new StandardApplicationContext(beans)) {
+            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
+
+            System.out.println(beanDefinitionsMap);
+        }
+    }
+
+}
+>>>>>>> branch 'master' of https://github.com/TAKETODAY/today-context.git
 ```
 
 
