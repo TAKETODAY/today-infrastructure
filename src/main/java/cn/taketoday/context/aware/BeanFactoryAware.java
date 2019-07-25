@@ -31,9 +31,5 @@ import cn.taketoday.context.factory.BeanFactory;
  */
 public interface BeanFactoryAware extends Aware {
 
-    /**
-     * 
-     * @param beanFactory
-     */
     void setBeanFactory(BeanFactory beanFactory);
 }

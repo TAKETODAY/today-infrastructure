@@ -27,9 +27,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.Scope;
 
 /**
- * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-07-2 20:44:15
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -40,13 +38,7 @@ public @interface Prototype {
     // bean name
     String[] value() default {};
 
-    /**
-     * @return
-     */
     String[] initMethods() default {};
 
-    /**
-     * @return
-     */
     String[] destroyMethods() default {};
 }

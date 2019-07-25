@@ -200,13 +200,11 @@ public void test_Conditional() {
 
 
 ## v2.0.0
-
 - 加入`ObjectFactory`
 - 框架重构 
 
 
 ## v1.2.1
-
 - 修复注入原型错误   
 
 

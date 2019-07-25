@@ -30,8 +30,7 @@ import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.utils.ContextUtils;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-08-04 16:01
  */
 @Order(Ordered.HIGHEST_PRECEDENCE - 2)

@@ -30,11 +30,6 @@ import cn.taketoday.context.ApplicationContext;
  */
 public interface ApplicationContextAware extends Aware {
 
-    /**
-     * set applicationContext
-     * 
-     * @param applicationContext
-     */
     void setApplicationContext(ApplicationContext applicationContext);
 
 }

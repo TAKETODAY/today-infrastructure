@@ -38,13 +38,7 @@ public @interface Singleton {
     // bean name
     String[] value() default {};
 
-    /**
-     * @return
-     */
     String[] initMethods() default {};
 
-    /**
-     * @return
-     */
     String[] destroyMethods() default {};
 }
