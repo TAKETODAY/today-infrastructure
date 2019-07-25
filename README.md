@@ -10,10 +10,10 @@
 <dependency>
     <groupId>cn.taketoday</groupId>
     <artifactId>today-context</artifactId>
-    <version>2.1.5.RELEASE</version>
+    <version>2.1.6.RELEASE</version>
 </dependency>
 ```
-- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/2.1.5.RELEASE/jar)
+- [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-context/2.1.6.RELEASE/jar)
 
 
 ## 开源协议
