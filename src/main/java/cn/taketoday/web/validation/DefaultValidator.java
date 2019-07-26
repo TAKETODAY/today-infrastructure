@@ -43,6 +43,7 @@ import org.hibernate.validator.HibernateValidator;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
@@ -52,6 +53,7 @@ import cn.taketoday.context.utils.ContextUtils;
  *         2019-07-21 19:44
  */
 @MissingBean(type = Validator.class)
+@ConditionalOnClass("org.hibernate.validator.HibernateValidator")
 public class DefaultValidator implements Validator {
 
     private javax.validation.Validator validator;

@@ -300,6 +300,17 @@ public class ResourceServlet extends GenericServlet {
 
         try (final InputStream source = resource.getInputStream()) {
 
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream(bufferSize);
+//            GZIPOutputStream gzip = new GZIPOutputStream(baos);
+//
+//            WebUtils.writeToOutputStream(source, gzip, bufferSize);
+//
+//            final byte[] byteArray = baos.toByteArray();
+//
+//            requestContext.contentLength(byteArray.length);
+//
+//            baos.writeTo(requestContext.getOutputStream());
+
             WebUtils.writeToOutputStream(source, //
                     new GZIPOutputStream(requestContext.getOutputStream(), bufferSize), bufferSize);
         }

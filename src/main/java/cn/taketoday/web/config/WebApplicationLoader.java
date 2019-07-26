@@ -60,6 +60,7 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
+import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
@@ -257,6 +258,16 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
                     }
                     return bean;
                 }//
+        ));
+
+        // HandlerMethod
+        resolvers.add(new DelegatingParameterResolver((m) -> m.isAssignableFrom(HandlerMethod.class), //
+                (ctx, m) -> m.getHandlerMethod()//
+        ));
+
+        // HandlerMapping
+        resolvers.add(new DelegatingParameterResolver((m) -> m.isAssignableFrom(HandlerMapping.class), //
+                (ctx, m) -> m.getHandlerMethod().getHandlerMapping()//
         ));
 
         // For cookies

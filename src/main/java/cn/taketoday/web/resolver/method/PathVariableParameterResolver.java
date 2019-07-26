@@ -31,7 +31,7 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-07-09 22:49
  */
-public class PathVariableParameterResolver implements ParameterResolver {
+public class PathVariableParameterResolver implements OrderedParameterResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
@@ -64,4 +64,10 @@ public class PathVariableParameterResolver implements ParameterResolver {
             throw WebUtils.newBadRequest("Path variable", parameter.getName(), e);
         }
     }
+
+    @Override
+    public int getOrder() {
+        return HIGHEST_PRECEDENCE;
+    }
+
 }

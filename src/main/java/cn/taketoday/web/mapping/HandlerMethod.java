@@ -53,6 +53,8 @@ public class HandlerMethod {
 
     private final ResultResolver resultResolver;
 
+    private HandlerMapping handlerMapping;
+
     private static final List<ResultResolver> RESULT_RESOLVERS = new ArrayList<>();
 
     /**
@@ -222,6 +224,14 @@ public class HandlerMethod {
     @Override
     public String toString() {
         return "{method=" + getMethod() + ", parameter=[" + Arrays.toString(getParameters()) + "]}";
+    }
+
+    public HandlerMapping getHandlerMapping() {
+        return handlerMapping;
+    }
+
+    public void setHandlerMapping(HandlerMapping handlerMapping) {
+        this.handlerMapping = handlerMapping;
     }
 
 }

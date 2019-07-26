@@ -25,6 +25,7 @@ import java.util.Map;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
@@ -36,6 +37,7 @@ import cn.taketoday.web.resolver.method.ParameterResolver;
  * @author TODAY <br>
  *         2019-07-20 17:00
  */
+@ConditionalOnClass("javax.validation.Valid")
 @MissingBean(type = ValidationParameterResolver.class)
 public class ValidationParameterResolver implements OrderedParameterResolver {
 
