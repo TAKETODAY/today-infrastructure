@@ -183,7 +183,6 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
 
         resolvers.add(new ServletParameterResolver.HttpSessionAttributeParameterResolver());
         resolvers.add(new ServletParameterResolver.ServletContextAttributeParameterResolver());
-        resolvers.add(new ServletParameterResolver.ServletRequestAttributeParameterResolver());
 
         super.configureParameterResolver(resolvers, multipartConfiguration, mvcConfiguration);
     }

@@ -59,6 +59,7 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
@@ -227,6 +228,10 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         // For some useful context annotations
         // --------------------------------------------
+
+        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(RequestAttribute.class), //
+                (ctx, m) -> ctx.attribute(m.getName())//
+        ));
 
         resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Value.class), //
                 (ctx, m) -> resolveValue(m.getAnnotation(Value.class), m.getParameterClass())//

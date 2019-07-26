@@ -32,7 +32,6 @@ import javax.servlet.http.HttpSession;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Application;
-import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.annotation.Session;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.utils.WebUtils;
@@ -53,19 +52,6 @@ public class ServletParameterResolver {
         @Override
         public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
             return requestContext.nativeRequest();
-        }
-    }
-
-    public static class ServletRequestAttributeParameterResolver implements ParameterResolver {
-
-        @Override
-        public boolean supports(final MethodParameter parameter) {
-            return parameter.isAnnotationPresent(RequestAttribute.class);
-        }
-
-        @Override
-        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-            return requestContext.attribute(parameter.getName());
         }
     }
 
