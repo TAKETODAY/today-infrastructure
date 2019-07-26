@@ -44,12 +44,12 @@ public class HandlerMapping implements WebMapping {
 
     public HandlerMapping(Object bean, HandlerMethod handlerMethod, List<Integer> interceptors) {
         this.bean = bean;
-        
+
         this.interceptors = //
                 Objects.requireNonNull(interceptors).size() > 0 //
                         ? interceptors.stream().mapToInt(Integer::intValue).toArray() //
                         : EMPTY;
-                        
+
         handlerMethod.setHandlerMapping(this);
         this.handlerMethod = handlerMethod;
     }

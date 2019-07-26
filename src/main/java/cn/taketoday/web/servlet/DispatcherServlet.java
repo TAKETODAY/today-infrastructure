@@ -161,7 +161,7 @@ public class DispatcherServlet implements Servlet, Serializable {
     }
 
     /**
-     * O Looking for {@link HandlerMapping}
+     * Looking for {@link HandlerMapping}
      * 
      * @param req
      *            Current request
