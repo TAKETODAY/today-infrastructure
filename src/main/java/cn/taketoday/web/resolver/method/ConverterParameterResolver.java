@@ -29,7 +29,7 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-07-13 12:58
  */
-public class ConverterParameterResolver implements ParameterResolver {
+public class ConverterParameterResolver implements OrderedParameterResolver {
 
     private final Converter<String, Object> converter;
     private final SupportsFunction supportsFunction;

@@ -75,17 +75,17 @@ public class DefaultResourceResolver implements ResourceResolver {
             return null;
         }
 
-        log.debug("resource: [{}]", extractPathWithinPattern);
+//        log.debug("resource: [{}]", extractPathWithinPattern);
         for (String location : resourceMapping.getLocations()) {
             try {
 
-                log.debug("look in: [{}]", location);
+//                log.debug("look in: [{}]", location);
                 // TODO
                 final Resource createRelative = ResourceUtils.getResource(location)//
                         .createRelative(extractPathWithinPattern);
 
                 if (createRelative.exists()) {
-                    log.debug("Relative Resource: [{}]", createRelative);
+//                    log.debug("Relative Resource: [{}]", createRelative);
                     return new DefaultDelegateWebResource(createRelative);
                 }
             }

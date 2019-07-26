@@ -196,6 +196,9 @@ public class ServletRequestContext implements RequestContext, Map<String, Object
         if (cookies == null) {
 
             final Cookie[] servletCookies = request.getCookies();
+            if (servletCookies == null) { // there is not cookies
+                return null;
+            }
             final HttpCookie[] cookies = new HttpCookie[servletCookies.length];
 
             int i = 0;

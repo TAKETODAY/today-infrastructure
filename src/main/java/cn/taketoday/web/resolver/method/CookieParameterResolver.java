@@ -65,7 +65,7 @@ public class CookieParameterResolver implements ParameterResolver {
         }
 
         @Override
-        protected Object resolveSource(RequestContext requestContext, MethodParameter parameter) {
+        protected Object resolveSource(final RequestContext requestContext, final MethodParameter parameter) {
 
             final String name = parameter.getName();
             final HttpCookie[] cookies = requestContext.cookies();
@@ -76,11 +76,7 @@ public class CookieParameterResolver implements ParameterResolver {
                     }
                 }
             }
-            // no cookie
-            if (parameter.isRequired()) {
-                throw WebUtils.newBadRequest("Cookie", name, null);
-            }
-            return parameter.getDefaultValue();
+            return null;
         }
     }
 

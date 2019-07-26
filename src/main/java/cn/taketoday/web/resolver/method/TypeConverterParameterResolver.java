@@ -22,6 +22,7 @@ package cn.taketoday.web.resolver.method;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -34,7 +35,14 @@ public abstract class TypeConverterParameterResolver implements ParameterResolve
 
     @Override
     public final Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-        return ConvertUtils.convert(resolveSource(requestContext, parameter), resolveTargetClass(parameter));
+        Object source = resolveSource(requestContext, parameter);
+        if (source == null) {
+            if (parameter.isRequired()) {
+                throw WebUtils.newBadRequest("Cookie", parameter, null);
+            }
+            source = parameter.getDefaultValue();
+        }
+        return ConvertUtils.convert(source, resolveTargetClass(parameter));
     }
 
     protected Object resolveSource(final RequestContext requestContext, final MethodParameter parameter) {
