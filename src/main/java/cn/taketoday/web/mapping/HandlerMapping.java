@@ -49,8 +49,10 @@ public class HandlerMapping implements WebMapping {
                 Objects.requireNonNull(interceptors).size() > 0 //
                         ? interceptors.stream().mapToInt(Integer::intValue).toArray() //
                         : EMPTY;
-
-        handlerMethod.setHandlerMapping(this);
+                        
+        if (handlerMethod != null) {
+            handlerMethod.setHandlerMapping(this);
+        }
         this.handlerMethod = handlerMethod;
     }
 
