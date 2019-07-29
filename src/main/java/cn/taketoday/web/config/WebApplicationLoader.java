@@ -86,7 +86,7 @@ import cn.taketoday.web.resolver.result.ObjectResultResolver;
 import cn.taketoday.web.resolver.result.ResourceResultResolver;
 import cn.taketoday.web.resolver.result.ResponseBodyResultResolver;
 import cn.taketoday.web.resolver.result.ResultResolver;
-import cn.taketoday.web.resolver.result.StringResultResolver;
+import cn.taketoday.web.resolver.result.ViewResolverResultResolver;
 import cn.taketoday.web.resolver.result.VoidResultResolver;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.view.AbstractViewResolver;
@@ -191,7 +191,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         resolvers.add(new ImageResultResolver());
         resolvers.add(new ResourceResultResolver(bufferSize));
-        resolvers.add(new StringResultResolver(viewResolver));
+        resolvers.add(new ViewResolverResultResolver(viewResolver));
         resolvers.add(new VoidResultResolver(viewResolver, messageConverter, bufferSize));
         resolvers.add(new ObjectResultResolver(viewResolver, messageConverter, bufferSize));
         resolvers.add(new ModelAndViewResultResolver(viewResolver, messageConverter, bufferSize));

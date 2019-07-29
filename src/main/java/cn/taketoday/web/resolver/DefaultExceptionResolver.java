@@ -22,7 +22,7 @@ package cn.taketoday.web.resolver;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
-import java.lang.reflect.Method;
+import java.lang.annotation.Annotation;
 
 import javax.imageio.ImageIO;
 
@@ -41,6 +41,7 @@ import cn.taketoday.web.exception.UnauthorizedException;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.WebMapping;
+import cn.taketoday.web.resolver.result.ViewResolverResultResolver;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
@@ -60,58 +61,50 @@ public class DefaultExceptionResolver implements ExceptionResolver {
     {
         try {
 
-            requestContext.reset();
             if (mvcMapping instanceof HandlerMapping) {
+                final HandlerMethod handlerMethod = ((HandlerMapping) mvcMapping).getHandlerMethod();
 
-                HandlerMapping handlerMapping = (HandlerMapping) mvcMapping;
+                if (handlerMethod != null) { // fix handler could be null
 
-                final HandlerMethod handlerMethod = handlerMapping.getHandlerMethod();
-                final Method method = handlerMethod.getMethod();
-                ResponseStatus responseStatus = method.getAnnotation(ResponseStatus.class);
-                if (responseStatus == null) {
-                    responseStatus = method.getDeclaringClass().getAnnotation(ResponseStatus.class);
-                }
-                int status = getStatus(ex);
-                String msg = ex.getMessage();
-                String redirect = null;
-                if (responseStatus != null) {
-                    msg = responseStatus.msg();
-                    int value = responseStatus.value();
-                    status = value == 0 ? status : value;
-                    redirect = responseStatus.redirect();
-                }
+                    final ResponseStatus responseStatus = buildStatus(handlerMethod, ex);
+                    final int status = responseStatus.value();
 
-                requestContext.status(status);
+                    requestContext.status(status);
 
-                if (handlerMethod.isAssignableFrom(RenderedImage.class)) {
-                    handlerMethod.resolveResult(requestContext, resolveImageException(ex, requestContext));
-                }
-                else if (handlerMethod.is(void.class) //
-                        || handlerMethod.is(Object.class)//
-                        || handlerMethod.is(ModelAndView.class)) {
-                    // has redirect
-                    if (StringUtils.isNotEmpty(redirect)) {
-                        requestContext.redirect(requestContext.contextPath() + redirect);
+                    if (handlerMethod.isAssignableFrom(RenderedImage.class)) {
+                        handlerMethod.resolveResult(requestContext, resolveImageException(ex, requestContext));
+                    }
+                    else if (handlerMethod.is(void.class) //
+                            || handlerMethod.is(Object.class)//
+                            || handlerMethod.is(ModelAndView.class)//
+                            || ViewResolverResultResolver.supportsResolver(handlerMethod)) {
+
+                        final String redirect = responseStatus.redirect();
+                        if (StringUtils.isNotEmpty(redirect)) { // has redirect
+                            requestContext.redirect(requestContext.contextPath() + redirect);
+                        }
+                        else {
+                            resolveViewException(ex, requestContext, ex.getMessage());
+                        }
                     }
                     else {
-                        resolveViewException(ex, requestContext, ex.getMessage());
+
+                        requestContext.contentType(Constant.CONTENT_TYPE_JSON);
+                        requestContext.getWriter().write(new StringBuilder()//
+                                .append("{\"message\":\"").append(responseStatus.msg())//
+                                .append("\",\"status\":").append(status)//
+                                .append(",\"success\":false}")//
+                                .toString()//
+                        );
                     }
                 }
                 else {
-
-                    requestContext.contentType(Constant.CONTENT_TYPE_JSON);
-                    requestContext.getWriter().write(new StringBuilder()//
-                            .append("{\"msg\":\"").append(msg)//
-                            .append("\",\"status\":").append(status)//
-                            .append(",\"success\":false}")//
-                            .toString()//
-                    );
+                    resolveViewException(ex, requestContext, ex.getMessage());
                 }
             }
             else {
                 resolveViewException(ex, requestContext, ex.getMessage());
             }
-
             log.error("Catch Throwable: [{}] With Msg: [{}]", ex, ex.getMessage(), ex);
         }
         catch (Throwable handlerException) {
@@ -175,4 +168,71 @@ public class DefaultExceptionResolver implements ExceptionResolver {
         );
     }
 
+    /**
+     * Build a {@link ResponseStatus} from target {@link HandlerMethod}
+     * 
+     * @param handlerMethod
+     *            Target handler method
+     * @param ex
+     *            Current {@link Exception}
+     * @return {@link DefaultResponseStatus}
+     */
+    protected DefaultResponseStatus buildStatus(final HandlerMethod handlerMethod, final Throwable ex) {
+
+        ResponseStatus responseStatus = handlerMethod.getMethodAnnotation(ResponseStatus.class);
+        if (responseStatus == null) {
+            responseStatus = handlerMethod.getDeclaringClassAnnotation(ResponseStatus.class);
+        }
+        return new DefaultResponseStatus(responseStatus, ex);
+    }
+
+    @SuppressWarnings("all")
+    protected static class DefaultResponseStatus implements ResponseStatus {
+
+        private final Throwable ex;
+        private final ResponseStatus status;
+
+        public DefaultResponseStatus(ResponseStatus status, Throwable ex) {
+            this.status = status;
+            this.ex = ex;
+        }
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return ResponseStatus.class;
+        }
+
+        @Override
+        public int value() {
+
+            if (status == null) {
+                return getStatus(ex);
+            }
+
+            final int value = status.value();
+            return value == 0 ? getStatus(ex) : value;
+        }
+
+        @Override
+        public String msg() {
+
+            if (status == null) {
+                return ex.getMessage();
+            }
+            return status.msg();
+        }
+
+        @Override
+        public String redirect() {
+            if (status == null) {
+                return null;
+            }
+            return status.redirect();
+        }
+
+        public final ResponseStatus getOriginalStatus() {
+            return status;
+        }
+
+    }
 }

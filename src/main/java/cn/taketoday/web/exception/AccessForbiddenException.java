@@ -19,9 +19,10 @@
  */
 package cn.taketoday.web.exception;
 
+import cn.taketoday.web.Constant;
+
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-11-26 20:06
  */
 @SuppressWarnings("serial")
@@ -40,6 +41,6 @@ public class AccessForbiddenException extends WebRuntimeException {
     }
 
     public AccessForbiddenException() {
-
+        super(Constant.ACCESS_FORBIDDEN);
     }
 }

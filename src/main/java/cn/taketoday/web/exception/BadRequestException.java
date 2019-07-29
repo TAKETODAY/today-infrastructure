@@ -21,6 +21,8 @@ package cn.taketoday.web.exception;
 
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.web.Constant;
+
 /**
  * 
  * @author Today <br>
@@ -43,7 +45,7 @@ public class BadRequestException extends WebRuntimeException {
     }
 
     public BadRequestException() {
-
+        super(Constant.BAD_REQUEST);
     }
 
 }

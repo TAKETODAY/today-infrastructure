@@ -20,11 +20,13 @@
 package cn.taketoday.web.resolver;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.annotation.MissingBean;
@@ -33,8 +35,10 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
+import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.ActionConfiguration;
 import cn.taketoday.web.config.WebApplicationInitializer;
+import cn.taketoday.web.exception.ExceptionUnhandledException;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.WebMapping;
@@ -47,21 +51,63 @@ import cn.taketoday.web.mapping.WebMapping;
 @MissingBean(value = Constant.EXCEPTION_RESOLVER, type = ExceptionResolver.class)
 public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver implements WebApplicationInitializer {
 
+    private static final Logger log = LoggerFactory.getLogger(ControllerAdviceExceptionResolver.class);
     private final Map<Class<? extends Throwable>, ExceptionHandlerMapping> exceptionHandlers = new HashMap<>();
 
     @Override
-    public void resolveException(RequestContext requestContext, Throwable ex, WebMapping mvcMapping) throws Throwable {
+    public void resolveException(final RequestContext requestContext, //
+            final Throwable ex, final WebMapping mvcMapping) throws Throwable //
+    {
 
         if (mvcMapping instanceof HandlerMapping) {
 
             final ExceptionHandlerMapping exceptionHandler = lookupExceptionHandlerMapping(ex);//
             if (exceptionHandler != null) {
                 requestContext.attribute(Constant.KEY_THROWABLE, ex);
-                exceptionHandler.resolveResult(requestContext, invokeExceptionHandler(requestContext, exceptionHandler));
-                return;
+                final HandlerMethod handlerMethod = ((HandlerMapping) mvcMapping).getHandlerMethod();
+
+                if (handlerMethod != null) { //
+                    requestContext.status(buildStatus(ex, exceptionHandler, handlerMethod).value());
+                }
+                try {
+                    exceptionHandler.resolveResult(requestContext, invokeExceptionHandler(requestContext, exceptionHandler));
+                    log.error("Catch Throwable: [{}] With Msg: [{}]", ex, ex.getMessage(), ex);
+                    return;
+                }
+                catch (final InvocationTargetException e) {
+                    final Throwable target = e.getTargetException();
+                    if (target instanceof ExceptionUnhandledException == false) {
+                        log.error("Handling of [{}] resulted in Exception: [{}]", //
+                                target.getClass().getName(), target.getClass().getName(), target);
+                        throw target;
+                    }
+                }
             }
         }
         super.resolveException(requestContext, ex, mvcMapping);
+    }
+
+    /**
+     * If target handler don't exist {@link ResponseStatus} it will look up at
+     * exception handler
+     * 
+     * @param ex
+     *            Target {@link Exception}
+     * @param exceptionHandler
+     *            Target exception handler
+     * @param targetHandler
+     *            Target handler
+     * @return Current response status
+     */
+    protected ResponseStatus buildStatus(final Throwable ex, //
+            final ExceptionHandlerMapping exceptionHandler, final HandlerMethod targetHandler) //
+    {
+        // ResponseStatus on Target handler
+        final DefaultResponseStatus status = super.buildStatus(targetHandler, ex);
+        if (status.getOriginalStatus() == null) {
+            return super.buildStatus(exceptionHandler, ex); // get ResponseStatus on exception handler
+        }
+        return status;
     }
 
     /**
@@ -80,6 +126,19 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
         return ret;
     }
 
+    /**
+     * Invoke {@link Exception} handler
+     * 
+     * @param request
+     *            Current request context
+     * @param handler
+     *            {@link Exception} handler
+     * @return {@link Exception} handler result
+     * @throws Throwable
+     *             If any {@link Exception} occurred when resolve {@link Exception}
+     *             handler parameter or {@link Exception} handler throw an
+     *             {@link Exception}
+     */
     protected Object invokeExceptionHandler(//
             final RequestContext request, final ExceptionHandlerMapping handler) throws Throwable //
     {
@@ -119,7 +178,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
     }
 
     @SuppressWarnings("serial")
-    private static class ExceptionHandlerMapping extends HandlerMethod implements Serializable {
+    protected static class ExceptionHandlerMapping extends HandlerMethod implements Serializable {
 
         private final Object handler;
 

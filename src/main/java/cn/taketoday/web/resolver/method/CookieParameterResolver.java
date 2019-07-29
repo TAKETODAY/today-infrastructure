@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.context.Ordered;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Cookie;
 import cn.taketoday.web.mapping.MethodParameter;
@@ -57,7 +58,7 @@ public class CookieParameterResolver implements ParameterResolver {
         return null;
     }
 
-    public static class CookieAnnotationParameterResolver extends TypeConverterParameterResolver implements ParameterResolver {
+    public static class CookieAnnotationParameterResolver extends TypeConverterParameterResolver implements Ordered {
 
         @Override
         public boolean supports(MethodParameter parameter) {
@@ -77,6 +78,11 @@ public class CookieParameterResolver implements ParameterResolver {
                 }
             }
             return null;
+        }
+
+        @Override
+        public int getOrder() {
+            return HIGHEST_PRECEDENCE;
         }
     }
 

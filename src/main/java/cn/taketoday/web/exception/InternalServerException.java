@@ -21,6 +21,8 @@ package cn.taketoday.web.exception;
 
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.web.Constant;
+
 /**
  * @author TODAY <br>
  *         2018-12-02 09:14
@@ -42,7 +44,7 @@ public class InternalServerException extends WebRuntimeException {
     }
 
     public InternalServerException() {
-
+        super(Constant.INTERNAL_SERVER_ERROR);
     }
 
 }

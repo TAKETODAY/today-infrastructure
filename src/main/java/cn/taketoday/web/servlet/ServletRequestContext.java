@@ -311,7 +311,9 @@ public class ServletRequestContext implements RequestContext, Map<String, Object
         final Cookie servletCookie = new Cookie(cookie.getName(), cookie.getValue());
 
         servletCookie.setPath(cookie.getPath());
-        servletCookie.setDomain(cookie.getDomain());
+        if (cookie.getDomain() != null) {
+            servletCookie.setDomain(cookie.getDomain());
+        }
         servletCookie.setSecure(cookie.getSecure());
         servletCookie.setComment(cookie.getComment());
         servletCookie.setVersion(cookie.getVersion());

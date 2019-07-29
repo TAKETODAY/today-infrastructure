@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.exception;
 
+import cn.taketoday.web.Constant;
+
 /**
  * @author TODAY <br>
  *         2019-07-20 15:51
@@ -27,7 +29,7 @@ package cn.taketoday.web.exception;
 public class UnauthorizedException extends WebRuntimeException {
 
     public UnauthorizedException() {
-        super();
+        super(Constant.UNAUTHORIZED);
     }
 
     public UnauthorizedException(String message) {

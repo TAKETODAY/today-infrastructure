@@ -27,33 +27,20 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.Constant;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-12-08 15:10
  */
-@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface ResponseStatus {
 
-    /**
-     * Status code
-     * 
-     * @return
-     */
+    /** Status code */
     int value() default 0;
 
-    /**
-     * The descriptive message
-     * 
-     * @return
-     */
+    /** The descriptive message */
     String msg() default Constant.BLANK;
 
-    /**
-     * Error page
-     * 
-     * @return
-     */
+    /** Error page */
     String redirect() default Constant.BLANK;
 
 }

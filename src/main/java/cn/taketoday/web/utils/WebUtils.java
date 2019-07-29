@@ -26,6 +26,7 @@ import java.net.URLConnection;
 
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.HttpHeaders;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.exception.BadRequestException;
@@ -138,4 +139,10 @@ public abstract class WebUtils {
         return (contentType != null && contentType.toLowerCase().startsWith("multipart/"));
     }
 
+    /**
+     * Is ajax request
+     */
+    public static boolean isAjax(HttpHeaders request) {
+        return Constant.XML_HTTP_REQUEST.equals(request.requestHeader(Constant.X_REQUESTED_WITH));
+    }
 }

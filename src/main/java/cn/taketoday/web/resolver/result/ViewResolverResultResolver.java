@@ -30,18 +30,22 @@ import cn.taketoday.web.view.ViewResolver;
  * @author TODAY <br>
  *         2019-07-14 11:32
  */
-public class StringResultResolver implements ResultResolver {
+public class ViewResolverResultResolver implements ResultResolver {
 
     /** view resolver **/
     private final ViewResolver viewResolver;
 
     @Autowired
-    public StringResultResolver(ViewResolver viewResolver) {
+    public ViewResolverResultResolver(ViewResolver viewResolver) {
         this.viewResolver = viewResolver;
     }
 
     @Override
     public boolean supports(HandlerMethod handlerMethod) {
+        return supportsResolver(handlerMethod);
+    }
+
+    public static boolean supportsResolver(final HandlerMethod handlerMethod) {
 
         if (handlerMethod.is(String.class)) {
 
