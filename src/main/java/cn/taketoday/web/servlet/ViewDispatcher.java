@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.servlet;
 
+import static cn.taketoday.web.servlet.DispatcherServlet.prepareContext;
+
 import java.io.IOException;
 
 import javax.servlet.GenericServlet;
@@ -68,8 +70,17 @@ public class ViewDispatcher extends GenericServlet {
             return;
         }
 
-        final RequestContext requestContext = DispatcherServlet.prepareContext(request, res);
+        final RequestContext requestContext = prepareContext(request, res);
         try {
+
+            if (mapping.getStatus() != 0) {
+                requestContext.status(mapping.getStatus());
+            }
+
+            final String contentType = mapping.getContentType();
+            if (StringUtils.isNotEmpty(contentType)) {
+                requestContext.contentType(contentType);
+            }
 
             if (mapping.hasAction()) {
 
@@ -87,19 +98,6 @@ public class ViewDispatcher extends GenericServlet {
             }
             else {
                 ResultUtils.resolveView(mapping.getAssetsPath(), viewResolver, requestContext);
-            }
-
-            if (requestContext.committed()) {
-                return;
-            }
-
-            if (mapping.getStatus() != 0) {
-                requestContext.status(mapping.getStatus());
-            }
-
-            final String contentType = mapping.getContentType();
-            if (StringUtils.isNotEmpty(contentType)) {
-                requestContext.contentType(contentType);
             }
         }
         catch (Throwable e) {

@@ -97,4 +97,14 @@ public interface WebMvcConfiguration {
 
     }
 
+    /**
+     * Configure WebApplicationInitializer
+     * 
+     * @param initializers
+     *            WebApplicationInitializer register
+     */
+    default void configureInitializer(List<WebApplicationInitializer> initializers) {
+
+    }
+
 }

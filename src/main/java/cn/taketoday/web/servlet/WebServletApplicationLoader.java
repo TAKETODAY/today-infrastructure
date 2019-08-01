@@ -201,8 +201,11 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     }
 
     @Override
-    protected List<WebApplicationInitializer> getInitializers(WebApplicationContext applicationContext) {
-        final List<WebApplicationInitializer> contextInitializers = super.getInitializers(applicationContext);
+    protected List<WebApplicationInitializer> getInitializers(final WebApplicationContext applicationContext, //
+            final WebMvcConfiguration mvcConfiguration) //
+    {
+        final List<WebApplicationInitializer> contextInitializers = //
+                super.getInitializers(applicationContext, mvcConfiguration);
 
         configureResourceRegistry(contextInitializers, getWebMvcConfiguration());
 

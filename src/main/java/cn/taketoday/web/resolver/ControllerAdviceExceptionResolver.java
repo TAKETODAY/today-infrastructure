@@ -71,7 +71,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
                 }
                 try {
                     exceptionHandler.resolveResult(requestContext, invokeExceptionHandler(requestContext, exceptionHandler));
-                    log.error("Catch Throwable: [{}] With Msg: [{}]", ex, ex.getMessage(), ex);
+                    log.error("Catch Throwable: [{}]", ex.toString(), ex);
                     return;
                 }
                 catch (final InvocationTargetException e) {

@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.resolver.method;
 
+import cn.taketoday.context.Ordered;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Header;
 import cn.taketoday.web.mapping.MethodParameter;
@@ -27,7 +28,7 @@ import cn.taketoday.web.mapping.MethodParameter;
  * @author TODAY <br>
  *         2019-07-13 11:11
  */
-public class HeaderParameterResolver extends TypeConverterParameterResolver implements ParameterResolver {
+public class HeaderParameterResolver extends TypeConverterParameterResolver implements Ordered {
 
     @Override
     public boolean supports(MethodParameter parameter) {
@@ -37,6 +38,11 @@ public class HeaderParameterResolver extends TypeConverterParameterResolver impl
     @Override
     protected Object resolveSource(final RequestContext requestContext, final MethodParameter parameter) {
         return requestContext.requestHeader(parameter.getName());
+    }
+
+    @Override
+    public int getOrder() {
+        return HIGHEST_PRECEDENCE;
     }
 
 }

@@ -105,7 +105,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
             else {
                 resolveViewException(ex, requestContext, ex.getMessage());
             }
-            log.error("Catch Throwable: [{}] With Msg: [{}]", ex, ex.getMessage(), ex);
+            log.error("Catch Throwable: [{}]", ex.toString(), ex);
         }
         catch (Throwable handlerException) {
             log.error("Handling of [{}] resulted in Exception: [{}]", //

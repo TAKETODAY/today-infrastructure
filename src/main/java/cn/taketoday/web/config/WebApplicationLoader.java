@@ -143,7 +143,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         // check all resolver
         checkFrameWorkResolvers(applicationContext);
 
-        initializerStartup(applicationContext);
+        initializerStartup(applicationContext, mvcConfiguration);
 
         applicationContext.publishEvent(new WebApplicationStartedEvent(applicationContext));
         if (environment.getProperty(ENABLE_WEB_STARTED_LOG, Boolean::parseBoolean, true)) {
@@ -343,14 +343,20 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      * @throws Throwable
      *             If any initialize exception occurred
      */
-    protected void initializerStartup(WebApplicationContext applicationContext) throws Throwable {
-        for (final WebApplicationInitializer initializer : getInitializers(applicationContext)) {
+    protected void initializerStartup(WebApplicationContext applicationContext, WebMvcConfiguration mvcConfiguration) throws Throwable {
+        for (final WebApplicationInitializer initializer : getInitializers(applicationContext, mvcConfiguration)) {
             initializer.onStartup(applicationContext);
         }
     }
 
-    protected List<WebApplicationInitializer> getInitializers(WebApplicationContext applicationContext) {
-        return applicationContext.getBeans(WebApplicationInitializer.class);
+    protected List<WebApplicationInitializer> getInitializers(final WebApplicationContext applicationContext, //
+            final WebMvcConfiguration mvcConfiguration) //
+    {
+        final List<WebApplicationInitializer> initializers = applicationContext.getBeans(WebApplicationInitializer.class);
+
+        mvcConfiguration.configureInitializer(initializers);
+
+        return initializers;
     }
 
     protected WebMvcConfiguration getWebMvcConfiguration() {
@@ -577,6 +583,14 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         public void configureTypeConverter(List<TypeConverter> typeConverters) {
             for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
                 webMvcConfiguration.configureTypeConverter(typeConverters);
+            }
+        }
+
+        @Override
+        public void configureInitializer(List<WebApplicationInitializer> initializers) {
+            
+            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+                webMvcConfiguration.configureInitializer(initializers);
             }
         }
 
