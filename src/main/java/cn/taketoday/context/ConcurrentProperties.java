@@ -117,6 +117,9 @@ public class ConcurrentProperties extends Properties implements ConcurrentMap<Ob
 
     @Override
     public Object put(Object key, Object value) {
+        if (key == null || value == null) {
+            return null;
+        }
         return map.put(key, value);
     }
 
