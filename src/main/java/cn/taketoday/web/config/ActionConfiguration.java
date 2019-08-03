@@ -257,7 +257,8 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
     private boolean doMappingPathVariable(String regexUrl, //
             MethodParameter[] methodParameters, Method method, int index, String requestMethod_) //
     {
-        if (!regexUrl.contains("*") && !regexUrl.contains("{")) { //
+
+        if (!(regexUrl.indexOf('*') > -1 || regexUrl.indexOf('{') > -1)) { //
             return false; // not a path variable
         }
 
@@ -318,6 +319,12 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
                 hasSet = true;
             }
         }
+
+        // fix
+        if (regexUrl.indexOf('{') > -1 && regexUrl.indexOf('}') > -1) { // don't have a parameter name named ''
+            throw new ConfigurationException("Check @PathVariable configuration on method: [" + method + "]");
+        }
+
         this.regexUrls.put(regexUrl, index);
         log.info("Mapped [{}] -> [{}]", regexUrl, method);
         return true;
