@@ -21,31 +21,20 @@ package cn.taketoday.web.view;
 
 import java.util.Locale;
 
-import javax.servlet.ServletContext;
-
-import cn.taketoday.web.ServletContextAware;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
  * @author TODAY <br>
  *         2018-06-26 11:58:24
  */
 @Setter
 @Getter
-public abstract class AbstractViewResolver implements ViewResolver, ServletContextAware {
+public abstract class AbstractViewResolver implements ViewResolver {
 
     protected String prefix = "/WEB-INF/ftl";
     protected String suffix = ".ftl";
     protected String encoding = "UTF-8";
     protected Locale locale = Locale.CHINA;
-
-    protected ServletContext servletContext = null;
-
-    @Override
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
-    }
 
 }

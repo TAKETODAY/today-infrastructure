@@ -39,7 +39,10 @@ public class ImageResultResolver implements ResultResolver {
     }
 
     @Override
-    public void resolveResult(RequestContext requestContext, Object result) throws Throwable {
+    public void resolveResult(final RequestContext requestContext, final Object result) throws Throwable {
+
+        requestContext.contentType("image/png"); // sub classes can override this method to apply content type
+
         ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, requestContext.getOutputStream());
     }
 

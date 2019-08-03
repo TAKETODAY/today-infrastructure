@@ -31,7 +31,7 @@ import cn.taketoday.context.annotation.Component;
  * This annotation indicates that an annotated element is a request parameter
  * converter component in your application
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-10-14 18:30
  */
 @Deprecated

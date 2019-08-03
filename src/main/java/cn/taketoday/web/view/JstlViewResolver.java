@@ -21,6 +21,7 @@ package cn.taketoday.web.view;
 
 import java.util.Map.Entry;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +32,8 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.utils.WebUtils;
 
 /**
  * 
@@ -67,6 +70,11 @@ public class JstlViewResolver extends AbstractViewResolver implements Initializi
         if (!ClassUtils.isPresent(jspServlet)) {
             throw new ConfigurationException("You must provide: [" + jspServlet + "] to your application's class path");
         }
+
+        final WebServletApplicationContext applicationContext = //
+                (WebServletApplicationContext) WebUtils.getWebApplicationContext();
+
+        final ServletContext servletContext = applicationContext.getServletContext();
 
         boolean register = true;
         for (Entry<String, ? extends ServletRegistration> entry : servletContext.getServletRegistrations().entrySet()) {

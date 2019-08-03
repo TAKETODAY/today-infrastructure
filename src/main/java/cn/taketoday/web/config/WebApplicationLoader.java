@@ -588,7 +588,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         @Override
         public void configureInitializer(List<WebApplicationInitializer> initializers) {
-            
+
             for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
                 webMvcConfiguration.configureInitializer(initializers);
             }

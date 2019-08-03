@@ -39,7 +39,7 @@ public interface Constant extends cn.taketoday.context.Constant {
     String BAD_REQUEST = "Bad Request";
     String UNAUTHORIZED = "Unauthorized";
     String ACCESS_FORBIDDEN = "Access Forbidden";
-    String METHOD_NOT_ALLOWED= "Method Not Allowed";
+    String METHOD_NOT_ALLOWED = "Method Not Allowed";
     String INTERNAL_SERVER_ERROR = "Internal Server Error";
 
     String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";

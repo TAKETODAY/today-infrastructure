@@ -61,7 +61,7 @@ public class ViewResolverResultResolver implements ResultResolver {
     }
 
     @Override
-    public void resolveResult(RequestContext requestContext, Object result) throws Throwable {
+    public void resolveResult(final RequestContext requestContext, final Object result) throws Throwable {
         ResultUtils.resolveView((String) result, viewResolver, requestContext);
     }
 

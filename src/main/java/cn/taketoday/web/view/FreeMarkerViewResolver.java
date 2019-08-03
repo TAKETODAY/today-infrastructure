@@ -74,6 +74,8 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
     private final TemplateLoader templateLoader;
     private final ServletContextHashModel applicationModel;
 
+    private final ServletContext servletContext;
+
     public FreeMarkerViewResolver(Configuration configuration, //
             TaglibFactory taglibFactory, TemplateLoader templateLoader, Properties settings) //
     {
@@ -103,14 +105,16 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
             wrapper = new DefaultObjectWrapper(Configuration.VERSION_2_3_28);
         }
         this.wrapper = wrapper;
-        ServletContext servletContext = webApplicationContext.getServletContext();
+
+        this.servletContext = webApplicationContext.getServletContext();
+
         if (taglibFactory == null) {
-            taglibFactory = new TaglibFactory(servletContext);
+            taglibFactory = new TaglibFactory(this.servletContext);
         }
         this.taglibFactory = taglibFactory;
         this.configuration.setObjectWrapper(wrapper);
         // Create hash model wrapper for servlet context (the application)
-        this.applicationModel = new ServletContextHashModel(servletContext, wrapper);
+        this.applicationModel = new ServletContextHashModel(this.servletContext, wrapper);
 
         webApplicationContext.getBeansOfType(TemplateModel.class).forEach(configuration::setSharedVariable);
 
