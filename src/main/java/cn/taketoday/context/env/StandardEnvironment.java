@@ -146,13 +146,15 @@ public class StandardEnvironment implements ConfigurableEnvironment {
      * @param propertiesResource
      *            {@link Resource}
      * @throws IOException
+     *             When access to the resource if any {@link IOException} occurred
      */
     protected void loadProperties(final Resource propertiesResource) throws IOException {
 
         if (!propertiesResource.exists()) {
-            log.warn("The path: [{}] you provided that doesn't exist", propertiesLocation);
+            log.warn("The resource: [{}] you provided that doesn't exist", propertiesResource);
             return;
         }
+
         if (propertiesResource.isDirectory()) {
             log.debug("Start scanning properties resource.");
             final ResourceFilter propertiesFileFilter = new ResourceFilter() {
