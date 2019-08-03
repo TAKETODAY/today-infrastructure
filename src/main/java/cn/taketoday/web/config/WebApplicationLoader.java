@@ -88,7 +88,6 @@ import cn.taketoday.web.resolver.result.ResponseBodyResultResolver;
 import cn.taketoday.web.resolver.result.ResultResolver;
 import cn.taketoday.web.resolver.result.ViewResolverResultResolver;
 import cn.taketoday.web.resolver.result.VoidResultResolver;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
 import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.ViewResolver;
 
@@ -109,9 +108,9 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     protected static WebApplicationContext applicationContext;
 
     /**
-     * Get {@link WebServletApplicationContext}
+     * Get {@link WebApplicationContext}
      * 
-     * @return {@link WebServletApplicationContext}
+     * @return {@link WebApplicationContext}
      */
     protected final static WebApplicationContext getWebApplicationContext() {
         return applicationContext;
