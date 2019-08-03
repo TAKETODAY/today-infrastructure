@@ -24,6 +24,8 @@
 ## v2.1.7
 :bug: fix: loadBeanDefinition can't be catch exception
 :bug: fix: ContextUtils#loadProps() only support String
+:bug: fix: #11 JarEntryResource#getJarFilePath(String) jar file not found 
+
 
 
 ## v2.1.6
@@ -76,7 +78,6 @@
 ## v2.1.4
 - fix some singletons could not be initialized.
 
-
 ## v2.1.3
 - fix missing @Props injection
 - sync to maven central
@@ -89,7 +90,6 @@
 - :sparkles: feat: add initMethods feature
 - :sparkles: feat: add destroyMethods feature
 - :sparkles: feat: add `@MissingBean` feature
-
 
 ## v2.1.1
 - :sparkles: feat: add the destroy bean feature

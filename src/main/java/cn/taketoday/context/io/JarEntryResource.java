@@ -72,8 +72,8 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
     private static String getJarFilePath(String path) {
 
-        if (path.startsWith("file:/")) {
-            return path.substring(6, path.indexOf(Constant.JAR_SEPARATOR));
+        if (path.startsWith("file:")) { // fix #11 jar file not found
+            return path.substring(5, path.indexOf(Constant.JAR_SEPARATOR));
         }
         // jar:file:/xxxxxx.jar!/x
         return path.substring(0, path.indexOf(Constant.JAR_SEPARATOR));
