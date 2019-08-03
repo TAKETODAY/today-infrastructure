@@ -29,8 +29,7 @@ import cn.taketoday.context.annotation.Component;
 import cn.taketoday.framework.Constant;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2019-01-19 21:45
  */
 @Target(ElementType.TYPE)
@@ -38,8 +37,5 @@ import cn.taketoday.framework.Constant;
 @Component(scope = Scope.SINGLETON)
 public @interface Starter {
 
-    /**
-     * @return
-     */
     String webMvcConfigLocation() default Constant.BLANK;
 }

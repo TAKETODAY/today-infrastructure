@@ -23,23 +23,22 @@ import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.web.WebApplicationContext;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2019-01-17 15:57
  */
 public interface WebServerApplicationContext extends WebApplicationContext {
 
-    /**
-     * Returns the {@link WebServer} that was created by the context or {@code null}
-     * if the server has not yet been created.
-     * 
-     * @return the web server
-     */
-    WebServer getWebServer();
+	/**
+	 * Returns the {@link WebServer} that was created by the context or {@code null}
+	 * if the server has not yet been created.
+	 * 
+	 * @return the web server
+	 */
+	WebServer getWebServer();
 
-    /**
-     * @return
-     */
-    Class<?> getStartupClass();
+	/**
+	 * Get startup class
+	 */
+	Class<?> getStartupClass();
 
 }

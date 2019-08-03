@@ -105,11 +105,11 @@ public class StandardWebEnvironment extends StandardEnvironment {
         getProperties().putAll(ApplicationUtils.parseCommandArguments(arguments));
 
         refreshActiveProfiles();
-        replace(locations);
+        replaceProperties(locations);
     }
 
     /**
-     * is yaml?
+     * Is yaml?
      * 
      * @param propertiesLocation
      *            location
@@ -118,7 +118,14 @@ public class StandardWebEnvironment extends StandardEnvironment {
         return propertiesLocation.contains(".yaml") || propertiesLocation.contains(".yml");
     }
 
-    private void replace(Set<String> locations) throws IOException {
+    /**
+     * Replace the properties from current active profiles
+     * 
+     * @param locations
+     *            loaded properties locations
+     * @throws IOException
+     */
+    protected void replaceProperties(Set<String> locations) throws IOException {
 
         // replace
         final String[] activeProfiles = getActiveProfiles();
