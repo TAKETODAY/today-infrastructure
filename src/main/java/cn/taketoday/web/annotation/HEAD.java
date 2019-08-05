@@ -28,8 +28,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.web.RequestMethod;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-12-11 20:03
  */
 @Target({ ElementType.METHOD })
@@ -37,18 +36,10 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping(method = RequestMethod.HEAD)
 public @interface HEAD {
 
-    /**
-     * urls
-     * 
-     * @return
-     */
+    /** urls */
     String[] value() default Constant.BLANK;
 
-    /**
-     * Exclude url on class
-     * 
-     * @return
-     */
+    /** Exclude url on class */
     boolean exclude() default false;
 
 }

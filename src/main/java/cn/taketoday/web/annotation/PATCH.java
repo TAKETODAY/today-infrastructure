@@ -28,7 +28,6 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.web.RequestMethod;
 
 /**
- * 
  * @author TODAY <br>
  *         2018-11-17 21:24
  */
@@ -39,11 +38,7 @@ public @interface PATCH {
 
     String[] value() default Constant.BLANK;
 
-    /**
-     * Exclude url on class
-     * 
-     * @return
-     */
+    /** Exclude url on class */
     boolean exclude() default false;
 
 }

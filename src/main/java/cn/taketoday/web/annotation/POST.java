@@ -37,18 +37,10 @@ import cn.taketoday.web.RequestMethod;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface POST {
 
-    /**
-     * urls
-     * 
-     * @return
-     */
+    /** urls */
     String[] value() default Constant.BLANK;
 
-    /**
-     * Exclude url on class
-     * 
-     * @return
-     */
+    /** Exclude url on class */
     boolean exclude() default false;
 
 }

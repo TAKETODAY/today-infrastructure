@@ -28,8 +28,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.web.RequestMethod;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-07-01 14:07:11 2018-08-23 10:24 change add
  *         <b>@ActionMapping(method = RequestMethod.PUT)
  */
@@ -38,18 +37,10 @@ import cn.taketoday.web.RequestMethod;
 @ActionMapping(method = RequestMethod.PUT)
 public @interface PUT {
 
-    /**
-     * urls
-     * 
-     * @return
-     */
+    /** urls */
     String[] value() default Constant.BLANK;
 
-    /**
-     * Exclude url on class
-     * 
-     * @return
-     */
+    /** Exclude url on class */
     boolean exclude() default false;
 
 }
