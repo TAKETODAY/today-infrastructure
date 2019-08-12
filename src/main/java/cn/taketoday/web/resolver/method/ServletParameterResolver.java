@@ -72,7 +72,7 @@ public class ServletParameterResolver {
 
         @Override
         public boolean supports(final MethodParameter parameter) {
-            return parameter.is(HttpSession.class);
+            return parameter.isAssignableFrom(HttpSession.class);
         }
 
         @Override
@@ -98,7 +98,7 @@ public class ServletParameterResolver {
 
         @Override
         public boolean supports(final MethodParameter parameter) {
-            return parameter.is(ServletContext.class);
+            return parameter.isAssignableFrom(ServletContext.class);
         }
 
         @Override
@@ -113,7 +113,7 @@ public class ServletParameterResolver {
 
         @Override
         public boolean supports(final MethodParameter parameter) {
-            return parameter.is(Cookie.class);
+            return parameter.isAssignableFrom(Cookie.class);
         }
 
         @Override
@@ -137,7 +137,7 @@ public class ServletParameterResolver {
 
         @Override
         protected boolean supportsInternal(MethodParameter parameter) {
-            return parameter.is(Cookie.class);
+            return parameter.isAssignableFrom(Cookie.class);
         }
 
         @Override
