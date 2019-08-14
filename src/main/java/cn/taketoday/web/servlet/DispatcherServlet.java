@@ -170,20 +170,20 @@ public class DispatcherServlet implements Servlet, Serializable {
      */
     protected HandlerMapping lookupHandlerMapping(final HttpServletRequest req) {
         // The key of handler
-        String uri = req.getMethod() + req.getRequestURI();
+        String key = req.getMethod() + req.getRequestURI();
 
         final HandlerMappingRegistry registry = getHandlerMappingRegistry();
-        final Integer i = registry.getIndex(uri); // index of handler mapping
+        final Integer i = registry.getIndex(key); // index of handler mapping
         if (i == null) {
             // path variable
-            uri = StringUtils.decodeUrl(uri);// decode
+            key = StringUtils.decodeUrl(key);// decode
             for (final RegexMapping regex : registry.getRegexMappings()) {
                 // TODO path matcher pathMatcher.match(requestURI, requestURI)
-                if (regex.pattern.matcher(uri).matches()) {
+                if (regex.pattern.matcher(key).matches()) {
                     return registry.get(regex.index);
                 }
             }
-            log.debug("NOT FOUND -> [{}]", uri);
+            log.debug("NOT FOUND -> [{}]", key);
             return null;
         }
         return registry.get(i.intValue());
