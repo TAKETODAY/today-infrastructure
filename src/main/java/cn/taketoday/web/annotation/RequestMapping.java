@@ -29,32 +29,20 @@ import cn.taketoday.web.RequestMethod;
 
 /**
  * @author TODAY <br>
- *         2018-08-23 10:18 change
+ *         2018-08-23 10:18
  */
 @ActionMapping
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestMapping {
 
-    /**
-     * urls
-     * 
-     * @return
-     */
+    /** urls */
     String[] value() default Constant.BLANK;
 
-    /**
-     * Exclude url on class
-     * 
-     * @return
-     */
+    /** Exclude url on class */
     boolean exclude() default false;
 
-    /**
-     * request methods
-     * 
-     * @return
-     */
+    /** request methods */
     RequestMethod[] method() default {};
 
 }
