@@ -1076,11 +1076,12 @@ public abstract class ClassUtils {
      * @return the instance of target class
      * @since 2.1.2
      */
+    @SuppressWarnings("unchecked")
     public static <T> T newInstance(Class<T> beanClass) throws ContextException {
         try {
-            return accessibleConstructor(beanClass).newInstance();
+            return (T) newInstance(beanClass, ContextUtils.getApplicationContext());
         }
-        catch (Throwable e) {
+        catch (ReflectiveOperationException e) {
             throw ExceptionUtils.newContextException(e);
         }
     }
@@ -1139,25 +1140,23 @@ public abstract class ClassUtils {
             throws ReflectiveOperationException //
     {
         try {
-            return newInstance(beanClass);
+            return accessibleConstructor(beanClass).newInstance();
         }
-        catch (final ContextException e) {
-            if (e.getCause() instanceof NoSuchMethodException) {
+        catch (final NoSuchMethodException e) {
 
-                final Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
-                if (constructors.length == 1) {
-                    final Constructor<?> constructor = constructors[0];
+            final Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
+            if (constructors.length == 1) {
+                final Constructor<?> constructor = constructors[0];
+                return constructor.newInstance(//
+                        ContextUtils.resolveParameter(makeAccessible(constructor), beanFactory)//
+                );
+            }
+            for (final Constructor<?> constructor : constructors) {
+
+                if (constructor.isAnnotationPresent(Autowired.class)) {
                     return constructor.newInstance(//
                             ContextUtils.resolveParameter(makeAccessible(constructor), beanFactory)//
                     );
-                }
-                for (final Constructor<?> constructor : constructors) {
-
-                    if (constructor.isAnnotationPresent(Autowired.class)) {
-                        return constructor.newInstance(//
-                                ContextUtils.resolveParameter(makeAccessible(constructor), beanFactory)//
-                        );
-                    }
                 }
             }
             throw e;
