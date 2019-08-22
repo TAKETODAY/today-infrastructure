@@ -553,7 +553,7 @@ public abstract class ClassUtils {
         }
     }
 
-    private static String getClassName(final Resource resource) throws IOException {
+    protected static String getClassName(final Resource resource) throws IOException {
         try (final InputStream inputStream = resource.getInputStream()) {
             return new ClassReader(inputStream).getClassName()//
                     .replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
@@ -637,7 +637,7 @@ public abstract class ClassUtils {
         if (traceEnabled) {
             log.trace("Enter: [{}]", directory.getLocation());
         }
-        for (Resource resource : directory.list(CLASS_RESOURCE_FILTER)) {
+        for (final Resource resource : directory.list(CLASS_RESOURCE_FILTER)) {
             if (resource.isDirectory()) { // recursive
                 findInDirectory(resource, scanClasses);
             }
@@ -959,7 +959,7 @@ public abstract class ClassUtils {
                     result.add(attr);
                 }
             }
-            
+
             return result.isEmpty() ? EMPTY_ANNOTATION_ATTRIBUTES : result.toArray(EMPTY_ANNOTATION_ATTRIBUTES);
         });
     }
@@ -1039,9 +1039,12 @@ public abstract class ClassUtils {
             }
 
             // found it
+            String name;
+            Object value;
+
             for (final Method method : annotationType.getDeclaredMethods()) {
-                final String name = method.getName();
-                final Object value = annotationAttributes.get(name);
+                name = method.getName();
+                value = annotationAttributes.get(name);
                 if (value == null || eq(method.getReturnType(), value.getClass())) {
                     annotationAttributes.put(name, method.invoke(annotation));
                 }
@@ -1115,14 +1118,12 @@ public abstract class ClassUtils {
      *            {@link Annotation} type
      * @param element
      *            Target {@link AnnotatedElement}
-     * @param annotationType
+     * @param annType
      *            Target annotation type
      * @return Whether it's present
      */
-    public static <A extends Annotation> boolean isAnnotationPresent(AnnotatedElement element, Class<A> annotationType) {
-
-        return element.isAnnotationPresent(annotationType)//
-                || getAnnotation(annotationType, element) != null;
+    public static <A extends Annotation> boolean isAnnotationPresent(final AnnotatedElement element, final Class<A> annType) {
+        return element.isAnnotationPresent(annType) || getAnnotation(annType, element) != null;
     }
 
     // ----------------------------- new instance
@@ -1248,7 +1249,7 @@ public abstract class ClassUtils {
 
         final List<Field> list = new ArrayList<>(64);
         do {
-            for (Field field : targetClass.getDeclaredFields()) {
+            for (final Field field : targetClass.getDeclaredFields()) {
                 list.add(field);
             }
         } while ((targetClass = targetClass.getSuperclass()) != Object.class && targetClass != null);
@@ -1288,7 +1289,7 @@ public abstract class ClassUtils {
     final static class ParameterFunction implements Function<Class<?>, Map<Method, String[]>> {
 
         @Override
-        public Map<Method, String[]> apply(Class<?> declaringClass) {
+        public Map<Method, String[]> apply(final Class<?> declaringClass) {
 
             final Map<Method, String[]> map = new ConcurrentHashMap<>(32);
 
@@ -1372,7 +1373,6 @@ public abstract class ClassUtils {
             this.name = name;
             this.desc = desc;
         }
-
         @Override
         public void visitLocalVariable(String name, String descriptor, String signature, Label start, Label end, int index) {
             localVariables.add(name);
@@ -1385,7 +1385,7 @@ public abstract class ClassUtils {
      * Make the given field accessible, explicitly setting it accessible if
      * necessary.
      */
-    public static Field makeAccessible(Field field) {
+    public static Field makeAccessible(final Field field) {
 
         if ((!Modifier.isPublic(field.getModifiers()) //
                 || !Modifier.isPublic(field.getDeclaringClass().getModifiers())) && !field.isAccessible()) {
@@ -1395,7 +1395,7 @@ public abstract class ClassUtils {
         return field;
     }
 
-    public static Object invokeMethod(Method method, Object target, Object... args) {
+    public static Object invokeMethod(final Method method, final Object target, final Object... args) {
         try {
             return method.invoke(target, args);
         }
@@ -1407,7 +1407,7 @@ public abstract class ClassUtils {
         }
     }
 
-    public static Method makeAccessible(Method method) {
+    public static Method makeAccessible(final Method method) {
 
         if ((!Modifier.isPublic(method.getModifiers()) //
                 || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
@@ -1417,7 +1417,7 @@ public abstract class ClassUtils {
         return method;
     }
 
-    public static <T> Constructor<T> accessibleConstructor(Class<T> clazz, Class<?>... parameterTypes)
+    public static <T> Constructor<T> accessibleConstructor(final Class<T> clazz, final Class<?>... parameterTypes)
             throws NoSuchMethodException //
     {
         return makeAccessible(clazz.getDeclaredConstructor(parameterTypes));
