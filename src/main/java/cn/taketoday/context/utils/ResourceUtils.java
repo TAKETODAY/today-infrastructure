@@ -20,7 +20,6 @@
 package cn.taketoday.context.utils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 
@@ -58,7 +57,6 @@ public abstract class ResourceUtils {
             if (path.charAt(0) == Constant.PATH_SEPARATOR) {
                 return new ClassPathResource(path.substring(1));
             }
-
             return new ClassPathResource(path);
         }
 
@@ -66,12 +64,7 @@ public abstract class ResourceUtils {
             return getResource(new URL(location));
         }
         catch (IOException e) {
-            try {
-                return new ClassPathResource(location);
-            }
-            catch (FileNotFoundException nullE) {
-                return new FileBasedResource(location);
-            }
+            return new ClassPathResource(location);
         }
     }
 

@@ -81,8 +81,8 @@ public class ResourceUtilsTest {
 
         if (resource instanceof JarEntryResource) {
 
-            JarEntryResource jarEntryResource = (JarEntryResource) resource.createRelative(
-                    "/maven/cn.taketoday/today-expression/pom.properties");
+            JarEntryResource jarEntryResource = (JarEntryResource) 
+                    resource.createRelative("/maven/cn.taketoday/today-expression/pom.properties");
             if (jarEntryResource.exists()) {
                 System.out.println(StringUtils.readAsText(jarEntryResource.getInputStream()));
             }
@@ -91,9 +91,9 @@ public class ResourceUtilsTest {
         }
         // location is empty
         final Resource classpath = ResourceUtils.getResource("");
-        assert classpath.createRelative("/info.properties").exists();
+        assert classpath.createRelative("info.properties").exists();
         // start with '/'
-        assert ResourceUtils.getResource("/info.properties").exists();
+        assert ResourceUtils.getResource("info.properties").exists();
         assert ResourceUtils.getResource("classpath:info.properties").exists();
 
         try {

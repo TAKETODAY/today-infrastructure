@@ -125,11 +125,11 @@ public class ConvertUtilsTest {
         }
 
         // --Resource
-        final Object resource = ConvertUtils.convert("/info.properties", Resource.class);
+        final Object resource = ConvertUtils.convert("classpath:info.properties", Resource.class);
         assert resource instanceof Resource;
         assert ((Resource) resource).getName().equals("info.properties");//
 
-        final Object url = ConvertUtils.convert("/info.properties", URL.class);
+        final Object url = ConvertUtils.convert("classpath:info.properties", URL.class);
         assert url instanceof URL;
 
         final InputStream openStream = ((URL) url).openStream();
@@ -138,11 +138,11 @@ public class ConvertUtilsTest {
         assert readAsText != null;
         System.err.println(readAsText);
         // uri
-        final Object uri = ConvertUtils.convert("/info.properties", URI.class);
+        final Object uri = ConvertUtils.convert("info.properties", URI.class);
         assert uri instanceof URI;
         assert StringUtils.readAsText(((URI) uri).toURL().openStream()) != null;
         // file
-        final Object file = ConvertUtils.convert("/info.properties", File.class);
+        final Object file = ConvertUtils.convert("info.properties", File.class);
         assert file instanceof File;
         assert ((File) file).getName().equals("info.properties");
         assert StringUtils.readAsText(Files.newInputStream(((File) file).toPath())) != null;
