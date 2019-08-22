@@ -42,11 +42,13 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -109,20 +111,16 @@ public abstract class ClassUtils {
     private static final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
     private static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(256);
 
-    private static final Map<AnnotationKey<?>, Collection<? extends Annotation>> ANNOTATIONS //
-            = new WeakHashMap<>(128);
+    private static final Map<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
 
-    private static final Map<AnnotationKey<?>, Collection<AnnotationAttributes>> ANNOTATION_ATTRIBUTES//
-            = new WeakHashMap<>(128);
+    private static final AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = new AnnotationAttributes[0];
+    private static final Map<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
 
     /** Class resource filter */
-    private static final ResourceFilter CLASS_RESOURCE_FILTER = new ResourceFilter() {
-        @Override
-        public boolean accept(Resource resource) throws IOException {
-            return resource.isDirectory()//
-                    || (resource.getName().endsWith(Constant.CLASS_FILE_SUFFIX) //
-                            && !resource.getName().startsWith("package-info"));
-        }
+    private static final ResourceFilter CLASS_RESOURCE_FILTER = (Resource resource) -> {
+        return resource.isDirectory()//
+                || (resource.getName().endsWith(Constant.CLASS_FILE_SUFFIX) //
+                        && !resource.getName().startsWith("package-info"));
     };
 
     static {
@@ -659,7 +657,7 @@ public abstract class ClassUtils {
     /**
      * Get the array of {@link Annotation} instance
      * 
-     * @param annotatedElement
+     * @param element
      *            annotated element
      * @param annotationClass
      *            target annotation class
@@ -669,31 +667,61 @@ public abstract class ClassUtils {
      * @since 2.1.1
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T[] getAnnotationArray(AnnotatedElement annotatedElement, //
-            Class<T> annotationClass, Class<? extends T> implClass) //
+    public static <T extends Annotation> T[] getAnnotationArray(
+            final AnnotatedElement element,
+            final Class<T> annotationClass,
+            final Class<? extends T> implClass) throws ContextException //
     {
-        return getAnnotation(annotatedElement, annotationClass, implClass).toArray((T[]) Array.newInstance(annotationClass, 0));
+        Objects.requireNonNull(annotationClass, "annotation class can't be null");
+
+        return (T[]) ANNOTATIONS.computeIfAbsent(new AnnotationKey<>(element, annotationClass), (k) -> {
+
+            final AnnotationAttributes[] annotationAttributes = //
+                    getAnnotationAttributesArray(element, annotationClass);
+
+            int i = 0;
+            final Object array = Array.newInstance(annotationClass, annotationAttributes.length);
+
+            for (final AnnotationAttributes attributes : annotationAttributes) {
+                Array.set(array, i++, injectAttributes(attributes, annotationClass, newInstance(implClass)));
+            }
+            return array;
+        });
     }
 
     /**
      * Get the array of {@link Annotation} instance
      * 
-     * @param annotatedElement
+     * @param element
      *            annotated element
-     * @param annotationClass
+     * @param targetClass
      *            target annotation class
      * @return the array of {@link Annotation} instance
      * @since 2.1.1
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T[] getAnnotationArray(AnnotatedElement annotatedElement, Class<T> annotationClass) {
-        return getAnnotation(annotatedElement, annotationClass).toArray((T[]) Array.newInstance(annotationClass, 0));
+    public static <T extends Annotation> T[] getAnnotationArray(AnnotatedElement element, Class<T> targetClass) {
+
+        Objects.requireNonNull(targetClass, "annotation class can't be null");
+
+        return (T[]) ANNOTATIONS.computeIfAbsent(new AnnotationKey<>(element, targetClass), (k) -> {
+
+            final AnnotationAttributes[] annAttributes = getAnnotationAttributesArray(element, targetClass);
+
+            int i = 0;
+            final Object array = Array.newInstance(targetClass, annAttributes.length);
+
+            for (final AnnotationAttributes attributes : annAttributes) {
+                Array.set(array, i++, getAnnotationProxy(targetClass, attributes));
+            }
+            return array;
+        });
     }
 
     /**
      * Get Annotation by reflect
      * 
-     * @param annotatedElement
+     * @param element
      *            The annotated element
      * @param annotationClass
      *            The annotation class
@@ -702,25 +730,10 @@ public abstract class ClassUtils {
      * @return the {@link Collection} of {@link Annotation} instance
      * @since 2.0.x
      */
-    @SuppressWarnings("unchecked")
-    public static <A extends Annotation> Collection<A> getAnnotation(AnnotatedElement annotatedElement, //
-            Class<A> annotationClass, Class<? extends A> implClass) throws ContextException//
+    public static <A extends Annotation> List<A> getAnnotation(final AnnotatedElement element, //
+            final Class<A> annotationClass, final Class<? extends A> implClass) throws ContextException//
     {
-        try {
-
-            return (Collection<A>) ANNOTATIONS.computeIfAbsent(new AnnotationKey<A>(annotatedElement, annotationClass), (k) -> {
-                Collection<A> result = new ArrayList<>();
-                for (AnnotationAttributes attributes : getAnnotationAttributes(annotatedElement, annotationClass)) {
-                    result.add(injectAttributes(attributes, annotationClass, newInstance(implClass)));
-                }
-                return result;
-            });
-        }
-        catch (Throwable ex) {
-            ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Getting Annotation, With Msg: [{}]", ex.getMessage(), ex);
-            throw ExceptionUtils.newContextException(ex);
-        }
+        return Arrays.asList(getAnnotationArray(element, annotationClass, implClass));
     }
 
     /**
@@ -741,21 +754,22 @@ public abstract class ClassUtils {
             Class<? extends A> annotationClass, A instance) throws ContextException//
     {
         final Class<?> implClass = instance.getClass();
+        String name = null;
         try {
             for (final Method method : annotationClass.getDeclaredMethods()) {
                 // method name must == field name
-                final String name = method.getName();
+                name = method.getName();
                 makeAccessible(implClass.getDeclaredField(name)).set(instance, source.get(name));
             }
             return instance;
         }
         catch (NoSuchFieldException e) {
-            log.error("You Must Specify A Field: [{}] In Class: [{}]", implClass.getName(), e.getMessage(), e);
+            log.error("You Must Specify A Field: [{}] In Class: [{}]", name, implClass.getName(), e);
             throw new ContextException(e);
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Inject Attributes Attributes, With Msg: [{}]", ex.getMessage(), ex);
+            log.error("An Exception Occurred When Inject Attributes Attributes, With Msg: [{}]", ex, ex);
             throw ExceptionUtils.newContextException(ex);
         }
     }
@@ -784,7 +798,7 @@ public abstract class ClassUtils {
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Getting Annotation Attributes, With Msg: [{}]", ex.getMessage(), ex);
+            log.error("An Exception Occurred When Getting Annotation Attributes: [{}]", ex, ex);
             throw ExceptionUtils.newContextException(ex);
         }
     }
@@ -799,19 +813,26 @@ public abstract class ClassUtils {
      * @return the {@link Collection} of {@link Annotation} instance
      * @since 2.1.1
      */
-    @SuppressWarnings("unchecked")
-    public static <T extends Annotation> Collection<T> getAnnotation(//
+    public static <T extends Annotation> List<T> getAnnotation(//
             final AnnotatedElement annotatedElement, final Class<T> annotationClass) throws ContextException//
     {
-        Objects.requireNonNull(annotationClass, "annotation class can't be null");
+        return Arrays.asList(getAnnotationArray(annotatedElement, annotationClass));
+    }
 
-        return (Collection<T>) ANNOTATIONS.computeIfAbsent(new AnnotationKey<>(annotatedElement, annotationClass), (k) -> {
-            final Collection<T> annotations = new ArrayList<>();
-            for (AnnotationAttributes attributes : getAnnotationAttributes(annotatedElement, annotationClass)) {
-                annotations.add(getAnnotationProxy(annotationClass, attributes));
-            }
-            return annotations;
-        });
+    /**
+     * Get First Annotation
+     * 
+     * @param annotatedElement
+     *            The annotated element
+     * @param annotationClass
+     *            The annotation class
+     * @return the {@link Collection} of {@link Annotation} instance
+     * @since 2.1.7
+     */
+    public static <T extends Annotation> T getAnnotation(Class<T> annotationClass, final AnnotatedElement annotatedElement) {
+
+        final T[] annotationArray = getAnnotationArray(annotatedElement, annotationClass);
+        return ObjectUtils.isEmpty(annotationArray) ? null : annotationArray[0];
     }
 
     /**
@@ -884,27 +905,62 @@ public abstract class ClassUtils {
     /**
      * Get attributes the 'key-value' of annotations
      * 
-     * @param annotatedElement
+     * @param element
      *            The annotated element
      * @param annotationClass
      *            The annotation class
      * @return a set of {@link AnnotationAttributes}
      * @since 2.1.1
      */
-    public static <T extends Annotation> Collection<AnnotationAttributes> //
-            getAnnotationAttributes(AnnotatedElement annotatedElement, Class<T> annotationClass) throws ContextException//
+    public static <T extends Annotation> List<AnnotationAttributes> //
+            getAnnotationAttributes(final AnnotatedElement element, final Class<T> annotationClass) throws ContextException//
     {
-        Objects.requireNonNull(annotatedElement, "annotated element can't be null");
+        return Arrays.asList(getAnnotationAttributesArray(element, annotationClass));
+    }
 
-        return ANNOTATION_ATTRIBUTES.computeIfAbsent(new AnnotationKey<>(annotatedElement, annotationClass), (k) -> {
-            final Collection<AnnotationAttributes> result = new HashSet<>();
-            for (Annotation annotation : annotatedElement.getDeclaredAnnotations()) {
-                AnnotationAttributes annotationAttributes = getAnnotationAttributes(annotation, annotationClass);
-                if (annotationAttributes != null) {
-                    result.add(annotationAttributes);
+    /**
+     * Get attributes the 'key-value' of annotations
+     * 
+     * @param element
+     *            The annotated element
+     * @param annotationClass
+     *            The annotation class
+     * @return a set of {@link AnnotationAttributes}
+     * @since 2.1.1
+     */
+    public static <T extends Annotation> AnnotationAttributes //
+            getAnnotationAttributes(final Class<T> annotationClass, final AnnotatedElement element) throws ContextException //
+    {
+        final AnnotationAttributes[] array = getAnnotationAttributesArray(element, annotationClass);
+        return ObjectUtils.isEmpty(array) ? null : array[0];
+    }
+
+    /**
+     * Get attributes the 'key-value' of annotations
+     * 
+     * @param element
+     *            The annotated element
+     * @param targetClass
+     *            The annotation class
+     * @return a set of {@link AnnotationAttributes} never be null
+     * @since 2.1.1
+     */
+    public static <T extends Annotation> AnnotationAttributes[] //
+            getAnnotationAttributesArray(final AnnotatedElement element, final Class<T> targetClass) throws ContextException//
+    {
+        Objects.requireNonNull(element, "annotated element can't be null");
+
+        return ANNOTATION_ATTRIBUTES.computeIfAbsent(new AnnotationKey<>(element, targetClass), (k) -> {
+
+            final LinkedHashSet<AnnotationAttributes> result = new LinkedHashSet<>();
+            for (final Annotation annotation : element.getDeclaredAnnotations()) {
+                final AnnotationAttributes attr = getAnnotationAttributes(annotation, targetClass);
+                if (attr != null) {
+                    result.add(attr);
                 }
             }
-            return result;
+            
+            return result.isEmpty() ? EMPTY_ANNOTATION_ATTRIBUTES : result.toArray(EMPTY_ANNOTATION_ATTRIBUTES);
         });
     }
 
@@ -953,7 +1009,7 @@ public abstract class ClassUtils {
      * @since 2.1.1
      */
     public static <T extends Annotation> AnnotationAttributes //
-            getAnnotationAttributes(Annotation annotation, Class<T> annotationClass) throws ContextException//
+            getAnnotationAttributes(final Annotation annotation, final Class<T> annotationClass) throws ContextException//
     {
         try {
 
@@ -966,10 +1022,15 @@ public abstract class ClassUtils {
                 return getAnnotationAttributes(annotation);
             }
 
+            // filter some annotation classes
+            // -----------------------------------------
             if (IGNORE_ANNOTATION_CLASS.contains(annotationType)) {
                 return null;
             }
+
             // find the default value of annotation
+            // -----------------------------------------
+
             final AnnotationAttributes annotationAttributes = // recursive
                     getTargetAnnotationAttributes(annotationClass, annotationType);
 
@@ -994,7 +1055,7 @@ public abstract class ClassUtils {
         }
     }
 
-    private static boolean eq(Class<?> returnType, Class<?> clazz) {
+    private final static boolean eq(Class<?> returnType, Class<?> clazz) {
         if (returnType == clazz) {
             return true;
         }
@@ -1024,9 +1085,8 @@ public abstract class ClassUtils {
      * @return target {@link AnnotationAttributes}
      * @since 2.1.1
      */
-    public static <T extends Annotation> AnnotationAttributes getTargetAnnotationAttributes(//
-            final Class<T> targetAnnotationType, //
-            final Class<? extends Annotation> annotationType)//
+    public static <T extends Annotation> AnnotationAttributes //
+            getTargetAnnotationAttributes(final Class<T> targetAnnotationType, final Class<? extends Annotation> annotationType)//
     {
 
         for (final Annotation currentAnnotation : annotationType.getAnnotations()) {
@@ -1038,7 +1098,7 @@ public abstract class ClassUtils {
                 return getAnnotationAttributes(currentAnnotation); // found it
             }
 
-            AnnotationAttributes attributes = // recursive
+            final AnnotationAttributes attributes = // recursive
                     getTargetAnnotationAttributes(targetAnnotationType, currentAnnotation.annotationType());
 
             if (attributes != null) {
@@ -1053,17 +1113,16 @@ public abstract class ClassUtils {
      * 
      * @param <A>
      *            {@link Annotation} type
-     * @param annotatedElement
+     * @param element
      *            Target {@link AnnotatedElement}
      * @param annotationType
      *            Target annotation type
      * @return Whether it's present
      */
-    public static <A extends Annotation> boolean //
-            isAnnotationPresent(AnnotatedElement annotatedElement, Class<A> annotationType) {
+    public static <A extends Annotation> boolean isAnnotationPresent(AnnotatedElement element, Class<A> annotationType) {
 
-        return annotatedElement.isAnnotationPresent(annotationType)//
-                || !getAnnotation(annotatedElement, annotationType).isEmpty();
+        return element.isAnnotationPresent(annotationType)//
+                || getAnnotation(annotationType, element) != null;
     }
 
     // ----------------------------- new instance

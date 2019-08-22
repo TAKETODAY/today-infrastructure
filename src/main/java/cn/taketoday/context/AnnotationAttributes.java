@@ -22,8 +22,8 @@ package cn.taketoday.context;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -37,7 +37,7 @@ import java.util.Objects;
  * @since 2.1.1
  */
 @SuppressWarnings("serial")
-public class AnnotationAttributes extends LinkedHashMap<String, Object> {
+public class AnnotationAttributes extends HashMap<String, Object> {
 
     private static final String UNKNOWN = "unknown";
 
