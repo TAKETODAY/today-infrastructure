@@ -32,6 +32,7 @@ import cn.taketoday.context.Scope;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * Default implementation of {@link BeanDefinition}
@@ -64,7 +65,9 @@ public class DefaultBeanDefinition implements BeanDefinition {
     private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
 
     /** property values */
-    private PropertyValue[] propertyValues = new PropertyValue[0];
+    private PropertyValue[] propertyValues;
+
+    private static final PropertyValue[] EMPTY_PROPERTY_VALUE = new PropertyValue[0];
 
     /**
      * <p>
@@ -217,16 +220,22 @@ public class DefaultBeanDefinition implements BeanDefinition {
     }
 
     @Override
-    public void addPropertyValue(PropertyValue... propertyValues_) {
+    public void addPropertyValue(PropertyValue... newValues) {
 
-        if (this.propertyValues == null) {
-            this.propertyValues = propertyValues_;
-        }
-        else {
-            List<PropertyValue> propertyValues = new ArrayList<>();
-            Collections.addAll(propertyValues, propertyValues_);
+        if (ObjectUtils.isNotEmpty(newValues)) { // fix
 
-            this.propertyValues = propertyValues.toArray(new PropertyValue[0]);
+            final PropertyValue[] propertyValues = this.propertyValues;
+            if (propertyValues == null) {
+                this.propertyValues = newValues;
+            }
+            else {
+                List<PropertyValue> pool = new ArrayList<>(newValues.length + propertyValues.length);
+
+                Collections.addAll(pool, newValues);
+                Collections.addAll(pool, propertyValues);
+
+                this.propertyValues = pool.toArray(EMPTY_PROPERTY_VALUE);
+            }
         }
     }
 
@@ -237,14 +246,10 @@ public class DefaultBeanDefinition implements BeanDefinition {
             return;
         }
 
-        if (this.propertyValues == null) {
-            this.propertyValues = propertyValues.toArray(new PropertyValue[0]);
-        }
-        else {
-            // not null
+        if (this.propertyValues != null) {
             Collections.addAll(propertyValues, this.propertyValues);
-            this.propertyValues = propertyValues.toArray(new PropertyValue[0]);
         }
+        this.propertyValues = propertyValues.toArray(EMPTY_PROPERTY_VALUE);
     }
 
     @Override
