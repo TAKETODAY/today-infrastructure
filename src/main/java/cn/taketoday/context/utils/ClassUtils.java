@@ -1136,10 +1136,9 @@ public abstract class ClassUtils {
      * @return the instance of target class
      * @since 2.1.2
      */
-    @SuppressWarnings("unchecked")
     public static <T> T newInstance(Class<T> beanClass) throws ContextException {
         try {
-            return (T) newInstance(beanClass, ContextUtils.getApplicationContext());
+            return newInstance(beanClass, ContextUtils.getApplicationContext());
         }
         catch (ReflectiveOperationException e) {
             throw ExceptionUtils.newContextException(e);
@@ -1196,7 +1195,7 @@ public abstract class ClassUtils {
      * @throws ReflectiveOperationException
      *             if any reflective operation exception occurred
      */
-    public static Object newInstance(final Class<?> beanClass, final BeanFactory beanFactory) //
+    public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory) //
             throws ReflectiveOperationException //
     {
         try {
@@ -1204,14 +1203,15 @@ public abstract class ClassUtils {
         }
         catch (final NoSuchMethodException e) {
 
-            final Constructor<?>[] constructors = beanClass.getDeclaredConstructors();
+            @SuppressWarnings("unchecked") //
+            final Constructor<T>[] constructors = (Constructor<T>[]) beanClass.getDeclaredConstructors();
             if (constructors.length == 1) {
-                final Constructor<?> constructor = constructors[0];
+                final Constructor<T> constructor = constructors[0];
                 return constructor.newInstance(//
                         ContextUtils.resolveParameter(makeAccessible(constructor), beanFactory)//
                 );
             }
-            for (final Constructor<?> constructor : constructors) {
+            for (final Constructor<T> constructor : constructors) {
 
                 if (constructor.isAnnotationPresent(Autowired.class)) {
                     return constructor.newInstance(//
@@ -1373,6 +1373,7 @@ public abstract class ClassUtils {
             this.name = name;
             this.desc = desc;
         }
+
         @Override
         public void visitLocalVariable(String name, String descriptor, String signature, Label start, Label end, int index) {
             localVariables.add(name);

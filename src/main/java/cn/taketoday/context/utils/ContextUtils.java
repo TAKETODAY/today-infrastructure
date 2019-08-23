@@ -872,7 +872,7 @@ public abstract class ContextUtils {
                 ClassUtils.getAnnotation(annotatedElement, Conditional.class, ConditionalImpl.class);
 
         OrderUtils.reversedSort((List<Conditional>) annotations);
-        for (Conditional conditional : annotations) {
+        for (final Conditional conditional : annotations) {
 
             for (final Class<? extends Condition> conditionClass : conditional.value()) {
                 final Condition condition = ClassUtils.newInstance(conditionClass);
@@ -963,7 +963,7 @@ public abstract class ContextUtils {
     public static boolean isMissedBean(final MissingBean missingBean, final Class<?> beanClass, //
             final ConfigurableBeanFactory beanFactory) //
     {
-        if (missingBean == null || !conditional(beanClass)) { // fix @Conditional not 
+        if (missingBean == null || !conditional(beanClass)) { // fix @Conditional not
             return false;
         }
 
@@ -1000,18 +1000,14 @@ public abstract class ContextUtils {
         final Collection<AnnotationAttributes> componentAttributes = //
                 ClassUtils.getAnnotationAttributes(beanClass, Component.class);
 
-        final List<BeanDefinition> ret = new ArrayList<>(componentAttributes.size());
-
         if (componentAttributes.isEmpty()) {
-            ret.add(buildBeanDefinition(beanClass, null, defaultName));
+            return Collections.singletonList(buildBeanDefinition(beanClass, null, defaultName));
         }
-        else {
+        final List<BeanDefinition> ret = new ArrayList<>(componentAttributes.size());
+        for (final AnnotationAttributes attributes : componentAttributes) {
+            for (final String name : ContextUtils.findNames(defaultName, attributes.getStringArray(Constant.VALUE))) {
 
-            for (AnnotationAttributes attributes : componentAttributes) {
-                for (final String name : ContextUtils.findNames(defaultName, attributes.getStringArray(Constant.VALUE))) {
-
-                    ret.add(buildBeanDefinition(beanClass, attributes, name));
-                }
+                ret.add(buildBeanDefinition(beanClass, attributes, name));
             }
         }
         return ret;
