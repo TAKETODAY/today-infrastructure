@@ -51,6 +51,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -856,7 +857,7 @@ public abstract class ClassUtils {
 					// that use String objects than from chained if-then-else statements.
 					switch (method.getName())
 					{
-						case Constant.EQUALS : 			return eq(attributes, args);
+						case Constant.EQUALS : 			return eq(proxy, attributes, args[0]);
 						case Constant.HASH_CODE :		return attributes.hashCode();
 						case Constant.TO_STRING :		return attributes.toString();
 						case Constant.ANNOTATION_TYPE :	return annotationClass;
@@ -879,25 +880,34 @@ public abstract class ClassUtils {
      * @throws InvocationTargetException
      * @since 2.1.1
      */
-    private static Object eq(final AnnotationAttributes attributes, final Object[] args)//
+    private static Object eq(final Object proxy, final AnnotationAttributes attributes, final Object object)//
             throws IllegalAccessException, InvocationTargetException //
     {
-        final Object object = args[0];
-        if (attributes == object) {
+        if (proxy == object) {
             return true;
         }
-        if (object instanceof Annotation) {
-            for (final Method method_ : object.getClass().getDeclaredMethods()) {
-                final Object value_ = attributes.get(method_.getName());
-                final Object value = method_.invoke(object);
-                if (value == null || value_ == null || !value.equals(value_)) {
+
+        final Class<?> targetClass = proxy.getClass();
+        if (targetClass.isInstance(object)) {
+
+            for (Entry<String, Object> entry : attributes.entrySet()) {
+                final String key = entry.getKey(); // method name
+
+                try {
+
+                    final Method method = targetClass.getDeclaredMethod(key);
+
+                    if (method.getReturnType() == void.class //
+                            || !Objects.deepEquals(method.invoke(object), entry.getValue())) {
+                        
+                        return false;
+                    }
+                }
+                catch (NoSuchMethodException e) {
                     return false;
                 }
             }
             return true;
-        }
-        if (object instanceof AnnotationAttributes) {
-            return object.equals(attributes);
         }
         return false;
     }
