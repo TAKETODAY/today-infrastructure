@@ -20,6 +20,7 @@
 package cn.taketoday.context.bean;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -50,12 +51,8 @@ public class PropertyValue {
             return true;
         }
         if (obj instanceof PropertyValue) {
-            PropertyValue other = ((PropertyValue) obj);
-            if (!other.value.equals(this.value)) {
-                return false;
-            }
-            Field otherField = other.field;
-            return otherField.equals(field);
+            final PropertyValue other = ((PropertyValue) obj);
+            return Objects.deepEquals(other.value, value) && Objects.equals(other.field, field);
         }
         return false;
     }
