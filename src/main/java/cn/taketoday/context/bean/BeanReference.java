@@ -22,7 +22,6 @@ package cn.taketoday.context.bean;
 import java.util.Objects;
 
 import cn.taketoday.context.exception.ContextException;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 import lombok.Getter;
 
@@ -73,12 +72,12 @@ public final class BeanReference {
         }
 
         if (obj instanceof BeanReference) {
-            BeanReference other = (BeanReference) obj;
+            final BeanReference other = (BeanReference) obj;
 
-            return (other.required == this.required && //
-                    other.prototype == this.prototype && //
-                    other.name.equals(this.name) && //
-                    ContextUtils.equals(other.referenceClass, referenceClass));
+            return (other.required == this.required //
+                    && other.prototype == this.prototype//
+                    && Objects.equals(other.name, this.name)//
+                    && other.referenceClass == referenceClass);
         }
 
         return false;

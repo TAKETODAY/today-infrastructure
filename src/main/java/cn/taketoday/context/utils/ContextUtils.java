@@ -975,13 +975,6 @@ public abstract class ContextUtils {
                 || beanFactory.containsBeanDefinition(beanClass));
     }
 
-    /**
-     * @since 2.1.6
-     */
-    public static boolean equals(Class<?> one, Class<?> two) {
-        return one.getName().equals(two.getName());
-    }
-
     // bean definition
 
     /**
