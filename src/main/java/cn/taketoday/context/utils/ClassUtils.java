@@ -991,7 +991,6 @@ public abstract class ClassUtils {
                     result.add(attr);
                 }
             }
-
             return result.isEmpty() ? EMPTY_ANNOTATION_ATTRIBUTES : result.toArray(EMPTY_ANNOTATION_ATTRIBUTES);
         });
     }

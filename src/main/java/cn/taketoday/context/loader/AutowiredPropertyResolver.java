@@ -21,7 +21,6 @@ package cn.taketoday.context.loader;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.Map.Entry;
 
 import javax.annotation.Resource;
@@ -91,14 +90,14 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
             }
         }
         else if (NAMED_CLASS != null) {// @Named
-            final Collection<AnnotationAttributes> annotationAttributes = //
-                    ClassUtils.getAnnotationAttributes(field, NAMED_CLASS); // @Named
+            final AnnotationAttributes annotationAttributes = //
+                    ClassUtils.getAnnotationAttributes(NAMED_CLASS, field); // @Named
 
-            if (annotationAttributes.isEmpty()) {
+            if (annotationAttributes == null) {
                 name = byType(applicationContext, propertyClass, beanNameCreator);
             }
             else {
-                name = annotationAttributes.iterator().next().getString(Constant.VALUE); // name attr
+                name = annotationAttributes.getString(Constant.VALUE); // name attr
             }
         }
         else {// @Inject

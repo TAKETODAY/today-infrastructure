@@ -357,7 +357,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Register Application Listener, With Msg: [{}]", ex.getMessage(), ex);
+            log.error("An Exception Occurred When Register Application Listener, With Msg: [{}]", ex, ex);
             throw ExceptionUtils.newContextException(ex);
         }
     }
