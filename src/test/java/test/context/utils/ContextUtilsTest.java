@@ -26,6 +26,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 import org.junit.After;
@@ -34,8 +36,12 @@ import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.annotation.Value;
+import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.bean.StandardBeanDefinition;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
@@ -123,8 +129,11 @@ public class ContextUtilsTest {
     @Props(prefix = "site.")
     Config test;
 
+    Config none;
+
     @Test
-    public void test_ResolveProps() throws NoSuchFieldException, SecurityException, IOException {
+    @Props
+    public void testResolveProps() throws NoSuchFieldException, SecurityException, IOException, NoSuchMethodException {
 
         Field declaredField = ContextUtilsTest.class.getDeclaredField("test");
         Props declaredAnnotation = declaredField.getDeclaredAnnotation(Props.class);
@@ -142,10 +151,14 @@ public class ContextUtilsTest {
         assert 21 == resolveProps.getAdmin().getAge();
         assert "666".equals(resolveProps.getAdmin().getUserId());
         assert "TODAY".equals(resolveProps.getAdmin().getUserName());
+
+        assert ContextUtils.resolveProps(ContextUtilsTest.class.getDeclaredField("none"), properties).equals(Collections.emptyList());
+
+        ContextUtils.resolveProps(ContextUtilsTest.class.getMethod("testResolveProps"), properties);
     }
 
     @Test
-    public void test_ResolveParameter() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException,
+    public void testResolveParameter() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
 
         ClassUtils.clearCache();
@@ -159,14 +172,14 @@ public class ContextUtilsTest {
 
             Constructor<Config> constructor = //
                     Config.class.getConstructor(UserModel.class, Properties.class, //
-                            Properties.class, int.class);
+                            Properties.class, int.class, int.class);
 
             Object[] resolveParameter = ContextUtils.resolveParameter(constructor, applicationContext);
 
             Config newInstance = constructor.newInstance(resolveParameter);
             System.err.println(newInstance);
 
-            assert resolveParameter.length == 4;
+            assert resolveParameter.length == 5;
 
             assert resolveParameter[0] instanceof UserModel;
 
@@ -203,9 +216,11 @@ public class ContextUtilsTest {
         public Config(@Props(prefix = "site.admin.") UserModel model, //
                 @Props(prefix = "site.") Properties properties, //
                 Properties emptyProperties, //
+                @Env("placeHolder") int placeHolderEnv,
                 @Value("#{placeHolder}") int placeHolder) //
         {
             assert placeHolder == 12345;
+            assert placeHolderEnv == 12345;
             System.err.println("model -> " + model);
             System.err.println(properties.getClass());
         }
@@ -220,6 +235,56 @@ public class ContextUtilsTest {
         private String userId;
         private String userName;
         private Integer age;
+    }
+
+    // -------------------------
+
+    @Singleton
+    public static class TestBean {
+
+    }
+
+    @Test
+    public void testBuildBeanDefinitions() throws NoSuchFieldException, SecurityException, IOException {
+        try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.utils")) {
+
+            List<BeanDefinition> beanDefinitions = ContextUtils.buildBeanDefinitions(getClass(), null);
+            assert beanDefinitions.size() == 1;
+
+            beanDefinitions = ContextUtils.buildBeanDefinitions(TestBean.class, null);
+            assert beanDefinitions.size() == 1;
+
+            final BeanDefinition beanDefinition = beanDefinitions.get(0);
+            beanDefinition.setDestroyMethods(null);
+            beanDefinition.setInitMethods(null);
+            beanDefinition.setScope(null);
+            beanDefinition.setPropertyValues(null);
+            ContextUtils.validateBeanDefinition(beanDefinition);
+
+            beanDefinition.setBeanClass(null); // error
+
+            try {
+                ContextUtils.validateBeanDefinition(beanDefinition);
+            }
+            catch (ConfigurationException e) {
+                assert true;
+            }
+
+            StandardBeanDefinition standardBeanDefinition = new StandardBeanDefinition();
+            try {
+                ContextUtils.validateBeanDefinition(standardBeanDefinition);
+            }
+            catch (ConfigurationException e) {
+                assert true;
+            }
+            try {
+                ContextUtils.validateBeanDefinition(standardBeanDefinition.setDeclaringName("test"));
+            }
+            catch (ConfigurationException e) {
+                assert true;
+            }
+        }
+
     }
 
 }

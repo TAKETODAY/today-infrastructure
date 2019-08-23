@@ -52,7 +52,7 @@ public abstract class ObjectUtils {
             return true;
         }
         if (obj instanceof String) {
-            return ((String) obj).length() == 0;
+            return ((String) obj).isEmpty();
         }
         if (obj instanceof Collection) {
             return ((Collection<?>) obj).isEmpty();
@@ -70,4 +70,5 @@ public abstract class ObjectUtils {
     public static boolean isNotEmpty(Object obj) {
         return !isEmpty(obj);
     }
+
 }

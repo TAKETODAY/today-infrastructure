@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.After;
@@ -172,6 +173,29 @@ public class ClassUtilsTest {
         assert annotation.scope() == Scope.SINGLETON;
         assert annotations.size() == 2;
 
+        assert !annotation.equals(null);
+        assert annotation.equals(annotation);
+
+        assert annotation.equals(ClassUtils.getAnnotationProxy(C.class, attributes));
+
+        final AnnotationAttributes clone = new AnnotationAttributes(attributes);
+
+        assert !clone.equals(annotation);
+        assert !clone.equals(null);
+        assert clone.equals(clone);
+        assert clone.equals(attributes);
+
+        clone.remove("value");
+        assert !clone.equals(attributes);
+        assert !clone.equals(new AnnotationAttributes((Map<String, Object>) attributes));
+        assert !annotation.equals(ClassUtils.getAnnotationProxy(C.class, clone));
+
+        final AnnotationAttributes fromMap = AnnotationAttributes.fromMap(clone);
+        assert fromMap.equals(clone);
+        assert !fromMap.equals(new AnnotationAttributes());
+        assert !fromMap.equals(new AnnotationAttributes(1));
+        assert !fromMap.equals(new AnnotationAttributes(C.class));
+
         try {
 
             ClassUtils.getAnnotationAttributes(null);
@@ -211,10 +235,14 @@ public class ClassUtilsTest {
             if ("s".equals(attributes.getStringArray("value")[0])) {
                 assert attributes.getEnum("scope") == Scope.SINGLETON;
             }
-            if ("q".equals(attributes.getStringArray("value")[0])) {
+            if ("p".equals(attributes.getStringArray("value")[0])) {
                 assert attributes.getEnum("scope") == Scope.PROTOTYPE;
             }
         }
+
+        final AnnotationAttributes attr = ClassUtils.getAnnotationAttributes(C.class, Bean.class);
+
+        assert attr.getEnum("scope") == Scope.SINGLETON;
     }
 
     @Test

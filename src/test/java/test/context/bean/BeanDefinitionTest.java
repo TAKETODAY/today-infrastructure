@@ -87,6 +87,11 @@ public class BeanDefinitionTest {
                     new PropertyValue("TEST_STRING", test), //
                     new PropertyValue(123.123, testDouble)//
             );
+            
+            beanDefinition.addPropertyValue(//
+                    new PropertyValue("TEST_STRING", test), //
+                    new PropertyValue(123.123, testDouble)//
+            );
 
             beanDefinition.getPropertyValue("test");
             assert beanDefinition.isSingleton();
