@@ -31,7 +31,6 @@ import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -860,23 +859,22 @@ public abstract class ContextUtils {
     /**
      * Decide whether to load the bean
      * 
-     * @param annotatedElement
+     * @param annotated
      *            Target class or a method
      * @param applicationContext
      *            {@link ApplicationContext}
      * @return If matched
      */
-    public static boolean conditional(AnnotatedElement annotatedElement) {
+    public static boolean conditional(final AnnotatedElement annotated) {
 
-        final Collection<Conditional> annotations = //
-                ClassUtils.getAnnotation(annotatedElement, Conditional.class, ConditionalImpl.class);
+        final List<Conditional> annotations = //
+                ClassUtils.getAnnotation(annotated, Conditional.class, ConditionalImpl.class);
 
-        OrderUtils.reversedSort((List<Conditional>) annotations);
+        OrderUtils.reversedSort(annotations);
         for (final Conditional conditional : annotations) {
 
             for (final Class<? extends Condition> conditionClass : conditional.value()) {
-                final Condition condition = ClassUtils.newInstance(conditionClass);
-                if (!condition.matches(annotatedElement)) {
+                if (!ClassUtils.newInstance(conditionClass).matches(annotated)) {
                     return false; // can't match
                 }
             }
@@ -910,7 +908,7 @@ public abstract class ContextUtils {
             throw new ConfigurationException("Definition's bean class can't be null");
         }
         if (beanDefinition.getDestroyMethods() == null) {
-            beanDefinition.setDestroyMethods(new String[0]);
+            beanDefinition.setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
         }
         if (beanDefinition.getInitMethods() == null) {
             beanDefinition.setInitMethods(resolveInitMethod(beanDefinition.getBeanClass()));
@@ -997,20 +995,22 @@ public abstract class ContextUtils {
      */
     public static List<BeanDefinition> buildBeanDefinitions(Class<?> beanClass, String defaultName) {
 
-        final Collection<AnnotationAttributes> componentAttributes = //
-                ClassUtils.getAnnotationAttributes(beanClass, Component.class);
+        final AnnotationAttributes[] componentAttributes = //
+                ClassUtils.getAnnotationAttributesArray(beanClass, Component.class);
 
-        if (componentAttributes.isEmpty()) {
+        if (ObjectUtils.isEmpty(componentAttributes)) {
             return Collections.singletonList(buildBeanDefinition(beanClass, null, defaultName));
         }
-        final List<BeanDefinition> ret = new ArrayList<>(componentAttributes.size());
-        for (final AnnotationAttributes attributes : componentAttributes) {
-            for (final String name : ContextUtils.findNames(defaultName, attributes.getStringArray(Constant.VALUE))) {
+        else {
+            final List<BeanDefinition> ret = new ArrayList<>(componentAttributes.length);
+            for (final AnnotationAttributes attributes : componentAttributes) {
+                for (final String name : ContextUtils.findNames(defaultName, attributes.getStringArray(Constant.VALUE))) {
 
-                ret.add(buildBeanDefinition(beanClass, attributes, name));
+                    ret.add(buildBeanDefinition(beanClass, attributes, name));
+                }
             }
+            return ret;
         }
-        return ret;
     }
 
     public static BeanDefinition buildBeanDefinition(Class<?> beanClass, AnnotationAttributes attributes, String beanName) {
