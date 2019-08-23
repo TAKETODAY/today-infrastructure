@@ -41,9 +41,8 @@ public class AnnotationAttributes extends HashMap<String, Object> {
 
     private static final String UNKNOWN = "unknown";
 
-    private final Class<? extends Annotation> annotationType;
-
     private final String displayName;
+    private final Class<? extends Annotation> annotationType;
 
     public AnnotationAttributes() {
         this.annotationType = null;
@@ -217,16 +216,17 @@ public class AnnotationAttributes extends HashMap<String, Object> {
         if (object == this) {
             return true;
         }
-        if (!(object instanceof AnnotationAttributes)) {
-            return false;
-        }
-        final AnnotationAttributes other = (AnnotationAttributes) object;
+        if (object instanceof AnnotationAttributes) {
+            final AnnotationAttributes other = (AnnotationAttributes) object;
 
-        if (other.annotationType != annotationType || !displayName.equals(other.displayName)) {
-            return false;
-        }
+            if (!Objects.equals(annotationType, other.annotationType) //
+                    || !Objects.equals(displayName, other.displayName)) {
 
-        return super.equals(object);
+                return false;
+            }
+            return super.equals(object);
+        }
+        return false;
     }
 
 }
