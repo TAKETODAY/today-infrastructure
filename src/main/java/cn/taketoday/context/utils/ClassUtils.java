@@ -823,6 +823,28 @@ public abstract class ClassUtils {
     /**
      * Get First Annotation
      * 
+     * @param element
+     *            The annotated element
+     * @param annotationClass
+     *            The annotation class
+     * @param implClass
+     *            the annotation' subclass
+     * @return the {@link Collection} of {@link Annotation} instance
+     * @since 2.1.7
+     */
+    public static <T extends Annotation> T getAnnotation(
+            final Class<T> annotationClass,
+            final Class<? extends T> implClass,
+            final AnnotatedElement element) //
+    {
+
+        final T[] array = getAnnotationArray(element, annotationClass, implClass);
+        return ObjectUtils.isEmpty(array) ? null : array[0];
+    }
+
+    /**
+     * Get First Annotation
+     * 
      * @param annotatedElement
      *            The annotated element
      * @param annotationClass
@@ -899,7 +921,7 @@ public abstract class ClassUtils {
 
                     if (method.getReturnType() == void.class //
                             || !Objects.deepEquals(method.invoke(object), entry.getValue())) {
-                        
+
                         return false;
                     }
                 }
@@ -999,10 +1021,10 @@ public abstract class ClassUtils {
             }
 
             if (obj instanceof AnnotationKey) {
-                AnnotationKey<?> other = (AnnotationKey<?>) obj;
+                final AnnotationKey<?> other = (AnnotationKey<?>) obj;
 
-                return annotatedElement.equals(other.annotatedElement) //
-                        && annotationClass.equals(other.annotationClass);
+                return Objects.equals(annotatedElement, other.annotatedElement) //
+                        && Objects.equals(annotationClass, other.annotationClass);
             }
             return false;
         }
@@ -1133,7 +1155,8 @@ public abstract class ClassUtils {
      * @return Whether it's present
      */
     public static <A extends Annotation> boolean isAnnotationPresent(final AnnotatedElement element, final Class<A> annType) {
-        return element.isAnnotationPresent(annType) || getAnnotation(annType, element) != null;
+        return element.isAnnotationPresent(annType) //
+                || ObjectUtils.isNotEmpty(getAnnotationAttributesArray(element, annType));
     }
 
     // ----------------------------- new instance
