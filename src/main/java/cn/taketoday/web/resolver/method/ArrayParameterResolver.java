@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.resolver.method;
 
-import cn.taketoday.context.utils.NumberUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.MethodParameter;
@@ -39,20 +39,20 @@ public class ArrayParameterResolver implements OrderedParameterResolver {
     @Override
     public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
 
-        final String parameterName = parameter.getName();
+        final String name = parameter.getName();
         // parameter value[]
-        String[] parameterValues = requestContext.parameters(parameterName);
+        String[] values = requestContext.parameters(name);
 
-        if (StringUtils.isArrayEmpty(parameterValues)) {
-            parameterValues = StringUtils.split(requestContext.parameter(parameterName));
-            if (StringUtils.isArrayEmpty(parameterValues)) {
+        if (ObjectUtils.isEmpty(values)) {
+            values = StringUtils.split(requestContext.parameter(name));
+            if (ObjectUtils.isEmpty(values)) {
                 if (parameter.isRequired()) {
-                    throw WebUtils.newBadRequest("Array", parameterName, null);
+                    throw WebUtils.newBadRequest("Array", name, null);
                 }
                 return null;
             }
         }
-        return NumberUtils.toArrayObject(parameterValues, parameter.getParameterClass());
+        return ObjectUtils.toArrayObject(values, parameter.getParameterClass());
     }
 
     @Override
