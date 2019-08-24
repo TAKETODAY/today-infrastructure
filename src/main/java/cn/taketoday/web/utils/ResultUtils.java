@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
-import javax.servlet.ServletException;
 
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ExceptionUtils;
@@ -76,14 +75,9 @@ public abstract class ResultUtils {
     public static void resolveException(//
             final RequestContext requestContext,
             final ExceptionResolver exceptionResolver, //
-            final WebMapping webMapping, Throwable exception) throws ServletException //
+            final WebMapping webMapping, Throwable exception) throws Throwable //
     {
-        try {
-            exceptionResolver.resolveException(requestContext, ExceptionUtils.unwrapThrowable(exception), webMapping);
-        }
-        catch (Throwable e) {
-            throw new ServletException(e);
-        }
+        exceptionResolver.resolveException(requestContext, ExceptionUtils.unwrapThrowable(exception), webMapping);
     }
 
     public static void resolveRedirect(final String redirect, final RequestContext requestContext) throws IOException {
