@@ -142,7 +142,12 @@ public class ResourceServlet extends GenericServlet {
             }
         }
         catch (Throwable exception) {
-            ResultUtils.resolveException(requestContext, exceptionResolver, resourceMapping, exception);
+            try {
+                ResultUtils.resolveException(requestContext, exceptionResolver, resourceMapping, exception);
+            }
+            catch (Throwable e1) {
+                throw new ServletException(e1);
+            }
         }
     }
 

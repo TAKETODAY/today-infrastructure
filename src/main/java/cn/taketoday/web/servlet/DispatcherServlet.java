@@ -137,7 +137,12 @@ public class DispatcherServlet implements Servlet, Serializable {
             method.resolveResult(context, result);
         }
         catch (Throwable e) {
-            ResultUtils.resolveException(context, exceptionResolver, mapping, e);
+            try {
+                ResultUtils.resolveException(context, exceptionResolver, mapping, e);
+            }
+            catch (Throwable e1) {
+                throw new ServletException(e1);
+            }
         }
     }
 

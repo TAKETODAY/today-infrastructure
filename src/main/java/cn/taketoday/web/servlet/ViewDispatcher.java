@@ -101,7 +101,12 @@ public class ViewDispatcher extends GenericServlet {
             }
         }
         catch (Throwable e) {
-            ResultUtils.resolveException(requestContext, exceptionResolver, mapping, e);
+            try {
+                ResultUtils.resolveException(requestContext, exceptionResolver, mapping, e);
+            }
+            catch (Throwable e1) {
+                throw new ServletException(e1);
+            }
         }
     }
 
