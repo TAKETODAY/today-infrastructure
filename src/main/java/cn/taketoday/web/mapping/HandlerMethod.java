@@ -33,6 +33,7 @@ import java.util.List;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.resolver.result.ResultResolver;
 
@@ -211,11 +212,13 @@ public class HandlerMethod {
     }
 
     public static void addResolver(ResultResolver... resolvers) {
-        Collections.addAll(getResultResolvers(), resolvers);
+        Collections.addAll(RESULT_RESOLVERS, resolvers);
+        OrderUtils.reversedSort(RESULT_RESOLVERS);
     }
 
     public static void addResolver(List<ResultResolver> parameterResolver) {
-        getResultResolvers().addAll(parameterResolver);
+        RESULT_RESOLVERS.addAll(parameterResolver);
+        OrderUtils.reversedSort(RESULT_RESOLVERS);
     }
 
     public static List<ResultResolver> getResultResolvers() {

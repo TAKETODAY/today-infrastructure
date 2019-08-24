@@ -190,8 +190,6 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         resolvers.add(new ResponseBodyResultResolver(messageConverter));
 
         mvcConfiguration.configureResultResolver(resolvers);
-        OrderUtils.reversedSort(resolvers);
-
         HandlerMethod.addResolver(resolvers);
     }
 
@@ -305,7 +303,6 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         mvcConfiguration.configureParameterResolver(resolvers); // user configure
 
-        OrderUtils.reversedSort(resolvers);
         MethodParameter.addResolver(resolvers);
     }
 

@@ -31,8 +31,6 @@ public interface Validator {
      *
      * @param object
      *            object to validate
-     * @param groups
-     *            the group or list of groups targeted for validation
      * @return a set of the constraint violations caused by this validation; will be
      *         null if no error occurs
      */

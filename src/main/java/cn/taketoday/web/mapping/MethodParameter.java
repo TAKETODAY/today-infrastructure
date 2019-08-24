@@ -30,6 +30,7 @@ import java.util.List;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.resolver.method.ParameterResolver;
 import lombok.Getter;
@@ -167,11 +168,15 @@ public class MethodParameter {
     }
 
     public static void addResolver(ParameterResolver... resolver) {
-        Collections.addAll(getParameterResolvers(), resolver);
+
+        Collections.addAll(PARAMETER_RESOLVERS, resolver);
+        OrderUtils.reversedSort(PARAMETER_RESOLVERS);
     }
 
     public static void addResolver(List<ParameterResolver> resolvers) {
-        getParameterResolvers().addAll(resolvers);
+
+        PARAMETER_RESOLVERS.addAll(resolvers);
+        OrderUtils.reversedSort(PARAMETER_RESOLVERS);
     }
 
     public static List<ParameterResolver> getParameterResolvers() {
@@ -187,5 +192,10 @@ public class MethodParameter {
             }
         }
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj == this || (obj instanceof MethodParameter && parameter.equals(((MethodParameter) obj).parameter));
     }
 }
