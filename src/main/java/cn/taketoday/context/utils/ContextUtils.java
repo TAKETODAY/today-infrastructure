@@ -91,13 +91,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class ContextUtils {
 
-    private static PropertyValueResolver[] propertyValueResolvers;
-
-    // @since 2.1.6 // shared elProcessor
+    // @since 2.1.6 shared elProcessor
     private static ELProcessor elProcessor;
 
     // @since 2.1.6 shared applicationContext
     public static ApplicationContext applicationContext;
+
+    private static PropertyValueResolver[] propertyValueResolvers;
 
     static {
 
@@ -534,16 +534,19 @@ public abstract class ContextUtils {
         if (initMethods == null) {
             initMethods = Constant.EMPTY_STRING_ARRAY;
         }
+
         final List<Method> methods = new ArrayList<>(4);
 
-        addInitMethod(methods, beanClass, initMethods);
-        // superclass
-        final Class<?> superClass = beanClass.getSuperclass();
-        if (superClass != null && superClass != Object.class) {
-            addInitMethod(methods, superClass, initMethods);
+        do {
+            addInitMethod(methods, beanClass, initMethods);
+        } while ((beanClass = beanClass.getSuperclass()) != null && beanClass != Object.class); // all methods
+
+        if (methods.isEmpty()) {
+            return BeanDefinition.EMPTY_METHOD;
         }
+
         OrderUtils.reversedSort(methods);
-        return methods.toArray(new Method[0]);
+        return methods.toArray(BeanDefinition.EMPTY_METHOD);
     }
 
     /**
@@ -564,8 +567,9 @@ public abstract class ContextUtils {
                 methods.add(method);
                 continue;
             }
+
             for (final String initMethod : initMethods) {
-                if (method.getParameterCount() == 0 && initMethod.equals(method.getName())) {
+                if (initMethod.equals(method.getName())) { // equals
                     methods.add(method);
                 }
             }
@@ -594,7 +598,8 @@ public abstract class ContextUtils {
      *            {@link ApplicationContext}
      * @since 2.1.2
      */
-    public static PropertyValue[] resolvePropertyValue(Class<?> beanClass) {
+    public static PropertyValue[] resolvePropertyValue(final Class<?> beanClass) {
+
         final Set<PropertyValue> propertyValues = new HashSet<>(32);
         for (final Field field : ClassUtils.getFields(beanClass)) {
             final PropertyValue created = createPropertyValue(field);
@@ -604,7 +609,10 @@ public abstract class ContextUtils {
                 propertyValues.add(created);
             }
         }
-        return propertyValues.toArray(new PropertyValue[0]);
+
+        return propertyValues.isEmpty() //
+                ? BeanDefinition.EMPTY_PROPERTY_VALUE //
+                : propertyValues.toArray(BeanDefinition.EMPTY_PROPERTY_VALUE);
     }
 
     /**

@@ -147,6 +147,7 @@ public class ClassUtilsTest {
     }
 
     @Test
+    @SuppressWarnings("unlikely-arg-type")
     public void test_GetAnnotation() throws Exception {
         setProcess("getAnnotation");
 

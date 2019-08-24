@@ -119,6 +119,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     @Override
     public void loadContext(Collection<Class<?>> classes) {
+
         try {
             // Prepare refresh
             prepareRefresh();
@@ -136,7 +137,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         catch (Throwable ex) {
             applyState(State.FAILED);
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Loading Context, With Msg: [{}]", ex.getMessage(), ex);
+            log.error("An Exception Occurred When Loading Context, With Msg: [{}]", ex.toString(), ex);
             throw ExceptionUtils.newContextException(ex);
         }
     }
@@ -152,25 +153,24 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         applyState(State.STARTING);
 
+        // prepare properties
+        final ConfigurableEnvironment environment = getEnvironment();
         try {
-            // prepare properties
-            final ConfigurableEnvironment environment = getEnvironment();
-
             environment.loadProperties();
-            postProcessLoadProperties(environment);
-
-            {// @since 2.1.6
-                if (environment.getProperty(Constant.ENABLE_FULL_PROTOTYPE, boolean.class, false)) {
-                    enableFullPrototype();
-                }
-                if (environment.getProperty(Constant.ENABLE_FULL_LIFECYCLE, boolean.class, false)) {
-                    enableFullLifecycle();
-                }
-            }
         }
         catch (IOException ex) {
-            log.error("An Exception Occurred When Loading Properties, With Msg: [{}]", ex.getMessage(), ex);
+            log.error("An Exception Occurred When Loading Properties, With Msg: [{}]", ex.toString(), ex);
             throw new ContextException(ex);
+        }
+        postProcessLoadProperties(environment);
+
+        {// @since 2.1.6
+            if (environment.getProperty(Constant.ENABLE_FULL_PROTOTYPE, boolean.class, false)) {
+                enableFullPrototype();
+            }
+            if (environment.getProperty(Constant.ENABLE_FULL_LIFECYCLE, boolean.class, false)) {
+                enableFullLifecycle();
+            }
         }
     }
 

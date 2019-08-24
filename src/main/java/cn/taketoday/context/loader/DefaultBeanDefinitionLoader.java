@@ -39,6 +39,7 @@ import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -87,16 +88,17 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
     @Override
     public void loadBeanDefinition(String name, Class<?> beanClass) throws BeanDefinitionStoreException {
+
         // register
 
-        final Collection<AnnotationAttributes> annotationAttributes = //
-                ClassUtils.getAnnotationAttributes(beanClass, Component.class);
+        final AnnotationAttributes[] annotationAttributes = //
+                ClassUtils.getAnnotationAttributesArray(beanClass, Component.class);
 
-        if (annotationAttributes.isEmpty()) {
+        if (ObjectUtils.isEmpty(annotationAttributes)) {
             register(name, build(beanClass, null, name));
         }
         else {
-            for (AnnotationAttributes attributes : annotationAttributes) {
+            for (final AnnotationAttributes attributes : annotationAttributes) {
                 register(name, build(beanClass, attributes, name));
             }
         }
@@ -113,17 +115,16 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
     @Override
     public void register(Class<?> beanClass) throws BeanDefinitionStoreException {
 
-        Collection<AnnotationAttributes> annotationAttributes = //
-                ClassUtils.getAnnotationAttributes(beanClass, Component.class);
+        final AnnotationAttributes[] annotationAttributes = //
+                ClassUtils.getAnnotationAttributesArray(beanClass, Component.class);
 
-        if (annotationAttributes.isEmpty()) {
-            return;
-        }
+        if (ObjectUtils.isNotEmpty(annotationAttributes)) {
 
-        final String defaultBeanName = beanNameCreator.create(beanClass);
-        for (final AnnotationAttributes attributes : annotationAttributes) {
-            for (final String name : ContextUtils.findNames(defaultBeanName, attributes.getStringArray(Constant.VALUE))) {
-                register(name, build(beanClass, attributes, name));
+            final String defaultBeanName = beanNameCreator.create(beanClass);
+            for (final AnnotationAttributes attributes : annotationAttributes) {
+                for (final String name : ContextUtils.findNames(defaultBeanName, attributes.getStringArray(Constant.VALUE))) {
+                    register(name, build(beanClass, attributes, name));
+                }
             }
         }
     }
@@ -142,7 +143,6 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
      *             If any {@link Exception} occurred
      */
     protected BeanDefinition build(Class<?> beanClass, AnnotationAttributes attributes, String beanName) {
-
         return ContextUtils.buildBeanDefinition(beanClass, attributes, beanName);
     }
 
@@ -186,7 +186,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
             throw new BeanDefinitionStoreException("An Exception Occurred When Register Bean Definition: [" + //
-                    name + "], With Msg: [" + ex.getMessage() + "]", ex);
+                    name + "], With Msg: [" + ex + "]", ex);
         }
     }
 
@@ -235,14 +235,10 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
     @Override
     public BeanDefinition createBeanDefinition(Class<?> beanClass) {
-
-        final Collection<AnnotationAttributes> annotationAttributes = //
-                ClassUtils.getAnnotationAttributes(beanClass, Component.class);
-
-        if (annotationAttributes.isEmpty()) {
-            return build(beanClass, null, beanNameCreator.create(beanClass));
-        }
-        return build(beanClass, annotationAttributes.iterator().next(), beanNameCreator.create(beanClass));
+        return build(beanClass, //
+                ClassUtils.getAnnotationAttributes(Component.class, beanClass), //
+                beanNameCreator.create(beanClass)//
+        );
     }
 
 }
