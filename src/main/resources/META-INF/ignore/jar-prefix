@@ -30,6 +30,7 @@ reactor-core-
 reactive-streams-
 today-web-
 today-aop-
+today-jdbc-
 today-cache-
 today-context-
 today-framework-
