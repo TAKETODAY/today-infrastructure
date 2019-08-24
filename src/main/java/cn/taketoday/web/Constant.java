@@ -81,7 +81,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	// Resolver
 	String	VIEW_RESOLVER						= "viewResolver";
 	String	EXCEPTION_RESOLVER					= "exceptionResolver";
-	String	VIEW_CONFIG							= "viewConfig";
+	
 	String	ACTION_CONFIG						= "actionConfig";
 	// the dtd
 	String	DTD_NAME							= "web-configuration";

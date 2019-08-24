@@ -28,7 +28,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import cn.taketoday.context.BeanNameCreator;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
@@ -36,7 +35,6 @@ import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebApplicationContextAware;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.ViewMapping;
 import lombok.extern.slf4j.Slf4j;
@@ -46,13 +44,22 @@ import lombok.extern.slf4j.Slf4j;
  *         2018-06-23 16:19:53
  */
 @Slf4j
-@Singleton(Constant.VIEW_CONFIG)
-public class ViewConfiguration implements WebApplicationContextAware {
+public class ViewConfiguration {
 
-    private String contextPath;
-    private Properties variables;
-    private BeanNameCreator beanNameCreator;
-    private WebApplicationContext applicationContext;
+    private final String contextPath;
+    private final Properties variables;
+    private final BeanNameCreator beanNameCreator;
+    private final WebApplicationContext applicationContext;
+
+    public ViewConfiguration(WebApplicationContext applicationContext) {
+
+        this.applicationContext = applicationContext;
+        final ConfigurableEnvironment environment = applicationContext.getEnvironment();
+
+        this.variables = environment.getProperties();
+        this.contextPath = applicationContext.getContextPath();
+        this.beanNameCreator = environment.getBeanNameCreator();
+    }
 
     /**
      * 
@@ -85,7 +92,7 @@ public class ViewConfiguration implements WebApplicationContextAware {
                 applicationContext.registerBean(name, beanClass); // fix
                 applicationContext.refresh(name);
             }
-            controllerBean = applicationContext.getBean(beanClass);
+            controllerBean = applicationContext.getBean(name); // fix
         }
 
         NodeList nl = controller.getChildNodes();
@@ -168,16 +175,6 @@ public class ViewConfiguration implements WebApplicationContextAware {
         ViewMapping.register(name, mapping);
         log.info("View Mapped [{} -> {}]", name, mapping);
         return mapping;
-    }
-
-    @Override
-    public void setWebApplicationContext(WebApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-        final ConfigurableEnvironment environment = applicationContext.getEnvironment();
-
-        this.variables = environment.getProperties();
-        this.beanNameCreator = environment.getBeanNameCreator();
-        this.contextPath = applicationContext.getContextPath();
     }
 
 }

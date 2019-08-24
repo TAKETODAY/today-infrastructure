@@ -23,8 +23,6 @@ import static cn.taketoday.context.utils.ContextUtils.resolveProps;
 import static cn.taketoday.context.utils.ContextUtils.resolveValue;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
@@ -95,14 +93,10 @@ import cn.taketoday.web.view.ViewResolver;
  * @author TODAY <br>
  *         2019-07-10 23:12
  */
+@SuppressWarnings("serial")
 public class WebApplicationLoader implements WebApplicationInitializer, Constant {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger log = LoggerFactory.getLogger(WebApplicationLoader.class);
-
-    private DocumentBuilder builder;
-    private ViewConfiguration viewConfiguration;
 
     /** context **/
     protected static WebApplicationContext applicationContext;
@@ -121,7 +115,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         final ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
-        final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration();
+        final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(applicationContext);
 
         configureResultResolver(applicationContext.getBeans(ResultResolver.class), mvcConfiguration);
 
@@ -129,13 +123,11 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         configureTypeConverter(applicationContext.getBeans(TypeConverter.class), mvcConfiguration);
 
-        configureParameterResolver(applicationContext.getBeans(ParameterResolver.class), //
-                applicationContext.getBean(MultipartConfiguration.class), mvcConfiguration);
+        configureParameterResolver(applicationContext.getBeans(ParameterResolver.class), mvcConfiguration);
 
         configureResourceRegistry(applicationContext.getBean(ResourceMappingRegistry.class), mvcConfiguration);
 
         if (environment.getProperty(ENABLE_WEB_MVC_XML, Boolean::parseBoolean, true)) {
-            this.viewConfiguration = applicationContext.getBean(VIEW_CONFIG, ViewConfiguration.class);
             initFrameWorkFromWebMvcXml();
         }
 
@@ -211,8 +203,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      * @param mvcConfiguration
      *            All {@link WebMvcConfiguration} object
      */
-    protected void configureParameterResolver(List<ParameterResolver> resolvers, //
-            MultipartConfiguration multipartConfiguration, WebMvcConfiguration mvcConfiguration) {
+    protected void configureParameterResolver(List<ParameterResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
 
         // Use ConverterParameterResolver to resolve primitive types
         // --------------------------------------------------------------------------
@@ -283,6 +274,10 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         // For multipart
         // -------------------------------------------
+
+        final MultipartConfiguration multipartConfiguration = //
+                applicationContext.getBean(MultipartConfiguration.class);
+
         mvcConfiguration.configureMultipart(multipartConfiguration);
 
         resolvers.add(new DefaultMultipartResolver(multipartConfiguration));
@@ -358,7 +353,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         return initializers;
     }
 
-    protected WebMvcConfiguration getWebMvcConfiguration() {
+    protected WebMvcConfiguration getWebMvcConfiguration(ApplicationContext applicationContext) {
         return new CompositeWebMvcConfiguration(applicationContext.getBeans(WebMvcConfiguration.class));
     }
 
@@ -373,10 +368,18 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         // find the configure file
         log.info("TODAY WEB Framework Is Looking For Configuration File.");
 
+        final String webMvcConfigLocation = getWebMvcConfigLocation();
+
+        if (StringUtils.isEmpty(webMvcConfigLocation)) {
+            log.info("Configuration File does not exist.");
+            return;
+        }
+
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
         factory.setIgnoringComments(true);
-        builder = factory.newDocumentBuilder();
+
+        final DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setEntityResolver((publicId, systemId) -> {
             if (systemId.contains(DTD_NAME) || publicId.contains(DTD_NAME)) {
                 return new InputSource(//
@@ -385,26 +388,19 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
             }
             return null;
         });
-
-        final String webMvcConfigLocation = getWebMvcConfigLocation();
-
-        if (StringUtils.isEmpty(webMvcConfigLocation)) {
-            return;
-        }
+        final ViewConfiguration viewConfiguration = new ViewConfiguration(applicationContext);
 
         for (final String file : StringUtils.split(webMvcConfigLocation)) {
 
             final Resource resource = ResourceUtils.getResource(file);
+
             if (resource == null || !resource.exists()) {
-                final ConfigurationException configurationException = //
-                        new ConfigurationException("Your Provided Configuration File: [" + file + "], Does Not Exist");
-                throw configurationException;
+                throw new ConfigurationException("Your Provided Configuration File: [" + file + "], Does Not Exist");
             }
             try (final InputStream inputStream = resource.getInputStream()) {
-                registerXml(builder.parse(inputStream), file);// fixed
+                registerFromXml(builder.parse(inputStream), resource.toString(), viewConfiguration);// fixed
             }
         }
-        builder = null;
     }
 
     protected String getWebMvcConfigLocation() throws Throwable {
@@ -412,46 +408,20 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     }
 
     /**
-     * Find configuration file.
-     * 
-     * @param dir
-     *            directory
-     * @throws Exception
-     */
-    protected void findConfiguration(File dir) throws Throwable {
-
-        log.debug("Enter [{}]", dir.getAbsolutePath());
-
-        final File[] listFiles = dir.listFiles(path -> (path.isDirectory() || path.getName().endsWith(".xml")));
-        if (listFiles == null) {
-            log.error("File: [{}] Does not exist", dir);
-            return;
-        }
-        for (File file : listFiles) {
-            if (file.isDirectory()) { // recursive
-                findConfiguration(file);
-            }
-            else {
-                try (InputStream inputStream = new FileInputStream(file)) {
-                    registerXml(builder.parse(inputStream), file.getAbsolutePath());
-                }
-            }
-        }
-    }
-
-    /**
      * configure with xml file
      * 
      * @param doc
      *            xml file
+     * @param viewConfiguration
      * @throws Throwable
      */
-    protected final void registerXml(final Document doc, final String filePath) throws Throwable {
-
+    protected void registerFromXml(final Document doc, final String filePath, //
+            final ViewConfiguration viewConfiguration) throws Throwable //
+    {
         final Element root = doc.getDocumentElement();
         if (ROOT_ELEMENT.equals(root.getNodeName())) { // root element
             log.info("Found Configuration File: [{}].", filePath);
-            configureStart(root);
+            configureStart(root, viewConfiguration);
         }
     }
 
@@ -461,16 +431,16 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      * @param root
      *            Root element
      */
-    protected void configureStart(Element root) throws Throwable {
+    protected void configureStart(final Element root, final ViewConfiguration viewConfiguration) throws Throwable {
 
         final NodeList nl = root.getChildNodes();
         final int length = nl.getLength();
 
         for (int i = 0; i < length; i++) {
-            Node node = nl.item(i);
+            final Node node = nl.item(i);
             if (node instanceof Element) {
-                Element ele = (Element) node;
-                String nodeName = ele.getNodeName();
+                final Element ele = (Element) node;
+                final String nodeName = ele.getNodeName();
 
                 log.debug("Found Element: [{}]", nodeName);
 
@@ -478,7 +448,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
                     viewConfiguration.configuration(ele);
                 } // ELEMENT_RESOURCES // TODO
                 else {
-                    log.warn("This element: [{}] is not supported.", nodeName);
+                    log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, Constant.WEB_VERSION);
                 }
             }
         }

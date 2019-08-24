@@ -20,6 +20,7 @@
 package cn.taketoday.web.servlet;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,6 +47,7 @@ import javax.servlet.annotation.WebServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -57,7 +59,6 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.event.WebApplicationFailedEvent;
 import cn.taketoday.web.mapping.ResourceMapping;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
-import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.method.ParameterResolver;
 import cn.taketoday.web.resolver.method.ServletParameterResolver;
 import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
@@ -81,7 +82,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     private ServletContext servletContext;
 
     @Override
-    protected ServletWebMvcConfiguration getWebMvcConfiguration() {
+    protected ServletWebMvcConfiguration getWebMvcConfiguration(ApplicationContext applicationContext) {
         return new ServletCompositeWebMvcConfiguration(applicationContext.getBeans(WebMvcConfiguration.class));
     }
 
@@ -93,13 +94,47 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
             webMvcConfigLocation = servletContext.getInitParameter(WEB_MVC_CONFIG_LOCATION);
         }
 
-        if (StringUtils.isEmpty(webMvcConfigLocation)) {
+        if (StringUtils.isEmpty(webMvcConfigLocation)) { // scan from '/'
             final String rootPath = servletContext.getRealPath("/");
-            log.debug("Finding Configuration File From Root Path: [{}]", rootPath);
-            findConfiguration(new File(rootPath));
+
+            final HashSet<String> paths = new HashSet<>();
+
+            final File dir = new File(rootPath);
+            if (dir.exists()) {
+                log.trace("Finding Configuration File From Root Path: [{}]", rootPath);
+
+                scanXml(dir, paths, (path -> (path.isDirectory() || path.getName().endsWith(".xml"))));
+                return StringUtils.arrayToString(paths.toArray(Constant.EMPTY_STRING_ARRAY));
+            }
             return null;
         }
         return webMvcConfigLocation;
+    }
+
+    /**
+     * Find configuration file.
+     * 
+     * @param dir
+     *            directory
+     * @throws Throwable
+     */
+    protected void scanXml(final File dir, final Set<String> files, FileFilter filter) throws Throwable {
+
+        log.trace("Enter [{}]", dir.getAbsolutePath());
+
+        final File[] listFiles = dir.listFiles(filter);
+        if (listFiles == null) {
+            log.error("File: [{}] Does not exist", dir);
+            return;
+        }
+        for (final File file : listFiles) {
+            if (file.isDirectory()) { // recursive
+                scanXml(file, files, filter);
+            }
+            else {
+                files.add(file.getAbsolutePath());
+            }
+        }
     }
 
     /**
@@ -153,14 +188,13 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
             applicationContext.publishEvent(new WebApplicationFailedEvent(applicationContext, ex));
-            log.error("Your Application Initialized ERROR: [{}]", ex.getMessage(), ex);
+            log.error("Your Application Initialized ERROR: [{}]", ex.toString(), ex);
             throw new ConfigurationException(ex);
         }
     }
 
     @Override
-    protected void configureParameterResolver(List<ParameterResolver> resolvers, //
-            MultipartConfiguration multipartConfiguration, WebMvcConfiguration mvcConfiguration) {
+    protected void configureParameterResolver(List<ParameterResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
 
         // Servlet cookies parameter
         // ----------------------------
@@ -184,7 +218,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         resolvers.add(new ServletParameterResolver.HttpSessionAttributeParameterResolver());
         resolvers.add(new ServletParameterResolver.ServletContextAttributeParameterResolver());
 
-        super.configureParameterResolver(resolvers, multipartConfiguration, mvcConfiguration);
+        super.configureParameterResolver(resolvers, mvcConfiguration);
     }
 
     @Override
@@ -207,15 +241,23 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         final List<WebApplicationInitializer> contextInitializers = //
                 super.getInitializers(applicationContext, mvcConfiguration);
 
-        configureResourceRegistry(contextInitializers, getWebMvcConfiguration());
+        configureResourceRegistry(contextInitializers, getWebMvcConfiguration(applicationContext));
 
-        applyFilter(applicationContext, contextInitializers);
-        applyServlet(applicationContext, contextInitializers);
-        applyListener(applicationContext, contextInitializers);
+        configureFilter(applicationContext, contextInitializers);
+        configureServlet(applicationContext, contextInitializers);
+        configureListener(applicationContext, contextInitializers);
 
         return contextInitializers;
     }
 
+    /**
+     * Configure ResourceMapping
+     * 
+     * @param contextInitializers
+     *            All {@link WebApplicationInitializer}s
+     * @param configuration
+     *            ServletWebMvcConfiguration
+     */
     protected void configureResourceRegistry(List<WebApplicationInitializer> contextInitializers, //
             ServletWebMvcConfiguration configuration)//
     {
@@ -252,9 +294,19 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         contextInitializers.add(resourceServletInitializer);
     }
 
-    private void applyFilter(final WebApplicationContext applicationContext, Collection<WebApplicationInitializer> contextInitializers) {
+    /**
+     * Configure {@link Filter}
+     * 
+     * @param applicationContext
+     *            {@link ApplicationContext}
+     * @param contextInitializers
+     *            {@link WebApplicationInitializer}s
+     */
+    protected void configureFilter(final WebApplicationContext applicationContext, //
+            final List<WebApplicationInitializer> contextInitializers) //
+    {
 
-        Collection<Filter> filters = applicationContext.getAnnotatedBeans(WebFilter.class);
+        List<Filter> filters = applicationContext.getAnnotatedBeans(WebFilter.class);
         for (Filter filter : filters) {
 
             final Class<?> beanClass = filter.getClass();
@@ -294,8 +346,16 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         }
     }
 
-    private void applyServlet(final WebApplicationContext applicationContext,
-            Collection<WebApplicationInitializer> contextInitializers) //
+    /**
+     * Configure {@link Servlet}
+     * 
+     * @param applicationContext
+     *            {@link ApplicationContext}
+     * @param contextInitializers
+     *            {@link WebApplicationInitializer}s
+     */
+    protected void configureServlet(final WebApplicationContext applicationContext,
+            final List<WebApplicationInitializer> contextInitializers) //
     {
 
         Collection<Servlet> servlets = applicationContext.getAnnotatedBeans(WebServlet.class);
@@ -346,8 +406,16 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         }
     }
 
-    private void applyListener(final WebApplicationContext applicationContext,
-            Collection<WebApplicationInitializer> contextInitializers)//
+    /**
+     * Configure listeners
+     * 
+     * @param applicationContext
+     *            {@link ApplicationContext}
+     * @param contextInitializers
+     *            {@link WebApplicationInitializer}s
+     */
+    protected void configureListener(final WebApplicationContext applicationContext,
+            final List<WebApplicationInitializer> contextInitializers)//
     {
 
         Collection<EventListener> eventListeners = applicationContext.getAnnotatedBeans(WebListener.class);
