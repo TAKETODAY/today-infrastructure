@@ -54,7 +54,7 @@ public class DefaultBeanDefinition implements BeanDefinition {
      * 
      * @since 2.3.3
      */
-    private Method[] initMethods = new Method[0];
+    private Method[] initMethods = EMPTY_METHOD;
 
     /**
      * Invoke after when publish
@@ -65,9 +65,7 @@ public class DefaultBeanDefinition implements BeanDefinition {
     private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
 
     /** property values */
-    private PropertyValue[] propertyValues;
-
-    private static final PropertyValue[] EMPTY_PROPERTY_VALUE = new PropertyValue[0];
+    private PropertyValue[] propertyValues = EMPTY_PROPERTY_VALUE;
 
     /**
      * <p>

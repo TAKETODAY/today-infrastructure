@@ -35,6 +35,10 @@ import cn.taketoday.context.factory.FactoryBean;
  */
 public interface BeanDefinition {
 
+    Method[] EMPTY_METHOD = new Method[0];
+
+    PropertyValue[] EMPTY_PROPERTY_VALUE = new PropertyValue[0];
+
     /**
      * Get a property
      * 
