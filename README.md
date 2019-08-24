@@ -125,16 +125,29 @@ public class UserController {
         return "/login/login";//支持jsp,FreeMarker,Thymeleaf,自定义视图
     }
     
-    // @POST("login")
-    @ResponseBody
-    @RequestMapping(value = "/login" , method = RequestMethod.POST)
-    public String login(@RequestParam(required = true) String userId, @RequestParam(required = true) String passwd) {
-        // service...
-        if(userId.equals(passwd)) {
-            return "{\"msg\":\"登录成功\"}";
+    @Logger("登录")
+    //@POST("/login")
+    //@RequestMapping(value = "/login" , method = RequestMethod.POST)
+    @ActionMapping(value = "/login", method = RequestMethod.POST)
+    public String login(HttpSession session, RedirectModel redirectModel, @Valid User user, Errors error) {
+    
+        if (error.hasErrors()) {
+            System.err.println(error.getAllErrors());
+            redirectModel.attribute("msg", error.getAllErrors().toString());
+            return "redirect:/login";
         }
-        return "{\"msg\":\"登录失败\"}";//支持pojo转json
+    
+        User login = userService.login(user);
+        if (login == null) {
+            redirectModel.attribute("userId", user.getUserId());
+            redirectModel.attribute("msg", "登录失败");
+            return "redirect:/login";
+        }
+        redirectModel.attribute("msg", "登录成功");
+        session.setAttribute(USER_INFO, login);
+        return "redirect:/user/info";
     }
+    
 }
 ```
 
