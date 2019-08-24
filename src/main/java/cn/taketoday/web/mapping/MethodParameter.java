@@ -23,8 +23,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.exception.ConfigurationException;
@@ -166,12 +166,12 @@ public class MethodParameter {
                         + getParameterClass() + "] called: [" + getName() + "] ");
     }
 
-    public static void addResolver(ParameterResolver... parameterResolver) {
-        getParameterResolvers().addAll(Arrays.asList(parameterResolver));
+    public static void addResolver(ParameterResolver... resolver) {
+        Collections.addAll(getParameterResolvers(), resolver);
     }
 
-    public static void addResolver(List<ParameterResolver> parameterResolver) {
-        getParameterResolvers().addAll(parameterResolver);
+    public static void addResolver(List<ParameterResolver> resolvers) {
+        getParameterResolvers().addAll(resolvers);
     }
 
     public static List<ParameterResolver> getParameterResolvers() {

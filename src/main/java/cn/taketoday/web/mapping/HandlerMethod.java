@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.exception.ConfigurationException;
@@ -209,8 +210,8 @@ public class HandlerMethod {
         return args;
     }
 
-    public static void addResolver(ResultResolver... parameterResolver) {
-        getResultResolvers().addAll(Arrays.asList(parameterResolver));
+    public static void addResolver(ResultResolver... resolvers) {
+        Collections.addAll(getResultResolvers(), resolvers);
     }
 
     public static void addResolver(List<ResultResolver> parameterResolver) {
