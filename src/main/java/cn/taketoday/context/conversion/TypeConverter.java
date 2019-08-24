@@ -38,7 +38,7 @@ public interface TypeConverter {
      * @param targetClass
      *            target class
      * @param source
-     *            source object
+     *            source object never be null
      * @return whether this {@link TypeConverter} supports to convert source object
      *         to target class object
      */
@@ -52,7 +52,7 @@ public interface TypeConverter {
      * @param targetClass
      *            target type
      * @param source
-     *            source object
+     *            source object never be null
      * @return a converted object
      * @throws ConversionException
      *             if can't convert to target object

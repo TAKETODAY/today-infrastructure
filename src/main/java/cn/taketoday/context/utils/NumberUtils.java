@@ -42,6 +42,7 @@ public abstract class NumberUtils {
      * @return array object
      * @throws ConversionException
      */
+    @Deprecated
     public final static Object toArrayObject(String source[], Class<?> targetClass) throws ConversionException {
 
         // @since 2.1.6 fix: String[].class can't be resolve
@@ -58,7 +59,7 @@ public abstract class NumberUtils {
         else if (Integer[].class == targetClass) {
             final Integer[] newInstance = new Integer[length];
             for (short j = 0; j < length; j++)
-                newInstance[j] = Integer.parseInt(source[j]);
+                newInstance[j] = Integer.valueOf(source[j]);
             return newInstance;
         }
         else if (long[].class == targetClass) {
@@ -70,7 +71,7 @@ public abstract class NumberUtils {
         else if (Long[].class == targetClass) {
             final Long[] newInstance = new Long[length];
             for (short j = 0; j < length; j++)
-                newInstance[j] = Long.parseLong(source[j]);
+                newInstance[j] = Long.valueOf(source[j]);
             return newInstance;
         }
         else if (short[].class == targetClass) {
@@ -82,7 +83,7 @@ public abstract class NumberUtils {
         else if (Short[].class == targetClass) {
             final Short[] newInstance = new Short[length];
             for (short j = 0; j < length; j++)
-                newInstance[j] = Short.parseShort(source[j]);
+                newInstance[j] = Short.valueOf(source[j]);
             return newInstance;
         }
         else if (byte[].class == targetClass) {
@@ -94,7 +95,7 @@ public abstract class NumberUtils {
         else if (Byte[].class == targetClass) {
             final Byte[] newInstance = new Byte[length];
             for (short j = 0; j < length; j++)
-                newInstance[j] = Byte.parseByte(source[j]);
+                newInstance[j] = Byte.valueOf(source[j]);
             return newInstance;
         }
         else if (float[].class == targetClass) {
@@ -106,7 +107,7 @@ public abstract class NumberUtils {
         else if (Float[].class == targetClass) {
             final Float[] newInstance = new Float[length];
             for (short j = 0; j < length; j++)
-                newInstance[j] = Float.parseFloat(source[j]);
+                newInstance[j] = Float.valueOf(source[j]);
             return newInstance;
         }
         else if (double[].class == targetClass) {
@@ -118,7 +119,7 @@ public abstract class NumberUtils {
         else if (Double[].class == targetClass) {
             final Double[] newInstance = new Double[length];
             for (short j = 0; j < length; j++)
-                newInstance[j] = Double.parseDouble(source[j]);
+                newInstance[j] = Double.valueOf(source[j]);
             return newInstance;
         }
         { // fix @since 2.1.6
@@ -133,6 +134,7 @@ public abstract class NumberUtils {
         }
     }
 
+    @Deprecated
     public final static <T> T parseArray(String source[], Class<T> targetClass) throws ConversionException {
         return targetClass.cast(toArrayObject(source, targetClass));
     }

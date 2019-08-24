@@ -357,7 +357,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Register Application Listener, With Msg: [{}]", ex, ex);
+            log.error("An Exception Occurred When Register Application Listener, With Msg: [{}]", ex.toString(), ex);
             throw ExceptionUtils.newContextException(ex);
         }
     }
@@ -459,7 +459,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Refresh Context: [{}] With Msg: [{}]", this, ex.getMessage(), ex);
+            log.error("An Exception Occurred When Refresh Context: [{}] With Msg: [{}]", this, ex.toString(), ex);
             throw ExceptionUtils.newContextException(ex);
         }
     }

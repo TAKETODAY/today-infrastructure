@@ -23,6 +23,8 @@ import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
 
+import cn.taketoday.context.exception.ConversionException;
+
 /**
  * @author TODAY <br>
  *         2019-08-23 00:16
@@ -69,6 +71,113 @@ public abstract class ObjectUtils {
 
     public static boolean isNotEmpty(Object obj) {
         return !isEmpty(obj);
+    }
+    
+    // 
+
+    /**
+     * To array object
+     * 
+     * @param source
+     *            String array
+     * @param targetClass
+     *            target class
+     * @return array object
+     * @throws ConversionException
+     */
+    public final static Object toArrayObject(String source[], Class<?> targetClass) throws ConversionException {
+
+        // @since 2.1.6 fix: String[].class can't be resolve
+        if (String[].class == targetClass) {
+            return source;
+        }
+        final int length = source.length;
+        if (int[].class == targetClass) {
+            final int[] newInstance = new int[length];
+            for (short j = 0; j < length; j++)
+                newInstance[j] = Integer.parseInt(source[j]);
+            return newInstance;
+        }
+        else if (Integer[].class == targetClass) {
+            final Integer[] newInstance = new Integer[length];
+            for (short j = 0; j < length; j++)
+                newInstance[j] = Integer.valueOf(source[j]);
+            return newInstance;
+        }
+        else if (long[].class == targetClass) {
+            final long[] newInstance = new long[length];
+            for (short j = 0; j < length; j++)
+                newInstance[j] = Long.parseLong(source[j]);
+            return newInstance;
+        }
+        else if (Long[].class == targetClass) {
+            final Long[] newInstance = new Long[length];
+            for (short j = 0; j < length; j++)
+                newInstance[j] = Long.valueOf(source[j]);
+            return newInstance;
+        }
+        else if (short[].class == targetClass) {
+            final short[] newInstance = new short[length];
+            for (short j = 0; j < length; j++)
+                newInstance[j] = Short.parseShort(source[j]);
+            return newInstance;
+        }
+        else if (Short[].class == targetClass) {
+            final Short[] newInstance = new Short[length];
+            for (short j = 0; j < length; j++)
+                newInstance[j] = Short.valueOf(source[j]);
+            return newInstance;
+        }
+        else if (byte[].class == targetClass) {
+            final byte[] newInstance = new byte[length];
+            for (short j = 0; j < length; j++)
+                newInstance[j] = Byte.parseByte(source[j]);
+            return newInstance;
+        }
+        else if (Byte[].class == targetClass) {
+            final Byte[] newInstance = new Byte[length];
+            for (short j = 0; j < length; j++)
+                newInstance[j] = Byte.valueOf(source[j]);
+            return newInstance;
+        }
+        else if (float[].class == targetClass) {
+            final float[] newInstance = new float[length];
+            for (short j = 0; j < length; j++)
+                newInstance[j] = Float.parseFloat(source[j]);
+            return newInstance;
+        }
+        else if (Float[].class == targetClass) {
+            final Float[] newInstance = new Float[length];
+            for (short j = 0; j < length; j++)
+                newInstance[j] = Float.valueOf(source[j]);
+            return newInstance;
+        }
+        else if (double[].class == targetClass) {
+            final double[] newInstance = new double[length];
+            for (short j = 0; j < length; j++)
+                newInstance[j] = Double.parseDouble(source[j]);
+            return newInstance;
+        }
+        else if (Double[].class == targetClass) {
+            final Double[] newInstance = new Double[length];
+            for (short j = 0; j < length; j++)
+                newInstance[j] = Double.valueOf(source[j]);
+            return newInstance;
+        }
+        { // fix @since 2.1.6
+            if (targetClass.isArray()) {
+                targetClass = targetClass.getComponentType();
+            }
+            final Object newInstance = Array.newInstance(targetClass, length);
+            for (short i = 0; i < length; i++) {
+                Array.set(newInstance, i, ConvertUtils.convert(source[i], targetClass));
+            }
+            return newInstance;
+        }
+    }
+
+    public final static <T> T parseArray(String source[], Class<T> targetClass) throws ConversionException {
+        return targetClass.cast(toArrayObject(source, targetClass));
     }
 
 }
