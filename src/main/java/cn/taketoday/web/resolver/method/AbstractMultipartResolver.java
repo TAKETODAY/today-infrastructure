@@ -46,9 +46,9 @@ public abstract class AbstractMultipartResolver implements ParameterResolver {
 
         if (WebUtils.isMultipart(requestContext)) {
 
-            if (multipartConfiguration.getMaxRequestSize().toBytes() < requestContext.contentLength()) { // exceed max size?
+            if (getMultipartConfiguration().getMaxRequestSize().toBytes() < requestContext.contentLength()) { // exceed max size?
 
-                throw new FileSizeExceededException(multipartConfiguration.getMaxRequestSize(), null)//
+                throw new FileSizeExceededException(getMultipartConfiguration().getMaxRequestSize(), null)//
                         .setActual(DataSize.of(requestContext.contentLength()));
             }
 
@@ -75,5 +75,9 @@ public abstract class AbstractMultipartResolver implements ParameterResolver {
 
     
     protected void cleanupMultipart(final RequestContext request) {}
+
+    public MultipartConfiguration getMultipartConfiguration() {
+        return multipartConfiguration;
+    }
 
 }
