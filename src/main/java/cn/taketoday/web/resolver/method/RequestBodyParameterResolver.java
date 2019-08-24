@@ -19,7 +19,9 @@
  */
 package cn.taketoday.web.resolver.method;
 
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Order;
 import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
@@ -29,6 +31,7 @@ import cn.taketoday.web.mapping.MethodParameter;
  * @author TODAY <br>
  *         2019-07-12 22:23
  */
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class RequestBodyParameterResolver implements ParameterResolver {
 
     private final MessageConverter messageConverter;

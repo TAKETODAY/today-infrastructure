@@ -25,12 +25,14 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.utils.WebUtils;
 
@@ -44,7 +46,7 @@ public class FastJsonMessageConverter implements MessageConverter {
     public final SerializerFeature[] serializeFeatures;
 
     @Autowired
-    public FastJsonMessageConverter(@Env(value = Constant.FAST_JSON_SERIALIZE_FEATURES) SerializerFeature[] serializerFeature) {
+    public FastJsonMessageConverter(@Env(Constant.FAST_JSON_SERIALIZE_FEATURES) SerializerFeature[] serializerFeature) {
         if (serializerFeature == null) {
             serializeFeatures = new SerializerFeature[] { //
                     SerializerFeature.WriteMapNullValue, //
@@ -61,7 +63,7 @@ public class FastJsonMessageConverter implements MessageConverter {
     public void write(final RequestContext requestContext, final Object message) throws IOException {
 
         if (message instanceof CharSequence) {
-            requestContext.getWriter().write(((CharSequence) message).toString());
+            requestContext.getWriter().write(message.toString());
         }
         else {
             requestContext.contentType(Constant.CONTENT_TYPE_JSON);
@@ -70,7 +72,7 @@ public class FastJsonMessageConverter implements MessageConverter {
     }
 
     @Override
-    public Object read(RequestContext requestContext, MethodParameter parameter) throws IOException {
+    public Object read(final RequestContext requestContext, final MethodParameter parameter) throws IOException {
         final Object requestBody = requestContext.requestBody();
         if (requestBody != null) {
             return toJavaObject(parameter, requestBody);
@@ -97,29 +99,79 @@ public class FastJsonMessageConverter implements MessageConverter {
 
     protected Object toJavaObject(final MethodParameter parameter, final Object parsedJson) {
 
-        if (parsedJson instanceof JSONArray && parameter.isAssignableFrom(List.class)) {// array
-            // style: [{'name':'today','age':21},{'name':"YHJ",'age':22}]
-            return ((JSONArray) parsedJson).toJavaList((Class<?>) parameter.getGenericityClass(0));
+        if (parsedJson instanceof JSONArray) { // array
+            return fromJSONArray(parameter, (JSONArray) parsedJson);
         }
-        else if (parsedJson instanceof JSONObject) {
-            final JSONObject requestBody = (JSONObject) parsedJson;
-
-            if (parameter.isAssignableFrom(List.class)) {
-                final JSONArray array = requestBody.getJSONArray(parameter.getName());
-                if (array == null) { // style: {'users':[{'name':'today','age':21},{'name':"YHJ",'age':22}],...}
-                    throw WebUtils.newBadRequest("Request body", parameter, null);
-                }
-                return array.toJavaList((Class<?>) parameter.getGenericityClass(0));
-            }
-            else {
-
-                final JSONObject obj = requestBody.getJSONObject(parameter.getName());
-                if (obj == null) { // only one request body
-                    return requestBody.toJavaObject(parameter.getParameterClass()); // style: {'name':'today','age':21}
-                }
-                return obj.toJavaObject(parameter.getParameterClass()); // style: {'user':{'name':'today','age':21},...}
-            }
+        
+        if (parsedJson instanceof JSONObject) {
+            return fromJSONObject(parameter, (JSONObject) parsedJson);
         }
         throw WebUtils.newBadRequest("Request body", parameter, null);
+    }
+
+    protected Object fromJSONArray(final MethodParameter parameter, final JSONArray requestBody) {
+        // style: [{"name":"today","age":21},{"name":"YHJ","age":22}]
+
+        if (parameter.is(List.class)) {
+            return requestBody.toJavaList((Class<?>) parameter.getGenericityClass(0));
+        }
+
+        if (parameter.isArray()) {
+            return requestBody.toJavaList(parameter.getParameterClass()).toArray();
+        }
+
+        if (parameter.is(JSONArray.class)) {
+            return requestBody;
+        }
+
+        try {
+
+            final List<?> list = requestBody.toJavaList(parameter.getParameterClass());
+            if (!list.isEmpty()) {
+                return list.get(0);
+            }
+
+            throw WebUtils.newBadRequest("Request body", parameter, null);
+        }
+        catch (JSONException e) {
+            throw new BadRequestException(e);
+        }
+    }
+
+    protected Object fromJSONObject(final MethodParameter parameter, final JSONObject requestBody) {
+
+        if (parameter.is(List.class)) {
+            return getJSONArray(parameter, requestBody).toJavaList((Class<?>) parameter.getGenericityClass(0));
+        }
+
+        if (parameter.isArray()) {
+            return getJSONArray(parameter, requestBody).toJavaList(parameter.getParameterClass()).toArray();
+        }
+
+        if (parameter.is(JSONObject.class)) {
+            return getJSONObject(parameter, requestBody);
+        }
+
+        if (parameter.is(JSONArray.class)) {
+            return getJSONArray(parameter, requestBody);
+        }
+
+        return getJSONObject(parameter, requestBody).toJavaObject(parameter.getParameterClass());
+    }
+
+    protected JSONObject getJSONObject(final MethodParameter parameter, final JSONObject requestBody) {
+        final JSONObject obj = requestBody.getJSONObject(parameter.getName());
+        if (obj == null) { // only one request body
+            return requestBody; // style: {'name':'today','age':21}
+        }
+        return obj; // style: {'user':{'name':'today','age':21},...}
+    }
+
+    protected JSONArray getJSONArray(final MethodParameter parameter, final JSONObject requestBody) {
+        final JSONArray array = requestBody.getJSONArray(parameter.getName());
+        if (array == null) { // style: {"users":[{"name":"today","age":21},{"name":"YHJ","age":22}],...}
+            throw WebUtils.newBadRequest("Request body", parameter, null);
+        }
+        return array;
     }
 }

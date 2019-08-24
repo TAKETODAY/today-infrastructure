@@ -19,8 +19,6 @@
  */
 package cn.taketoday.web.exception;
 
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.web.Constant;
 
 /**
@@ -31,21 +29,20 @@ import cn.taketoday.web.Constant;
 @SuppressWarnings("serial")
 public class BadRequestException extends WebRuntimeException {
 
+    public BadRequestException() {
+        this(Constant.BAD_REQUEST, null);
+    }
+
+    public BadRequestException(String message) {
+        this(message, null);
+    }
+
     public BadRequestException(Throwable cause) {
-        super(cause);
+        this(Constant.BAD_REQUEST, cause);
     }
 
     public BadRequestException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    public BadRequestException(String message) {
-        super(message);
-        LoggerFactory.getLogger(BadRequestException.class).error(message);
-    }
-
-    public BadRequestException() {
-        super(Constant.BAD_REQUEST);
     }
 
 }

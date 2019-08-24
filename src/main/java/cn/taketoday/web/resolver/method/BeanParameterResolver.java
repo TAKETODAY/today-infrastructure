@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.resolver.method;
 
-import static cn.taketoday.context.utils.NumberUtils.toArrayObject;
+import static cn.taketoday.context.utils.ObjectUtils.toArrayObject;
 
 import java.lang.reflect.Field;
 import java.util.Enumeration;
@@ -54,8 +54,7 @@ public class BeanParameterResolver implements OrderedParameterResolver {
             final String parameterName = parameterNames.nextElement();
             // 寻找参数
             try {
-                resolvePojoParameter(requestContext, parameterName, bean, //
-                        parameterClass.getDeclaredField(parameterName), parameter);
+                resolvePojoParameter(requestContext, parameterName, bean, parameterClass.getDeclaredField(parameterName));
             }
             catch (NoSuchFieldException e) {
                 // continue;
@@ -65,9 +64,8 @@ public class BeanParameterResolver implements OrderedParameterResolver {
         return bean;
     }
 
-    private void resolvePojoParameter(RequestContext request, //
-            String parameterName, Object bean, Field field, MethodParameter methodParameter) throws Throwable //
-    {
+    protected void resolvePojoParameter(RequestContext request, //
+            String parameterName, Object bean, Field field) throws Throwable {
 
         final Class<?> type = field.getType();
         if (type.isArray()) {
