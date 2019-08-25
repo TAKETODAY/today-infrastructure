@@ -23,7 +23,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -89,27 +88,28 @@ public class MethodParameter {
         return parameterClass.isArray();
     }
 
-    public boolean is(Class<?> type) {
+    public boolean is(final Class<?> type) {
         return type == this.parameterClass;
     }
 
-    public boolean isAssignableFrom(Class<?> superClass) {
+    public boolean isAssignableFrom(final Class<?> superClass) {
         return superClass.isAssignableFrom(parameterClass);
     }
 
-    public boolean isInstance(Object obj) {
+    public boolean isInstance(final Object obj) {
         return parameterClass.isInstance(obj);
     }
 
-    public Type getGenericityClass(int index) {
+    public Type getGenericityClass(final int index) {
 
+        final Type[] genericityClass = this.genericityClass;
         if (genericityClass != null && genericityClass.length > index) {
             return genericityClass[index];
         }
         return null;
     }
 
-    public boolean isGenericPresent(final Type requiredType, int index) {
+    public boolean isGenericPresent(final Type requiredType, final int index) {
         return requiredType.equals(getGenericityClass(index));
     }
 
@@ -125,21 +125,16 @@ public class MethodParameter {
         return false;
     }
 
-    public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
+    public boolean isAnnotationPresent(final Class<? extends Annotation> annotationClass) {
         return getAnnotation(annotationClass) != null;
     }
 
-    public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
+    public <A extends Annotation> A getAnnotation(final Class<A> annotationClass) {
 
         if (annotationClass == null) {
             return null;
         }
-
-        final Collection<A> annotation = ClassUtils.getAnnotation(parameter, annotationClass);
-        if (annotation.isEmpty()) {
-            return null;
-        }
-        return annotation.iterator().next();
+        return ClassUtils.getAnnotation(annotationClass, parameter);
     }
 
     // ----- resolver

@@ -26,7 +26,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -104,7 +103,7 @@ public class HandlerMethod {
         this.resultResolver = obtainResolver();
     }
 
-    public static HandlerMethod create(Method method, final List<MethodParameter> methodParameters) {
+    public static HandlerMethod create(final Method method, final List<MethodParameter> methodParameters) {
         return new HandlerMethod(//
                 method, //
                 methodParameters, //
@@ -133,23 +132,24 @@ public class HandlerMethod {
         return reutrnType.isArray();
     }
 
-    public boolean isAssignableFrom(Class<?> superClass) {
+    public boolean isAssignableFrom(final Class<?> superClass) {
         return superClass.isAssignableFrom(reutrnType);
     }
 
-    public boolean is(Class<?> reutrnType) {
+    public boolean is(final Class<?> reutrnType) {
         return reutrnType == this.reutrnType;
     }
 
-    public Type getGenericityClass(int index) {
+    public Type getGenericityClass(final int index) {
 
+        final Type[] genericityClass = this.genericityClass;
         if (genericityClass != null && genericityClass.length > index) {
             return genericityClass[index];
         }
         return null;
     }
 
-    public boolean isGenericPresent(final Type requiredType, int index) {
+    public boolean isGenericPresent(final Type requiredType, final int index) {
         return requiredType.equals(getGenericityClass(index));
     }
 
@@ -165,30 +165,24 @@ public class HandlerMethod {
         return false;
     }
 
-    public boolean isDeclaringClassPresent(Class<? extends Annotation> annotationClass) {
+    public boolean isDeclaringClassPresent(final Class<? extends Annotation> annotationClass) {
         return getDeclaringClassAnnotation(annotationClass) != null;
     }
 
-    public boolean isMethodPresent(Class<? extends Annotation> annotationClass) {
+    public boolean isMethodPresent(final Class<? extends Annotation> annotationClass) {
         return getMethodAnnotation(annotationClass) != null;
     }
 
-    public <A extends Annotation> A getDeclaringClassAnnotation(Class<A> annotation) {
+    public <A extends Annotation> A getDeclaringClassAnnotation(final Class<A> annotation) {
         return getAnnotation(method.getDeclaringClass(), annotation);
     }
 
-    public <A extends Annotation> A getMethodAnnotation(Class<A> annotation) {
+    public <A extends Annotation> A getMethodAnnotation(final Class<A> annotation) {
         return getAnnotation(method, annotation);
     }
 
-    public <A extends Annotation> A getAnnotation(AnnotatedElement element, Class<A> annotation) {
-
-        final Collection<A> a = ClassUtils.getAnnotation(element, annotation);
-        if (a.isEmpty()) {
-            return null;
-        }
-
-        return a.iterator().next();
+    public <A extends Annotation> A getAnnotation(final AnnotatedElement element, final Class<A> annotation) {
+        return ClassUtils.getAnnotation(annotation, element);
     }
 
     // ------------- resolver
