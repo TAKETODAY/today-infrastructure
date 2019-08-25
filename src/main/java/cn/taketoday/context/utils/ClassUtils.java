@@ -37,6 +37,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -958,7 +959,7 @@ public abstract class ClassUtils {
      * @param annotationClass
      *            The annotation class
      * @return a set of {@link AnnotationAttributes}
-     * @since 2.1.1
+     * @since 2.1.7
      */
     public static <T extends Annotation> AnnotationAttributes //
             getAnnotationAttributes(final Class<T> annotationClass, final AnnotatedElement element) throws ContextException //
@@ -1299,6 +1300,22 @@ public abstract class ClassUtils {
      */
     public static Field[] getFieldArray(Class<?> targetClass) {
         return getFields(targetClass).toArray(new Field[0]);
+    }
+
+    /**
+     * Get genericity class
+     * 
+     * @param type
+     *            source type
+     * @since 2.1.7
+     */
+    public static java.lang.reflect.Type[] getGenericityClass(final Class<?> type) {
+
+        final java.lang.reflect.Type pType = type.getGenericSuperclass();
+        if (pType instanceof ParameterizedType) {
+            return ((ParameterizedType) pType).getActualTypeArguments();
+        }
+        return null;
     }
 
     // --------------------------- parameter names discovering
