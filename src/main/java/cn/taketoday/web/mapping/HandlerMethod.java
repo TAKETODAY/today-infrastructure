@@ -22,7 +22,6 @@ package cn.taketoday.web.mapping;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,16 +80,11 @@ public class HandlerMethod {
     }
 
     public HandlerMethod(Method method, Class<?> reutrnType, MethodParameter... parameters) {
+
         this.method = method;
         this.reutrnType = reutrnType;
+        this.genericityClass = ClassUtils.getGenericityClass(reutrnType);
 
-        final Type parameterizedType = reutrnType.getGenericSuperclass();
-        if (parameterizedType instanceof ParameterizedType) {
-            genericityClass = ((ParameterizedType) parameterizedType).getActualTypeArguments();
-        }
-        else {
-            genericityClass = null;
-        }
         if (parameters == null || parameters.length == 0) {
             this.parameters = EMPTY;
         }
