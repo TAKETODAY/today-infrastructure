@@ -72,8 +72,8 @@ public abstract class ObjectUtils {
     public static boolean isNotEmpty(Object obj) {
         return !isEmpty(obj);
     }
-    
-    // 
+
+    //
 
     /**
      * To array object
@@ -81,9 +81,10 @@ public abstract class ObjectUtils {
      * @param source
      *            String array
      * @param targetClass
-     *            target class
-     * @return array object
+     *            Target class
+     * @return An array object
      * @throws ConversionException
+     *             If can't convert source to target type object
      */
     public final static Object toArrayObject(String source[], Class<?> targetClass) throws ConversionException {
 
