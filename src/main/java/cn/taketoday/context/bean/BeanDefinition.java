@@ -30,7 +30,7 @@ import cn.taketoday.context.factory.FactoryBean;
 /**
  * Bean definition
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-06-23 11:23:45
  */
 public interface BeanDefinition {
@@ -43,9 +43,10 @@ public interface BeanDefinition {
      * Get a property
      * 
      * @param name
-     *            the name of property
-     * @return
+     *            The name of property
+     * @return Property value object
      * @throws NoSuchPropertyException
+     *             If there is no property with given name
      */
     PropertyValue getPropertyValue(String name) throws NoSuchPropertyException;
 
@@ -56,7 +57,7 @@ public interface BeanDefinition {
     /**
      * Get init methods
      * 
-     * @return get all the init methods
+     * @return Get all the init methods
      */
     Method[] getInitMethods();
 
@@ -73,21 +74,21 @@ public interface BeanDefinition {
     /**
      * Get bean name
      * 
-     * @return bean name
+     * @return Bean name
      */
     String getName();
 
     /**
-     * if bean is a {@link FactoryBean}
+     * If bean is a {@link FactoryBean}
      * 
-     * @return if is a {@link FactoryBean}
+     * @return If Bean is a {@link FactoryBean}
      */
     boolean isFactoryBean();
 
     /**
-     * if a {@link Singleton} has initialized
+     * If a {@link Singleton} has initialized
      * 
-     * @return if its initialized
+     * @return If Bean is initialized
      */
     boolean isInitialized();
 
@@ -101,7 +102,7 @@ public interface BeanDefinition {
     /**
      * Get all the {@link PropertyValue}s
      * 
-     * @return all {@link PropertyValue}
+     * @return The bean's all {@link PropertyValue}
      */
     PropertyValue[] getPropertyValues();
 
@@ -110,27 +111,99 @@ public interface BeanDefinition {
      * Add PropertyValue to list.
      * 
      * @param propertyValue
+     *            {@link PropertyValue} object
      */
     void addPropertyValue(PropertyValue... propertyValues);
 
+    /**
+     * Add a collection of {@link PropertyValue}s
+     * 
+     * @param propertyValues
+     *            The {@link Collection} of {@link PropertyValue}s
+     */
     void addPropertyValue(Collection<PropertyValue> propertyValues);
 
+    /**
+     * Apply bean If its initialized
+     * 
+     * @param initialized
+     *            The state of bean
+     * @return The {@link BeanDefinition}
+     */
     BeanDefinition setInitialized(boolean initialized);
 
+    /**
+     * Indicates that If the bean is abstract.
+     * 
+     * @param Abstract
+     *            If its a abstract
+     * @return The {@link BeanDefinition}
+     */
     BeanDefinition setAbstract(boolean Abstract);
 
+    /**
+     * Apply bean' name
+     * 
+     * @param name
+     *            The bean's name
+     * @return The {@link BeanDefinition}
+     */
     BeanDefinition setName(String name);
 
+    /**
+     * Apply bean' scope
+     * 
+     * @param scope
+     *            The scope of the bean
+     * @see Scope#PROTOTYPE
+     * @see Scope#SINGLETON
+     * @return The {@link BeanDefinition}
+     */
     BeanDefinition setScope(Scope scope);
 
+    /**
+     * Apply bean' class
+     * 
+     * @param beanClass
+     *            The type of the bean
+     * @return The {@link BeanDefinition}
+     */
     BeanDefinition setBeanClass(Class<?> beanClass);
 
+    /**
+     * Apply bean' initialize {@link Method}s
+     * 
+     * @param initMethods
+     *            The array of the bean's initialize {@link Method}s
+     * @return The {@link BeanDefinition}
+     */
     BeanDefinition setInitMethods(Method... initMethods);
 
+    /**
+     * Apply bean' destroy {@link Method}s
+     * 
+     * @param destroyMethods
+     *            The array of the bean's destroy {@link Method}s
+     * @return The {@link BeanDefinition}
+     */
     BeanDefinition setDestroyMethods(String... destroyMethods);
 
+    /**
+     * Apply bean' {@link PropertyValue}s
+     * 
+     * @param propertyValues
+     *            The array of the bean's {@link PropertyValue}s
+     * @return The {@link BeanDefinition}
+     */
     BeanDefinition setPropertyValues(PropertyValue... propertyValues);
 
+    /**
+     * Indicates that If the bean is a {@link FactoryBean}.
+     * 
+     * @param factoryBean
+     *            If its a {@link FactoryBean}
+     * @return The {@link BeanDefinition}
+     */
     BeanDefinition setFactoryBean(boolean factoryBean);
 
 }

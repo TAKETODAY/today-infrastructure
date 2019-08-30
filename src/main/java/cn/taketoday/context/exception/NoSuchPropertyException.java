@@ -22,8 +22,7 @@ package cn.taketoday.context.exception;
 import lombok.NoArgsConstructor;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-08-05 10:08
  */
 @NoArgsConstructor

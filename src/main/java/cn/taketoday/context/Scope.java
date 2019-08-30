@@ -20,12 +20,19 @@
 package cn.taketoday.context;
 
 /**
- * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-07-02 22:38:57
  */
 public enum Scope {
 
-    SINGLETON, PROTOTYPE;
+    /**
+     * Indicates that the bean is a singleton in the context
+     */
+    SINGLETON,
+
+    /**
+     * Indicates that the bean is prototype in the context. Every time you call
+     * {@link ApplicationContext#getBean(String)} you get a new instance.
+     */
+    PROTOTYPE;
 }
