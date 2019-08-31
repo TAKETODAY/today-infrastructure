@@ -25,7 +25,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.Resource;
 
-import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.Constant;
@@ -76,33 +75,20 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
 
         if (autowired != null) {
             name = autowired.value();
-            if (StringUtils.isEmpty(name)) {
-                name = byType(applicationContext, propertyClass, beanNameCreator);
-            }
             required = autowired.required();
         }
         else if (field.isAnnotationPresent(Resource.class)) {
             // Resource.class
-            final Resource resource = field.getAnnotation(Resource.class);
-            name = resource.name();
-            if (StringUtils.isEmpty(name)) { // fix resource.type() != Object.class) {
-                name = byType(applicationContext, propertyClass, beanNameCreator);
-            }
+            name = field.getAnnotation(Resource.class).name();
         }
-        else if (NAMED_CLASS != null) {// @Named
-            final AnnotationAttributes annotationAttributes = //
-                    ClassUtils.getAnnotationAttributes(NAMED_CLASS, field); // @Named
+        else if (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS)) {// @Named
+            name = ClassUtils.getAnnotationAttributes(NAMED_CLASS, field).getString(Constant.VALUE);
+        } // @Inject or name is empty
 
-            if (annotationAttributes == null) {
-                name = byType(applicationContext, propertyClass, beanNameCreator);
-            }
-            else {
-                name = annotationAttributes.getString(Constant.VALUE); // name attr
-            }
-        }
-        else {// @Inject
+        if (StringUtils.isEmpty(name)) {
             name = byType(applicationContext, propertyClass, beanNameCreator);
         }
+
         return new PropertyValue(new BeanReference(name, required, propertyClass), field);
     }
 
