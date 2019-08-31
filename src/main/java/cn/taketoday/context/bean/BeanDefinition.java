@@ -108,9 +108,10 @@ public interface BeanDefinition {
     boolean isInitialized();
 
     /**
-     * if it is from abstract class
+     * if it is from abstract class.
      * 
      * @return if it is from abstract class
+     * @see #getChildBean()
      */
     boolean isAbstract();
 
@@ -153,7 +154,9 @@ public interface BeanDefinition {
      * @param Abstract
      *            If its a abstract
      * @return The {@link BeanDefinition}
+     * @deprecated deprecated in 2.1.7 this method will do nothing
      */
+    @Deprecated
     BeanDefinition setAbstract(boolean Abstract);
 
     /**
@@ -162,7 +165,9 @@ public interface BeanDefinition {
      * @param name
      *            The bean's name
      * @return The {@link BeanDefinition}
+     * @deprecated deprecated in 2.1.7 the 'name' property is immutable
      */
+    @Deprecated
     BeanDefinition setName(String name);
 
     /**
@@ -182,7 +187,9 @@ public interface BeanDefinition {
      * @param beanClass
      *            The type of the bean
      * @return The {@link BeanDefinition}
+     * @deprecated deprecated in 2.1.7 the 'beanClass' property is immutable
      */
+    @Deprecated
     BeanDefinition setBeanClass(Class<?> beanClass);
 
     /**
@@ -230,4 +237,13 @@ public interface BeanDefinition {
      * @since 2.1.7
      */
     boolean isAnnotationPresent(Class<? extends Annotation> annotation);
+
+    /**
+     * Indicates that the abstract bean's child implementation
+     * 
+     * @return Child implementation bean name, returns {@code null} indicates that
+     *         this {@link BeanDefinition} is not abstract
+     * @since 2.1.7
+     */
+    String getChildBean();
 }

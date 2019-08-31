@@ -57,6 +57,7 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
 /**
@@ -403,7 +404,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     /**
-     * Get current {@link BeanDefinition} implementation
+     * Get current {@link BeanDefinition} implementation invoke this method requires
+     * that input {@link BeanDefinition} is not initialized, Otherwise the bean will
+     * be initialized multiple times
      * 
      * @param beanName
      *            Bean name
@@ -416,41 +419,32 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      */
     protected Object getImplementation(final String beanName, final BeanDefinition currentDef) throws Throwable {
 
-        if (!currentDef.isAbstract()) {
+        final String childName = currentDef.getChildBean();
+        if (childName == null) {
             return initializeSingleton(beanName, currentDef);
         }
 
-        final List<BeanDefinition> childDefs = doGetChildDefinition(beanName, currentDef);
+        // If contains its bean instance
+        Object bean = getSingleton(beanName);
 
-        if (childDefs.isEmpty()) {
-            return null;
+        if (bean == null) {
+            bean = initializeSingleton(childName, getBeanDefinition(childName)); // abstract
+            registerSingleton(beanName, bean);
+            currentDef.setInitialized(true);
+            return bean;
         }
 
-        BeanDefinition childDef = null;
+        // contains its bean instance, and direct registration
+        // ------------------------------------------------------
 
-        if (childDefs.size() > 1) {
-            // size > 1
-            OrderUtils.reversedSort(childDefs); // sort
-            for (final BeanDefinition def : childDefs) {
-                if (def.isAnnotationPresent(Primary.class)) {
-                    childDef = def;
-                }
-            }
+        // apply this bean definition's 'initialized' property
+        currentDef.setInitialized(true);
+
+        if (!containsSingleton(childName)) {
+            registerSingleton(childName, bean); // direct register child bean
+            getBeanDefinition(childName).setInitialized(true);
         }
-
-        if (childDef == null) {
-            childDef = childDefs.get(0); // first one
-        }
-
-        final String childName = childDef.getName();
-        log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childName);
-
-        final Object childSingleton = initializeSingleton(childName, childDef);
-
-        registerSingleton(beanName, childSingleton);
-
-        currentDef.setInitialized(true); // fix not initialize
-        return childSingleton;
+        return bean;
     }
 
     /**
@@ -458,20 +452,22 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * 
      * @param beanName
      *            Bean name
-     * @param def
-     *            {@link BeanDefinition}
+     * @param beanClass
+     *            Bean class
      * @return A list of {@link BeanDefinition}s, Never be null
      */
-    protected List<BeanDefinition> doGetChildDefinition(final String beanName, final BeanDefinition def) {
+    protected List<BeanDefinition> doGetChildDefinition(final String beanName, final Class<?> beanClass) {
 
         final Set<BeanDefinition> ret = new HashSet<>();
 
-        final Class<? extends Object> beanClass = def.getBeanClass();
-
+        Class<?> clazz;
         BeanDefinition childDef;
+
         for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
             childDef = entry.getValue();
-            if (beanClass.isAssignableFrom(childDef.getBeanClass()) && !beanName.equals(childDef.getName())) {
+            clazz = childDef.getBeanClass();
+
+            if (beanClass != clazz && beanClass.isAssignableFrom(clazz) && !beanName.equals(childDef.getName())) {
                 ret.add(childDef); // is beanClass's Child Bean
             }
         }
@@ -522,11 +518,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      */
     public void handleDependency() {
 
-        final Set<Entry<String, BeanDefinition>> entrySet = getBeanDefinitions().entrySet();
-
         for (final PropertyValue propertyValue : getDependencies()) {
 
             final Class<?> propertyType = propertyValue.getField().getType();
+
             // Abstract
             if (!Modifier.isAbstract(propertyType.getModifiers())) {
                 continue;
@@ -535,32 +530,40 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             final String beanName = ((BeanReference) propertyValue.getValue()).getName();
 
             // fix: #2 when handle dependency some bean definition has already exist
-            BeanDefinition registedBeanDefinition = getBeanDefinition(beanName);
-            if (registedBeanDefinition != null) {
-                registedBeanDefinition.setAbstract(true);
+            if (containsBeanDefinition(beanName)) {
                 continue;
             }
 
             // handle dependency which is interface and parent object
-            for (Entry<String, BeanDefinition> entry : entrySet) {
-                BeanDefinition beanDefinition = entry.getValue();
+            // --------------------------------------------------------
 
-                if (propertyType.isAssignableFrom(beanDefinition.getBeanClass())) {
-                    // register new bean definition
-                    registerBeanDefinition(//
-                            beanName, //
-                            new DefaultBeanDefinition()//
-                                    .setAbstract(true)//
-                                    .setName(beanName)//
-                                    .setScope(beanDefinition.getScope())//
-                                    .setBeanClass(beanDefinition.getBeanClass())//
-                                    .setInitMethods(beanDefinition.getInitMethods())//
-                                    .setDestroyMethods(beanDefinition.getDestroyMethods())//
-                                    .setPropertyValues(beanDefinition.getPropertyValues())//
-                    );
-                    break;// find the first child bean
+            // find child beans
+            final List<BeanDefinition> childDefs = doGetChildDefinition(beanName, propertyType);
+
+            if (childDefs.isEmpty()) {
+                throw new ConfigurationException("context does not exist for this type:[" + propertyType + "] of bean");
+            }
+
+            BeanDefinition childDef = null;
+
+            if (childDefs.size() > 1) {
+                // size > 1
+                OrderUtils.reversedSort(childDefs); // sort
+                for (final BeanDefinition def : childDefs) {
+                    if (def.isAnnotationPresent(Primary.class)) {
+                        childDef = def;
+                        break;
+                    }
                 }
             }
+
+            if (childDef == null) {
+                childDef = childDefs.get(0); // first one
+            }
+
+            log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
+
+            registerBeanDefinition(beanName, new DefaultBeanDefinition(beanName, childDef));
         }
     }
 
@@ -783,12 +786,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     @Override
-    public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
+    public void registerBeanDefinition(final String beanName, final BeanDefinition beanDefinition) {
 
         this.beanDefinitionMap.put(beanName, beanDefinition);
 
         final PropertyValue[] propertyValues = beanDefinition.getPropertyValues();
-        if (propertyValues != null && propertyValues.length != 0) {
+        if (ObjectUtils.isNotEmpty(propertyValues)) {
             for (final PropertyValue propertyValue : propertyValues) {
                 if (propertyValue.getValue() instanceof BeanReference) {
                     this.dependencies.add(propertyValue);
@@ -868,11 +871,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     @Override
     public BeanDefinition getBeanDefinition(Class<?> beanClass) {
 
-        BeanDefinition beanDefinition = getBeanDefinition(getBeanNameCreator().create(beanClass));
+        final BeanDefinition beanDefinition = getBeanDefinition(getBeanNameCreator().create(beanClass));
         if (beanDefinition != null && beanClass.isAssignableFrom(beanDefinition.getBeanClass())) {
             return beanDefinition;
         }
-        for (BeanDefinition definition : getBeanDefinitions().values()) {
+        for (final BeanDefinition definition : getBeanDefinitions().values()) {
             if (beanClass.isAssignableFrom(definition.getBeanClass())) {
                 return definition;
             }

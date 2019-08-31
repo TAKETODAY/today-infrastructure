@@ -19,10 +19,13 @@
  */
 package test.context.loader;
 
+import java.util.Properties;
+
 import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.loader.ValuePropertyResolver;
@@ -37,20 +40,44 @@ public class ValuePropertyResolveTest {
     @Value("#{site.host}")
     private String host = null;
 
+    @Env("site.name")
+    private String name = null;
+
+    @Env
+    private String test = null;
+
     @Test
-    public void test_() throws Exception {
+    public void testResolveProperty() throws Exception {
 
         ValuePropertyResolver propertyResolver = new ValuePropertyResolver();
 
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
 
-            PropertyValue resolveProperty = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("host"));
+            // host
+            // ----------------------------
+            PropertyValue host = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("host"));
 
-            assert resolveProperty.getValue() != null;
+            assert host.getValue() != null;
 
-            System.out.println("====================");
-            System.out.println("Site -> " + resolveProperty.getValue());
-            System.out.println("====================");
+            System.out.println("Site -> " + host.getValue());
+
+            // name
+            // ----------------------------
+            PropertyValue name = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("name"));
+
+            assert name.getValue() != null;
+
+            System.out.println("Name -> " + name.getValue());
+
+            // test
+            // ----------------------------
+            final Properties properties = applicationContext.getEnvironment().getProperties();
+            properties.put("test.context.loader.ValuePropertyResolveTest.test", "TEST");
+
+            PropertyValue test = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("test"));
+
+            assert "TEST".equals(test.getValue());
+
         }
 
     }

@@ -211,10 +211,9 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
             for (final String name : ContextUtils.findNames(defaultBeanName, component.getStringArray(Constant.VALUE))) {
 
                 // register
-                final StandardBeanDefinition beanDefinition = new StandardBeanDefinition();
-                beanDefinition.setName(name);
+                final StandardBeanDefinition beanDefinition = new StandardBeanDefinition(name, returnType);
+
                 beanDefinition.setScope(scope);
-                beanDefinition.setBeanClass(returnType);
                 beanDefinition.setDestroyMethods(destroyMethods);
                 beanDefinition.setInitMethods(ContextUtils.resolveInitMethod(returnType, initMethods));
                 beanDefinition.setPropertyValues(ContextUtils.resolvePropertyValue(returnType));
@@ -244,7 +243,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
             final MissingBean missingBean = beanClass.getAnnotation(MissingBean.class);
 
             if (ContextUtils.isMissedBean(missingBean, beanClass, this)) {
-                registerMissingBean(missingBean, beanClass, new DefaultBeanDefinition());
+                registerMissingBean(missingBean, new DefaultBeanDefinition(getBeanName(missingBean, beanClass), beanClass));
             }
         }
 
@@ -258,9 +257,10 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
             if (ContextUtils.isMissedBean(missingBean, beanClass, this)) {
 
                 // @Configuration use default bean name
-                StandardBeanDefinition beanDefinition = new StandardBeanDefinition()//
-                        .setFactoryMethod(method)//
-                        .setDeclaringName(beanNameCreator.create(method.getDeclaringClass()));
+                StandardBeanDefinition beanDefinition = //
+                        new StandardBeanDefinition(getBeanName(missingBean, beanClass), beanClass)//
+                                .setFactoryMethod(method)//
+                                .setDeclaringName(beanNameCreator.create(method.getDeclaringClass()));
 
                 if (method.isAnnotationPresent(Props.class)) {
                     // @Props on method
@@ -269,23 +269,17 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
                     beanDefinition.addPropertyValue(resolvedProps);
                 }
-                registerMissingBean(missingBean, beanClass, beanDefinition);
+                registerMissingBean(missingBean, beanDefinition);
             }
         }
         missingMethods.clear();
     }
 
-    protected void registerMissingBean(final MissingBean missingBean, //
-            final Class<?> beanClass, final BeanDefinition beanDefinition) //
-    {
-        String beanName = missingBean.value();
-        if (StringUtils.isEmpty(beanName)) {
-            beanName = getBeanNameCreator().create(beanClass);
-        }
+    protected void registerMissingBean(final MissingBean missingBean, final BeanDefinition beanDefinition) {
 
-        beanDefinition.setName(beanName)//
-                .setBeanClass(beanClass)//
-                .setScope(missingBean.scope())//
+        final Class<?> beanClass = beanDefinition.getBeanClass();
+
+        beanDefinition.setScope(missingBean.scope())//
                 .setDestroyMethods(missingBean.destroyMethods())//
                 .setInitMethods(ContextUtils.resolveInitMethod(beanClass, missingBean.initMethods()))//
                 .setPropertyValues(ContextUtils.resolvePropertyValue(beanClass));
@@ -293,7 +287,24 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
 
         // register missed bean
-        getBeanDefinitionLoader().register(beanName, beanDefinition);
+        getBeanDefinitionLoader().register(beanDefinition.getName(), beanDefinition);
+    }
+
+    /**
+     * Get bean name
+     * 
+     * @param missingBean
+     *            {@link MissingBean}
+     * @param beanClass
+     *            Bean class
+     * @return Bean name
+     */
+    protected String getBeanName(final MissingBean missingBean, final Class<?> beanClass) {
+        String beanName = missingBean.value();
+        if (StringUtils.isEmpty(beanName)) {
+            beanName = getBeanNameCreator().create(beanClass);
+        }
+        return beanName;
     }
 
     /**

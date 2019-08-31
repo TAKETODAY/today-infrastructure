@@ -25,8 +25,6 @@ import java.util.Arrays;
 
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.OrderUtils;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Standard implementation of {@link BeanDefinition}
@@ -34,14 +32,20 @@ import lombok.Setter;
  * @author TODAY <br>
  *         2019-02-01 12:29
  */
-@Getter
-@Setter
 public class StandardBeanDefinition extends DefaultBeanDefinition implements BeanDefinition {
 
     /** Declaring name @since 2.1.2 */
     private String declaringName;
 
     private Method factoryMethod;
+
+    public StandardBeanDefinition(String beanName, Class<?> beanClass) {
+        super(beanName, beanClass);
+    }
+
+    public StandardBeanDefinition(String beanName, BeanDefinition childDef) {
+        super(beanName, childDef);
+    }
 
     public String getDeclaringName() {
         return declaringName;
@@ -54,7 +58,7 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
 
     @Override
     public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
-        return super.isAnnotationPresent(annotation) || ClassUtils.isAnnotationPresent(factoryMethod, annotation);
+        return super.isAnnotationPresent(annotation) || ClassUtils.isAnnotationPresent(getFactoryMethod(), annotation);
     }
 
     /**
@@ -65,9 +69,18 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
 
         final int order = super.getOrder();
         if (LOWEST_PRECEDENCE == order) {
-            return OrderUtils.getOrder(factoryMethod);
+            return OrderUtils.getOrder(getFactoryMethod());
         }
-        return order + OrderUtils.getOrder(factoryMethod);
+        return order + OrderUtils.getOrder(getFactoryMethod());
+    }
+
+    public Method getFactoryMethod() {
+        return factoryMethod;
+    }
+
+    public StandardBeanDefinition setFactoryMethod(Method factoryMethod) {
+        this.factoryMethod = factoryMethod;
+        return this;
     }
 
     @Override
@@ -77,13 +90,13 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
                 .append("\",\n\t\"declaringName\":\"").append(getDeclaringName())//
                 .append("\",\n\t\"beanClass\":\"").append(getBeanClass())//
                 .append("\",\n\t\"scope\":\"").append(getScope())//
-                .append("\",\n\t\"factoryMethod\":\"").append(factoryMethod)//
+                .append("\",\n\t\"factoryMethod\":\"").append(getFactoryMethod())//
                 .append("\",\n\t\"initMethods\":\"").append(Arrays.toString(getInitMethods()))//
                 .append("\",\n\t\"destroyMethods\":\"").append(Arrays.toString(getDestroyMethods()))//
                 .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(getPropertyValues()))//
                 .append("\",\n\t\"initialized\":\"").append(isInitialized())//
                 .append("\",\n\t\"factoryBean\":\"").append(isFactoryBean())//
-                .append("\",\n\t\"Abstract\":\"").append(isAbstract())//
+                .append("\",\n\t\"abstract\":\"").append(isAbstract())//
                 .append("\"\n}")//
                 .toString();
     }
