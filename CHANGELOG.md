@@ -25,6 +25,7 @@
 :bug: fix: loadBeanDefinition can't be catch exception
 :bug: fix: ContextUtils#loadProps() only support String
 :bug: fix: #11 JarEntryResource#getJarFilePath(String) jar file not found 
+- :sparkles: feat: 使用方法名作为默认实例名称
 
 
 
