@@ -31,6 +31,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.bean.DefaultBeanDefinition;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
@@ -168,22 +169,22 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
             if (applicationContext.containsBeanDefinition(name)) {
                 final BeanDefinition existBeanDefinition = applicationContext.getBeanDefinition(name);
                 if (beanClass.equals(existBeanDefinition.getBeanClass())) {
-
+                    // TODO 处理该情况
                     LoggerFactory.getLogger(DefaultBeanDefinitionLoader.class)//
                             .warn("There is already a bean called: [{}], its bean class: [{}]", //
                                     name, beanClass);
                 }
             }
-            final String beanName;
+
             if (FactoryBean.class.isAssignableFrom(beanClass)) { // process FactoryBean
-                beanName = registerFactoryBean(name, beanDefinition);
+                registerFactoryBean(name, beanDefinition);
             }
             else {
-                beanName = name;
+                registry.registerBeanDefinition(name, beanDefinition);
             }
-            registry.registerBeanDefinition(beanName, beanDefinition);
         }
         catch (Throwable ex) {
+
             ex = ExceptionUtils.unwrapThrowable(ex);
             throw new BeanDefinitionStoreException("An Exception Occurred When Register Bean Definition: [" + //
                     name + "], With Msg: [" + ex + "]", ex);
@@ -201,36 +202,41 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
-    protected String registerFactoryBean(final String oldBeanName, final BeanDefinition beanDefinition) throws Throwable {
+    protected void registerFactoryBean(final String oldBeanName, final BeanDefinition beanDefinition) throws Throwable {
 
         FactoryBean<?> $factoryBean = //
                 (FactoryBean<?>) applicationContext.getSingleton(BeanFactory.FACTORY_BEAN_PREFIX + oldBeanName);
 
-        boolean registed = true;
+        boolean register = false;
         if ($factoryBean == null) { // If not exist declaring instance, create it
-            $factoryBean = (FactoryBean<?>) ClassUtils.newInstance(beanDefinition.getBeanClass()); // declaring object
-            // not initialized
-            registed = false;
+            // declaring object not registed
+            $factoryBean = (FactoryBean<?>) ClassUtils.newInstance(beanDefinition.getBeanClass());
+            register = true;
         }
-
-        final Class<?> beanClass = $factoryBean.getBeanClass();
 
         // build a new name
-        String beanName = $factoryBean.getBeanName();
+        String beanName = $factoryBean.getBeanName(); // use new name
         if (StringUtils.isEmpty(beanName)) {
-            beanName = beanNameCreator.create(beanClass);
+            beanName = oldBeanName; // use old name, that the name from Annotation or class default name
+        }
+        else {
+            register = true;
         }
 
-        // fix
-        beanDefinition.setFactoryBean(true)//
-                .setBeanClass(beanClass)//
-                .setName(beanName);
-
-        if (!registed) {// register it
-            applicationContext.registerSingleton(beanName, $factoryBean);
+        if (register) {// register it
+            applicationContext.registerSingleton(BeanFactory.FACTORY_BEAN_PREFIX + beanName, $factoryBean);
         }
 
-        return beanName;
+        final DefaultBeanDefinition def = new DefaultBeanDefinition(beanName, $factoryBean.getBeanClass());
+
+        def.setFactoryBean(true)//
+                .setScope(beanDefinition.getScope())//
+                .setInitMethods(beanDefinition.getInitMethods())//
+                .setDestroyMethods(beanDefinition.getDestroyMethods())//
+                .setPropertyValues(beanDefinition.getPropertyValues());
+
+        registry.registerBeanDefinition(beanName, def);
+
     }
 
     @Override

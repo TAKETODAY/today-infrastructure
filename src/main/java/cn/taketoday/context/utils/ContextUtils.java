@@ -912,6 +912,10 @@ public abstract class ContextUtils {
             }
         }
 
+        if (beanDefinition.getName() == null) {
+            throw new ConfigurationException("Definition's bean name can't be null");
+        }
+
         if (beanDefinition.getBeanClass() == null) {
             throw new ConfigurationException("Definition's bean class can't be null");
         }

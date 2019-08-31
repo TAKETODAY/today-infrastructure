@@ -33,7 +33,7 @@ public interface FactoryBean<T> {
     T getBean();
 
     /**
-     * Get the bean name
+     * Get the bean' new name
      * 
      * @return bean name
      */

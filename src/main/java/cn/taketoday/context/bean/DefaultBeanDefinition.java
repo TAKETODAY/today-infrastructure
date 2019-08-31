@@ -47,9 +47,9 @@ import cn.taketoday.context.utils.OrderUtils;
 public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     /** bean name. */
-    private String name;
+    private final String name;
     /** bean class. */
-    private Class<? extends Object> beanClass;
+    private final Class<? extends Object> beanClass;
     /** bean scope. */
     private Scope scope = Scope.SINGLETON;
 
@@ -89,20 +89,30 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
      */
     private boolean factoryBean = false;
 
-    /**
-     * Is Abstract ?
-     * 
-     * @since 2.0.0
-     */
-    private boolean Abstract = false;
-
-    public DefaultBeanDefinition() {
-
-    }
+    /** Child implementation bean name */
+    private String childName;
 
     public DefaultBeanDefinition(String name, Class<? extends Object> beanClass) {
         this.beanClass = beanClass;
         this.name = name;
+    }
+
+    /**
+     * Build a {@link BeanDefinition} with given child {@link BeanDefinition}
+     * 
+     * @param beanName
+     *            Bean name
+     * @param childDef
+     *            Child {@link BeanDefinition}
+     */
+    public DefaultBeanDefinition(String beanName, BeanDefinition childDef) {
+        this(beanName, childDef.getBeanClass());
+
+        setScope(childDef.getScope());
+        setChildName(childDef.getName());
+        setInitMethods(childDef.getInitMethods());
+        setDestroyMethods(childDef.getDestroyMethods());
+        setPropertyValues(childDef.getPropertyValues());
     }
 
     @Override
@@ -157,7 +167,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     @Override
     public boolean isAbstract() {
-        return Abstract;
+        return childName != null;
     }
 
     @Override
@@ -181,13 +191,12 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     @Override
     public BeanDefinition setAbstract(boolean Abstract) {
-        this.Abstract = Abstract;
+        // noop
         return this;
     }
 
     @Override
     public BeanDefinition setName(String name) {
-        this.name = name;
         return this;
     }
 
@@ -199,7 +208,6 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     @Override
     public BeanDefinition setBeanClass(Class<?> beanClass) {
-        this.beanClass = beanClass;
         return this;
     }
 
@@ -261,6 +269,8 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     /**
      * {@link BeanDefinition}'s Order
+     * 
+     * @since 2.1.7
      */
     @Override
     public int getOrder() {
@@ -268,7 +278,25 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     }
 
     @Override
+    public String getChildBean() {
+        return childName;
+    }
+
+    /**
+     * Apply the child bean name
+     * 
+     * @param childName
+     *            Child bean name
+     * @return {@link DefaultBeanDefinition}
+     */
+    public DefaultBeanDefinition setChildName(String childName) {
+        this.childName = childName;
+        return this;
+    }
+
+    @Override
     public String toString() {
+
         return new StringBuilder()//
                 .append("{\n\t\"name\":\"").append(name)//
                 .append("\",\n\t\"scope\":\"").append(scope)//
@@ -278,7 +306,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
                 .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(propertyValues))//
                 .append("\",\n\t\"initialized\":\"").append(initialized)//
                 .append("\",\n\t\"factoryBean\":\"").append(factoryBean)//
-                .append("\",\n\t\"abstract\":\"").append(Abstract)//
+                .append("\",\n\t\"child\":\"").append(childName)//
                 .append("\"\n}")//
                 .toString();
     }

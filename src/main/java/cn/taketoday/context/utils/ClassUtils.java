@@ -674,7 +674,11 @@ public abstract class ClassUtils {
             final Class<T> annotationClass,
             final Class<? extends T> implClass) throws ContextException //
     {
-        Objects.requireNonNull(annotationClass, "annotation class can't be null");
+        if (annotationClass == null) {
+            return null;
+        }
+
+        Objects.requireNonNull(implClass, "Implementation class can't be null");
 
         return (T[]) ANNOTATIONS.computeIfAbsent(new AnnotationKey<>(element, annotationClass), (k) -> {
 
@@ -704,7 +708,9 @@ public abstract class ClassUtils {
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> T[] getAnnotationArray(AnnotatedElement element, Class<T> targetClass) {
 
-        Objects.requireNonNull(targetClass, "annotation class can't be null");
+        if (targetClass == null) {
+            return null;
+        }
 
         return (T[]) ANNOTATIONS.computeIfAbsent(new AnnotationKey<>(element, targetClass), (k) -> {
 
@@ -981,6 +987,9 @@ public abstract class ClassUtils {
     public static <T extends Annotation> AnnotationAttributes[] //
             getAnnotationAttributesArray(final AnnotatedElement element, final Class<T> targetClass) throws ContextException//
     {
+        if (targetClass == null) {
+            return null;
+        }
         Objects.requireNonNull(element, "annotated element can't be null");
 
         return ANNOTATION_ATTRIBUTES.computeIfAbsent(new AnnotationKey<>(element, targetClass), (k) -> {
@@ -1155,7 +1164,10 @@ public abstract class ClassUtils {
      * @return Whether it's present
      */
     public static <A extends Annotation> boolean isAnnotationPresent(final AnnotatedElement element, final Class<A> annType) {
-        return element.isAnnotationPresent(annType) //
+        if (annType == null) {
+            return false;
+        }
+        return element.isAnnotationPresent(annType)//
                 || ObjectUtils.isNotEmpty(getAnnotationAttributesArray(element, annType));
     }
 
