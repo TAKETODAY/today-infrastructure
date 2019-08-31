@@ -21,6 +21,9 @@ package test.context.loader;
 
 import java.util.HashSet;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.junit.Test;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -40,6 +43,13 @@ public class AutowiredPropertyResolverTest {
     @Autowired
     private String name;
 
+    @Named
+    private String name1;
+
+    @SuppressWarnings("unused")
+    @Inject
+    private String name2;
+
     @Test
     public void test_() throws Throwable {
 
@@ -54,6 +64,9 @@ public class AutowiredPropertyResolverTest {
 
             System.err.println(resolveProperty);
             assert resolveProperty != null;
+
+            assert autowiredPropertyResolver.resolveProperty(AutowiredPropertyResolverTest.class.getDeclaredField("name1")) != null;
+            assert autowiredPropertyResolver.resolveProperty(AutowiredPropertyResolverTest.class.getDeclaredField("name2")) != null;
 
         }
     }

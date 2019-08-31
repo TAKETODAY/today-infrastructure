@@ -259,9 +259,6 @@ public class ContextUtilsTest {
             beanDefinition.setInitMethods(null);
             beanDefinition.setScope(null);
             beanDefinition.setPropertyValues(null);
-            ContextUtils.validateBeanDefinition(beanDefinition);
-
-            beanDefinition.setBeanClass(null); // error
 
             try {
                 ContextUtils.validateBeanDefinition(beanDefinition);
@@ -270,7 +267,7 @@ public class ContextUtilsTest {
                 assert true;
             }
 
-            StandardBeanDefinition standardBeanDefinition = new StandardBeanDefinition();
+            StandardBeanDefinition standardBeanDefinition = new StandardBeanDefinition("", (Class<?>) null);
             try {
                 ContextUtils.validateBeanDefinition(standardBeanDefinition);
             }

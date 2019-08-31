@@ -58,12 +58,9 @@ public class BeanDefinitionTest {
 
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
 
-            BeanDefinition beanDefinition = new DefaultBeanDefinition();
+            BeanDefinition beanDefinition = new DefaultBeanDefinition("testBean", BeanDefinitionTest.class);
 
-            beanDefinition.setAbstract(false)//
-                    .setName("testBean")//
-                    .setBeanClass(BeanDefinitionTest.class)//
-                    .setDestroyMethods("destory")//
+            beanDefinition.setDestroyMethods("destory")//
                     .setInitMethods(BeanDefinitionTest.class.getDeclaredMethod("init"));
 
             final Field test = BeanDefinitionTest.class.getDeclaredField("test");
@@ -87,7 +84,7 @@ public class BeanDefinitionTest {
                     new PropertyValue("TEST_STRING", test), //
                     new PropertyValue(123.123, testDouble)//
             );
-            
+
             beanDefinition.addPropertyValue(//
                     new PropertyValue("TEST_STRING", test), //
                     new PropertyValue(123.123, testDouble)//
