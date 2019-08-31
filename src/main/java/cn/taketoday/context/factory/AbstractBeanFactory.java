@@ -162,11 +162,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T getBean(String name, Class<T> requiredType) {
 
         final Object bean = getBean(name);
         if (bean != null && requiredType.isInstance(bean)) {
-            return requiredType.cast(bean);
+            return (T) bean;
         }
         // @since 2.1.2
         return requiredType.cast(doGetBeanforType(requiredType));
