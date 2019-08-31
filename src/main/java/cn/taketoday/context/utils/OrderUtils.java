@@ -28,17 +28,20 @@ import cn.taketoday.context.annotation.Order;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-08 19:02
  */
 public abstract class OrderUtils {
 
     /**
+     * Get the order of the {@link AnnotatedElement}
+     * 
      * @param annotated
-     * @return
+     *            {@link AnnotatedElement}
+     * @return The order
      */
-    public static final int getOrder(AnnotatedElement annotated) {
-        Order order = annotated.getAnnotation(Order.class);
+    public static int getOrder(final AnnotatedElement annotated) {
+        final Order order = annotated.getAnnotation(Order.class);
         if (order != null) {
             return order.value();
         }
@@ -46,10 +49,13 @@ public abstract class OrderUtils {
     }
 
     /**
+     * Get the order of the object
+     * 
      * @param obj
-     * @return
+     *            object
+     * @return The order
      */
-    public static final int getOrder(Object obj) {
+    public static int getOrder(final Object obj) {
         if (obj instanceof Ordered) {
             return ((Ordered) obj).getOrder();
         }
@@ -60,14 +66,19 @@ public abstract class OrderUtils {
     }
 
     /**
-     * @return
+     * Get Reversed Comparator
+     * 
+     * @return Reversed Comparator
      */
     public static Comparator<Object> getReversedComparator() {
         return Comparator.comparingInt(OrderUtils::getOrder).reversed();
     }
 
     /**
+     * Reversed sort list
+     * 
      * @param list
+     *            Input list
      */
     public static <T> void reversedSort(List<T> list) {
         list.sort(getReversedComparator());

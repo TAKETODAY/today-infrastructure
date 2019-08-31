@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -89,6 +90,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         final BeanDefinition def = getBeanDefinition(name);
         if (def != null) {
 
+            if (def.isInitialized()) { // fix #7
+                return getSingleton(name);
+            }
+
             try {
                 if (def.isSingleton()) {
                     return doCreateSingleton(def, name);
@@ -144,7 +149,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      */
     protected <T> Object doGetBeanforType(final Class<T> requiredType) {
         Object bean = null;
-        for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+        for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
             if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
                 bean = getBean(entry.getKey());
                 if (bean != null) {
@@ -153,7 +158,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             }
         }
         // fix
-        for (Object entry : getSingletons().values()) {
+        for (final Object entry : getSingletons().values()) {
             if (requiredType.isAssignableFrom(entry.getClass())) {
                 return entry;
             }
@@ -177,7 +182,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     public <T> List<T> getBeans(Class<T> requiredType) {
         final Set<T> beans = new LinkedHashSet<>();
 
-        for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+        for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
             if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
                 @SuppressWarnings("unchecked") //
                 T bean = (T) getBean(entry.getKey());
@@ -185,6 +190,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                     beans.add(bean);
                 }
             }
+        }
+        if (beans.isEmpty()) {
+            return Collections.emptyList();
         }
         return new ArrayList<>(beans);
     }
@@ -214,6 +222,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                     }
                 }
             }
+        }
+        if (beans.isEmpty()) {
+            return Collections.emptyList();
         }
         return new ArrayList<>(beans);
     }
@@ -345,7 +356,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      */
     protected void invokeInitMethods(final Object bean, final Method... methods) throws Exception {
 
-        for (Method method : methods) {
+        for (final Method method : methods) {
 //			method.setAccessible(true); // fix: can not access a member
             method.invoke(bean, ContextUtils.resolveParameter(ClassUtils.makeAccessible(method), this));
         }
@@ -367,10 +378,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *             If any {@link Exception} occurred when create singleton
      */
     protected Object doCreateSingleton(final BeanDefinition def, final String name) throws Throwable {
-
-        if (def.isInitialized()) { // fix #7
-            return getSingleton(name);
-        }
 
         if (def.isFactoryBean()) { // If bean is a FactoryBean not initialized
             final Object $factoryBean = initializingBean(getSingleton(FACTORY_BEAN_PREFIX + name), name, def);
