@@ -191,7 +191,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 }
             }
         }
-        return beans.isEmpty() ? Collections.emptyList() : new ArrayList<>(beans);
+        return new ArrayList<>(beans);
     }
 
     @Override
@@ -207,7 +207,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 }
             }
         }
-        return beans.isEmpty() ? Collections.emptyList() : new ArrayList<>(beans);
+        return new ArrayList<>(beans);
     }
 
     @Override
