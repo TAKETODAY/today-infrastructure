@@ -52,11 +52,11 @@ import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.bean.StandardBeanDefinition;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -159,19 +159,19 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      */
     public void loadConfigurationBeans() {
 
-        for (Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+        for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
 
             final Class<? extends Object> beanClass = entry.getValue().getBeanClass();
             if (beanClass.isAnnotationPresent(Configuration.class)) {
                 // @Configuration bean
-                for (Method method : beanClass.getDeclaredMethods()) {
+                for (final Method method : beanClass.getDeclaredMethods()) {
 
                     if (ContextUtils.conditional(method)) { // pass the condition
 
-                        Collection<AnnotationAttributes> components = //
-                                ClassUtils.getAnnotationAttributes(method, Component.class);
+                        final AnnotationAttributes[] components = //
+                                ClassUtils.getAnnotationAttributesArray(method, Component.class);
 
-                        if (components.isEmpty() && method.isAnnotationPresent(MissingBean.class)) {
+                        if (ObjectUtils.isEmpty(components) && method.isAnnotationPresent(MissingBean.class)) {
                             missingMethods.add(method);
                         }
                         else {
@@ -191,7 +191,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @param components
      *            {@link AnnotationAttributes}
      */
-    protected void registerConfigurationBean(Method method, Collection<AnnotationAttributes> components) //
+    protected void registerConfigurationBean(final Method method, final AnnotationAttributes[] components) //
             throws BeanDefinitionStoreException //
     {
 
@@ -199,7 +199,8 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         final BeanNameCreator beanNameCreator = getBeanNameCreator();
         final BeanDefinitionLoader beanDefinitionLoader = getBeanDefinitionLoader();
 
-        final String defaultBeanName = beanNameCreator.create(returnType);
+//        final String defaultBeanName = beanNameCreator.create(returnType); // @Deprecated in v2.1.7, use method name instead
+        final String defaultBeanName = method.getName(); // @since v2.1.7
         final String declaringBeanName = beanNameCreator.create(method.getDeclaringClass());
 
         for (final AnnotationAttributes component : components) {
@@ -210,12 +211,12 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
             for (final String name : ContextUtils.findNames(defaultBeanName, component.getStringArray(Constant.VALUE))) {
 
                 // register
-                StandardBeanDefinition beanDefinition = new StandardBeanDefinition();
-                beanDefinition.setName(name);//
+                final StandardBeanDefinition beanDefinition = new StandardBeanDefinition();
+                beanDefinition.setName(name);
                 beanDefinition.setScope(scope);
-                beanDefinition.setBeanClass(returnType);//
-                beanDefinition.setDestroyMethods(destroyMethods);//
-                beanDefinition.setInitMethods(ContextUtils.resolveInitMethod(returnType, initMethods));//
+                beanDefinition.setBeanClass(returnType);
+                beanDefinition.setDestroyMethods(destroyMethods);
+                beanDefinition.setInitMethods(ContextUtils.resolveInitMethod(returnType, initMethods));
                 beanDefinition.setPropertyValues(ContextUtils.resolvePropertyValue(returnType));
 
                 beanDefinition.setDeclaringName(declaringBeanName)//
@@ -234,7 +235,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @param beanClasses
      *            Class set
      */
-    public void loadMissingBean(Collection<Class<?>> beanClasses) {
+    public void loadMissingBean(final Collection<Class<?>> beanClasses) {
 
         applicationContext.publishEvent(new LoadingMissingBeanEvent(applicationContext, beanClasses));
 
@@ -351,7 +352,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                 applicationContext.loadContext(Collections.emptySet());
             }
             catch (Throwable e) {
-                throw new ContextException(e);
+                throw ExceptionUtils.newContextException(e);
             }
         }
         return beanDefinitionLoader;

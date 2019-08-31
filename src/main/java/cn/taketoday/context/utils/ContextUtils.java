@@ -939,7 +939,7 @@ public abstract class ContextUtils {
      * @throws Throwable
      *             When destroy a bean
      */
-    public static void destroyBean(Object bean, Method[] methods) throws Throwable {
+    public static void destroyBean(final Object bean, final Method[] methods) throws Throwable {
 
         // PreDestroy
         for (final Method method : methods) {

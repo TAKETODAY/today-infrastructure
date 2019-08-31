@@ -20,21 +20,20 @@
 package cn.taketoday.context.factory;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-08-03 17:38
  */
 public interface FactoryBean<T> {
 
     /**
-     * get bean instance
+     * Get the bean instance
      * 
      * @return bean instance
      */
     T getBean();
 
     /**
-     * get bean name
+     * Get the bean name
      * 
      * @return bean name
      */
@@ -43,7 +42,7 @@ public interface FactoryBean<T> {
     }
 
     /**
-     * Get bean class
+     * Get the bean class
      * 
      * @return bean class
      * @since 2.1.2
