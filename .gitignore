@@ -7,4 +7,5 @@
 /.settings
 /.classpath
 /.project
-
+/.sts4-cache
+.sts4-cache
