@@ -63,7 +63,7 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
     @Override
     public int getOrder() {
 
-        final int order = getOrder();
+        final int order = super.getOrder();
         if (LOWEST_PRECEDENCE == order) {
             return OrderUtils.getOrder(factoryMethod);
         }
