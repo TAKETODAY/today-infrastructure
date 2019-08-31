@@ -25,9 +25,9 @@
 :bug: fix: loadBeanDefinition can't be catch exception
 :bug: fix: ContextUtils#loadProps() only support String
 :bug: fix: #11 JarEntryResource#getJarFilePath(String) jar file not found 
-- :sparkles: feat: 使用方法名作为默认实例名称
-
-
+:sparkles: feat: 使用方法名作为默认实例名称
+:hammer: 重构FactoryBean注册逻辑
+:hammer: 重构BeanFactory获取Bean的逻辑
 
 ## v2.1.6
 - :sparkles: feat: add `Environment` new api to get property
