@@ -134,7 +134,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @return
      * @throws Throwable
      */
-    private Object getDeclaringInstance(String declaringName) throws Throwable {
+    protected Object getDeclaringInstance(String declaringName) throws Throwable {
         final BeanDefinition declaringBeanDefinition = getBeanDefinition(declaringName);
 
         if (declaringBeanDefinition.isInitialized()) {

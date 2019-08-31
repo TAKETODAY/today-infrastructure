@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.bean;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,11 +29,14 @@ import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.OrderUtils;
 
 /**
  * Default implementation of {@link BeanDefinition}
@@ -40,7 +44,7 @@ import cn.taketoday.context.utils.ObjectUtils;
  * @author TODAY <br>
  *         2019-02-01 12:23
  */
-public class DefaultBeanDefinition implements BeanDefinition {
+public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     /** bean name. */
     private String name;
@@ -248,6 +252,19 @@ public class DefaultBeanDefinition implements BeanDefinition {
             Collections.addAll(propertyValues, this.propertyValues);
         }
         this.propertyValues = propertyValues.toArray(EMPTY_PROPERTY_VALUE);
+    }
+
+    @Override
+    public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
+        return ClassUtils.isAnnotationPresent(beanClass, annotation);
+    }
+
+    /**
+     * {@link BeanDefinition}'s Order
+     */
+    @Override
+    public int getOrder() {
+        return OrderUtils.getOrder(beanClass);
     }
 
     @Override

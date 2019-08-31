@@ -19,9 +19,12 @@
  */
 package cn.taketoday.context.bean;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.OrderUtils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -47,6 +50,24 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
     public StandardBeanDefinition setDeclaringName(String declaringName) {
         this.declaringName = declaringName;
         return this;
+    }
+
+    @Override
+    public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
+        return super.isAnnotationPresent(annotation) || ClassUtils.isAnnotationPresent(factoryMethod, annotation);
+    }
+
+    /**
+     * {@link BeanDefinition}'s Order
+     */
+    @Override
+    public int getOrder() {
+
+        final int order = getOrder();
+        if (LOWEST_PRECEDENCE == order) {
+            return OrderUtils.getOrder(factoryMethod);
+        }
+        return order + OrderUtils.getOrder(factoryMethod);
     }
 
     @Override

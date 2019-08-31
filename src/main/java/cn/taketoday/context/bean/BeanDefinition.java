@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.bean;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
@@ -50,8 +51,18 @@ public interface BeanDefinition {
      */
     PropertyValue getPropertyValue(String name) throws NoSuchPropertyException;
 
-    public boolean isSingleton();
+    /**
+     * Indicates that If the bean is a {@link Singleton}.
+     * 
+     * @return If the bean is a {@link Singleton}.
+     */
+    boolean isSingleton();
 
+    /**
+     * Get bean class
+     * 
+     * @return bean class
+     */
     Class<?> getBeanClass();
 
     /**
@@ -62,11 +73,15 @@ public interface BeanDefinition {
     Method[] getInitMethods();
 
     /**
+     * Get all the destroy methods name
+     * 
      * @return all the destroy methods name
      */
     String[] getDestroyMethods();
 
     /**
+     * Get Bean {@link Scope}
+     * 
      * @return Bean {@link Scope}
      */
     Scope getScope();
@@ -206,4 +221,13 @@ public interface BeanDefinition {
      */
     BeanDefinition setFactoryBean(boolean factoryBean);
 
+    /**
+     * If An {@link Annotation} present on this bean
+     * 
+     * @param annotation
+     *            target {@link Annotation}
+     * @return If An {@link Annotation} present on this bean
+     * @since 2.1.7
+     */
+    boolean isAnnotationPresent(Class<? extends Annotation> annotation);
 }
