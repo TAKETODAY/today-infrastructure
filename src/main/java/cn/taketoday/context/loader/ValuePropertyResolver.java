@@ -60,10 +60,14 @@ public class ValuePropertyResolver implements PropertyValueResolver {
         else {
             final Env env = field.getAnnotation(Env.class);
             required = env.required();
-            expression = new StringBuilder()//
-                    .append(Constant.PLACE_HOLDER_PREFIX)//
-                    .append(env.value())//
-                    .append(Constant.PLACE_HOLDER_SUFFIX).toString();
+            expression = env.value();
+
+            if (StringUtils.isNotEmpty(expression)) {
+                expression = new StringBuilder()//
+                        .append(Constant.PLACE_HOLDER_PREFIX)//
+                        .append(expression)//
+                        .append(Constant.PLACE_HOLDER_SUFFIX).toString();
+            }
         }
 
         if (StringUtils.isEmpty(expression)) {
