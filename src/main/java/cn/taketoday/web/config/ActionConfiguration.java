@@ -49,23 +49,23 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.NumberUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextAware;
 import cn.taketoday.web.annotation.ActionMapping;
-import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RequestParam;
+import cn.taketoday.web.annotation.RootController;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.mapping.HandlerInterceptorRegistry;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -75,11 +75,8 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton(Constant.ACTION_CONFIG)
 public class ActionConfiguration implements Ordered, DisposableBean, WebApplicationContextAware, WebApplicationInitializer {
 
-    @Getter
     private String contextPath;
-
-    private Map<String, Integer> regexUrls = new HashMap<>();
-    private Map<String, Integer> requestMappings = new HashMap<>();
+    private Properties variables;
 
     @Autowired(Constant.HANDLER_MAPPING_REGISTRY)
     public HandlerMappingRegistry handlerMappingRegistry;
@@ -91,56 +88,53 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
 
     private BeanDefinitionLoader beanDefinitionLoader;
 
-    private Properties variables;
+    private Map<String, Integer> regexUrls = new HashMap<>();
+    private Map<String, Integer> requestMappings = new HashMap<>();
 
     /**
      * Build {@link HandlerMapping}
      * 
      * @param beanClass
-     *            bean class
+     *            Bean class
      * @throws Exception
-     *             if any {@link Exception} occurred
+     *             If any {@link Exception} occurred
      * @since 2.3.7
      */
     public void buildHandlerMapping(final Class<?> beanClass) throws Exception {
 
-        final Collection<AnnotationAttributes> controllerAttributes = //
-                ClassUtils.getAnnotationAttributes(beanClass, Controller.class);
-
-        if (controllerAttributes.isEmpty()) {
-            return;
-        }
-
-        final Collection<ActionMapping> controllerMappings = //
-                ClassUtils.getAnnotation(beanClass, ActionMapping.class); // find mapping on class
+        final ActionMapping controllerMapping = //
+                ClassUtils.getAnnotation(ActionMapping.class, beanClass); // find mapping on class
 
         final Set<String> namespaces = new HashSet<>(4, 1.0f); // name space
         final Set<RequestMethod> methodsOnClass = new HashSet<>(8, 1.0f); // method
 
-        if (!controllerMappings.isEmpty()) {
-            ActionMapping controllerMapping = controllerMappings.iterator().next(); // get first mapping on class
-            for (String value : controllerMapping.value()) {
+        if (ObjectUtils.isNotEmpty(controllerMapping)) {
+            for (final String value : controllerMapping.value()) {
                 namespaces.add(StringUtils.checkUrl(value));
             }
             Collections.addAll(methodsOnClass, controllerMapping.method());
         }
 
-        for (Method method : beanClass.getDeclaredMethods()) {
+        for (final Method method : beanClass.getDeclaredMethods()) {
             this.setActionMapping(beanClass, method, namespaces, methodsOnClass);
         }
     }
 
     /**
-     * start config
+     * Start config
      * 
      * @throws Exception
+     *             If any {@link Exception} occurred
      */
     protected void startConfiguration() throws Exception {
+
         // @since 2.3.3
-        for (Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitions().entrySet()) {
-            final BeanDefinition beanDefinition = entry.getValue();
-            if (!beanDefinition.isAbstract()) {
-                buildHandlerMapping(beanDefinition.getBeanClass());
+        for (final Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitions().entrySet()) {
+
+            final BeanDefinition def = entry.getValue();
+
+            if (!def.isAbstract() && def.isAnnotationPresent(RootController.class)) {
+                buildHandlerMapping(def.getBeanClass());
             }
         }
     }
@@ -149,10 +143,15 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      * Set Action Mapping
      * 
      * @param beanClass
+     *            Controller
      * @param method
+     *            Action or Handler
      * @param namespaces
+     *            Namespace
      * @param methodsOnClass
+     *            request method on class
      * @throws Exception
+     *             If any {@link Exception} occurred
      */
     private void setActionMapping(Class<?> beanClass, Method method, //
             Set<String> namespaces, Set<RequestMethod> methodsOnClass) throws Exception //
@@ -171,6 +170,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      * create a hash set
      * 
      * @param elements
+     *            Elements instance
      */
     @SafeVarargs
     private static <E> Set<E> newHashSet(E... elements) {
@@ -226,14 +226,18 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      * @param handlerMappingIndex
      *            index of the {@link HandlerMapping} array
      * @param handlerMethod
+     *            {@link HandlerMethod}
      * @param urlOnMethod
+     *            Method url mapping
      * @param requestMethod
+     *            HTTP request method
+     * @see RequestMethod
      */
-    private void doMapping(final int handlerMappingIndex, HandlerMethod handlerMethod, String urlOnMethod, RequestMethod requestMethod) {
-
+    private void doMapping(final int handlerMappingIndex, //
+            HandlerMethod handlerMethod, String urlOnMethod, RequestMethod requestMethod) //
+    {
         final String url = requestMethod.name() //
-                + contextPath //
-                + ContextUtils.resolveValue(urlOnMethod, String.class, variables); // GET/blog/users/1 GET/blog/#{key}/1
+                + getContextPath() + ContextUtils.resolveValue(urlOnMethod, String.class, variables); // GET/blog/users/1 GET/blog/#{key}/1
 
         if (!doMappingPathVariable(url, //
                 handlerMethod.getParameters(), handlerMethod.getMethod(), handlerMappingIndex, requestMethod.name())) {
@@ -253,6 +257,14 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      * @param regexUrl
      *            regex url
      * @param methodParameters
+     *            {@link MethodParameter}s
+     * @param method
+     *            Target Action or Handler
+     * @param index
+     *            {@link HandlerMapping} index
+     * @param requestMethod_
+     *            Request method string
+     * @return If mapped
      */
     private boolean doMappingPathVariable(String regexUrl, //
             MethodParameter[] methodParameters, Method method, int index, String requestMethod_) //
@@ -325,7 +337,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
             throw new ConfigurationException("Check @PathVariable configuration on method: [" + method + "]");
         }
 
-        this.regexUrls.put(regexUrl, index);
+        this.regexUrls.put(regexUrl, Integer.valueOf(index));
         log.info("Mapped [{}] -> [{}]", regexUrl, method);
         return true;
     }
@@ -334,9 +346,14 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      * Create {@link HandlerMapping}.
      * 
      * @param beanClass
+     *            Controller class
      * @param method
+     *            Action or Handler
+     * @return A new {@link HandlerMapping}
+     * @throws Exception
+     *             If any {@link Throwable} occurred
      */
-    private HandlerMapping createHandlerMapping(Class<?> beanClass, Method method) throws Exception {
+    private HandlerMapping createHandlerMapping(final Class<?> beanClass, final Method method) throws Exception {
 
         final List<MethodParameter> methodParameters = createMethodParameters(method);
 
@@ -354,6 +371,9 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
 
     /***
      * Build method parameter list
+     * 
+     * @param method
+     *            Target Action or Handler
      */
     public static List<MethodParameter> createMethodParameters(Method method) {
 
@@ -417,10 +437,8 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      *            controller class
      * @param action
      *            method
-     * @param requestMapping
-     *            mapping of request
      */
-    protected List<Integer> getInterceptor(Class<?> controllerClass, Method action) {
+    protected List<Integer> getInterceptor(final Class<?> controllerClass, final Method action) {
 
         final List<Integer> ids = new ArrayList<>();
 
@@ -450,7 +468,8 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      * Register intercepter id into intercepter registry
      * 
      * @param interceptors
-     * @return
+     *            {@link HandlerInterceptor} class
+     * @return A list of {@link HandlerInterceptor} index
      */
     public List<Integer> addInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
 
@@ -497,6 +516,9 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
         }
     }
 
+    /**
+     * Initialize All Action or Handler
+     */
     @Override
     public void onStartup(WebApplicationContext applicationContext) throws Throwable {
 
@@ -506,6 +528,12 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
                 .setRequestMappings(new HashMap<>(requestMappings));
     }
 
+    /**
+     * Rebuild Controllers
+     * 
+     * @throws Throwable
+     *             If any {@link Throwable} occurred
+     */
     public void reBuiltControllers() throws Throwable {
 
         log.info("Rebuilding Controllers");
@@ -526,10 +554,29 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
     @Override
     public void setWebApplicationContext(WebApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
-        this.contextPath = applicationContext.getContextPath();
+        this.setContextPath(applicationContext.getContextPath());
         ConfigurableEnvironment environment = applicationContext.getEnvironment();
         this.variables = environment.getProperties();
         this.beanDefinitionLoader = environment.getBeanDefinitionLoader();
+    }
+
+    /**
+     * Get this application context path
+     * 
+     * @return This application context path
+     */
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    /**
+     * Apply application context path
+     * 
+     * @param contextPath
+     *            Target context path
+     */
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
     }
 
 }
