@@ -379,6 +379,6 @@ public abstract class StringUtils {
      * @return
      */
     public static String checkUrl(String url) {
-        return StringUtils.isEmpty(url) ? Constant.BLANK : (url.startsWith("/") ? url : "/" + url);
+        return StringUtils.isEmpty(url) ? Constant.BLANK : (url.charAt(0) == '/' ? url : '/' + url);
     }
 }
