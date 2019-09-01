@@ -99,13 +99,8 @@ public class StandardWebServletBeanFactory extends StandardBeanFactory {
                 registerSingleton(beanName, Proxy.newProxyInstance(propertyType.getClassLoader(), new Class[] { propertyType }, //
                         new ObjectFactoryDelegatingHandler(servletEnv.get(propertyType))//
                 ));
-                registerBeanDefinition(//
-                        beanName, //
-                        new DefaultBeanDefinition()//
-                                .setAbstract(true)//
-                                .setName(beanName)//
-                                .setBeanClass(propertyType)//
-                );
+                
+                registerBeanDefinition(beanName, new DefaultBeanDefinition(beanName, propertyType));
             }
         }
         super.handleDependency();
