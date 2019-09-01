@@ -54,7 +54,7 @@
 - :hammer: add `ResultResolver` to resolve handler result
 - :sparkles: feat: add validation feature
 - :sparkles: feat: add `SharedVariable`
-
+- :sparkles: feat: supports prototype controller
 
 
 
