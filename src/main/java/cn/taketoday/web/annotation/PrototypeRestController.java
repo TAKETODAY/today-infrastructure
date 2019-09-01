@@ -1,9 +1,9 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
- * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,9 +13,9 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ *   
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.web.annotation;
 
@@ -24,16 +24,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.annotation.Profile;
-import cn.taketoday.web.Constant;
+import cn.taketoday.context.Scope;
+import cn.taketoday.context.annotation.Component;
 
 /**
  * @author TODAY <br>
- *         2019-01-03 22:56
+ *         2019-09-01 16:21
  */
-@Target(ElementType.TYPE)
-@Profile(Constant.WEB_DEBUG)
+@ResponseBody
+@RootController
+@Component(scope = Scope.PROTOTYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface WebDebugMode {
+@Target({ ElementType.TYPE, ElementType.METHOD })
+public @interface PrototypeRestController {
 
 }

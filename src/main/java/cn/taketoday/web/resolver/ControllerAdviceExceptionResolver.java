@@ -117,7 +117,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
      *            Target {@link Exception}
      * @return Mapped {@link Exception} handler mapping
      */
-    protected ExceptionHandlerMapping lookupExceptionHandlerMapping(Throwable ex) {
+    protected ExceptionHandlerMapping lookupExceptionHandlerMapping(final Throwable ex) {
 
         final ExceptionHandlerMapping ret = exceptionHandlers.get(ex.getClass());
         if (ret == null) {

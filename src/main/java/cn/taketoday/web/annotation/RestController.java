@@ -24,14 +24,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.annotation.Component;
+
 /**
+ * Controller indicate that its a 'RestController' bean
+ * 
  * @author TODAY<br>
  *         2018-11-17 21:26
  */
-@Controller
+@Component
 @ResponseBody
-@Target(ElementType.TYPE)
+@RootController
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface RestController {
 
     /** bean name */

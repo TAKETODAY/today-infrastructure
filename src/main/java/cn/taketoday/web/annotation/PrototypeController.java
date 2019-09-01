@@ -24,22 +24,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
 
 /**
- * Controller indicate that its a 'Controller' bean
- * 
  * @author TODAY <br>
- *         2018-08-23 11:16
+ *         2019-09-01 16:14
  */
-@Component
 @RootController
+@Component(scope = Scope.PROTOTYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface Controller {
+public @interface PrototypeController {
 
-    /**
-     * Controller name or a bean name
-     */
+    /** Controller name or a bean name */
     String[] value() default {};
 }

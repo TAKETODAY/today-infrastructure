@@ -65,9 +65,9 @@ public interface Constant extends cn.taketoday.context.Constant {
 	/**
 	 * Framework Attribute Keys End
 	 **********************************************************/
-
+	@Deprecated
 	String	CONVERT_METHOD						= "convert";
-
+	@Deprecated
 	String	WEB_INF								= "/WEB-INF";
 
 	String	DISPATCHER_SERVLET_MAPPING			= "/";
