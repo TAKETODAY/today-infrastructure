@@ -70,7 +70,7 @@ public class TestMixin extends CodeGenTestCase {
 
     public void testBeans() throws Exception {
         Object obj = Mixin.createBean(new Object[] { new DBean1(), new DBean2() });
-        Set getters = getGetters(obj.getClass());
+        Set<?> getters = getGetters(obj.getClass());
         assertTrue(getters.size() == 3); // name, age, class
         assertTrue(getters.contains("name"));
         assertTrue(getters.contains("age"));
@@ -82,7 +82,7 @@ public class TestMixin extends CodeGenTestCase {
         gen.setStyle(Mixin.STYLE_EVERYTHING);
         gen.setDelegates(new Object[] { new DBean1(), new DBean2() });
         Object obj = gen.create();
-        Set getters = getGetters(obj.getClass());
+        Set<?> getters = getGetters(obj.getClass());
         assertTrue(getters.size() == 3); // name, age, class
         assertTrue(obj instanceof DI1);
         assertTrue(new DBean1().herby().equals(((DI1) obj).herby()));
@@ -102,8 +102,8 @@ public class TestMixin extends CodeGenTestCase {
         assertEquals(((DI5) obj).vararg("1", "2"), 2);
     }
 
-    private static Set getGetters(Class beanClass) throws Exception {
-        Set getters = new HashSet();
+    private static Set<String> getGetters(Class<?> beanClass) throws Exception {
+        Set<String> getters = new HashSet<>();
         PropertyDescriptor[] descriptors = Introspector.getBeanInfo(beanClass).getPropertyDescriptors();
         for (int i = 0; i < descriptors.length; i++) {
             if (descriptors[i].getReadMethod() != null) {
@@ -113,8 +113,9 @@ public class TestMixin extends CodeGenTestCase {
         return getters;
     }
 
-    private static PropertyDescriptor getProperty(Class beanClass, String property) throws Exception {
-        Set getters = new HashSet();
+    @SuppressWarnings("unused")
+    private static PropertyDescriptor getProperty(Class<?> beanClass, String property) throws Exception {
+        Set<?> getters = new HashSet<>();
         PropertyDescriptor[] descriptors = Introspector.getBeanInfo(beanClass).getPropertyDescriptors();
         for (int i = 0; i < descriptors.length; i++) {
             if (descriptors[i].getName().equals(property))

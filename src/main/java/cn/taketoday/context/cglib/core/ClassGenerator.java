@@ -17,6 +17,11 @@ package cn.taketoday.context.cglib.core;
 
 import cn.taketoday.context.asm.ClassVisitor;
 
+/**
+ * 
+ * @author TODAY <br>
+ *         2019-09-02 17:20
+ */
 @FunctionalInterface
 public interface ClassGenerator {
 

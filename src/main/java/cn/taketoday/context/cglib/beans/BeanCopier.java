@@ -64,7 +64,7 @@ abstract public class BeanCopier {
     abstract public void copy(Object from, Object to, Converter converter);
 
     public static class Generator extends AbstractClassGenerator {
-        private static final Source SOURCE = new Source(BeanCopier.class.getName());
+        private static final Source SOURCE = new Source(BeanCopier.class.getSimpleName());
         private Class source;
         private Class target;
         private boolean useConverter;

@@ -17,7 +17,6 @@ package cn.taketoday.context.cglib.proxy;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import cn.taketoday.context.Constant;
@@ -34,13 +33,13 @@ import cn.taketoday.context.cglib.core.Signature;
  * classes handle an arbitrary set of method signatures.
  * 
  * @author Chris Nokleberg
- * @version $Id: InterfaceMaker.java,v 1.4 2006/03/05 02:43:19 herbyderby Exp $
+ * @author TODAY
  */
-@SuppressWarnings("all")
-public class InterfaceMaker extends AbstractClassGenerator {
-    
-    private static final Source SOURCE = new Source(InterfaceMaker.class.getName());
-    private Map signatures = new HashMap();
+public class InterfaceMaker extends AbstractClassGenerator<Object> {
+
+    private static final Source SOURCE = new Source(InterfaceMaker.class.getSimpleName());
+
+    private final Map<Signature, Type[]> signatures = new HashMap<>();
 
     /**
      * Create a new <code>InterfaceMaker</code>. A new <code>InterfaceMaker</code>
@@ -82,10 +81,9 @@ public class InterfaceMaker extends AbstractClassGenerator {
      * @param class
      *            the class containing the methods to add to the interface
      */
-    public void add(Class clazz) {
-        Method[] methods = clazz.getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            Method m = methods[i];
+    public void add(Class<?> clazz) {
+
+        for (final Method m : clazz.getMethods()) {
             if (!m.getDeclaringClass().getName().equals("java.lang.Object")) {
                 add(m);
             }
@@ -95,19 +93,22 @@ public class InterfaceMaker extends AbstractClassGenerator {
     /**
      * Create an interface using the current set of method signatures.
      */
-    public Class create() {
+    public Class<?> create() {
         setUseCache(false);
-        return (Class) super.create(this);
+        return (Class<?>) super.create(this);
     }
 
+    @Override
     protected ClassLoader getDefaultClassLoader() {
         return null;
     }
 
-    protected Object firstInstance(Class type) {
+    @Override
+    protected Object firstInstance(Class<Object> type) throws Exception {
         return type;
     }
 
+    @Override
     protected Object nextInstance(Object instance) {
         throw new IllegalStateException("InterfaceMaker does not cache");
     }
@@ -115,14 +116,21 @@ public class InterfaceMaker extends AbstractClassGenerator {
     @Override
     public void generateClass(ClassVisitor v) throws Exception {
         ClassEmitter ce = new ClassEmitter(v);
-        ce.begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC | Constant.ACC_INTERFACE, getClassName(), null, null,
-                Constant.SOURCE_FILE);
+        ce.begin_class(//
+                Constant.JAVA_VERSION, //
+                Constant.ACC_PUBLIC | Constant.ACC_INTERFACE | Constant.ACC_ABSTRACT, //
+                getClassName(), //
+                null, //
+                null, //
+                Constant.SOURCE_FILE//
+        );
 
-        for (Iterator it = signatures.keySet().iterator(); it.hasNext();) {
-            Signature sig = (Signature) it.next();
-            Type[] exceptions = (Type[]) signatures.get(sig);
-            ce.begin_method(Constant.ACC_PUBLIC | Constant.ACC_ABSTRACT, sig, exceptions).end_method();
+        final int access = Constant.ACC_PUBLIC | Constant.ACC_ABSTRACT;
+        for (final Map.Entry<Signature, Type[]> entry : signatures.entrySet()) {
+            ce.begin_method(access, entry.getKey(), entry.getValue()).end_method();
         }
+
         ce.end_class();
     }
+
 }

@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import cn.taketoday.context.asm.ClassReader;
 import cn.taketoday.context.asm.ClassVisitor;
@@ -31,7 +32,8 @@ import cn.taketoday.context.asm.MethodVisitor;
 import cn.taketoday.context.asm.Opcodes;
 
 @SuppressWarnings("all")
-public class DuplicatesPredicate implements Predicate {
+public class DuplicatesPredicate implements Predicate<Object> {
+    
     private final Set unique;
     private final Set rejected;
 
@@ -106,7 +108,7 @@ public class DuplicatesPredicate implements Predicate {
         }
     }
 
-    public boolean evaluate(Object arg) {
+    public boolean test(Object arg) {
         return !rejected.contains(arg) && unique.add(MethodWrapper.create((Method) arg));
     }
 
@@ -144,7 +146,6 @@ public class DuplicatesPredicate implements Predicate {
             final Method currentMethod = (Method) methods.remove(sig);
             if (currentMethod != null) {
                 currentMethodSig = sig;
-//				return new MethodVisitor(Constant.ASM_API) {
                 return new MethodVisitor() {
                     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
                         if (opcode == Opcodes.INVOKESPECIAL && currentMethodSig != null) {

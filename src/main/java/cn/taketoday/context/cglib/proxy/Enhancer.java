@@ -103,7 +103,7 @@ public class Enhancer extends AbstractClassGenerator {
         }
     };
 
-    private static final Source SOURCE = new Source(Enhancer.class.getName());
+    private static final Source SOURCE = new Source("Enhance");
     private static final EnhancerKey KEY_FACTORY = (EnhancerKey) KeyFactory.create(EnhancerKey.class,
             KeyFactory.HASH_ASM_TYPE, null);
 
@@ -513,13 +513,17 @@ public class Enhancer extends AbstractClassGenerator {
 
     private Object createHelper() {
         preValidate();
-        Object key = KEY_FACTORY.newInstance((superclass != null) ? superclass.getName() : null,
-                ReflectUtils.getNames(interfaces), filter == ALL_ZERO ? null : new WeakCacheKey<CallbackFilter>(filter),
-                callbackTypes, useFactory, interceptDuringConstruction, serialVersionUID);
+        Object key = KEY_FACTORY.newInstance((superclass != null) ? superclass.getName() : null, //
+                ReflectUtils.getNames(interfaces), //
+                filter == ALL_ZERO ? null : new WeakCacheKey<CallbackFilter>(filter), //
+                callbackTypes, //
+                useFactory, //
+                interceptDuringConstruction, //
+                serialVersionUID//
+        );
 
         this.currentKey = key;
-        Object result = super.create(key);
-        return result;
+        return super.create(key);
     }
 
     @Override
@@ -620,7 +624,11 @@ public class Enhancer extends AbstractClassGenerator {
         List methods = CollectionUtils.transform(actualMethods, new Transformer() {
             public Object transform(Object value) {
                 Method method = (Method) value;
-                int modifiers = Constant.ACC_FINAL | (method.getModifiers() & ~Constant.ACC_ABSTRACT & ~Constant.ACC_NATIVE & ~Constant.ACC_SYNCHRONIZED);
+                int modifiers = Constant.ACC_FINAL | (method.getModifiers() //
+                        & ~Constant.ACC_ABSTRACT //
+                        & ~Constant.ACC_NATIVE //
+                        & ~Constant.ACC_SYNCHRONIZED//
+                );
                 if (forcePublic.contains(MethodWrapper.create(method))) {
                     modifiers = (modifiers & ~Constant.ACC_PROTECTED) | Constant.ACC_PUBLIC;
                 }
@@ -630,14 +638,23 @@ public class Enhancer extends AbstractClassGenerator {
 
         ClassEmitter e = new ClassEmitter(v);
         if (currentData == null) {
-            e.begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), Type.getType(sc),
-                    (useFactory ? TypeUtils.add(TypeUtils.getTypes(interfaces), FACTORY)
-                            : TypeUtils.getTypes(interfaces)),
-                    Constant.SOURCE_FILE);
+            e.begin_class(Constant.JAVA_VERSION, //
+                    Constant.ACC_PUBLIC, //
+                    getClassName(), //
+                    Type.getType(sc), //
+                    (useFactory ? TypeUtils.add(TypeUtils.getTypes(interfaces), FACTORY) : TypeUtils.getTypes(interfaces)), //
+                    Constant.SOURCE_FILE//
+            );
         }
         else {
-            e.begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), null, new Type[] { FACTORY },
-                    Constant.SOURCE_FILE);
+            e.begin_class(Constant.JAVA_VERSION, //
+                    Constant.ACC_PUBLIC, //
+                    getClassName(), //
+                    null, //
+                    new Type[]
+                    { FACTORY },
+                    Constant.SOURCE_FILE//
+            );
         }
         List constructorInfo = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
 
@@ -1173,9 +1190,8 @@ public class Enhancer extends AbstractClassGenerator {
             if (index >= callbackTypes.length) {
                 throw new IllegalArgumentException("Callback filter returned an index that is too large: " + index);
             }
-            originalModifiers.put(method,
-                    new Integer((actualMethod != null) ? actualMethod.getModifiers() : method.getModifiers()));
-            indexes.put(method, new Integer(index));
+            originalModifiers.put(method, Integer.valueOf((actualMethod != null) ? actualMethod.getModifiers() : method.getModifiers()));
+            indexes.put(method, index);
             List group = (List) groups.get(generators[index]);
             if (group == null) {
                 groups.put(generators[index], group = new ArrayList(methods.size()));
@@ -1184,7 +1200,6 @@ public class Enhancer extends AbstractClassGenerator {
 
             // Optimization: build up a map of Class -> bridge methods in class
             // so that we can look up all the bridge methods in one pass for a class.
-            Objects.requireNonNull(actualMethod, "ActualMethod Can't be null");
             if (TypeUtils.isBridge(actualMethod.getModifiers())) {
                 Set bridges = (Set) declToBridge.get(actualMethod.getDeclaringClass());
                 if (bridges == null) {
@@ -1195,7 +1210,7 @@ public class Enhancer extends AbstractClassGenerator {
             }
         }
 
-        final Map bridgeToTarget = new BridgeMethodResolver(declToBridge, ClassUtils.getClassLoader()).resolveAll();
+        final Map bridgeToTarget = new BridgeMethodResolver(declToBridge, getClassLoader()).resolveAll();
 
         Set seenGen = new HashSet();
         CodeEmitter se = ce.getStaticHook();
@@ -1207,7 +1222,7 @@ public class Enhancer extends AbstractClassGenerator {
 //		final Object[] state = new Object[1];
         CallbackGenerator.Context context = new CallbackGenerator.Context() {
             public ClassLoader getClassLoader() {
-                return ClassUtils.getClassLoader();
+                return Enhancer.this.getClassLoader();
             }
 
             public int getOriginalModifiers(MethodInfo method) {

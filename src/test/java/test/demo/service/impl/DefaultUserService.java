@@ -51,7 +51,7 @@ public class DefaultUserService implements UserService {
 
     @Autowired
     public DefaultUserService(@Props(prefix = "site.") Config config) {
-        log.info("Creating 'UserService'");
+        log.info("Creating 'userService'");
     }
 
     @Override

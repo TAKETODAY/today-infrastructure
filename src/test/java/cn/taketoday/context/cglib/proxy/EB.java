@@ -1,5 +1,6 @@
 package cn.taketoday.context.cglib.proxy;
 
+@SuppressWarnings("rawtypes")
 public class EB extends EA implements Comparable {
     private int count;
 

@@ -23,8 +23,8 @@ import cn.taketoday.context.asm.Type;
  */
 public class Signature {
 
-    private String name;
-    private String desc;
+    private final String name;
+    private final String desc;
 
     public Signature(String name, String desc) {
         // TODO: better error checking

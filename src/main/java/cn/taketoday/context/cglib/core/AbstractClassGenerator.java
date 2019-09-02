@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import cn.taketoday.context.asm.ClassReader;
 import cn.taketoday.context.cglib.core.internal.LoadingCache;
@@ -34,15 +35,15 @@ import cn.taketoday.context.utils.ClassUtils;
  * transformations applied before generation.
  */
 @SuppressWarnings("all")
-abstract public class AbstractClassGenerator<T> implements ClassGenerator {
+public abstract class AbstractClassGenerator<T> implements ClassGenerator {
 
-    private static final ThreadLocal CURRENT = new ThreadLocal();
-
-    private static volatile Map<ClassLoader, ClassLoaderData> CACHE = new WeakHashMap<ClassLoader, ClassLoaderData>();
+    private static volatile Map<ClassLoader, ClassLoaderData> CACHE = new WeakHashMap<>();
+    private static final ThreadLocal<AbstractClassGenerator> CURRENT = new ThreadLocal<>();
 
     private GeneratorStrategy strategy = DefaultGeneratorStrategy.INSTANCE;
     private NamingPolicy namingPolicy = DefaultNamingPolicy.INSTANCE;
-    private Source source;
+
+    private final Source source;
     private ClassLoader classLoader;
     private String namePrefix;
     private Object key;
@@ -52,7 +53,7 @@ abstract public class AbstractClassGenerator<T> implements ClassGenerator {
 
     protected static class ClassLoaderData {
 
-        private final Set<String> reservedClassNames = new HashSet<String>();
+        private final Set<String> reservedClassNames = new HashSet<>();
 
         /**
          * {@link AbstractClassGenerator} here holds "cache key" (e.g.
@@ -81,7 +82,7 @@ abstract public class AbstractClassGenerator<T> implements ClassGenerator {
         private final WeakReference<ClassLoader> classLoader;
 
         private final Predicate uniqueNamePredicate = new Predicate() {
-            public boolean evaluate(Object name) {
+            public boolean test(Object name) {
                 return reservedClassNames.contains(name);
             }
         };
@@ -96,14 +97,12 @@ abstract public class AbstractClassGenerator<T> implements ClassGenerator {
             if (classLoader == null) {
                 throw new IllegalArgumentException("classLoader == null is not yet supported");
             }
-            this.classLoader = new WeakReference<ClassLoader>(classLoader);
-            Function<AbstractClassGenerator, Object> load = new Function<AbstractClassGenerator, Object>() {
-                public Object apply(AbstractClassGenerator gen) {
-                    Class klass = gen.generate(ClassLoaderData.this);
-                    return gen.wrapCachedClass(klass);
-                }
-            };
-            generatedClasses = new LoadingCache<AbstractClassGenerator, Object, Object>(GET_KEY, load);
+
+            this.classLoader = new WeakReference<>(classLoader);
+
+            final Function<AbstractClassGenerator, Object> load = (gen) -> gen.wrapCachedClass(gen.generate(this));
+
+            this.generatedClasses = new LoadingCache<AbstractClassGenerator, Object, Object>(GET_KEY, load);
         }
 
         public ClassLoader getClassLoader() {
@@ -125,6 +124,7 @@ abstract public class AbstractClassGenerator<T> implements ClassGenerator {
             Object cachedValue = generatedClasses.get(gen);
             return gen.unwrapCachedValue(cachedValue);
         }
+
     }
 
     protected T wrapCachedClass(Class klass) {
@@ -251,7 +251,24 @@ abstract public class AbstractClassGenerator<T> implements ClassGenerator {
      * that is being used to generate a class in the current thread.
      */
     public static AbstractClassGenerator getCurrent() {
-        return (AbstractClassGenerator) CURRENT.get();
+        return CURRENT.get();
+    }
+
+    public ClassLoader getClassLoader() {
+        ClassLoader t = classLoader;
+        if (t == null) {
+            t = getDefaultClassLoader();
+        }
+        if (t == null) {
+            t = getClass().getClassLoader();
+        }
+        if (t == null) {
+            t = Thread.currentThread().getContextClassLoader();
+        }
+        if (t == null) {
+            throw new IllegalStateException("Cannot determine classloader");
+        }
+        return t;
     }
 
     abstract protected ClassLoader getDefaultClassLoader();
@@ -273,7 +290,7 @@ abstract public class AbstractClassGenerator<T> implements ClassGenerator {
     protected Object create(Object key) {
         try {
 
-            ClassLoader loader = ClassUtils.getClassLoader();
+            ClassLoader loader = getClassLoader();
             Map<ClassLoader, ClassLoaderData> cache = CACHE;
             ClassLoaderData data = cache.get(loader);
             if (data == null) {
@@ -309,7 +326,7 @@ abstract public class AbstractClassGenerator<T> implements ClassGenerator {
 
     protected Class generate(ClassLoaderData data) {
 
-        Object save = CURRENT.get();
+        AbstractClassGenerator save = CURRENT.get();
         CURRENT.set(this);
         try {
             ClassLoader classLoader = data.getClassLoader();
@@ -349,7 +366,8 @@ abstract public class AbstractClassGenerator<T> implements ClassGenerator {
         }
     }
 
-    abstract protected Object firstInstance(Class type) throws Exception;
+    abstract protected Object firstInstance(Class<T> type) throws Exception;
 
     abstract protected Object nextInstance(Object instance) throws Exception;
+
 }

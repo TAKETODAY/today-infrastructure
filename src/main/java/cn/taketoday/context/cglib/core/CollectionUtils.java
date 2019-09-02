@@ -22,58 +22,62 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
 
 /**
  * @author Chris Nokleberg
  * @version $Id: CollectionUtils.java,v 1.7 2004/06/24 21:15:21 herbyderby Exp $
+ * @author TODAY
  */
-@SuppressWarnings("all")
 public abstract class CollectionUtils {
 
-    public static Map bucket(Collection c, Transformer t) {
-        Map buckets = new HashMap();
-        for (Iterator it = c.iterator(); it.hasNext();) {
-            Object value = (Object) it.next();
+    public static Map<Object, List<Object>> bucket(Collection<?> c, Transformer t) {
+        Map<Object, List<Object>> buckets = new HashMap<>();
+
+        for (final Object value : c) {
             Object key = t.transform(value);
-            List bucket = (List) buckets.get(key);
+            List<Object> bucket = buckets.get(key);
             if (bucket == null) {
-                buckets.put(key, bucket = new LinkedList());
+                buckets.put(key, bucket = new LinkedList<>());
             }
             bucket.add(value);
         }
         return buckets;
     }
 
-    public static void reverse(Map source, Map target) {
-        for (Iterator it = source.keySet().iterator(); it.hasNext();) {
-            Object key = it.next();
-            target.put(source.get(key), key);
+    public static <T extends Object> void reverse(Map<T, T> source, Map<T, T> target) {
+
+        for (Entry<T, T> entry : source.entrySet()) {
+            target.put(entry.getValue(), entry.getKey());
         }
     }
 
-    public static Collection filter(Collection c, Predicate p) {
-        Iterator it = c.iterator();
+    public static <T extends Object> Collection<T> filter(Collection<T> c, Predicate<T> p) {
+
+        final Iterator<T> it = c.iterator();
         while (it.hasNext()) {
-            if (!p.evaluate(it.next())) {
+            if (!p.test(it.next())) {
                 it.remove();
             }
         }
         return c;
     }
 
-    public static List transform(Collection c, Transformer t) {
-        List result = new ArrayList(c.size());
-        for (Iterator it = c.iterator(); it.hasNext();) {
-            result.add(t.transform(it.next()));
+    public static List<Object> transform(final Collection<Object> c, final Transformer t) {
+        final List<Object> result = new ArrayList<>(c.size());
+
+        for (final Object obj : c) {
+            result.add(t.transform(obj));
         }
         return result;
     }
 
-    public static Map getIndexMap(List list) {
-        Map indexes = new HashMap();
+    public static Map<Object, Integer> getIndexMap(List<Object> list) {
+        final Map<Object, Integer> indexes = new HashMap<>();
         int index = 0;
-        for (Iterator it = list.iterator(); it.hasNext();) {
-            indexes.put(it.next(), new Integer(index++));
+        for (final Object obj : list) {
+            indexes.put(obj, Integer.valueOf(index++));
         }
         return indexes;
     }

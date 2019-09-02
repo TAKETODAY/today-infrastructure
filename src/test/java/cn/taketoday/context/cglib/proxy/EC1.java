@@ -1,5 +1,6 @@
 package cn.taketoday.context.cglib.proxy;
 
+@SuppressWarnings("rawtypes")
 public class EC1 extends EB implements Comparable {
     private String address;
     private ED ed;

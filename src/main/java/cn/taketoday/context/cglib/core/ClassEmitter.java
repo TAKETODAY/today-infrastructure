@@ -66,7 +66,8 @@ public class ClassEmitter extends ClassTransformer {
     }
 
     public void begin_class(int version, final int access, String className, final Type superType,
-            final Type[] interfaces, String source) {
+            final Type[] interfaces, String source) //
+    {
         final Type classType = Type.getType('L' + className.replace('.', '/') + ';');
         classInfo = new ClassInfo() {
             public Type getType() {
@@ -139,10 +140,17 @@ public class ClassEmitter extends ClassTransformer {
     }
 
     public CodeEmitter begin_method(int access, Signature sig, Type[] exceptions) {
+
         if (classInfo == null)
             throw new IllegalStateException("classInfo is null! " + this);
-        MethodVisitor v = cv.visitMethod(access, sig.getName(), sig.getDescriptor(), null,
-                TypeUtils.toInternalNames(exceptions));
+
+        MethodVisitor v = cv.visitMethod(//
+                access, //
+                sig.getName(), //
+                sig.getDescriptor(), //
+                null, //
+                TypeUtils.toInternalNames(exceptions)//
+        );
 
         if (sig.equals(Constant.SIG_STATIC) && !TypeUtils.isInterface(getAccess())) {
             rawStaticInit = v;

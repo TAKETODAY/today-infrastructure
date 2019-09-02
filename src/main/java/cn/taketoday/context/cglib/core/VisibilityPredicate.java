@@ -17,17 +17,17 @@ package cn.taketoday.context.cglib.core;
 
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
+import java.util.function.Predicate;
 
 import cn.taketoday.context.asm.Type;
 
-@SuppressWarnings("all")
-public class VisibilityPredicate implements Predicate {
+public class VisibilityPredicate implements Predicate<Member> {
 
-    private boolean protectedOk;
     private String pkg;
+    private boolean protectedOk;
     private boolean samePackageOk;
 
-    public VisibilityPredicate(Class source, boolean protectedOk) {
+    public VisibilityPredicate(Class<?> source, boolean protectedOk) {
         this.protectedOk = protectedOk;
         // same package is not ok for the bootstrap loaded classes. In all other cases
         // we are
@@ -36,16 +36,12 @@ public class VisibilityPredicate implements Predicate {
         pkg = TypeUtils.getPackageName(Type.getType(source));
     }
 
-    public boolean evaluate(Object arg) {
-        Member member = (Member) arg;
+    public boolean test(Member member) {
         int mod = member.getModifiers();
         if (Modifier.isPrivate(mod)) {
             return false;
         }
-        if (Modifier.isPublic(mod)) {
-            return true;
-        }
-        if (Modifier.isProtected(mod) && protectedOk) {
+        if (Modifier.isPublic(mod) || (Modifier.isProtected(mod) && protectedOk)) {
             // protected is fine if 'protectedOk' is true (for subclasses)
             return true;
         }

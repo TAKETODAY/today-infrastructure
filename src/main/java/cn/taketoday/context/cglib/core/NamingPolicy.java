@@ -15,6 +15,8 @@
  */
 package cn.taketoday.context.cglib.core;
 
+import java.util.function.Predicate;
+
 /**
  * Customize the generated class name for {@link AbstractClassGenerator}-based
  * utilities.
@@ -28,8 +30,7 @@ public interface NamingPolicy {
      *            a dotted-name chosen by the generating class (possibly to put the
      *            generated class in a particular package)
      * @param source
-     *            the fully-qualified class name of the generating class (for
-     *            example "cn.taketoday.aop.cglib.Enhancer")
+     *            the class simple name of the generating class
      * @param key
      *            A key object representing the state of the parameters; for caching
      *            to work properly, equal keys should result in the same generated
@@ -40,7 +41,7 @@ public interface NamingPolicy {
      *            been used in the same ClassLoader.
      * @return the fully-qualified class name
      */
-    String getClassName(String prefix, String source, Object key, Predicate names);
+    String getClassName(String prefix, String source, Object key, Predicate<String> names);
 
     /**
      * The <code>NamingPolicy</code> in use does not currently, but may in the

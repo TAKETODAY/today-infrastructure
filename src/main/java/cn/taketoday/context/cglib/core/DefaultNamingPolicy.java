@@ -15,6 +15,8 @@
  */
 package cn.taketoday.context.cglib.core;
 
+import java.util.function.Predicate;
+
 /**
  * The default policy used by {@link AbstractClassGenerator}. Generates names
  * such as
@@ -36,10 +38,11 @@ public class DefaultNamingPolicy implements NamingPolicy {
      */
     private final static boolean STRESS_HASH_CODE = Boolean.getBoolean("cn.taketoday.context.cglib.test.stressHashCodes");
 
-    public String getClassName(String prefix, String source, Object key, Predicate names) {
+    @Override
+    public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
 
         if (prefix == null) {
-            prefix = "cn.taketoday.context.Object";
+            prefix = "cn.taketoday.context.cglib.Object";
         }
         else if (prefix.startsWith("java")) {
             prefix = "$" + prefix;
@@ -48,14 +51,14 @@ public class DefaultNamingPolicy implements NamingPolicy {
         final String base = new StringBuilder()//
                 .append(prefix)//
                 .append("$$")//
-                .append(source.substring(source.lastIndexOf('.') + 1))//
+                .append(source)//
                 .append(getTag())//
                 .append("$$")//
                 .append(Integer.toHexString(STRESS_HASH_CODE ? 0 : key.hashCode())).toString();
 
         String attempt = base;
         int index = 2;
-        while (names.evaluate(attempt))
+        while (names.test(attempt))
             attempt = base + "_" + index++;
         return attempt;
     }

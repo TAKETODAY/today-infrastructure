@@ -26,7 +26,7 @@ import cn.taketoday.context.cglib.transform.TransformingClassGenerator;
 
 /**
  * A {@link GeneratorStrategy} suitable for use with
- * {@link cn.taketoday.aop.cglib.Enhancer} which causes all undeclared
+ * {@link cn.taketoday.context.cglib.proxy.Enhancer} which causes all undeclared
  * exceptions thrown from within a proxied method to be wrapped in an
  * alternative exception of your choice.
  */

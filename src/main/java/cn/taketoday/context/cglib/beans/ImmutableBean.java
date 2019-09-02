@@ -49,7 +49,7 @@ public abstract class ImmutableBean {
     }
 
     public static class Generator extends AbstractClassGenerator {
-        private static final Source SOURCE = new Source(ImmutableBean.class.getName());
+        private static final Source SOURCE = new Source(ImmutableBean.class.getSimpleName());
         private Object bean;
         private Class target;
 

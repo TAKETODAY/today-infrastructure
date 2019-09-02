@@ -31,8 +31,15 @@ import cn.taketoday.context.cglib.core.Signature;
 
 /**
  * Uses bytecode reflection to figure out the targets of all bridge methods that
- * use invokespecial, so that we can later rewrite them to use invokevirtual.
- * 
+ * use invokespecial and invokeinterface, so that we can later rewrite them to
+ * use invokevirtual.
+ *
+ * <p>
+ * For interface bridges, using invokesuper will fail since the method being
+ * bridged to is in a superinterface, not a superclass. Starting in Java 8,
+ * javac emits default bridge methods in interfaces, which use invokeinterface
+ * to bridge to the target method.
+ *
  * @author sberlin@gmail.com (Sam Berlin)
  */
 @SuppressWarnings("all")
@@ -94,10 +101,11 @@ class BridgeMethodResolver {
             Signature sig = new Signature(name, desc);
             if (eligibleMethods.remove(sig)) {
                 currentMethod = sig;
-//				return new MethodVisitor(Constant.ASM_API) {
                 return new MethodVisitor() {
                     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-                        if (opcode == Opcodes.INVOKESPECIAL && currentMethod != null) {
+                        if ((opcode == Opcodes.INVOKESPECIAL || (itf && opcode == Opcodes.INVOKEINTERFACE)) && currentMethod != null) {
+
+//                        if (opcode == Opcodes.INVOKESPECIAL && currentMethod != null) {
                             Signature target = new Signature(name, desc);
                             // If the target signature is the same as the current,
                             // we shouldn't change our bridge becaues invokespecial

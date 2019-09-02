@@ -23,14 +23,61 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import cn.taketoday.context.asm.Opcodes;
+import cn.taketoday.context.asm.Type;
+import cn.taketoday.context.cglib.core.Signature;
+import cn.taketoday.context.cglib.core.TypeUtils;
+
 /**
  * 
  * @author TODAY <br>
  *         2018-01-16 10:56
  */
-public interface Constant extends Serializable {
+public interface Constant extends Opcodes, Serializable {
 
     String CONTEXT_VERSION = "2.1.7";
+
+    Class<?>[] EMPTY_CLASS_ARRAY = {};
+    Type[] TYPES_EMPTY = {};
+
+    Signature SIG_STATIC = TypeUtils.parseSignature("void <clinit>()");
+
+    Type TYPE_OBJECT_ARRAY = TypeUtils.parseType("Object[]");
+    Type TYPE_CLASS_ARRAY = TypeUtils.parseType("Class[]");
+    Type TYPE_STRING_ARRAY = TypeUtils.parseType("String[]");
+
+    Type TYPE_TYPE = Type.getType(Type.class);
+    Type TYPE_ERROR = TypeUtils.parseType("Error");
+    Type TYPE_SYSTEM = TypeUtils.parseType("System");
+    Type TYPE_LONG = TypeUtils.parseType("Long");
+    Type TYPE_BYTE = TypeUtils.parseType("Byte");
+    Type TYPE_CLASS = TypeUtils.parseType("Class");
+    Type TYPE_FLOAT = TypeUtils.parseType("Float");
+    Type TYPE_SHORT = TypeUtils.parseType("Short");
+    Type TYPE_OBJECT = TypeUtils.parseType("Object");
+    Type TYPE_DOUBLE = TypeUtils.parseType("Double");
+    Type TYPE_STRING = TypeUtils.parseType("String");
+    Type TYPE_NUMBER = TypeUtils.parseType("Number");
+    Type TYPE_BOOLEAN = TypeUtils.parseType("Boolean");
+    Type TYPE_INTEGER = TypeUtils.parseType("Integer");
+    Type TYPE_CHARACTER = TypeUtils.parseType("Character");
+    Type TYPE_THROWABLE = TypeUtils.parseType("Throwable");
+    Type TYPE_CLASS_LOADER = TypeUtils.parseType("ClassLoader");
+    Type TYPE_STRING_BUFFER = TypeUtils.parseType("StringBuffer");
+    Type TYPE_BIG_INTEGER = TypeUtils.parseType("java.math.BigInteger");
+    Type TYPE_BIG_DECIMAL = TypeUtils.parseType("java.math.BigDecimal");
+    Type TYPE_RUNTIME_EXCEPTION = TypeUtils.parseType("RuntimeException");
+    Type TYPE_SIGNATURE = TypeUtils.parseType(Signature.class);
+
+    String STATIC_NAME = "<clinit>";
+    String SOURCE_FILE = "<generated>";
+    String SUID_FIELD_NAME = "serialVersionUID";
+
+    int PRIVATE_FINAL_STATIC = ACC_PRIVATE | ACC_FINAL | ACC_STATIC;
+
+    int SWITCH_STYLE_TRIE = 0;
+    int SWITCH_STYLE_HASH = 1;
+    int SWITCH_STYLE_HASHONLY = 2;
 
     //@off
 	/** Bytes per Kilobyte.*/
@@ -107,7 +154,6 @@ public interface Constant extends Serializable {
 	String	INIT_METHODS			= "initMethods";
 	String	DESTROY_METHODS			= "destroyMethods";
 	String 	TYPE 					= "type";
-	
 	/**
 	 **********************************************/
 }

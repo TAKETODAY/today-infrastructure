@@ -26,7 +26,7 @@ public class TestInterfaceMaker extends CodeGenTestCase {
         InterfaceMaker im = new InterfaceMaker();
         im.add(D1.class);
         im.add(D2.class);
-        Class iface = im.create();
+        Class<?> iface = im.create();
         Method[] methods = iface.getMethods();
         assertTrue(methods.length == 2);
         String name1 = methods[0].getName();
@@ -38,7 +38,7 @@ public class TestInterfaceMaker extends CodeGenTestCase {
         InterfaceMaker im = new InterfaceMaker();
         im.add(D1.class);
         im.add(D2.class);
-        Class iface = im.create();
+        Class<?> iface = im.create();
         Object obj = Enhancer.create(Object.class, new Class[] { iface }, new MethodInterceptor() {
             public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) {
                 return "test";

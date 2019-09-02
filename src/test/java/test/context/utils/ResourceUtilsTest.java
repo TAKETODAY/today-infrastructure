@@ -81,8 +81,8 @@ public class ResourceUtilsTest {
 
         if (resource instanceof JarEntryResource) {
 
-            JarEntryResource jarEntryResource = (JarEntryResource) 
-                    resource.createRelative("/maven/cn.taketoday/today-expression/pom.properties");
+            JarEntryResource jarEntryResource = (JarEntryResource) resource.createRelative(
+                    "/maven/cn.taketoday/today-expression/pom.properties");
             if (jarEntryResource.exists()) {
                 System.out.println(StringUtils.readAsText(jarEntryResource.getInputStream()));
             }

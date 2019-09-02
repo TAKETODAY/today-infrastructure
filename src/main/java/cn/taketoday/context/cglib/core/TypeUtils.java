@@ -18,18 +18,17 @@ package cn.taketoday.context.cglib.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Type;
 
-@SuppressWarnings("all")
+//@SuppressWarnings("all")
 public class TypeUtils {
 
-    private static final Map transforms = new HashMap();
-    private static final Map rtransforms = new HashMap();
+    private static final Map<String, String> transforms = new HashMap<>();
+    private static final Map<String, String> rtransforms = new HashMap<>();
 
     private TypeUtils() {
     }
@@ -49,7 +48,7 @@ public class TypeUtils {
     }
 
     public static Type getType(String className) {
-        return Type.getType("L" + className.replace('.', '/') + ";");
+        return Type.getType('L' + className.replace('.', '/') + ';');
     }
 
     public static boolean isFinal(int access) {
@@ -107,7 +106,7 @@ public class TypeUtils {
 
     public static String getClassName(Type type) {
         if (isPrimitive(type)) {
-            return (String) rtransforms.get(type.getDescriptor());
+            return rtransforms.get(type.getDescriptor());
         }
         else if (isArray(type)) {
             return getClassName(getComponentType(type)) + "[]";
@@ -122,7 +121,7 @@ public class TypeUtils {
             return new Type[] { extra };
         }
         else {
-            List list = Arrays.asList(types);
+            List<Type> list = Arrays.asList(types);
             if (list.contains(extra)) {
                 return types;
             }
@@ -143,7 +142,7 @@ public class TypeUtils {
 
     public static Type fromInternalName(String name) {
         // TODO; primitives?
-        return Type.getType("L" + name + ";");
+        return Type.getType('L' + name + ';');
     }
 
     public static Type[] fromInternalNames(String[] names) {
@@ -184,8 +183,9 @@ public class TypeUtils {
         String methodName = s.substring(space + 1, lparen);
         StringBuffer sb = new StringBuffer();
         sb.append('(');
-        for (Iterator it = parseTypes(s, lparen + 1, rparen).iterator(); it.hasNext();) {
-            sb.append(it.next());
+
+        for (String type : parseTypes(s, lparen + 1, rparen)) {
+            sb.append(type);
         }
         sb.append(')');
         sb.append(map(returnType));
@@ -201,31 +201,31 @@ public class TypeUtils {
     }
 
     public static Type[] parseTypes(String s) {
-        List names = parseTypes(s, 0, s.length());
+        List<String> names = parseTypes(s, 0, s.length());
         Type[] types = new Type[names.size()];
         for (int i = 0; i < types.length; i++) {
-            types[i] = Type.getType((String) names.get(i));
+            types[i] = Type.getType(names.get(i));
         }
         return types;
     }
 
     public static Signature parseConstructor(Type[] types) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("(");
+        final StringBuilder sb = new StringBuilder();
+        sb.append('(');
         for (int i = 0; i < types.length; i++) {
             sb.append(types[i].getDescriptor());
         }
-        sb.append(")");
-        sb.append("V");
+        sb.append(')');
+        sb.append('V');
         return new Signature(Constant.CONSTRUCTOR_NAME, sb.toString());
     }
 
     public static Signature parseConstructor(String sig) {
-        return parseSignature("void <init>(" + sig + ")"); // TODO
+        return parseSignature("void <init>(" + sig + ')'); // TODO
     }
 
-    private static List parseTypes(String s, int mark, int end) {
-        List types = new ArrayList(5);
+    private static List<String> parseTypes(String s, int mark, int end) {
+        List<String> types = new ArrayList<>(5);
         for (;;) {
             int next = s.indexOf(',', mark);
             if (next < 0) {
@@ -239,10 +239,10 @@ public class TypeUtils {
     }
 
     private static String map(String type) {
-        if (type.equals("")) {
+        if (Constant.BLANK.equals(type)) {
             return type;
         }
-        String t = (String) transforms.get(type);
+        String t = transforms.get(type);
         if (t != null) {
             return t;
         }
@@ -350,7 +350,7 @@ public class TypeUtils {
         return method.getSignature().getName().equals(Constant.CONSTRUCTOR_NAME);
     }
 
-    public static Type[] getTypes(Class[] classes) {
+    public static Type[] getTypes(Class<?>[] classes) {
         if (classes == null) {
             return null;
         }

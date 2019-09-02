@@ -12,7 +12,7 @@ import cn.taketoday.context.cglib.core.KeyFactoryCustomizer;
 @SuppressWarnings("all")
 public class CustomizerRegistry {
     private final Class[] customizerTypes;
-    private Map<Class, List<KeyFactoryCustomizer>> customizers = new HashMap<Class, List<KeyFactoryCustomizer>>();
+    private Map<Class, List<KeyFactoryCustomizer>> customizers = new HashMap<>();
 
     public CustomizerRegistry(Class[] customizerTypes) {
         this.customizerTypes = customizerTypes;

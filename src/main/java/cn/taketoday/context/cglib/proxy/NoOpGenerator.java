@@ -29,8 +29,9 @@ class NoOpGenerator implements CallbackGenerator {
     public static final NoOpGenerator INSTANCE = new NoOpGenerator();
 
     public void generate(ClassEmitter ce, Context context, List methods) {
-        for (Iterator it = methods.iterator(); it.hasNext();) {
-            MethodInfo method = (MethodInfo) it.next();
+
+        for (Object object : methods) {
+            MethodInfo method = (MethodInfo) object;
             if (TypeUtils.isBridge(method.getModifiers()) || (TypeUtils.isProtected(context.getOriginalModifiers(
                     method)) && TypeUtils.isPublic(method.getModifiers()))) {
                 CodeEmitter e = EmitUtils.begin_method(ce, method);
@@ -40,6 +41,7 @@ class NoOpGenerator implements CallbackGenerator {
                 e.end_method();
             }
         }
+
     }
 
     public void generateStatic(CodeEmitter e, Context context, List methods) {

@@ -177,7 +177,7 @@ abstract public class KeyFactory {
 
     public static class Generator extends AbstractClassGenerator {
 
-        private static final Source SOURCE = new Source(KeyFactory.class.getName());
+        private static final Source SOURCE = new Source(KeyFactory.class.getSimpleName());
         private static final Class[] KNOWN_CUSTOMIZER_TYPES = new Class[] { Customizer.class, FieldTypeCustomizer.class };
 
         private Class keyInterface;

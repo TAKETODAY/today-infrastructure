@@ -555,11 +555,14 @@ public abstract class ClassUtils {
         }
     }
 
-    protected static String getClassName(final Resource resource) throws IOException {
+    public static String getClassName(final Resource resource) throws IOException {
         try (final InputStream inputStream = resource.getInputStream()) {
-            return new ClassReader(inputStream).getClassName()//
-                    .replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
+            return getClassName(new ClassReader(inputStream));
         }
+    }
+
+    public static String getClassName(ClassReader r) {
+        return r.getClassName().replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
     }
 
     /**

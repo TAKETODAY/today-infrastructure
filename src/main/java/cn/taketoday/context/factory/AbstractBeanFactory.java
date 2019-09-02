@@ -292,7 +292,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * 
      * @param beanReference
      *            {@link BeanReference} record a reference of bean
-     * @return a {@link PropertyValue} bean
+     * @return A {@link PropertyValue} bean or a proxy
      */
     protected Object resolvePropertyValue(final BeanReference beanReference) {
 

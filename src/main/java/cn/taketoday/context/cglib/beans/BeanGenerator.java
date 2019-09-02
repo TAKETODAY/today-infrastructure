@@ -36,7 +36,7 @@ import cn.taketoday.context.cglib.core.ReflectUtils;
 @SuppressWarnings("all")
 public class BeanGenerator extends AbstractClassGenerator {
 
-    private static final Source SOURCE = new Source(BeanGenerator.class.getName());
+    private static final Source SOURCE = new Source(BeanGenerator.class.getSimpleName());
     private static final BeanGeneratorKey KEY_FACTORY = (BeanGeneratorKey) KeyFactory.create(BeanGeneratorKey.class);
 
     interface BeanGeneratorKey {

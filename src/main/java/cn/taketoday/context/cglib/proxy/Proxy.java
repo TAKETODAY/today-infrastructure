@@ -43,7 +43,7 @@ public class Proxy implements Serializable {
 
     private static final CallbackFilter BAD_OBJECT_METHOD_FILTER = new CallbackFilter() {
         public int accept(Method method) {
-            if (method.getDeclaringClass() == Object.class) {
+            if (method.getDeclaringClass().getName().equals("java.lang.Object")) {
                 String name = method.getName();
                 if (!(name.equals("hashCode") || name.equals("equals") || name.equals("toString"))) {
                     return 1;

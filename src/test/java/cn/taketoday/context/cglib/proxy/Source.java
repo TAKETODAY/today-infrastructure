@@ -17,10 +17,16 @@ package cn.taketoday.context.cglib.proxy;
 
 public abstract class Source implements java.io.Serializable {
 
+    private static final long serialVersionUID = 6257051574913595351L;
+
     public static class CheckedException extends Exception {
+
+        private static final long serialVersionUID = 1L;
     }
 
     public static class UndeclaredException extends Exception {
+
+        private static final long serialVersionUID = 1L;
     }
 
     public String toString() {

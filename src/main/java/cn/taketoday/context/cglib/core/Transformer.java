@@ -15,8 +15,13 @@
  */
 package cn.taketoday.context.cglib.core;
 
+/**
+ * 
+ * @author TODAY <br>
+ *         2019-09-03 01:12
+ */
 @FunctionalInterface
 public interface Transformer {
-    
+
     Object transform(Object value);
 }

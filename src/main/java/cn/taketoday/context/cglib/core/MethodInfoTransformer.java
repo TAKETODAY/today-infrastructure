@@ -19,6 +19,7 @@ import java.lang.reflect.Member;
 
 @SuppressWarnings("all")
 public class MethodInfoTransformer implements Transformer {
+    
     private static final MethodInfoTransformer INSTANCE = new MethodInfoTransformer();
 
     public static MethodInfoTransformer getInstance() {

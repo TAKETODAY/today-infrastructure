@@ -18,9 +18,9 @@ package cn.taketoday.context.cglib.core;
 import cn.taketoday.context.asm.Label;
 
 public class Block {
-    private CodeEmitter e;
-    private Label start;
     private Label end;
+    private final Label start;
+    private final CodeEmitter e;
 
     public Block(CodeEmitter e) {
         this.e = e;

@@ -78,7 +78,6 @@ abstract public class Mixin {
     public static Mixin createBean(Object[] beans) {
 
         return createBean(null, beans);
-
     }
 
     /**
@@ -95,7 +94,7 @@ abstract public class Mixin {
     }
 
     public static class Generator extends AbstractClassGenerator {
-        private static final Source SOURCE = new Source(Mixin.class.getName());
+        private static final Source SOURCE = new Source(Mixin.class.getSimpleName());
 
         private Class[] classes;
         private Object[] delegates;

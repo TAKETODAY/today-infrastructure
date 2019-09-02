@@ -24,6 +24,10 @@ import java.lang.reflect.Modifier;
  * @version $Id: TestInterceptor.java,v 1.3 2004/06/24 21:15:16 herbyderby Exp $
  */
 public class TestInterceptor implements MethodInterceptor, Serializable {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     String value;
 
     public String getValue() {

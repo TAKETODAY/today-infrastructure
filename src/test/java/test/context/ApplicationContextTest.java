@@ -20,11 +20,8 @@
 package test.context;
 
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,10 +40,7 @@ import test.demo.config.Config;
 import test.demo.config.ConfigFactoryBean;
 import test.demo.config.ConfigurationBean;
 import test.demo.config.User;
-import test.demo.repository.UserRepository;
 import test.demo.repository.impl.DefaultUserRepository;
-import test.demo.service.UserService;
-import test.demo.service.impl.DefaultUserService;
 
 /**
  * @author Today
@@ -166,43 +160,6 @@ public class ApplicationContextTest {
             Object bean = applicationContext.getBean("user");
             assert beanDefinitionsMap.size() == 2;
             assert bean != null : "error";
-        }
-    }
-
-    @Test
-    public void test_Login() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
-
-        try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo.service", "test.demo.repository")) {
-
-            UserService userService = applicationContext.getBean(DefaultUserService.class);
-
-            UserRepository userDao = applicationContext.getBean(UserRepository.class);
-            DefaultUserRepository userDaoImpl = applicationContext.getBean(DefaultUserRepository.class);
-
-            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
-
-            Set<Entry<String, Object>> entrySet = applicationContext.getSingletons().entrySet();
-
-            for (Entry<String, Object> entry : entrySet) {
-                System.err.println(entry.getKey() + " == " + entry.getValue());
-            }
-
-            Iterator<Entry<String, BeanDefinition>> iterator = beanDefinitionsMap.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Entry<String, BeanDefinition> entry = iterator.next();
-                System.err.println(entry.getKey() + "\n" + entry.getValue());
-            }
-
-            System.out.println(userDao);
-
-            System.out.println(userDaoImpl);
-
-            assert userDao != userDaoImpl;
-
-            User login = userService.login(new User(1, "TODAY", 20, "666", "666", "男", new Date()));
-            login = userService.login(new User(1, "TODAY", 20, "666", "666", "男", new Date()));
-
-            assert login != null : "Login failed";
         }
     }
 

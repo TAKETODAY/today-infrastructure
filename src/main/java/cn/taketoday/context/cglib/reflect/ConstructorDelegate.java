@@ -55,7 +55,7 @@ abstract public class ConstructorDelegate {
     }
 
     public static class Generator extends AbstractClassGenerator {
-        private static final Source SOURCE = new Source(ConstructorDelegate.class.getName());
+        private static final Source SOURCE = new Source(ConstructorDelegate.class.getSimpleName());
         private static final Type CONSTRUCTOR_DELEGATE = TypeUtils.parseType(ConstructorDelegate.class);
 
         private Class iface;
