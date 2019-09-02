@@ -18,7 +18,7 @@ package cn.taketoday.context.cglib.transform;
 import cn.taketoday.context.asm.ClassVisitor;
 
 public abstract class ClassTransformer extends ClassVisitor {
-    
+
     public ClassTransformer() {
 //		super(Constant.ASM_API);
     }

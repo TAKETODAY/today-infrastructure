@@ -33,7 +33,7 @@ class InvocationHandlerGenerator implements CallbackGenerator {
     public static final InvocationHandlerGenerator INSTANCE = new InvocationHandlerGenerator();
 
     private static final Type INVOCATION_HANDLER = TypeUtils.parseType(InvocationHandler.class);
-    
+
     private static final Type UNDECLARED_THROWABLE_EXCEPTION = TypeUtils.parseType(UndeclaredThrowableException.class);
     private static final Type METHOD = TypeUtils.parseType("java.lang.reflect.Method");
     private static final Signature INVOKE = TypeUtils.parseSignature("Object invoke(Object, java.lang.reflect.Method, Object[])");

@@ -25,7 +25,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 @SuppressWarnings("all")
 public class FastConstructor extends FastMember {
-    
+
     FastConstructor(FastClass fc, Constructor constructor) {
         super(fc, constructor, fc.getIndex(constructor.getParameterTypes()));
     }

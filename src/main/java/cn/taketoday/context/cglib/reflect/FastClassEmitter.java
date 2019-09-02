@@ -50,7 +50,7 @@ import cn.taketoday.context.cglib.core.VisibilityPredicate;
  */
 @SuppressWarnings("all")
 class FastClassEmitter extends ClassEmitter {
-    
+
     private static final Signature CSTRUCT_CLASS = TypeUtils.parseConstructor("Class");
     private static final Signature METHOD_GET_INDEX = TypeUtils.parseSignature("int getIndex(String, Class[])");
     private static final Signature SIGNATURE_GET_INDEX = new Signature("getIndex", Type.INT_TYPE, new Type[] { Constant.TYPE_SIGNATURE });
@@ -59,10 +59,10 @@ class FastClassEmitter extends ClassEmitter {
     private static final Signature INVOKE = TypeUtils.parseSignature("Object invoke(int, Object, Object[])");
     private static final Signature NEW_INSTANCE = TypeUtils.parseSignature("Object newInstance(int, Object[])");
     private static final Signature GET_MAX_INDEX = TypeUtils.parseSignature("int getMaxIndex()");
-    
+
     private static final Signature GET_SIGNATURE_WITHOUT_RETURN_TYPE = //
             TypeUtils.parseSignature("String getSignatureWithoutReturnType(String, Class[])");
-    
+
     private static final Type FAST_CLASS = TypeUtils.parseType(FastClass.class);
     private static final Type ILLEGAL_ARGUMENT_EXCEPTION = TypeUtils.parseType("IllegalArgumentException");
     private static final Type INVOCATION_TARGET_EXCEPTION = TypeUtils.parseType("java.lang.reflect.InvocationTargetException");

@@ -15,7 +15,6 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
-import java.util.Iterator;
 import java.util.List;
 
 import cn.taketoday.context.cglib.core.ClassEmitter;

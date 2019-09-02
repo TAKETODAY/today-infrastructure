@@ -35,7 +35,7 @@ interface CallbackGenerator {
     void generateStatic(CodeEmitter e, Context context, List methods) throws Exception;
 
     interface Context {
-        
+
         ClassLoader getClassLoader();
 
         CodeEmitter beginMethod(ClassEmitter ce, MethodInfo method);

@@ -23,7 +23,7 @@ import cn.taketoday.context.cglib.core.Signature;
 
 @SuppressWarnings("all")
 public class FastMethod extends FastMember {
-    
+
     FastMethod(FastClass fc, Method method) {
         super(fc, method, helper(fc, method));
     }

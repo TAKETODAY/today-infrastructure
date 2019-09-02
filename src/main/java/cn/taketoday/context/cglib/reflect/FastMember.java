@@ -19,7 +19,7 @@ import java.lang.reflect.Member;
 
 @SuppressWarnings("all")
 abstract public class FastMember {
-    
+
     protected final FastClass fc;
     protected final Member member;
     protected final int index;

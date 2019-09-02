@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import cn.taketoday.context.Constant;
@@ -56,7 +55,6 @@ import cn.taketoday.context.cglib.core.Transformer;
 import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.cglib.core.VisibilityPredicate;
 import cn.taketoday.context.cglib.core.WeakCacheKey;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 
 /**

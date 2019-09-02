@@ -33,7 +33,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
 
     private static final Type ENABLED = TypeUtils.parseType(InterceptFieldEnabled.class);
     private static final Type CALLBACK = TypeUtils.parseType(InterceptFieldCallback.class);
-    
+
     private static final Signature ENABLED_SET = new Signature("setInterceptFieldCallback", Type.VOID_TYPE, new Type[] { CALLBACK });
     private static final Signature ENABLED_GET = new Signature("getInterceptFieldCallback", CALLBACK, new Type[0]);
 

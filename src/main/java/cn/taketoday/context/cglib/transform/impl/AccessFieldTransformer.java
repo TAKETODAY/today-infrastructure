@@ -23,7 +23,7 @@ import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.cglib.transform.ClassEmitterTransformer;
 
 public class AccessFieldTransformer extends ClassEmitterTransformer {
-    
+
     private final Callback callback;
 
     public AccessFieldTransformer(Callback callback) {

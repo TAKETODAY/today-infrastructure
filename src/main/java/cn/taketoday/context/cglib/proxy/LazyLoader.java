@@ -20,7 +20,7 @@ package cn.taketoday.context.cglib.proxy;
  */
 @FunctionalInterface
 public interface LazyLoader extends Callback {
-    
+
     /**
      * Return the object which the original method invocation should be dispatched.
      * Called as soon as the first lazily-loaded method in the enhanced instance is

@@ -66,9 +66,9 @@ public interface Opcodes {
     int V12 = 0 << 16 | 56;
 
     int JAVA_VERSION = V1_2;
-    
-    //int V1_2 = 0 << 16 | 46;
-    
+
+    // int V1_2 = 0 << 16 | 46;
+
     /**
      * Version flag indicating that the class is using 'preview' features.
      *
@@ -88,7 +88,8 @@ public interface Opcodes {
     // https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.6-200-A.1
     // - https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.25
 
-    int ACC_PUBLIC = 0x0001; // class, field, method //Declared public; may be accessed from outside its package.
+    int ACC_PUBLIC = 0x0001; // class, field, method //Declared public; may be accessed from outside its
+                             // package.
     int ACC_PRIVATE = 0x0002; // class, field, method
     int ACC_PROTECTED = 0x0004; // class, field, method
     int ACC_STATIC = 0x0008; // field, method

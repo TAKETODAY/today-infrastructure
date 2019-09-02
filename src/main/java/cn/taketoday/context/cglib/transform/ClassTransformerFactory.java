@@ -22,6 +22,6 @@ package cn.taketoday.context.cglib.transform;
  */
 @FunctionalInterface
 public interface ClassTransformerFactory {
-    
+
     ClassTransformer newInstance();
 }

@@ -26,7 +26,7 @@ import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
 class ParallelSorterEmitter extends ClassEmitter {
-    
+
     private static final Type PARALLEL_SORTER = TypeUtils.parseType(ParallelSorter.class);
     private static final Signature CSTRUCT_OBJECT_ARRAY = TypeUtils.parseConstructor("Object[]");
     private static final Signature NEW_INSTANCE = new Signature("newInstance", PARALLEL_SORTER, new Type[] { Constant.TYPE_OBJECT_ARRAY });

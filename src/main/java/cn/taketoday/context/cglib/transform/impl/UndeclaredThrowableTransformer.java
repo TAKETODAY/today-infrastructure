@@ -57,7 +57,7 @@ public class UndeclaredThrowableTransformer extends ClassEmitterTransformer {
             return e;
         }
         return new CodeEmitter(e) {
-            
+
             private final Block handler = begin_block();
 
             public void visitMaxs(int maxStack, int maxLocals) {

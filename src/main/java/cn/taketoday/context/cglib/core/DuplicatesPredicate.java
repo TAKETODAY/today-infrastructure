@@ -33,7 +33,7 @@ import cn.taketoday.context.asm.Opcodes;
 
 @SuppressWarnings("all")
 public class DuplicatesPredicate implements Predicate<Object> {
-    
+
     private final Set unique;
     private final Set rejected;
 

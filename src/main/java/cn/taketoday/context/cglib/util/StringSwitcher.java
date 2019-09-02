@@ -86,7 +86,7 @@ abstract public class StringSwitcher {
     abstract public int intValue(String s);
 
     public static class Generator extends AbstractClassGenerator {
-        
+
         private static final Source SOURCE = new Source(StringSwitcher.class.getSimpleName());
 
         private String[] strings;

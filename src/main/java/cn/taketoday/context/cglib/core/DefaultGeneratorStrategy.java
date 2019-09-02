@@ -18,7 +18,7 @@ package cn.taketoday.context.cglib.core;
 import cn.taketoday.context.asm.ClassWriter;
 
 public class DefaultGeneratorStrategy implements GeneratorStrategy {
-    
+
     public static final DefaultGeneratorStrategy INSTANCE = new DefaultGeneratorStrategy();
 
     public byte[] generate(ClassGenerator cg) throws Exception {

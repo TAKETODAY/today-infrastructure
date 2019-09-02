@@ -35,7 +35,7 @@ import cn.taketoday.context.cglib.core.TypeUtils;
 
 @SuppressWarnings("all")
 class BeanMapEmitter extends ClassEmitter {
-    
+
     private static final Type BEAN_MAP = TypeUtils.parseType(BeanMap.class);
     private static final Type FIXED_KEY_SET = TypeUtils.parseType(FixedKeySet.class);
     private static final Signature CSTRUCT_OBJECT = TypeUtils.parseConstructor("Object");

@@ -29,7 +29,7 @@ import cn.taketoday.context.cglib.transform.ClassEmitterTransformer;
  * @author Mark Hobson
  */
 public class AddInitTransformer extends ClassEmitterTransformer {
-    
+
     private final MethodInfo info;
 
     public AddInitTransformer(Method method) {
