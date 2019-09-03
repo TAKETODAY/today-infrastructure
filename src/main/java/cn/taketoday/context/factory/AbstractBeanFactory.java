@@ -96,6 +96,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         return getSingleton(name); // if not exits a bean definition return a bean may exits in singletons cache
     }
 
+    @Override
+    public Object getBean(BeanDefinition def) {
+        return getBean(def.getName(), def);
+    }
+
     public final Object getBean(final String name, final BeanDefinition def) throws ContextException {
 
         if (def.isInitialized()) { // fix #7
@@ -316,7 +321,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @author TODAY <br>
      *         2019-09-03 21:20
      */
-    private static final class Prototypes {
+    public static final class Prototypes {
 
         private final String name;
         private final BeanDefinition ref;

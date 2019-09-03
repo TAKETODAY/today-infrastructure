@@ -67,6 +67,7 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
+import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.listener.ContextCloseListener;
@@ -276,6 +277,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         registerSingleton(beanNameCreator.create(Environment.class), environment);
         // register ApplicationContext
         registerSingleton(beanNameCreator.create(ApplicationContext.class), this);
+        // register BeanFactory @since 2.1.7
+        registerSingleton(beanNameCreator.create(BeanFactory.class), beanFactory);
 
         // register listener
         registerListener(applicationListeners);
@@ -624,6 +627,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     @Override
     public Object getBean(String name) {
         return getBeanFactory().getBean(name);
+    }
+
+    @Override
+    public Object getBean(BeanDefinition def) {
+        return getBeanFactory().getBean(def);
     }
 
     @Override

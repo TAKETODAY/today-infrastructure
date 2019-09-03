@@ -170,4 +170,14 @@ public interface BeanFactory {
      */
     Map<String, BeanDefinition> getBeanDefinitions();
 
+    /**
+     * Create the bean with the given {@link BeanDefinition}
+     * 
+     * @param def
+     *            {@link BeanDefinition}
+     * @return Target {@link Object}
+     * @since 2.1.7
+     */
+    Object getBean(BeanDefinition def);
+
 }
