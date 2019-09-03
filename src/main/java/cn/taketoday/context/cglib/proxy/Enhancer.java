@@ -15,11 +15,12 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import static cn.taketoday.context.asm.Type.array;
+
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -58,8 +59,6 @@ import cn.taketoday.context.cglib.core.VisibilityPredicate;
 import cn.taketoday.context.cglib.core.WeakCacheKey;
 import cn.taketoday.context.utils.ObjectUtils;
 
-import static cn.taketoday.context.asm.Type.array;
-
 /**
  * Generates dynamic subclasses to enable method interception. This class
  * started as a substitute for the standard Dynamic Proxy support included with
@@ -95,7 +94,7 @@ import static cn.taketoday.context.asm.Type.array;
  * For an almost drop-in replacement for <code>java.lang.reflect.Proxy</code>,
  * see the {@link Proxy} class.
  */
-//@SuppressWarnings("all")
+@SuppressWarnings("all")
 public class Enhancer extends AbstractClassGenerator<Object> {
 
     private static final CallbackFilter ALL_ZERO = (m) -> 0;

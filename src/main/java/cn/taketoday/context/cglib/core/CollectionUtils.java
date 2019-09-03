@@ -53,7 +53,8 @@ public abstract class CollectionUtils {
         }
     }
 
-    public static  Collection<Object> filter(Collection c, Predicate p) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static Collection<Object> filter(Collection c, Predicate p) {
 
         final Iterator it = c.iterator();
         while (it.hasNext()) {
