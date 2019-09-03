@@ -44,11 +44,13 @@ import cn.taketoday.context.cglib.core.CodeGenerationException;
 import cn.taketoday.context.cglib.core.CollectionUtils;
 import cn.taketoday.context.cglib.core.DuplicatesPredicate;
 import cn.taketoday.context.cglib.core.EmitUtils;
+import cn.taketoday.context.cglib.core.GeneratorStrategy;
 import cn.taketoday.context.cglib.core.KeyFactory;
 import cn.taketoday.context.cglib.core.Local;
 import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.MethodInfoTransformer;
 import cn.taketoday.context.cglib.core.MethodWrapper;
+import cn.taketoday.context.cglib.core.NamingPolicy;
 import cn.taketoday.context.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.context.cglib.core.ProcessSwitchCallback;
 import cn.taketoday.context.cglib.core.ReflectUtils;
@@ -336,6 +338,39 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         return this;
     }
 
+    // --------------------------
+
+    @Override
+    public Enhancer setUseCache(boolean useCache) {
+        super.setUseCache(useCache);
+        return this;
+    }
+
+    @Override
+    public Enhancer setAttemptLoad(boolean attemptLoad) {
+        super.setAttemptLoad(attemptLoad);
+        return this;
+    }
+
+    @Override
+    public Enhancer setClassLoader(ClassLoader classLoader) {
+        super.setClassLoader(classLoader);
+        return this;
+    }
+
+    @Override
+    public Enhancer setNamingPolicy(NamingPolicy namingPolicy) {
+        super.setNamingPolicy(namingPolicy);
+        return this;
+    }
+
+    @Override
+    public Enhancer setStrategy(GeneratorStrategy strategy) {
+        super.setStrategy(strategy);
+        return this;
+    }
+
+    // ------------------------------
     /**
      * Generate a new class if necessary and uses the specified callbacks (if any)
      * to create a new object instance. Uses the no-arg constructor of the

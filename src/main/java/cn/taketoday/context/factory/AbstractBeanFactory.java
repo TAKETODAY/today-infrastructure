@@ -49,6 +49,8 @@ import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.BeanReference;
 import cn.taketoday.context.bean.DefaultBeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.cglib.proxy.Enhancer;
+import cn.taketoday.context.cglib.proxy.MethodInterceptor;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
@@ -89,27 +91,28 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
         final BeanDefinition def = getBeanDefinition(name);
         if (def != null) {
-
-            if (def.isInitialized()) { // fix #7
-                return getSingleton(name);
-            }
-
-            try {
-
-                if (def.isSingleton()) {
-                    return doCreateSingleton(def, name);
-                }
-                // prototype
-                return doCreatePrototype(def, name);
-            }
-            catch (Throwable ex) {
-                ex = ExceptionUtils.unwrapThrowable(ex);
-                log.error("An Exception Occurred When Getting A Bean Named: [{}], With Msg: [{}]", //
-                        name, ex.toString(), ex);
-                throw ExceptionUtils.newContextException(ex);
-            }
+            return getBean(name, def);
         }
         return getSingleton(name); // if not exits a bean definition return a bean may exits in singletons cache
+    }
+
+    public final Object getBean(final String name, final BeanDefinition def) throws ContextException {
+
+        if (def.isInitialized()) { // fix #7
+            return getSingleton(name);
+        }
+        try {
+            if (def.isSingleton()) {
+                return doCreateSingleton(def, name);
+            }
+            return doCreatePrototype(def, name); // prototype
+        }
+        catch (Throwable ex) {
+            ex = ExceptionUtils.unwrapThrowable(ex);
+            log.error("An Exception Occurred When Getting A Bean Named: [{}], With Msg: [{}]", //
+                    name, ex.toString(), ex);
+            throw ExceptionUtils.newContextException(ex);
+        }
     }
 
     /**
@@ -265,7 +268,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *             If any {@link Exception} occurred when apply
      *             {@link PropertyValue}s
      */
-    protected void applyPropertyValues(Object bean, PropertyValue... propertyValues) throws IllegalAccessException {
+    protected void applyPropertyValues(final Object bean, final PropertyValue... propertyValues)
+            throws IllegalAccessException //
+    {
 
         for (final PropertyValue propertyValue : propertyValues) {
             Object value = propertyValue.getValue();
@@ -296,34 +301,70 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      */
     protected Object resolvePropertyValue(final BeanReference beanReference) {
 
-        final Class<?> beanClass = beanReference.getReferenceClass();
-        final String beanName = beanReference.getName();
+        final Class<?> type = beanReference.getReferenceClass();
+        final String name = beanReference.getName();
 
-        if (fullPrototype//
-                && beanReference.isPrototype() //
-                && beanClass.isInterface() // only support interface TODO cglib support
-                && containsBeanDefinition(beanName)) //
-        {
-            final BeanDefinition beanDefinition = getBeanDefinition(beanName);
-            // @off
-			return Proxy.newProxyInstance(beanClass.getClassLoader(),  beanDefinition.getBeanClass().getInterfaces(), 
-				(Object proxy, Method method, Object[] args) -> {
-					final Object bean = getBean(beanName, beanClass);
-					try {
-						return method.invoke(bean, args);
-					}
-					catch (InvocationTargetException ex) {
-						throw ex.getTargetException();
-					} finally {
-						if (fullLifecycle) {
-							// destroyBean after every call
-							destroyBean(bean, beanDefinition);
-						}
-					}
-				}
-			); //@on
+        if (fullPrototype && beanReference.isPrototype() && containsBeanDefinition(name)) {
+            return Prototypes.newProxyInstance(type, getBeanDefinition(name), this);
         }
-        return getBean(beanName, beanClass);
+        return getBean(name, type);
+    }
+
+    /**
+     * The helper class achieve the effect of the prototype
+     * 
+     * @author TODAY <br>
+     *         2019-09-03 21:20
+     */
+    private static final class Prototypes {
+
+        private final String name;
+        private final BeanDefinition ref;
+        private final AbstractBeanFactory f;
+
+        private Prototypes(AbstractBeanFactory f, BeanDefinition ref) {
+            this.f = f;
+            this.ref = ref;
+            this.name = ref.getName();
+        }
+
+        private final Object handle(final Method m, final Object[] a) throws Throwable {
+            final Object b = f.getBean(name, ref);
+            try {
+                return m.invoke(b, a);
+            }
+            catch (InvocationTargetException e) {
+                throw e.getTargetException();
+            } finally {
+                if (f.fullLifecycle) {
+                    f.destroyBean(b, ref); // destroyBean after every call
+                }
+            }
+        }
+
+        public static Object newProxyInstance(Class<?> refType, BeanDefinition def, AbstractBeanFactory f) {
+
+            final Prototypes handler = new Prototypes(f, def);
+
+            if (refType.isInterface()) { // Use Jdk Proxy
+                // @off
+                return Proxy.newProxyInstance(refType.getClassLoader(),  def.getBeanClass().getInterfaces(), 
+                    (final Object p, final Method m, final Object[] a) -> {
+                        return handler.handle(m, a);
+                    }
+                ); //@on
+            }
+
+            return new Enhancer()//
+                    .setUseCache(false)//
+                    .setSuperclass(refType)//
+                    .setInterfaces(refType.getInterfaces())//
+                    .setClassLoader(refType.getClassLoader())//
+                    .setCallback((MethodInterceptor) (obj, m, a, proxy) -> {
+                        return handler.handle(m, a);
+                    })//
+                    .create();
+        }
     }
 
     /**

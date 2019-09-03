@@ -147,16 +147,18 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
         this.source = source;
     }
 
-    protected void setNamePrefix(String namePrefix) {
+    protected AbstractClassGenerator setNamePrefix(String namePrefix) {
         this.namePrefix = namePrefix;
+        return this;
     }
 
     final protected String getClassName() {
         return className;
     }
 
-    private void setClassName(String className) {
+    private AbstractClassGenerator setClassName(String className) {
         this.className = className;
+        return this;
     }
 
     private String generateClassName(Predicate nameTestPredicate) {
@@ -177,8 +179,9 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
      *            the loader to generate the new class with, or null to use the
      *            default
      */
-    public void setClassLoader(ClassLoader classLoader) {
+    public AbstractClassGenerator setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
+        return this;
     }
 
     /**
@@ -188,10 +191,11 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
      * @param namingPolicy
      *            the custom policy, or null to use the default
      */
-    public void setNamingPolicy(NamingPolicy namingPolicy) {
+    public AbstractClassGenerator setNamingPolicy(NamingPolicy namingPolicy) {
         if (namingPolicy == null)
             namingPolicy = DefaultNamingPolicy.INSTANCE;
         this.namingPolicy = namingPolicy;
+        return this;
     }
 
     /**
@@ -205,8 +209,9 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
      * Whether use and update the static cache of generated classes for a class with
      * the same properties. Default is <code>true</code>.
      */
-    public void setUseCache(boolean useCache) {
+    public AbstractClassGenerator setUseCache(boolean useCache) {
         this.useCache = useCache;
+        return this;
     }
 
     /**
@@ -221,8 +226,9 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
      * <code>ClassLoader</code> before generating them. Because generated class
      * names are not guaranteed to be unique, the default is <code>false</code>.
      */
-    public void setAttemptLoad(boolean attemptLoad) {
+    public AbstractClassGenerator setAttemptLoad(boolean attemptLoad) {
         this.attemptLoad = attemptLoad;
+        return this;
     }
 
     public boolean getAttemptLoad() {
@@ -233,10 +239,11 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
      * Set the strategy to use to create the bytecode from this generator. By
      * default an instance of {@see DefaultGeneratorStrategy} is used.
      */
-    public void setStrategy(GeneratorStrategy strategy) {
+    public AbstractClassGenerator setStrategy(GeneratorStrategy strategy) {
         if (strategy == null)
             strategy = DefaultGeneratorStrategy.INSTANCE;
         this.strategy = strategy;
+        return this;
     }
 
     /**
