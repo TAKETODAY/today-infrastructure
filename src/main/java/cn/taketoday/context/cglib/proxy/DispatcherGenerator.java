@@ -15,7 +15,7 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
-import java.util.Iterator;
+import java.lang.reflect.Modifier;
 import java.util.List;
 
 import cn.taketoday.context.asm.Type;
@@ -27,11 +27,11 @@ import cn.taketoday.context.cglib.core.TypeUtils;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-08 15:09
  */
-@SuppressWarnings("all")
 class DispatcherGenerator implements CallbackGenerator {
+
     public static final DispatcherGenerator INSTANCE = new DispatcherGenerator(false);
     public static final DispatcherGenerator PROXY_REF_INSTANCE = new DispatcherGenerator(true);
 
@@ -40,17 +40,20 @@ class DispatcherGenerator implements CallbackGenerator {
     private static final Signature LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject()");
     private static final Signature PROXY_REF_LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject(Object)");
 
-    private boolean proxyRef;
+    private final boolean proxyRef;
 
     private DispatcherGenerator(boolean proxyRef) {
         this.proxyRef = proxyRef;
     }
 
-    public void generate(ClassEmitter ce, Context context, List methods) {
-        for (Iterator it = methods.iterator(); it.hasNext();) {
-            MethodInfo method = (MethodInfo) it.next();
-            if (!TypeUtils.isProtected(method.getModifiers())) {
-                CodeEmitter e = context.beginMethod(ce, method);
+    @Override
+    public void generate(ClassEmitter ce, Context context, List<MethodInfo> methods) {
+
+        for (final MethodInfo method : methods) {
+
+            if (!Modifier.isProtected(method.getModifiers())) {
+
+                final CodeEmitter e = context.beginMethod(ce, method);
                 context.emitCallback(e, context.getIndex(method));
                 if (proxyRef) {
                     e.load_this();
@@ -68,6 +71,9 @@ class DispatcherGenerator implements CallbackGenerator {
         }
     }
 
-    public void generateStatic(CodeEmitter e, Context context, List methods) {
+    @Override
+    public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) throws Exception {
+
     }
+
 }

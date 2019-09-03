@@ -15,6 +15,7 @@
  */
 package cn.taketoday.context.cglib.transform.impl;
 
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
 
     public void begin_class(int version, int access, String className, Type superType, Type[] interfaces,
             String sourceFile) {
-        if (!TypeUtils.isAbstract(access)) {
+        if (!Modifier.isAbstract(access)) {
             interfaces = TypeUtils.add(interfaces, FIELD_PROVIDER);
         }
         this.access = access;
@@ -61,13 +62,13 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     public void declare_field(int access, String name, Type type, Object value) {
         super.declare_field(access, name, type, value);
 
-        if (!TypeUtils.isStatic(access)) {
+        if (!Modifier.isStatic(access)) {
             fields.put(name, type);
         }
     }
 
     public void end_class() {
-        if (!TypeUtils.isInterface(access)) {
+        if (!Modifier.isInterface(access)) {
             try {
                 generate();
             }

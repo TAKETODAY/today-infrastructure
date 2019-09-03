@@ -15,7 +15,6 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
-import java.util.Iterator;
 import java.util.List;
 
 import cn.taketoday.context.asm.Type;
@@ -25,17 +24,25 @@ import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
-@SuppressWarnings("all")
+/**
+ * 
+ * @author TODAY <br>
+ *         2019-09-03 19:15
+ */
 class FixedValueGenerator implements CallbackGenerator {
+
     public static final FixedValueGenerator INSTANCE = new FixedValueGenerator();
+
     private static final Type FIXED_VALUE = TypeUtils.parseType(FixedValue.class);
     private static final Signature LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject()");
 
-    public void generate(ClassEmitter ce, Context context, List methods) {
-        for (Iterator it = methods.iterator(); it.hasNext();) {
-            MethodInfo method = (MethodInfo) it.next();
-            CodeEmitter e = context.beginMethod(ce, method);
+    public void generate(final ClassEmitter ce, final Context context, final List<MethodInfo> methods) {
+
+        for (final MethodInfo method : methods) {
+
+            final CodeEmitter e = context.beginMethod(ce, method);
             context.emitCallback(e, context.getIndex(method));
+
             e.invoke_interface(FIXED_VALUE, LOAD_OBJECT);
             e.unbox_or_zero(e.getReturnType());
             e.return_value();
@@ -43,6 +50,7 @@ class FixedValueGenerator implements CallbackGenerator {
         }
     }
 
-    public void generateStatic(CodeEmitter e, Context context, List methods) {
+    public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) {
+        
     }
 }

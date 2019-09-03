@@ -22,6 +22,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -627,7 +628,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     public void generateClass(ClassVisitor v) throws Exception {
         Class sc = (superclass == null) ? Object.class : superclass;
 
-        if (TypeUtils.isFinal(sc.getModifiers()))
+        if (Modifier.isFinal(sc.getModifiers()))
             throw new IllegalArgumentException("Cannot subclass final class " + sc.getName());
         List constructors = new ArrayList(Arrays.asList(sc.getDeclaredConstructors()));
         filterConstructors(sc, constructors);
@@ -1191,9 +1192,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     private void emitMethods(final ClassEmitter ce, List methods, List actualMethods) {
-        CallbackGenerator[] generators = CallbackInfo.getGenerators(callbackTypes);
 
-        Map groups = new HashMap();
+        final CallbackGenerator[] generators = CallbackInfo.getGenerators(callbackTypes);
+
+        final Map groups = new HashMap();
         final Map indexes = new HashMap();
         final Map originalModifiers = new HashMap();
         final Map positions = CollectionUtils.getIndexMap(methods);
@@ -1231,15 +1233,15 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
         final Map bridgeToTarget = new BridgeMethodResolver(declToBridge, getClassLoader()).resolveAll();
 
-        Set seenGen = new HashSet();
-        CodeEmitter se = ce.getStaticHook();
+        final Set seenGen = new HashSet();
+        final CodeEmitter se = ce.getStaticHook();
         se.new_instance(THREAD_LOCAL);
         se.dup();
         se.invoke_constructor(THREAD_LOCAL, CSTRUCT_NULL);
         se.putfield(THREAD_CALLBACKS_FIELD);
 
 //		final Object[] state = new Object[1];
-        CallbackGenerator.Context context = new CallbackGenerator.Context() {
+        final CallbackGenerator.Context context = new CallbackGenerator.Context() {
             public ClassLoader getClassLoader() {
                 return Enhancer.this.getClassLoader();
             }
@@ -1301,7 +1303,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
             public CodeEmitter beginMethod(ClassEmitter ce, MethodInfo method) {
                 CodeEmitter e = EmitUtils.begin_method(ce, method);
-                if (!interceptDuringConstruction && !TypeUtils.isAbstract(method.getModifiers())) {
+                if (!interceptDuringConstruction && !Modifier.isAbstract(method.getModifiers())) {
                     Label constructed = e.make_label();
                     e.load_this();
                     e.getfield(CONSTRUCTED_FIELD);

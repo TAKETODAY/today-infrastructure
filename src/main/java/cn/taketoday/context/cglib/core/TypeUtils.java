@@ -52,34 +52,6 @@ public abstract class TypeUtils {
         return Type.getType('L' + className.replace('.', '/') + ';');
     }
 
-    public static boolean isFinal(int access) {
-        return (Constant.ACC_FINAL & access) != 0;
-    }
-
-    public static boolean isStatic(int access) {
-        return (Constant.ACC_STATIC & access) != 0;
-    }
-
-    public static boolean isProtected(int access) {
-        return (Constant.ACC_PROTECTED & access) != 0;
-    }
-
-    public static boolean isPublic(int access) {
-        return (Constant.ACC_PUBLIC & access) != 0;
-    }
-
-    public static boolean isAbstract(int access) {
-        return (Constant.ACC_ABSTRACT & access) != 0;
-    }
-
-    public static boolean isInterface(int access) {
-        return (Constant.ACC_INTERFACE & access) != 0;
-    }
-
-    public static boolean isPrivate(int access) {
-        return (Constant.ACC_PRIVATE & access) != 0;
-    }
-
     public static boolean isSynthetic(int access) {
         return (Constant.ACC_SYNTHETIC & access) != 0;
     }

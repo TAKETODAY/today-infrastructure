@@ -15,6 +15,8 @@
  */
 package cn.taketoday.context.cglib.transform.impl;
 
+import java.lang.reflect.Modifier;
+
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Label;
 import cn.taketoday.context.asm.Type;
@@ -45,7 +47,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
 
     public void begin_class(int version, int access, String className, Type superType, Type[] interfaces,
             String sourceFile) {
-        if (!TypeUtils.isInterface(access)) {
+        if (!Modifier.isInterface(access)) {
             super.begin_class(version, access, className, superType, TypeUtils.add(interfaces, ENABLED), sourceFile);
 
             super.declare_field(Constant.ACC_PRIVATE | Constant.ACC_TRANSIENT, CALLBACK_FIELD, CALLBACK, null);
@@ -71,7 +73,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
 
     public void declare_field(int access, String name, Type type, Object value) {
         super.declare_field(access, name, type, value);
-        if (!TypeUtils.isStatic(access)) {
+        if (!Modifier.isStatic(access)) {
             if (filter.acceptRead(getClassType(), name)) {
                 addReadMethod(name, type);
             }

@@ -15,8 +15,8 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -29,18 +29,24 @@ import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
-@SuppressWarnings("all")
+/**
+ * 
+ * @author TODAY <br>
+ *         2019-09-03 19:17
+ */
 class LazyLoaderGenerator implements CallbackGenerator {
+
     public static final LazyLoaderGenerator INSTANCE = new LazyLoaderGenerator();
 
     private static final Signature LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject()");
     private static final Type LAZY_LOADER = TypeUtils.parseType(LazyLoader.class);
 
-    public void generate(ClassEmitter ce, Context context, List methods) {
-        Set indexes = new HashSet();
-        for (Iterator it = methods.iterator(); it.hasNext();) {
-            MethodInfo method = (MethodInfo) it.next();
-            if (TypeUtils.isProtected(method.getModifiers())) {
+    public void generate(ClassEmitter ce, Context context, List<MethodInfo> methods) {
+
+        final Set<Integer> indexes = new HashSet<>();
+
+        for (final MethodInfo method : methods) {
+            if (Modifier.isProtected(method.getModifiers())) {
                 // ignore protected methods
             }
             else {
@@ -58,14 +64,15 @@ class LazyLoaderGenerator implements CallbackGenerator {
             }
         }
 
-        for (Iterator it = indexes.iterator(); it.hasNext();) {
-            int index = ((Integer) it.next()).intValue();
+        for (final int index : indexes) {
 
-            String delegate = "TODAY$LAZY_LOADER_" + index;
+            final String delegate = "TODAY$LAZY_LOADER_" + index;
+            
             ce.declare_field(Constant.ACC_PRIVATE, delegate, Constant.TYPE_OBJECT, null);
 
-            CodeEmitter e = ce.begin_method(Constant.ACC_PRIVATE | Constant.ACC_SYNCHRONIZED | Constant.ACC_FINAL,
+            CodeEmitter e = ce.begin_method(Constant.ACC_PRIVATE | Constant.ACC_SYNCHRONIZED | Constant.ACC_FINAL, //
                     loadMethod(index), null);
+
             e.load_this();
             e.getfield(delegate);
             e.dup();
@@ -80,7 +87,6 @@ class LazyLoaderGenerator implements CallbackGenerator {
             e.mark(end);
             e.return_value();
             e.end_method();
-
         }
     }
 
@@ -88,6 +94,6 @@ class LazyLoaderGenerator implements CallbackGenerator {
         return new Signature("TODAY$LOAD_PRIVATE_" + index, Constant.TYPE_OBJECT, Constant.TYPES_EMPTY);
     }
 
-    public void generateStatic(CodeEmitter e, Context context, List methods) {
+    public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) {
     }
 }

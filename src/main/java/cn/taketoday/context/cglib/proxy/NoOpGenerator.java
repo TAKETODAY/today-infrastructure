@@ -15,6 +15,7 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import java.lang.reflect.Modifier;
 import java.util.List;
 
 import cn.taketoday.context.cglib.core.ClassEmitter;
@@ -36,8 +37,8 @@ class NoOpGenerator implements CallbackGenerator {
 
         for (Object object : methods) {
             MethodInfo method = (MethodInfo) object;
-            if (TypeUtils.isBridge(method.getModifiers()) || (TypeUtils.isProtected(context.getOriginalModifiers(
-                    method)) && TypeUtils.isPublic(method.getModifiers()))) {
+            if (TypeUtils.isBridge(method.getModifiers()) || (Modifier.isProtected(context.getOriginalModifiers(
+                    method)) && Modifier.isPublic(method.getModifiers()))) {
                 CodeEmitter e = EmitUtils.begin_method(ce, method);
                 e.load_this();
                 context.emitLoadArgsAndInvoke(e, method);

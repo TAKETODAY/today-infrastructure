@@ -15,7 +15,6 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
-import java.util.Iterator;
 import java.util.List;
 
 import cn.taketoday.context.Constant;
@@ -33,7 +32,6 @@ import cn.taketoday.context.cglib.core.TypeUtils;
  * @author TODAY <br>
  *         2019-09-03 18:53
  */
-@SuppressWarnings("all")
 class InvocationHandlerGenerator implements CallbackGenerator {
 
     public static final InvocationHandlerGenerator INSTANCE = new InvocationHandlerGenerator();
@@ -45,14 +43,15 @@ class InvocationHandlerGenerator implements CallbackGenerator {
     private static final Signature INVOKE = TypeUtils.parseSignature("Object invoke(Object, java.lang.reflect.Method, Object[])");
 
     @Override
-    public void generate(ClassEmitter ce, Context context, List methods) {
-        for (Iterator it = methods.iterator(); it.hasNext();) {
-            MethodInfo method = (MethodInfo) it.next();
-            Signature impl = context.getImplSignature(method);
+    public void generate(final ClassEmitter ce, final Context context, final List<MethodInfo> methods) {
+
+        for (final MethodInfo method : methods) {
+            final Signature impl = context.getImplSignature(method);
             ce.declare_field(Constant.PRIVATE_FINAL_STATIC, impl.getName(), METHOD, null);
 
-            CodeEmitter e = context.beginMethod(ce, method);
-            Block handler = e.begin_block();
+            final CodeEmitter e = context.beginMethod(ce, method);
+            final Block handler = e.begin_block();
+
             context.emitCallback(e, context.getIndex(method));
             e.load_this();
             e.getfield(impl.getName());
@@ -66,9 +65,11 @@ class InvocationHandlerGenerator implements CallbackGenerator {
         }
     }
 
-    public void generateStatic(CodeEmitter e, Context context, List methods) {
-        for (Iterator it = methods.iterator(); it.hasNext();) {
-            MethodInfo method = (MethodInfo) it.next();
+    @Override
+    public void generateStatic(final CodeEmitter e, final Context context, final List<MethodInfo> methods) {
+
+        for (final MethodInfo method : methods) {
+
             EmitUtils.load_method(e, method);
             e.putfield(context.getImplSignature(method).getName());
         }

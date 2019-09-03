@@ -17,6 +17,11 @@ package cn.taketoday.context.cglib.core;
 
 import cn.taketoday.context.asm.Type;
 
+/**
+ * 
+ * @author TODAY <br>
+ *         2019-09-03 19:33
+ */
 abstract public class ClassInfo {
 
     protected ClassInfo() {
@@ -31,11 +36,7 @@ abstract public class ClassInfo {
     abstract public int getModifiers();
 
     public boolean equals(Object o) {
-        if (o == null)
-            return false;
-        if (!(o instanceof ClassInfo))
-            return false;
-        return getType().equals(((ClassInfo) o).getType());
+        return (o == this) || ((o instanceof ClassInfo) && getType().equals(((ClassInfo) o).getType()));
     }
 
     public int hashCode() {

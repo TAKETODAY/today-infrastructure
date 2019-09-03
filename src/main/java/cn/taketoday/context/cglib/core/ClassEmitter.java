@@ -15,6 +15,7 @@
  */
 package cn.taketoday.context.cglib.core;
 
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,7 +96,7 @@ public class ClassEmitter extends ClassTransformer {
     }
 
     public CodeEmitter getStaticHook() {
-        if (TypeUtils.isInterface(getAccess())) {
+        if (Modifier.isInterface(getAccess())) {
             throw new IllegalStateException("static hook is invalid for this class");
         }
         if (staticHook == null) {
@@ -152,7 +153,7 @@ public class ClassEmitter extends ClassTransformer {
                 TypeUtils.toInternalNames(exceptions)//
         );
 
-        if (sig.equals(Constant.SIG_STATIC) && !TypeUtils.isInterface(getAccess())) {
+        if (sig.equals(Constant.SIG_STATIC) && !Modifier.isInterface(getAccess())) {
             rawStaticInit = v;
 //			MethodVisitor wrapped = new MethodVisitor(Constant.ASM_API, v) {
             MethodVisitor wrapped = new MethodVisitor(v) {

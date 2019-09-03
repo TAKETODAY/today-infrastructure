@@ -16,6 +16,7 @@
 package cn.taketoday.context.cglib.reflect;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 
 import cn.taketoday.context.Constant;
@@ -221,7 +222,7 @@ abstract public class MethodDelegate {
 
             MethodInfo methodInfo = ReflectUtils.getMethodInfo(method);
 
-            boolean isStatic = TypeUtils.isStatic(methodInfo.getModifiers());
+            boolean isStatic = Modifier.isStatic(methodInfo.getModifiers());
             if ((target == null) ^ isStatic) {
                 throw new IllegalArgumentException("Static method " + (isStatic ? "not " : Constant.BLANK) + "expected");
             }

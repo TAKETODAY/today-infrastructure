@@ -23,16 +23,14 @@ import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.Signature;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-08 15:09
  */
-@SuppressWarnings("all")
 interface CallbackGenerator {
 
-    void generate(ClassEmitter ce, Context context, List methods) throws Exception;
+    void generate(ClassEmitter ce, Context context, List<MethodInfo> methods) throws Exception;
 
-    void generateStatic(CodeEmitter e, Context context, List methods) throws Exception;
+    void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) throws Exception;
 
     interface Context {
 

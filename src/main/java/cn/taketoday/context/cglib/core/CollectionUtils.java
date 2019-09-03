@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,14 +31,15 @@ import java.util.function.Predicate;
  */
 public abstract class CollectionUtils {
 
-    public static Map<Object, List<Object>> bucket(Collection<?> c, Transformer t) {
-        Map<Object, List<Object>> buckets = new HashMap<>();
+    public static <K, T> Map<K, List<T>> bucket(Collection<T> c, Transformer<T, K> t) {
 
-        for (final Object value : c) {
-            Object key = t.transform(value);
-            List<Object> bucket = buckets.get(key);
+        final Map<K, List<T>> buckets = new HashMap<>();
+
+        for (final T value : c) {
+            K key = t.transform(value);
+            List<T> bucket = buckets.get(key);
             if (bucket == null) {
-                buckets.put(key, bucket = new LinkedList<>());
+                buckets.put(key, bucket = new ArrayList<>());
             }
             bucket.add(value);
         }
@@ -65,10 +65,10 @@ public abstract class CollectionUtils {
         return c;
     }
 
-    public static List<Object> transform(final Collection<Object> c, final Transformer t) {
-        final List<Object> result = new ArrayList<>(c.size());
+    public static <T, R> List<R> transform(final Collection<T> c, final Transformer<T, R> t) {
+        final List<R> result = new ArrayList<>(c.size());
 
-        for (final Object obj : c) {
+        for (final T obj : c) {
             result.add(t.transform(obj));
         }
         return result;

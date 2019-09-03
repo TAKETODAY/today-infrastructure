@@ -15,10 +15,11 @@
  */
 package cn.taketoday.context.cglib.transform.impl;
 
+import java.lang.reflect.Modifier;
+
 import cn.taketoday.context.cglib.core.ClassGenerator;
 import cn.taketoday.context.cglib.core.DefaultGeneratorStrategy;
 import cn.taketoday.context.cglib.core.GeneratorStrategy;
-import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.cglib.transform.ClassTransformer;
 import cn.taketoday.context.cglib.transform.MethodFilter;
 import cn.taketoday.context.cglib.transform.MethodFilterTransformer;
@@ -51,7 +52,7 @@ public class UndeclaredThrowableStrategy extends DefaultGeneratorStrategy {
 
     private static final MethodFilter TRANSFORM_FILTER = new MethodFilter() {
         public boolean accept(int access, String name, String desc, String signature, String[] exceptions) {
-            return !TypeUtils.isPrivate(access) && name.indexOf('$') < 0;
+            return !Modifier.isPrivate(access) && name.indexOf('$') < 0;
         }
     };
 

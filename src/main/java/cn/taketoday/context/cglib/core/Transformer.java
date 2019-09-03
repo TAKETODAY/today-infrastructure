@@ -21,7 +21,7 @@ package cn.taketoday.context.cglib.core;
  *         2019-09-03 01:12
  */
 @FunctionalInterface
-public interface Transformer {
+public interface Transformer<T, R> {
 
-    Object transform(Object value);
+    R transform(T value);
 }

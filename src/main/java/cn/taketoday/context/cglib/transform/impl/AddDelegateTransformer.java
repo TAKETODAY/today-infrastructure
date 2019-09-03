@@ -55,7 +55,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
     public void begin_class(int version, int access, String className, Type superType, Type[] interfaces,
             String sourceFile) {
 
-        if (!TypeUtils.isInterface(access)) {
+        if (!Modifier.isInterface(access)) {
 
             Type[] all = TypeUtils.add(interfaces, TypeUtils.getTypes(delegateIf));
             super.begin_class(version, access, className, superType, all, sourceFile);

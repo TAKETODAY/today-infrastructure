@@ -218,7 +218,7 @@ public class EmitUtils {
         final int len = ((String) strings.get(0)).length();
         final Map buckets = CollectionUtils.bucket(strings, new Transformer() {
             public Object transform(Object value) {
-                return new Integer(((String) value).charAt(index));
+                return Integer.valueOf(((String) value).charAt(index));
             }
         });
         e.dup();
@@ -242,12 +242,14 @@ public class EmitUtils {
         });
     }
 
-    static int[] getSwitchKeys(Map buckets) {
-        int[] keys = new int[buckets.size()];
-        int index = 0;
+    protected static int[] getSwitchKeys(Map buckets) {
+        final int[] keys = new int[buckets.size()];
+        int i = 0;
+        
         for (Iterator it = buckets.keySet().iterator(); it.hasNext();) {
-            keys[index++] = ((Integer) it.next()).intValue();
+            keys[i++] = ((Integer) it.next()).intValue();
         }
+        
         Arrays.sort(keys);
         return keys;
     }
@@ -256,7 +258,7 @@ public class EmitUtils {
             final ObjectSwitchCallback callback, final boolean skipEquals) throws Exception {
         final Map buckets = CollectionUtils.bucket(Arrays.asList(strings), new Transformer() {
             public Object transform(Object value) {
-                return new Integer(value.hashCode());
+                return value.hashCode(); // TODO
             }
         });
         final Label def = e.make_label();
@@ -789,9 +791,10 @@ public class EmitUtils {
             final ParameterTyper typer, final Label def, final Label end) throws Exception {
         final Map buckets = CollectionUtils.bucket(members, new Transformer() {
             public Object transform(Object value) {
-                return new Integer(typer.getParameterTypes((MethodInfo) value).length);
+                return Integer.valueOf(typer.getParameterTypes((MethodInfo) value).length);
             }
         });
+
         e.dup();
         e.arraylength();
         e.process_switch(EmitUtils.getSwitchKeys(buckets), new ProcessSwitchCallback() {

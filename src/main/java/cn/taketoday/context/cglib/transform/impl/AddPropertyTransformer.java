@@ -15,11 +15,11 @@
  */
 package cn.taketoday.context.cglib.transform.impl;
 
+import java.lang.reflect.Modifier;
 import java.util.Map;
 
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.EmitUtils;
-import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.cglib.transform.ClassEmitterTransformer;
 
 @SuppressWarnings("all")
@@ -42,7 +42,7 @@ public class AddPropertyTransformer extends ClassEmitterTransformer {
     }
 
     public void end_class() {
-        if (!TypeUtils.isAbstract(getAccess())) {
+        if (!Modifier.isAbstract(getAccess())) {
             EmitUtils.add_properties(this, names, types);
         }
         super.end_class();

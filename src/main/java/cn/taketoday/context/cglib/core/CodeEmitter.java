@@ -15,6 +15,7 @@
  */
 package cn.taketoday.context.cglib.core;
 
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
 import cn.taketoday.context.Constant;
@@ -72,7 +73,7 @@ public class CodeEmitter extends LocalVariablesSorter {
             this.access = access;
             this.sig = sig;
             this.exceptionTypes = exceptionTypes;
-            localOffset = TypeUtils.isStatic(access) ? 0 : 1;
+            localOffset = Modifier.isStatic(access) ? 0 : 1;
             argumentTypes = sig.getArgumentTypes();
         }
 
@@ -439,7 +440,7 @@ public class CodeEmitter extends LocalVariablesSorter {
     }
 
     public void load_this() {
-        if (TypeUtils.isStatic(state.access)) {
+        if (Modifier.isStatic(state.access)) {
             throw new IllegalStateException("no 'this' pointer within static method");
         }
         mv.visitVarInsn(Constant.ALOAD, 0);
@@ -508,13 +509,13 @@ public class CodeEmitter extends LocalVariablesSorter {
 
     public void getfield(String name) {
         ClassEmitter.FieldInfo info = ce.getFieldInfo(name);
-        int opcode = TypeUtils.isStatic(info.access) ? Constant.GETSTATIC : Constant.GETFIELD;
+        int opcode = Modifier.isStatic(info.access) ? Constant.GETSTATIC : Constant.GETFIELD;
         emit_field(opcode, ce.getClassType(), name, info.type);
     }
 
     public void putfield(String name) {
         ClassEmitter.FieldInfo info = ce.getFieldInfo(name);
-        int opcode = TypeUtils.isStatic(info.access) ? Constant.PUTSTATIC : Constant.PUTFIELD;
+        int opcode = Modifier.isStatic(info.access) ? Constant.PUTSTATIC : Constant.PUTFIELD;
         emit_field(opcode, ce.getClassType(), name, info.type);
     }
 
@@ -950,7 +951,7 @@ public class CodeEmitter extends LocalVariablesSorter {
     }
 
     public void visitMaxs(int maxStack, int maxLocals) {
-        if (!TypeUtils.isAbstract(state.access)) {
+        if (!Modifier.isAbstract(state.access)) {
             mv.visitMaxs(0, 0);
         }
     }
@@ -962,10 +963,10 @@ public class CodeEmitter extends LocalVariablesSorter {
         if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)) {
             invoke_constructor(type, sig);
         }
-        else if (TypeUtils.isStatic(method.getModifiers())) {
-            invoke_static(type, sig, TypeUtils.isInterface(classInfo.getModifiers()));
+        else if (Modifier.isStatic(method.getModifiers())) {
+            invoke_static(type, sig, Modifier.isInterface(classInfo.getModifiers()));
         }
-        else if (TypeUtils.isInterface(classInfo.getModifiers())) {
+        else if (Modifier.isInterface(classInfo.getModifiers())) {
             invoke_interface(type, sig);
         }
         else {
