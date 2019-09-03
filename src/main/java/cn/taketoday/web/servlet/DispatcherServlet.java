@@ -152,9 +152,12 @@ public class DispatcherServlet implements Servlet, Serializable {
      * @param request
      *            Current request Context
      * @param method
+     *            {@link HandlerMethod}
      * @param mapping
+     *            {@link HandlerMapping}
      * @return the result of handler
      * @throws Throwable
+     *             If any {@link Throwable} occurred
      * @since 2.3.7
      */
     protected Object invokeHandler(final RequestContext request,

@@ -34,8 +34,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Ordered;
@@ -44,6 +42,8 @@ import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.factory.AbstractBeanFactory;
+import cn.taketoday.context.factory.AbstractBeanFactory.Prototypes;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
@@ -54,7 +54,6 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.WebApplicationContextAware;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.PathVariable;
@@ -73,9 +72,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Singleton(Constant.ACTION_CONFIG)
-public class ActionConfiguration implements Ordered, DisposableBean, WebApplicationContextAware, WebApplicationInitializer {
+public class ActionConfiguration implements Ordered, DisposableBean, WebApplicationInitializer {
 
-    private String contextPath;
+    private final String contextPath;
     private Properties variables;
 
     @Autowired(Constant.HANDLER_MAPPING_REGISTRY)
@@ -84,12 +83,24 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
     @Autowired(Constant.HANDLER_INTERCEPTOR_REGISTRY)
     public HandlerInterceptorRegistry handlerInterceptorRegistry;
 
-    private WebApplicationContext applicationContext;
-
-    private BeanDefinitionLoader beanDefinitionLoader;
+    private final BeanDefinitionLoader beanDefinitionLoader;
 
     private Map<String, Integer> regexUrls = new HashMap<>();
     private Map<String, Integer> requestMappings = new HashMap<>();
+
+    private final AbstractBeanFactory beanFactory;
+
+    @Autowired
+    public ActionConfiguration(WebApplicationContext applicationContext, AbstractBeanFactory beanFactory) {
+
+        this.contextPath = applicationContext.getContextPath();
+        this.beanFactory = beanFactory;
+
+        final ConfigurableEnvironment environment = applicationContext.getEnvironment();
+
+        this.variables = environment.getProperties();
+        this.beanDefinitionLoader = environment.getBeanDefinitionLoader();
+    }
 
     /**
      * Build {@link HandlerMapping}
@@ -129,7 +140,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
     protected void startConfiguration() throws Exception {
 
         // @since 2.3.3
-        for (final Entry<String, BeanDefinition> entry : applicationContext.getBeanDefinitions().entrySet()) {
+        for (final Entry<String, BeanDefinition> entry : beanFactory.getBeanDefinitions().entrySet()) {
 
             final BeanDefinition def = entry.getValue();
 
@@ -156,10 +167,10 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
     private void setActionMapping(Class<?> beanClass, Method method, //
             Set<String> namespaces, Set<RequestMethod> methodsOnClass) throws Exception //
     {
-        final Collection<AnnotationAttributes> annotationAttributes = //
-                ClassUtils.getAnnotationAttributes(method, ActionMapping.class);
+        final AnnotationAttributes[] annotationAttributes = //
+                ClassUtils.getAnnotationAttributesArray(method, ActionMapping.class);
 
-        if (!annotationAttributes.isEmpty()) {
+        if (ObjectUtils.isNotEmpty(annotationAttributes)) {
             // do mapping url
             this.mappingHandlerMapping(this.createHandlerMapping(beanClass, method), // create HandlerMapping
                     namespaces, methodsOnClass, annotationAttributes);
@@ -174,7 +185,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      */
     @SafeVarargs
     private static <E> Set<E> newHashSet(E... elements) {
-        return Stream.of(elements).collect(Collectors.toSet());
+        return new HashSet<>(Arrays.asList(elements));
     }
 
     /**
@@ -190,14 +201,14 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      *            {@link ActionMapping} Attributes
      */
     private void mappingHandlerMapping(HandlerMapping handlerMapping, Set<String> namespaces, //
-            Set<RequestMethod> classRequestMethods, Collection<AnnotationAttributes> annotationAttributes) //
+            Set<RequestMethod> classRequestMethods, AnnotationAttributes[] annotationAttributes) //
     {
-        HandlerMethod handlerMethod = handlerMapping.getHandlerMethod();
+        final HandlerMethod handlerMethod = handlerMapping.getHandlerMethod();
 
         // add the mapping
         final int handlerMappingIndex = handlerMappingRegistry.add(handlerMapping); // index of handler method
 
-        for (AnnotationAttributes handlerMethodMapping : annotationAttributes) {
+        for (final AnnotationAttributes handlerMethodMapping : annotationAttributes) {
             boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
 
             Set<RequestMethod> requestMethods = //
@@ -355,14 +366,22 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      */
     private HandlerMapping createHandlerMapping(final Class<?> beanClass, final Method method) throws Exception {
 
-        final List<MethodParameter> methodParameters = createMethodParameters(method);
+        final BeanDefinition def = beanFactory.getBeanDefinition(beanClass);
 
-        final Object bean = applicationContext.getBean(beanClass);
+        final Object bean;
+        if (def.isSingleton()) {
+            bean = beanFactory.getBean(def);
+        }
+        else {
+            bean = Prototypes.newProxyInstance(beanClass, def, beanFactory);
+        }
+
         if (bean == null) {
             throw new ConfigurationException(//
                     "An unexpected exception occurred: [Can't get bean with given type: [" + beanClass.getName() + "]]"//
             );
         }
+        final List<MethodParameter> methodParameters = createMethodParameters(method);
 
         final HandlerMethod handlerMethod = HandlerMethod.create(method, methodParameters);
 
@@ -489,11 +508,11 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
                 }
                 else {
                     final HandlerInterceptor newInstance;
-                    if (applicationContext.containsBeanDefinition(interceptor)) {
-                        newInstance = applicationContext.getBean(interceptor);
+                    if (beanFactory.containsBeanDefinition(interceptor)) {
+                        newInstance = beanFactory.getBean(interceptor);
                     }
                     else {
-                        newInstance = (HandlerInterceptor) applicationContext//
+                        newInstance = (HandlerInterceptor) beanFactory//
                                 .refresh(beanDefinitionLoader.createBeanDefinition(interceptor));
                     }
                     ids.add(Integer.valueOf(handlerInterceptorRegistry.add(newInstance)));
@@ -551,15 +570,6 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
         return HIGHEST_PRECEDENCE - 99;
     }
 
-    @Override
-    public void setWebApplicationContext(WebApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-        this.setContextPath(applicationContext.getContextPath());
-        ConfigurableEnvironment environment = applicationContext.getEnvironment();
-        this.variables = environment.getProperties();
-        this.beanDefinitionLoader = environment.getBeanDefinitionLoader();
-    }
-
     /**
      * Get this application context path
      * 
@@ -567,16 +577,6 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      */
     public String getContextPath() {
         return contextPath;
-    }
-
-    /**
-     * Apply application context path
-     * 
-     * @param contextPath
-     *            Target context path
-     */
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
     }
 
 }
