@@ -17,7 +17,12 @@ package cn.taketoday.context.cglib.core;
 
 import cn.taketoday.context.asm.Type;
 
-abstract public class MethodInfo {
+/**
+ * 
+ * @author TODAY <br>
+ *         2019-09-03 19:01
+ */
+public abstract class MethodInfo {
 
     protected MethodInfo() {
     }
@@ -30,18 +35,17 @@ abstract public class MethodInfo {
 
     abstract public Type[] getExceptionTypes();
 
+    @Override
     public boolean equals(Object o) {
-        if (o == null)
-            return false;
-        if (!(o instanceof MethodInfo))
-            return false;
-        return getSignature().equals(((MethodInfo) o).getSignature());
+        return (o == this) || ((o instanceof MethodInfo) && getSignature().equals(((MethodInfo) o).getSignature()));
     }
 
+    @Override
     public int hashCode() {
         return getSignature().hashCode();
     }
 
+    @Override
     public String toString() {
         // TODO: include modifiers, exceptions
         return getSignature().toString();

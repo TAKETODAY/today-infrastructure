@@ -26,7 +26,6 @@ package cn.taketoday.context.cglib.proxy;
  * @author Juozas Baliuka <a href="mailto:baliuka@mwm.lt">baliuka@mwm.lt</a>
  * @version $Id: Factory.java,v 1.13 2004/06/24 21:15:20 herbyderby Exp $
  */
-@SuppressWarnings("all")
 public interface Factory {
     /**
      * Creates new instance of the same type, using the no-arg constructor. The
@@ -60,7 +59,7 @@ public interface Factory {
      *            the new interceptor(s) to use
      * @return new instance of the same type
      */
-    Object newInstance(Class[] types, Object[] args, Callback[] callbacks);
+    Object newInstance(Class<?>[] types, Object[] args, Callback[] callbacks);
 
     /**
      * Return the <code>Callback</code> implementation at the specified index.

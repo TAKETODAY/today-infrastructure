@@ -28,8 +28,14 @@ import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
+/**
+ * 
+ * @author TODAY <br>
+ *         2019-09-03 18:53
+ */
 @SuppressWarnings("all")
 class InvocationHandlerGenerator implements CallbackGenerator {
+
     public static final InvocationHandlerGenerator INSTANCE = new InvocationHandlerGenerator();
 
     private static final Type INVOCATION_HANDLER = TypeUtils.parseType(InvocationHandler.class);

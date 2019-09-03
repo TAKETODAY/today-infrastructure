@@ -19,11 +19,72 @@ import cn.taketoday.context.asm.Type;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-08 15:09
  */
 @SuppressWarnings("all")
 class CallbackInfo {
+
+    private final Class cls;
+    private final Type type;
+    private final CallbackGenerator generator;
+
+    private static final CallbackInfo[] CALLBACKS = { //
+            new CallbackInfo(NoOp.class, NoOpGenerator.INSTANCE), //
+            new CallbackInfo(MethodInterceptor.class, MethodInterceptorGenerator.INSTANCE), //
+            new CallbackInfo(InvocationHandler.class, InvocationHandlerGenerator.INSTANCE), //
+            new CallbackInfo(LazyLoader.class, LazyLoaderGenerator.INSTANCE), //
+            new CallbackInfo(Dispatcher.class, DispatcherGenerator.INSTANCE), //
+            new CallbackInfo(FixedValue.class, FixedValueGenerator.INSTANCE), //
+            new CallbackInfo(ProxyRefDispatcher.class, DispatcherGenerator.PROXY_REF_INSTANCE)//
+    };
+
+    private CallbackInfo(Class cls, CallbackGenerator generator) {
+        this.cls = cls;
+        this.generator = generator;
+        type = Type.getType(cls);
+    }
+
+    private static Type determineType(Callback callback, boolean checkAll) {
+        if (callback == null) {
+            throw new IllegalStateException("Callback is null");
+        }
+        return determineType(callback.getClass(), checkAll);
+    }
+
+    private static Type determineType(Class callbackType, boolean checkAll) {
+        Class cur = null;
+        Type type = null;
+
+        for (final CallbackInfo info : CALLBACKS) {
+
+            if (info.cls.isAssignableFrom(callbackType)) {
+                if (cur != null) {
+                    throw new IllegalStateException("Callback implements both " + cur + " and " + info.cls);
+                }
+                cur = info.cls;
+                type = info.type;
+                if (!checkAll) {
+                    break;
+                }
+            }
+        }
+        if (cur == null) {
+            throw new IllegalStateException("Unknown callback type " + callbackType);
+        }
+        return type;
+    }
+
+    private static CallbackGenerator getGenerator(Type callbackType) {
+        
+        for (final CallbackInfo info : CALLBACKS) {
+            if (info.type.equals(callbackType)) {
+                return info.generator;
+            }
+        }
+        throw new IllegalStateException("Unknown callback type " + callbackType);
+    }
+
     public static Type[] determineTypes(Class[] callbackTypes) {
         return determineTypes(callbackTypes, true);
     }
@@ -56,56 +117,4 @@ class CallbackInfo {
         return generators;
     }
 
-    //////////////////// PRIVATE ////////////////////
-
-    private Class cls;
-    private CallbackGenerator generator;
-    private Type type;
-
-    private static final CallbackInfo[] CALLBACKS = { new CallbackInfo(NoOp.class, NoOpGenerator.INSTANCE), new CallbackInfo(MethodInterceptor.class, MethodInterceptorGenerator.INSTANCE), new CallbackInfo(InvocationHandler.class, InvocationHandlerGenerator.INSTANCE), new CallbackInfo(LazyLoader.class, LazyLoaderGenerator.INSTANCE), new CallbackInfo(Dispatcher.class, DispatcherGenerator.INSTANCE), new CallbackInfo(FixedValue.class, FixedValueGenerator.INSTANCE), new CallbackInfo(ProxyRefDispatcher.class, DispatcherGenerator.PROXY_REF_INSTANCE), };
-
-    private CallbackInfo(Class cls, CallbackGenerator generator) {
-        this.cls = cls;
-        this.generator = generator;
-        type = Type.getType(cls);
-    }
-
-    private static Type determineType(Callback callback, boolean checkAll) {
-        if (callback == null) {
-            throw new IllegalStateException("Callback is null");
-        }
-        return determineType(callback.getClass(), checkAll);
-    }
-
-    private static Type determineType(Class callbackType, boolean checkAll) {
-        Class cur = null;
-        Type type = null;
-        for (int i = 0; i < CALLBACKS.length; i++) {
-            CallbackInfo info = CALLBACKS[i];
-            if (info.cls.isAssignableFrom(callbackType)) {
-                if (cur != null) {
-                    throw new IllegalStateException("Callback implements both " + cur + " and " + info.cls);
-                }
-                cur = info.cls;
-                type = info.type;
-                if (!checkAll) {
-                    break;
-                }
-            }
-        }
-        if (cur == null) {
-            throw new IllegalStateException("Unknown callback type " + callbackType);
-        }
-        return type;
-    }
-
-    private static CallbackGenerator getGenerator(Type callbackType) {
-        for (int i = 0; i < CALLBACKS.length; i++) {
-            CallbackInfo info = CALLBACKS[i];
-            if (info.type.equals(callbackType)) {
-                return info.generator;
-            }
-        }
-        throw new IllegalStateException("Unknown callback type " + callbackType);
-    }
 }

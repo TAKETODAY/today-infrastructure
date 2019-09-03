@@ -202,7 +202,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      *            class to extend or interface to implement
      * @see #setInterfaces(Class[])
      */
-    public void setSuperclass(Class<?> superclass) {
+    public Enhancer setSuperclass(Class<?> superclass) {
         if (superclass != null && superclass.isInterface()) {
             setInterfaces(superclass);
         }
@@ -213,6 +213,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         else {
             this.superclass = superclass;
         }
+        return this;
     }
 
     /**
@@ -223,8 +224,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      *            array of interfaces to implement, or null
      * @see Factory
      */
-    public void setInterfaces(Class<?>... interfaces) {
+    public Enhancer setInterfaces(Class<?>... interfaces) {
         this.interfaces = interfaces;
+        return this;
     }
 
     /**
@@ -236,8 +238,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      *            the callback filter to use when generating a new class
      * @see #setCallbacks
      */
-    public void setCallbackFilter(CallbackFilter filter) {
+    public Enhancer setCallbackFilter(CallbackFilter filter) {
         this.filter = filter;
+        return this;
     }
 
     /**
@@ -248,8 +251,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      *            the callback to use for all methods
      * @see #setCallbacks
      */
-    public void setCallback(final Callback callback) {
+    public Enhancer setCallback(final Callback callback) {
         setCallbacks(callback);
+        return this;
     }
 
     /**
@@ -262,11 +266,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      * @see #setCallbackFilter
      * @see #setCallback
      */
-    public void setCallbacks(Callback... callbacks) {
+    public Enhancer setCallbacks(Callback... callbacks) {
         if (ObjectUtils.isEmpty(callbacks)) {
             throw new IllegalArgumentException("Array cannot be empty");
         }
         this.callbacks = callbacks;
+        return this;
     }
 
     /**
@@ -280,8 +285,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      *            whether to implement <code>Factory</code>; default is
      *            <code>true</code>
      */
-    public void setUseFactory(boolean useFactory) {
+    public Enhancer setUseFactory(boolean useFactory) {
         this.useFactory = useFactory;
+        return this;
     }
 
     /**
@@ -292,8 +298,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      * @param interceptDuringConstruction
      *            whether to intercept methods called from the constructor
      */
-    public void setInterceptDuringConstruction(boolean interceptDuringConstruction) {
+    public Enhancer setInterceptDuringConstruction(boolean interceptDuringConstruction) {
         this.interceptDuringConstruction = interceptDuringConstruction;
+        return this;
     }
 
     /**
@@ -305,8 +312,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      *            the type of callback to use for all methods
      * @see #setCallbackTypes
      */
-    public void setCallbackType(Class<?> callbackType) {
+    public Enhancer setCallbackType(Class<?> callbackType) {
         setCallbackTypes(callbackType);
+        return this;
     }
 
     /**
@@ -319,11 +327,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      * @param callbackTypes
      *            the array of callback types
      */
-    public void setCallbackTypes(Class<?>... callbackTypes) {
+    public Enhancer setCallbackTypes(Class<?>... callbackTypes) {
         if (ObjectUtils.isEmpty(callbackTypes)) {
             throw new IllegalArgumentException("Array cannot be empty");
         }
         this.callbackTypes = CallbackInfo.determineTypes(callbackTypes);
+        return this;
     }
 
     /**
@@ -380,8 +389,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      * @param sUID
      *            the field value, or null to avoid generating field.
      */
-    public void setSerialVersionUID(Long sUID) {
-        serialVersionUID = sUID;
+    public Enhancer setSerialVersionUID(Long sUID) {
+        this.serialVersionUID = sUID;
+        return this;
     }
 
     private void preValidate() {

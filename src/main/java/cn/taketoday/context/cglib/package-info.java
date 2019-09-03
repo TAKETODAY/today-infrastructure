@@ -18,7 +18,6 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 /**
- * @author TODAY <br>
- *         2019-09-01 17:58
+ * Code generation library
  */
 package cn.taketoday.context.cglib;

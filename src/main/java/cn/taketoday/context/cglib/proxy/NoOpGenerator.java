@@ -23,8 +23,13 @@ import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
+/**
+ * @author TODAY <br>
+ *         2019-09-03 18:57
+ */
 @SuppressWarnings("all")
 class NoOpGenerator implements CallbackGenerator {
+
     public static final NoOpGenerator INSTANCE = new NoOpGenerator();
 
     public void generate(ClassEmitter ce, Context context, List methods) {
