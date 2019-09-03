@@ -22,10 +22,9 @@ import cn.taketoday.context.asm.Type;
  * @author TODAY <br>
  *         2018-11-08 15:09
  */
-@SuppressWarnings("all")
 class CallbackInfo {
 
-    private final Class cls;
+    private final Class<?> cls;
     private final Type type;
     private final CallbackGenerator generator;
 
@@ -39,7 +38,7 @@ class CallbackInfo {
             new CallbackInfo(ProxyRefDispatcher.class, DispatcherGenerator.PROXY_REF_INSTANCE)//
     };
 
-    private CallbackInfo(Class cls, CallbackGenerator generator) {
+    private CallbackInfo(Class<?> cls, CallbackGenerator generator) {
         this.cls = cls;
         this.generator = generator;
         type = Type.getType(cls);
@@ -52,8 +51,8 @@ class CallbackInfo {
         return determineType(callback.getClass(), checkAll);
     }
 
-    private static Type determineType(Class callbackType, boolean checkAll) {
-        Class cur = null;
+    private static Type determineType(Class<?> callbackType, boolean checkAll) {
+        Class<?> cur = null;
         Type type = null;
 
         for (final CallbackInfo info : CALLBACKS) {
@@ -75,8 +74,8 @@ class CallbackInfo {
         return type;
     }
 
-    private static CallbackGenerator getGenerator(Type callbackType) {
-        
+    private static CallbackGenerator getGenerator(final Type callbackType) {
+
         for (final CallbackInfo info : CALLBACKS) {
             if (info.type.equals(callbackType)) {
                 return info.generator;
@@ -85,34 +84,38 @@ class CallbackInfo {
         throw new IllegalStateException("Unknown callback type " + callbackType);
     }
 
-    public static Type[] determineTypes(Class[] callbackTypes) {
+    public static Type[] determineTypes(final Class<?>[] callbackTypes) {
         return determineTypes(callbackTypes, true);
     }
 
-    public static Type[] determineTypes(Class[] callbackTypes, boolean checkAll) {
-        Type[] types = new Type[callbackTypes.length];
-        for (int i = 0; i < types.length; i++) {
-            types[i] = determineType(callbackTypes[i], checkAll);
+    public static Type[] determineTypes(final Class<?>[] callbackTypes, final boolean checkAll) {
+        final Type[] types = new Type[callbackTypes.length];
+
+        int i = 0;
+        for (final Class<?> type : callbackTypes) {
+            types[i++] = determineType(type, checkAll);
         }
         return types;
     }
 
-    public static Type[] determineTypes(Callback[] callbacks) {
+    public static Type[] determineTypes(final Callback[] callbacks) {
         return determineTypes(callbacks, true);
     }
 
-    public static Type[] determineTypes(Callback[] callbacks, boolean checkAll) {
-        Type[] types = new Type[callbacks.length];
-        for (int i = 0; i < types.length; i++) {
-            types[i] = determineType(callbacks[i], checkAll);
+    public static Type[] determineTypes(final Callback[] callbacks, final boolean checkAll) {
+        final Type[] types = new Type[callbacks.length];
+        int i = 0;
+        for (final Callback callback : callbacks) {
+            types[i++] = determineType(callback, checkAll);
         }
         return types;
     }
 
-    public static CallbackGenerator[] getGenerators(Type[] callbackTypes) {
-        CallbackGenerator[] generators = new CallbackGenerator[callbackTypes.length];
-        for (int i = 0; i < generators.length; i++) {
-            generators[i] = getGenerator(callbackTypes[i]);
+    public static CallbackGenerator[] getGenerators(final Type[] callbackTypes) {
+        final CallbackGenerator[] generators = new CallbackGenerator[callbackTypes.length];
+        int i = 0;
+        for (final Type callbackType : callbackTypes) {
+            generators[i++] = getGenerator(callbackType);
         }
         return generators;
     }
