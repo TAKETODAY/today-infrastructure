@@ -23,7 +23,11 @@ import cn.taketoday.context.asm.Type;
  * {@link FieldTypeCustomizer}
  *
  * @see KeyFactory#CLASS_BY_NAME
+ * @author TODAY <br>
+ *         2019-09-03 13:03
  */
+@FunctionalInterface
 public interface Customizer extends KeyFactoryCustomizer {
+
     void customize(CodeEmitter e, Type type);
 }

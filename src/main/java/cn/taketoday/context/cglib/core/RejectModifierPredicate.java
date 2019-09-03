@@ -15,7 +15,7 @@
  */
 package cn.taketoday.context.cglib.core;
 
-import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.function.Predicate;
 
 /**
@@ -23,7 +23,7 @@ import java.util.function.Predicate;
  * @author TODAY <br>
  *         2019-09-02 19:24
  */
-public class RejectModifierPredicate implements Predicate<Member> {
+public class RejectModifierPredicate implements Predicate<Method> {
 
     private final int rejectMask;
 
@@ -31,7 +31,8 @@ public class RejectModifierPredicate implements Predicate<Member> {
         this.rejectMask = rejectMask;
     }
 
-    public boolean test(Member arg) {
+    @Override
+    public boolean test(Method arg) {
         return (arg.getModifiers() & rejectMask) == 0;
     }
 }

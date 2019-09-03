@@ -24,14 +24,15 @@ import java.util.Map;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Type;
 
-//@SuppressWarnings("all")
-public class TypeUtils {
+/**
+ * 
+ * @author TODAY <br>
+ *         2019-09-03 14:19
+ */
+public abstract class TypeUtils {
 
     private static final Map<String, String> transforms = new HashMap<>();
     private static final Map<String, String> rtransforms = new HashMap<>();
-
-    private TypeUtils() {
-    }
 
     static {
         transforms.put("void", "V");
@@ -478,4 +479,5 @@ public class TypeUtils {
         }
         return sb.toString();
     }
+
 }

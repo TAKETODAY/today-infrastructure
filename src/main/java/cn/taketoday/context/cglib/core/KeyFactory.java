@@ -27,6 +27,8 @@ import cn.taketoday.context.asm.Label;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.internal.CustomizerRegistry;
 
+import static cn.taketoday.context.asm.Type.array;
+
 /**
  * Generates classes to handle multi-valued keys, for use in things such as Maps
  * and Sets. Code for <code>equals</code> and <code>hashCode</code> methods
@@ -154,7 +156,7 @@ abstract public class KeyFactory {
     }
 
     public static KeyFactory create(ClassLoader loader, Class keyInterface, Customizer customizer) {
-        return create(loader, keyInterface, customizer, Collections.<KeyFactoryCustomizer>emptyList());
+        return create(loader, keyInterface, customizer, Collections.emptyList());
     }
 
     public static KeyFactory create(ClassLoader loader, Class keyInterface, //
@@ -248,9 +250,13 @@ abstract public class KeyFactory {
             }
 
             Type[] parameterTypes = TypeUtils.getTypes(newInstance.getParameterTypes());
-            ce.begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), KEY_FACTORY,
-                    new Type[]
-                    { Type.getType(keyInterface) }, Constant.SOURCE_FILE);
+            ce.begin_class(Constant.JAVA_VERSION, //
+                    Constant.ACC_PUBLIC, //
+                    getClassName(), //
+                    KEY_FACTORY, //
+                    array(Type.getType(keyInterface)), //
+                    Constant.SOURCE_FILE//
+            );
 
             EmitUtils.null_constructor(ce);
             EmitUtils.factory_method(ce, ReflectUtils.getSignature(newInstance));

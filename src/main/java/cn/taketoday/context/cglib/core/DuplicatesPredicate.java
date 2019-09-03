@@ -32,7 +32,7 @@ import cn.taketoday.context.asm.MethodVisitor;
 import cn.taketoday.context.asm.Opcodes;
 
 @SuppressWarnings("all")
-public class DuplicatesPredicate implements Predicate<Object> {
+public class DuplicatesPredicate implements Predicate<Method> {
 
     private final Set unique;
     private final Set rejected;
@@ -108,8 +108,8 @@ public class DuplicatesPredicate implements Predicate<Object> {
         }
     }
 
-    public boolean test(Object arg) {
-        return !rejected.contains(arg) && unique.add(MethodWrapper.create((Method) arg));
+    public boolean test(Method arg) {
+        return !rejected.contains(arg) && unique.add(MethodWrapper.create(arg));
     }
 
     private static ClassLoader getClassLoader(Class c) {

@@ -906,6 +906,17 @@ public final class Type {
         }
     }
 
+    /**
+     * To {@link Type} array
+     * 
+     * @param item
+     *            array item
+     * @return {@link Type} array
+     */
+    public static Type[] array(final Type... item) {
+        return item;
+    }
+
     // -----------------------------------------------------------------------------------------------
     // Equals, hashCode and toString.
     // -----------------------------------------------------------------------------------------------

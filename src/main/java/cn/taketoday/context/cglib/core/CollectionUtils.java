@@ -53,9 +53,9 @@ public abstract class CollectionUtils {
         }
     }
 
-    public static <T extends Object> Collection<T> filter(Collection<T> c, Predicate<T> p) {
+    public static  Collection<Object> filter(Collection c, Predicate p) {
 
-        final Iterator<T> it = c.iterator();
+        final Iterator it = c.iterator();
         while (it.hasNext()) {
             if (!p.test(it.next())) {
                 it.remove();

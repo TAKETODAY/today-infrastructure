@@ -15,13 +15,18 @@
  */
 package cn.taketoday.context.cglib.core;
 
-import java.lang.reflect.Member;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Modifier;
 import java.util.function.Predicate;
 
 import cn.taketoday.context.asm.Type;
 
-public class VisibilityPredicate implements Predicate<Member> {
+/**
+ * 
+ * @author TODAY <br>
+ *         2019-09-03 15:41
+ */
+public class VisibilityPredicate implements Predicate<Executable> {
 
     private String pkg;
     private boolean protectedOk;
@@ -36,7 +41,7 @@ public class VisibilityPredicate implements Predicate<Member> {
         pkg = TypeUtils.getPackageName(Type.getType(source));
     }
 
-    public boolean test(Member member) {
+    public boolean test(Executable member) {
         int mod = member.getModifiers();
         if (Modifier.isPrivate(mod)) {
             return false;

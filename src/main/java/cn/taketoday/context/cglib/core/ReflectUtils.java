@@ -406,18 +406,17 @@ public abstract class ReflectUtils {
         if (type == Object.class) {
             list.addAll(OBJECT_METHODS);
         }
-        else
-            list.addAll(java.util.Arrays.asList(type.getDeclaredMethods()));
-
-        Class superclass = type.getSuperclass();
+        else {
+            list.addAll(Arrays.asList(type.getDeclaredMethods()));
+        }
+        
+        final Class superclass = type.getSuperclass();
         if (superclass != null) {
             addAllMethods(superclass, list);
         }
-        Class[] interfaces = type.getInterfaces();
-        for (int i = 0; i < interfaces.length; i++) {
-            addAllMethods(interfaces[i], list);
+        for (final Class<?> interface_ : type.getInterfaces()) {
+            addAllMethods(interface_, list);
         }
-
         return list;
     }
 

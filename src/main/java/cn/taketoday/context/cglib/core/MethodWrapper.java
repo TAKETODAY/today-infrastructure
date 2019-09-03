@@ -21,14 +21,18 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-@SuppressWarnings("all")
+/**
+ * 
+ * @author TODAY <br>
+ *         2019-09-03 12:58
+ */
 public class MethodWrapper {
 
     private static final MethodWrapperKey KEY_FACTORY = (MethodWrapperKey) KeyFactory.create(MethodWrapperKey.class);
 
     /** Internal interface, only public due to ClassLoader issues. */
     public interface MethodWrapperKey {
-        public Object newInstance(String name, String[] parameterTypes, String returnType);
+        Object newInstance(String name, String[] parameterTypes, String returnType);
     }
 
     private MethodWrapper() {
@@ -39,11 +43,12 @@ public class MethodWrapper {
                 method.getReturnType().getName());
     }
 
-    public static Set createSet(Collection methods) {
-        Set set = new HashSet();
-        for (Iterator it = methods.iterator(); it.hasNext();) {
-            set.add(create((Method) it.next()));
+    public static Set<Object> createSet(Collection<Method> methods) {
+        final Set<Object> ret = new HashSet<>();
+
+        for (final Method method : methods) {
+            ret.add(create(method));
         }
-        return set;
+        return ret;
     }
 }

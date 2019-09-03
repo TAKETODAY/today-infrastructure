@@ -19,6 +19,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -57,6 +58,8 @@ import cn.taketoday.context.cglib.core.VisibilityPredicate;
 import cn.taketoday.context.cglib.core.WeakCacheKey;
 import cn.taketoday.context.utils.ObjectUtils;
 
+import static cn.taketoday.context.asm.Type.array;
+
 /**
  * Generates dynamic subclasses to enable method interception. This class
  * started as a substitute for the standard Dynamic Proxy support included with
@@ -92,26 +95,24 @@ import cn.taketoday.context.utils.ObjectUtils;
  * For an almost drop-in replacement for <code>java.lang.reflect.Proxy</code>,
  * see the {@link Proxy} class.
  */
-@SuppressWarnings("all")
-public class Enhancer extends AbstractClassGenerator {
+//@SuppressWarnings("all")
+public class Enhancer extends AbstractClassGenerator<Object> {
 
-    private static final CallbackFilter ALL_ZERO = new CallbackFilter() {
-        public int accept(Method method) {
-            return 0;
-        }
-    };
+    private static final CallbackFilter ALL_ZERO = (m) -> 0;
 
     private static final Source SOURCE = new Source("Enhance");
-    private static final EnhancerKey KEY_FACTORY = (EnhancerKey) KeyFactory.create(EnhancerKey.class,
-            KeyFactory.HASH_ASM_TYPE, null);
+
+    private static final EnhancerKey KEY_FACTORY = //
+            (EnhancerKey) KeyFactory.create(EnhancerKey.class, KeyFactory.HASH_ASM_TYPE, null);
 
     private static final String BOUND_FIELD = "TODAY$BOUND";
+    private static final String CONSTRUCTED_FIELD = "TODAY$CONSTRUCTED";
     private static final String FACTORY_DATA_FIELD = "TODAY$FACTORY_DATA";
     private static final String THREAD_CALLBACKS_FIELD = "TODAY$THREAD_CALLBACKS";
     private static final String STATIC_CALLBACKS_FIELD = "TODAY$STATIC_CALLBACKS";
     private static final String SET_THREAD_CALLBACKS_NAME = "TODAY$SET_THREAD_CALLBACKS";
     private static final String SET_STATIC_CALLBACKS_NAME = "TODAY$SET_STATIC_CALLBACKS";
-    private static final String CONSTRUCTED_FIELD = "TODAY$CONSTRUCTED";
+
     /**
      * {@link cn.taketoday.context.cglib.core.AbstractClassGenerator.ClassLoaderData#generatedClasses}
      * requires to keep cache key in a good shape (the keys should be up and running
@@ -127,7 +128,7 @@ public class Enhancer extends AbstractClassGenerator {
      */
     private static final String CALLBACK_FILTER_FIELD = "TODAY$CALLBACK_FILTER";
 
-    private static final Type OBJECT_TYPE = TypeUtils.parseType("Object");
+    private static final Type OBJECT_TYPE = Constant.TYPE_OBJECT;
     private static final Type FACTORY = TypeUtils.parseType(Factory.class);
     private static final Type ILLEGAL_STATE_EXCEPTION = TypeUtils.parseType("IllegalStateException");
     private static final Type ILLEGAL_ARGUMENT_EXCEPTION = TypeUtils.parseType("IllegalArgumentException");
@@ -137,14 +138,15 @@ public class Enhancer extends AbstractClassGenerator {
 
     private static final Signature CSTRUCT_NULL = TypeUtils.parseConstructor(Constant.BLANK);
 
-    private static final Signature SET_THREAD_CALLBACKS = new Signature(SET_THREAD_CALLBACKS_NAME, Type.VOID_TYPE, new Type[] { CALLBACK_ARRAY });
-    private static final Signature SET_STATIC_CALLBACKS = new Signature(SET_STATIC_CALLBACKS_NAME, Type.VOID_TYPE, new Type[] { CALLBACK_ARRAY });
-    private static final Signature NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, new Type[] { CALLBACK_ARRAY });
-    private static final Signature MULTIARG_NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, new Type[] { Constant.TYPE_CLASS_ARRAY, Constant.TYPE_OBJECT_ARRAY, CALLBACK_ARRAY, });
-    private static final Signature SINGLE_NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, new Type[] { CALLBACK });
-    private static final Signature SET_CALLBACK = new Signature("setCallback", Type.VOID_TYPE, new Type[] { Type.INT_TYPE, CALLBACK });
-    private static final Signature GET_CALLBACK = new Signature("getCallback", CALLBACK, new Type[] { Type.INT_TYPE });
-    private static final Signature SET_CALLBACKS = new Signature("setCallbacks", Type.VOID_TYPE, new Type[] { CALLBACK_ARRAY });
+    private static final Signature SET_THREAD_CALLBACKS = new Signature(SET_THREAD_CALLBACKS_NAME, Type.VOID_TYPE, array(CALLBACK_ARRAY));
+    private static final Signature SET_STATIC_CALLBACKS = new Signature(SET_STATIC_CALLBACKS_NAME, Type.VOID_TYPE, array(CALLBACK_ARRAY));
+    private static final Signature NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, array(CALLBACK_ARRAY));
+    private static final Signature MULTIARG_NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, array(
+            Constant.TYPE_CLASS_ARRAY, Constant.TYPE_OBJECT_ARRAY, CALLBACK_ARRAY));
+    private static final Signature SINGLE_NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, array(CALLBACK));
+    private static final Signature SET_CALLBACK = new Signature("setCallback", Type.VOID_TYPE, array(Type.INT_TYPE, CALLBACK));
+    private static final Signature GET_CALLBACK = new Signature("getCallback", CALLBACK, array(Type.INT_TYPE));
+    private static final Signature SET_CALLBACKS = new Signature("setCallbacks", Type.VOID_TYPE, array(CALLBACK_ARRAY));
     private static final Signature GET_CALLBACKS = new Signature("getCallbacks", CALLBACK_ARRAY, new Type[0]);
     private static final Signature THREAD_LOCAL_GET = TypeUtils.parseSignature("Object get()");
     private static final Signature THREAD_LOCAL_SET = TypeUtils.parseSignature("void set(Object)");
@@ -153,24 +155,31 @@ public class Enhancer extends AbstractClassGenerator {
     private EnhancerFactoryData currentData;
     private Object currentKey;
 
-    /** Internal interface, only public due to ClassLoader issues. */
-    public interface EnhancerKey {
-        public Object newInstance(String type, String[] interfaces, WeakCacheKey<CallbackFilter> filter,
-                Type[] callbackTypes, boolean useFactory, boolean interceptDuringConstruction, Long serialVersionUID);
-    }
-
-    private Class[] interfaces;
+    private Class<?>[] interfaces;
     private CallbackFilter filter;
     private Callback[] callbacks;
     private Type[] callbackTypes;
     private boolean validateCallbackTypes;
     private boolean classOnly;
-    private Class superclass;
-    private Class[] argumentTypes;
+    private Class<?> superclass;
+    private Class<?>[] argumentTypes;
     private Object[] arguments;
     private boolean useFactory = true;
     private Long serialVersionUID;
     private boolean interceptDuringConstruction = true;
+
+    /** Internal interface, only public due to ClassLoader issues. */
+    public interface EnhancerKey {
+
+        Object newInstance(String type, //
+                String[] interfaces, //
+                WeakCacheKey<CallbackFilter> filter, //
+                Type[] callbackTypes, //
+                boolean useFactory, //
+                boolean interceptDuringConstruction, //
+                Long serialVersionUID//
+        );
+    }
 
     /**
      * Create a new <code>Enhancer</code>. A new <code>Enhancer</code> object should
@@ -194,9 +203,9 @@ public class Enhancer extends AbstractClassGenerator {
      *            class to extend or interface to implement
      * @see #setInterfaces(Class[])
      */
-    public void setSuperclass(Class superclass) {
+    public void setSuperclass(Class<?> superclass) {
         if (superclass != null && superclass.isInterface()) {
-            setInterfaces(new Class[] { superclass });
+            setInterfaces(superclass);
         }
         else if (superclass != null && superclass.equals(Object.class)) {
             // affects choice of ClassLoader
@@ -215,7 +224,7 @@ public class Enhancer extends AbstractClassGenerator {
      *            array of interfaces to implement, or null
      * @see Factory
      */
-    public void setInterfaces(Class[] interfaces) {
+    public void setInterfaces(Class<?>... interfaces) {
         this.interfaces = interfaces;
     }
 
@@ -241,7 +250,7 @@ public class Enhancer extends AbstractClassGenerator {
      * @see #setCallbacks
      */
     public void setCallback(final Callback callback) {
-        setCallbacks(new Callback[] { callback });
+        setCallbacks(callback);
     }
 
     /**
@@ -254,7 +263,7 @@ public class Enhancer extends AbstractClassGenerator {
      * @see #setCallbackFilter
      * @see #setCallback
      */
-    public void setCallbacks(Callback[] callbacks) {
+    public void setCallbacks(Callback... callbacks) {
         if (ObjectUtils.isEmpty(callbacks)) {
             throw new IllegalArgumentException("Array cannot be empty");
         }
@@ -297,8 +306,8 @@ public class Enhancer extends AbstractClassGenerator {
      *            the type of callback to use for all methods
      * @see #setCallbackTypes
      */
-    public void setCallbackType(Class callbackType) {
-        setCallbackTypes(new Class[] { callbackType });
+    public void setCallbackType(Class<?> callbackType) {
+        setCallbackTypes(callbackType);
     }
 
     /**
@@ -311,7 +320,7 @@ public class Enhancer extends AbstractClassGenerator {
      * @param callbackTypes
      *            the array of callback types
      */
-    public void setCallbackTypes(Class[] callbackTypes) {
+    public void setCallbackTypes(Class<?>... callbackTypes) {
         if (ObjectUtils.isEmpty(callbackTypes)) {
             throw new IllegalArgumentException("Array cannot be empty");
         }
@@ -342,7 +351,7 @@ public class Enhancer extends AbstractClassGenerator {
      *            compatible wrapped arguments to pass to constructor
      * @return a new instance
      */
-    public Object create(Class[] argumentTypes, Object[] arguments) {
+    public Object create(Class<?>[] argumentTypes, Object[] arguments) {
         classOnly = false;
         if (argumentTypes == null || arguments == null || argumentTypes.length != arguments.length) {
             throw new IllegalArgumentException("Arguments must be non-null and of equal length");
@@ -361,9 +370,9 @@ public class Enhancer extends AbstractClassGenerator {
      * 
      * @see #create(Class[], Object[])
      */
-    public Class createClass() {
+    public Class<?> createClass() {
         classOnly = true;
-        return (Class) createHelper();
+        return (Class<?>) createHelper();
     }
 
     /**
@@ -437,12 +446,13 @@ public class Enhancer extends AbstractClassGenerator {
      * {@link Enhancer#setThreadCallbacks(Class, Callback[])}
      */
     static class EnhancerFactoryData {
-        public final Class generatedClass;
-        private final Method setThreadCallbacks;
-        private final Class[] primaryConstructorArgTypes;
-        private final Constructor primaryConstructor;
 
-        public EnhancerFactoryData(Class generatedClass, Class[] primaryConstructorArgTypes, boolean classOnly) {
+        public final Class<?> generatedClass;
+        private final Method setThreadCallbacks;
+        private final Class<?>[] primaryConstructorArgTypes;
+        private final Constructor<?> primaryConstructor;
+
+        public EnhancerFactoryData(Class<?> generatedClass, Class<?>[] primaryConstructorArgTypes, boolean classOnly) {
             this.generatedClass = generatedClass;
             try {
                 setThreadCallbacks = getCallbacksSetter(generatedClass, SET_THREAD_CALLBACKS_NAME);
@@ -476,7 +486,7 @@ public class Enhancer extends AbstractClassGenerator {
          *            callbacks to set for the new instance
          * @return newly created proxy
          */
-        public Object newInstance(Class[] argumentTypes, Object[] arguments, Callback[] callbacks) {
+        public Object newInstance(Class<?>[] argumentTypes, Object[] arguments, Callback[] callbacks) {
             setThreadCallbacks(callbacks);
             try {
                 // Explicit reference equality is added here just in case Arrays.equals does not
@@ -525,7 +535,7 @@ public class Enhancer extends AbstractClassGenerator {
     }
 
     @Override
-    protected Class generate(ClassLoaderData data) {
+    protected Class<?> generate(ClassLoaderData data) {
         validate();
         if (superclass != null) {
             setNamePrefix(superclass.getName());
@@ -575,15 +585,17 @@ public class Enhancer extends AbstractClassGenerator {
      * @param methods
      *            the list into which to copy the applicable methods
      */
-    public static void getMethods(Class superclass, Class[] interfaces, List methods) {
+    public static void getMethods(Class<?> superclass, Class<?>[] interfaces, List<Method> methods) {
         getMethods(superclass, interfaces, methods, null, null);
     }
 
-    private static void getMethods(Class superclass, //
-            Class[] interfaces, List methods, List interfaceMethods, Set forcePublic) {
+    private static void getMethods(Class<?> superclass, //
+            Class<?>[] interfaces, List<Method> methods, List<Method> interfaceMethods, Set<Object> forcePublic)//
+    {
 
         ReflectUtils.addAllMethods(superclass, methods);
-        List target = (interfaceMethods != null) ? interfaceMethods : methods;
+
+        List<Method> target = (interfaceMethods != null) ? interfaceMethods : methods;
         if (interfaces != null) {
             for (int i = 0; i < interfaces.length; i++) {
                 if (interfaces[i] != Factory.class) {
@@ -1358,7 +1370,7 @@ public class Enhancer extends AbstractClassGenerator {
         Label end = e.make_label();
         e.load_local(me);
         e.getfield(BOUND_FIELD);
-        e.if_jump(e.NE, end);
+        e.if_jump(CodeEmitter.NE, end);
         e.load_local(me);
         e.push(1);
         e.putfield(BOUND_FIELD);
