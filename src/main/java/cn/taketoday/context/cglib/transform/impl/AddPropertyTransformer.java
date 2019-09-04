@@ -41,10 +41,10 @@ public class AddPropertyTransformer extends ClassEmitterTransformer {
         this.types = types;
     }
 
-    public void end_class() {
+    public void endClass() {
         if (!Modifier.isAbstract(getAccess())) {
-            EmitUtils.add_properties(this, names, types);
+            EmitUtils.addProperties(this, names, types);
         }
-        super.end_class();
+        super.endClass();
     }
 }

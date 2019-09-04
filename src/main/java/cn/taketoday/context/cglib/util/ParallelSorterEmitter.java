@@ -34,12 +34,12 @@ class ParallelSorterEmitter extends ClassEmitter {
 
     public ParallelSorterEmitter(ClassVisitor v, String className, Object[] arrays) {
         super(v);
-        begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, className, PARALLEL_SORTER, null, Constant.SOURCE_FILE);
-        EmitUtils.null_constructor(this);
-        EmitUtils.factory_method(this, NEW_INSTANCE);
+        beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, className, PARALLEL_SORTER, null, Constant.SOURCE_FILE);
+        EmitUtils.nullConstructor(this);
+        EmitUtils.factoryMethod(this, NEW_INSTANCE);
         generateConstructor(arrays);
         generateSwap(arrays);
-        end_class();
+        endClass();
     }
 
     private String getFieldName(int index) {
@@ -47,7 +47,7 @@ class ParallelSorterEmitter extends ClassEmitter {
     }
 
     private void generateConstructor(Object[] arrays) {
-        CodeEmitter e = begin_method(Constant.ACC_PUBLIC, CSTRUCT_OBJECT_ARRAY, null);
+        CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, CSTRUCT_OBJECT_ARRAY, null);
         e.load_this();
         e.super_invoke_constructor();
         e.load_this();
@@ -68,7 +68,7 @@ class ParallelSorterEmitter extends ClassEmitter {
     }
 
     private void generateSwap(final Object[] arrays) {
-        CodeEmitter e = begin_method(Constant.ACC_PUBLIC, SWAP, null);
+        CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, SWAP);
         for (int i = 0; i < arrays.length; i++) {
             Type type = Type.getType(arrays[i].getClass());
             Type component = TypeUtils.getComponentType(type);

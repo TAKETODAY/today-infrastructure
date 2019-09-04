@@ -65,17 +65,20 @@ class FastClassEmitter extends ClassEmitter {
 
     private static final Type FAST_CLASS = TypeUtils.parseType(FastClass.class);
     private static final Type ILLEGAL_ARGUMENT_EXCEPTION = TypeUtils.parseType("IllegalArgumentException");
-    private static final Type INVOCATION_TARGET_EXCEPTION = TypeUtils.parseType("java.lang.reflect.InvocationTargetException");
+    
+    private static final Type INVOCATION_TARGET_EXCEPTION = //
+            TypeUtils.parseType("java.lang.reflect.InvocationTargetException");
+    
     private static final Type[] INVOCATION_TARGET_EXCEPTION_ARRAY = { INVOCATION_TARGET_EXCEPTION };
 
     public FastClassEmitter(ClassVisitor v, String className, Class type) {
         super(v);
 
         Type base = Type.getType(type);
-        begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, className, FAST_CLASS, null, Constant.SOURCE_FILE);
+        beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, className, FAST_CLASS, null, Constant.SOURCE_FILE);
 
         // constructor
-        CodeEmitter e = begin_method(Constant.ACC_PUBLIC, CSTRUCT_CLASS, null);
+        CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, CSTRUCT_CLASS);
         e.load_this();
         e.load_args();
         e.super_invoke_constructor(CSTRUCT_CLASS);
@@ -96,14 +99,14 @@ class FastClassEmitter extends ClassEmitter {
         emitIndexByClassArray(methods);
 
         // getIndex(Class[])
-        e = begin_method(Constant.ACC_PUBLIC, CONSTRUCTOR_GET_INDEX, null);
+        e = beginMethod(Constant.ACC_PUBLIC, CONSTRUCTOR_GET_INDEX, null);
         e.load_args();
         List info = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
-        EmitUtils.constructor_switch(e, info, new GetIndexCallback(e, info));
+        EmitUtils.constructorSwitch(e, info, new GetIndexCallback(e, info));
         e.end_method();
 
         // invoke(int, Object, Object[])
-        e = begin_method(Constant.ACC_PUBLIC, INVOKE, INVOCATION_TARGET_EXCEPTION_ARRAY);
+        e = beginMethod(Constant.ACC_PUBLIC, INVOKE, INVOCATION_TARGET_EXCEPTION_ARRAY);
         e.load_arg(1);
         e.checkcast(base);
         e.load_arg(0);
@@ -111,7 +114,7 @@ class FastClassEmitter extends ClassEmitter {
         e.end_method();
 
         // newInstance(int, Object[])
-        e = begin_method(Constant.ACC_PUBLIC, NEW_INSTANCE, INVOCATION_TARGET_EXCEPTION_ARRAY);
+        e = beginMethod(Constant.ACC_PUBLIC, NEW_INSTANCE, INVOCATION_TARGET_EXCEPTION_ARRAY);
         e.new_instance(base);
         e.dup();
         e.load_arg(0);
@@ -119,17 +122,17 @@ class FastClassEmitter extends ClassEmitter {
         e.end_method();
 
         // getMaxIndex()
-        e = begin_method(Constant.ACC_PUBLIC, GET_MAX_INDEX, null);
+        e = beginMethod(Constant.ACC_PUBLIC, GET_MAX_INDEX, null);
         e.push(methods.size() - 1);
         e.return_value();
         e.end_method();
 
-        end_class();
+        endClass();
     }
 
     // TODO: support constructor indices ("<init>")
     private void emitIndexBySignature(List methods) {
-        CodeEmitter e = begin_method(Constant.ACC_PUBLIC, SIGNATURE_GET_INDEX, null);
+        CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, SIGNATURE_GET_INDEX);
         List signatures = CollectionUtils.transform(methods, new Transformer() {
             public Object transform(Object obj) {
                 return ReflectUtils.getSignature((Method) obj).toString();
@@ -144,7 +147,7 @@ class FastClassEmitter extends ClassEmitter {
     private static final int TOO_MANY_METHODS = 100; // TODO
 
     private void emitIndexByClassArray(List methods) {
-        CodeEmitter e = begin_method(Constant.ACC_PUBLIC, METHOD_GET_INDEX, null);
+        CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, METHOD_GET_INDEX);
         if (methods.size() > TOO_MANY_METHODS) {
             // hack for big classes
             List signatures = CollectionUtils.transform(methods, new Transformer() {
@@ -160,7 +163,7 @@ class FastClassEmitter extends ClassEmitter {
         else {
             e.load_args();
             List info = CollectionUtils.transform(methods, MethodInfoTransformer.getInstance());
-            EmitUtils.method_switch(e, info, new GetIndexCallback(e, info));
+            EmitUtils.methodSwitch(e, info, new GetIndexCallback(e, info));
         }
         e.end_method();
     }
@@ -178,7 +181,7 @@ class FastClassEmitter extends ClassEmitter {
                 e.return_value();
             }
         };
-        EmitUtils.string_switch(e, (String[]) signatures.toArray(new String[signatures.size()]),
+        EmitUtils.stringSwitch(e, (String[]) signatures.toArray(new String[signatures.size()]),
                 Constant.SWITCH_STYLE_HASH, callback);
     }
 
@@ -209,7 +212,7 @@ class FastClassEmitter extends ClassEmitter {
             }
         });
         block.end();
-        EmitUtils.wrap_throwable(block, INVOCATION_TARGET_EXCEPTION);
+        EmitUtils.wrapThrowable(block, INVOCATION_TARGET_EXCEPTION);
         e.mark(illegalArg);
         e.throw_exception(ILLEGAL_ARGUMENT_EXCEPTION, "Cannot find matching method/constructor");
     }

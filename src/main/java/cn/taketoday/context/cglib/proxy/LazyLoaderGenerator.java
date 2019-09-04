@@ -15,6 +15,10 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import static cn.taketoday.context.asm.Opcodes.ACC_FINAL;
+import static cn.taketoday.context.asm.Opcodes.ACC_PRIVATE;
+import static cn.taketoday.context.asm.Opcodes.ACC_SYNCHRONIZED;
+
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.List;
@@ -67,11 +71,10 @@ class LazyLoaderGenerator implements CallbackGenerator {
         for (final int index : indexes) {
 
             final String delegate = "TODAY$LAZY_LOADER_" + index;
-            
-            ce.declare_field(Constant.ACC_PRIVATE, delegate, Constant.TYPE_OBJECT, null);
 
-            CodeEmitter e = ce.begin_method(Constant.ACC_PRIVATE | Constant.ACC_SYNCHRONIZED | Constant.ACC_FINAL, //
-                    loadMethod(index), null);
+            ce.declare_field(ACC_PRIVATE, delegate, Constant.TYPE_OBJECT, null);
+
+            CodeEmitter e = ce.beginMethod(ACC_PRIVATE | ACC_SYNCHRONIZED | ACC_FINAL, loadMethod(index));
 
             e.load_this();
             e.getfield(delegate);

@@ -116,16 +116,16 @@ abstract public class MulticastDelegate implements Cloneable {
             final MethodInfo method = ReflectUtils.getMethodInfo(ReflectUtils.findInterfaceMethod(iface));
 
             ClassEmitter ce = new ClassEmitter(cv);
-            ce.begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), MULTICAST_DELEGATE,
+            ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), MULTICAST_DELEGATE,
                     new Type[]
                     { Type.getType(iface) }, Constant.SOURCE_FILE);
-            EmitUtils.null_constructor(ce);
+            EmitUtils.nullConstructor(ce);
 
             // generate proxied method
             emitProxy(ce, method);
 
             // newInstance
-            CodeEmitter e = ce.begin_method(Constant.ACC_PUBLIC, NEW_INSTANCE, null);
+            CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, NEW_INSTANCE);
             e.new_instance_this();
             e.dup();
             e.invoke_constructor_this();
@@ -133,7 +133,7 @@ abstract public class MulticastDelegate implements Cloneable {
             e.end_method();
 
             // add
-            e = ce.begin_method(Constant.ACC_PUBLIC, ADD_DELEGATE, null);
+            e = ce.beginMethod(Constant.ACC_PUBLIC, ADD_DELEGATE);
             e.load_this();
             e.load_arg(0);
             e.checkcast(Type.getType(iface));
@@ -141,7 +141,7 @@ abstract public class MulticastDelegate implements Cloneable {
             e.return_value();
             e.end_method();
 
-            ce.end_class();
+            ce.endClass();
         }
 
         private void emitProxy(ClassEmitter ce, final MethodInfo method) {
@@ -149,7 +149,7 @@ abstract public class MulticastDelegate implements Cloneable {
             if ((method.getModifiers() & Constant.ACC_VARARGS) == Constant.ACC_VARARGS) {
                 modifiers |= Constant.ACC_VARARGS;
             }
-            final CodeEmitter e = EmitUtils.begin_method(ce, method, modifiers);
+            final CodeEmitter e = EmitUtils.beginMethod(ce, method, modifiers);
             Type returnType = method.getSignature().getReturnType();
             final boolean returns = returnType != Type.VOID_TYPE;
             Local result = null;
@@ -161,7 +161,7 @@ abstract public class MulticastDelegate implements Cloneable {
             e.load_this();
             e.super_getfield("targets", Constant.TYPE_OBJECT_ARRAY);
             final Local result2 = result;
-            EmitUtils.process_array(e, Constant.TYPE_OBJECT_ARRAY, new ProcessArrayCallback() {
+            EmitUtils.processArray(e, Constant.TYPE_OBJECT_ARRAY, new ProcessArrayCallback() {
                 public void processElement(Type type) {
                     e.checkcast(Type.getType(iface));
                     e.load_args();

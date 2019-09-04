@@ -60,7 +60,7 @@ class InvocationHandlerGenerator implements CallbackGenerator {
             e.unbox(method.getSignature().getReturnType());
             e.return_value();
             handler.end();
-            EmitUtils.wrap_undeclared_throwable(e, handler, method.getExceptionTypes(), UNDECLARED_THROWABLE_EXCEPTION);
+            EmitUtils.wrapUndeclaredThrowable(e, handler, method.getExceptionTypes(), UNDECLARED_THROWABLE_EXCEPTION);
             e.end_method();
         }
     }
@@ -70,7 +70,7 @@ class InvocationHandlerGenerator implements CallbackGenerator {
 
         for (final MethodInfo method : methods) {
 
-            EmitUtils.load_method(e, method);
+            EmitUtils.loadMethod(e, method);
             e.putfield(context.getImplSignature(method).getName());
         }
     }

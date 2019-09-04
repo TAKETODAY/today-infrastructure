@@ -61,12 +61,13 @@ public class CodeEmitter extends LocalVariablesSorter {
     private State state;
 
     private static class State extends MethodInfo {
-        ClassInfo classInfo;
-        int access;
-        Signature sig;
-        Type[] argumentTypes;
-        int localOffset;
-        Type[] exceptionTypes;
+
+        private ClassInfo classInfo;
+        private int access;
+        private Signature sig;
+        private Type[] argumentTypes;
+        private int localOffset;
+        private Type[] exceptionTypes;
 
         State(ClassInfo classInfo, int access, Signature sig, Type[] exceptionTypes) {
             this.classInfo = classInfo;

@@ -33,6 +33,9 @@ import cn.taketoday.context.utils.ClassUtils;
  * caching generated classes for performance, it provides hooks for customizing
  * the <code>ClassLoader</code>, name of the generated class, and
  * transformations applied before generation.
+ * 
+ * @author TODAY <br>
+ *         2019-09-04 20:12
  */
 @SuppressWarnings("all")
 public abstract class AbstractClassGenerator<T> implements ClassGenerator {

@@ -229,11 +229,11 @@ abstract public class MethodDelegate {
 
             ClassEmitter ce = new ClassEmitter(v);
             CodeEmitter e;
-            ce.begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), METHOD_DELEGATE,
+            ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), METHOD_DELEGATE,
                     new Type[]
                     { Type.getType(iface) }, Constant.SOURCE_FILE);
             ce.declare_field(Constant.PRIVATE_FINAL_STATIC, "eqMethod", Constant.TYPE_STRING, null);
-            EmitUtils.null_constructor(ce);
+            EmitUtils.nullConstructor(ce);
 
             // generate proxied method
             MethodInfo proxied = ReflectUtils.getMethodInfo(iface.getDeclaredMethods()[0]);
@@ -241,7 +241,7 @@ abstract public class MethodDelegate {
             if ((proxied.getModifiers() & Constant.ACC_VARARGS) == Constant.ACC_VARARGS) {
                 modifiers |= Constant.ACC_VARARGS;
             }
-            e = EmitUtils.begin_method(ce, proxied, modifiers);
+            e = EmitUtils.beginMethod(ce, proxied, modifiers);
             e.load_this();
             e.super_getfield("target", Constant.TYPE_OBJECT);
             e.checkcast(methodInfo.getClassInfo().getType());
@@ -251,7 +251,7 @@ abstract public class MethodDelegate {
             e.end_method();
 
             // newInstance
-            e = ce.begin_method(Constant.ACC_PUBLIC, NEW_INSTANCE, null);
+            e = ce.beginMethod(Constant.ACC_PUBLIC, NEW_INSTANCE);
             e.new_instance_this();
             e.dup();
             e.dup2();
@@ -270,7 +270,7 @@ abstract public class MethodDelegate {
             e.return_value();
             e.end_method();
 
-            ce.end_class();
+            ce.endClass();
         }
     }
 }

@@ -15,11 +15,16 @@
  */
 package cn.taketoday.context.cglib.reflect;
 
+import static cn.taketoday.context.Constant.SOURCE_FILE;
+import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
+import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
+import static cn.taketoday.context.asm.Type.array;
+import static cn.taketoday.context.asm.Type.getType;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
@@ -103,12 +108,11 @@ abstract public class ConstructorDelegate {
             }
 
             ClassEmitter ce = new ClassEmitter(v);
-            ce.begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), CONSTRUCTOR_DELEGATE,
-                    new Type[]
-                    { Type.getType(iface) }, Constant.SOURCE_FILE);
-            Type declaring = Type.getType(constructor.getDeclaringClass());
-            EmitUtils.null_constructor(ce);
-            CodeEmitter e = ce.begin_method(Constant.ACC_PUBLIC, ReflectUtils.getSignature(newInstance),
+            ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(), CONSTRUCTOR_DELEGATE, array(getType(iface)), SOURCE_FILE);
+
+            Type declaring = getType(constructor.getDeclaringClass());
+            EmitUtils.nullConstructor(ce);
+            CodeEmitter e = ce.beginMethod(ACC_PUBLIC, ReflectUtils.getSignature(newInstance),
                     ReflectUtils.getExceptionTypes(newInstance));
             e.new_instance(declaring);
             e.dup();
@@ -116,7 +120,7 @@ abstract public class ConstructorDelegate {
             e.invoke_constructor(declaring, ReflectUtils.getSignature(constructor));
             e.return_value();
             e.end_method();
-            ce.end_class();
+            ce.endClass();
         }
 
         protected Object firstInstance(Class type) {

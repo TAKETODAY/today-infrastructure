@@ -15,6 +15,9 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import static cn.taketoday.context.Constant.EMPTY_STRING_ARRAY;
+import static cn.taketoday.context.Constant.PRIVATE_FINAL_STATIC;
+import static cn.taketoday.context.Constant.SWITCH_STYLE_HASH;
 import static cn.taketoday.context.asm.Type.array;
 
 import java.lang.reflect.Method;
@@ -109,12 +112,12 @@ class MethodInterceptorGenerator implements CallbackGenerator {
             final String methodProxyField = getMethodProxyField(impl);
 
             sigMap.put(sig.toString(), methodProxyField);
-            ce.declare_field(Constant.PRIVATE_FINAL_STATIC, methodField, METHOD, null);
-            ce.declare_field(Constant.PRIVATE_FINAL_STATIC, methodProxyField, METHOD_PROXY, null);
-            ce.declare_field(Constant.PRIVATE_FINAL_STATIC, EMPTY_ARGS_NAME, Constant.TYPE_OBJECT_ARRAY, null);
+            ce.declare_field(PRIVATE_FINAL_STATIC, methodField, METHOD, null);
+            ce.declare_field(PRIVATE_FINAL_STATIC, methodProxyField, METHOD_PROXY, null);
+            ce.declare_field(PRIVATE_FINAL_STATIC, EMPTY_ARGS_NAME, Constant.TYPE_OBJECT_ARRAY, null);
 
             // access method
-            CodeEmitter e = ce.begin_method(Constant.ACC_FINAL, impl, method.getExceptionTypes());
+            CodeEmitter e = ce.beginMethod(Constant.ACC_FINAL, impl, method.getExceptionTypes());
             superHelper(e, method, context);
             e.return_value();
             e.end_method();
@@ -180,7 +183,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
 
         Local thisclass = e.make_local();
         Local declaringclass = e.make_local();
-        EmitUtils.load_class_this(e);
+        EmitUtils.loadClassThis(e);
         e.store_local(thisclass);
 
         final Map<ClassInfo, List<MethodInfo>> methodsByClass = CollectionUtils.bucket(methods, METHOD_TO_CLASS);
@@ -205,7 +208,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
                 e.aastore();
             }
 
-            EmitUtils.load_class(e, classInfo.getType());
+            EmitUtils.loadClass(e, classInfo.getType());
             e.dup();
             e.store_local(declaringclass);
             e.invoke_virtual(Constant.TYPE_CLASS, GET_DECLARED_METHODS);
@@ -234,7 +237,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
 
     public void generateFindProxy(final ClassEmitter ce, final Map<String, String> sigMap) {
 
-        final CodeEmitter e = ce.begin_method(Constant.ACC_PUBLIC | Constant.ACC_STATIC, FIND_PROXY, null);
+        final CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC | Constant.ACC_STATIC, FIND_PROXY);
         e.load_arg(0);
         e.invoke_virtual(Constant.TYPE_OBJECT, TO_STRING);
 
@@ -253,7 +256,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
             }
         };
 
-        EmitUtils.string_switch(e, sigMap.keySet().toArray(Constant.EMPTY_STRING_ARRAY), Constant.SWITCH_STYLE_HASH, callback);
+        EmitUtils.stringSwitch(e, sigMap.keySet().toArray(EMPTY_STRING_ARRAY), SWITCH_STYLE_HASH, callback);
         e.end_method();
     }
 }

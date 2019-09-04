@@ -250,7 +250,7 @@ abstract public class KeyFactory {
             }
 
             Type[] parameterTypes = TypeUtils.getTypes(newInstance.getParameterTypes());
-            ce.begin_class(Constant.JAVA_VERSION, //
+            ce.beginClass(Constant.JAVA_VERSION, //
                     Constant.ACC_PUBLIC, //
                     getClassName(), //
                     KEY_FACTORY, //
@@ -258,11 +258,11 @@ abstract public class KeyFactory {
                     Constant.SOURCE_FILE//
             );
 
-            EmitUtils.null_constructor(ce);
-            EmitUtils.factory_method(ce, ReflectUtils.getSignature(newInstance));
+            EmitUtils.nullConstructor(ce);
+            EmitUtils.factoryMethod(ce, ReflectUtils.getSignature(newInstance));
 
             int seed = 0;
-            CodeEmitter e = ce.begin_method(Constant.ACC_PUBLIC, TypeUtils.parseConstructor(parameterTypes), null);
+            CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, TypeUtils.parseConstructor(parameterTypes));
             e.load_this();
             e.super_invoke_constructor();
             e.load_this();
@@ -286,20 +286,20 @@ abstract public class KeyFactory {
             e.end_method();
 
             // hash code
-            e = ce.begin_method(Constant.ACC_PUBLIC, HASH_CODE, null);
+            e = ce.beginMethod(Constant.ACC_PUBLIC, HASH_CODE, null);
             int hc = (constant != 0) ? constant : PRIMES[(int) (Math.abs(seed) % PRIMES.length)];
             int hm = (multiplier != 0) ? multiplier : PRIMES[(int) (Math.abs(seed * 13) % PRIMES.length)];
             e.push(hc);
             for (int i = 0; i < parameterTypes.length; i++) {
                 e.load_this();
                 e.getfield(getFieldName(i));
-                EmitUtils.hash_code(e, parameterTypes[i], hm, customizers);
+                EmitUtils.hashCode(e, parameterTypes[i], hm, customizers);
             }
             e.return_value();
             e.end_method();
 
             // equals
-            e = ce.begin_method(Constant.ACC_PUBLIC, EQUALS, null);
+            e = ce.beginMethod(Constant.ACC_PUBLIC, EQUALS, null);
             Label fail = e.make_label();
             e.load_arg(0);
             e.instance_of_this();
@@ -310,7 +310,7 @@ abstract public class KeyFactory {
                 e.load_arg(0);
                 e.checkcast_this();
                 e.getfield(getFieldName(i));
-                EmitUtils.not_equals(e, parameterTypes[i], fail, customizers);
+                EmitUtils.notEquals(e, parameterTypes[i], fail, customizers);
             }
             e.push(1);
             e.return_value();
@@ -320,7 +320,7 @@ abstract public class KeyFactory {
             e.end_method();
 
             // toString
-            e = ce.begin_method(Constant.ACC_PUBLIC, TO_STRING, null);
+            e = ce.beginMethod(Constant.ACC_PUBLIC, TO_STRING, null);
             e.new_instance(Constant.TYPE_STRING_BUFFER);
             e.dup();
             e.invoke_constructor(Constant.TYPE_STRING_BUFFER);
@@ -331,13 +331,13 @@ abstract public class KeyFactory {
                 }
                 e.load_this();
                 e.getfield(getFieldName(i));
-                EmitUtils.append_string(e, parameterTypes[i], EmitUtils.DEFAULT_DELIMITERS, customizers);
+                EmitUtils.appendString(e, parameterTypes[i], EmitUtils.DEFAULT_DELIMITERS, customizers);
             }
             e.invoke_virtual(Constant.TYPE_STRING_BUFFER, TO_STRING);
             e.return_value();
             e.end_method();
 
-            ce.end_class();
+            ce.endClass();
         }
 
         private String getFieldName(int arg) {

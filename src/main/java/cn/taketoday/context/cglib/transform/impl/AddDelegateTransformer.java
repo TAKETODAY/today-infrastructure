@@ -52,13 +52,14 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
         }
     }
 
-    public void begin_class(int version, int access, String className, Type superType, Type[] interfaces,
+    @Override
+    public void beginClass(int version, int access, String className, Type superType, Type[] interfaces,
             String sourceFile) {
 
         if (!Modifier.isInterface(access)) {
 
             Type[] all = TypeUtils.add(interfaces, TypeUtils.getTypes(delegateIf));
-            super.begin_class(version, access, className, superType, all, sourceFile);
+            super.beginClass(version, access, className, superType, all, sourceFile);
 
             declare_field(Constant.ACC_PRIVATE | Constant.ACC_TRANSIENT, DELEGATE, delegateType, null);
             for (int i = 0; i < delegateIf.length; i++) {
@@ -71,12 +72,14 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
             }
         }
         else {
-            super.begin_class(version, access, className, superType, interfaces, sourceFile);
+            super.beginClass(version, access, className, superType, interfaces, sourceFile);
         }
     }
 
-    public CodeEmitter begin_method(int access, Signature sig, Type[] exceptions) {
-        final CodeEmitter e = super.begin_method(access, sig, exceptions);
+    @Override
+    public CodeEmitter beginMethod(int access, Signature sig, Type... exceptions) {
+
+        final CodeEmitter e = super.beginMethod(access, sig, exceptions);
         if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)) {
             return new CodeEmitter(e) {
                 private boolean transformInit = true;
@@ -112,7 +115,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
 
         final Signature sig = ReflectUtils.getSignature(m);
         Type[] exceptions = TypeUtils.getTypes(m.getExceptionTypes());
-        CodeEmitter e = super.begin_method(Constant.ACC_PUBLIC, sig, exceptions);
+        CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, sig, exceptions);
         e.load_this();
         e.getfield(DELEGATE);
         e.load_args();

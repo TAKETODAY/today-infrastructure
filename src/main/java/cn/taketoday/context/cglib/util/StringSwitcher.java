@@ -15,6 +15,10 @@
  */
 package cn.taketoday.context.cglib.util;
 
+import static cn.taketoday.context.Constant.SOURCE_FILE;
+import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
+import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -133,6 +137,7 @@ abstract public class StringSwitcher {
             this.fixedInput = fixedInput;
         }
 
+        @Override
         protected ClassLoader getDefaultClassLoader() {
             return getClass().getClassLoader();
         }
@@ -146,34 +151,39 @@ abstract public class StringSwitcher {
             return (StringSwitcher) super.create(key);
         }
 
+        @Override
         public void generateClass(ClassVisitor v) throws Exception {
-            ClassEmitter ce = new ClassEmitter(v);
-            ce.begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), STRING_SWITCHER, null,
-                    Constant.SOURCE_FILE);
-            EmitUtils.null_constructor(ce);
-            final CodeEmitter e = ce.begin_method(Constant.ACC_PUBLIC, INT_VALUE, null);
+            final ClassEmitter ce = new ClassEmitter(v);
+            ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(), STRING_SWITCHER, null, SOURCE_FILE);
+            EmitUtils.nullConstructor(ce);
+            final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, INT_VALUE);
             e.load_arg(0);
             final List stringList = Arrays.asList(strings);
             int style = fixedInput ? Constant.SWITCH_STYLE_HASHONLY : Constant.SWITCH_STYLE_HASH;
-            EmitUtils.string_switch(e, strings, style, new ObjectSwitchCallback() {
+            EmitUtils.stringSwitch(e, strings, style, new ObjectSwitchCallback() {
+                
+                @Override
                 public void processCase(Object key, Label end) {
                     e.push(ints[stringList.indexOf(key)]);
                     e.return_value();
                 }
 
+                @Override
                 public void processDefault() {
                     e.push(-1);
                     e.return_value();
                 }
             });
             e.end_method();
-            ce.end_class();
+            ce.endClass();
         }
 
+        @Override
         protected Object firstInstance(Class type) {
             return (StringSwitcher) ReflectUtils.newInstance(type);
         }
 
+        @Override
         protected Object nextInstance(Object instance) {
             return instance;
         }

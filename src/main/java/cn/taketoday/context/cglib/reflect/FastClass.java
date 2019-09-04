@@ -46,21 +46,18 @@ abstract public class FastClass {
     }
 
     public static FastClass create(ClassLoader loader, Class type) {
-        Generator gen = new Generator();
-        gen.setType(type);
+        Generator gen = new Generator(type);
         gen.setClassLoader(loader);
         return gen.create();
     }
 
     public static class Generator extends AbstractClassGenerator {
         private static final Source SOURCE = new Source(FastClass.class.getSimpleName());
-        private Class type;
 
-        public Generator() {
+        private final Class<?> type;
+
+        public Generator(Class<?> type) {
             super(SOURCE);
-        }
-
-        public void setType(Class type) {
             this.type = type;
         }
 

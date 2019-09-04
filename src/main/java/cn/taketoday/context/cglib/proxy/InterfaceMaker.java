@@ -116,7 +116,7 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
     @Override
     public void generateClass(ClassVisitor v) throws Exception {
         ClassEmitter ce = new ClassEmitter(v);
-        ce.begin_class(//
+        ce.beginClass(//
                 Constant.JAVA_VERSION, //
                 Constant.ACC_PUBLIC | Constant.ACC_INTERFACE | Constant.ACC_ABSTRACT, //
                 getClassName(), //
@@ -127,10 +127,10 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
 
         final int access = Constant.ACC_PUBLIC | Constant.ACC_ABSTRACT;
         for (final Map.Entry<Signature, Type[]> entry : signatures.entrySet()) {
-            ce.begin_method(access, entry.getKey(), entry.getValue()).end_method();
+            ce.beginMethod(access, entry.getKey(), entry.getValue()).end_method();
         }
 
-        ce.end_class();
+        ce.endClass();
     }
 
 }

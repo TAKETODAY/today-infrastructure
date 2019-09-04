@@ -66,7 +66,7 @@ public class ClassEmitter extends ClassTransformer {
         return classInfo;
     }
 
-    public void begin_class(int version, final int access, String className, final Type superType,
+    public void beginClass(int version, final int access, String className, final Type superType,
             final Type[] interfaces, String source) //
     {
         final Type classType = Type.getType('L' + className.replace('.', '/') + ';');
@@ -101,7 +101,7 @@ public class ClassEmitter extends ClassTransformer {
         }
         if (staticHook == null) {
             staticHookSig = new Signature("TODAY$STATICHOOK" + getNextHook(), "()V");
-            staticHook = begin_method(Constant.ACC_STATIC, staticHookSig, null);
+            staticHook = beginMethod(Constant.ACC_STATIC, staticHookSig);
             if (staticInit != null) {
                 staticInit.invoke_static_this(staticHookSig);
             }
@@ -124,7 +124,7 @@ public class ClassEmitter extends ClassTransformer {
         return classInfo.getSuperType();
     }
 
-    public void end_class() {
+    public void endClass() {
         if (staticHook != null && staticInit == null) {
             // force creation of static init
             begin_static();
@@ -140,12 +140,12 @@ public class ClassEmitter extends ClassTransformer {
         cv.visitEnd();
     }
 
-    public CodeEmitter begin_method(int access, Signature sig, Type[] exceptions) {
+    public CodeEmitter beginMethod(int access, Signature sig, Type... exceptions) {
 
         if (classInfo == null)
             throw new IllegalStateException("classInfo is null! " + this);
 
-        MethodVisitor v = cv.visitMethod(//
+        final MethodVisitor visitor = cv.visitMethod(//
                 access, //
                 sig.getName(), //
                 sig.getDescriptor(), //
@@ -154,13 +154,16 @@ public class ClassEmitter extends ClassTransformer {
         );
 
         if (sig.equals(Constant.SIG_STATIC) && !Modifier.isInterface(getAccess())) {
-            rawStaticInit = v;
-//			MethodVisitor wrapped = new MethodVisitor(Constant.ASM_API, v) {
-            MethodVisitor wrapped = new MethodVisitor(v) {
+
+            rawStaticInit = visitor;
+            final MethodVisitor wrapped = new MethodVisitor(visitor) {
+
+                @Override
                 public void visitMaxs(int maxStack, int maxLocals) {
                     // ignore
                 }
 
+                @Override
                 public void visitInsn(int insn) {
                     if (insn != Constant.RETURN) {
                         super.visitInsn(insn);
@@ -178,19 +181,21 @@ public class ClassEmitter extends ClassTransformer {
             return staticInit;
         }
         else if (sig.equals(staticHookSig)) {
-            return new CodeEmitter(this, v, access, sig, exceptions) {
+
+            return new CodeEmitter(this, visitor, access, sig, exceptions) {
+           
                 public boolean isStaticHook() {
                     return true;
                 }
             };
         }
         else {
-            return new CodeEmitter(this, v, access, sig, exceptions);
+            return new CodeEmitter(this, visitor, access, sig, exceptions);
         }
     }
 
     public CodeEmitter begin_static() {
-        return begin_method(Constant.ACC_STATIC, Constant.SIG_STATIC, null);
+        return beginMethod(Constant.ACC_STATIC, Constant.SIG_STATIC);
     }
 
     public void declare_field(int access, String name, Type type, Object value) {
@@ -255,12 +260,12 @@ public class ClassEmitter extends ClassTransformer {
     }
 
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        begin_class(version, access, name.replace('/', '.'), TypeUtils.fromInternalName(superName),
+        beginClass(version, access, name.replace('/', '.'), TypeUtils.fromInternalName(superName),
                 TypeUtils.fromInternalNames(interfaces), null); // TODO
     }
 
     public void visitEnd() {
-        end_class();
+        endClass();
     }
 
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
@@ -269,6 +274,6 @@ public class ClassEmitter extends ClassTransformer {
     }
 
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        return begin_method(access, new Signature(name, desc), TypeUtils.fromInternalNames(exceptions));
+        return beginMethod(access, new Signature(name, desc), TypeUtils.fromInternalNames(exceptions));
     }
 }

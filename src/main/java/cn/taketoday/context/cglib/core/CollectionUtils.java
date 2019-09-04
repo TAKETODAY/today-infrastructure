@@ -74,10 +74,10 @@ public abstract class CollectionUtils {
         return result;
     }
 
-    public static Map<Object, Integer> getIndexMap(List<Object> list) {
-        final Map<Object, Integer> indexes = new HashMap<>();
+    public static <T> Map<T, Integer> getIndexMap(List<T> list) {
+        final Map<T, Integer> indexes = new HashMap<>();
         int index = 0;
-        for (final Object obj : list) {
+        for (final T obj : list) {
             indexes.put(obj, Integer.valueOf(index++));
         }
         return indexes;

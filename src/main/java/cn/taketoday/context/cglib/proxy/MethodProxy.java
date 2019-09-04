@@ -36,12 +36,17 @@ import cn.taketoday.context.cglib.reflect.FastClass;
 @SuppressWarnings("all")
 public class MethodProxy {
 
-    private Signature sig1;
-    private Signature sig2;
+    private final Signature sig1;
+    private final Signature sig2;
     private CreateInfo createInfo;
 
     private final Object initLock = new Object();
     private volatile FastClassInfo fastClassInfo;
+
+    private MethodProxy(Signature sig1, Signature sig2) {
+        this.sig1 = sig1;
+        this.sig2 = sig2;
+    }
 
     /**
      * For internal use by {@link Enhancer} only; see the
@@ -49,9 +54,7 @@ public class MethodProxy {
      * functionality.
      */
     public static MethodProxy create(Class c1, Class c2, String desc, String name1, String name2) {
-        MethodProxy proxy = new MethodProxy();
-        proxy.sig1 = new Signature(name1, desc);
-        proxy.sig2 = new Signature(name2, desc);
+        MethodProxy proxy = new MethodProxy(new Signature(name1, desc), new Signature(name2, desc));
         proxy.createInfo = new CreateInfo(c1, c2);
         return proxy;
     }
@@ -68,14 +71,15 @@ public class MethodProxy {
         if (fastClassInfo == null) {
             synchronized (initLock) {
                 if (fastClassInfo == null) {
-                    CreateInfo ci = createInfo;
+                    final CreateInfo ci = createInfo;
 
-                    FastClassInfo fci = new FastClassInfo();
-                    fci.f1 = helper(ci, ci.c1);
-                    fci.f2 = helper(ci, ci.c2);
-                    fci.i1 = fci.f1.getIndex(sig1);
-                    fci.i2 = fci.f2.getIndex(sig2);
-                    fastClassInfo = fci;
+                    final FastClass f1 = helper(ci, ci.c1);
+                    final FastClass f2 = helper(ci, ci.c2);
+
+                    final int i1 = f1.getIndex(sig1);
+                    final int i2 = f2.getIndex(sig2);
+
+                    fastClassInfo = new FastClassInfo(f1, f2, i1, 2);;
                     createInfo = null;
                 }
             }
@@ -83,42 +87,56 @@ public class MethodProxy {
     }
 
     private static class FastClassInfo {
-        FastClass f1;
-        FastClass f2;
-        int i1;
-        int i2;
+
+        private final int i1;
+        private final int i2;
+        private final FastClass f1;
+        private final FastClass f2;
+
+        public FastClassInfo(FastClass f1, FastClass f2, int i1, int i2) {
+            this.f1 = f1;
+            this.f2 = f2;
+            this.i1 = i1;
+            this.i2 = i2;
+        }
     }
 
     private static class CreateInfo {
-        Class c1;
-        Class c2;
-        NamingPolicy namingPolicy;
-        GeneratorStrategy strategy;
-        boolean attemptLoad;
+
+        private final Class c1;
+        private final Class c2;
+
+        private final boolean attemptLoad;
+        private final NamingPolicy namingPolicy;
+        private final GeneratorStrategy strategy;
 
         public CreateInfo(Class c1, Class c2) {
             this.c1 = c1;
             this.c2 = c2;
+
             AbstractClassGenerator fromEnhancer = AbstractClassGenerator.getCurrent();
             if (fromEnhancer != null) {
-                namingPolicy = fromEnhancer.getNamingPolicy();
-                strategy = fromEnhancer.getStrategy();
-                attemptLoad = fromEnhancer.getAttemptLoad();
+                this.namingPolicy = fromEnhancer.getNamingPolicy();
+                this.strategy = fromEnhancer.getStrategy();
+                this.attemptLoad = fromEnhancer.getAttemptLoad();
+            }
+            else {
+                this.strategy = null;
+                this.namingPolicy = null;
+                this.attemptLoad = false;
             }
         }
     }
 
     private static FastClass helper(CreateInfo ci, Class type) {
-        FastClass.Generator g = new FastClass.Generator();
-        g.setType(type);
+
+        FastClass.Generator g = new FastClass.Generator(type);
+
         g.setClassLoader(ci.c2.getClassLoader());
         g.setNamingPolicy(ci.namingPolicy);
         g.setStrategy(ci.strategy);
         g.setAttemptLoad(ci.attemptLoad);
         return g.create();
-    }
-
-    private MethodProxy() {
     }
 
     /**
@@ -240,7 +258,7 @@ public class MethodProxy {
      *             through without wrapping in an
      *             <code>InvocationTargetException</code>
      */
-    public Object invokeSuper(Object obj, Object[] args) throws Throwable {
+    public Object invokeSuper(final Object obj, final Object[] args) throws Throwable {
         try {
             init();
             FastClassInfo fci = fastClassInfo;

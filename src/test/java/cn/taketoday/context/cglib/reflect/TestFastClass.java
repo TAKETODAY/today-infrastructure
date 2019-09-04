@@ -1066,8 +1066,7 @@ public class TestFastClass extends cn.taketoday.context.cglib.CodeGenTestCase {
     }
 
     public void testReallyBigClass() throws IOException {
-        FastClass.Generator gen = new FastClass.Generator();
-        gen.setType(ReallyBigClass.class);
+        FastClass.Generator gen = new FastClass.Generator(ReallyBigClass.class);
         FastClass fc = gen.create();
     }
 

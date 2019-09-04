@@ -15,6 +15,12 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import static cn.taketoday.context.Constant.SOURCE_FILE;
+import static cn.taketoday.context.Constant.TYPE_OBJECT_ARRAY;
+import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
+import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
+import static cn.taketoday.context.asm.Type.array;
+
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,22 +43,23 @@ import cn.taketoday.context.cglib.core.TypeUtils;
  */
 @SuppressWarnings("all")
 class MixinEmitter extends ClassEmitter {
+
     private static final String FIELD_NAME = "TODAY$DELEGATES";
-    private static final Signature CSTRUCT_OBJECT_ARRAY = TypeUtils.parseConstructor("Object[]");
     private static final Type MIXIN = TypeUtils.parseType(Mixin.class);
-    private static final Signature NEW_INSTANCE = new Signature("newInstance", MIXIN, new Type[] { Constant.TYPE_OBJECT_ARRAY });
+    private static final Signature CSTRUCT_OBJECT_ARRAY = TypeUtils.parseConstructor("Object[]");
+
+    private static final Signature NEW_INSTANCE = new Signature("newInstance", MIXIN, array(TYPE_OBJECT_ARRAY));
 
     public MixinEmitter(ClassVisitor v, String className, Class[] classes, int[] route) {
         super(v);
 
-        begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, className, MIXIN, TypeUtils.getTypes(getInterfaces(classes)),
-                Constant.SOURCE_FILE);
-        EmitUtils.null_constructor(this);
-        EmitUtils.factory_method(this, NEW_INSTANCE);
+        beginClass(JAVA_VERSION, ACC_PUBLIC, className, MIXIN, TypeUtils.getTypes(getInterfaces(classes)), SOURCE_FILE);
+        EmitUtils.nullConstructor(this);
+        EmitUtils.factoryMethod(this, NEW_INSTANCE);
 
-        declare_field(Constant.ACC_PRIVATE, FIELD_NAME, Constant.TYPE_OBJECT_ARRAY, null);
+        declare_field(Constant.ACC_PRIVATE, FIELD_NAME, TYPE_OBJECT_ARRAY, null);
 
-        CodeEmitter e = begin_method(Constant.ACC_PUBLIC, CSTRUCT_OBJECT_ARRAY, null);
+        CodeEmitter e = beginMethod(ACC_PUBLIC, CSTRUCT_OBJECT_ARRAY);
         e.load_this();
         e.super_invoke_constructor();
         e.load_this();
@@ -67,11 +74,11 @@ class MixinEmitter extends ClassEmitter {
             for (int j = 0; j < methods.length; j++) {
                 if (unique.add(MethodWrapper.create(methods[j]))) {
                     MethodInfo method = ReflectUtils.getMethodInfo(methods[j]);
-                    int modifiers = Constant.ACC_PUBLIC;
+                    int modifiers = ACC_PUBLIC;
                     if ((method.getModifiers() & Constant.ACC_VARARGS) == Constant.ACC_VARARGS) {
                         modifiers |= Constant.ACC_VARARGS;
                     }
-                    e = EmitUtils.begin_method(this, method, modifiers);
+                    e = EmitUtils.beginMethod(this, method, modifiers);
                     e.load_this();
                     e.getfield(FIELD_NAME);
                     e.aaload((route != null) ? route[i] : i);
@@ -84,7 +91,7 @@ class MixinEmitter extends ClassEmitter {
             }
         }
 
-        end_class();
+        endClass();
     }
 
     protected Class[] getInterfaces(Class[] classes) {

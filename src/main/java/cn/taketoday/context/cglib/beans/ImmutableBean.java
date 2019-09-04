@@ -79,11 +79,11 @@ public abstract class ImmutableBean {
         public void generateClass(ClassVisitor v) {
             Type targetType = Type.getType(target);
             ClassEmitter ce = new ClassEmitter(v);
-            ce.begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), targetType, null, Constant.SOURCE_FILE);
+            ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), targetType, null, Constant.SOURCE_FILE);
 
             ce.declare_field(Constant.ACC_FINAL | Constant.ACC_PRIVATE, FIELD_NAME, targetType, null);
 
-            CodeEmitter e = ce.begin_method(Constant.ACC_PUBLIC, CSTRUCT_OBJECT, null);
+            CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, CSTRUCT_OBJECT);
             e.load_this();
             e.super_invoke_constructor();
             e.load_this();
@@ -99,7 +99,7 @@ public abstract class ImmutableBean {
 
             for (int i = 0; i < getters.length; i++) {
                 MethodInfo getter = ReflectUtils.getMethodInfo(getters[i]);
-                e = EmitUtils.begin_method(ce, getter, Constant.ACC_PUBLIC);
+                e = EmitUtils.beginMethod(ce, getter, Constant.ACC_PUBLIC);
                 e.load_this();
                 e.getfield(FIELD_NAME);
                 e.invoke(getter);
@@ -109,12 +109,12 @@ public abstract class ImmutableBean {
 
             for (int i = 0; i < setters.length; i++) {
                 MethodInfo setter = ReflectUtils.getMethodInfo(setters[i]);
-                e = EmitUtils.begin_method(ce, setter, Constant.ACC_PUBLIC);
+                e = EmitUtils.beginMethod(ce, setter, Constant.ACC_PUBLIC);
                 e.throw_exception(ILLEGAL_STATE_EXCEPTION, "Bean is immutable");
                 e.end_method();
             }
 
-            ce.end_class();
+            ce.endClass();
         }
 
         protected Object firstInstance(Class type) {

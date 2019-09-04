@@ -15,13 +15,17 @@
  */
 package cn.taketoday.context.cglib.beans;
 
+import static cn.taketoday.context.Constant.SOURCE_FILE;
+import static cn.taketoday.context.Constant.TYPE_OBJECT;
+import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
+import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
+
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
@@ -46,7 +50,10 @@ abstract public class BeanCopier {
     private static final Type BEAN_COPIER = TypeUtils.parseType(BeanCopier.class);
 
     private static final BeanCopierKey KEY_FACTORY = (BeanCopierKey) KeyFactory.create(BeanCopierKey.class);
-    private static final Signature COPY = new Signature("copy", Type.VOID_TYPE, new Type[] { Constant.TYPE_OBJECT, Constant.TYPE_OBJECT, CONVERTER });
+
+    private static final Signature COPY = new Signature("copy", Type.VOID_TYPE, //
+            Type.array(TYPE_OBJECT, TYPE_OBJECT, CONVERTER));
+
     private static final Signature CONVERT = TypeUtils.parseSignature("Object convert(Object, Class, Object)");
 
     interface BeanCopierKey {
@@ -54,65 +61,59 @@ abstract public class BeanCopier {
     }
 
     public static BeanCopier create(Class source, Class target, boolean useConverter) {
-        Generator gen = new Generator();
-        gen.setSource(source);
-        gen.setTarget(target);
-        gen.setUseConverter(useConverter);
-        return gen.create();
+        return new Generator(source, target, useConverter).create();
     }
 
     abstract public void copy(Object from, Object to, Converter converter);
 
     public static class Generator extends AbstractClassGenerator {
+
         private static final Source SOURCE = new Source(BeanCopier.class.getSimpleName());
-        private Class source;
-        private Class target;
-        private boolean useConverter;
+        private final Class source;
+        private final Class target;
+        private final boolean useConverter;
 
-        public Generator() {
+        public Generator(Class source, Class target, boolean useConverter) {
+
             super(SOURCE);
-        }
 
-        public void setSource(Class source) {
             if (!Modifier.isPublic(source.getModifiers())) {
                 setNamePrefix(source.getName());
             }
-            this.source = source;
-        }
 
-        public void setTarget(Class target) {
             if (!Modifier.isPublic(target.getModifiers())) {
                 setNamePrefix(target.getName());
             }
 
+            this.source = source;
             this.target = target;
-        }
-
-        public void setUseConverter(boolean useConverter) {
             this.useConverter = useConverter;
         }
 
+        @Override
         protected ClassLoader getDefaultClassLoader() {
             return source.getClassLoader();
         }
 
+        @Override
         protected ProtectionDomain getProtectionDomain() {
             return ReflectUtils.getProtectionDomain(source);
         }
 
         public BeanCopier create() {
-            Object key = KEY_FACTORY.newInstance(source.getName(), target.getName(), useConverter);
-            return (BeanCopier) super.create(key);
+            return (BeanCopier) super.create(KEY_FACTORY.newInstance(source.getName(), target.getName(), useConverter));
         }
 
+        @Override
         public void generateClass(ClassVisitor v) {
             Type sourceType = Type.getType(source);
             Type targetType = Type.getType(target);
             ClassEmitter ce = new ClassEmitter(v);
-            ce.begin_class(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), BEAN_COPIER, null, Constant.SOURCE_FILE);
 
-            EmitUtils.null_constructor(ce);
-            CodeEmitter e = ce.begin_method(Constant.ACC_PUBLIC, COPY, null);
+            ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(), BEAN_COPIER, null, SOURCE_FILE);
+
+            EmitUtils.nullConstructor(ce);
+            CodeEmitter e = ce.beginMethod(ACC_PUBLIC, COPY, null);
             PropertyDescriptor[] getters = ReflectUtils.getBeanGetters(source);
             PropertyDescriptor[] setters = ReflectUtils.getBeanSetters(target);
 
@@ -149,7 +150,7 @@ abstract public class BeanCopier {
                         e.load_local(sourceLocal);
                         e.invoke(read);
                         e.box(read.getSignature().getReturnType());
-                        EmitUtils.load_class(e, setterType);
+                        EmitUtils.loadClass(e, setterType);
                         e.push(write.getSignature().getName());
                         e.invoke_interface(CONVERTER, CONVERT);
                         e.unbox_or_zero(setterType);
@@ -164,7 +165,7 @@ abstract public class BeanCopier {
             }
             e.return_value();
             e.end_method();
-            ce.end_class();
+            ce.endClass();
         }
 
         private static boolean compatible(PropertyDescriptor getter, PropertyDescriptor setter) {
@@ -172,10 +173,12 @@ abstract public class BeanCopier {
             return setter.getPropertyType().isAssignableFrom(getter.getPropertyType());
         }
 
+        @Override
         protected Object firstInstance(Class type) {
             return ReflectUtils.newInstance(type);
         }
 
+        @Override
         protected Object nextInstance(Object instance) {
             return instance;
         }
