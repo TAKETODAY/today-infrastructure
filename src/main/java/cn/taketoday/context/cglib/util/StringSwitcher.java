@@ -161,7 +161,7 @@ abstract public class StringSwitcher {
             final List stringList = Arrays.asList(strings);
             int style = fixedInput ? Constant.SWITCH_STYLE_HASHONLY : Constant.SWITCH_STYLE_HASH;
             EmitUtils.stringSwitch(e, strings, style, new ObjectSwitchCallback() {
-                
+
                 @Override
                 public void processCase(Object key, Label end) {
                     e.push(ints[stringList.indexOf(key)]);

@@ -51,6 +51,6 @@ class FixedValueGenerator implements CallbackGenerator {
     }
 
     public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) {
-        
+
     }
 }

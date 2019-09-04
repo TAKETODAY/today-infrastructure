@@ -15,11 +15,15 @@
  */
 package cn.taketoday.context.cglib.beans;
 
+import static cn.taketoday.context.Constant.TYPE_OBJECT;
+import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
+import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
+
 import java.beans.PropertyDescriptor;
 import java.security.ProtectionDomain;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
@@ -33,19 +37,18 @@ import cn.taketoday.context.cglib.core.ReflectUtils;
 /**
  * @author Juozas Baliuka, Chris Nokleberg
  */
-@SuppressWarnings("all")
-public class BeanGenerator extends AbstractClassGenerator {
+public class BeanGenerator extends AbstractClassGenerator<Object> {
 
     private static final Source SOURCE = new Source(BeanGenerator.class.getSimpleName());
     private static final BeanGeneratorKey KEY_FACTORY = (BeanGeneratorKey) KeyFactory.create(BeanGeneratorKey.class);
 
     interface BeanGeneratorKey {
-        public Object newInstance(String superclass, Map props);
+        public Object newInstance(String superclass, Map<String, Type> props);
     }
 
-    private Class superclass;
-    private Map props = new HashMap();
     private boolean classOnly;
+    private Class<?> superclass;
+    private Map<String, Type> props = new HashMap<>();
 
     public BeanGenerator() {
         super(SOURCE);
@@ -58,20 +61,21 @@ public class BeanGenerator extends AbstractClassGenerator {
      * @param superclass
      *            class to extend, or null to extend Object
      */
-    public void setSuperclass(Class superclass) {
+    public void setSuperclass(Class<?> superclass) {
         if (superclass != null && superclass.equals(Object.class)) {
             superclass = null;
         }
         this.superclass = superclass;
     }
 
-    public void addProperty(String name, Class type) {
+    public void addProperty(String name, Class<?> type) {
         if (props.containsKey(name)) {
             throw new IllegalArgumentException("Duplicate property name \"" + name + "\"");
         }
         props.put(name, Type.getType(type));
     }
 
+    @Override
     protected ClassLoader getDefaultClassLoader() {
         if (superclass != null) {
             return superclass.getClassLoader();
@@ -79,6 +83,7 @@ public class BeanGenerator extends AbstractClassGenerator {
         return null;
     }
 
+    @Override
     protected ProtectionDomain getProtectionDomain() {
         return ReflectUtils.getProtectionDomain(superclass);
     }
@@ -102,45 +107,49 @@ public class BeanGenerator extends AbstractClassGenerator {
         return super.create(key);
     }
 
+    @Override
     public void generateClass(ClassVisitor v) throws Exception {
+
         int size = props.size();
-        String[] names = (String[]) props.keySet().toArray(new String[size]);
-        Type[] types = new Type[size];
-        for (int i = 0; i < size; i++) {
-            types[i] = (Type) props.get(names[i]);
+        final Type[] types = new Type[size];
+
+        int i = 0;
+        for (final Entry<String, Type> entry : props.entrySet()) {
+            types[i++] = entry.getValue();
         }
+
         ClassEmitter ce = new ClassEmitter(v);
-        ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(),
-                superclass != null ? Type.getType(superclass) : Constant.TYPE_OBJECT, null, null);
+
+        ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(),
+                superclass != null ? Type.getType(superclass) : TYPE_OBJECT, null, null);
 
         EmitUtils.nullConstructor(ce);
-        EmitUtils.addProperties(ce, names, types);
+        EmitUtils.addProperties(ce, props.keySet().toArray(Constant.EMPTY_STRING_ARRAY), types);
         ce.endClass();
     }
 
-    protected Object firstInstance(Class type) {
+    @Override
+    protected Object firstInstance(Class<Object> type) {
         if (classOnly) {
             return type;
         }
         return ReflectUtils.newInstance(type);
     }
 
+    @Override
     protected Object nextInstance(Object instance) {
-        Class protoclass = (instance instanceof Class) ? (Class) instance : instance.getClass();
+        Class<?> protoclass = (instance instanceof Class) ? (Class<?>) instance : instance.getClass();
         if (classOnly) {
             return protoclass;
         }
         return ReflectUtils.newInstance(protoclass);
     }
 
-    public static void addProperties(BeanGenerator gen, Map props) {
-        for (Iterator it = props.keySet().iterator(); it.hasNext();) {
-            String name = (String) it.next();
-            gen.addProperty(name, (Class) props.get(name));
-        }
+    public static void addProperties(BeanGenerator gen, Map<String, Class<?>> props) {
+        props.forEach(gen::addProperty);
     }
 
-    public static void addProperties(BeanGenerator gen, Class type) {
+    public static void addProperties(BeanGenerator gen, Class<?> type) {
         addProperties(gen, ReflectUtils.getBeanProperties(type));
     }
 

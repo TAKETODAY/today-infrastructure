@@ -304,7 +304,7 @@ public abstract class ReflectUtils {
 
     public static Constructor getConstructor(Class type, Class[] parameterTypes) {
         try {
-            return ClassUtils.makeAccessible(type.getDeclaredConstructor(parameterTypes));
+            return ClassUtils.accessibleConstructor(type, parameterTypes);
         }
         catch (NoSuchMethodException e) {
             throw new CodeGenerationException(e);
@@ -409,7 +409,7 @@ public abstract class ReflectUtils {
         else {
             list.addAll(Arrays.asList(type.getDeclaredMethods()));
         }
-        
+
         final Class superclass = type.getSuperclass();
         if (superclass != null) {
             addAllMethods(superclass, list);

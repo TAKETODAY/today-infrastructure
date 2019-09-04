@@ -15,11 +15,18 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import static cn.taketoday.context.Constant.PRIVATE_FINAL_STATIC;
+import static cn.taketoday.context.Constant.SUID_FIELD_NAME;
 import static cn.taketoday.context.asm.ClassReader.SKIP_DEBUG;
 import static cn.taketoday.context.asm.ClassReader.SKIP_FRAMES;
+import static cn.taketoday.context.asm.Opcodes.ACC_PRIVATE;
+import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
+import static cn.taketoday.context.asm.Opcodes.ACC_STATIC;
 import static cn.taketoday.context.asm.Opcodes.INVOKEINTERFACE;
 import static cn.taketoday.context.asm.Opcodes.INVOKESPECIAL;
+import static cn.taketoday.context.asm.Type.BOOLEAN_TYPE;
 import static cn.taketoday.context.asm.Type.INT_TYPE;
+import static cn.taketoday.context.asm.Type.LONG_TYPE;
 import static cn.taketoday.context.asm.Type.VOID_TYPE;
 import static cn.taketoday.context.asm.Type.array;
 
@@ -34,6 +41,7 @@ import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -67,7 +75,6 @@ import cn.taketoday.context.cglib.core.ProcessSwitchCallback;
 import cn.taketoday.context.cglib.core.ReflectUtils;
 import cn.taketoday.context.cglib.core.RejectModifierPredicate;
 import cn.taketoday.context.cglib.core.Signature;
-import cn.taketoday.context.cglib.core.Transformer;
 import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.cglib.core.VisibilityPredicate;
 import cn.taketoday.context.cglib.core.WeakCacheKey;
@@ -667,7 +674,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
             }
             methods.addAll(interfaceMethods);
         }
-        CollectionUtils.filter(methods, new RejectModifierPredicate(Constant.ACC_STATIC));
+        CollectionUtils.filter(methods, new RejectModifierPredicate(ACC_STATIC));
         CollectionUtils.filter(methods, new VisibilityPredicate(superclass, true));
         CollectionUtils.filter(methods, new DuplicatesPredicate(methods));
         CollectionUtils.filter(methods, new RejectModifierPredicate(Constant.ACC_FINAL));
@@ -675,40 +682,42 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     @Override
     public void generateClass(ClassVisitor v) throws Exception {
+
         Class sc = (superclass == null) ? Object.class : superclass;
 
         if (Modifier.isFinal(sc.getModifiers()))
             throw new IllegalArgumentException("Cannot subclass final class " + sc.getName());
-        List constructors = new ArrayList(Arrays.asList(sc.getDeclaredConstructors()));
+
+        List constructors = new ArrayList(8);
+        Collections.addAll(constructors, sc.getDeclaredConstructors());
         filterConstructors(sc, constructors);
 
-        // Order is very important: must add superclass, then
-        // its superclass chain, then each interface and
-        // its superinterfaces.
+        // Order is very important: must add superclass, then its superclass chain, then
+        // each interface and its superinterfaces.
+
         List actualMethods = new ArrayList();
         List interfaceMethods = new ArrayList();
         final Set forcePublic = new HashSet();
         getMethods(sc, interfaces, actualMethods, interfaceMethods, forcePublic);
 
-        List methods = CollectionUtils.transform(actualMethods, new Transformer() {
-            public Object transform(Object value) {
-                Method method = (Method) value;
-                int modifiers = Constant.ACC_FINAL | (method.getModifiers() //
-                        & ~Constant.ACC_ABSTRACT //
-                        & ~Constant.ACC_NATIVE //
-                        & ~Constant.ACC_SYNCHRONIZED//
-                );
-                if (forcePublic.contains(MethodWrapper.create(method))) {
-                    modifiers = (modifiers & ~Constant.ACC_PROTECTED) | Constant.ACC_PUBLIC;
-                }
-                return ReflectUtils.getMethodInfo(method, modifiers);
+        final List<MethodInfo> methods = CollectionUtils.transform(actualMethods, (Method method) -> {
+
+            int modifiers = Constant.ACC_FINAL | (method.getModifiers() //
+                    & ~Constant.ACC_ABSTRACT //
+                    & ~Constant.ACC_NATIVE //
+                    & ~Constant.ACC_SYNCHRONIZED//
+            );
+
+            if (forcePublic.contains(MethodWrapper.create(method))) {
+                modifiers = (modifiers & ~Constant.ACC_PROTECTED) | ACC_PUBLIC;
             }
+            return ReflectUtils.getMethodInfo(method, modifiers);
         });
 
-        ClassEmitter e = new ClassEmitter(v);
+        final ClassEmitter e = new ClassEmitter(v);
         if (currentData == null) {
             e.beginClass(Constant.JAVA_VERSION, //
-                    Constant.ACC_PUBLIC, //
+                    ACC_PUBLIC, //
                     getClassName(), //
                     Type.getType(sc), //
                     (useFactory ? TypeUtils.add(TypeUtils.getTypes(interfaces), FACTORY) : TypeUtils.getTypes(interfaces)), //
@@ -717,32 +726,31 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         }
         else {
             e.beginClass(Constant.JAVA_VERSION, //
-                    Constant.ACC_PUBLIC, //
+                    ACC_PUBLIC, //
                     getClassName(), //
                     null, //
-                    new Type[]
-                    { FACTORY },
+                    Type.array(FACTORY),
                     Constant.SOURCE_FILE//
             );
         }
         List constructorInfo = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
 
-        e.declare_field(Constant.ACC_PRIVATE, BOUND_FIELD, Type.BOOLEAN_TYPE, null);
-        e.declare_field(Constant.ACC_PUBLIC | Constant.ACC_STATIC, FACTORY_DATA_FIELD, OBJECT_TYPE, null);
+        e.declare_field(ACC_PRIVATE, BOUND_FIELD, BOOLEAN_TYPE, null);
+        e.declare_field(ACC_PUBLIC | ACC_STATIC, FACTORY_DATA_FIELD, OBJECT_TYPE, null);
         if (!interceptDuringConstruction) {
-            e.declare_field(Constant.ACC_PRIVATE, CONSTRUCTED_FIELD, Type.BOOLEAN_TYPE, null);
+            e.declare_field(ACC_PRIVATE, CONSTRUCTED_FIELD, BOOLEAN_TYPE, null);
         }
-        e.declare_field(Constant.PRIVATE_FINAL_STATIC, THREAD_CALLBACKS_FIELD, THREAD_LOCAL, null);
-        e.declare_field(Constant.PRIVATE_FINAL_STATIC, STATIC_CALLBACKS_FIELD, CALLBACK_ARRAY, null);
+        e.declare_field(PRIVATE_FINAL_STATIC, THREAD_CALLBACKS_FIELD, THREAD_LOCAL, null);
+        e.declare_field(PRIVATE_FINAL_STATIC, STATIC_CALLBACKS_FIELD, CALLBACK_ARRAY, null);
         if (serialVersionUID != null) {
-            e.declare_field(Constant.PRIVATE_FINAL_STATIC, Constant.SUID_FIELD_NAME, Type.LONG_TYPE, serialVersionUID);
+            e.declare_field(PRIVATE_FINAL_STATIC, SUID_FIELD_NAME, LONG_TYPE, serialVersionUID);
         }
 
         for (int i = 0; i < callbackTypes.length; i++) {
-            e.declare_field(Constant.ACC_PRIVATE, getCallbackField(i), callbackTypes[i], null);
+            e.declare_field(ACC_PRIVATE, getCallbackField(i), callbackTypes[i], null);
         }
         // This is declared private to avoid "public field" pollution
-        e.declare_field(Constant.ACC_PRIVATE | Constant.ACC_STATIC, CALLBACK_FILTER_FIELD, OBJECT_TYPE, null);
+        e.declare_field(ACC_PRIVATE | ACC_STATIC, CALLBACK_FILTER_FIELD, OBJECT_TYPE, null);
 
         if (currentData == null) {
             emitMethods(e, methods, actualMethods);
@@ -1038,7 +1046,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
             throw new IllegalStateException("Object should have default constructor ", e);
         }
         MethodInfo constructor = (MethodInfo) MethodInfoTransformer.getInstance().transform(declaredConstructor);
-        CodeEmitter e = EmitUtils.beginMethod(ce, constructor, Constant.ACC_PUBLIC);
+        CodeEmitter e = EmitUtils.beginMethod(ce, constructor, ACC_PUBLIC);
         e.load_this();
         e.dup();
         Signature sig = constructor.getSignature();
@@ -1054,7 +1062,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
             if (currentData != null && !"()V".equals(constructor.getSignature().getDescriptor())) {
                 continue;
             }
-            CodeEmitter e = EmitUtils.beginMethod(ce, constructor, Constant.ACC_PUBLIC);
+            CodeEmitter e = EmitUtils.beginMethod(ce, constructor, ACC_PUBLIC);
             e.load_this();
             e.dup();
             e.load_args();
@@ -1085,7 +1093,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     private void emitGetCallback(ClassEmitter ce, int[] keys) {
-        final CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, GET_CALLBACK);
+        final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, GET_CALLBACK);
         e.load_this();
         e.invoke_static_this(BIND_CALLBACKS);
         e.load_this();
@@ -1106,7 +1114,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     private void emitSetCallback(ClassEmitter ce, int[] keys) {
-        final CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, SET_CALLBACK);
+        final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, SET_CALLBACK);
         e.load_arg(0);
         e.process_switch(keys, new ProcessSwitchCallback() {
             public void processCase(int key, Label end) {
@@ -1126,7 +1134,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     private void emitSetCallbacks(ClassEmitter ce) {
-        CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, SET_CALLBACKS);
+        CodeEmitter e = ce.beginMethod(ACC_PUBLIC, SET_CALLBACKS);
         e.load_this();
         e.load_arg(0);
         for (int i = 0; i < callbackTypes.length; i++) {
@@ -1140,7 +1148,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     private void emitGetCallbacks(ClassEmitter ce) {
-        CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, GET_CALLBACKS);
+        CodeEmitter e = ce.beginMethod(ACC_PUBLIC, GET_CALLBACKS);
         e.load_this();
         e.invoke_static_this(BIND_CALLBACKS);
         e.load_this();
@@ -1158,7 +1166,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     private void emitNewInstanceCallbacks(ClassEmitter ce) {
-        CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, NEW_INSTANCE);
+        CodeEmitter e = ce.beginMethod(ACC_PUBLIC, NEW_INSTANCE);
         Type thisType = getThisType(e);
         e.load_arg(0);
         e.invoke_static(thisType, SET_THREAD_CALLBACKS);
@@ -1186,7 +1194,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     private void emitNewInstanceCallback(ClassEmitter ce) {
-        CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, SINGLE_NEW_INSTANCE);
+        CodeEmitter e = ce.beginMethod(ACC_PUBLIC, SINGLE_NEW_INSTANCE);
         switch (callbackTypes.length)
         {
             case 0 :
@@ -1209,7 +1217,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     private void emitNewInstanceMultiarg(ClassEmitter ce, List constructors) {
-        final CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, MULTIARG_NEW_INSTANCE, null);
+        final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, MULTIARG_NEW_INSTANCE);
         final Type thisType = getThisType(e);
         e.load_arg(2);
         e.invoke_static(thisType, SET_THREAD_CALLBACKS);
@@ -1272,13 +1280,11 @@ public class Enhancer extends AbstractClassGenerator<Object> {
             }
             group.add(method);
 
-            // Optimization: build up a map of Class -> bridge methods in class
-            // so that we can look up all the bridge methods in one pass for a class.
-            if (TypeUtils.isBridge(actualMethod.getModifiers())) {
+            if (actualMethod.isBridge()) {
 
-                Set bridges = declToBridge.get(actualMethod.getDeclaringClass());
+                Set<Signature> bridges = declToBridge.get(actualMethod.getDeclaringClass());
                 if (bridges == null) {
-                    declToBridge.put(actualMethod.getDeclaringClass(), bridges = new HashSet());
+                    declToBridge.put(actualMethod.getDeclaringClass(), bridges = new HashSet<>());
                 }
                 bridges.add(method.getSignature());
             }
@@ -1404,7 +1410,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     private void emitSetThreadCallbacks(ClassEmitter ce) {
-        CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC | Constant.ACC_STATIC, SET_THREAD_CALLBACKS);
+        CodeEmitter e = ce.beginMethod(ACC_PUBLIC | ACC_STATIC, SET_THREAD_CALLBACKS);
         e.getfield(THREAD_CALLBACKS_FIELD);
         e.load_arg(0);
         e.invoke_virtual(THREAD_LOCAL, THREAD_LOCAL_SET);
@@ -1413,7 +1419,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     private void emitSetStaticCallbacks(ClassEmitter ce) {
-        CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC | Constant.ACC_STATIC, SET_STATIC_CALLBACKS);
+        CodeEmitter e = ce.beginMethod(ACC_PUBLIC | ACC_STATIC, SET_STATIC_CALLBACKS);
         e.load_arg(0);
         e.putfield(STATIC_CALLBACKS_FIELD);
         e.return_value();
@@ -1435,7 +1441,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     private void emitBindCallbacks(ClassEmitter ce) {
-        CodeEmitter e = ce.beginMethod(Constant.PRIVATE_FINAL_STATIC, BIND_CALLBACKS);
+        CodeEmitter e = ce.beginMethod(PRIVATE_FINAL_STATIC, BIND_CALLBACKS);
         Local me = e.make_local();
         e.load_arg(0);
         e.checkcast_this();
@@ -1510,17 +1516,16 @@ public class Enhancer extends AbstractClassGenerator<Object> {
             final Map<Signature, Signature> resolved = new HashMap<>();
 
             for (final Entry<Class<?>, Set<Signature>> entry : declToBridge.entrySet()) {
-                final Class<?> owner = entry.getKey();
-                final Set<Signature> bridges = entry.getValue();
                 try {
 
-                    final InputStream is = classLoader.getResourceAsStream(owner.getName().replace('.', '/') + ".class");
+                    final InputStream is = //
+                            classLoader.getResourceAsStream(entry.getKey().getName().replace('.', '/') + ".class");
                     if (is == null) {
                         return resolved;
                     }
 
                     try {
-                        new ClassReader(is).accept(new BridgedFinder(bridges, resolved), SKIP_FRAMES | SKIP_DEBUG);
+                        new ClassReader(is).accept(new BridgedFinder(entry.getValue(), resolved), SKIP_FRAMES | SKIP_DEBUG);
                     } finally {
                         is.close();
                     }
@@ -1556,7 +1561,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
                 if (!eligibleMethods.remove(sig)) {
                     return null;
                 }
-                
+
                 currentMethod = sig;
                 return new MethodVisitor() {
 

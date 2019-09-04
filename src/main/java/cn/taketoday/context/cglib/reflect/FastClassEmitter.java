@@ -65,10 +65,10 @@ class FastClassEmitter extends ClassEmitter {
 
     private static final Type FAST_CLASS = TypeUtils.parseType(FastClass.class);
     private static final Type ILLEGAL_ARGUMENT_EXCEPTION = TypeUtils.parseType("IllegalArgumentException");
-    
+
     private static final Type INVOCATION_TARGET_EXCEPTION = //
             TypeUtils.parseType("java.lang.reflect.InvocationTargetException");
-    
+
     private static final Type[] INVOCATION_TARGET_EXCEPTION_ARRAY = { INVOCATION_TARGET_EXCEPTION };
 
     public FastClassEmitter(ClassVisitor v, String className, Class type) {
@@ -99,7 +99,7 @@ class FastClassEmitter extends ClassEmitter {
         emitIndexByClassArray(methods);
 
         // getIndex(Class[])
-        e = beginMethod(Constant.ACC_PUBLIC, CONSTRUCTOR_GET_INDEX, null);
+        e = beginMethod(Constant.ACC_PUBLIC, CONSTRUCTOR_GET_INDEX);
         e.load_args();
         List info = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
         EmitUtils.constructorSwitch(e, info, new GetIndexCallback(e, info));
@@ -122,7 +122,7 @@ class FastClassEmitter extends ClassEmitter {
         e.end_method();
 
         // getMaxIndex()
-        e = beginMethod(Constant.ACC_PUBLIC, GET_MAX_INDEX, null);
+        e = beginMethod(Constant.ACC_PUBLIC, GET_MAX_INDEX);
         e.push(methods.size() - 1);
         e.return_value();
         e.end_method();

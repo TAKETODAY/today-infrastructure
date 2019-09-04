@@ -123,21 +123,21 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     }
 
     private void getNames() {
-        CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, PROVIDER_GET_NAMES, null);
+        CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, PROVIDER_GET_NAMES);
         e.getstatic(getClassType(), FIELD_NAMES, Constant.TYPE_STRING_ARRAY);
         e.return_value();
         e.end_method();
     }
 
     private void getTypes() {
-        CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, PROVIDER_GET_TYPES, null);
+        CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, PROVIDER_GET_TYPES);
         e.getstatic(getClassType(), FIELD_TYPES, Constant.TYPE_CLASS_ARRAY);
         e.return_value();
         e.end_method();
     }
 
     private void setByIndex(final String[] names, final int[] indexes) throws Exception {
-        final CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, PROVIDER_SET_BY_INDEX, null);
+        final CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, PROVIDER_SET_BY_INDEX);
         e.load_this();
         e.load_arg(1);
         e.load_arg(0);

@@ -536,8 +536,7 @@ public class TestEnhancer extends CodeGenTestCase {
 
     public void testClone() throws Throwable {
 
-        TestClone testClone = (TestClone) Enhancer.create(TestCloneImpl.class,
-                TEST_INTERCEPTOR);
+        TestClone testClone = (TestClone) Enhancer.create(TestCloneImpl.class, TEST_INTERCEPTOR);
         assertTrue(testClone.clone() != null);
 
         testClone = (TestClone) Enhancer.create(TestClone.class,

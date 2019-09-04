@@ -72,6 +72,7 @@ abstract public class BulkBean {
     }
 
     public static class Generator extends AbstractClassGenerator {
+
         private static final Source SOURCE = new Source(BulkBean.class.getSimpleName());
         private Class target;
         private String[] getters;
@@ -107,6 +108,7 @@ abstract public class BulkBean {
         }
 
         public BulkBean create() {
+
             setNamePrefix(target.getName());
             String targetClassName = target.getName();
             String[] typeClassNames = ReflectUtils.getNames(types);

@@ -16,6 +16,8 @@
 
 package cn.taketoday.context.cglib.core;
 
+import static cn.taketoday.context.asm.Type.array;
+
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.Collections;
@@ -26,8 +28,6 @@ import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Label;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.internal.CustomizerRegistry;
-
-import static cn.taketoday.context.asm.Type.array;
 
 /**
  * Generates classes to handle multi-valued keys, for use in things such as Maps
@@ -286,7 +286,7 @@ abstract public class KeyFactory {
             e.end_method();
 
             // hash code
-            e = ce.beginMethod(Constant.ACC_PUBLIC, HASH_CODE, null);
+            e = ce.beginMethod(Constant.ACC_PUBLIC, HASH_CODE);
             int hc = (constant != 0) ? constant : PRIMES[(int) (Math.abs(seed) % PRIMES.length)];
             int hm = (multiplier != 0) ? multiplier : PRIMES[(int) (Math.abs(seed * 13) % PRIMES.length)];
             e.push(hc);
@@ -299,7 +299,7 @@ abstract public class KeyFactory {
             e.end_method();
 
             // equals
-            e = ce.beginMethod(Constant.ACC_PUBLIC, EQUALS, null);
+            e = ce.beginMethod(Constant.ACC_PUBLIC, EQUALS);
             Label fail = e.make_label();
             e.load_arg(0);
             e.instance_of_this();
@@ -320,7 +320,7 @@ abstract public class KeyFactory {
             e.end_method();
 
             // toString
-            e = ce.beginMethod(Constant.ACC_PUBLIC, TO_STRING, null);
+            e = ce.beginMethod(Constant.ACC_PUBLIC, TO_STRING);
             e.new_instance(Constant.TYPE_STRING_BUFFER);
             e.dup();
             e.invoke_constructor(Constant.TYPE_STRING_BUFFER);

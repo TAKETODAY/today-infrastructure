@@ -47,7 +47,7 @@ class ParallelSorterEmitter extends ClassEmitter {
     }
 
     private void generateConstructor(Object[] arrays) {
-        CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, CSTRUCT_OBJECT_ARRAY, null);
+        CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, CSTRUCT_OBJECT_ARRAY);
         e.load_this();
         e.super_invoke_constructor();
         e.load_this();

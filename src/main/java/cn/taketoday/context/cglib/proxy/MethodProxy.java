@@ -79,7 +79,7 @@ public class MethodProxy {
                     final int i1 = f1.getIndex(sig1);
                     final int i2 = f2.getIndex(sig2);
 
-                    fastClassInfo = new FastClassInfo(f1, f2, i1, 2);;
+                    fastClassInfo = new FastClassInfo(f1, f2, i1, i2);
                     createInfo = null;
                 }
             }

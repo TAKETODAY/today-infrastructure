@@ -23,7 +23,7 @@ import cn.taketoday.context.asm.Label;
  *         2019-09-03 19:26
  */
 public interface ObjectSwitchCallback {
-    
+
     void processCase(Object key, Label end) throws Exception;
 
     void processDefault() throws Exception;

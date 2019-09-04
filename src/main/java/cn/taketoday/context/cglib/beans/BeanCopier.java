@@ -113,7 +113,7 @@ abstract public class BeanCopier {
             ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(), BEAN_COPIER, null, SOURCE_FILE);
 
             EmitUtils.nullConstructor(ce);
-            CodeEmitter e = ce.beginMethod(ACC_PUBLIC, COPY, null);
+            CodeEmitter e = ce.beginMethod(ACC_PUBLIC, COPY);
             PropertyDescriptor[] getters = ReflectUtils.getBeanGetters(source);
             PropertyDescriptor[] setters = ReflectUtils.getBeanSetters(target);
 

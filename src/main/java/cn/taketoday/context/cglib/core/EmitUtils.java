@@ -242,12 +242,12 @@ public abstract class EmitUtils {
         });
     }
 
-    protected static int[] getSwitchKeys(Map buckets) {
+    protected static int[] getSwitchKeys(Map<Integer, List<MethodInfo>> buckets) {
         final int[] keys = new int[buckets.size()];
         int i = 0;
 
-        for (Iterator it = buckets.keySet().iterator(); it.hasNext();) {
-            keys[i++] = ((Integer) it.next()).intValue();
+        for (Integer k : buckets.keySet()) {
+            keys[i++] = k.intValue();
         }
 
         Arrays.sort(keys);
@@ -791,30 +791,31 @@ public abstract class EmitUtils {
 
     private static void memberHelperSize(final CodeEmitter e, List members, final ObjectSwitchCallback callback,
             final ParameterTyper typer, final Label def, final Label end) throws Exception {
-        final Map buckets = CollectionUtils.bucket(members, new Transformer() {
-            public Object transform(Object value) {
-                return Integer.valueOf(typer.getParameterTypes((MethodInfo) value).length);
-            }
+
+        final Map<Integer, List<MethodInfo>> buckets = CollectionUtils.bucket(members, (MethodInfo value) -> {
+            return Integer.valueOf(typer.getParameterTypes(value).length);
         });
 
         e.dup();
         e.arraylength();
         e.process_switch(EmitUtils.getSwitchKeys(buckets), new ProcessSwitchCallback() {
+
+            @Override
             public void processCase(int key, Label dontUseEnd) throws Exception {
-                List bucket = (List) buckets.get(new Integer(key));
-                memberHelperType(e, bucket, callback, typer, def, end, new BitSet());
+                memberHelperType(e, buckets.get(Integer.valueOf(key)), callback, typer, def, end, new BitSet());
             }
 
+            @Override
             public void processDefault() throws Exception {
                 e.goTo(def);
             }
         });
     }
 
-    private static void memberHelperType(final CodeEmitter e, List members, final ObjectSwitchCallback callback,
+    private static void memberHelperType(final CodeEmitter e, List<MethodInfo> members, final ObjectSwitchCallback callback,
             final ParameterTyper typer, final Label def, final Label end, final BitSet checked) throws Exception {
         if (members.size() == 1) {
-            MethodInfo member = (MethodInfo) members.get(0);
+            final MethodInfo member = members.get(0);
             Type[] types = typer.getParameterTypes(member);
             // need to check classes that have not already been checked via switches
             for (int i = 0; i < types.length; i++) {
@@ -832,16 +833,16 @@ public abstract class EmitUtils {
         }
         else {
             // choose the index that has the best chance of uniquely identifying member
-            Type[] example = typer.getParameterTypes((MethodInfo) members.get(0));
-            Map buckets = null;
+            Type[] example = typer.getParameterTypes(members.get(0));
+            Map<String, List<MethodInfo>> buckets = null;
             int index = -1;
             for (int i = 0; i < example.length; i++) {
                 final int j = i;
-                Map test = CollectionUtils.bucket(members, new Transformer() {
-                    public Object transform(Object value) {
-                        return TypeUtils.emulateClassGetName(typer.getParameterTypes((MethodInfo) value)[j]);
-                    }
+
+                final Map<String, List<MethodInfo>> test = CollectionUtils.bucket(members, (MethodInfo value) -> {
+                    return TypeUtils.emulateClassGetName(typer.getParameterTypes(value)[j]);
                 });
+
                 if (buckets == null || test.size() > buckets.size()) {
                     buckets = test;
                     index = i;
@@ -859,13 +860,17 @@ public abstract class EmitUtils {
                 e.aaload(index);
                 e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
 
-                final Map fbuckets = buckets;
-                String[] names = (String[]) buckets.keySet().toArray(new String[buckets.size()]);
+                final Map<String, List<MethodInfo>> fbuckets = buckets;
+                String[] names = buckets.keySet().toArray(Constant.EMPTY_STRING_ARRAY);
+
                 EmitUtils.stringSwitch(e, names, Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
+
+                    @Override
                     public void processCase(Object key, Label dontUseEnd) throws Exception {
-                        memberHelperType(e, (List) fbuckets.get(key), callback, typer, def, end, checked);
+                        memberHelperType(e, fbuckets.get(key), callback, typer, def, end, checked);
                     }
 
+                    @Override
                     public void processDefault() throws Exception {
                         e.goTo(def);
                     }
@@ -886,7 +891,7 @@ public abstract class EmitUtils {
 
     public static void addProperties(ClassEmitter ce, String[] names, Type[] types) {
         for (int i = 0; i < names.length; i++) {
-            String fieldName = "$cglib_prop_" + names[i];
+            String fieldName = "$today_prop_" + names[i];
             ce.declare_field(Constant.ACC_PRIVATE, fieldName, types[i], null);
             EmitUtils.addProperty(ce, names[i], types[i], fieldName);
         }

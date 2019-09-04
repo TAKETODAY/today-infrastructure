@@ -20,6 +20,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public class TestLazyLoader extends CodeGenTestCase {
+
     public void testLazyLoader() {
         LazyLoader loader = new LazyLoader() {
             public Object loadObject() {
