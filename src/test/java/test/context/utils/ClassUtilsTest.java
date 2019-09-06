@@ -1,5 +1,7 @@
 package test.context.utils;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -28,6 +30,9 @@ import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.DefaultComponent;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.cglib.proxy.Enhancer;
+import cn.taketoday.context.cglib.proxy.MethodInterceptor;
+import cn.taketoday.context.cglib.proxy.MethodProxy;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -467,4 +472,30 @@ public class ClassUtilsTest {
 
     }
 
+    // v2.1.7 test code
+    // ----------------------------------------
+
+    @Test
+    public void testGetUserClass() {
+        assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(getClass()));
+        assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(getClass().getName()));
+        assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(new ClassUtilsTest().getClass().getName()));
+
+        Enhancer enhancer = new Enhancer();
+
+        enhancer.setCallback(new MethodInterceptor() {
+            @Override
+            public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+                return null;
+            }
+        });
+        
+        enhancer.setSuperclass(ClassUtilsTest.class);
+
+        final Object create = enhancer.create();
+
+        assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(create));
+        assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(create.getClass()));
+        assertEquals(ClassUtilsTest.class, ClassUtils.getUserClass(create.getClass().getName()));
+    }
 }

@@ -182,7 +182,7 @@ public abstract class TypeUtils {
         return types;
     }
 
-    public static Signature parseConstructor(Type[] types) {
+    public static Signature parseConstructor(Type... types) {
         final StringBuilder sb = new StringBuilder();
         sb.append('(');
         for (int i = 0; i < types.length; i++) {

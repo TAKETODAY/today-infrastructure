@@ -1045,7 +1045,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         catch (NoSuchMethodException e) {
             throw new IllegalStateException("Object should have default constructor ", e);
         }
-        MethodInfo constructor = (MethodInfo) MethodInfoTransformer.getInstance().transform(declaredConstructor);
+        MethodInfo constructor = MethodInfoTransformer.getInstance().transform(declaredConstructor);
         CodeEmitter e = EmitUtils.beginMethod(ce, constructor, ACC_PUBLIC);
         e.load_this();
         e.dup();
@@ -1055,10 +1055,11 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         e.end_method();
     }
 
-    private void emitConstructors(ClassEmitter ce, List constructors) {
+    private void emitConstructors(ClassEmitter ce, List<MethodInfo> constructors) {
         boolean seenNull = false;
-        for (Iterator it = constructors.iterator(); it.hasNext();) {
-            MethodInfo constructor = (MethodInfo) it.next();
+        
+        for (MethodInfo constructor : constructors) {
+            
             if (currentData != null && !"()V".equals(constructor.getSignature().getDescriptor())) {
                 continue;
             }

@@ -1246,29 +1246,97 @@ public abstract class ClassUtils {
     public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory) //
             throws ReflectiveOperationException //
     {
+        final Constructor<T> constructor = obtainConstructor(beanClass);
+        return constructor.newInstance(ContextUtils.resolveParameter(constructor, beanFactory));
+
+    }
+
+    /**
+     * Obtain a suitable {@link Constructor}.
+     * <p>
+     * Look for the default constructor, if there is no default constructor, then
+     * get all the constructors, if there is only one constructor then use this
+     * constructor, if not more than one use the @Autowired constructor if there is
+     * no suitable {@link Constructor} will throw an exception
+     * <p>
+     * 
+     * @param <T>
+     *            Target type
+     * @param beanClass
+     *            target bean class
+     * @return Suitable constructor
+     * @throws NoSuchMethodException
+     *             If there is no suitable constructor
+     * @since 2.1.7
+     */
+    public static <T> Constructor<T> obtainConstructor(Class<T> beanClass) throws NoSuchMethodException {
         try {
-            return accessibleConstructor(beanClass).newInstance();
+            return accessibleConstructor(beanClass);
         }
         catch (final NoSuchMethodException e) {
-
             @SuppressWarnings("unchecked") //
             final Constructor<T>[] constructors = (Constructor<T>[]) beanClass.getDeclaredConstructors();
             if (constructors.length == 1) {
-                final Constructor<T> constructor = constructors[0];
-                return constructor.newInstance(//
-                        ContextUtils.resolveParameter(makeAccessible(constructor), beanFactory)//
-                );
+                return makeAccessible(constructors[0]);
             }
             for (final Constructor<T> constructor : constructors) {
-
                 if (constructor.isAnnotationPresent(Autowired.class)) {
-                    return constructor.newInstance(//
-                            ContextUtils.resolveParameter(makeAccessible(constructor), beanFactory)//
-                    );
+                    return makeAccessible(constructor);
                 }
             }
             throw e;
         }
+    }
+
+    /**
+     * If the class is dynamically generated then the user class will be extracted
+     * in a specific format.
+     * 
+     * @param synthetic
+     *            Input object
+     * @return The user class
+     * @since 2.1.7
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T> getUserClass(T synthetic) {
+        return (Class<T>) getUserClass(Objects.requireNonNull(synthetic).getClass());
+    }
+
+    /**
+     * If the class is dynamically generated then the user class will be extracted
+     * in a specific format.
+     * 
+     * @param syntheticClass
+     *            input test class
+     * @return The user class
+     * @since 2.1.7
+     */
+    public static <T> Class<T> getUserClass(Class<T> syntheticClass) {
+
+        final String name = Objects.requireNonNull(syntheticClass).getName();
+        final int i = name.indexOf(Constant.CGLIB_CHAR_SEPARATOR);
+        if (i > 0) {
+            return loadClass(name.substring(0, i));
+        }
+        return syntheticClass;
+    }
+
+    /**
+     * If the class is dynamically generated then the user class will be extracted
+     * in a specific format.
+     * 
+     * @param name
+     *            Class name
+     * @return The user class
+     * @since 2.1.7
+     */
+    public static <T> Class<T> getUserClass(String name) {
+
+        final int i = Objects.requireNonNull(name).indexOf(Constant.CGLIB_CHAR_SEPARATOR);
+        if (i > 0) {
+            return loadClass(name.substring(0, i));
+        }
+        return loadClass(name);
     }
 
     // --------------------------------- Field

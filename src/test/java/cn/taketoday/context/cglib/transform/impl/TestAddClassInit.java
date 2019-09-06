@@ -29,7 +29,7 @@ import junit.framework.TestSuite;
  */
 public class TestAddClassInit extends AbstractTransformTest {
 
-    static Class registred;
+    static Class<?> registred;
 
     static int i = 0;
 
@@ -39,7 +39,7 @@ public class TestAddClassInit extends AbstractTransformTest {
 
     }
 
-    public static void register(Class cls) {
+    public static void register(Class<?> cls) {
 
         registred = cls;
 

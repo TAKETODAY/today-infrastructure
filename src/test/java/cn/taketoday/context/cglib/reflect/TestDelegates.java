@@ -71,13 +71,14 @@ public class TestDelegates extends cn.taketoday.context.cglib.CodeGenTestCase {
         assertEquals(delegate.format(formatStr, time), String.format(formatStr, time));
     }
 
+    @SuppressWarnings("unlikely-arg-type")
     public void testEquals() throws Throwable {
         String test = "abc";
-        MethodDelegate mc1 = MethodDelegate.create(test, "indexOf", IndexOf.class);
-        MethodDelegate mc2 = MethodDelegate.create(test, "indexOf", IndexOf.class);
-        MethodDelegate mc3 = MethodDelegate.create("other", "indexOf", IndexOf.class);
-        MethodDelegate mc4 = MethodDelegate.create(test, "substring", Substring.class);
-        MethodDelegate mc5 = MethodDelegate.create(test, "substring", Substring2.class);
+        IndexOf mc1 = MethodDelegate.create(test, "indexOf", IndexOf.class);
+        IndexOf mc2 = MethodDelegate.create(test, "indexOf", IndexOf.class);
+        IndexOf mc3 = MethodDelegate.create("other", "indexOf", IndexOf.class);
+        Substring mc4 = MethodDelegate.create(test, "substring", Substring.class);
+        Substring2 mc5 = MethodDelegate.create(test, "substring", Substring2.class);
         assertTrue(mc1.equals(mc2));
         assertTrue(!mc1.equals(mc3));
         assertTrue(!mc1.equals(mc4));

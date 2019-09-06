@@ -376,7 +376,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 
     public void push(int i) {
         if (i < -1) {
-            mv.visitLdcInsn(new Integer(i));
+            mv.visitLdcInsn(Integer.valueOf(i));
         }
         else if (i <= 5) {
             mv.visitInsn(TypeUtils.ICONST(i));
@@ -388,7 +388,7 @@ public class CodeEmitter extends LocalVariablesSorter {
             mv.visitIntInsn(Constant.SIPUSH, i);
         }
         else {
-            mv.visitLdcInsn(new Integer(i));
+            mv.visitLdcInsn(Integer.valueOf(i));
         }
     }
 

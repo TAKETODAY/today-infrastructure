@@ -17,6 +17,7 @@ package cn.taketoday.context.cglib.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -82,4 +83,13 @@ public abstract class CollectionUtils {
         }
         return indexes;
     }
+
+    @SafeVarargs
+    public static <T> List<T> addAll(T... ts) {
+
+        final List<T> ret = new ArrayList<>();
+        Collections.addAll(ret, ts);
+        return ret;
+    }
+
 }

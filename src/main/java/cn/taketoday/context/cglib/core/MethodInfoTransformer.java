@@ -17,8 +17,7 @@ package cn.taketoday.context.cglib.core;
 
 import java.lang.reflect.Member;
 
-@SuppressWarnings("all")
-public class MethodInfoTransformer implements Transformer {
+public class MethodInfoTransformer implements Transformer<Member, MethodInfo> {
 
     private static final MethodInfoTransformer INSTANCE = new MethodInfoTransformer();
 
@@ -26,10 +25,7 @@ public class MethodInfoTransformer implements Transformer {
         return INSTANCE;
     }
 
-    public Object transform(Object value) {
-        if (value instanceof Member) {
-            return ReflectUtils.getMethodInfo((Member) value);
-        }
-        throw new IllegalArgumentException("cannot get method info for " + value);
+    public MethodInfo transform(Member value) {
+        return ReflectUtils.getMethodInfo(value);
     }
 }

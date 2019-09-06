@@ -118,6 +118,7 @@ import cn.taketoday.context.cglib.core.TypeUtils;
  */
 @SuppressWarnings("all")
 abstract public class MethodDelegate {
+
     private static final MethodDelegateKey KEY_FACTORY = //
             (MethodDelegateKey) KeyFactory.create(MethodDelegateKey.class, KeyFactory.CLASS_BY_NAME);
 
@@ -128,27 +129,29 @@ abstract public class MethodDelegate {
         Object newInstance(Class delegateClass, String methodName, Class iface);
     }
 
-    public static MethodDelegate createStatic(Class targetClass, String methodName, Class iface) {
+    public static <T> T createStatic(Class targetClass, String methodName, Class<T> iface) {
         Generator gen = new Generator();
         gen.setTargetClass(targetClass);
         gen.setMethodName(methodName);
         gen.setInterface(iface);
-        return gen.create();
+        return (T) gen.create();
     }
 
-    public static MethodDelegate create(Object target, String methodName, Class iface) {
+    public static <T> T create(Object target, String methodName, Class<T> iface) {
         Generator gen = new Generator();
         gen.setTarget(target);
         gen.setMethodName(methodName);
         gen.setInterface(iface);
-        return gen.create();
+        return (T) gen.create();
     }
 
+    @Override
     public boolean equals(Object obj) {
         MethodDelegate other = (MethodDelegate) obj;
         return (other != null && target == other.target) && eqMethod.equals(other.eqMethod);
     }
 
+    @Override
     public int hashCode() {
         return target.hashCode() ^ eqMethod.hashCode();
     }
@@ -191,10 +194,12 @@ abstract public class MethodDelegate {
             this.iface = iface;
         }
 
+        @Override
         protected ClassLoader getDefaultClassLoader() {
             return targetClass.getClassLoader();
         }
 
+        @Override
         protected ProtectionDomain getProtectionDomain() {
             return ReflectUtils.getProtectionDomain(targetClass);
         }
@@ -205,22 +210,27 @@ abstract public class MethodDelegate {
             return (MethodDelegate) super.create(key);
         }
 
+        @Override
         protected Object firstInstance(Class type) {
             return ((MethodDelegate) ReflectUtils.newInstance(type)).newInstance(target);
         }
 
+        @Override
         protected Object nextInstance(Object instance) {
             return ((MethodDelegate) instance).newInstance(target);
         }
 
+        @Override
         public void generateClass(ClassVisitor v) throws NoSuchMethodException {
-            Method proxy = ReflectUtils.findInterfaceMethod(iface);
+
+            final Method proxy = ReflectUtils.findInterfaceMethod(iface);
             final Method method = targetClass.getMethod(methodName, proxy.getParameterTypes());
+
             if (!proxy.getReturnType().isAssignableFrom(method.getReturnType())) {
                 throw new IllegalArgumentException("incompatible return types");
             }
 
-            MethodInfo methodInfo = ReflectUtils.getMethodInfo(method);
+            final MethodInfo methodInfo = ReflectUtils.getMethodInfo(method);
 
             boolean isStatic = Modifier.isStatic(methodInfo.getModifiers());
             if ((target == null) ^ isStatic) {
@@ -229,9 +239,10 @@ abstract public class MethodDelegate {
 
             ClassEmitter ce = new ClassEmitter(v);
             CodeEmitter e;
+
             ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), METHOD_DELEGATE,
-                    new Type[]
-                    { Type.getType(iface) }, Constant.SOURCE_FILE);
+                    Type.array(Type.getType(iface)), Constant.SOURCE_FILE);
+
             ce.declare_field(Constant.PRIVATE_FINAL_STATIC, "eqMethod", Constant.TYPE_STRING, null);
             EmitUtils.nullConstructor(ce);
 

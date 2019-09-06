@@ -737,13 +737,15 @@ public abstract class EmitUtils {
         memberSwitchHelper(e, constructors, callback, false);
     }
 
-    private static void memberSwitchHelper(final CodeEmitter e, List members, final ObjectSwitchCallback callback,
-            boolean useName) {
+    private static void memberSwitchHelper(final CodeEmitter e, //
+            List members, final ObjectSwitchCallback callback, boolean useName)//
+    {
         try {
-            final Map cache = new HashMap();
-            final ParameterTyper cached = new ParameterTyper() {
+
+            final Map<MethodInfo, Type[]> cache = new HashMap();
+            final ParameterTyper cached = new ParameterTyper() { // TODO
                 public Type[] getParameterTypes(MethodInfo member) {
-                    Type[] types = (Type[]) cache.get(member);
+                    Type[] types = cache.get(member);
                     if (types == null) {
                         cache.put(member, types = member.getSignature().getArgumentTypes());
                     }
@@ -754,17 +756,20 @@ public abstract class EmitUtils {
             final Label end = e.make_label();
             if (useName) {
                 e.swap();
-                final Map buckets = CollectionUtils.bucket(members, new Transformer() {
-                    public Object transform(Object value) {
-                        return ((MethodInfo) value).getSignature().getName();
-                    }
-                });
-                String[] names = (String[]) buckets.keySet().toArray(new String[buckets.size()]);
+
+                final Map<String, List<MethodInfo>> buckets = //
+                        CollectionUtils.bucket(members, (MethodInfo value) -> value.getSignature().getName());
+
+                String[] names = buckets.keySet().toArray(Constant.EMPTY_STRING_ARRAY);
+
                 EmitUtils.stringSwitch(e, names, Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
+
+                    @Override
                     public void processCase(Object key, Label dontUseEnd) throws Exception {
-                        memberHelperSize(e, (List) buckets.get(key), callback, cached, def, end);
+                        memberHelperSize(e, buckets.get(key), callback, cached, def, end);
                     }
 
+                    @Override
                     public void processDefault() throws Exception {
                         e.goTo(def);
                     }

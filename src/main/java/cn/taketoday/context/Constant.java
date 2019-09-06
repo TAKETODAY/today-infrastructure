@@ -115,6 +115,7 @@ public interface Constant extends Opcodes, Serializable {
 
 	/** The CGLIB class separator: {@code "$$"}. */
 	String 	CGLIB_CLASS_SEPARATOR 	= "$$";
+	char 	CGLIB_CHAR_SEPARATOR 	= INNER_CLASS_SEPARATOR;
 
 	
 	String 	PROTOCOL_JAR 			= "jar";

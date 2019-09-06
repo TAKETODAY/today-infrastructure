@@ -281,15 +281,15 @@ public abstract class ReflectUtils {
         throw new ClassNotFoundException(save);
     }
 
-    public static Object newInstance(Class type) {
+    public static <T> T newInstance(Class<T> type) {
         return newInstance(type, Constant.EMPTY_CLASS_ARRAY, null);
     }
 
-    public static Object newInstance(Class type, Class[] parameterTypes, Object[] args) {
+    public static <T> T newInstance(Class<T> type, Class[] parameterTypes, Object[] args) {
         return newInstance(getConstructor(type, parameterTypes), args);
     }
 
-    public static Object newInstance(final Constructor cstruct, final Object[] args) {
+    public static <T> T newInstance(final Constructor<T> cstruct, final Object[] args) {
 
         try {
             return cstruct.newInstance(args);
@@ -302,7 +302,7 @@ public abstract class ReflectUtils {
         }
     }
 
-    public static Constructor getConstructor(Class type, Class[] parameterTypes) {
+    public static <T> Constructor<T> getConstructor(Class<T> type, Class[] parameterTypes) {
         try {
             return ClassUtils.accessibleConstructor(type, parameterTypes);
         }

@@ -90,6 +90,7 @@ abstract public class KeyFactory {
     };
 
     public static final Customizer CLASS_BY_NAME = new Customizer() {
+        
         public void customize(CodeEmitter e, Type type) {
             if (type.equals(Constant.TYPE_CLASS)) {
                 e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);

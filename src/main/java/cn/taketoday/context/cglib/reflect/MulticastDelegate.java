@@ -16,8 +16,6 @@
 package cn.taketoday.context.cglib.reflect;
 
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import cn.taketoday.context.Constant;
@@ -26,6 +24,7 @@ import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
+import cn.taketoday.context.cglib.core.CollectionUtils;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.Local;
 import cn.taketoday.context.cglib.core.MethodInfo;
@@ -36,10 +35,9 @@ import cn.taketoday.context.cglib.core.TypeUtils;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-08 15:09
  */
-@SuppressWarnings("all")
 abstract public class MulticastDelegate implements Cloneable {
 
     protected Object[] targets = {};
@@ -47,8 +45,8 @@ abstract public class MulticastDelegate implements Cloneable {
     protected MulticastDelegate() {
     }
 
-    public List getTargets() {
-        return new ArrayList(Arrays.asList(targets));
+    public List<Object> getTargets() {
+        return CollectionUtils.addAll(targets);
     }
 
     abstract public MulticastDelegate add(Object target);
@@ -62,6 +60,7 @@ abstract public class MulticastDelegate implements Cloneable {
     }
 
     public MulticastDelegate remove(Object target) {
+
         for (int i = targets.length - 1; i >= 0; i--) {
             if (targets[i].equals(target)) {
                 MulticastDelegate copy = newInstance();
@@ -76,35 +75,38 @@ abstract public class MulticastDelegate implements Cloneable {
 
     abstract public MulticastDelegate newInstance();
 
-    public static MulticastDelegate create(Class iface) {
-        Generator gen = new Generator();
-        gen.setInterface(iface);
-        return gen.create();
+    
+    public static MulticastDelegate create(Class<?> iface) {
+        return new Generator().setInterface(iface).create();
     }
 
-    public static class Generator extends AbstractClassGenerator {
+    public static class Generator extends AbstractClassGenerator<Object> {
+
         private static final Source SOURCE = new Source(MulticastDelegate.class.getName());
         private static final Type MULTICAST_DELEGATE = TypeUtils.parseType(MulticastDelegate.class);
         private static final Signature NEW_INSTANCE = new Signature("newInstance", MULTICAST_DELEGATE, new Type[0]);
         private static final Signature ADD_DELEGATE = new Signature("add", MULTICAST_DELEGATE, new Type[] { Constant.TYPE_OBJECT });
         private static final Signature ADD_HELPER = new Signature("addHelper", MULTICAST_DELEGATE, new Type[] { Constant.TYPE_OBJECT });
 
-        private Class iface;
+        private Class<?> iface;
 
         public Generator() {
             super(SOURCE);
         }
 
+        @Override
         protected ClassLoader getDefaultClassLoader() {
             return iface.getClassLoader();
         }
 
+        @Override
         protected ProtectionDomain getProtectionDomain() {
             return ReflectUtils.getProtectionDomain(iface);
         }
 
-        public void setInterface(Class iface) {
+        public Generator setInterface(Class<?> iface) {
             this.iface = iface;
+            return this;
         }
 
         public MulticastDelegate create() {
@@ -112,13 +114,15 @@ abstract public class MulticastDelegate implements Cloneable {
             return (MulticastDelegate) super.create(iface.getName());
         }
 
+        @Override
         public void generateClass(ClassVisitor cv) {
             final MethodInfo method = ReflectUtils.getMethodInfo(ReflectUtils.findInterfaceMethod(iface));
 
             ClassEmitter ce = new ClassEmitter(cv);
+
             ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), MULTICAST_DELEGATE,
-                    new Type[]
-                    { Type.getType(iface) }, Constant.SOURCE_FILE);
+                    Type.array(Type.getType(iface)), Constant.SOURCE_FILE);
+
             EmitUtils.nullConstructor(ce);
 
             // generate proxied method
@@ -178,11 +182,13 @@ abstract public class MulticastDelegate implements Cloneable {
             e.end_method();
         }
 
-        protected Object firstInstance(Class type) {
+        @Override
+        protected Object firstInstance(Class<Object> type) {
             // make a new instance in case first object is used with a long list of targets
             return ((MulticastDelegate) ReflectUtils.newInstance(type)).newInstance();
         }
 
+        @Override
         protected Object nextInstance(Object instance) {
             return ((MulticastDelegate) instance).newInstance();
         }
