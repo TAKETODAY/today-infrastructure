@@ -155,7 +155,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
 
         final long startupDate = System.currentTimeMillis();
         log.info("Your application starts to be initialized at: [{}].", //
-                new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
+                 new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
 
         // fix: applicationContext NullPointerException
         WebServletApplicationContext applicationContext = new StandardWebServletApplicationContext();
@@ -236,7 +236,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
 
     @Override
     protected List<WebApplicationInitializer> getInitializers(final WebApplicationContext applicationContext, //
-            final WebMvcConfiguration mvcConfiguration) //
+                                                              final WebMvcConfiguration mvcConfiguration) //
     {
         final List<WebApplicationInitializer> contextInitializers = //
                 super.getInitializers(applicationContext, mvcConfiguration);
@@ -259,7 +259,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      *            ServletWebMvcConfiguration
      */
     protected void configureResourceRegistry(List<WebApplicationInitializer> contextInitializers, //
-            ServletWebMvcConfiguration configuration)//
+                                             ServletWebMvcConfiguration configuration)//
     {
 
         if (!applicationContext.containsBeanDefinition(ResourceServlet.class)) {
@@ -303,7 +303,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      *            {@link WebApplicationInitializer}s
      */
     protected void configureFilter(final WebApplicationContext applicationContext, //
-            final List<WebApplicationInitializer> contextInitializers) //
+                                   final List<WebApplicationInitializer> contextInitializers) //
     {
 
         List<Filter> filters = applicationContext.getAnnotatedBeans(WebFilter.class);
@@ -355,7 +355,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      *            {@link WebApplicationInitializer}s
      */
     protected void configureServlet(final WebApplicationContext applicationContext,
-            final List<WebApplicationInitializer> contextInitializers) //
+                                    final List<WebApplicationInitializer> contextInitializers) //
     {
 
         Collection<Servlet> servlets = applicationContext.getAnnotatedBeans(WebServlet.class);
@@ -415,7 +415,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      *            {@link WebApplicationInitializer}s
      */
     protected void configureListener(final WebApplicationContext applicationContext,
-            final List<WebApplicationInitializer> contextInitializers)//
+                                     final List<WebApplicationInitializer> contextInitializers)//
     {
 
         Collection<EventListener> eventListeners = applicationContext.getAnnotatedBeans(WebListener.class);
@@ -428,7 +428,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      * @author TODAY <br>
      *         2019-05-17 17:46
      */
-    protected class ServletCompositeWebMvcConfiguration //
+    public static class ServletCompositeWebMvcConfiguration //
             extends CompositeWebMvcConfiguration implements ServletWebMvcConfiguration {
 
         public ServletCompositeWebMvcConfiguration(List<WebMvcConfiguration> webMvcConfigurations) {

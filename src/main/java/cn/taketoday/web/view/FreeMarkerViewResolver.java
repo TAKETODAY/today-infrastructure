@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.view;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
@@ -33,8 +34,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
@@ -74,6 +77,7 @@ import lombok.Getter;
  *         2018-06-26 19:16:46
  */
 @Props(prefix = "web.mvc.view.")
+@Order(Ordered.LOWEST_PRECEDENCE - 100)
 @MissingBean(value = Constant.VIEW_RESOLVER, type = ViewResolver.class)
 public class FreeMarkerViewResolver extends AbstractViewResolver implements InitializingBean, WebMvcConfiguration {
 
@@ -93,8 +97,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
             @Autowired(required = false) TaglibFactory taglibFactory, //
             @Props(prefix = "freemarker.", replace = true) Properties settings) //
     {
-
-        WebServletApplicationContext context = //
+        final WebServletApplicationContext context = //
                 (WebServletApplicationContext) WebUtils.getWebApplicationContext();
 
         if (configuration == null) {
@@ -140,21 +143,6 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 
         this.configuration.setLocale(locale);
         this.configuration.setDefaultEncoding(encoding);
-
-        final List<TemplateLoader> beans = WebUtils.getWebApplicationContext().getBeans(TemplateLoader.class);
-
-        if (beans.isEmpty()) {
-            if (StringUtils.isNotEmpty(prefix) && prefix.contains("WEB-INF")) {// prefix -> /WEB-INF/..
-                this.configuration.setServletContextForTemplateLoading(servletContext, prefix); // prefix -> /WEB-INF/..
-            }
-            else {
-                configuration.setTemplateLoader(new DefaultTemplateLoader(prefix));
-            }
-        }
-        else {
-            configuration.setTemplateLoader(new CompositeTemplateLoader(beans));
-        }
-        LoggerFactory.getLogger(getClass()).info("Configuration FreeMarker View Resolver Success.");
     }
 
     @Override
@@ -184,7 +172,24 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
             }
             return ConvertUtils.convert(m.getDefaultValue(), m.getParameterClass());
         }));
+    }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> void configureTemplateLoader(List<T> loaders) {
+
+        if (loaders.isEmpty()) {
+            if (StringUtils.isNotEmpty(prefix) && prefix.startsWith("/WEB-INF/")) {// prefix -> /WEB-INF/..
+                this.configuration.setServletContextForTemplateLoading(servletContext, prefix);
+            }
+            else {
+                configuration.setTemplateLoader(new DefaultTemplateLoader(prefix));
+            }
+        }
+        else {
+            configuration.setTemplateLoader(new CompositeTemplateLoader((Collection<TemplateLoader>) loaders));
+        }
+        LoggerFactory.getLogger(getClass()).info("Configuration FreeMarker View Resolver Success.");
     }
 
     /**
@@ -396,12 +401,16 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 
             final Resource resource;
             final String prefix = getPrefix();
-
-            if (StringUtils.isEmpty(prefix)) {
-                resource = ResourceUtils.getResource(name);
+            try {
+                if (StringUtils.isEmpty(prefix)) {
+                    resource = ResourceUtils.getResource(name);
+                }
+                else {
+                    resource = ResourceUtils.getResource(prefix + StringUtils.checkUrl(name));
+                }
             }
-            else {
-                resource = ResourceUtils.getResource(prefix + name);
+            catch (FileNotFoundException e) {
+                return null;
             }
             return resource.exists() ? resource : null;
         }

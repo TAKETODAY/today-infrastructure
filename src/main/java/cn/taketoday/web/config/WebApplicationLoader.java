@@ -86,6 +86,7 @@ import cn.taketoday.web.resolver.result.ResponseBodyResultResolver;
 import cn.taketoday.web.resolver.result.ResultResolver;
 import cn.taketoday.web.resolver.result.ViewResolverResultResolver;
 import cn.taketoday.web.resolver.result.VoidResultResolver;
+import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.ViewResolver;
 
@@ -121,6 +122,11 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         configureViewResolver(applicationContext.getBean(AbstractViewResolver.class), mvcConfiguration);
 
+        final Class<Object> loaderClass = ClassUtils.loadClass("freemarker.cache.TemplateLoader");
+        if (loaderClass != null) {
+            configureTemplateLoader(applicationContext.getBeans(loaderClass), mvcConfiguration);
+        }
+
         configureTypeConverter(applicationContext.getBeans(TypeConverter.class), mvcConfiguration);
 
         configureParameterResolver(applicationContext.getBeans(ParameterResolver.class), mvcConfiguration);
@@ -139,13 +145,24 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         applicationContext.publishEvent(new WebApplicationStartedEvent(applicationContext));
         if (environment.getProperty(ENABLE_WEB_STARTED_LOG, Boolean::parseBoolean, true)) {
             log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-                    System.currentTimeMillis() - applicationContext.getStartupDate()//
+                     System.currentTimeMillis() - applicationContext.getStartupDate()//
             );
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(applicationContext::close));
 
         System.gc();
+    }
+
+    /**
+     * Configure Freemarker's TemplateLoader s
+     * 
+     * @param loaders
+     *            TemplateLoaders
+     * @since 2.3.7
+     */
+    protected <T> void configureTemplateLoader(List<T> beans, WebMvcConfiguration mvcConfiguration) {
+        mvcConfiguration.configureTemplateLoader(beans);
     }
 
     /**
@@ -334,14 +351,16 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      * @throws Throwable
      *             If any initialize exception occurred
      */
-    protected void initializerStartup(WebApplicationContext applicationContext, WebMvcConfiguration mvcConfiguration) throws Throwable {
+    protected void initializerStartup(WebApplicationContext applicationContext, //
+                                      WebMvcConfiguration mvcConfiguration) throws Throwable //
+    {
         for (final WebApplicationInitializer initializer : getInitializers(applicationContext, mvcConfiguration)) {
             initializer.onStartup(applicationContext);
         }
     }
 
     protected List<WebApplicationInitializer> getInitializers(final WebApplicationContext applicationContext, //
-            final WebMvcConfiguration mvcConfiguration) //
+                                                              final WebMvcConfiguration mvcConfiguration) //
     {
         final List<WebApplicationInitializer> initializers = applicationContext.getBeans(WebApplicationInitializer.class);
 
@@ -351,7 +370,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     }
 
     protected WebMvcConfiguration getWebMvcConfiguration(ApplicationContext applicationContext) {
-        return new CompositeWebMvcConfiguration(applicationContext.getBeans(WebMvcConfiguration.class));
+        return WebUtils.getWebMvcConfiguration(CompositeWebMvcConfiguration::new);
     }
 
     /**
@@ -413,7 +432,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      * @throws Throwable
      */
     protected void registerFromXml(final Document doc, final String filePath, //
-            final ViewConfiguration viewConfiguration) throws Throwable //
+                                   final ViewConfiguration viewConfiguration) throws Throwable //
     {
         final Element root = doc.getDocumentElement();
         if (ROOT_ELEMENT.equals(root.getNodeName())) { // root element
@@ -491,9 +510,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     /**
      * Check resolvers
      */
-    protected void checkFrameWorkResolvers(WebApplicationContext applicationContext) {
-
-    }
+    protected void checkFrameWorkResolvers(WebApplicationContext applicationContext) {}
 
     // -------------------------------------
 
@@ -501,7 +518,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      * @author TODAY <br>
      *         2019-05-17 17:46
      */
-    protected class CompositeWebMvcConfiguration implements WebMvcConfiguration {
+    public static class CompositeWebMvcConfiguration implements WebMvcConfiguration {
 
         private final List<WebMvcConfiguration> webMvcConfigurations;
 
@@ -554,9 +571,15 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         @Override
         public void configureInitializer(List<WebApplicationInitializer> initializers) {
-
             for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
                 webMvcConfiguration.configureInitializer(initializers);
+            }
+        }
+
+        @Override
+        public <T> void configureTemplateLoader(List<T> loaders) {
+            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+                webMvcConfiguration.configureTemplateLoader(loaders);
             }
         }
 

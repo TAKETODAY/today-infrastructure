@@ -43,9 +43,7 @@ public interface WebMvcConfiguration {
      * @param parameterResolvers
      *            {@link ParameterResolver} registry
      */
-    default void configureParameterResolver(List<ParameterResolver> parameterResolvers) {
-
-    }
+    default void configureParameterResolver(List<ParameterResolver> parameterResolvers) {}
 
     /**
      * Configure {@link ResultResolver}
@@ -53,9 +51,7 @@ public interface WebMvcConfiguration {
      * @param resultResolvers
      *            {@link ResultResolver} registry
      */
-    default void configureResultResolver(List<ResultResolver> resultResolvers) {
-
-    }
+    default void configureResultResolver(List<ResultResolver> resultResolvers) {}
 
     /**
      * Configure {@link ViewResolver}
@@ -63,9 +59,7 @@ public interface WebMvcConfiguration {
      * @param viewResolver
      *            {@link ViewResolver} instance
      */
-    default void configureViewResolver(AbstractViewResolver viewResolver) {
-
-    }
+    default void configureViewResolver(AbstractViewResolver viewResolver) {}
 
     /**
      * Configure static {@link Resource}
@@ -73,9 +67,7 @@ public interface WebMvcConfiguration {
      * @param registry
      *            {@link ResourceMappingRegistry}
      */
-    default void configureResourceMappings(ResourceMappingRegistry registry) {
-
-    }
+    default void configureResourceMappings(ResourceMappingRegistry registry) {}
 
     /**
      * Configure {@link Multipart}
@@ -83,9 +75,7 @@ public interface WebMvcConfiguration {
      * @param multipartConfiguration
      *            {@link MultipartConfiguration}
      */
-    default void configureMultipart(MultipartConfiguration multipartConfiguration) {
-
-    }
+    default void configureMultipart(MultipartConfiguration multipartConfiguration) {}
 
     /**
      * Use {@link TypeConverter}s to convert request parameters
@@ -93,9 +83,7 @@ public interface WebMvcConfiguration {
      * @param typeConverters
      *            {@link TypeConverter} registry
      */
-    default void configureTypeConverter(List<TypeConverter> typeConverters) {
-
-    }
+    default void configureTypeConverter(List<TypeConverter> typeConverters) {}
 
     /**
      * Configure WebApplicationInitializer
@@ -103,8 +91,15 @@ public interface WebMvcConfiguration {
      * @param initializers
      *            WebApplicationInitializer register
      */
-    default void configureInitializer(List<WebApplicationInitializer> initializers) {
+    default void configureInitializer(List<WebApplicationInitializer> initializers) {}
 
-    }
+    /**
+     * Configure Freemarker's TemplateLoader s
+     * 
+     * @param loaders
+     *            TemplateLoaders
+     * @since 2.3.7
+     */
+    default <T extends Object> void configureTemplateLoader(List<T> loaders) {}
 
 }

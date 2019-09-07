@@ -35,8 +35,6 @@ public interface ServletWebMvcConfiguration extends WebMvcConfiguration {
      * @param urlMappings
      *            {@link ResourceServlet} url mappings
      */
-    default void configureResourceServletUrlMappings(Set<String> urlMappings) {
-
-    }
+    default void configureResourceServletUrlMappings(Set<String> urlMappings) {}
 
 }
