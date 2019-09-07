@@ -270,13 +270,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
             t = getDefaultClassLoader();
         }
         if (t == null) {
-            t = getClass().getClassLoader();
-        }
-        if (t == null) {
-            t = Thread.currentThread().getContextClassLoader();
-        }
-        if (t == null) {
-            throw new IllegalStateException("Cannot determine classloader");
+            return ClassUtils.getClassLoader();
         }
         return t;
     }

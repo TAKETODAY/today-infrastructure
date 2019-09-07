@@ -1377,7 +1377,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
                     Label constructed = e.make_label();
                     e.load_this();
                     e.getfield(CONSTRUCTED_FIELD);
-                    e.if_jump(e.NE, constructed);
+                    e.if_jump(CodeEmitter.NE, constructed);
                     e.load_this();
                     e.load_args();
                     e.super_invoke();
@@ -1391,7 +1391,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
             CallbackGenerator gen = generators[i];
             if (!seenGen.contains(gen)) {
                 seenGen.add(gen);
-                final List fmethods = (List) groups.get(gen);
+                final List<MethodInfo> fmethods = groups.get(gen);
                 if (fmethods != null) {
                     try {
                         gen.generate(ce, context, fmethods);

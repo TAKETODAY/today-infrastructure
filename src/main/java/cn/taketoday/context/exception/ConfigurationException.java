@@ -28,7 +28,6 @@ import lombok.NoArgsConstructor;
  * configuration exception
  * 
  * @author TODAY <br>
- * 
  *         2018-08-08 09:55
  */
 @NoArgsConstructor
@@ -41,14 +40,11 @@ public class ConfigurationException extends ContextException {
 
     public ConfigurationException(String message, Throwable cause) {
         super(message, cause);
+        LoggerFactory.getLogger(ConfigurationException.class)//
+                .error("Configuration Exception Message: [" + message + "]");
     }
 
     public ConfigurationException(String message) {
-        super(message);
-
-        LoggerFactory.getLogger(ConfigurationException.class)//
-                .error("Configuration Exception Message: [" + message + "]");
-
-//		System.exit(0);
+        this(message, null);
     }
 }

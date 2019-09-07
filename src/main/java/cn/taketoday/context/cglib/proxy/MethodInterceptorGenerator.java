@@ -193,11 +193,11 @@ class MethodInterceptorGenerator implements CallbackGenerator {
             final ClassInfo classInfo = entry.getKey();
             final List<MethodInfo> classMethods = entry.getValue();
 
-            e.push(2 * classMethods.size());
+            final int size = classMethods.size();
+            e.push(2 * size);
             e.newarray(Constant.TYPE_STRING);
-            for (int index = 0; index < classMethods.size(); index++) {
-                MethodInfo method = (MethodInfo) classMethods.get(index);
-                Signature sig = method.getSignature();
+            for (int index = 0; index < size; index++) {
+                Signature sig = classMethods.get(index).getSignature();
                 e.dup();
                 e.push(2 * index);
                 e.push(sig.getName());
@@ -214,7 +214,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
             e.invoke_virtual(Constant.TYPE_CLASS, GET_DECLARED_METHODS);
             e.invoke_static(REFLECT_UTILS, FIND_METHODS);
 
-            for (int index = 0; index < classMethods.size(); index++) {
+            for (int index = 0; index < size; index++) {
                 MethodInfo method = (MethodInfo) classMethods.get(index);
                 Signature sig = method.getSignature();
                 Signature impl = context.getImplSignature(method);

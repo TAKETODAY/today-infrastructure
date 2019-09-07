@@ -23,6 +23,7 @@ import java.util.Map;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Type;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * 
@@ -90,19 +91,22 @@ public abstract class TypeUtils {
     }
 
     public static Type[] add(Type[] types, Type extra) {
-        if (types == null) {
+        return add(types, extra, false);
+    }
+
+    public static Type[] add(Type[] types, Type extra, boolean justAdd) {
+
+        if (ObjectUtils.isEmpty(types)) {
             return new Type[] { extra };
         }
-        else {
-            List<Type> list = Arrays.asList(types);
-            if (list.contains(extra)) {
-                return types;
-            }
-            Type[] copy = new Type[types.length + 1];
-            System.arraycopy(types, 0, copy, 0, types.length);
-            copy[types.length] = extra;
-            return copy;
+
+        if (!justAdd && Arrays.asList(types).contains(extra)) {
+            return types;
         }
+        final Type[] copy = new Type[types.length + 1];
+        System.arraycopy(types, 0, copy, 0, types.length);
+        copy[types.length] = extra;
+        return copy;
     }
 
     public static Type[] add(Type[] t1, Type[] t2) {
