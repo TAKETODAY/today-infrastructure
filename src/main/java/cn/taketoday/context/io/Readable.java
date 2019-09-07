@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import cn.taketoday.context.Constant;
+
 /**
  * @author TODAY <br>
  *         2019-07-08 00:12
@@ -49,7 +51,19 @@ public interface Readable {
      *             If an input exception occurs
      */
     default Reader getReader() throws IOException {
-        return new InputStreamReader(getInputStream());
+        return getReader(Constant.DEFAULT_ENCODING);
+    }
+
+    /**
+     * Get {@link Reader}
+     * 
+     * @param encoding
+     *            Charset string
+     * @throws IOException
+     *             If an input exception occurs
+     */
+    default Reader getReader(String encoding) throws IOException {
+        return new InputStreamReader(getInputStream(), encoding);
     }
 
 }
