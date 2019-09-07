@@ -32,6 +32,7 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
@@ -169,7 +170,11 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
                 }
                 throw ExceptionUtils.newConfigurationException(null, "Not a instance of: " + m.getParameterClass());
             }
-            return null;
+
+            if (m.isRequired()) {
+                throw ExceptionUtils.newConfigurationException(null, "There is no shared variable named: " + m.getName());
+            }
+            return ConvertUtils.convert(m.getDefaultValue(), m.getParameterClass());
         }));
 
     }

@@ -35,9 +35,15 @@ import cn.taketoday.web.Constant;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SharedVariable {
 
-    /**
-     * Freemarker Configuration shared variable name
-     */
+    /** Freemarker Configuration shared variable name */
     String value() default Constant.BLANK;
 
+    /**
+     * If required == true when request parameter is null, will be return bad
+     * request.
+     */
+    boolean required() default false;
+
+    /** When required == false, and parameter == null. use default value. */
+    String defaultValue() default Constant.BLANK;
 }
