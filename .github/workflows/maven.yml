@@ -14,4 +14,10 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Maven
-      run: mvn package --file pom.xml
+      run: |
+        git clone https://github.com/TAKETODAY/today-context.git
+        cd ./today-context
+        mvn install
+        cd ../
+        mvn package --file pom.xml
+                
