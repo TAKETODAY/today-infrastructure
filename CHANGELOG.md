@@ -55,7 +55,7 @@
 - :sparkles: feat: add validation feature
 - :sparkles: feat: add `SharedVariable`
 - :sparkles: feat: supports prototype controller
-
+- :sparkles: feat: 添加TemplateLoader，可配置多个模板加载位置
 
 
 ## v2.3.6
