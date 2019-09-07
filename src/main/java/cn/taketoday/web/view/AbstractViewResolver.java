@@ -21,6 +21,7 @@ package cn.taketoday.web.view;
 
 import java.util.Locale;
 
+import cn.taketoday.context.Constant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,9 +33,9 @@ import lombok.Setter;
 @Getter
 public abstract class AbstractViewResolver implements ViewResolver {
 
-    protected String prefix = "/WEB-INF/ftl";
+    protected String prefix;
     protected String suffix = ".ftl";
-    protected String encoding = "UTF-8";
     protected Locale locale = Locale.CHINA;
+    protected String encoding = Constant.DEFAULT_ENCODING;
 
 }
