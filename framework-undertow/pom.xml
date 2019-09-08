@@ -12,7 +12,7 @@
     <description>Undertow Web Server Plugin</description>
 
     <properties>
-        <undertow.version>2.0.21.Final</undertow.version>
+        <undertow.version>2.0.26.Final</undertow.version>
     </properties>
 
     <dependencies>
