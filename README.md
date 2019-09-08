@@ -225,6 +225,6 @@ public final String multiUpload(HttpServletResponse response, @Multipart Multipa
 * [Hibernate Validator](https://github.com/hibernate/hibernate-validator): Hibernate Validator - Bean Validation 2.0 (JSR 380) Reference Implementation
 
 
-## 开源协议
+## 📄 开源协议
 请查看 [GNU GENERAL PUBLIC LICENSE](https://github.com/TAKETODAY/today-web/blob/master/LICENSE)
 
