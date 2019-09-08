@@ -72,11 +72,11 @@ public class ThymeleafViewResolver extends AbstractViewResolver implements Initi
      * Resolve Thymeleaf View.
      */
     @Override
-    public void resolveView(final String template, final RequestContext requestContext) throws Throwable {
+    public void resolveView(final String template, final RequestContext context) throws Throwable {
 
-        templateEngine.process(template, //
-                new WebContext(requestContext.nativeRequest(), //
-                        requestContext.nativeResponse(), servletContext, locale), requestContext.getWriter());
+        templateEngine.process(template,
+                               new WebContext(context.nativeRequest(), //
+                                       context.nativeResponse(), servletContext, locale), context.getWriter());
     }
 
     @Override

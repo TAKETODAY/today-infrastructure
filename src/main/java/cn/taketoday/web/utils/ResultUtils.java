@@ -53,14 +53,14 @@ public abstract class ResultUtils {
      *            Download buffer size
      * @since 2.1.x
      */
-    public final static void downloadFile(final RequestContext requestContext, //
-            final Resource download, final int bufferSize) throws IOException //
+    public final static void downloadFile(final RequestContext context, //
+                                          final Resource download, final int bufferSize) throws IOException //
     {
-        requestContext.contentLength(download.contentLength());
-        requestContext.contentType(Constant.APPLICATION_FORCE_DOWNLOAD);
+        context.contentLength(download.contentLength());
+        context.contentType(Constant.APPLICATION_FORCE_DOWNLOAD);
 
-        requestContext.responseHeader(Constant.CONTENT_TRANSFER_ENCODING, Constant.BINARY);
-        requestContext.responseHeader(Constant.CONTENT_DISPOSITION, new StringBuilder(Constant.ATTACHMENT_FILE_NAME)//
+        context.responseHeader(Constant.CONTENT_TRANSFER_ENCODING, Constant.BINARY);
+        context.responseHeader(Constant.CONTENT_DISPOSITION, new StringBuilder(Constant.ATTACHMENT_FILE_NAME)//
                 .append(StringUtils.encodeUrl(download.getName()))//
                 .append(Constant.QUOTATION_MARKS)//
                 .toString()//
@@ -68,32 +68,30 @@ public abstract class ResultUtils {
 
         try (final InputStream in = download.getInputStream()) {
 
-            WebUtils.writeToOutputStream(in, requestContext.getOutputStream(), bufferSize);
+            WebUtils.writeToOutputStream(in, context.getOutputStream(), bufferSize);
         }
     }
 
-    public static void resolveException(//
-            final RequestContext requestContext,
-            final ExceptionResolver exceptionResolver, //
-            final WebMapping webMapping, Throwable exception) throws Throwable //
+    public static void resolveException(final RequestContext context,
+                                        final ExceptionResolver resolver, //
+                                        final WebMapping webMapping, final Throwable exception) throws Throwable //
     {
-        exceptionResolver.resolveException(requestContext, ExceptionUtils.unwrapThrowable(exception), webMapping);
+        resolver.resolveException(context, ExceptionUtils.unwrapThrowable(exception), webMapping);
     }
 
-    public static void resolveRedirect(final String redirect, final RequestContext requestContext) throws IOException {
+    public static void resolveRedirect(final String redirect, final RequestContext context) throws IOException {
 
         if (StringUtils.isEmpty(redirect) || redirect.startsWith(Constant.HTTP)) {
-            requestContext.redirect(redirect);
+            context.redirect(redirect);
         }
         else {
-            requestContext.redirect(requestContext.contextPath() + redirect);
+            context.redirect(context.contextPath() + redirect);
         }
     }
 
-    public static void resolveView(//
-            final String resource, //
-            final ViewResolver viewResolver,
-            final RequestContext requestContext) throws Throwable//
+    public static void resolveView(final String resource, //
+                                   final ViewResolver viewResolver,
+                                   final RequestContext requestContext) throws Throwable//
     {
         if (resource.startsWith(Constant.REDIRECT_URL_PREFIX)) {
             resolveRedirect(resource.substring(Constant.REDIRECT_URL_PREFIX_LENGTH), requestContext);

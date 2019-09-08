@@ -49,8 +49,7 @@ public class ConverterParameterResolver implements OrderedParameterResolver {
 
         final String value = requestContext.parameter(parameter.getName());
         if (StringUtils.isEmpty(value)) {
-            if (parameter.isRequired())
-                throw WebUtils.newBadRequest(null, parameter, null);
+            if (parameter.isRequired()) throw WebUtils.newBadRequest(null, parameter, null);
             return converter.convert(parameter.getDefaultValue());
         }
         return converter.convert(value);

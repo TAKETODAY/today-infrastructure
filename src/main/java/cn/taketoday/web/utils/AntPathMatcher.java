@@ -786,8 +786,9 @@ public class AntPathMatcher implements PathMatcher {
                 end = matcher.end();
             }
             patternBuilder.append(quote(pattern, end, pattern.length()));
-            this.pattern = (caseSensitive ? Pattern.compile(patternBuilder.toString()) : Pattern.compile(patternBuilder.toString(),
-                    Pattern.CASE_INSENSITIVE));
+            this.pattern = (caseSensitive
+                    ? Pattern.compile(patternBuilder.toString())
+                    : Pattern.compile(patternBuilder.toString(), Pattern.CASE_INSENSITIVE));
         }
 
         private String quote(String s, int start, int end) {
@@ -809,7 +810,8 @@ public class AntPathMatcher implements PathMatcher {
                 if (uriTemplateVariables != null) {
                     // SPR-8455
                     if (this.variableNames.size() != matcher.groupCount()) {
-                        throw new IllegalArgumentException("The number of capturing groups in the pattern segment " + this.pattern + " does not match the number of URI template variables it defines, which can occur if capturing groups are used in a URI template regex. Use non-capturing groups instead.");
+                        throw new IllegalArgumentException("The number of capturing groups in the pattern segment " + this.pattern
+                                + " does not match the number of URI template variables it defines, which can occur if capturing groups are used in a URI template regex. Use non-capturing groups instead.");
                     }
                     for (int i = 1; i <= matcher.groupCount(); i++) {
                         String name = this.variableNames.get(i - 1);

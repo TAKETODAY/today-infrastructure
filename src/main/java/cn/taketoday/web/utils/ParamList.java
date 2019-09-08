@@ -86,13 +86,11 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
     private static int indexOf(Object o, Object[] elements, int index, int fence) {
         if (o == null) {
             for (int i = index; i < fence; i++)
-                if (elements[i] == null)
-                    return i;
+                if (elements[i] == null) return i;
         }
         else {
             for (int i = index; i < fence; i++)
-                if (o.equals(elements[i]))
-                    return i;
+                if (o.equals(elements[i])) return i;
         }
         return -1;
     }
@@ -111,13 +109,11 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
     private static int lastIndexOf(Object o, Object[] elements, int index) {
         if (o == null) {
             for (int i = index; i >= 0; i--)
-                if (elements[i] == null)
-                    return i;
+                if (elements[i] == null) return i;
         }
         else {
             for (int i = index; i >= 0; i--)
-                if (o.equals(elements[i]))
-                    return i;
+                if (o.equals(elements[i])) return i;
         }
         return -1;
     }
@@ -260,8 +256,7 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
         Object[] elements = array;
         E oldValue = get(index);
         int numMoved = array.length - index - 1;
-        if (numMoved == 0)
-            array = Arrays.copyOf(elements, array.length - 1);
+        if (numMoved == 0) array = Arrays.copyOf(elements, array.length - 1);
         else {
             Object[] newElements = new Object[array.length - 1];
             System.arraycopy(elements, 0, newElements, 0, index);
@@ -279,23 +274,19 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
 
     private boolean remove(Object o, Object[] snapshot, int index) {
 
-        if (snapshot != array)
-            findIndex: {
-                int prefix = Math.min(index, array.length);
-                for (int i = 0; i < prefix; i++) {
-                    if (array[i] != snapshot[i] && eq(o, array[i])) {
-                        index = i;
-                        break findIndex;
-                    }
-                }
-                if (index >= array.length)
-                    return false;
-                if (array[index] == o)
+        if (snapshot != array) findIndex: {
+            int prefix = Math.min(index, array.length);
+            for (int i = 0; i < prefix; i++) {
+                if (array[i] != snapshot[i] && eq(o, array[i])) {
+                    index = i;
                     break findIndex;
-                index = indexOf(o, array, index, array.length);
-                if (index < 0)
-                    return false;
+                }
             }
+            if (index >= array.length) return false;
+            if (array[index] == o) break findIndex;
+            index = indexOf(o, array, index, array.length);
+            if (index < 0) return false;
+        }
 
         Object[] newElements = new Object[array.length - 1];
         System.arraycopy(array, 0, newElements, 0, index);
@@ -318,8 +309,7 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
      */
     public boolean containsAll(Collection<?> c) {
         for (Object e : c) {
-            if (indexOf(e, array, 0, array.length) < 0)
-                return false;
+            if (indexOf(e, array, 0, array.length) < 0) return false;
         }
         return true;
     }
@@ -330,10 +320,8 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
 
     public boolean addAll(Collection<? extends E> c) {
         Object[] cs = (c.getClass() == ParamList.class) ? ((ParamList<?>) c).array : c.toArray();
-        if (cs.length == 0)
-            return false;
-        if (array.length == 0 && cs.getClass() == Object[].class)
-            array = cs;
+        if (cs.length == 0) return false;
+        if (array.length == 0 && cs.getClass() == Object[].class) array = cs;
         else {
             Object[] newElements = Arrays.copyOf(array, array.length + cs.length);
             System.arraycopy(cs, 0, newElements, array.length, cs.length);
@@ -363,14 +351,11 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
      */
     public boolean addAll(int index, Collection<? extends E> c) {
         Object[] cs = c.toArray();
-        if (index > array.length || index < 0)
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + array.length);
-        if (cs.length == 0)
-            return false;
+        if (index > array.length || index < 0) throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + array.length);
+        if (cs.length == 0) return false;
         int numMoved = array.length - index;
         Object[] newElements;
-        if (numMoved == 0)
-            newElements = Arrays.copyOf(array, array.length + cs.length);
+        if (numMoved == 0) newElements = Arrays.copyOf(array, array.length + cs.length);
         else {
             newElements = new Object[array.length + cs.length];
             System.arraycopy(array, 0, newElements, 0, index);
@@ -383,8 +368,7 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
 
     @SuppressWarnings("unchecked")
     public void forEach(Consumer<? super E> action) {
-        if (action == null)
-            throw new NullPointerException();
+        if (action == null) throw new NullPointerException();
         for (int i = 0; i < array.length; ++i) {
             E e = (E) array[i];
             action.accept(e);
@@ -392,15 +376,14 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
     }
 
     public boolean removeIf(Predicate<? super E> filter) {
-        if (filter == null)
-            throw new NullPointerException();
+        if (filter == null) throw new NullPointerException();
         if (array.length != 0) {
             int newlen = 0;
             Object[] temp = new Object[array.length];
             for (int i = 0; i < array.length; ++i) {
-                @SuppressWarnings("unchecked") E e = (E) array[i];
-                if (!filter.test(e))
-                    temp[newlen++] = e;
+                @SuppressWarnings("unchecked")
+                E e = (E) array[i];
+                if (!filter.test(e)) temp[newlen++] = e;
             }
             if (newlen != array.length) {
                 array = Arrays.copyOf(temp, newlen);
@@ -411,11 +394,11 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
     }
 
     public void replaceAll(UnaryOperator<E> operator) {
-        if (operator == null)
-            throw new NullPointerException();
+        if (operator == null) throw new NullPointerException();
         Object[] newElements = Arrays.copyOf(array, array.length);
         for (int i = 0; i < array.length; ++i) {
-            @SuppressWarnings("unchecked") E e = (E) array[i];
+            @SuppressWarnings("unchecked")
+            E e = (E) array[i];
             newElements[i] = operator.apply(e);
         }
         array = newElements;
@@ -459,16 +442,13 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
      * @return {@code true} if the specified object is equal to this list
      */
     public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof List))
-            return false;
+        if (o == this) return true;
+        if (!(o instanceof List)) return false;
 
         List<?> list = (List<?>) (o);
         Iterator<?> it = list.iterator();
         for (int i = 0; i < array.length; ++i)
-            if (!it.hasNext() || !eq(array[i], it.next()))
-                return false;
+            if (!it.hasNext() || !eq(array[i], it.next())) return false;
 
         return !it.hasNext();
     }
@@ -530,8 +510,7 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
      *             {@inheritDoc}
      */
     public ListIterator<E> listIterator(int index) {
-        if (index < 0 || index > array.length)
-            throw new IndexOutOfBoundsException("Index: " + index);
+        if (index < 0 || index > array.length) throw new IndexOutOfBoundsException("Index: " + index);
         return new COWIterator<E>(array, index);
     }
 
@@ -560,15 +539,13 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
 
         @SuppressWarnings("unchecked")
         public E next() {
-            if (!hasNext())
-                throw new NoSuchElementException();
+            if (!hasNext()) throw new NoSuchElementException();
             return (E) snapshot[cursor++];
         }
 
         @SuppressWarnings("unchecked")
         public E previous() {
-            if (!hasPrevious())
-                throw new NoSuchElementException();
+            if (!hasPrevious()) throw new NoSuchElementException();
             return (E) snapshot[--cursor];
         }
 
@@ -616,7 +593,8 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
             Object[] elements = snapshot;
             final int size = elements.length;
             for (int i = cursor; i < size; i++) {
-                @SuppressWarnings("unchecked") E e = (E) elements[i];
+                @SuppressWarnings("unchecked")
+                E e = (E) elements[i];
                 action.accept(e);
             }
             cursor = size;

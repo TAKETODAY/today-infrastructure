@@ -65,7 +65,7 @@ public class BeanParameterResolver implements OrderedParameterResolver {
     }
 
     protected void resolvePojoParameter(RequestContext request, //
-            String parameterName, Object bean, Field field) throws Throwable {
+                                        String parameterName, Object bean, Field field) throws Throwable {
 
         final Class<?> type = field.getType();
         if (type.isArray()) {

@@ -128,7 +128,7 @@ public class DefaultMultipartFile implements MultipartFile {
     @Override
     public boolean equals(Object obj) {
         return this == obj //
-                || (part instanceof DefaultMultipartFile && part.equals(((DefaultMultipartFile) obj).part));
+               || (part instanceof DefaultMultipartFile && part.equals(((DefaultMultipartFile) obj).part));
     }
 
     @Override

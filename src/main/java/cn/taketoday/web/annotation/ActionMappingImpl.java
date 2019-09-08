@@ -82,9 +82,9 @@ public class ActionMappingImpl implements ActionMapping {
         ActionMapping actionMapping = (ActionMapping) obj;
         RequestMethod[] otherMethods = actionMapping.method();
         String[] otherValues = actionMapping.value();
-        if (actionMapping.exclude() != exclude || //
-                otherValues.length != value.length || //
-                method.length != otherMethods.length) {
+        if (actionMapping.exclude() != exclude
+            || otherValues.length != value.length
+            || method.length != otherMethods.length) {
 
             return false;
         }

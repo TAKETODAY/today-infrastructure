@@ -25,9 +25,13 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -89,6 +93,8 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 
     private final ServletContext servletContext;
     private final ServletContextHashModel applicationModel;
+
+    private int cacheSize = 1024;
 
     @Autowired
     public FreeMarkerViewResolver(//
@@ -183,11 +189,11 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
                 this.configuration.setServletContextForTemplateLoading(servletContext, prefix);
             }
             else {
-                configuration.setTemplateLoader(new DefaultTemplateLoader(prefix));
+                configuration.setTemplateLoader(new DefaultTemplateLoader(prefix, cacheSize));
             }
         }
         else {
-            configuration.setTemplateLoader(new CompositeTemplateLoader((Collection<TemplateLoader>) loaders));
+            configuration.setTemplateLoader(new CompositeTemplateLoader((Collection<TemplateLoader>) loaders, cacheSize));
         }
         LoggerFactory.getLogger(getClass()).info("Configuration FreeMarker View Resolver Success.");
     }
@@ -241,17 +247,29 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
      * @author TODAY <br>
      *         2019-09-07 23:48
      */
-    protected class CompositeTemplateLoader implements TemplateLoader {
+    public static class CompositeTemplateLoader implements TemplateLoader {
 
         // none null
         private TemplateLoader[] loaders;
 
+        private final Cache<String, TemplateLoader> cache;
+
         public CompositeTemplateLoader(TemplateLoader... loaders) {
+            this(512, loaders);
+        }
+
+        public CompositeTemplateLoader(int cacheSize, TemplateLoader... loaders) {
             setTemplateLoaders(loaders);
+            this.cache = new Cache<>(cacheSize);
         }
 
         public CompositeTemplateLoader(Collection<TemplateLoader> loaders) {
+            this(loaders, 512);
+        }
+
+        public CompositeTemplateLoader(Collection<TemplateLoader> loaders, int cacheSize) {
             addTemplateLoaders(loaders);
+            this.cache = new Cache<>(cacheSize);
         }
 
         /**
@@ -271,7 +289,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
          * 
          * @return This object
          */
-        public CompositeTemplateLoader setTemplateLoaders(final TemplateLoader... values) {
+        public final CompositeTemplateLoader setTemplateLoaders(final TemplateLoader... values) {
             this.loaders = null;
             this.loaders = values;
             return this;
@@ -337,15 +355,40 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
             return setTemplateLoaders(list.toArray(loader));
         }
 
+        /**
+         * Get a suitable {@link TemplateLoader} With given name
+         * 
+         * @param name
+         *            Template name
+         * @return Suitable {@link TemplateLoader}. May null if there isn't a suitable
+         *         {@link TemplateLoader}
+         * @throws IOException
+         *             If any {@link IOException} coourred
+         */
+        protected TemplateLoader getTemplateLoader(String name) throws IOException {
+
+            final TemplateLoader ret = cache.get(name);
+            if (ret == null) {
+                for (final TemplateLoader loader : loaders) {
+                    final Object source = loader.findTemplateSource(name);
+                    if (source != null) {
+                        cache.put(name, loader);
+                        return loader;
+                    }
+                }
+            }
+            return ret;
+        }
+
         // TemplateLoader
         // -------------------------------------------
 
         @Override
         public Object findTemplateSource(String name) throws IOException {
 
-            for (final TemplateLoader loader : loaders) {
-                final Object source = loader.findTemplateSource(name);
-                if (source != null) return source;
+            final TemplateLoader loader = getTemplateLoader(name);
+            if (loader != null) {
+                return loader.findTemplateSource(name);
             }
             return null;
         }
@@ -389,48 +432,69 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
     public static class DefaultTemplateLoader implements TemplateLoader {
 
         private String prefix;
+        private final Object empty = new Object();
+        public final Cache<String, TemplateSource> cache;
+        private HashMap<String, Object> noneExist = new HashMap<>();
 
-        public DefaultTemplateLoader() {}
+        public DefaultTemplateLoader() {
+            this(null, 1024);
+        }
 
         public DefaultTemplateLoader(String prefix) {
+            this(prefix, 1024);
+        }
+
+        public DefaultTemplateLoader(String prefix, int size) {
             this.prefix = prefix;
+            this.cache = new Cache<>(size);
+        }
+
+        protected String getTemplateName(final String prefix, final String name) {
+
+            if (StringUtils.isEmpty(prefix)) {
+                return StringUtils.checkUrl(name);
+            }
+            return prefix + StringUtils.checkUrl(name);
         }
 
         @Override
         public Object findTemplateSource(String name) throws IOException {
 
-            final Resource resource;
-            final String prefix = getPrefix();
-            try {
-                if (StringUtils.isEmpty(prefix)) {
-                    resource = ResourceUtils.getResource(name);
-                }
-                else {
-                    resource = ResourceUtils.getResource(prefix + StringUtils.checkUrl(name));
-                }
-            }
-            catch (FileNotFoundException e) {
+            final String templateName = getTemplateName(getPrefix(), name);
+
+            if (noneExist.containsKey(templateName)) {
                 return null;
             }
-            return resource.exists() ? resource : null;
+
+            TemplateSource ret = cache.get(templateName);
+            if (ret == null) {
+                try {
+
+                    final Resource res = ResourceUtils.getResource(templateName);
+                    if (res.exists()) {
+                        cache.put(templateName, ret = TemplateSource.create(res));
+                        return ret;
+                    }
+                    noneExist.put(templateName, empty);
+                }
+                catch (FileNotFoundException e) {}
+            }
+            return ret;
         }
 
         @Override
         public long getLastModified(final Object source) {
 
-            if (source instanceof Resource) {
-                try {
-                    return ((Resource) source).lastModified();
-                }
-                catch (IOException e) {}
+            if (source instanceof TemplateSource) {
+                return ((TemplateSource) source).lastModified;
             }
             return -1;
         }
 
         @Override
         public Reader getReader(final Object source, final String encoding) throws IOException {
-            if (source instanceof Resource) {
-                return ((Resource) source).getReader(encoding);
+            if (source instanceof TemplateSource) {
+                return ((TemplateSource) source).reader.get(encoding);
             }
             return null;
         }
@@ -449,6 +513,140 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
             this.prefix = prefix;
             return this;
         }
+
+        /**
+         * Put a Template With from a {@link Resource}
+         * 
+         * @param name
+         *            Template name
+         * @param resource
+         *            {@link TemplateSource} from a {@link Resource}
+         * @return this
+         * @throws IOException
+         *             If any {@link IOException} occurred
+         */
+        public DefaultTemplateLoader putTemplate(String name, Resource resource) throws IOException {
+            cache.put(getTemplateName(prefix, name), TemplateSource.create(resource));
+            return this;
+        }
+
+        /**
+         * Put a Template With a {@link TemplateSource}
+         * 
+         * @param name
+         *            Template name
+         * @param template
+         *            {@link TemplateSource}
+         * @return this
+         */
+        public DefaultTemplateLoader putTemplate(String name, TemplateSource template) {
+            cache.put(getTemplateName(prefix, name), template);
+            return this;
+        }
+
+        /**
+         * Put a Template With last Modified and a {@link ReaderSupplier}
+         * 
+         * @param name
+         *            Template name
+         * @param lastModified
+         *            lastModified
+         * @param reader
+         *            {@link ReaderSupplier}
+         * @return this
+         */
+        public DefaultTemplateLoader putTemplate(final String name, final long lastModified, final ReaderSupplier reader) {
+            cache.put(getTemplateName(prefix, name), TemplateSource.create(lastModified, reader));
+            return this;
+        }
+
+        /**
+         * Remove Template from cache
+         * 
+         * @param name
+         *            Template name
+         * @return this
+         */
+        public DefaultTemplateLoader removeTemplate(String name) {
+            cache.remove(getTemplateName(prefix, name));
+            return this;
+        }
+    }
+
+    public static final class Cache<K, V> {
+
+        private final int size;
+        private final Map<K, V> eden;
+        private final Map<K, V> longterm;
+
+        private Cache(int size) {
+            this.size = size;
+            this.longterm = new WeakHashMap<>(size);
+            this.eden = new ConcurrentHashMap<>(size);
+        }
+
+        public V get(K k) {
+            V v = this.eden.get(k);
+            if (v == null) {
+                synchronized (longterm) {
+                    v = this.longterm.get(k);
+                }
+                if (v != null) {
+                    this.eden.put(k, v);
+                }
+            }
+            return v;
+        }
+
+        public void put(K k, V v) {
+            if (this.eden.size() >= size) {
+                synchronized (longterm) {
+                    this.longterm.putAll(this.eden);
+                }
+                this.eden.clear();
+            }
+            this.eden.put(k, v);
+        }
+
+        public void remove(K k) {
+            this.eden.remove(k);
+            synchronized (longterm) {
+                this.longterm.remove(k);
+            }
+        }
+    }
+
+    public static final class TemplateSource {
+
+        private final long lastModified;
+        private final ReaderSupplier reader;
+
+        protected TemplateSource(Resource resource) throws IOException {
+            this(resource.lastModified(), resource::getReader);
+        }
+
+        protected TemplateSource(long lastModified, ReaderSupplier reader) {
+            this.reader = reader;
+            this.lastModified = lastModified;
+        }
+
+        public static TemplateSource create(Resource resource) throws IOException {
+            return new TemplateSource(resource);
+        }
+
+        public static TemplateSource create(final long lastModified, final ReaderSupplier reader) {
+            return new TemplateSource(lastModified, reader);
+        }
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-09-08 12:05
+     */
+    @FunctionalInterface
+    public interface ReaderSupplier {
+
+        Reader get(String c) throws IOException;
     }
 
 }

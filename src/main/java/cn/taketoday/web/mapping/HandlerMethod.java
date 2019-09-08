@@ -72,7 +72,7 @@ public class HandlerMethod {
         }
 
         throw ExceptionUtils.newConfigurationException(null,
-                "There isn't have a result resolver to resolve : [" + toString() + "]");
+                                                       "There isn't have a result resolver to resolve : [" + toString() + "]");
     }
 
     public HandlerMethod(Method method, List<MethodParameter> parameters, Class<?> reutrnType) {

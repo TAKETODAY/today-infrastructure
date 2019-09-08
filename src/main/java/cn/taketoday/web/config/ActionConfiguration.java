@@ -165,7 +165,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      *             If any {@link Exception} occurred
      */
     private void setActionMapping(Class<?> beanClass, Method method, //
-            Set<String> namespaces, Set<RequestMethod> methodsOnClass) throws Exception //
+                                  Set<String> namespaces, Set<RequestMethod> methodsOnClass) throws Exception //
     {
         final AnnotationAttributes[] annotationAttributes = //
                 ClassUtils.getAnnotationAttributesArray(method, ActionMapping.class);
@@ -173,7 +173,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
         if (ObjectUtils.isNotEmpty(annotationAttributes)) {
             // do mapping url
             this.mappingHandlerMapping(this.createHandlerMapping(beanClass, method), // create HandlerMapping
-                    namespaces, methodsOnClass, annotationAttributes);
+                                       namespaces, methodsOnClass, annotationAttributes);
         }
     }
 
@@ -201,7 +201,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      *            {@link ActionMapping} Attributes
      */
     private void mappingHandlerMapping(HandlerMapping handlerMapping, Set<String> namespaces, //
-            Set<RequestMethod> classRequestMethods, AnnotationAttributes[] annotationAttributes) //
+                                       Set<RequestMethod> classRequestMethods, AnnotationAttributes[] annotationAttributes) //
     {
         final HandlerMethod handlerMethod = handlerMapping.getHandlerMethod();
 
@@ -245,19 +245,19 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      * @see RequestMethod
      */
     private void doMapping(final int handlerMappingIndex, //
-            HandlerMethod handlerMethod, String urlOnMethod, RequestMethod requestMethod) //
+                           HandlerMethod handlerMethod, String urlOnMethod, RequestMethod requestMethod) //
     {
         final String url = requestMethod.name() //
                 + getContextPath() + ContextUtils.resolveValue(urlOnMethod, String.class, variables); // GET/blog/users/1 GET/blog/#{key}/1
 
         if (!doMappingPathVariable(url, //
-                handlerMethod.getParameters(), handlerMethod.getMethod(), handlerMappingIndex, requestMethod.name())) {
+                                   handlerMethod.getParameters(), handlerMethod.getMethod(), handlerMappingIndex, requestMethod.name())) {
 
             this.requestMappings.put(url, Integer.valueOf(handlerMappingIndex));
             log.info(//
-                    "Mapped [{}] -> [{}] interceptors -> {}", //
-                    url, handlerMethod.getMethod(), //
-                    Arrays.toString(handlerMappingRegistry.get(handlerMappingIndex).getInterceptors())//
+                     "Mapped [{}] -> [{}] interceptors -> {}", //
+                     url, handlerMethod.getMethod(), //
+                     Arrays.toString(handlerMappingRegistry.get(handlerMappingIndex).getInterceptors())//
             );
         }
     }
@@ -277,8 +277,9 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      *            Request method string
      * @return If mapped
      */
-    private boolean doMappingPathVariable(String regexUrl, //
-            MethodParameter[] methodParameters, Method method, int index, String requestMethod_) //
+    private boolean doMappingPathVariable(String regexUrl,
+                                          MethodParameter[] methodParameters,
+                                          Method method, int index, String requestMethod_) //
     {
 
         if (!(regexUrl.indexOf('*') > -1 || regexUrl.indexOf('{') > -1)) { //
@@ -336,8 +337,8 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
                 }
             }
             if (!hasSet) {
-                methodParameter.setSplitMethodUrl(//
-                        methodUrl.replace(requestMethod_, Constant.BLANK).split(Constant.PATH_VARIABLE_REGEXP)//
+                methodParameter.setSplitMethodUrl(methodUrl.replace(requestMethod_, Constant.BLANK)//
+                        .split(Constant.PATH_VARIABLE_REGEXP)//
                 );
                 hasSet = true;
             }

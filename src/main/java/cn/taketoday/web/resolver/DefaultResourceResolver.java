@@ -86,11 +86,10 @@ public class DefaultResourceResolver implements ResourceResolver {
 
                 if (createRelative.exists()) {
 //                    log.debug("Relative Resource: [{}]", createRelative);
-                    return new DefaultDelegateWebResource(createRelative);
+                    return DefaultDelegateWebResource.create(createRelative);
                 }
             }
-            catch (IOException e) {
-            }
+            catch (IOException e) {}
         }
         return null;
     }
@@ -113,6 +112,10 @@ public class DefaultResourceResolver implements ResourceResolver {
         private final long lastModified;
 
         private final Resource resource;
+
+        public static DefaultDelegateWebResource create(Resource resource) throws IOException {
+            return new DefaultDelegateWebResource(resource);
+        }
 
         public DefaultDelegateWebResource(Resource resource) throws IOException {
             this.name = resource.getName();

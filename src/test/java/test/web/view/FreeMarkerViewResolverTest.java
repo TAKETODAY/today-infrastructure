@@ -30,8 +30,7 @@ import org.junit.Test;
 public class FreeMarkerViewResolverTest {
 
     @Before
-    public void setUp() throws Exception {
-    }
+    public void setUp() throws Exception {}
 
     @Test
     public void test_ResolveView() {

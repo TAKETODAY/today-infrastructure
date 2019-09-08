@@ -56,8 +56,8 @@ import lombok.extern.slf4j.Slf4j;
 public class DefaultExceptionResolver implements ExceptionResolver {
 
     @Override
-    public void resolveException(RequestContext requestContext, //
-            Throwable ex, WebMapping mvcMapping) throws Throwable //
+    public void resolveException(final RequestContext requestContext,
+                                 final Throwable ex, final WebMapping mvcMapping) throws Throwable //
     {
         try {
 
@@ -75,9 +75,9 @@ public class DefaultExceptionResolver implements ExceptionResolver {
                         handlerMethod.resolveResult(requestContext, resolveImageException(ex, requestContext));
                     }
                     else if (handlerMethod.is(void.class) //
-                            || handlerMethod.is(Object.class)//
-                            || handlerMethod.is(ModelAndView.class)//
-                            || ViewResolverResultResolver.supportsResolver(handlerMethod)) {
+                             || handlerMethod.is(Object.class)//
+                             || handlerMethod.is(ModelAndView.class)//
+                             || ViewResolverResultResolver.supportsResolver(handlerMethod)) {
 
                         final String redirect = responseStatus.redirect();
                         if (StringUtils.isNotEmpty(redirect)) { // has redirect
@@ -109,7 +109,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
         }
         catch (Throwable handlerException) {
             log.error("Handling of [{}] resulted in Exception: [{}]", //
-                    ex.getClass().getName(), handlerException.getClass().getName(), handlerException);
+                      ex.getClass().getName(), handlerException.getClass().getName(), handlerException);
 
             throw handlerException;
         }
@@ -121,9 +121,9 @@ public class DefaultExceptionResolver implements ExceptionResolver {
             return 405;
         }
         else if (ex instanceof BadRequestException || //
-                ex instanceof ValidationException || //
-                ex instanceof ConversionException || //
-                ex instanceof FileSizeExceededException) //
+                 ex instanceof ValidationException || //
+                 ex instanceof ConversionException || //
+                 ex instanceof FileSizeExceededException) //
         {
             return 400;
         }
@@ -149,7 +149,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
      * @param msg
      */
     public static void resolveViewException(Throwable ex, //
-            final RequestContext requestContext, String msg) throws IOException //
+                                            final RequestContext requestContext, String msg) throws IOException //
     {
         requestContext.sendError(getStatus(ex), msg);
     }
@@ -157,7 +157,8 @@ public class DefaultExceptionResolver implements ExceptionResolver {
     /**
      * resolve image
      */
-    public static BufferedImage resolveImageException(final Throwable ex, final RequestContext requestContext) throws IOException {
+    public static BufferedImage resolveImageException(final Throwable ex,
+                                                      final RequestContext requestContext) throws IOException {
 
         requestContext.contentType(Constant.CONTENT_TYPE_IMAGE);
 

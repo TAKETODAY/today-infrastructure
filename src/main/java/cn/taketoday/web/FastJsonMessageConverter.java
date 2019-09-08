@@ -49,9 +49,9 @@ public class FastJsonMessageConverter implements MessageConverter {
     public FastJsonMessageConverter(@Env(Constant.FAST_JSON_SERIALIZE_FEATURES) SerializerFeature[] serializerFeature) {
         if (serializerFeature == null) {
             serializeFeatures = new SerializerFeature[] { //
-                    SerializerFeature.WriteMapNullValue, //
-                    SerializerFeature.WriteNullListAsEmpty, //
-                    SerializerFeature.DisableCircularReferenceDetect//
+                SerializerFeature.WriteMapNullValue, //
+                SerializerFeature.WriteNullListAsEmpty, //
+                SerializerFeature.DisableCircularReferenceDetect//
             };
         }
         else {
@@ -102,7 +102,7 @@ public class FastJsonMessageConverter implements MessageConverter {
         if (parsedJson instanceof JSONArray) { // array
             return fromJSONArray(parameter, (JSONArray) parsedJson);
         }
-        
+
         if (parsedJson instanceof JSONObject) {
             return fromJSONObject(parameter, (JSONObject) parsedJson);
         }

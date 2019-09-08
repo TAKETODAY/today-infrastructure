@@ -38,26 +38,26 @@ public class ModelParameterResolver implements ParameterResolver {
     @Override
     public boolean supports(final MethodParameter parameter) {
         return parameter.isAssignableFrom(Model.class) //
-                || parameter.is(HttpHeaders.class)//
-                || (parameter.is(Map.class) //
-                        && parameter.isGenericPresent(String.class, 0)//
-                        && parameter.isGenericPresent(Object.class, 1)//
-                );
+               || parameter.is(HttpHeaders.class)//
+               || (parameter.is(Map.class)
+                   && parameter.isGenericPresent(String.class, 0)
+                   && parameter.isGenericPresent(Object.class, 1)//
+               );
     }
 
     /**
      * Resolve {@link Model} parameter.
      */
     @Override
-    public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
         if (parameter.isAssignableFrom(RedirectModel.class)) { // RedirectModel
-            return requestContext.redirectModel(new RedirectModelAttributes());
+            return context.redirectModel(new RedirectModelAttributes());
         }
         if (parameter.isAssignableFrom(ModelAndView.class)) {
-            return requestContext.modelAndView(new ModelAndView(null, requestContext));
+            return context.modelAndView(new ModelAndView(null, context));
         }
-        return requestContext;
+        return context;
     }
 
 }

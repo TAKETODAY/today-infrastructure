@@ -49,14 +49,12 @@ public class HandlerInterceptorRegistry implements RandomAccess {
     public int indexOf(Class<? extends HandlerInterceptor> handlerInterceptorClass) {
         if (handlerInterceptorClass == null) {
             for (int i = 0; i < array.length; i++)
-                if (array[i] == null)
-                    return i;
+                if (array[i] == null) return i;
         }
         else {
             final String className = handlerInterceptorClass.getName();
             for (int i = 0; i < array.length; i++) {
-                if (className.equals(array[i].getClass().getName()))
-                    return i;
+                if (className.equals(array[i].getClass().getName())) return i;
             }
         }
         return -1;

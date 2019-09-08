@@ -30,15 +30,12 @@ import org.junit.Test;
 public class CommonsMultipartResolverTest {
 
     @Before
-    public void setUp() throws Exception {
-    }
+    public void setUp() throws Exception {}
 
     @Test
-    public void testIsMultipart() {
-    }
+    public void testIsMultipart() {}
 
     @Test
-    public void testResolveMultipart() {
-    }
+    public void testResolveMultipart() {}
 
 }

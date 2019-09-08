@@ -162,9 +162,11 @@ public class ResourceServlet extends GenericServlet {
      *            All mappings
      * @return Mapped {@link ResourceMapping}
      */
-    protected ResourceMapping lookupResourceHandlerMapping(final String path, //
-            final PathMatcher pathMatcher, final List<ResourceMapping> resourceMappings)//
+    protected ResourceMapping lookupResourceHandlerMapping(final String path,
+                                                           final PathMatcher pathMatcher,
+                                                           final List<ResourceMapping> resourceMappings) //
     {
+
         for (final ResourceMapping resourceHandlerMapping : resourceMappings) {
             for (final String pathPattern : resourceHandlerMapping.getPathPatterns()) {
                 if (pathMatcher.match(pathPattern, path)) {
@@ -178,7 +180,7 @@ public class ResourceServlet extends GenericServlet {
     /**
      * Handling resource result to client
      * 
-     * @param requestContext
+     * @param context
      *            Current request context
      * @param resource
      *            {@link Resource}
@@ -187,8 +189,9 @@ public class ResourceServlet extends GenericServlet {
      * @throws IOException
      *             If an input or output exception occurs
      */
-    protected void resolveResult(final RequestContext requestContext, //
-            WebResource resource, ResourceMapping resourceMapping) throws IOException//
+    protected void resolveResult(final RequestContext context, //
+                                 final WebResource resource,
+                                 final ResourceMapping resourceMapping) throws IOException//
     {
         String contentType = resource.getContentType();
         if (StringUtils.isEmpty(contentType)) {
@@ -197,29 +200,29 @@ public class ResourceServlet extends GenericServlet {
                 contentType = Constant.BLANK;
             }
         }
-        requestContext.contentType(contentType);
+        context.contentType(contentType);
 
         // Validate request headers for caching
         // ---------------------------------------------------
 
         // If-None-Match header should contain "*" or ETag. If so, then return 304
-        final String ifNoneMatch = requestContext.requestHeader(Constant.IF_NONE_MATCH);
+        final String ifNoneMatch = context.requestHeader(Constant.IF_NONE_MATCH);
         final String eTag = resource.getETag();
         if (matches(ifNoneMatch, eTag)) {
-            requestContext.responseHeader(Constant.ETAG, eTag); // 304.
-            requestContext.status(HttpServletResponse.SC_NOT_MODIFIED);
+            context.responseHeader(Constant.ETAG, eTag); // 304.
+            context.status(HttpServletResponse.SC_NOT_MODIFIED);
             return;
         }
 
         // If-Modified-Since header should be greater than LastModified
         // If so, then return 304
         // This header is ignored if any If-None-Match header is specified
-        final long ifModifiedSince = requestContext.requestDateHeader(Constant.IF_MODIFIED_SINCE);// If-Modified-Since
+        final long ifModifiedSince = context.requestDateHeader(Constant.IF_MODIFIED_SINCE);// If-Modified-Since
         final long lastModified = resource.lastModified();
         if (ifNoneMatch == null && (ifModifiedSince > 0 && lastModified != 0 && ifModifiedSince >= lastModified)) {
 //      if (ifNoneMatch == null && ge(ifModifiedSince, lastModified)) {
-            requestContext.responseDateHeader(Constant.LAST_MODIFIED, lastModified); // 304
-            requestContext.status(HttpServletResponse.SC_NOT_MODIFIED);
+            context.responseDateHeader(Constant.LAST_MODIFIED, lastModified); // 304
+            context.status(HttpServletResponse.SC_NOT_MODIFIED);
             return;
         }
 
@@ -227,34 +230,34 @@ public class ResourceServlet extends GenericServlet {
         // ----------------------------------------------------
 
         // If-Match header should contain "*" or ETag. If not, then return 412
-        final String ifMatch = requestContext.requestHeader(Constant.IF_MATCH);
+        final String ifMatch = context.requestHeader(Constant.IF_MATCH);
         if (ifMatch != null && !matches(ifMatch, eTag)) {
-            requestContext.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, null);
+            context.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, null);
             return;
         }
 
         // If-Unmodified-Since header should be greater than LastModified.
         // If not, then return 412.
-        final long ifUnmodifiedSince = requestContext.requestDateHeader(Constant.IF_UNMODIFIED_SINCE);// "If-Unmodified-Since"
+        final long ifUnmodifiedSince = context.requestDateHeader(Constant.IF_UNMODIFIED_SINCE);// "If-Unmodified-Since"
 
         if (ifUnmodifiedSince > 0 && lastModified > 0 && ifUnmodifiedSince <= lastModified) {
-            requestContext.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, null);
+            context.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, null);
             return;
         }
 
-        requestContext.status(HttpServletResponse.SC_OK);
+        context.status(HttpServletResponse.SC_OK);
 
-        applyHeaders(requestContext, lastModified, eTag, resourceMapping);
+        applyHeaders(context, lastModified, eTag, resourceMapping);
 
-        if (isHeadRequest(requestContext)) {
+        if (isHeadRequest(context)) {
             return;
         }
 
         if (isGZipEnabled(resource, resourceMapping, contentType)) {
-            writeCompressed(resource, requestContext, resourceMapping);
+            writeCompressed(resource, context, resourceMapping);
         }
         else {
-            write(resource, requestContext, resourceMapping);
+            write(resource, context, resourceMapping);
         }
     }
 
@@ -266,24 +269,24 @@ public class ResourceServlet extends GenericServlet {
      * Whether gZip enable
      * 
      * @param resource
-     * @param resourceMapping
+     * @param mapping
      * @param contentType
      * @return whether gZip enable
      * @throws IOException
      *             If any IO exception occurred
      */
-    protected boolean isGZipEnabled(final WebResource resource, //
-            final ResourceMapping resourceMapping, final String contentType) throws IOException //
+    protected boolean isGZipEnabled(final WebResource resource,
+                                    final ResourceMapping mapping, final String contentType) throws IOException //
     {
-        return resourceMapping.isGzip() //
-                && isContentCompressable(contentType) //
-                && resource.contentLength() > resourceMapping.getGzipMinLength();
+        return mapping.isGzip() //
+               && isContentCompressable(contentType) //
+               && resource.contentLength() > mapping.getGzipMinLength();
     }
 
     protected boolean isContentCompressable(final String contentType) {
         return "image/svg+xml".equals(contentType) //
-                || !contentType.startsWith("image") //
-                        && !contentType.startsWith("video");
+               || !contentType.startsWith("image") //
+                  && !contentType.startsWith("video");
     }
 
     /**
@@ -296,8 +299,9 @@ public class ResourceServlet extends GenericServlet {
      * @throws IOException
      *             If any IO exception occurred
      */
-    protected void writeCompressed(final Resource resource, final RequestContext requestContext, //
-            final ResourceMapping resourceMapping) throws IOException //
+    protected void writeCompressed(final Resource resource,
+                                   final RequestContext requestContext, //
+                                   final ResourceMapping resourceMapping) throws IOException //
     {
         requestContext.responseHeader(Constant.CONTENT_ENCODING, Constant.GZIP);
 
@@ -317,7 +321,7 @@ public class ResourceServlet extends GenericServlet {
 //            baos.writeTo(requestContext.getOutputStream());
 
             WebUtils.writeToOutputStream(source, //
-                    new GZIPOutputStream(requestContext.getOutputStream(), bufferSize), bufferSize);
+                                         new GZIPOutputStream(requestContext.getOutputStream(), bufferSize), bufferSize);
         }
     }
 
@@ -326,19 +330,20 @@ public class ResourceServlet extends GenericServlet {
      * 
      * @param resource
      *            {@link Resource}
-     * @param requestContext
+     * @param context
      *            Current request context
      * @throws IOException
      *             If any IO exception occurred
      */
-    protected void write(final Resource resource, final RequestContext requestContext, //
-            final ResourceMapping resourceMapping) throws IOException //
+    protected void write(final Resource resource, 
+                         final RequestContext context, //
+                         final ResourceMapping resourceMapping) throws IOException //
     {
-        requestContext.contentLength(resource.contentLength());
+        context.contentLength(resource.contentLength());
 
         try (final InputStream source = resource.getInputStream()) {
 
-            WebUtils.writeToOutputStream(source, requestContext.getOutputStream(), resourceMapping.getBufferSize());
+            WebUtils.writeToOutputStream(source, context.getOutputStream(), resourceMapping.getBufferSize());
         }
 
     }
@@ -359,7 +364,7 @@ public class ResourceServlet extends GenericServlet {
      *             If last modify read error
      */
     protected void applyHeaders(final RequestContext requestContext, final long lastModified, //
-            final String eTag, final ResourceMapping resourceMapping) throws IOException //
+                                final String eTag, final ResourceMapping resourceMapping) throws IOException //
     {
         if (lastModified > 0) {
             requestContext.responseDateHeader(Constant.LAST_MODIFIED, lastModified);

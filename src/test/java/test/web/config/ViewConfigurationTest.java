@@ -30,11 +30,9 @@ import org.junit.Test;
 public class ViewConfigurationTest {
 
     @Before
-    public void setUp() throws Exception {
-    }
+    public void setUp() throws Exception {}
 
     @Test
-    public void testConfiguration() {
-    }
+    public void testConfiguration() {}
 
 }

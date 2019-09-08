@@ -95,11 +95,11 @@ public class StandardWebServletBeanFactory extends StandardBeanFactory {
             if (servletEnv.containsKey(propertyType)) {
 
                 final String beanName = ((BeanReference) propertyValue.getValue()).getName();
-
+                // @off
                 registerSingleton(beanName, Proxy.newProxyInstance(propertyType.getClassLoader(), new Class[] { propertyType }, //
-                        new ObjectFactoryDelegatingHandler(servletEnv.get(propertyType))//
+                     new ObjectFactoryDelegatingHandler(servletEnv.get(propertyType))//@on
                 ));
-                
+
                 registerBeanDefinition(beanName, new DefaultBeanDefinition(beanName, propertyType));
             }
         }
@@ -119,7 +119,7 @@ public class StandardWebServletBeanFactory extends StandardBeanFactory {
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 
             try {
                 return method.invoke(objectFactory.getObject(), args);

@@ -53,14 +53,14 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
     public boolean supports(final MethodParameter parameter) {
         final Class<?> parameterClass = parameter.getParameterClass();
         return parameterClass == MultipartFile.class //
-                || parameterClass == DefaultMultipartFile.class;
+               || parameterClass == DefaultMultipartFile.class;
     }
 
     @Override
-    protected Object resolveInternal(final RequestContext requestContext, //
-            final MethodParameter parameter, final List<MultipartFile> multipartFiles) throws Throwable //
-    {
-        return multipartFiles.get(0);
+    protected Object resolveInternal(final RequestContext context, //
+                                     final MethodParameter parameter,
+                                     final List<MultipartFile> files) throws Throwable {
+        return files.get(0);
     }
 
     /**
@@ -80,13 +80,14 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
             final Class<?> parameterClass = parameter.getParameterClass();
 
             return (parameterClass == Collection.class || parameterClass == List.class || parameterClass == Set.class) //
-                    && (parameter.isGenericPresent(MultipartFile.class, 0) //
-                            || parameter.isGenericPresent(DefaultMultipartFile.class, 0));
+                   && (parameter.isGenericPresent(MultipartFile.class, 0) //
+                       || parameter.isGenericPresent(DefaultMultipartFile.class, 0));
         }
 
         @Override
-        protected Object resolveInternal(final RequestContext requestContext, //
-                final MethodParameter parameter, final List<MultipartFile> multipartFiles) throws Throwable //
+        protected Object resolveInternal(final RequestContext context, //
+                                         final MethodParameter parameter,
+                                         final List<MultipartFile> multipartFiles) throws Throwable //
         {
             if (parameter.getParameterClass() == Set.class) {
                 return new HashSet<>(multipartFiles);
@@ -113,14 +114,15 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
             final Class<?> parameterClass;
 
             return parameter.isArray() //
-                    && ((parameterClass = parameter.getParameterClass().getComponentType()) == MultipartFile.class //
-                            || parameterClass == DefaultMultipartFile.class);
+                   && ((parameterClass = parameter.getParameterClass().getComponentType()) == MultipartFile.class //
+                       || parameterClass == DefaultMultipartFile.class);
         }
 
         @Override
-        protected Object resolveInternal(final RequestContext requestContext, //
-                final MethodParameter parameter, final List<MultipartFile> multipartFiles) throws Throwable //
-        {
+        protected Object resolveInternal(final RequestContext context,
+                                         final MethodParameter parameter,
+                                         final List<MultipartFile> multipartFiles) throws Throwable {
+
             return multipartFiles.toArray(new MultipartFile[0]);
         }
     }
@@ -153,24 +155,25 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
                 }
                 else {
                     return parameter.isGenericPresent(MultipartFile.class, 1) //
-                            || parameter.isGenericPresent(DefaultMultipartFile.class, 1);
+                           || parameter.isGenericPresent(DefaultMultipartFile.class, 1);
                 }
             }
             return false;
         }
 
         @Override
-        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-            if (WebUtils.isMultipart(requestContext)) {
+        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+            
+            if (WebUtils.isMultipart(context)) {
 
-                if (multipartConfiguration.getMaxRequestSize().toBytes() < requestContext.contentLength()) { // exceed max size?
+                if (multipartConfiguration.getMaxRequestSize().toBytes() < context.contentLength()) { // exceed max size?
 
                     throw new FileSizeExceededException(multipartConfiguration.getMaxRequestSize(), null)//
-                            .setActual(DataSize.of(requestContext.contentLength()));
+                            .setActual(DataSize.of(context.contentLength()));
                 }
 
                 try {
-                    final Map<String, List<MultipartFile>> multipartFiles = requestContext.multipartFiles();
+                    final Map<String, List<MultipartFile>> multipartFiles = context.multipartFiles();
 
                     if (multipartFiles.isEmpty()) {
                         throw WebUtils.newBadRequest("Multipart file must not be empty", parameter.getName(), null);
@@ -188,7 +191,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
                     return files;
                 } finally {
-                    cleanupMultipart(requestContext);
+                    cleanupMultipart(context);
                 }
             }
             throw WebUtils.newBadRequest("This is not a multipart request", parameter.getName(), null);

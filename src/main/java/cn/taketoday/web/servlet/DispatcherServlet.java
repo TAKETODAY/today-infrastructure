@@ -72,9 +72,9 @@ public class DispatcherServlet implements Servlet, Serializable {
     private ServletConfig servletConfig;
 
     @Autowired
-    public DispatcherServlet(//
-            ExceptionResolver exceptionResolver, //
-            HandlerMappingRegistry handlerMappingRegistry, //
+    public DispatcherServlet(
+            ExceptionResolver exceptionResolver,
+            HandlerMappingRegistry handlerMappingRegistry,
             WebServletApplicationContext applicationContext,
             HandlerInterceptorRegistry handlerInterceptorRegistry) //
     {
@@ -89,13 +89,13 @@ public class DispatcherServlet implements Servlet, Serializable {
     }
 
     public static RequestContext prepareContext(final ServletRequest request, final ServletResponse response) {
-        return RequestContextHolder.prepareContext(//
-                new ServletRequestContext((HttpServletRequest) request, (HttpServletResponse) response)//
+        return RequestContextHolder.prepareContext(
+                                                   new ServletRequestContext((HttpServletRequest) request, (HttpServletResponse) response)//
         );
     }
 
     @Override
-    public void service(final ServletRequest req, final ServletResponse res) //
+    public void service(final ServletRequest req, final ServletResponse res)
             throws ServletException, IOException //
     {
         // Lookup handler mapping
@@ -161,7 +161,8 @@ public class DispatcherServlet implements Servlet, Serializable {
      * @since 2.3.7
      */
     protected Object invokeHandler(final RequestContext request,
-            final HandlerMethod method, final HandlerMapping mapping) throws Throwable //
+                                   final HandlerMethod method,
+                                   final HandlerMapping mapping) throws Throwable //
     {
         // log.debug("set parameter start");
         return method.getMethod()//

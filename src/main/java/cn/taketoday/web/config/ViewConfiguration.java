@@ -111,21 +111,11 @@ public class ViewConfiguration {
         }
     }
 
-    /**
-     * @param prefix
-     * @param suffix
-     * @param action
-     * @param class_
-     * @param controllerBean
-     * @return
-     * @throws Exception
-     */
-    protected ViewMapping processAction(//
-            final String prefix, //
-            final String suffix, //
-            final Element action, //
-            final Class<?> class_, //
-            final Object controllerBean) throws Exception //
+    protected ViewMapping processAction(final String prefix, 
+                                        final String suffix, 
+                                        final Element action, 
+                                        final Class<?> class_, 
+                                        final Object controllerBean) throws Exception 
     {
 
         String name = action.getAttribute(Constant.ATTR_NAME); // action name
@@ -148,7 +138,7 @@ public class ViewConfiguration {
 
                 if (!targetMethod.isBridge() && method.equals(targetMethod.getName())) {
                     handlerMethod = HandlerMethod.create(targetMethod,
-                            ActionConfiguration.createMethodParameters(targetMethod));
+                                                         ActionConfiguration.createMethodParameters(targetMethod));
                     break;
                 }
             }

@@ -30,15 +30,12 @@ import org.junit.Test;
 public class ActionConfigurationTest {
 
     @Before
-    public void setUp() throws Exception {
-    }
+    public void setUp() throws Exception {}
 
     @Test
-    public void testInit() {
-    }
+    public void testInit() {}
 
     @Test
-    public void testSetConfiguration() {
-    }
+    public void testSetConfiguration() {}
 
 }

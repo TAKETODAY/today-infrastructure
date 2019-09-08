@@ -45,7 +45,7 @@ public class ResourceResultResolver implements ResultResolver {
     public boolean supports(HandlerMethod handlerMethod) {
 
         return handlerMethod.isAssignableFrom(Resource.class)//
-                || handlerMethod.isAssignableFrom(File.class);
+               || handlerMethod.isAssignableFrom(File.class);
     }
 
     @Override

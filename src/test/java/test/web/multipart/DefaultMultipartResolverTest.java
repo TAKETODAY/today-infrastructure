@@ -30,15 +30,12 @@ import org.junit.Test;
 public class DefaultMultipartResolverTest {
 
     @Before
-    public void setUp() throws Exception {
-    }
+    public void setUp() throws Exception {}
 
     @Test
-    public void testResolveMultipart() {
-    }
+    public void testResolveMultipart() {}
 
     @Test
-    public void testCleanupMultipart() {
-    }
+    public void testCleanupMultipart() {}
 
 }

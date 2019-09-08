@@ -41,37 +41,37 @@ public class StreamParameterResolver implements ParameterResolver {
 
         final Class<?> parameterClass = parameter.getParameterClass();
         return parameterClass == Readable.class//
-                || parameterClass == Writable.class//
-                || parameterClass == Reader.class//
-                || parameterClass == Writer.class//
-                || parameterClass == InputStream.class//
-                || parameterClass == OutputStream.class;
+               || parameterClass == Writable.class//
+               || parameterClass == Reader.class//
+               || parameterClass == Writer.class//
+               || parameterClass == InputStream.class//
+               || parameterClass == OutputStream.class;
     }
 
     /**
      * Resolve {@link Model} parameter.
      */
     @Override
-    public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
         final Class<?> parameterClass = parameter.getParameterClass();
 
         if (parameterClass == Readable.class || parameterClass == Writable.class) {
-            return requestContext;
+            return context;
         }
 
         if (parameterClass == Reader.class) {
-            return requestContext.getReader();
+            return context.getReader();
         }
         if (parameterClass == Writer.class) {
-            return requestContext.getWriter();
+            return context.getWriter();
         }
 
         if (parameterClass == InputStream.class) {
-            return requestContext.getInputStream();
+            return context.getInputStream();
         }
 
-        return requestContext.getOutputStream();
+        return context.getOutputStream();
     }
 
 }

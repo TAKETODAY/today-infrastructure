@@ -30,15 +30,12 @@ import org.junit.Test;
 public class DefaultParameterResolverTest {
 
     @Before
-    public void setUp() throws Exception {
-    }
+    public void setUp() throws Exception {}
 
     @Test
-    public void test_ResolveParameter() {
-    }
+    public void test_ResolveParameter() {}
 
     @Test
-    public void test_SupportsParameter() {
-    }
+    public void test_SupportsParameter() {}
 
 }
