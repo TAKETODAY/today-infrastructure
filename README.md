@@ -872,10 +872,13 @@ context is closing
 
 ```
 
-
 ## 🙏 鸣谢
 本项目的诞生离不开以下项目：
-* [Spring](https://github.com/jquery/jquery)：Spring Framework
+* [Spring](https://github.com/spring-projects/spring-framework): Spring Framework
+* [Cglib](https://github.com/cglib/cglib): Byte Code Generation Library
+* [Slf4j](https://github.com/qos-ch/slf4j): Simple Logging Facade for Java
+* [EL](https://github.com/TAKETODAY/today-expression): Java Unified Expression Language
+* [Lombok](https://github.com/rzwitserloot/lombok): Very spicy additions to the Java programming language
 
 
 ## 📄 开源协议
