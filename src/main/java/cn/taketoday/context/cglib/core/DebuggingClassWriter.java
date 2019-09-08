@@ -48,8 +48,7 @@ public class DebuggingClassWriter extends ClassVisitor {
                 Class clazz = Class.forName("cn.taketoday.context.asm.util.TraceClassVisitor");
                 traceCtor = clazz.getConstructor(new Class[] { ClassVisitor.class, PrintWriter.class });
             }
-            catch (Throwable ignore) {
-            }
+            catch (Throwable ignore) {}
         }
     }
 

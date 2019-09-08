@@ -162,7 +162,8 @@ abstract public class Mixin {
                             }
                             for (int i = 0; i < classes.length; i++) {
                                 if (!classes[i].isAssignableFrom(temp[i])) {
-                                    throw new IllegalStateException("Specified class " + classes[i] + " is incompatible with delegate class " + temp[i] + " (index " + i + ")");
+                                    throw new IllegalStateException("Specified class " + classes[i]
+                                            + " is incompatible with delegate class " + temp[i] + " (index " + i + ")");
                                 }
                             }
                         }

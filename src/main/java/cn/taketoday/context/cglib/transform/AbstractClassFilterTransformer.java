@@ -41,7 +41,7 @@ abstract public class AbstractClassFilterTransformer extends AbstractClassTransf
     }
 
     abstract protected boolean accept(int version, int access, //
-            String name, String signature, String superName, String[] interfaces);
+                                      String name, String signature, String superName, String[] interfaces);
 
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         target = accept(version, access, name, signature, superName, interfaces) ? pass : cv;

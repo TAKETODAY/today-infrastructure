@@ -29,13 +29,13 @@ class CallbackInfo {
     private final CallbackGenerator generator;
 
     private static final CallbackInfo[] CALLBACKS = { //
-            new CallbackInfo(NoOp.class, NoOpGenerator.INSTANCE), //
-            new CallbackInfo(MethodInterceptor.class, MethodInterceptorGenerator.INSTANCE), //
-            new CallbackInfo(InvocationHandler.class, InvocationHandlerGenerator.INSTANCE), //
-            new CallbackInfo(LazyLoader.class, LazyLoaderGenerator.INSTANCE), //
-            new CallbackInfo(Dispatcher.class, DispatcherGenerator.INSTANCE), //
-            new CallbackInfo(FixedValue.class, FixedValueGenerator.INSTANCE), //
-            new CallbackInfo(ProxyRefDispatcher.class, DispatcherGenerator.PROXY_REF_INSTANCE)//
+        new CallbackInfo(NoOp.class, NoOpGenerator.INSTANCE), //
+        new CallbackInfo(MethodInterceptor.class, MethodInterceptorGenerator.INSTANCE), //
+        new CallbackInfo(InvocationHandler.class, InvocationHandlerGenerator.INSTANCE), //
+        new CallbackInfo(LazyLoader.class, LazyLoaderGenerator.INSTANCE), //
+        new CallbackInfo(Dispatcher.class, DispatcherGenerator.INSTANCE), //
+        new CallbackInfo(FixedValue.class, FixedValueGenerator.INSTANCE), //
+        new CallbackInfo(ProxyRefDispatcher.class, DispatcherGenerator.PROXY_REF_INSTANCE)//
     };
 
     private CallbackInfo(Class<?> cls, CallbackGenerator generator) {

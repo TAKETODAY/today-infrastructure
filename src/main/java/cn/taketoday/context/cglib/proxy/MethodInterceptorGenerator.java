@@ -72,17 +72,17 @@ class MethodInterceptorGenerator implements CallbackGenerator {
 
     private static final Signature MAKE_PROXY = new Signature("create", METHOD_PROXY, //
             array(Constant.TYPE_CLASS, //
-                    Constant.TYPE_CLASS, //
-                    Constant.TYPE_STRING, //
-                    Constant.TYPE_STRING, //
-                    Constant.TYPE_STRING//
+                  Constant.TYPE_CLASS, //
+                  Constant.TYPE_STRING, //
+                  Constant.TYPE_STRING, //
+                  Constant.TYPE_STRING//
             )//
     );
     private static final Signature INTERCEPT = new Signature("intercept", Constant.TYPE_OBJECT, //
             array(Constant.TYPE_OBJECT, //
-                    METHOD, //
-                    Constant.TYPE_OBJECT_ARRAY, //
-                    METHOD_PROXY//
+                  METHOD, //
+                  Constant.TYPE_OBJECT_ARRAY, //
+                  METHOD_PROXY//
             )//
     );
 

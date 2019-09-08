@@ -50,7 +50,7 @@ public class InterceptFieldTransformer extends ClassEmitterTransformer {
     }
 
     public void beginClass(int version, int access, String className, Type superType, Type[] interfaces,
-            String sourceFile) {
+                           String sourceFile) {
         if (!Modifier.isInterface(access)) {
             super.beginClass(version, access, className, superType, TypeUtils.add(interfaces, ENABLED), sourceFile);
 

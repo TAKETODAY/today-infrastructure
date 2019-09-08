@@ -101,8 +101,7 @@ abstract public class BeanMap implements Map {
          */
         public void setBean(Object bean) {
             this.bean = bean;
-            if (bean != null)
-                beanClass = bean.getClass();
+            if (bean != null) beanClass = bean.getClass();
         }
 
         /**
@@ -140,8 +139,7 @@ abstract public class BeanMap implements Map {
          * class will be reused if possible.
          */
         public BeanMap create() {
-            if (beanClass == null)
-                throw new IllegalArgumentException("Class of bean unknown");
+            if (beanClass == null) throw new IllegalArgumentException("Class of bean unknown");
             setNamePrefix(beanClass.getName());
             return (BeanMap) super.create(KEY_FACTORY.newInstance(beanClass, require));
         }
@@ -180,8 +178,7 @@ abstract public class BeanMap implements Map {
 
     protected Object bean;
 
-    protected BeanMap() {
-    }
+    protected BeanMap() {}
 
     protected BeanMap(Object bean) {
         setBean(bean);
@@ -252,8 +249,7 @@ abstract public class BeanMap implements Map {
     public boolean containsValue(Object value) {
         for (Iterator it = keySet().iterator(); it.hasNext();) {
             Object v = get(it.next());
-            if (((value == null) && (v == null)) || (value != null && value.equals(v)))
-                return true;
+            if (((value == null) && (v == null)) || (value != null && value.equals(v))) return true;
         }
         return false;
     }

@@ -31,7 +31,7 @@ public class MethodFilterTransformer extends AbstractClassTransformer {
 
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         return (filter.accept(access, name, desc, signature, exceptions) ? pass : direct).visitMethod(access, name,
-                desc, signature, exceptions);
+                                                                                                      desc, signature, exceptions);
     }
 
     public void setTarget(ClassVisitor target) {

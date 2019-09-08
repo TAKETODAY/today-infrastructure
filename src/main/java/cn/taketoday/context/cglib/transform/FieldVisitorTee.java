@@ -46,6 +46,6 @@ public class FieldVisitorTee extends FieldVisitor {
 
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
         return AnnotationVisitorTee.getInstance(fv1.visitTypeAnnotation(typeRef, typePath, desc, visible),
-                fv2.visitTypeAnnotation(typeRef, typePath, desc, visible));
+                                                fv2.visitTypeAnnotation(typeRef, typePath, desc, visible));
     }
 }

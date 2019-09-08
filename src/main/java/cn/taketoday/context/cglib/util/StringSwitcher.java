@@ -74,8 +74,7 @@ abstract public class StringSwitcher {
         return gen.create();
     }
 
-    protected StringSwitcher() {
-    }
+    protected StringSwitcher() {}
 
     /**
      * Return the integer associated with the given key.

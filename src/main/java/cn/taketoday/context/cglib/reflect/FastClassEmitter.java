@@ -182,7 +182,7 @@ class FastClassEmitter extends ClassEmitter {
             }
         };
         EmitUtils.stringSwitch(e, (String[]) signatures.toArray(new String[signatures.size()]),
-                Constant.SWITCH_STYLE_HASH, callback);
+                               Constant.SWITCH_STYLE_HASH, callback);
     }
 
     private static void invokeSwitchHelper(final CodeEmitter e, List members, final int arg, final Type base) {

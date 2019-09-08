@@ -102,8 +102,7 @@ public class DuplicatesPredicate implements Predicate<Method> {
                         is.close();
                     }
                 }
-                catch (IOException ignored) {
-                }
+                catch (IOException ignored) {}
             }
         }
     }
@@ -138,8 +137,7 @@ public class DuplicatesPredicate implements Predicate<Method> {
         }
 
         public void visit(int version, int access, String name, String signature, String superName,
-                String[] interfaces) {
-        }
+                          String[] interfaces) {}
 
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
             Signature sig = new Signature(name, desc);

@@ -582,10 +582,10 @@ public class CodeEmitter extends LocalVariablesSorter {
             // TODO: error
         }
         mv.visitMethodInsn(opcode, //
-                type.getInternalName(), //
-                sig.getName(), //
-                sig.getDescriptor(),
-                isInterface//
+                           type.getInternalName(), //
+                           sig.getName(), //
+                           sig.getDescriptor(),
+                           isInterface//
         );
     }
 
@@ -703,8 +703,7 @@ public class CodeEmitter extends LocalVariablesSorter {
     }
 
     public void process_switch(int[] keys, ProcessSwitchCallback callback, boolean useTable) {
-        if (!isSorted(keys))
-            throw new IllegalArgumentException("keys to switch must be sorted ascending");
+        if (!isSorted(keys)) throw new IllegalArgumentException("keys to switch must be sorted ascending");
         Label def = make_label();
         Label end = make_label();
 
@@ -761,8 +760,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 
     private static boolean isSorted(int[] keys) {
         for (int i = 1; i < keys.length; i++) {
-            if (keys[i] < keys[i - 1])
-                return false;
+            if (keys[i] < keys[i - 1]) return false;
         }
         return true;
     }
@@ -825,8 +823,8 @@ public class CodeEmitter extends LocalVariablesSorter {
                     swap();
                 }
                 invoke_constructor(boxed,
-                        new Signature(Constant.CONSTRUCTOR_NAME, Type.VOID_TYPE, new Type[]
-                        { type }));
+                                   new Signature(Constant.CONSTRUCTOR_NAME, Type.VOID_TYPE, new Type[]
+                                   { type }));
             }
         }
     }

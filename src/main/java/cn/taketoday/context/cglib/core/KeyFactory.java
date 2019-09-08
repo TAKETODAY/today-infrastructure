@@ -78,19 +78,19 @@ abstract public class KeyFactory {
 
     // generated numbers:
     private final static int PRIMES[] = { //
-            11, 73, 179, 331, 521, 787, 1213, 1823, //
-            2609, 3691, 5189, 7247, 10037, 13931, 19289, //
-            26627, 36683, 50441, 69403, 95401, 131129, //
-            180179, 247501, 340057, 467063, 641371, //
-            880603, 1209107, 1660097, 2279161, 3129011, //
-            4295723, 5897291, 8095873, 11114263, 15257791, //
-            20946017, 28754629, 39474179, 54189869, 74391461, //
-            102123817, 140194277, 192456917, 264202273, 362693231, //
-            497900099, 683510293, 938313161, 1288102441, 1768288259 //
+        11, 73, 179, 331, 521, 787, 1213, 1823, //
+        2609, 3691, 5189, 7247, 10037, 13931, 19289, //
+        26627, 36683, 50441, 69403, 95401, 131129, //
+        180179, 247501, 340057, 467063, 641371, //
+        880603, 1209107, 1660097, 2279161, 3129011, //
+        4295723, 5897291, 8095873, 11114263, 15257791, //
+        20946017, 28754629, 39474179, 54189869, 74391461, //
+        102123817, 140194277, 192456917, 264202273, 362693231, //
+        497900099, 683510293, 938313161, 1288102441, 1768288259 //
     };
 
     public static final Customizer CLASS_BY_NAME = new Customizer() {
-        
+
         public void customize(CodeEmitter e, Type type) {
             if (type.equals(Constant.TYPE_CLASS)) {
                 e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
@@ -141,8 +141,7 @@ abstract public class KeyFactory {
         }
     };
 
-    protected KeyFactory() {
-    }
+    protected KeyFactory() {}
 
     public static KeyFactory create(Class keyInterface) {
         return create(keyInterface, null);
@@ -161,7 +160,7 @@ abstract public class KeyFactory {
     }
 
     public static KeyFactory create(ClassLoader loader, Class keyInterface, //
-            KeyFactoryCustomizer customizer, List<KeyFactoryCustomizer> next) //
+                                    KeyFactoryCustomizer customizer, List<KeyFactoryCustomizer> next) //
     {
         Generator gen = new Generator();
         gen.setInterface(keyInterface);
@@ -252,11 +251,11 @@ abstract public class KeyFactory {
 
             Type[] parameterTypes = TypeUtils.getTypes(newInstance.getParameterTypes());
             ce.beginClass(Constant.JAVA_VERSION, //
-                    Constant.ACC_PUBLIC, //
-                    getClassName(), //
-                    KEY_FACTORY, //
-                    array(Type.getType(keyInterface)), //
-                    Constant.SOURCE_FILE//
+                          Constant.ACC_PUBLIC, //
+                          getClassName(), //
+                          KEY_FACTORY, //
+                          array(Type.getType(keyInterface)), //
+                          Constant.SOURCE_FILE//
             );
 
             EmitUtils.nullConstructor(ce);

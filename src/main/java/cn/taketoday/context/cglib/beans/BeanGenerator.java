@@ -121,7 +121,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
         ClassEmitter ce = new ClassEmitter(v);
 
         ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(),
-                superclass != null ? Type.getType(superclass) : TYPE_OBJECT, null, null);
+                      superclass != null ? Type.getType(superclass) : TYPE_OBJECT, null, null);
 
         EmitUtils.nullConstructor(ce);
         EmitUtils.addProperties(ce, props.keySet().toArray(Constant.EMPTY_STRING_ARRAY), types);

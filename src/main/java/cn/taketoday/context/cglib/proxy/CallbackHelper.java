@@ -45,13 +45,12 @@ public abstract class CallbackHelper implements CallbackFilter {
         for (int i = 0, size = methods.size(); i < size; i++) {
             Method method = (Method) methods.get(i);
             Object callback = getCallback(method);
-            if (callback == null)
-                throw new IllegalStateException("getCallback cannot return null");
+            if (callback == null) throw new IllegalStateException("getCallback cannot return null");
             boolean isCallback = callback instanceof Callback;
-            if (!(isCallback || (callback instanceof Class)))
-                throw new IllegalStateException("getCallback must return a Callback or a Class");
-            if (i > 0 && ((callbacks.get(i - 1) instanceof Callback) ^ isCallback))
-                throw new IllegalStateException("getCallback must return a Callback or a Class consistently for every Method");
+            if (!(isCallback
+                  || (callback instanceof Class))) throw new IllegalStateException("getCallback must return a Callback or a Class");
+            if (i > 0 && ((callbacks.get(i
+                    - 1) instanceof Callback) ^ isCallback)) throw new IllegalStateException("getCallback must return a Callback or a Class consistently for every Method");
             Integer index = (Integer) indexes.get(callback);
             if (index == null) {
                 index = new Integer(callbacks.size());
@@ -65,8 +64,7 @@ public abstract class CallbackHelper implements CallbackFilter {
     protected abstract Object getCallback(Method method);
 
     public Callback[] getCallbacks() {
-        if (callbacks.size() == 0)
-            return new Callback[0];
+        if (callbacks.size() == 0) return new Callback[0];
         if (callbacks.get(0) instanceof Callback) {
             return (Callback[]) callbacks.toArray(new Callback[callbacks.size()]);
         }
@@ -74,8 +72,7 @@ public abstract class CallbackHelper implements CallbackFilter {
     }
 
     public Class<?>[] getCallbackTypes() {
-        if (callbacks.size() == 0)
-            return new Class[0];
+        if (callbacks.size() == 0) return new Class[0];
         if (callbacks.get(0) instanceof Callback) {
             return ReflectUtils.getClasses(getCallbacks());
         }
@@ -91,10 +88,8 @@ public abstract class CallbackHelper implements CallbackFilter {
     }
 
     public boolean equals(Object o) {
-        if (o == null)
-            return false;
-        if (!(o instanceof CallbackHelper))
-            return false;
+        if (o == null) return false;
+        if (!(o instanceof CallbackHelper)) return false;
         return methodMap.equals(((CallbackHelper) o).methodMap);
     }
 }

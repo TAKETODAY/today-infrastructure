@@ -60,10 +60,8 @@ public class Signature {
     }
 
     public boolean equals(Object o) {
-        if (o == null)
-            return false;
-        if (!(o instanceof Signature))
-            return false;
+        if (o == null) return false;
+        if (!(o instanceof Signature)) return false;
         Signature other = (Signature) o;
         return name.equals(other.name) && desc.equals(other.desc);
     }

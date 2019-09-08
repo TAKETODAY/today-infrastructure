@@ -24,8 +24,7 @@ import cn.taketoday.context.asm.Type;
  */
 public abstract class MethodInfo {
 
-    protected MethodInfo() {
-    }
+    protected MethodInfo() {}
 
     abstract public ClassInfo getClassInfo();
 

@@ -142,7 +142,7 @@ class BulkBeanEmitter extends ClassEmitter {
     }
 
     private static void validate(Class target, String[] getters, String[] setters, Class[] types, Method[] getters_out,
-            Method[] setters_out) {
+                                 Method[] setters_out) {
         int i = -1;
         if (setters.length != types.length || getters.length != types.length) {
             throw new BulkBeanException("accessor array length must be equal type array length", i);
@@ -152,7 +152,8 @@ class BulkBeanEmitter extends ClassEmitter {
                 if (getters[i] != null) {
                     Method method = ReflectUtils.findDeclaredMethod(target, getters[i], null);
                     if (method.getReturnType() != types[i]) {
-                        throw new BulkBeanException("Specified type " + types[i] + " does not match declared type " + method.getReturnType(), i);
+                        throw new BulkBeanException("Specified type " + types[i] + " does not match declared type " + method
+                                .getReturnType(), i);
                     }
                     if (Modifier.isPrivate(method.getModifiers())) {
                         throw new BulkBeanException("Property is private", i);

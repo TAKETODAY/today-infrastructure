@@ -67,7 +67,7 @@ public class ClassEmitter extends ClassTransformer {
     }
 
     public void beginClass(int version, final int access, String className, final Type superType,
-            final Type[] interfaces, String source) //
+                           final Type[] interfaces, String source) //
     {
         final Type classType = Type.getType('L' + className.replace('.', '/') + ';');
         classInfo = new ClassInfo() {
@@ -88,10 +88,9 @@ public class ClassEmitter extends ClassTransformer {
             }
         };
         cv.visit(version, access, classInfo.getType().getInternalName(), null,
-                classInfo.getSuperType().getInternalName(), TypeUtils.toInternalNames(interfaces));
+                 classInfo.getSuperType().getInternalName(), TypeUtils.toInternalNames(interfaces));
 
-        if (source != null)
-            cv.visitSource(source, null);
+        if (source != null) cv.visitSource(source, null);
         init();
     }
 
@@ -109,8 +108,7 @@ public class ClassEmitter extends ClassTransformer {
         return staticHook;
     }
 
-    protected void init() {
-    }
+    protected void init() {}
 
     public int getAccess() {
         return classInfo.getModifiers();
@@ -142,15 +140,14 @@ public class ClassEmitter extends ClassTransformer {
 
     public CodeEmitter beginMethod(int access, Signature sig, Type... exceptions) {
 
-        if (classInfo == null)
-            throw new IllegalStateException("classInfo is null! " + this);
+        if (classInfo == null) throw new IllegalStateException("classInfo is null! " + this);
 
         final MethodVisitor visitor = cv.visitMethod(//
-                access, //
-                sig.getName(), //
-                sig.getDescriptor(), //
-                null, //
-                TypeUtils.toInternalNames(exceptions)//
+                                                     access, //
+                                                     sig.getName(), //
+                                                     sig.getDescriptor(), //
+                                                     null, //
+                                                     TypeUtils.toInternalNames(exceptions)//
         );
 
         if (sig.equals(Constant.SIG_STATIC) && !Modifier.isInterface(getAccess())) {
@@ -239,18 +236,14 @@ public class ClassEmitter extends ClassTransformer {
         }
 
         public boolean equals(Object o) {
-            if (o == null)
-                return false;
-            if (!(o instanceof FieldInfo))
-                return false;
+            if (o == null) return false;
+            if (!(o instanceof FieldInfo)) return false;
             FieldInfo other = (FieldInfo) o;
             if (access != other.access || !name.equals(other.name) || !type.equals(other.type)) {
                 return false;
             }
-            if ((value == null) ^ (other.value == null))
-                return false;
-            if (value != null && !value.equals(other.value))
-                return false;
+            if ((value == null) ^ (other.value == null)) return false;
+            if (value != null && !value.equals(other.value)) return false;
             return true;
         }
 
@@ -261,7 +254,7 @@ public class ClassEmitter extends ClassTransformer {
 
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         beginClass(version, access, name.replace('/', '.'), TypeUtils.fromInternalName(superName),
-                TypeUtils.fromInternalNames(interfaces), null); // TODO
+                   TypeUtils.fromInternalNames(interfaces), null); // TODO
     }
 
     public void visitEnd() {

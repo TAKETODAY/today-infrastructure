@@ -49,8 +49,7 @@ abstract public class ConstructorDelegate {
         public Object newInstance(String declaring, String iface);
     }
 
-    protected ConstructorDelegate() {
-    }
+    protected ConstructorDelegate() {}
 
     public static ConstructorDelegate create(Class targetClass, Class iface) {
         Generator gen = new Generator();
@@ -113,7 +112,7 @@ abstract public class ConstructorDelegate {
             Type declaring = getType(constructor.getDeclaringClass());
             EmitUtils.nullConstructor(ce);
             CodeEmitter e = ce.beginMethod(ACC_PUBLIC, ReflectUtils.getSignature(newInstance),
-                    ReflectUtils.getExceptionTypes(newInstance));
+                                           ReflectUtils.getExceptionTypes(newInstance));
             e.new_instance(declaring);
             e.dup();
             e.load_args();

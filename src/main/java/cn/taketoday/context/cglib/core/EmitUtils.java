@@ -214,7 +214,7 @@ public abstract class EmitUtils {
     }
 
     private static void stringSwitchHelper(final CodeEmitter e, List strings, final ObjectSwitchCallback callback,
-            final Label def, final Label end, final int index) throws Exception {
+                                           final Label def, final Label end, final int index) throws Exception {
         final int len = ((String) strings.get(0)).length();
         final Map buckets = CollectionUtils.bucket(strings, new Transformer() {
             public Object transform(Object value) {
@@ -255,7 +255,7 @@ public abstract class EmitUtils {
     }
 
     private static void stringSwitchHash(final CodeEmitter e, final String[] strings,
-            final ObjectSwitchCallback callback, final boolean skipEquals) throws Exception {
+                                         final ObjectSwitchCallback callback, final boolean skipEquals) throws Exception {
         final Map buckets = CollectionUtils.bucket(Arrays.asList(strings), new Transformer() {
             public Object transform(Object value) {
                 return value.hashCode(); // TODO
@@ -270,8 +270,7 @@ public abstract class EmitUtils {
                 List bucket = (List) buckets.get(new Integer(key));
                 Label next = null;
                 if (skipEquals && bucket.size() == 1) {
-                    if (skipEquals)
-                        e.pop();
+                    if (skipEquals) e.pop();
                     callback.processCase((String) bucket.get(0), end);
                 }
                 else {
@@ -358,8 +357,7 @@ public abstract class EmitUtils {
     }
 
     private static Class remapComponentType(Class componentType) {
-        if (componentType.equals(Type.class))
-            return Class.class;
+        if (componentType.equals(Type.class)) return Class.class;
         return componentType;
     }
 
@@ -428,7 +426,7 @@ public abstract class EmitUtils {
     }
 
     private static void hashArray(final CodeEmitter e, Type type, final int multiplier,
-            final CustomizerRegistry registry) //
+                                  final CustomizerRegistry registry) //
     {
         Label skip = e.make_label();
         Label end = e.make_label();
@@ -524,7 +522,7 @@ public abstract class EmitUtils {
      * the same manner.
      */
     public static void notEquals(final CodeEmitter e, Type type, final Label notEquals,
-            final CustomizerRegistry registry) {
+                                 final CustomizerRegistry registry) {
         (new ProcessArrayCallback() {
             public void processElement(Type type) {
                 notEqualsHelper(e, type, notEquals, registry, this);
@@ -533,7 +531,7 @@ public abstract class EmitUtils {
     }
 
     private static void notEqualsHelper(CodeEmitter e, Type type, Label notEquals, CustomizerRegistry registry,
-            ProcessArrayCallback callback) {
+                                        ProcessArrayCallback callback) {
         if (TypeUtils.isPrimitive(type)) {
             e.if_cmp(type, e.NE, notEquals);
         }
@@ -617,12 +615,12 @@ public abstract class EmitUtils {
      */
     @Deprecated
     public static void appendString(final CodeEmitter e, Type type, final ArrayDelimiters delims,
-            final Customizer customizer) {
+                                    final Customizer customizer) {
         appendString(e, type, delims, CustomizerRegistry.singleton(customizer));
     }
 
     public static void appendString(final CodeEmitter e, Type type, //
-            final ArrayDelimiters delims, final CustomizerRegistry registry) //
+                                    final ArrayDelimiters delims, final CustomizerRegistry registry) //
     {
         final ArrayDelimiters d = (delims != null) ? delims : DEFAULT_DELIMITERS;
         ProcessArrayCallback callback = new ProcessArrayCallback() {
@@ -636,7 +634,7 @@ public abstract class EmitUtils {
     }
 
     private static void appendStringHelper(CodeEmitter e, Type type, ArrayDelimiters delims,
-            CustomizerRegistry registry, ProcessArrayCallback callback) {
+                                           CustomizerRegistry registry, ProcessArrayCallback callback) {
         Label skip = e.make_label();
         Label end = e.make_label();
         if (TypeUtils.isPrimitive(type)) {
@@ -738,7 +736,7 @@ public abstract class EmitUtils {
     }
 
     private static void memberSwitchHelper(final CodeEmitter e, //
-            List members, final ObjectSwitchCallback callback, boolean useName)//
+                                           List members, final ObjectSwitchCallback callback, boolean useName)//
     {
         try {
 
@@ -795,7 +793,7 @@ public abstract class EmitUtils {
     }
 
     private static void memberHelperSize(final CodeEmitter e, List members, final ObjectSwitchCallback callback,
-            final ParameterTyper typer, final Label def, final Label end) throws Exception {
+                                         final ParameterTyper typer, final Label def, final Label end) throws Exception {
 
         final Map<Integer, List<MethodInfo>> buckets = CollectionUtils.bucket(members, (MethodInfo value) -> {
             return Integer.valueOf(typer.getParameterTypes(value).length);
@@ -818,7 +816,8 @@ public abstract class EmitUtils {
     }
 
     private static void memberHelperType(final CodeEmitter e, List<MethodInfo> members, final ObjectSwitchCallback callback,
-            final ParameterTyper typer, final Label def, final Label end, final BitSet checked) throws Exception {
+                                         final ParameterTyper typer, final Label def, final Label end, final BitSet checked)
+            throws Exception {
         if (members.size() == 1) {
             final MethodInfo member = members.get(0);
             Type[] types = typer.getParameterTypes(member);
@@ -927,8 +926,7 @@ public abstract class EmitUtils {
     public static void wrapUndeclaredThrowable(CodeEmitter e, Block handler, Type[] exceptions, Type wrapper) {
         Set set = (exceptions == null) ? Collections.EMPTY_SET : new HashSet(Arrays.asList(exceptions));
 
-        if (set.contains(Constant.TYPE_THROWABLE))
-            return;
+        if (set.contains(Constant.TYPE_THROWABLE)) return;
 
         boolean needThrow = exceptions != null;
         if (!set.contains(Constant.TYPE_RUNTIME_EXCEPTION)) {

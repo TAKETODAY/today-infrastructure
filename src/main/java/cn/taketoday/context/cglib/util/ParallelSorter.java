@@ -52,8 +52,7 @@ abstract public class ParallelSorter extends SorterTemplate {
     protected Object[] a;
     private Comparer comparer;
 
-    protected ParallelSorter() {
-    }
+    protected ParallelSorter() {}
 
     abstract public ParallelSorter newInstance(Object[] arrays);
 

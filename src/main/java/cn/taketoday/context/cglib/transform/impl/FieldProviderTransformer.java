@@ -50,7 +50,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
     private Map fields;
 
     public void beginClass(int version, int access, String className, Type superType, Type[] interfaces,
-            String sourceFile) {
+                           String sourceFile) {
         if (!Modifier.isAbstract(access)) {
             interfaces = TypeUtils.add(interfaces, FIELD_PROVIDER);
         }

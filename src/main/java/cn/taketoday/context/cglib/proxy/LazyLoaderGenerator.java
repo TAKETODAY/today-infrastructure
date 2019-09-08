@@ -97,6 +97,5 @@ class LazyLoaderGenerator implements CallbackGenerator {
         return new Signature("TODAY$LOAD_PRIVATE_" + index, Constant.TYPE_OBJECT, Constant.TYPES_EMPTY);
     }
 
-    public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) {
-    }
+    public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) {}
 }

@@ -47,8 +47,7 @@ public class UndeclaredThrowableTransformer extends ClassEmitterTransformer {
                 break;
             }
         }
-        if (!found)
-            throw new IllegalArgumentException(wrapper + " does not have a single-arg constructor that takes a Throwable");
+        if (!found) throw new IllegalArgumentException(wrapper + " does not have a single-arg constructor that takes a Throwable");
     }
 
     @Override

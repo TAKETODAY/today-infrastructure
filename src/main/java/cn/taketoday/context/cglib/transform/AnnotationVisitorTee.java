@@ -21,10 +21,8 @@ public class AnnotationVisitorTee extends AnnotationVisitor {
     private AnnotationVisitor av1, av2;
 
     public static AnnotationVisitor getInstance(AnnotationVisitor av1, AnnotationVisitor av2) {
-        if (av1 == null)
-            return av2;
-        if (av2 == null)
-            return av1;
+        if (av1 == null) return av2;
+        if (av2 == null) return av1;
         return new AnnotationVisitorTee(av1, av2);
     }
 

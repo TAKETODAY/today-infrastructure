@@ -241,7 +241,7 @@ abstract public class MethodDelegate {
             CodeEmitter e;
 
             ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), METHOD_DELEGATE,
-                    Type.array(Type.getType(iface)), Constant.SOURCE_FILE);
+                          Type.array(Type.getType(iface)), Constant.SOURCE_FILE);
 
             ce.declare_field(Constant.PRIVATE_FINAL_STATIC, "eqMethod", Constant.TYPE_STRING, null);
             EmitUtils.nullConstructor(ce);

@@ -34,12 +34,11 @@ public class MethodWrapper {
         Object newInstance(String name, String[] parameterTypes, String returnType);
     }
 
-    private MethodWrapper() {
-    }
+    private MethodWrapper() {}
 
     public static Object create(Method method) {
         return KEY_FACTORY.newInstance(method.getName(), ReflectUtils.getNames(method.getParameterTypes()),
-                method.getReturnType().getName());
+                                       method.getReturnType().getName());
     }
 
     public static Set<Object> createSet(Collection<Method> methods) {

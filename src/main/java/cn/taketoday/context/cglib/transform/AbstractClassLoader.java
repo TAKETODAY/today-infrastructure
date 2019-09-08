@@ -115,6 +115,5 @@ abstract public class AbstractClassLoader extends ClassLoader {
         return null;
     }
 
-    protected void postProcess(Class c) {
-    }
+    protected void postProcess(Class c) {}
 }

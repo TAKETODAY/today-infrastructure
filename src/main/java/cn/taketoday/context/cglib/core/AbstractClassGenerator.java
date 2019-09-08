@@ -195,8 +195,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
      *            the custom policy, or null to use the default
      */
     public AbstractClassGenerator setNamingPolicy(NamingPolicy namingPolicy) {
-        if (namingPolicy == null)
-            namingPolicy = DefaultNamingPolicy.INSTANCE;
+        if (namingPolicy == null) namingPolicy = DefaultNamingPolicy.INSTANCE;
         this.namingPolicy = namingPolicy;
         return this;
     }
@@ -243,8 +242,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
      * default an instance of {@see DefaultGeneratorStrategy} is used.
      */
     public AbstractClassGenerator setStrategy(GeneratorStrategy strategy) {
-        if (strategy == null)
-            strategy = DefaultGeneratorStrategy.INSTANCE;
+        if (strategy == null) strategy = DefaultGeneratorStrategy.INSTANCE;
         this.strategy = strategy;
         return this;
     }
@@ -335,7 +333,9 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
         try {
             ClassLoader classLoader = data.getClassLoader();
             if (classLoader == null) {
-                throw new IllegalStateException("ClassLoader is null while trying to define class " + getClassName() + ". It seems that the loader has been expired from a weak reference somehow. " + "Please file an issue at cglib's issue tracker.");
+                throw new IllegalStateException("ClassLoader is null while trying to define class " + getClassName()
+                        + ". It seems that the loader has been expired from a weak reference somehow. "
+                        + "Please file an issue at cglib's issue tracker.");
             }
             synchronized (classLoader) {
                 String name = generateClassName(data.getUniqueNamePredicate());

@@ -53,7 +53,7 @@ public class MethodVisitorTee extends MethodVisitor {
 
     public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
         return AnnotationVisitorTee.getInstance(mv1.visitParameterAnnotation(parameter, desc, visible),
-                mv2.visitParameterAnnotation(parameter, desc, visible));
+                                                mv2.visitParameterAnnotation(parameter, desc, visible));
     }
 
     public void visitAttribute(Attribute attr) {
@@ -168,7 +168,7 @@ public class MethodVisitorTee extends MethodVisitor {
 
     public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
         return AnnotationVisitorTee.getInstance(mv1.visitTypeAnnotation(typeRef, typePath, desc, visible),
-                mv2.visitTypeAnnotation(typeRef, typePath, desc, visible));
+                                                mv2.visitTypeAnnotation(typeRef, typePath, desc, visible));
     }
 
     public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
@@ -178,18 +178,18 @@ public class MethodVisitorTee extends MethodVisitor {
 
     public AnnotationVisitor visitInsnAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
         return AnnotationVisitorTee.getInstance(mv1.visitInsnAnnotation(typeRef, typePath, desc, visible),
-                mv2.visitInsnAnnotation(typeRef, typePath, desc, visible));
+                                                mv2.visitInsnAnnotation(typeRef, typePath, desc, visible));
     }
 
     public AnnotationVisitor visitTryCatchAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
         return AnnotationVisitorTee.getInstance(mv1.visitTryCatchAnnotation(typeRef, typePath, desc, visible),
-                mv2.visitTryCatchAnnotation(typeRef, typePath, desc, visible));
+                                                mv2.visitTryCatchAnnotation(typeRef, typePath, desc, visible));
     }
 
     public AnnotationVisitor visitLocalVariableAnnotation(int typeRef, TypePath typePath, Label[] start, Label[] end,
-            int[] index, String desc, boolean visible) {
+                                                          int[] index, String desc, boolean visible) {
         return AnnotationVisitorTee.getInstance(
-                mv1.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible),
-                mv2.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible));
+                                                mv1.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible),
+                                                mv2.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible));
     }
 }

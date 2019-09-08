@@ -49,7 +49,7 @@ public @interface ConditionalOnResource {
      * 
      * @return the resource paths that must be present.
      */
-    String[] resources() default {};
+    String[] value() default {};
 
 }
 
@@ -58,13 +58,9 @@ class OnResourceCondition implements Condition {
     @Override
     public boolean matches(AnnotatedElement annotatedElement) {
 
-        final ConditionalOnResource onResource = annotatedElement.getAnnotation(ConditionalOnResource.class);
-
-        for (String resource : onResource.resources()) {
+        for (final String resource : annotatedElement.getAnnotation(ConditionalOnResource.class).value()) {
             try {
-                if (!ResourceUtils.getResource(resource).exists()) {
-                    return false;
-                }
+                return ResourceUtils.getResource(resource).exists();
             }
             catch (FileNotFoundException e) {
                 return false;

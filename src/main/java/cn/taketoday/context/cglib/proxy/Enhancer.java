@@ -162,7 +162,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     private static final Signature SET_STATIC_CALLBACKS = new Signature(SET_STATIC_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
     private static final Signature NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, array(CALLBACK_ARRAY));
     private static final Signature MULTIARG_NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, array(
-            Constant.TYPE_CLASS_ARRAY, Constant.TYPE_OBJECT_ARRAY, CALLBACK_ARRAY));
+                                                                                                                    Constant.TYPE_CLASS_ARRAY,
+                                                                                                                    Constant.TYPE_OBJECT_ARRAY,
+                                                                                                                    CALLBACK_ARRAY));
     private static final Signature SINGLE_NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, array(CALLBACK));
     private static final Signature SET_CALLBACK = new Signature("setCallback", VOID_TYPE, array(INT_TYPE, CALLBACK));
     private static final Signature GET_CALLBACK = new Signature("getCallback", CALLBACK, array(INT_TYPE));
@@ -192,12 +194,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     public interface EnhancerKey {
 
         Object newInstance(String type, //
-                String[] interfaces, //
-                WeakCacheKey<CallbackFilter> filter, //
-                Type[] callbackTypes, //
-                boolean useFactory, //
-                boolean interceptDuringConstruction, //
-                Long serialVersionUID//
+                           String[] interfaces, //
+                           WeakCacheKey<CallbackFilter> filter, //
+                           Type[] callbackTypes, //
+                           boolean useFactory, //
+                           boolean interceptDuringConstruction, //
+                           Long serialVersionUID//
         );
     }
 
@@ -585,12 +587,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     private Object createHelper() {
         preValidate();
         Object key = KEY_FACTORY.newInstance((superclass != null) ? superclass.getName() : null, //
-                ReflectUtils.getNames(interfaces), //
-                filter == ALL_ZERO ? null : new WeakCacheKey<CallbackFilter>(filter), //
-                callbackTypes, //
-                useFactory, //
-                interceptDuringConstruction, //
-                serialVersionUID//
+                                             ReflectUtils.getNames(interfaces), //
+                                             filter == ALL_ZERO ? null : new WeakCacheKey<CallbackFilter>(filter), //
+                                             callbackTypes, //
+                                             useFactory, //
+                                             interceptDuringConstruction, //
+                                             serialVersionUID//
         );
 
         this.currentKey = key;
@@ -655,7 +657,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     }
 
     private static void getMethods(Class<?> superclass, //
-            Class<?>[] interfaces, List<Method> methods, List<Method> interfaceMethods, Set<Object> forcePublic)//
+                                   Class<?>[] interfaces, List<Method> methods, List<Method> interfaceMethods, Set<Object> forcePublic)//
     {
 
         ReflectUtils.addAllMethods(superclass, methods);
@@ -685,8 +687,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
         Class sc = (superclass == null) ? Object.class : superclass;
 
-        if (Modifier.isFinal(sc.getModifiers()))
-            throw new IllegalArgumentException("Cannot subclass final class " + sc.getName());
+        if (Modifier.isFinal(sc.getModifiers())) throw new IllegalArgumentException("Cannot subclass final class " + sc.getName());
 
         List constructors = new ArrayList(8);
         Collections.addAll(constructors, sc.getDeclaredConstructors());
@@ -717,20 +718,20 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         final ClassEmitter e = new ClassEmitter(v);
         if (currentData == null) {
             e.beginClass(Constant.JAVA_VERSION, //
-                    ACC_PUBLIC, //
-                    getClassName(), //
-                    Type.getType(sc), //
-                    (useFactory ? TypeUtils.add(TypeUtils.getTypes(interfaces), FACTORY) : TypeUtils.getTypes(interfaces)), //
-                    Constant.SOURCE_FILE//
+                         ACC_PUBLIC, //
+                         getClassName(), //
+                         Type.getType(sc), //
+                         (useFactory ? TypeUtils.add(TypeUtils.getTypes(interfaces), FACTORY) : TypeUtils.getTypes(interfaces)), //
+                         Constant.SOURCE_FILE//
             );
         }
         else {
             e.beginClass(Constant.JAVA_VERSION, //
-                    ACC_PUBLIC, //
-                    getClassName(), //
-                    null, //
-                    Type.array(FACTORY),
-                    Constant.SOURCE_FILE//
+                         ACC_PUBLIC, //
+                         getClassName(), //
+                         null, //
+                         Type.array(FACTORY),
+                         Constant.SOURCE_FILE//
             );
         }
         List constructorInfo = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
@@ -792,8 +793,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      */
     protected void filterConstructors(Class sc, List constructors) {
         CollectionUtils.filter(constructors, new VisibilityPredicate(sc, true));
-        if (constructors.size() == 0)
-            throw new IllegalArgumentException("No visible constructors in " + sc);
+        if (constructors.size() == 0) throw new IllegalArgumentException("No visible constructors in " + sc);
     }
 
     /**
@@ -1057,9 +1057,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     private void emitConstructors(ClassEmitter ce, List<MethodInfo> constructors) {
         boolean seenNull = false;
-        
+
         for (MethodInfo constructor : constructors) {
-            
+
             if (currentData != null && !"()V".equals(constructor.getSignature().getDescriptor())) {
                 continue;
             }
@@ -1081,8 +1081,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
             e.return_value();
             e.end_method();
         }
-        if (!classOnly && !seenNull && arguments == null)
-            throw new IllegalArgumentException("Superclass has no null constructors but no arguments were given");
+        if (!classOnly && !seenNull && arguments
+                == null) throw new IllegalArgumentException("Superclass has no null constructors but no arguments were given");
     }
 
     private int[] getCallbackKeys() {
@@ -1511,7 +1511,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
          * them.
          */
         public static Map<Signature, Signature> resolve(ClassLoader classLoader, //
-                Map<Class<?>, Set<Signature>> declToBridge) //
+                                                        Map<Class<?>, Set<Signature>> declToBridge) //
         {
 
             final Map<Signature, Signature> resolved = new HashMap<>();
@@ -1531,8 +1531,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
                         is.close();
                     }
                 }
-                catch (IOException ignored) {
-                }
+                catch (IOException ignored) {}
             }
             return resolved;
         }
@@ -1551,8 +1550,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
             @Override
             public void visit(int version, int access, String name, //
-                    String signature, String superName, String[] interfaces) {
-            }
+                              String signature, String superName, String[] interfaces) {}
 
             @Override
             public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {

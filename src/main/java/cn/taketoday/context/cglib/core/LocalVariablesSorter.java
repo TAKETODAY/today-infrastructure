@@ -101,7 +101,7 @@ public class LocalVariablesSorter extends MethodVisitor {
     }
 
     public void visitLocalVariable(final String name, final String desc, final String signature, final Label start,
-            final Label end, final int index) {
+                                   final Label end, final int index) {
         mv.visitLocalVariable(name, desc, signature, start, end, remap(index));
     }
 

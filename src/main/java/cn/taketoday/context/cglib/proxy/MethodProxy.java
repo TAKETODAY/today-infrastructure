@@ -62,11 +62,9 @@ public class MethodProxy {
     private void init() {
         /*
          * Using a volatile invariant allows us to initialize the FastClass and method
-         * index pairs atomically.
-         * 
-         * Double-checked locking is safe with volatile in Java 5. Before 1.5 this code
-         * could allow fastClassInfo to be instantiated more than once, which appears to
-         * be benign.
+         * index pairs atomically. Double-checked locking is safe with volatile in Java
+         * 5. Before 1.5 this code could allow fastClassInfo to be instantiated more
+         * than once, which appears to be benign.
          */
         if (fastClassInfo == null) {
             synchronized (initLock) {
@@ -197,7 +195,7 @@ public class MethodProxy {
     public static MethodProxy find(Class type, Signature sig) {
         try {
             Method m = type.getDeclaredMethod(MethodInterceptorGenerator.FIND_PROXY_NAME,
-                    MethodInterceptorGenerator.FIND_PROXY_TYPES);
+                                              MethodInterceptorGenerator.FIND_PROXY_TYPES);
             return (MethodProxy) m.invoke(null, new Object[] { sig });
         }
         catch (NoSuchMethodException e) {
@@ -237,8 +235,7 @@ public class MethodProxy {
             throw e.getTargetException();
         }
         catch (IllegalArgumentException e) {
-            if (fastClassInfo.i1 < 0)
-                throw new IllegalArgumentException("Protected method: " + sig1);
+            if (fastClassInfo.i1 < 0) throw new IllegalArgumentException("Protected method: " + sig1);
             throw e;
         }
     }

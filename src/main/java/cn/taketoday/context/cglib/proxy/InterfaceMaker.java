@@ -117,12 +117,12 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
     public void generateClass(ClassVisitor v) throws Exception {
         ClassEmitter ce = new ClassEmitter(v);
         ce.beginClass(//
-                Constant.JAVA_VERSION, //
-                Constant.ACC_PUBLIC | Constant.ACC_INTERFACE | Constant.ACC_ABSTRACT, //
-                getClassName(), //
-                null, //
-                null, //
-                Constant.SOURCE_FILE//
+                      Constant.JAVA_VERSION, //
+                      Constant.ACC_PUBLIC | Constant.ACC_INTERFACE | Constant.ACC_ABSTRACT, //
+                      getClassName(), //
+                      null, //
+                      null, //
+                      Constant.SOURCE_FILE//
         );
 
         final int access = Constant.ACC_PUBLIC | Constant.ACC_ABSTRACT;

@@ -69,7 +69,8 @@ class BeanMapEmitter extends ClassEmitter {
             for (Iterator it = allProps.keySet().iterator(); it.hasNext();) {
                 String name = (String) it.next();
                 if ((((require & BeanMap.REQUIRE_GETTER) != 0) && !getters.containsKey(
-                        name)) || (((require & BeanMap.REQUIRE_SETTER) != 0) && !setters.containsKey(name))) {
+                                                                                       name)) || (((require & BeanMap.REQUIRE_SETTER) != 0)
+                                                                                                  && !setters.containsKey(name))) {
                     it.remove();
                     getters.remove(name);
                     setters.remove(name);

@@ -42,8 +42,7 @@ abstract public class MulticastDelegate implements Cloneable {
 
     protected Object[] targets = {};
 
-    protected MulticastDelegate() {
-    }
+    protected MulticastDelegate() {}
 
     public List<Object> getTargets() {
         return CollectionUtils.addAll(targets);
@@ -75,7 +74,6 @@ abstract public class MulticastDelegate implements Cloneable {
 
     abstract public MulticastDelegate newInstance();
 
-    
     public static MulticastDelegate create(Class<?> iface) {
         return new Generator().setInterface(iface).create();
     }
@@ -121,7 +119,7 @@ abstract public class MulticastDelegate implements Cloneable {
             ClassEmitter ce = new ClassEmitter(cv);
 
             ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), MULTICAST_DELEGATE,
-                    Type.array(Type.getType(iface)), Constant.SOURCE_FILE);
+                          Type.array(Type.getType(iface)), Constant.SOURCE_FILE);
 
             EmitUtils.nullConstructor(ce);
 

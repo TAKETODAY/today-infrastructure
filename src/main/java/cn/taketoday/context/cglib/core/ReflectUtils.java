@@ -73,7 +73,8 @@ public abstract class ReflectUtils {
                     public Object run() throws Exception {
                         Class loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
                         Method defineClass = loader.getDeclaredMethod("defineClass",
-                                String.class, byte[].class, Integer.TYPE, Integer.TYPE, ProtectionDomain.class);
+                                                                      String.class, byte[].class, Integer.TYPE, Integer.TYPE,
+                                                                      ProtectionDomain.class);
 
                         defineClass.setAccessible(true);
                         return defineClass;
@@ -96,7 +97,8 @@ public abstract class ReflectUtils {
                 });
                 Class u = Class.forName("sun.misc.Unsafe");
                 defineClassUnsafe = u.getMethod("defineClass",
-                        String.class, byte[].class, Integer.TYPE, Integer.TYPE, ClassLoader.class, ProtectionDomain.class);
+                                                String.class, byte[].class, Integer.TYPE, Integer.TYPE, ClassLoader.class,
+                                                ProtectionDomain.class);
             }
             AccessController.doPrivileged(new PrivilegedExceptionAction() {
                 public Object run() throws Exception {
@@ -253,14 +255,12 @@ public abstract class ReflectUtils {
         try {
             return Class.forName(prefix + className + suffix, false, loader);
         }
-        catch (ClassNotFoundException ignore) {
-        }
+        catch (ClassNotFoundException ignore) {}
         for (int i = 0; i < packages.length; i++) {
             try {
                 return Class.forName(prefix + packages[i] + '.' + className + suffix, false, loader);
             }
-            catch (ClassNotFoundException ignore) {
-            }
+            catch (ClassNotFoundException ignore) {}
         }
         if (dimensions == 0) {
             Class c = (Class) primitives.get(className);
@@ -274,8 +274,7 @@ public abstract class ReflectUtils {
                 try {
                     return Class.forName(brackets + transform, false, loader);
                 }
-                catch (ClassNotFoundException ignore) {
-                }
+                catch (ClassNotFoundException ignore) {}
             }
         }
         throw new ClassNotFoundException(save);
@@ -312,8 +311,7 @@ public abstract class ReflectUtils {
     }
 
     public static String[] getNames(Class[] classes) {
-        if (classes == null)
-            return null;
+        if (classes == null) return null;
         String[] names = new String[classes.length];
         for (int i = 0; i < names.length; i++) {
             names[i] = classes[i].getName();
@@ -445,7 +443,7 @@ public abstract class ReflectUtils {
     }
 
     public static Class defineClass(String className, byte[] b, //
-            ClassLoader loader, ProtectionDomain protectionDomain) throws Exception //
+                                    ClassLoader loader, ProtectionDomain protectionDomain) throws Exception //
     {
         Class c;
         if (DEFINE_CLASS != null) {
@@ -478,8 +476,7 @@ public abstract class ReflectUtils {
             private ClassInfo ci;
 
             public ClassInfo getClassInfo() {
-                if (ci == null)
-                    ci = ReflectUtils.getClassInfo(member.getDeclaringClass());
+                if (ci == null) ci = ReflectUtils.getClassInfo(member.getDeclaringClass());
                 return ci;
             }
 
