@@ -212,8 +212,18 @@ public final String multiUpload(HttpServletResponse response, @Multipart Multipa
 }
 ```
 
-## 联系方式
-- 邮箱 taketoday@foxmail.com
+
+## 🙏 鸣谢
+本项目的诞生离不开以下开源项目：
+* [Spring](https://github.com/spring-projects/spring-framework): Spring Framework
+* [Slf4j](https://github.com/qos-ch/slf4j): Simple Logging Facade for Java
+* [EL](https://github.com/TAKETODAY/today-expression): Java Unified Expression Language
+* [Lombok](https://github.com/rzwitserloot/lombok): Very spicy additions to the Java programming language
+* [FastJSON](https://github.com/alibaba/fastjson): A fast JSON parser/generator for Java.
+* [Freemarker](https://github.com/apache/freemarker): Apache Freemarker
+* [Today Context](https://github.com/TAKETODAY/today-context): Lightweight dependency injection framework
+* [Hibernate Validator](https://github.com/hibernate/hibernate-validator): Hibernate Validator - Bean Validation 2.0 (JSR 380) Reference Implementation
+
 
 ## 开源协议
 请查看 [GNU GENERAL PUBLIC LICENSE](https://github.com/TAKETODAY/today-web/blob/master/LICENSE)
