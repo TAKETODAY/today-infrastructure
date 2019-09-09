@@ -115,7 +115,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
             log.error("An Exception Occurred When Getting A Bean Named: [{}], With Msg: [{}]", //
-                    name, ex.toString(), ex);
+                      name, ex.toString(), ex);
             throw ExceptionUtils.newContextException(ex);
         }
     }
@@ -134,9 +134,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     protected Object doCreatePrototype(final BeanDefinition def, final String name) throws Throwable {
 
         if (def.isFactoryBean()) {
-            final FactoryBean<?> $factoryBean = (FactoryBean<?>) initializingBean(//
-                    getSingleton(FACTORY_BEAN_PREFIX + name), name, def//
-            );
+            
+            final FactoryBean<?> $factoryBean = //
+                    (FactoryBean<?>) initializingBean(getSingleton(FACTORY_BEAN_PREFIX + name), name, def);
+            
             return $factoryBean.getBean();
         }
 
@@ -436,9 +437,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             if (beanDefinition.isFactoryBean()) {
 
                 log.debug("[{}] is FactoryBean", name);
-                final FactoryBean<?> $factoryBean = (FactoryBean<?>) initializingBean(//
-                        getSingleton(FACTORY_BEAN_PREFIX + name), name, beanDefinition//
-                );
+                final FactoryBean<?> $factoryBean = //
+                        (FactoryBean<?>) initializingBean(getSingleton(FACTORY_BEAN_PREFIX + name), name, beanDefinition);
 
                 registerSingleton(name, $factoryBean.getBean());
                 beanDefinition.setInitialized(true);
@@ -573,7 +573,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 continue;
             }
 
-            final String beanName = ((BeanReference) propertyValue.getValue()).getName();
+            final BeanReference ref = (BeanReference) propertyValue.getValue();
+            final String beanName = ref.getName();
 
             // fix: #2 when handle dependency some bean definition has already exist
             if (containsBeanDefinition(beanName)) {
@@ -586,30 +587,32 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             // find child beans
             final List<BeanDefinition> childDefs = doGetChildDefinition(beanName, propertyType);
 
-            if (childDefs.isEmpty()) {
-                throw new ConfigurationException("context does not exist for this type:[" + propertyType + "] of bean");
-            }
+            if (!childDefs.isEmpty()) {
 
-            BeanDefinition childDef = null;
+                BeanDefinition childDef = null;
 
-            if (childDefs.size() > 1) {
-                // size > 1
-                OrderUtils.reversedSort(childDefs); // sort
-                for (final BeanDefinition def : childDefs) {
-                    if (def.isAnnotationPresent(Primary.class)) {
-                        childDef = def;
-                        break;
+                if (childDefs.size() > 1) {
+                    // size > 1
+                    OrderUtils.reversedSort(childDefs); // sort
+                    for (final BeanDefinition def : childDefs) {
+                        if (def.isAnnotationPresent(Primary.class)) {
+                            childDef = def;
+                            break;
+                        }
                     }
                 }
+
+                if (childDef == null) {
+                    childDef = childDefs.get(0); // first one
+                }
+
+                log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
+
+                registerBeanDefinition(beanName, new DefaultBeanDefinition(beanName, childDef));
             }
-
-            if (childDef == null) {
-                childDef = childDefs.get(0); // first one
+            else if (ref.isRequired()) {
+                throw new ConfigurationException("context does not exist for this type:[" + propertyType + "] of bean");
             }
-
-            log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
-
-            registerBeanDefinition(beanName, new DefaultBeanDefinition(beanName, childDef));
         }
     }
 
@@ -658,7 +661,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *             If any {@link Exception} occurred when initialize with processors
      */
     private Object initWithPostProcessors(Object bean, final String name, final BeanDefinition beanDefinition, //
-            final List<BeanPostProcessor> postProcessors) throws Exception //
+                                          final List<BeanPostProcessor> postProcessors) throws Exception //
     {
         // before properties
         for (final BeanPostProcessor postProcessor : postProcessors) {
@@ -872,7 +875,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         catch (Throwable e) {
             e = ExceptionUtils.unwrapThrowable(e);
             log.error("An Exception Occurred When Destroy a bean: [{}], With Msg: [{}]", //
-                    def.getName(), e.toString(), e);
+                      def.getName(), e.toString(), e);
             throw ExceptionUtils.newContextException(e);
         }
     }
@@ -1024,7 +1027,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             }
 
             final Object initializingBean = initializingBean(//
-                    createBeanInstance(beanDefinition), name, beanDefinition//
+                                                             createBeanInstance(beanDefinition), name, beanDefinition//
             );
 
             if (!containsSingleton(name)) {
