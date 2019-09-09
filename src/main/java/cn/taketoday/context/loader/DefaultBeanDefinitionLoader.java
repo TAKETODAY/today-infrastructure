@@ -74,6 +74,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
     @Override
     public void loadBeanDefinition(Class<?> beanClass) throws BeanDefinitionStoreException {
+
         // don't load abstract class
         if (!Modifier.isAbstract(beanClass.getModifiers()) && ContextUtils.conditional(beanClass)) {
             register(beanClass);
@@ -172,7 +173,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
                     // TODO 处理该情况
                     LoggerFactory.getLogger(DefaultBeanDefinitionLoader.class)//
                             .warn("There is already a bean called: [{}], its bean class: [{}]", //
-                                    name, beanClass);
+                                  name, beanClass);
                 }
             }
 
@@ -217,7 +218,18 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         // build a new name
         String beanName = $factoryBean.getBeanName(); // use new name
         if (StringUtils.isEmpty(beanName)) {
-            beanName = oldBeanName; // use old name, that the name from Annotation or class default name
+            // Fix FactoryBean name problem
+            final AnnotationAttributes attr = //
+                    ClassUtils.getAnnotationAttributes(Component.class, beanDefinition.getBeanClass());
+            if (attr != null) {
+                beanName = ContextUtils.findNames(oldBeanName, attr.getStringArray(Constant.VALUE))[0];
+                if (oldBeanName.equals(beanName)) {
+                    beanName = beanNameCreator.create($factoryBean.getBeanClass());
+                }
+            }
+            else {
+                beanName = oldBeanName; // use old name, that the name from Annotation or class default name
+            }
         }
         else {
             register = true;
@@ -242,8 +254,8 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
     @Override
     public BeanDefinition createBeanDefinition(Class<?> beanClass) {
         return build(beanClass, //
-                ClassUtils.getAnnotationAttributes(Component.class, beanClass), //
-                beanNameCreator.create(beanClass)//
+                     ClassUtils.getAnnotationAttributes(Component.class, beanClass), //
+                     beanNameCreator.create(beanClass)//
         );
     }
 
