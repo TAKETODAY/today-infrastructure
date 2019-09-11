@@ -56,7 +56,7 @@
 - :sparkles: feat: add `SharedVariable`
 - :sparkles: feat: supports prototype controller
 - :sparkles: feat: 添加TemplateLoader，可配置多个模板加载位置
-
+- :hammer: 重构HandlerMapping
 
 ## v2.3.6
 - add new today-context version
