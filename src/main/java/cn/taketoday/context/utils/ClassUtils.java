@@ -1393,10 +1393,11 @@ public abstract class ClassUtils {
      * @since 2.1.7
      */
     public static java.lang.reflect.Type[] getGenericityClass(final Class<?> type) {
-
-        final java.lang.reflect.Type pType = type.getGenericSuperclass();
-        if (pType instanceof ParameterizedType) {
-            return ((ParameterizedType) pType).getActualTypeArguments();
+        if (type != null) {
+            final java.lang.reflect.Type pType = type.getGenericSuperclass();
+            if (pType instanceof ParameterizedType) {
+                return ((ParameterizedType) pType).getActualTypeArguments();
+            }
         }
         return null;
     }
