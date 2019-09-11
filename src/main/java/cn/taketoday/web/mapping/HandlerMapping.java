@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.mapping;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,30 +32,32 @@ import cn.taketoday.context.Constant;
  *         2018-06-25 19:59:13
  */
 @SuppressWarnings("serial")
-public class HandlerMapping implements WebMapping {
+public class HandlerMapping extends HandlerMethod implements WebMapping {
 
     private static final int[] EMPTY = Constant.EMPTY_INT_ARRAY;
     /** 处理器类 */
 //	private String				action;
     private final Object bean;
-    /** 处理器方法 */
-    private final HandlerMethod handlerMethod;
-    /** 拦截器 */
+    /** 拦截器 @off*/
     private final int[] interceptors;
 
-    public HandlerMapping(Object bean, HandlerMethod handlerMethod, List<Integer> interceptors) {
+    public HandlerMapping(Object bean, Method method,
+                          List<Integer> interceptors, List<MethodParameter> parameters) {
+        
+        this(bean, method, interceptors, parameters.toArray(MethodParameter.EMPTY_ARRAY));
+    }
+
+    public HandlerMapping(Object bean, Method method, 
+                          List<Integer> interceptors, MethodParameter... parameters) {
+        
+        super(method, parameters);
         this.bean = bean;
 
-        this.interceptors = //
-                Objects.requireNonNull(interceptors).size() > 0 //
-                        ? interceptors.stream().mapToInt(Integer::intValue).toArray() //
-                        : EMPTY;
-
-        if (handlerMethod != null) {
-            handlerMethod.setHandlerMapping(this);
-        }
-        this.handlerMethod = handlerMethod;
+        this.interceptors = Objects.requireNonNull(interceptors).size() > 0
+                            ? interceptors.stream().mapToInt(Integer::intValue).toArray()
+                            : EMPTY;
     }
+    //@on
 
     public final boolean hasInterceptor() {
         return interceptors != EMPTY;
@@ -68,8 +71,16 @@ public class HandlerMapping implements WebMapping {
         return interceptors;
     }
 
-    public final HandlerMethod getHandlerMethod() {
-        return handlerMethod;
+    public static HandlerMapping create(final Object bean,
+                                        final Method method,
+                                        final List<Integer> interceptors,
+                                        final List<MethodParameter> methodParameters) {
+
+        return new HandlerMapping(bean, method, interceptors, methodParameters);
     }
 
+    @Override
+    public Object getObject() {
+        return bean;
+    }
 }

@@ -41,7 +41,7 @@ import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.exception.ExceptionUnhandledException;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.mapping.WebMapping;
+import cn.taketoday.web.mapping.MethodParameter;
 
 /**
  * @author TODAY <br>
@@ -55,36 +55,34 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
     private final Map<Class<? extends Throwable>, ExceptionHandlerMapping> exceptionHandlers = new HashMap<>();
 
     @Override
-    public void resolveException(final RequestContext requestContext, //
-                                 final Throwable ex, final WebMapping mvcMapping) throws Throwable //
+    protected void resolveHandlerMappingException(final Throwable ex,
+                                                  final RequestContext context,
+                                                  final HandlerMapping handlerMapping) throws Throwable //
     {
 
-        if (mvcMapping instanceof HandlerMapping) {
+        final ExceptionHandlerMapping exceptionHandler = lookupExceptionHandlerMapping(ex);//
+        if (exceptionHandler != null) {
 
-            final ExceptionHandlerMapping exceptionHandler = lookupExceptionHandlerMapping(ex);//
-            if (exceptionHandler != null) {
-                requestContext.attribute(Constant.KEY_THROWABLE, ex);
-                final HandlerMethod handlerMethod = ((HandlerMapping) mvcMapping).getHandlerMethod();
+            context.attribute(Constant.KEY_THROWABLE, ex);
+            if (handlerMapping.getObject() != null) {
+                context.status(buildStatus(ex, exceptionHandler, handlerMapping).value());
+            }
 
-                if (handlerMethod != null) { //
-                    requestContext.status(buildStatus(ex, exceptionHandler, handlerMethod).value());
-                }
-                try {
-                    exceptionHandler.resolveResult(requestContext, invokeExceptionHandler(requestContext, exceptionHandler));
-                    log.error("Catch Throwable: [{}]", ex.toString(), ex);
-                    return;
-                }
-                catch (final InvocationTargetException e) {
-                    final Throwable target = e.getTargetException();
-                    if (target instanceof ExceptionUnhandledException == false) {
-                        log.error("Handling of [{}] resulted in Exception: [{}]", //
-                                  target.getClass().getName(), target.getClass().getName(), target);
-                        throw target;
-                    }
+            try {
+                exceptionHandler.resolveResult(context, exceptionHandler.invokeHandler(context));
+            }
+            catch (final InvocationTargetException e) {
+                final Throwable target = e.getTargetException();
+                if (target instanceof ExceptionUnhandledException == false) {
+                    log.error("Handling of [{}] resulted in Exception: [{}]", //
+                              target.getClass().getName(), target.getClass().getName(), target);
+                    throw target;
                 }
             }
         }
-        super.resolveException(requestContext, ex, mvcMapping);
+        else {
+            super.resolveHandlerMappingException(ex, context, handlerMapping);
+        }
     }
 
     /**
@@ -127,27 +125,6 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
         return ret;
     }
 
-    /**
-     * Invoke {@link Exception} handler
-     * 
-     * @param request
-     *            Current request context
-     * @param handler
-     *            {@link Exception} handler
-     * @return {@link Exception} handler result
-     * @throws Throwable
-     *             If any {@link Exception} occurred when resolve {@link Exception}
-     *             handler parameter or {@link Exception} handler throw an
-     *             {@link Exception}
-     */
-    protected Object invokeExceptionHandler(final RequestContext request,
-                                            final ExceptionHandlerMapping handler) throws Throwable //
-    {
-        // Handler Method parameter list
-        return handler.getMethod()//
-                .invoke(handler.getHandler(), handler.resolveParameters(request)); // invoke
-    }
-
     @Override
     public void onStartup(WebApplicationContext beanFactory) throws Throwable {
 
@@ -163,12 +140,13 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
             for (final Method method : handlerClass.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(ExceptionHandler.class)) {
 
-                    final HandlerMethod handlerMethod = //
-                            HandlerMethod.create(method, ActionConfiguration.createMethodParameters(method));
+                    final List<MethodParameter> parameters = ActionConfiguration.createMethodParameters(method);
 
-                    final Object errorHandlerBean = beanFactory.getBean(handlerClass);
+                    final Object errorHandler = beanFactory.getBean(handlerClass);
 
-                    final ExceptionHandlerMapping mapping = new ExceptionHandlerMapping(errorHandlerBean, handlerMethod);
+                    final ExceptionHandlerMapping mapping = //
+                            new ExceptionHandlerMapping(errorHandler, method, //
+                                    parameters.toArray(MethodParameter.EMPTY_ARRAY));
 
                     for (Class<? extends Throwable> exceptionClass : method.getAnnotation(ExceptionHandler.class).value()) {
                         exceptionHandlers.put(exceptionClass, mapping);
@@ -183,12 +161,13 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
 
         private final Object handler;
 
-        public ExceptionHandlerMapping(Object handler, HandlerMethod handlerMethod) {
-            super(handlerMethod.getMethod(), handlerMethod.getReutrnType(), handlerMethod.getParameters());
+        public ExceptionHandlerMapping(Object handler, Method method, MethodParameter[] parameters) {
+            super(method, parameters);
             this.handler = handler;
         }
 
-        public Object getHandler() {
+        @Override
+        public Object getObject() {
             return handler;
         }
     }

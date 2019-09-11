@@ -270,14 +270,10 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
                 }//
         ));
 
-        // HandlerMethod
-        resolvers.add(new DelegatingParameterResolver((m) -> m.isAssignableFrom(HandlerMethod.class), //
+        // HandlerMethod HandlerMapping
+        resolvers.add(new DelegatingParameterResolver((m) -> m.isAssignableFrom(HandlerMethod.class)
+                                                             || m.isAssignableFrom(HandlerMapping.class), //
                 (ctx, m) -> m.getHandlerMethod()//
-        ));
-
-        // HandlerMapping
-        resolvers.add(new DelegatingParameterResolver((m) -> m.isAssignableFrom(HandlerMapping.class), //
-                (ctx, m) -> m.getHandlerMethod().getHandlerMapping()//
         ));
 
         // For cookies

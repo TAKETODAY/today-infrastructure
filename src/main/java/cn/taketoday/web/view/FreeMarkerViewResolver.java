@@ -432,7 +432,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
     public static class DefaultTemplateLoader implements TemplateLoader {
 
         private String prefix;
-        private final Object empty = new Object();
+        private static final Object empty = new Object();
         public final Cache<String, TemplateSource> cache;
         private HashMap<String, Object> noneExist = new HashMap<>();
 
@@ -475,9 +475,9 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
                         cache.put(templateName, ret = TemplateSource.create(res));
                         return ret;
                     }
-                    noneExist.put(templateName, empty);
                 }
                 catch (FileNotFoundException e) {}
+                noneExist.put(templateName, empty);
             }
             return ret;
         }

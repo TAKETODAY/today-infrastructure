@@ -19,20 +19,21 @@
  */
 package cn.taketoday.web.mapping;
 
-import java.util.Collections;
+import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Views request mapping
  * 
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2018-06-25 19:58:07
  * @version 2.0.0
  */
 @SuppressWarnings("serial")
-public class ViewMapping extends HandlerMapping implements WebMapping {
+public class ViewMapping extends HandlerMethod implements WebMapping {
 
     /** 资源路径 */
     private String assetsPath = "";
@@ -45,12 +46,16 @@ public class ViewMapping extends HandlerMapping implements WebMapping {
     /** view 视图映射池 */
     private static final Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>(16, 1f);
 
-    public ViewMapping(Object bean, HandlerMethod handlerMethod) {
-        super(bean, handlerMethod, Collections.emptyList());
+    /** @since 2.3.7 */
+    private final Object handler;
+
+    public ViewMapping(Object bean, Method method, List<MethodParameter> parameters) {
+        super(method, parameters);
+        this.handler = bean;
     }
 
     public final boolean hasAction() {
-        return getHandlerMethod() != null;
+        return getMethod() != null;
     }
 
     public int getStatus() {
@@ -61,20 +66,28 @@ public class ViewMapping extends HandlerMapping implements WebMapping {
         return contentType;
     }
 
-    public void setContentType(String contentType) {
+    public ViewMapping setContentType(String contentType) {
         this.contentType = contentType;
+        return this;
     }
 
     public String getAssetsPath() {
         return assetsPath;
     }
 
-    public void setAssetsPath(String assetsPath) {
+    public ViewMapping setAssetsPath(String assetsPath) {
         this.assetsPath = assetsPath;
+        return this;
     }
 
-    public void setStatus(int status) {
+    public ViewMapping setStatus(int status) {
         this.status = status;
+        return this;
+    }
+
+    @Override
+    public Object getObject() {
+        return handler;
     }
 
     @Override

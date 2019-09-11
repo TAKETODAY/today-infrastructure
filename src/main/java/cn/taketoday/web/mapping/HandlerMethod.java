@@ -29,19 +29,21 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.resolver.result.ResultResolver;
 
 /**
  * @author TODAY <br>
  *         2018-06-25 20:03:11
  */
-public class HandlerMethod {
+public class HandlerMethod implements ObjectFactory<Object> {
 
-    private static final MethodParameter[] EMPTY = new MethodParameter[0];
     /** action **/
     private final Method method;
     /** parameter list **/
@@ -53,8 +55,6 @@ public class HandlerMethod {
 
     private final ResultResolver resultResolver;
 
-    private HandlerMapping handlerMapping;
-
     private static final List<ResultResolver> RESULT_RESOLVERS = new ArrayList<>();
 
     /**
@@ -65,28 +65,30 @@ public class HandlerMethod {
      */
     protected ResultResolver obtainResolver() throws ConfigurationException {
 
-        for (final ResultResolver resolver : getResultResolvers()) {
-            if (resolver.supports(this)) {
-                return resolver;
+        if (method != null) {
+            for (final ResultResolver resolver : getResultResolvers()) {
+                if (resolver.supports(this)) {
+                    return resolver;
+                }
             }
+            throw ExceptionUtils.newConfigurationException(null,
+                                                           "There isn't have a result resolver to resolve : [" + toString() + "]");
         }
-
-        throw ExceptionUtils.newConfigurationException(null,
-                                                       "There isn't have a result resolver to resolve : [" + toString() + "]");
+        return null;
     }
 
-    public HandlerMethod(Method method, List<MethodParameter> parameters, Class<?> reutrnType) {
-        this(method, reutrnType, parameters.toArray(EMPTY));
+    public HandlerMethod(Method method, List<MethodParameter> parameters) {
+        this(method, parameters == null ? null : parameters.toArray(MethodParameter.EMPTY_ARRAY));
     }
 
-    public HandlerMethod(Method method, Class<?> reutrnType, MethodParameter... parameters) {
+    public HandlerMethod(Method method, MethodParameter... parameters) {
 
         this.method = method;
-        this.reutrnType = reutrnType;
+        this.reutrnType = method != null ? method.getReturnType() : null;
         this.genericityClass = ClassUtils.getGenericityClass(reutrnType);
 
-        if (parameters == null || parameters.length == 0) {
-            this.parameters = EMPTY;
+        if (ObjectUtils.isEmpty(parameters)) {
+            this.parameters = MethodParameter.EMPTY_ARRAY;
         }
         else {
             for (final MethodParameter parameter : parameters) {
@@ -98,11 +100,7 @@ public class HandlerMethod {
     }
 
     public static HandlerMethod create(final Method method, final List<MethodParameter> methodParameters) {
-        return new HandlerMethod(//
-                method, //
-                methodParameters, //
-                method.getReturnType()//
-        );
+        return new HandlerMethod(method, methodParameters);
     }
 
     public final Method getMethod() {
@@ -127,6 +125,7 @@ public class HandlerMethod {
     }
 
     public boolean isAssignableFrom(final Class<?> superClass) {
+
         return superClass.isAssignableFrom(reutrnType);
     }
 
@@ -188,7 +187,7 @@ public class HandlerMethod {
     public Object[] resolveParameters(final RequestContext requestContext) throws Throwable {
         // log.debug("set parameter start");
         final MethodParameter[] parameters = getParameters();
-        if (parameters == EMPTY) {
+        if (parameters == MethodParameter.EMPTY_ARRAY) {
             return null;
         }
         final Object[] args = new Object[parameters.length];
@@ -198,6 +197,13 @@ public class HandlerMethod {
         }
         return args;
     }
+
+    public Object invokeHandler(final RequestContext request) throws Throwable {
+        return method.invoke(getObject(), resolveParameters(request));
+    }
+
+    // Useful methods
+    // ------------------------------------
 
     public static void addResolver(ResultResolver... resolvers) {
         Collections.addAll(RESULT_RESOLVERS, resolvers);
@@ -218,12 +224,12 @@ public class HandlerMethod {
         return "{method=" + getMethod() + ", parameter=[" + Arrays.toString(getParameters()) + "]}";
     }
 
-    public HandlerMapping getHandlerMapping() {
-        return handlerMapping;
-    }
-
-    public void setHandlerMapping(HandlerMapping handlerMapping) {
-        this.handlerMapping = handlerMapping;
+    /**
+     * Get The {@link Controller} object
+     */
+    @Override
+    public Object getObject() {
+        return null;
     }
 
 }

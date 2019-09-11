@@ -203,7 +203,6 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
     private void mappingHandlerMapping(HandlerMapping handlerMapping, Set<String> namespaces, //
                                        Set<RequestMethod> classRequestMethods, AnnotationAttributes[] annotationAttributes) //
     {
-        final HandlerMethod handlerMethod = handlerMapping.getHandlerMethod();
 
         // add the mapping
         final int handlerMappingIndex = handlerMappingRegistry.add(handlerMapping); // index of handler method
@@ -220,11 +219,11 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
                 // splice urls and request methods
                 for (RequestMethod requestMethod : requestMethods) {
                     if (exclude || namespaces.isEmpty()) {
-                        doMapping(handlerMappingIndex, handlerMethod, StringUtils.checkUrl(urlOnMethod), requestMethod);
+                        doMapping(handlerMappingIndex, handlerMapping, StringUtils.checkUrl(urlOnMethod), requestMethod);
                         continue;
                     }
                     for (String namespace : namespaces) {
-                        doMapping(handlerMappingIndex, handlerMethod, namespace + StringUtils.checkUrl(urlOnMethod), requestMethod);
+                        doMapping(handlerMappingIndex, handlerMapping, namespace + StringUtils.checkUrl(urlOnMethod), requestMethod);
                     }
                 }
             }
@@ -382,11 +381,10 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
                     "An unexpected exception occurred: [Can't get bean with given type: [" + beanClass.getName() + "]]"//
             );
         }
+
         final List<MethodParameter> methodParameters = createMethodParameters(method);
 
-        final HandlerMethod handlerMethod = HandlerMethod.create(method, methodParameters);
-
-        return new HandlerMapping(bean, handlerMethod, getInterceptor(beanClass, method));
+        return HandlerMapping.create(bean, method, getInterceptor(beanClass, method), methodParameters);
     }
 
     /***

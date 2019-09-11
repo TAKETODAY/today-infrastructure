@@ -34,7 +34,6 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.ViewMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.utils.ResultUtils;
@@ -70,39 +69,36 @@ public class ViewDispatcher extends GenericServlet {
             return;
         }
 
-        final RequestContext requestContext = prepareContext(request, res);
+        final RequestContext context = prepareContext(request, res);
         try {
 
             if (mapping.getStatus() != 0) {
-                requestContext.status(mapping.getStatus());
+                context.status(mapping.getStatus());
             }
 
             final String contentType = mapping.getContentType();
             if (StringUtils.isNotEmpty(contentType)) {
-                requestContext.contentType(contentType);
+                context.contentType(contentType);
             }
 
             if (mapping.hasAction()) {
 
-                final HandlerMethod handlerMethod = mapping.getHandlerMethod();
+                final Object result = mapping.invokeHandler(context);
 
-                final Object result = handlerMethod.getMethod()//
-                        .invoke(mapping.getBean(), handlerMethod.resolveParameters(requestContext));
-
-                if (handlerMethod.is(void.class)) {
-                    ResultUtils.resolveView(mapping.getAssetsPath(), viewResolver, requestContext);
+                if (mapping.is(void.class)) {
+                    ResultUtils.resolveView(mapping.getAssetsPath(), viewResolver, context);
                 }
                 else {
-                    handlerMethod.resolveResult(requestContext, result);
+                    mapping.resolveResult(context, result);
                 }
             }
             else {
-                ResultUtils.resolveView(mapping.getAssetsPath(), viewResolver, requestContext);
+                ResultUtils.resolveView(mapping.getAssetsPath(), viewResolver, context);
             }
         }
         catch (Throwable e) {
             try {
-                ResultUtils.resolveException(requestContext, exceptionResolver, mapping, e);
+                ResultUtils.resolveException(context, exceptionResolver, mapping, e);
             }
             catch (Throwable e1) {
                 throw new ServletException(e1);

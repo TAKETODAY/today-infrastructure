@@ -45,7 +45,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerInterceptorRegistry;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMappingRegistry;
-import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.RegexMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.utils.ResultUtils;
@@ -111,7 +110,6 @@ public class DispatcherServlet implements Servlet, Serializable {
 
             final Object result;
             // Handler Method
-            final HandlerMethod method;// = requestMapping.getHandlerMethod();
             if (mapping.hasInterceptor()) {
                 // get intercepter s
                 final int[] its = mapping.getInterceptors();
@@ -125,16 +123,16 @@ public class DispatcherServlet implements Servlet, Serializable {
                         return;
                     }
                 }
-                result = invokeHandler(context, method = mapping.getHandlerMethod(), mapping);
+                result = mapping.invokeHandler(context);
                 for (final int i : its) {
                     registry.get(i).afterProcess(context, mapping, result);
                 }
             }
             else {
-                result = invokeHandler(context, method = mapping.getHandlerMethod(), mapping);
+                result = mapping.invokeHandler(context);
             }
 
-            method.resolveResult(context, result);
+            mapping.resolveResult(context, result);
         }
         catch (Throwable e) {
             try {
@@ -144,29 +142,6 @@ public class DispatcherServlet implements Servlet, Serializable {
                 throw new ServletException(e1);
             }
         }
-    }
-
-    /**
-     * Invoke Handler
-     * 
-     * @param request
-     *            Current request Context
-     * @param method
-     *            {@link HandlerMethod}
-     * @param mapping
-     *            {@link HandlerMapping}
-     * @return the result of handler
-     * @throws Throwable
-     *             If any {@link Throwable} occurred
-     * @since 2.3.7
-     */
-    protected Object invokeHandler(final RequestContext request,
-                                   final HandlerMethod method,
-                                   final HandlerMapping mapping) throws Throwable //
-    {
-        // log.debug("set parameter start");
-        return method.getMethod()//
-                .invoke(mapping.getBean(), method.resolveParameters(request)); // invoke
     }
 
     /**

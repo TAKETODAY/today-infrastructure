@@ -32,15 +32,11 @@ import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.resolver.method.ParameterResolver;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author TODAY
  * @version 2.3.7 <br>
  */
-@Setter
-@Getter
 public class MethodParameter {
 
     private final String name;
@@ -60,6 +56,8 @@ public class MethodParameter {
     private final Parameter parameter; // reflect parameter instance
 
     private HandlerMethod handlerMethod;
+
+    public static final MethodParameter[] EMPTY_ARRAY = new MethodParameter[0];
 
     private static final List<ParameterResolver> PARAMETER_RESOLVERS = new ArrayList<>();
 
@@ -192,5 +190,63 @@ public class MethodParameter {
     @Override
     public boolean equals(Object obj) {
         return obj == this || (obj instanceof MethodParameter && parameter.equals(((MethodParameter) obj).parameter));
+    }
+
+    // Getter
+    // ----------------------------
+    
+    public String getName() {
+        return name;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public Class<?> getParameterClass() {
+        return parameterClass;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public Type[] getGenericityClass() {
+        return genericityClass;
+    }
+
+    public ParameterResolver getResolver() {
+        return resolver;
+    }
+
+    public Parameter getParameter() {
+        return parameter;
+    }
+
+    public int getPathIndex() {
+        return pathIndex;
+    }
+
+    public MethodParameter setPathIndex(int pathIndex) {
+        this.pathIndex = pathIndex;
+        return this;
+    }
+
+    public String[] getSplitMethodUrl() {
+        return splitMethodUrl;
+    }
+
+    public MethodParameter setSplitMethodUrl(String[] splitMethodUrl) {
+        this.splitMethodUrl = splitMethodUrl;
+        return this;
+    }
+
+    public HandlerMethod getHandlerMethod() {
+        return handlerMethod;
+    }
+
+    public MethodParameter setHandlerMethod(HandlerMethod handlerMethod) {
+        this.handlerMethod = handlerMethod;
+        return this;
     }
 }
