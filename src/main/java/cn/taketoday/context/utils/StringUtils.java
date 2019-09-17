@@ -91,11 +91,11 @@ public abstract class StringUtils {
     }
 
     public final static boolean isEmpty(String str) {
-        return str == null || str.length() == 0;
+        return str == null || str.isEmpty();
     }
 
     public final static boolean isNotEmpty(String str) {
-        return str != null && str.length() != 0;
+        return !isEmpty(str);
     }
 
     public final static boolean isArrayNotEmpty(String... strs) {
