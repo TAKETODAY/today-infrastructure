@@ -71,15 +71,13 @@ class OnPropertyCondition implements Condition {
         final String prefix = conditionalOnProperty.prefix();
 
         final Environment environment = ContextUtils.getApplicationContext().getEnvironment();
-        if (StringUtils.isEmpty(prefix)) {
-            for (String key : conditionalOnProperty.value()) {
-                if (environment.getProperty(key) == null) {
-                    return false;
-                }
+        if (StringUtils.isEmpty(prefix)) for (final String key : conditionalOnProperty.value()) {
+            if (environment.getProperty(key) == null) {
+                return false;
             }
         }
         else {
-            for (String key : conditionalOnProperty.value()) {
+            for (final String key : conditionalOnProperty.value()) {
                 if (environment.getProperty(prefix + key) == null) {
                     return false;
                 }

@@ -27,7 +27,7 @@ import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
 import lombok.extern.slf4j.Slf4j;
-import test.context.condition.WindowsCondition;
+import test.context.annotation.condition.WindowsCondition;
 
 /**
  * @author Today <br>

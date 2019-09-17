@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.context.condition;
+package test.context.annotation.condition;
 
 import java.lang.reflect.AnnotatedElement;
 
@@ -25,8 +25,7 @@ import cn.taketoday.context.Condition;
 import cn.taketoday.context.utils.ContextUtils;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-11-15 20:28
  */
 public class WindowsCondition implements Condition {
