@@ -41,24 +41,22 @@ public class BeanParameterResolver implements OrderedParameterResolver {
     }
 
     @Override
-    public Object resolveParameter(RequestContext requestContext, MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
         final Class<?> parameterClass = parameter.getParameterClass();
 
         final Object bean = ClassUtils.newInstance(parameterClass);
 
-        final Enumeration<String> parameterNames = requestContext.parameterNames();
-
+        final Enumeration<String> parameterNames = context.parameterNames();
+        
         while (parameterNames.hasMoreElements()) {
             // 遍历参数
             final String parameterName = parameterNames.nextElement();
             // 寻找参数
             try {
-                resolvePojoParameter(requestContext, parameterName, bean, parameterClass.getDeclaredField(parameterName));
+                resolvePojoParameter(context, parameterName, bean, parameterClass.getDeclaredField(parameterName));
             }
-            catch (NoSuchFieldException e) {
-                // continue;
-            }
+            catch (NoSuchFieldException e) {}
         }
 
         return bean;

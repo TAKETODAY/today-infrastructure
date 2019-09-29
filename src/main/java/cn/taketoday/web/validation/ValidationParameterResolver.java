@@ -111,7 +111,7 @@ public class ValidationParameterResolver implements OrderedParameterResolver {
 
     @Override
     public int getOrder() {
-        return HIGHEST_PRECEDENCE;
+        return HIGHEST_PRECEDENCE + 100;
     }
 
 }

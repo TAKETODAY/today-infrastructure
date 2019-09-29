@@ -75,7 +75,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
             else if (mvcMapping instanceof ResourceMapping) {
                 resolveResourceMappingException(ex, context, (ResourceMapping) mvcMapping);
             }
-            log.error("Catch Throwable: [{}]", ex.toString(), ex);
+            log.debug("Catch Throwable: [{}]", ex.toString(), ex);
         }
         catch (Throwable handlerException) {
             log.error("Handling of [{}] resulted in Exception: [{}]", //
@@ -148,9 +148,9 @@ public class DefaultExceptionResolver implements ExceptionResolver {
             handlerMethod.resolveResult(context, resolveImageException(ex, context));
         }
         else if (!handlerMethod.is(void.class)
-                 || !handlerMethod.is(Object.class)
-                 || !handlerMethod.is(ModelAndView.class)
-                 || ViewResolverResultResolver.supportsResolver(handlerMethod)) {
+                 && !handlerMethod.is(Object.class)
+                 && !handlerMethod.is(ModelAndView.class)
+                 && ViewResolverResultResolver.supportsResolver(handlerMethod)) {
 
             final String redirect = responseStatus.redirect();
             if (StringUtils.isNotEmpty(redirect)) { // has redirect
