@@ -68,7 +68,7 @@ public class ResourceUtilsTest {
         assert createRelative.exists();
         assert resource.exists();
 
-        resource = ResourceUtils.getResource("file:/G:/Projects/Git/github/today-context/src/main/resources/META-INF/ignore/jar-prefix");
+        resource = ResourceUtils.getResource("file:/D:/Projects/Git/github/today-context/src/main/resources/META-INF/ignore/jar-prefix");
 
         System.err.println(resource);
 
@@ -76,7 +76,7 @@ public class ResourceUtilsTest {
 
         System.err.println(StringUtils.readAsText(resource.getInputStream()));
 
-        resource = ResourceUtils.getResource("jar:file:/G:/Projects/Git/github/today-context/src/test/resources/test.jar!/META-INF/");
+        resource = ResourceUtils.getResource("jar:file:/D:/Projects/Git/github/today-context/src/test/resources/test.jar!/META-INF/");
         System.err.println(resource);
 
         if (resource instanceof JarEntryResource) {
