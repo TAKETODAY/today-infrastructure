@@ -114,6 +114,16 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
     }
 
     @Override
+    protected String getDefaultName() {
+
+        final T servlet = getServlet();
+        if (servlet != null) {
+            return servlet.getClass().getName();
+        }
+        return null;
+    }
+
+    @Override
     public String toString() {
         return new StringBuilder()//
                 .append("{\n\t\"servlet\":\"").append(servlet)//

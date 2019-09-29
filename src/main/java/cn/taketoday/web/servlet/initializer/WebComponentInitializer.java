@@ -31,6 +31,7 @@ import javax.servlet.Registration;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import cn.taketoday.context.utils.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -107,6 +108,17 @@ public abstract class WebComponentInitializer<D extends Registration.Dynamic> im
 
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public String getName() {
+        if (StringUtils.isEmpty(name)) {
+            return getDefaultName();
+        }
+        return name;
+    }
+
+    protected String getDefaultName() {
+        return null;
     }
 
 }

@@ -142,6 +142,16 @@ public class WebFilterInitializer<T extends Filter> extends WebComponentInitiali
     }
 
     @Override
+    protected String getDefaultName() {
+
+        final T t = getFilter();
+        if (t != null) {
+            return t.getClass().getName();
+        }
+        return null;
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n\t\"filter\":\"");
