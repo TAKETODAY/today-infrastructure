@@ -20,6 +20,7 @@
 package cn.taketoday.context.bean;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
@@ -34,7 +35,7 @@ import cn.taketoday.context.factory.FactoryBean;
  * @author TODAY <br>
  *         2018-06-23 11:23:45
  */
-public interface BeanDefinition {
+public interface BeanDefinition extends AnnotatedElement {
 
     Method[] EMPTY_METHOD = new Method[0];
 

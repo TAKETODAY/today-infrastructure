@@ -56,17 +56,11 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
         return this;
     }
 
-    @Override
-    public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
-        return super.isAnnotationPresent(annotation) || ClassUtils.isAnnotationPresent(getFactoryMethod(), annotation);
-    }
-
     /**
      * {@link BeanDefinition}'s Order
      */
     @Override
     public int getOrder() {
-
         final int order = super.getOrder();
         if (LOWEST_PRECEDENCE == order) {
             return OrderUtils.getOrder(getFactoryMethod());
@@ -99,6 +93,41 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
                 .append("\",\n\t\"abstract\":\"").append(isAbstract())//
                 .append("\"\n}")//
                 .toString();
+    }
+
+    // AnnotatedElement
+    // -----------------------------
+
+    @Override
+    public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
+        return ClassUtils.isAnnotationPresent(getFactoryMethod(), annotation) || super.isAnnotationPresent(annotation);
+    }
+
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+        final T ret = getFactoryMethod().getAnnotation(annotationClass);
+        if (ret == null) {
+            return super.getAnnotation(annotationClass);
+        }
+        return ret;
+    }
+
+    @Override
+    public Annotation[] getAnnotations() {
+        final Annotation[] ret = getFactoryMethod().getAnnotations();
+        if (ret == null) {
+            return super.getAnnotations();
+        }
+        return ret;
+    }
+
+    @Override
+    public Annotation[] getDeclaredAnnotations() {
+        final Annotation[] ret = getFactoryMethod().getDeclaredAnnotations();
+        if (ret == null) {
+            return super.getDeclaredAnnotations();
+        }
+        return ret;
     }
 
 }

@@ -97,12 +97,14 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
     @Override
     protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
 
+        // load beans form scanned classes
         super.loadBeanDefinitions(beanFactory, beanClasses);
-
+        // load beans form beans that annotated Configuration
         this.beanFactory.loadConfigurationBeans();
         // @since 2.1.6
         beanClasses.addAll(this.beanFactory.loadMetaInfoBeans());
-
+        // import beans
+        this.beanFactory.loadImportBeans();
         this.beanFactory.loadMissingBean(beanClasses);
     }
 

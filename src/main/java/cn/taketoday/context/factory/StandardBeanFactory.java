@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.factory;
 
+import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -42,6 +44,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.aware.ApplicationContextAware;
@@ -52,7 +55,10 @@ import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.bean.StandardBeanDefinition;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
@@ -102,10 +108,10 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                 final StandardBeanDefinition standardBeanDefinition = (StandardBeanDefinition) beanDefinition;
                 final Method factoryMethod = standardBeanDefinition.getFactoryMethod();
 
-                return ClassUtils.makeAccessible(factoryMethod).invoke(//
-                        getDeclaringInstance(standardBeanDefinition.getDeclaringName()), //
-                        ContextUtils.resolveParameter(factoryMethod, this)//
-                );
+                return ClassUtils.makeAccessible(factoryMethod)//
+                        .invoke(getDeclaringInstance(standardBeanDefinition.getDeclaringName()),
+                                ContextUtils.resolveParameter(factoryMethod, this)//
+                        );
             }
             return ClassUtils.newInstance(beanDefinition, this);
         }
@@ -137,14 +143,17 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     protected Object getDeclaringInstance(String declaringName) throws Throwable {
         final BeanDefinition declaringBeanDefinition = getBeanDefinition(declaringName);
 
+        if (declaringBeanDefinition == null) {
+            throw new NoSuchBeanDefinitionException(declaringName);
+        }
+
         if (declaringBeanDefinition.isInitialized()) {
             return getSingleton(declaringName);
         }
 
         // fix: declaring bean not initialized
-        final Object declaringSingleton = super.initializingBean(//
-                createBeanInstance(declaringBeanDefinition), declaringName, declaringBeanDefinition//
-        );
+        final Object declaringSingleton = //
+                super.initializingBean(createBeanInstance(declaringBeanDefinition), declaringName, declaringBeanDefinition);
 
         // put declaring object
         if (declaringBeanDefinition.isSingleton()) {
@@ -161,23 +170,34 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
         for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
 
-            final Class<? extends Object> beanClass = entry.getValue().getBeanClass();
-            if (beanClass.isAnnotationPresent(Configuration.class)) {
+            if (entry.getValue().isAnnotationPresent(Configuration.class)) {
                 // @Configuration bean
-                for (final Method method : beanClass.getDeclaredMethods()) {
+                loadConfigurationBeans(entry.getValue().getBeanClass());
+            }
+        }
+    }
 
-                    if (ContextUtils.conditional(method)) { // pass the condition
+    /**
+     * Load {@link Configuration} beans from input bean class
+     * 
+     * @param beanClass
+     *            current {@link Configuration} bean
+     * @since 2.1.7
+     */
+    protected void loadConfigurationBeans(final Class<?> beanClass) {
 
-                        final AnnotationAttributes[] components = //
-                                ClassUtils.getAnnotationAttributesArray(method, Component.class);
+        for (final Method method : beanClass.getDeclaredMethods()) {
 
-                        if (ObjectUtils.isEmpty(components) && method.isAnnotationPresent(MissingBean.class)) {
-                            missingMethods.add(method);
-                        }
-                        else {
-                            registerConfigurationBean(method, components);
-                        }
-                    }
+            if (ContextUtils.conditional(method)) { // pass the condition
+
+                final AnnotationAttributes[] components = //
+                        ClassUtils.getAnnotationAttributesArray(method, Component.class);
+
+                if (ObjectUtils.isEmpty(components) && method.isAnnotationPresent(MissingBean.class)) {
+                    missingMethods.add(method);
+                }
+                else {
+                    registerConfigurationBean(method, components);
                 }
             }
         }
@@ -346,12 +366,106 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
             if (ContextUtils.conditional(beanClass) && !beanClass.isAnnotationPresent(MissingBean.class)) {
                 // can't be a missed bean
-
                 ContextUtils.buildBeanDefinitions(beanClass, beanNameCreator.create(beanClass))//
                         .forEach(beanDefinitionLoader::register);
             }
         }
         return beans;
+    }
+
+    /**
+     * Resolve Import beans
+     * 
+     * @since 2.1.7
+     */
+    public void loadImportBeans() {
+
+        final BeanDefinitionLoader beanDefinitionLoader = getBeanDefinitionLoader();
+
+        // Prepare import classes
+        // ---------------------------------------------------
+        final Set<BeanDefinition> defs = new HashSet<>(64);
+
+        for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+            if (entry.getValue().isAnnotationPresent(Import.class)) {
+                defs.add(entry.getValue());
+            }
+        }
+
+        for (final BeanDefinition def : defs) {
+            for (final AnnotationAttributes importBean : getAnnotationAttributesArray(def, Import.class)) {
+                for (final Class<?> importClass : importBean.getAttribute(Constant.VALUE, Class[].class)) {
+                    selectImport(beanDefinitionLoader, def, importClass);
+                }
+            }
+        }
+    }
+
+    /**
+     * Select import
+     * 
+     * @since 2.1.7
+     */
+    protected void selectImport(final BeanDefinitionLoader loader,
+                                final BeanDefinition def, final Class<?> importClass) {
+
+        if (ImportSelector.class.isAssignableFrom(importClass)) {
+            for (final String select : createImportSelector(importClass).selectImports(def)) {
+                loader.register(loader.createBeanDefinition(ClassUtils.loadClass(select)));
+            }
+        }
+        else if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
+            createBeanDefinitionImporter(importClass).registerBeanDefinitions(def, this);
+        }
+        else {
+            loader.register(loader.createBeanDefinition(importClass));
+            loadConfigurationBeans(importClass);
+        }
+    }
+
+    /**
+     * Create {@link ImportSelector} object
+     * 
+     * @param importClass
+     *            Must be {@link ImportSelector} class
+     * @return {@link ImportSelector} object
+     */
+    @SuppressWarnings("unchecked")
+    protected BeanDefinitionImporter createBeanDefinitionImporter(Class<?> importClass) {
+        final BeanDefinitionImporter ret = ClassUtils.newInstance((Class<BeanDefinitionImporter>) importClass);
+
+        aware(ret, getBeanNameCreator().create(importClass));
+
+        try {
+            invokeInitMethods(ret, ContextUtils.resolveInitMethod(importClass));
+            return ret;
+        }
+        catch (Exception e) {
+            throw new BeanDefinitionStoreException("Can't initialize a 'BeanDefinitionImporter': [" + importClass + "]");
+        }
+    }
+
+    /**
+     * Create {@link ImportSelector} object
+     * 
+     * @param importClass
+     *            Must be {@link ImportSelector} class
+     * @return {@link ImportSelector} object
+     */
+    @SuppressWarnings("unchecked")
+    protected ImportSelector createImportSelector(Class<?> importClass) {
+
+        final ImportSelector importSelector = ClassUtils.newInstance((Class<ImportSelector>) importClass);
+
+        aware(importSelector, getBeanNameCreator().create(importClass));
+
+        try {
+            invokeInitMethods(importSelector, ContextUtils.resolveInitMethod(importClass));
+            return importSelector;
+        }
+        catch (Exception e) {
+            throw new BeanDefinitionStoreException("Can't initialize a 'ImportSelector': [" + importClass + "]");
+        }
     }
 
     @Override

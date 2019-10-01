@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.loader;
 
+import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
+
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Objects;
@@ -94,7 +96,7 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         // register
 
         final AnnotationAttributes[] annotationAttributes = //
-                ClassUtils.getAnnotationAttributesArray(beanClass, Component.class);
+                getAnnotationAttributesArray(beanClass, Component.class);
 
         if (ObjectUtils.isEmpty(annotationAttributes)) {
             register(name, build(beanClass, null, name));
@@ -109,23 +111,22 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
     /**
      * Register with given class
      * 
-     * @param beanClass
-     *            Bean class
+     * @param sourceClass
+     *            Source bean class
      * @throws BeanDefinitionStoreException
      *             If {@link BeanDefinition} can't store
      */
     @Override
-    public void register(Class<?> beanClass) throws BeanDefinitionStoreException {
+    public void register(Class<?> sourceClass) throws BeanDefinitionStoreException {
 
-        final AnnotationAttributes[] annotationAttributes = //
-                ClassUtils.getAnnotationAttributesArray(beanClass, Component.class);
+        final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(sourceClass, Component.class);
 
         if (ObjectUtils.isNotEmpty(annotationAttributes)) {
 
-            final String defaultBeanName = beanNameCreator.create(beanClass);
+            final String defaultBeanName = beanNameCreator.create(sourceClass);
             for (final AnnotationAttributes attributes : annotationAttributes) {
                 for (final String name : ContextUtils.findNames(defaultBeanName, attributes.getStringArray(Constant.VALUE))) {
-                    register(name, build(beanClass, attributes, name));
+                    register(name, build(sourceClass, attributes, name));
                 }
             }
         }

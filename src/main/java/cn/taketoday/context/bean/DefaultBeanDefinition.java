@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
@@ -262,11 +263,6 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
         this.propertyValues = propertyValues.toArray(EMPTY_PROPERTY_VALUE);
     }
 
-    @Override
-    public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
-        return ClassUtils.isAnnotationPresent(beanClass, annotation);
-    }
-
     /**
      * {@link BeanDefinition}'s Order
      * 
@@ -274,7 +270,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
      */
     @Override
     public int getOrder() {
-        return OrderUtils.getOrder(beanClass);
+        return OrderUtils.getOrder(getBeanClass());
     }
 
     @Override
@@ -295,6 +291,12 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return obj == this
+               || (obj instanceof BeanDefinition && Objects.equals(((BeanDefinition) obj).getName(), getName()));
+    }
+
+    @Override
     public String toString() {
 
         return new StringBuilder()//
@@ -309,6 +311,29 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
                 .append("\",\n\t\"child\":\"").append(childName)//
                 .append("\"\n}")//
                 .toString();
+    }
+
+    // AnnotatedElement
+    // -----------------------------
+
+    @Override
+    public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
+        return ClassUtils.isAnnotationPresent(getBeanClass(), annotation);
+    }
+
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+        return getBeanClass().getAnnotation(annotationClass);
+    }
+
+    @Override
+    public Annotation[] getAnnotations() {
+        return getBeanClass().getAnnotations();
+    }
+
+    @Override
+    public Annotation[] getDeclaredAnnotations() {
+        return getBeanClass().getDeclaredAnnotations();
     }
 
 }
