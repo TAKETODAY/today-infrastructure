@@ -29,6 +29,7 @@
 :hammer: 重构FactoryBean注册逻辑
 :hammer: 重构BeanFactory获取Bean的逻辑
 :sparkles: 利用cglib构建了真正的原型实例
+:sparkles: 增加导入配置(@Import)功能
 
 ## v2.1.6
 - :sparkles: feat: add `Environment` new api to get property
