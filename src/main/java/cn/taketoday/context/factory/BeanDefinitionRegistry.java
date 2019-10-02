@@ -107,8 +107,8 @@ public interface BeanDefinitionRegistry {
      * @param type
      *            Target type
      * @param equals
-     *            must equals type
-     * @return
+     *            Must equals type
+     * @return If exist a bean with given type
      */
     boolean containsBeanDefinition(Class<?> type, boolean equals);
 

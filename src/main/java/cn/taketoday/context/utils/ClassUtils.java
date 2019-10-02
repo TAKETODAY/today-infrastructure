@@ -99,6 +99,7 @@ public abstract class ClassUtils {
     /** class loader **/
     private static ClassLoader classLoader;
     /** scanned classes */
+    @Deprecated
     private static Set<Class<?>> classesCache;
 
     private static final Map<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32);
@@ -193,7 +194,6 @@ public abstract class ClassUtils {
      * clear cache
      */
     public static void clearCache() {
-        setClassCache(null);
 
         ANNOTATIONS.clear();
         ANNOTATION_ATTRIBUTES.clear();
@@ -217,18 +217,15 @@ public abstract class ClassUtils {
 
     /**
      * get all classes loaded in class path
+     * @deprecated Deprecated in 2.1.7 High scan performance without caching
      */
+    @Deprecated
     public static Set<Class<?>> getClassCache() {
-
-        if (classesCache == null || classesCache.isEmpty()) {
-            setClassCache(scan(Constant.BLANK));
-        }
-        return classesCache;
+        return scan(Constant.BLANK);
     }
 
-    public static void setClassCache(Set<Class<?>> classes) {
-        ClassUtils.classesCache = classes;
-    }
+    @Deprecated
+    public static void setClassCache(Set<Class<?>> classes) {}
 
     // ------------------------------------------ Class Scan
 
@@ -390,10 +387,9 @@ public abstract class ClassUtils {
     }
 
     public static final <T> Set<Class<?>> filter(final Predicate<Class<?>> predicate) {
-        return getClassCache()//
-//				.stream()//
-                .parallelStream()//
-                .filter(predicate)//
+        return scan(Constant.BLANK)
+                .parallelStream()
+                .filter(predicate)
                 .collect(Collectors.toSet());
     }
 
@@ -405,13 +401,6 @@ public abstract class ClassUtils {
      * @return a {@link Collection} of class under the packages
      */
     public static Set<Class<?>> getClasses(final String... packages) {
-
-        if (StringUtils.isArrayEmpty(packages) || //
-                (packages.length == 1 && StringUtils.isEmpty(packages[0]))) //
-        {
-            return getClassCache();
-        }
-
         return filter(clazz -> {
             final String name = clazz.getName();
             for (final String prefix : packages) {
@@ -434,33 +423,27 @@ public abstract class ClassUtils {
 
         Objects.requireNonNull(packages, "scan package can't be null");
 
-        if (classesCache == null || classesCache.isEmpty()) {
-
-            final Set<Class<?>> scanClasses = new HashSet<>(2048);
-            if (packages.length == 1) {
-                scanOne(scanClasses, packages[0]); // packages.length == 1
-            }
-            else {
-                final Set<String> packagesToScan = new HashSet<>(8);
-                for (final String location : packages) {
-
-                    if (StringUtils.isEmpty(location)) { // contains "" scan all class
-                        scan(scanClasses);
-                        setClassCache(scanClasses);
-                        return scanClasses;
-                    }
-                    else {
-                        packagesToScan.add(location);
-                    }
-                }
-                for (final String location : packagesToScan) {
-                    scan(scanClasses, location);
-                }
-            }
-            setClassCache(scanClasses);
-            return scanClasses;
+        final Set<Class<?>> scanClasses = new HashSet<>(2048);
+        if (packages.length == 1) {
+            scanOne(scanClasses, packages[0]); // packages.length == 1
         }
-        return getClasses(packages);
+        else {
+            final Set<String> packagesToScan = new HashSet<>(8);
+            for (final String location : packages) {
+
+                if (StringUtils.isEmpty(location)) { // contains "" scan all class
+                    scan(scanClasses);
+                    return scanClasses;
+                }
+                else {
+                    packagesToScan.add(location);
+                }
+            }
+            for (final String location : packagesToScan) {
+                scan(scanClasses, location);
+            }
+        }
+        return scanClasses;
     }
 
     protected static void scanOne(final Set<Class<?>> scanClasses, final String location) {
@@ -529,9 +512,6 @@ public abstract class ClassUtils {
             scanInJarFile(scanClasses, resource, resource.getFile().getName(), packageName,
                     () -> ((JarEntryResource) resource).getJarFile());
         }
-//        else if (resource instanceof ClassPathResource) {
-//            scan(scanClasses, ((ClassPathResource) resource).getOriginalResource(), packageName);
-//        }
     }
 
     private static void scanInJarFile(final Collection<Class<?>> scanClasses, final Resource resource, //
@@ -581,9 +561,12 @@ public abstract class ClassUtils {
                     scan(scanClasses, ResourceUtils.getResource(url), Constant.BLANK);
                 }
             }
+            else {
+                scan(scanClasses, ResourceUtils.getResource(classLoader.getResource(Constant.BLANK)), Constant.BLANK);
+            }
         }
         catch (IOException e) {
-            log.error("IO exception occur With Msg: [{}]", e.getMessage(), e);
+            log.error("IO exception occur With Msg: [{}]", e, e);
             throw new ContextException(e);
         }
     }
@@ -673,9 +656,9 @@ public abstract class ClassUtils {
      */
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> T[] getAnnotationArray(
-            final AnnotatedElement element,
-            final Class<T> annotationClass,
-            final Class<? extends T> implClass) throws ContextException //
+                                final AnnotatedElement element,
+                                final Class<T> annotationClass,
+                                final Class<? extends T> implClass) throws ContextException //
     {
         if (annotationClass == null) {
             return null;
@@ -842,12 +825,9 @@ public abstract class ClassUtils {
      * @return the {@link Collection} of {@link Annotation} instance
      * @since 2.1.7
      */
-    public static <T extends Annotation> T getAnnotation(
-            final Class<T> annotationClass,
-            final Class<? extends T> implClass,
-            final AnnotatedElement element) //
+    public static <T extends Annotation> T getAnnotation(final Class<T> annotationClass,
+                                                         final Class<? extends T> implClass, final AnnotatedElement element)
     {
-
         final T[] array = getAnnotationArray(element, annotationClass, implClass);
         return ObjectUtils.isEmpty(array) ? null : array[0];
     }

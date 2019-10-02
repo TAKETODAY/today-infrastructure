@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.event;
 
+import java.util.Collection;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.bean.BeanDefinition;
 
@@ -26,14 +28,19 @@ import cn.taketoday.context.bean.BeanDefinition;
  * {@link BeanDefinition} Loading event
  * 
  * @author TODAY <br>
- * 
  *         2018-09-10 10:46
  */
 @SuppressWarnings("serial")
 public class BeanDefinitionLoadingEvent extends ApplicationContextEvent {
 
-    public BeanDefinitionLoadingEvent(ApplicationContext applicationContext) {
-        super(applicationContext);
+    private final Collection<Class<?>> candidates;
+
+    public BeanDefinitionLoadingEvent(ApplicationContext source, Collection<Class<?>> candidates) {
+        super(source);
+        this.candidates = candidates;
     }
 
+    public final Collection<Class<?>> getCandidates() {
+        return candidates;
+    }
 }

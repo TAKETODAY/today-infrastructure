@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -51,6 +52,7 @@ import cn.taketoday.context.bean.DefaultBeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.cglib.proxy.Enhancer;
 import cn.taketoday.context.cglib.proxy.MethodInterceptor;
+import cn.taketoday.context.env.DefaultBeanNameCreator;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
@@ -63,7 +65,6 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
 /**
- *
  * @author TODAY <br>
  *         2018-06-23 11:20:58
  */
@@ -730,11 +731,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public Set<String> getAliases(Class<?> type) {
-        return getBeanDefinitions()//
-                .entrySet()//
-                .stream()//
-                .filter(entry -> type.isAssignableFrom(entry.getValue().getBeanClass()))//
-                .map(entry -> entry.getKey())//
+        return getBeanDefinitions()
+                .entrySet()
+                .stream()
+                .filter(entry -> type.isAssignableFrom(entry.getValue().getBeanClass()))
+                .map(entry -> entry.getKey())
                 .collect(Collectors.toSet());
     }
 
@@ -943,25 +944,26 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public boolean containsBeanDefinition(final Class<?> type, final boolean equals) {
-
-        if (getBeanDefinitions().containsKey(getBeanNameCreator().create(type))) {
+        
+        final Predicate<BeanDefinition> predicate = getPredicate(type, equals);
+        final BeanDefinition def = getBeanDefinition(getBeanNameCreator().create(type));
+        if (def != null && predicate.test(def)) {
             return true;
         }
-        if (equals) {
-            for (final BeanDefinition beanDefinition : getBeanDefinitions().values()) {
-                if (type == beanDefinition.getBeanClass()) {
-                    return true;
-                }
-            }
-        }
-        else {
-            for (final BeanDefinition beanDefinition : getBeanDefinitions().values()) {
-                if (type.isAssignableFrom(beanDefinition.getBeanClass())) {
-                    return true;
-                }
+
+        for (final BeanDefinition beanDef : getBeanDefinitions().values()) {
+            if (predicate.test(beanDef)) {
+                return true;
             }
         }
         return false;
+    }
+
+    private final Predicate<BeanDefinition> getPredicate(final Class<?> type, final boolean equals) {
+        if (equals) {
+            return (beanDef) -> type == beanDef.getBeanClass();
+        }
+        return (beanDef) -> type.isAssignableFrom(beanDef.getBeanClass());
     }
 
     @Override
@@ -1013,27 +1015,25 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     @Override
     public void refresh(String name) {
 
-        final BeanDefinition beanDefinition = getBeanDefinition(name);
-        if (beanDefinition == null) {
+        final BeanDefinition def = getBeanDefinition(name);
+        if (def == null) {
             throw new NoSuchBeanDefinitionException(name);
         }
 
         try {
 
-            if (beanDefinition.isInitialized()) {
+            if (def.isInitialized()) {
                 log.warn("A bean named: [{}] has already initialized", name);
                 return;
             }
 
-            final Object initializingBean = initializingBean(//
-                                                             createBeanInstance(beanDefinition), name, beanDefinition//
-            );
+            final Object initializingBean = initializingBean(createBeanInstance(def), name, def);
 
             if (!containsSingleton(name)) {
                 registerSingleton(name, initializingBean);
             }
 
-            beanDefinition.setInitialized(true);
+            def.setInitialized(true);
         }
         catch (Throwable ex) {
             throw ExceptionUtils.newContextException(ex);
@@ -1041,13 +1041,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     @Override
-    public Object refresh(BeanDefinition beanDefinition) {
+    public Object refresh(BeanDefinition def) {
 
         try {
-            final Object initializingBean = //
-                    initializingBean(createBeanInstance(beanDefinition), beanDefinition.getName(), beanDefinition);
+            final Object initializingBean = initializingBean(createBeanInstance(def), def.getName(), def);
 
-            beanDefinition.setInitialized(true);
+            def.setInitialized(true);
             return initializingBean;
         }
         catch (Throwable ex) {
@@ -1059,14 +1058,25 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     public abstract BeanDefinitionLoader getBeanDefinitionLoader();
 
-    public abstract void setBeanDefinitionLoader(BeanDefinitionLoader beanDefinitionLoader);
-
+    /**
+     * Get a bean name creator
+     * 
+     * @return {@link BeanNameCreator}
+     */
     public BeanNameCreator getBeanNameCreator() {
+        if (beanNameCreator == null) {
+            beanNameCreator = createBeanNameCreator();
+        }
         return beanNameCreator;
     }
 
-    public void setBeanNameCreator(BeanNameCreator beanNameCreator) {
-        this.beanNameCreator = beanNameCreator;
+    /**
+     * create {@link BeanNameCreator}
+     * 
+     * @return a default {@link BeanNameCreator}
+     */
+    protected BeanNameCreator createBeanNameCreator() {
+        return new DefaultBeanNameCreator(true);
     }
 
     public List<BeanPostProcessor> getPostProcessors() {
@@ -1074,17 +1084,29 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     @Override
-    public void enableFullPrototype() {
-        fullPrototype = true;
-    }
-
-    public boolean isFullPrototype() {
-        return fullPrototype;
+    public final void enableFullPrototype() {
+        setFullPrototype(true);
     }
 
     @Override
-    public void enableFullLifecycle() {
-        fullLifecycle = true;
+    public final void enableFullLifecycle() {
+        setFullLifecycle(true);
+    }
+
+    public final boolean isFullPrototype() {
+        return fullPrototype;
+    }
+
+    public final boolean isFullLifecycle() {
+        return fullLifecycle;
+    }
+
+    public final void setFullPrototype(boolean fullPrototype) {
+        this.fullPrototype = fullPrototype;
+    }
+
+    public final void setFullLifecycle(boolean fullLifecycle) {
+        this.fullLifecycle = fullLifecycle;
     }
 
 }

@@ -39,11 +39,25 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
      * Register a bean with the given name and bean definition
      * 
      * @param beanDefinition
-     *            bean definition
+     *            Bean definition
      * @throws BeanDefinitionStoreException
+     *             If can't store a bean
      * @since 1.2.0
      */
     void registerBean(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
+
+    /**
+     * Register a bean with the given bean definition
+     * 
+     * @param beanDefinition
+     *            Bean definition
+     * @throws BeanDefinitionStoreException
+     *             If can't store a bean
+     * @since 2.1.7
+     */
+    default void registerBean(BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
+        registerBean(beanDefinition.getName(), beanDefinition);
+    }
 
     /**
      * Remove bean with the given name
@@ -51,6 +65,7 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
      * @param name
      *            bean name
      * @throws NoSuchBeanDefinitionException
+     *             If there isn't a bean
      */
     void removeBean(String name) throws BeanDefinitionStoreException;
 
@@ -62,6 +77,7 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
      * @param clazz
      *            bean class
      * @throws BeanDefinitionStoreException
+     *             If can't store a bean
      */
     void registerBean(String name, Class<?> clazz) throws BeanDefinitionStoreException;
 
@@ -71,6 +87,8 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
      * @param clazz
      *            bean class
      * @throws BeanDefinitionStoreException
+     *             If can't store a bean
+     * 
      */
     void registerBean(Class<?> clazz) throws BeanDefinitionStoreException;
 
@@ -80,6 +98,7 @@ public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegis
      * @param classes
      *            bean classes
      * @throws BeanDefinitionStoreException
+     *             If can't store a bean
      */
     void registerBean(Set<Class<?>> classes) throws BeanDefinitionStoreException;
 

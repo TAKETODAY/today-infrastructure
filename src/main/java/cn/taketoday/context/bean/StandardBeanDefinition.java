@@ -22,8 +22,14 @@ package cn.taketoday.context.bean;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
 /**
@@ -114,20 +120,34 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
 
     @Override
     public Annotation[] getAnnotations() {
-        final Annotation[] ret = getFactoryMethod().getAnnotations();
-        if (ret == null) {
-            return super.getAnnotations();
-        }
-        return ret;
+        return mergeAnnotations(getFactoryMethod().getAnnotations(), super.getAnnotations());
     }
 
     @Override
     public Annotation[] getDeclaredAnnotations() {
-        final Annotation[] ret = getFactoryMethod().getDeclaredAnnotations();
-        if (ret == null) {
-            return super.getDeclaredAnnotations();
+        return mergeAnnotations(getFactoryMethod().getDeclaredAnnotations(), super.getDeclaredAnnotations());
+    }
+
+    protected Annotation[] mergeAnnotations(final Annotation[] methodAnns, final Annotation[] classAnns) {
+
+        if (ObjectUtils.isEmpty(methodAnns)) {
+            return classAnns;
         }
-        return ret;
+
+        if (ObjectUtils.isNotEmpty(classAnns)) {
+            final Set<Annotation> rets = new HashSet<>();
+            final Set<Class<?>> clazz = Stream.of(methodAnns).map(a -> a.annotationType()).collect(Collectors.toSet());
+
+            Collections.addAll(rets, methodAnns);
+
+            for (final Annotation annotation : classAnns) {
+                if (!clazz.contains(annotation.annotationType())) {
+                    rets.add(annotation);
+                }
+            }
+            return rets.toArray(new Annotation[0]);
+        }
+        return methodAnns;
     }
 
 }

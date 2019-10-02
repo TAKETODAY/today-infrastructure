@@ -25,7 +25,7 @@ import cn.taketoday.context.Constant;
 /**
  * Default implementation of {@link BeanNameCreator}
  * 
- * @author Today <br>
+ * @author TODAY <br>
  * 
  *         2019-01-13 13:39
  */
@@ -43,12 +43,21 @@ public class DefaultBeanNameCreator implements BeanNameCreator {
 
     @Override
     public String create(Class<?> beanClass) {
+
         if (beanClass == null) {
             return Constant.DEFAULT;
         }
         if (useSimpleName) {
+
             final String simpleName = beanClass.getSimpleName();
-            return (simpleName.charAt(0) + "").toLowerCase() + simpleName.substring(1);
+            final char c = simpleName.charAt(0);
+            if (c > 0x40 && c < 0x5b) {
+                
+                return new StringBuilder(simpleName)
+                        .replace(0, 1, String.valueOf((char) (c | 0x20)))
+                        .toString();
+            }
+            return simpleName;
         }
         return beanClass.getName(); // full name
     }

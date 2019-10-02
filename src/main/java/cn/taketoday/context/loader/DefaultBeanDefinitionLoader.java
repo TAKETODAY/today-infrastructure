@@ -51,6 +51,7 @@ import cn.taketoday.context.utils.StringUtils;
  * @author TODAY <br>
  *         2018-06-23 11:18:22
  */
+@Deprecated
 public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
 
     /** bean definition registry */

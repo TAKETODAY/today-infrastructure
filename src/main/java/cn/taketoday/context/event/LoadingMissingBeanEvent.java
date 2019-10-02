@@ -33,19 +33,15 @@ import cn.taketoday.context.annotation.MissingBean;
 @SuppressWarnings("serial")
 public class LoadingMissingBeanEvent extends ApplicationContextEvent {
 
-    private final Collection<Class<?>> beanClasses;
+    private final Collection<Class<?>> candidates;
 
-    public LoadingMissingBeanEvent(ApplicationContext source) {
-        this(source, null);
-    }
-
-    public LoadingMissingBeanEvent(ApplicationContext source, Collection<Class<?>> beanClasses) {
+    public LoadingMissingBeanEvent(ApplicationContext source, Collection<Class<?>> candidates) {
         super(source);
-        this.beanClasses = beanClasses;
+        this.candidates = candidates;
     }
 
-    public Collection<Class<?>> getBeanClasses() {
-        return beanClasses;
+    public final Collection<Class<?>> getCandidates() {
+        return candidates;
     }
 
 }

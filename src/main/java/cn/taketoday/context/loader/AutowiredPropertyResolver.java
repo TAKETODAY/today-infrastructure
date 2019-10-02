@@ -26,7 +26,6 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
@@ -56,16 +55,13 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
     public boolean supports(Field field) {
 
         return field.isAnnotationPresent(Autowired.class) //
-                || field.isAnnotationPresent(Resource.class) //
-                || (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS))//
-                || (INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS));
+               || field.isAnnotationPresent(Resource.class) //
+               || (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS))//
+               || (INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS));
     }
 
     @Override
     public PropertyValue resolveProperty(Field field) {
-
-        final ApplicationContext applicationContext = ContextUtils.getApplicationContext();
-        final BeanNameCreator beanNameCreator = applicationContext.getEnvironment().getBeanNameCreator();
 
         final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
 
@@ -86,7 +82,7 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
         } // @Inject or name is empty
 
         if (StringUtils.isEmpty(name)) {
-            name = byType(applicationContext, propertyClass, beanNameCreator);
+            name = byType(propertyClass);
         }
 
         return new PropertyValue(new BeanReference(name, required, propertyClass), field);
@@ -101,16 +97,18 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
      *            target property class
      * @return a bean name none null
      */
-    protected String byType(ApplicationContext applicationContext, Class<?> targetClass, //
-            final BeanNameCreator beanNameCreator) //
-    {
+    protected String byType(final Class<?> targetClass) {
+
+        final ApplicationContext applicationContext = ContextUtils.getApplicationContext();
+
         if (applicationContext.hasStarted()) {
             final String name = findName(applicationContext, targetClass);
             if (StringUtils.isNotEmpty(name)) {
                 return name;
             }
         }
-        return beanNameCreator.create(targetClass);
+
+        return applicationContext.getEnvironment().getBeanNameCreator().create(targetClass);
     }
 
     /**

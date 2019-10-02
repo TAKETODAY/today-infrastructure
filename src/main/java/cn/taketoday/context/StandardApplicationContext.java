@@ -103,8 +103,7 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
         this.beanFactory.loadConfigurationBeans();
         // @since 2.1.6
         beanClasses.addAll(this.beanFactory.loadMetaInfoBeans());
-        // import beans
-        this.beanFactory.loadImportBeans();
+        
         this.beanFactory.loadMissingBean(beanClasses);
     }
 

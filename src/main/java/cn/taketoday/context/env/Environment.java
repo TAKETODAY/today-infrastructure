@@ -147,7 +147,7 @@ public interface Environment {
     /**
      * Get a bean name creator
      * 
-     * @return {@link BeanNameCreator}
+     * @return {@link BeanNameCreator} never be null
      */
     BeanNameCreator getBeanNameCreator();
 

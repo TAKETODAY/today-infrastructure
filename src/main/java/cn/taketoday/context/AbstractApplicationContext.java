@@ -19,21 +19,15 @@
  */
 package cn.taketoday.context;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.EventObject;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -71,8 +65,6 @@ import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.listener.ContextCloseListener;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.context.loader.DefaultBeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
@@ -150,7 +142,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         this.startupDate = System.currentTimeMillis();
         log.info("Starting Application Context at [{}].", //
-                new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
+                 new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
 
         applyState(State.STARTING);
 
@@ -225,33 +217,30 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     /**
      * Prepare a bean factory
      * 
-     * @param classes
-     *            class set
+     * @param candidates
+     *            Candidates class set
      */
-    public void prepareBeanFactory(Collection<Class<?>> classes) throws Throwable {
+    public void prepareBeanFactory(Collection<Class<?>> candidates) throws Throwable {
 
         final AbstractBeanFactory beanFactory = getBeanFactory();
 
         final ConfigurableEnvironment environment = getEnvironment();
-        BeanNameCreator beanNameCreator = environment.getBeanNameCreator();
+
         // check name creator
-        if (beanNameCreator == null) {
-            beanNameCreator = createBeanNameCreator();
+        final BeanNameCreator beanNameCreator = beanFactory.getBeanNameCreator();
+        if (environment.getBeanNameCreator() == null) {
             environment.setBeanNameCreator(beanNameCreator);
         }
         // must not be null
-        beanFactory.setBeanNameCreator(beanNameCreator);
         // check registry
         if (environment.getBeanDefinitionRegistry() == null) {
             environment.setBeanDefinitionRegistry(beanFactory);
         }
+
         // check bean definition loader
-        BeanDefinitionLoader beanDefinitionLoader = environment.getBeanDefinitionLoader();
-        if (beanDefinitionLoader == null) {
-            beanDefinitionLoader = new DefaultBeanDefinitionLoader(this);
-            environment.setBeanDefinitionLoader(beanDefinitionLoader);
+        if (environment.getBeanDefinitionLoader() == null) {
+            environment.setBeanDefinitionLoader(beanFactory.getBeanDefinitionLoader());
         }
-        beanFactory.setBeanDefinitionLoader(beanDefinitionLoader);
 
         {// fix: ensure ExpressionFactory's instance consistent @since 2.1.6
             Field declaredField = ClassUtils.forName("javax.el.ELUtil").getDeclaredField("exprFactory");
@@ -281,11 +270,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         registerSingleton(beanNameCreator.create(BeanFactory.class), beanFactory);
 
         // register listener
-        registerListener(applicationListeners);
+        registerListener(candidates, applicationListeners);
 
         // start loading bean definitions ; publish loading bean definition event
-        publishEvent(new BeanDefinitionLoadingEvent(this));
-        loadBeanDefinitions(beanFactory, classes);
+        publishEvent(new BeanDefinitionLoadingEvent(this, candidates));
+        loadBeanDefinitions(beanFactory, candidates);
         // bean definitions loaded
         publishEvent(new BeanDefinitionLoadedEvent(this, beanFactory.getBeanDefinitions()));
         // handle dependency : register bean dependencies definition
@@ -323,12 +312,16 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      * @param applicationListeners
      *            {@link ApplicationListener} cache
      */
-    protected void registerListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners) {
+    protected void registerListener(final Collection<Class<?>> classes,
+                                    final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners) //
+    {
 
         log.debug("Loading Application Listeners.");
 
-        for (final Class<?> contextListener : ClassUtils.getAnnotatedClasses(ContextListener.class)) {
-            registerListener(contextListener);
+        for (final Class<?> contextListener : classes) {
+            if (contextListener.isAnnotationPresent(ContextListener.class)) {
+                registerListener(contextListener);
+            }
         }
 
         postProcessRegisterListener(applicationListeners);
@@ -426,30 +419,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         // Load the META-INF/listeners
         // ---------------------------------------------------
-        final Set<Class<?>> listeners = new HashSet<>();
-
-        try {
-
-            final ClassLoader classLoader = ClassUtils.getClassLoader();
-            final Enumeration<URL> resources = classLoader.getResources("META-INF/listeners");
-            final Charset charset = Constant.DEFAULT_CHARSET;
-
-            while (resources.hasMoreElements()) {
-                try (final BufferedReader reader = new BufferedReader(//
-                        new InputStreamReader(resources.nextElement().openStream(), charset))) { // fix
-
-                    String str;
-                    while ((str = reader.readLine()) != null) {
-                        listeners.add(classLoader.loadClass(str));
-                    }
-                }
-            }
-        }
-        catch (IOException | ClassNotFoundException e) {
-            LoggerFactory.getLogger(getClass()).error("Exception occurred when load 'META-INF/listeners'", e);
-            throw ExceptionUtils.newContextException(e);
-        }
-        return listeners;
+        return ContextUtils.loadFromMetaInfo("META-INF/listeners");
     }
 
     @Override
@@ -511,8 +481,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     /**
      * create {@link BeanNameCreator}
      * 
+     * @deprecated Deprecated in 2.1.7 This method shouldn't be here
      * @return a default {@link BeanNameCreator}
      */
+    @Deprecated
     protected BeanNameCreator createBeanNameCreator() {
         return new DefaultBeanNameCreator(getEnvironment());
     }

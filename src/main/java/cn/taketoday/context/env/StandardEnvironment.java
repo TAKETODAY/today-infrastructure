@@ -48,8 +48,7 @@ import cn.taketoday.context.utils.StringUtils;
 /**
  * Standard implementation of {@link Environment}
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-11-14 21:23
  */
 public class StandardEnvironment implements ConfigurableEnvironment {
@@ -70,6 +69,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     private String propertiesLocation = Constant.BLANK; // default ""
 
     public StandardEnvironment() {
+
         if (System.getSecurityManager() != null) {
             AccessController.doPrivileged(new PrivilegedAction<Object>() {
                 @Override
@@ -214,7 +214,8 @@ public class StandardEnvironment implements ConfigurableEnvironment {
      * @throws IOException
      */
     public static void doLoadFromDirectory(final Resource directory, //
-            Properties properties, final ResourceFilter propertiesFileFilter) throws IOException //
+                                           final Properties properties,
+                                           final ResourceFilter propertiesFileFilter) throws IOException //
     {
 
         final Resource[] listResources = directory.list(propertiesFileFilter);
@@ -276,9 +277,25 @@ public class StandardEnvironment implements ConfigurableEnvironment {
         return this;
     }
 
-    @Override
+    /**
+     * Get a bean name creator
+     * 
+     * @return {@link BeanNameCreator}
+     */
     public BeanNameCreator getBeanNameCreator() {
+        if (beanNameCreator == null) {
+            beanNameCreator = createBeanNameCreator();
+        }
         return beanNameCreator;
+    }
+
+    /**
+     * create {@link BeanNameCreator}
+     * 
+     * @return a default {@link BeanNameCreator}
+     */
+    protected BeanNameCreator createBeanNameCreator() {
+        return new DefaultBeanNameCreator(this);
     }
 
     @Override

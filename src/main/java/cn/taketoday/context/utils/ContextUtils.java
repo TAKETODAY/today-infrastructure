@@ -19,8 +19,10 @@
  */
 package cn.taketoday.context.utils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
@@ -29,9 +31,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -102,9 +106,9 @@ public abstract class ContextUtils {
     static {
 
         addPropertyValueResolver(//
-                new ValuePropertyResolver(), //
-                new PropsPropertyResolver(), //
-                new AutowiredPropertyResolver()//
+                                 new ValuePropertyResolver(), //
+                                 new PropsPropertyResolver(), //
+                                 new AutowiredPropertyResolver()//
         );
     }
 
@@ -274,7 +278,7 @@ public abstract class ContextUtils {
      */
     @SuppressWarnings("unchecked")
     public static <T> T resolveValue(final String expression, //
-            final Class<T> expectedType, final Properties variables) throws ConfigurationException //
+                                     final Class<T> expectedType, final Properties variables) throws ConfigurationException //
     {
         if (expression.contains(Constant.PLACE_HOLDER_PREFIX)) {
             final String replaced = resolvePlaceholder(variables, expression, false);
@@ -483,7 +487,7 @@ public abstract class ContextUtils {
 
         final StringBuilder builder = new StringBuilder();
         while ((prefixIndex = input.indexOf(Constant.PLACE_HOLDER_PREFIX)) > -1 //
-                && (suffixIndex = input.indexOf(Constant.PLACE_HOLDER_SUFFIX)) > -1) {
+               && (suffixIndex = input.indexOf(Constant.PLACE_HOLDER_SUFFIX)) > -1) {
 
             builder.append(input.substring(0, prefixIndex));
 
@@ -708,7 +712,7 @@ public abstract class ContextUtils {
      * @return Resolved field object
      */
     public static Object resolveProps(final Field declaredField, //
-            final List<Class<?>> nested, final String[] prefixs, Properties properties) //
+                                      final List<Class<?>> nested, final String[] prefixs, Properties properties) //
     {
         final Class<?> fieldType = declaredField.getType();
 
@@ -971,7 +975,7 @@ public abstract class ContextUtils {
      * @since 2.1.6
      */
     public static boolean isMissedBean(final MissingBean missingBean, final Class<?> beanClass, //
-            final ConfigurableBeanFactory beanFactory) //
+                                       final ConfigurableBeanFactory beanFactory) //
     {
         if (missingBean == null || !conditional(beanClass)) { // fix @Conditional not
             return false;
@@ -984,7 +988,7 @@ public abstract class ContextUtils {
         final Class<?> type = missingBean.type();
 
         return !((type != void.class && beanFactory.containsBeanDefinition(type, !type.isInterface())) //
-                || beanFactory.containsBeanDefinition(beanClass));
+                 || beanFactory.containsBeanDefinition(beanClass));
     }
 
     // bean definition
@@ -1035,6 +1039,44 @@ public abstract class ContextUtils {
         // fix missing @Props injection
         ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
         return beanDefinition;
+    }
+
+    // META-INF
+    // ----------------------
+
+    /**
+     * Scan classes set from META-INF/xxx
+     * 
+     * @param resource
+     *            Resource file
+     * @return Class set from META-INF/xxx
+     * @throws ContextException
+     *             If any {@link IOException} occurred
+     */
+    public static Set<Class<?>> loadFromMetaInfo(final String resource) throws ContextException {
+
+        final Set<Class<?>> ret = new HashSet<>();
+        final ClassLoader classLoader = ClassUtils.getClassLoader();
+        final Charset charset = Constant.DEFAULT_CHARSET;
+        try {
+
+            final Enumeration<URL> resources = classLoader.getResources(resource);
+
+            while (resources.hasMoreElements()) {
+                try (final BufferedReader reader = new BufferedReader(//
+                        new InputStreamReader(resources.nextElement().openStream(), charset))) { // fix
+                    String str;
+                    while ((str = reader.readLine()) != null) {
+                        ret.add(classLoader.loadClass(str));
+                    }
+                }
+            }
+            return ret;
+        }
+        catch (IOException | ClassNotFoundException e) {
+            log.error("Exception occurred when load from '" + resource + "' Msg: " + e, e);
+            throw ExceptionUtils.newContextException(e);
+        }
     }
 
 }
