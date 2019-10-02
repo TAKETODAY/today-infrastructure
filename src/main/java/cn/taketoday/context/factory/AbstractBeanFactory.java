@@ -134,10 +134,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     protected Object doCreatePrototype(final BeanDefinition def, final String name) throws Throwable {
 
         if (def.isFactoryBean()) {
-            
+
             final FactoryBean<?> $factoryBean = //
                     (FactoryBean<?>) initializingBean(getSingleton(FACTORY_BEAN_PREFIX + name), name, def);
-            
+
             return $factoryBean.getBean();
         }
 
@@ -341,7 +341,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             }
             catch (InvocationTargetException e) {
                 throw e.getTargetException();
-            } finally {
+            }
+            finally {
                 if (f.fullLifecycle) {
                     f.destroyBean(b, ref); // destroyBean after every call
                 }
@@ -361,14 +362,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 ); //@on
             }
 
-            return new Enhancer()//
-                    .setUseCache(false)//
-                    .setSuperclass(refType)//
-                    .setInterfaces(refType.getInterfaces())//
-                    .setClassLoader(refType.getClassLoader())//
-                    .setCallback((MethodInterceptor) (obj, m, a, proxy) -> {
-                        return handler.handle(m, a);
-                    })//
+            return new Enhancer()
+                    .setUseCache(true)
+                    .setSuperclass(refType)
+                    .setInterfaces(refType.getInterfaces())
+                    .setClassLoader(refType.getClassLoader())
+                    .setCallback((MethodInterceptor) (obj, m, a, proxy) -> handler.handle(m, a))
                     .create();
         }
     }
