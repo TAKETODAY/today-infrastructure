@@ -19,13 +19,28 @@
  */
 package test.context.factory;
 
-import org.junit.After;
-import org.junit.Before;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.factory.FactoryBean;
+import cn.taketoday.context.utils.ContextUtils;
 
 /**
  * @author Today <br>
@@ -34,33 +49,119 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
  */
 public class FactoryBeanTest {
 
-    private long start;
+    // bean
+    // --------------------------------------
+    private static class TEST {
 
-    @Before
-    public void start() {
-        start = System.currentTimeMillis();
     }
 
-    @After
-    public void end() {
-        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+    private static class TESTFactoryBean implements FactoryBean<TEST> {
+
+        @Override
+        public TEST getBean() {
+            return new TEST();
+        }
+
+        @Override
+        public Class<TEST> getBeanClass() {
+            return TEST.class;
+        }
+    }
+
+    // @Configuration bean
+    // ---------------------------
+
+    static class FactoryBeanConfiguration {
+
+        @Singleton
+        public TESTFactoryBean testFactoryBean() {
+            return new TESTFactoryBean();
+        }
+    }
+
+    @Import(FactoryBeanConfiguration.class)
+    static class FactoryBeanConfigurationImporter {
+        
+    }
+
+    // test
+    // --------------------------------------------
+
+    @Test
+    public void testFactoryBean() throws NoSuchBeanDefinitionException {
+
+        try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+
+            applicationContext.registerBean("testFactoryBean", TESTFactoryBean.class);
+
+            Map<String, BeanDefinition> beanDefinitions = applicationContext.getBeanDefinitions();
+
+            assertFalse(beanDefinitions.isEmpty());
+
+            Object testFactoryBean = applicationContext.getBean("testFactoryBean");
+
+            TEST bean = applicationContext.getBean(TEST.class);
+
+            assertEquals(bean, testFactoryBean);
+
+            assertTrue(testFactoryBean == bean);
+            assertFalse(applicationContext.getBean("$testFactoryBean") == null);
+        }
     }
 
     @Test
-    public void test_PrototypeFactoryBean() throws NoSuchBeanDefinitionException {
+    public void testPrototypeFactoryBean() throws NoSuchBeanDefinitionException {
 
-        try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
-            applicationContext.loadContext("");
+        try (ApplicationContext applicationContext = new StandardApplicationContext()) {
 
-            Object bean = applicationContext.getBean("FactoryBean-Config");
-            Object bean2 = applicationContext.getBean("FactoryBean-Config");
+            List<BeanDefinition> definitions = //
+                    ContextUtils.buildBeanDefinitions(TESTFactoryBean.class, "testFactoryBean-prototype");
 
-            System.err.println(bean);
-            System.err.println(bean2);
-            assert bean != bean2;
-            applicationContext.close();
+            assertFalse(definitions.isEmpty());
 
+            BeanDefinition beanDefinition = definitions.get(0);
+            beanDefinition.setScope(Scope.PROTOTYPE);
+
+            applicationContext.registerBean(beanDefinition);
+
+            Map<String, BeanDefinition> beanDefinitions = applicationContext.getBeanDefinitions();
+
+            assertFalse(beanDefinitions.isEmpty());
+
+            Object testFactoryBean = applicationContext.getBean("testFactoryBean-prototype");
+
+            TEST bean = applicationContext.getBean(TEST.class);
+
+            assertNotEquals(bean, testFactoryBean);
+
+            assertFalse(applicationContext.getBean("$testFactoryBean-prototype") == null);
         }
     }
+    
+    @Test
+    public void testConfigurationFactoryBean() throws NoSuchBeanDefinitionException {
+        
+        HashSet<Class<?>> classes = new HashSet<Class<?>>(Arrays.asList(TESTFactoryBean.class));
+        
+        try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+        
+            applicationContext.loadContext(classes);
+
+            applicationContext.registerBean("factoryBeanConfigurationImporter", FactoryBeanConfigurationImporter.class);
+            
+            FactoryBeanConfiguration bean = applicationContext.getBean(FactoryBeanConfiguration.class);
+            Object testFactoryBean = applicationContext.getBean("testFactoryBean");
+            
+            assertNotNull(bean);
+            assertNotNull(testFactoryBean);
+            assertTrue(testFactoryBean instanceof TEST);
+
+            assertNotNull(applicationContext.getBean("$testFactoryBean"));
+            assertTrue(applicationContext.getBean("$testFactoryBean") instanceof TESTFactoryBean);
+        }
+    }
+    
+    
+    
 
 }

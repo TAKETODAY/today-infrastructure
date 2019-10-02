@@ -67,7 +67,7 @@ public class ApplicationListenerTest {
                 }
             });
 
-            applicationContext.loadContext("");
+            applicationContext.loadContext();
 
             assert i;
         }
@@ -77,7 +77,7 @@ public class ApplicationListenerTest {
     public void testLoadMetaInfoListeners() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
         try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
-            applicationContext.loadContext("");
+            applicationContext.loadContext();
         } // auto close
 
         assert testLoadedMetaInfoListener;

@@ -99,7 +99,6 @@ public class LifecycleBean //
 
         final Set<Class<?>> beans = new HashSet<>();
         beans.add(LifecycleBean.class);
-        ClassUtils.setClassCache(beans);
         try (final ApplicationContext applicationContext = new StandardApplicationContext("info.properties")) {
 
             applicationContext.loadContext(beans);

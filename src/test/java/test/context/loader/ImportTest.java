@@ -44,13 +44,13 @@ public class ImportTest {
 
     @Import(TEST.class)
     public static class ErrorImportTESTBean {
-
+        
     }
 
     @Singleton
     @Import(TEST.class)
     public static class ImportTESTBean {
-
+        
     }
 
     public static class TEST {
@@ -92,18 +92,17 @@ public class ImportTest {
 
         @Override
         public String[] selectImports(BeanDefinition importingDef) {
-            
             return null;
         }
     }
 
-    //
     @Test
     public void testImportConfiguration() throws BeanDefinitionStoreException, ConfigurationException {
 
         try (ConfigurableApplicationContext applicationContext = //
                 new StandardApplicationContext("", "test.context.loader")) {
 
+            assertTrue(applicationContext.containsBeanDefinition("objTest"));
             assertFalse(applicationContext.containsBeanDefinition(ErrorImportTESTBean.class));
             assertTrue(applicationContext.containsBeanDefinition(ImportTESTBean.class));
             assertTrue(applicationContext.containsBeanDefinition(TEST.class));

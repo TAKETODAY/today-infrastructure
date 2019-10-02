@@ -19,6 +19,8 @@
  */
 package test.context;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,13 +31,14 @@ import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.factory.DisposableBean;
 import lombok.extern.slf4j.Slf4j;
+import test.context.ApplicationContextTest.RequiredTest.Bean1;
 import test.demo.config.Config;
 import test.demo.config.ConfigFactoryBean;
 import test.demo.config.ConfigurationBean;
@@ -70,7 +73,8 @@ public class ApplicationContextTest {
     public void test_ApplicationContext() throws NoSuchBeanDefinitionException {
         try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
             applicationContext.loadContext("test.demo.repository");
-            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
+            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry()
+                    .getBeanDefinitions();
 
             System.out.println(beanDefinitionsMap);
 
@@ -146,14 +150,14 @@ public class ApplicationContextTest {
     @Test
     public void test_ManualLoadContext() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
-        try (ApplicationContext applicationContext = new StandardApplicationContext("")) {
+        try (StandardApplicationContext applicationContext = new StandardApplicationContext("")) {
 
             applicationContext.registerBean(User.class);
             applicationContext.registerBean("user", User.class);
             applicationContext.registerBean("user_", User.class);
 //			applicationContext.onRefresh(); // init bean
 
-            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
+            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitions();
 
             System.out.println(beanDefinitionsMap);
 
@@ -187,19 +191,43 @@ public class ApplicationContextTest {
         }
     }
 
+    // RequiredTest
+    // -------------------------------------
+    public static class RequiredTest {
+
+        @Autowired(required = false, value = "requiredTestBean")
+        private Bean bean;
+
+        @Autowired(required = true, value = "requiredTestBean1")
+        private Bean1 bean1;
+
+        public static class Bean {
+
+        }
+
+        public static class Bean1 implements DisposableBean {
+
+            @Override
+            public void destroy() throws Exception {
+                System.err.println("Bean destroy");
+            }
+        }
+    }
+
     @Test
     public void test_Required() throws NoSuchBeanDefinitionException, BeanDefinitionStoreException {
 
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-            applicationContext.loadContext("");
-            Environment environment = applicationContext.getEnvironment();
-            BeanDefinitionRegistry beanDefinitionRegistry = environment.getBeanDefinitionRegistry();
-            System.err.println(beanDefinitionRegistry.getBeanDefinitions());
 
-            Config bean = applicationContext.getBean(Config.class);
-            System.out.println(bean);
-            assert bean != null;
-            assert bean.getUser() != null;
+            applicationContext.registerBean("requiredTest", RequiredTest.class);
+
+//            applicationContext.registerBean("requiredTestBean1", Bean.class);
+            applicationContext.registerBean("requiredTestBean1", Bean1.class);
+
+            RequiredTest requiredTest = applicationContext.getBean(RequiredTest.class);
+
+            assertTrue(requiredTest.bean == null);
+            assertTrue(requiredTest.bean1 != null);
         }
     }
 

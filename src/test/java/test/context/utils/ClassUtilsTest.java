@@ -1,6 +1,8 @@
 package test.context.utils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.lang.annotation.ElementType;
@@ -77,12 +79,6 @@ public class ClassUtilsTest {
 
     }
 
-    @Test
-    public void test_GetClassCache() {
-        setProcess("test_GetClassCache");
-        Collection<Class<?>> classCache = ClassUtils.getClassCache();
-        assert classCache.size() > 0 : "cache error";
-    }
 
     private @interface TEST {
 
@@ -105,34 +101,23 @@ public class ClassUtilsTest {
 //        for (Class<?> class1 : scan) {
 //            System.err.println(class1);
 //        }
-        assert !scan.contains(Config_.class);
-        assert scanPackage.size() > 0 : "scan error";
+
+        assertFalse(scan.contains(Config_.class));
+
+        assertTrue(scanPackage.size() > 0);
         // in jar
 
-        ClassUtils.setClassCache(null);
-
         final Set<Class<?>> scan2 = ClassUtils.scan("com.sun.el");
-        assert scan2.size() == 0;
 
-        ClassUtils.setClassCache(null);
+        assertTrue(scan2.size() == 0);
+
         ClassUtils.setIgnoreScanJarsPrefix(false);
         final Set<Class<?>> scan3 = ClassUtils.scan("com.sun.el");
         assert scan3.size() != 0;
-        ClassUtils.setIgnoreScanJarsPrefix(true);
-
-        ClassUtils.setClassCache(null);
-        final Set<Class<?>> scanEmpty = ClassUtils.scan("cn.taketoday", "");
-
-        assert scanEmpty.size() > 0;
+        ClassUtils.setIgnoreScanJarsPrefix(false);
 
         // don't clear cache
-        assert ClassUtils.scan("").size() > 0;
-
-        ClassUtils.setClassCache(null);
-
-        assert ClassUtils.scan("").size() > 0; // for scanOne
-
-        assert ClassUtils.scan("").size() > 0; // for scanOne
+        assertTrue(ClassUtils.scan("").size() > 0);
 
         ClassUtils.clearCache();
         assert ClassUtils.scan("cn.taketoday").size() == ClassUtils.getClasses("cn.taketoday").size();
@@ -343,14 +328,12 @@ public class ClassUtilsTest {
         try {
             ClassUtils.forName("Float");
         }
-        catch (ClassNotFoundException e) {
-        }
+        catch (ClassNotFoundException e) {}
         assert ClassUtils.forName("test.context.utils.ClassUtilsTest.INNER") == INNER.class;
         try {
             ClassUtils.forName("test.context.utils.ClassUtilsTest.INNERs");//
         }
-        catch (ClassNotFoundException e) {
-        }
+        catch (ClassNotFoundException e) {}
 
     }
 
@@ -396,6 +379,7 @@ public class ClassUtilsTest {
         assert ClassUtils.loadClass("") == null;
 
         ClassUtils.clearCache();
+        ClassUtils.setIgnoreScanJarsPrefix(false);
         assert ClassUtils.getAnnotatedClasses(Singleton.class).size() > 0;
 
         final int size = ClassUtils.getImplClasses(ApplicationContext.class).size();
@@ -489,7 +473,7 @@ public class ClassUtilsTest {
                 return null;
             }
         });
-        
+
         enhancer.setSuperclass(ClassUtilsTest.class);
 
         final Object create = enhancer.create();
