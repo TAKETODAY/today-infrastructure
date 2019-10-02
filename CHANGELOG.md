@@ -31,6 +31,17 @@
 :sparkles: 利用cglib构建了真正的原型实例
 :sparkles: 增加导入配置(@Import)功能
 
+:sparkles: 去除ClassUtils的classesCache，在应用环境下可能会使用到相同class
+:sparkles: ConfigurableBeanFactory添加registerBean(BeanDefinition)方法
+:sparkles: ContextUtils添加loadFromMetaInfo(String)统一加载META-INF下的类
+:zap: 重构DefaultBeanNameCreator提升性能
+:sparkles: 6.添加StandardBeanDefinition#mergeAnnotations()方法来合并注解
+:sparkles: StandardBeanFactory实现BeanDefinitionLoader接口作为默认bean加载器原本的默认加载器被丢弃不在使用
+:zap: 优化StandardEnvironment获取BeanNameCreator逻辑
+:zap: 优化AutowiredPropertyResolver不必要的局部变量
+:zap: 优化AbstractBeanFactory#containsBeanDefinition(Class,boolean)
+
+
 ## v2.1.6
 - :sparkles: feat: add `Environment` new api to get property
 - :sparkles: feat: add jar-prefix file to ignore jar scanning
