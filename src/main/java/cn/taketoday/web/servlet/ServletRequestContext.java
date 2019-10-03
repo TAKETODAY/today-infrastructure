@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
 import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.exception.WebRuntimeException;
@@ -196,7 +197,7 @@ public class ServletRequestContext implements RequestContext, Map<String, Object
         if (cookies == null) {
 
             final Cookie[] servletCookies = request.getCookies();
-            if (servletCookies == null) { // there is not cookies
+            if (ObjectUtils.isEmpty(servletCookies)) { // there is not cookies
                 return null;
             }
             final HttpCookie[] cookies = new HttpCookie[servletCookies.length];
@@ -220,6 +221,20 @@ public class ServletRequestContext implements RequestContext, Map<String, Object
             return this.cookies = cookies;
         }
         return cookies;
+    }
+
+    @Override
+    public HttpCookie cookie(String name) {
+
+        final HttpCookie[] cookies = cookies();
+        if (cookies != null) {
+            for (final HttpCookie cookie : cookies) {
+                if (cookie.getName().equals(name)) {
+                    return cookie;
+                }
+            }
+        }
+        return null;
     }
 
     @Override

@@ -113,6 +113,18 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders {
     HttpCookie[] cookies();
 
     /**
+     * Returns a {@link HttpCookie} object the client sent with this request. This
+     * method returns <code>null</code> if no target cookie were sent.
+     * 
+     * @param name
+     *            Cookie name
+     * @return a {@link HttpCookie} object the client sent with this request. This
+     *         method returns <code>null</code> if no target cookie were sent.
+     * @since 2.3.7
+     */
+    HttpCookie cookie(String name);
+
+    /**
      * Returns a java.util.Map of the parameters of this request.
      * 
      * <p>
