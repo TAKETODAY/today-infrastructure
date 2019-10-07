@@ -46,6 +46,7 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.OrderUtils;
@@ -58,7 +59,6 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.resolver.method.DelegatingParameterResolver;
 import cn.taketoday.web.resolver.method.ParameterResolver;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
-import cn.taketoday.web.utils.WebUtils;
 import freemarker.cache.TemplateLoader;
 import freemarker.ext.jsp.TaglibFactory;
 import freemarker.ext.servlet.AllHttpScopesHashModel;
@@ -104,7 +104,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
             @Props(prefix = "freemarker.", replace = true) Properties settings) //
     {
         final WebServletApplicationContext context = //
-                (WebServletApplicationContext) WebUtils.getWebApplicationContext();
+                (WebServletApplicationContext) ContextUtils.getApplicationContext();
 
         if (configuration == null) {
             configuration = new Configuration(Configuration.VERSION_2_3_28);
@@ -155,7 +155,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
     public void configureParameterResolver(List<ParameterResolver> resolvers) {
 
         resolvers.add(new DelegatingParameterResolver((m) -> m.isAssignableFrom(Configuration.class), //
-                (ctx, m) -> configuration//
+                                                      (ctx, m) -> configuration//
         ));
 
         resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(SharedVariable.class), (ctx, m) -> {
@@ -174,7 +174,8 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
             }
 
             if (m.isRequired()) {
-                throw ExceptionUtils.newConfigurationException(null, "There is no shared variable named: " + m.getName());
+                throw ExceptionUtils.newConfigurationException(null, "There is no shared variable named: " + m
+                        .getName());
             }
             return ConvertUtils.convert(m.getDefaultValue(), m.getParameterClass());
         }));
@@ -193,7 +194,8 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
             }
         }
         else {
-            configuration.setTemplateLoader(new CompositeTemplateLoader((Collection<TemplateLoader>) loaders, cacheSize));
+            configuration.setTemplateLoader(new CompositeTemplateLoader((Collection<TemplateLoader>) loaders,
+                                                                        cacheSize));
         }
         LoggerFactory.getLogger(getClass()).info("Configuration FreeMarker View Resolver Success.");
     }
@@ -555,7 +557,8 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
          *            {@link ReaderSupplier}
          * @return this
          */
-        public DefaultTemplateLoader putTemplate(final String name, final long lastModified, final ReaderSupplier reader) {
+        public DefaultTemplateLoader putTemplate(final String name, final long lastModified,
+                                                 final ReaderSupplier reader) {
             cache.put(getTemplateName(prefix, name), TemplateSource.create(lastModified, reader));
             return this;
         }
