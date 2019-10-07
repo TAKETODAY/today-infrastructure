@@ -35,7 +35,8 @@ public class DefaultBeanNameCreator implements BeanNameCreator {
 
     private final boolean useSimpleName;
 
-    public DefaultBeanNameCreator(@Env(Constant.KEY_USE_SIMPLE_NAME) boolean useSimpleName) {
+    public DefaultBeanNameCreator(@Env(value = Constant.KEY_USE_SIMPLE_NAME,
+                                       defaultValue = "true") boolean useSimpleName) {
         this.useSimpleName = useSimpleName;
     }
 
