@@ -26,6 +26,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -181,11 +182,12 @@ public abstract class ApplicationUtils {
      * @return key-value
      */
     public static Map<String, String> parseCommandArguments(final String... args) {
-        final Map<String, String> argsMap = new LinkedHashMap<>();
 
         if (StringUtils.isArrayEmpty(args)) {
-            return argsMap;
+            return Collections.emptyMap();
         }
+
+        final Map<String, String> argsMap = new LinkedHashMap<>();
         for (final String arg : args) {
             if (arg.startsWith("--") && arg.contains("=")) {
                 final String[] param = arg.substring(2).split("=");

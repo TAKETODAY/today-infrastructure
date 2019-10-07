@@ -76,8 +76,7 @@ public class StandardWebEnvironment extends StandardEnvironment {
                 setPropertiesLocation(Constant.DEFAULT_YAML_FILE);
                 locations.add(Constant.DEFAULT_YAML_FILE);
             }
-            catch (FileNotFoundException yaml) {
-            }
+            catch (FileNotFoundException yaml) {}
         }
 
         if (propertiesResource != null) { // load
@@ -114,7 +113,7 @@ public class StandardWebEnvironment extends StandardEnvironment {
      * @param propertiesLocation
      *            location
      */
-    protected static boolean isYamlProperties(String propertiesLocation) {
+    protected boolean isYamlProperties(String propertiesLocation) {
         return propertiesLocation.contains(".yaml") || propertiesLocation.contains(".yml");
     }
 
@@ -133,12 +132,12 @@ public class StandardWebEnvironment extends StandardEnvironment {
 
             for (final String location : locations) {
                 final StringBuilder builder = new StringBuilder(location);
-                builder.insert(builder.indexOf("."), "-" + profile);
+                builder.insert(builder.indexOf("."), '-' + profile);
 
-                try {//@off
+                try {
                     super.loadProperties(builder.toString());
                 }
-                catch (FileNotFoundException e) {}//@on
+                catch (FileNotFoundException e) {}
             }
         }
     }
@@ -166,7 +165,7 @@ public class StandardWebEnvironment extends StandardEnvironment {
         for (final Entry<String, Object> entry : base.entrySet()) {
             String key = entry.getKey();
             final Object value = entry.getValue();
-            key = prefix == null ? key : (prefix + "." + key);
+            key = prefix == null ? key : (prefix + '.' + key);
             if (value instanceof Map) {
                 doMapping(properties, (Map<String, Object>) value, key);
             }

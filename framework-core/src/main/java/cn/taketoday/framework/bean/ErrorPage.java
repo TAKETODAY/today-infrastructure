@@ -36,21 +36,21 @@ public class ErrorPage {
     private final Class<? extends Throwable> exception;
 
     public ErrorPage(String path) {
-        this.status = 0;
-        this.exception = null;
-        this.path = path;
+        this(500, path, null);
     }
 
-    public ErrorPage(Integer status, String path) {
-        this.status = status;
-        this.exception = null;
-        this.path = path;
+    public ErrorPage(int status, String path) {
+        this(status, path, null);
     }
 
     public ErrorPage(Class<? extends Throwable> exception, String path) {
-        this.status = 0;
-        this.exception = exception;
+        this(500, path, exception);
+    }
+
+    public ErrorPage(int status, String path, Class<? extends Throwable> exception) {
         this.path = path;
+        this.status = status;
+        this.exception = exception;
     }
 
     @Override
@@ -68,8 +68,8 @@ public class ErrorPage {
             final ErrorPage other = ((ErrorPage) obj);
 
             return other.exception == this.exception //
-                    && (this.path != null && this.path.equals(other.path)) //
-                    && other.status == status;
+                   && (this.path != null && this.path.equals(other.path)) //
+                   && other.status == status;
         }
         return false;
     }

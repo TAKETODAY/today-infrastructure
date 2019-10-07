@@ -28,8 +28,7 @@ import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.env.DefaultBeanNameCreator;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2019-01-19 21:09
  */
 @Target(ElementType.TYPE)
@@ -38,15 +37,11 @@ public @interface ComponentScan {
 
     /**
      * Scan package
-     * 
-     * @return
      */
     String[] value();
 
     /**
      * Bean name creator
-     * 
-     * @return
      */
     Class<? extends BeanNameCreator> nameCreator() default DefaultBeanNameCreator.class;
 

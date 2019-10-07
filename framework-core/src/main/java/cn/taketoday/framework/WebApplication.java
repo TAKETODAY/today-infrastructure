@@ -90,20 +90,20 @@ public class WebApplication {
                     new StandardWebEnvironment(applicationClass, args);
 
             applicationContext.setEnvironment(environment);
-
+            
             ComponentScan componentScan = applicationClass.getAnnotation(ComponentScan.class);
             if (componentScan != null) {
                 // bean name creator
                 final BeanNameCreator beanNameCreator;
                 final Class<? extends BeanNameCreator> nameCreator = componentScan.nameCreator();
                 if (nameCreator == DefaultBeanNameCreator.class) {
-                    beanNameCreator = new DefaultBeanNameCreator(environment);
+                    beanNameCreator = new DefaultBeanNameCreator(true);
                 }
                 else {
-                    // use default constructor
-                    beanNameCreator = (BeanNameCreator) ClassUtils.newInstance(nameCreator, applicationContext);
+                    beanNameCreator = ClassUtils.newInstance(nameCreator, applicationContext);
                 }
-                environment.setBeanNameCreator(beanNameCreator);
+                
+                applicationContext.getBeanFactory().setBeanNameCreator(beanNameCreator);
                 applicationContext.loadContext(componentScan.value());
             }
             else {
@@ -124,7 +124,7 @@ public class WebApplication {
         catch (Throwable e) {
             e = ExceptionUtils.unwrapThrowable(e);
             applicationContext.close();
-            log.error("Your Application Initialized ERROR: [{}]", e.getMessage(), e);
+            log.error("Your Application Initialized ERROR: [{}]", e.toString(), e);
             throw ExceptionUtils.newConfigurationException(e);
         }
         return applicationContext;
