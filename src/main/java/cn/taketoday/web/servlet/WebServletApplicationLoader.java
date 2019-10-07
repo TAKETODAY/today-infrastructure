@@ -64,7 +64,6 @@ import cn.taketoday.web.resolver.method.ServletParameterResolver;
 import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
 import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
-import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.FreeMarkerViewResolver;
 import cn.taketoday.web.view.ViewResolver;
 
@@ -159,7 +158,6 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
 
         // fix: applicationContext NullPointerException
         WebServletApplicationContext applicationContext = new StandardWebServletApplicationContext();
-        WebUtils.setWebApplicationContext(applicationContext);
 
         applicationContext.setServletContext(servletContext);
         applicationContext.loadContext(Constant.BLANK);
@@ -271,7 +269,8 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         WebServletInitializer<ResourceServlet> resourceServletInitializer = new WebServletInitializer<>(resourceServlet);
 
         final Set<String> urlMappings = new HashSet<>();
-        final ResourceMappingRegistry resourceMappingRegistry = applicationContext.getBean(ResourceMappingRegistry.class);
+        final ResourceMappingRegistry resourceMappingRegistry = applicationContext.getBean(
+                                                                                           ResourceMappingRegistry.class);
         final List<ResourceMapping> resourceHandlerMappings = resourceMappingRegistry.getResourceMappings();
 
         for (final ResourceMapping resourceMapping : resourceHandlerMappings) {

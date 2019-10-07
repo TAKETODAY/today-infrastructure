@@ -27,12 +27,14 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.StandardBeanFactory;
 import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
  *         2018-07-10 1:16:17
  */
-public class StandardWebServletApplicationContext extends StandardApplicationContext implements WebServletApplicationContext {
+public class StandardWebServletApplicationContext extends StandardApplicationContext implements
+        WebServletApplicationContext {
 
     /** Servlet context */
     private ServletContext servletContext;
@@ -48,7 +50,7 @@ public class StandardWebServletApplicationContext extends StandardApplicationCon
     }
 
     public StandardWebServletApplicationContext() {
-
+        WebUtils.setWebApplicationContext(this);
     }
 
     public StandardWebServletApplicationContext(ServletContext servletContext) {
@@ -77,7 +79,8 @@ public class StandardWebServletApplicationContext extends StandardApplicationCon
      *            package locations
      * @since 2.3.3
      */
-    public StandardWebServletApplicationContext(ServletContext servletContext, String propertiesLocation, String... locations) {
+    public StandardWebServletApplicationContext(ServletContext servletContext, String propertiesLocation,
+            String... locations) {
         this();
         if (StringUtils.isNotEmpty(propertiesLocation)) {
             setPropertiesLocation(propertiesLocation);

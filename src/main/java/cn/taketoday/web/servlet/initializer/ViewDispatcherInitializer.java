@@ -28,12 +28,12 @@ import javax.servlet.ServletRegistration.Dynamic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.web.Constant;
-import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.mapping.ViewMapping;
 import cn.taketoday.web.servlet.ViewDispatcher;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -61,7 +61,7 @@ public class ViewDispatcherInitializer extends WebServletInitializer<ViewDispatc
 
             if (urls.size() > 0) {// register
                 ServletContext servletContext = getServletContext();
-                final WebApplicationContext applicationContext = WebUtils.getWebApplicationContext();
+                final ApplicationContext applicationContext = ContextUtils.getApplicationContext();
 
                 if (!applicationContext.containsBeanDefinition(Constant.VIEW_DISPATCHER)) {
                     applicationContext.registerBean(Constant.VIEW_DISPATCHER, ViewDispatcher.class);

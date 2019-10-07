@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * 
@@ -72,7 +72,7 @@ public class JstlViewResolver extends AbstractViewResolver implements Initializi
         }
 
         final WebServletApplicationContext applicationContext = //
-                (WebServletApplicationContext) WebUtils.getWebApplicationContext();
+                (WebServletApplicationContext) ContextUtils.getApplicationContext();
 
         final ServletContext servletContext = applicationContext.getServletContext();
 

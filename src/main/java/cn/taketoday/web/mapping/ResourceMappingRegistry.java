@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.config.ActionConfiguration;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -50,7 +50,7 @@ public class ResourceMappingRegistry {
     public final <T extends HandlerInterceptor> ResourceMapping addResourceMapping(Class<T>... handlerInterceptors) {
 
         final ActionConfiguration actionConfiguration = //
-                WebUtils.getWebApplicationContext().getBean(Constant.ACTION_CONFIG, ActionConfiguration.class);
+                ContextUtils.getApplicationContext().getBean(Constant.ACTION_CONFIG, ActionConfiguration.class);
 
         ResourceMapping resourceHandlerMapping = //
                 new ResourceMapping(actionConfiguration.addInterceptors(handlerInterceptors));
