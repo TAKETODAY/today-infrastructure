@@ -1109,4 +1109,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         this.fullLifecycle = fullLifecycle;
     }
 
+    public final void setBeanNameCreator(BeanNameCreator beanNameCreator) {
+        this.beanNameCreator = beanNameCreator;
+    }
 }

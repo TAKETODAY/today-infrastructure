@@ -29,8 +29,7 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-11-14 19:40
  */
 public interface ConfigurableBeanFactory extends BeanFactory, SingletonBeanRegistry, BeanDefinitionRegistry {

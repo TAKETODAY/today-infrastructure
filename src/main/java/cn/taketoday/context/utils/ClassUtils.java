@@ -1228,7 +1228,6 @@ public abstract class ClassUtils {
     {
         final Constructor<T> constructor = obtainConstructor(beanClass);
         return constructor.newInstance(ContextUtils.resolveParameter(constructor, beanFactory));
-
     }
 
     /**
