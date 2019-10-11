@@ -417,6 +417,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      */
     public Set<Class<?>> loadMetaInfoListeners() { // fixed #9 Some listener in a jar can't be load
 
+        log.debug("Loading META-INF/listeners");
         // Load the META-INF/listeners
         // ---------------------------------------------------
         return ContextUtils.loadFromMetaInfo("META-INF/listeners");
