@@ -28,7 +28,7 @@ import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.context.loader.ImportSelector;
 
 /**
- * Import a Configuration class or a bean
+ * Import a Configuration,ImportSelector, BeanDefinitionImporter,ApplicationListener or a bean
  * 
  * @author TODAY <br>
  *         2019-10-01 17:27
