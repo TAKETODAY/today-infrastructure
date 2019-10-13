@@ -42,8 +42,8 @@ public class ProxyBeanPostProcessor implements BeanPostProcessor {
     }
 
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) {
-        log.debug("ProxyBeanPostProcessor After :[{}]", beanName);
+    public Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
+        log.debug("ProxyBeanPostProcessor After :[{}]", def.getName());
         return bean;
     }
 

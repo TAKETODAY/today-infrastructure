@@ -386,7 +386,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     protected void invokeInitMethods(final Object bean, final Method... methods) throws Exception {
 
         for (final Method method : methods) {
-//			method.setAccessible(true); // fix: can not access a member
+            //			method.setAccessible(true); // fix: can not access a member
             method.invoke(bean, ContextUtils.resolveParameter(ClassUtils.makeAccessible(method), this));
         }
 
@@ -673,7 +673,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         invokeInitMethods(bean, beanDefinition.getInitMethods());
         // after properties
         for (final BeanPostProcessor postProcessor : postProcessors) {
-            bean = postProcessor.postProcessAfterInitialization(bean, name);
+            bean = postProcessor.postProcessAfterInitialization(postProcessor.postProcessAfterInitialization(bean, name), beanDefinition);
         }
         return bean;
     }
@@ -944,7 +944,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public boolean containsBeanDefinition(final Class<?> type, final boolean equals) {
-        
+
         final Predicate<BeanDefinition> predicate = getPredicate(type, equals);
         final BeanDefinition def = getBeanDefinition(getBeanNameCreator().create(type));
         if (def != null && predicate.test(def)) {

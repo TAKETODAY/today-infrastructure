@@ -20,6 +20,7 @@
 package cn.taketoday.context.factory;
 
 import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.exception.BeanDefinitionStoreException;
 
 /**
  * @author TODAY <br>
@@ -53,8 +54,27 @@ public interface BeanPostProcessor {
      * @return Bean instance
      * @throws Exception
      *             In case of errors
+     * @deprecated this Deprecated in 2.1.7 use
+     *             {@link #postProcessAfterInitialization(Object, BeanDefinition)}.
+     *             This is a failed design
      */
+    @Deprecated
     default Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+        return bean;
+    }
+
+    /**
+     * After property set
+     * 
+     * @param bean
+     *            Bean instance
+     * @param def
+     *            {@link BeanDefinitionStoreException}
+     * @return Bean instance
+     * @throws Exception
+     *             In case of errors
+     */
+    default Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
         return bean;
     }
 }

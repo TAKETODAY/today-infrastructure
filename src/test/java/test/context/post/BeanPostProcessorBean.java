@@ -41,8 +41,8 @@ public class BeanPostProcessorBean implements BeanPostProcessor {
     }
 
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) {
-        log.debug("BeanPostProcessorBean After named :[{}]", beanName);
+    public Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
+        log.debug("BeanPostProcessorBean After named :[{}]", def.getName());
         return bean;
     }
 
