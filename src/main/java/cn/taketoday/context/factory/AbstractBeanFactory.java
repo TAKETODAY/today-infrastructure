@@ -326,17 +326,17 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     public static final class Prototypes {
 
         private final String name;
-        private final BeanDefinition ref;
+        private final BeanDefinition def;
         private final AbstractBeanFactory f;
 
-        private Prototypes(AbstractBeanFactory f, BeanDefinition ref) {
+        private Prototypes(AbstractBeanFactory f, BeanDefinition def) {
             this.f = f;
-            this.ref = ref;
-            this.name = ref.getName();
+            this.def = def;
+            this.name = def.getName();
         }
 
         private final Object handle(final Method m, final Object[] a) throws Throwable {
-            final Object b = f.getBean(name, ref);
+            final Object b = f.getBean(name, def);
             try {
                 return m.invoke(b, a);
             }
@@ -345,7 +345,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             }
             finally {
                 if (f.fullLifecycle) {
-                    f.destroyBean(b, ref); // destroyBean after every call
+                    f.destroyBean(b, def); // destroyBean after every call
                 }
             }
         }
