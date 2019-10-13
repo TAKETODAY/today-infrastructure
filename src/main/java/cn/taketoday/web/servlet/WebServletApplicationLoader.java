@@ -156,29 +156,29 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      */
     protected WebServletApplicationContext prepareApplicationContext(ServletContext servletContext) {
 
-        final WebServletApplicationContext ret = getWebApplicationContext();
-        if (ret != null) {
-            return ret;
+        WebServletApplicationContext ret = getWebApplicationContext();
+
+        if (ret == null) {
+
+            final long startupDate = System.currentTimeMillis();
+            log.info("Your application starts to be initialized at: [{}].", //
+                     new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
+
+            ret = new StandardWebServletApplicationContext();
+            ret.setServletContext(servletContext);
+            ret.loadContext(Constant.BLANK);
         }
-
-        final long startupDate = System.currentTimeMillis();
-        log.info("Your application starts to be initialized at: [{}].", //
-                 new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
-
-        // fix: applicationContext NullPointerException
-        WebServletApplicationContext applicationContext = new StandardWebServletApplicationContext();
-
-        applicationContext.setServletContext(servletContext);
-        applicationContext.loadContext(Constant.BLANK);
-
-        return applicationContext;
+        else if (ret.getServletContext() == null) {
+            ret.setServletContext(servletContext);
+            log.info("ServletContext: [{}] Configure Success.", servletContext);
+        }
+        return ret;
     }
 
     @Override
     public void onStartup(Set<Class<?>> classes, ServletContext servletContext) throws ServletException {
 
-        log.info("ServletContext: [{}] Configure Success.",
-                 Objects.requireNonNull(servletContext, "ServletContext can't be null"));
+        Objects.requireNonNull(servletContext, "ServletContext can't be null");
 
         final WebApplicationContext context = prepareApplicationContext(servletContext);
         try {
@@ -258,13 +258,12 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      * 
      * @param contextInitializers
      *            All {@link WebApplicationInitializer}s
-     * @param configuration
+     * @param servletWebMvcConfiguration
      *            ServletWebMvcConfiguration
      */
     protected void configureResourceRegistry(List<WebApplicationInitializer> contextInitializers, //
-                                             ServletWebMvcConfiguration configuration)//
+                                             ServletWebMvcConfiguration servletWebMvcConfiguration)//
     {
-
         final WebServletApplicationContext context = getWebApplicationContext();
         if (!context.containsBeanDefinition(ResourceServlet.class)) {
             context.registerBean(Constant.RESOURCE_SERVLET, ResourceServlet.class);
@@ -272,7 +271,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
 
         final ResourceServlet resourceServlet = context.getBean(ResourceServlet.class);
 
-        WebServletInitializer<ResourceServlet> resourceServletInitializer = new WebServletInitializer<>(resourceServlet);
+        WebServletInitializer<ResourceServlet> resource = new WebServletInitializer<>(resourceServlet);
 
         final Set<String> urlMappings = new HashSet<>();
         final ResourceMappingRegistry resourceMappingRegistry = context.getBean(ResourceMappingRegistry.class);
@@ -290,12 +289,12 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
             }
         }
 
-        configuration.configureResourceServletUrlMappings(urlMappings);
-        resourceServletInitializer.setUrlMappings(urlMappings);
-        resourceServletInitializer.setName(Constant.RESOURCE_SERVLET);
+        servletWebMvcConfiguration.configureResourceServletUrlMappings(urlMappings);
+        resource.setUrlMappings(urlMappings);
+        resource.setName(Constant.RESOURCE_SERVLET);
 
         log.info("Set ResourceServlet Url Mappings: [{}]", urlMappings);
-        contextInitializers.add(resourceServletInitializer);
+        contextInitializers.add(resource);
     }
 
     /**
@@ -421,7 +420,6 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     protected void configureListener(final WebApplicationContext applicationContext,
                                      final List<WebApplicationInitializer> contextInitializers)//
     {
-
         Collection<EventListener> eventListeners = applicationContext.getAnnotatedBeans(WebListener.class);
         for (EventListener eventListener : eventListeners) {
             contextInitializers.add(new WebListenerInitializer<>(eventListener));

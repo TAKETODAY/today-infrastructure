@@ -50,6 +50,7 @@ public class StandardWebServletApplicationContext
     }
 
     public StandardWebServletApplicationContext() {
+        super();
         WebUtils.setWebApplicationContext(this);
     }
 

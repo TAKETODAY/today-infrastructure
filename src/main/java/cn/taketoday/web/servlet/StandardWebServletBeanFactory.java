@@ -74,7 +74,7 @@ public class StandardWebServletBeanFactory extends StandardBeanFactory {
 
             final ServletContext servletContext = webApplicationContext.getServletContext();
             if (servletContext == null) {
-
+                
             }
             else {
                 ((ServletContextAware) bean).setServletContext(servletContext);
