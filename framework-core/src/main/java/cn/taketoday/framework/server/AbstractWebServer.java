@@ -77,8 +77,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class AbstractWebServer implements //
-        ConfigurableWebServer, WebServerApplicationContextAware {
+public abstract class AbstractWebServer implements ConfigurableWebServer, WebServerApplicationContextAware {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractWebServer.class);
 
@@ -91,9 +90,6 @@ public abstract class AbstractWebServer implements //
     private String displayName = "Web-App";
 
     private String deployName = "deploy-web-app";
-
-    /** Application Class */
-    private Class<?> startupClass;
 
     @Autowired
     private CompressionConfiguration compression;
@@ -127,7 +123,7 @@ public abstract class AbstractWebServer implements //
 
     private AtomicBoolean started = new AtomicBoolean(false);
 
-    private CompositeWebApplicationConfiguration webApplicationConfiguration;
+    private WebApplicationConfiguration webApplicationConfiguration;
 
     @Override
     public void initialize(ServletContextInitializer... contextInitializers) throws Throwable {
@@ -284,17 +280,17 @@ public abstract class AbstractWebServer implements //
 
         final ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
-        environment.setProperty(Constant.ENABLE_WEB_STARTED_LOG, "false");
+        environment.setProperty(Constant.ENABLE_WEB_STARTED_LOG, Boolean.FALSE.toString());
         String webMvcConfigLocation = environment.getProperty(Constant.WEB_MVC_CONFIG_LOCATION);
         if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
-            environment.setProperty(Constant.ENABLE_WEB_MVC_XML, "true");
+            environment.setProperty(Constant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
         }
         if (starter != null) {
 
             if (StringUtils.isEmpty(webMvcConfigLocation)) {
                 webMvcConfigLocation = starter.webMvcConfigLocation();
                 if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
-                    environment.setProperty(Constant.ENABLE_WEB_MVC_XML, "true");
+                    environment.setProperty(Constant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
                     environment.setProperty(Constant.WEB_MVC_CONFIG_LOCATION, webMvcConfigLocation);
                 }
             }
@@ -306,7 +302,6 @@ public abstract class AbstractWebServer implements //
                 log.info("Multiple: [{}] Overriding its bean definition", MultipartConfigElement.class.getName());
             }
             applicationContext.registerSingleton(new MultipartConfigElement(multipartConfig));
-
             applicationContext.registerBean("multipartConfigElement", MultipartConfigElement.class);
         }
 
@@ -330,7 +325,9 @@ public abstract class AbstractWebServer implements //
      * Prepare {@link ServletContext}
      * 
      * @param contextInitializers
+     *            {@link ServletContextInitializer}s
      * @throws Throwable
+     *             If any Throwable occurred
      */
     protected void initializeContext(ServletContextInitializer... contextInitializers) throws Throwable {
 
@@ -343,10 +340,6 @@ public abstract class AbstractWebServer implements //
     @Override
     public void setWebServerApplicationContext(WebServerApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
-
-        if (startupClass == null) {
-            startupClass = applicationContext.getStartupClass();
-        }
 
         final List<WebApplicationConfiguration> webApplicationConfigurations = //
                 applicationContext.getBeans(WebApplicationConfiguration.class);
@@ -372,7 +365,7 @@ public abstract class AbstractWebServer implements //
      * @return temporal directory with sub directory
      */
     protected File getTemporalDirectory(String dir) {
-        return ApplicationUtils.getTemporalDirectory(startupClass, dir);
+        return ApplicationUtils.getTemporalDirectory(applicationContext.getStartupClass(), dir);
     }
 
 }

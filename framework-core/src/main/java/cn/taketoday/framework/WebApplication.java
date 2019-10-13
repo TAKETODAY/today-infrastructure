@@ -19,6 +19,8 @@
  */
 package cn.taketoday.framework;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,15 +46,17 @@ public class WebApplication {
 
     private static ServletWebServerApplicationContext applicationContext;
 
-    /** default mapping */
-    private String dispatcherServletMapping = Constant.DISPATCHER_SERVLET_MAPPING;
+    private Class<?> startupClass;
 
-    private Class<?> applicationClass;
-
-    private String appBasePath = System.getProperty("user.dir");
+    private final String appBasePath = System.getProperty("user.dir");
 
     public WebApplication() {
         applicationContext = new ServletWebServerApplicationContext();
+    }
+
+    public WebApplication(Class<?> startupClass) {
+        applicationContext = new ServletWebServerApplicationContext(startupClass);
+        this.setStartupClass(Objects.requireNonNull(startupClass));
     }
 
     public static ServletWebServerApplicationContext getApplicationContext() {
@@ -60,21 +64,25 @@ public class WebApplication {
     }
 
     /**
+     * Startup Web Application
      * 
-     * @param application
+     * @param startupClass
+     *            Startup class
+     * @param args
+     *            Startup arguments
+     * 
+     * @return
      */
-    public WebApplication(Class<?> application) {
-        applicationContext = new ServletWebServerApplicationContext(application);
-        this.applicationClass = application;
-    }
-
-    public static WebServerApplicationContext run(Class<?> application, String... args) {
-        return new WebApplication(application).run(args);
+    public static WebServerApplicationContext run(Class<?> startupClass, String... args) {
+        return new WebApplication(startupClass).run(args);
     }
 
     /**
+     * Startup Web Application
+     * 
      * @param args
-     * @return
+     *            Startup arguments
+     * @return {@link WebServerApplicationContext}
      */
     public WebServerApplicationContext run(String... args) {
 
@@ -86,12 +94,13 @@ public class WebApplication {
 
             applicationContext.registerSingleton(WebApplication.class.getName(), this);
 
-            final ConfigurableEnvironment environment = //
-                    new StandardWebEnvironment(applicationClass, args);
+            final Class<?> startupClass = getStartupClass();
+
+            final ConfigurableEnvironment environment = new StandardWebEnvironment(startupClass, args);
 
             applicationContext.setEnvironment(environment);
-            
-            ComponentScan componentScan = applicationClass.getAnnotation(ComponentScan.class);
+
+            ComponentScan componentScan = startupClass.getAnnotation(ComponentScan.class);
             if (componentScan != null) {
                 // bean name creator
                 final BeanNameCreator beanNameCreator;
@@ -102,12 +111,12 @@ public class WebApplication {
                 else {
                     beanNameCreator = ClassUtils.newInstance(nameCreator, applicationContext);
                 }
-                
+
                 applicationContext.getBeanFactory().setBeanNameCreator(beanNameCreator);
                 applicationContext.loadContext(componentScan.value());
             }
             else {
-                applicationContext.loadContext(applicationClass.getPackage().getName());
+                applicationContext.loadContext(startupClass.getPackage().getName());
             }
 
             final WebServer webServer = applicationContext.getWebServer();
@@ -118,7 +127,7 @@ public class WebApplication {
             webServer.start();
 
             log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-                    System.currentTimeMillis() - applicationContext.getStartupDate()//
+                     System.currentTimeMillis() - applicationContext.getStartupDate()//
             );
         }
         catch (Throwable e) {
@@ -128,6 +137,16 @@ public class WebApplication {
             throw ExceptionUtils.newConfigurationException(e);
         }
         return applicationContext;
+    }
+
+    /**
+     * Apply startup class
+     * 
+     * @param startupClass
+     *            Startup class such as Application or XXXApplication
+     */
+    public void setStartupClass(Class<?> startupClass) {
+        this.startupClass = startupClass;
     }
 
 }

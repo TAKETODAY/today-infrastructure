@@ -113,7 +113,7 @@ public interface WebApplicationConfiguration {
     }
 
     default void configureLocaleCharsetMapping(Map<Locale, Charset> localeMappings) {
-        
+
     }
 
     default void configureServletContextInitializer(List<ServletContextInitializer> initializer) {

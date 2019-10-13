@@ -19,11 +19,13 @@
  */
 package cn.taketoday.framework;
 
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import org.slf4j.LoggerFactory;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.aware.Aware;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -40,8 +42,9 @@ import cn.taketoday.web.servlet.WebServletApplicationLoader;
 import cn.taketoday.web.servlet.initializer.OrderedInitializer;
 
 /**
- * @author Today <br>
+ * {@link Servlet} based Web {@link ApplicationContext}
  * 
+ * @author TODAY <br>
  *         2019-01-17 15:54
  */
 public class ServletWebServerApplicationContext //
@@ -82,7 +85,7 @@ public class ServletWebServerApplicationContext //
         };
         addBeanPostProcessor(beanPostProcessor);
 
-        LoggerFactory.getLogger(getClass()).info("Looking For: [{}]", WebServer.class.getName());
+        LoggerFactory.getLogger(getClass()).info("Looking For: [{}] Bean.", WebServer.class.getName());
 
         // Get WebServer instance
         this.webServer = getBean(WebServer.class);
@@ -110,7 +113,8 @@ public class ServletWebServerApplicationContext //
             public void onStartup(ServletContext servletContext) throws ServletException {
 
                 ServletWebServerApplicationContext.this.getBeanFactory().addBeanPostProcessor(//
-                        new WebApplicationContextAwareProcessor(servletContext, ServletWebServerApplicationContext.this)//
+                                                                                              new WebApplicationContextAwareProcessor(servletContext,
+                                                                                                                                      ServletWebServerApplicationContext.this)//
                 );
 
                 prepareServletContext(servletContext);
@@ -126,7 +130,10 @@ public class ServletWebServerApplicationContext //
     }
 
     /**
+     * Prepare {@link ServletContext}
+     * 
      * @param servletContext
+     *            {@link ServletContext} object
      */
     protected void prepareServletContext(ServletContext servletContext) {
 

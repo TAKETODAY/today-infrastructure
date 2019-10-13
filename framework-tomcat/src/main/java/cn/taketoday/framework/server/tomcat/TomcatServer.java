@@ -563,7 +563,7 @@ public class TomcatServer extends AbstractWebServer {
 
         if (manager instanceof StandardManager) {
 
-            final File storeDirectory = getSessionConfiguration().getStoreDirectory(getStartupClass());
+            final File storeDirectory = getSessionConfiguration().getStoreDirectory(applicationContext.getStartupClass());
 
             ((StandardManager) manager).setPathname(new File(storeDirectory, "SESSIONS.ser").getAbsolutePath());
         }

@@ -22,8 +22,7 @@ package cn.taketoday.framework.server;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2019-01-26 11:09
  */
 public interface ConfigurableWebServer extends WebServer {

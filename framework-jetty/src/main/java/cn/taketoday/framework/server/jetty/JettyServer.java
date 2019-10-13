@@ -493,7 +493,7 @@ public class JettyServer extends AbstractWebServer implements WebServer {
             final DefaultSessionCache cache = new DefaultSessionCache(sessionHandler);
             final FileSessionDataStore store = new FileSessionDataStore();
 
-            store.setStoreDir(sessionConfiguration.getStoreDirectory(getStartupClass()));
+            store.setStoreDir(sessionConfiguration.getStoreDirectory(applicationContext.getStartupClass()));
 
             cache.setSessionDataStore(store);
             sessionHandler.setSessionCache(cache);
