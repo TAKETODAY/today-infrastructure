@@ -78,11 +78,14 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
 
     private static final Logger log = LoggerFactory.getLogger(WebServletApplicationLoader.class);
 
-    private ServletContext servletContext;
-
     @Override
     protected ServletWebMvcConfiguration getWebMvcConfiguration(ApplicationContext applicationContext) {
         return new ServletCompositeWebMvcConfiguration(applicationContext.getBeans(WebMvcConfiguration.class));
+    }
+
+    @Override
+    public WebServletApplicationContext getWebApplicationContext() {
+        return (WebServletApplicationContext) super.getWebApplicationContext();
     }
 
     @Override
@@ -90,11 +93,11 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         String webMvcConfigLocation = super.getWebMvcConfigLocation();
 
         if (StringUtils.isEmpty(webMvcConfigLocation)) {
-            webMvcConfigLocation = servletContext.getInitParameter(WEB_MVC_CONFIG_LOCATION);
+            webMvcConfigLocation = getServletContext().getInitParameter(WEB_MVC_CONFIG_LOCATION);
         }
 
         if (StringUtils.isEmpty(webMvcConfigLocation)) { // scan from '/'
-            final String rootPath = servletContext.getRealPath("/");
+            final String rootPath = getServletContext().getRealPath("/");
 
             final HashSet<String> paths = new HashSet<>();
 
@@ -108,6 +111,14 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
             return null;
         }
         return webMvcConfigLocation;
+    }
+
+    /**
+     * @return {@link ServletContext} or null if {@link ApplicationContext} not
+     *         initialize
+     */
+    protected ServletContext getServletContext() {
+        return getWebApplicationContext().getServletContext();
     }
 
     /**
@@ -139,17 +150,15 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     /**
      * Prepare {@link WebServletApplicationContext}
      * 
-     * @param classes
-     *            classes to scan
      * @param servletContext
      *            {@link ServletContext}
-     * @return startup Date
+     * @return {@link WebServletApplicationContext}
      */
-    protected WebApplicationContext prepareApplicationContext() {
+    protected WebServletApplicationContext prepareApplicationContext(ServletContext servletContext) {
 
-        final Object attribute = servletContext.getAttribute(KEY_WEB_APPLICATION_CONTEXT);
-        if (attribute instanceof WebServletApplicationContext) {
-            return applicationContext = (WebServletApplicationContext) attribute;
+        final WebServletApplicationContext ret = getWebApplicationContext();
+        if (ret != null) {
+            return ret;
         }
 
         final long startupDate = System.currentTimeMillis();
@@ -162,30 +171,29 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         applicationContext.setServletContext(servletContext);
         applicationContext.loadContext(Constant.BLANK);
 
-        return WebApplicationLoader.applicationContext = applicationContext;
+        return applicationContext;
     }
 
     @Override
     public void onStartup(Set<Class<?>> classes, ServletContext servletContext) throws ServletException {
 
-        this.servletContext = Objects.requireNonNull(servletContext, "ServletContext can't be null");
+        log.info("ServletContext: [{}] Configure Success.",
+                 Objects.requireNonNull(servletContext, "ServletContext can't be null"));
 
-        final WebApplicationContext applicationContext = prepareApplicationContext();
+        final WebApplicationContext context = prepareApplicationContext(servletContext);
         try {
 
             try {
                 servletContext.setRequestCharacterEncoding(DEFAULT_ENCODING);
                 servletContext.setResponseCharacterEncoding(DEFAULT_ENCODING);
             }
-            catch (Throwable e) {
-                // Waiting for Jetty 10.0.0
-            }
+            catch (Throwable e) {} // Waiting for Jetty 10.0.0
 
-            onStartup(applicationContext);
+            onStartup(context);
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            applicationContext.publishEvent(new WebApplicationFailedEvent(applicationContext, ex));
+            context.publishEvent(new WebApplicationFailedEvent(context, ex));
             log.error("Your Application Initialized ERROR: [{}]", ex.toString(), ex);
             throw new ConfigurationException(ex);
         }
@@ -233,19 +241,16 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     }
 
     @Override
-    protected List<WebApplicationInitializer> getInitializers(final WebApplicationContext applicationContext, //
-                                                              final WebMvcConfiguration mvcConfiguration) //
-    {
-        final List<WebApplicationInitializer> contextInitializers = //
-                super.getInitializers(applicationContext, mvcConfiguration);
+    protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
 
-        configureResourceRegistry(contextInitializers, getWebMvcConfiguration(applicationContext));
+        final WebServletApplicationContext webApplicationContext = getWebApplicationContext();
+        configureResourceRegistry(initializers, getWebMvcConfiguration(webApplicationContext));
 
-        configureFilter(applicationContext, contextInitializers);
-        configureServlet(applicationContext, contextInitializers);
-        configureListener(applicationContext, contextInitializers);
+        configureFilter(webApplicationContext, initializers);
+        configureServlet(webApplicationContext, initializers);
+        configureListener(webApplicationContext, initializers);
 
-        return contextInitializers;
+        super.configureInitializer(initializers, config);
     }
 
     /**
@@ -260,17 +265,17 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
                                              ServletWebMvcConfiguration configuration)//
     {
 
-        if (!applicationContext.containsBeanDefinition(ResourceServlet.class)) {
-            applicationContext.registerBean(Constant.RESOURCE_SERVLET, ResourceServlet.class);
+        final WebServletApplicationContext context = getWebApplicationContext();
+        if (!context.containsBeanDefinition(ResourceServlet.class)) {
+            context.registerBean(Constant.RESOURCE_SERVLET, ResourceServlet.class);
         }
 
-        final ResourceServlet resourceServlet = applicationContext.getBean(ResourceServlet.class);
+        final ResourceServlet resourceServlet = context.getBean(ResourceServlet.class);
 
         WebServletInitializer<ResourceServlet> resourceServletInitializer = new WebServletInitializer<>(resourceServlet);
 
         final Set<String> urlMappings = new HashSet<>();
-        final ResourceMappingRegistry resourceMappingRegistry = applicationContext.getBean(
-                                                                                           ResourceMappingRegistry.class);
+        final ResourceMappingRegistry resourceMappingRegistry = context.getBean(ResourceMappingRegistry.class);
         final List<ResourceMapping> resourceHandlerMappings = resourceMappingRegistry.getResourceMappings();
 
         for (final ResourceMapping resourceMapping : resourceHandlerMappings) {

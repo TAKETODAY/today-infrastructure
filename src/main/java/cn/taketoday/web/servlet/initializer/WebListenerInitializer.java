@@ -34,7 +34,7 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class WebListenerInitializer<T extends EventListener> implements OrderedInitializer {
+public class WebListenerInitializer<T extends EventListener> implements OrderedServletContextInitializer {
 
     private T listener;
     private int order = LOWEST_PRECEDENCE;

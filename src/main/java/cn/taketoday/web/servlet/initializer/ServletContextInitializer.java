@@ -27,7 +27,6 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 /**
  * @author TODAY <br>
- * 
  *         2019-01-15 19:28
  */
 @FunctionalInterface

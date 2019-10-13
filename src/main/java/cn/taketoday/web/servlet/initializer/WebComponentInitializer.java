@@ -41,7 +41,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class WebComponentInitializer<D extends Registration.Dynamic> implements OrderedInitializer {
+public abstract class WebComponentInitializer<D extends Registration.Dynamic> implements OrderedServletContextInitializer {
 
     private String name;
     /** Startup order */

@@ -23,16 +23,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
-import java.util.List;
-import java.util.function.Function;
 
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.HttpHeaders;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.mapping.MethodParameter;
 
@@ -148,29 +144,6 @@ public abstract class WebUtils {
      */
     public static boolean isAjax(HttpHeaders request) {
         return Constant.XML_HTTP_REQUEST.equals(request.requestHeader(Constant.X_REQUESTED_WITH));
-    }
-
-    /**
-     * A function that accepts {@link List} of {@link WebMvcConfiguration} and
-     * produces a result WebMvcConfiguration.
-     * 
-     * @param func
-     *            {@link Function}
-     * @return WebMvcConfiguration
-     */
-    public static WebMvcConfiguration
-            getWebMvcConfiguration(Function<List<WebMvcConfiguration>, WebMvcConfiguration> func) {
-
-        return func.apply(getWebMvcConfigurations());
-    }
-
-    /**
-     * Get all list of {@link WebMvcConfiguration}s
-     * 
-     * @return List of {@link WebMvcConfiguration}s
-     */
-    public static List<WebMvcConfiguration> getWebMvcConfigurations() {
-        return ContextUtils.getApplicationContext().getBeans(WebMvcConfiguration.class);
     }
 
 }

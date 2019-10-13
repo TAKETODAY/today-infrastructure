@@ -26,7 +26,7 @@ import cn.taketoday.context.Ordered;
  *         2019-02-03 17:37
  */
 @FunctionalInterface
-public interface OrderedInitializer extends ServletContextInitializer, Ordered {
+public interface OrderedServletContextInitializer extends ServletContextInitializer, Ordered {
 
     @Override
     default public int getOrder() {

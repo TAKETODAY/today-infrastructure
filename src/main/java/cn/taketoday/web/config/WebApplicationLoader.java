@@ -86,7 +86,6 @@ import cn.taketoday.web.resolver.result.ResponseBodyResultResolver;
 import cn.taketoday.web.resolver.result.ResultResolver;
 import cn.taketoday.web.resolver.result.ViewResolverResultResolver;
 import cn.taketoday.web.resolver.result.VoidResultResolver;
-import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.ViewResolver;
 
@@ -100,19 +99,24 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     private static final Logger log = LoggerFactory.getLogger(WebApplicationLoader.class);
 
     /** context **/
-    protected static WebApplicationContext applicationContext;
+    private WebApplicationContext applicationContext;
 
     /**
      * Get {@link WebApplicationContext}
      * 
      * @return {@link WebApplicationContext}
      */
-    protected final static WebApplicationContext getWebApplicationContext() {
+    public WebApplicationContext getWebApplicationContext() {
         return applicationContext;
+    }
+
+    public void setWebApplicationContext(WebApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     @Override
     public void onStartup(WebApplicationContext applicationContext) throws Throwable {
+        setWebApplicationContext(applicationContext);
 
         final ConfigurableEnvironment environment = applicationContext.getEnvironment();
 
@@ -190,12 +194,13 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      */
     protected void configureResultResolver(List<ResultResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
 
-        final ViewResolver viewResolver = getWebApplicationContext().getBean(ViewResolver.class);
+        final WebApplicationContext webApplicationContext = getWebApplicationContext();
+        final ViewResolver viewResolver = webApplicationContext.getBean(ViewResolver.class);
 
-        final ConfigurableEnvironment environment = getWebApplicationContext().getEnvironment();
+        final ConfigurableEnvironment environment = webApplicationContext.getEnvironment();
         int bufferSize = Integer.parseInt(environment.getProperty(DOWNLOAD_BUFF_SIZE, "10240"));
 
-        final MessageConverter messageConverter = getWebApplicationContext().getBean(MessageConverter.class);
+        final MessageConverter messageConverter = webApplicationContext.getBean(MessageConverter.class);
 
         resolvers.add(new ImageResultResolver());
         resolvers.add(new ResourceResultResolver(bufferSize));
@@ -232,48 +237,49 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         resolvers.add(new ConverterParameterResolver((m) -> m.is(Boolean.class) || m.is(boolean.class), Boolean::parseBoolean));
 
         // For some useful context annotations
-        // --------------------------------------------
+        // -------------------------------------------- //@off
 
         resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(RequestAttribute.class), //
-                (ctx, m) -> ctx.attribute(m.getName())//
+              (ctx, m) -> ctx.attribute(m.getName())//
         ));
 
         resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Value.class), //
-                (ctx, m) -> resolveValue(m.getAnnotation(Value.class), m.getParameterClass())//
+              (ctx, m) -> resolveValue(m.getAnnotation(Value.class), m.getParameterClass())//
         ));
         resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Env.class), //
-                (ctx, m) -> resolveValue(m.getAnnotation(Env.class), m.getParameterClass())//
+              (ctx, m) -> resolveValue(m.getAnnotation(Env.class), m.getParameterClass())//
         ));
 
+        final WebApplicationContext applicationContext = getWebApplicationContext();
         final Properties properties = applicationContext.getEnvironment().getProperties();
 
         resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Props.class), //
-                (ctx, m) -> resolveProps(m.getAnnotation(Props.class), m.getParameterClass(), properties)//
+               (ctx, m) -> resolveProps(m.getAnnotation(Props.class), m.getParameterClass(), properties)//
         ));
 
-        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Autowired.class), //
-                (ctx, m) -> {
-                    final Autowired autowired = m.getAnnotation(Autowired.class);
-                    final String name = autowired.value();
+        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Autowired.class), //@off
+              (ctx, m) -> {
+                  final Autowired autowired = m.getAnnotation(Autowired.class);
+                  final String name = autowired.value();
 
-                    final Object bean;
-                    if (StringUtils.isEmpty(name)) {
-                        bean = applicationContext.getBean(m.getParameterClass());
-                    }
-                    else {
-                        bean = applicationContext.getBean(name, m.getParameterClass());
-                    }
-                    if (bean == null && autowired.required()) {
-                        throw new NoSuchBeanDefinitionException(m.getParameterClass());
-                    }
-                    return bean;
-                }//
+                  final Object bean;
+                  if (StringUtils.isEmpty(name)) {
+                      bean = applicationContext.getBean(m.getParameterClass());
+                  }
+                  else {
+                      bean = applicationContext.getBean(name, m.getParameterClass());
+                  }
+                  if (bean == null && autowired.required()) {
+                      throw new NoSuchBeanDefinitionException(m.getParameterClass());
+                  }
+                  return bean;
+              }
         ));
 
         // HandlerMethod HandlerMapping
         resolvers.add(new DelegatingParameterResolver((m) -> m.isAssignableFrom(HandlerMethod.class)
-                                                             || m.isAssignableFrom(HandlerMapping.class), //
-                (ctx, m) -> m.getHandlerMethod()//
+                                                              || m.isAssignableFrom(HandlerMapping.class), //
+            (ctx, m) -> m.getHandlerMethod()//
         ));
 
         // For cookies
@@ -312,7 +318,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         resolvers.add(new BeanParameterResolver());
 
         // User customize parameter resolver
-        // ------------------------------------------
+        // ------------------------------------------//@on
 
         mvcConfiguration.configureParameterResolver(resolvers); // user configure
 
@@ -342,31 +348,42 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     /**
      * Invoke all {@link WebApplicationInitializer}s
      * 
-     * @param applicationContext
+     * @param context
      *            {@link ApplicationContext} object
      * @throws Throwable
      *             If any initialize exception occurred
      */
-    protected void initializerStartup(WebApplicationContext applicationContext, //
-                                      WebMvcConfiguration mvcConfiguration) throws Throwable //
+    protected void initializerStartup(final WebApplicationContext context, //
+                                      final WebMvcConfiguration mvcConfiguration) throws Throwable //
     {
-        for (final WebApplicationInitializer initializer : getInitializers(applicationContext, mvcConfiguration)) {
-            initializer.onStartup(applicationContext);
+        final List<WebApplicationInitializer> initializers = context.getBeans(WebApplicationInitializer.class);
+
+        configureInitializer(initializers, mvcConfiguration);
+
+        for (final WebApplicationInitializer initializer : initializers) {
+            initializer.onStartup(context);
         }
     }
 
-    protected List<WebApplicationInitializer> getInitializers(final WebApplicationContext applicationContext, //
-                                                              final WebMvcConfiguration mvcConfiguration) //
-    {
-        final List<WebApplicationInitializer> initializers = applicationContext.getBeans(WebApplicationInitializer.class);
+    /**
+     * 
+     * @param initializers
+     * @param config
+     */
+    protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
 
-        mvcConfiguration.configureInitializer(initializers);
-
-        return initializers;
+        config.configureInitializer(initializers);
+        OrderUtils.reversedSort(initializers);
     }
 
+    /**
+     * Get {@link WebMvcConfiguration}
+     * 
+     * @param applicationContext
+     *            {@link ApplicationContext} object
+     */
     protected WebMvcConfiguration getWebMvcConfiguration(ApplicationContext applicationContext) {
-        return WebUtils.getWebMvcConfiguration(CompositeWebMvcConfiguration::new);
+        return new CompositeWebMvcConfiguration(applicationContext.getBeans(WebMvcConfiguration.class));
     }
 
     /**
@@ -395,12 +412,12 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         builder.setEntityResolver((publicId, systemId) -> {
             if (systemId.contains(DTD_NAME) || publicId.contains(DTD_NAME)) {
                 return new InputSource(//
-                        new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes())//
+                                       new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes())//
                 );
             }
             return null;
         });
-        final ViewConfiguration viewConfiguration = new ViewConfiguration(applicationContext);
+        final ViewConfiguration viewConfiguration = new ViewConfiguration(getWebApplicationContext());
 
         for (final String file : StringUtils.split(webMvcConfigLocation)) {
 
@@ -481,7 +498,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      * @throws ClassNotFoundException
      * @throws BeanDefinitionStoreException
      */
-    protected static Class<?> registerResolver(Element element, Class<?> defaultClass, String name, boolean refresh) //
+    protected Class<?> registerResolver(Element element, Class<?> defaultClass, String name, boolean refresh) //
             throws ClassNotFoundException, BeanDefinitionStoreException //
     {
         String attrClass = element.getAttribute(ATTR_CLASS); // class="cn.taketoday..."
@@ -494,11 +511,12 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
             resolverClass = ClassUtils.forName(attrClass);
         }
         // register resolver
-        applicationContext.registerBean(name, resolverClass);
+        final WebApplicationContext webApplicationContext = getWebApplicationContext();
+        webApplicationContext.registerBean(name, resolverClass);
         log.info("Register [{}] onto [{}]", name, resolverClass.getName());
 
         if (refresh) {
-            applicationContext.refresh(name);
+            webApplicationContext.refresh(name);
         }
         return resolverClass;
     }
