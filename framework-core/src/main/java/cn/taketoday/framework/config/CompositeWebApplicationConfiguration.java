@@ -28,7 +28,6 @@ import java.util.Set;
 import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.server.AbstractWebServer;
-import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 
 /**
  * @author TODAY <br>
@@ -106,11 +105,4 @@ public class CompositeWebApplicationConfiguration implements WebApplicationConfi
         }
     }
 
-    @Override
-    public void configureServletContextInitializer(List<ServletContextInitializer> initializer) {
-        
-        for (WebApplicationConfiguration webApplicationConfiguration : webApplicationConfigurations) {
-            webApplicationConfiguration.configureServletContextInitializer(initializer);
-        }
-    }
 }

@@ -60,19 +60,23 @@ import org.eclipse.jetty.webapp.AbstractConfiguration;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
+import cn.taketoday.framework.ServletWebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.SessionConfiguration;
-import cn.taketoday.framework.server.AbstractWebServer;
+import cn.taketoday.framework.server.AbstractServletWebServer;
+import cn.taketoday.framework.server.ServletWebServerApplicationLoader;
 import cn.taketoday.framework.server.WebServer;
+import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 import lombok.Getter;
 import lombok.Setter;
@@ -96,7 +100,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @MissingBean(type = WebServer.class)
 @Props(prefix = { "server.", "server.jetty." })
-public class JettyServer extends AbstractWebServer implements WebServer {
+public class JettyServer extends AbstractServletWebServer implements WebServer {
 
     private Server server;
 
@@ -117,6 +121,18 @@ public class JettyServer extends AbstractWebServer implements WebServer {
     private ThreadPool threadPool;
 
     private boolean sendVersion;
+
+    private final ServletWebServerApplicationContext applicationContext;
+
+    @Autowired
+    public JettyServer(ServletWebServerApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    protected ServletWebServerApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 
     @Override
     protected synchronized void contextInitialized() throws Throwable {
@@ -197,7 +213,7 @@ public class JettyServer extends AbstractWebServer implements WebServer {
             getStarted().set(true);
 
             log.info("Jetty started on port(s) '{}' with context path '{}'", //
-                    getActualPortsDescription(), getContextPath());
+                     getActualPortsDescription(), getContextPath());
         }
         catch (WebServerException ex) {
             stopSilently();
@@ -247,9 +263,9 @@ public class JettyServer extends AbstractWebServer implements WebServer {
     }
 
     @Override
-    protected void initializeContext(ServletContextInitializer... contextInitializers) throws Throwable {
+    protected void initializeContext() throws Throwable {
 
-        super.initializeContext(contextInitializers);
+        super.initializeContext();
 
         log.info("Jetty Server initializing with port: {}", getPort());
 
@@ -259,7 +275,7 @@ public class JettyServer extends AbstractWebServer implements WebServer {
         this.server = server;
         server.setConnectors(new Connector[] { getServerConnector(getHost(), getPort(), server) });
 
-        configureWebAppContext(context, contextInitializers);
+        configureWebAppContext(context);
         server.setHandler(getHandlerWrappers(context));
 
         if (this.useForwardHeaders) {
@@ -316,7 +332,7 @@ public class JettyServer extends AbstractWebServer implements WebServer {
                 handler = applyHandler(handler, configureCompression(compression));
             }
         }
-//        if (StringUtils.isNotEmpty(getServerHeader())) { // TODO server header }
+        //        if (StringUtils.isNotEmpty(getServerHeader())) { // TODO server header }
         return handler;
     }
 
@@ -334,9 +350,7 @@ public class JettyServer extends AbstractWebServer implements WebServer {
      *            the set of initializers to apply
      * @throws Throwable
      */
-    protected void configureWebAppContext(final WebAppContext context, //
-            final ServletContextInitializer... initializers) throws Throwable //
-    {
+    protected void configureWebAppContext(final WebAppContext context) throws Throwable {
 
         Objects.requireNonNull(context, "WebAppContext must not be null");
 
@@ -352,8 +366,7 @@ public class JettyServer extends AbstractWebServer implements WebServer {
         configureLocaleMappings(context);
         configureWelcomePages(context);
 
-        final Configuration[] configurations = //
-                getWebAppContextConfigurations(context, getAllInitializers(initializers));
+        final Configuration[] configurations = getWebAppContextConfigurations(context);
 
         context.setConfigurations(configurations);
 
@@ -379,12 +392,10 @@ public class JettyServer extends AbstractWebServer implements WebServer {
      *            the {@link ServletContextInitializer}s to apply
      * @return configurations to apply
      */
-    protected Configuration[] getWebAppContextConfigurations(WebAppContext webAppContext, //
-            ServletContextInitializer... initializers)//
-    {
+    protected Configuration[] getWebAppContextConfigurations(final WebAppContext webAppContext) {
 
         final List<Configuration> configurations = new ArrayList<>();
-        configurations.add(getJettyServletContextInitializer(webAppContext, initializers));
+        configurations.add(getJettyServletContextInitializer(webAppContext));
 
         configurations.addAll(getConfigurations()); // user define
 
@@ -452,7 +463,6 @@ public class JettyServer extends AbstractWebServer implements WebServer {
                 if (errorPage.getStatus() != 0) {
                     handler.addErrorPage(errorPage.getStatus(), errorPage.getPath());
                 }
-//                handler.addErrorPage(ErrorPageErrorHandler.GLOBAL_ERROR_PAGE, errorPage.getPath());
             }
         }
     }
@@ -468,10 +478,8 @@ public class JettyServer extends AbstractWebServer implements WebServer {
      *            the {@link ServletContextInitializer}s to apply
      * @return the {@link Configuration} instance
      */
-    protected Configuration getJettyServletContextInitializer(//
-            WebAppContext webAppContext, ServletContextInitializer... initializers) //
-    {
-        return new ServletContextInitializerConfiguration(initializers);
+    protected Configuration getJettyServletContextInitializer(final WebAppContext webAppContext) {
+        return new ServletContextInitializerConfiguration(() -> getMergedInitializers());
     }
 
     /**
@@ -518,8 +526,7 @@ public class JettyServer extends AbstractWebServer implements WebServer {
      * @param webAppContext
      * @throws Throwable
      */
-    protected void configureDocumentRoot(WebAppContext webAppContext) throws Throwable {
-
+    protected void configureDocumentRoot(final WebAppContext webAppContext) throws Throwable {
         webAppContext.setBaseResource(getRootResource(getWebDocumentConfiguration().getValidDocumentDirectory()));
     }
 
@@ -542,15 +549,11 @@ public class JettyServer extends AbstractWebServer implements WebServer {
         return new DefaultServlet();
     }
 
-    /**
-     * @param compression
-     * @return
-     */
-    protected GzipHandler configureCompression(CompressionConfiguration compression) {
+    protected GzipHandler configureCompression(final CompressionConfiguration compression) {
 
         GzipHandler handler = new GzipHandler();
 
-//        handler.setCompressionLevel(compression.getLevel());
+        //        handler.setCompressionLevel(compression.getLevel());
 
         handler.setMinGzipSize((int) compression.getMinResponseSize().toBytes());
         handler.addIncludedMimeTypes(compression.getMimeTypes());
@@ -588,14 +591,17 @@ public class JettyServer extends AbstractWebServer implements WebServer {
     }
 
     /**
-     * Jetty {@link Configuration} that calls {@link ServletContextInitializer}s.
+     * Use {@link ServletWebServerApplicationLoader} load application
+     * 
+     * @author TODAY <br>
+     *         2019-10-14 01:07
      */
     public static class ServletContextInitializerConfiguration extends AbstractConfiguration {
 
-        private final ServletContextInitializer[] initializers;
+        private ServletWebServerApplicationLoader starter;
 
-        public ServletContextInitializerConfiguration(ServletContextInitializer... initializers) {
-            this.initializers = Objects.requireNonNull(initializers, "Initializers must not be null");
+        public ServletContextInitializerConfiguration(final Supplier<List<WebApplicationInitializer>> initializersSupplier) {
+            this.starter = new ServletWebServerApplicationLoader(initializersSupplier);
         }
 
         @Override
@@ -603,10 +609,6 @@ public class JettyServer extends AbstractWebServer implements WebServer {
             context.addBean(new Initializer(context), true);
         }
 
-        /**
-         * Jetty {@link AbstractLifeCycle} to call the {@link ServletContextInitializer
-         * ServletContextInitializers}.
-         */
         private class Initializer extends AbstractLifeCycle {
 
             private final WebAppContext context;
@@ -621,19 +623,15 @@ public class JettyServer extends AbstractWebServer implements WebServer {
                 final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
                 Thread.currentThread().setContextClassLoader(this.context.getClassLoader());
                 try {
-
                     setExtendedListenerTypes(true);
                     final Context servletContext = this.context.getServletContext();
 
-                    for (ServletContextInitializer initializer : ServletContextInitializerConfiguration.this.initializers) {
-                        initializer.onStartup(servletContext);
-                    }
+                    starter.onStartup(null, servletContext);
                 }
-                catch (Throwable e) {
-                    throw new WebServerException(e);
-                } finally {
+                finally {
                     setExtendedListenerTypes(false);
                     Thread.currentThread().setContextClassLoader(oldClassLoader);
+                    starter = null;
                 }
             }
 

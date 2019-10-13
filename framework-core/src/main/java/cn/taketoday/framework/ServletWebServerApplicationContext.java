@@ -20,26 +20,21 @@
 package cn.taketoday.framework;
 
 import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 
 import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Ordered;
 import cn.taketoday.context.aware.Aware;
+import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanPostProcessor;
-import cn.taketoday.framework.aware.WebApplicationContextAwareProcessor;
 import cn.taketoday.framework.aware.WebServerApplicationContextAware;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.ConfigurableWebServer;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.web.WebApplicationContextAware;
+import cn.taketoday.web.servlet.ConfigurableWebServletApplicationContext;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
-import cn.taketoday.web.servlet.WebServletApplicationLoader;
-import cn.taketoday.web.servlet.initializer.OrderedInitializer;
 
 /**
  * {@link Servlet} based Web {@link ApplicationContext}
@@ -47,8 +42,9 @@ import cn.taketoday.web.servlet.initializer.OrderedInitializer;
  * @author TODAY <br>
  *         2019-01-17 15:54
  */
-public class ServletWebServerApplicationContext //
-        extends StandardWebServletApplicationContext implements WebServerApplicationContext, WebServletApplicationContext {
+public class ServletWebServerApplicationContext
+        extends StandardWebServletApplicationContext
+        implements WebServerApplicationContext, ConfigurableWebServletApplicationContext {
 
     private WebServer webServer;
 
@@ -70,7 +66,7 @@ public class ServletWebServerApplicationContext //
 
         final BeanPostProcessor beanPostProcessor = new BeanPostProcessor() {
             @Override
-            public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+            public Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
                 if (bean instanceof Aware) {
                     if (bean instanceof WebServerApplicationContextAware) {
                         ((WebServerApplicationContextAware) bean)//
@@ -100,50 +96,12 @@ public class ServletWebServerApplicationContext //
                         .configureWebServer((AbstractWebServer) webServer);
             }
 
-            ((ConfigurableWebServer) webServer).initialize(getContextInitializer());
+            LoggerFactory.getLogger(getClass()).info("Initializing Web Server: [{}]", webServer);
+
+            ((ConfigurableWebServer) webServer).initialize();
         }
         super.onRefresh();
         removeBeanPostProcessor(beanPostProcessor);
-    }
-
-    private OrderedInitializer getContextInitializer() {
-        return new OrderedInitializer() {
-
-            @Override
-            public void onStartup(ServletContext servletContext) throws ServletException {
-
-                ServletWebServerApplicationContext.this.getBeanFactory().addBeanPostProcessor(//
-                                                                                              new WebApplicationContextAwareProcessor(servletContext,
-                                                                                                                                      ServletWebServerApplicationContext.this)//
-                );
-
-                prepareServletContext(servletContext);
-
-                new WebServletApplicationLoader().onStartup(null, servletContext);
-            }
-
-            @Override
-            public int getOrder() {
-                return Ordered.LOWEST_PRECEDENCE;
-            }
-        };
-    }
-
-    /**
-     * Prepare {@link ServletContext}
-     * 
-     * @param servletContext
-     *            {@link ServletContext} object
-     */
-    protected void prepareServletContext(ServletContext servletContext) {
-
-        setServletContext(servletContext);
-        final Object attribute = servletContext.getAttribute(Constant.KEY_WEB_APPLICATION_CONTEXT);
-
-        if (attribute == null) {
-            LoggerFactory.getLogger(getClass()).info("ServletContext: [{}] Configure Success.", servletContext);
-            servletContext.setAttribute(Constant.KEY_WEB_APPLICATION_CONTEXT, this);
-        }
     }
 
     @Override

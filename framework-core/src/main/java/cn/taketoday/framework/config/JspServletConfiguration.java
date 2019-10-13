@@ -41,6 +41,7 @@ public class JspServletConfiguration {
 
     private boolean enable;
 
+    private String name = "jsp";
     private String[] urlMappings = { "*.jsp", "*.jspx" };
 
     private String className = "org.apache.jasper.servlet.JspServlet";

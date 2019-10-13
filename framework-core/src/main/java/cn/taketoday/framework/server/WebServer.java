@@ -27,7 +27,6 @@ public interface WebServer {
 
     /**
      * Start server
-     * 
      */
     void start();
 

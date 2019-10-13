@@ -20,7 +20,6 @@
 package cn.taketoday.framework.config;
 
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +28,6 @@ import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.WebServer;
-import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 
 /**
  * @author TODAY <br>
@@ -42,36 +40,28 @@ public interface WebApplicationConfiguration {
      * 
      * @param compressionConfiguration
      */
-    default void configureCompression(CompressionConfiguration compressionConfiguration) {
-
-    }
+    default void configureCompression(CompressionConfiguration compressionConfiguration) {}
 
     /**
      * Configure session
      * 
      * @param sessionConfiguration
      */
-    default void configureSession(SessionConfiguration sessionConfiguration) {
-
-    }
+    default void configureSession(SessionConfiguration sessionConfiguration) {}
 
     /**
      * Configure jsp servlet
      * 
      * @param jspServletConfiguration
      */
-    default void configureJspServlet(JspServletConfiguration jspServletConfiguration) {
-
-    }
+    default void configureJspServlet(JspServletConfiguration jspServletConfiguration) {}
 
     /**
      * Configure default servlet
      * 
      * @param defaultServletConfiguration
      */
-    default void configureDefaultServlet(DefaultServletConfiguration defaultServletConfiguration) {
-
-    }
+    default void configureDefaultServlet(DefaultServletConfiguration defaultServletConfiguration) {}
 
     /**
      * Configure {@link WebServer}
@@ -79,9 +69,7 @@ public interface WebApplicationConfiguration {
      * @param webServer
      *            {@link WebServer} instance
      */
-    default void configureWebServer(AbstractWebServer webServer) {
-
-    }
+    default void configureWebServer(AbstractWebServer webServer) {}
 
     /**
      * Configure {@link ErrorPage}s
@@ -89,9 +77,7 @@ public interface WebApplicationConfiguration {
      * @param errorPages
      *            a set of {@link ErrorPage}s
      */
-    default void configureErrorPages(Set<ErrorPage> errorPages) {
-
-    }
+    default void configureErrorPages(Set<ErrorPage> errorPages) {}
 
     /**
      * Configure {@link MimeMappings}
@@ -99,24 +85,15 @@ public interface WebApplicationConfiguration {
      * @param mimeMappings
      *            {@link MimeMappings}
      */
-    default void configureMimeMappings(MimeMappings mimeMappings) {
-
-    }
+    default void configureMimeMappings(MimeMappings mimeMappings) {}
 
     /**
      * Configure welcome pages
      * 
      * @param welcomePages
      */
-    default void configureWelcomePages(Set<String> welcomePages) {
+    default void configureWelcomePages(Set<String> welcomePages) {}
 
-    }
+    default void configureLocaleCharsetMapping(Map<Locale, Charset> localeMappings) {}
 
-    default void configureLocaleCharsetMapping(Map<Locale, Charset> localeMappings) {
-
-    }
-
-    default void configureServletContextInitializer(List<ServletContextInitializer> initializer) {
-
-    }
 }

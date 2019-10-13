@@ -42,13 +42,14 @@ import cn.taketoday.context.io.JarResource;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
+import cn.taketoday.framework.ServletWebServerApplicationContext;
 import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
-import cn.taketoday.framework.config.ApplicationInitializer;
 import cn.taketoday.framework.config.CompressionConfiguration;
-import cn.taketoday.framework.server.AbstractWebServer;
+import cn.taketoday.framework.server.AbstractServletWebServer;
+import cn.taketoday.framework.server.ServletWebServerApplicationLoader;
 import cn.taketoday.framework.server.WebServer;
-import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
+import cn.taketoday.web.config.WebApplicationInitializer;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.Undertow.Builder;
@@ -78,7 +79,7 @@ import lombok.Setter;
 @Getter
 @MissingBean(type = WebServer.class)
 @Props(prefix = { "server.", "server.undertow." })
-public class UndertowServer extends AbstractWebServer implements WebServer {
+public class UndertowServer extends AbstractServletWebServer implements WebServer {
 
     private String serverHeader;
     private boolean useForwardHeaders;
@@ -105,6 +106,18 @@ public class UndertowServer extends AbstractWebServer implements WebServer {
 
     @Autowired(required = false)
     private SessionManager sessionManager;
+
+    private final ServletWebServerApplicationContext applicationContext;
+
+    @Autowired
+    public UndertowServer(ServletWebServerApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    protected ServletWebServerApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 
     @Override
     public synchronized void start() {
@@ -186,23 +199,25 @@ public class UndertowServer extends AbstractWebServer implements WebServer {
     }
 
     @Override
-    protected void initializeContext(final ServletContextInitializer... contextInitializers) throws Throwable {
-        super.initializeContext(contextInitializers);
+    protected void initializeContext() throws Throwable {
+        super.initializeContext();
 
-        manager = createDeploymentManager(contextInitializers);
+        manager = createDeploymentManager();
         builder = createBuilder(getPort());
     }
 
-    protected DeploymentManager createDeploymentManager(final ServletContextInitializer... initializers) throws IOException {
+    protected DeploymentManager createDeploymentManager() throws IOException {
 
         final DeploymentInfo deployment = Servlets.deployment();
 
-        final ApplicationInitializer applicationStarter = new ApplicationInitializer(getAllInitializers(initializers));
-
+        final ServletWebServerApplicationLoader starter = //
+                new ServletWebServerApplicationLoader(() -> getMergedInitializers());
+        
+        //@off
         deployment.addServletContainerInitializer(
-                new ServletContainerInitializerInfo(ApplicationInitializer.class, //
-                        new ImmediateInstanceFactory<ServletContainerInitializer>(applicationStarter), Collections.emptySet()//
-                )//
+                new ServletContainerInitializerInfo(ServletWebServerApplicationLoader.class, //
+                        new ImmediateInstanceFactory<ServletContainerInitializer>(starter), Collections.emptySet()//
+                )//@on
         );
 
         deployment.setClassLoader(ClassUtils.getClassLoader());

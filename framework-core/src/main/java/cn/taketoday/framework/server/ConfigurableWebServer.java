@@ -19,7 +19,7 @@
  */
 package cn.taketoday.framework.server;
 
-import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
+import cn.taketoday.web.config.WebApplicationInitializer;
 
 /**
  * @author TODAY <br>
@@ -29,8 +29,9 @@ public interface ConfigurableWebServer extends WebServer {
 
     /**
      * @param contextInitializers
+     * 
      * @throws Throwable
      */
-    void initialize(ServletContextInitializer... contextInitializers) throws Throwable;
+    void initialize(WebApplicationInitializer... contextInitializers) throws Throwable;
 
 }

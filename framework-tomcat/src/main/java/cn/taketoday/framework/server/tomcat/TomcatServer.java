@@ -70,15 +70,15 @@ import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
+import cn.taketoday.framework.ServletWebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
-import cn.taketoday.framework.config.ApplicationInitializer;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.JspServletConfiguration;
-import cn.taketoday.framework.server.AbstractWebServer;
+import cn.taketoday.framework.server.AbstractServletWebServer;
+import cn.taketoday.framework.server.ServletWebServerApplicationLoader;
 import cn.taketoday.framework.server.WebServer;
-import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -92,7 +92,7 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @MissingBean(type = WebServer.class)
 @Props(prefix = { "server.", "server.tomcat." })
-public class TomcatServer extends AbstractWebServer {
+public class TomcatServer extends AbstractServletWebServer {
 
     // connector
     private String protocol = "HTTP/1.1";
@@ -130,6 +130,18 @@ public class TomcatServer extends AbstractWebServer {
     private boolean autoStart = true;
 
     private boolean useRelativeRedirects = false;
+
+    private final ServletWebServerApplicationContext applicationContext;
+
+    @Autowired
+    public TomcatServer(ServletWebServerApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
+    @Override
+    protected ServletWebServerApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 
     private Context findContext() {
         for (Container child : this.tomcat.getHost().findChildren()) {
@@ -178,7 +190,8 @@ public class TomcatServer extends AbstractWebServer {
         catch (Exception ex) {
             stopSilently();
             throw new WebServerException("Unable to start embedded Tomcat server", ex);
-        } finally {
+        }
+        finally {
             Context context = findContext();
             ContextBindings.unbindClassLoader(context, context.getNamingToken(), getClass().getClassLoader());
         }
@@ -252,11 +265,11 @@ public class TomcatServer extends AbstractWebServer {
     }
 
     @Override
-    protected void initializeContext(ServletContextInitializer... contextInitializers) throws Throwable {
+    protected void initializeContext() throws Throwable {
 
         Tomcat tomcat = new Tomcat();
         this.tomcat = tomcat;
-        doPrepareContext(tomcat.getHost(), contextInitializers);
+        doPrepareContext(tomcat.getHost());
 
         File baseDir = (this.baseDirectory != null) ? this.baseDirectory : getTemporalDirectory("tomcat");
 
@@ -297,7 +310,7 @@ public class TomcatServer extends AbstractWebServer {
             try {
 
                 ContextBindings.bindClassLoader(context, context.getNamingToken(),
-                        getClass().getClassLoader());
+                                                getClass().getClassLoader());
             }
             catch (NamingException ex) {
                 // Naming is not enabled. Continue
@@ -370,13 +383,16 @@ public class TomcatServer extends AbstractWebServer {
         }
     }
 
-    protected void doPrepareContext(Host host, ServletContextInitializer... initializers) throws Throwable {
+    protected void doPrepareContext(Host host) throws Throwable {
 
         final Resource validDocBase = getWebDocumentConfiguration().getValidDocumentDirectory();
 
         File documentRoot = validDocBase.getFile();
 
-        final ApplicationInitializer starter = new ApplicationInitializer(getAllInitializers(initializers));
+        final ServletWebServerApplicationLoader starter = //
+                new ServletWebServerApplicationLoader(() -> getMergedInitializers());
+
+        starter.setWebApplicationContext(getApplicationContext());
 
         TomcatEmbeddedContext context = new TomcatEmbeddedContext(sessionIdGenerator);
         context.setFailCtxIfServletStartFails(true);
@@ -441,7 +457,7 @@ public class TomcatServer extends AbstractWebServer {
 
     protected void prepareApr() {
 
-        AprLifecycleListener aprLifecycleListener = applicationContext.getBean(AprLifecycleListener.class);
+        AprLifecycleListener aprLifecycleListener = getApplicationContext().getBean(AprLifecycleListener.class);
         if (aprLifecycleListener == null) {
             aprLifecycleListener = new AprLifecycleListener();
 
@@ -563,7 +579,7 @@ public class TomcatServer extends AbstractWebServer {
 
         if (manager instanceof StandardManager) {
 
-            final File storeDirectory = getSessionConfiguration().getStoreDirectory(applicationContext.getStartupClass());
+            final File storeDirectory = getSessionConfiguration().getStoreDirectory(getApplicationContext().getStartupClass());
 
             ((StandardManager) manager).setPathname(new File(storeDirectory, "SESSIONS.ser").getAbsolutePath());
         }
