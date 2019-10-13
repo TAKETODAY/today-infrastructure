@@ -22,8 +22,6 @@ package test.jdbc;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -39,11 +37,14 @@ import test.jdbc.model.User;
  * @author TODAY <br>
  *         2019-08-19 21:33
  */
-public class JdbcTest {
+public class JdbcMySQLTest {
 
-    private static ApplicationContext applicationContext = new StandardApplicationContext("info.properties", "");
+    private static JdbcExecuter executer;
+    private static ApplicationContext applicationContext = new StandardApplicationContext("info.properties", "test.jdbc");
 
-    private static JdbcExecuter executer = applicationContext.getBean("h2Executer", JdbcExecuter.class);
+    static {
+        executer = applicationContext.getBean("mySQLExecuter", JdbcExecuter.class);
+    }
 
     @AfterClass
     public static void destory() {
@@ -53,24 +54,15 @@ public class JdbcTest {
     @BeforeClass
     public static void setUp() throws SQLException {
 
-        String sql = "CREATE TABLE `t_user` (\n" + //
-                "  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,\n" + //
-                "  `name` varchar(100) NOT NULL,\n" + //
-                "  `age` int(11) NOT NULL,\n" + //
-                "  PRIMARY KEY (`id`)\n" + //
-                ");";
+        String insert = "insert into `t_user` (`name`,`age`) values ('Jerry', 12);\n" + //
+                "insert into `t_user` (`name`,`age`) values ('Tom', 12);";
 
-        String insert = "insert into `t_user` (`id`,`name`,`age`) values (1, 'Jerry', 12);\n" + //
-                "insert into `t_user` (`id`,`name`,`age`) values (2, 'Tom', 12);";
-
-        int update = executer.update(sql);
-        System.err.println(update);
-        update = executer.update(insert);
+        int update = executer.update(insert);
         System.err.println(update);
     }
 
     @Test
-    public void testH2() throws SQLException {
+    public void testQuery() throws SQLException {
 
         long start = System.currentTimeMillis();
         executer.query("select * from t_user", (ResultSet rs, int n) -> {
@@ -92,16 +84,6 @@ public class JdbcTest {
         System.err.println(executer.queryList("select * from t_user", User.class));
 
         System.err.println("query " + (System.currentTimeMillis() - start) + " ms");
-    }
-
-    @Test
-    public void testMap() throws SQLException {
-
-        long start = System.currentTimeMillis();
-        final List<Map<String, Object>> queryMap = executer.queryList("select * from t_user");
-
-        System.err.println(queryMap);
-        System.err.println("Map " + (System.currentTimeMillis() - start) + " ms");
     }
 
     public static class TEST {

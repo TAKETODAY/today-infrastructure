@@ -21,68 +21,46 @@ package test.jdbc;
 
 import javax.sql.DataSource;
 
+import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.factory.DisposableBean;
-import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.jdbc.JdbcExecuter;
 import cn.taketoday.jdbc.JdbcTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.manager.TransactionManager;
 import cn.taketoday.transaction.support.TransactionTemplate;
-import lombok.Getter;
 
 /**
  * @author TODAY <br>
  *         2019-08-19 22:20
  */
-@Getter
 @Configuration
-@Props(prefix = { "jdbc.", "jdbc.pool." })
-public class TestConfiguration extends HikariDataSource implements InitializingBean, DisposableBean {
+public class TestConfiguration {
 
-    private String url;
-    private String passwd;
-    private String driver;
-    private String userName;
-
-    private int minIdle = 0;
-    private int maxPoolSize = 15;
-    private long idleTimeout = 600000;
-    private boolean isReadOnly = false;
-    private long maxLifetime = 1800000;
-    private long connectionTimeout = 30000;
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        setJdbcUrl(url);
-        setPassword(passwd);
-        setUsername(userName);
-        setMinimumIdle(minIdle);
-        setReadOnly(isReadOnly);
-        setDriverClassName(driver);
-        setIdleTimeout(idleTimeout);
-        setMaxLifetime(maxLifetime);
-        setMaximumPoolSize(maxPoolSize);
-        setConnectionTimeout(connectionTimeout);
+    @Primary
+    @Singleton(destroyMethods = "close")
+    public DataSource h2DataSource(@Props(prefix = "jdbc.h2.") HikariConfig config) {
+        return new HikariDataSource(config);
     }
 
-    @Override
-    public void destroy() throws Exception {
-        close();
+    @Singleton(destroyMethods = "close")
+    public DataSource mySQLDataSource(@Props(prefix = "jdbc.MySQL.") HikariConfig config) {
+        return new HikariDataSource(config);
     }
 
     @Singleton
-    public TransactionManager transactionManager() {
+    public TransactionManager transactionManager(@Autowired("mySQLDataSource") DataSource dataSource) {
 
-        JdbcTransactionManager mybatisTransactionManager = new JdbcTransactionManager();
+        JdbcTransactionManager transactionManager = new JdbcTransactionManager();
 
-        mybatisTransactionManager.setDataSource(this);
+        transactionManager.setDataSource(dataSource);
 
-        return mybatisTransactionManager;
+        return transactionManager;
     }
 
     @Singleton
@@ -97,7 +75,12 @@ public class TestConfiguration extends HikariDataSource implements InitializingB
     }
 
     @Singleton
-    public JdbcExecuter jdbcExecuter(DataSource dataSource) {
+    public JdbcExecuter h2Executer(@Autowired("h2DataSource") DataSource dataSource) {
+        return new JdbcExecuter(dataSource);
+    }
+
+    @Singleton
+    public JdbcExecuter mySQLExecuter(@Autowired("mySQLDataSource") DataSource dataSource) {
         return new JdbcExecuter(dataSource);
     }
 

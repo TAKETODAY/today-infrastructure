@@ -48,7 +48,7 @@ public class DelegatingResultResolver implements ResultResolver {
     }
 
     @Override
-    public Object resolveResult(final ResultSet resultSet, final int index) throws SQLException {
+    public Object resolveResult(final ResultSet resultSet, final String index) throws SQLException {
         return resolver.resolveResult(resultSet, index);
     }
 

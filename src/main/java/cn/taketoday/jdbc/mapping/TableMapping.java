@@ -21,14 +21,17 @@ package cn.taketoday.jdbc.mapping;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.RandomAccess;
 
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.jdbc.DefaultFieldColumnConverter;
+import cn.taketoday.jdbc.FieldColumnConverter;
 import cn.taketoday.jdbc.annotation.Table;
+import cn.taketoday.jdbc.annotation.Transient;
 
 /**
  * @author TODAY <br>
@@ -37,21 +40,23 @@ import cn.taketoday.jdbc.annotation.Table;
 @SuppressWarnings("serial")
 public class TableMapping implements RandomAccess, Serializable {
 
-    private ColumnMapping[] array;
-
     private final String tableName;
     private final Class<?> beanClass;
     private final Map<String, ColumnMapping> properties;
 
-    public TableMapping(Class<?> beanClass) throws Exception {
+    private static FieldColumnConverter fieldColumnConverter = new DefaultFieldColumnConverter();
+
+    public TableMapping(Class<?> beanClass) throws ConfigurationException {
 
         this.beanClass = beanClass;
         this.tableName = resolveTableName(beanClass);
 
         final Map<String, ColumnMapping> properties = new HashMap<>();
-        final Collection<Field> fields = ClassUtils.getFields(beanClass);
-        for (Field field : fields) {
-            properties.put(field.getName(), new ColumnMapping(field));
+
+        for (final Field field : ClassUtils.getFields(beanClass)) {
+            if (!field.isAnnotationPresent(Transient.class)) {
+                properties.put(getFieldColumnConverter().convert(field.getName()), new ColumnMapping(field));
+            }
         }
         this.properties = properties;
     }
@@ -76,16 +81,20 @@ public class TableMapping implements RandomAccess, Serializable {
         return properties;
     }
 
-    public ColumnMapping get(int column) {
-        return array[column]; // none check
-    }
-
-    void add() {
-
+    public ColumnMapping get(String column) {
+        return properties.get(column);
     }
 
     public String getTableName() {
         return tableName;
+    }
+
+    public static FieldColumnConverter getFieldColumnConverter() {
+        return fieldColumnConverter;
+    }
+
+    public static void setFieldColumnConverter(FieldColumnConverter fieldColumnConverter) {
+        TableMapping.fieldColumnConverter = fieldColumnConverter;
     }
 
 }

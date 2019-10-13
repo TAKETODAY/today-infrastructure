@@ -52,7 +52,7 @@ public interface UpdateOperation {
      *            contain {@link SqlParameterValue} objects which indicate not only
      *            the argument value but also the SQL type and optionally the scale
      * @return the number of rows affected @ if there is any problem issuing the
-     * update
+     *         update
      */
     int update(String sql, Object... args) throws SQLException;
 
@@ -65,7 +65,7 @@ public interface UpdateOperation {
      * @param sql
      *            defining an array of SQL statements that will be executed.
      * @return an array of the number of rows affected by each statement @ if there
-     * is any problem executing the batch
+     *         is any problem executing the batch
      */
     int[] batchUpdate(String... sql) throws SQLException;
 

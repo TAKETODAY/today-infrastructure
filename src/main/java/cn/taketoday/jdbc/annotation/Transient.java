@@ -17,29 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.jdbc.mapping.result;
+package cn.taketoday.jdbc.annotation;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import cn.taketoday.jdbc.mapping.ColumnMapping;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * @author TODAY <br>
- *         2019-08-21 21:14
+ *         2019-08-28 20:54
  */
-@FunctionalInterface
-public interface ResultResolver {
+@Target({ ElementType.FIELD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Transient {
 
-    default boolean supports(ColumnMapping property) {
-        return true;
-    }
-
-    Object resolveResult(ResultSet resultSet, String column) throws SQLException;
-
-    @FunctionalInterface
-    public interface Function {
-
-        boolean apply(ColumnMapping property);
-    }
 }

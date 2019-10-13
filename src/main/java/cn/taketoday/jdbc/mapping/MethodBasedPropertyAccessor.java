@@ -22,6 +22,8 @@ package cn.taketoday.jdbc.mapping;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import cn.taketoday.context.utils.ExceptionUtils;
+
 /**
  * @author TODAY <br>
  *         2019-08-23 23:27
@@ -42,12 +44,11 @@ public class MethodBasedPropertyAccessor implements PropertyAccessor {
             return readMethod.invoke(obj);
         }
         catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw ExceptionUtils.newConfigurationException(e, "Getter method must be public.");
         }
         catch (InvocationTargetException e) {
-            e.printStackTrace();
+            throw handleException(e);
         }
-        return obj;
     }
 
     @Override
@@ -56,11 +57,27 @@ public class MethodBasedPropertyAccessor implements PropertyAccessor {
             writeMethod.invoke(obj, value);
         }
         catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw ExceptionUtils.newConfigurationException(e, "Getter method must be public.");
         }
         catch (InvocationTargetException e) {
-            e.printStackTrace();
+            throw handleException(e);
         }
+    }
+
+    /**
+     * Handle InvocationTargetException
+     * 
+     * @param e
+     *            Target {@link InvocationTargetException} object
+     * @return Target {@link RuntimeException}
+     */
+    protected RuntimeException handleException(InvocationTargetException e) {
+
+        final Throwable te = e.getTargetException();
+        if (te instanceof RuntimeException) {
+            return (RuntimeException) te;
+        }
+        return new RuntimeException("Exception occurred when read property", te);
     }
 
 }

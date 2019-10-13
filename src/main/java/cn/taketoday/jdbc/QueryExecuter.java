@@ -99,7 +99,7 @@ public class QueryExecuter extends Executer implements QueryOperation {
         });
     }
 
-    private static final Map<Class<?>, TableMapping> mappings = new HashMap<>();
+    private static final Map<Class<?>, TableMapping> TABLE_MAPPINGS = new HashMap<>();
 
     @Override
     public <T> T query(final String sql, final Class<T> requiredType, final Object... args) throws SQLException {
@@ -117,29 +117,21 @@ public class QueryExecuter extends Executer implements QueryOperation {
                 final ResultSetMetaData metaData = rs.getMetaData();
                 final int columnCount = metaData.getColumnCount() + 1;
 
-                final TableMapping mapping = mappings.computeIfAbsent(requiredType, (type) -> {
-                    try {
-                        TableMapping mappings = new TableMapping(type);
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    return null;
-                });
+                final TableMapping table = TABLE_MAPPINGS.computeIfAbsent(requiredType, TableMapping::new);
 
                 for (int i = 1; i < columnCount; i++) {
-
-                    final ColumnMapping propertyMapping = mapping.get(i);
+                    final ColumnMapping propertyMapping = table.get(JdbcUtils.getColumnName(metaData, i));
                     if (propertyMapping != null) {
-                        propertyMapping.set(ret, propertyMapping.resolveResult(rs));
+                        propertyMapping.resolveResult(ret, rs);
                     }
                 }
                 return ret;
             }
         }
 
-        return query(sql, new ResultSetExtractor0(), args);
+        return
+
+        query(sql, new ResultSetExtractor0(), args);
     }
 
     @Override

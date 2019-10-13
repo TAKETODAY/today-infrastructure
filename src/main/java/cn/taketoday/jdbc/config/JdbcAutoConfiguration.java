@@ -51,6 +51,7 @@ import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.jdbc.mapping.ColumnMapping;
 import cn.taketoday.jdbc.mapping.result.ResultResolver;
 
 /**
@@ -179,12 +180,14 @@ public class JdbcAutoConfiguration implements ApplicationListener<ContextStarted
         }));
 
         // TODO Enums
-        
+
         // User
         // -------------------------------------
 
         jdbcConfiguration.configureResultResolver(resultResolvers);
         OrderUtils.reversedSort(resultResolvers);
+
+        ColumnMapping.addResolver(resultResolvers);
     }
 
     /**

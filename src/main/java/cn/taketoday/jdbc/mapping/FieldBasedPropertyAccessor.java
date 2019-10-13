@@ -21,6 +21,8 @@ package cn.taketoday.jdbc.mapping;
 
 import java.lang.reflect.Field;
 
+import cn.taketoday.context.utils.ExceptionUtils;
+
 /**
  * @author TODAY <br>
  *         2019-08-23 23:22
@@ -39,9 +41,8 @@ public class FieldBasedPropertyAccessor implements PropertyAccessor {
             return field.get(obj);
         }
         catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw ExceptionUtils.newConfigurationException(e, "Can't access this property: [" + field + "]");
         }
-        return null;
     }
 
     @Override
@@ -50,7 +51,7 @@ public class FieldBasedPropertyAccessor implements PropertyAccessor {
             field.set(obj, value);
         }
         catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw ExceptionUtils.newConfigurationException(e, "Can't access this property: [" + field + "]");
         }
     }
 

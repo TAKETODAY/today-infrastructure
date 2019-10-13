@@ -31,6 +31,7 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,78 +44,71 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.jdbc.annotation.Column;
 import cn.taketoday.jdbc.mapping.result.ResultResolver;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  *         2019-08-21 18:53
  */
+@Slf4j
 public class ColumnMapping implements PropertyAccessor {
 
     // Field
     private final String name;
     private final String column;
 
-    private int index;
-    private int jdbcType;
-
+    /** Target field */
     private final Field target;
 
     private final Class<?> type;
 
     private ResultResolver resolver;
 
-    /** @since 2.3.7 */
     private final Type[] genericityClass;
 
     private final PropertyAccessor accessor;
 
     private static final List<ResultResolver> RESULT_RESOLVERS = new ArrayList<>();
 
-    public ColumnMapping(Field field) throws Exception {
+    public ColumnMapping(Field field) throws ConfigurationException {
 
         this.target = field;
         this.type = field.getType();
         this.name = field.getName();
 
-        String value = null;
+        String columnName = null;
         final Column column = ClassUtils.getAnnotation(Column.class, field);
-
         if (column != null) {
-            value = column.value();
+            columnName = column.value();
+        }
+        else {
+
         }
 
-        if (StringUtils.isEmpty(value)) {
-            value = this.name;
+        if (StringUtils.isEmpty(columnName)) {
+            columnName = this.name;
         }
-        this.column = value;
+
+        this.column = columnName;
+        this.accessor = obtainAccessor(field);
+        this.genericityClass = ClassUtils.getGenericityClass(type);
 
         this.resolver = obtainResolver();
-        this.accessor = obtainAccessor(field);
-
-        this.genericityClass = ClassUtils.getGenericityClass(type);
-    }
-
-    @Override
-    public String toString() {
-
-        return String.format(
-                "{\n\t\"name\":\"%s\",\n\t\"column\":\"%s\",\n\t\"index\":\"%s\",\n\t\"jdbcType\":\"%s\",\n\t\"target\":\"%s\",\n\t\"type\":\"%s\",\n\t\"resolver\":\"%s\",\n\t\"accessor\":\"%s\"\n}",
-                name, column, index, jdbcType, target, type, resolver, accessor);
+        log.debug("Create Column Mapping: [{}]", this);
     }
 
     // Getter
     // ------------------
 
-    public int getJdbcType() {
-        return jdbcType;
-    }
-
-    public void setJdbcType(int jdbcType) {
-        this.jdbcType = jdbcType;
-    }
-
     public ResultResolver getResolver() {
         return resolver;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(
+                "{\n\t\"name\":\"%s\",\n\t\"column\":\"%s\",\n\t\"target\":\"%s\",\n\t\"type\":\"%s\",\n\t\"resolver\":\"%s\",\n\t\"genericityClass\":\"%s\",\n\t\"accessor\":\"%s\"\n}",
+                name, column, target, type, resolver, Arrays.toString(genericityClass), accessor);
     }
 
     public String getName() {
@@ -170,7 +164,7 @@ public class ColumnMapping implements PropertyAccessor {
     }
 
     // ResultResolver
-    // ----------------
+    // -------------------------------------------
 
     /**
      * Get correspond result resolver, If there isn't a suitable resolver will be
@@ -214,8 +208,8 @@ public class ColumnMapping implements PropertyAccessor {
         accessor.set(obj, value);
     }
 
-    public Object resolveResult(ResultSet resultSet) throws SQLException {
-        return resolver.resolveResult(resultSet, index);
+    public void resolveResult(Object obj, ResultSet resultSet) throws SQLException {
+        accessor.set(obj, resolver.resolveResult(resultSet, column));
     }
 
     // Some useful methods

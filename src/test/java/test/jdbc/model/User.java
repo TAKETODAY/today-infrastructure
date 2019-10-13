@@ -21,30 +21,50 @@ package test.jdbc.model;
 
 import java.io.Serializable;
 
-import cn.taketoday.jdbc.annotation.Column;
 import cn.taketoday.jdbc.annotation.Id;
 import cn.taketoday.jdbc.annotation.Table;
-import lombok.Getter;
-import lombok.Setter;
 
-@Setter
-@Getter
 @Table("t_user")
 @SuppressWarnings("serial")
 public class User implements Serializable {
 
     @Id
-    @Column(value = "ID", increment = true, notNull = true)
+//    @Column(value = "ID", increment = true, notNull = true)
     private int id = 0;
     /** User's Name */
-    @Column("USER_NAME")
+//    @Column("USER_NAME")
     private String name = "无名氏";
     /*** age */
-    @Column("AGE")
+//    @Column("AGE")
     private Integer age;
 
     @Override
     public String toString() {
         return String.format("{\n\t\"id\":\"%s\",\n\t\"name\":\"%s\",\n\t\"age\":\"%s\"\n}", id, name, age);
     }
+
+    public final int getId() {
+        return id;
+    }
+
+    public final void setId(int id) {
+        this.id = id;
+    }
+
+    public final String getName() {
+        return name;
+    }
+
+    public final void setName(String name) {
+        this.name = name;
+    }
+
+    public final Integer getAge() {
+        return age;
+    }
+
+    public final void setAge(Integer age) {
+        this.age = age;
+    }
+
 }

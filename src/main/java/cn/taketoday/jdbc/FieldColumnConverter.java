@@ -17,29 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.jdbc.mapping.result;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import cn.taketoday.jdbc.mapping.ColumnMapping;
+package cn.taketoday.jdbc;
 
 /**
  * @author TODAY <br>
- *         2019-08-21 21:14
+ *         2019-08-28 21:00
  */
 @FunctionalInterface
-public interface ResultResolver {
+public interface FieldColumnConverter {
 
-    default boolean supports(ColumnMapping property) {
-        return true;
-    }
-
-    Object resolveResult(ResultSet resultSet, String column) throws SQLException;
-
-    @FunctionalInterface
-    public interface Function {
-
-        boolean apply(ColumnMapping property);
-    }
+    String convert(String field);
 }
