@@ -33,8 +33,8 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2018-07-10 1:16:17
  */
-public class StandardWebServletApplicationContext
-        extends StandardApplicationContext implements WebServletApplicationContext {
+public class StandardWebServletApplicationContext extends StandardApplicationContext
+        implements WebServletApplicationContext, ConfigurableWebServletApplicationContext {
 
     /** Servlet context */
     private ServletContext servletContext;

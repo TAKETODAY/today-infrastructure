@@ -40,7 +40,7 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.AbstractBeanFactory.Prototypes;
@@ -96,7 +96,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
         this.contextPath = applicationContext.getContextPath();
         this.beanFactory = beanFactory;
 
-        final ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        final Environment environment = applicationContext.getEnvironment();
 
         this.variables = environment.getProperties();
         this.beanDefinitionLoader = environment.getBeanDefinitionLoader();
@@ -303,7 +303,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
             PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
             if (pathVariable == null) {
                 throw new ConfigurationException(//
-                        "You must specify a @PathVariable Like this: [public String update(@PathVariable int id, ..) {...}]"//
+                                                 "You must specify a @PathVariable Like this: [public String update(@PathVariable int id, ..) {...}]"//
                 );
             }
             String regex = pathVariable.pattern(); // customize regex
@@ -378,7 +378,8 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
 
         if (bean == null) {
             throw new ConfigurationException(//
-                    "An unexpected exception occurred: [Can't get bean with given type: [" + beanClass.getName() + "]]"//
+                                             "An unexpected exception occurred: [Can't get bean with given type: [" + beanClass.getName()
+                                                     + "]]"//
             );
         }
 

@@ -44,7 +44,7 @@ import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.conversion.TypeConverter;
-import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
@@ -118,7 +118,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     public void onStartup(WebApplicationContext applicationContext) throws Throwable {
         setWebApplicationContext(applicationContext);
 
-        final ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        final Environment environment = applicationContext.getEnvironment();
 
         final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(applicationContext);
 
@@ -197,7 +197,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         final WebApplicationContext webApplicationContext = getWebApplicationContext();
         final ViewResolver viewResolver = webApplicationContext.getBean(ViewResolver.class);
 
-        final ConfigurableEnvironment environment = webApplicationContext.getEnvironment();
+        final Environment environment = webApplicationContext.getEnvironment();
         int bufferSize = Integer.parseInt(environment.getProperty(DOWNLOAD_BUFF_SIZE, "10240"));
 
         final MessageConverter messageConverter = webApplicationContext.getBean(MessageConverter.class);

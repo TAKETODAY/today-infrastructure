@@ -29,7 +29,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import cn.taketoday.context.BeanNameCreator;
-import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
@@ -55,7 +55,7 @@ public class ViewConfiguration {
     public ViewConfiguration(WebApplicationContext applicationContext) {
 
         this.applicationContext = applicationContext;
-        final ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        final Environment environment = applicationContext.getEnvironment();
 
         this.variables = environment.getProperties();
         this.contextPath = applicationContext.getContextPath();
@@ -127,7 +127,7 @@ public class ViewConfiguration {
 
         if (StringUtils.isEmpty(name)) {
             throw new ConfigurationException(//
-                    "You must specify a 'name' attribute like this: [<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]"//
+                                             "You must specify a 'name' attribute like this: [<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]"//
             );
         }
 

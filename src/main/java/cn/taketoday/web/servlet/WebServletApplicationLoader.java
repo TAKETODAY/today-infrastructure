@@ -165,11 +165,12 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
                      new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
 
             ret = new StandardWebServletApplicationContext();
-            ret.setServletContext(servletContext);
+
+            ((ConfigurableWebServletApplicationContext) ret).setServletContext(servletContext);
             ret.loadContext(Constant.BLANK);
         }
-        else if (ret.getServletContext() == null) {
-            ret.setServletContext(servletContext);
+        else if (ret instanceof ConfigurableWebServletApplicationContext && ret.getServletContext() == null) {
+            ((ConfigurableWebServletApplicationContext) ret).setServletContext(servletContext);
             log.info("ServletContext: [{}] Configure Success.", servletContext);
         }
         return ret;

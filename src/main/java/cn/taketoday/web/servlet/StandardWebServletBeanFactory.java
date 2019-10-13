@@ -49,15 +49,10 @@ import cn.taketoday.web.WebApplicationContextAware;
  */
 public class StandardWebServletBeanFactory extends StandardBeanFactory {
 
-    private final WebServletApplicationContext webApplicationContext;
-
     public StandardWebServletBeanFactory(AbstractApplicationContext applicationContext) {
         super(applicationContext);
 
-        if (applicationContext instanceof WebServletApplicationContext) {
-            this.webApplicationContext = (WebServletApplicationContext) applicationContext;
-        }
-        else {
+        if (applicationContext instanceof WebServletApplicationContext == false) {
             throw ExceptionUtils.newConfigurationException(null, "application context must be  'WebServletApplicationContext'");
         }
     }
@@ -67,21 +62,15 @@ public class StandardWebServletBeanFactory extends StandardBeanFactory {
 
         super.awareInternal(bean, name);
 
+        final WebServletApplicationContext applicationContext = getApplicationContext();
         if (bean instanceof WebApplicationContextAware) {
-            ((WebApplicationContextAware) bean).setWebApplicationContext(webApplicationContext);
+            ((WebApplicationContextAware) bean).setWebApplicationContext(applicationContext);
         }
         if (bean instanceof ServletContextAware) {
-
-            final ServletContext servletContext = webApplicationContext.getServletContext();
-            if (servletContext == null) {
-                
-            }
-            else {
-                ((ServletContextAware) bean).setServletContext(servletContext);
-            }
+            ((ServletContextAware) bean).setServletContext(applicationContext.getServletContext());
         }
         if (bean instanceof WebServletApplicationContextAware) {
-            ((WebServletApplicationContextAware) bean).setWebServletApplicationContext(webApplicationContext);
+            ((WebServletApplicationContextAware) bean).setWebServletApplicationContext(applicationContext);
         }
     }
 
@@ -92,7 +81,7 @@ public class StandardWebServletBeanFactory extends StandardBeanFactory {
 
         servletEnv.put(HttpSession.class, RequestContextHolder::currentSession);
         servletEnv.put(HttpServletRequest.class, RequestContextHolder::currentRequest);
-        servletEnv.put(ServletContext.class, webApplicationContext::getServletContext);
+        servletEnv.put(ServletContext.class, getApplicationContext()::getServletContext);
         // @since 2.3.7
         servletEnv.put(RequestContext.class, RequestContextHolder::currentContext);
         servletEnv.put(HttpServletResponse.class, RequestContextHolder::currentResponse);
@@ -135,6 +124,11 @@ public class StandardWebServletBeanFactory extends StandardBeanFactory {
                 throw ex.getTargetException();
             }
         }
+    }
+
+    @Override
+    public ConfigurableWebServletApplicationContext getApplicationContext() {
+        return (ConfigurableWebServletApplicationContext) super.getApplicationContext();
     }
 
 }
