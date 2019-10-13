@@ -34,9 +34,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
@@ -76,9 +76,9 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     private final Collection<Method> missingMethods = new HashSet<>(32);
 
-    private final AbstractApplicationContext applicationContext;
+    private final ConfigurableApplicationContext applicationContext;
 
-    public StandardBeanFactory(AbstractApplicationContext applicationContext) {
+    public StandardBeanFactory(ConfigurableApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
@@ -218,9 +218,9 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         final Class<?> returnType = method.getReturnType();
         final BeanNameCreator beanNameCreator = getBeanNameCreator();
 
-        final AbstractApplicationContext applicationContext = getApplicationContext();
+        final ConfigurableApplicationContext applicationContext = getApplicationContext();
 
-//        final String defaultBeanName = beanNameCreator.create(returnType); // @Deprecated in v2.1.7, use method name instead
+        //final String defaultBeanName = beanNameCreator.create(returnType); // @Deprecated in v2.1.7, use method name instead
         final String defaultBeanName = method.getName(); // @since v2.1.7
         final String declaringBeanName = beanNameCreator.create(method.getDeclaringClass());
 
@@ -242,7 +242,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                 beanDefinition.setDeclaringName(declaringBeanName)//
                         .setFactoryMethod(method);
                 // resolve @Props on a bean
-                
+
                 ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
 
                 register(name, beanDefinition);
@@ -260,7 +260,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
         log.debug("Loading lost beans");
 
-        final AbstractApplicationContext context = getApplicationContext();
+        final ConfigurableApplicationContext context = getApplicationContext();
         context.publishEvent(new LoadingMissingBeanEvent(context, beanClasses));
 
         for (final Class<?> beanClass : beanClasses) {
@@ -606,7 +606,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         if ($factoryBean == null) { // If not exist declaring instance, create it
             // declaring object not registed
             $factoryBean = (FactoryBean<?>) createBeanInstance(beanDefinition); // @since 2.1.7
-//            $factoryBean = (FactoryBean<?>) ClassUtils.newInstance(beanDefinition.getBeanClass());
+            //            $factoryBean = (FactoryBean<?>) ClassUtils.newInstance(beanDefinition.getBeanClass());
             register = true;
         }
 
@@ -668,7 +668,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         );
     }
 
-    public AbstractApplicationContext getApplicationContext() {
+    public ConfigurableApplicationContext getApplicationContext() {
         return applicationContext;
     }
 }

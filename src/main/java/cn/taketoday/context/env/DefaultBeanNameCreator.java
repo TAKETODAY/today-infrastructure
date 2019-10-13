@@ -41,7 +41,7 @@ public class DefaultBeanNameCreator implements BeanNameCreator {
     }
 
     @Autowired
-    public DefaultBeanNameCreator(ConfigurableEnvironment environment) {
+    public DefaultBeanNameCreator(Environment environment) {
         this(environment.getProperty(Constant.KEY_USE_SIMPLE_NAME, boolean.class, true));
     }
 
