@@ -87,11 +87,11 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         super.awareInternal(bean, name);
 
         if (bean instanceof ApplicationContextAware) {
-            ((ApplicationContextAware) bean).setApplicationContext(applicationContext);
+            ((ApplicationContextAware) bean).setApplicationContext(getApplicationContext());
         }
 
         if (bean instanceof EnvironmentAware) {
-            ((EnvironmentAware) bean).setEnvironment(applicationContext.getEnvironment());
+            ((EnvironmentAware) bean).setEnvironment(getApplicationContext().getEnvironment());
         }
     }
 
@@ -141,24 +141,24 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @throws Throwable
      */
     protected Object getDeclaringInstance(String declaringName) throws Throwable {
-        final BeanDefinition declaringBeanDefinition = getBeanDefinition(declaringName);
+        final BeanDefinition declaringBeanDef = getBeanDefinition(declaringName);
 
-        if (declaringBeanDefinition == null) {
+        if (declaringBeanDef == null) {
             throw new NoSuchBeanDefinitionException(declaringName);
         }
 
-        if (declaringBeanDefinition.isInitialized()) {
+        if (declaringBeanDef.isInitialized()) {
             return getSingleton(declaringName);
         }
 
         // fix: declaring bean not initialized
         final Object declaringSingleton = //
-                super.initializingBean(createBeanInstance(declaringBeanDefinition), declaringName, declaringBeanDefinition);
+                super.initializingBean(createBeanInstance(declaringBeanDef), declaringName, declaringBeanDef);
 
         // put declaring object
-        if (declaringBeanDefinition.isSingleton()) {
+        if (declaringBeanDef.isSingleton()) {
             registerSingleton(declaringName, declaringSingleton);
-            declaringBeanDefinition.setInitialized(true);
+            declaringBeanDef.setInitialized(true);
         }
         return declaringSingleton;
     }
@@ -215,9 +215,10 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     protected void registerConfigurationBean(final Method method, final AnnotationAttributes[] components) //
             throws BeanDefinitionStoreException //
     {
-
         final Class<?> returnType = method.getReturnType();
         final BeanNameCreator beanNameCreator = getBeanNameCreator();
+
+        final AbstractApplicationContext applicationContext = getApplicationContext();
 
 //        final String defaultBeanName = beanNameCreator.create(returnType); // @Deprecated in v2.1.7, use method name instead
         final String defaultBeanName = method.getName(); // @since v2.1.7
@@ -241,6 +242,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                 beanDefinition.setDeclaringName(declaringBeanName)//
                         .setFactoryMethod(method);
                 // resolve @Props on a bean
+                
                 ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
 
                 register(name, beanDefinition);
@@ -258,7 +260,8 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
         log.debug("Loading lost beans");
 
-        applicationContext.publishEvent(new LoadingMissingBeanEvent(applicationContext, beanClasses));
+        final AbstractApplicationContext context = getApplicationContext();
+        context.publishEvent(new LoadingMissingBeanEvent(context, beanClasses));
 
         for (final Class<?> beanClass : beanClasses) {
 
@@ -287,7 +290,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                 if (method.isAnnotationPresent(Props.class)) {
                     // @Props on method
                     final List<PropertyValue> resolvedProps = //
-                            ContextUtils.resolveProps(method, applicationContext.getEnvironment().getProperties());
+                            ContextUtils.resolveProps(method, context.getEnvironment().getProperties());
 
                     beanDefinition.addPropertyValue(resolvedProps);
                 }
@@ -314,7 +317,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                 .setInitMethods(resolveInitMethod(beanClass, missingBean.initMethods()))//
                 .setPropertyValues(ContextUtils.resolvePropertyValue(beanClass));
 
-        ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
+        ContextUtils.resolveProps(beanDefinition, getApplicationContext().getEnvironment());
 
         // register missed bean
         register(beanDefinition.getName(), beanDefinition);
@@ -417,7 +420,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
             createImporter(importDef, BeanDefinitionImporter.class).registerBeanDefinitions(def, this);
         }
         else if (ApplicationListener.class.isAssignableFrom(importClass)) {
-            applicationContext.addApplicationListener(createImporter(importDef, ApplicationListener.class));
+            getApplicationContext().addApplicationListener(createImporter(importDef, ApplicationListener.class));
         }
         else {
             loadConfigurationBeans(importClass);
@@ -447,7 +450,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     @Override
     protected BeanNameCreator createBeanNameCreator() {
-        return new DefaultBeanNameCreator(applicationContext.getEnvironment());
+        return new DefaultBeanNameCreator(getApplicationContext().getEnvironment());
     }
 
     @Override
@@ -663,5 +666,9 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                      ClassUtils.getAnnotationAttributes(Component.class, beanClass), //
                      getBeanNameCreator().create(beanClass)//
         );
+    }
+
+    public AbstractApplicationContext getApplicationContext() {
+        return applicationContext;
     }
 }

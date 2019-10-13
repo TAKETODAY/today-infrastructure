@@ -78,7 +78,7 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
     }
 
     public StandardApplicationContext() {
-
+        super();
     }
 
     @Override
@@ -103,7 +103,7 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
         this.beanFactory.loadConfigurationBeans();
         // @since 2.1.6
         beanClasses.addAll(this.beanFactory.loadMetaInfoBeans());
-        
+
         this.beanFactory.loadMissingBean(beanClasses);
     }
 
