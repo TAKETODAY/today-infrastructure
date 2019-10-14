@@ -40,7 +40,6 @@ import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.utils.ClassUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
