@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.utils;
 
+import static cn.taketoday.context.utils.ContextUtils.DelegatingParameterResolver.delegate;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,6 +58,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Component;
@@ -80,6 +83,7 @@ import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
+import cn.taketoday.context.loader.ExecutableParameterResolver;
 import cn.taketoday.context.loader.PropertyValueResolver;
 import cn.taketoday.context.loader.PropsPropertyResolver;
 import cn.taketoday.context.loader.ValuePropertyResolver;
@@ -97,19 +101,35 @@ public abstract class ContextUtils {
 
     // @since 2.1.6 shared elProcessor
     private static ELProcessor elProcessor;
-
     // @since 2.1.6 shared applicationContext
     public static ApplicationContext applicationContext;
 
     private static PropertyValueResolver[] propertyValueResolvers;
 
-    static {
+    private static ExecutableParameterResolver[] parameterResolvers;
 
-        addPropertyValueResolver(//
-                                 new ValuePropertyResolver(), //
-                                 new PropsPropertyResolver(), //
-                                 new AutowiredPropertyResolver()//
-        );
+    static {
+        addPropertyValueResolver(new ValuePropertyResolver(),
+                                 new PropsPropertyResolver(),
+                                 new AutowiredPropertyResolver());
+
+        addParameterResolvers(new MapParameterResolver(),
+                              new AutowiredParameterResolver(),
+                              delegate((p) -> p.isAnnotationPresent(Env.class), (p, b) -> {
+                                  return ContextUtils.resolveValue(p.getAnnotation(Env.class), p.getType());
+                              }),
+                              delegate((p) -> p.isAnnotationPresent(Value.class), (p, b) -> {
+                                  return ContextUtils.resolveValue(p.getAnnotation(Value.class), p.getType());
+                              }));
+    }
+
+    /**
+     * Get {@link ApplicationContext}
+     * 
+     * @return {@link ApplicationContext}
+     */
+    public static ApplicationContext getApplicationContext() {
+        return applicationContext;
     }
 
     /**
@@ -131,6 +151,9 @@ public abstract class ContextUtils {
         ContextUtils.elProcessor = elProcessor;
     }
 
+    // PropertyValueResolver
+    // -----------------------------------------
+
     /**
      * @since 2.1.6
      */
@@ -143,15 +166,6 @@ public abstract class ContextUtils {
      */
     public static void setPropertyValueResolvers(PropertyValueResolver[] propertyValueResolvers) {
         ContextUtils.propertyValueResolvers = propertyValueResolvers;
-    }
-
-    /**
-     * Get {@link ApplicationContext}
-     * 
-     * @return {@link ApplicationContext}
-     */
-    public static ApplicationContext getApplicationContext() {
-        return applicationContext;
     }
 
     /**
@@ -169,10 +183,8 @@ public abstract class ContextUtils {
             Collections.addAll(propertyValueResolvers, getPropertyValueResolvers());
         }
 
-        Collections.addAll(propertyValueResolvers, resolvers);
-
+        Collections.addAll(propertyValueResolvers, Objects.requireNonNull(resolvers));
         OrderUtils.reversedSort(propertyValueResolvers);
-
         setPropertyValueResolvers(propertyValueResolvers.toArray(new PropertyValueResolver[0]));
     }
 
@@ -317,70 +329,10 @@ public abstract class ContextUtils {
         final Object[] args = new Object[parameterLength];
         final Parameter[] parameters = executable.getParameters();
 
-        for (int i = 0; i < parameterLength; i++) {
-
-            final Parameter parameter = parameters[i];
-            final Class<?> type = parameter.getType();
-
-            // if it is a Map
-            if (Map.class.isAssignableFrom(type)) {
-                Props props = parameter.getAnnotation(Props.class);
-                if (props == null) {
-                    props = new DefaultProps();
-                }
-                args[i] = loadProps(props, System.getProperties());
-                continue;
-            }
-            // @since 2.1.6
-            if (parameter.isAnnotationPresent(Value.class)) {
-                args[i] = resolveValue(parameter.getAnnotation(Value.class), type);
-                continue;
-            }
-            // @since 2.1.6
-            if (parameter.isAnnotationPresent(Env.class)) {
-                args[i] = resolveValue(parameter.getAnnotation(Env.class), type);
-                continue;
-            }
-
-            boolean required = true;
-
-            final Autowired autowiredOnParamter = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
-
-            Object bean; // bean instance
-            if (autowiredOnParamter != null) {
-                final String name = autowiredOnParamter.value();
-                required = autowiredOnParamter.required();
-                if (StringUtils.isNotEmpty(name)) {
-                    // use name and bean type to get bean
-                    bean = beanFactory.getBean(name, type);
-                }
-                else {
-                    bean = beanFactory.getBean(type);
-                }
-            }
-            else {
-                bean = beanFactory.getBean(type);// use parameter type to obtain a bean
-            }
-            // @Props on a bean (pojo) which has already annotated @Autowired or not
-            if (parameter.isAnnotationPresent(Props.class)) {
-                final Props props = parameter.getAnnotation(Props.class);
-                if (bean != null) {
-                    // Environment.getProperties()
-                    bean = resolveProps(props, bean, loadProps(props, System.getProperties()));
-                }
-                else {
-                    bean = resolveProps(props, type, loadProps(props, System.getProperties()));
-                }
-            }
-            if (bean == null && required) {
-                // if it is required
-                LoggerFactory.getLogger(ContextUtils.class)//
-                        .error("[{}] is required and there isn't a [{}] bean", parameter, type);
-                throw new NoSuchBeanDefinitionException(type);
-            }
-            args[i] = bean;
+        int i = 0;
+        for (Parameter parameter : parameters) {
+            args[i++] = getParameterResolver(parameter).resolve(parameter, beanFactory);
         }
-
         return args;
     }
 
@@ -1063,8 +1015,9 @@ public abstract class ContextUtils {
             final Enumeration<URL> resources = classLoader.getResources(resource);
 
             while (resources.hasMoreElements()) {
-                try (final BufferedReader reader = new BufferedReader(//
-                        new InputStreamReader(resources.nextElement().openStream(), charset))) { // fix
+                try (final BufferedReader reader = //
+                        new BufferedReader(new InputStreamReader(resources.nextElement().openStream(), charset))) {
+
                     String str;
                     while ((str = reader.readLine()) != null) {
                         ret.add(classLoader.loadClass(str));
@@ -1079,4 +1032,150 @@ public abstract class ContextUtils {
         }
     }
 
+    // ExecutableParameterResolver @since 2.17
+    // ----------------------------------------------
+
+    public static ExecutableParameterResolver[] getParameterResolvers() {
+        return parameterResolvers;
+    }
+
+    public static void setParameterResolvers(ExecutableParameterResolver... resolvers) {
+        ContextUtils.parameterResolvers = resolvers;
+    }
+
+    public static void addParameterResolvers(ExecutableParameterResolver... resolvers) {
+
+        final List<ExecutableParameterResolver> parameterResolvers = new ArrayList<>();
+
+        if (getParameterResolvers() != null) {
+            Collections.addAll(parameterResolvers, getParameterResolvers());
+        }
+
+        Collections.addAll(parameterResolvers, Objects.requireNonNull(resolvers));
+        OrderUtils.reversedSort(parameterResolvers);
+        setParameterResolvers(parameterResolvers.toArray(new ExecutableParameterResolver[0]));
+    }
+
+    public static ExecutableParameterResolver getParameterResolver(final Parameter parameter) {
+
+        for (final ExecutableParameterResolver resolver : getParameterResolvers()) {
+            if (resolver.supports(parameter)) {
+                return resolver;
+            }
+        }
+        throw new ConfigurationException("Target parameter:[" + parameter + "] not supports in this context.");
+    }
+
+    public static class MapParameterResolver implements ExecutableParameterResolver, Ordered {
+
+        @Override
+        public boolean supports(Parameter parameter) {
+            return Map.class.isAssignableFrom(parameter.getType());
+        }
+
+        @Override
+        public Object resolve(Parameter parameter, BeanFactory beanFactory) {
+            Props props = parameter.getAnnotation(Props.class);
+
+            if (props == null) {
+                props = new DefaultProps();
+            }
+
+            return ContextUtils.loadProps(props, System.getProperties());
+        }
+
+        @Override
+        public int getOrder() {
+            return Integer.MAX_VALUE;
+        }
+    }
+
+    public static class AutowiredParameterResolver implements ExecutableParameterResolver, Ordered {
+
+        @Override
+        public final Object resolve(Parameter parameter, BeanFactory beanFactory) {
+
+            final Autowired autowired = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
+
+            Object bean = resolveBean(autowired != null ? autowired.value() : null, parameter.getType(), beanFactory);
+
+            // @Props on a bean (pojo) which has already annotated @Autowired or not
+            if (parameter.isAnnotationPresent(Props.class)) {
+                bean = resolvePropsInternal(parameter, parameter.getAnnotation(Props.class), bean);
+            }
+
+            if (bean == null && (autowired == null || autowired.required())) { // if it is required
+
+                LoggerFactory.getLogger(AutowiredParameterResolver.class)//
+                        .error("[{}] is required and there isn't a [{}] bean", parameter, parameter.getType());
+
+                throw new NoSuchBeanDefinitionException(parameter.getType());
+            }
+
+            return bean;
+        }
+
+        protected Object resolveBean(final String name, final Class<?> type, final BeanFactory beanFactory) {
+
+            if (StringUtils.isNotEmpty(name)) {
+                // use name and bean type to get bean
+                return beanFactory.getBean(name, type);
+            }
+            return beanFactory.getBean(type);
+        }
+
+        protected Object resolvePropsInternal(final Parameter parameter, final Props props, final Object bean) {
+            if (bean != null) {
+                return resolveProps(props, bean, loadProps(props, System.getProperties()));
+            }
+            return resolveProps(props, parameter.getType(), loadProps(props, System.getProperties()));
+        }
+
+        @Override
+        public int getOrder() {
+            return LOWEST_PRECEDENCE;
+        }
+    }
+
+    public static class DelegatingParameterResolver implements ExecutableParameterResolver, Ordered {
+
+        private final int order;
+        private final SupportsFunction supports;
+        private final ExecutableParameterResolver resolver;
+
+        public DelegatingParameterResolver(SupportsFunction supports, ExecutableParameterResolver resolver) {
+            this(supports, resolver, Ordered.HIGHEST_PRECEDENCE);
+        }
+
+        public DelegatingParameterResolver(SupportsFunction supports, ExecutableParameterResolver resolver, int order) {
+            this.order = order;
+            this.resolver = resolver;
+            this.supports = supports;
+        }
+
+        @Override
+        public boolean supports(Parameter parameter) {
+            return supports.supports(parameter);
+        }
+
+        @Override
+        public Object resolve(Parameter parameter, BeanFactory beanFactory) {
+            return resolver.resolve(parameter, beanFactory);
+        }
+
+        @Override
+        public int getOrder() {
+            return order;
+        }
+
+        public static DelegatingParameterResolver delegate(SupportsFunction supports, ExecutableParameterResolver resolver) {
+            return new DelegatingParameterResolver(supports, resolver);
+        }
+
+        public static DelegatingParameterResolver delegate(SupportsFunction supports, //
+                                                           ExecutableParameterResolver resolver, int order) {
+            return new DelegatingParameterResolver(supports, resolver, order);
+        }
+
+    }
 }

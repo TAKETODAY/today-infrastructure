@@ -652,28 +652,28 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *            Bean instance
      * @param name
      *            Bean name
-     * @param beanDefinition
+     * @param def
      *            Current {@link BeanDefinition}
-     * @param postProcessors
+     * @param processors
      *            {@link BeanPostProcessor}s
      * @return Initialized bean
      * @throws Exception
      *             If any {@link Exception} occurred when initialize with processors
      */
-    private Object initWithPostProcessors(Object bean, final String name, final BeanDefinition beanDefinition, //
-                                          final List<BeanPostProcessor> postProcessors) throws Exception //
+    private Object initWithPostProcessors(Object bean, final String name, final BeanDefinition def, //
+                                          final List<BeanPostProcessor> processors) throws Exception //
     {
         // before properties
-        for (final BeanPostProcessor postProcessor : postProcessors) {
-            bean = postProcessor.postProcessBeforeInitialization(bean, beanDefinition);
+        for (final BeanPostProcessor postProcessor : processors) {
+            bean = postProcessor.postProcessBeforeInitialization(bean, def);
         }
         // apply properties
-        applyPropertyValues(bean, beanDefinition.getPropertyValues());
+        applyPropertyValues(bean, def.getPropertyValues());
         // invoke initialize methods
-        invokeInitMethods(bean, beanDefinition.getInitMethods());
+        invokeInitMethods(bean, def.getInitMethods());
         // after properties
-        for (final BeanPostProcessor postProcessor : postProcessors) {
-            bean = postProcessor.postProcessAfterInitialization(postProcessor.postProcessAfterInitialization(bean, name), beanDefinition);
+        for (final BeanPostProcessor processor : processors) {
+            bean = processor.postProcessAfterInitialization(processor.postProcessAfterInitialization(bean, name), def);
         }
         return bean;
     }

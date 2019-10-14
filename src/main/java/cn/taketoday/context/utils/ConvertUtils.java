@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.utils;
 
+import static cn.taketoday.context.utils.ConvertUtils.DelegatingStringTypeConverter.delegate;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -161,26 +163,25 @@ public abstract class ConvertUtils {
     }
 
     static {
-        addConverter(//
-                new StringEnumConverter(), //
-                new StringArrayConverter(), //
-                new StringNumberConverter(), //
-                new StringResourceConverter(), //
-                new PrimitiveClassConverter(),
-                new ArrayStringArrayConverter(), //
-                new StringConstructorConverter(), //
-                new DelegatingStringTypeConverter<>((c) -> c == Class.class, source -> {
-                    try {
-                        return Class.forName(source);
-                    }
-                    catch (ClassNotFoundException e) {
-                        throw new ConversionException(e);
-                    }
-                }), //
-                new DelegatingStringTypeConverter<>((c) -> c == DataSize.class, DataSize::parse), //
-                new DelegatingStringTypeConverter<>((c) -> c == Charset.class, Charset::forName), //
-                new DelegatingStringTypeConverter<>((c) -> c == Duration.class, ConvertUtils::parseDuration), //
-                new DelegatingStringTypeConverter<>((c) -> c == Boolean.class || c == boolean.class, Boolean::parseBoolean)//
+        addConverter(new StringEnumConverter(),
+                     new StringArrayConverter(),
+                     new StringNumberConverter(),
+                     new StringResourceConverter(),
+                     new PrimitiveClassConverter(),
+                     new ArrayStringArrayConverter(),
+                     new StringConstructorConverter(),
+                     delegate((c) -> c == Class.class, source -> {
+                         try {
+                             return Class.forName(source);
+                         }
+                         catch (ClassNotFoundException e) {
+                             throw new ConversionException(e);
+                         }
+                     }),
+                     delegate((c) -> c == DataSize.class, DataSize::parse),
+                     delegate((c) -> c == Charset.class, Charset::forName),
+                     delegate((c) -> c == Duration.class, ConvertUtils::parseDuration),
+                     delegate((c) -> c == Boolean.class || c == boolean.class, Boolean::parseBoolean)//
         );
     }
 
@@ -214,9 +215,9 @@ public abstract class ConvertUtils {
         @Override
         public boolean supports(Class<?> targetClass) {
             return Resource.class == targetClass //
-                    || targetClass == URI.class//
-                    || targetClass == URL.class//
-                    || targetClass == File.class;
+                   || targetClass == URI.class//
+                   || targetClass == URL.class//
+                   || targetClass == File.class;
         }
 
         @Override
@@ -259,46 +260,6 @@ public abstract class ConvertUtils {
         protected Object convertInternal(Class<?> targetClass, String source) {
             return Enum.valueOf((Class<Enum>) targetClass, source);
         }
-    }
-
-    /**
-     * @author TODAY <br>
-     *         2019-06-06 16:06
-     * @since 2.1.6
-     */
-    public static class DelegatingStringTypeConverter<T> extends StringTypeConverter implements Ordered {
-
-        private final int order;
-        private final Converter<String, T> converter;
-        private final Function<Class<?>, Boolean> supportsFunction;
-
-        public DelegatingStringTypeConverter(Function<Class<?>, Boolean> supportsFunction, Converter<String, T> converter) {
-            this(supportsFunction, converter, Ordered.HIGHEST_PRECEDENCE);
-        }
-
-        public DelegatingStringTypeConverter(Function<Class<?>, Boolean> supportsFunction, //
-                Converter<String, T> converter, int order) //
-        {
-            this.order = order;
-            this.converter = converter;
-            this.supportsFunction = supportsFunction;
-        }
-
-        @Override
-        public int getOrder() {
-            return order;
-        }
-
-        @Override
-        public boolean supports(Class<?> targetClass) {
-            return supportsFunction.apply(targetClass);
-        }
-
-        @Override
-        protected Object convertInternal(Class<?> targetClass, String source) throws ConversionException {
-            return converter.convert(source);
-        }
-
     }
 
     /**
@@ -398,13 +359,13 @@ public abstract class ConvertUtils {
             }
 
             return (targetClass == boolean.class && source instanceof Boolean) //
-                    || (targetClass == long.class && source instanceof Long)//
-                    || (targetClass == int.class && source instanceof Integer)//
-                    || (targetClass == float.class && source instanceof Float)//
-                    || (targetClass == short.class && source instanceof Short)//
-                    || (targetClass == double.class && source instanceof Double)//
-                    || (targetClass == char.class && source instanceof Character)//
-                    || (targetClass == byte.class && source instanceof Byte);
+                   || (targetClass == long.class && source instanceof Long)//
+                   || (targetClass == int.class && source instanceof Integer)//
+                   || (targetClass == float.class && source instanceof Float)//
+                   || (targetClass == short.class && source instanceof Short)//
+                   || (targetClass == double.class && source instanceof Double)//
+                   || (targetClass == char.class && source instanceof Character)//
+                   || (targetClass == byte.class && source instanceof Byte);
         }
 
         @Override
@@ -412,6 +373,55 @@ public abstract class ConvertUtils {
             return source; // auto convert
         }
 
+    }
+
+    /**
+     * @author TODAY <br>
+     *         2019-06-06 16:06
+     * @since 2.1.6
+     */
+    public static class DelegatingStringTypeConverter<T> extends StringTypeConverter implements Ordered {
+
+        private final int order;
+        private final Converter<String, T> converter;
+        private final Function<Class<?>, Boolean> supportsFunction;
+
+        public DelegatingStringTypeConverter(Function<Class<?>, Boolean> supports, Converter<String, T> converter) {
+            this(supports, converter, Ordered.HIGHEST_PRECEDENCE);
+        }
+
+        public DelegatingStringTypeConverter(Function<Class<?>, Boolean> supports,
+                Converter<String, T> converter, int order) //
+        {
+            this.order = order;
+            this.converter = converter;
+            this.supportsFunction = supports;
+        }
+
+        @Override
+        public int getOrder() {
+            return order;
+        }
+
+        @Override
+        public boolean supports(Class<?> targetClass) {
+            return supportsFunction.apply(targetClass);
+        }
+
+        @Override
+        protected Object convertInternal(Class<?> targetClass, String source) throws ConversionException {
+            return converter.convert(source);
+        }
+
+        public static <T> DelegatingStringTypeConverter<T> delegate(Function<Class<?>, Boolean> supports, //
+                                                                    Converter<String, T> converter) {
+            return new DelegatingStringTypeConverter<T>(supports, converter);
+        }
+
+        public static <T> DelegatingStringTypeConverter<T> delegate(Function<Class<?>, Boolean> supports, //
+                                                                    Converter<String, T> converter, int order) {
+            return new DelegatingStringTypeConverter<T>(supports, converter, order);
+        }
     }
 
 }
