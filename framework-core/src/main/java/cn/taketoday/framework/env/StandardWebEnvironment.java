@@ -48,9 +48,8 @@ public class StandardWebEnvironment extends StandardEnvironment {
 
     private static final Logger log = LoggerFactory.getLogger(StandardWebEnvironment.class);
 
-    private final Class<?> applicationClass;
-
     private final String[] arguments;
+    private final Class<?> applicationClass;
 
     public StandardWebEnvironment(Class<?> applicationClass, String... arguments) {
         this.arguments = arguments;
@@ -93,9 +92,8 @@ public class StandardWebEnvironment extends StandardEnvironment {
                 
                 if(!locations.contains(propertiesLocation)) {
                     loadProperties(propertiesLocation);
+                    locations.add(propertiesLocation);
                 }
-                
-                locations.add(propertiesLocation);
             }//@on
         }
 
