@@ -50,15 +50,15 @@ public class LocalVariablesSorter extends MethodVisitor {
      * size 2 is remapped to 'mapping[2*i+1]'.
      */
     private static class State {
-        int[] mapping = new int[40];
-        int nextLocal;
+        
+        private int[] mapping = new int[40];
+        private int nextLocal;
     }
 
     protected final int firstLocal;
     private final State state;
 
     public LocalVariablesSorter(final int access, final String desc, final MethodVisitor mv) {
-//		super(Constant.ASM_API, mv);
         super(mv);
         state = new State();
         Type[] args = Type.getArgumentTypes(desc);
@@ -70,7 +70,7 @@ public class LocalVariablesSorter extends MethodVisitor {
     }
 
     public LocalVariablesSorter(LocalVariablesSorter lvs) {
-//		super(Constant.ASM_API, lvs.mv);
+        //		super(Constant.ASM_API, lvs.mv);
         super(lvs.mv);
         state = lvs.state;
         firstLocal = lvs.firstLocal;
@@ -78,8 +78,7 @@ public class LocalVariablesSorter extends MethodVisitor {
 
     public void visitVarInsn(final int opcode, final int var) {
         int size;
-        switch (opcode)
-        {
+        switch (opcode) {
             case Opcodes.LLOAD :
             case Opcodes.LSTORE :
             case Opcodes.DLOAD :
@@ -88,6 +87,7 @@ public class LocalVariablesSorter extends MethodVisitor {
                 break;
             default:
                 size = 1;
+                break;
         }
         mv.visitVarInsn(opcode, remap(var, size));
     }

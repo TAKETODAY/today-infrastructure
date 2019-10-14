@@ -68,7 +68,7 @@ public abstract class TypeUtils {
 
     public static String getPackageName(String className) {
         int idx = className.lastIndexOf('.');
-        return (idx < 0) ? "" : className.substring(0, idx);
+        return (idx < 0) ? Constant.BLANK : className.substring(0, idx);
     }
 
     public static String upperFirst(String s) {
@@ -82,12 +82,10 @@ public abstract class TypeUtils {
         if (isPrimitive(type)) {
             return rtransforms.get(type.getDescriptor());
         }
-        else if (isArray(type)) {
+        if (isArray(type)) {
             return getClassName(getComponentType(type)) + "[]";
         }
-        else {
-            return type.getClassName();
-        }
+        return type.getClassName();
     }
 
     public static Type[] add(Type[] types, Type extra) {
@@ -239,8 +237,7 @@ public abstract class TypeUtils {
     }
 
     public static Type getBoxedType(Type type) {
-        switch (type.getSort())
-        {
+        switch (type.getSort()) {
             case Type.CHAR :
                 return Constant.TYPE_CHARACTER;
             case Type.BOOLEAN :
@@ -304,8 +301,7 @@ public abstract class TypeUtils {
     }
 
     public static boolean isPrimitive(Type type) {
-        switch (type.getSort())
-        {
+        switch (type.getSort()) {
             case Type.ARRAY :
             case Type.OBJECT :
                 return false;
@@ -318,9 +314,7 @@ public abstract class TypeUtils {
         if (isArray(type)) {
             return type.getDescriptor().replace('/', '.');
         }
-        else {
-            return getClassName(type);
-        }
+        return getClassName(type);
     }
 
     public static boolean isConstructor(MethodInfo method) {
@@ -339,8 +333,7 @@ public abstract class TypeUtils {
     }
 
     public static int ICONST(int value) {
-        switch (value)
-        {
+        switch (value) {
             case -1 :
                 return Constant.ICONST_M1;
             case 0 :
@@ -399,8 +392,7 @@ public abstract class TypeUtils {
     }
 
     public static int NEWARRAY(Type type) {
-        switch (type.getSort())
-        {
+        switch (type.getSort()) {
             case Type.BYTE :
                 return Constant.T_BYTE;
             case Type.CHAR :
@@ -426,8 +418,7 @@ public abstract class TypeUtils {
         StringBuffer sb = new StringBuffer();
         for (int i = 0, len = s.length(); i < len; i++) {
             char c = s.charAt(i);
-            switch (c)
-            {
+            switch (c) {
                 case '$' :
                     sb.append("$24");
                     break;
@@ -451,6 +442,7 @@ public abstract class TypeUtils {
                     break;
                 default:
                     sb.append(c);
+                    break;
             }
         }
         return sb.toString();
