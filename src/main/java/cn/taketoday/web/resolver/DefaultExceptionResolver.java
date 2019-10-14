@@ -163,10 +163,10 @@ public class DefaultExceptionResolver implements ExceptionResolver {
         else {
 
             context.contentType(Constant.CONTENT_TYPE_JSON);
-            context.getWriter().write(new StringBuilder()//
-                    .append("{\"message\":\"").append(responseStatus.msg())//
-                    .append("\",\"status\":").append(status)//
-                    .append(",\"success\":false}")//
+            context.getWriter().write(new StringBuilder()
+                    .append("{\"message\":\"").append(responseStatus.msg())
+                    .append("\",\"status\":").append(status)
+                    .append(",\"success\":false}")
                     .toString()//
             );
         }

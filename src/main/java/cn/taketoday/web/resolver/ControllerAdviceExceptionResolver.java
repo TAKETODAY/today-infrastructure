@@ -64,7 +64,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
         if (exceptionHandler != null) {
 
             context.attribute(Constant.KEY_THROWABLE, ex);
-            if (handlerMapping.getObject() != null) {
+            if (handlerMapping.getObject() != null) { // apply status
                 context.status(buildStatus(ex, exceptionHandler, handlerMapping).value());
             }
 
@@ -128,25 +128,22 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
     @Override
     public void onStartup(WebApplicationContext beanFactory) throws Throwable {
 
-        LoggerFactory.getLogger(getClass()).info("Initialize controller advice exception resolver");
+        log.info("Initialize controller advice exception resolver");
 
         // get all error handlers
         final List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
 
-        for (final Object handler : errorHandlers) {
+        for (final Object errorHandler : errorHandlers) {
 
-            final Class<? extends Object> handlerClass = handler.getClass();
-
-            for (final Method method : handlerClass.getDeclaredMethods()) {
+            for (final Method method : errorHandler.getClass().getDeclaredMethods()) {
                 if (method.isAnnotationPresent(ExceptionHandler.class)) {
 
                     final List<MethodParameter> parameters = ActionConfiguration.createMethodParameters(method);
 
-                    final Object errorHandler = beanFactory.getBean(handlerClass);
-
                     final ExceptionHandlerMapping mapping = //
-                            new ExceptionHandlerMapping(errorHandler, method, //
-                                    parameters.toArray(MethodParameter.EMPTY_ARRAY));
+                            new ExceptionHandlerMapping(errorHandler,
+                                                        method,
+                                                        parameters.toArray(MethodParameter.EMPTY_ARRAY));
 
                     for (Class<? extends Throwable> exceptionClass : method.getAnnotation(ExceptionHandler.class).value()) {
                         exceptionHandlers.put(exceptionClass, mapping);
@@ -156,8 +153,9 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
         }
     }
 
-    @SuppressWarnings("serial")
     protected static class ExceptionHandlerMapping extends HandlerMethod implements Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         private final Object handler;
 

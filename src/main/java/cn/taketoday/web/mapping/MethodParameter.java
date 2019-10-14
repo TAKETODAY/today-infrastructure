@@ -28,7 +28,6 @@ import java.util.List;
 
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.resolver.method.ParameterResolver;
@@ -61,21 +60,19 @@ public class MethodParameter {
 
     private static final List<ParameterResolver> PARAMETER_RESOLVERS = new ArrayList<>();
 
-    public MethodParameter(//
-            String name, //
-            boolean required, //
-            String defaultValue,
-            Parameter parameter,
-            Type[] genericityClass, //
-            Class<?> parameterClass)//
-    {
+    public MethodParameter(String name, //@off
+                            boolean required,
+                            String defaultValue, 
+                            Parameter parameter,
+                            Type[] genericityClass, 
+                            Class<?> parameterClass) {
         this.name = name;
         this.required = required;
         this.parameter = parameter;
         this.defaultValue = defaultValue;
         this.parameterClass = parameterClass;
         this.genericityClass = genericityClass;
-        this.resolver = obtainResolver();
+        this.resolver = obtainResolver(); //@on
     }
 
     public boolean isInterface() {
@@ -155,9 +152,8 @@ public class MethodParameter {
             }
         }
 
-        throw ExceptionUtils.newConfigurationException(null,
-                                                       "There isn't have a parameter resolver to resolve parameter: [" //
-                                                               + getParameterClass() + "] called: [" + getName() + "] ");
+        throw new ConfigurationException("There isn't have a parameter resolver to resolve parameter: [" //
+                + getParameterClass() + "] called: [" + getName() + "] ");
     }
 
     public static void addResolver(ParameterResolver... resolver) {
@@ -194,7 +190,7 @@ public class MethodParameter {
 
     // Getter
     // ----------------------------
-    
+
     public String getName() {
         return name;
     }
@@ -245,7 +241,7 @@ public class MethodParameter {
         return handlerMethod;
     }
 
-    public MethodParameter setHandlerMethod(HandlerMethod handlerMethod) {
+    MethodParameter setHandlerMethod(HandlerMethod handlerMethod) {
         this.handlerMethod = handlerMethod;
         return this;
     }

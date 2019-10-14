@@ -36,23 +36,26 @@ public class HandlerMapping extends HandlerMethod implements WebMapping {
 
     private static final int[] EMPTY = Constant.EMPTY_INT_ARRAY;
     /** 处理器类 */
-//	private String				action;
+    //	private String				action;
     private final Object bean;
     /** 拦截器 @off*/
     private final int[] interceptors;
 
-    public HandlerMapping(Object bean, Method method,
-                          List<Integer> interceptors, List<MethodParameter> parameters) {
+    public HandlerMapping(Object bean, 
+                          Method method,
+                          List<Integer> interceptors, 
+                          List<MethodParameter> parameters) {
         
         this(bean, method, interceptors, parameters.toArray(MethodParameter.EMPTY_ARRAY));
     }
 
-    public HandlerMapping(Object bean, Method method, 
-                          List<Integer> interceptors, MethodParameter... parameters) {
-        
+    public HandlerMapping(Object bean, 
+                          Method method, 
+                          List<Integer> interceptors, 
+                          MethodParameter... parameters) {
         super(method, parameters);
+        
         this.bean = bean;
-
         this.interceptors = Objects.requireNonNull(interceptors).size() > 0
                             ? interceptors.stream().mapToInt(Integer::intValue).toArray()
                             : EMPTY;

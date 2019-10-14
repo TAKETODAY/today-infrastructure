@@ -31,7 +31,6 @@ import java.util.List;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
@@ -71,8 +70,7 @@ public class HandlerMethod implements ObjectFactory<Object> {
                     return resolver;
                 }
             }
-            throw ExceptionUtils.newConfigurationException(null,
-                                                           "There isn't have a result resolver to resolve : [" + toString() + "]");
+            throw new ConfigurationException("There isn't have a result resolver to resolve : [" + toString() + "]");
         }
         return null;
     }
