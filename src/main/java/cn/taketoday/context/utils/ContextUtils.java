@@ -309,34 +309,6 @@ public abstract class ContextUtils {
     }
 
     /**
-     * Resolve parameters list
-     * 
-     * @param executable
-     *            Target executable instance {@link Method} or a {@link Constructor}
-     * @param beanFactory
-     *            Bean factory
-     * @since 2.1.2
-     * @return Parameter list
-     */
-    public static Object[] resolveParameter(Executable executable, BeanFactory beanFactory) {
-
-        final int parameterLength = executable.getParameterCount();
-        if (parameterLength == 0) {
-            return null;
-        }
-
-        // parameter list
-        final Object[] args = new Object[parameterLength];
-        final Parameter[] parameters = executable.getParameters();
-
-        int i = 0;
-        for (Parameter parameter : parameters) {
-            args[i++] = getParameterResolver(parameter).resolve(parameter, beanFactory);
-        }
-        return args;
-    }
-
-    /**
      * Get a {@link InputStream} from given resource string
      * 
      * @param resource
@@ -1054,6 +1026,33 @@ public abstract class ContextUtils {
         Collections.addAll(parameterResolvers, Objects.requireNonNull(resolvers));
         OrderUtils.reversedSort(parameterResolvers);
         setParameterResolvers(parameterResolvers.toArray(new ExecutableParameterResolver[0]));
+    }
+
+    /**
+     * Resolve parameters list
+     * 
+     * @param executable
+     *            Target executable instance {@link Method} or a {@link Constructor}
+     * @param beanFactory
+     *            Bean factory
+     * @since 2.1.2
+     * @return Parameter list
+     */
+    public static Object[] resolveParameter(Executable executable, BeanFactory beanFactory) {
+
+        final int parameterLength = executable.getParameterCount();
+        if (parameterLength == 0) {
+            return null;
+        }
+
+        // parameter list
+        final Object[] args = new Object[parameterLength];
+
+        int i = 0;
+        for (final Parameter parameter : executable.getParameters()) {
+            args[i++] = getParameterResolver(parameter).resolve(parameter, beanFactory);
+        }
+        return args;
     }
 
     public static ExecutableParameterResolver getParameterResolver(final Parameter parameter) {
