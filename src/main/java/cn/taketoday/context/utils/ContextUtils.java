@@ -1137,7 +1137,7 @@ public abstract class ContextUtils {
         }
     }
 
-    public static class DelegatingParameterResolver implements ExecutableParameterResolver, Ordered {
+    public final static class DelegatingParameterResolver implements ExecutableParameterResolver, Ordered {
 
         private final int order;
         private final SupportsFunction supports;
