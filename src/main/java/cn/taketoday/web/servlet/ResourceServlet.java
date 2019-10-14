@@ -99,13 +99,12 @@ public class ResourceServlet extends GenericServlet {
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
 
-        final String path = StringUtils.decodeUrl(((HttpServletRequest) req).getRequestURI().substring(contextPathLength));
+        final String path = requestPath((HttpServletRequest) req, contextPathLength);
 
         final ResourceMapping resourceMapping = //
                 lookupResourceHandlerMapping(path, pathMatcher, registry.getResourceMappings());
 
         if (resourceMapping == null) {
-            log.debug("NOT FOUND -> [{}]", path);
             ((HttpServletResponse) res).sendError(404);
             return;
         }
@@ -152,6 +151,22 @@ public class ResourceServlet extends GenericServlet {
     }
 
     /**
+     * Get request path
+     * 
+     * @param req
+     *            Current {@link HttpServletRequest}
+     * @param length
+     *            context path length
+     * @return Decoded request path
+     */
+    protected String requestPath(final HttpServletRequest req, final int length) {
+        if (length == 0) {
+            return StringUtils.decodeUrl(req.getRequestURI());
+        }
+        return StringUtils.decodeUrl(req.getRequestURI().substring(length));
+    }
+
+    /**
      * Looking for {@link ResourceMapping}
      * 
      * @param path
@@ -174,6 +189,7 @@ public class ResourceServlet extends GenericServlet {
                 }
             }
         }
+        log.debug("NOT FOUND -> [{}]", path);
         return null;
     }
 
@@ -220,7 +236,7 @@ public class ResourceServlet extends GenericServlet {
         final long ifModifiedSince = context.requestDateHeader(Constant.IF_MODIFIED_SINCE);// If-Modified-Since
         final long lastModified = resource.lastModified();
         if (ifNoneMatch == null && (ifModifiedSince > 0 && lastModified != 0 && ifModifiedSince >= lastModified)) {
-//      if (ifNoneMatch == null && ge(ifModifiedSince, lastModified)) {
+            //      if (ifNoneMatch == null && ge(ifModifiedSince, lastModified)) {
             context.responseDateHeader(Constant.LAST_MODIFIED, lastModified); // 304
             context.status(HttpServletResponse.SC_NOT_MODIFIED);
             return;
@@ -309,16 +325,16 @@ public class ResourceServlet extends GenericServlet {
 
         try (final InputStream source = resource.getInputStream()) {
 
-//            ByteArrayOutputStream baos = new ByteArrayOutputStream(bufferSize);
-//            GZIPOutputStream gzip = new GZIPOutputStream(baos);
-//
-//            WebUtils.writeToOutputStream(source, gzip, bufferSize);
-//
-//            final byte[] byteArray = baos.toByteArray();
-//
-//            requestContext.contentLength(byteArray.length);
-//
-//            baos.writeTo(requestContext.getOutputStream());
+            //            ByteArrayOutputStream baos = new ByteArrayOutputStream(bufferSize);
+            //            GZIPOutputStream gzip = new GZIPOutputStream(baos);
+            //
+            //            WebUtils.writeToOutputStream(source, gzip, bufferSize);
+            //
+            //            final byte[] byteArray = baos.toByteArray();
+            //
+            //            requestContext.contentLength(byteArray.length);
+            //
+            //            baos.writeTo(requestContext.getOutputStream());
 
             WebUtils.writeToOutputStream(source, //
                                          new GZIPOutputStream(requestContext.getOutputStream(), bufferSize), bufferSize);
@@ -335,7 +351,7 @@ public class ResourceServlet extends GenericServlet {
      * @throws IOException
      *             If any IO exception occurred
      */
-    protected void write(final Resource resource, 
+    protected void write(final Resource resource,
                          final RequestContext context, //
                          final ResourceMapping resourceMapping) throws IOException //
     {

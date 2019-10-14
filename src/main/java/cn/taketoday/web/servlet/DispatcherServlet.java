@@ -87,10 +87,8 @@ public class DispatcherServlet implements Servlet, Serializable {
         this.handlerInterceptorRegistry = handlerInterceptorRegistry;
     }
 
-    public static RequestContext prepareContext(final ServletRequest request, final ServletResponse response) {
-        return RequestContextHolder.prepareContext(
-                                                   new ServletRequestContext((HttpServletRequest) request, (HttpServletResponse) response)//
-        );
+    public static RequestContext prepareContext(final ServletRequest r, final ServletResponse s) {
+        return RequestContextHolder.prepareContext(new ServletRequestContext((HttpServletRequest) r, (HttpServletResponse) s));
     }
 
     @Override
@@ -154,7 +152,7 @@ public class DispatcherServlet implements Servlet, Serializable {
      */
     protected HandlerMapping lookupHandlerMapping(final HttpServletRequest req) {
         // The key of handler
-        String key = req.getMethod() + req.getRequestURI();
+        String key = req.getMethod().concat(req.getRequestURI());
 
         final HandlerMappingRegistry registry = getHandlerMappingRegistry();
         final Integer i = registry.getIndex(key); // index of handler mapping

@@ -211,7 +211,8 @@ public class AntPathMatcher implements PathMatcher {
      */
     protected boolean doMatch(String pattern, String path, boolean fullMatch, Map<String, String> uriTemplateVariables) {
 
-        if (path.startsWith(this.pathSeparator) != pattern.startsWith(this.pathSeparator)) {
+        final String pathSeparator = this.pathSeparator;
+        if (path.startsWith(pathSeparator) != pattern.startsWith(pathSeparator)) {
             return false;
         }
 
@@ -243,12 +244,12 @@ public class AntPathMatcher implements PathMatcher {
         if (pathIdxStart > pathIdxEnd) {
             // Path is exhausted, only match if rest of pattern is * or **'s
             if (pattIdxStart > pattIdxEnd) {
-                return (pattern.endsWith(this.pathSeparator) == path.endsWith(this.pathSeparator));
+                return (pattern.endsWith(pathSeparator) == path.endsWith(pathSeparator));
             }
             if (!fullMatch) {
                 return true;
             }
-            if (pattIdxStart == pattIdxEnd && pattDirs[pattIdxStart].equals("*") && path.endsWith(this.pathSeparator)) {
+            if (pattIdxStart == pattIdxEnd && pattDirs[pattIdxStart].equals("*") && path.endsWith(pathSeparator)) {
                 return true;
             }
             for (int i = pattIdxStart; i <= pattIdxEnd; i++) {
@@ -338,10 +339,13 @@ public class AntPathMatcher implements PathMatcher {
     }
 
     private boolean isPotentialMatch(String path, String[] pattDirs) {
+
+        final String pathSeparator = this.pathSeparator;
+
         if (!this.trimTokens) {
             int pos = 0;
             for (String pattDir : pattDirs) {
-                int skipped = skipSeparator(path, pos, this.pathSeparator);
+                int skipped = skipSeparator(path, pos, pathSeparator);
                 pos += skipped;
                 skipped = skipSegment(path, pos, pattDir);
                 if (skipped < pattDir.length()) {
@@ -518,8 +522,10 @@ public class AntPathMatcher implements PathMatcher {
     @Override
     public String extractPathWithinPattern(String pattern, String path) {
 
-        String[] patternParts = StringUtils.tokenizeToStringArray(pattern, this.pathSeparator);
-        String[] pathParts = StringUtils.tokenizeToStringArray(path, this.pathSeparator);
+        final String pathSeparator = this.pathSeparator;
+
+        String[] patternParts = StringUtils.tokenizeToStringArray(pattern, pathSeparator);
+        String[] pathParts = StringUtils.tokenizeToStringArray(path, pathSeparator);
 
         StringBuilder builder = new StringBuilder();
         boolean pathStarted = false;
@@ -528,8 +534,8 @@ public class AntPathMatcher implements PathMatcher {
             String patternPart = patternParts[segment];
             if (patternPart.indexOf('*') > -1 || patternPart.indexOf('?') > -1) {
                 for (; segment < pathParts.length; segment++) {
-                    if (pathStarted || (segment == 0 && !pattern.startsWith(this.pathSeparator))) {
-                        builder.append(this.pathSeparator);
+                    if (pathStarted || (segment == 0 && !pattern.startsWith(pathSeparator))) {
+                        builder.append(pathSeparator);
                     }
                     builder.append(pathParts[segment]);
                     pathStarted = true;
@@ -672,7 +678,7 @@ public class AntPathMatcher implements PathMatcher {
         }
 
         int starDotPos1 = pattern1.indexOf("*.");
-        if (pattern1ContainsUriVar || starDotPos1 == -1 || this.pathSeparator.equals(".")) {
+        if (pattern1ContainsUriVar || starDotPos1 == -1 || pathSeparator.equals(".")) {
             // simply concatenate the two patterns
             return concat(pattern1, pattern2);
         }
@@ -691,18 +697,24 @@ public class AntPathMatcher implements PathMatcher {
     }
 
     private String concat(String path1, String path2) {
-        boolean path1EndsWithSeparator = path1.endsWith(this.pathSeparator);
-        boolean path2StartsWithSeparator = path2.startsWith(this.pathSeparator);
+
+        final String pathSeparator = this.pathSeparator;
+
+        final boolean path1EndsWithSeparator = path1.endsWith(pathSeparator);
+        final boolean path2StartsWithSeparator = path2.startsWith(pathSeparator);
 
         if (path1EndsWithSeparator && path2StartsWithSeparator) {
-            return path1 + path2.substring(1);
+            return path1.concat(path2.substring(1));
         }
-        else if (path1EndsWithSeparator || path2StartsWithSeparator) {
-            return path1 + path2;
+        if (path1EndsWithSeparator || path2StartsWithSeparator) {
+            return path1.concat(path2);
         }
-        else {
-            return path1 + this.pathSeparator + path2;
-        }
+
+        return new StringBuilder(pathSeparator.length() + path1.length() + path2.length())
+                .append(path1)
+                .append(pathSeparator)
+                .append(path2)
+                .toString();
     }
 
     /**
@@ -1016,7 +1028,6 @@ public class AntPathMatcher implements PathMatcher {
     private static class PathSeparatorPatternCache {
 
         private final String endsOnWildCard;
-
         private final String endsOnDoubleWildCard;
 
         public PathSeparatorPatternCache(String pathSeparator) {
@@ -1033,20 +1044,20 @@ public class AntPathMatcher implements PathMatcher {
         }
     }
 
-//    public static void main(String[] args) {
-//        AntPathMatcher pathMatcher = new AntPathMatcher();
-//
-//        long start = System.currentTimeMillis();
-//
-//        final String pattern = "/index/{id}ds/yhj/{tt}";
-//        final String path = "/index/sdsds/yhj/32";
-////		final boolean match = pathMatcher.match(pattern, path);
-//        final Map<String, String> extractUriTemplateVariables = pathMatcher.extractUriTemplateVariables(pattern, path);
-//
-//        System.err.println(extractUriTemplateVariables);
-//        System.err.println(System.currentTimeMillis() - start);
-//
-//        System.err.println(pathMatcher.extractPathWithinPattern("/assets/**", "/assets/admin/js/admin.js"));
-//    }
+    //    public static void main(String[] args) {
+    //        AntPathMatcher pathMatcher = new AntPathMatcher();
+    //
+    //        long start = System.currentTimeMillis();
+    //
+    //        final String pattern = "/index/{id}ds/yhj/{tt}";
+    //        final String path = "/index/sdsds/yhj/32";
+    ////		final boolean match = pathMatcher.match(pattern, path);
+    //        final Map<String, String> extractUriTemplateVariables = pathMatcher.extractUriTemplateVariables(pattern, path);
+    //
+    //        System.err.println(extractUriTemplateVariables);
+    //        System.err.println(System.currentTimeMillis() - start);
+    //
+    //        System.err.println(pathMatcher.extractPathWithinPattern("/assets/**", "/assets/admin/js/admin.js"));
+    //    }
 
 }
