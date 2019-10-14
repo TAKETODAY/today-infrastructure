@@ -26,12 +26,12 @@ import java.net.URLConnection;
 import java.security.CodeSource;
 import java.util.Locale;
 
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.framework.WebServerApplicationContext;
-import cn.taketoday.framework.aware.WebServerApplicationContextAware;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -42,15 +42,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @MissingBean
 @Props(prefix = "server.docs.")
-public class WebDocumentConfiguration implements WebServerApplicationContextAware {
+public class WebDocumentConfiguration {
 
     private static final String[] COMMON_DOC_ROOTS = { //
-            "src/main/webapp", "src/main/resources", "public", "static", "assets" //
+        "src/main/webapp", "src/main/resources", "public", "static", "assets" //
     };
 
     private Resource directory;
 
-    private Class<?> startupClass;
+    private final Class<?> startupClass;
+
+    @Autowired
+    public WebDocumentConfiguration(WebServerApplicationContext applicationContext) {
+        this.startupClass = applicationContext.getStartupClass();
+    }
 
     public Resource getDirectory() {
         return this.directory;
@@ -162,14 +167,6 @@ public class WebDocumentConfiguration implements WebServerApplicationContextAwar
             }
         }
         return null;
-    }
-
-    @Override
-    public void setWebServerApplicationContext(WebServerApplicationContext applicationContext) {
-
-        if (startupClass == null) {
-            startupClass = applicationContext.getStartupClass();
-        }
     }
 
 }

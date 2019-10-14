@@ -24,15 +24,10 @@ import javax.servlet.Servlet;
 import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.Aware;
-import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.BeanPostProcessor;
-import cn.taketoday.framework.aware.WebServerApplicationContextAware;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.ConfigurableWebServer;
 import cn.taketoday.framework.server.WebServer;
-import cn.taketoday.web.WebApplicationContextAware;
 import cn.taketoday.web.servlet.ConfigurableWebServletApplicationContext;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 
@@ -64,23 +59,6 @@ public class ServletWebServerApplicationContext
         // disable web mvc xml
         getEnvironment().setProperty(Constant.ENABLE_WEB_MVC_XML, "false");
 
-        final BeanPostProcessor beanPostProcessor = new BeanPostProcessor() {
-            @Override
-            public Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
-                if (bean instanceof Aware) {
-                    if (bean instanceof WebServerApplicationContextAware) {
-                        ((WebServerApplicationContextAware) bean)//
-                                .setWebServerApplicationContext(ServletWebServerApplicationContext.this);
-                    }
-                    if (bean instanceof WebApplicationContextAware) {
-                        ((WebApplicationContextAware) bean).setWebApplicationContext(ServletWebServerApplicationContext.this);
-                    }
-                }
-                return bean;
-            }
-        };
-        addBeanPostProcessor(beanPostProcessor);
-
         LoggerFactory.getLogger(getClass()).info("Looking For: [{}] Bean.", WebServer.class.getName());
 
         // Get WebServer instance
@@ -101,7 +79,6 @@ public class ServletWebServerApplicationContext
             ((ConfigurableWebServer) webServer).initialize();
         }
         super.onRefresh();
-        removeBeanPostProcessor(beanPostProcessor);
     }
 
     @Override
