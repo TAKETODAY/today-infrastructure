@@ -31,7 +31,7 @@ public final class RegexMapping {
      * @since 2.3.7
      */
     public final Pattern pattern;
-//	private final String regex;
+    //	private final String regex;
 
     public final int index;
 

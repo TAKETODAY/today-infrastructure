@@ -66,17 +66,17 @@ public class MapParameterResolver implements OrderedParameterResolver {
                 if (newInstance == null) {
                     newInstance = clazz.getConstructor().newInstance();// default constructor
                 }
-//                if (!resolvePojoParameter(request, //
-//                        requestParameter, newInstance, clazz.getDeclaredField(keyList[3]))) {// 得到Field准备注入
-//
-//                    return map;
-//                }
+                //                if (!resolvePojoParameter(request, //
+                //                        requestParameter, newInstance, clazz.getDeclaredField(keyList[3]))) {// 得到Field准备注入
+                //
+                //                    return map;
+                //                }
                 map.put(key, newInstance);// put directly
             }
         }
         return map;
 
-//        throw WebUtils.newBadRequest("Collection variable", parameter.getParameterName(), null);
+        //        throw WebUtils.newBadRequest("Collection variable", parameter.getParameterName(), null);
     }
 
     @Override

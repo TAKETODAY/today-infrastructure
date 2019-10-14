@@ -59,7 +59,8 @@ public abstract class AbstractMultipartResolver implements ParameterResolver {
                     return resolveInternal(requestContext, parameter, multipartFiles);
                 }
                 throw WebUtils.newBadRequest("Target multipart file must not be null", parameter.getName(), null);
-            } finally {
+            }
+            finally {
                 cleanupMultipart(requestContext);
             }
         }

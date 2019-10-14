@@ -76,7 +76,10 @@ public class ThymeleafViewResolver extends AbstractViewResolver implements Initi
 
         templateEngine.process(template,
                                new WebContext(context.nativeRequest(), //
-                                       context.nativeResponse(), servletContext, locale), context.getWriter());
+                                              context.nativeResponse(),
+                                              servletContext,
+                                              locale),
+                               context.getWriter());
     }
 
     @Override

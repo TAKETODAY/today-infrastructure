@@ -163,7 +163,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
 
         @Override
         public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-            
+
             if (WebUtils.isMultipart(context)) {
 
                 if (multipartConfiguration.getMaxRequestSize().toBytes() < context.contentLength()) { // exceed max size?
@@ -190,7 +190,8 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
                     });
 
                     return files;
-                } finally {
+                }
+                finally {
                     cleanupMultipart(context);
                 }
             }

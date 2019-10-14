@@ -80,11 +80,11 @@ public class CollectionParameterResolver implements ParameterResolver {
                     newInstance = clazz.getConstructor().newInstance();
                 }
 
-//                    if (!resolvePojoParameter(request, requestParameter, //
-//                            newInstance, clazz.getDeclaredField(split[3]))) {// 得到Field准备注入
-//
-//                        return list;
-//                    }
+                //                    if (!resolvePojoParameter(request, requestParameter, //
+                //                            newInstance, clazz.getDeclaredField(split[3]))) {// 得到Field准备注入
+                //
+                //                        return list;
+                //                    }
                 list.set(index, newInstance);
             }
         }

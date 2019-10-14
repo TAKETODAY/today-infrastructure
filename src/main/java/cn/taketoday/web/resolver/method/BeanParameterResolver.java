@@ -48,7 +48,7 @@ public class BeanParameterResolver implements OrderedParameterResolver {
         final Object bean = ClassUtils.newInstance(parameterClass);
 
         final Enumeration<String> parameterNames = context.parameterNames();
-        
+
         while (parameterNames.hasMoreElements()) {
             // 遍历参数
             final String parameterName = parameterNames.nextElement();

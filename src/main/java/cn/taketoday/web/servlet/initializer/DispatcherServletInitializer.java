@@ -85,12 +85,10 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
 
             final MultipartConfiguration configuration = applicationContext.getBean(MultipartConfiguration.class);
 
-            multipartConfig = new MultipartConfigElement(//
-                    configuration.getLocation(), //
-                    configuration.getMaxFileSize().toBytes(), //
-                    configuration.getMaxRequestSize().toBytes(), //
-                    (int) configuration.getFileSizeThreshold().toBytes()//
-            );
+            multipartConfig = new MultipartConfigElement(configuration.getLocation(),
+                                                         configuration.getMaxFileSize().toBytes(),
+                                                         configuration.getMaxRequestSize().toBytes(),
+                                                         (int) configuration.getFileSizeThreshold().toBytes());
         }
 
         if (multipartConfig != null) {
