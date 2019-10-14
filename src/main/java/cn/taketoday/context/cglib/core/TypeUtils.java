@@ -237,25 +237,17 @@ public abstract class TypeUtils {
     }
 
     public static Type getBoxedType(Type type) {
-        switch (type.getSort()) {
-            case Type.CHAR :
-                return Constant.TYPE_CHARACTER;
-            case Type.BOOLEAN :
-                return Constant.TYPE_BOOLEAN;
-            case Type.DOUBLE :
-                return Constant.TYPE_DOUBLE;
-            case Type.FLOAT :
-                return Constant.TYPE_FLOAT;
-            case Type.LONG :
-                return Constant.TYPE_LONG;
-            case Type.INT :
-                return Constant.TYPE_INTEGER;
-            case Type.SHORT :
-                return Constant.TYPE_SHORT;
-            case Type.BYTE :
-                return Constant.TYPE_BYTE;
-            default:
-                return type;
+        switch (type.getSort()) //@off
+        {
+            case Type.CHAR :    return Constant.TYPE_CHARACTER;
+            case Type.BOOLEAN : return Constant.TYPE_BOOLEAN;
+            case Type.DOUBLE :  return Constant.TYPE_DOUBLE;
+            case Type.FLOAT :   return Constant.TYPE_FLOAT;
+            case Type.LONG :    return Constant.TYPE_LONG;
+            case Type.INT :     return Constant.TYPE_INTEGER;
+            case Type.SHORT :   return Constant.TYPE_SHORT;
+            case Type.BYTE :    return Constant.TYPE_BYTE;
+            default:            return type; //@on
         }
     }
 
@@ -333,84 +325,63 @@ public abstract class TypeUtils {
     }
 
     public static int ICONST(int value) {
-        switch (value) {
-            case -1 :
-                return Constant.ICONST_M1;
-            case 0 :
-                return Constant.ICONST_0;
-            case 1 :
-                return Constant.ICONST_1;
-            case 2 :
-                return Constant.ICONST_2;
-            case 3 :
-                return Constant.ICONST_3;
-            case 4 :
-                return Constant.ICONST_4;
-            case 5 :
-                return Constant.ICONST_5;
+        switch (value) //@off
+        { 
+            case -1 :   return Constant.ICONST_M1;
+            case 0 :    return Constant.ICONST_0;
+            case 1 :    return Constant.ICONST_1;
+            case 2 :    return Constant.ICONST_2;
+            case 3 :    return Constant.ICONST_3;
+            case 4 :    return Constant.ICONST_4;
+            case 5 :    return Constant.ICONST_5;
+            default:    return -1; // error @on
         }
-        return -1; // error
     }
 
     public static int LCONST(long value) {
         if (value == 0L) {
             return Constant.LCONST_0;
         }
-        else if (value == 1L) {
+        if (value == 1L) {
             return Constant.LCONST_1;
         }
-        else {
-            return -1; // error
-        }
+        return -1; // error
     }
 
     public static int FCONST(float value) {
         if (value == 0f) {
             return Constant.FCONST_0;
         }
-        else if (value == 1f) {
+        if (value == 1f) {
             return Constant.FCONST_1;
         }
-        else if (value == 2f) {
+        if (value == 2f) {
             return Constant.FCONST_2;
         }
-        else {
-            return -1; // error
-        }
+        return -1; // error
     }
 
     public static int DCONST(double value) {
         if (value == 0d) {
             return Constant.DCONST_0;
         }
-        else if (value == 1d) {
+        if (value == 1d) {
             return Constant.DCONST_1;
         }
-        else {
-            return -1; // error
-        }
+        return -1; // error
     }
 
     public static int NEWARRAY(Type type) {
-        switch (type.getSort()) {
-            case Type.BYTE :
-                return Constant.T_BYTE;
-            case Type.CHAR :
-                return Constant.T_CHAR;
-            case Type.DOUBLE :
-                return Constant.T_DOUBLE;
-            case Type.FLOAT :
-                return Constant.T_FLOAT;
-            case Type.INT :
-                return Constant.T_INT;
-            case Type.LONG :
-                return Constant.T_LONG;
-            case Type.SHORT :
-                return Constant.T_SHORT;
-            case Type.BOOLEAN :
-                return Constant.T_BOOLEAN;
-            default:
-                return -1; // error
+        switch (type.getSort()) { //@off
+            case Type.BYTE :    return Constant.T_BYTE;
+            case Type.CHAR :    return Constant.T_CHAR;
+            case Type.DOUBLE :  return Constant.T_DOUBLE;
+            case Type.FLOAT :   return Constant.T_FLOAT;
+            case Type.INT :     return Constant.T_INT;
+            case Type.LONG :    return Constant.T_LONG;
+            case Type.SHORT :   return Constant.T_SHORT;
+            case Type.BOOLEAN : return Constant.T_BOOLEAN;
+            default:            return -1; // error @on
         }
     }
 
