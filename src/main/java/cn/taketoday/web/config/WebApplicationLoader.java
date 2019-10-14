@@ -21,6 +21,8 @@ package cn.taketoday.web.config;
 
 import static cn.taketoday.context.utils.ContextUtils.resolveProps;
 import static cn.taketoday.context.utils.ContextUtils.resolveValue;
+import static cn.taketoday.web.resolver.method.ConverterParameterResolver.convert;
+import static cn.taketoday.web.resolver.method.DelegatingParameterResolver.delegate;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -66,10 +68,8 @@ import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.method.ArrayParameterResolver;
 import cn.taketoday.web.resolver.method.BeanParameterResolver;
-import cn.taketoday.web.resolver.method.ConverterParameterResolver;
 import cn.taketoday.web.resolver.method.CookieParameterResolver;
 import cn.taketoday.web.resolver.method.DefaultMultipartResolver;
-import cn.taketoday.web.resolver.method.DelegatingParameterResolver;
 import cn.taketoday.web.resolver.method.HeaderParameterResolver;
 import cn.taketoday.web.resolver.method.MapParameterResolver;
 import cn.taketoday.web.resolver.method.ModelParameterResolver;
@@ -228,36 +228,36 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         // Use ConverterParameterResolver to resolve primitive types
         // --------------------------------------------------------------------------
 
-        resolvers.add(new ConverterParameterResolver((m) -> m.is(String.class), (s) -> s));
-        resolvers.add(new ConverterParameterResolver((m) -> m.is(Long.class) || m.is(long.class), Long::parseLong));
-        resolvers.add(new ConverterParameterResolver((m) -> m.is(Integer.class) || m.is(int.class), Integer::parseInt));
-        resolvers.add(new ConverterParameterResolver((m) -> m.is(Short.class) || m.is(short.class), Short::parseShort));
-        resolvers.add(new ConverterParameterResolver((m) -> m.is(Float.class) || m.is(float.class), Float::parseFloat));
-        resolvers.add(new ConverterParameterResolver((m) -> m.is(Double.class) || m.is(double.class), Double::parseDouble));
-        resolvers.add(new ConverterParameterResolver((m) -> m.is(Boolean.class) || m.is(boolean.class), Boolean::parseBoolean));
+        resolvers.add(convert((m) -> m.is(String.class), (s) -> s));
+        resolvers.add(convert((m) -> m.is(Long.class) || m.is(long.class), Long::parseLong));
+        resolvers.add(convert((m) -> m.is(Integer.class) || m.is(int.class), Integer::parseInt));
+        resolvers.add(convert((m) -> m.is(Short.class) || m.is(short.class), Short::parseShort));
+        resolvers.add(convert((m) -> m.is(Float.class) || m.is(float.class), Float::parseFloat));
+        resolvers.add(convert((m) -> m.is(Double.class) || m.is(double.class), Double::parseDouble));
+        resolvers.add(convert((m) -> m.is(Boolean.class) || m.is(boolean.class), Boolean::parseBoolean));
 
-        // For some useful context annotations
-        // -------------------------------------------- //@off
+        // For some useful context annotations @off
+        // -------------------------------------------- 
 
-        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(RequestAttribute.class), //
+        resolvers.add(delegate((m) -> m.isAnnotationPresent(RequestAttribute.class), //
               (ctx, m) -> ctx.attribute(m.getName())//
         ));
 
-        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Value.class), //
+        resolvers.add(delegate((m) -> m.isAnnotationPresent(Value.class), //
               (ctx, m) -> resolveValue(m.getAnnotation(Value.class), m.getParameterClass())//
         ));
-        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Env.class), //
+        resolvers.add(delegate((m) -> m.isAnnotationPresent(Env.class), //
               (ctx, m) -> resolveValue(m.getAnnotation(Env.class), m.getParameterClass())//
         ));
 
         final WebApplicationContext applicationContext = getWebApplicationContext();
         final Properties properties = applicationContext.getEnvironment().getProperties();
 
-        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Props.class), //
+        resolvers.add(delegate((m) -> m.isAnnotationPresent(Props.class), //
                (ctx, m) -> resolveProps(m.getAnnotation(Props.class), m.getParameterClass(), properties)//
         ));
 
-        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(Autowired.class), //@off
+        resolvers.add(delegate((m) -> m.isAnnotationPresent(Autowired.class), //@off
               (ctx, m) -> {
                   final Autowired autowired = m.getAnnotation(Autowired.class);
                   final String name = autowired.value();
@@ -277,8 +277,8 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         ));
 
         // HandlerMethod HandlerMapping
-        resolvers.add(new DelegatingParameterResolver((m) -> m.isAssignableFrom(HandlerMethod.class)
-                                                              || m.isAssignableFrom(HandlerMapping.class), //
+        resolvers.add(delegate((m) -> m.isAssignableFrom(HandlerMethod.class)
+                                   || m.isAssignableFrom(HandlerMapping.class), //
             (ctx, m) -> m.getHandlerMethod()//
         ));
 

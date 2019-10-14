@@ -29,19 +29,25 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-07-13 12:58
  */
-public class ConverterParameterResolver implements OrderedParameterResolver {
+public final class ConverterParameterResolver implements OrderedParameterResolver {
 
+    private final int order;
+    private final SupportsFunction supports;
     private final Converter<String, Object> converter;
-    private final SupportsFunction supportsFunction;
 
-    public ConverterParameterResolver(SupportsFunction supportsFunction, Converter<String, Object> converter) {
-        this.supportsFunction = supportsFunction;
+    public ConverterParameterResolver(SupportsFunction supports, Converter<String, Object> converter) {
+        this(supports, converter, LOWEST_PRECEDENCE);
+    }
+
+    public ConverterParameterResolver(SupportsFunction supports, Converter<String, Object> converter, int order) {
+        this.order = order;
+        this.supports = supports;
         this.converter = converter;
     }
 
     @Override
-    public final boolean supports(MethodParameter parameter) {
-        return supportsFunction.supports(parameter);
+    public boolean supports(MethodParameter parameter) {
+        return supports.supports(parameter);
     }
 
     @Override
@@ -53,6 +59,21 @@ public class ConverterParameterResolver implements OrderedParameterResolver {
             return converter.convert(parameter.getDefaultValue());
         }
         return converter.convert(value);
+    }
+
+    @Override
+    public int getOrder() {
+        return order;
+    }
+
+    public static ConverterParameterResolver convert(SupportsFunction supports,
+                                                     Converter<String, Object> converter) {
+        return new ConverterParameterResolver(supports, converter);
+    }
+
+    public static ConverterParameterResolver convert(SupportsFunction supports,
+                                                     Converter<String, Object> converter, int order) {
+        return new ConverterParameterResolver(supports, converter, order);
     }
 
 }

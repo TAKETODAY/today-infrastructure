@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.view;
 
+import static cn.taketoday.web.resolver.method.DelegatingParameterResolver.delegate;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
@@ -56,7 +58,6 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.SharedVariable;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.resolver.method.DelegatingParameterResolver;
 import cn.taketoday.web.resolver.method.ParameterResolver;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import freemarker.cache.TemplateLoader;
@@ -154,11 +155,9 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
     @Override
     public void configureParameterResolver(List<ParameterResolver> resolvers) {
 
-        resolvers.add(new DelegatingParameterResolver((m) -> m.isAssignableFrom(Configuration.class), //
-                                                      (ctx, m) -> configuration//
-        ));
+        resolvers.add(delegate((m) -> m.isAssignableFrom(Configuration.class), (ctx, m) -> configuration));
 
-        resolvers.add(new DelegatingParameterResolver((m) -> m.isAnnotationPresent(SharedVariable.class), (ctx, m) -> {
+        resolvers.add(delegate((m) -> m.isAnnotationPresent(SharedVariable.class), (ctx, m) -> {
             final TemplateModel sharedVariable = configuration.getSharedVariable(m.getName());
 
             if (m.isInstance(sharedVariable)) {
