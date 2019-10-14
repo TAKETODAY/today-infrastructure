@@ -135,10 +135,8 @@ public class DefaultExceptionResolver implements ExceptionResolver {
      */
     protected void resolveHandlerMappingException(final Throwable ex,
                                                   final RequestContext context,
-                                                  final HandlerMapping handlerMapping) throws Throwable//
+                                                  final HandlerMapping handlerMethod) throws Throwable//
     {
-        final HandlerMethod handlerMethod = ((HandlerMethod) handlerMapping);
-
         final ResponseStatus responseStatus = buildStatus(handlerMethod, ex);
         final int status = responseStatus.value();
 
