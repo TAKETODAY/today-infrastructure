@@ -43,8 +43,7 @@ public abstract class StringUtils {
 
     static {
 
-        /*
-         * The list of characters that are not encoded has been determined as follows:
+        /* The list of characters that are not encoded has been determined as follows:
          *
          * RFC 2396 states: ----- Data characters that are allowed in a URI but do not
          * have a reserved purpose are called unreserved. These include upper and lower
@@ -68,9 +67,7 @@ public abstract class StringUtils {
          *
          * As a last note, Intenet Explorer does not encode the "@" character which is
          * clearly not unreserved according to the RFC. We are being consistent with the
-         * RFC in this matter, as is Netscape.
-         *
-         */
+         * RFC in this matter, as is Netscape. */
         dontNeedEncoding = new BitSet(256);
         int i;
         for (i = 'a'; i <= 'z'; i++) {
@@ -122,15 +119,16 @@ public abstract class StringUtils {
 
     public static String decodeUrl(String s) {
 
-        boolean needToChange = false;
-        int numChars = s.length();
-        StringBuffer sb = new StringBuffer(numChars > 500 ? numChars / 2 : numChars);
+        final int numChars = s.length();
+        
+        final StringBuilder sb = new StringBuilder(numChars > 500 ? numChars / 2 : numChars);
+
         int i = 0;
         char c;
+        boolean needToChange = false;
         byte[] bytes = null;
         while (i < numChars) {
-            switch (c = s.charAt(i))
-            {
+            switch (c = s.charAt(i)) {
                 case '+' : {
                     sb.append(' ');
                     i++;
@@ -141,22 +139,18 @@ public abstract class StringUtils {
                     try {
                         // (numChars-i)/3 is an upper bound for the number
                         // of remaining bytes
-                        if (bytes == null)
-                            bytes = new byte[(numChars - i) / 3];
+                        if (bytes == null) bytes = new byte[(numChars - i) / 3];
                         int pos = 0;
                         while (((i + 2) < numChars) && (c == '%')) {
                             int v = Integer.parseInt(s.substring(i + 1, i + 3), 16);
-                            if (v < 0)
-                                throw new IllegalArgumentException("Illegal hex characters in escape (%) pattern - negative value");
+                            if (v < 0) throw new IllegalArgumentException("Illegal hex characters in escape (%) pattern - negative value");
                             bytes[pos++] = (byte) v;
                             i += 3;
-                            if (i < numChars)
-                                c = s.charAt(i);
+                            if (i < numChars) c = s.charAt(i);
                         }
                         // A trailing, incomplete byte encoding such as
                         // "%x" will cause an exception to be thrown
-                        if ((i < numChars) && (c == '%'))
-                            throw new IllegalArgumentException("Incomplete trailing escape (%) pattern");
+                        if ((i < numChars) && (c == '%')) throw new IllegalArgumentException("Incomplete trailing escape (%) pattern");
                         sb.append(new String(bytes, 0, pos, Constant.DEFAULT_CHARSET));
                     }
                     catch (NumberFormatException e) {
@@ -179,18 +173,18 @@ public abstract class StringUtils {
 
         boolean needToChange = false;
         final int length = s.length();
-        final StringBuffer out = new StringBuffer(length);
+        final StringBuilder out = new StringBuilder(length);
         final CharArrayWriter charArrayWriter = new CharArrayWriter();
 
         for (int i = 0; i < length;) {
             int c = (int) s.charAt(i);
-//			 System.out.println("Examining character: " + c);
+            //			 System.out.println("Examining character: " + c);
             if (dontNeedEncoding.get(c)) {
                 if (c == ' ') {
                     c = '+';
                     needToChange = true;
                 }
-//				 System.out.println("Storing: " + c);
+                //				 System.out.println("Storing: " + c);
                 out.append((char) c);
                 i++;
                 continue;
@@ -198,18 +192,16 @@ public abstract class StringUtils {
             // convert to external encoding before hex conversion
             do {
                 charArrayWriter.write(c);
-                /*
-                 * If this character represents the start of a Unicode surrogate pair, then pass
+                /* If this character represents the start of a Unicode surrogate pair, then pass
                  * in two characters. It's not clear what should be done if a bytes reserved in
                  * the surrogate pairs range occurs outside of a legal surrogate pair. For now,
-                 * just treat it as if it were any other character.
-                 */
+                 * just treat it as if it were any other character. */
                 if (c >= 0xD800 && c <= 0xDBFF && (i + 1) < length) {
-//					System.out.println(Integer.toHexString(c) + " is high surrogate");
+                    //					System.out.println(Integer.toHexString(c) + " is high surrogate");
                     int d = (int) s.charAt(i + 1);
-//					System.out.println("\tExamining " + Integer.toHexString(d));
+                    //					System.out.println("\tExamining " + Integer.toHexString(d));
                     if (d >= 0xDC00 && d <= 0xDFFF) {
-//							System.out.println("\t" + Integer.toHexString(d) + " is low surrogate");
+                        //							System.out.println("\t" + Integer.toHexString(d) + " is low surrogate");
                         charArrayWriter.write(d);
                         i++;
                     }
@@ -218,8 +210,7 @@ public abstract class StringUtils {
             } while (i < length && !dontNeedEncoding.get((c = (int) s.charAt(i))));
 
             charArrayWriter.flush();
-            String str = new String(charArrayWriter.toCharArray());
-            byte[] ba = str.getBytes(Constant.DEFAULT_CHARSET);
+            byte[] ba = new String(charArrayWriter.toCharArray()).getBytes(Constant.DEFAULT_CHARSET);
             for (int j = 0; j < ba.length; j++) {
                 out.append('%');
                 char ch = Character.forDigit((ba[j] >> 4) & 0xF, 16);

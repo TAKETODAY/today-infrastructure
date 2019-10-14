@@ -98,7 +98,8 @@ public class DuplicatesPredicate implements Predicate<Method> {
                     }
                     try {
                         new ClassReader(is).accept(finder, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
-                    } finally {
+                    }
+                    finally {
                         is.close();
                     }
                 }
@@ -136,8 +137,7 @@ public class DuplicatesPredicate implements Predicate<Method> {
             methods.put(ReflectUtils.getSignature(m), m);
         }
 
-        public void visit(int version, int access, String name, String signature, String superName,
-                          String[] interfaces) {}
+        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {}
 
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
             Signature sig = new Signature(name, desc);
