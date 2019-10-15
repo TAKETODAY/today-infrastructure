@@ -496,7 +496,8 @@ public abstract class ClassUtils {
      * @throws IOException
      * @since 2.1.6
      */
-    private static void scan(final Collection<Class<?>> scanClasses, final Resource resource, String packageName) throws IOException {
+    private static void scan(final Collection<Class<?>> scanClasses, 
+                             final Resource resource, String packageName) throws IOException {
 
         if (resource instanceof FileBasedResource) {
             if (resource.isDirectory()) {
@@ -514,8 +515,11 @@ public abstract class ClassUtils {
         }
     }
 
-    private static void scanInJarFile(final Collection<Class<?>> scanClasses, final Resource resource, //
-            final String fileName, String packageName, final ThrowableSupplier<JarFile, IOException> supplier) throws IOException//
+    private static void scanInJarFile(final Collection<Class<?>> scanClasses, 
+                                      final Resource resource, //
+                                      final String fileName, 
+                                      final String packageName,
+                                      final ThrowableSupplier<JarFile, IOException> supplier) throws IOException//
     {
         if (ignoreScanJarsPrefix) {
             for (final String ignoreJarName : IGNORE_SCAN_JARS) {
@@ -842,7 +846,8 @@ public abstract class ClassUtils {
      * @return the {@link Collection} of {@link Annotation} instance
      * @since 2.1.7
      */
-    public static <T extends Annotation> T getAnnotation(Class<T> annotationClass, final AnnotatedElement annotatedElement) {
+    public static <T extends Annotation> T getAnnotation(final Class<T> annotationClass, 
+                                                         final AnnotatedElement annotatedElement) {
 
         final T[] annotationArray = getAnnotationArray(annotatedElement, annotationClass);
         return ObjectUtils.isEmpty(annotationArray) ? null : annotationArray[0];
@@ -860,7 +865,7 @@ public abstract class ClassUtils {
 	 * @off
 	 */
 	public static <T extends Annotation> T getAnnotationProxy(Class<T> annotationClass, AnnotationAttributes attributes) {
-		return annotationClass.cast(Proxy.newProxyInstance(classLoader, new Class[] { annotationClass, Annotation.class }, //
+		return annotationClass.cast(Proxy.newProxyInstance(classLoader, new Class[] { annotationClass, Annotation.class },
 				(Object proxy, Method method, Object[] args) -> {
 					// The switch statement compares the String object in its expression with the expressions
 					// associated with each case label as if it were using the String.equals method;
@@ -1113,7 +1118,8 @@ public abstract class ClassUtils {
      * @since 2.1.1
      */
     public static <T extends Annotation> AnnotationAttributes //
-            getTargetAnnotationAttributes(final Class<T> targetAnnotationType, final Class<? extends Annotation> annotationType)//
+            getTargetAnnotationAttributes(final Class<T> targetAnnotationType, 
+                                          final Class<? extends Annotation> annotationType)//
     {
 
         for (final Annotation currentAnnotation : annotationType.getAnnotations()) {
@@ -1146,7 +1152,8 @@ public abstract class ClassUtils {
      *            Target annotation type
      * @return Whether it's present
      */
-    public static <A extends Annotation> boolean isAnnotationPresent(final AnnotatedElement element, final Class<A> annType) {
+    public static <A extends Annotation> boolean isAnnotationPresent(final AnnotatedElement element,
+                                                                     final Class<A> annType) {
         if (annType == null) {
             return false;
         }
@@ -1405,10 +1412,10 @@ public abstract class ClassUtils {
 
             final Map<Method, String[]> map = new ConcurrentHashMap<>(32);
 
-            try (InputStream resourceAsStream = getClassLoader()//
-                    .getResourceAsStream(declaringClass.getName()//
-                            .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)//
-                            .concat(Constant.CLASS_FILE_SUFFIX))) //
+            try (InputStream resourceAsStream = getClassLoader()
+                    .getResourceAsStream(declaringClass.getName()
+                            .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)
+                                .concat(Constant.CLASS_FILE_SUFFIX))) 
             {
 
                 final ClassNode classVisitor = new ClassNode();
@@ -1460,7 +1467,12 @@ public abstract class ClassUtils {
         private final List<MethodNode> methodNodes = new ArrayList<>();
 
         @Override
-        public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+        public MethodVisitor visitMethod(int access, 
+                                         String name,
+                                         String descriptor,
+                                         String signature, 
+                                         String[] exceptions) {
+            
             if (isSyntheticOrBridged(access) //
                     || Constant.CONSTRUCTOR_NAME.equals(name) //
                     || Constant.STATIC_CLASS_INIT.equals(name)) {
@@ -1487,7 +1499,10 @@ public abstract class ClassUtils {
         }
 
         @Override
-        public void visitLocalVariable(String name, String descriptor, String signature, Label start, Label end, int index) {
+        public void visitLocalVariable(String name, 
+                                       String descriptor, 
+                                       String signature, 
+                                       Label start, Label end, int index) {
             localVariables.add(name);
         }
     }

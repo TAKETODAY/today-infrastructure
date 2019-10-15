@@ -217,9 +217,9 @@ public abstract class ContextUtils {
     @SuppressWarnings("unchecked")
     public static <T> T resolveValue(final Env value, final Class<T> expectedType) throws ConfigurationException {
 
-        final Object resolveValue = resolveValue(new StringBuilder()//
-                .append(Constant.PLACE_HOLDER_PREFIX)//
-                .append(value.value())//
+        final Object resolveValue = resolveValue(new StringBuilder()
+                .append(Constant.PLACE_HOLDER_PREFIX)
+                .append(value.value())
                 .append(Constant.PLACE_HOLDER_SUFFIX).toString(), expectedType//
         );
 
