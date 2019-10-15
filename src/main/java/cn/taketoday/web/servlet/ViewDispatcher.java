@@ -57,19 +57,22 @@ public class ViewDispatcher extends GenericServlet {
     protected ViewResolver viewResolver;
 
     @Override
-    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+    public void service(final ServletRequest req, final ServletResponse res) throws ServletException, IOException {
+        service((HttpServletRequest) req, (HttpServletResponse) res);
+    }
 
-        final HttpServletRequest request = (HttpServletRequest) req;
+    public final void service(final HttpServletRequest request,
+                              final HttpServletResponse response) throws ServletException, IOException {
 
         final ViewMapping mapping = ViewMapping.get(request.getRequestURI());
 
         if (mapping == null) {
-            ((HttpServletResponse) res).sendError(404);
+            response.sendError(404);
             log.debug("NOT FOUND -> [{}]", request.getRequestURI());
             return;
         }
 
-        final RequestContext context = prepareContext(request, res);
+        final RequestContext context = prepareContext(request, response);
         try {
 
             if (mapping.getStatus() != 0) {

@@ -87,19 +87,32 @@ public class DispatcherServlet implements Servlet, Serializable {
         this.handlerInterceptorRegistry = handlerInterceptorRegistry;
     }
 
-    public static RequestContext prepareContext(final ServletRequest r, final ServletResponse s) {
-        return RequestContextHolder.prepareContext(new ServletRequestContext((HttpServletRequest) r, (HttpServletResponse) s));
+    /**
+     * Prepare {@link RequestContext}
+     * 
+     * @param r
+     *            {@link HttpServletRequest}
+     * @param s
+     *            {@link HttpServletResponse}
+     * @return {@link RequestContext}
+     */
+    public static RequestContext prepareContext(final HttpServletRequest r, final HttpServletResponse s) {
+        return RequestContextHolder.prepareContext(new ServletRequestContext(r, s));
     }
 
     @Override
-    public void service(final ServletRequest req, final ServletResponse res)
-            throws ServletException, IOException //
-    {
+    public void service(final ServletRequest req, final ServletResponse res) throws ServletException, IOException {
+        service((HttpServletRequest) req, (HttpServletResponse) res);
+    }
+
+    public final void service(final HttpServletRequest req,
+                              final HttpServletResponse res) throws ServletException, IOException {
+
         // Lookup handler mapping
-        final HandlerMapping mapping = lookupHandlerMapping((HttpServletRequest) req);
+        final HandlerMapping mapping = lookupHandlerMapping(req);
 
         if (mapping == null) {
-            ((HttpServletResponse) res).sendError(404);
+            res.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 

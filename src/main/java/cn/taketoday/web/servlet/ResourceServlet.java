@@ -61,51 +61,45 @@ public class ResourceServlet extends GenericServlet {
 
     private final int contextPathLength;
     private final PathMatcher pathMatcher;
+    private final ResourceMappingRegistry registry;
+    private final ResourceResolver resourceResolver;
     /** exception resolver */
     private final ExceptionResolver exceptionResolver;
-    private final ResourceResolver resourceResolver;
-    private final ResourceMappingRegistry registry;
-    /** intercepter registry */
+    /** intercepter registry @off*/
     private final HandlerInterceptorRegistry handlerInterceptorRegistry;
 
     @Autowired
-    public ResourceServlet(//
-            ResourceMappingRegistry registry, //
-            ExceptionResolver exceptionResolver, //
-            WebApplicationContext applicationContext,
-            @Autowired(required = false) PathMatcher pathMatcher, //
-            HandlerInterceptorRegistry handlerInterceptorRegistry,
-            @Autowired(required = false) ResourceResolver resourceResolver) //
+    public ResourceServlet( ResourceMappingRegistry registry,
+                            ExceptionResolver exceptionResolver,
+                            WebApplicationContext applicationContext,
+                            @Autowired(required = false) PathMatcher pathMatcher,
+                            HandlerInterceptorRegistry handlerInterceptorRegistry,
+                            @Autowired(required = false) ResourceResolver resourceResolver) //@on
     {
 
-        this.registry = registry;
-        registry.sortResourceMappings();
-
-        if (pathMatcher == null) {
-            pathMatcher = new AntPathMatcher();
-        }
-        this.pathMatcher = pathMatcher;
-        if (resourceResolver == null) {
-            this.resourceResolver = new DefaultResourceResolver(pathMatcher);
-        }
-        else {
-            this.resourceResolver = resourceResolver;
-        }
         this.exceptionResolver = exceptionResolver;
+        this.registry = registry.sortResourceMappings();
         this.handlerInterceptorRegistry = handlerInterceptorRegistry;
         this.contextPathLength = applicationContext.getContextPath().length();
+
+        this.pathMatcher = pathMatcher != null ? pathMatcher : new AntPathMatcher();
+        this.resourceResolver = resourceResolver != null ? resourceResolver : new DefaultResourceResolver(this.pathMatcher);
     }
 
     @Override
-    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+    public void service(final ServletRequest req, final ServletResponse res) throws ServletException, IOException {
+        service((HttpServletRequest) req, (HttpServletResponse) res);
+    }
 
-        final String path = requestPath((HttpServletRequest) req, contextPathLength);
+    public final void service(final HttpServletRequest req,
+                              final HttpServletResponse res) throws ServletException, IOException {
 
-        final ResourceMapping resourceMapping = //
-                lookupResourceHandlerMapping(path, pathMatcher, registry.getResourceMappings());
+        final String path = requestPath(req, contextPathLength);
 
-        if (resourceMapping == null) {
-            ((HttpServletResponse) res).sendError(404);
+        final ResourceMapping mapping = lookupResourceHandlerMapping(path, pathMatcher, registry.getResourceMappings());
+
+        if (mapping == null) {
+            res.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
@@ -114,35 +108,35 @@ public class ResourceServlet extends GenericServlet {
         try {
 
             final WebResource resource;
-            if (resourceMapping.hasInterceptor()) {
-                final int[] interceptors = resourceMapping.getInterceptors();
+            if (mapping.hasInterceptor()) {
+                final int[] interceptors = mapping.getInterceptors();
                 // invoke intercepter
                 final HandlerInterceptorRegistry handlerInterceptorRegistry = this.handlerInterceptorRegistry;
                 for (final int interceptor : interceptors) {
-                    if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(requestContext, resourceMapping)) {
+                    if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(requestContext, mapping)) {
                         log.debug("Resource Interceptor: [{}] return false", handlerInterceptorRegistry.get(interceptor));
                         return;
                     }
                 }
-                resource = resourceResolver.resolveResource(path, resourceMapping); // may be null
+                resource = resourceResolver.resolveResource(path, mapping); // may be null
                 for (final int interceptor : interceptors) {
-                    handlerInterceptorRegistry.get(interceptor).afterProcess(requestContext, resourceMapping, resource);
+                    handlerInterceptorRegistry.get(interceptor).afterProcess(requestContext, mapping, resource);
                 }
             }
             else {
-                resource = resourceResolver.resolveResource(path, resourceMapping); // may be null
+                resource = resourceResolver.resolveResource(path, mapping); // may be null
             }
 
             if (resource == null || resource.isDirectory()) {// TODO Directory listing
-                ((HttpServletResponse) res).sendError(HttpServletResponse.SC_NOT_FOUND);
+                res.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
             else {
-                resolveResult(requestContext, resource, resourceMapping);
+                resolveResult(requestContext, resource, mapping);
             }
         }
         catch (Throwable exception) {
             try {
-                ResultUtils.resolveException(requestContext, exceptionResolver, resourceMapping, exception);
+                ResultUtils.resolveException(requestContext, exceptionResolver, mapping, exception);
             }
             catch (Throwable e1) {
                 throw new ServletException(e1);
