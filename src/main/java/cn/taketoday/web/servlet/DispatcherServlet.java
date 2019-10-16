@@ -214,7 +214,7 @@ public class DispatcherServlet implements Servlet, Serializable {
                 applicationContext.close();
 
                 final DateFormat dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);//
-                final String msg = new StringBuffer()//
+                final String msg = new StringBuilder()//
                         .append("Your application destroyed at: [")//
                         .append(dateFormat.format(new Date()))//
                         .append("] on startup date: [")//

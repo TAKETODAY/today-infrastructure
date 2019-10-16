@@ -121,7 +121,7 @@ public class MethodParameter {
     }
 
     public boolean isAnnotationPresent(final Class<? extends Annotation> annotationClass) {
-        return getAnnotation(annotationClass) != null;
+        return ClassUtils.isAnnotationPresent(parameter, annotationClass);
     }
 
     public <A extends Annotation> A getAnnotation(final Class<A> annotationClass) {

@@ -157,11 +157,11 @@ public class HandlerMethod implements ObjectFactory<Object> {
     }
 
     public boolean isDeclaringClassPresent(final Class<? extends Annotation> annotationClass) {
-        return getDeclaringClassAnnotation(annotationClass) != null;
+        return ClassUtils.isAnnotationPresent(method.getDeclaringClass(), annotationClass);
     }
 
     public boolean isMethodPresent(final Class<? extends Annotation> annotationClass) {
-        return getMethodAnnotation(annotationClass) != null;
+        return ClassUtils.isAnnotationPresent(method, annotationClass);
     }
 
     public <A extends Annotation> A getDeclaringClassAnnotation(final Class<A> annotation) {

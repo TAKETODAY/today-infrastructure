@@ -61,7 +61,6 @@ import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
-import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
@@ -277,10 +276,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         ));
 
         // HandlerMethod HandlerMapping
-        resolvers.add(delegate((m) -> m.isAssignableFrom(HandlerMethod.class)
-                                   || m.isAssignableFrom(HandlerMapping.class), //
-            (ctx, m) -> m.getHandlerMethod()//
-        ));
+        resolvers.add(delegate((m) -> m.is(HandlerMethod.class), (ctx, m) -> m.getHandlerMethod()));
 
         // For cookies
         // ------------------------------------------
@@ -311,7 +307,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         resolvers.add(new StreamParameterResolver());
 
         resolvers.add(new PathVariableParameterResolver());
-        final MessageConverter bean = getWebApplicationContext().getBean(MessageConverter.class);
+        final MessageConverter bean = applicationContext.getBean(MessageConverter.class);
         resolvers.add(new RequestBodyParameterResolver(bean));
         resolvers.add(new ThrowableHandlerParameterResolver());
 
