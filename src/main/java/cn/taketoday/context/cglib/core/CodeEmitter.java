@@ -170,8 +170,7 @@ public class CodeEmitter extends LocalVariablesSorter {
     public void if_cmp(Type type, int mode, Label label) {
         int intOp = -1;
         int jumpmode = mode;
-        switch (mode)
-        {
+        switch (mode) {
             case GE :
                 jumpmode = LT;
                 break;
@@ -179,8 +178,7 @@ public class CodeEmitter extends LocalVariablesSorter {
                 jumpmode = GT;
                 break;
         }
-        switch (type.getSort())
-        {
+        switch (type.getSort()) {
             case Type.LONG :
                 mv.visitInsn(Constant.LCMP);
                 break;
@@ -192,8 +190,7 @@ public class CodeEmitter extends LocalVariablesSorter {
                 break;
             case Type.ARRAY :
             case Type.OBJECT :
-                switch (mode)
-                {
+                switch (mode) {
                     case EQ :
                         mv.visitJumpInsn(Constant.IF_ACMPEQ, label);
                         return;
@@ -203,8 +200,7 @@ public class CodeEmitter extends LocalVariablesSorter {
                 }
                 throw new IllegalArgumentException("Bad comparison for type " + type);
             default:
-                switch (mode)
-                {
+                switch (mode) {
                     case EQ :
                         intOp = Constant.IF_ICMPEQ;
                         break;
@@ -423,11 +419,11 @@ public class CodeEmitter extends LocalVariablesSorter {
         mv.visitLdcInsn(value);
     }
 
-    public void newarray() {
-        newarray(Constant.TYPE_OBJECT);
+    public void newArray() {
+        newArray(Constant.TYPE_OBJECT);
     }
 
-    public void newarray(Type type) {
+    public void newArray(Type type) {
         if (TypeUtils.isPrimitive(type)) {
             mv.visitIntInsn(Constant.NEWARRAY, TypeUtils.NEWARRAY(type));
         }
@@ -578,7 +574,10 @@ public class CodeEmitter extends LocalVariablesSorter {
     }
 
     private void emit_invoke(int opcode, Type type, Signature sig, boolean isInterface) {
-        if (sig.getName().equals(Constant.CONSTRUCTOR_NAME) && ((opcode == Constant.INVOKEVIRTUAL) || (opcode == Constant.INVOKESTATIC))) {
+        
+        if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)
+            && ((opcode == Constant.INVOKEVIRTUAL) || (opcode == Constant.INVOKESTATIC))) {
+            
             // TODO: error
         }
         mv.visitMethodInsn(opcode, //
@@ -634,14 +633,7 @@ public class CodeEmitter extends LocalVariablesSorter {
     }
 
     private void emit_type(int opcode, Type type) {
-        final String desc;
-        if (TypeUtils.isArray(type)) {
-            desc = type.getDescriptor();
-        }
-        else {
-            desc = type.getInternalName();
-        }
-        mv.visitTypeInsn(opcode, desc);
+        mv.visitTypeInsn(opcode, TypeUtils.isArray(type) ? type.getDescriptor() : type.getInternalName());
     }
 
     public void aaload(int index) {
@@ -822,9 +814,7 @@ public class CodeEmitter extends LocalVariablesSorter {
                     dup_x1();
                     swap();
                 }
-                invoke_constructor(boxed,
-                                   new Signature(Constant.CONSTRUCTOR_NAME, Type.VOID_TYPE, new Type[]
-                                   { type }));
+                invoke_constructor(boxed, new Signature(Constant.CONSTRUCTOR_NAME, Type.VOID_TYPE, Type.array(type)));
             }
         }
     }
@@ -841,8 +831,7 @@ public class CodeEmitter extends LocalVariablesSorter {
     public void unbox(Type type) {
         Type t = Constant.TYPE_NUMBER;
         Signature sig = null;
-        switch (type.getSort())
-        {
+        switch (type.getSort()) {
             case Type.VOID :
                 return;
             case Type.CHAR :
@@ -882,12 +871,10 @@ public class CodeEmitter extends LocalVariablesSorter {
      * method. Primitive values are inserted as their boxed (Object) equivalents.
      */
     public void create_arg_array() {
-        /*
-         * generates: Object[] args = new Object[]{ arg1, new Integer(arg2) };
-         */
+        /* generates: Object[] args = new Object[]{ arg1, new Integer(arg2) }; */
 
         push(state.argumentTypes.length);
-        newarray();
+        newArray();
         for (int i = 0; i < state.argumentTypes.length; i++) {
             dup();
             push(i);
@@ -903,8 +890,7 @@ public class CodeEmitter extends LocalVariablesSorter {
      */
     public void zero_or_null(Type type) {
         if (TypeUtils.isPrimitive(type)) {
-            switch (type.getSort())
-            {
+            switch (type.getSort()) {
                 case Type.DOUBLE :
                     push(0d);
                     break;

@@ -33,7 +33,7 @@ import cn.taketoday.context.cglib.transform.ClassTransformer;
 public class ClassEmitter extends ClassTransformer {
 
     private ClassInfo classInfo;
-    private Map fieldInfo;
+    private Map<String, FieldInfo> fieldInfo;
 
     private static int hookCounter;
     private MethodVisitor rawStaticInit;
@@ -46,12 +46,12 @@ public class ClassEmitter extends ClassTransformer {
     }
 
     public ClassEmitter() {
-//		super(Constant.ASM_API);
+        //		super(Constant.ASM_API);
     }
 
     public void setTarget(ClassVisitor cv) {
         this.cv = cv;
-        fieldInfo = new HashMap();
+        fieldInfo = new HashMap<>();
 
         // just to be safe
         staticInit = staticHook = null;
@@ -142,13 +142,11 @@ public class ClassEmitter extends ClassTransformer {
 
         if (classInfo == null) throw new IllegalStateException("classInfo is null! " + this);
 
-        final MethodVisitor visitor = cv.visitMethod(//
-                                                     access, //
-                                                     sig.getName(), //
-                                                     sig.getDescriptor(), //
-                                                     null, //
-                                                     TypeUtils.toInternalNames(exceptions)//
-        );
+        final MethodVisitor visitor = cv.visitMethod(access,
+                                                     sig.getName(),
+                                                     sig.getDescriptor(),
+                                                     null,
+                                                     TypeUtils.toInternalNames(exceptions));
 
         if (sig.equals(Constant.SIG_STATIC) && !Modifier.isInterface(getAccess())) {
 
@@ -196,7 +194,7 @@ public class ClassEmitter extends ClassTransformer {
     }
 
     public void declare_field(int access, String name, Type type, Object value) {
-        FieldInfo existing = (FieldInfo) fieldInfo.get(name);
+        FieldInfo existing = fieldInfo.get(name);
         FieldInfo info = new FieldInfo(access, name, type, value);
         if (existing != null) {
             if (!info.equals(existing)) {
@@ -215,7 +213,7 @@ public class ClassEmitter extends ClassTransformer {
     }
 
     FieldInfo getFieldInfo(String name) {
-        FieldInfo field = (FieldInfo) fieldInfo.get(name);
+        FieldInfo field = fieldInfo.get(name);
         if (field == null) {
             throw new IllegalArgumentException("Field " + name + " is not declared in " + getClassType().getClassName());
         }
@@ -252,20 +250,21 @@ public class ClassEmitter extends ClassTransformer {
         }
     }
 
+    @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         beginClass(version, access, name.replace('/', '.'), TypeUtils.fromInternalName(superName),
                    TypeUtils.fromInternalNames(interfaces), null); // TODO
     }
-
+    @Override
     public void visitEnd() {
         endClass();
     }
-
+    @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
         declare_field(access, name, Type.getType(desc), value);
         return null; // TODO
     }
-
+    @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         return beginMethod(access, new Signature(name, desc), TypeUtils.fromInternalNames(exceptions));
     }

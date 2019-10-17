@@ -159,8 +159,7 @@ public abstract class EmitUtils {
 
     public static void stringSwitch(CodeEmitter e, String[] strings, int switchStyle, ObjectSwitchCallback callback) {
         try {
-            switch (switchStyle)
-            {
+            switch (switchStyle) {
                 case Constant.SWITCH_STYLE_TRIE :
                     stringSwitchTrie(e, strings, callback);
                     break;
@@ -347,7 +346,7 @@ public abstract class EmitUtils {
 
     public static void pushArray(CodeEmitter e, Object[] array) {
         e.push(array.length);
-        e.newarray(Type.getType(remapComponentType(array.getClass().getComponentType())));
+        e.newArray(Type.getType(remapComponentType(array.getClass().getComponentType())));
         for (int i = 0; i < array.length; i++) {
             e.dup();
             e.push(i);
@@ -425,7 +424,9 @@ public abstract class EmitUtils {
         }
     }
 
-    private static void hashArray(final CodeEmitter e, Type type, final int multiplier,
+    private static void hashArray(final CodeEmitter e,
+                                  final Type type,
+                                  final int multiplier,
                                   final CustomizerRegistry registry) //
     {
         Label skip = e.make_label();
@@ -433,11 +434,8 @@ public abstract class EmitUtils {
         e.dup();
         e.ifnull(skip);
 
-        EmitUtils.processArray(e, type, new ProcessArrayCallback() {
-            public void processElement(Type type) {
-                EmitUtils.hashCode(e, type, multiplier, registry);
-            }
-        });
+        EmitUtils.processArray(e, type, (t) -> EmitUtils.hashCode(e, t, multiplier, registry));
+
         e.goTo(end);
         e.mark(skip);
         e.pop();
@@ -471,8 +469,7 @@ public abstract class EmitUtils {
     }
 
     private static void hashPrimitive(CodeEmitter e, Type type) {
-        switch (type.getSort())
-        {
+        switch (type.getSort()) {
             case Type.BOOLEAN :
                 // f ? 0 : 1
                 e.push(1);
@@ -500,9 +497,9 @@ public abstract class EmitUtils {
         e.cast_numeric(Type.LONG_TYPE, Type.INT_TYPE);
     }
 
-//     public static void not_equals(CodeEmitter e, Type type, Label notEquals) {
-//         not_equals(e, type, notEquals, null);
-//     }
+    //     public static void not_equals(CodeEmitter e, Type type, Label notEquals) {
+    //         not_equals(e, type, notEquals, null);
+    //     }
 
     /**
      * @deprecated use
@@ -523,6 +520,7 @@ public abstract class EmitUtils {
      */
     public static void notEquals(final CodeEmitter e, Type type, final Label notEquals,
                                  final CustomizerRegistry registry) {
+
         (new ProcessArrayCallback() {
             public void processElement(Type type) {
                 notEqualsHelper(e, type, notEquals, registry, this);
@@ -530,8 +528,12 @@ public abstract class EmitUtils {
         }).processElement(type);
     }
 
-    private static void notEqualsHelper(CodeEmitter e, Type type, Label notEquals, CustomizerRegistry registry,
-                                        ProcessArrayCallback callback) {
+    private static void notEqualsHelper(final CodeEmitter e,
+                                        final Type type,
+                                        final Label notEquals,
+                                        final CustomizerRegistry registry,
+                                        final ProcessArrayCallback callback)//
+    {
         if (TypeUtils.isPrimitive(type)) {
             e.if_cmp(type, e.NE, notEquals);
         }
@@ -599,14 +601,12 @@ public abstract class EmitUtils {
         e.mark(end);
     }
 
-    /*
-     * public static void to_string(CodeEmitter e, Type type, ArrayDelimiters
+    /* public static void to_string(CodeEmitter e, Type type, ArrayDelimiters
      * delims, CustomizerRegistry registry) {
      * e.new_instance(Constants.TYPE_STRING_BUFFER); e.dup();
      * e.invoke_constructor(Constants.TYPE_STRING_BUFFER); e.swap();
      * append_string(e, type, delims, registry);
-     * e.invoke_virtual(Constants.TYPE_STRING_BUFFER, TO_STRING); }
-     */
+     * e.invoke_virtual(Constants.TYPE_STRING_BUFFER, TO_STRING); } */
 
     /**
      * @deprecated use
@@ -614,13 +614,17 @@ public abstract class EmitUtils {
      *             instead
      */
     @Deprecated
-    public static void appendString(final CodeEmitter e, Type type, final ArrayDelimiters delims,
+    public static void appendString(final CodeEmitter e,
+                                    final Type type,
+                                    final ArrayDelimiters delims,
                                     final Customizer customizer) {
         appendString(e, type, delims, CustomizerRegistry.singleton(customizer));
     }
 
-    public static void appendString(final CodeEmitter e, Type type, //
-                                    final ArrayDelimiters delims, final CustomizerRegistry registry) //
+    public static void appendString(final CodeEmitter e,
+                                    final Type type,
+                                    final ArrayDelimiters delims,
+                                    final CustomizerRegistry registry) //
     {
         final ArrayDelimiters d = (delims != null) ? delims : DEFAULT_DELIMITERS;
         ProcessArrayCallback callback = new ProcessArrayCallback() {
@@ -633,13 +637,16 @@ public abstract class EmitUtils {
         appendStringHelper(e, type, d, registry, callback);
     }
 
-    private static void appendStringHelper(CodeEmitter e, Type type, ArrayDelimiters delims,
-                                           CustomizerRegistry registry, ProcessArrayCallback callback) {
+    private static void appendStringHelper(final CodeEmitter e,
+                                           final Type type,
+                                           final ArrayDelimiters delims,
+                                           final CustomizerRegistry registry,
+                                           final ProcessArrayCallback callback)//
+    {
         Label skip = e.make_label();
         Label end = e.make_label();
         if (TypeUtils.isPrimitive(type)) {
-            switch (type.getSort())
-            {
+            switch (type.getSort()) {
                 case Type.INT :
                 case Type.SHORT :
                 case Type.BYTE :
@@ -695,7 +702,7 @@ public abstract class EmitUtils {
         e.mark(end);
     }
 
-    private static void shrinkStringBuffer(CodeEmitter e, int amt) {
+    private static void shrinkStringBuffer(final CodeEmitter e, final int amt) {
         e.dup();
         e.dup();
         e.invoke_virtual(Constant.TYPE_STRING_BUFFER, LENGTH);
@@ -716,7 +723,7 @@ public abstract class EmitUtils {
         }
     }
 
-    public static void loadMethod(CodeEmitter e, MethodInfo method) {
+    public static void loadMethod(final CodeEmitter e, final MethodInfo method) {
         loadClass(e, method.getClassInfo().getType());
         e.push(method.getSignature().getName());
         pushObject(e, method.getSignature().getArgumentTypes());
@@ -724,6 +731,7 @@ public abstract class EmitUtils {
     }
 
     private interface ParameterTyper {
+
         Type[] getParameterTypes(MethodInfo member);
     }
 
@@ -736,7 +744,8 @@ public abstract class EmitUtils {
     }
 
     private static void memberSwitchHelper(final CodeEmitter e, //
-                                           List members, final ObjectSwitchCallback callback, boolean useName)//
+                                           final List members,
+                                           final ObjectSwitchCallback callback, boolean useName)//
     {
         try {
 
@@ -792,8 +801,12 @@ public abstract class EmitUtils {
         }
     }
 
-    private static void memberHelperSize(final CodeEmitter e, List members, final ObjectSwitchCallback callback,
-                                         final ParameterTyper typer, final Label def, final Label end) throws Exception {
+    private static void memberHelperSize(final CodeEmitter e,
+                                         final List members,
+                                         final ObjectSwitchCallback callback,
+                                         final ParameterTyper typer,
+                                         final Label def, final Label end) throws Exception //
+    {
 
         final Map<Integer, List<MethodInfo>> buckets = CollectionUtils.bucket(members, (MethodInfo value) -> {
             return Integer.valueOf(typer.getParameterTypes(value).length);
@@ -815,9 +828,13 @@ public abstract class EmitUtils {
         });
     }
 
-    private static void memberHelperType(final CodeEmitter e, List<MethodInfo> members, final ObjectSwitchCallback callback,
-                                         final ParameterTyper typer, final Label def, final Label end, final BitSet checked)
-            throws Exception {
+    private static void memberHelperType(final CodeEmitter e,
+                                         final List<MethodInfo> members,
+                                         final ObjectSwitchCallback callback,
+                                         final ParameterTyper typer, final Label def,
+                                         final Label end, final BitSet checked) throws Exception //
+    {
+
         if (members.size() == 1) {
             final MethodInfo member = members.get(0);
             Type[] types = typer.getParameterTypes(member);
@@ -918,11 +935,9 @@ public abstract class EmitUtils {
         e.end_method();
     }
 
-    /*
-     * generates: } catch (RuntimeException e) { throw e; } catch (Error e) { throw
+    /* generates: } catch (RuntimeException e) { throw e; } catch (Error e) { throw
      * e; } catch (<DeclaredException> e) { throw e; } catch (Throwable e) { throw
-     * new <Wrapper>(e); }
-     */
+     * new <Wrapper>(e); } */
     public static void wrapUndeclaredThrowable(CodeEmitter e, Block handler, Type[] exceptions, Type wrapper) {
         Set set = (exceptions == null) ? Collections.EMPTY_SET : new HashSet(Arrays.asList(exceptions));
 

@@ -1154,7 +1154,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         e.invoke_static_this(BIND_CALLBACKS);
         e.load_this();
         e.push(callbackTypes.length);
-        e.newarray(CALLBACK);
+        e.newArray(CALLBACK);
         for (int i = 0; i < callbackTypes.length; i++) {
             e.dup();
             e.push(i);
@@ -1204,7 +1204,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
             case 1 :
                 // for now just make a new array; TODO: optimize
                 e.push(1);
-                e.newarray(CALLBACK);
+                e.newArray(CALLBACK);
                 e.dup();
                 e.push(0);
                 e.load_arg(0);
@@ -1339,9 +1339,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
                 final Signature bridgeTarget = bridgeToTarget.get(method.getSignature());
                 if (bridgeTarget != null) {
                     // checkcast each argument against the target's argument types
-                    for (int i = 0; i < bridgeTarget.getArgumentTypes().length; i++) {
+                    final Type[] argumentTypes = bridgeTarget.getArgumentTypes();
+                    for (int i = 0; i < argumentTypes.length; i++) {
                         e.load_arg(i);
-                        Type target = bridgeTarget.getArgumentTypes()[i];
+                        Type target = argumentTypes[i];
                         if (!target.equals(method.getSignature().getArgumentTypes()[i])) {
                             e.checkcast(target);
                         }

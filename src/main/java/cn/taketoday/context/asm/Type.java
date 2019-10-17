@@ -439,10 +439,9 @@ public final class Type {
      * @return the {@link Type} corresponding to the given type descriptor.
      */
     private static Type getTypeInternal(final String descriptorBuffer, //
-            final int descriptorBegin, final int descriptorEnd) //
+                                        final int descriptorBegin, final int descriptorEnd) //
     {
-        switch (descriptorBuffer.charAt(descriptorBegin))
-        {
+        switch (descriptorBuffer.charAt(descriptorBegin)) {
             case 'V' :
                 return VOID_TYPE;
             case 'Z' :
@@ -483,8 +482,7 @@ public final class Type {
      * @return the binary name of the class corresponding to this type.
      */
     public String getClassName() {
-        switch (sort)
-        {
+        switch (sort) {
             case VOID :
                 return "void";
             case BOOLEAN :
@@ -551,7 +549,7 @@ public final class Type {
         if (sort == OBJECT) {
             return valueBuffer.substring(valueBegin - 1, valueEnd + 1);
         }
-        else if (sort == INTERNAL) {
+        if (sort == INTERNAL) {
             return new StringBuilder()//
                     .append('L')//
                     .append(valueBuffer, valueBegin, valueEnd)//
@@ -746,8 +744,7 @@ public final class Type {
      *         {@code double}, 0 for {@code void} and 1 otherwise.
      */
     public int getSize() {
-        switch (sort)
-        {
+        switch (sort) {
             case VOID :
                 return 0;
             case BOOLEAN :
@@ -843,8 +840,7 @@ public final class Type {
      */
     public int getOpcode(final int opcode) {
         if (opcode == Opcodes.IALOAD || opcode == Opcodes.IASTORE) {
-            switch (sort)
-            {
+            switch (sort) {
                 case BOOLEAN :
                 case BYTE :
                     return opcode + (Opcodes.BALOAD - Opcodes.IALOAD);
@@ -872,8 +868,7 @@ public final class Type {
             }
         }
         else {
-            switch (sort)
-            {
+            switch (sort) {
                 case VOID :
                     if (opcode != Opcodes.IRETURN) {
                         throw new UnsupportedOperationException();
@@ -909,12 +904,21 @@ public final class Type {
     /**
      * To {@link Type} array
      * 
-     * @param item
+     * @param items
      *            array item
      * @return {@link Type} array
      */
-    public static Type[] array(final Type... item) {
-        return item;
+    public static Type[] array(final Type... items) {
+        return items;
+    }
+
+    public static Type[] array(final Class<?>... items) {
+        int i = 0;
+        Type[] ret = new Type[items.length];
+        for (final Class<?> item : items) {
+            ret[i++] = getType(item);
+        }
+        return ret;
     }
 
     // -----------------------------------------------------------------------------------------------

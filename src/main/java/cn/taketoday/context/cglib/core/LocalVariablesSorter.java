@@ -50,7 +50,7 @@ public class LocalVariablesSorter extends MethodVisitor {
      * size 2 is remapped to 'mapping[2*i+1]'.
      */
     private static class State {
-        
+
         private int[] mapping = new int[40];
         private int nextLocal;
     }
@@ -100,8 +100,12 @@ public class LocalVariablesSorter extends MethodVisitor {
         mv.visitMaxs(maxStack, state.nextLocal);
     }
 
-    public void visitLocalVariable(final String name, final String desc, final String signature, final Label start,
-                                   final Label end, final int index) {
+    public void visitLocalVariable(final String name,
+                                   final String desc,
+                                   final String signature,
+                                   final Label start,
+                                   final Label end,
+                                   final int index) {
         mv.visitLocalVariable(name, desc, signature, start, end, remap(index));
     }
 

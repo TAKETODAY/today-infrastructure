@@ -438,19 +438,19 @@ public abstract class ReflectUtils {
         return methods[0];
     }
 
-    public static Class defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
+    public static <T> Class<T> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
         return defineClass(className, b, loader, PROTECTION_DOMAIN);
     }
 
-    public static Class defineClass(String className, byte[] b, //
-                                    ClassLoader loader, ProtectionDomain protectionDomain) throws Exception //
+    public static <T> Class<T> defineClass(String className, byte[] b, //
+                                           ClassLoader loader, ProtectionDomain protectionDomain) throws Exception //
     {
-        Class c;
+        Class<T> c;
         if (DEFINE_CLASS != null) {
-            c = (Class) DEFINE_CLASS.invoke(loader, className, b, 0, b.length, protectionDomain);
+            c = (Class<T>) DEFINE_CLASS.invoke(loader, className, b, 0, b.length, protectionDomain);
         }
         else if (DEFINE_CLASS_UNSAFE != null) {
-            c = (Class) DEFINE_CLASS_UNSAFE.invoke(UNSAFE, className, b, 0, b.length, loader, protectionDomain);
+            c = (Class<T>) DEFINE_CLASS_UNSAFE.invoke(UNSAFE, className, b, 0, b.length, loader, protectionDomain);
         }
         else {
             throw new CodeGenerationException(THROWABLE);

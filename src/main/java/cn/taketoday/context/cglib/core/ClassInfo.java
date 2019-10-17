@@ -22,17 +22,17 @@ import cn.taketoday.context.asm.Type;
  * @author TODAY <br>
  *         2019-09-03 19:33
  */
-abstract public class ClassInfo {
+public abstract class ClassInfo {
 
     protected ClassInfo() {}
 
-    abstract public Type getType();
+    public abstract Type getType();
 
-    abstract public Type getSuperType();
+    public abstract Type getSuperType();
 
-    abstract public Type[] getInterfaces();
+    public abstract Type[] getInterfaces();
 
-    abstract public int getModifiers();
+    public abstract int getModifiers();
 
     public boolean equals(Object o) {
         return (o == this) || ((o instanceof ClassInfo) && getType().equals(((ClassInfo) o).getType()));

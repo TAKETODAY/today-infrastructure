@@ -178,7 +178,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
     public void generateStatic(final CodeEmitter e, final Context context, final List<MethodInfo> methods) throws Exception {
 
         e.push(0);
-        e.newarray();
+        e.newArray();
         e.putfield(EMPTY_ARGS_NAME);
 
         Local thisclass = e.make_local();
@@ -195,7 +195,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
 
             final int size = classMethods.size();
             e.push(2 * size);
-            e.newarray(Constant.TYPE_STRING);
+            e.newArray(Constant.TYPE_STRING);
             for (int index = 0; index < size; index++) {
                 Signature sig = classMethods.get(index).getSignature();
                 e.dup();

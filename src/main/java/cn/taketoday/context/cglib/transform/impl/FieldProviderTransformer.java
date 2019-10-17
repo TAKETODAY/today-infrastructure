@@ -110,7 +110,7 @@ public class FieldProviderTransformer extends ClassEmitterTransformer {
         e.putstatic(getClassType(), FIELD_NAMES, Constant.TYPE_STRING_ARRAY);
 
         e.push(names.length);
-        e.newarray(Constant.TYPE_CLASS);
+        e.newArray(Constant.TYPE_CLASS);
         e.dup();
         for (int i = 0; i < names.length; i++) {
             e.dup();
