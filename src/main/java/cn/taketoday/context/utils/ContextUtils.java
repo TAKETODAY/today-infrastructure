@@ -1139,8 +1139,8 @@ public abstract class ContextUtils {
     public final static class DelegatingParameterResolver implements ExecutableParameterResolver, Ordered {
 
         private final int order;
-        private final SupportsFunction supports;
         private final ExecutableParameterResolver resolver;
+        private final ExecutableParameterResolver.SupportsFunction supports;
 
         public DelegatingParameterResolver(SupportsFunction supports, ExecutableParameterResolver resolver) {
             this(supports, resolver, Ordered.HIGHEST_PRECEDENCE);
