@@ -115,7 +115,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
         this.servletContext = context.getServletContext();
         this.wrapper = wrapper != null ? wrapper : new DefaultObjectWrapper(Configuration.VERSION_2_3_28);
         this.taglibFactory = taglibFactory != null ? taglibFactory : new TaglibFactory(this.servletContext);
-        this.configuration.setObjectWrapper(wrapper);
+        this.configuration.setObjectWrapper(this.wrapper);
 
         // Create hash model wrapper for servlet context (the application)
         this.applicationModel = new ServletContextHashModel(this.servletContext, wrapper);
