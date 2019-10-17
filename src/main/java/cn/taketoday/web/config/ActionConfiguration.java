@@ -368,18 +368,13 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
 
         final BeanDefinition def = beanFactory.getBeanDefinition(beanClass);
 
-        final Object bean;
-        if (def.isSingleton()) {
-            bean = beanFactory.getBean(def);
-        }
-        else {
-            bean = Prototypes.newProxyInstance(beanClass, def, beanFactory);
-        }
+        final Object bean = def.isSingleton()
+                ? beanFactory.getBean(def)
+                : Prototypes.newProxyInstance(beanClass, def, beanFactory);
 
         if (bean == null) {
-            throw new ConfigurationException(//
-                                             "An unexpected exception occurred: [Can't get bean with given type: [" + beanClass.getName()
-                                                     + "]]"//
+            throw new ConfigurationException("An unexpected exception occurred: [Can't get bean with given type: ["
+                    + beanClass.getName() + "]]"//
             );
         }
 
