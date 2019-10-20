@@ -443,14 +443,16 @@ public abstract class ReflectUtils {
     }
 
     public static <T> Class<T> defineClass(String className, byte[] b, //
-                                           ClassLoader loader, ProtectionDomain protectionDomain) throws Exception //
+                                           ClassLoader loader, ProtectionDomain protection) throws Exception //
     {
+        final ProtectionDomain protectionDomainToUse = protection == null ? PROTECTION_DOMAIN : protection;
+
         Class<T> c;
         if (DEFINE_CLASS != null) {
-            c = (Class<T>) DEFINE_CLASS.invoke(loader, className, b, 0, b.length, protectionDomain);
+            c = (Class<T>) DEFINE_CLASS.invoke(loader, className, b, 0, b.length, protectionDomainToUse);
         }
         else if (DEFINE_CLASS_UNSAFE != null) {
-            c = (Class<T>) DEFINE_CLASS_UNSAFE.invoke(UNSAFE, className, b, 0, b.length, loader, protectionDomain);
+            c = (Class<T>) DEFINE_CLASS_UNSAFE.invoke(UNSAFE, className, b, 0, b.length, loader, protectionDomainToUse);
         }
         else {
             throw new CodeGenerationException(THROWABLE);

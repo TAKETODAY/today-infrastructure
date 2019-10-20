@@ -7,9 +7,9 @@
 <!-- 
     <version>2.1.7.RELEASE</version>
 -->
-    <name>Today Context</name>
     <version>latest</version>
 
+    <name>Today Context</name>
     <description>today-context is a lightweight dependency injection framework.</description>
 
     <licenses>

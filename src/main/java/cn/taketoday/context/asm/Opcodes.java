@@ -65,7 +65,7 @@ public interface Opcodes {
     int V11 = 0 << 16 | 55;
     int V12 = 0 << 16 | 56;
 
-    int JAVA_VERSION = V1_2;
+    int JAVA_VERSION = V1_8;
 
     // int V1_2 = 0 << 16 | 46;
 

@@ -74,7 +74,7 @@ public abstract class EmitUtils {
     }
 
     public static void nullConstructor(ClassEmitter ce) {
-        CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, CSTRUCT_NULL, null);
+        CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, CSTRUCT_NULL);
         e.load_this();
         e.super_invoke_constructor();
         e.return_value();

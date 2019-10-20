@@ -161,10 +161,12 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     private static final Signature SET_THREAD_CALLBACKS = new Signature(SET_THREAD_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
     private static final Signature SET_STATIC_CALLBACKS = new Signature(SET_STATIC_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
     private static final Signature NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, array(CALLBACK_ARRAY));
-    private static final Signature MULTIARG_NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, array(
-                                                                                                                    Constant.TYPE_CLASS_ARRAY,
-                                                                                                                    Constant.TYPE_OBJECT_ARRAY,
-                                                                                                                    CALLBACK_ARRAY));
+    private static final Signature MULTIARG_NEW_INSTANCE = new Signature("newInstance",
+                                                                         Constant.TYPE_OBJECT,
+                                                                         array(Constant.TYPE_CLASS_ARRAY,
+                                                                               Constant.TYPE_OBJECT_ARRAY,
+                                                                               CALLBACK_ARRAY));
+    
     private static final Signature SINGLE_NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, array(CALLBACK));
     private static final Signature SET_CALLBACK = new Signature("setCallback", VOID_TYPE, array(INT_TYPE, CALLBACK));
     private static final Signature GET_CALLBACK = new Signature("getCallback", CALLBACK, array(INT_TYPE));
@@ -563,7 +565,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
                 }
                 // Take a slow path if observing unexpected argument types
                 return ReflectUtils.newInstance(generatedClass, argumentTypes, arguments);
-            } finally {
+            }
+            finally {
                 // clear thread callbacks to allow them to be gc'd
                 setThreadCallbacks(null);
             }
@@ -971,7 +974,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
                 return ReflectUtils.newInstance(type, argumentTypes, arguments);
             }
             return ReflectUtils.newInstance(type);
-        } finally {
+        }
+        finally {
             // clear thread callbacks to allow them to be gc'd
             setThreadCallbacks(type, null);
         }
@@ -1196,8 +1200,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     private void emitNewInstanceCallback(ClassEmitter ce) {
         CodeEmitter e = ce.beginMethod(ACC_PUBLIC, SINGLE_NEW_INSTANCE);
-        switch (callbackTypes.length)
-        {
+        switch (callbackTypes.length) {
             case 0 :
                 // TODO: make sure Callback is null
                 break;
@@ -1528,7 +1531,8 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
                     try {
                         new ClassReader(is).accept(new BridgedFinder(entry.getValue(), resolved), SKIP_FRAMES | SKIP_DEBUG);
-                    } finally {
+                    }
+                    finally {
                         is.close();
                     }
                 }

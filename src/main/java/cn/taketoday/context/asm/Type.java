@@ -913,9 +913,24 @@ public final class Type {
     }
 
     public static Type[] array(final Class<?>... items) {
+        if (items == null) {
+            return null;
+        }
         int i = 0;
         Type[] ret = new Type[items.length];
         for (final Class<?> item : items) {
+            ret[i++] = getType(item);
+        }
+        return ret;
+    }
+
+    public static Type[] array(String... items) {
+        if (items == null) {
+            return null;
+        }
+        int i = 0;
+        Type[] ret = new Type[items.length];
+        for (final String item : items) {
             ret[i++] = getType(item);
         }
         return ret;

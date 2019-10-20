@@ -15,6 +15,9 @@
  */
 package cn.taketoday.context.cglib.core;
 
+import static cn.taketoday.context.asm.Type.array;
+import static cn.taketoday.context.asm.Type.getType;
+
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,10 +69,45 @@ public class ClassEmitter extends ClassTransformer {
         return classInfo;
     }
 
-    public void beginClass(int version, final int access, String className, final Type superType,
+    public void beginClass(final int access,
+                           final String className,
+                           final Class<?> superType, final Class<?>... interfaces) {
+        beginClass(Constant.JAVA_VERSION, access, className, getType(superType), array(interfaces), Constant.SOURCE_FILE);
+    }
+
+    public void beginClass(final int access,
+                           final String className,
+                           final Class<?> superType,
+                           final String source, final Class<?>... interfaces) {
+
+        beginClass(Constant.JAVA_VERSION, access, className, getType(superType), array(interfaces), source);
+    }
+
+    public void beginClass(final int version,
+                           final int access,
+                           final String className,
+                           final Class<?> superType,
+                           final String source, final Class<?>... interfaces) {
+
+        beginClass(version, access, className, getType(superType), array(interfaces), source);
+    }
+
+    public void beginClass(final int version,
+                           final int access,
+                           final String className,
+                           final Type superType,
+                           final String source, final Type... interfaces) {
+
+        beginClass(version, access, className, superType, interfaces, source);
+    }
+
+    public void beginClass(final int version,
+                           final int access,
+                           final String className,
+                           final Type superType,
                            final Type[] interfaces, String source) //
     {
-        final Type classType = Type.getType('L' + className.replace('.', '/') + ';');
+        final Type classType = getType('L' + className.replace('.', '/') + ';');
         classInfo = new ClassInfo() {
             public Type getType() {
                 return classType;
@@ -91,6 +129,65 @@ public class ClassEmitter extends ClassTransformer {
                  classInfo.getSuperType().getInternalName(), TypeUtils.toInternalNames(interfaces));
 
         if (source != null) cv.visitSource(source, null);
+        init();
+    }
+
+    public void beginClass(final int access,
+                           final String name,
+                           final String superName,
+                           final String... interfaces) //
+    {
+        beginClass(Constant.JAVA_VERSION, access, name, superName, interfaces);
+    }
+
+    public void beginClass(final int version,
+                           final int access,
+                           final String name,
+                           final String superName,
+                           final String... interfaces) //
+    {
+        beginClass(version, access, name, Constant.SOURCE_FILE, superName, interfaces);
+    }
+
+    /**
+     * @param name
+     *            class full name
+     */
+    public void beginClass(final int version,
+                           final int access,
+                           final String name,
+                           final String source,
+                           final String superName,
+                           final String... interfaces) //
+    {
+        classInfo = new ClassInfo() {
+            private Type type;
+            private Type superType;
+            private Type[] interfaces;
+
+            public Type getType() {
+                return type == null ? (type = Type.getType('L' + name.replace('.', '/') + ';')) : type;
+            }
+
+            public Type getSuperType() {
+                return superName != null
+                        ? (superType == null ? superType = Type.getType(superName) : superType)
+                        : Constant.TYPE_OBJECT;
+            }
+
+            public Type[] getInterfaces() {
+                return interfaces == null ? interfaces = Type.array(interfaces) : interfaces;
+            }
+
+            public int getModifiers() {
+                return access;
+            }
+        };
+        cv.visit(version, access, name, null, superName, interfaces);
+
+        if (source != null) {
+            cv.visitSource(source, null);
+        }
         init();
     }
 
@@ -255,15 +352,18 @@ public class ClassEmitter extends ClassTransformer {
         beginClass(version, access, name.replace('/', '.'), TypeUtils.fromInternalName(superName),
                    TypeUtils.fromInternalNames(interfaces), null); // TODO
     }
+
     @Override
     public void visitEnd() {
         endClass();
     }
+
     @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-        declare_field(access, name, Type.getType(desc), value);
+        declare_field(access, name, getType(desc), value);
         return null; // TODO
     }
+
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         return beginMethod(access, new Signature(name, desc), TypeUtils.fromInternalNames(exceptions));
