@@ -28,15 +28,7 @@ snakeyaml-
 cache-api-
 reactor-core-
 reactive-streams-
-today-web-
-today-aop-
-today-jdbc-
-today-cache-
-today-context-
-today-session-
-today-framework-
-today-scheduler-
-today-expression-
+today-
 hibernate-
 validation-
 classmate-
