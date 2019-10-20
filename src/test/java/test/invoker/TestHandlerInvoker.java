@@ -21,6 +21,8 @@ package test.invoker;
 
 import java.lang.reflect.Method;
 
+import org.junit.Test;
+
 import cn.taketoday.context.invoker.Invoker;
 import cn.taketoday.context.invoker.MethodInvokerCreator;
 
@@ -30,20 +32,22 @@ import cn.taketoday.context.invoker.MethodInvokerCreator;
  */
 public class TestHandlerInvoker {
 
-    public static void main(String[] args) throws Exception {
+    @Test
+    public void testAll() throws Exception {
+        main();
+    }
+
+    public static void main(String... args) throws Exception {
 
         System.setProperty("cglib.debugLocation", "D:/debug");
         {
             final Method main = Bean.class.getDeclaredMethod("main");
             final Invoker mainInvoker = MethodInvokerCreator.create(main);
-
             mainInvoker.invoke(null, null);
         }
         {
             final Method test = Bean.class.getDeclaredMethod("test", short.class);
-
             final Invoker mainInvoker = MethodInvokerCreator.create(test);
-
             mainInvoker.invoke(null, new Object[] { (short) 1 });
         }
 
@@ -62,7 +66,7 @@ public class TestHandlerInvoker {
             System.err.println("static main " + i);
         }
 
-        public static void main() throws Throwable {
+        protected static void main() throws Throwable {
             System.err.println("static main");
         }
 
@@ -70,9 +74,8 @@ public class TestHandlerInvoker {
             System.err.println("instance test");
         }
 
-        public void test(Bean itself) {
+        void test(Bean itself) {
             System.err.println("instance test :" + itself);
         }
-
     }
 }
