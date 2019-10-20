@@ -205,12 +205,13 @@ public abstract class MethodInvokerCreator {
         protected String getClassName() {
             if (className == null) {
                 StringBuilder builder = new StringBuilder(targetClass.getName());
+                builder.append('$').append(targetMethod.getName());
+
                 if (targetMethod.getParameterCount() == 0) {
-                    builder.append('$')
-                            .append(targetMethod.getName())
-                            .append('$');
+                    builder.append('$');
                 }
                 else {
+
                     for (final Class<?> parameterType : targetMethod.getParameterTypes()) {
                         builder.append('$');
                         if (parameterType.isArray()) {
