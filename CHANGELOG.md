@@ -41,7 +41,7 @@
 - :zap: 优化AutowiredPropertyResolver不必要的局部变量
 - :zap: 优化AbstractBeanFactory#containsBeanDefinition(Class,boolean)
 - :sparkles: 添加ExecutableParameterResolver增强构造器注入或方法注入的扩展性
-
+- :sparkles: 添加 Method Invoker
 
 
 ## v2.1.6
