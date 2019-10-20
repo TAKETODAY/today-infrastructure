@@ -71,17 +71,15 @@ public class DispatcherServlet implements Servlet, Serializable {
     private ServletConfig servletConfig;
 
     @Autowired
-    public DispatcherServlet(
-            ExceptionResolver exceptionResolver,
-            HandlerMappingRegistry handlerMappingRegistry,
-            WebServletApplicationContext applicationContext,
-            HandlerInterceptorRegistry handlerInterceptorRegistry) //
+    public DispatcherServlet(ExceptionResolver exceptionResolver, //@off
+                             HandlerMappingRegistry handlerMappingRegistry,
+                             WebServletApplicationContext applicationContext,
+                             HandlerInterceptorRegistry handlerInterceptorRegistry) //@on
     {
         if (exceptionResolver == null) {
             throw new ConfigurationException("You must provide an 'exceptionResolver'");
         }
         this.exceptionResolver = exceptionResolver;
-
         this.applicationContext = applicationContext;
         this.handlerMappingRegistry = handlerMappingRegistry;
         this.handlerInterceptorRegistry = handlerInterceptorRegistry;
@@ -125,7 +123,7 @@ public class DispatcherServlet implements Servlet, Serializable {
                 // get intercepter s
                 final int[] its = mapping.getInterceptors();
                 // invoke intercepter
-                final HandlerInterceptorRegistry registry = getHandlerInterceptorRegistry();
+                final HandlerInterceptorRegistry registry = this.handlerInterceptorRegistry;
                 for (final int i : its) {
                     if (!registry.get(i).beforeProcess(context, mapping)) {
                         if (log.isDebugEnabled()) {
@@ -163,11 +161,11 @@ public class DispatcherServlet implements Servlet, Serializable {
      * @return mapped {@link HandlerMapping}
      * @since 2.3.7
      */
-    protected HandlerMapping lookupHandlerMapping(final HttpServletRequest req) {
+    protected HandlerMapping lookupHandlerMapping(final HttpServletRequest req) { //TODO Optimize performance
         // The key of handler
         String key = req.getMethod().concat(req.getRequestURI());
 
-        final HandlerMappingRegistry registry = getHandlerMappingRegistry();
+        final HandlerMappingRegistry registry = this.handlerMappingRegistry;
         final Integer i = registry.getIndex(key); // index of handler mapping
         if (i == null) {
             // path variable
@@ -223,7 +221,8 @@ public class DispatcherServlet implements Servlet, Serializable {
                         .toString();
 
                 log.info(msg);
-                applicationContext.getServletContext().log(msg);
+
+                servletConfig.getServletContext().log(msg);
             }
         }
     }

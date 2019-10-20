@@ -40,13 +40,13 @@ public class HandlerMapping extends HandlerMethod implements WebMapping {
     private final Object bean;
     /** 拦截器 @off*/
     private final int[] interceptors;
-
+    
     public HandlerMapping(Object bean, 
                           Method method,
                           List<Integer> interceptors, 
                           List<MethodParameter> parameters) {
         
-        this(bean, method, interceptors, parameters.toArray(MethodParameter.EMPTY_ARRAY));
+        this(bean, method, interceptors,parameters.toArray(MethodParameter.EMPTY_ARRAY));
     }
 
     public HandlerMapping(Object bean, 
@@ -82,8 +82,17 @@ public class HandlerMapping extends HandlerMethod implements WebMapping {
         return new HandlerMapping(bean, method, interceptors, methodParameters);
     }
 
+    public static HandlerMapping create(final Object bean,
+                                        final Method method,
+                                        final List<Integer> interceptors,
+                                        final MethodParameter... methodParameters) {
+
+        return new HandlerMapping(bean, method, interceptors, methodParameters);
+    }
+
     @Override
     public Object getObject() {
         return bean;
     }
+
 }

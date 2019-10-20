@@ -30,6 +30,8 @@ import java.util.List;
 
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.ObjectFactory;
+import cn.taketoday.context.invoker.MethodInvoker;
+import cn.taketoday.context.invoker.MethodInvokerCreator;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
@@ -52,8 +54,8 @@ public class HandlerMethod implements ObjectFactory<Object> {
     /** @since 2.3.7 */
     private final Type[] genericityClass;
 
+    private final MethodInvoker handlerInvoker;
     private final ResultResolver resultResolver;
-
     private static final List<ResultResolver> RESULT_RESOLVERS = new ArrayList<>();
 
     /**
@@ -63,8 +65,8 @@ public class HandlerMethod implements ObjectFactory<Object> {
      * @return A suitable {@link ResultResolver}
      */
     protected ResultResolver obtainResolver() throws ConfigurationException {
-
         if (method != null) {
+
             for (final ResultResolver resolver : getResultResolvers()) {
                 if (resolver.supports(this)) {
                     return resolver;
@@ -95,6 +97,11 @@ public class HandlerMethod implements ObjectFactory<Object> {
             this.parameters = parameters;
         }
         this.resultResolver = obtainResolver();
+        this.handlerInvoker = method != null ? MethodInvokerCreator.create(method) : null;
+    }
+
+    public static HandlerMethod create(final Method method, final MethodParameter... methodParameters) {
+        return new HandlerMethod(method, methodParameters);
     }
 
     public static HandlerMethod create(final Method method, final List<MethodParameter> methodParameters) {
@@ -123,7 +130,6 @@ public class HandlerMethod implements ObjectFactory<Object> {
     }
 
     public boolean isAssignableFrom(final Class<?> superClass) {
-
         return superClass.isAssignableFrom(reutrnType);
     }
 
@@ -197,7 +203,7 @@ public class HandlerMethod implements ObjectFactory<Object> {
     }
 
     public Object invokeHandler(final RequestContext request) throws Throwable {
-        return method.invoke(getObject(), resolveParameters(request));
+        return handlerInvoker.invoke(getObject(), resolveParameters(request));
     }
 
     // Useful methods
