@@ -19,6 +19,29 @@
  */
 package cn.taketoday.context.invoker;
 
+import static cn.taketoday.context.asm.Opcodes.ACC_FINAL;
+import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
+import static cn.taketoday.context.cglib.core.ReflectUtils.getMethodInfo;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.security.ProtectionDomain;
+
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.asm.ClassVisitor;
+import cn.taketoday.context.asm.Type;
+import cn.taketoday.context.cglib.core.ClassEmitter;
+import cn.taketoday.context.cglib.core.ClassGenerator;
+import cn.taketoday.context.cglib.core.CodeEmitter;
+import cn.taketoday.context.cglib.core.CodeGenerationException;
+import cn.taketoday.context.cglib.core.DefaultGeneratorStrategy;
+import cn.taketoday.context.cglib.core.EmitUtils;
+import cn.taketoday.context.cglib.core.MethodInfo;
+import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.TypeUtils;
+import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.utils.ClassUtils;
+
 /**
  * @author TODAY <br>
  *         2019-10-18 22:35
@@ -27,5 +50,187 @@ public abstract class MethodInvoker implements Invoker {
 
     @Override
     public abstract Object invoke(Object obj, Object[] args);
+
+    /**
+     * Create a {@link MethodInvoker}
+     * 
+     * @param method
+     *            Target method to invoke
+     * @return {@link MethodInvoker} sub object
+     */
+    public static MethodInvoker create(Method method) {
+        return new MethodInvokerGenerator(method).create();
+    }
+
+    /**
+     * Create a {@link MethodInvoker}
+     * 
+     * @param beanClass
+     *            Bean Class
+     * @param name
+     *            Target method to invoke
+     * @param parameters
+     *            Target parameters classes
+     * @throws NoSuchMethodException
+     *             Thrown when a particular method cannot be found.
+     * 
+     * @return {@link MethodInvoker} sub object
+     */
+    public static MethodInvoker create(final Class<?> beanClass,
+                                       final String name, final Class<?>... parameters) throws NoSuchMethodException {
+
+        final Method targetMethod = beanClass.getDeclaredMethod(name, parameters);
+
+        return new MethodInvokerGenerator(targetMethod, beanClass).create();
+    }
+
+    // MethodInvoker object generator
+    // --------------------------------------------------------------
+
+    public static class MethodInvokerGenerator implements ClassGenerator {
+
+        private String className;
+        private final Class<?> targetClass;
+        private final Method targetMethod;
+
+        private static final String superType = "Lcn/taketoday/context/invoker/MethodInvoker;";
+        private static final String[] interfaces = { "Lcn/taketoday/context/invoker/Invoker;" };
+
+        private static final MethodInfo invokeInfo;
+
+        static {
+            try {
+                invokeInfo = getMethodInfo(MethodInvoker.class.getDeclaredMethod("invoke", Object.class, Object[].class));
+            }
+            catch (NoSuchMethodException | SecurityException e) {
+                throw new ContextException(e);
+            }
+        }
+
+        public MethodInvokerGenerator(Method method) {
+            this.targetMethod = method;
+            this.targetClass = method.getDeclaringClass();
+        }
+
+        public MethodInvokerGenerator(Method method, Class<?> targetClass) {
+            this.targetMethod = method;
+            this.targetClass = targetClass;
+        }
+
+        protected ProtectionDomain getProtectionDomain() {
+            return ReflectUtils.getProtectionDomain(targetClass);
+        }
+
+        public MethodInvoker create() {
+            try {
+                final Class<?> loadClass = targetClass.getClassLoader().loadClass(getClassName());
+                return (MethodInvoker) ClassUtils.newInstance(loadClass);
+            }
+            catch (ClassNotFoundException e) {
+                return ClassUtils.newInstance(generateClass());
+            }
+        }
+
+        protected Class<MethodInvoker> generateClass() {
+
+            try {
+
+                final ClassLoader classLoader = targetClass.getClassLoader();
+                if (classLoader == null) {
+                    throw new IllegalStateException("ClassLoader is null while trying to define class " + getClassName()
+                            + ". It seems that the loader has been expired from a weak reference somehow.");
+                }
+
+                final byte[] b = DefaultGeneratorStrategy.INSTANCE.generate(this);
+                return ReflectUtils.defineClass(getClassName(), b, classLoader, getProtectionDomain());
+            }
+            catch (RuntimeException | Error e) {
+                throw e;
+            }
+            catch (Exception e) {
+                throw new CodeGenerationException(e);
+            }
+        }
+
+        @Override
+        public void generateClass(ClassVisitor v) throws NoSuchMethodException {
+
+            final Method targetMethod = this.targetMethod;
+
+            final ClassEmitter ce = new ClassEmitter(v);
+            ce.beginClass(ACC_PUBLIC | ACC_FINAL, getClassName().replace('.', '/'), superType, interfaces);
+
+            EmitUtils.nullConstructor(ce);
+
+            final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, invokeInfo, ACC_PUBLIC | ACC_FINAL);
+            if (!Modifier.isStatic(targetMethod.getModifiers())) {
+                codeEmitter.visitVarInsn(Constant.ALOAD, 1);
+                codeEmitter.checkcast(Type.getType(targetClass));
+                // codeEmitter.dup();
+            }
+
+            if (targetMethod.getParameterCount() != 0) {
+                final Class<?>[] parameterTypes = targetMethod.getParameterTypes();
+                for (int i = 0; i < parameterTypes.length; i++) {
+                    codeEmitter.visitVarInsn(Constant.ALOAD, 2);
+                    codeEmitter.aaload(i);
+
+                    Class<?> parameterClass = parameterTypes[i];
+                    final Type parameterType = Type.getType(parameterClass);
+                    if (parameterClass.isPrimitive()) {
+                        final Type boxedType = TypeUtils.getBoxedType(parameterType); // java.lang.Long ...
+
+                        codeEmitter.checkcast(boxedType);
+                        final String name = parameterClass.getName() + "Value";
+                        final String descriptor = "()" + parameterType.getDescriptor();
+
+                        codeEmitter.visitMethodInsn(Constant.INVOKEVIRTUAL, boxedType.getInternalName(), name, descriptor, false);
+                    }
+                    else {
+                        codeEmitter.checkcast(parameterType);
+                    }
+                }
+            }
+
+            final MethodInfo methodInfo = getMethodInfo(targetMethod);
+            codeEmitter.invoke(methodInfo);
+
+            if (targetMethod.getReturnType() == void.class) {
+                codeEmitter.aconst_null();
+            }
+
+            codeEmitter.return_value();
+            codeEmitter.end_method();
+
+            ce.endClass();
+        }
+
+        protected String getClassName() {
+            if (className == null) {
+                StringBuilder builder = new StringBuilder(targetClass.getName());
+                builder.append('$').append(targetMethod.getName());
+
+                if (targetMethod.getParameterCount() == 0) {
+                    builder.append('$');
+                }
+                else {
+
+                    for (final Class<?> parameterType : targetMethod.getParameterTypes()) {
+                        builder.append('$');
+                        if (parameterType.isArray()) {
+                            builder.append("A$");
+                            final String simpleName = parameterType.getSimpleName();
+                            builder.append(simpleName.substring(0, simpleName.length() - 2));
+                        }
+                        else {
+                            builder.append(parameterType.getSimpleName());
+                        }
+                    }
+                }
+                this.className = builder.toString();
+            }
+            return className;
+        }
+    }
 
 }

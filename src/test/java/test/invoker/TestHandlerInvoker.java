@@ -23,8 +23,7 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 
-import cn.taketoday.context.invoker.Invoker;
-import cn.taketoday.context.invoker.MethodInvokerCreator;
+import cn.taketoday.context.invoker.MethodInvoker;
 
 /**
  * @author TODAY <br>
@@ -42,20 +41,20 @@ public class TestHandlerInvoker {
         System.setProperty("cglib.debugLocation", "D:/debug");
         {
             final Method main = Bean.class.getDeclaredMethod("main");
-            final Invoker mainInvoker = MethodInvokerCreator.create(main);
+            final MethodInvoker mainInvoker = MethodInvoker.create(main);
             mainInvoker.invoke(null, null);
         }
         {
             final Method test = Bean.class.getDeclaredMethod("test", short.class);
-            final Invoker mainInvoker = MethodInvokerCreator.create(test);
+            final MethodInvoker mainInvoker = MethodInvoker.create(test);
             mainInvoker.invoke(null, new Object[] { (short) 1 });
         }
 
-        final Invoker create = MethodInvokerCreator.create(Bean.class, "test");
+        final MethodInvoker create = MethodInvoker.create(Bean.class, "test");
 
         create.invoke(new Bean(), null);
 
-        final Invoker itself = MethodInvokerCreator.create(Bean.class, "test", Bean.class);
+        final MethodInvoker itself = MethodInvoker.create(Bean.class, "test", Bean.class);
 
         itself.invoke(new Bean(), new Object[] { new Bean() });
     }
