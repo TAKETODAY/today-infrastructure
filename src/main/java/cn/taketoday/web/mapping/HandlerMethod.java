@@ -31,7 +31,6 @@ import java.util.List;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.invoker.MethodInvoker;
-import cn.taketoday.context.invoker.MethodInvokerCreator;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
@@ -97,7 +96,7 @@ public class HandlerMethod implements ObjectFactory<Object> {
             this.parameters = parameters;
         }
         this.resultResolver = obtainResolver();
-        this.handlerInvoker = method != null ? MethodInvokerCreator.create(method) : null;
+        this.handlerInvoker = method != null ? MethodInvoker.create(method) : null;
     }
 
     public static HandlerMethod create(final Method method, final MethodParameter... methodParameters) {
