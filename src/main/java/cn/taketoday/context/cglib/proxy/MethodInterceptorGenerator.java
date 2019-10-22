@@ -70,26 +70,27 @@ class MethodInterceptorGenerator implements CallbackGenerator {
     private static final Signature FIND_METHODS = //
             TypeUtils.parseSignature("java.lang.reflect.Method[] findMethods(String[], java.lang.reflect.Method[])");
 
-    private static final Signature MAKE_PROXY = new Signature("create", METHOD_PROXY, //
-            array(Constant.TYPE_CLASS, //
-                  Constant.TYPE_CLASS, //
-                  Constant.TYPE_STRING, //
-                  Constant.TYPE_STRING, //
-                  Constant.TYPE_STRING//
-            )//
+    private static final Signature MAKE_PROXY = new Signature("create",
+                                                              METHOD_PROXY, //
+                                                              array(Constant.TYPE_CLASS,
+                                                                    Constant.TYPE_CLASS,
+                                                                    Constant.TYPE_STRING,
+                                                                    Constant.TYPE_STRING,
+                                                                    Constant.TYPE_STRING)//
     );
-    private static final Signature INTERCEPT = new Signature("intercept", Constant.TYPE_OBJECT, //
-            array(Constant.TYPE_OBJECT, //
-                  METHOD, //
-                  Constant.TYPE_OBJECT_ARRAY, //
-                  METHOD_PROXY//
-            )//
+    
+    private static final Signature INTERCEPT = new Signature("intercept",
+                                                             Constant.TYPE_OBJECT,
+                                                             array(Constant.TYPE_OBJECT,
+                                                                   METHOD,
+                                                                   Constant.TYPE_OBJECT_ARRAY,
+                                                                   METHOD_PROXY)//
     );
 
     private static final Signature FIND_PROXY = new Signature(FIND_PROXY_NAME, METHOD_PROXY, array(Constant.TYPE_SIGNATURE));
     private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
 
-    private static final Transformer<MethodInfo, ClassInfo> METHOD_TO_CLASS = (v) -> v.getClassInfo();
+    private static final Transformer<MethodInfo, ClassInfo> METHOD_TO_CLASS = v -> v.getClassInfo();
 
     private String getMethodField(Signature impl) {
         return impl.getName() + "$Method";
@@ -164,16 +165,16 @@ class MethodInterceptorGenerator implements CallbackGenerator {
 
     // generates
     // ---------------------------------
-//    static {
-//        
-//        Class thisClass = Class.forName("NameOfThisClass");
-//        Class cls = Class.forName("java.lang.Object");
-//        String[] sigs = new String[] { "toString", "()Ljava/lang/String;" };
-//        Method[] methods = cls.getDeclaredMethods();
-//        methods = ReflectUtils.findMethods(sigs, methods);
-//        METHOD_0 = methods[0];
-//        TODAY$ACCESS_0 = MethodProxy.create(cls, thisClass, "()Ljava/lang/String;", "toString", "TODAY$ACCESS_0");
-//    }
+    // static {
+    //        Class thisClass = Class.forName("NameOfThisClass");
+    //        Class cls = Class.forName("java.lang.Object");
+    //        String[] sigs = new String[] { "toString", "()Ljava/lang/String;" };
+    //        Method[] methods = cls.getDeclaredMethods();
+    //        methods = ReflectUtils.findMethods(sigs, methods);
+    //        METHOD_0 = methods[0];
+    //        TODAY$ACCESS_0 = MethodProxy.create(cls, thisClass, "()Ljava/lang/String;", "toString", "TODAY$ACCESS_0");
+    // }
+    
     @Override
     public void generateStatic(final CodeEmitter e, final Context context, final List<MethodInfo> methods) throws Exception {
 
@@ -215,7 +216,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
             e.invoke_static(REFLECT_UTILS, FIND_METHODS);
 
             for (int index = 0; index < size; index++) {
-                MethodInfo method = (MethodInfo) classMethods.get(index);
+                MethodInfo method = classMethods.get(index);
                 Signature sig = method.getSignature();
                 Signature impl = context.getImplSignature(method);
                 e.dup();

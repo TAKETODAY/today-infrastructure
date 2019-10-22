@@ -286,10 +286,10 @@ public abstract class TypeUtils {
     }
 
     public static Type getComponentType(Type type) {
-        if (!isArray(type)) {
-            throw new IllegalArgumentException("Type " + type + " is not an array");
+        if (isArray(type)) {
+            return Type.getType(type.getDescriptor().substring(1));
         }
-        return Type.getType(type.getDescriptor().substring(1));
+        throw new IllegalArgumentException("Type " + type + " is not an array");
     }
 
     public static boolean isPrimitive(Type type) {

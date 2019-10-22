@@ -113,7 +113,7 @@ public abstract class EmitUtils {
         e.load_local(loopvar);
         e.load_local(array);
         e.arraylength();
-        e.if_icmp(e.LT, loopbody);
+        e.if_icmp(CodeEmitter.LT, loopbody);
     }
 
     /**
@@ -154,7 +154,7 @@ public abstract class EmitUtils {
         e.load_local(loopvar);
         e.load_local(array1);
         e.arraylength();
-        e.if_icmp(e.LT, loopbody);
+        e.if_icmp(CodeEmitter.LT, loopbody);
     }
 
     public static void stringSwitch(CodeEmitter e, String[] strings, int switchStyle, ObjectSwitchCallback callback) {
@@ -173,10 +173,7 @@ public abstract class EmitUtils {
                     throw new IllegalArgumentException("unknown switch style " + switchStyle);
             }
         }
-        catch (RuntimeException ex) {
-            throw ex;
-        }
-        catch (Error ex) {
+        catch (RuntimeException | Error ex) {
             throw ex;
         }
         catch (Exception ex) {
@@ -284,11 +281,11 @@ public abstract class EmitUtils {
                         e.push(string);
                         e.invoke_virtual(Constant.TYPE_OBJECT, EQUALS);
                         if (it.hasNext()) {
-                            e.if_jump(e.EQ, next = e.make_label());
+                            e.if_jump(CodeEmitter.EQ, next = e.make_label());
                             e.pop();
                         }
                         else {
-                            e.if_jump(e.EQ, def);
+                            e.if_jump(CodeEmitter.EQ, def);
                         }
                         callback.processCase(string, end);
                     }
@@ -412,7 +409,7 @@ public abstract class EmitUtils {
         else {
             e.swap(Type.INT_TYPE, type);
             e.push(multiplier);
-            e.math(e.MUL, Type.INT_TYPE);
+            e.math(CodeEmitter.MUL, Type.INT_TYPE);
             e.swap(type, Type.INT_TYPE);
             if (TypeUtils.isPrimitive(type)) {
                 hashPrimitive(e, type);
@@ -420,7 +417,7 @@ public abstract class EmitUtils {
             else {
                 hashObject(e, type, registry);
             }
-            e.math(e.ADD, Type.INT_TYPE);
+            e.math(CodeEmitter.ADD, Type.INT_TYPE);
         }
     }
 
@@ -473,7 +470,7 @@ public abstract class EmitUtils {
             case Type.BOOLEAN :
                 // f ? 0 : 1
                 e.push(1);
-                e.math(e.XOR, Type.INT_TYPE);
+                e.math(CodeEmitter.XOR, Type.INT_TYPE);
                 break;
             case Type.FLOAT :
                 // Float.floatToIntBits(f)
@@ -492,8 +489,8 @@ public abstract class EmitUtils {
         // (int)(f ^ (f >>> 32))
         e.dup2();
         e.push(32);
-        e.math(e.USHR, Type.LONG_TYPE);
-        e.math(e.XOR, Type.LONG_TYPE);
+        e.math(CodeEmitter.USHR, Type.LONG_TYPE);
+        e.math(CodeEmitter.XOR, Type.LONG_TYPE);
         e.cast_numeric(Type.LONG_TYPE, Type.INT_TYPE);
     }
 
@@ -535,7 +532,7 @@ public abstract class EmitUtils {
                                         final ProcessArrayCallback callback)//
     {
         if (TypeUtils.isPrimitive(type)) {
-            e.if_cmp(type, e.NE, notEquals);
+            e.if_cmp(type, CodeEmitter.NE, notEquals);
         }
         else {
             Label end = e.make_label();
@@ -546,7 +543,7 @@ public abstract class EmitUtils {
                 e.arraylength();
                 e.swap();
                 e.arraylength();
-                e.if_icmp(e.EQ, checkContents);
+                e.if_icmp(CodeEmitter.EQ, checkContents);
                 e.pop2();
                 e.goTo(notEquals);
                 e.mark(checkContents);
@@ -564,7 +561,7 @@ public abstract class EmitUtils {
                     }
                 }
                 e.invoke_virtual(Constant.TYPE_OBJECT, EQUALS);
-                e.if_jump(e.EQ, notEquals);
+                e.if_jump(CodeEmitter.EQ, notEquals);
             }
             e.mark(end);
         }
@@ -673,7 +670,7 @@ public abstract class EmitUtils {
             e.dup();
             e.ifnull(skip);
             e.swap();
-            if (delims != null && delims.before != null && !"".equals(delims.before)) {
+            if (delims != null && delims.before != null && !Constant.BLANK.equals(delims.before)) {
                 e.push(delims.before);
                 e.invoke_virtual(Constant.TYPE_STRING_BUFFER, APPEND_STRING);
                 e.swap();
@@ -707,7 +704,7 @@ public abstract class EmitUtils {
         e.dup();
         e.invoke_virtual(Constant.TYPE_STRING_BUFFER, LENGTH);
         e.push(amt);
-        e.math(e.SUB, Type.INT_TYPE);
+        e.math(CodeEmitter.SUB, Type.INT_TYPE);
         e.invoke_virtual(Constant.TYPE_STRING_BUFFER, SET_LENGTH);
     }
 
@@ -846,7 +843,7 @@ public abstract class EmitUtils {
                     e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
                     e.push(TypeUtils.emulateClassGetName(types[i]));
                     e.invoke_virtual(Constant.TYPE_OBJECT, EQUALS);
-                    e.if_jump(e.EQ, def);
+                    e.if_jump(CodeEmitter.EQ, def);
                 }
             }
             e.pop();

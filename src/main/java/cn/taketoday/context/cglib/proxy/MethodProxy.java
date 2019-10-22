@@ -31,7 +31,8 @@ import cn.taketoday.context.cglib.reflect.FastClass;
  * can be used to either invoke the original method, or call the same method on
  * a different object of the same type.
  * 
- * @version $Id: MethodProxy.java,v 1.16 2009/01/11 20:09:48 herbyderby Exp $
+ * @author TODAY <br>
+ *         2019-10-21 23:49
  */
 @SuppressWarnings("all")
 public class MethodProxy {
@@ -53,19 +54,17 @@ public class MethodProxy {
      * {@link cn.taketoday.context.cglib.reflect.FastMethod} class for similar
      * functionality.
      */
-    public static MethodProxy create(Class c1, Class c2, String desc, String name1, String name2) {
+    public static MethodProxy create(Class<?> c1, Class<?> c2, String desc, String name1, String name2) {
         MethodProxy proxy = new MethodProxy(new Signature(name1, desc), new Signature(name2, desc));
         proxy.createInfo = new CreateInfo(c1, c2);
         return proxy;
     }
 
     private void init() {
-        /*
-         * Using a volatile invariant allows us to initialize the FastClass and method
+        /* Using a volatile invariant allows us to initialize the FastClass and method
          * index pairs atomically. Double-checked locking is safe with volatile in Java
          * 5. Before 1.5 this code could allow fastClassInfo to be instantiated more
-         * than once, which appears to be benign.
-         */
+         * than once, which appears to be benign. */
         if (fastClassInfo == null) {
             synchronized (initLock) {
                 if (fastClassInfo == null) {
