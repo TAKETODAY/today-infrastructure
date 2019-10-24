@@ -46,17 +46,13 @@ public class FastJsonMessageConverter implements MessageConverter {
     public final SerializerFeature[] serializeFeatures;
 
     @Autowired
-    public FastJsonMessageConverter(@Env(Constant.FAST_JSON_SERIALIZE_FEATURES) SerializerFeature[] serializerFeature) {
-        if (serializerFeature == null) {
-            serializeFeatures = new SerializerFeature[] { //
-                SerializerFeature.WriteMapNullValue, //
-                SerializerFeature.WriteNullListAsEmpty, //
-                SerializerFeature.DisableCircularReferenceDetect//
-            };
-        }
-        else {
-            serializeFeatures = serializerFeature;
-        }
+    public FastJsonMessageConverter(@Env(Constant.FAST_JSON_SERIALIZE_FEATURES) SerializerFeature[] feature) {
+
+        this.serializeFeatures = feature == null ? new SerializerFeature[] { //
+            SerializerFeature.WriteMapNullValue, //
+            SerializerFeature.WriteNullListAsEmpty, // 
+            SerializerFeature.DisableCircularReferenceDetect//
+        } : feature;
     }
 
     @Override
