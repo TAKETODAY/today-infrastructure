@@ -18,10 +18,7 @@ package cn.taketoday.context.cglib.proxy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.CodeGenerationException;
-import cn.taketoday.context.cglib.core.GeneratorStrategy;
-import cn.taketoday.context.cglib.core.NamingPolicy;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.reflect.FastClass;
 
@@ -34,19 +31,23 @@ import cn.taketoday.context.cglib.reflect.FastClass;
  * @author TODAY <br>
  *         2019-10-21 23:49
  */
-@SuppressWarnings("all")
 public class MethodProxy {
+
+    private final int i1;
+    private final int i2;
+    private final FastClass f1;
+    private final FastClass f2;
 
     private final Signature sig1;
     private final Signature sig2;
-    private CreateInfo createInfo;
 
-    private final Object initLock = new Object();
-    private volatile FastClassInfo fastClassInfo;
-
-    private MethodProxy(Signature sig1, Signature sig2) {
+    private MethodProxy(Signature sig1, Signature sig2, int i1, int i2, FastClass f1, FastClass f2) {
         this.sig1 = sig1;
         this.sig2 = sig2;
+        this.f1 = f1;
+        this.f2 = f1;
+        this.i1 = i1;
+        this.i2 = i1;
     }
 
     /**
@@ -55,84 +56,19 @@ public class MethodProxy {
      * functionality.
      */
     public static MethodProxy create(Class<?> c1, Class<?> c2, String desc, String name1, String name2) {
-        MethodProxy proxy = new MethodProxy(new Signature(name1, desc), new Signature(name2, desc));
-        proxy.createInfo = new CreateInfo(c1, c2);
-        return proxy;
+        final Signature sig1 = new Signature(name1, desc);
+        final Signature sig2 = new Signature(name2, desc);
+        final FastClass f1 = fastClass(c1);
+        final FastClass f2 = fastClass(c2);
+
+        return new MethodProxy(sig1, sig2, f1.getIndex(sig1), f2.getIndex(sig2), f1, f2);
     }
 
-    private void init() {
-        /* Using a volatile invariant allows us to initialize the FastClass and method
-         * index pairs atomically. Double-checked locking is safe with volatile in Java
-         * 5. Before 1.5 this code could allow fastClassInfo to be instantiated more
-         * than once, which appears to be benign. */
-        if (fastClassInfo == null) {
-            synchronized (initLock) {
-                if (fastClassInfo == null) {
-                    final CreateInfo ci = createInfo;
-
-                    final FastClass f1 = helper(ci, ci.c1);
-                    final FastClass f2 = helper(ci, ci.c2);
-
-                    final int i1 = f1.getIndex(sig1);
-                    final int i2 = f2.getIndex(sig2);
-
-                    fastClassInfo = new FastClassInfo(f1, f2, i1, i2);
-                    createInfo = null;
-                }
-            }
-        }
-    }
-
-    private static class FastClassInfo {
-
-        private final int i1;
-        private final int i2;
-        private final FastClass f1;
-        private final FastClass f2;
-
-        public FastClassInfo(FastClass f1, FastClass f2, int i1, int i2) {
-            this.f1 = f1;
-            this.f2 = f2;
-            this.i1 = i1;
-            this.i2 = i2;
-        }
-    }
-
-    private static class CreateInfo {
-
-        private final Class c1;
-        private final Class c2;
-
-        private final boolean attemptLoad;
-        private final NamingPolicy namingPolicy;
-        private final GeneratorStrategy strategy;
-
-        public CreateInfo(Class c1, Class c2) {
-            this.c1 = c1;
-            this.c2 = c2;
-
-            AbstractClassGenerator fromEnhancer = AbstractClassGenerator.getCurrent();
-            if (fromEnhancer != null) {
-                this.namingPolicy = fromEnhancer.getNamingPolicy();
-                this.strategy = fromEnhancer.getStrategy();
-                this.attemptLoad = fromEnhancer.getAttemptLoad();
-            }
-            else {
-                this.strategy = null;
-                this.namingPolicy = null;
-                this.attemptLoad = false;
-            }
-        }
-    }
-
-    private static FastClass helper(CreateInfo ci, Class type) {
+    private static FastClass fastClass(Class<?> type) {
 
         FastClass.Generator g = new FastClass.Generator(type);
 
-        g.setClassLoader(ci.c2.getClassLoader());
-        g.setNamingPolicy(ci.namingPolicy);
-        g.setStrategy(ci.strategy);
-        g.setAttemptLoad(ci.attemptLoad);
+        g.setClassLoader(type.getClassLoader());
         return g.create();
     }
 
@@ -161,20 +97,17 @@ public class MethodProxy {
      * @see #getSuperName
      */
     public int getSuperIndex() {
-        init();
-        return fastClassInfo.i2;
+        return i2;
     }
 
     // For testing
     FastClass getFastClass() {
-        init();
-        return fastClassInfo.f1;
+        return f1;
     }
 
     // For testing
     FastClass getSuperFastClass() {
-        init();
-        return fastClassInfo.f2;
+        return f2;
     }
 
     /**
@@ -191,7 +124,7 @@ public class MethodProxy {
      *             if the Class was not created by Enhancer or does not use a
      *             MethodInterceptor
      */
-    public static MethodProxy find(Class type, Signature sig) {
+    public static MethodProxy find(Class<?> type, Signature sig) {
         try {
             Method m = type.getDeclaredMethod(MethodInterceptorGenerator.FIND_PROXY_NAME,
                                               MethodInterceptorGenerator.FIND_PROXY_TYPES);
@@ -226,15 +159,13 @@ public class MethodProxy {
      */
     public Object invoke(Object obj, Object[] args) throws Throwable {
         try {
-            init();
-            FastClassInfo fci = fastClassInfo;
-            return fci.f1.invoke(fci.i1, obj, args);
+            return f1.invoke(i1, obj, args);
         }
         catch (InvocationTargetException e) {
             throw e.getTargetException();
         }
         catch (IllegalArgumentException e) {
-            if (fastClassInfo.i1 < 0) throw new IllegalArgumentException("Protected method: " + sig1);
+            if (i1 < 0) throw new IllegalArgumentException("Protected method: " + sig1);
             throw e;
         }
     }
@@ -256,9 +187,7 @@ public class MethodProxy {
      */
     public Object invokeSuper(final Object obj, final Object[] args) throws Throwable {
         try {
-            init();
-            FastClassInfo fci = fastClassInfo;
-            return fci.f2.invoke(fci.i2, obj, args);
+            return f2.invoke(i2, obj, args);
         }
         catch (InvocationTargetException e) {
             throw e.getTargetException();
