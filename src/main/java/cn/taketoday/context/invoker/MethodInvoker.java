@@ -122,20 +122,21 @@ public abstract class MethodInvoker implements Invoker {
         }
 
         public MethodInvoker create() {
+            final ClassLoader classLoader = targetClass.getClassLoader();
             try {
-                final Class<?> loadClass = targetClass.getClassLoader().loadClass(getClassName());
+
+                final Class<?> loadClass = classLoader.loadClass(getClassName());
                 return (MethodInvoker) ClassUtils.newInstance(loadClass);
             }
             catch (ClassNotFoundException e) {
-                return ClassUtils.newInstance(generateClass());
+                return ClassUtils.newInstance(generateClass(classLoader));
             }
         }
 
-        protected Class<MethodInvoker> generateClass() {
+        protected Class<MethodInvoker> generateClass(final ClassLoader classLoader) {
 
             try {
 
-                final ClassLoader classLoader = targetClass.getClassLoader();
                 if (classLoader == null) {
                     throw new IllegalStateException("ClassLoader is null while trying to define class " + getClassName()
                             + ". It seems that the loader has been expired from a weak reference somehow.");
@@ -218,9 +219,7 @@ public abstract class MethodInvoker implements Invoker {
                     for (final Class<?> parameterType : targetMethod.getParameterTypes()) {
                         builder.append('$');
                         if (parameterType.isArray()) {
-                            builder.append("A$");
-                            final String simpleName = parameterType.getSimpleName();
-                            builder.append(simpleName.substring(0, simpleName.length() - 2));
+                            builder.append(parameterType.getName());
                         }
                         else {
                             builder.append(parameterType.getSimpleName());

@@ -658,35 +658,35 @@ public class TestEnhancer extends CodeGenTestCase {
     static class NamingPolicyDummy {
     }
 
-    public void testNamingPolicy() throws Throwable {
-        Enhancer e = new Enhancer();
-        e.setSuperclass(NamingPolicyDummy.class);
-        e.setUseCache(false);
-        e.setUseFactory(false);
-        e.setNamingPolicy(new DefaultNamingPolicy() {
-            public String getTag() {
-                return "ByHerby";
-            }
-
-            public String toString() {
-                return getTag();
-            }
-        });
-        e.setCallbackType(MethodInterceptor.class);
-        Class<?> proxied = e.createClass();
-        final boolean[] ran = new boolean[1];
-        Enhancer.registerStaticCallbacks(proxied, new Callback[] { new MethodInterceptor() {
-            public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-                ran[0] = true;
-                assertTrue(proxy.getSuperFastClass().getClass().getName().indexOf("$FastClassByHerby$") >= 0);
-                return proxy.invokeSuper(obj, args);
-            }
-        }
-        });
-        NamingPolicyDummy dummy = (NamingPolicyDummy) proxied.newInstance();
-        dummy.toString();
-        assertTrue(ran[0]);
-    }
+//    public void testNamingPolicy() throws Throwable {
+//        Enhancer e = new Enhancer();
+//        e.setSuperclass(NamingPolicyDummy.class);
+//        e.setUseCache(false);
+//        e.setUseFactory(false);
+//        e.setNamingPolicy(new DefaultNamingPolicy() {
+//            public String getTag() {
+//                return "ByHerby";
+//            }
+//
+//            public String toString() {
+//                return getTag();
+//            }
+//        });
+//        e.setCallbackType(MethodInterceptor.class);
+//        Class<?> proxied = e.createClass();
+//        final boolean[] ran = new boolean[1];
+//        Enhancer.registerStaticCallbacks(proxied, new Callback[] { new MethodInterceptor() {
+//            public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+//                ran[0] = true;
+//                assertTrue(proxy.getSuperFastClass().getClass().getName().indexOf("$FastClassByHerby$") >= 0);
+//                return proxy.invokeSuper(obj, args);
+//            }
+//        }
+//        });
+//        NamingPolicyDummy dummy = (NamingPolicyDummy) proxied.newInstance();
+//        dummy.toString();
+//        assertTrue(ran[0]);
+//    }
 
     public void testBadNamingPolicyStillReservesNames() throws Throwable {
         Enhancer e = new Enhancer();

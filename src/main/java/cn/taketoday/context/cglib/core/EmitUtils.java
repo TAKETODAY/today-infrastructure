@@ -188,14 +188,14 @@ public abstract class EmitUtils {
         final Label end = e.make_label();
         final Map buckets = CollectionUtils.bucket(Arrays.asList(strings), new Transformer() {
             public Object transform(Object value) {
-                return new Integer(((String) value).length());
+                return Integer.valueOf(((String) value).length());
             }
         });
         e.dup();
         e.invoke_virtual(Constant.TYPE_STRING, STRING_LENGTH);
         e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
             public void processCase(int key, Label ignore_end) throws Exception {
-                List bucket = (List) buckets.get(new Integer(key));
+                List bucket = (List) buckets.get(key);
                 stringSwitchHelper(e, bucket, callback, def, end, 0);
             }
 
@@ -222,7 +222,7 @@ public abstract class EmitUtils {
         e.invoke_virtual(Constant.TYPE_STRING, STRING_CHAR_AT);
         e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
             public void processCase(int key, Label ignore_end) throws Exception {
-                List bucket = (List) buckets.get(new Integer(key));
+                List bucket = (List) buckets.get(key);
                 if (index + 1 == len) {
                     e.pop();
                     callback.processCase(bucket.get(0), end);
@@ -263,7 +263,7 @@ public abstract class EmitUtils {
         e.invoke_virtual(Constant.TYPE_OBJECT, HASH_CODE);
         e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
             public void processCase(int key, Label ignore_end) throws Exception {
-                List bucket = (List) buckets.get(new Integer(key));
+                List bucket = (List) buckets.get(key);
                 Label next = null;
                 if (skipEquals && bucket.size() == 1) {
                     if (skipEquals) e.pop();

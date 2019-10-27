@@ -45,9 +45,9 @@ public class MethodProxy {
         this.sig1 = sig1;
         this.sig2 = sig2;
         this.f1 = f1;
-        this.f2 = f1;
+        this.f2 = f2;
         this.i1 = i1;
-        this.i2 = i1;
+        this.i2 = i2;
     }
 
     /**
