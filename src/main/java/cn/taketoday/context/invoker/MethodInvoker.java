@@ -219,7 +219,9 @@ public abstract class MethodInvoker implements Invoker {
                     for (final Class<?> parameterType : targetMethod.getParameterTypes()) {
                         builder.append('$');
                         if (parameterType.isArray()) {
-                            builder.append(parameterType.getName());
+                            builder.append("A$");
+                            final String simpleName = parameterType.getSimpleName();
+                            builder.append(simpleName.substring(0, simpleName.length() - 2));
                         }
                         else {
                             builder.append(parameterType.getSimpleName());

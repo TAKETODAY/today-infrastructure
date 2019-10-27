@@ -139,7 +139,7 @@ public abstract class TypeUtils {
         return size;
     }
 
-    public static String[] toInternalNames(Type[] types) {
+    public static String[] toInternalNames(Type... types) {
         if (types == null) {
             return null;
         }

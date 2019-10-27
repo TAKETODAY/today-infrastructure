@@ -155,35 +155,34 @@ public class ClassEmitter extends ClassTransformer {
      */
     public void beginClass(final int version,
                            final int access,
-                           final String name,
+                           final String name, // class name
                            final String source,
-                           final String superName,
-                           final String... interfaces) //
+                           final String superName, // typeDescriptor
+                           final String... interfaces) //typeDescriptor
     {
+        Type superType = Type.getType(superName);
+        final Type[] array = Type.array(interfaces);
+        Type type = Type.getType('L' + name.replace('.', '/') + ';');
+
         classInfo = new ClassInfo() {
-            private Type type;
-            private Type superType;
-            private Type[] interfaces;
 
             public Type getType() {
-                return type == null ? (type = Type.getType('L' + name.replace('.', '/') + ';')) : type;
+                return type;
             }
 
             public Type getSuperType() {
-                return superName != null
-                        ? (superType == null ? superType = Type.getType(superName) : superType)
-                        : Constant.TYPE_OBJECT;
+                return superType;
             }
 
             public Type[] getInterfaces() {
-                return interfaces == null ? interfaces = Type.array(interfaces) : interfaces;
+                return array;
             }
 
             public int getModifiers() {
                 return access;
             }
         };
-        cv.visit(version, access, name, null, superName, interfaces);
+        cv.visit(version, access, name, null, superType.getInternalName(), TypeUtils.toInternalNames(array));
 
         if (source != null) {
             cv.visitSource(source, null);
