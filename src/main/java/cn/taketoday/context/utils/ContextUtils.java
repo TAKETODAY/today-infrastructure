@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.utils;
 
-import static cn.taketoday.context.utils.ContextUtils.DelegatingParameterResolver.delegate;
+import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,9 +58,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Constant;
-import cn.taketoday.context.Ordered;
 import cn.taketoday.context.Scope;
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.ConditionalImpl;
@@ -77,13 +75,14 @@ import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.factory.DisposableBean;
+import cn.taketoday.context.loader.AutowiredParameterResolver;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.ExecutableParameterResolver;
+import cn.taketoday.context.loader.MapParameterResolver;
 import cn.taketoday.context.loader.PropertyValueResolver;
 import cn.taketoday.context.loader.PropsPropertyResolver;
 import cn.taketoday.context.loader.ValuePropertyResolver;
@@ -1065,116 +1064,4 @@ public abstract class ContextUtils {
         throw new ConfigurationException("Target parameter:[" + parameter + "] not supports in this context.");
     }
 
-    public static class MapParameterResolver implements ExecutableParameterResolver, Ordered {
-
-        @Override
-        public boolean supports(Parameter parameter) {
-            return Map.class.isAssignableFrom(parameter.getType());
-        }
-
-        @Override
-        public Object resolve(Parameter parameter, BeanFactory beanFactory) {
-            Props props = parameter.getAnnotation(Props.class);
-
-            if (props == null) {
-                props = new DefaultProps();
-            }
-
-            return ContextUtils.loadProps(props, System.getProperties());
-        }
-
-        @Override
-        public int getOrder() {
-            return Integer.MAX_VALUE;
-        }
-    }
-
-    public static class AutowiredParameterResolver implements ExecutableParameterResolver, Ordered {
-
-        @Override
-        public final Object resolve(Parameter parameter, BeanFactory beanFactory) {
-
-            final Autowired autowired = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
-
-            Object bean = resolveBean(autowired != null ? autowired.value() : null, parameter.getType(), beanFactory);
-
-            // @Props on a bean (pojo) which has already annotated @Autowired or not
-            if (parameter.isAnnotationPresent(Props.class)) {
-                bean = resolvePropsInternal(parameter, parameter.getAnnotation(Props.class), bean);
-            }
-
-            if (bean == null && (autowired == null || autowired.required())) { // if it is required
-
-                LoggerFactory.getLogger(AutowiredParameterResolver.class)//
-                        .error("[{}] is required and there isn't a [{}] bean", parameter, parameter.getType());
-
-                throw new NoSuchBeanDefinitionException(parameter.getType());
-            }
-
-            return bean;
-        }
-
-        protected Object resolveBean(final String name, final Class<?> type, final BeanFactory beanFactory) {
-
-            if (StringUtils.isNotEmpty(name)) {
-                // use name and bean type to get bean
-                return beanFactory.getBean(name, type);
-            }
-            return beanFactory.getBean(type);
-        }
-
-        protected Object resolvePropsInternal(final Parameter parameter, final Props props, final Object bean) {
-            if (bean != null) {
-                return resolveProps(props, bean, loadProps(props, System.getProperties()));
-            }
-            return resolveProps(props, parameter.getType(), loadProps(props, System.getProperties()));
-        }
-
-        @Override
-        public int getOrder() {
-            return LOWEST_PRECEDENCE;
-        }
-    }
-
-    public final static class DelegatingParameterResolver implements ExecutableParameterResolver, Ordered {
-
-        private final int order;
-        private final SupportsFunction supports;
-        private final ExecutableParameterResolver resolver;
-
-        public DelegatingParameterResolver(SupportsFunction supports, ExecutableParameterResolver resolver) {
-            this(supports, resolver, Ordered.HIGHEST_PRECEDENCE);
-        }
-
-        public DelegatingParameterResolver(SupportsFunction supports, ExecutableParameterResolver resolver, int order) {
-            this.order = order;
-            this.resolver = resolver;
-            this.supports = supports;
-        }
-
-        @Override
-        public boolean supports(Parameter parameter) {
-            return supports.supports(parameter);
-        }
-
-        @Override
-        public Object resolve(Parameter parameter, BeanFactory beanFactory) {
-            return resolver.resolve(parameter, beanFactory);
-        }
-
-        @Override
-        public int getOrder() {
-            return order;
-        }
-
-        public static DelegatingParameterResolver delegate(SupportsFunction supports, ExecutableParameterResolver resolver) {
-            return new DelegatingParameterResolver(supports, resolver);
-        }
-
-        public static DelegatingParameterResolver delegate(SupportsFunction supports, //
-                                                           ExecutableParameterResolver resolver, int order) {
-            return new DelegatingParameterResolver(supports, resolver, order);
-        }
-
-    }
 }
