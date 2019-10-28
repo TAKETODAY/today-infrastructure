@@ -262,17 +262,10 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      * @param servletWebMvcConfiguration
      *            ServletWebMvcConfiguration
      */
-    protected void configureResourceRegistry(List<WebApplicationInitializer> contextInitializers, //
+    protected void configureResourceRegistry(List<WebApplicationInitializer> contextInitializers,
                                              ServletWebMvcConfiguration servletWebMvcConfiguration)//
     {
         final WebServletApplicationContext context = getWebApplicationContext();
-        if (!context.containsBeanDefinition(ResourceServlet.class)) {
-            context.registerBean(Constant.RESOURCE_SERVLET, ResourceServlet.class);
-        }
-
-        final ResourceServlet resourceServlet = context.getBean(ResourceServlet.class);
-
-        WebServletInitializer<ResourceServlet> resource = new WebServletInitializer<>(resourceServlet);
 
         final Set<String> urlMappings = new HashSet<>();
         final ResourceMappingRegistry resourceMappingRegistry = context.getBean(ResourceMappingRegistry.class);
@@ -289,13 +282,21 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
                 }
             }
         }
-
         servletWebMvcConfiguration.configureResourceServletUrlMappings(urlMappings);
-        resource.setUrlMappings(urlMappings);
-        resource.setName(Constant.RESOURCE_SERVLET);
 
-        log.info("Set ResourceServlet Url Mappings: [{}]", urlMappings);
-        contextInitializers.add(resource);
+        if (!urlMappings.isEmpty()) {
+
+            if (!context.containsBeanDefinition(ResourceServlet.class)) {
+                context.registerBean(Constant.RESOURCE_SERVLET, ResourceServlet.class);
+            }
+
+            WebServletInitializer<ResourceServlet> resource = new WebServletInitializer<>(context.getBean(ResourceServlet.class));
+            resource.setUrlMappings(urlMappings);
+            resource.setName(Constant.RESOURCE_SERVLET);
+
+            log.info("Set ResourceServlet Url Mappings: [{}]", urlMappings);
+            contextInitializers.add(resource);
+        }
     }
 
     /**

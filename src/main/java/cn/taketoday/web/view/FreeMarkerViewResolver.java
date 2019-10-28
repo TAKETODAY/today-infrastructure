@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.Ordered;
@@ -60,6 +61,7 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.resolver.method.ParameterResolver;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 import freemarker.cache.TemplateLoader;
+import freemarker.cache.WebappTemplateLoader;
 import freemarker.ext.jsp.TaglibFactory;
 import freemarker.ext.servlet.AllHttpScopesHashModel;
 import freemarker.ext.servlet.FreemarkerServlet;
@@ -175,19 +177,25 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
     @SuppressWarnings("unchecked")
     public <T> void configureTemplateLoader(List<T> loaders) {
 
+        final TemplateLoader loader;
         if (loaders.isEmpty()) {
             if (StringUtils.isNotEmpty(prefix) && prefix.startsWith("/WEB-INF/")) {// prefix -> /WEB-INF/..
-                this.configuration.setServletContextForTemplateLoading(servletContext, prefix);
+                loader = new WebappTemplateLoader(servletContext, prefix);
             }
             else {
-                configuration.setTemplateLoader(new DefaultTemplateLoader(prefix, cacheSize));
+                loader = new DefaultTemplateLoader(prefix, cacheSize);
             }
         }
         else {
-            configuration.setTemplateLoader(new CompositeTemplateLoader((Collection<TemplateLoader>) loaders,
-                                                                        cacheSize));
+            loader = new CompositeTemplateLoader((Collection<TemplateLoader>) loaders, cacheSize);
         }
-        LoggerFactory.getLogger(getClass()).info("Configuration FreeMarker View Resolver Success.");
+
+        configuration.setTemplateLoader(loader);
+
+        final Logger logger = LoggerFactory.getLogger(getClass());
+
+        logger.info("FreeMarker use [{}] to load templates", loader);
+        logger.info("Configuration FreeMarker View Resolver Success.");
     }
 
     /**
