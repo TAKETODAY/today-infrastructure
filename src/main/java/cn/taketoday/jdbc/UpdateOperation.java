@@ -54,7 +54,7 @@ public interface UpdateOperation {
      * @return the number of rows affected @ if there is any problem issuing the
      *         update
      */
-    int update(String sql, Object... args) throws SQLException;
+    int update(String sql, Object[] args) throws SQLException;
 
     /**
      * Issue multiple SQL updates on a single JDBC Statement using batching.

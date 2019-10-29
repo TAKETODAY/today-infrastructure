@@ -81,37 +81,37 @@ public class JdbcExecuter implements JdbcOperations {
     }
 
     @Override
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) throws SQLException {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object[] args) throws SQLException {
         return getQueryOperation().query(sql, rowMapper, args);
     }
 
     @Override
-    public <T> T query(String sql, ResultSetExtractor<T> rse, Object... args) throws SQLException {
+    public <T> T query(String sql, ResultSetExtractor<T> rse, Object[] args) throws SQLException {
         return getQueryOperation().query(sql, rse, args);
     }
 
     @Override
-    public void query(String sql, ResultSetHandler rch, Object... args) throws SQLException {
+    public void query(String sql, ResultSetHandler rch, Object[] args) throws SQLException {
         getQueryOperation().query(sql, rch, args);
     }
 
     @Override
-    public <T> T query(String sql, Class<T> requiredType, Object... args) throws SQLException {
+    public <T> T query(String sql, Class<T> requiredType, Object[] args) throws SQLException {
         return getQueryOperation().query(sql, requiredType, args);
     }
 
     @Override
-    public <T> List<T> queryList(String sql, Class<T> elementType, Object... args) throws SQLException {
+    public <T> List<T> queryList(String sql, Class<T> elementType, Object[] args) throws SQLException {
         return getQueryOperation().queryList(sql, elementType, args);
     }
 
     @Override
-    public List<Map<String, Object>> queryList(String sql, Object... args) throws SQLException {
+    public List<Map<String, Object>> queryList(String sql, Object[] args) throws SQLException {
         return getQueryOperation().queryList(sql, args);
     }
 
     @Override
-    public Map<String, Object> queryMap(String sql, Object... args) throws SQLException {
+    public Map<String, Object> queryMap(String sql, Object[] args) throws SQLException {
         return getQueryOperation().queryMap(sql, args);
     }
 
@@ -121,7 +121,7 @@ public class JdbcExecuter implements JdbcOperations {
     }
 
     @Override
-    public int update(String sql, Object... args) throws SQLException {
+    public int update(String sql, Object[] args) throws SQLException {
         return getUpdateOperation().update(sql, args);
     }
 

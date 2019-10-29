@@ -56,7 +56,7 @@ public class UpdateExecuter extends Executer implements UpdateOperation {
     }
 
     @Override
-    public int update(final String sql, final Object... args) throws SQLException {
+    public int update(final String sql, final Object[] args) throws SQLException {
 
         if (DEBUG_ENABLED) {
             log.debug("Executing SQL update [{}]", sql);
