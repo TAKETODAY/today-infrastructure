@@ -21,8 +21,11 @@ package test.jdbc.model;
 
 import java.io.Serializable;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import cn.taketoday.jdbc.annotation.Id;
 import cn.taketoday.jdbc.annotation.Table;
+import cn.taketoday.jdbc.annotation.Transient;
 
 @Table("t_user")
 @SuppressWarnings("serial")
@@ -37,6 +40,11 @@ public class User implements Serializable {
     /*** age */
     //    @Column("AGE")
     private Integer age;
+
+    /** state */
+    @Transient
+    @JSONField(serialize = false)
+    private UserStatus status;
 
     @Override
     public String toString() {

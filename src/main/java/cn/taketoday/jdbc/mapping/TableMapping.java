@@ -53,9 +53,10 @@ public class TableMapping implements RandomAccess, Serializable {
 
         final Map<String, ColumnMapping> properties = new HashMap<>();
 
+        final FieldColumnConverter fieldColumnConverter = getFieldColumnConverter();
         for (final Field field : ClassUtils.getFields(beanClass)) {
             if (!field.isAnnotationPresent(Transient.class)) {
-                properties.put(getFieldColumnConverter().convert(field.getName()), new ColumnMapping(field));
+                properties.put(fieldColumnConverter.convert(field.getName()), new ColumnMapping(field));
             }
         }
         this.properties = properties;
