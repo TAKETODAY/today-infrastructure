@@ -209,10 +209,7 @@ public abstract class MethodInvoker implements Invoker {
                 StringBuilder builder = new StringBuilder(targetClass.getName());
                 builder.append('$').append(targetMethod.getName());
 
-                if (targetMethod.getParameterCount() == 0) {
-                    builder.append('$');
-                }
-                else {
+                if (targetMethod.getParameterCount() != 0) {
 
                     for (final Class<?> parameterType : targetMethod.getParameterTypes()) {
                         builder.append('$');
