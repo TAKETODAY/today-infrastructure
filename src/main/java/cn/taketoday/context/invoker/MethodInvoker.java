@@ -196,9 +196,7 @@ public abstract class MethodInvoker implements Invoker {
             final MethodInfo methodInfo = getMethodInfo(targetMethod);
             codeEmitter.invoke(methodInfo);
 
-            if (targetMethod.getReturnType() == void.class) {
-                codeEmitter.aconst_null();
-            }
+            codeEmitter.box(Type.getType(targetMethod.getReturnType()));
 
             codeEmitter.return_value();
             codeEmitter.end_method();
