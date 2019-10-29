@@ -574,10 +574,10 @@ public class CodeEmitter extends LocalVariablesSorter {
     }
 
     private void emit_invoke(int opcode, Type type, Signature sig, boolean isInterface) {
-        
+
         if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)
             && ((opcode == Constant.INVOKEVIRTUAL) || (opcode == Constant.INVOKESTATIC))) {
-            
+
             // TODO: error
         }
         mv.visitMethodInsn(opcode, //
@@ -802,21 +802,38 @@ public class CodeEmitter extends LocalVariablesSorter {
             }
             else {
                 Type boxed = TypeUtils.getBoxedType(type);
-                new_instance(boxed);
-                if (type.getSize() == 2) {
-                    // Pp -> Ppo -> oPpo -> ooPpo -> ooPp -> o
-                    dup_x2();
-                    dup_x2();
-                    pop();
-                }
-                else {
-                    // p -> po -> opo -> oop -> o
-                    dup_x1();
-                    swap();
-                }
-                invoke_constructor(boxed, new Signature(Constant.CONSTRUCTOR_NAME, Type.VOID_TYPE, Type.array(type)));
+
+                visitMethodInsn(Constant.INVOKESTATIC,
+                                boxed.getInternalName(),
+                                "valueOf",
+                                Type.getMethodDescriptor(boxed, Type.array(type)),
+                                false);
+
+                //newInstanceBox(type);
             }
         }
+    }
+
+    /**
+     * 
+     */
+    @Deprecated
+    private void newInstanceBox(Type type) {
+        Type boxed = TypeUtils.getBoxedType(type);
+
+        new_instance(boxed);
+        if (type.getSize() == 2) {
+            // Pp -> Ppo -> oPpo -> ooPpo -> ooPp -> o
+            dup_x2();
+            dup_x2();
+            pop();
+        }
+        else {
+            // p -> po -> opo -> oop -> o
+            dup_x1();
+            swap();
+        }
+        invoke_constructor(boxed, new Signature(Constant.CONSTRUCTOR_NAME, Type.VOID_TYPE, Type.array(type)));
     }
 
     /**
