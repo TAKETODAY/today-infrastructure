@@ -44,36 +44,33 @@ public interface BeanFactory {
     char FACTORY_BEAN_PREFIX = '$';
 
     /**
-     * Find the bean with the given type, throw an NoSuchBeanDefinitionException if
-     * it doesn't exist
+     * Find the bean with the given type
      * 
      * @param name
      *            Bean name
-     * @return Bet bean instance
+     * @return Bet bean instance, returns null if it doesn't exist .
      * @throws ContextException
      *             Exception Occurred When Getting A Named Bean
      */
     Object getBean(String name) throws ContextException;
 
     /**
-     * Find the bean with the given type, throw an NoSuchBeanDefinitionException if
-     * it doesn't exist
+     * Find the bean with the given type,
      * 
      * @param requiredType
      *            Bean type
-     * @return Get safe casted bean instance
+     * @return Get safe casted bean instance. returns null if it doesn't exist .
      */
     <T> T getBean(Class<T> requiredType);
 
     /**
-     * Find the bean with the given name and cast to required type, throw an
-     * NoSuchBeanDefinitionException if it doesn't exist.
+     * Find the bean with the given name and cast to required type.
      * 
      * @param name
      *            Bean name
      * @param requiredType
      *            Cast to required type
-     * @return get casted bean instance
+     * @return get casted bean instance. returns null if it doesn't exist.
      */
     <T> T getBean(String name, Class<T> requiredType);
 

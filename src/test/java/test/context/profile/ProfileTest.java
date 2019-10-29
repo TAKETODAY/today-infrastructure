@@ -65,7 +65,7 @@ public class ProfileTest {
         try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo.config")) {
             User yhj = applicationContext.getBean("yhj", User.class);
             User user = applicationContext.getBean("user_", User.class);
-            assert yhj != null;
+            assert yhj == null;
             System.out.println(user);
             System.err.println(Arrays.toString(applicationContext.getEnvironment().getActiveProfiles()));
             assert "Windows".equals(user.getUserName());
