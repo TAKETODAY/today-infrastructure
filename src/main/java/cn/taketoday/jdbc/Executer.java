@@ -39,6 +39,8 @@ public abstract class Executer implements BasicOperation {
 
     protected static final Logger log = LoggerFactory.getLogger("cn.taketoday.jdbc.Executer");
 
+    protected static final boolean DEBUG_ENABLED = log.isDebugEnabled();
+    
     private DataSource dataSource; //data source
 
     private Integer maxRows;
@@ -225,7 +227,7 @@ public abstract class Executer implements BasicOperation {
     @Override
     public void execute(final String sql) throws SQLException {
 
-        if (log.isDebugEnabled()) {
+        if (DEBUG_ENABLED) {
             log.debug("Executing SQL statement [{}]", sql);
         }
 
