@@ -19,7 +19,7 @@
  */
 package cn.taketoday.jdbc.config;
 
-import static cn.taketoday.jdbc.mapping.result.DelegatingResultResolver.createDelegate;
+import static cn.taketoday.jdbc.mapping.result.DelegatingResultResolver.delegate;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -84,24 +84,24 @@ public class JdbcAutoConfiguration implements ApplicationListener<ContextStarted
         // Byte[] byte[] int long float double short byte boolean BigDecimal, BigInteger
         // ------------------------------------------------------------------------------
 
-        resultResolvers.add(createDelegate(p -> p.is(byte[].class), (rs, i) -> rs.getBytes(i)));
-        resultResolvers.add(createDelegate(p -> p.is(BigDecimal.class), (rs, i) -> rs.getBigDecimal(i)));
-        resultResolvers.add(createDelegate(p -> p.is(int.class) || p.is(Integer.class), (rs, i) -> rs.getInt(i)));
-        resultResolvers.add(createDelegate(p -> p.is(byte.class) || p.is(Byte.class), (rs, i) -> rs.getByte(i)));
-        resultResolvers.add(createDelegate(p -> p.is(long.class) || p.is(Long.class), (rs, i) -> rs.getLong(i)));
-        resultResolvers.add(createDelegate(p -> p.is(short.class) || p.is(Short.class), (rs, i) -> rs.getShort(i)));
-        resultResolvers.add(createDelegate(p -> p.is(float.class) || p.is(Float.class), (rs, i) -> rs.getFloat(i)));
-        resultResolvers.add(createDelegate(p -> p.is(double.class) || p.is(Double.class), (rs, i) -> rs.getDouble(i)));
-        resultResolvers.add(createDelegate(p -> p.is(boolean.class) || p.is(Boolean.class), (rs, i) -> rs.getBoolean(i)));
-        resultResolvers.add(createDelegate(p -> p.is(char.class) || p.is(Character.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(byte[].class), (rs, i) -> rs.getBytes(i)));
+        resultResolvers.add(delegate(p -> p.is(BigDecimal.class), (rs, i) -> rs.getBigDecimal(i)));
+        resultResolvers.add(delegate(p -> p.is(int.class) || p.is(Integer.class), (rs, i) -> rs.getInt(i)));
+        resultResolvers.add(delegate(p -> p.is(byte.class) || p.is(Byte.class), (rs, i) -> rs.getByte(i)));
+        resultResolvers.add(delegate(p -> p.is(long.class) || p.is(Long.class), (rs, i) -> rs.getLong(i)));
+        resultResolvers.add(delegate(p -> p.is(short.class) || p.is(Short.class), (rs, i) -> rs.getShort(i)));
+        resultResolvers.add(delegate(p -> p.is(float.class) || p.is(Float.class), (rs, i) -> rs.getFloat(i)));
+        resultResolvers.add(delegate(p -> p.is(double.class) || p.is(Double.class), (rs, i) -> rs.getDouble(i)));
+        resultResolvers.add(delegate(p -> p.is(boolean.class) || p.is(Boolean.class), (rs, i) -> rs.getBoolean(i)));
+        resultResolvers.add(delegate(p -> p.is(char.class) || p.is(Character.class), (rs, i) -> {
             final String v = rs.getString(i);
             return v == null ? null : Character.valueOf(v.charAt(0));
         }));
-        resultResolvers.add(createDelegate(p -> p.is(BigInteger.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(BigInteger.class), (rs, i) -> {
             final BigDecimal b = rs.getBigDecimal(i);
             return b == null ? null : b.toBigInteger();
         }));
-        resultResolvers.add(createDelegate(p -> p.is(Byte[].class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(Byte[].class), (rs, i) -> {
             final byte[] bytes = rs.getBytes(i);
             if (bytes == null) {
                 return null;
@@ -115,66 +115,66 @@ public class JdbcAutoConfiguration implements ApplicationListener<ContextStarted
         // String
         // -------------------------------------
 
-        resultResolvers.add(createDelegate(p -> p.is(Clob.class), (rs, i) -> rs.getClob(i)));
-        resultResolvers.add(createDelegate(p -> p.is(String.class), (rs, i) -> rs.getString(i)));
-        resultResolvers.add(createDelegate(p -> p.is(StringBuffer.class), (rs, i) -> new StringBuffer(rs.getString(i))));
-        resultResolvers.add(createDelegate(p -> p.is(StringBuilder.class), (rs, i) -> new StringBuilder(rs.getString(i))));
+        resultResolvers.add(delegate(p -> p.is(Clob.class), (rs, i) -> rs.getClob(i)));
+        resultResolvers.add(delegate(p -> p.is(String.class), (rs, i) -> rs.getString(i)));
+        resultResolvers.add(delegate(p -> p.is(StringBuffer.class), (rs, i) -> new StringBuffer(rs.getString(i))));
+        resultResolvers.add(delegate(p -> p.is(StringBuilder.class), (rs, i) -> new StringBuilder(rs.getString(i))));
 
         // SQL API
         // -------------------------------------
-        resultResolvers.add(createDelegate(p -> p.is(Blob.class), (rs, i) -> rs.getBlob(i)));
-        resultResolvers.add(createDelegate(p -> p.is(Time.class), (rs, i) -> rs.getTime(i)));
-        resultResolvers.add(createDelegate(p -> p.is(Timestamp.class), (rs, i) -> rs.getTimestamp(i)));
-        resultResolvers.add(createDelegate(p -> p.is(Date.class) || p.is(java.sql.Date.class), (rs, i) -> rs.getDate(i)));
+        resultResolvers.add(delegate(p -> p.is(Blob.class), (rs, i) -> rs.getBlob(i)));
+        resultResolvers.add(delegate(p -> p.is(Time.class), (rs, i) -> rs.getTime(i)));
+        resultResolvers.add(delegate(p -> p.is(Timestamp.class), (rs, i) -> rs.getTimestamp(i)));
+        resultResolvers.add(delegate(p -> p.is(Date.class) || p.is(java.sql.Date.class), (rs, i) -> rs.getDate(i)));
 
-        resultResolvers.add(createDelegate(p -> p.is(InputStream.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(InputStream.class), (rs, i) -> {
             final Blob b = rs.getBlob(i);
             return b == null ? null : b.getBinaryStream();
         }));
-        resultResolvers.add(createDelegate(p -> p.is(Reader.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(Reader.class), (rs, i) -> {
             final Clob c = rs.getClob(i);
             return c == null ? null : c.getCharacterStream();
         }));
 
         // jdk 1.8 Date and time API
         // -------------------------------------
-        resultResolvers.add(createDelegate(p -> p.is(Instant.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(Instant.class), (rs, i) -> {
             final Timestamp tp = rs.getTimestamp(i);
             return tp == null ? null : tp.toInstant();
         }));
-        resultResolvers.add(createDelegate(p -> p.is(LocalDateTime.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(LocalDateTime.class), (rs, i) -> {
             final Timestamp tp = rs.getTimestamp(i);
             return tp == null ? null : tp.toLocalDateTime();
         }));
-        resultResolvers.add(createDelegate(p -> p.is(LocalDate.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(LocalDate.class), (rs, i) -> {
             final java.sql.Date d = rs.getDate(i);
             return d == null ? null : d.toLocalDate();
         }));
-        resultResolvers.add(createDelegate(p -> p.is(LocalTime.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(LocalTime.class), (rs, i) -> {
             final Time t = rs.getTime(i);
             return t == null ? null : t.toLocalTime();
         }));
-        resultResolvers.add(createDelegate(p -> p.is(OffsetDateTime.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(OffsetDateTime.class), (rs, i) -> {
             final Timestamp tp = rs.getTimestamp(i);
             return tp == null ? null : OffsetDateTime.ofInstant(tp.toInstant(), ZoneId.systemDefault());
         }));
-        resultResolvers.add(createDelegate(p -> p.is(OffsetTime.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(OffsetTime.class), (rs, i) -> {
             final Time t = rs.getTime(i);
             return t == null ? null : t.toLocalTime().atOffset(OffsetTime.now().getOffset());
         }));
-        resultResolvers.add(createDelegate(p -> p.is(ZonedDateTime.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(ZonedDateTime.class), (rs, i) -> {
             final Timestamp tp = rs.getTimestamp(i);
             return tp == null ? null : ZonedDateTime.ofInstant(tp.toInstant(), ZoneId.systemDefault());
         }));
-        resultResolvers.add(createDelegate(p -> p.is(Year.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(Year.class), (rs, i) -> {
             final int year = rs.getInt(i);
             return year == 0 ? null : Year.of(year);
         }));
-        resultResolvers.add(createDelegate(p -> p.is(Month.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(Month.class), (rs, i) -> {
             final int month = rs.getInt(i);
             return month == 0 ? null : Month.of(month);
         }));
-        resultResolvers.add(createDelegate(p -> p.is(YearMonth.class), (rs, i) -> {
+        resultResolvers.add(delegate(p -> p.is(YearMonth.class), (rs, i) -> {
             final String value = rs.getString(i);
             return value == null ? null : YearMonth.parse(value);
         }));

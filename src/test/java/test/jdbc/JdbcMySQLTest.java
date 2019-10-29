@@ -54,11 +54,9 @@ public class JdbcMySQLTest {
     @BeforeClass
     public static void setUp() throws SQLException {
 
-        String insert = "insert into `t_user` (`name`,`age`) values ('Jerry', 12);\n" + //
-                "insert into `t_user` (`name`,`age`) values ('Tom', 12);";
-
-        int update = executer.update(insert);
-        System.err.println(update);
+//        int update = executer.update("insert into `t_user` (`name`,`age`) values ('Jerry', 12);");
+//        update += executer.update("insert into `t_user` (`name`,`age`) values ('Tom', 12);");
+//        System.err.println(update);
     }
 
     @Test

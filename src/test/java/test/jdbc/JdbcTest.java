@@ -41,7 +41,7 @@ import test.jdbc.model.User;
  */
 public class JdbcTest {
 
-    private static ApplicationContext applicationContext = new StandardApplicationContext("info.properties", "");
+    private static ApplicationContext applicationContext = new StandardApplicationContext("info.properties", "test.jdbc");
 
     private static JdbcExecuter executer = applicationContext.getBean("h2Executer", JdbcExecuter.class);
 

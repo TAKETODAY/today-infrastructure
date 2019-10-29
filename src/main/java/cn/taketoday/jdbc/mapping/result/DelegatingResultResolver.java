@@ -28,12 +28,12 @@ import cn.taketoday.jdbc.mapping.ColumnMapping;
  * @author TODAY <br>
  *         2019-08-24 23:05
  */
-public class DelegatingResultResolver implements ResultResolver {
+public final class DelegatingResultResolver implements ResultResolver {
 
     private final Function supports;
     private final ResultResolver resolver;
 
-    public static DelegatingResultResolver createDelegate(Function supports, ResultResolver resolver) {
+    public static DelegatingResultResolver delegate(Function supports, ResultResolver resolver) {
         return new DelegatingResultResolver(supports, resolver);
     }
 

@@ -19,10 +19,9 @@
  */
 package cn.taketoday.jdbc.mapping;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.invoker.MethodInvoker;
 
 /**
  * @author TODAY <br>
@@ -30,54 +29,22 @@ import cn.taketoday.context.utils.ExceptionUtils;
  */
 public class MethodBasedPropertyAccessor implements PropertyAccessor {
 
-    private final Method readMethod;
-    private final Method writeMethod;
+    private final MethodInvoker readMethod;
+    private final MethodInvoker writeMethod;
 
     public MethodBasedPropertyAccessor(Method readMethod, Method writeMethod) {
-        this.readMethod = readMethod;
-        this.writeMethod = writeMethod;
+        this.readMethod = MethodInvoker.create(readMethod);
+        this.writeMethod = MethodInvoker.create(writeMethod);
     }
 
     @Override
     public Object get(Object obj) {
-        try {
-            return readMethod.invoke(obj);
-        }
-        catch (IllegalAccessException e) {
-            throw ExceptionUtils.newConfigurationException(e, "Getter method must be public.");
-        }
-        catch (InvocationTargetException e) {
-            throw handleException(e);
-        }
+        return readMethod.invoke(obj, null);
     }
 
     @Override
     public void set(Object obj, Object value) {
-        try {
-            writeMethod.invoke(obj, value);
-        }
-        catch (IllegalAccessException e) {
-            throw ExceptionUtils.newConfigurationException(e, "Getter method must be public.");
-        }
-        catch (InvocationTargetException e) {
-            throw handleException(e);
-        }
-    }
-
-    /**
-     * Handle InvocationTargetException
-     * 
-     * @param e
-     *            Target {@link InvocationTargetException} object
-     * @return Target {@link RuntimeException}
-     */
-    protected RuntimeException handleException(InvocationTargetException e) {
-
-        final Throwable te = e.getTargetException();
-        if (te instanceof RuntimeException) {
-            return (RuntimeException) te;
-        }
-        return new RuntimeException("Exception occurred when read property", te);
+        writeMethod.invoke(obj, new Object[] { value });
     }
 
 }

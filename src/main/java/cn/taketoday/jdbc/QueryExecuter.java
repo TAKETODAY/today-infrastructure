@@ -52,7 +52,7 @@ public class QueryExecuter extends Executer implements QueryOperation {
     }
 
     @Override
-    public <T> List<T> query(final String sql, final RowMapper<T> rowMapper, final Object... args) throws SQLException {
+    public <T> List<T> query(final String sql, final RowMapper<T> rowMapper, final Object[] args) throws SQLException {
 
         return query(sql, (ResultSet result) -> {
 
@@ -66,7 +66,7 @@ public class QueryExecuter extends Executer implements QueryOperation {
     }
 
     @Override
-    public <T> T query(final String sql, final ResultSetExtractor<T> rse, final Object... args) throws SQLException {
+    public <T> T query(final String sql, final ResultSetExtractor<T> rse, final Object[] args) throws SQLException {
 
         return execute((ConnectionCallback<T>) (con) -> {
 
@@ -81,7 +81,7 @@ public class QueryExecuter extends Executer implements QueryOperation {
     }
 
     @Override
-    public void query(final String sql, final ResultSetHandler rch, final Object... args) throws SQLException {
+    public void query(final String sql, final ResultSetHandler rch, final Object[] args) throws SQLException {
 
         execute((ConnectionCallback<Void>) (Connection con) -> {
 
@@ -102,7 +102,7 @@ public class QueryExecuter extends Executer implements QueryOperation {
     private static final Map<Class<?>, TableMapping> TABLE_MAPPINGS = new HashMap<>();
 
     @Override
-    public <T> T query(final String sql, final Class<T> requiredType, final Object... args) throws SQLException {
+    public <T> T query(final String sql, final Class<T> requiredType, final Object[] args) throws SQLException {
 
         final class ResultSetExtractor0 implements ResultSetExtractor<T> {
 
@@ -135,7 +135,7 @@ public class QueryExecuter extends Executer implements QueryOperation {
     }
 
     @Override
-    public <T> List<T> queryList(final String sql, final Class<T> elementType, final Object... args) throws SQLException {
+    public <T> List<T> queryList(final String sql, final Class<T> elementType, final Object[] args) throws SQLException {
 
         return query(sql, (ResultSet result) -> {
 
@@ -191,7 +191,7 @@ public class QueryExecuter extends Executer implements QueryOperation {
     }
 
     @Override
-    public List<Map<String, Object>> queryList(final String sql, final Object... args) throws SQLException {
+    public List<Map<String, Object>> queryList(final String sql, final Object[] args) throws SQLException {
 
         return query(sql, (ResultSet result) -> {
 
@@ -214,7 +214,7 @@ public class QueryExecuter extends Executer implements QueryOperation {
     }
 
     @Override
-    public Map<String, Object> queryMap(final String sql, final Object... args) throws SQLException {
+    public Map<String, Object> queryMap(final String sql, final Object[] args) throws SQLException {
 
         return query(sql, (ResultSet result) -> {
 

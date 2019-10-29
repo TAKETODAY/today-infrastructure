@@ -74,7 +74,7 @@ public interface QueryOperation {
      * @throws SQLException
      *             if the query fails
      */
-    <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) throws SQLException;
+    <T> List<T> query(String sql, RowMapper<T> rowMapper, Object[] args) throws SQLException;
 
     /**
      * Execute a query given static SQL, reading the ResultSet with a
@@ -94,11 +94,11 @@ public interface QueryOperation {
      * @see #query(String, Object[], ResultSetExtractor)
      */
     default <T> T query(String sql, ResultSetExtractor<T> rse) throws SQLException {
-        return query(sql, rse, (Object[]) null);
+        return query(sql, rse, null);
     }
 
     default <T> Optional<T> queryOptional(String sql, ResultSetExtractor<T> rse) throws SQLException {
-        return queryOptional(sql, rse, (Object[]) null);
+        return queryOptional(sql, rse, null);
     }
 
     /**
@@ -119,9 +119,9 @@ public interface QueryOperation {
      * @throws SQLException
      *             if the query fails
      */
-    <T> T query(String sql, ResultSetExtractor<T> rse, Object... args) throws SQLException;
+    <T> T query(String sql, ResultSetExtractor<T> rse, Object[] args) throws SQLException;
 
-    default <T> Optional<T> queryOptional(String sql, ResultSetExtractor<T> rse, Object... args) throws SQLException {
+    default <T> Optional<T> queryOptional(String sql, ResultSetExtractor<T> rse, Object[] args) throws SQLException {
         return Optional.ofNullable(query(sql, rse, args));
     }
 
@@ -142,7 +142,7 @@ public interface QueryOperation {
      * @see #query(String, Object[], ResultSetHandler)
      */
     default void query(String sql, ResultSetHandler rch) throws SQLException {
-        query(sql, rch, (Object[]) null);
+        query(sql, rch, null);
     }
 
     /**
@@ -162,7 +162,7 @@ public interface QueryOperation {
      * @throws SQLException
      *             if the query fails
      */
-    void query(String sql, ResultSetHandler rch, Object... args) throws SQLException;
+    void query(String sql, ResultSetHandler rch, Object[] args) throws SQLException;
 
     /**
      * Execute a query for a result object, given static SQL.
@@ -190,11 +190,11 @@ public interface QueryOperation {
      * @see #query(String, Class, Object[])
      */
     default <T> T query(String sql, Class<T> requiredType) throws SQLException {
-        return query(sql, requiredType, (Object[]) null);
+        return query(sql, requiredType, null);
     }
 
     default <T> Optional<T> queryOptional(String sql, Class<T> requiredType) throws SQLException {
-        return queryOptional(sql, requiredType, (Object[]) null);
+        return queryOptional(sql, requiredType, null);
     }
 
     /**
@@ -222,16 +222,16 @@ public interface QueryOperation {
      *             if the query fails
      * @see #query(String, Class)
      */
-    <T> T query(String sql, Class<T> requiredType, Object... args) throws SQLException;
+    <T> T query(String sql, Class<T> requiredType, Object[] args) throws SQLException;
 
-    default <T> Optional<T> queryOptional(String sql, Class<T> requiredType, Object... args) throws SQLException {
+    default <T> Optional<T> queryOptional(String sql, Class<T> requiredType, Object[] args) throws SQLException {
         return Optional.ofNullable(query(sql, requiredType, args));
     }
 
     // List
 
     default <T> List<T> queryList(String sql, Class<T> elementType) throws SQLException {
-        return queryList(sql, elementType, (Object[]) null);
+        return queryList(sql, elementType, null);
     }
 
     /**
@@ -257,7 +257,7 @@ public interface QueryOperation {
      * @see #queryList(String, Class)
      * @see SingleColumnRowMapper
      */
-    <T> List<T> queryList(String sql, Class<T> elementType, Object... args) throws SQLException;
+    <T> List<T> queryList(String sql, Class<T> elementType, Object[] args) throws SQLException;
 
     default List<Map<String, Object>> queryList(String sql) throws SQLException {
         return queryList(sql, (Object[]) null);
@@ -283,7 +283,7 @@ public interface QueryOperation {
      *             if the query fails
      * @see #queryList(String)
      */
-    List<Map<String, Object>> queryList(String sql, Object... args) throws SQLException;
+    List<Map<String, Object>> queryList(String sql, Object[] args) throws SQLException;
 
     // Map
 
@@ -310,7 +310,7 @@ public interface QueryOperation {
      * @see ColumnMapRowMapper
      */
     default Map<String, Object> queryMap(String sql) throws SQLException {
-        return queryMap(sql, (Object[]) null);
+        return queryMap(sql, null);
     }
 
     /**
@@ -338,7 +338,7 @@ public interface QueryOperation {
      * @see #queryMap(String)
      * @see ColumnMapRowMapper
      */
-    Map<String, Object> queryMap(String sql, Object... args) throws SQLException;
+    Map<String, Object> queryMap(String sql, Object[] args) throws SQLException;
 
     @FunctionalInterface
     public interface ResultSetExtractor<T> {

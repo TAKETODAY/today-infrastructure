@@ -29,13 +29,13 @@ import cn.taketoday.jdbc.annotation.Table;
 public class User implements Serializable {
 
     @Id
-//    @Column(value = "ID", increment = true, notNull = true)
+    //    @Column(value = "ID", increment = true, notNull = true)
     private int id = 0;
     /** User's Name */
-//    @Column("USER_NAME")
+    //    @Column("USER_NAME")
     private String name = "无名氏";
     /*** age */
-//    @Column("AGE")
+    //    @Column("AGE")
     private Integer age;
 
     @Override

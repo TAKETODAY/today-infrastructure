@@ -333,9 +333,7 @@ public abstract class AbstractSQL<T> {
         return OFFSET_ROWS(String.valueOf(value));
     }
 
-    /*
-     * used to add a new inserted row while do multi-row insert.
-     */
+    /* used to add a new inserted row while do multi-row insert. */
     public T ADD_ROW() {
         sql().valuesList.add(new ArrayList<>());
         return getSelf();
@@ -371,6 +369,17 @@ public abstract class AbstractSQL<T> {
                 if (empty && s.length() > 0) {
                     empty = false;
                 }
+                a.append(s);
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return this;
+        }
+
+        public SafeAppendable append(char s) {
+            try {
+                empty = false;
                 a.append(s);
             }
             catch (IOException e) {
@@ -451,11 +460,16 @@ public abstract class AbstractSQL<T> {
             valuesList.add(new ArrayList<>());
         }
 
-        private void sqlClause(SafeAppendable builder, String keyword, List<String> parts, String open, String close,
-                String conjunction) {
+        private void sqlClause(SafeAppendable builder, 
+                               String keyword, 
+                               List<String> parts,
+                               String open, 
+                               String close,
+                               String conjunction) {
+            
             if (!parts.isEmpty()) {
                 if (!builder.isEmpty()) {
-                    builder.append("\n");
+                    builder.append('\n');
                 }
                 builder.append(keyword);
                 builder.append(" ");
@@ -532,8 +546,7 @@ public abstract class AbstractSQL<T> {
 
             String answer;
 
-            switch (statementType)
-            {
+            switch (statementType) {
                 case DELETE :
                     answer = deleteSQL(builder);
                     break;
