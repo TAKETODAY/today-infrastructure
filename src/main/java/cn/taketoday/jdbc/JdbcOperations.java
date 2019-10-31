@@ -23,6 +23,6 @@ package cn.taketoday.jdbc;
  * @author TODAY <br>
  *         2018-09-27 19:50
  */
-public interface JdbcOperations extends BasicOperation, QueryOperation, UpdateOperation {
+public interface JdbcOperations extends BasicOperation, QueryOperation, UpdateOperation, QueryOptionalOperation {
 
 }

@@ -19,7 +19,6 @@
  */
 package cn.taketoday.jdbc;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,7 +32,6 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.jdbc.mapping.ColumnMapping;
 import cn.taketoday.jdbc.mapping.TableMapping;
 
@@ -41,7 +39,7 @@ import cn.taketoday.jdbc.mapping.TableMapping;
  * @author TODAY <br>
  *         2019-08-18 20:12
  */
-public class QueryExecuter extends Executer implements QueryOperation {
+public class QueryExecuter extends Executer implements QueryOperation, QueryOptionalOperation {
 
     public QueryExecuter() {
 
@@ -52,9 +50,9 @@ public class QueryExecuter extends Executer implements QueryOperation {
     }
 
     @Override
-    public <T> List<T> query(final String sql, final RowMapper<T> rowMapper, final Object[] args) throws SQLException {
+    public <T> List<T> queryList(final String sql, final Object[] args, final RowMapper<T> rowMapper) throws SQLException {
 
-        return query(sql, (ResultSet result) -> {
+        return query(sql, args, (ResultSet result) -> {
 
             final List<T> ret = new ArrayList<>();
             int i = 1;
@@ -62,11 +60,11 @@ public class QueryExecuter extends Executer implements QueryOperation {
                 ret.add(rowMapper.mapRow(result, i++));
             }
             return ret;
-        }, args);
+        });
     }
 
     @Override
-    public <T> T query(final String sql, final ResultSetExtractor<T> rse, final Object[] args) throws SQLException {
+    public <T> T query(final String sql, final Object[] args, final ResultSetExtractor<T> rse) throws SQLException {
 
         return execute((ConnectionCallback<T>) (con) -> {
 
@@ -81,7 +79,7 @@ public class QueryExecuter extends Executer implements QueryOperation {
     }
 
     @Override
-    public void query(final String sql, final ResultSetHandler rch, final Object[] args) throws SQLException {
+    public void query(final String sql, final Object[] args, final ResultSetHandler rch) throws SQLException {
 
         execute((ConnectionCallback<Void>) (Connection con) -> {
 
@@ -102,7 +100,7 @@ public class QueryExecuter extends Executer implements QueryOperation {
     private static final Map<Class<?>, TableMapping> TABLE_MAPPINGS = new HashMap<>();
 
     @Override
-    public <T> T query(final String sql, final Class<T> requiredType, final Object[] args) throws SQLException {
+    public <T> T query(final String sql, final Object[] args, final Class<T> requiredType) throws SQLException {
 
         final class ResultSetExtractor0 implements ResultSetExtractor<T> {
 
@@ -129,29 +127,21 @@ public class QueryExecuter extends Executer implements QueryOperation {
             }
         }
 
-        return
-
-        query(sql, new ResultSetExtractor0(), args);
+        return query(sql, args, new ResultSetExtractor0());
     }
 
     @Override
-    public <T> List<T> queryList(final String sql, final Class<T> elementType, final Object[] args) throws SQLException {
+    public <T> List<T> queryList(final String sql, final Object[] args, final Class<T> elementType) throws SQLException {
 
-        return query(sql, (ResultSet result) -> {
+        return query(sql, args, (ResultSet result) -> {
 
             final List<T> ret = new ArrayList<>();
 
             final ResultSetMetaData metaData = result.getMetaData();
             final int columnCount = metaData.getColumnCount() + 1;
+            final TableMapping table = TABLE_MAPPINGS.computeIfAbsent(elementType, TableMapping::new);
 
             final class ResultSetExtractor0 implements ResultSetExtractor<T> {
-
-                final Map<String, Field> propertyMap = new HashMap<>();
-                {
-                    for (final Field field : ClassUtils.getFields(elementType)) {
-                        propertyMap.put(field.getName().toUpperCase(), ClassUtils.makeAccessible(field));
-                    }
-                }
 
                 @Override
                 public T extractData(ResultSet rs) throws SQLException {
@@ -160,21 +150,9 @@ public class QueryExecuter extends Executer implements QueryOperation {
 
                     for (int i = 1; i < columnCount; i++) {
 
-                        final Field field = propertyMap.get(JdbcUtils.getColumnName(metaData, i).toUpperCase());
-                        if (field != null) {
-                            final Class<?> type = field.getType();
-                            final Object resultSetValue = JdbcUtils.getResultSetValue(rs, i, type);
-
-                            try {
-
-                                field.set(ret, ConvertUtils.convert(resultSetValue, type));
-                            }
-                            catch (IllegalArgumentException e) {
-                                e.printStackTrace();
-                            }
-                            catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                            }
+                        final ColumnMapping propertyMapping = table.get(JdbcUtils.getColumnName(metaData, i));
+                        if (propertyMapping != null) {
+                            propertyMapping.resolveResult(ret, rs);
                         }
                     }
                     return ret;
@@ -182,18 +160,17 @@ public class QueryExecuter extends Executer implements QueryOperation {
             }
 
             final ResultSetExtractor0 extractor0 = new ResultSetExtractor0();
-
             while (result.next()) {
                 ret.add(extractor0.extractData(result));
             }
             return ret;
-        }, args);
+        });
     }
 
     @Override
     public List<Map<String, Object>> queryList(final String sql, final Object[] args) throws SQLException {
 
-        return query(sql, (ResultSet result) -> {
+        return query(sql, args, (ResultSet result) -> {
 
             final List<Map<String, Object>> ret = new ArrayList<>();
             final ResultSetMetaData metaData = result.getMetaData();
@@ -209,14 +186,14 @@ public class QueryExecuter extends Executer implements QueryOperation {
                 ret.add(map);
             }
             return ret;
-        }, args);
+        });
 
     }
 
     @Override
     public Map<String, Object> queryMap(final String sql, final Object[] args) throws SQLException {
 
-        return query(sql, (ResultSet result) -> {
+        return query(sql, args, (ResultSet result) -> {
 
             final ResultSetMetaData metaData = result.getMetaData();
             final int all = metaData.getColumnCount();
@@ -228,7 +205,7 @@ public class QueryExecuter extends Executer implements QueryOperation {
             }
             return ret;
 
-        }, args);
+        });
     }
 
 }

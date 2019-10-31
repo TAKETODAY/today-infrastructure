@@ -22,6 +22,7 @@ package test.jdbc;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -64,7 +65,7 @@ public class JdbcMySQLTest {
     public void testQuery() throws SQLException {
 
         long start = System.currentTimeMillis();
-        executer.query("select * from t_user", (ResultSet rs, int n) -> {
+        executer.queryList("select * from t_user", (ResultSet rs, int n) -> {
 
             final ResultSetMetaData metaData = rs.getMetaData();
             final int columnCount = metaData.getColumnCount() + 1;
@@ -92,22 +93,19 @@ public class JdbcMySQLTest {
     public void testQueryArticle() throws SQLException {
 
         long start = System.currentTimeMillis();
-        executer.query("select * from t_article", (ResultSet rs, int n) -> {
 
-            final ResultSetMetaData metaData = rs.getMetaData();
-            final int columnCount = metaData.getColumnCount() + 1;
-
-            for (int i = 1; i < columnCount; i++) {
-                final Object object = rs.getObject(i);
-                System.err.println(JdbcUtils.getColumnName(metaData, i) + " == " + object);
-            }
-            return null;
-        });
 
         final Article queryObject = executer.query("select * from t_article", Article.class);
 
-        System.err.println(queryObject);
-        System.err.println(executer.queryList("select * from t_article", Article.class));
+       // System.err.println(queryObject);
+        final List<Article> queryList = executer.queryList("select * from t_article", Article.class);
+//        System.err.println(queryList);
+        
+        for (Article article : queryList) {
+            System.err.println(article.getStatus());
+            System.err.println(article.getCopyRight());
+        }
+        
         System.err.println("query " + (System.currentTimeMillis() - start) + " ms");
     }
 

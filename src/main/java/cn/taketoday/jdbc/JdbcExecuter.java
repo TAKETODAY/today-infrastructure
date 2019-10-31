@@ -25,20 +25,15 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * @author TODAY <br>
  *         2019-08-18 19:20
  */
-@Setter
-@Getter
 public class JdbcExecuter implements JdbcOperations {
 
-    private final QueryOperation queryOperation;
     private final BasicOperation basicOperation;
     private final UpdateOperation updateOperation;
+    private final QueryOptionalOperation queryOperation;
 
     public JdbcExecuter(DataSource dataSource) {
         final QueryExecuter queryExecuter = new QueryExecuter(dataSource);
@@ -49,11 +44,26 @@ public class JdbcExecuter implements JdbcOperations {
         this.updateOperation = new UpdateExecuter(dataSource);
     }
 
-    public JdbcExecuter(BasicOperation basicOperation, QueryOperation queryOperation, UpdateOperation updateOperation) {
+    public JdbcExecuter(BasicOperation basicOperation, UpdateOperation updateOperation, QueryOptionalOperation queryOperation) {
         this.queryOperation = queryOperation;
         this.basicOperation = basicOperation;
         this.updateOperation = updateOperation;
     }
+
+    public BasicOperation getBasicOperation() {
+        return basicOperation;
+    }
+
+    public UpdateOperation getUpdateOperation() {
+        return updateOperation;
+    }
+
+    public QueryOptionalOperation getQueryOperation() {
+        return queryOperation;
+    }
+
+    // Basic
+    //-----------------------------
 
     @Override
     public <T> T execute(ConnectionCallback<T> action) throws SQLException {
@@ -80,40 +90,8 @@ public class JdbcExecuter implements JdbcOperations {
         return getBasicOperation().execute(sql, action);
     }
 
-    @Override
-    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object[] args) throws SQLException {
-        return getQueryOperation().query(sql, rowMapper, args);
-    }
-
-    @Override
-    public <T> T query(String sql, ResultSetExtractor<T> rse, Object[] args) throws SQLException {
-        return getQueryOperation().query(sql, rse, args);
-    }
-
-    @Override
-    public void query(String sql, ResultSetHandler rch, Object[] args) throws SQLException {
-        getQueryOperation().query(sql, rch, args);
-    }
-
-    @Override
-    public <T> T query(String sql, Class<T> requiredType, Object[] args) throws SQLException {
-        return getQueryOperation().query(sql, requiredType, args);
-    }
-
-    @Override
-    public <T> List<T> queryList(String sql, Class<T> elementType, Object[] args) throws SQLException {
-        return getQueryOperation().queryList(sql, elementType, args);
-    }
-
-    @Override
-    public List<Map<String, Object>> queryList(String sql, Object[] args) throws SQLException {
-        return getQueryOperation().queryList(sql, args);
-    }
-
-    @Override
-    public Map<String, Object> queryMap(String sql, Object[] args) throws SQLException {
-        return getQueryOperation().queryMap(sql, args);
-    }
+    // update
+    // ----------------------------------------------------
 
     @Override
     public int update(String sql) throws SQLException {
@@ -133,6 +111,44 @@ public class JdbcExecuter implements JdbcOperations {
     @Override
     public int[] batchUpdate(String sql, List<Object[]> batchArgs) throws SQLException {
         return getUpdateOperation().batchUpdate(sql, batchArgs);
+    }
+
+    // query
+    // ----------------------------------------
+
+    @Override
+    public <T> T query(String sql, Object[] args, ResultSetExtractor<T> rse) throws SQLException {
+        return getQueryOperation().query(sql, args, rse);
+    }
+
+    @Override
+    public void query(String sql, Object[] args, ResultSetHandler rch) throws SQLException {
+        getQueryOperation().query(sql, args, rch);
+    }
+
+    @Override
+    public <T> T query(String sql, Object[] args, Class<T> requiredType) throws SQLException {
+        return getQueryOperation().query(sql, args, requiredType);
+    }
+
+    @Override
+    public <T> List<T> queryList(String sql, Object[] args, RowMapper<T> rowMapper) throws SQLException {
+        return getQueryOperation().queryList(sql, args, rowMapper);
+    }
+
+    @Override
+    public <T> List<T> queryList(String sql, Object[] args, Class<T> elementType) throws SQLException {
+        return getQueryOperation().queryList(sql, args, elementType);
+    }
+
+    @Override
+    public List<Map<String, Object>> queryList(String sql, Object[] args) throws SQLException {
+        return getQueryOperation().queryList(sql, args);
+    }
+
+    @Override
+    public Map<String, Object> queryMap(String sql, Object[] args) throws SQLException {
+        return getQueryOperation().queryMap(sql, args);
     }
 
 }

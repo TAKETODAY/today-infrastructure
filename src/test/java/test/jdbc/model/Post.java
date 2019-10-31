@@ -46,7 +46,7 @@ public class Post implements Serializable {
 
     private boolean keepNavigation;
 
-    @Transient
+//    @Transient
     @JSONField(serialize = false)
     private PostStatus status;
 

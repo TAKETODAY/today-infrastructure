@@ -42,7 +42,7 @@ public class User implements Serializable {
     private Integer age;
 
     /** state */
-    @Transient
+//    @Transient
     @JSONField(serialize = false)
     private UserStatus status;
 

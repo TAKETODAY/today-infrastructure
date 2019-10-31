@@ -73,7 +73,7 @@ public class JdbcTest {
     public void testH2() throws SQLException {
 
         long start = System.currentTimeMillis();
-        executer.query("select * from t_user", (ResultSet rs, int n) -> {
+        executer.queryList("select * from t_user", (ResultSet rs, int n) -> {
 
             final ResultSetMetaData metaData = rs.getMetaData();
             final int columnCount = metaData.getColumnCount() + 1;

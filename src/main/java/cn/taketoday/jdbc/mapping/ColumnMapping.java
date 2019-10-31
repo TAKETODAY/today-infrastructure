@@ -42,6 +42,7 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.jdbc.FieldColumnConverter;
 import cn.taketoday.jdbc.annotation.Column;
 import cn.taketoday.jdbc.mapping.result.ResultResolver;
 import lombok.extern.slf4j.Slf4j;
@@ -70,20 +71,14 @@ public class ColumnMapping implements PropertyAccessor {
 
     private static final List<ResultResolver> RESULT_RESOLVERS = new ArrayList<>();
 
-    public ColumnMapping(Field field) throws ConfigurationException {
+    public ColumnMapping(Field field, final FieldColumnConverter converter) throws ConfigurationException {
 
         this.target = field;
         this.type = field.getType();
         this.name = field.getName();
 
-        String columnName = null;
         final Column column = ClassUtils.getAnnotation(Column.class, field);
-        if (column != null) {
-            columnName = column.value();
-        }
-        else {
-
-        }
+        String columnName = column == null ? converter.convert(name) : column.value();
 
         if (StringUtils.isEmpty(columnName)) {
             columnName = this.name;
@@ -107,8 +102,8 @@ public class ColumnMapping implements PropertyAccessor {
     @Override
     public String toString() {
         return String.format(
-                "{\n\t\"name\":\"%s\",\n\t\"column\":\"%s\",\n\t\"target\":\"%s\",\n\t\"type\":\"%s\",\n\t\"resolver\":\"%s\",\n\t\"genericityClass\":\"%s\",\n\t\"accessor\":\"%s\"\n}",
-                name, column, target, type, resolver, Arrays.toString(genericityClass), accessor);
+                             "{\n\t\"name\":\"%s\",\n\t\"column\":\"%s\",\n\t\"target\":\"%s\",\n\t\"type\":\"%s\",\n\t\"resolver\":\"%s\",\n\t\"genericityClass\":\"%s\",\n\t\"accessor\":\"%s\"\n}",
+                             name, column, target, type, resolver, Arrays.toString(genericityClass), accessor);
     }
 
     public String getName() {
@@ -143,7 +138,7 @@ public class ColumnMapping implements PropertyAccessor {
             for (final PropertyDescriptor propertyDescriptor : propertyDescriptors) {
 
                 if (propertyDescriptor.getName().equals(name) //
-                        && propertyDescriptor.getPropertyType() == field.getType()) {
+                    && propertyDescriptor.getPropertyType() == field.getType()) {
 
                     final Method writeMethod = propertyDescriptor.getWriteMethod();
                     final Method readMethod = propertyDescriptor.getReadMethod();
@@ -181,7 +176,7 @@ public class ColumnMapping implements PropertyAccessor {
         }
 
         throw ExceptionUtils.newConfigurationException(null,
-                "There isn't have a result resolver to resolve : [" + toString() + "]");
+                                                       "There isn't have a result resolver to resolve : [" + toString() + "]");
     }
 
     public static void addResolver(ResultResolver... resolvers) {
