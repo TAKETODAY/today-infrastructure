@@ -78,7 +78,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     /** Bean Post Processors */
     private final List<BeanPostProcessor> postProcessors = new ArrayList<>(8);
     /** Map of bean instance, keyed by bean name */
-    private final Map<String, Object> singletons = new ConcurrentHashMap<>(64);
+    private final Map<String, Object> singletons = new HashMap<>(64);
     /** Map of bean definition objects, keyed by bean name */
     private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
 
@@ -280,7 +280,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *             If any {@link Exception} occurred when apply
      *             {@link PropertyValue}s
      */
-    protected void applyPropertyValues(final Object bean, final PropertyValue... propertyValues)
+    protected void applyPropertyValues(final Object bean, final PropertyValue[] propertyValues)
             throws IllegalAccessException //
     {
 
@@ -294,7 +294,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 if (value == null) {
                     if (beanReference.isRequired()) {
                         log.error("[{}] is required.", propertyValue.getField());
-                        throw new NoSuchBeanDefinitionException(beanReference.getName());
+                        throw new NoSuchBeanDefinitionException(beanReference.getName(), beanReference.getReferenceClass());
                     }
                     continue; // if reference bean is null and it is not required ,do nothing,default value
                 }
@@ -319,7 +319,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         if (fullPrototype && beanReference.isPrototype() && containsBeanDefinition(name)) {
             return Prototypes.newProxyInstance(type, getBeanDefinition(name), this);
         }
-        return getBean(name, type);
+        final Object bean = getBean(name, type);
+        if (bean == null) {
+            return doGetBeanforType(type);
+        }
+        return bean;
     }
 
     /**
@@ -640,14 +644,15 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
         aware(bean, name);
 
-        if (getPostProcessors().isEmpty()) {
+        final List<BeanPostProcessor> postProcessors = getPostProcessors();
+        if (postProcessors.isEmpty()) {
             // apply properties
             applyPropertyValues(bean, def.getPropertyValues());
             // invoke initialize methods
             invokeInitMethods(bean, def.getInitMethods());
             return bean;
         }
-        return initWithPostProcessors(bean, name, def, getPostProcessors());
+        return initWithPostProcessors(bean, name, def, postProcessors);
     }
 
     /**
@@ -1002,15 +1007,15 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      */
     public void preInitialization() throws Throwable {
 
-        for (Entry<String, Object> entry : getSingletons().entrySet()) {
+        for (final Entry<String, Object> entry : new HashMap<>(getSingletons()).entrySet()) {
+
             final String name = entry.getKey();
-            final Object singleton = entry.getValue();
             final BeanDefinition beanDefinition = getBeanDefinition(name);
             if (beanDefinition == null || beanDefinition.isInitialized()) {
                 continue;
             }
-            registerSingleton(name, initializingBean(singleton, name, beanDefinition));
-            log.debug("Singleton bean is being stored in the name of [{}].", name);
+            registerSingleton(name, initializingBean(entry.getValue(), name, beanDefinition));
+            log.debug("Pre initialize singleton bean is being stored in the name of [{}].", name);
 
             beanDefinition.setInitialized(true);
         }

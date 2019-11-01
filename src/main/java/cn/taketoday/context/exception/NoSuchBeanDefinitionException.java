@@ -19,8 +19,6 @@
  */
 package cn.taketoday.context.exception;
 
-import org.slf4j.LoggerFactory;
-
 import lombok.NoArgsConstructor;
 
 /**
@@ -43,14 +41,14 @@ public class NoSuchBeanDefinitionException extends ContextException {
 
     public NoSuchBeanDefinitionException(String name) {
         super("No such bean definition named: [" + name + "]");
-        LoggerFactory.getLogger(NoSuchBeanDefinitionException.class)//
-                .error("No such bean definition named: [{}]", name, this);
     }
 
     public NoSuchBeanDefinitionException(Class<?> targetClass) {
         super("No such target class: [" + targetClass + "] bean definition");
-        LoggerFactory.getLogger(NoSuchBeanDefinitionException.class)//
-                .error("No such target class: [{}] bean definition: ", targetClass, this);
+    }
+
+    public NoSuchBeanDefinitionException(String name, Class<?> targetClass) {
+        super("No such bean definition named [" + name + "] target class: [" + targetClass + "]");
     }
 
 }

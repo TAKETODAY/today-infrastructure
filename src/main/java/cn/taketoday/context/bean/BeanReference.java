@@ -50,6 +50,11 @@ public final class BeanReference {
         this.prototype = true;
     }
 
+    public BeanReference setPrototype(boolean prototype) {
+        this.prototype = prototype;
+        return this;
+    }
+
     public BeanReference(String name, boolean required, Class<?> referenceClass) {
         this.name = name;
         if (StringUtils.isEmpty(name)) {
@@ -61,7 +66,7 @@ public final class BeanReference {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, required, referenceClass, prototype);
+        return Objects.hash(name, required, referenceClass, isPrototype());
     }
 
     @Override
@@ -75,7 +80,7 @@ public final class BeanReference {
             final BeanReference other = (BeanReference) obj;
 
             return (other.required == this.required //
-                    && other.prototype == this.prototype//
+                    && other.isPrototype() == this.isPrototype()
                     && Objects.equals(other.name, this.name)//
                     && other.referenceClass == referenceClass);
         }
@@ -93,7 +98,7 @@ public final class BeanReference {
         builder.append("\",\n\t\"referenceClass\":\"");
         builder.append(referenceClass);
         builder.append("\",\n\t\"prototype\":\"");
-        builder.append(prototype);
+        builder.append(isPrototype());
         builder.append("\"\n}");
         return builder.toString();
     }
