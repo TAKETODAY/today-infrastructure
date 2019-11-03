@@ -26,9 +26,8 @@ import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.ServletSecurityElement;
 
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import lombok.Getter;

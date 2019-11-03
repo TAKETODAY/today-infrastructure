@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.exception;
 
-import org.slf4j.LoggerFactory;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>

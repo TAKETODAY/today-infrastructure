@@ -32,8 +32,6 @@ import java.util.Properties;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,6 +49,8 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.OrderUtils;

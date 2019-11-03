@@ -31,6 +31,8 @@ import org.w3c.dom.NodeList;
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -38,14 +40,14 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.mapping.ViewMapping;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  *         2018-06-23 16:19:53
  */
-@Slf4j
 public class ViewConfiguration {
+    
+    private static final Logger log = LoggerFactory.getLogger(ViewConfiguration.class);
 
     private final String contextPath;
     private final Properties variables;

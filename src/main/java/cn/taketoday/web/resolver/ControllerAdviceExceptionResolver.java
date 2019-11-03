@@ -26,10 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;

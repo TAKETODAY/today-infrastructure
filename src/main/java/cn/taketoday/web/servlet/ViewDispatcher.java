@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
@@ -38,16 +40,16 @@ import cn.taketoday.web.mapping.ViewMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.utils.ResultUtils;
 import cn.taketoday.web.view.ViewResolver;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  *         2018-06-25 19:48:28
  * @version 2.0.0
  */
-@Slf4j
 @SuppressWarnings("serial")
 public class ViewDispatcher extends GenericServlet {
+
+    private static final Logger log = LoggerFactory.getLogger(ViewDispatcher.class);
 
     /** exception Resolver */
     @Autowired(Constant.EXCEPTION_RESOLVER)

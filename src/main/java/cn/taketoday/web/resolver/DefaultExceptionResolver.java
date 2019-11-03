@@ -27,6 +27,8 @@ import java.lang.annotation.Annotation;
 import javax.imageio.ImageIO;
 
 import cn.taketoday.context.exception.ConversionException;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -46,7 +48,6 @@ import cn.taketoday.web.mapping.WebMapping;
 import cn.taketoday.web.resolver.result.ViewResolverResultResolver;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.validation.ValidationException;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Default implementation
@@ -54,8 +55,9 @@ import lombok.extern.slf4j.Slf4j;
  * @author TODAY <br>
  *         2018-06-25 20:27:22
  */
-@Slf4j
 public class DefaultExceptionResolver implements ExceptionResolver {
+
+    private static final Logger log = LoggerFactory.getLogger(DefaultExceptionResolver.class);
 
     @Override
     public void resolveException(final RequestContext context,

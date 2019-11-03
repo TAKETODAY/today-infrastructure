@@ -22,10 +22,9 @@ package cn.taketoday.web.servlet.initializer;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletSecurityElement;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.multipart.MultipartConfiguration;

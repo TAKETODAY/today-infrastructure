@@ -27,21 +27,23 @@ import java.net.URL;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.io.ResourceFilter;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.PathMatcher;
 import cn.taketoday.web.mapping.ResourceMapping;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.utils.WebUtils;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  *         2019-05-17 11:26
  */
-@Slf4j
 public class DefaultResourceResolver implements ResourceResolver {
-
+    
+    private static final Logger log = LoggerFactory.getLogger(DefaultResourceResolver.class);
+    
     private final PathMatcher pathMatcher;
 
     @Autowired

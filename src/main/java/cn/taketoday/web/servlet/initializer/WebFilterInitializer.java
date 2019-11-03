@@ -31,9 +31,8 @@ import javax.servlet.FilterRegistration;
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
 
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 

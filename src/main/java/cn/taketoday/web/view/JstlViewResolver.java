@@ -26,10 +26,9 @@ import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.web.RequestContext;

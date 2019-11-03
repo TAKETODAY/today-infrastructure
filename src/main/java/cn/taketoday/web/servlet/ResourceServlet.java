@@ -33,6 +33,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.PathMatcher;
@@ -48,16 +50,16 @@ import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.utils.AntPathMatcher;
 import cn.taketoday.web.utils.ResultUtils;
 import cn.taketoday.web.utils.WebUtils;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  *         2019-05-14 17:59
  * @since 2.3.7
  */
-@Slf4j
 @SuppressWarnings("serial")
 public class ResourceServlet extends GenericServlet {
+
+    private static final Logger log = LoggerFactory.getLogger(ResourceServlet.class);
 
     private final int contextPathLength;
     private final PathMatcher pathMatcher;

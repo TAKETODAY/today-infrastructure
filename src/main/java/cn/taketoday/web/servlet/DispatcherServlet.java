@@ -33,12 +33,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;

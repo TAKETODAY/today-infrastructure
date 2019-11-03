@@ -38,9 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
@@ -49,6 +46,8 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.OrderUtils;

@@ -46,6 +46,8 @@ import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.AbstractBeanFactory.Prototypes;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.NumberUtils;
@@ -65,15 +67,15 @@ import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  */
-@Slf4j
 @Singleton(Constant.ACTION_CONFIG)
 public class ActionConfiguration implements Ordered, DisposableBean, WebApplicationInitializer {
-
+    
+    private static final Logger log = LoggerFactory.getLogger(ActionConfiguration.class);
+    
     private final String contextPath;
     private Properties variables;
 

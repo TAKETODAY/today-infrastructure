@@ -21,7 +21,6 @@ package cn.taketoday.web.view;
 
 import javax.servlet.ServletContext;
 
-import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 import org.thymeleaf.templatemode.TemplateMode;
@@ -29,6 +28,7 @@ import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
 
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletContextAware;
 

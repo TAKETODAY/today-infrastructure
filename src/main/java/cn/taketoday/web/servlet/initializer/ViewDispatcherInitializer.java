@@ -25,11 +25,10 @@ import java.util.stream.Collectors;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration.Dynamic;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.mapping.ViewMapping;
