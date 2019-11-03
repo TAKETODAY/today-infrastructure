@@ -98,9 +98,6 @@ public abstract class ClassUtils {
 
     /** class loader **/
     private static ClassLoader classLoader;
-    /** scanned classes */
-    @Deprecated
-    private static Set<Class<?>> classesCache;
 
     private static final Map<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32);
 
