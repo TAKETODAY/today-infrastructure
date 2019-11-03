@@ -20,16 +20,17 @@
 package test.context.factory;
 
 import cn.taketoday.context.annotation.Singleton;
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author Today <br>
  * 
  *         2019-01-22 19:41
  */
-@Slf4j
 @Singleton
 public class Implements3 implements Interface {
+    private static final Logger log = LoggerFactory.getLogger(Implements3.class);
 
     @Override
     public void test() {

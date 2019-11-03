@@ -22,17 +22,18 @@ package test.context.post;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.factory.BeanPostProcessor;
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author Today <br>
  * 
  *         2018-08-08 18:20
  */
-@Slf4j
 @Order(1)
 //@Singleton
 public class BeanPostProcessorBean implements BeanPostProcessor {
+    private static final Logger log = LoggerFactory.getLogger(BeanPostProcessorBean.class);
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) {

@@ -31,9 +31,6 @@ import java.util.Set;
 
 import javax.el.ELProcessor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Constant;
@@ -41,6 +38,8 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.io.ResourceFilter;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;

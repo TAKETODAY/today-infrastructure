@@ -23,17 +23,19 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.factory.BeanPostProcessor;
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author Today <br>
  * 
  *         2018-09-09 20:14
  */
-@Slf4j
 //@Singleton
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ProxyBeanPostProcessor implements BeanPostProcessor {
+    private static final Logger log = LoggerFactory.getLogger(ProxyBeanPostProcessor.class);
+
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, BeanDefinition beanDefinition) {

@@ -25,14 +25,15 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.InitializingBean;
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
  *         2019-03-05 18:39
  */
-@Slf4j
 public class PropsBean implements InitializingBean, DisposableBean {
+    private static final Logger log = LoggerFactory.getLogger(PropsBean.class);
 
     final Bean bean;
 

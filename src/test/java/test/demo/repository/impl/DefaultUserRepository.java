@@ -28,7 +28,8 @@ import javax.annotation.PreDestroy;
 
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.aware.BeanNameAware;
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import test.demo.config.User;
 import test.demo.repository.UserRepository;
 
@@ -37,10 +38,11 @@ import test.demo.repository.UserRepository;
  * @author Today <br>
  *         2018-07-06 17:40:34
  */
-@Slf4j
 @Prototype
 //@Repository
 public class DefaultUserRepository implements UserRepository, BeanNameAware {
+
+    private static final Logger log = LoggerFactory.getLogger(DefaultUserRepository.class);
 
     private Map<String, User> users = new HashMap<>();
 

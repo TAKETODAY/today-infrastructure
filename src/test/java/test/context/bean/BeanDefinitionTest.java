@@ -29,15 +29,16 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.DefaultBeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
  *         2019-06-12 20:48
  */
-@Slf4j
 @SuppressWarnings("all")
 public class BeanDefinitionTest {
+    private static final Logger log = LoggerFactory.getLogger(BeanDefinitionTest.class);
 
     public String test;
     public int testInt;

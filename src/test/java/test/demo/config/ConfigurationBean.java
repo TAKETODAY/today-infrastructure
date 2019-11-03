@@ -26,7 +26,8 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import test.context.annotation.condition.WindowsCondition;
 
 /**
@@ -34,9 +35,9 @@ import test.context.annotation.condition.WindowsCondition;
  * 
  *         2018-09-06 15:30
  */
-@Slf4j
 @Configuration
 public class ConfigurationBean {
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationBean.class);
 
     @PostConstruct
     public void init() {

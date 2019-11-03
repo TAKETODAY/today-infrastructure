@@ -51,8 +51,6 @@ import javax.annotation.PreDestroy;
 import javax.el.ELException;
 import javax.el.ELProcessor;
 
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConcurrentProperties;
@@ -86,7 +84,8 @@ import cn.taketoday.context.loader.MapParameterResolver;
 import cn.taketoday.context.loader.PropertyValueResolver;
 import cn.taketoday.context.loader.PropsPropertyResolver;
 import cn.taketoday.context.loader.ValuePropertyResolver;
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * This class provides el, {@link Properties} loading, {@link Parameter}
@@ -95,9 +94,10 @@ import lombok.extern.slf4j.Slf4j;
  * @author TODAY <br>
  *         2019-01-16 20:04
  */
-@Slf4j
 public abstract class ContextUtils {
 
+    private static final Logger log = LoggerFactory.getLogger(ContextUtils.class);
+    
     // @since 2.1.6 shared elProcessor
     private static ELProcessor elProcessor;
     // @since 2.1.6 shared applicationContext

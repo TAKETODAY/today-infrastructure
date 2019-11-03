@@ -36,9 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Primary;
@@ -58,6 +55,8 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;

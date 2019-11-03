@@ -40,18 +40,20 @@ import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.InitializingBean;
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
  *         2019-07-25 22:44
  */
-@Slf4j
 @Singleton
 public class LifecycleBean //
         implements DisposableBean, BeanNameAware,
         InitializingBean, BeanFactoryAware,
         EnvironmentAware, ApplicationContextAware {
+
+    private static final Logger log = LoggerFactory.getLogger(LifecycleBean.class);
 
     @Override
     public void setBeanName(String name) {
@@ -102,7 +104,8 @@ public class LifecycleBean //
 
             applicationContext.loadContext(beans);
 
-            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
+            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry()
+                    .getBeanDefinitions();
 
             System.out.println(beanDefinitionsMap);
         }

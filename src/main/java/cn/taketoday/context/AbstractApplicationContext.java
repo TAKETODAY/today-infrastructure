@@ -37,9 +37,6 @@ import javax.el.ELManager;
 import javax.el.ELProcessor;
 import javax.el.ExpressionFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.BeanReference;
@@ -65,6 +62,8 @@ import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.listener.ContextCloseListener;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;

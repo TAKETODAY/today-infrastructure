@@ -19,8 +19,7 @@
  */
 package cn.taketoday.context.exception;
 
-import org.slf4j.LoggerFactory;
-
+import cn.taketoday.context.logger.LoggerFactory;
 import lombok.NoArgsConstructor;
 
 /**

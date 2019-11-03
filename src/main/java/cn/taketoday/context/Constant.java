@@ -37,8 +37,13 @@ public interface Constant extends Opcodes, Serializable {
 
     String CONTEXT_VERSION = "2.1.7";
 
-    Class<?>[] EMPTY_CLASS_ARRAY = {};
     Type[] TYPES_EMPTY = {};
+    Class<?>[] EMPTY_CLASS_ARRAY = {};
+    
+    Serializable EMPTY_OBJECT = new Serializable() {private static final long serialVersionUID = 1L;};
+
+    //
+    // ----------------------------------------------------------------
 
     Signature SIG_STATIC = TypeUtils.parseSignature("void <clinit>()");
 

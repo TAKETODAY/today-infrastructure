@@ -23,17 +23,20 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
 import cn.taketoday.context.listener.ApplicationListener;
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author Today <br>
  * 
  *         2018-11-08 20:38
  */
-@Slf4j
 @ContextListener
 public class BeanDefinitionLoadedListener_3 implements ApplicationListener<BeanDefinitionLoadedEvent>, Ordered {
 
+    private static final Logger log = LoggerFactory.getLogger(BeanDefinitionLoadedListener_3.class);
+
+    
     @Override
     public void onApplicationEvent(BeanDefinitionLoadedEvent event) {
         log.debug("BeanDefinitionLoadedListener_3");

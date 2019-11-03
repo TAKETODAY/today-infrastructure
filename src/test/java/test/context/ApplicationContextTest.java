@@ -37,7 +37,8 @@ import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.DisposableBean;
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import test.context.ApplicationContextTest.RequiredTest.Bean1;
 import test.demo.config.Config;
 import test.demo.config.ConfigFactoryBean;
@@ -49,8 +50,8 @@ import test.demo.repository.impl.DefaultUserRepository;
  * @author Today
  * @date 2018年7月3日 下午10:05:21
  */
-@Slf4j
 public class ApplicationContextTest {
+    private static final Logger log = LoggerFactory.getLogger(ApplicationContextTest.class);
 
     private long start;
 
@@ -134,7 +135,7 @@ public class ApplicationContextTest {
             log.debug("{}", config.hashCode());
             log.debug("{}", config_.hashCode());
 
-//			assert config != config_ : "FactoryBean error.";
+            //			assert config != config_ : "FactoryBean error.";
             log.debug("{}", bean);
             log.debug("{}", propertyValue);
             log.debug("{}", bean.getPro());
@@ -155,7 +156,7 @@ public class ApplicationContextTest {
             applicationContext.registerBean(User.class);
             applicationContext.registerBean("user", User.class);
             applicationContext.registerBean("user_", User.class);
-//			applicationContext.onRefresh(); // init bean
+            //			applicationContext.onRefresh(); // init bean
 
             Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitions();
 
@@ -221,7 +222,7 @@ public class ApplicationContextTest {
 
             applicationContext.registerBean("requiredTest", RequiredTest.class);
 
-//            applicationContext.registerBean("requiredTestBean1", Bean.class);
+            //            applicationContext.registerBean("requiredTestBean1", Bean.class);
             applicationContext.registerBean("requiredTestBean1", Bean1.class);
 
             RequiredTest requiredTest = applicationContext.getBean(RequiredTest.class);

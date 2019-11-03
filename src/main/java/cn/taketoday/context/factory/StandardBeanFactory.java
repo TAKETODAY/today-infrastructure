@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.factory;
 
+import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
 import static cn.taketoday.context.utils.ContextUtils.findNames;
 import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
@@ -30,9 +31,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.BeanNameCreator;
@@ -58,6 +56,8 @@ import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
@@ -405,7 +405,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      */
     protected void selectImport(final BeanDefinition def, final Class<?> importClass) {
 
-        log.trace("Importing : [{}]", importClass);
+        log.debug("Importing : [{}]", importClass);
 
         BeanDefinition importDef = createBeanDefinition(importClass);
 
@@ -618,12 +618,12 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
             final AnnotationAttributes attr;
             if (beanDefinition instanceof StandardBeanDefinition) {
                 final Method factoryMethod = ((StandardBeanDefinition) beanDefinition).getFactoryMethod();
-                attr = ClassUtils.getAnnotationAttributes(Component.class, factoryMethod);
+                attr = getAnnotationAttributes(Component.class, factoryMethod);
                 // method name as default name
                 beanName = findNames(factoryMethod.getName(), attr.getStringArray(Constant.VALUE))[0];
             }
             else {
-                attr = ClassUtils.getAnnotationAttributes(Component.class, beanDefinition.getBeanClass());
+                attr = getAnnotationAttributes(Component.class, beanDefinition.getBeanClass());
                 if (attr != null) {
                     beanName = findNames(oldBeanName, attr.getStringArray(Constant.VALUE))[0];
                     if (oldBeanName.equals(beanName)) {
@@ -662,10 +662,9 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     @Override
     public BeanDefinition createBeanDefinition(Class<?> beanClass) {
-        return build(beanClass, //
-                     ClassUtils.getAnnotationAttributes(Component.class, beanClass), //
-                     getBeanNameCreator().create(beanClass)//
-        );
+        return build(beanClass,
+                     getAnnotationAttributes(Component.class, beanClass),
+                     getBeanNameCreator().create(beanClass));
     }
 
     public ConfigurableApplicationContext getApplicationContext() {

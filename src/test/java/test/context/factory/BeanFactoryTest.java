@@ -37,16 +37,18 @@ import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Today <br>
  * 
  *         2019-01-22 18:55
  */
-@Slf4j
 public class BeanFactoryTest extends BaseTest {
+    
+    private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     @Test
     public void test_GetBeanWithType() throws NoSuchBeanDefinitionException {

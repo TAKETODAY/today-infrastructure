@@ -29,18 +29,19 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Today <br>
  * 
  *         2018-08-08 15:06
  */
-@Slf4j
 @Getter
 @Prototype
 public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean {
+    private static final Logger log = LoggerFactory.getLogger(ConfigFactoryBean.class);
 
     @PostConstruct
     @Order(Ordered.LOWEST_PRECEDENCE)

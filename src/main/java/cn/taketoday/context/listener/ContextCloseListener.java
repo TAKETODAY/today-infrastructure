@@ -21,9 +21,6 @@ package cn.taketoday.context.listener;
 
 import java.text.SimpleDateFormat;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
@@ -31,6 +28,8 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.context.factory.AbstractBeanFactory;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;

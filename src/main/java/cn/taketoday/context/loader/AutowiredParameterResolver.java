@@ -24,13 +24,12 @@ import static cn.taketoday.context.utils.ContextUtils.resolveProps;
 
 import java.lang.reflect.Parameter;
 
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 
 /**

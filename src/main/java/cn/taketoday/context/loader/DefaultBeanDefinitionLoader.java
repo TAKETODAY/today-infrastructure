@@ -25,8 +25,6 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Objects;
 
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -39,6 +37,7 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.FactoryBean;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;

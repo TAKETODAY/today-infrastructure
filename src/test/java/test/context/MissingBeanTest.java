@@ -31,20 +31,22 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import test.demo.config.User;
 
 /**
  * @author TODAY <br>
  *         2019-02-01 10:48
  */
-@Slf4j
 @Setter
 @Getter
 @Configuration
-public class MissingBeanTest {
+public class MissingBeanTest {  
+    private static final Logger log = LoggerFactory.getLogger(MissingBeanTest.class);
+
 
     private long start;
 
