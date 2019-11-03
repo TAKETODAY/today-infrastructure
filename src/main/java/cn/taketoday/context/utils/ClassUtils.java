@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Inherited;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
@@ -64,9 +65,6 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.ThrowableSupplier;
@@ -84,6 +82,8 @@ import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.io.JarEntryResource;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.io.ResourceFilter;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * 
@@ -179,6 +179,7 @@ public abstract class ClassUtils {
         addIgnoreAnnotationClass(Target.class);
         addIgnoreAnnotationClass(Inherited.class);
         addIgnoreAnnotationClass(Retention.class);
+        addIgnoreAnnotationClass(Repeatable.class);
         addIgnoreAnnotationClass(Documented.class);
     }
 
@@ -748,8 +749,8 @@ public abstract class ClassUtils {
      *             if any {@link Exception} occurred
      * @since 2.1.5
      */
-    public static <A> A injectAttributes(AnnotationAttributes source, //
-            Class<? extends A> annotationClass, A instance) throws ContextException//
+    public static <A> A injectAttributes(final AnnotationAttributes source,
+                                         final Class<?> annotationClass, final A instance) throws ContextException//
     {
         final Class<?> implClass = instance.getClass();
         String name = null;
@@ -878,7 +879,7 @@ public abstract class ClassUtils {
 						case Constant.HASH_CODE :		return attributes.hashCode();
 						case Constant.TO_STRING :		return attributes.toString();
 						case Constant.ANNOTATION_TYPE :	return annotationClass;
-						default : 						return attributes.get(method.getName());
+						default :                       return attributes.get(method.getName());
 					}
 				}//
 		));
@@ -981,12 +982,11 @@ public abstract class ClassUtils {
         Objects.requireNonNull(element, "annotated element can't be null");
 
         return ANNOTATION_ATTRIBUTES.computeIfAbsent(new AnnotationKey<>(element, targetClass), (k) -> {
-
-            final LinkedHashSet<AnnotationAttributes> result = new LinkedHashSet<>();
-            for (final Annotation annotation : element.getDeclaredAnnotations()) {
-                final AnnotationAttributes attr = getAnnotationAttributes(annotation, targetClass);
-                if (attr != null) {
-                    result.add(attr);
+            final Set<AnnotationAttributes> result = new LinkedHashSet<>();
+            for (final Annotation annotation : element.getAnnotations()) {
+                final Set<AnnotationAttributes> attr = getAnnotationAttributes(annotation, targetClass);
+                if (!attr.isEmpty()) {
+                    result.addAll(attr);
                 }
             }
             return result.isEmpty() ? EMPTY_ANNOTATION_ATTRIBUTES : result.toArray(EMPTY_ANNOTATION_ATTRIBUTES);
@@ -1034,51 +1034,52 @@ public abstract class ClassUtils {
      *            The annotation class
      * @param annotation
      *            The annotation instance
-     * @return {@link AnnotationAttributes}
-     * @since 2.1.1
+     * @return {@link AnnotationAttributes} set never be null
+     * @since 2.1.7
      */
-    public static <T extends Annotation> AnnotationAttributes //
+    public static <T extends Annotation> Set<AnnotationAttributes> //
             getAnnotationAttributes(final Annotation annotation, final Class<T> annotationClass) throws ContextException//
     {
         try {
 
             if (annotation == null) {
-                return null;
+                return Collections.emptySet();
             }
             final Class<? extends Annotation> annotationType = annotation.annotationType();
-
             if (annotationType == annotationClass) {// 如果等于对象注解就直接添加
-                return getAnnotationAttributes(annotation);
+                return Collections.singleton(getAnnotationAttributes(annotation));
             }
 
             // filter some annotation classes
             // -----------------------------------------
             if (IGNORE_ANNOTATION_CLASS.contains(annotationType)) {
-                return null;
+                return Collections.emptySet();
             }
 
             // find the default value of annotation
             // -----------------------------------------
+            
+            final Set<AnnotationAttributes> ret = new HashSet<>();
+            
+            findTargetAnnotationAttributes(ret, annotationClass, annotationType);
 
-            final AnnotationAttributes annotationAttributes = // recursive
-                    getTargetAnnotationAttributes(annotationClass, annotationType);
-
-            if (annotationAttributes == null) { // there is no an annotation
-                return null;
+            if (ret.isEmpty()) { // there is no an annotation
+                return Collections.emptySet();
             }
 
             // found it
             String name;
             Object value;
-
-            for (final Method method : annotationType.getDeclaredMethods()) {
-                name = method.getName();
-                value = annotationAttributes.get(name);
-                if (value == null || eq(method.getReturnType(), value.getClass())) {
-                    annotationAttributes.put(name, method.invoke(annotation));
+            for (final AnnotationAttributes attributes : ret) {
+                for (final Method method : annotationType.getDeclaredMethods()) {
+                    name = method.getName();
+                    value = attributes.get(name);
+                    if (value == null || eq(method.getReturnType(), value.getClass())) {
+                        attributes.put(name, method.invoke(annotation));
+                    }
                 }
             }
-            return annotationAttributes;
+            return ret;
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
@@ -1086,7 +1087,7 @@ public abstract class ClassUtils {
             throw ExceptionUtils.newContextException(ex);
         }
     }
-
+    
     private final static boolean eq(Class<?> returnType, Class<?> clazz) {
         if (returnType == clazz) {
             return true;
@@ -1108,37 +1109,34 @@ public abstract class ClassUtils {
         return false;
     }
 
+    
     /**
-     * Use recursive to find the target annotation instance
+     * Use recursive to find the All target annotation instance
      * 
      * @param targetAnnotationType
-     *            target {@link Annotation} class
+     *              target {@link Annotation} class
      * @param annotationType
+     *              {@link Annotation} source
      * @return target {@link AnnotationAttributes}
-     * @since 2.1.1
+     * @since 2.1.7
      */
-    public static <T extends Annotation> AnnotationAttributes //
-            getTargetAnnotationAttributes(final Class<T> targetAnnotationType, 
-                                          final Class<? extends Annotation> annotationType)//
+    public static <T extends Annotation> void
+                findTargetAnnotationAttributes(final Set<AnnotationAttributes> attributes,
+                                               final Class<T> targetAnnotationType, 
+                                               final Class<? extends Annotation> annotationType)//
     {
-
+        final Set<Class<? extends Annotation>> ignoreAnnotation = IGNORE_ANNOTATION_CLASS;
         for (final Annotation currentAnnotation : annotationType.getAnnotations()) {
-
-            if (IGNORE_ANNOTATION_CLASS.contains(currentAnnotation.annotationType())) {
+            if (ignoreAnnotation.contains(currentAnnotation.annotationType())) {
                 continue;
             }
             if (currentAnnotation.annotationType() == targetAnnotationType) {
-                return getAnnotationAttributes(currentAnnotation); // found it
+                attributes.add(getAnnotationAttributes(currentAnnotation)); // found it
             }
-
-            final AnnotationAttributes attributes = // recursive
-                    getTargetAnnotationAttributes(targetAnnotationType, currentAnnotation.annotationType());
-
-            if (attributes != null) {
-                return attributes;
+            else {
+                findTargetAnnotationAttributes(attributes, targetAnnotationType, currentAnnotation.annotationType());
             }
         }
-        return null;
     }
 
     /**

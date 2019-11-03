@@ -36,8 +36,9 @@ import cn.taketoday.context.cglib.proxy.Enhancer;
 import cn.taketoday.context.cglib.proxy.MethodInterceptor;
 import cn.taketoday.context.cglib.proxy.MethodProxy;
 import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
-import lombok.extern.slf4j.Slf4j;
 import test.context.props.Config_;
 import test.context.utils.Bean.C;
 import test.context.utils.Bean.S;
@@ -48,10 +49,10 @@ import test.demo.config.Config;
  * @author Today <br>
  *         2018-06-0? ?
  */
-@Slf4j
 @Singleton("singleton")
 @Prototype("prototype")
 public class ClassUtilsTest {
+    private static final Logger log = LoggerFactory.getLogger(ClassUtilsTest.class);
 
     private long start;
 
@@ -156,8 +157,9 @@ public class ClassUtilsTest {
         // use proxy
         Collection<C> annotations = ClassUtils.getAnnotation(Bean.class, C.class);
 
-        AnnotationAttributes attributes = ClassUtils.getAnnotationAttributes(Bean.class.getAnnotation(S.class), C.class);
-        C annotation = ClassUtils.getAnnotationProxy(C.class, attributes);
+        Set<AnnotationAttributes> attributes = ClassUtils.getAnnotationAttributes(Bean.class.getAnnotation(S.class), C.class);
+        final AnnotationAttributes next = attributes.iterator().next();
+        C annotation = ClassUtils.getAnnotationProxy(C.class, next);
         System.err.println(annotation);
         annotation.hashCode();
         assert annotation.annotationType() == C.class;
@@ -167,18 +169,18 @@ public class ClassUtilsTest {
         assert !annotation.equals(null);
         assert annotation.equals(annotation);
 
-        assert annotation.equals(ClassUtils.getAnnotationProxy(C.class, attributes));
+        assert annotation.equals(ClassUtils.getAnnotationProxy(C.class, next));
 
-        final AnnotationAttributes clone = new AnnotationAttributes(attributes);
+        final AnnotationAttributes clone = new AnnotationAttributes(next);
 
         assert !clone.equals(annotation);
         assert !clone.equals(null);
         assert clone.equals(clone);
-        assert clone.equals(attributes);
+        assert clone.equals(next);
 
         clone.remove("value");
-        assert !clone.equals(attributes);
-        assert !clone.equals(new AnnotationAttributes((Map<String, Object>) attributes));
+        assert !clone.equals(next);
+        assert !clone.equals(new AnnotationAttributes((Map<String, Object>) next));
         assert !annotation.equals(ClassUtils.getAnnotationProxy(C.class, clone));
 
         final AnnotationAttributes fromMap = AnnotationAttributes.fromMap(clone);
@@ -197,7 +199,7 @@ public class ClassUtilsTest {
             assert true;
         }
         try {
-            ClassUtils.injectAttributes(attributes, null, attributes);
+            ClassUtils.injectAttributes(next, null, next);
             assert false;
         }
         catch (Exception e) {
