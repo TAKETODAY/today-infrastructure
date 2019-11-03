@@ -30,7 +30,7 @@ public class JavaLoggingLogger extends AbstractLogger {
     private final Logger logger;
 
     public JavaLoggingLogger(String name) {
-        this.logger = java.util.logging.Logger.getLogger(name);
+        this.logger = Logger.getLogger(name);
     }
 
     @Override
