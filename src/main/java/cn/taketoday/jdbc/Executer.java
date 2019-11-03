@@ -26,9 +26,8 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.transaction.utils.DataSourceUtils;
 
 /**

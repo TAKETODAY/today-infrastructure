@@ -27,15 +27,17 @@ import java.util.Objects;
 import javax.sql.DataSource;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.jdbc.mapping.RepositoryMethod;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Today <br>
  *         2018-09-11 21:19
  */
-@Slf4j
 public class RepositoryProxy implements InvocationHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(RepositoryProxy.class);
 
     private final Class<?> repository;
 
@@ -52,8 +54,7 @@ public class RepositoryProxy implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        switch (method.getName())
-        {
+        switch (method.getName()) {
             case "toString" :
                 return toString();
             case "hashCode" :
@@ -65,8 +66,8 @@ public class RepositoryProxy implements InvocationHandler {
 
         log.debug("SQL -> {} ", sql);
         DataSource bean = applicationContext.getBean("DefaultDataSource", DataSource.class);
-//		QueryImpl<?> query = new QueryImpl(bean.getConnection(), repositoryMethod.getReturnType());
-//		query.sql.append(sql);
+        //		QueryImpl<?> query = new QueryImpl(bean.getConnection(), repositoryMethod.getReturnType());
+        //		query.sql.append(sql);
         return null;
     }
 

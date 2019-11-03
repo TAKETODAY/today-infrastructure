@@ -35,9 +35,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -45,14 +45,14 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.jdbc.FieldColumnConverter;
 import cn.taketoday.jdbc.annotation.Column;
 import cn.taketoday.jdbc.mapping.result.ResultResolver;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  *         2019-08-21 18:53
  */
-@Slf4j
 public class ColumnMapping implements PropertyAccessor {
+    
+    private static final Logger log = LoggerFactory.getLogger(ColumnMapping.class);
 
     // Field
     private final String name;

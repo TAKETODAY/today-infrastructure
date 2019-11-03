@@ -28,6 +28,8 @@ import javax.sql.DataSource;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.transaction.ConnectionHolder;
 import cn.taketoday.transaction.JdbcTransactionObject;
 import cn.taketoday.transaction.ResourceTransactionManager;
@@ -39,20 +41,20 @@ import cn.taketoday.transaction.manager.TransactionException;
 import cn.taketoday.transaction.utils.DataSourceUtils;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-13 19:05
  */
-@Slf4j
 @Setter
 @Getter
 @MissingBean
 @SuppressWarnings("serial")
 public class JdbcTransactionManager extends //
         AbstractTransactionManager implements ResourceTransactionManager, InitializingBean {
+    
+    private static final Logger log = LoggerFactory.getLogger(JdbcTransactionManager.class);
 
     @Autowired
     private DataSource dataSource;
@@ -220,7 +222,7 @@ public class JdbcTransactionManager extends //
         DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
         Connection con = txObject.getConnectionHolder().getConnection();
 
-//      log.debug("Committing JDBC transaction on Connection [{}]", con);
+        //      log.debug("Committing JDBC transaction on Connection [{}]", con);
         try {
             con.commit();
         }
@@ -234,7 +236,7 @@ public class JdbcTransactionManager extends //
         DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
         Connection con = txObject.getConnectionHolder().getConnection();
 
-//      log.debug("Rolling back JDBC transaction on Connection [{}]", con);
+        //      log.debug("Rolling back JDBC transaction on Connection [{}]", con);
 
         try {
 
@@ -248,7 +250,7 @@ public class JdbcTransactionManager extends //
     @Override
     protected void doSetRollbackOnly(DefaultTransactionStatus status) {
         DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
-//      log.debug("Setting JDBC transaction [{}] rollback-only", txObject.getConnectionHolder().getConnection());
+        //      log.debug("Setting JDBC transaction [{}] rollback-only", txObject.getConnectionHolder().getConnection());
         txObject.setRollbackOnly();
     }
 
@@ -277,7 +279,7 @@ public class JdbcTransactionManager extends //
         }
 
         if (txObject.isNewConnectionHolder()) {
-//          log.debug("Releasing JDBC Connection [{}] after transaction", con);
+            //          log.debug("Releasing JDBC Connection [{}] after transaction", con);
             DataSourceUtils.releaseConnection(con, this.dataSource);
         }
 
@@ -306,14 +308,15 @@ public class JdbcTransactionManager extends //
      * @see #setEnforceReadOnly
      */
     protected void prepareTransactionalConnection(Connection con, //
-            TransactionDefinition definition) throws SQLException //
+                                                  TransactionDefinition definition) throws SQLException //
     {
         if (isEnforceReadOnly() && definition.isReadOnly()) {
             Statement stmt = con.createStatement();
             try {
 
                 stmt.executeUpdate("SET TRANSACTION READ ONLY");
-            } finally {
+            }
+            finally {
                 stmt.close();
             }
         }

@@ -43,13 +43,12 @@ import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.List;
 
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.listener.ApplicationListener;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.jdbc.mapping.ColumnMapping;
 import cn.taketoday.jdbc.mapping.result.ResultResolver;

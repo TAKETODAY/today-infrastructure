@@ -30,17 +30,19 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  * @author TODAY <br>
  *         2019-08-19 07:42
  */
-@Slf4j
 public abstract class JdbcUtils {
+
+    private static final Logger log = LoggerFactory.getLogger(JdbcUtils.class);
 
     public static String getColumnName(ResultSetMetaData resultSetMetaData, int index) throws SQLException {
         final String name = resultSetMetaData.getColumnLabel(index);
@@ -269,10 +271,12 @@ public abstract class JdbcUtils {
 
         try {
             closeQuietly(rs);
-        } finally {
+        }
+        finally {
             try {
                 closeQuietly(stmt);
-            } finally {
+            }
+            finally {
                 closeQuietly(conn);
             }
         }
@@ -323,7 +327,8 @@ public abstract class JdbcUtils {
         if (conn != null) {
             try {
                 conn.commit();
-            } finally {
+            }
+            finally {
                 conn.close();
             }
         }
@@ -431,7 +436,8 @@ public abstract class JdbcUtils {
         if (conn != null) {
             try {
                 conn.rollback();
-            } finally {
+            }
+            finally {
                 conn.close();
             }
         }

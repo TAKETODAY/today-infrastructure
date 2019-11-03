@@ -24,8 +24,9 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * {@link Transaction} that makes use of the JDBC commit and rollback facilities
@@ -38,18 +39,19 @@ import lombok.extern.slf4j.Slf4j;
  *
  * @see JdbcTransactionFactory
  */
-@Slf4j
 @NoArgsConstructor
 public final class JdbcTransaction implements Transaction {
 
+    private static final Logger log = LoggerFactory.getLogger(JdbcTransaction.class);
+
     protected Connection connection;
-//	protected DataSource		dataSource;
+    //	protected DataSource		dataSource;
     protected IsolationLevel isolationLevel = IsolationLevel.NONE;
 
     protected boolean autoCommmit = true;
 
     public JdbcTransaction(DataSource dataSource, IsolationLevel isolationLevel, boolean autoCommmit) {
-//		this.dataSource = dataSource;
+        //		this.dataSource = dataSource;
         this.autoCommmit = autoCommmit;
         this.isolationLevel = isolationLevel;
     }
@@ -100,7 +102,9 @@ public final class JdbcTransaction implements Transaction {
             }
         }
         catch (SQLException e) {
-            throw new TransactionException("Error configuring AutoCommit.  " + "Your driver may not support getAutoCommit() or setAutoCommit(). " + "Requested setting: " + desiredAutoCommit + ".  Cause: " + e, e);
+            throw new TransactionException("Error configuring AutoCommit.  "
+                    + "Your driver may not support getAutoCommit() or setAutoCommit(). " + "Requested setting: " + desiredAutoCommit
+                    + ".  Cause: " + e, e);
         }
     }
 
@@ -121,7 +125,7 @@ public final class JdbcTransaction implements Transaction {
     protected void openConnection() throws SQLException, TransactionException {
 
         log.debug("Opening JDBC Connection");
-//		connection = dataSource.getConnection();
+        //		connection = dataSource.getConnection();
         if (isolationLevel != null) {
             connection.setTransactionIsolation(isolationLevel.getLevel());
         }
