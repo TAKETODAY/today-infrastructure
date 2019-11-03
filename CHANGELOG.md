@@ -42,7 +42,7 @@
 - :zap: 优化AbstractBeanFactory#containsBeanDefinition(Class,boolean)
 - :sparkles: 添加ExecutableParameterResolver增强构造器注入或方法注入的扩展性
 - :sparkles: 添加 Method Invoker
-
+- :bug: 修复#13注解扫描不完全
 
 ## v2.1.6
 - :sparkles: feat: add `Environment` new api to get property
