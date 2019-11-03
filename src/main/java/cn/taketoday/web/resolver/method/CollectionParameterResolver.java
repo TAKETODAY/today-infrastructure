@@ -67,12 +67,13 @@ public class CollectionParameterResolver implements ParameterResolver {
         final List<Object> list = new ParamList<>();
         final Class<?> clazz = (Class<?>) parameter.getGenericityClass()[0];
         final Enumeration<String> parameterNames = requestContext.parameterNames();// all request parameter name
+        final String collectionParamRegexp = Constant.COLLECTION_PARAM_REGEXP;
 
         while (parameterNames.hasMoreElements()) {
             final String requestParameter = parameterNames.nextElement();
 
             if (requestParameter.startsWith(parameterName)) {// users[0].userName=TODAY&users[0].age=20
-                final String[] split = requestParameter.split(Constant.COLLECTION_PARAM_REGEXP);// [users, 1,, userName]
+                final String[] split = requestParameter.split(collectionParamRegexp);// [users, 1,, userName]
                 final int index = Integer.parseInt(split[1]);// get index
                 Object newInstance = list.get(index);
 

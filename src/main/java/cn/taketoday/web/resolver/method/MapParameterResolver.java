@@ -54,12 +54,13 @@ public class MapParameterResolver implements OrderedParameterResolver {
         final String parameterName = parameter.getName();
         final Enumeration<String> parameterNames = requestContext.parameterNames();// all parameter
         final Map<String, Object> map = new HashMap<>();
+        final String mapParamRegexp = Constant.MAP_PARAM_REGEXP;
         while (parameterNames.hasMoreElements()) {
             // users%5B%27today_1%27%5D.userId=434&users%5B%27today%27%5D.age=43&users%5B%27today%27%5D.userName=434&users%5B%27today%27%5D.sex=%E7%94%B7&users%5B%27today%27%5D.passwd=4343
             final String requestParameter = parameterNames.nextElement();
             if (requestParameter.startsWith(parameterName)) { // users['today'].userName=TODAY&users['today'].age=20
 
-                final String[] keyList = requestParameter.split(Constant.MAP_PARAM_REGEXP); // [users, today, , userName]
+                final String[] keyList = requestParameter.split(mapParamRegexp); // [users, today, , userName]
 
                 final String key = keyList[1];// get key
                 Object newInstance = map.get(key);// 没有就是空值

@@ -221,7 +221,6 @@ public class DispatcherServlet implements Servlet, Serializable {
                         .toString();
 
                 log.info(msg);
-
                 servletConfig.getServletContext().log(msg);
             }
         }

@@ -48,9 +48,10 @@ public class PathVariableParameterResolver implements OrderedParameterResolver {
             final String pathVariable;
             final String[] pathVariables = requestContext.pathVariables();
             if (pathVariables == null) {
+                final String replaceSplitMethodUrl = Constant.REPLACE_SPLIT_METHOD_URL;
                 String requestURI = StringUtils.decodeUrl(requestContext.requestURI()); // TODO avoid double decode
                 for (final String regex : parameter.getSplitMethodUrl()) {
-                    requestURI = requestURI.replace(regex, Constant.REPLACE_SPLIT_METHOD_URL);
+                    requestURI = requestURI.replace(regex, replaceSplitMethodUrl);
                 }
                 pathVariable = requestContext.pathVariables(requestURI.split(Constant.REPLACE_REGEXP))[parameter.getPathIndex()];
             }
