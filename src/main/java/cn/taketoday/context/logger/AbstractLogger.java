@@ -176,7 +176,7 @@ public abstract class AbstractLogger implements Logger {
     }
 
     protected void logInternal(Level level, String msg, Object[] args) {
-        logInternal(level, msg, null, null);
+        logInternal(level, msg, null, args);
     }
 
     protected abstract void logInternal(Level level, String msg, Throwable t, Object[] args);
@@ -197,6 +197,9 @@ public abstract class AbstractLogger implements Logger {
      * @return a formatted message
      */
     public static String buildMessage(String format, Object[] arguments) {
+        if (arguments == null) {
+            return format;
+        }
         StringBuilder sb = null;
         int lastIndex = 0;
         int argCount = 0;
@@ -229,25 +232,25 @@ public abstract class AbstractLogger implements Logger {
     }
 
     public static void appendArgument(StringBuilder sb, Object arg) {
-
-        if (arg.getClass().isArray()) {
-            // if we have an array argument
-            sb.append('[');
-            int length = Array.getLength(arg);
-            for (int i = 0; i < length; i++) {
-                if (i > 0) {
-                    sb.append(", ");
+        if (arg != null) {
+            if (arg.getClass().isArray()) {
+                // if we have an array argument
+                sb.append('[');
+                int length = Array.getLength(arg);
+                for (int i = 0; i < length; i++) {
+                    if (i > 0) {
+                        sb.append(", ");
+                    }
+                    // recursive in case we have an array of arrays
+                    appendArgument(sb, Array.get(arg, i));
                 }
-                // recursive in case we have an array of arrays
-                appendArgument(sb, Array.get(arg, i));
+                sb.append(']');
             }
-            sb.append(']');
-        }
-        else {
-            // might as well to the toString here because we know it isn't null
-            sb.append(arg);
+            else {
+                // might as well to the toString here because we know it isn't null
+                sb.append(arg);
+            }
         }
     }
 
-  
 }

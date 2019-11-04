@@ -48,18 +48,20 @@ public abstract class LoggerFactory {
      * Return a logger associated with a particular class name.
      */
     public static Logger getLogger(String name) {
+        if (loggerType == null) {
+            loggerType = getLoggerType();
+        }
         return loggerType.create(name);
     }
 
-    static {
+    private static LoggerType getLoggerType() {
 
         final String type = System.getProperty(LOG_TYPE_SYSTEM_PROPERTY);
         if (type != null) {
             try {
-                loggerType = LoggerType.valueOf(type);
+                return LoggerType.valueOf(type);
             }
             catch (Throwable e) {
-                loggerType = LoggerType.DEFAULT;
                 e.printStackTrace();
                 System.err.println("Could not find valid log-type from system property '" +
                         LOG_TYPE_SYSTEM_PROPERTY + "', value '" + type + "'");
@@ -68,10 +70,11 @@ public abstract class LoggerFactory {
         else {
             for (final LoggerType logType : LoggerType.values()) {
                 if (logType.isAvailable()) {
-                    loggerType = logType;
+                    return logType;
                 }
             }
         }
+        return LoggerType.DEFAULT;
     }
 
     public enum LoggerType {
