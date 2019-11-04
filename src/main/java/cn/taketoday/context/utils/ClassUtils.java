@@ -235,12 +235,13 @@ public abstract class ClassUtils {
      * @return whether given class name present in class path
      */
     public static boolean isPresent(String className) {
-
+        
+        Objects.requireNonNull(className, "class name can't be null");
         try {
-            forName(Objects.requireNonNull(className, "class name can't be null"));
+            forName(className);
             return true;
         }
-        catch (Throwable ex) {
+        catch (ClassNotFoundException ex) {
             return false;
         }
     }
