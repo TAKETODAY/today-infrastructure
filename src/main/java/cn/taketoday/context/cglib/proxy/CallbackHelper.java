@@ -24,11 +24,7 @@ import java.util.Map;
 import cn.taketoday.context.cglib.core.ReflectUtils;
 
 /**
- * @version $Id: CallbackHelper.java,v 1.2 2004/06/24 21:15:20 herbyderby Exp $
- */
-/**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-08 15:09
  */
 public abstract class CallbackHelper implements CallbackFilter {
@@ -42,18 +38,26 @@ public abstract class CallbackHelper implements CallbackFilter {
         List<Method> methods = new ArrayList<>();
         Enhancer.getMethods(superclass, interfaces, methods);
         Map<Object, Integer> indexes = new HashMap<>();
+
+        final List<Object> callbacks = this.callbacks;
+
         for (int i = 0, size = methods.size(); i < size; i++) {
-            Method method = (Method) methods.get(i);
+            Method method = methods.get(i);
             Object callback = getCallback(method);
-            if (callback == null) throw new IllegalStateException("getCallback cannot return null");
+            if (callback == null) {
+                throw new IllegalStateException("getCallback cannot return null");
+            }
             boolean isCallback = callback instanceof Callback;
-            if (!(isCallback
-                  || (callback instanceof Class))) throw new IllegalStateException("getCallback must return a Callback or a Class");
-            if (i > 0 && ((callbacks.get(i
-                    - 1) instanceof Callback) ^ isCallback)) throw new IllegalStateException("getCallback must return a Callback or a Class consistently for every Method");
-            Integer index = (Integer) indexes.get(callback);
+
+            if (!(isCallback || (callback instanceof Class))) {
+                throw new IllegalStateException("getCallback must return a Callback or a Class");
+            }
+            if (i > 0 && ((callbacks.get(i - 1) instanceof Callback) ^ isCallback)) {
+                throw new IllegalStateException("getCallback must return a Callback or a Class consistently for every Method");
+            }
+            Integer index = indexes.get(callback);
             if (index == null) {
-                index = new Integer(callbacks.size());
+                index = callbacks.size(); // box
                 indexes.put(callback, index);
             }
             methodMap.put(method, index);
@@ -64,9 +68,12 @@ public abstract class CallbackHelper implements CallbackFilter {
     protected abstract Object getCallback(Method method);
 
     public Callback[] getCallbacks() {
-        if (callbacks.size() == 0) return new Callback[0];
+        final List<Object> callbacks = this.callbacks;
+        if (callbacks.isEmpty()) {
+            return new Callback[0];
+        }
         if (callbacks.get(0) instanceof Callback) {
-            return (Callback[]) callbacks.toArray(new Callback[callbacks.size()]);
+            return (Callback[]) callbacks.toArray(new Callback[0]);
         }
         throw new IllegalStateException("getCallback returned classes, not callbacks; call getCallbackTypes instead");
     }
@@ -80,7 +87,7 @@ public abstract class CallbackHelper implements CallbackFilter {
     }
 
     public int accept(Method method) {
-        return ((Integer) methodMap.get(method)).intValue();
+        return methodMap.get(method).intValue();
     }
 
     public int hashCode() {
@@ -88,8 +95,9 @@ public abstract class CallbackHelper implements CallbackFilter {
     }
 
     public boolean equals(Object o) {
-        if (o == null) return false;
-        if (!(o instanceof CallbackHelper)) return false;
-        return methodMap.equals(((CallbackHelper) o).methodMap);
+        if (o == this) {
+            return true;
+        }
+        return o instanceof CallbackHelper && methodMap.equals(((CallbackHelper) o).methodMap);
     }
 }

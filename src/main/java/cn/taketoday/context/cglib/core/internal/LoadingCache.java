@@ -19,11 +19,7 @@ public class LoadingCache<K, KK, V> {
     protected final Function<K, KK> keyMapper;
     protected final ConcurrentMap<KK, Object> map;
 
-    public static final Function IDENTITY = new Function() {
-        public Object apply(Object key) {
-            return key;
-        }
-    };
+    public static final Function IDENTITY = (k) -> k;
 
     public LoadingCache(Function<K, KK> keyMapper, Function<K, V> loader) {
         this.keyMapper = keyMapper;
