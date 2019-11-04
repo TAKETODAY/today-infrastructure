@@ -19,8 +19,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.cglib.core.CollectionUtils;
 import cn.taketoday.context.cglib.core.ReflectUtils;
@@ -39,16 +41,19 @@ class MixinEverythingEmitter extends MixinEmitter {
     }
 
     protected Class[] getInterfaces(Class[] classes) {
-        List list = new ArrayList();
-        for (int i = 0; i < classes.length; i++) {
-            ReflectUtils.addAllInterfaces(classes[i], list);
+        List<Class<?>> list = new ArrayList();
+        for (Class<?> class1 : classes) {
+            ReflectUtils.addAllInterfaces(class1, list);
         }
-        return (Class[]) list.toArray(new Class[list.size()]);
+        return list.toArray(Constant.EMPTY_CLASS_ARRAY);
     }
 
     protected Method[] getMethods(Class type) {
-        List methods = new ArrayList(Arrays.asList(type.getMethods()));
+        List<Method> methods = new ArrayList();
+        
+        Collections.addAll(methods, type.getMethods());
+        
         CollectionUtils.filter(methods, new RejectModifierPredicate(Modifier.FINAL | Modifier.STATIC));
-        return (Method[]) methods.toArray(new Method[methods.size()]);
+        return methods.toArray(new Method[0]);
     }
 }
