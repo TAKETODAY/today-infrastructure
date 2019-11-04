@@ -77,6 +77,10 @@ public abstract class LoggerFactory {
         return LoggerType.DEFAULT;
     }
 
+    public static void setLoggerType(final LoggerType logType) {
+        loggerType = logType;
+    }
+    
     public enum LoggerType {
 
         SLF4J("org.slf4j.Logger", Slf4jLogger::new),
