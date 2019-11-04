@@ -25,10 +25,15 @@ import cn.taketoday.context.utils.ClassUtils;
 
 /**
  * Factory that creates {@link Logger} instances.
+ * 
+ * @author TODAY <br>
+ *         2019-11-04 19:06
  */
 public abstract class LoggerFactory {
 
     public static final String LOG_TYPE_SYSTEM_PROPERTY = "logger.type";
+
+    private static LoggerType loggerType;
 
     protected abstract Logger createLogger(String name);
 
@@ -43,36 +48,43 @@ public abstract class LoggerFactory {
      * Return a logger associated with a particular class name.
      */
     public static Logger getLogger(String name) {
-        // see if the log-type was specified as a system property
-        String type = System.getProperty(LOG_TYPE_SYSTEM_PROPERTY);
+        return loggerType.create(name);
+    }
+
+    static {
+
+        final String type = System.getProperty(LOG_TYPE_SYSTEM_PROPERTY);
         if (type != null) {
             try {
-                return LoggerType.valueOf(type).create(name);
+                loggerType = LoggerType.valueOf(type);
             }
-            catch (IllegalArgumentException e) {
-                System.err.println("Could not find valid log-type from system property '" + LOG_TYPE_SYSTEM_PROPERTY
-                        + "', value '" + type + "'");
-            }
-        }
-
-        for (LoggerType logType : LoggerType.values()) {
-            if (logType.isAvailable()) {
-                return logType.create(name);
+            catch (Throwable e) {
+                loggerType = LoggerType.DEFAULT;
+                e.printStackTrace();
+                System.err.println("Could not find valid log-type from system property '" +
+                        LOG_TYPE_SYSTEM_PROPERTY + "', value '" + type + "'");
             }
         }
-        return new JavaLoggingLogger(name);
+        else {
+            for (final LoggerType logType : LoggerType.values()) {
+                if (logType.isAvailable()) {
+                    loggerType = logType;
+                }
+            }
+        }
     }
 
     public enum LoggerType {
 
         SLF4J("org.slf4j.Logger", Slf4jLogger::new),
-        COMMONS_LOGGING("org.apache.commons.logging.Log", CommonsLogger::new),
-        LOG4J2("org.apache.logging.log4j.Logger", Log4j2Logger::new);
+        COMMONS("org.apache.commons.logging.Log", CommonsLogger::new),
+        LOG4J2("org.apache.logging.log4j.Logger", Log4j2Logger::new),
+        DEFAULT("java.util.logging.Logger", JavaLoggingLogger::new);
 
         private final String name;
         private final LoggerFactory factory;
 
-        private LoggerType(String name, Function<String, Logger> factory) {
+        LoggerType(String name, Function<String, Logger> factory) {
             this.name = name;
             this.factory = new LoggerFactory() {
                 @Override
@@ -84,11 +96,6 @@ public abstract class LoggerFactory {
 
         public boolean isAvailable() {
             return ClassUtils.isPresent(name);
-        }
-
-        private LoggerType(String name, LoggerFactory factory) {
-            this.name = name;
-            this.factory = factory;
         }
 
         public Logger create(String name) {
