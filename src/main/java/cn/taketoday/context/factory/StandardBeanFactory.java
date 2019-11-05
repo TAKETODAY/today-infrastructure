@@ -548,31 +548,33 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
         ContextUtils.validateBeanDefinition(beanDefinition);
 
-        try {
+        String nameToUse = name;
+        final Class<?> beanClass = beanDefinition.getBeanClass();
 
-            final Class<?> beanClass = beanDefinition.getBeanClass();
+        try {
 
             if (containsBeanDefinition(name)) {
                 final BeanDefinition existBeanDefinition = getBeanDefinition(name);
+                Class<?> existClass = existBeanDefinition.getBeanClass();
                 log.info("=====================|START|=====================");
-                log.info("There is already a bean called: [{}], its bean class:[{}]",
-                         name, beanClass);
+                log.info("There is already a bean called: [{}], its bean class: [{}].", name, existClass);
 
-                Class<?> old = existBeanDefinition.getBeanClass();
-                if (beanClass.equals(old)) {
-                    log.warn("They have same bean class: [{}]. We will override it", old);
+                if (beanClass.equals(existClass)) {
+                    log.warn("They have same bean class: [{}]. We will override it.", beanClass);
                 }
                 else {
-                    log.warn("Current bean class: [{}]. You are supposed to change your bean name creater or bean name", old);
+                    nameToUse = beanClass.getName();
+                    log.warn("Current bean class: [{}]. You are supposed to change your bean name creater or bean name.", beanClass);
+                    log.warn("Current bean definition: [{}] will be registed as: [{}].", beanDefinition, nameToUse);
                 }
                 log.info("======================|END|======================");
             }
 
             if (FactoryBean.class.isAssignableFrom(beanClass)) { // process FactoryBean
-                registerFactoryBean(name, beanDefinition);
+                registerFactoryBean(nameToUse, beanDefinition);
             }
             else {
-                registerBeanDefinition(name, beanDefinition);
+                registerBeanDefinition(nameToUse, beanDefinition);
             }
 
             if (beanDefinition.isAnnotationPresent(Import.class)) { // @since 2.1.7
@@ -606,7 +608,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         if ($factoryBean == null) { // If not exist declaring instance, create it
             // declaring object not registed
             $factoryBean = (FactoryBean<?>) createBeanInstance(beanDefinition); // @since 2.1.7
-            //            $factoryBean = (FactoryBean<?>) ClassUtils.newInstance(beanDefinition.getBeanClass());
+            // $factoryBean = (FactoryBean<?>) ClassUtils.newInstance(beanDefinition.getBeanClass());
             register = true;
         }
 
