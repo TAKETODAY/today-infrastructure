@@ -50,6 +50,7 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -75,7 +76,6 @@ import freemarker.template.ObjectWrapper;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
-import lombok.Getter;
 
 /**
  * @author TODAY <br>
@@ -88,7 +88,6 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 
     private final ObjectWrapper wrapper;
 
-    @Getter
     private final Configuration configuration;
     private final TaglibFactory taglibFactory;
 
@@ -124,7 +123,8 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
         context.getBeansOfType(TemplateModel.class).forEach(configuration::setSharedVariable);
 
         try {
-            if (settings != null && !settings.isEmpty()) {
+            
+            if (ObjectUtils.isNotEmpty(settings)) {
                 this.configuration.setSettings(settings);
             }
         }
@@ -212,7 +212,7 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
         final AllHttpScopesHashModel ret = //
                 new AllHttpScopesHashModel(wrapper, servletContext, request);
 
-        ret.putUnlistedModel(FreemarkerServlet.KEY_JSP_TAGLIBS, taglibFactory);
+        ret.putUnlistedModel(FreemarkerServlet.KEY_JSP_TAGLIBS, this.taglibFactory);
         ret.putUnlistedModel(FreemarkerServlet.KEY_APPLICATION, applicationModel);
         // Create hash model wrapper for request
         ret.putUnlistedModel(FreemarkerServlet.KEY_REQUEST, new HttpRequestHashModel(request, wrapper));
@@ -647,6 +647,34 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
     public interface ReaderSupplier {
 
         Reader get(String c) throws IOException;
+    }
+
+    public final ObjectWrapper getWrapper() {
+        return wrapper;
+    }
+
+    public final Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public final TaglibFactory getTaglibFactory() {
+        return taglibFactory;
+    }
+
+    public final ServletContextHashModel getApplicationModel() {
+        return applicationModel;
+    }
+
+    public final int getCacheSize() {
+        return cacheSize;
+    }
+
+    public final void setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
+    }
+
+    public final ServletContext getServletContext() {
+        return servletContext;
     }
 
 }
