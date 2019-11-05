@@ -25,13 +25,11 @@ import java.util.Objects;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
-import lombok.NoArgsConstructor;
 
 /**
  * @author TODAY <br>
  *         2018-08-22 17:29
  */
-@NoArgsConstructor
 @SuppressWarnings("all")
 public final class DefaultComponent implements Component {
 

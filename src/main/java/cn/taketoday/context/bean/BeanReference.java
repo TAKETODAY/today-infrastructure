@@ -23,7 +23,6 @@ import java.util.Objects;
 
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.utils.StringUtils;
-import lombok.Getter;
 
 /***
  * 
@@ -32,36 +31,49 @@ import lombok.Getter;
  * @author TODAY <br>
  *         2018-06-23 11:27:30
  */
-@Getter
 public final class BeanReference {
 
     /** reference name */
     private final String name;
     /** property is required? **/
     private final boolean required;
-
     /** record reference type @since v2.1.2 */
     private final Class<?> referenceClass;
-
     /** record if property is prototype @since v2.1.6 */
     private boolean prototype = false;
+
+    public BeanReference(String name, boolean required, Class<?> referenceClass) {
+        if (StringUtils.isEmpty(name)) {
+            throw new ContextException("Bean name can't be empty");
+        }
+        this.name = name;
+        this.required = required;
+        this.referenceClass = referenceClass;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public Class<?> getReferenceClass() {
+        return referenceClass;
+    }
 
     public void applyPrototype() {
         this.prototype = true;
     }
 
+    public boolean isPrototype() {
+        return prototype;
+    }
+
     public BeanReference setPrototype(boolean prototype) {
         this.prototype = prototype;
         return this;
-    }
-
-    public BeanReference(String name, boolean required, Class<?> referenceClass) {
-        this.name = name;
-        if (StringUtils.isEmpty(name)) {
-            throw new ContextException("Bean name can't be empty");
-        }
-        this.required = required;
-        this.referenceClass = referenceClass;
     }
 
     @Override

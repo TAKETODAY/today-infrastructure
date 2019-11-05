@@ -22,7 +22,6 @@ package cn.taketoday.context.event;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
-import lombok.Getter;
 
 /**
  * 
@@ -36,12 +35,15 @@ import lombok.Getter;
 public class ObjectRefreshedEvent extends ApplicationContextEvent {
 
     /** which bean definition refreshed **/
-    @Getter
     private final BeanDefinition beanDefinition;
 
     public ObjectRefreshedEvent(BeanDefinition beanDefinition, ApplicationContext applicationContext) {
         super(applicationContext);
         this.beanDefinition = beanDefinition;
+    }
+
+    public final BeanDefinition getBeanDefinition() {
+        return beanDefinition;
     }
 
 }

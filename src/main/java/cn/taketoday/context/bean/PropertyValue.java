@@ -22,23 +22,31 @@ package cn.taketoday.context.bean;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 /**
  * Bean property
  * 
  * @author TODAY <br>
  *         2018-06-23 11:28:01
  */
-@Getter
-@AllArgsConstructor
 public class PropertyValue {
 
     /** property value */
     private final Object value;
     /** field info */
     private final Field field;
+
+    public PropertyValue(Object value, Field field) {
+        this.value = value;
+        this.field = field;
+    }
+
+    public Field getField() {
+        return field;
+    }
+
+    public Object getValue() {
+        return value;
+    }
 
     @Override
     public int hashCode() {
@@ -65,4 +73,5 @@ public class PropertyValue {
                 .append("\"}")//
                 .toString();
     }
+
 }
