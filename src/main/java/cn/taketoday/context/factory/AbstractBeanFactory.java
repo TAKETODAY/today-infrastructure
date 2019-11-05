@@ -695,7 +695,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @param name
      *            Bean name
      */
-    protected void aware(final Object bean, final String name) {
+    public final void aware(final Object bean, final String name) {
 
         if (bean instanceof Aware) {
             awareInternal(bean, name);
