@@ -46,6 +46,7 @@ import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.DefaultBeanNameCreator;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.env.StandardEnvironment;
+import cn.taketoday.context.event.ApplicationEventCapable;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
 import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
 import cn.taketoday.context.event.ContextCloseEvent;
@@ -84,7 +85,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // @since 2.1.5
     private State state;
     /** application listeners **/
-    private final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = new HashMap<>(32, 1.0f);
+    private final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = new HashMap<>(32);
 
     public AbstractApplicationContext() {
         applyState(State.NONE);
@@ -360,39 +361,45 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     @Override
     public void addApplicationListener(final ApplicationListener<?> applicationListener) {
 
-        for (final Method method : applicationListener.getClass().getDeclaredMethods()) {
-            // onApplicationEvent
-            if (!method.isBridge() && method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
-                // register listener
-                doRegisterListener(this.applicationListeners, applicationListener, method.getParameterTypes()[0]);
+        final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = this.applicationListeners;
+        if (applicationListener instanceof ApplicationEventCapable) { // @since2.1.7
+            for (Class<?> type : ((ApplicationEventCapable) applicationListener).getApplicationEvent()) {
+                doRegisterListener(applicationListeners, applicationListener, type);
+            }
+        }
+        else {
+            for (final Method method : applicationListener.getClass().getDeclaredMethods()) {
+                // onApplicationEvent
+                if (!method.isBridge() && method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
+                    // register listener
+                    doRegisterListener(applicationListeners, applicationListener, method.getParameterTypes()[0]);
+                    break;
+                }
             }
         }
     }
 
     /**
-	 * Register to registry
-	 * 
-	 * @param applicationListeners 
-	 * 				Registry
-	 * @param applicationListener
-	 *            The instance of application listener
-	 * @param eventType
-	 *            The event type
-	 * @off
-	 */
-	@SuppressWarnings({ "unchecked" })
-	private	static void doRegisterListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners, //
-			Object applicationListener, Class<?> eventType) //
-	{
-		if (applicationListeners.containsKey(eventType)) {
-			applicationListeners.get(eventType).add((ApplicationListener<EventObject>) applicationListener);
-			return;
-		}
-		final ArrayList<ApplicationListener<EventObject>> listeners = new ArrayList<>();
-		listeners.add((ApplicationListener<EventObject>) applicationListener);
-		applicationListeners.put(eventType, listeners);
-	}
-	//@on
+     * Register to registry
+     * 
+     * @param applicationListeners 
+     * 				Registry
+     * @param applicationListener
+     *            The instance of application listener
+     * @param eventType
+     *            The event type
+     */
+    @SuppressWarnings({ "unchecked" })
+    private final static void doRegisterListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners,
+                                                 Object applicationListener, Class<?> eventType) //
+    {
+        List<ApplicationListener<EventObject>> listeners = applicationListeners.get(eventType);
+        if (listeners == null) {
+            listeners = new ArrayList<>(8);
+        }
+        listeners.add((ApplicationListener<EventObject>) applicationListener);
+        applicationListeners.put(eventType, listeners);
+    }
 
     /**
      * Process after {@link #registerListener()}
@@ -447,10 +454,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // --------ApplicationEventPublisher
 
     @Override
-    public void publishEvent(EventObject event) {
+    public void publishEvent(final EventObject event) {
 
         if (log.isDebugEnabled()) {
-            log.debug("Publish event: [{}]", event.getClass().getName());
+            log.debug("Publish event: [{}]", event);
         }
 
         final List<ApplicationListener<EventObject>> listeners = applicationListeners.get(event.getClass());
@@ -499,21 +506,21 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
-    public boolean hasStarted() {
+    public final boolean hasStarted() {
         return state == State.STARTED;
     }
 
     @Override
-    public State getState() {
+    public final State getState() {
         return state;
     }
 
-    protected void applyState(State state) {
+    protected final void applyState(State state) {
         this.state = state;
     }
 
     @Override
-    public long getStartupDate() {
+    public final long getStartupDate() {
         return startupDate;
     }
 

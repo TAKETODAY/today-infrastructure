@@ -25,7 +25,6 @@ import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Today <br>
@@ -37,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 public class BeanDefinitionLoadingListener_2 implements ApplicationListener<BeanDefinitionLoadingEvent> {
     private static final Logger log = LoggerFactory.getLogger(BeanDefinitionLoadingListener_2.class);
 
-    
     @Override
     public void onApplicationEvent(BeanDefinitionLoadingEvent event) {
         log.debug("BeanDefinitionLoadingListener_2");

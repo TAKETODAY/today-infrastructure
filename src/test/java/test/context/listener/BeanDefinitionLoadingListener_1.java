@@ -25,7 +25,6 @@ import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Today <br>

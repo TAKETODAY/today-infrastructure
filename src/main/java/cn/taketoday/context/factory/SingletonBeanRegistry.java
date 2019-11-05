@@ -25,8 +25,7 @@ import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.bean.BeanDefinition;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-11-14 19:47
  * @since 2.0.1
  */
