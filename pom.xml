@@ -50,6 +50,20 @@
 
     <dependencies>
 
+
+        <dependency>
+            <groupId>cn.taketoday</groupId>
+            <artifactId>today-context</artifactId>
+            <version>latest</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cn.taketoday</groupId>
+            <artifactId>today-tx</artifactId>
+            <version>1.0.0.RELEASE</version>
+        </dependency>
+            
+<!-- provided -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -61,28 +75,43 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.58</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>cn.taketoday</groupId>
-            <artifactId>today-context</artifactId>
-            <version>latest</version>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.2.17.Final</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+                    <groupId>org.jboss.spec.javax.transaction</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
 
         <dependency>
-            <groupId>cn.taketoday</groupId>
-            <artifactId>today-tx</artifactId>
-            <version>1.0.0.RELEASE</version>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>5.2.17.Final</version>
+            <scope>provided</scope>
         </dependency>
-            
-        <!-- test -->
+
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>3.3.1</version>
-            <scope>test</scope>
+            <version>3.4.1</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
+<!-- test -->
 
         <dependency>
             <groupId>com.h2database</groupId>
@@ -125,11 +154,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>commons-dbutils</groupId>
-            <artifactId>commons-dbutils</artifactId>
-            <version>1.7</version>
-        </dependency>
     </dependencies>
 
     <profiles>
