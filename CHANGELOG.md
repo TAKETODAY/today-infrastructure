@@ -44,6 +44,7 @@
 - :sparkles: 添加 Method Invoker
 - :bug: 修复#13注解扫描不完全
 - :sparkles: 添加日志包适配主流日志框架
+- :sparkles: 添加ApplicationEventCapable接口,提高扩展性
 
 ## v2.1.6
 - :sparkles: feat: add `Environment` new api to get property
