@@ -48,8 +48,7 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-09-18 13:17
  */
 @SuppressWarnings("all")

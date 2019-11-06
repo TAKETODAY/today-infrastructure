@@ -74,7 +74,7 @@ public class JdbcTransactionManager extends //
     /**
      * Return the JDBC DataSource that this instance manages transactions for.
      */
-    public DataSource getDataSource() {
+    public final DataSource getDataSource() {
         return this.dataSource;
     }
 

@@ -50,7 +50,6 @@
 
     <dependencies>
 
-
         <dependency>
             <groupId>cn.taketoday</groupId>
             <artifactId>today-context</artifactId>
@@ -109,6 +108,12 @@
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.5.3</version>
         </dependency>
 
 <!-- test -->
