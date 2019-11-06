@@ -32,10 +32,12 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.Scope;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
@@ -216,6 +218,14 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     public BeanDefinition setInitMethods(Method... initMethods) {
         this.initMethods = initMethods;
         return this;
+    }
+
+    @Override
+    public BeanDefinition setInitMethods(String... initMethods) {
+        if (beanClass == null) {
+            throw new ConfigurationException("Bean Class must applied before invoke this method");
+        }
+        return setInitMethods(ContextUtils.resolveInitMethod(beanClass, initMethods));
     }
 
     @Override

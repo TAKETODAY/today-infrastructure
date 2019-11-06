@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
@@ -172,7 +173,7 @@ public class ContextUtilsTest {
 
             Constructor<Config> constructor = //
                     Config.class.getConstructor(UserModel.class, Properties.class, //
-                            Properties.class, int.class, int.class);
+                                                Properties.class, int.class, int.class);
 
             Object[] resolveParameter = ContextUtils.resolveParameter(constructor, applicationContext);
 
@@ -256,7 +257,7 @@ public class ContextUtilsTest {
 
             final BeanDefinition beanDefinition = beanDefinitions.get(0);
             beanDefinition.setDestroyMethods(null);
-            beanDefinition.setInitMethods(null);
+            beanDefinition.setInitMethods((Method[]) null);
             beanDefinition.setScope(null);
             beanDefinition.setPropertyValues(null);
 

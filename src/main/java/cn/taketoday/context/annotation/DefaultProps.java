@@ -22,24 +22,20 @@ package cn.taketoday.context.annotation;
 import java.lang.annotation.Annotation;
 
 import cn.taketoday.context.Constant;
-import lombok.Setter;
 
 /**
  * @author TODAY <br>
  *         2019-03-15 23:18
  */
-@Setter
 @SuppressWarnings("all")
 public class DefaultProps implements Props, Annotation {
 
     private boolean replace = false;
-    private Class<?>[] nested = new Class[0];
     private String[] value = Constant.EMPTY_STRING_ARRAY;
     private String[] prefix = Constant.EMPTY_STRING_ARRAY;
+    private Class<?>[] nested = Constant.EMPTY_CLASS_ARRAY;
 
-    public DefaultProps() {
-
-    }
+    public DefaultProps() {}
 
     public DefaultProps(Props props) {
         this.value = props.value();
@@ -71,6 +67,26 @@ public class DefaultProps implements Props, Annotation {
     @Override
     public Class<?>[] nested() {
         return nested;
+    }
+
+    public DefaultProps setValue(String... value) {
+        this.value = value;
+        return this;
+    }
+
+    public DefaultProps setReplace(boolean replace) {
+        this.replace = replace;
+        return this;
+    }
+
+    public DefaultProps setPrefix(String... prefix) {
+        this.prefix = prefix;
+        return this;
+    }
+
+    public DefaultProps setNested(Class<?>... nested) {
+        this.nested = nested;
+        return this;
     }
 
 }

@@ -247,4 +247,13 @@ public interface BeanDefinition extends AnnotatedElement {
      * @since 2.1.7
      */
     String getChildBean();
+
+    /**
+     * Apply bean' initialize {@link Method}s
+     * 
+     * @param initMethods
+     *            The array of the bean's initialize {@link Method} names
+     * @return The {@link BeanDefinition}
+     */
+    BeanDefinition setInitMethods(String... initMethods);
 }
