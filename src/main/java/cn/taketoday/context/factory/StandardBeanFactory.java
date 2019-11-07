@@ -190,16 +190,15 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
         for (final Method method : beanClass.getDeclaredMethods()) {
 
-            if (ContextUtils.conditional(method)) { // pass the condition
+            final AnnotationAttributes[] components = getAnnotationAttributesArray(method, Component.class);
 
-                final AnnotationAttributes[] components = getAnnotationAttributesArray(method, Component.class);
-
-                if (ObjectUtils.isEmpty(components) && method.isAnnotationPresent(MissingBean.class)) {
+            if (ObjectUtils.isEmpty(components)) {
+                if (method.isAnnotationPresent(MissingBean.class) && ContextUtils.conditional(method)) {
                     missingMethods.add(method);
                 }
-                else {
-                    registerConfigurationBean(method, components);
-                }
+            }
+            else if (ContextUtils.conditional(method)) { // pass the condition
+                registerConfigurationBean(method, components);
             }
         }
     }
@@ -410,7 +409,9 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         BeanDefinition importDef = createBeanDefinition(importClass);
 
         register(importDef);
-
+        
+        loadConfigurationBeans(importClass); // scan config bean
+        
         if (ImportSelector.class.isAssignableFrom(importClass)) {
             for (final String select : createImporter(importDef, ImportSelector.class).selectImports(def)) {
                 register(createBeanDefinition(ClassUtils.loadClass(select)));
@@ -421,9 +422,6 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         }
         else if (ApplicationListener.class.isAssignableFrom(importClass)) {
             getApplicationContext().addApplicationListener(createImporter(importDef, ApplicationListener.class));
-        }
-        else {
-            loadConfigurationBeans(importClass);
         }
     }
 
