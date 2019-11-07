@@ -19,8 +19,6 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import cn.taketoday.context.annotation.Singleton;
-
 import java.sql.Connection;
 import java.util.Properties;
 
@@ -30,7 +28,6 @@ import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.transaction.TransactionFactory;
 
-@Singleton
 public class DefaultTransactionFactory implements TransactionFactory {
 
     /**

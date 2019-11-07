@@ -36,277 +36,182 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.factory.DisposableBean;
-import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.utils.ClassUtils;
 import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author TODAY <br>
  *         2018-10-06 14:36
  */
-@Setter
 @Getter
-@Singleton
-public class SessionTemplate implements SqlSession, InitializingBean, DisposableBean {
+public class SessionTemplate implements SqlSession, DisposableBean {
+
+    protected final SqlSession proxy;
+    protected final Configuration configuration;
 
     @Autowired
-    private SqlSessionFactory sqlSessionFactory;
-
-    private ExecutorType executorType;
-
-    private SqlSession sqlSessionProxy;
-
-    private Configuration configuration;
-
-    public SessionTemplate() {
-
+    public SessionTemplate(SqlSessionFactory sqlSessionFactory) {
+        this.configuration = sqlSessionFactory.getConfiguration();
+        final ExecutorType executorType = configuration.getDefaultExecutorType();
+        this.proxy = SqlSession.class.cast(Proxy.newProxyInstance(ClassUtils.getClassLoader(),
+                                                                  new Class[]
+                                                                  { SqlSession.class },
+                                                                  new SqlSessionInterceptor(executorType, sqlSessionFactory)));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T> T selectOne(String statement) {
-        return this.sqlSessionProxy.<T>selectOne(statement);
+        return this.proxy.<T>selectOne(statement);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T> T selectOne(String statement, Object parameter) {
-        return this.sqlSessionProxy.<T>selectOne(statement, parameter);
+        return this.proxy.<T>selectOne(statement, parameter);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <K, V> Map<K, V> selectMap(String statement, String mapKey) {
-        return this.sqlSessionProxy.<K, V>selectMap(statement, mapKey);
+        return this.proxy.<K, V>selectMap(statement, mapKey);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey) {
-        return this.sqlSessionProxy.<K, V>selectMap(statement, parameter, mapKey);
+        return this.proxy.<K, V>selectMap(statement, parameter, mapKey);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
-        return this.sqlSessionProxy.<K, V>selectMap(statement, parameter, mapKey, rowBounds);
+        return this.proxy.<K, V>selectMap(statement, parameter, mapKey, rowBounds);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T> Cursor<T> selectCursor(String statement) {
-        return this.sqlSessionProxy.selectCursor(statement);
+        return this.proxy.selectCursor(statement);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T> Cursor<T> selectCursor(String statement, Object parameter) {
-        return this.sqlSessionProxy.selectCursor(statement, parameter);
+        return this.proxy.selectCursor(statement, parameter);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T> Cursor<T> selectCursor(String statement, Object parameter, RowBounds rowBounds) {
-        return this.sqlSessionProxy.selectCursor(statement, parameter, rowBounds);
+        return this.proxy.selectCursor(statement, parameter, rowBounds);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <E> List<E> selectList(String statement) {
-        return this.sqlSessionProxy.<E>selectList(statement);
+        return this.proxy.<E>selectList(statement);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <E> List<E> selectList(String statement, Object parameter) {
-        return this.sqlSessionProxy.<E>selectList(statement, parameter);
+        return this.proxy.<E>selectList(statement, parameter);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
-        return this.sqlSessionProxy.<E>selectList(statement, parameter, rowBounds);
+        return this.proxy.<E>selectList(statement, parameter, rowBounds);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void select(String statement, @SuppressWarnings("rawtypes") ResultHandler handler) {
-        this.sqlSessionProxy.select(statement, handler);
+        this.proxy.select(statement, handler);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void select(String statement, Object parameter, @SuppressWarnings("rawtypes") ResultHandler handler) {
-        this.sqlSessionProxy.select(statement, parameter, handler);
+        this.proxy.select(statement, parameter, handler);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void select(String statement, Object parameter, RowBounds rowBounds,
-                       @SuppressWarnings("rawtypes") ResultHandler handler) {
-        this.sqlSessionProxy.select(statement, parameter, rowBounds, handler);
+    @SuppressWarnings("rawtypes")
+    public void select(String statement,
+                       Object parameter,
+                       RowBounds rowBounds,
+                       ResultHandler handler) {
+        this.proxy.select(statement, parameter, rowBounds, handler);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int insert(String statement) {
-        return this.sqlSessionProxy.insert(statement);
+        return this.proxy.insert(statement);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int insert(String statement, Object parameter) {
-        return this.sqlSessionProxy.insert(statement, parameter);
+        return this.proxy.insert(statement, parameter);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int update(String statement) {
-        return this.sqlSessionProxy.update(statement);
+        return this.proxy.update(statement);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int update(String statement, Object parameter) {
-        return this.sqlSessionProxy.update(statement, parameter);
+        return this.proxy.update(statement, parameter);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int delete(String statement) {
-        return this.sqlSessionProxy.delete(statement);
+        return this.proxy.delete(statement);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int delete(String statement, Object parameter) {
-        return this.sqlSessionProxy.delete(statement, parameter);
+        return this.proxy.delete(statement, parameter);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public <T> T getMapper(Class<T> type) {
         return configuration.getMapper(type, this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void commit() {
         throw new UnsupportedOperationException("Manual commit is not allowed over a TODAY managed SqlSession");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void commit(boolean force) {
         throw new UnsupportedOperationException("Manual commit is not allowed over a TODAY managed SqlSession");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void rollback() {
         throw new UnsupportedOperationException("Manual rollback is not allowed over a TODAY managed SqlSession");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void rollback(boolean force) {
         throw new UnsupportedOperationException("Manual rollback is not allowed over a TODAY managed SqlSession");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void close() {
         throw new UnsupportedOperationException("Manual close is not allowed over a TODAY managed SqlSession");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void clearCache() {
-        this.sqlSessionProxy.clearCache();
+        this.proxy.clearCache();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     */
     @Override
     public Configuration getConfiguration() {
         return this.configuration;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Connection getConnection() {
-        return this.sqlSessionProxy.getConnection();
+        return this.proxy.getConnection();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @since 1.0.2
-     */
     @Override
     public List<BatchResult> flushStatements() {
-        return this.sqlSessionProxy.flushStatements();
+        return this.proxy.flushStatements();
     }
 
     @Override
@@ -325,30 +230,19 @@ public class SessionTemplate implements SqlSession, InitializingBean, Disposable
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            final SqlSessionFactory sqlSessionFactory = this.sqlSessionFactory;
-            final SqlSession session = SqlSessionUtils.getSqlSession(sqlSessionFactory, executorType);
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+            final SqlSessionFactory factory = this.sqlSessionFactory;
+            final SqlSession session = SqlSessionUtils.getSqlSession(factory, executorType);
 
             try {
                 return method.invoke(session, args);
             }
             finally {
                 if (session != null) {
-                    SqlSessionUtils.closeSqlSession(session, sqlSessionFactory);
+                    SqlSessionUtils.closeSqlSession(session, factory);
                 }
             }
         }
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-        this.configuration = sqlSessionFactory.getConfiguration();
-        this.executorType = configuration.getDefaultExecutorType();
-        this.sqlSessionProxy = SqlSession.class.cast(Proxy.newProxyInstance(ClassUtils.getClassLoader(),
-                                                                            new Class[]
-                                                                            { SqlSession.class },
-                                                                            new SqlSessionInterceptor(executorType, sqlSessionFactory)));
     }
 
 }

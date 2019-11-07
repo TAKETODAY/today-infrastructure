@@ -19,17 +19,16 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.factory.FactoryBean;
+import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
@@ -40,30 +39,34 @@ public class MapperFactoryBean<T> implements FactoryBean<T>, InitializingBean {
     @Autowired
     private SqlSession sqlSession;
 
-    private final Class<T> mapperInterface;
+    private Class<T> mapperInterface;
+
+    public MapperFactoryBean() {
+
+    }
 
     public MapperFactoryBean(Class<T> mapperInterface) {
-        this.mapperInterface = mapperInterface;
+        this.setMapperInterface(mapperInterface);
     }
 
     @Override
     public T getBean() {
-        return sqlSession.getMapper(mapperInterface);
+        return getSqlSession().getMapper(getBeanClass());
     }
 
     @Override
     public void afterPropertiesSet() {
 
-        final Class<T> mapperInterface = this.mapperInterface;
-        
-        final Configuration configuration = sqlSession.getConfiguration();
+        final Class<T> mapperInterface = this.getBeanClass();
 
-        final Logger log = LoggerFactory.getLogger(mapperInterface);
-        log.debug("Add Mapper: [{}] To [{}]", mapperInterface.getSimpleName(), configuration.getMapperRegistry());
+        final Configuration configuration = getSqlSession().getConfiguration();
 
         if (configuration.hasMapper(mapperInterface)) {
             return;
         }
+
+        final Logger log = LoggerFactory.getLogger(mapperInterface);
+        log.debug("Add Mapper: [{}] To [{}]", mapperInterface.getSimpleName(), configuration.getMapperRegistry());
         try {
             configuration.addMapper(mapperInterface);
         }
@@ -77,7 +80,27 @@ public class MapperFactoryBean<T> implements FactoryBean<T>, InitializingBean {
     }
 
     @Override
-    public Class<T> getBeanClass() {
+    public final Class<T> getBeanClass() {
+        if (mapperInterface == null) {
+            throw new ConfigurationException("Mapper interface must not be null");
+        }
         return mapperInterface;
+    }
+
+    public MapperFactoryBean<T> setMapperInterface(Class<T> mapperInterface) {
+        this.mapperInterface = mapperInterface;
+        return this;
+    }
+
+    public SqlSession getSqlSession() {
+        if (sqlSession == null) {
+            throw new ConfigurationException("Sql Session must not be null");
+        }
+        return sqlSession;
+    }
+
+    public MapperFactoryBean<T> setSqlSession(SqlSession sqlSession) {
+        this.sqlSession = sqlSession;
+        return this;
     }
 }

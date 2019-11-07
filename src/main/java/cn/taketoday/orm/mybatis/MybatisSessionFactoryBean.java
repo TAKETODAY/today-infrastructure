@@ -19,11 +19,6 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.factory.InitializingBean;
-
 import javax.sql.DataSource;
 
 import org.apache.ibatis.mapping.Environment;
@@ -32,24 +27,33 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.defaults.DefaultSqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
 
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.factory.FactoryBean;
+import cn.taketoday.context.factory.InitializingBean;
+
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-10-13 20:33
  */
-@Singleton
-public class SessionFactoryBean implements FactoryBean<SqlSessionFactory>, InitializingBean {
-
-    @Autowired
-    private Configuration configuration;
-
-    @Autowired
-    private TransactionFactory transactionFactory;
+public class MybatisSessionFactoryBean implements FactoryBean<SqlSessionFactory>, InitializingBean {
 
     @Autowired
     private DataSource dataSource;
 
+    @Autowired
+    private Configuration configuration;
+
     private SqlSessionFactory sessionFactory;
+    private TransactionFactory transactionFactory;
+
+    public MybatisSessionFactoryBean() {
+
+    }
+
+    public MybatisSessionFactoryBean(DataSource dataSource) {
+        this.setDataSource(dataSource);
+    }
 
     @Override
     public SqlSessionFactory getBean() {
@@ -58,13 +62,38 @@ public class SessionFactoryBean implements FactoryBean<SqlSessionFactory>, Initi
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        configuration.setEnvironment(new Environment("TODAY-MYBATIS", transactionFactory, dataSource));
+        configuration.setEnvironment(new Environment("TODAY-MYBATIS", getTransactionFactory(), getDataSource()));
         sessionFactory = new DefaultSqlSessionFactory(configuration);
     }
 
     @Override
     public Class<SqlSessionFactory> getBeanClass() {
         return SqlSessionFactory.class;
+    }
+
+    public DataSource getDataSource() {
+        if (dataSource == null) {
+            throw new ConfigurationException("dataSource must not be null");
+        }
+        return dataSource;
+    }
+
+    public TransactionFactory getTransactionFactory() {
+        if (transactionFactory == null) {
+            transactionFactory = new DefaultTransactionFactory();
+        }
+        return transactionFactory;
+
+    }
+
+    public MybatisSessionFactoryBean setTransactionFactory(TransactionFactory transactionFactory) {
+        this.transactionFactory = transactionFactory;
+        return this;
+    }
+
+    public MybatisSessionFactoryBean setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+        return this;
     }
 
 }

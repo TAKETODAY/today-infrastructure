@@ -26,8 +26,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-10-10 19:40
  */
 public interface DefaultRepository<M, ID extends Serializable> {

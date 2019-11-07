@@ -360,7 +360,7 @@ public class JdbcTransactionManager extends //
 
         @Override
         public void flush() {
-            if (SynchronizationManager.isSynchronizationActive()) {
+            if (SynchronizationManager.isActive()) {
                 SynchronizationManager.triggerFlush();
             }
         }

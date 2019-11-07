@@ -19,7 +19,7 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import cn.taketoday.transaction.ResourceHolderSupport;
+import cn.taketoday.transaction.AbstractResourceHolder;
 
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -31,10 +31,9 @@ import lombok.Getter;
  *         2018-10-09 11:24
  */
 @Getter
-public class SqlSessionHolder extends ResourceHolderSupport {
+public class SqlSessionHolder extends AbstractResourceHolder {
 
     private final SqlSession sqlSession;
-
     private final ExecutorType executorType;
 
     /**

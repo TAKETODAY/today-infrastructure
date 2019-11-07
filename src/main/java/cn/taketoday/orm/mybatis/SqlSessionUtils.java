@@ -19,24 +19,22 @@
  */
 package cn.taketoday.orm.mybatis;
 
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.transaction.SynchronizationManager;
-import cn.taketoday.transaction.TransactionSynchronization;
-
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.transaction.SynchronizationManager;
+import cn.taketoday.transaction.TransactionSynchronization;
 
 /**
  * @author TODAY <br>
  *         2018-11-06 21:36
  */
 public abstract class SqlSessionUtils {
-    
+
     private static final Logger log = LoggerFactory.getLogger(SqlSessionUtils.class);
 
     /**
@@ -47,34 +45,22 @@ public abstract class SqlSessionUtils {
      * @param sessionFactory
      *            a MyBatis {@code SqlSessionFactory} to create new sessions
      * @return a MyBatis {@code SqlSession}
-     * @throws TransientDataAccessResourceException
-     *             if a transaction is active and the {@code SqlSessionFactory} is
-     *             not using a {@code TodayManagedTransactionFactory}
      */
     public static SqlSession getSqlSession(SqlSessionFactory sessionFactory) {
-        ExecutorType executorType = sessionFactory.getConfiguration().getDefaultExecutorType();
-        return getSqlSession(sessionFactory, executorType);
+        return getSqlSession(sessionFactory, sessionFactory.getConfiguration().getDefaultExecutorType());
     }
 
     /**
      * Gets an SqlSession from Today Transaction Manager or creates a new one if
      * needed. Tries to get a SqlSession out of current transaction. If there is not
-     * any, it creates a new one. Then, it synchronizes the SqlSession with the
-     * transaction if Today TX is active and
-     * <code>TodayManagedTransactionFactory</code> is configured as a transaction
-     * manager.
+     * any, it creates a new one.
      *
      * @param sessionFactory
-     *            a MyBatis {@code SqlSessionFactory} to create new sessions
+     *            A MyBatis {@code SqlSessionFactory} to create new session
      * @param executorType
      *            The executor type of the SqlSession to create
-     * @param exceptionTranslator
-     *            Optional. Translates SqlSession.commit() exceptions to Today
-     *            exceptions.
-     * @throws TransientDataAccessResourceException
-     *             if a transaction is active and the {@code SqlSessionFactory} is
      */
-    public static SqlSession getSqlSession(SqlSessionFactory sessionFactory, ExecutorType executorType) {
+    public final static SqlSession getSqlSession(SqlSessionFactory sessionFactory, ExecutorType executorType) {
 
         SqlSessionHolder holder = (SqlSessionHolder) SynchronizationManager.getResource(sessionFactory);
 
@@ -111,10 +97,10 @@ public abstract class SqlSessionUtils {
      * @param session
      *            sqlSession used for registration.
      */
-    private static void registerSessionHolder(SqlSessionFactory sessionFactory, //
-                                              ExecutorType executorType, SqlSession session) //
+    private final static void registerSessionHolder(SqlSessionFactory sessionFactory, //
+                                                    ExecutorType executorType, SqlSession session) //
     {
-        if (SynchronizationManager.isSynchronizationActive()) {
+        if (SynchronizationManager.isActive()) {
             log.debug("Registering transaction synchronization for SqlSession: [{}]", session);
 
             SqlSessionHolder holder = new SqlSessionHolder(session, executorType);
@@ -122,20 +108,15 @@ public abstract class SqlSessionUtils {
             SynchronizationManager.registerSynchronization(new SqlSessionSynchronization(holder, sessionFactory));
             holder.setSynchronizedWithTransaction(true);
             holder.requested();
-            return;
         }
-        log.debug(//
-                  "SqlSession [{}] was not registered for synchronization because synchronization is not active", session//
-        );
+        else {
+            log.debug("SqlSession [{}] was not registered cause synchronization is not active", session);
+        }
     }
 
-    /**
-     * 
-     * @param executorType
-     * @param holder
-     * @return
-     */
+    
     public static SqlSession sessionHolder(ExecutorType executorType, SqlSessionHolder holder) {
+        
         SqlSession session = null;
         if (holder != null && holder.isSynchronizedWithTransaction()) {
             if (holder.getExecutorType() != executorType) {

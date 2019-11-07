@@ -107,7 +107,6 @@ public class SessionFactoryBean extends Configuration //
         return SessionFactory.class;
     }
 
-    
     public String[] getEntityLocations() {
         return entityLocations;
     }

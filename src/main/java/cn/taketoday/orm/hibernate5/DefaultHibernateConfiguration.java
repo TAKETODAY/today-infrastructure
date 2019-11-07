@@ -79,17 +79,20 @@ public class DefaultHibernateConfiguration extends Configuration
 
     protected void refreshSessionFactory(final ApplicationContext applicationContext) {
 
-        final DataSource dataSource = applicationContext.getBean(DataSource.class);
+        if (applicationContext.getSingleton(SESSION_FACTORY_BEAN_NAME) == null) {
 
-        if (dataSource == null) {
-            throw new ConfigurationException("You must provide a javax.sql.DataSource bean");
+            final DataSource dataSource = applicationContext.getBean(DataSource.class);
+
+            if (dataSource == null) {
+                throw new ConfigurationException("You must provide a javax.sql.DataSource bean");
+            }
+
+            final Properties properties = ContextUtils.loadProps(new DefaultProps().setPrefix("hibernate."),
+                                                                 applicationContext.getEnvironment().getProperties());
+
+            applicationContext.registerSingleton(SESSION_FACTORY_BEAN_NAME, buildSessionFactory(dataSource, properties));
+            LoggerFactory.getLogger(getClass()).info("Refresh 'SessionFactory' bean");
         }
-
-        final Properties properties = ContextUtils.loadProps(new DefaultProps().setPrefix("hibernate."),
-                                                             applicationContext.getEnvironment().getProperties());
-
-        applicationContext.registerSingleton(SESSION_FACTORY_BEAN_NAME, buildSessionFactory(dataSource, properties));
-        LoggerFactory.getLogger(getClass()).info("Refresh 'SessionFactory' bean");
     }
 
     protected void registerSessionFactoryBean(Collection<Class<?>> candidates, ApplicationContext applicationContext) {

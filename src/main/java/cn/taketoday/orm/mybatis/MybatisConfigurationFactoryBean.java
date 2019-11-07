@@ -26,7 +26,7 @@ import org.apache.ibatis.session.Configuration;
 
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.utils.ContextUtils;
@@ -35,7 +35,6 @@ import cn.taketoday.context.utils.ContextUtils;
  * @author TODAY <br>
  *         2018-10-09 20:32
  */
-@Singleton
 public class MybatisConfigurationFactoryBean implements FactoryBean<Configuration>, InitializingBean {
 
     @Env("mybatis.config")
@@ -49,7 +48,7 @@ public class MybatisConfigurationFactoryBean implements FactoryBean<Configuratio
     @Override
     public void afterPropertiesSet() throws Exception {
         if (getConfiguration() == null) {
-            setConfiguration(new XMLConfigBuilder(ContextUtils.getResourceAsStream(configLocation), "TODAY-MYBATIS", properties)//
+            setConfiguration(new XMLConfigBuilder(ContextUtils.getResourceAsStream(getConfigLocation()), "TODAY-MYBATIS", getProperties())//
                     .parse());
         }
     }
@@ -69,8 +68,32 @@ public class MybatisConfigurationFactoryBean implements FactoryBean<Configuratio
         return Configuration.class;
     }
 
+    public String getConfigLocation() {
+        if (configLocation == null) {
+            throw new ConfigurationException("mybatis config file must not be null");
+        }
+        return configLocation;
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
     public Configuration getConfiguration() {
+        if (configuration == null) {
+            throw new ConfigurationException("org.apache.ibatis.session.Configuration must not be null");
+        }
         return configuration;
+    }
+
+    public MybatisConfigurationFactoryBean setProperties(Properties properties) {
+        this.properties = properties;
+        return this;
+    }
+
+    public MybatisConfigurationFactoryBean setConfigLocation(String configLocation) {
+        this.configLocation = configLocation;
+        return this;
     }
 
     public MybatisConfigurationFactoryBean setConfiguration(Configuration configuration) {
