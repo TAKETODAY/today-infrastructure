@@ -478,7 +478,7 @@ public abstract class ClassUtils {
             }
         }
         catch (IOException e) {
-            log.error("IO exception occur With Msg: [{}]", e.getMessage(), e);
+            log.error("IO exception occur With Msg: [{}]", e, e);
             throw new ContextException(e);
         }
     }
@@ -658,10 +658,10 @@ public abstract class ClassUtils {
      * @since 2.1.1
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T[] getAnnotationArray(
-                                final AnnotatedElement element,
-                                final Class<T> annotationClass,
-                                final Class<? extends T> implClass) throws ContextException //
+    public static <T extends Annotation> T[] 
+                getAnnotationArray(final AnnotatedElement element,
+                                   final Class<T> annotationClass,
+                                   final Class<? extends T> implClass) throws ContextException //
     {
         if (annotationClass == null) {
             return null;
