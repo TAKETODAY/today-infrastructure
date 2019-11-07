@@ -29,6 +29,7 @@ import cn.taketoday.context.bean.BeanDefinition;
  * @author TODAY <br>
  *         2019-10-01 20:20
  */
+@FunctionalInterface
 public interface ImportSelector {
 
     String[] NO_IMPORTS = Constant.EMPTY_STRING_ARRAY;

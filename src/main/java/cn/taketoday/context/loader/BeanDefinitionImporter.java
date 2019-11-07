@@ -27,6 +27,7 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
  * @author TODAY <br>
  *         2019-10-01 19:08
  */
+@FunctionalInterface
 public interface BeanDefinitionImporter {
 
     /**
