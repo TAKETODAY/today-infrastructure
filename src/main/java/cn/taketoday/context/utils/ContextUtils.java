@@ -59,7 +59,6 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Conditional;
-import cn.taketoday.context.annotation.ConditionalImpl;
 import cn.taketoday.context.annotation.DefaultProps;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.MissingBean;
@@ -97,7 +96,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 public abstract class ContextUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ContextUtils.class);
-    
+
     // @since 2.1.6 shared elProcessor
     private static ELProcessor elProcessor;
     // @since 2.1.6 shared applicationContext
@@ -800,21 +799,37 @@ public abstract class ContextUtils {
      *            {@link ApplicationContext}
      * @return If matched
      */
+    @SuppressWarnings("unchecked")
     public static boolean conditional(final AnnotatedElement annotated) {
 
-        final List<Conditional> annotations = //
-                ClassUtils.getAnnotation(annotated, Conditional.class, ConditionalImpl.class);
+        final AnnotationAttributes[] attributes = ClassUtils.getAnnotationAttributesArray(annotated, Conditional.class);
 
-        OrderUtils.reversedSort(annotations);
-        for (final Conditional conditional : annotations) {
+        final int size = attributes.length;
+        if (size == 0) {
+            return true;
+        }
+        if (size == 1) {
+            if (!conditional(annotated, attributes[0].getAttribute(Constant.VALUE, Class[].class))) {
+                return false; // can't match
+            }
+        }
+        else {
 
-            for (final Class<? extends Condition> conditionClass : conditional.value()) {
-                if (!ClassUtils.newInstance(conditionClass).matches(annotated)) {
+            for (final AnnotationAttributes conditional : OrderUtils.reversedSort(attributes)) {
+                if (!conditional(annotated, conditional.getAttribute(Constant.VALUE, Class[].class))) {
                     return false; // can't match
                 }
             }
         }
+        return true;
+    }
 
+    public final static boolean conditional(final AnnotatedElement annotated, Class<? extends Condition>[] condition) {
+        for (final Class<? extends Condition> conditionClass : condition) {
+            if (!ClassUtils.newInstance(conditionClass).matches(annotated)) {
+                return false; // can't match
+            }
+        }
         return true;
     }
 
