@@ -23,9 +23,11 @@ import java.util.Collection;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.bean.BeanDefinition;
 
 /**
- * register the {@link MissingBean}
+ * Register the {@link MissingBean}, can use for other framework to load
+ * {@link BeanDefinition}s
  * 
  * @author TODAY <br>
  *         2019-02-02 11:05

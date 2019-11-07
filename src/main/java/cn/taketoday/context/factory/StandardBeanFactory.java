@@ -358,7 +358,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
             if (ContextUtils.conditional(beanClass) && !beanClass.isAnnotationPresent(MissingBean.class)) {
                 // can't be a missed bean. MissingBean load after normal loading beans
-                ContextUtils.buildBeanDefinitions(beanClass, beanNameCreator.create(beanClass))//
+                ContextUtils.buildBeanDefinitions(beanClass, beanNameCreator.create(beanClass))
                         .forEach(this::register);
             }
         }
@@ -404,23 +404,23 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      */
     protected void selectImport(final BeanDefinition def, final Class<?> importClass) {
 
-        log.debug("Importing : [{}]", importClass);
+        log.debug("Importing: [{}]", importClass);
 
         BeanDefinition importDef = createBeanDefinition(importClass);
 
         register(importDef);
-        
+
         loadConfigurationBeans(importClass); // scan config bean
-        
+
         if (ImportSelector.class.isAssignableFrom(importClass)) {
             for (final String select : createImporter(importDef, ImportSelector.class).selectImports(def)) {
                 register(createBeanDefinition(ClassUtils.loadClass(select)));
             }
         }
-        else if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
+        if (BeanDefinitionImporter.class.isAssignableFrom(importClass)) {
             createImporter(importDef, BeanDefinitionImporter.class).registerBeanDefinitions(def, this);
         }
-        else if (ApplicationListener.class.isAssignableFrom(importClass)) {
+        if (ApplicationListener.class.isAssignableFrom(importClass)) {
             getApplicationContext().addApplicationListener(createImporter(importDef, ApplicationListener.class));
         }
     }
@@ -436,10 +436,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     protected <T> T createImporter(BeanDefinition importDef, Class<T> target) {
 
         try {
-            return target.cast(initializeSingleton(importDef.getName(), importDef));
-        }
-        catch (ReflectiveOperationException e) {
-            throw new BeanDefinitionStoreException("Can't create bean instance: [" + target + "]");
+            return target.cast(getBean(importDef));
         }
         catch (Throwable e) {
             throw new BeanDefinitionStoreException("Can't initialize a target: [" + target + "]");
