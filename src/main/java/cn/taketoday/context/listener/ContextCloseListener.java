@@ -49,7 +49,7 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
         final Logger log = LoggerFactory.getLogger(getClass());
 
         log.info("Closing: [{}] at [{}]", applicationContext,
-                new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(event.getTimestamp()));
+                 new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(event.getTimestamp()));
 
         if (applicationContext instanceof AbstractApplicationContext) {
             AbstractBeanFactory beanFactory = ((AbstractApplicationContext) applicationContext).getBeanFactory();
@@ -70,7 +70,8 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
         catch (Throwable e) {
             log.error("An Exception Occurred When Destroy Beans");
             throw ExceptionUtils.newContextException(e);
-        } finally {
+        }
+        finally {
             ClassUtils.clearCache();
         }
     }

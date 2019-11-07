@@ -140,7 +140,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
             return $factoryBean.getBean();
         }
-
         // initialize
         return initializingBean(createBeanInstance(def), name, def);
     }
