@@ -20,6 +20,7 @@
 package cn.taketoday.context.utils;
 
 import java.lang.reflect.AnnotatedElement;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -75,6 +76,16 @@ public abstract class OrderUtils {
     }
 
     /**
+     * Get Comparator
+     * 
+     * @return Comparator
+     * @since 2.1.7
+     */
+    public static Comparator<Object> getComparator() {
+        return Comparator.comparingInt(OrderUtils::getOrder);
+    }
+
+    /**
      * Reversed sort list
      * 
      * @param list
@@ -84,4 +95,35 @@ public abstract class OrderUtils {
         list.sort(getReversedComparator());
     }
 
+    /**
+     * Sort list
+     * 
+     * @param list
+     *            Input list
+     * @since 2.1.7
+     */
+    public static <T> void sort(List<T> list) {
+        list.sort(getComparator());
+    }
+
+    /**
+     * Sort array
+     * 
+     * @param array
+     *            Input array
+     * @since 2.1.7
+     */
+    public static <T> void sort(T[] array) {
+        Arrays.sort(array, getComparator());
+    }
+
+    /**
+     * Reversed sort array
+     * 
+     * @param array
+     *            Input list
+     */
+    public static <T> void reversedSort(T[] array) {
+        Arrays.sort(array, getReversedComparator());
+    }
 }
