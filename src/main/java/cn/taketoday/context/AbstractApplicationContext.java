@@ -30,7 +30,6 @@ import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.el.ELManager;
@@ -315,7 +314,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     protected void registerListener(final Collection<Class<?>> classes,
                                     final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners) //
     {
-
         log.debug("Loading Application Listeners.");
 
         for (final Class<?> contextListener : classes) {
@@ -325,11 +323,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
 
         postProcessRegisterListener(applicationListeners);
-
-        // sort
-        for (Entry<Class<?>, List<ApplicationListener<EventObject>>> entry : applicationListeners.entrySet()) {
-            OrderUtils.reversedSort(entry.getValue());
-        }
     }
 
     protected void registerListener(Class<?> listenerClass) {
@@ -363,7 +356,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = this.applicationListeners;
         if (applicationListener instanceof ApplicationEventCapable) { // @since2.1.7
-            for (Class<?> type : ((ApplicationEventCapable) applicationListener).getApplicationEvent()) {
+            for (final Class<?> type : ((ApplicationEventCapable) applicationListener).getApplicationEvent()) {
                 doRegisterListener(applicationListeners, applicationListener, type);
             }
         }
@@ -382,8 +375,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     /**
      * Register to registry
      * 
-     * @param applicationListeners 
-     * 				Registry
+     * @param applicationListeners
+     *            Registry
      * @param applicationListener
      *            The instance of application listener
      * @param eventType
@@ -398,6 +391,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             listeners = new ArrayList<>(8);
         }
         listeners.add((ApplicationListener<EventObject>) applicationListener);
+        if (listeners.size() > 1) {
+            OrderUtils.reversedSort(listeners);
+        }
         applicationListeners.put(eventType, listeners);
     }
 
