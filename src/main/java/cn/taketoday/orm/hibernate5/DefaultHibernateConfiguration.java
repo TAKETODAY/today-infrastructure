@@ -37,8 +37,8 @@ import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.event.ApplicationContextEvent;
 import cn.taketoday.context.event.ApplicationEventCapable;
-import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
 import cn.taketoday.context.event.ContextRefreshEvent;
+import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -72,8 +72,8 @@ public class DefaultHibernateConfiguration extends Configuration
         if (event instanceof ContextRefreshEvent) {
             refreshSessionFactory(event.getApplicationContext());
         }
-        else if (event instanceof BeanDefinitionLoadingEvent) {
-            registerSessionFactoryBean(((BeanDefinitionLoadingEvent) event).getCandidates(), event.getApplicationContext());
+        else if (event instanceof LoadingMissingBeanEvent) {
+            registerSessionFactoryBean(((LoadingMissingBeanEvent) event).getCandidates(), event.getApplicationContext());
         }
     }
 
@@ -113,7 +113,7 @@ public class DefaultHibernateConfiguration extends Configuration
 
     @Override
     public Class<?>[] getApplicationEvent() {
-        return new Class<?>[] { BeanDefinitionLoadingEvent.class, ContextRefreshEvent.class };
+        return new Class<?>[] { LoadingMissingBeanEvent.class, ContextRefreshEvent.class };
     }
 
 }
