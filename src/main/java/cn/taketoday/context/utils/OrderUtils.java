@@ -91,8 +91,9 @@ public abstract class OrderUtils {
      * @param list
      *            Input list
      */
-    public static <T> void reversedSort(List<T> list) {
+    public static <T> List<T> reversedSort(List<T> list) {
         list.sort(getReversedComparator());
+        return list;
     }
 
     /**
@@ -102,8 +103,9 @@ public abstract class OrderUtils {
      *            Input list
      * @since 2.1.7
      */
-    public static <T> void sort(List<T> list) {
+    public static <T> List<T> sort(List<T> list) {
         list.sort(getComparator());
+        return list;
     }
 
     /**
@@ -113,8 +115,9 @@ public abstract class OrderUtils {
      *            Input array
      * @since 2.1.7
      */
-    public static <T> void sort(T[] array) {
+    public static <T> T[] sort(T[] array) {
         Arrays.sort(array, getComparator());
+        return array;
     }
 
     /**
@@ -123,7 +126,8 @@ public abstract class OrderUtils {
      * @param array
      *            Input list
      */
-    public static <T> void reversedSort(T[] array) {
+    public static <T> T[] reversedSort(T[] array) {
         Arrays.sort(array, getReversedComparator());
+        return array;
     }
 }
