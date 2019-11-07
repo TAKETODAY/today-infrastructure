@@ -29,7 +29,6 @@ import cn.taketoday.context.utils.StringUtils;
  * Standard {@link ApplicationContext}
  * 
  * @author TODAY <br>
- *         <p>
  *         2018-09-06 13:47
  */
 public class StandardApplicationContext extends AbstractApplicationContext implements ConfigurableApplicationContext {
@@ -95,16 +94,17 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
     }
 
     @Override
-    protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> beanClasses) {
+    protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> candidates) {
 
         // load beans form scanned classes
-        super.loadBeanDefinitions(beanFactory, beanClasses);
+        super.loadBeanDefinitions(beanFactory, candidates);
+        // @since 2.1.6
+        candidates.addAll(this.beanFactory.loadMetaInfoBeans());
+
         // load beans form beans that annotated Configuration
         this.beanFactory.loadConfigurationBeans();
-        // @since 2.1.6
-        beanClasses.addAll(this.beanFactory.loadMetaInfoBeans());
-
-        this.beanFactory.loadMissingBean(beanClasses);
+        
+        this.beanFactory.loadMissingBean(candidates);
     }
 
 }
