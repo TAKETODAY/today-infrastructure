@@ -137,32 +137,24 @@ public class AnnotationAttributes extends HashMap<String, Object> {
         return expectedType.cast(value);
     }
 
-    /**
-     * @param attributeName
-     * @param attributeValue
-     */
     private void assertAttributePresence(String attributeName, Object attributeValue) {
-        Objects.requireNonNull(attributeValue, String.format(//
-                "Attribute '%s' not found in attributes for annotation [%s]",
-                attributeName, this.displayName//
-        ));
+        if (attributeValue == null) {
+            throw new NullPointerException(String.format("Attribute '%s' not found in attributes for annotation [%s]",
+                                                         attributeName,
+                                                         this.displayName));
+        }
     }
 
-    /**
-     * 
-     * @param attributeName
-     * @param attributeValue
-     * @param expectedType
-     */
     private void assertAttributeType(String attributeName, Object attributeValue, Class<?> expectedType) {
         if (!expectedType.isInstance(attributeValue)) {
-            throw new IllegalArgumentException(String.format(//
-                    "Attribute '%s' is of type [%s], but [%s] was expected in attributes for annotation [%s]",
-                    attributeName, //
-                    attributeValue.getClass().getName(), //
-                    expectedType.getName(),
-                    this.displayName//
-            ));
+            throw new IllegalArgumentException(
+                                               String.format(//
+                                                             "Attribute '%s' is of type [%s], but [%s] was expected in attributes for annotation [%s]",
+                                                             attributeName, //
+                                                             attributeValue.getClass().getName(), //
+                                                             expectedType.getName(),
+                                                             this.displayName//
+                                               ));
         }
     }
 
@@ -220,7 +212,7 @@ public class AnnotationAttributes extends HashMap<String, Object> {
             final AnnotationAttributes other = (AnnotationAttributes) object;
 
             if (!Objects.equals(annotationType, other.annotationType) //
-                    || !Objects.equals(displayName, other.displayName)) {
+                || !Objects.equals(displayName, other.displayName)) {
 
                 return false;
             }
