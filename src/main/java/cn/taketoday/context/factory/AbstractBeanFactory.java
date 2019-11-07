@@ -619,7 +619,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 registerBeanDefinition(beanName, new DefaultBeanDefinition(beanName, childDef));
             }
             else if (ref.isRequired()) {
-                throw new ConfigurationException("context does not exist for this type:[" + propertyType + "] of bean");
+                throw new ConfigurationException("Context does not exist for this type:[" + propertyType + "] of bean");
             }
         }
     }
