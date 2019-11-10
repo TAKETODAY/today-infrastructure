@@ -37,6 +37,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Singleton;
@@ -141,7 +142,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             return $factoryBean.getBean();
         }
         // initialize
-        return initializingBean(createBeanInstance(def), name, def);
+        return initializingBean(createBeanInstance(name, def), name, def);
     }
 
     @Override
@@ -260,11 +261,35 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *             If any {@link Exception} occurred when create bean instance
      */
     protected Object createBeanInstance(final BeanDefinition def) throws Throwable {
-        final Object bean = getSingleton(def.getName());
-        if (bean == null) {
+        return createBeanInstance(def.getName(), def);
+    }
+
+    /**
+     * Create bean instance with given name and {@link BeanDefinition}
+     * 
+     * <p>
+     * If target bean is {@link Scope#SINGLETON} will be register is to the
+     * singletons pool
+     * 
+     * @param name
+     *            Bean name
+     * @param def
+     *            Bean definition
+     * @return Target bean instance
+     * @throws Throwable
+     *             If any {@link Exception} occurred when create bean instance
+     */
+    protected Object createBeanInstance(final String name, final BeanDefinition def) throws Throwable {
+        if (def.isSingleton()) {
+            Object bean = getSingleton(name);
+            if (bean == null) {
+                registerSingleton(name, bean = ClassUtils.newInstance(def, this));
+            }
+            return bean;
+        }
+        else {
             return ClassUtils.newInstance(def, this);
         }
-        return bean;
     }
 
     /**
@@ -281,7 +306,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     protected void applyPropertyValues(final Object bean, final PropertyValue[] propertyValues)
             throws IllegalAccessException //
     {
-
         for (final PropertyValue propertyValue : propertyValues) {
             Object value = propertyValue.getValue();
             // reference bean
@@ -544,10 +568,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             return getSingleton(name);
         }
 
-        Object bean = initializingBean(createBeanInstance(beanDefinition), name, beanDefinition);
+        Object bean = initializingBean(createBeanInstance(name, beanDefinition), name, beanDefinition);
         log.debug("Singleton bean is being stored in the name of [{}]", name);
 
-        registerSingleton(name, bean);
+//        registerSingleton(name, bean);
         beanDefinition.setInitialized(true);
 
         return bean;
@@ -1035,11 +1059,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 return;
             }
 
-            final Object initializingBean = initializingBean(createBeanInstance(def), name, def);
-
-            if (!containsSingleton(name)) {
-                registerSingleton(name, initializingBean);
-            }
+            initializingBean(createBeanInstance(name, def), name, def);
 
             def.setInitialized(true);
         }

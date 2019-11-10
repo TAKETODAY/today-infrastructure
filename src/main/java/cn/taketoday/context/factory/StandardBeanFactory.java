@@ -23,6 +23,7 @@ import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
 import static cn.taketoday.context.utils.ContextUtils.findNames;
 import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
+import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -100,22 +101,33 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * from {@link StandardBeanDefinition#getFactoryMethod()}
      */
     @Override
-    protected Object createBeanInstance(BeanDefinition beanDefinition) throws Throwable {
-        final Object bean = getSingleton(beanDefinition.getName());
+    protected Object createBeanInstance(String name, BeanDefinition def) throws Throwable {
 
-        if (bean == null) {
-            if (beanDefinition instanceof StandardBeanDefinition) {
-                final StandardBeanDefinition standardBeanDefinition = (StandardBeanDefinition) beanDefinition;
-                final Method factoryMethod = standardBeanDefinition.getFactoryMethod();
+        if (def instanceof StandardBeanDefinition) {
+            final StandardBeanDefinition stdDef = (StandardBeanDefinition) def;
+            final Method factoryMethod = stdDef.getFactoryMethod();
 
-                return ClassUtils.makeAccessible(factoryMethod)//
-                        .invoke(getDeclaringInstance(standardBeanDefinition.getDeclaringName()),
-                                ContextUtils.resolveParameter(factoryMethod, this)//
-                        );
+            if (def.isSingleton()) {
+                Object bean = getSingleton(name);
+                if (bean == null) {
+                    registerSingleton(name, bean = createFromFactoryMethod(factoryMethod, stdDef));
+                }
+                return bean;
             }
-            return ClassUtils.newInstance(beanDefinition, this);
+            else {
+                return createFromFactoryMethod(factoryMethod, stdDef);
+            }
         }
-        return bean;
+        else {
+            return super.createBeanInstance(name, def);
+        }
+    }
+
+    protected Object createFromFactoryMethod(final Method factoryMethod,
+                                             final StandardBeanDefinition stdDef) throws Throwable {
+
+        return ClassUtils.makeAccessible(factoryMethod)
+                .invoke(getDeclaringInstance(stdDef.getDeclaringName()), resolveParameter(factoryMethod, this));
     }
 
     /**
@@ -153,11 +165,11 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
         // fix: declaring bean not initialized
         final Object declaringSingleton = //
-                super.initializingBean(createBeanInstance(declaringBeanDef), declaringName, declaringBeanDef);
+                super.initializingBean(createBeanInstance(declaringName, declaringBeanDef), declaringName, declaringBeanDef);
 
         // put declaring object
         if (declaringBeanDef.isSingleton()) {
-            registerSingleton(declaringName, declaringSingleton);
+//            registerSingleton(declaringName, declaringSingleton);
             declaringBeanDef.setInitialized(true);
         }
         return declaringSingleton;
@@ -602,7 +614,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         boolean register = false;
         if ($factoryBean == null) { // If not exist declaring instance, create it
             // declaring object not registed
-            $factoryBean = (FactoryBean<?>) createBeanInstance(beanDefinition); // @since 2.1.7
+            $factoryBean = (FactoryBean<?>) createBeanInstance(beanDefinition); // @since 2.1.7 //TODO
             // $factoryBean = (FactoryBean<?>) ClassUtils.newInstance(beanDefinition.getBeanClass());
             register = true;
         }
