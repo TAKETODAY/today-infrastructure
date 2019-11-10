@@ -62,12 +62,6 @@
         </dependency>
 
         <dependency>
-            <groupId>cn.taketoday</groupId>
-            <artifactId>today-expression</artifactId>
-            <version>0.0.3.RELEASE</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.6</version>
