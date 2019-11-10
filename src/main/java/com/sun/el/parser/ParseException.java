@@ -180,8 +180,7 @@ public class ParseException extends Exception {
         StringBuffer retval = new StringBuffer();
         char ch;
         for (int i = 0; i < str.length(); i++) {
-            switch (str.charAt(i))
-            {
+            switch (str.charAt(i)) {
                 case 0 :
                     continue;
                 case '\b' :

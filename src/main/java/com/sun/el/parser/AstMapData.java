@@ -51,7 +51,7 @@ import com.sun.el.lang.EvaluationContext;
  * @author Kin-man Chung
  */
 public class AstMapData extends SimpleNode {
-    
+
     public AstMapData(int id) {
         super(id);
     }

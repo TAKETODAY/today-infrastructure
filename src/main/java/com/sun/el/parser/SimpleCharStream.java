@@ -229,8 +229,7 @@ public class SimpleCharStream {
                 line += (column = 1);
         }
 
-        switch (c)
-        {
+        switch (c) {
             case '\r' :
                 prevCharIsCR = true;
                 break;

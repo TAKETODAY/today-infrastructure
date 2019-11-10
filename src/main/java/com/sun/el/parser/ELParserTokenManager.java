@@ -121,8 +121,7 @@ public class ELParserTokenManager implements ELParserConstants {
     }
 
     private int jjMoveStringLiteralDfa0_0() {
-        switch (curChar)
-        {
+        switch (curChar) {
             case 35 :
                 return jjMoveStringLiteralDfa1_0(0x8L);
             case 36 :
@@ -175,8 +174,7 @@ public class ELParserTokenManager implements ELParserConstants {
             if (curChar < 64) {
                 long l = 1L << curChar;
                 do {
-                    switch (jjstateSet[--i])
-                    {
+                    switch (jjstateSet[--i]) {
                         case 6 :
                             if ((0xffffffe7ffffffffL & l) != 0L) {
                                 if (kind > 1) kind = 1;
@@ -213,8 +211,7 @@ public class ELParserTokenManager implements ELParserConstants {
             else if (curChar < 128) {
                 long l = 1L << (curChar & 077);
                 do {
-                    switch (jjstateSet[--i])
-                    {
+                    switch (jjstateSet[--i]) {
                         case 6 :
                             if ((0xffffffffefffffffL & l) != 0L) {
                                 if (kind > 1) kind = 1;
@@ -252,8 +249,7 @@ public class ELParserTokenManager implements ELParserConstants {
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
                 do {
-                    switch (jjstateSet[--i])
-                    {
+                    switch (jjstateSet[--i]) {
                         case 6 :
                         case 0 :
                         case 4 :
@@ -283,8 +279,7 @@ public class ELParserTokenManager implements ELParserConstants {
     }
 
     private final int jjStopStringLiteralDfa_2(int pos, long active0) {
-        switch (pos)
-        {
+        switch (pos) {
             case 0 :
                 if ((active0 & 0x80000L) != 0L) return 1;
                 if ((active0 & 0x50755550070000L) != 0L) {
@@ -362,8 +357,7 @@ public class ELParserTokenManager implements ELParserConstants {
     }
 
     private int jjMoveStringLiteralDfa0_2() {
-        switch (curChar)
-        {
+        switch (curChar) {
             case 33 :
                 jjmatchedKind = 39;
                 return jjMoveStringLiteralDfa1_2(0x2000000000L);
@@ -449,8 +443,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_2(0, active0);
             return 1;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 38 :
                 if ((active0 & 0x20000000000L) != 0L) return jjStopAtPos(1, 41);
                 break;
@@ -509,8 +502,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_2(1, active0);
             return 2;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 100 :
                 if ((active0 & 0x40000000000L) != 0L) return jjStartNfaWithStates_2(2, 42, 6);
                 else if ((active0 & 0x40000000000000L) != 0L) return jjStartNfaWithStates_2(2, 54, 6);
@@ -544,8 +536,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_2(2, active0);
             return 3;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 101 :
                 if ((active0 & 0x10000L) != 0L) return jjStartNfaWithStates_2(3, 16, 6);
                 break;
@@ -571,8 +562,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_2(3, active0);
             return 4;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 97 :
                 return jjMoveStringLiteralDfa5_2(active0, 0x400000000000L);
             case 101 :
@@ -596,8 +586,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_2(4, active0);
             return 5;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 110 :
                 return jjMoveStringLiteralDfa6_2(active0, 0x400000000000L);
             default:
@@ -615,8 +604,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_2(5, active0);
             return 6;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 99 :
                 return jjMoveStringLiteralDfa7_2(active0, 0x400000000000L);
             default:
@@ -634,8 +622,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_2(6, active0);
             return 7;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 101 :
                 return jjMoveStringLiteralDfa8_2(active0, 0x400000000000L);
             default:
@@ -653,8 +640,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_2(7, active0);
             return 8;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 111 :
                 return jjMoveStringLiteralDfa9_2(active0, 0x400000000000L);
             default:
@@ -672,8 +658,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_2(8, active0);
             return 9;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 102 :
                 if ((active0 & 0x400000000000L) != 0L) return jjStartNfaWithStates_2(9, 46, 6);
                 break;
@@ -719,8 +704,7 @@ public class ELParserTokenManager implements ELParserConstants {
             if (curChar < 64) {
                 long l = 1L << curChar;
                 do {
-                    switch (jjstateSet[--i])
-                    {
+                    switch (jjstateSet[--i]) {
                         case 0 :
                             if ((0x3ff000000000000L & l) != 0L) {
                                 if (kind > 11) kind = 11;
@@ -843,8 +827,7 @@ public class ELParserTokenManager implements ELParserConstants {
             else if (curChar < 128) {
                 long l = 1L << (curChar & 077);
                 do {
-                    switch (jjstateSet[--i])
-                    {
+                    switch (jjstateSet[--i]) {
                         case 0 :
                         case 6 :
                             if ((0x7fffffe87fffffeL & l) == 0L) break;
@@ -906,8 +889,7 @@ public class ELParserTokenManager implements ELParserConstants {
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
                 do {
-                    switch (jjstateSet[--i])
-                    {
+                    switch (jjstateSet[--i]) {
                         case 0 :
                         case 6 :
                             if (!jjCanMove_1(hiByte, i1, i2, l1, l2)) break;
@@ -952,8 +934,7 @@ public class ELParserTokenManager implements ELParserConstants {
     }
 
     private final int jjStopStringLiteralDfa_1(int pos, long active0) {
-        switch (pos)
-        {
+        switch (pos) {
             case 0 :
                 if ((active0 & 0x80000L) != 0L) return 1;
                 if ((active0 & 0x50755550070000L) != 0L) {
@@ -1031,8 +1012,7 @@ public class ELParserTokenManager implements ELParserConstants {
     }
 
     private int jjMoveStringLiteralDfa0_1() {
-        switch (curChar)
-        {
+        switch (curChar) {
             case 33 :
                 jjmatchedKind = 39;
                 return jjMoveStringLiteralDfa1_1(0x2000000000L);
@@ -1118,8 +1098,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_1(0, active0);
             return 1;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 38 :
                 if ((active0 & 0x20000000000L) != 0L) return jjStopAtPos(1, 41);
                 break;
@@ -1178,8 +1157,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_1(1, active0);
             return 2;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 100 :
                 if ((active0 & 0x40000000000L) != 0L) return jjStartNfaWithStates_1(2, 42, 6);
                 else if ((active0 & 0x40000000000000L) != 0L) return jjStartNfaWithStates_1(2, 54, 6);
@@ -1213,8 +1191,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_1(2, active0);
             return 3;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 101 :
                 if ((active0 & 0x10000L) != 0L) return jjStartNfaWithStates_1(3, 16, 6);
                 break;
@@ -1240,8 +1217,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_1(3, active0);
             return 4;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 97 :
                 return jjMoveStringLiteralDfa5_1(active0, 0x400000000000L);
             case 101 :
@@ -1265,8 +1241,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_1(4, active0);
             return 5;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 110 :
                 return jjMoveStringLiteralDfa6_1(active0, 0x400000000000L);
             default:
@@ -1284,8 +1259,7 @@ public class ELParserTokenManager implements ELParserConstants {
             jjStopStringLiteralDfa_1(5, active0);
             return 6;
         }
-        switch (curChar)
-        {
+        switch (curChar) {
             case 99 :
                 return jjMoveStringLiteralDfa7_1(active0, 0x400000000000L);
             default:
@@ -1368,8 +1342,7 @@ public class ELParserTokenManager implements ELParserConstants {
             if (curChar < 64) {
                 long l = 1L << curChar;
                 do {
-                    switch (jjstateSet[--i])
-                    {
+                    switch (jjstateSet[--i]) {
                         case 0 :
                             if ((0x3ff000000000000L & l) != 0L) {
                                 if (kind > 11) kind = 11;
@@ -1492,8 +1465,7 @@ public class ELParserTokenManager implements ELParserConstants {
             else if (curChar < 128) {
                 long l = 1L << (curChar & 077);
                 do {
-                    switch (jjstateSet[--i])
-                    {
+                    switch (jjstateSet[--i]) {
                         case 0 :
                         case 6 :
                             if ((0x7fffffe87fffffeL & l) == 0L) break;
@@ -1555,8 +1527,7 @@ public class ELParserTokenManager implements ELParserConstants {
                 int i2 = (curChar & 0xff) >> 6;
                 long l2 = 1L << (curChar & 077);
                 do {
-                    switch (jjstateSet[--i])
-                    {
+                    switch (jjstateSet[--i]) {
                         case 0 :
                         case 6 :
                             if (!jjCanMove_1(hiByte, i1, i2, l1, l2)) break;
@@ -1616,8 +1587,7 @@ public class ELParserTokenManager implements ELParserConstants {
     }
 
     private static final boolean jjCanMove_1(int hiByte, int i1, int i2, long l1, long l2) {
-        switch (hiByte)
-        {
+        switch (hiByte) {
             case 0 :
                 return ((jjbitVec4[i2] & l2) != 0L);
             case 48 :
@@ -1698,8 +1668,7 @@ public class ELParserTokenManager implements ELParserConstants {
             }
             image.setLength(0);
 
-            switch (curLexState)
-            {
+            switch (curLexState) {
                 case 0 :
                     jjmatchedKind = 0x7fffffff;
                     jjmatchedPos = 0;
@@ -1779,8 +1748,7 @@ public class ELParserTokenManager implements ELParserConstants {
     }
 
     void TokenLexicalActions(Token matchedToken) {
-        switch (jjmatchedKind)
-        {
+        switch (jjmatchedKind) {
             case 2 :
                 image.append(jjstrLiteralImages[2]);
                 stack.push(DEFAULT);

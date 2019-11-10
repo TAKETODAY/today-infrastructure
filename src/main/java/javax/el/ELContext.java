@@ -480,7 +480,8 @@ public abstract class ELContext {
                     return res;
                 }
             }
-        } finally {
+        }
+        finally {
             setPropertyResolved(propertyResolvedSave);
         }
 

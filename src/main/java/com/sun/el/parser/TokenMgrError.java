@@ -80,8 +80,7 @@ public class TokenMgrError extends Error {
         StringBuffer retval = new StringBuffer();
         char ch;
         for (int i = 0; i < str.length(); i++) {
-            switch (str.charAt(i))
-            {
+            switch (str.charAt(i)) {
                 case 0 :
                     continue;
                 case '\b' :
@@ -133,7 +132,7 @@ public class TokenMgrError extends Error {
      */
     protected static String LexicalError(boolean EOFSeen, int lexState, int errorLine, int errorColumn, String errorAfter, char curChar) {
         return ("Lexical error at line " + errorLine + ", column " + errorColumn + ".  Encountered: " + (EOFSeen ? "<EOF> "
-                : ("\"" + addEscapes(String.valueOf(curChar)) + "\"") + " (" + (int) curChar + "), ") + "after : \"" + 
+                : ("\"" + addEscapes(String.valueOf(curChar)) + "\"") + " (" + (int) curChar + "), ") + "after : \"" +
                 addEscapes(errorAfter)
                 + "\"");
     }

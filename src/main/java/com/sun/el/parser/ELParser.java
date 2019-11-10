@@ -154,8 +154,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         try {
 
             label_1: while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                {
+                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                     case LITERAL_EXPRESSION :
                     case START_DYNAMIC_EXPRESSION :
                     case START_DEFERRED_EXPRESSION :;
@@ -164,8 +163,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                         jj_la1[0] = jj_gen;
                         break label_1;
                 }
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                {
+                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                     case START_DEFERRED_EXPRESSION :
                         DeferredExpression();
                         break;
@@ -195,7 +193,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 jjtree.popNode();
             }
             throw jjte000;
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -216,7 +215,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtn000.setImage(t.image);
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -245,7 +245,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 jjtree.popNode();
             }
             throw jjte000;
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -274,7 +275,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 jjtree.popNode();
             }
             throw jjte000;
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -294,8 +296,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
     final public void SemiColon() throws ParseException {
         Assignment();
         label_2: while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case SEMICOLON :;
                     break;
                 default:
@@ -318,7 +319,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     jjtree.popNode();
                 }
                 throw jjte001;
-            } finally {
+            }
+            finally {
                 if (jjtc001) {
                     jjtree.closeNodeScope(jjtn001, 2);
                 }
@@ -335,8 +337,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             LambdaExpression();
         }
         else {
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case START_MAP :
                 case INTEGER_LITERAL :
                 case FLOATING_POINT_LITERAL :
@@ -352,8 +353,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 case MINUS :
                 case IDENTIFIER :
                     Choice();
-                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                    {
+                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                         case ASSIGN :
                             jj_consume_token(ASSIGN);
                             AstAssign jjtn001 = new AstAssign(JJTASSIGN);
@@ -371,7 +371,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                                     jjtree.popNode();
                                 }
                                 throw jjte001;
-                            } finally {
+                            }
+                            finally {
                                 if (jjtc001) {
                                     jjtree.closeNodeScope(jjtn001, 2);
                                 }
@@ -404,8 +405,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 LambdaExpression();
             }
             else {
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                {
+                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                     case START_MAP :
                     case INTEGER_LITERAL :
                     case FLOATING_POINT_LITERAL :
@@ -438,7 +438,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 jjtree.popNode();
             }
             throw jjte000;
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -451,20 +452,17 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         boolean jjtc000 = true;
         jjtree.openNodeScope(jjtn000);
         try {
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case IDENTIFIER :
                     Identifier();
                     break;
                 case LPAREN :
                     jj_consume_token(LPAREN);
-                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                    {
+                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                         case IDENTIFIER :
                             Identifier();
                             label_3: while (true) {
-                                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                                {
+                                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                                     case COMMA :;
                                         break;
                                     default:
@@ -495,7 +493,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 jjtree.popNode();
             }
             throw jjte000;
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -507,8 +506,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      */
     final public void Choice() throws ParseException {
         Or();
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-        {
+        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case QUESTIONMARK :
                 jj_consume_token(QUESTIONMARK);
                 Choice();
@@ -528,7 +526,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                         jjtree.popNode();
                     }
                     throw jjte001;
-                } finally {
+                }
+                finally {
                     if (jjtc001) {
                         jjtree.closeNodeScope(jjtn001, 3);
                     }
@@ -545,8 +544,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
     final public void Or() throws ParseException {
         And();
         label_4: while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case OR0 :
                 case OR1 :;
                     break;
@@ -554,8 +552,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     jj_la1[10] = jj_gen;
                     break label_4;
             }
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case OR0 :
                     jj_consume_token(OR0);
                     break;
@@ -582,7 +579,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     jjtree.popNode();
                 }
                 throw jjte001;
-            } finally {
+            }
+            finally {
                 if (jjtc001) {
                     jjtree.closeNodeScope(jjtn001, 2);
                 }
@@ -596,8 +594,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
     final public void And() throws ParseException {
         Equality();
         label_5: while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case AND0 :
                 case AND1 :;
                     break;
@@ -605,8 +602,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     jj_la1[12] = jj_gen;
                     break label_5;
             }
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case AND0 :
                     jj_consume_token(AND0);
                     break;
@@ -633,7 +629,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     jjtree.popNode();
                 }
                 throw jjte001;
-            } finally {
+            }
+            finally {
                 if (jjtc001) {
                     jjtree.closeNodeScope(jjtn001, 2);
                 }
@@ -647,8 +644,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
     final public void Equality() throws ParseException {
         Compare();
         label_6: while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case EQ0 :
                 case EQ1 :
                 case NE0 :
@@ -658,12 +654,10 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     jj_la1[14] = jj_gen;
                     break label_6;
             }
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case EQ0 :
                 case EQ1 :
-                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                    {
+                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                         case EQ0 :
                             jj_consume_token(EQ0);
                             break;
@@ -690,7 +684,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                             jjtree.popNode();
                         }
                         throw jjte001;
-                    } finally {
+                    }
+                    finally {
                         if (jjtc001) {
                             jjtree.closeNodeScope(jjtn001, 2);
                         }
@@ -698,8 +693,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     break;
                 case NE0 :
                 case NE1 :
-                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                    {
+                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                         case NE0 :
                             jj_consume_token(NE0);
                             break;
@@ -727,7 +721,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                         }
 
                         throw jjte002;
-                    } finally {
+                    }
+                    finally {
                         if (jjtc002) {
                             jjtree.closeNodeScope(jjtn002, 2);
                         }
@@ -747,8 +742,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
     final public void Compare() throws ParseException {
         Concatenation();
         label_7: while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case GT0 :
                 case GT1 :
                 case LT0 :
@@ -762,12 +756,10 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     jj_la1[18] = jj_gen;
                     break label_7;
             }
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case LT0 :
                 case LT1 :
-                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                    {
+                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                         case LT0 :
                             jj_consume_token(LT0);
                             break;
@@ -795,7 +787,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                         }
 
                         throw jjte001;
-                    } finally {
+                    }
+                    finally {
                         if (jjtc001) {
                             jjtree.closeNodeScope(jjtn001, 2);
                         }
@@ -803,8 +796,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     break;
                 case GT0 :
                 case GT1 :
-                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                    {
+                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                         case GT0 :
                             jj_consume_token(GT0);
                             break;
@@ -831,7 +823,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                             jjtree.popNode();
                         }
                         throw jjte002;
-                    } finally {
+                    }
+                    finally {
                         if (jjtc002) {
                             jjtree.closeNodeScope(jjtn002, 2);
                         }
@@ -839,8 +832,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     break;
                 case LE0 :
                 case LE1 :
-                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                    {
+                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                         case LE0 :
                             jj_consume_token(LE0);
                             break;
@@ -867,7 +859,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                             jjtree.popNode();
                         }
                         throw jjte003;
-                    } finally {
+                    }
+                    finally {
                         if (jjtc003) {
                             jjtree.closeNodeScope(jjtn003, 2);
                         }
@@ -875,8 +868,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     break;
                 case GE0 :
                 case GE1 :
-                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                    {
+                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                         case GE0 :
                             jj_consume_token(GE0);
                             break;
@@ -903,7 +895,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                             jjtree.popNode();
                         }
                         throw jjte004;
-                    } finally {
+                    }
+                    finally {
                         if (jjtc004) {
                             jjtree.closeNodeScope(jjtn004, 2);
                         }
@@ -923,8 +916,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
     final public void Concatenation() throws ParseException {
         Math();
         label_8: while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case CONCAT :;
                     break;
                 default:
@@ -948,7 +940,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 }
 
                 throw jjte001;
-            } finally {
+            }
+            finally {
                 if (jjtc001) {
                     jjtree.closeNodeScope(jjtn001, 2);
                 }
@@ -962,8 +955,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
     final public void Math() throws ParseException {
         Multiplication();
         label_9: while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case PLUS :
                 case MINUS :;
                     break;
@@ -971,8 +963,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     jj_la1[25] = jj_gen;
                     break label_9;
             }
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case PLUS :
                     jj_consume_token(PLUS);
                     AstPlus jjtn001 = new AstPlus(JJTPLUS);
@@ -990,7 +981,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                             jjtree.popNode();
                         }
                         throw jjte001;
-                    } finally {
+                    }
+                    finally {
                         if (jjtc001) {
                             jjtree.closeNodeScope(jjtn001, 2);
                         }
@@ -1014,7 +1006,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                         }
 
                         throw jjte002;
-                    } finally {
+                    }
+                    finally {
                         if (jjtc002) {
                             jjtree.closeNodeScope(jjtn002, 2);
                         }
@@ -1034,8 +1027,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
     final public void Multiplication() throws ParseException {
         Unary();
         label_10: while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case MULT :
                 case DIV0 :
                 case DIV1 :
@@ -1046,8 +1038,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     jj_la1[27] = jj_gen;
                     break label_10;
             }
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case MULT :
                     jj_consume_token(MULT);
                     AstMult jjtn001 = new AstMult(JJTMULT);
@@ -1065,7 +1056,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                             jjtree.popNode();
                         }
                         throw jjte001;
-                    } finally {
+                    }
+                    finally {
                         if (jjtc001) {
                             jjtree.closeNodeScope(jjtn001, 2);
                         }
@@ -1073,8 +1065,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     break;
                 case DIV0 :
                 case DIV1 :
-                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                    {
+                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                         case DIV0 :
                             jj_consume_token(DIV0);
                             break;
@@ -1101,7 +1092,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                             jjtree.popNode();
                         }
                         throw jjte002;
-                    } finally {
+                    }
+                    finally {
                         if (jjtc002) {
                             jjtree.closeNodeScope(jjtn002, 2);
                         }
@@ -1109,8 +1101,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     break;
                 case MOD0 :
                 case MOD1 :
-                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                    {
+                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                         case MOD0 :
                             jj_consume_token(MOD0);
                             break;
@@ -1138,7 +1129,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                         }
 
                         throw jjte003;
-                    } finally {
+                    }
+                    finally {
                         if (jjtc003) {
                             jjtree.closeNodeScope(jjtn003, 2);
                         }
@@ -1156,8 +1148,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      * Unary For '-' '!' 'not' 'empty', then Value
      */
     final public void Unary() throws ParseException {
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-        {
+        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case MINUS :
                 jj_consume_token(MINUS);
                 AstNegative jjtn001 = new AstNegative(JJTNEGATIVE);
@@ -1177,7 +1168,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
 
                     throw jjte001;
 
-                } finally {
+                }
+                finally {
                     if (jjtc001) {
                         jjtree.closeNodeScope(jjtn001, true);
                     }
@@ -1185,8 +1177,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 break;
             case NOT0 :
             case NOT1 :
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                {
+                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                     case NOT0 :
                         jj_consume_token(NOT0);
                         break;
@@ -1213,7 +1204,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                         jjtree.popNode();
                     }
                     throw jjte002;
-                } finally {
+                }
+                finally {
                     if (jjtc002) {
                         jjtree.closeNodeScope(jjtn002, true);
                     }
@@ -1236,7 +1228,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                         jjtree.popNode();
                     }
                     throw jjte003;
-                } finally {
+                }
+                finally {
                     if (jjtc003) {
                         jjtree.closeNodeScope(jjtn003, true);
                     }
@@ -1271,8 +1264,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         try {
             ValuePrefix();
             label_11: while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                {
+                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                     case DOT :
                     case LBRACK :;
                         break;
@@ -1293,7 +1285,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             }
 
             throw jjte001;
-        } finally {
+        }
+        finally {
             if (jjtc001) {
                 jjtree.closeNodeScope(jjtn001, jjtree.nodeArity() > 1);
             }
@@ -1304,8 +1297,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      * ValuePrefix For Literals, Variables, and Functions
      */
     final public void ValuePrefix() throws ParseException {
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-        {
+        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case INTEGER_LITERAL :
             case FLOATING_POINT_LITERAL :
             case STRING_LITERAL :
@@ -1331,8 +1323,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      * ValueSuffix Either dot or bracket notation
      */
     final public void ValueSuffix() throws ParseException {
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-        {
+        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case DOT :
                 DotSuffix();
                 break;
@@ -1359,8 +1350,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             jj_consume_token(DOT);
             t = jj_consume_token(IDENTIFIER);
             jjtn000.setImage(t.image);
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case LPAREN :
                     MethodArguments();
                     break;
@@ -1378,7 +1368,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             }
 
             throw jjte000;
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -1397,8 +1388,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             jj_consume_token(LBRACK);
             Expression();
             jj_consume_token(RBRACK);
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case LPAREN :
                     MethodArguments();
                     break;
@@ -1416,7 +1406,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             }
 
             throw jjte000;
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -1433,8 +1424,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         jjtree.openNodeScope(jjtn000);
         try {
             jj_consume_token(LPAREN);
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case START_MAP :
                 case INTEGER_LITERAL :
                 case FLOATING_POINT_LITERAL :
@@ -1451,8 +1441,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 case IDENTIFIER :
                     Expression();
                     label_12: while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                        {
+                        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                             case COMMA :;
                                 break;
                             default:
@@ -1489,7 +1478,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             {
                 if (true) throw jjte000;
             }
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -1512,8 +1502,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 LambdaExpression();
             }
             else {
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                {
+                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                     case START_MAP :
                     case INTEGER_LITERAL :
                     case FLOATING_POINT_LITERAL :
@@ -1538,8 +1527,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             }
             jj_consume_token(RPAREN);
             label_13: while (true) {
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                {
+                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                     case LPAREN :;
                         break;
                     default:
@@ -1570,7 +1558,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             {
                 if (true) throw jjte000;
             }
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -1585,8 +1574,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             LambdaExpressionOrCall();
         }
         else {
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case LPAREN :
                     jj_consume_token(LPAREN);
                     Expression();
@@ -1598,8 +1586,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                         Function();
                     }
                     else {
-                        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                        {
+                        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                             case IDENTIFIER :
                                 Identifier();
                                 break;
@@ -1626,8 +1613,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         jjtree.openNodeScope(jjtn000);
         try {
             jj_consume_token(START_MAP);
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case START_MAP :
                 case INTEGER_LITERAL :
                 case FLOATING_POINT_LITERAL :
@@ -1644,8 +1630,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 case IDENTIFIER :
                     MapEntry();
                     label_14: while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                        {
+                        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                             case COMMA :;
                                 break;
                             default:
@@ -1682,7 +1667,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             {
                 if (true) throw jjte000;
             }
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -1696,8 +1682,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         jjtree.openNodeScope(jjtn000);
         try {
             Expression();
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case COLON :
                     jj_consume_token(COLON);
                     Expression();
@@ -1727,7 +1712,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             {
                 if (true) throw jjte000;
             }
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -1741,8 +1727,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         jjtree.openNodeScope(jjtn000);
         try {
             jj_consume_token(LBRACK);
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case START_MAP :
                 case INTEGER_LITERAL :
                 case FLOATING_POINT_LITERAL :
@@ -1759,8 +1744,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 case IDENTIFIER :
                     Expression();
                     label_15: while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                        {
+                        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                             case COMMA :;
                                 break;
                             default:
@@ -1797,7 +1781,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             {
                 if (true) throw jjte000;
             }
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -1818,7 +1803,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtn000.setImage(t.image);
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -1837,8 +1823,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         Token t1 = null;
         try {
             t0 = jj_consume_token(IDENTIFIER);
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-            {
+            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case COLON :
                     jj_consume_token(COLON);
                     t1 = jj_consume_token(IDENTIFIER);
@@ -1855,8 +1840,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             }
             label_16: while (true) {
                 MethodArguments();
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-                {
+                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                     case LPAREN :;
                         break;
                     default:
@@ -1874,7 +1858,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 jjtree.popNode();
             }
             throw jjte000;
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -1885,8 +1870,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      * Literal Reserved Keywords
      */
     final public void Literal() throws ParseException {
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-        {
+        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case TRUE :
             case FALSE :
                 Boolean();
@@ -1914,15 +1898,15 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      * Boolean For 'true' 'false'
      */
     final public void Boolean() throws ParseException {
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk)
-        {
+        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case TRUE :
                 AstTrue jjtn001 = new AstTrue(JJTTRUE);
                 boolean jjtc001 = true;
                 jjtree.openNodeScope(jjtn001);
                 try {
                     jj_consume_token(TRUE);
-                } finally {
+                }
+                finally {
                     if (jjtc001) {
                         jjtree.closeNodeScope(jjtn001, true);
                     }
@@ -1934,7 +1918,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 jjtree.openNodeScope(jjtn002);
                 try {
                     jj_consume_token(FALSE);
-                } finally {
+                }
+                finally {
                     if (jjtc002) {
                         jjtree.closeNodeScope(jjtn002, true);
                     }
@@ -1961,7 +1946,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtn000.setImage(t.image);
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -1982,7 +1968,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtn000.setImage(t.image);
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -2003,7 +1990,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             jjtree.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtn000.setImage(t.image);
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -2020,7 +2008,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         jjtree.openNodeScope(jjtn000);
         try {
             jj_consume_token(NULL);
-        } finally {
+        }
+        finally {
             if (jjtc000) {
                 jjtree.closeNodeScope(jjtn000, true);
             }
@@ -2035,7 +2024,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         }
         catch (LookaheadSuccess ls) {
             return true;
-        } finally {
+        }
+        finally {
             jj_save(0, xla);
         }
     }
@@ -2048,7 +2038,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         }
         catch (LookaheadSuccess ls) {
             return true;
-        } finally {
+        }
+        finally {
             jj_save(1, xla);
         }
     }
@@ -2061,7 +2052,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         }
         catch (LookaheadSuccess ls) {
             return true;
-        } finally {
+        }
+        finally {
             jj_save(2, xla);
         }
     }
@@ -2074,7 +2066,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         }
         catch (LookaheadSuccess ls) {
             return true;
-        } finally {
+        }
+        finally {
             jj_save(3, xla);
         }
     }
@@ -2087,7 +2080,8 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         }
         catch (LookaheadSuccess ls) {
             return true;
-        } finally {
+        }
+        finally {
             jj_save(4, xla);
         }
     }
@@ -3017,8 +3011,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     if (p.gen > jj_gen) {
                         jj_la = p.arg;
                         jj_lastpos = jj_scanpos = p.first;
-                        switch (i)
-                        {
+                        switch (i) {
                             case 0 :
                                 jj_3_1();
                                 break;
