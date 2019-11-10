@@ -60,6 +60,8 @@ import javax.el.PropertyNotFoundException;
 
 import com.sun.el.lang.ELSupport;
 
+import cn.taketoday.context.Constant;
+
 /**
  * Utilities for Managing Serialization and Reflection
  * 
@@ -81,7 +83,7 @@ public abstract class ReflectionUtil {
 
     @SuppressWarnings("rawtypes")
     public static Class forName(String name) throws ClassNotFoundException {
-        if (null == name || "".equals(name)) {
+        if (null == name || Constant.BLANK.equals(name)) {
             return null;
         }
         Class c = forNamePrimitive(name);
@@ -155,8 +157,7 @@ public abstract class ReflectionUtil {
                                                            Object property) throws ELException, PropertyNotFoundException {
         String name = ELSupport.coerceToString(property);
         try {
-            PropertyDescriptor[] desc = Introspector.getBeanInfo(
-                                                                 base.getClass()).getPropertyDescriptors();
+            PropertyDescriptor[] desc = Introspector.getBeanInfo(base.getClass()).getPropertyDescriptors();
             for (int i = 0; i < desc.length; i++) {
                 if (desc[i].getName().equals(name)) {
                     return desc[i];
@@ -179,10 +180,7 @@ public abstract class ReflectionUtil {
         try {
             return m.invoke(base, parameters);
         }
-        catch (IllegalAccessException iae) {
-            throw new ELException(iae);
-        }
-        catch (IllegalArgumentException iae) {
+        catch (IllegalAccessException | IllegalArgumentException iae) {
             throw new ELException(iae);
         }
         catch (InvocationTargetException ite) {
@@ -198,8 +196,7 @@ public abstract class ReflectionUtil {
                                     Class<?>[] paramTypes, Object[] paramValues) {
 
         if (clazz == null || methodName == null) {
-            throw new MethodNotFoundException(MessageFactory.get(
-                                                                 "error.method.notfound", clazz, methodName, paramString(paramTypes)));
+            throw new MethodNotFoundException(MessageFactory.get("error.method.notfound", clazz, methodName, paramString(paramTypes)));
         }
 
         if (paramTypes == null) {
@@ -210,8 +207,7 @@ public abstract class ReflectionUtil {
 
         List<Wrapper> wrappers = Wrapper.wrap(methods, methodName);
 
-        Wrapper result = findWrapper(
-                                     clazz, wrappers, methodName, paramTypes, paramValues);
+        Wrapper result = findWrapper(clazz, wrappers, methodName, paramTypes, paramValues);
 
         if (result == null) {
             return null;
@@ -322,8 +318,7 @@ public abstract class ReflectionUtil {
 
         }
 
-        String errorMsg = MessageFactory.get(
-                                             "error.method.ambiguous", clazz, name, paramString(paramTypes));
+        String errorMsg = MessageFactory.get("error.method.ambiguous", clazz, name, paramString(paramTypes));
         if (!assignableCandidates.isEmpty()) {
             return findMostSpecificWrapper(assignableCandidates, paramTypes, false, errorMsg);
         }
@@ -334,8 +329,7 @@ public abstract class ReflectionUtil {
             return findMostSpecificWrapper(varArgsCandidates, paramTypes, true, errorMsg);
         }
         else {
-            throw new MethodNotFoundException(MessageFactory.get(
-                                                                 "error.method.notfound", clazz, name, paramString(paramTypes)));
+            throw new MethodNotFoundException(MessageFactory.get("error.method.notfound", clazz, name, paramString(paramTypes)));
         }
 
     }

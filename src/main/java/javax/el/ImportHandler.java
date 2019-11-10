@@ -53,10 +53,9 @@ import java.util.Map;
  * imported can be used without its package name. The name is resolved to its
  * full (package and class) name at evaluation time.
  */
-public enum ImportHandler {
+public class ImportHandler {
 
-    INSTANCE;
-
+    private static final ImportHandler INSTANCE = new ImportHandler();
     private final Map<String, Class<?>> classMap = new HashMap<>();
     private final Map<String, String> classNameMap = new HashMap<>();
     private final Map<String, String> staticNameMap = new HashMap<>();

@@ -50,6 +50,9 @@ import javax.el.PropertyNotFoundException;
 
 import com.sun.el.util.MessageFactory;
 
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.utils.NumberUtils;
+
 /**
  * A helper class that implements the EL Specification
  * 
@@ -175,7 +178,7 @@ public abstract class ELSupport {
      */
     public final static Boolean coerceToBoolean(final Object obj) throws IllegalArgumentException {
 
-        if (obj == null || "".equals(obj)) {
+        if (obj == null || Constant.BLANK.equals(obj)) {
             return Boolean.FALSE;
         }
         if (obj instanceof Boolean) {
@@ -194,7 +197,7 @@ public abstract class ELSupport {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public final static Enum coerceToEnum(final Object obj, Class type) {
 
-        if (obj == null || "".equals(obj)) {
+        if (obj == null || Constant.BLANK.equals(obj)) {
             return null;
         }
         if (obj.getClass().isEnum()) {
@@ -205,7 +208,7 @@ public abstract class ELSupport {
 
     public final static Character coerceToCharacter(final Object obj)
             throws IllegalArgumentException {
-        if (obj == null || "".equals(obj)) {
+        if (obj == null || Constant.BLANK.equals(obj)) {
             return Character.valueOf((char) 0);
         }
         if (obj instanceof String) {
@@ -286,7 +289,7 @@ public abstract class ELSupport {
     }
 
     public final static Number coerceToNumber(final Object obj, final Class<?> type) throws IllegalArgumentException {
-        if (obj == null || "".equals(obj)) {
+        if (obj == null || Constant.BLANK.equals(obj)) {
             return coerceToNumber(ZERO, type);
         }
 
@@ -345,7 +348,7 @@ public abstract class ELSupport {
      */
     public final static String coerceToString(final Object obj) {
         if (obj == null) {
-            return "";
+            return Constant.BLANK;
         }
         else if (obj instanceof String) {
             return (String) obj;
@@ -358,10 +361,11 @@ public abstract class ELSupport {
 
     public final static void checkType(final Object obj, final Class<?> type)
             throws IllegalArgumentException {
+
         if (String.class.equals(type)) {
             coerceToString(obj);
         }
-        if (ELArithmetic.isNumberType(type)) {
+        if (NumberUtils.isNumber(type)) {
             coerceToNumber(obj, type);
         }
         if (Character.class.equals(type) || Character.TYPE == type) {
@@ -394,7 +398,7 @@ public abstract class ELSupport {
         if (String.class.equals(type)) {
             return coerceToString(obj);
         }
-        if (ELArithmetic.isNumberType(type)) {
+        if (NumberUtils.isNumber(type)) {
             return coerceToNumber(obj, type);
         }
         if (Character.class.equals(type) || Character.TYPE == type) {
@@ -412,7 +416,9 @@ public abstract class ELSupport {
         }
 
         if (obj instanceof String) {
-            if ("".equals(obj)) return null;
+            if (Constant.BLANK.equals(obj)) {
+                return null;
+            }
             PropertyEditor editor = PropertyEditorManager.findEditor(type);
             if (editor != null) {
                 editor.setAsText((String) obj);
@@ -490,11 +496,11 @@ public abstract class ELSupport {
 
     public final static Number toNumber(final String value) {
         try {
-            return Integer.valueOf(Integer.parseInt(value));
+            return Integer.valueOf(value);
         }
         catch (NumberFormatException e0) {
             try {
-                return Long.valueOf(Long.parseLong(value));
+                return Long.valueOf(value);
             }
             catch (NumberFormatException e1) {
                 return new BigInteger(value);

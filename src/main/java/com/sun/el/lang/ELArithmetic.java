@@ -45,6 +45,9 @@ import java.math.BigInteger;
 
 import com.sun.el.util.MessageFactory;
 
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.utils.NumberUtils;
+
 /**
  * A helper class of Arithmetic defined by the EL Specification
  * 
@@ -106,7 +109,7 @@ public abstract class ELArithmetic {
         }
 
         protected Number divide(Number num0, Number num1) {
-            return (new BigDecimal((BigInteger) num0)).divide(new BigDecimal((BigInteger) num1), BigDecimal.ROUND_HALF_UP);
+            return new BigDecimal((BigInteger) num0).divide(new BigDecimal((BigInteger) num1), BigDecimal.ROUND_HALF_UP);
         }
 
         protected Number multiply(Number num0, Number num1) {
@@ -134,7 +137,7 @@ public abstract class ELArithmetic {
                 return ((BigDecimal) num0).add(new BigDecimal(num1.doubleValue()));
             }
             else if (num1 instanceof BigDecimal) {
-                return ((new BigDecimal(num0.doubleValue()).add((BigDecimal) num1)));
+                return new BigDecimal(num0.doubleValue()).add((BigDecimal) num1);
             }
             return num0.doubleValue() + num1.doubleValue();
         }
@@ -330,22 +333,9 @@ public abstract class ELArithmetic {
     }
 
     public final static boolean isNumber(final Object obj) {
-        return (obj != null && isNumberType(obj.getClass()));
+        return (obj != null && NumberUtils.isNumber(obj.getClass()));
     }
 
-    public final static boolean isNumberType(final Class<?> type) {
-        return type == Long.TYPE //
-               || type == Double.TYPE //
-               || type == Byte.TYPE //
-               || type == Short.TYPE //
-               || type == Integer.TYPE //
-               || type == Float.TYPE //
-               || Number.class.isAssignableFrom(type);
-    }
-
-    /**
-     * 
-     */
     protected ELArithmetic() {
         super();
     }
@@ -369,7 +359,7 @@ public abstract class ELArithmetic {
         if (obj instanceof String) {
             return coerce((String) obj);
         }
-        if (obj == null || "".equals(obj)) {
+        if (obj == null || Constant.BLANK.equals(obj)) {
             return coerce(ZERO);
         }
 
