@@ -225,7 +225,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
         if (beanClass == null) {
             throw new ConfigurationException("Bean Class must applied before invoke this method");
         }
-        return setInitMethods(ContextUtils.resolveInitMethod(beanClass, initMethods));
+        return setInitMethods(ContextUtils.resolveInitMethod(initMethods, beanClass));
     }
 
     @Override

@@ -445,7 +445,7 @@ public abstract class ContextUtils {
      * @since 2.1.3
      */
     public static void resolveInitMethod(BeanDefinition beanDefinition, String... initMethods) {
-        beanDefinition.setInitMethods(resolveInitMethod(beanDefinition.getBeanClass(), initMethods));
+        beanDefinition.setInitMethods(resolveInitMethod(initMethods, beanDefinition.getBeanClass()));
     }
 
     /**
@@ -456,6 +456,17 @@ public abstract class ContextUtils {
      * @since 2.1.2
      */
     public static Method[] resolveInitMethod(Class<?> beanClass, String... initMethods) {
+        return resolveInitMethod(initMethods, beanClass);
+    }
+
+    /**
+     * @param beanClass
+     *            Bean class
+     * @param initMethods
+     *            Init Method s
+     * @since 2.1.7
+     */
+    public static Method[] resolveInitMethod(String[] initMethods, Class<?> beanClass) {
 
         if (initMethods == null) {
             initMethods = Constant.EMPTY_STRING_ARRAY;
@@ -865,7 +876,7 @@ public abstract class ContextUtils {
             beanDefinition.setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
         }
         if (beanDefinition.getInitMethods() == null) {
-            beanDefinition.setInitMethods(resolveInitMethod(beanDefinition.getBeanClass()));
+            beanDefinition.setInitMethods(resolveInitMethod(null, beanDefinition.getBeanClass()));
         }
         if (beanDefinition.getPropertyValues() == null) {
             beanDefinition.setPropertyValues(resolvePropertyValue(beanDefinition.getBeanClass()));
@@ -965,12 +976,12 @@ public abstract class ContextUtils {
 
         if (attributes == null) {
             beanDefinition.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)//
-                    .setInitMethods(ContextUtils.resolveInitMethod(beanClass));//
+                    .setInitMethods(ContextUtils.resolveInitMethod(null, beanClass));//
         }
         else {
             beanDefinition.setScope(attributes.getEnum(Constant.SCOPE))//
                     .setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))//
-                    .setInitMethods(ContextUtils.resolveInitMethod(beanClass, attributes.getStringArray(Constant.INIT_METHODS)));
+                    .setInitMethods(ContextUtils.resolveInitMethod(attributes.getStringArray(Constant.INIT_METHODS), beanClass));
         }
 
         beanDefinition.setPropertyValues(ContextUtils.resolvePropertyValue(beanClass));

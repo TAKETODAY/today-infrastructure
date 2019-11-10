@@ -235,7 +235,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
                 beanDefinition.setScope(scope);
                 beanDefinition.setDestroyMethods(destroyMethods);
-                beanDefinition.setInitMethods(resolveInitMethod(returnType, initMethods));
+                beanDefinition.setInitMethods(resolveInitMethod(initMethods, returnType));
                 beanDefinition.setPropertyValues(ContextUtils.resolvePropertyValue(returnType));
 
                 beanDefinition.setDeclaringName(declaringBeanName)//
@@ -313,7 +313,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
         beanDefinition.setScope(missingBean.scope())//
                 .setDestroyMethods(missingBean.destroyMethods())//
-                .setInitMethods(resolveInitMethod(beanClass, missingBean.initMethods()))//
+                .setInitMethods(resolveInitMethod(missingBean.initMethods(), beanClass))//
                 .setPropertyValues(ContextUtils.resolvePropertyValue(beanClass));
 
         ContextUtils.resolveProps(beanDefinition, getApplicationContext().getEnvironment());
