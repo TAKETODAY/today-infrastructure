@@ -72,8 +72,9 @@ public abstract class SqlSessionUtils {
 
         SqlSession session = sessionHolder(executorType, (SqlSessionHolder) metaData.getResource(sessionFactory));
         if (session == null) {
-            log.debug("Creating a new SqlSession");
-
+            if (debugEnabled) {
+                log.debug("Creating a new SqlSession");
+            }
             session = sessionFactory.openSession(executorType);
             registerSessionHolder(metaData, sessionFactory, executorType, session);
         }
@@ -156,12 +157,15 @@ public abstract class SqlSessionUtils {
     public static void closeSqlSession(final SynchronizationMetaData metaData,
                                        final SqlSession session, final SqlSessionFactory sessionFactory) {
 
-        SqlSessionHolder holder = (SqlSessionHolder) metaData.getResource(sessionFactory);
-        if ((holder != null) && (holder.getSqlSession() == session)) {
-            if (debugEnabled) {
-                log.debug("Releasing transactional SqlSession [{}]", session);
+        final Object resource = metaData.getResource(sessionFactory);
+        if (resource instanceof SqlSessionHolder) {
+            final SqlSessionHolder holder = (SqlSessionHolder) resource;
+            if (holder.getSqlSession() == session) {
+                if (debugEnabled) {
+                    log.debug("Releasing transactional SqlSession [{}]", session);
+                }
+                holder.released();
             }
-            holder.released();
         }
         else {
             if (debugEnabled) {
@@ -171,7 +175,7 @@ public abstract class SqlSessionUtils {
         }
     }
 
-    public static boolean isSqlSessionTransactional(SqlSession session, SqlSessionFactory sessionFactory) {
+    public static boolean isSqlSessionTransactional(final SqlSession session, final SqlSessionFactory sessionFactory) {
         return isSqlSessionTransactional(SynchronizationManager.getMetaData(), session, sessionFactory);
     }
 

@@ -70,7 +70,7 @@ public abstract class DataSourceUtils {
     public static Connection getConnection(final SynchronizationMetaData metaData,
                                            final DataSource dataSource) throws SQLException {
         try {
-            return doGetConnection(dataSource);
+            return doGetConnection(metaData, dataSource);
         }
         catch (SQLException ex) {
             throw new CannotGetJdbcConnectionException("Failed to obtain JDBC Connection", ex);

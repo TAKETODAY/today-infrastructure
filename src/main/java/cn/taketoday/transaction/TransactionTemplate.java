@@ -44,7 +44,7 @@ public class TransactionTemplate extends DefaultTransactionDefinition implements
     /**
      * Return the transaction management strategy to be used.
      */
-    public TransactionManager getTransactionManager() {
+    public final TransactionManager getTransactionManager() {
         return this.transactionManager;
     }
 
@@ -89,8 +89,9 @@ public class TransactionTemplate extends DefaultTransactionDefinition implements
         try {
             getTransactionManager().rollback(status);
         }
-        catch (TransactionException ex2) {
+        catch (TransactionSystemException ex2) {
             log.error("Application exception overridden by rollback exception", ex);
+            ex2.initApplicationException(ex);
             throw ex2;
         }
         catch (RuntimeException | Error ex2) {

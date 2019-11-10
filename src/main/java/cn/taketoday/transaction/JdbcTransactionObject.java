@@ -24,8 +24,6 @@ import java.sql.Savepoint;
 
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author TODAY <br>
@@ -60,17 +58,15 @@ public abstract class JdbcTransactionObject implements TransactionObject, Savepo
         ConnectionHolder conHolder = getConnectionHolderForSavepoint();
         try {
             if (!conHolder.supportsSavepoints()) {
-                throw new TransactionNotSupportedException("Cannot create a nested transaction because savepoints are not supported by your JDBC driver");
+                throw new NestedTransactionNotSupportedException("Cannot create a nested transaction because savepoints are not supported by your JDBC driver");
             }
             if (conHolder.isRollbackOnly()) {
-                throw new TransactionException(//
-                                               "Cannot create savepoint for transaction which is already marked as rollback-only"//
-                );
+                throw new CannotCreateTransactionException("Cannot create savepoint for transaction which is already marked as rollback-only");
             }
             return conHolder.createSavepoint();
         }
         catch (SQLException ex) {
-            throw new TransactionException("Could not create JDBC savepoint", ex);
+            throw new CannotCreateTransactionException("Could not create JDBC savepoint", ex);
         }
     }
 
@@ -81,14 +77,13 @@ public abstract class JdbcTransactionObject implements TransactionObject, Savepo
      */
     @Override
     public void rollbackToSavepoint(Object savepoint) throws TransactionException {
-        ConnectionHolder conHolder = getConnectionHolderForSavepoint();
+        final ConnectionHolder conHolder = getConnectionHolderForSavepoint();
         try {
-
             conHolder.getConnection().rollback((Savepoint) savepoint);
             conHolder.resetRollbackOnly();
-        } //
+        }
         catch (Throwable ex) {
-            throw new TransactionException("Could not roll back to JDBC savepoint", ex);
+            throw new TransactionSystemException("Could not roll back to JDBC savepoint", ex);
         }
     }
 
@@ -99,7 +94,7 @@ public abstract class JdbcTransactionObject implements TransactionObject, Savepo
      */
     @Override
     public void releaseSavepoint(Object savepoint) throws TransactionException {
-        ConnectionHolder conHolder = getConnectionHolderForSavepoint();
+        final ConnectionHolder conHolder = getConnectionHolderForSavepoint();
         try {
             conHolder.getConnection().releaseSavepoint((Savepoint) savepoint);
         }
@@ -110,10 +105,10 @@ public abstract class JdbcTransactionObject implements TransactionObject, Savepo
 
     protected ConnectionHolder getConnectionHolderForSavepoint() throws TransactionException {
         if (!isSavepointAllowed()) {
-            throw new TransactionNotSupportedException("Transaction manager does not allow nested transactions");
+            throw new NestedTransactionNotSupportedException("Transaction manager does not allow nested transactions");
         }
         if (!hasConnectionHolder()) {
-            throw new TransactionException("Cannot create nested transaction when not exposing a JDBC transaction");
+            throw new CannotCreateTransactionException("Cannot create nested transaction when not exposing a JDBC transaction");
         }
         return getConnectionHolder();
     }

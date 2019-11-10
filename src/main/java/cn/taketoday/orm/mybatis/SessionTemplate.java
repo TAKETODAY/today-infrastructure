@@ -38,6 +38,8 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.transaction.SynchronizationManager;
+import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
 import lombok.Getter;
 
 /**
@@ -232,14 +234,16 @@ public class SessionTemplate implements SqlSession, DisposableBean {
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
             final SqlSessionFactory factory = this.sqlSessionFactory;
-            final SqlSession session = SqlSessionUtils.getSqlSession(factory, executorType);
+            
+            final SynchronizationMetaData metaData = SynchronizationManager.getMetaData();
+            final SqlSession session = SqlSessionUtils.getSqlSession(metaData, factory, executorType);
 
             try {
                 return method.invoke(session, args);
             }
             finally {
                 if (session != null) {
-                    SqlSessionUtils.closeSqlSession(session, factory);
+                    SqlSessionUtils.closeSqlSession(metaData, session, factory);
                 }
             }
         }
