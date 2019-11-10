@@ -49,7 +49,6 @@ import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.server.AbstractServletWebServer;
 import cn.taketoday.framework.server.ServletWebServerApplicationLoader;
 import cn.taketoday.framework.server.WebServer;
-import cn.taketoday.web.config.WebApplicationInitializer;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.Undertow.Builder;
