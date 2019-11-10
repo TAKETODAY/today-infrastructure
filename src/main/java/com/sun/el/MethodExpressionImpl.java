@@ -51,6 +51,7 @@ import javax.el.MethodInfo;
 import javax.el.MethodNotFoundException;
 import javax.el.PropertyNotFoundException;
 
+import com.sun.el.lang.EvaluationContext;
 import com.sun.el.parser.Node;
 
 /**
@@ -165,16 +166,15 @@ public final class MethodExpressionImpl extends MethodExpression {
      *             property of this exception, if available.
      * @see javax.el.MethodExpression#getMethodInfo(javax.el.ELContext)
      */
-    public MethodInfo getMethodInfo(ELContext context) throws PropertyNotFoundException, //
-            MethodNotFoundException, ELException //
-    {
-        return this.getNode().getMethodInfo(context, this.paramTypes);
+    public MethodInfo getMethodInfo(ELContext context)
+            throws PropertyNotFoundException, MethodNotFoundException, ELException {
+
+        context.notifyBeforeEvaluation(expr);
+        final MethodInfo ret = this.getNode().getMethodInfo(new EvaluationContext(context), this.paramTypes);
+        context.notifyAfterEvaluation(expr);
+        return ret;
     }
 
-    /**
-     * @return The Node for the expression
-     * @throws ELException
-     */
     private Node getNode() throws ELException {
         if (this.node == null) {
             this.node = ExpressionFactoryImpl.createNode(this.expr);
@@ -237,7 +237,7 @@ public final class MethodExpressionImpl extends MethodExpression {
     {
         context.notifyBeforeEvaluation(this.expr);
 
-        Object value = this.getNode().invoke(context, this.paramTypes, params);
+        Object value = this.getNode().invoke(new EvaluationContext(context), this.paramTypes, params);
 
         if (value != null && expectedType != null) {
             if (!expectedType.isInstance(value)) {

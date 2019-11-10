@@ -40,8 +40,9 @@
 
 package com.sun.el.parser;
 
-import javax.el.ELContext;
 import javax.el.ELException;
+
+import com.sun.el.lang.EvaluationContext;
 
 public class AstAssign extends SimpleNode {
 
@@ -49,7 +50,7 @@ public class AstAssign extends SimpleNode {
         super(id);
     }
 
-    public Object getValue(ELContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ELException {
 
         Object value = children[1].getValue(ctx);
         children[0].setValue(ctx, value);

@@ -42,7 +42,7 @@ package com.sun.el.parser;
 
 import java.util.ArrayList;
 
-import javax.el.ELContext;
+import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Kin-man Chung
@@ -52,7 +52,7 @@ public class AstListData extends SimpleNode {
         super(id);
     }
 
-    public Object getValue(ELContext ctx) {
+    public Object getValue(EvaluationContext ctx) {
         ArrayList<Object> list = new ArrayList<Object>();
         int paramCount = this.jjtGetNumChildren();
         for (int i = 0; i < paramCount; i++) {

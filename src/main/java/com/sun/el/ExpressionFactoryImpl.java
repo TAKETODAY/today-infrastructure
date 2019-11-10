@@ -104,7 +104,7 @@ public class ExpressionFactoryImpl extends ExpressionFactory implements NodeVisi
         }
     }
 
-    private Node build(final String expression, ELContext context) throws ELException {
+    protected Node build(final String expression, ELContext context) throws ELException {
         final Node n = createNode(expression);
         this.prepare(n, context);
         return n;
@@ -186,7 +186,7 @@ public class ExpressionFactoryImpl extends ExpressionFactory implements NodeVisi
         EXPRESSION_CACHE = new ConcurrentCache<>(Integer.parseInt(cacheSizeStr));
     }
 
-    public final static Node createNode(final String expr) throws ELException {
+    public static Node createNode(final String expr) throws ELException {
 
         if (expr == null) {
             throw new ELException(MessageFactory.get("error.null"));
@@ -235,7 +235,7 @@ public class ExpressionFactoryImpl extends ExpressionFactory implements NodeVisi
      * expression, as the functions and variables are bound and resolved at parse
      * time, as specified in the spec.
      */
-    private void prepare(Node node, ELContext context) throws ELException {
+    protected void prepare(Node node, ELContext context) throws ELException {
         node.accept(this, context);
     }
 

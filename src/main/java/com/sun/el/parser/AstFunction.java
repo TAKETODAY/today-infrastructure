@@ -43,13 +43,13 @@ package com.sun.el.parser;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import javax.el.ELContext;
 import javax.el.ELException;
 import javax.el.FunctionMapper;
 import javax.el.LambdaExpression;
 import javax.el.ValueExpression;
 import javax.el.VariableMapper;
 
+import com.sun.el.lang.EvaluationContext;
 import com.sun.el.util.MessageFactory;
 
 /**
@@ -82,7 +82,7 @@ public final class AstFunction extends SimpleNode {
     }
 
     @Override
-    public Class<?> getType(ELContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ELException {
 
         FunctionMapper fnMapper = ctx.getFunctionMapper();
 
@@ -101,7 +101,7 @@ public final class AstFunction extends SimpleNode {
      * Find the object associated with the given name. Return null if the there is
      * no such object.
      */
-    private Object findValue(ELContext ctx, String name) {
+    private Object findValue(EvaluationContext ctx, String name) {
 
         // First check if this is a Lambda argument
         if (ctx.isLambdaArgument(name)) {
@@ -126,7 +126,7 @@ public final class AstFunction extends SimpleNode {
     }
 
     @Override
-    public Object getValue(ELContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ELException {
 
         // Check to see if a function is a bean that is a Lambdaexpression.
         // If so, invoke it. Also allow for the case that a Lambda expression

@@ -110,7 +110,7 @@ public class ClassUtilsTest {
 
         final Set<Class<?>> scan2 = ClassUtils.scan("com.sun.el");
 
-        assertTrue(scan2.size() == 0);
+        assertTrue(scan2.size() > 0);
 
         ClassUtils.setIgnoreScanJarsPrefix(false);
         final Set<Class<?>> scan3 = ClassUtils.scan("com.sun.el");

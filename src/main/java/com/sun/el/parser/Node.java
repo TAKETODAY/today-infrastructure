@@ -45,6 +45,8 @@ import javax.el.ELException;
 import javax.el.MethodInfo;
 import javax.el.ValueReference;
 
+import com.sun.el.lang.EvaluationContext;
+
 /* All AST nodes must implement this interface.  It provides basic
    machinery for constructing the parent and child relationships
    between nodes. */
@@ -90,21 +92,21 @@ public interface Node {
 
     String getImage();
 
-    Object getValue(ELContext ctx) throws ELException;
+    Object getValue(EvaluationContext ctx) throws ELException;
 
-    void setValue(ELContext ctx, Object value) throws ELException;
+    void setValue(EvaluationContext ctx, Object value) throws ELException;
 
-    Class<?> getType(ELContext ctx) throws ELException;
+    Class<?> getType(EvaluationContext ctx) throws ELException;
 
-    ValueReference getValueReference(ELContext ctx) throws ELException;
+    ValueReference getValueReference(EvaluationContext ctx) throws ELException;
 
-    boolean isReadOnly(ELContext ctx) throws ELException;
+    boolean isReadOnly(EvaluationContext ctx) throws ELException;
 
     void accept(NodeVisitor visitor, ELContext context) throws ELException;
 
-    MethodInfo getMethodInfo(ELContext ctx, Class<?>[] paramTypes) throws ELException;
+    MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ELException;
 
-    Object invoke(ELContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ELException;
+    Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ELException;
 
     boolean equals(Object n);
 

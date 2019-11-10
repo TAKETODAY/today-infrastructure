@@ -40,8 +40,9 @@
 
 package com.sun.el.parser;
 
-import javax.el.ELContext;
 import javax.el.ELException;
+
+import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Kin-man Chung
@@ -52,12 +53,12 @@ public class AstSemiColon extends SimpleNode {
         super(id);
     }
 
-    public Object getValue(ELContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ELException {
         this.children[0].getValue(ctx);
         return this.children[1].getValue(ctx);
     }
 
-    public void setValue(ELContext ctx, Object value) throws ELException {
+    public void setValue(EvaluationContext ctx, Object value) throws ELException {
         this.children[0].getValue(ctx);
         this.children[1].setValue(ctx, value);
     }

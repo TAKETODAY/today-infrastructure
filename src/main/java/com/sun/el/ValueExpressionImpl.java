@@ -51,6 +51,7 @@ import javax.el.PropertyNotWritableException;
 import javax.el.ValueExpression;
 import javax.el.ValueReference;
 
+import com.sun.el.lang.EvaluationContext;
 import com.sun.el.parser.AstLiteralExpression;
 import com.sun.el.parser.Node;
 
@@ -158,19 +159,30 @@ public final class ValueExpressionImpl extends ValueExpression {
 
     @Override
     public Class<?> getType(ELContext context) throws PropertyNotFoundException, ELException {
-        return this.getNode().getType(context);
+
+        context.notifyBeforeEvaluation(expr);
+        Class<?> ret = this.getNode().getType(new EvaluationContext(context));
+        context.notifyAfterEvaluation(expr);
+        return ret;
     }
 
     @Override
     public ValueReference getValueReference(ELContext context) throws PropertyNotFoundException, ELException {
-        return this.getNode().getValueReference(context);
+
+        context.notifyBeforeEvaluation(getExpressionString());
+
+        final ValueReference ret = this.getNode().getValueReference(new EvaluationContext(context));
+
+        context.notifyAfterEvaluation(getExpressionString());
+
+        return ret;
     }
 
     @Override
     public Object getValue(final ELContext context) throws PropertyNotFoundException, ELException {
 
         context.notifyBeforeEvaluation(this.expr);
-        Object value = this.getNode().getValue(context);
+        Object value = this.getNode().getValue(new EvaluationContext(context));
 
         if (value != null && expectedType != null) {
             try {
@@ -203,14 +215,19 @@ public final class ValueExpressionImpl extends ValueExpression {
 
     @Override
     public boolean isReadOnly(ELContext context) throws PropertyNotFoundException, ELException {
-        return this.getNode().isReadOnly(context);
+        context.notifyBeforeEvaluation(expr);
+        final boolean ret = this.getNode().isReadOnly(new EvaluationContext(context));
+        context.notifyAfterEvaluation(expr);
+        return ret;
     }
 
     @Override
     public void setValue(ELContext context, Object value)
             throws PropertyNotFoundException, PropertyNotWritableException, ELException //
     {
-        this.getNode().setValue(context, value);
+        context.notifyBeforeEvaluation(expr);
+        this.getNode().setValue(new EvaluationContext(context), value);
+        context.notifyAfterEvaluation(expr);
     }
 
     public String toString() {

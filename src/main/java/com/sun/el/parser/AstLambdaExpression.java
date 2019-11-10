@@ -40,12 +40,12 @@
 
 package com.sun.el.parser;
 
-import javax.el.ELContext;
 import javax.el.ELException;
 import javax.el.LambdaExpression;
 import javax.el.ValueExpression;
 
 import com.sun.el.ValueExpressionImpl;
+import com.sun.el.lang.EvaluationContext;
 import com.sun.el.util.MessageFactory;
 
 /**
@@ -58,7 +58,7 @@ public class AstLambdaExpression extends SimpleNode {
     }
 
     @Override
-    public Object getValue(ELContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ELException {
 
         // Create a lambda expression
         final ValueExpression expr = new ValueExpressionImpl("#{Lambda Expression}", this.children[1], null);

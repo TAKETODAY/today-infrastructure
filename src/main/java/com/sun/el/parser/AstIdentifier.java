@@ -40,7 +40,6 @@
 
 package com.sun.el.parser;
 
-import javax.el.ELContext;
 import javax.el.ELException;
 import javax.el.ELResolver;
 import javax.el.ImportHandler;
@@ -53,6 +52,7 @@ import javax.el.ValueReference;
 import javax.el.VariableMapper;
 
 import com.sun.el.lang.ELSupport;
+import com.sun.el.lang.EvaluationContext;
 import com.sun.el.util.MessageFactory;
 
 /**
@@ -67,7 +67,7 @@ public final class AstIdentifier extends SimpleNode {
     }
 
     @Override
-    public Class<?> getType(ELContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ELException {
         // First check if this is a lambda argument
         if (ctx.isLambdaArgument(this.image)) {
             return Object.class;
@@ -87,7 +87,7 @@ public final class AstIdentifier extends SimpleNode {
         return ret;
     }
 
-    public ValueReference getValueReference(ELContext ctx) throws ELException {
+    public ValueReference getValueReference(EvaluationContext ctx) throws ELException {
         VariableMapper varMapper = ctx.getVariableMapper();
         if (varMapper != null) {
             ValueExpression expr = varMapper.resolveVariable(this.image);
@@ -99,7 +99,7 @@ public final class AstIdentifier extends SimpleNode {
     }
 
     @Override
-    public Object getValue(ELContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ELException {
         // First check if this is a lambda argument
         if (ctx.isLambdaArgument(this.image)) {
             return ctx.getLambdaArgument(this.image);
@@ -127,7 +127,7 @@ public final class AstIdentifier extends SimpleNode {
         return ret;
     }
 
-    public boolean isReadOnly(ELContext ctx) throws ELException {
+    public boolean isReadOnly(EvaluationContext ctx) throws ELException {
         // Lambda arguments are read only.
         if (ctx.isLambdaArgument(this.image)) {
             return true;
@@ -147,7 +147,7 @@ public final class AstIdentifier extends SimpleNode {
         return ret;
     }
 
-    public void setValue(ELContext ctx, Object value) throws ELException {
+    public void setValue(EvaluationContext ctx, Object value) throws ELException {
         // First check if this is a lambda argument
         if (ctx.isLambdaArgument(this.image)) {
             throw new PropertyNotWritableException(MessageFactory.get("error.lambda.parameter.readonly",
@@ -169,15 +169,15 @@ public final class AstIdentifier extends SimpleNode {
         }
     }
 
-    public Object invoke(ELContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ELException {
+    public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ELException {
         return this.getMethodExpression(ctx).invoke(ctx, paramValues);
     }
 
-    public MethodInfo getMethodInfo(ELContext ctx, Class<?>[] paramTypes) throws ELException {
+    public MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ELException {
         return this.getMethodExpression(ctx).getMethodInfo(ctx);
     }
 
-    private final MethodExpression getMethodExpression(ELContext ctx) throws ELException {
+    private final MethodExpression getMethodExpression(EvaluationContext ctx) throws ELException {
         Object obj = null;
 
         // case A: ValueExpression exists, getValue which must

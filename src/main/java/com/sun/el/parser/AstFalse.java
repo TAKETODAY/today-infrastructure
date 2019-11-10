@@ -40,8 +40,9 @@
 
 package com.sun.el.parser;
 
-import javax.el.ELContext;
 import javax.el.ELException;
+
+import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -52,7 +53,7 @@ public final class AstFalse extends BooleanNode {
         super(id);
     }
 
-    public Object getValue(ELContext ctx)
+    public Object getValue(EvaluationContext ctx)
             throws ELException {
         return Boolean.FALSE;
     }

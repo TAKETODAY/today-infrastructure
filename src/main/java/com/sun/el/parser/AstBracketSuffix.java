@@ -40,8 +40,9 @@
 
 package com.sun.el.parser;
 
-import javax.el.ELContext;
 import javax.el.ELException;
+
+import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -53,7 +54,7 @@ public final class AstBracketSuffix extends SimpleNode {
         super(id);
     }
 
-    public Object getValue(ELContext ctx)
+    public Object getValue(EvaluationContext ctx)
             throws ELException {
         return this.children[0].getValue(ctx);
     }

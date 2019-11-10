@@ -42,8 +42,9 @@ package com.sun.el.parser;
 
 import java.math.BigDecimal;
 
-import javax.el.ELContext;
 import javax.el.ELException;
+
+import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -70,11 +71,11 @@ public final class AstFloatingPoint extends SimpleNode {
         return this.number;
     }
 
-    public Object getValue(ELContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ELException {
         return this.getFloatingPoint();
     }
 
-    public Class<?> getType(ELContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ELException {
         return this.getFloatingPoint().getClass();
     }
 }

@@ -43,8 +43,9 @@ package com.sun.el.parser;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.el.ELContext;
 import javax.el.ELException;
+
+import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -56,11 +57,11 @@ public final class AstEmpty extends SimpleNode {
         super(id);
     }
 
-    public Class<?> getType(ELContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ELException {
         return Boolean.class;
     }
 
-    public Object getValue(ELContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ELException {
 
         final Object obj = this.children[0].getValue(ctx);
         if (obj == null) {

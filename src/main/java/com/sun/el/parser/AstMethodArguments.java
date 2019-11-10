@@ -40,8 +40,9 @@
 
 package com.sun.el.parser;
 
-import javax.el.ELContext;
 import javax.el.ELException;
+
+import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Kin-man Chung
@@ -56,7 +57,7 @@ public class AstMethodArguments extends SimpleNode {
         return null;
     }
 
-    public Object[] getParameters(ELContext ctx) throws ELException {
+    public Object[] getParameters(EvaluationContext ctx) throws ELException {
 
         if (this.children == null) {
             return new Object[0];

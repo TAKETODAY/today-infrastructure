@@ -40,8 +40,9 @@
 
 package com.sun.el.parser;
 
-import javax.el.ELContext;
 import javax.el.ELException;
+
+import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -52,11 +53,11 @@ public final class AstNot extends SimpleNode {
         super(id);
     }
 
-    public Class<?> getType(ELContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ELException {
         return Boolean.class;
     }
 
-    public Object getValue(ELContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ELException {
         Object obj = this.children[0].getValue(ctx);
         Boolean b = coerceToBoolean(obj);
         return Boolean.valueOf(!b.booleanValue());

@@ -24,7 +24,6 @@ import java.beans.FeatureDescriptor;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -34,6 +33,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+
+import cn.taketoday.context.utils.ClassUtils;
 
 /**
  * Defines property resolution behavior on objects using the JavaBeans component
@@ -532,15 +533,10 @@ public class BeanELResolver extends ELResolver {
         private final Map<String, Field> propertyMap = new HashMap<>();
 
         public BeanProperties(Class<?> baseClass) {
-
-            do {
-                for (final Field field : baseClass.getDeclaredFields()) {
-                    if (!Modifier.isPublic(field.getModifiers())) {
-                        field.setAccessible(true);
-                    }
-                    propertyMap.put(field.getName(), field); // parent class will replace same field
-                }
-            } while ((baseClass = baseClass.getSuperclass()) != Object.class && baseClass != null);
+            for (final Field field : ClassUtils.getFields(baseClass)) {
+                // parent class will replace same field
+                propertyMap.put(ClassUtils.makeAccessible(field).getName(), field);
+            }
         }
 
         public final Field getBeanProperty(final String property) {

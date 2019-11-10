@@ -40,8 +40,9 @@
 
 package com.sun.el.parser;
 
-import javax.el.ELContext;
 import javax.el.ELException;
+
+import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -53,7 +54,7 @@ public final class AstLessThanEqual extends BooleanNode {
         super(id);
     }
 
-    public Object getValue(ELContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ELException {
         Object obj0 = this.children[0].getValue(ctx);
         Object obj1 = this.children[1].getValue(ctx);
         if (obj0 == obj1) {

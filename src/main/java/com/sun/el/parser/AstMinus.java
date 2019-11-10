@@ -40,10 +40,10 @@
 
 package com.sun.el.parser;
 
-import javax.el.ELContext;
 import javax.el.ELException;
 
 import com.sun.el.lang.ELArithmetic;
+import com.sun.el.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -54,7 +54,7 @@ public final class AstMinus extends ArithmeticNode {
         super(id);
     }
 
-    public Object getValue(ELContext ctx)
+    public Object getValue(EvaluationContext ctx)
             throws ELException {
         Object obj0 = this.children[0].getValue(ctx);
         Object obj1 = this.children[1].getValue(ctx);

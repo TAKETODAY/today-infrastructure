@@ -59,7 +59,7 @@ public class ResourceUtilsTest {
     public void testGetResource() throws IOException {
 
 //		final Resource resource = ResourceUtils.getResource("/META-INF/maven/cn.taketoday/today-expression/pom.properties");
-        Resource resource = ResourceUtils.getResource("classpath:/META-INF/maven/cn.taketoday/today-expression/pom.properties");
+        Resource resource = ResourceUtils.getResource("classpath:/META-INF/maven/org.slf4j/slf4j-api/pom.properties");
 
         System.err.println(resource);
         Resource createRelative = resource.createRelative("pom.xml");

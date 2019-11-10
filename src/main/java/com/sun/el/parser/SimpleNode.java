@@ -47,7 +47,10 @@ import javax.el.PropertyNotWritableException;
 import javax.el.ValueReference;
 
 import com.sun.el.lang.ELSupport;
+import com.sun.el.lang.EvaluationContext;
 import com.sun.el.util.MessageFactory;
+
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -105,6 +108,7 @@ public abstract class SimpleNode extends ELSupport implements Node {
      * than one line you should override toString(String), otherwise overriding
      * toString() is probably all you need to do.
      */
+    @Override
     public String toString() {
         if (this.image != null) {
             return ELParserTreeConstants.jjtNodeName[id] + "[" + this.image + "]";
@@ -140,41 +144,49 @@ public abstract class SimpleNode extends ELSupport implements Node {
         this.image = image;
     }
 
-    public Class<?> getType(ELContext ctx) throws ELException {
+    @Override
+    public Class<?> getType(EvaluationContext ctx) throws ELException {
         throw new UnsupportedOperationException();
     }
 
-    public Object getValue(ELContext ctx) throws ELException {
+    @Override
+    public Object getValue(EvaluationContext ctx) throws ELException {
         throw new UnsupportedOperationException();
     }
 
-    public ValueReference getValueReference(ELContext ctx) throws ELException {
+    @Override
+    public ValueReference getValueReference(EvaluationContext ctx) throws ELException {
         return null;
     }
 
-    public boolean isReadOnly(ELContext ctx) throws ELException {
+    @Override
+    public boolean isReadOnly(EvaluationContext ctx) throws ELException {
         return true;
     }
 
-    public void setValue(ELContext ctx, Object value) throws ELException {
+    @Override
+    public void setValue(EvaluationContext ctx, Object value) throws ELException {
         throw new PropertyNotWritableException(MessageFactory.get("error.syntax.set"));
     }
 
+    @Override
     public void accept(NodeVisitor visitor, ELContext context) throws ELException {
         visitor.visit(this, context);
         final Node[] children = this.children;
-        if (children != null && children.length > 0) {
-            for (int i = 0; i < children.length; i++) {
-                this.children[i].accept(visitor, context);
+        if (ObjectUtils.isNotEmpty(children)) {
+            for (final Node node : children) {
+                node.accept(visitor, context);
             }
         }
     }
 
-    public Object invoke(ELContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ELException {
+    @Override
+    public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ELException {
         throw new UnsupportedOperationException();
     }
 
-    public MethodInfo getMethodInfo(ELContext ctx, Class<?>[] paramTypes) throws ELException {
+    @Override
+    public MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ELException {
         throw new UnsupportedOperationException();
     }
 
