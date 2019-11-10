@@ -17,65 +17,71 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.jdbc;
+package cn.taketoday.transaction;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Objects;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.transaction.ConnectionHolder;
-import cn.taketoday.transaction.JdbcTransactionObject;
-import cn.taketoday.transaction.ResourceTransactionManager;
-import cn.taketoday.transaction.SynchronizationManager;
-import cn.taketoday.transaction.TransactionDefinition;
-import cn.taketoday.transaction.manager.AbstractTransactionManager;
-import cn.taketoday.transaction.manager.DefaultTransactionStatus;
-import cn.taketoday.transaction.manager.TransactionException;
-import cn.taketoday.transaction.utils.DataSourceUtils;
-import lombok.Getter;
-import lombok.Setter;
+import cn.taketoday.jdbc.utils.DataSourceUtils;
+import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
 
 /**
+ * From Spring DataSourceTransactionManager
  * 
+ * @author Juergen Hoeller
  * @author TODAY <br>
  *         2018-11-13 19:05
  */
-@Setter
-@Getter
-@MissingBean
-@SuppressWarnings("serial")
-public class JdbcTransactionManager extends //
+public class DataSourceTransactionManager extends
         AbstractTransactionManager implements ResourceTransactionManager, InitializingBean {
-    
-    private static final Logger log = LoggerFactory.getLogger(JdbcTransactionManager.class);
 
-    @Autowired
+    private static final long serialVersionUID = 1L;
+
+    private static final Logger log = LoggerFactory.getLogger(DataSourceTransactionManager.class);
+
+    public static boolean debugEnabled = log.isDebugEnabled();
+
     private DataSource dataSource;
 
     private boolean enforceReadOnly = false;
 
-    /**
-     * Create a new DataSourceTransactionManager instance. A DataSource has to be
-     * set to be able to use it.
-     * 
-     * @see #setDataSource
-     */
-    public JdbcTransactionManager() {
+    public DataSourceTransactionManager() {
         setNestedTransactionAllowed(true);
+    }
+
+    public DataSourceTransactionManager(DataSource dataSource) {
+        this();
+        setDataSource(dataSource);
+        afterPropertiesSet();
+    }
+
+    /**
+     * Obtain the DataSource for actual use.
+     * 
+     * @return the DataSource (never {@code null})
+     * @throws NullPointerException
+     *             in case of no DataSource set
+     */
+    protected DataSource obtainDataSource() {
+        return Objects.requireNonNull(getDataSource(), "No DataSource set");
     }
 
     /**
      * Return the JDBC DataSource that this instance manages transactions for.
      */
-    public final DataSource getDataSource() {
+    public DataSource getDataSource() {
         return this.dataSource;
+    }
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     /**
@@ -99,7 +105,6 @@ public class JdbcTransactionManager extends //
      * drivers, this strong enforcement needs to be applied explicitly, e.g. through
      * this flag.
      * 
-     * @since 4.3.7
      * @see #prepareTransactionalConnection
      */
     public void setEnforceReadOnly(boolean enforceReadOnly) {
@@ -134,7 +139,7 @@ public class JdbcTransactionManager extends //
         final DataSourceTransactionObject txObject = new DataSourceTransactionObject();
         txObject.setSavepointAllowed(isNestedTransactionAllowed());
 
-        final ConnectionHolder conHolder = (ConnectionHolder) SynchronizationManager.getResource(dataSource);
+        final ConnectionHolder conHolder = (ConnectionHolder) SynchronizationManager.getResource(obtainDataSource());
 
         txObject.setConnectionHolder(conHolder, false);
 
@@ -142,126 +147,137 @@ public class JdbcTransactionManager extends //
     }
 
     @Override
-    protected boolean isExistingTransaction(Object transaction) {
-        DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
-        return (txObject.hasConnectionHolder() && txObject.getConnectionHolder().isTransactionActive());
+    protected boolean isExistingTransaction(final Object transaction) {
+        final ConnectionHolder conHolder = ((DataSourceTransactionObject) transaction).getConnectionHolder();
+        return (conHolder != null && conHolder.isTransactionActive());
     }
 
     /**
      * This implementation sets the isolation level but ignores the timeout.
      */
     @Override
-    protected void doBegin(Object transaction, TransactionDefinition definition) {
+    protected void doBegin(final SynchronizationMetaData metaData,
+                           final Object transaction, final TransactionDefinition definition) {
 
         DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
         Connection con = null;
 
         try {
 
-            if (!txObject.hasConnectionHolder() || txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
-                Connection newCon = dataSource.getConnection();
-                log.debug("Acquired Connection [{}] for JDBC transaction", newCon);
-                txObject.setConnectionHolder(new ConnectionHolder(newCon), true);
-            }
+            ConnectionHolder connectionHolder = txObject.getConnectionHolder();
 
-            final ConnectionHolder connectionHolder = txObject.getConnectionHolder();
+            if (connectionHolder == null || connectionHolder.isSynchronizedWithTransaction()) {
+                Connection newCon = obtainDataSource().getConnection();
+                if (debugEnabled) log.debug("Acquired Connection [{}] for JDBC transaction", newCon);
+                txObject.setConnectionHolder(connectionHolder = new ConnectionHolder(newCon), true);
+            }
 
             connectionHolder.setSynchronizedWithTransaction(true);
             con = connectionHolder.getConnection();
 
-            int previousIsolationLevel = DataSourceUtils.prepareConnectionForTransaction(con, definition);
+            final Integer previousIsolationLevel = DataSourceUtils.prepareConnectionForTransaction(con, definition);
             txObject.setPreviousIsolationLevel(previousIsolationLevel);
 
-            // Switch to manual commit if necessary. This is very expensive in some JDBC
-            // drivers,
-            // so we don't want to do it unnecessarily (for example if we've explicitly
-            // configured the connection pool to set it already).
+            // Switch to manual commit if necessary. This is very expensive in some JDBC drivers,
+            // so we don't want to do it unnecessarily (for example if we've explicitly configured the connection pool to set it already).
             if (con.getAutoCommit()) {
                 txObject.setMustRestoreAutoCommit(true);
-                log.debug("Switching JDBC Connection [{}] to manual commit", con);
+                if (debugEnabled) log.debug("Switching JDBC Connection [{}] to manual commit", con);
                 con.setAutoCommit(false);
             }
 
             prepareTransactionalConnection(con, definition);
             connectionHolder.setTransactionActive(true);
 
-            int timeout = determineTimeout(definition);
-            if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
-                connectionHolder.setTimeoutInSeconds(timeout);
-            }
+            applyTimeout(definition, connectionHolder);
 
             // Bind the connection holder to the thread.
             if (txObject.isNewConnectionHolder()) {
-                SynchronizationManager.bindResource(dataSource, txObject.getConnectionHolder());
+                metaData.bindResource(obtainDataSource(), connectionHolder);
             }
-        } //
+        }
         catch (Throwable ex) {
             if (txObject.isNewConnectionHolder()) {
-                DataSourceUtils.releaseConnection(con, dataSource);
+                DataSourceUtils.releaseConnection(con, obtainDataSource());
                 txObject.setConnectionHolder(null, false);
             }
-            throw new TransactionException("Could not open JDBC Connection for transaction", ex);
+            throw new CannotCreateTransactionException("Could not open JDBC Connection for transaction", ex);
+        }
+    }
+
+    protected void applyTimeout(final TransactionDefinition definition, final ConnectionHolder connectionHolder) {
+        final int timeout = determineTimeout(definition);
+        if (timeout < TransactionDefinition.TIMEOUT_DEFAULT) {
+            throw new InvalidTimeoutException("Invalid transaction timeout: ", timeout);
+        }
+        if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
+            connectionHolder.setTimeoutInSeconds(timeout);
         }
     }
 
     @Override
-    protected Object doSuspend(Object transaction) {
+    protected Object doSuspend(final SynchronizationMetaData metaData, Object transaction) {
         DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
         txObject.setConnectionHolder(null);
-        return SynchronizationManager.unbindResource(dataSource);
+        return metaData.unbindResource(obtainDataSource());
     }
 
     @Override
-    protected void doResume(Object transaction, Object suspendedResources) {
-        SynchronizationManager.bindResource(dataSource, suspendedResources);
+    protected void doResume(final SynchronizationMetaData metaData, Object transaction, Object suspendedResources) {
+        metaData.bindResource(obtainDataSource(), suspendedResources);
     }
 
     @Override
-    protected void doCommit(DefaultTransactionStatus status) {
-
-        DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
-        Connection con = txObject.getConnectionHolder().getConnection();
-
-        //      log.debug("Committing JDBC transaction on Connection [{}]", con);
+    protected void doCommit(final SynchronizationMetaData metaData, DefaultTransactionStatus status) {
+        final DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
+        final Connection con = txObject.getConnectionHolder().getConnection();
+        if (debugEnabled) {
+            log.debug("Committing JDBC transaction on Connection [{}]", con);
+        }
         try {
             con.commit();
         }
         catch (SQLException ex) {
-            throw new TransactionException("Could not commit JDBC transaction", ex);
+            throw new TransactionSystemException("Could not commit JDBC transaction", ex);
         }
     }
 
     @Override
-    protected void doRollback(DefaultTransactionStatus status) {
-        DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
-        Connection con = txObject.getConnectionHolder().getConnection();
+    protected void doRollback(final SynchronizationMetaData metaData, final DefaultTransactionStatus status) {
+        final DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
+        final Connection con = txObject.getConnectionHolder().getConnection();
 
-        //      log.debug("Rolling back JDBC transaction on Connection [{}]", con);
+        if (debugEnabled) {
+            log.debug("Rolling back JDBC transaction on Connection [{}]", con);
+        }
 
         try {
-
             con.rollback();
-        } //
+        }
         catch (SQLException ex) {
-            throw new TransactionException("Could not roll back JDBC transaction With msg:[" + ex.getMessage() + "]", ex);
+            throw new TransactionSystemException("Could not roll back JDBC transaction With msg:[" + ex.getMessage() + "]", ex);
         }
     }
 
     @Override
-    protected void doSetRollbackOnly(DefaultTransactionStatus status) {
-        DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
-        //      log.debug("Setting JDBC transaction [{}] rollback-only", txObject.getConnectionHolder().getConnection());
+    protected void doSetRollbackOnly(final SynchronizationMetaData metaData, DefaultTransactionStatus status) {
+        final DataSourceTransactionObject txObject = (DataSourceTransactionObject) status.getTransaction();
+
+        if (debugEnabled) {
+            log.debug("Setting JDBC transaction [{}] rollback-only", txObject.getConnectionHolder().getConnection());
+        }
+
         txObject.setRollbackOnly();
     }
 
     @Override
-    protected void doCleanupAfterCompletion(Object transaction) {
+    protected void doCleanupAfterCompletion(final SynchronizationMetaData metaData, Object transaction) {
 
         DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
 
         // Remove the connection holder from the thread, if exposed.
         if (txObject.isNewConnectionHolder()) {
-            SynchronizationManager.unbindResource(dataSource);
+            metaData.unbindResource(obtainDataSource());
         }
 
         // Reset connection.
@@ -275,14 +291,14 @@ public class JdbcTransactionManager extends //
         }
         catch (Throwable ex) {
             log.error("Could not reset JDBC Connection after transaction", ex);
-            throw new TransactionException(ex);
         }
 
         if (txObject.isNewConnectionHolder()) {
-            //          log.debug("Releasing JDBC Connection [{}] after transaction", con);
-            DataSourceUtils.releaseConnection(con, this.dataSource);
+            if (debugEnabled) {
+                log.debug("Releasing JDBC Connection [{}] after transaction", con);
+            }
+            DataSourceUtils.releaseConnection(con, obtainDataSource());
         }
-
         txObject.getConnectionHolder().clear();
     }
 
@@ -296,7 +312,7 @@ public class JdbcTransactionManager extends //
      * <p>
      * The "SET TRANSACTION READ ONLY" is understood by Oracle, MySQL and Postgres
      * and may work with other databases as well. If you'd like to adapt this
-     * treatment, override this method accordingly.
+     * Statement, override this method accordingly.
      * 
      * @param con
      *            the transactional JDBC Connection
@@ -304,16 +320,14 @@ public class JdbcTransactionManager extends //
      *            the current transaction definition
      * @throws SQLException
      *             if thrown by JDBC API
-     * @since 4.3.7
      * @see #setEnforceReadOnly
      */
-    protected void prepareTransactionalConnection(Connection con, //
-                                                  TransactionDefinition definition) throws SQLException //
+    protected void prepareTransactionalConnection(final Connection con,
+                                                  final TransactionDefinition definition) throws SQLException //
     {
         if (isEnforceReadOnly() && definition.isReadOnly()) {
             Statement stmt = con.createStatement();
             try {
-
                 stmt.executeUpdate("SET TRANSACTION READ ONLY");
             }
             finally {
@@ -329,7 +343,6 @@ public class JdbcTransactionManager extends //
     private static class DataSourceTransactionObject extends JdbcTransactionObject {
 
         private boolean newConnectionHolder;
-
         private boolean mustRestoreAutoCommit;
 
         public void setConnectionHolder(ConnectionHolder connectionHolder, boolean newConnectionHolder) {
@@ -360,8 +373,9 @@ public class JdbcTransactionManager extends //
 
         @Override
         public void flush() {
-            if (SynchronizationManager.isActive()) {
-                SynchronizationManager.triggerFlush();
+            final SynchronizationMetaData metaData = SynchronizationManager.getMetaData();
+            if (metaData.isActive()) {
+                metaData.triggerFlush();
             }
         }
     }

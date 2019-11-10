@@ -21,7 +21,6 @@ package cn.taketoday.jdbc.config;
 
 import com.zaxxer.hikari.HikariDataSource;
 
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.InitializingBean;
@@ -30,8 +29,7 @@ import cn.taketoday.context.factory.InitializingBean;
  * @author TODAY <br>
  *         2018-08-03 16:20
  */
-@Singleton
-public final class DefaultDataSource extends HikariDataSource implements InitializingBean, DisposableBean {
+public class DefaultDataSource extends HikariDataSource implements InitializingBean, DisposableBean {
 
     @Value("#{jdbc.url}")
     private String jdbcUrl;

@@ -17,28 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.orm.mybatis;
-
-import cn.taketoday.transaction.AbstractResourceHolder;
-
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-
-import lombok.Getter;
+package cn.taketoday.transaction;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 11:24
+ *         2018-10-09 10:42
  */
-@Getter
-public class SqlSessionHolder extends AbstractResourceHolder {
+public interface ResourceHolder {
 
-    private final SqlSession sqlSession;
-    private final ExecutorType executorType;
+    /**
+     * Reset the transactional state of this holder.
+     */
+    void reset();
 
-    public SqlSessionHolder(SqlSession sqlSession, ExecutorType executorType) {
-        this.sqlSession = sqlSession;
-        this.executorType = executorType;
-    }
+    /**
+     * Notify this holder that it has been unbound from transaction synchronization.
+     */
+    void unbound();
 
+    /**
+     * Determine whether this holder is considered as 'void', i.e. as a leftover
+     * from a previous thread.
+     */
+    boolean isVoid();
 }

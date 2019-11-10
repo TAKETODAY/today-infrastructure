@@ -17,28 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.orm.mybatis;
-
-import cn.taketoday.transaction.AbstractResourceHolder;
-
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-
-import lombok.Getter;
+package cn.taketoday.transaction;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 11:24
+ *         2018-11-16 21:25
  */
-@Getter
-public class SqlSessionHolder extends AbstractResourceHolder {
+public interface TransactionStatus extends SavepointManager {
 
-    private final SqlSession sqlSession;
-    private final ExecutorType executorType;
+    /**
+     * Return whether the present transaction is new (else participating in an
+     * existing transaction, or potentially not running in an actual transaction in
+     * the first place).
+     */
+    boolean isNewTransaction();
 
-    public SqlSessionHolder(SqlSession sqlSession, ExecutorType executorType) {
-        this.sqlSession = sqlSession;
-        this.executorType = executorType;
-    }
+    boolean hasSavepoint();
+
+    void setRollbackOnly();
+
+    boolean isRollbackOnly();
+
+    boolean isCompleted();
 
 }

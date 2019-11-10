@@ -17,28 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.orm.mybatis;
-
-import cn.taketoday.transaction.AbstractResourceHolder;
-
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-
-import lombok.Getter;
+package cn.taketoday.transaction;
 
 /**
- * @author TODAY <br>
- *         2018-10-09 11:24
+ * @author Today <br>
+ * 
+ *         2018-11-13 17:45
  */
-@Getter
-public class SqlSessionHolder extends AbstractResourceHolder {
+public class TransactionNotSupportedException extends TransactionException {
 
-    private final SqlSession sqlSession;
-    private final ExecutorType executorType;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 305392900797500030L;
 
-    public SqlSessionHolder(SqlSession sqlSession, ExecutorType executorType) {
-        this.sqlSession = sqlSession;
-        this.executorType = executorType;
+    public TransactionNotSupportedException() {
+        super();
     }
 
+    public TransactionNotSupportedException(String message) {
+        super(message);
+    }
+
+    public TransactionNotSupportedException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public TransactionNotSupportedException(Throwable cause) {
+        super(cause);
+    }
 }

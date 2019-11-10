@@ -56,12 +56,6 @@
             <version>latest</version>
         </dependency>
 
-        <dependency>
-            <groupId>cn.taketoday</groupId>
-            <artifactId>today-tx</artifactId>
-            <version>1.0.0.RELEASE</version>
-        </dependency>
-            
 <!-- provided -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -159,6 +153,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>cn.taketoday</groupId>
+            <artifactId>today-aop</artifactId>
+            <version>latest</version>
+        </dependency>
     </dependencies>
 
     <profiles>

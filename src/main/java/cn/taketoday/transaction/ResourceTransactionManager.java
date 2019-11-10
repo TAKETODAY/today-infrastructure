@@ -17,28 +17,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.orm.mybatis;
-
-import cn.taketoday.transaction.AbstractResourceHolder;
-
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-
-import lombok.Getter;
+package cn.taketoday.transaction;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 11:24
+ *         2018-11-13 17:03
  */
-@Getter
-public class SqlSessionHolder extends AbstractResourceHolder {
+public interface ResourceTransactionManager extends TransactionManager {
 
-    private final SqlSession sqlSession;
-    private final ExecutorType executorType;
-
-    public SqlSessionHolder(SqlSession sqlSession, ExecutorType executorType) {
-        this.sqlSession = sqlSession;
-        this.executorType = executorType;
-    }
-
+    /**
+     * Return the resource factory that this transaction manager operates on, e.g. a
+     * JDBC DataSource or a JMS ConnectionFactory.
+     * <p>
+     * This target resource factory is usually used as resource key for
+     * {@link SynchronizationManager}'s resource bindings per thread.
+     * 
+     * @return the target resource factory (never {@code null})
+     * @see TransactionSynchronizationManager#bindResource
+     * @see TransactionSynchronizationManager#getResource
+     */
+    Object getResourceFactory();
 }

@@ -26,30 +26,31 @@ import javax.sql.DataSource;
 
 import org.apache.ibatis.transaction.Transaction;
 
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.jdbc.utils.DataSourceUtils;
 import cn.taketoday.transaction.ConnectionHolder;
 import cn.taketoday.transaction.SynchronizationManager;
-import cn.taketoday.transaction.utils.DataSourceUtils;
 import lombok.Setter;
 
 /**
- * 
  * @author TODAY <br>
  *         2018-10-09 11:58
  */
 @Setter
 public class DefaultTransaction implements Transaction {
 
-    private final DataSource dataSource;
-    private Connection connection;
+    private static final Logger log = LoggerFactory.getLogger(SynchronizationManager.class);
+    public static boolean debugEnabled = log.isDebugEnabled();
+
     private boolean autoCommit;
+    private Connection connection;
+    private final DataSource dataSource;
 
     public DefaultTransaction(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Connection getConnection() throws SQLException {
         if (this.connection == null) {
@@ -61,42 +62,36 @@ public class DefaultTransaction implements Transaction {
     private void openConnection() throws SQLException {
         this.connection = DataSourceUtils.getConnection(this.dataSource);
         this.autoCommit = this.connection.getAutoCommit();
-//		log.debug("JDBC Connection [{}] will be managed by Today Context", this.connection);
+        if (debugEnabled) {
+            log.debug("JDBC Connection [{}] will be managed by Today Context", this.connection);
+        }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void commit() throws SQLException {
         if (this.connection != null && !this.autoCommit) {
-//			log.debug("Committing JDBC Connection [{}]", connection);
+            if (debugEnabled) {
+                log.debug("Committing JDBC Connection [{}]", connection);
+            }
             this.connection.commit();
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void rollback() throws SQLException {
         if (this.connection != null && !this.autoCommit) {
-//			log.debug("Rolling back JDBC Connection [{}]", connection);
+            if (debugEnabled) {
+                log.debug("Rolling back JDBC Connection [{}]", connection);
+            }
             this.connection.rollback();
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void close() throws SQLException {
         DataSourceUtils.releaseConnection(this.connection, this.dataSource);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Integer getTimeout() throws SQLException {
 

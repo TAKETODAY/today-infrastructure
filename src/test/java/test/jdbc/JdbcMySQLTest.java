@@ -31,7 +31,7 @@ import org.junit.Test;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.jdbc.JdbcExecuter;
-import cn.taketoday.jdbc.JdbcUtils;
+import cn.taketoday.jdbc.utils.JdbcUtils;
 import test.jdbc.model.Article;
 import test.jdbc.model.User;
 

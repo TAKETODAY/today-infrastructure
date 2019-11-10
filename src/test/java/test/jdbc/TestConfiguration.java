@@ -30,10 +30,10 @@ import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.jdbc.JdbcExecuter;
-import cn.taketoday.jdbc.JdbcTransactionManager;
+import cn.taketoday.transaction.DataSourceTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;
-import cn.taketoday.transaction.manager.TransactionManager;
-import cn.taketoday.transaction.support.TransactionTemplate;
+import cn.taketoday.transaction.TransactionManager;
+import cn.taketoday.transaction.TransactionTemplate;
 
 /**
  * @author TODAY <br>
@@ -56,7 +56,7 @@ public class TestConfiguration {
     @Singleton
     public TransactionManager transactionManager(@Autowired("mySQLDataSource") DataSource dataSource) {
 
-        JdbcTransactionManager transactionManager = new JdbcTransactionManager();
+        DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
 
         transactionManager.setDataSource(dataSource);
 

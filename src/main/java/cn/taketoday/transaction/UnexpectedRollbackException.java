@@ -17,28 +17,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.orm.mybatis;
-
-import cn.taketoday.transaction.AbstractResourceHolder;
-
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-
-import lombok.Getter;
+package cn.taketoday.transaction;
 
 /**
- * @author TODAY <br>
- *         2018-10-09 11:24
+ * Thrown when an attempt to commit a transaction resulted in an unexpected
+ * rollback.
+ *
+ * @author Rod Johnson
+ * @since 17.03.2003
  */
-@Getter
-public class SqlSessionHolder extends AbstractResourceHolder {
+@SuppressWarnings("serial")
+public class UnexpectedRollbackException extends TransactionException {
 
-    private final SqlSession sqlSession;
-    private final ExecutorType executorType;
+    /**
+     * Constructor for UnexpectedRollbackException.
+     * 
+     * @param msg
+     *            the detail message
+     */
+    public UnexpectedRollbackException(String msg) {
+        super(msg);
+    }
 
-    public SqlSessionHolder(SqlSession sqlSession, ExecutorType executorType) {
-        this.sqlSession = sqlSession;
-        this.executorType = executorType;
+    /**
+     * Constructor for UnexpectedRollbackException.
+     * 
+     * @param msg
+     *            the detail message
+     * @param cause
+     *            the root cause from the transaction API in use
+     */
+    public UnexpectedRollbackException(String msg, Throwable cause) {
+        super(msg, cause);
     }
 
 }

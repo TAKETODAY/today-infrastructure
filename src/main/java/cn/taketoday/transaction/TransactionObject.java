@@ -17,28 +17,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.orm.mybatis;
+package cn.taketoday.transaction;
 
-import cn.taketoday.transaction.AbstractResourceHolder;
-
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-
-import lombok.Getter;
+import java.io.Flushable;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 11:24
+ *         2018-11-13 16:58
  */
-@Getter
-public class SqlSessionHolder extends AbstractResourceHolder {
+public interface TransactionObject extends Flushable {
 
-    private final SqlSession sqlSession;
-    private final ExecutorType executorType;
+    /**
+     * Return whether the transaction is internally marked as rollback-only. Can,
+     * for example, check the JTA UserTransaction.
+     * 
+     * @see javax.transaction.UserTransaction#getStatus
+     * @see javax.transaction.Status#STATUS_MARKED_ROLLBACK
+     */
+    boolean isRollbackOnly();
 
-    public SqlSessionHolder(SqlSession sqlSession, ExecutorType executorType) {
-        this.sqlSession = sqlSession;
-        this.executorType = executorType;
-    }
+    /**
+     * Flush the underlying sessions to the datastore, if applicable: for example,
+     * all affected Hibernate/JPA sessions.
+     */
+    @Override
+    void flush();
 
 }

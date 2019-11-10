@@ -28,7 +28,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.transaction.utils.DataSourceUtils;
+import cn.taketoday.jdbc.utils.DataSourceUtils;
 
 /**
  * @author TODAY <br>

@@ -17,28 +17,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.orm.mybatis;
-
-import cn.taketoday.transaction.AbstractResourceHolder;
-
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-
-import lombok.Getter;
+package cn.taketoday.transaction;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 11:24
+ *         2018-10-09 11:09
  */
-@Getter
-public class SqlSessionHolder extends AbstractResourceHolder {
+public class InvalidTimeoutException extends TransactionException {
 
-    private final SqlSession sqlSession;
-    private final ExecutorType executorType;
+    private static final long serialVersionUID = 1L;
 
-    public SqlSessionHolder(SqlSession sqlSession, ExecutorType executorType) {
-        this.sqlSession = sqlSession;
-        this.executorType = executorType;
+    private final int timeout;
+
+    public InvalidTimeoutException(String msg, int timeout) {
+        super(msg);
+        this.timeout = timeout;
+    }
+
+    /**
+     * Return the invalid timeout value.
+     */
+    public int getTimeout() {
+        return this.timeout;
     }
 
 }

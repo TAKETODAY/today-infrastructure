@@ -46,7 +46,7 @@ import java.util.List;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
-import cn.taketoday.context.event.ContextStartedEvent;
+import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.OrderUtils;
@@ -58,10 +58,10 @@ import cn.taketoday.jdbc.mapping.result.ResultResolver;
  *         2019-08-24 12:01
  */
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class JdbcAutoConfiguration implements ApplicationListener<ContextStartedEvent> {
+public class JdbcAutoConfiguration implements ApplicationListener<LoadingMissingBeanEvent> {
 
     @Override
-    public void onApplicationEvent(ContextStartedEvent event) {
+    public void onApplicationEvent(LoadingMissingBeanEvent event) {
 
         LoggerFactory.getLogger(getClass()).info("Preparing TODAY Jdbc Environment");
 

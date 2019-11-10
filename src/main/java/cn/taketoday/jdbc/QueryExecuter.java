@@ -34,6 +34,7 @@ import javax.sql.DataSource;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.jdbc.mapping.ColumnMapping;
 import cn.taketoday.jdbc.mapping.TableMapping;
+import cn.taketoday.jdbc.utils.JdbcUtils;
 
 /**
  * @author TODAY <br>

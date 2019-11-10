@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.jdbc;
+package cn.taketoday.jdbc.utils;
 
 import java.io.PrintWriter;
 import java.math.BigDecimal;
