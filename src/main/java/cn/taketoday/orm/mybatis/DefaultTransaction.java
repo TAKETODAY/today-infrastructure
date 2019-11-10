@@ -40,7 +40,7 @@ import lombok.Setter;
 @Setter
 public class DefaultTransaction implements Transaction {
 
-    private static final Logger log = LoggerFactory.getLogger(SynchronizationManager.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultTransaction.class);
     public static boolean debugEnabled = log.isDebugEnabled();
 
     private boolean autoCommit;
