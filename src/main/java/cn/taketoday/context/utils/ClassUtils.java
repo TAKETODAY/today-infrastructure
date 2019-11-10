@@ -1556,5 +1556,37 @@ public abstract class ClassUtils {
         }
         return constructor;
     }
+    
+    //
+    // ---------------------------------
+    
+    
+    /**
+     * Return the qualified name of the given method, consisting of fully qualified
+     * interface/class name + "." + method name.
+     * 
+     * @param method
+     *            the method
+     * @return the qualified name of the method
+     */
+    public static String getQualifiedMethodName(Method method) {
+        return getQualifiedMethodName(method, null);
+    }
+
+    /**
+     * Return the qualified name of the given method, consisting of fully qualified
+     * interface/class name + "." + method name.
+     * 
+     * @param method
+     *            the method
+     * @param clazz
+     *            the clazz that the method is being invoked on (may be {@code null}
+     *            to indicate the method's declaring class)
+     * @return the qualified name of the method
+     */
+    public static String getQualifiedMethodName(Method method, Class<?> clazz) {
+        Objects.requireNonNull(method, "Method must not be null");
+        return (clazz != null ? clazz : method.getDeclaringClass()).getName() + '.' + method.getName();
+    }
 
 }
