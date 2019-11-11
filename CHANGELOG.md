@@ -58,6 +58,9 @@
 - :sparkles: feat: 添加TemplateLoader，可配置多个模板加载位置
 - :hammer: 重构HandlerMapping
 - :hammer: 重构应用启动逻辑
+- :hammer: 重构拦截器
+
+
 
 
 
