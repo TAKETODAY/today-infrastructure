@@ -46,6 +46,8 @@
 - :sparkles: 添加日志包适配主流日志框架
 - :sparkles: 添加ApplicationEventCapable接口,提高扩展性
 - :sparkles: 添加BeanDefinition#setInitMethods(String[])
+- :bug: 修复重大漏洞：el执行期间潜在的并发问题
+- :bug: 修复bean实例重复创建
 
 
 
