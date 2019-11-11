@@ -132,7 +132,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
         // get all error handlers
         final List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
 
-        final MethodParameter[] emptyArray = MethodParameter.EMPTY_ARRAY;
+        final MethodParameter[] emptyArray = Constant.EMPTY_METHOD_PARAMETER;
 
         for (final Object errorHandler : errorHandlers) {
 

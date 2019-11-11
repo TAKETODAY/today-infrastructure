@@ -56,8 +56,6 @@ public class MethodParameter {
 
     private HandlerMethod handlerMethod;
 
-    public static final MethodParameter[] EMPTY_ARRAY = new MethodParameter[0];
-
     private static final List<ParameterResolver> PARAMETER_RESOLVERS = new ArrayList<>();
 
     public MethodParameter(String name, //@off

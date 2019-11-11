@@ -21,9 +21,9 @@ package cn.taketoday.web.mapping;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Objects;
 
-import cn.taketoday.context.Constant;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
  * Mapping handler to a request
@@ -34,49 +34,44 @@ import cn.taketoday.context.Constant;
 @SuppressWarnings("serial")
 public class HandlerMapping extends HandlerMethod implements WebMapping {
 
-    private static final int[] EMPTY = Constant.EMPTY_INT_ARRAY;
-    /** 处理器类 */
     //	private String				action;
     private final Object bean;
     /** 拦截器 @off*/
-    private final int[] interceptors;
+    private final HandlerInterceptor[] interceptors;
     
     public HandlerMapping(Object bean, 
                           Method method,
-                          List<Integer> interceptors, 
-                          List<MethodParameter> parameters) {
+                          List<HandlerInterceptor> interceptors, List<MethodParameter> parameters) {
         
-        this(bean, method, interceptors,parameters.toArray(MethodParameter.EMPTY_ARRAY));
+        this(bean, method, interceptors, parameters.toArray(Constant.EMPTY_METHOD_PARAMETER));
     }
 
     public HandlerMapping(Object bean, 
                           Method method, 
-                          List<Integer> interceptors, 
-                          MethodParameter... parameters) {
+                          List<HandlerInterceptor> interceptors, MethodParameter... parameters) {
         super(method, parameters);
         
         this.bean = bean;
-        this.interceptors = Objects.requireNonNull(interceptors).size() > 0
-                            ? interceptors.stream().mapToInt(Integer::intValue).toArray()
-                            : EMPTY;
-    }
-    //@on
+        this.interceptors = interceptors != null
+                            ? interceptors.toArray(new HandlerInterceptor[0])
+                            : null;
+    }//@on
 
     public final boolean hasInterceptor() {
-        return interceptors != EMPTY;
+        return interceptors != null;
     }
 
     public final Object getBean() {
         return bean;
     }
 
-    public final int[] getInterceptors() {
+    public final HandlerInterceptor[] getInterceptors() {
         return interceptors;
     }
 
     public static HandlerMapping create(final Object bean,
                                         final Method method,
-                                        final List<Integer> interceptors,
+                                        final List<HandlerInterceptor> interceptors,
                                         final List<MethodParameter> methodParameters) {
 
         return new HandlerMapping(bean, method, interceptors, methodParameters);
@@ -84,7 +79,7 @@ public class HandlerMapping extends HandlerMethod implements WebMapping {
 
     public static HandlerMapping create(final Object bean,
                                         final Method method,
-                                        final List<Integer> interceptors,
+                                        final List<HandlerInterceptor> interceptors,
                                         final MethodParameter... methodParameters) {
 
         return new HandlerMapping(bean, method, interceptors, methodParameters);

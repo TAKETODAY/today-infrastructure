@@ -40,7 +40,7 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.PathMatcher;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.mapping.HandlerInterceptorRegistry;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.mapping.ResourceMapping;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.resolver.DefaultResourceResolver;
@@ -67,21 +67,18 @@ public class ResourceServlet extends GenericServlet {
     private final ResourceResolver resourceResolver;
     /** exception resolver */
     private final ExceptionResolver exceptionResolver;
-    /** intercepter registry @off*/
-    private final HandlerInterceptorRegistry handlerInterceptorRegistry;
 
+    /** @off*/
     @Autowired
     public ResourceServlet( ResourceMappingRegistry registry,
                             ExceptionResolver exceptionResolver,
                             WebApplicationContext applicationContext,
                             @Autowired(required = false) PathMatcher pathMatcher,
-                            HandlerInterceptorRegistry handlerInterceptorRegistry,
                             @Autowired(required = false) ResourceResolver resourceResolver) //@on
     {
 
         this.exceptionResolver = exceptionResolver;
         this.registry = registry.sortResourceMappings();
-        this.handlerInterceptorRegistry = handlerInterceptorRegistry;
         this.contextPathLength = applicationContext.getContextPath().length();
 
         this.pathMatcher = pathMatcher != null ? pathMatcher : new AntPathMatcher();
@@ -111,18 +108,17 @@ public class ResourceServlet extends GenericServlet {
 
             final WebResource resource;
             if (mapping.hasInterceptor()) {
-                final int[] interceptors = mapping.getInterceptors();
+                final HandlerInterceptor[] interceptors = mapping.getInterceptors();
                 // invoke intercepter
-                final HandlerInterceptorRegistry handlerInterceptorRegistry = this.handlerInterceptorRegistry;
-                for (final int interceptor : interceptors) {
-                    if (!handlerInterceptorRegistry.get(interceptor).beforeProcess(requestContext, mapping)) {
-                        log.debug("Resource Interceptor: [{}] return false", handlerInterceptorRegistry.get(interceptor));
+                for (final HandlerInterceptor interceptor : interceptors) {
+                    if (!interceptor.beforeProcess(requestContext, mapping)) {
+                        log.debug("Resource Interceptor: [{}] return false", interceptor);
                         return;
                     }
                 }
                 resource = resourceResolver.resolveResource(path, mapping); // may be null
-                for (final int interceptor : interceptors) {
-                    handlerInterceptorRegistry.get(interceptor).afterProcess(requestContext, mapping, resource);
+                for (final HandlerInterceptor interceptor : interceptors) {
+                    interceptor.afterProcess(requestContext, mapping, resource);
                 }
             }
             else {
@@ -399,5 +395,9 @@ public class ResourceServlet extends GenericServlet {
     @Override
     public String getServletInfo() {
         return "ResourceServlet, Copyright © TODAY & 2017 - 2019 All Rights Reserved";
+    }
+
+    public final ResourceResolver getResourceResolver() {
+        return resourceResolver;
     }
 }

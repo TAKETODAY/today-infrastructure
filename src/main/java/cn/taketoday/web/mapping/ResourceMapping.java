@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resource.CacheControl;
 import lombok.Getter;
 
@@ -40,10 +41,9 @@ import lombok.Getter;
 @SuppressWarnings("serial")
 public final class ResourceMapping implements WebMapping, Ordered {
 
-    private static final int[] EMPTY = Constant.EMPTY_INT_ARRAY;
     private static final int DEFAULT_BUFFER_SIZE = 8192;
 
-    private int[] interceptors;
+    private HandlerInterceptor[] interceptors;
 
     private String[] pathPatterns;
 
@@ -61,11 +61,9 @@ public final class ResourceMapping implements WebMapping, Ordered {
 
     private final List<String> locations = new ArrayList<>();
 
-    public ResourceMapping(List<Integer> interceptors, String... pathPatterns) {
+    public ResourceMapping(HandlerInterceptor[] interceptors, String... pathPatterns) {
 
-        this.setInterceptors(interceptors != null && interceptors.size() > 0 //
-                ? interceptors.stream().mapToInt(Integer::intValue).toArray() //
-                : EMPTY);
+        this.setInterceptors(interceptors);
 
         setPathPatterns(pathPatterns);
     }
@@ -82,7 +80,7 @@ public final class ResourceMapping implements WebMapping, Ordered {
         return this.pathPatterns;
     }
 
-    public final int[] getInterceptors() {
+    public final HandlerInterceptor[] getInterceptors() {
         return interceptors;
     }
 
@@ -90,13 +88,13 @@ public final class ResourceMapping implements WebMapping, Ordered {
         return cacheControl;
     }
 
-    public ResourceMapping setInterceptors(int[] interceptors) {
+    public ResourceMapping setInterceptors(HandlerInterceptor[] interceptors) {
         this.interceptors = interceptors;
         return this;
     }
 
     public final boolean hasInterceptor() {
-        return interceptors != EMPTY;
+        return interceptors != null;
     }
 
     /**

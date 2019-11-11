@@ -19,6 +19,9 @@
  */
 package cn.taketoday.web;
 
+import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.mapping.MethodParameter;
+
 /**
  * @author TODAY <br>
  * 
@@ -34,6 +37,9 @@ package cn.taketoday.web;
 public interface Constant extends cn.taketoday.context.Constant {
 
     String WEB_VERSION = "2.3.7.RELEASE";
+    
+    MethodParameter[] EMPTY_METHOD_PARAMETER= new MethodParameter[0];
+    HandlerInterceptor[] EMPTY_HANDLER_INTERCEPTOR = new HandlerInterceptor[0];
 
     String NOT_FOUND = "Not Found";
     String BAD_REQUEST = "Bad Request";

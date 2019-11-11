@@ -34,6 +34,7 @@ import cn.taketoday.context.invoker.MethodInvoker;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.resolver.result.ResultResolver;
@@ -77,7 +78,7 @@ public class HandlerMethod implements ObjectFactory<Object> {
     }
 
     public HandlerMethod(Method method, List<MethodParameter> parameters) {
-        this(method, parameters == null ? null : parameters.toArray(MethodParameter.EMPTY_ARRAY));
+        this(method, parameters == null ? null : parameters.toArray(Constant.EMPTY_METHOD_PARAMETER));
     }
 
     public HandlerMethod(Method method, MethodParameter... parameters) {
@@ -87,7 +88,7 @@ public class HandlerMethod implements ObjectFactory<Object> {
         this.genericityClass = ClassUtils.getGenericityClass(reutrnType);
 
         if (ObjectUtils.isEmpty(parameters)) {
-            this.parameters = MethodParameter.EMPTY_ARRAY;
+            this.parameters = null;
         }
         else {
             for (final MethodParameter parameter : parameters) {
@@ -190,7 +191,7 @@ public class HandlerMethod implements ObjectFactory<Object> {
     public Object[] resolveParameters(final RequestContext requestContext) throws Throwable {
         // log.debug("set parameter start");
         final MethodParameter[] parameters = getParameters();
-        if (parameters == MethodParameter.EMPTY_ARRAY) {
+        if (parameters == null) {
             return null;
         }
         final Object[] args = new Object[parameters.length];

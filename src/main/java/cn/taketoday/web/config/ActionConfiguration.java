@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -41,6 +42,7 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.env.Environment;
+import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.AbstractBeanFactory.Prototypes;
@@ -62,7 +64,6 @@ import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RootController;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.mapping.HandlerInterceptorRegistry;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.HandlerMethod;
@@ -73,17 +74,14 @@ import cn.taketoday.web.mapping.MethodParameter;
  */
 @Singleton(Constant.ACTION_CONFIG)
 public class ActionConfiguration implements Ordered, DisposableBean, WebApplicationInitializer {
-    
+
     private static final Logger log = LoggerFactory.getLogger(ActionConfiguration.class);
-    
+
     private final String contextPath;
     private Properties variables;
 
     @Autowired(Constant.HANDLER_MAPPING_REGISTRY)
     public HandlerMappingRegistry handlerMappingRegistry;
-
-    @Autowired(Constant.HANDLER_INTERCEPTOR_REGISTRY)
-    public HandlerInterceptorRegistry handlerInterceptorRegistry;
 
     private final BeanDefinitionLoader beanDefinitionLoader;
 
@@ -382,7 +380,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
 
         final List<MethodParameter> methodParameters = createMethodParameters(method);
 
-        return HandlerMapping.create(bean, method, getInterceptor(beanClass, method), methodParameters);
+        return HandlerMapping.create(bean, method, getInterceptors(beanClass, method), methodParameters);
     }
 
     /***
@@ -410,7 +408,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      * @param parameter
      *            Reflect parameter
      * @param methodArgsName
-     *            method parameter namesM
+     *            method parameter names
      * @return {@link MethodParameter}
      */
     public static MethodParameter createMethodParameter(Parameter parameter, String methodArgsName) {
@@ -454,72 +452,59 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      * @param action
      *            method
      */
-    protected List<Integer> getInterceptor(final Class<?> controllerClass, final Method action) {
+    protected List<HandlerInterceptor> getInterceptors(final Class<?> controllerClass, final Method action) {
 
-        final List<Integer> ids = new ArrayList<>();
+        final List<HandlerInterceptor> ret = new ArrayList<>();
 
         // 设置类拦截器
         final Interceptor controllerInterceptors = controllerClass.getAnnotation(Interceptor.class);
         if (controllerInterceptors != null) {
-            ids.addAll(addInterceptors(controllerInterceptors.value()));
+            Collections.addAll(ret, addInterceptors(controllerInterceptors.value()));
         }
         // HandlerInterceptor on a method
         final Interceptor actionInterceptors = action.getAnnotation(Interceptor.class);
 
         if (actionInterceptors != null) {
-            ids.addAll(addInterceptors(actionInterceptors.value()));
-
+            Collections.addAll(ret, addInterceptors(actionInterceptors.value()));
             for (Class<? extends HandlerInterceptor> interceptor : actionInterceptors.exclude()) {
-                final int index = handlerInterceptorRegistry.indexOf(interceptor);
-                if (index >= 0) {
-                    ids.remove(Integer.valueOf(index));
-                }
+                ret.remove(beanFactory.getBean(interceptor));
             }
         }
 
-        return ids;
+        return ret;
     }
 
     /***
-     * Register intercepter id into intercepter registry
+     * Register intercepter object list
      * 
      * @param interceptors
      *            {@link HandlerInterceptor} class
-     * @return A list of {@link HandlerInterceptor} index
+     * @return A list of {@link HandlerInterceptor} objects
      */
-    public List<Integer> addInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
+    public HandlerInterceptor[] addInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
 
-        if (interceptors == null || interceptors.length == 0) {
-            return Collections.emptyList();
+        if (ObjectUtils.isEmpty(interceptors)) {
+            return Constant.EMPTY_HANDLER_INTERCEPTOR;
         }
 
-        final HandlerInterceptorRegistry handlerInterceptorRegistry = this.handlerInterceptorRegistry;
+        final AbstractBeanFactory beanFactory = this.beanFactory;
 
-        final List<Integer> ids = new ArrayList<>(interceptors.length);
-
+        int i = 0;
+        final HandlerInterceptor[] ret = new HandlerInterceptor[interceptors.length];
         for (Class<? extends HandlerInterceptor> interceptor : interceptors) {
-            try {
-                final int index = handlerInterceptorRegistry.indexOf(interceptor); // 获得对象的位置
-                if (index >= 0) {
-                    ids.add(Integer.valueOf(index));
+
+            if (!beanFactory.containsBeanDefinition(interceptor, true)) {
+                try {
+                    beanFactory.registerBean(beanDefinitionLoader.createBeanDefinition(interceptor));
                 }
-                else {
-                    final HandlerInterceptor newInstance;
-                    if (beanFactory.containsBeanDefinition(interceptor)) {
-                        newInstance = beanFactory.getBean(interceptor);
-                    }
-                    else {
-                        newInstance = (HandlerInterceptor) beanFactory//
-                                .refresh(beanDefinitionLoader.createBeanDefinition(interceptor));
-                    }
-                    ids.add(Integer.valueOf(handlerInterceptorRegistry.add(newInstance)));
+                catch (BeanDefinitionStoreException e) {
+                    throw new ConfigurationException("Interceptor: [" + interceptor.getName() + "] register error", e);
                 }
             }
-            catch (Exception e) {
-                throw new ConfigurationException("Interceptor: [" + interceptor.getName() + "] register error", e);
-            }
+            final HandlerInterceptor instance = beanFactory.getBean(interceptor);
+            ret[i++] = Objects.requireNonNull(instance, "Can't get target interceptor bean");
         }
-        return ids;
+        return ret;
     }
 
     @Override

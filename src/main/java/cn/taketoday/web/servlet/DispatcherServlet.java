@@ -41,7 +41,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.HandlerInterceptorRegistry;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.RegexMapping;
@@ -62,8 +62,6 @@ public class DispatcherServlet implements Servlet, Serializable {
     private final ExceptionResolver exceptionResolver;
     /** Action mapping registry */
     private final HandlerMappingRegistry handlerMappingRegistry;
-    /** intercepter registry */
-    private final HandlerInterceptorRegistry handlerInterceptorRegistry;
 
     private final WebServletApplicationContext applicationContext;
 
@@ -72,8 +70,7 @@ public class DispatcherServlet implements Servlet, Serializable {
     @Autowired
     public DispatcherServlet(ExceptionResolver exceptionResolver, //@off
                              HandlerMappingRegistry handlerMappingRegistry,
-                             WebServletApplicationContext applicationContext,
-                             HandlerInterceptorRegistry handlerInterceptorRegistry) //@on
+                             WebServletApplicationContext applicationContext) //@on
     {
         if (exceptionResolver == null) {
             throw new ConfigurationException("You must provide an 'exceptionResolver'");
@@ -81,7 +78,6 @@ public class DispatcherServlet implements Servlet, Serializable {
         this.exceptionResolver = exceptionResolver;
         this.applicationContext = applicationContext;
         this.handlerMappingRegistry = handlerMappingRegistry;
-        this.handlerInterceptorRegistry = handlerInterceptorRegistry;
     }
 
     /**
@@ -120,20 +116,19 @@ public class DispatcherServlet implements Servlet, Serializable {
             // Handler Method
             if (mapping.hasInterceptor()) {
                 // get intercepter s
-                final int[] its = mapping.getInterceptors();
+                final HandlerInterceptor[] interceptors = mapping.getInterceptors();
                 // invoke intercepter
-                final HandlerInterceptorRegistry registry = this.handlerInterceptorRegistry;
-                for (final int i : its) {
-                    if (!registry.get(i).beforeProcess(context, mapping)) {
+                for (final HandlerInterceptor intercepter : interceptors) {
+                    if (!intercepter.beforeProcess(context, mapping)) {
                         if (log.isDebugEnabled()) {
-                            log.debug("Interceptor: [{}] return false", registry.get(i));
+                            log.debug("Interceptor: [{}] return false", intercepter);
                         }
                         return;
                     }
                 }
                 result = mapping.invokeHandler(context);
-                for (final int i : its) {
-                    registry.get(i).afterProcess(context, mapping, result);
+                for (final HandlerInterceptor intercepter : interceptors) {
+                    intercepter.afterProcess(context, mapping, result);
                 }
             }
             else {
@@ -223,10 +218,6 @@ public class DispatcherServlet implements Servlet, Serializable {
                 servletConfig.getServletContext().log(msg);
             }
         }
-    }
-
-    public final HandlerInterceptorRegistry getHandlerInterceptorRegistry() {
-        return this.handlerInterceptorRegistry;
     }
 
     public final HandlerMappingRegistry getHandlerMappingRegistry() {

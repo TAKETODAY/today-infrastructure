@@ -24,6 +24,7 @@ import java.util.List;
 
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.utils.ContextUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.config.ActionConfiguration;
@@ -52,11 +53,12 @@ public class ResourceMappingRegistry {
         final ActionConfiguration actionConfiguration = //
                 ContextUtils.getApplicationContext().getBean(Constant.ACTION_CONFIG, ActionConfiguration.class);
 
-        ResourceMapping resourceHandlerMapping = //
-                new ResourceMapping(actionConfiguration.addInterceptors(handlerInterceptors));
+        final HandlerInterceptor[] interceptors = actionConfiguration.addInterceptors(handlerInterceptors);
+        ResourceMapping resourceMapping = //
+                new ResourceMapping(ObjectUtils.isEmpty(interceptors) ? null : interceptors);
 
-        this.getResourceMappings().add(resourceHandlerMapping);
-        return resourceHandlerMapping;
+        this.getResourceMappings().add(resourceMapping);
+        return resourceMapping;
     }
 
     public boolean isEmpty() {
