@@ -1,6 +1,6 @@
-name: Java CI
+name: Maven And Coveralls 
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -16,4 +16,10 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Maven
-      run: mvn package
+      run: mvn install
+      
+    - name: Coveralls GitHub Action
+      uses: coverallsapp/github-action@v1.0.1
+      with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
