@@ -1,4 +1,5 @@
-name: Maven And Coveralls 
+#name: Maven And Coveralls 
+name: Java CI
 
 on: ["push", "pull_request"]
 
@@ -18,14 +19,14 @@ jobs:
     - name: Build with Maven
       run: mvn install
       
-    - name: Coveralls GitHub Action
-      uses: coverallsapp/github-action@v1.0.1
-      with:
-          github-token: ${{ secrets.github_token }}
-          parallel: true
+#    - name: Coveralls GitHub Action
+#      uses: coverallsapp/github-action@v1.0.1
+#      with:
+#          github-token: ${{ secrets.github_token }}
+#          parallel: true
       
-    - name: Coveralls Finished
-      uses: coverallsapp/github-action@v1.0.1
-      with:
-          github-token: ${{ secrets.github_token }}
-          parallel-finished: true
+#    - name: Coveralls Finished
+#      uses: coverallsapp/github-action@v1.0.1
+#      with:
+#          github-token: ${{ secrets.github_token }}
+#          parallel-finished: true
