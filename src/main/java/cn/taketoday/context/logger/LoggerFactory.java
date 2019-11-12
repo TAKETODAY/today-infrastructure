@@ -46,13 +46,13 @@ public abstract class LoggerFactory {
     public static Logger getLogger(String name) {
         if (factory == null) {
             synchronized (LoggerFactory.class) {
-                return getLoggerFactory(name);
+                return fromFactory(name);
             }
         }
         return factory.createLogger(name);
     }
 
-    private static Logger getLoggerFactory(String name) {
+    private static Logger fromFactory(String name) {
 
         final String type = System.getProperty(LOG_TYPE_SYSTEM_PROPERTY);
         if (type != null) {
