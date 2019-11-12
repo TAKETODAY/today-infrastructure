@@ -21,6 +21,9 @@ package cn.taketoday.context.logger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.Message;
+import org.apache.logging.log4j.spi.LocationAwareLogger;
+import org.apache.logging.log4j.util.StackLocatorUtil;
 
 /**
  * @author TODAY <br>
@@ -64,52 +67,69 @@ public class Log4j2Logger extends AbstractLogger {
         return logger.isErrorEnabled();
     }
 
-    @Override
-    protected void logInternal(Level level, String msg, Throwable t, Object[] args) {
-
-        if (t == null) {
-            switch (level) {
-                case DEBUG :
-                    logger.debug(msg, args);
-                    break;
-                case INFO :
-                    logger.info(msg, args);
-                    break;
-                case WARN :
-                    logger.warn(msg, args);
-                    break;
-                case ERROR :
-                    logger.error(msg, args);
-                    break;
-                case TRACE :
-                    logger.trace(msg, args);
-                    break;
-                default:
-                    logger.info(msg, args);
-                    break;
-            }
+    protected org.apache.logging.log4j.Level getLevel(Level level) {
+        switch (level) {
+            case DEBUG :
+                return org.apache.logging.log4j.Level.DEBUG;
+            case WARN :
+                return org.apache.logging.log4j.Level.WARN;
+            case ERROR :
+                return org.apache.logging.log4j.Level.ERROR;
+            case TRACE :
+                return org.apache.logging.log4j.Level.ERROR;
+            case INFO :
+            default:
+                return org.apache.logging.log4j.Level.INFO;
         }
-        else
-            switch (level) {
-                case DEBUG :
-                    logger.debug(msg, args, t);
-                    break;
-                case INFO :
-                    logger.info(msg, args, t);
-                    break;
-                case WARN :
-                    logger.warn(msg, args, t);
-                    break;
-                case ERROR :
-                    logger.error(msg, args, t);
-                    break;
-                case TRACE :
-                    logger.trace(msg, args, t);
-                    break;
-                default:
-                    logger.info(msg, args, t);
-                    break;
-            }
     }
 
+    @Override
+    protected void logInternal(Level level, String format, Throwable t, Object[] args) {
+
+        final Message message = new Message() {
+
+            private static final long serialVersionUID = 1L;
+            private String msg;
+
+            @Override
+            public Throwable getThrowable() {
+                return t;
+            }
+
+            @Override
+            public Object[] getParameters() {
+                return args;
+            }
+
+            @Override
+            public String getFormattedMessage() {
+                if (msg == null) {
+                    msg = MessageFormatter.format(format, args);
+                }
+                return msg;
+            }
+
+            @Override
+            public String getFormat() {
+                return msg;
+            }
+        };
+
+        if (logger instanceof LocationAwareLogger) {
+            ((LocationAwareLogger) logger).logMessage(getLevel(level), null, FQCN, StackLocatorUtil.calcLocation(FQCN),
+                                                      message, t);
+        }
+        else {
+            logger.log(getLevel(level), message, t);
+        }
+    }
+
+}
+
+final class Log4j2LoggerFactory extends LoggerFactory {
+
+    @Override
+    protected cn.taketoday.context.logger.Logger createLogger(String name) {
+        return new Log4j2Logger(name);
+    }
 }

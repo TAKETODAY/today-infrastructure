@@ -19,10 +19,6 @@
  */
 package cn.taketoday.context.logger;
 
-import java.util.function.Function;
-
-import cn.taketoday.context.utils.ClassUtils;
-
 /**
  * Factory that creates {@link Logger} instances.
  * 
@@ -31,9 +27,9 @@ import cn.taketoday.context.utils.ClassUtils;
  */
 public abstract class LoggerFactory {
 
-    public static final String LOG_TYPE_SYSTEM_PROPERTY = "logger.type";
+    public static final String LOG_TYPE_SYSTEM_PROPERTY = "logger.factory";
 
-    private static LoggerType loggerType;
+    public static LoggerFactory factory;
 
     protected abstract Logger createLogger(String name);
 
@@ -48,18 +44,21 @@ public abstract class LoggerFactory {
      * Return a logger associated with a particular class name.
      */
     public static Logger getLogger(String name) {
-        if (loggerType == null) {
-            loggerType = getLoggerType();
+        if (factory == null) {
+            synchronized (LoggerFactory.class) {
+                return getLoggerFactory(name);
+            }
         }
-        return loggerType.create(name);
+        return factory.createLogger(name);
     }
 
-    private static LoggerType getLoggerType() {
+    private static Logger getLoggerFactory(String name) {
 
         final String type = System.getProperty(LOG_TYPE_SYSTEM_PROPERTY);
         if (type != null) {
             try {
-                return LoggerType.valueOf(type);
+                factory = (LoggerFactory) Class.forName(type).newInstance();
+                return factory.createLogger(name);
             }
             catch (Throwable e) {
                 e.printStackTrace();
@@ -67,46 +66,29 @@ public abstract class LoggerFactory {
                         LOG_TYPE_SYSTEM_PROPERTY + "', value '" + type + "'");
             }
         }
-        else {
-            for (final LoggerType logType : LoggerType.values()) {
-                if (logType.isAvailable()) {
-                    return logType;
-                }
-            }
-        }
-        return LoggerType.DEFAULT;
-    }
 
-    public static void setLoggerType(final LoggerType logType) {
-        loggerType = logType;
-    }
-    
-    public enum LoggerType {
-
-        SLF4J("org.slf4j.Logger", Slf4jLogger::new),
-        COMMONS("org.apache.commons.logging.Log", CommonsLogger::new),
-        LOG4J2("org.apache.logging.log4j.Logger", Log4j2Logger::new),
-        DEFAULT("java.util.logging.Logger", JavaLoggingLogger::new);
-
-        private final String name;
-        private final LoggerFactory factory;
-
-        LoggerType(String name, Function<String, Logger> factory) {
-            this.name = name;
-            this.factory = new LoggerFactory() {
-                @Override
-                protected Logger createLogger(String name) {
-                    return factory.apply(name);
-                }
-            };
-        }
-
-        public boolean isAvailable() {
-            return ClassUtils.isPresent(name);
-        }
-
-        public Logger create(String name) {
+        try {
+            factory = new Slf4jLoggerFactory();
             return factory.createLogger(name);
         }
+        catch (Throwable e) {}
+        try {
+            factory = new Log4j2LoggerFactory();
+            return factory.createLogger(name);
+        }
+        catch (Throwable e) {}
+        
+        factory = new LoggerFactory() {
+            @Override
+            protected Logger createLogger(String name) {
+                return new JavaLoggingLogger(name);
+            }
+        };
+        return factory.createLogger(name);
     }
+
+    public static void setFactory(final LoggerFactory type) {
+        factory = type;
+    }
+
 }

@@ -19,16 +19,18 @@
  */
 package cn.taketoday.context.logger;
 
+import org.slf4j.spi.LocationAwareLogger;
+
 /**
  * @author TODAY <br>
  *         2019-11-03 13:55
  */
-public class Slf4jLogger implements Logger {
+public class Slf4jLogger extends AbstractLogger {
 
-    private final org.slf4j.Logger target;
+    private final transient org.slf4j.Logger target;
 
     public Slf4jLogger(String className) {
-        this.target = org.slf4j.LoggerFactory.getLogger(className);
+        target = org.slf4j.LoggerFactory.getLogger(className);
     }
 
     @Override
@@ -55,7 +57,6 @@ public class Slf4jLogger implements Logger {
     public boolean isErrorEnabled() {
         return target.isErrorEnabled();
     }
-    //
 
     @Override
     public String getName() {
@@ -63,128 +64,58 @@ public class Slf4jLogger implements Logger {
     }
 
     @Override
-    public void trace(String msg) {
-        target.trace(msg);
+    protected void logInternal(Level level, String format, Throwable t, Object[] args) {
+
+        if (target instanceof LocationAwareLogger) { // MessageFormatter.format(format, args)
+            int i = 0;
+            switch (level) {
+                case DEBUG :
+                    i = LocationAwareLogger.DEBUG_INT;
+                    break;
+                case ERROR :
+                    i = LocationAwareLogger.ERROR_INT;
+                    break;
+                case TRACE :
+                    i = LocationAwareLogger.TRACE_INT;
+                    break;
+                case WARN :
+                    i = LocationAwareLogger.WARN_INT;
+                    break;
+                default:
+                    i = LocationAwareLogger.INFO_INT;
+                    break;
+            }
+            ((LocationAwareLogger) target).log(null, FQCN, i, format, args, t);//"Today Context"
+        }
+        else {
+
+            final String msg = MessageFormatter.format(format, args);
+            switch (level) {
+                case DEBUG :
+                    target.debug(msg, t);
+                    break;
+                case ERROR :
+                    target.error(msg, t);
+                    break;
+                case TRACE :
+                    target.trace(msg, t);
+                    break;
+                case WARN :
+                    target.warn(msg, t);
+                    break;
+                default:
+                    target.info(msg, t);
+                    break;
+            }
+        }
     }
+
+}
+
+class Slf4jLoggerFactory extends LoggerFactory {
 
     @Override
-    public void trace(String format, Object arg) {
-        target.trace(format, arg);
+    protected Logger createLogger(String name) {
+        return new Slf4jLogger(name);
     }
-
-    @Override
-    public void trace(String format, Object arg1, Object arg2) {
-        target.trace(format, arg1, arg2);
-    }
-
-    @Override
-    public void trace(String format, Object... arguments) {
-        target.trace(format, arguments);
-    }
-
-    @Override
-    public void trace(String msg, Throwable t) {
-        target.trace(msg, t);
-    }
-
-    @Override
-    public void debug(String msg) {
-        target.debug(msg);
-    }
-
-    @Override
-    public void debug(String format, Object arg) {
-        target.debug(format, arg);
-    }
-
-    @Override
-    public void debug(String format, Object arg1, Object arg2) {
-        target.debug(format, arg1, arg2);
-    }
-
-    @Override
-    public void debug(String format, Object... arguments) {
-        target.debug(format, arguments);
-    }
-
-    @Override
-    public void debug(String msg, Throwable t) {
-        target.debug(msg, t);
-    }
-
-    @Override
-    public void info(String msg) {
-        target.info(msg);
-    }
-
-    @Override
-    public void info(String format, Object arg) {
-        target.info(format, arg);
-    }
-
-    @Override
-    public void info(String format, Object arg1, Object arg2) {
-        target.info(format, arg1, arg2);
-    }
-
-    @Override
-    public void info(String format, Object... arguments) {
-        target.info(format, arguments);
-    }
-
-    @Override
-    public void info(String msg, Throwable t) {
-        target.info(msg, t);
-    }
-
-    @Override
-    public void warn(String msg) {
-        target.warn(msg);
-    }
-
-    @Override
-    public void warn(String format, Object arg) {
-        target.warn(format, arg);
-    }
-
-    @Override
-    public void warn(String format, Object... arguments) {
-        target.warn(format, arguments);
-    }
-
-    @Override
-    public void warn(String format, Object arg1, Object arg2) {
-        target.warn(format, arg1, arg2);
-    }
-
-    @Override
-    public void warn(String msg, Throwable t) {
-        target.warn(msg, t);
-    }
-
-    @Override
-    public void error(String msg) {
-        target.error(msg);
-    }
-
-    @Override
-    public void error(String format, Object arg) {
-        target.error(format, arg);
-    }
-
-    @Override
-    public void error(String format, Object arg1, Object arg2) {
-        target.error(format, arg1, arg2);
-    }
-
-    @Override
-    public void error(String format, Object... arguments) {
-        target.error(format, arguments);
-    }
-
-    @Override
-    public void error(String msg, Throwable t) {
-        target.error(msg, t);
-    }
-
 }

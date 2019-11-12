@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.logger;
 
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 /**
@@ -80,9 +81,61 @@ public class JavaLoggingLogger extends AbstractLogger {
         }
     }
 
+    static final String thisFQCN = JavaLoggingLogger.class.getName();
+
     @Override
-    protected void logInternal(Level level, String msg, Throwable t, Object[] args) {
-        logger.log(levelToJavaLevel(level), buildMessage(msg, args), t);
+    protected void logInternal(Level level, String format, Throwable t, Object[] args) {
+
+        final java.util.logging.Level levelToJavaLevel = levelToJavaLevel(level);
+
+        if (logger.isLoggable(levelToJavaLevel)) {
+
+            // millis and thread are filled by the constructor
+            final LogRecord record = new LogRecord(levelToJavaLevel, MessageFormatter.format(format, args));
+
+            record.setLoggerName(getName());
+            record.setThrown(t);
+            fillCallerData(record, thisFQCN, FQCN);
+            logger.log(record);
+        }
     }
 
+    /**
+     * From io.netty.util.internal.logging.JdkLogger#fillCallerData
+     * 
+     * <p>
+     * Fill in caller data if possible.
+     *
+     * @param record
+     *            The record to update
+     */
+    private static void fillCallerData(LogRecord record, String callerFQCN, String superFQCN) {
+        StackTraceElement[] steArray = new Throwable().getStackTrace();
+
+        int selfIndex = -1;
+        for (int i = 0; i < steArray.length; i++) {
+            final String className = steArray[i].getClassName();
+            if (className.equals(callerFQCN) || className.equals(superFQCN)) {
+                selfIndex = i;
+                break;
+            }
+        }
+
+        int found = -1;
+        for (int i = selfIndex + 1; i < steArray.length; i++) {
+            final String className = steArray[i].getClassName();
+            if (!(className.equals(callerFQCN) || className.equals(superFQCN))) {
+                found = i;
+                break;
+            }
+        }
+
+        if (found != -1) {
+            StackTraceElement ste = steArray[found];
+            // setting the class name has the side effect of setting
+            // the needToInferCaller variable to false.
+            record.setSourceClassName(ste.getClassName());
+            record.setSourceMethodName(ste.getMethodName());
+        }
+    }
 }

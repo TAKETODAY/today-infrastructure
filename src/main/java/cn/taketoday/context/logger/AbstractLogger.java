@@ -19,13 +19,13 @@
  */
 package cn.taketoday.context.logger;
 
-import java.lang.reflect.Array;
-
 /**
  * @author TODAY <br>
  *         2019-11-03 15:12
  */
 public abstract class AbstractLogger implements Logger {
+
+    static final String FQCN = AbstractLogger.class.getName();
 
     @Override
     public void trace(String msg) {
@@ -180,77 +180,5 @@ public abstract class AbstractLogger implements Logger {
     }
 
     protected abstract void logInternal(Level level, String msg, Throwable t, Object[] args);
-
-    // 
-    // -----------------------------------
-
-    private final static String ARG_PLACE_HOLDER = "{}";
-    private final static int DEFAULT_MESSAGE_LENGTH = 128;
-
-    /**
-     * Build a message like a slf4j
-     * 
-     * @param format
-     *            Input message format
-     * @param arguments
-     *            Message arguments
-     * @return a formatted message
-     */
-    public static String buildMessage(String format, Object[] arguments) {
-        if (arguments == null) {
-            return format;
-        }
-        StringBuilder sb = null;
-        int lastIndex = 0;
-        int argCount = 0;
-        while (true) {
-            int argIndex = format.indexOf(ARG_PLACE_HOLDER, lastIndex);
-            // no more {} arguments?
-            if (argIndex == -1) {
-                break;
-            }
-            if (sb == null) {
-                // we build this lazily in case there is no {} in the msg
-                sb = new StringBuilder(DEFAULT_MESSAGE_LENGTH);
-            }
-            // add the string before the arg-string
-            sb.append(format, lastIndex, argIndex);
-            // shift our last-index past the arg-string
-            lastIndex = argIndex + 2;
-            // add the argument, if we still have any
-            if (argCount < arguments.length) {
-                appendArgument(sb, arguments[argCount]);
-            }
-            argCount++;
-        }
-        if (sb == null) {
-            return format;
-        }
-        // spit out the end of the msg
-        sb.append(format, lastIndex, format.length());
-        return sb.toString();
-    }
-
-    public static void appendArgument(StringBuilder sb, Object arg) {
-        if (arg != null) {
-            if (arg.getClass().isArray()) {
-                // if we have an array argument
-                sb.append('[');
-                int length = Array.getLength(arg);
-                for (int i = 0; i < length; i++) {
-                    if (i > 0) {
-                        sb.append(", ");
-                    }
-                    // recursive in case we have an array of arrays
-                    appendArgument(sb, Array.get(arg, i));
-                }
-                sb.append(']');
-            }
-            else {
-                // might as well to the toString here because we know it isn't null
-                sb.append(arg);
-            }
-        }
-    }
 
 }
