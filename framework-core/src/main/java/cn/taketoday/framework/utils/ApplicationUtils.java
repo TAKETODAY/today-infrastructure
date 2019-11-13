@@ -30,13 +30,49 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.framework.ConfigurableWebServerApplicationContext;
+import cn.taketoday.framework.Constant;
+import cn.taketoday.framework.server.AbstractWebServer;
+import cn.taketoday.framework.server.ConfigurableWebServer;
+import cn.taketoday.framework.server.WebServer;
 
 /**
  * @author TODAY <br>
  *         2019-06-19 20:05
  */
 public abstract class ApplicationUtils {
+
+    public static WebServer obtainWebServer(ConfigurableWebServerApplicationContext beanFactory) throws Throwable {
+
+        ConfigurableEnvironment environment = beanFactory.getEnvironment();
+        // disable web mvc xml
+        environment.setProperty(Constant.ENABLE_WEB_MVC_XML, "false");
+
+        final Logger logger = LoggerFactory.getLogger(ApplicationUtils.class);
+        logger.info("Looking For: [{}] Bean.", WebServer.class.getName());
+
+        // Get WebServer instance
+        WebServer webServer = beanFactory.getBean(WebServer.class);
+        if (webServer == null) {
+            throw new ConfigurationException("The context doesn't exist a [cn.taketoday.framework.server.WebServer] bean");
+        }
+
+        if (webServer instanceof ConfigurableWebServer) {
+            if (webServer instanceof AbstractWebServer) {
+                ((AbstractWebServer) webServer).getWebApplicationConfiguration()
+                        .configureWebServer((AbstractWebServer) webServer);
+            }
+            logger.info("Initializing Web Server: [{}]", webServer);
+            ((ConfigurableWebServer) webServer).initialize();
+        }
+        return webServer;
+    }
 
     /**
      * @param startupClass

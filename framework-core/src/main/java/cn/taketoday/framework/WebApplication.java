@@ -19,18 +19,13 @@
  */
 package cn.taketoday.framework;
 
-import java.util.Objects;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.env.ConfigurableEnvironment;
-import cn.taketoday.context.env.DefaultBeanNameCreator;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
-import cn.taketoday.framework.annotation.ComponentScan;
 import cn.taketoday.framework.env.StandardWebEnvironment;
 import cn.taketoday.framework.server.WebServer;
 import lombok.Getter;
@@ -44,11 +39,8 @@ public class WebApplication {
 
     private static final Logger log = LoggerFactory.getLogger(WebApplication.class);
 
-    private static ServletWebServerApplicationContext applicationContext;
-
-    private Class<?> startupClass;
-
     private final String appBasePath = System.getProperty("user.dir");
+    private ConfigurableWebServerApplicationContext applicationContext;
 
     public WebApplication() {
         applicationContext = new ServletWebServerApplicationContext();
@@ -56,10 +48,9 @@ public class WebApplication {
 
     public WebApplication(Class<?> startupClass) {
         applicationContext = new ServletWebServerApplicationContext(startupClass);
-        this.setStartupClass(Objects.requireNonNull(startupClass));
     }
 
-    public static ServletWebServerApplicationContext getApplicationContext() {
+    public ConfigurableWebServerApplicationContext getApplicationContext() {
         return applicationContext;
     }
 
@@ -70,10 +61,8 @@ public class WebApplication {
      *            Startup class
      * @param args
      *            Startup arguments
-     * 
-     * @return
      */
-    public static WebServerApplicationContext run(Class<?> startupClass, String... args) {
+    public static ConfigurableWebServerApplicationContext run(Class<?> startupClass, String... args) {
         return new WebApplication(startupClass).run(args);
     }
 
@@ -84,17 +73,16 @@ public class WebApplication {
      *            Startup arguments
      * @return {@link WebServerApplicationContext}
      */
-    public WebServerApplicationContext run(String... args) {
+    public ConfigurableWebServerApplicationContext run(String... args) {
+        log.debug(appBasePath);
 
-        final ServletWebServerApplicationContext applicationContext = getApplicationContext();
+        final ConfigurableWebServerApplicationContext applicationContext = getApplicationContext();
 
         try {
 
-            log.debug(appBasePath);
+            applicationContext.registerSingleton(this);
 
-            applicationContext.registerSingleton(WebApplication.class.getName(), this);
-
-            final Class<?> startupClass = getStartupClass();
+            final Class<?> startupClass = applicationContext.getStartupClass();
 
             final ConfigurableEnvironment environment = new StandardWebEnvironment(startupClass, args);
 
@@ -102,17 +90,6 @@ public class WebApplication {
 
             ComponentScan componentScan = startupClass.getAnnotation(ComponentScan.class);
             if (componentScan != null) {
-                // bean name creator
-                final BeanNameCreator beanNameCreator;
-                final Class<? extends BeanNameCreator> nameCreator = componentScan.nameCreator();
-                if (nameCreator == DefaultBeanNameCreator.class) {
-                    beanNameCreator = new DefaultBeanNameCreator(true);
-                }
-                else {
-                    beanNameCreator = ClassUtils.newInstance(nameCreator, applicationContext);
-                }
-
-                applicationContext.getBeanFactory().setBeanNameCreator(beanNameCreator);
                 applicationContext.loadContext(componentScan.value());
             }
             else {
@@ -137,16 +114,6 @@ public class WebApplication {
             throw ExceptionUtils.newConfigurationException(e);
         }
         return applicationContext;
-    }
-
-    /**
-     * Apply startup class
-     * 
-     * @param startupClass
-     *            Startup class such as Application or XXXApplication
-     */
-    public void setStartupClass(Class<?> startupClass) {
-        this.startupClass = startupClass;
     }
 
 }
