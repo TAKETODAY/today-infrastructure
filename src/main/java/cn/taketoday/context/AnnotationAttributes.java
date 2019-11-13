@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context;
 
+import static java.lang.String.format;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -139,22 +141,19 @@ public class AnnotationAttributes extends HashMap<String, Object> {
 
     private void assertAttributePresence(String attributeName, Object attributeValue) {
         if (attributeValue == null) {
-            throw new NullPointerException(String.format("Attribute '%s' not found in attributes for annotation [%s]",
-                                                         attributeName,
-                                                         this.displayName));
+            throw new NullPointerException(format("Attribute '%s' not found in attributes for annotation [%s]",
+                                                  attributeName,
+                                                  this.displayName));
         }
     }
 
     private void assertAttributeType(String attributeName, Object attributeValue, Class<?> expectedType) {
         if (!expectedType.isInstance(attributeValue)) {
-            throw new IllegalArgumentException(
-                                               String.format(//
-                                                             "Attribute '%s' is of type [%s], but [%s] was expected in attributes for annotation [%s]",
-                                                             attributeName, //
-                                                             attributeValue.getClass().getName(), //
-                                                             expectedType.getName(),
-                                                             this.displayName//
-                                               ));
+            throw new IllegalArgumentException(format("Attribute '%s' is of type [%s], but [%s] was expected in attributes for annotation [%s]",
+                                                      attributeName,
+                                                      attributeValue.getClass().getName(),
+                                                      expectedType.getName(),
+                                                      this.displayName));
         }
     }
 
