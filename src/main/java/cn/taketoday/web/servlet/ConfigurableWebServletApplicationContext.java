@@ -28,7 +28,7 @@ import cn.taketoday.web.ConfigurableWebApplicationContext;
  *         2019-10-14 02:09
  */
 public interface ConfigurableWebServletApplicationContext
-        extends WebServletApplicationContext, ConfigurableWebApplicationContext {
+        extends ConfigurableWebApplicationContext, WebServletApplicationContext {
 
     /**
      * Set ServletContext

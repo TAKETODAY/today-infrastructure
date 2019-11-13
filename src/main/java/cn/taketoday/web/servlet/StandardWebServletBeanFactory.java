@@ -53,7 +53,7 @@ public class StandardWebServletBeanFactory extends StandardBeanFactory {
         super(applicationContext);
 
         if (applicationContext instanceof WebServletApplicationContext == false) {
-            throw ExceptionUtils.newConfigurationException(null, "application context must be  'WebServletApplicationContext'");
+            throw ExceptionUtils.newConfigurationException(null, "application context must be 'WebServletApplicationContext'");
         }
     }
 

@@ -74,6 +74,7 @@ public class StandardWebServletApplicationContext extends StandardApplicationCon
 
     /**
      * @param servletContext
+     *            {@link ServletContext}
      * @param properties
      *            properties location
      * @param locations
@@ -101,7 +102,7 @@ public class StandardWebServletApplicationContext extends StandardApplicationCon
     @Override
     protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
         // register WebApplicationContext
-        registerSingleton(beanFactory.getBeanNameCreator().create(WebServletApplicationContext.class), this);
+        registerSingleton(this);
 
         super.postProcessBeanFactory(beanFactory);
     }
