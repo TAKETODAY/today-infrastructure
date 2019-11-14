@@ -43,6 +43,7 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.io.Resource;
@@ -83,6 +84,7 @@ import freemarker.template.TemplateModel;
  */
 @Props(prefix = "web.mvc.view.")
 @Order(Ordered.LOWEST_PRECEDENCE - 100)
+@ConditionalOnClass(Constant.ENV_SERVLET)
 @MissingBean(value = Constant.VIEW_RESOLVER, type = ViewResolver.class)
 public class FreeMarkerViewResolver extends AbstractViewResolver implements InitializingBean, WebMvcConfiguration {
 

@@ -23,6 +23,7 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletSecurityElement;
 
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
@@ -41,6 +42,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @MissingBean
+@ConditionalOnClass(Constant.ENV_SERVLET)
 public class DispatcherServletInitializer extends WebServletInitializer<DispatcherServlet> implements WebServletApplicationContextAware {
 
     private WebServletApplicationContext applicationContext;

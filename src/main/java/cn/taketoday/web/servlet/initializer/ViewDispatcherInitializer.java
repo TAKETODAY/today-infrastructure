@@ -27,6 +27,7 @@ import javax.servlet.ServletRegistration.Dynamic;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ContextUtils;
@@ -39,6 +40,7 @@ import cn.taketoday.web.servlet.ViewDispatcher;
  *         2019-02-03 14:43
  */
 @MissingBean
+@ConditionalOnClass(Constant.ENV_SERVLET)
 public class ViewDispatcherInitializer extends WebServletInitializer<ViewDispatcher> {
 
     @Override

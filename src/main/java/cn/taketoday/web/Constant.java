@@ -37,8 +37,10 @@ import cn.taketoday.web.mapping.MethodParameter;
 public interface Constant extends cn.taketoday.context.Constant {
 
     String WEB_VERSION = "2.3.7.RELEASE";
-    
-    MethodParameter[] EMPTY_METHOD_PARAMETER= new MethodParameter[0];
+
+    String ENV_SERVLET = "javax.servlet.Servlet";
+
+    MethodParameter[] EMPTY_METHOD_PARAMETER = new MethodParameter[0];
     HandlerInterceptor[] EMPTY_HANDLER_INTERCEPTOR = new HandlerInterceptor[0];
 
     String NOT_FOUND = "Not Found";
