@@ -407,9 +407,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         final DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setEntityResolver((publicId, systemId) -> {
             if (systemId.contains(DTD_NAME) || publicId.contains(DTD_NAME)) {
-                return new InputSource(//
-                                       new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes())//
-                );
+                return new InputSource(new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes()));
             }
             return null;
         });

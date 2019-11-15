@@ -93,7 +93,8 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
     @Autowired
     public ActionConfiguration(WebApplicationContext applicationContext, AbstractBeanFactory beanFactory) {
 
-        this.contextPath = applicationContext.getContextPath();
+        final String contextPath = applicationContext.getContextPath();
+        this.contextPath = contextPath == null ? Constant.BLANK : contextPath;
         this.beanFactory = beanFactory;
 
         final Environment environment = applicationContext.getEnvironment();

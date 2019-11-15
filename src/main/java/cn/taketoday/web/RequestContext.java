@@ -20,6 +20,7 @@
 package cn.taketoday.web;
 
 import java.io.BufferedReader;
+import java.io.Flushable;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
@@ -40,7 +41,7 @@ import cn.taketoday.web.ui.RedirectModel;
  *         2019-06-22 15:48
  * @since 2.3.7
  */
-public interface RequestContext extends Readable, Writable, Model, HttpHeaders {
+public interface RequestContext extends Readable, Writable, Model, HttpHeaders, Flushable {
 
     // --- request
 

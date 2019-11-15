@@ -648,4 +648,9 @@ public class ServletRequestContext implements RequestContext, Map<String, Object
         return multipartFiles;
     }
 
+    @Override
+    public void flush() throws IOException {
+        response.flushBuffer();
+    }
+
 }

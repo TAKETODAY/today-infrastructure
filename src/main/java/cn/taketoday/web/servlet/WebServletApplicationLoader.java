@@ -163,10 +163,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
             log.info("Your application starts to be initialized at: [{}].", //
                      new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
 
-            ret = new StandardWebServletApplicationContext();
-
-            ((ConfigurableWebServletApplicationContext) ret).setServletContext(servletContext);
-            ret.loadContext(Constant.BLANK);
+            ret = new StandardWebServletApplicationContext(servletContext);
         }
         else if (ret instanceof ConfigurableWebServletApplicationContext && ret.getServletContext() == null) {
             ((ConfigurableWebServletApplicationContext) ret).setServletContext(servletContext);
