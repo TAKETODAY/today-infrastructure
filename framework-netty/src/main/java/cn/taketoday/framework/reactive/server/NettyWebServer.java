@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.framework.netty.server;
+package cn.taketoday.framework.reactive.server;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.LongAdder;
@@ -25,10 +25,16 @@ import java.util.concurrent.atomic.LongAdder;
 import javax.annotation.PreDestroy;
 
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.env.Environment;
+import cn.taketoday.framework.StandardWebServerApplicationContext;
+import cn.taketoday.framework.WebServerApplicationContext;
+import cn.taketoday.framework.server.AbstractWebServer;
+import cn.taketoday.framework.server.WebServer;
+import cn.taketoday.framework.server.WebServerApplicationLoader;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.DefaultEventLoop;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
@@ -38,6 +44,8 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.ResourceLeakDetector;
 import lombok.Getter;
 import lombok.Setter;
@@ -51,10 +59,8 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Getter
 @Singleton
-public class NettyWebServer {
-
-    @Autowired
-    private Environment environment;
+@Props(prefix = { "server.", "server.netty." })
+public class NettyWebServer extends AbstractWebServer implements WebServer {
 
     private EventLoopGroup childGroup;
     private EventLoopGroup parentGroup;
@@ -65,16 +71,44 @@ public class NettyWebServer {
 
     private Class<? extends ServerSocketChannel> socketChannel; // NioServerSocketChannel
 
+    private final StandardWebServerApplicationContext applicationContext;
+
+    @Autowired
+    private NettyServerInitializer nettyServerInitializer;
+
+    @Autowired
+    public NettyWebServer(StandardWebServerApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
     public static boolean epollIsAvailable() {
         try {
             Object obj = Class.forName("io.netty.channel.epoll.Epoll").getMethod("isAvailable").invoke(null);
-            return null != obj && Boolean.valueOf(obj.toString()) && System.getProperty("os.name").toLowerCase().contains("linux");
+            return null != obj
+                   && Boolean.valueOf(obj.toString())
+                   && System.getProperty("os.name").toLowerCase().contains("linux");
         }
         catch (Exception e) {
             return false;
         }
     }
 
+    @Override
+    protected void prepareInitialize() throws Throwable {
+        super.prepareInitialize();
+
+        applicationContext.setContextPath(getContextPath());
+    }
+
+    @Override
+    protected void contextInitialized() throws Throwable {
+        super.contextInitialized();
+
+        WebServerApplicationLoader loader = new WebServerApplicationLoader(() -> getMergedInitializers());
+        loader.onStartup(applicationContext);
+    }
+
+    @Override
     public void start() {
 
         ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
@@ -88,17 +122,14 @@ public class NettyWebServer {
         if (epollIsAvailable()) {
 
             bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
-
             socketChannel = EpollServerSocketChannel.class;
-
             this.parentGroup = new EpollEventLoopGroup(threadCount, new NamedThreadFactory("epoll-parent@"));
             this.childGroup = new EpollEventLoopGroup(acceptThreadCount, new NamedThreadFactory("epoll-child@"));
         }
         else {
 
-            this.parentGroup = new NioEventLoopGroup(acceptThreadCount, new NamedThreadFactory("boss@"));
-            this.childGroup = new NioEventLoopGroup(threadCount, new NamedThreadFactory("worker@"));
-
+            this.parentGroup = new NioEventLoopGroup(acceptThreadCount, new NamedThreadFactory("parent@"));
+            this.childGroup = new NioEventLoopGroup(threadCount, new NamedThreadFactory("child@"));
             socketChannel = NioServerSocketChannel.class;
         }
 
@@ -106,13 +137,12 @@ public class NettyWebServer {
 
         scheduleEventLoop = new DefaultEventLoop();
 
-        bootstrap.childHandler(new NettyServerInitializer());
-
-        String address = environment.getProperty("server.host", "localhost");
-        int port = environment.getProperty("server.port", int.class, 8080);
+        bootstrap.handler(new LoggingHandler(LogLevel.INFO));
+        bootstrap.childHandler(nettyServerInitializer);
+        bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
         try {
-            channel = bootstrap.bind(address, port).sync().channel();
+            channel = bootstrap.bind(getHost(), getPort()).sync().channel();
         }
         catch (InterruptedException e) {
             e.printStackTrace();
@@ -121,6 +151,7 @@ public class NettyWebServer {
     }
 
     @PreDestroy
+    @Override
     public void stop() {
 
         log.info("shutdown");
@@ -147,5 +178,10 @@ public class NettyWebServer {
             threadNumber.add(1);
             return new Thread(runnable, prefix + "thread-" + threadNumber.intValue());
         }
+    }
+
+    @Override
+    protected WebServerApplicationContext getApplicationContext() {
+        return applicationContext;
     }
 }

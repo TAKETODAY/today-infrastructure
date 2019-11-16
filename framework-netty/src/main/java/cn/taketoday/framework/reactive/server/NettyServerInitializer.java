@@ -17,14 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.framework.netty.server;
+package cn.taketoday.framework.reactive.server;
 
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.framework.reactive.ReactiveDispatcher;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -32,29 +34,28 @@ import lombok.extern.slf4j.Slf4j;
  *         2019-07-02 21:34
  */
 @Slf4j
+@Singleton
 public class NettyServerInitializer extends ChannelInitializer<SocketChannel> implements ChannelHandler {
 
-    private final HttpServerHandler httpServerHandler;
+    @Autowired
+    private ReactiveDispatcher httpServerHandler;
 
-    public NettyServerInitializer() {
-        this.httpServerHandler = new HttpServerHandler();
-    }
+    public NettyServerInitializer() {}
 
     @Override
-    protected void initChannel(SocketChannel ch) throws Exception {
-        log.info("{}", ch);
+    protected void initChannel(final SocketChannel ch) throws Exception {
+        log.info("initChannel {}", ch);
 
-        final ChannelPipeline pipeline = ch.pipeline();
         try {
-
-            pipeline.addLast(new HttpServerCodec());
-            pipeline.addLast(new HttpServerExpectContinueHandler());
-
-            pipeline.addLast(new MergeRequestHandler());
-            pipeline.addLast(httpServerHandler);
+            ch.pipeline()
+                    .addLast("HttpServerCodec", new HttpServerCodec())
+                    .addLast("HttpObjectAggregator", new HttpObjectAggregator(1024 * 1024 * 64))
+//                    .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
+                    .addLast("DispatcherHandler", httpServerHandler);
         }
         catch (Exception e) {
             log.error("Add channel pipeline error", e);
+            throw e;
         }
     }
 

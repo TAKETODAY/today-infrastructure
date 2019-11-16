@@ -46,6 +46,11 @@ public class TestApplication implements WebMvcConfiguration {
         return q;
     }
 
+    @GET("/")
+    public String index() {
+        return "hello";
+    }
+
     @Override
     public void configureResourceMappings(ResourceMappingRegistry registry) {
 
