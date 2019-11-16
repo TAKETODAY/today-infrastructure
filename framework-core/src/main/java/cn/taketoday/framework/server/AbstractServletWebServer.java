@@ -22,16 +22,18 @@ package cn.taketoday.framework.server;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletSecurityElement;
 import javax.servlet.SessionCookieConfig;
+import javax.servlet.SessionTrackingMode;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.ServletSecurity;
 
@@ -192,7 +194,14 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
                 config.setMaxAge((int) cookie.getMaxAge().getSeconds());
 
                 if (sessionConfiguration.getTrackingModes() != null) {
-                    servletContext.setSessionTrackingModes(new HashSet<>(Arrays.asList(sessionConfiguration.getTrackingModes())));
+
+                    final Set<SessionTrackingMode> collect = Arrays.asList(sessionConfiguration.getTrackingModes())
+                            .stream()
+                            .map(t -> t.name())
+                            .map(SessionTrackingMode::valueOf)
+                            .collect(Collectors.toSet());
+
+                    servletContext.setSessionTrackingModes(collect);
                 }
             }
         });
