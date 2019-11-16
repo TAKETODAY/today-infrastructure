@@ -41,7 +41,6 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.RegexMapping;
@@ -111,31 +110,7 @@ public class DispatcherServlet implements Servlet, Serializable {
 
         final RequestContext context = prepareContext(req, res);
         try {
-
-            final Object result;
-            // Handler Method
-            if (mapping.hasInterceptor()) {
-                // get intercepter s
-                final HandlerInterceptor[] interceptors = mapping.getInterceptors();
-                // invoke intercepter
-                for (final HandlerInterceptor intercepter : interceptors) {
-                    if (!intercepter.beforeProcess(context, mapping)) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Interceptor: [{}] return false", intercepter);
-                        }
-                        return;
-                    }
-                }
-                result = mapping.invokeHandler(context);
-                for (final HandlerInterceptor intercepter : interceptors) {
-                    intercepter.afterProcess(context, mapping, result);
-                }
-            }
-            else {
-                result = mapping.invokeHandler(context);
-            }
-
-            mapping.resolveResult(context, result);
+            DispatcherHandler.service(mapping, context);
         }
         catch (Throwable e) {
             try {

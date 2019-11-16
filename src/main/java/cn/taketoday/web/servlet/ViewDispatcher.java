@@ -59,7 +59,7 @@ public class ViewDispatcher extends GenericServlet {
     protected ViewResolver viewResolver;
 
     @Override
-    public void service(final ServletRequest req, final ServletResponse res) throws ServletException, IOException {
+    public final void service(final ServletRequest req, final ServletResponse res) throws ServletException, IOException {
         service((HttpServletRequest) req, (HttpServletResponse) res);
     }
 
