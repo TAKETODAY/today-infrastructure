@@ -76,4 +76,7 @@ public class StandardWebServerApplicationContext
         return contextPath;
     }
 
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
 }

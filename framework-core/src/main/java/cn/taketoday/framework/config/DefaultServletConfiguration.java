@@ -25,6 +25,7 @@ import java.util.Map;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
+import cn.taketoday.framework.Constant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -35,8 +36,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @MissingBean
+@ConditionalOnClass(Constant.ENV_SERVLET)
 @Props(prefix = "server.servlet.default.")
-@ConditionalOnClass("javax.servlet.Servlet")
 public class DefaultServletConfiguration {
 
     private boolean enable;
