@@ -19,9 +19,13 @@
  */
 package test.demo;
 
+import java.net.HttpCookie;
+
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.framework.WebApplication;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.GET;
+import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RestController;
 
 /**
@@ -39,6 +43,28 @@ public class NettyApplication {
     @GET("index")
     public String index() {
         return "Hello Netty";
+    }
+
+    @GET("json")
+    public Json json() {
+        return Json.ok("Hello Netty");
+    }
+
+    @GET("cookie")
+    public void cookie(RequestContext context) {
+        final HttpCookie test = new HttpCookie("test", "HelloNetty");
+        test.setMaxAge(1000);
+        System.err.println(test.toString());
+        context.addCookie(test);
+    }
+
+    @GET("/cookie/delete")
+    public void delete(@RequestParam(required = true) HttpCookie test, RequestContext context) {
+        if (test != null) {
+            test.setMaxAge(-1);
+            System.err.println(test.toString());
+            context.addCookie(test);
+        }
     }
 
 }
