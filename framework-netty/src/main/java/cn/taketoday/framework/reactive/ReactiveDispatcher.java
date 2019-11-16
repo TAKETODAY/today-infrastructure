@@ -32,17 +32,16 @@ import javax.annotation.PreDestroy;
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.RegexMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
+import cn.taketoday.web.servlet.DispatcherHandler;
 import cn.taketoday.web.utils.ResultUtils;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -145,31 +144,43 @@ public class ReactiveDispatcher extends SimpleChannelInboundHandler<FullHttpRequ
 
     private void async(ChannelHandlerContext ctx, FullHttpRequest request) {
 
-        final Executor executor = ctx.executor();
+        final Executor executor = ctx.executor(); //ctx.channel().eventLoop()
         final CompletableFuture<FullHttpRequest> future = CompletableFuture.completedFuture(request);
 
         future.thenApplyAsync(this::lookupHandlerMapping, executor)
                 .thenApplyAsync(mapping -> {
                     if (mapping == null) {
-
-                        final DefaultFullHttpResponse notFound = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                                                                                             HttpResponseStatus.NOT_FOUND);
-                        notFound.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
-                        notFound.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
-
-                        ctx.writeAndFlush(notFound);
+                        ctx.writeAndFlush(notFound());
                         future.complete(request);
+                        return null;
                     }
-                    else {
-                        NettyRequestContext context = new NettyRequestContext(contextPath, ctx, request);
-                        service(ctx, mapping, context);
-                        return context;
+                    final NettyRequestContext context = new NettyRequestContext(contextPath, ctx, request);
+                    try {
+                        DispatcherHandler.service(mapping, context);
                     }
-                    return null;
+                    catch (Throwable e) {
+                        try {
+                            ResultUtils.resolveException(context, exceptionResolver, mapping, e);
+                        }
+                        catch (Throwable e1) {
+                            ctx.fireExceptionCaught(e);
+                        }
+                    }
+                    return context;
                 }, executor)
                 .thenAcceptAsync(context -> {
                     context.send();
-                }, executor);//ctx.channel().eventLoop()
+                }, executor);
+    }
+
+    protected FullHttpResponse notFound() {
+
+        final FullHttpResponse notFound = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+                                                                      HttpResponseStatus.NOT_FOUND);
+
+        notFound.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
+        notFound.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
+        return notFound;
     }
 
     @Override
@@ -186,29 +197,7 @@ public class ReactiveDispatcher extends SimpleChannelInboundHandler<FullHttpRequ
 
         try {
 
-            final Object result;
-            // Handler Method
-            if (mapping.hasInterceptor()) {
-                // get intercepter s
-                final HandlerInterceptor[] interceptors = mapping.getInterceptors();
-                // invoke intercepter
-                for (final HandlerInterceptor intercepter : interceptors) {
-                    if (!intercepter.beforeProcess(context, mapping)) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Interceptor: [{}] return false", intercepter);
-                        }
-                        return;
-                    }
-                }
-                result = mapping.invokeHandler(context);
-                for (final HandlerInterceptor intercepter : interceptors) {
-                    intercepter.afterProcess(context, mapping, result);
-                }
-            }
-            else {
-                result = mapping.invokeHandler(context);
-            }
-            mapping.resolveResult(context, result);
+            DispatcherHandler.service(mapping, context);
         }
         catch (Throwable e) {
             e.printStackTrace();
