@@ -19,7 +19,6 @@
  */
 package cn.taketoday.framework.reactive.server;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.framework.reactive.ReactiveDispatcher;
 import io.netty.channel.ChannelHandler;
@@ -37,10 +36,11 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton
 public class NettyServerInitializer extends ChannelInitializer<SocketChannel> implements ChannelHandler {
 
-    @Autowired
-    private ReactiveDispatcher httpServerHandler;
+    private final ReactiveDispatcher reactiveDispatcher;
 
-    public NettyServerInitializer() {}
+    public NettyServerInitializer(ReactiveDispatcher reactiveDispatcher) {
+        this.reactiveDispatcher = reactiveDispatcher;
+    }
 
     @Override
     protected void initChannel(final SocketChannel ch) throws Exception {
@@ -51,7 +51,7 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> im
                     .addLast("HttpServerCodec", new HttpServerCodec())
                     .addLast("HttpObjectAggregator", new HttpObjectAggregator(1024 * 1024 * 64))
 //                    .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
-                    .addLast("DispatcherHandler", httpServerHandler);
+                    .addLast("ReactiveDispatcher", reactiveDispatcher);
         }
         catch (Exception e) {
             log.error("Add channel pipeline error", e);

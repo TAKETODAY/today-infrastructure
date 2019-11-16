@@ -114,25 +114,18 @@ public class ReactiveDispatcher extends SimpleChannelInboundHandler<FullHttpRequ
     @Override
     public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
 
-        System.err.println(msg);
+//        System.err.println(msg);
 
         async(ctx, msg);
 //      sync(ctx, msg);
-
     }
 
-    private void sync(ChannelHandlerContext ctx, FullHttpRequest msg) {
+    protected void sync(ChannelHandlerContext ctx, FullHttpRequest msg) {
         // Lookup handler mapping
         final HandlerMapping mapping = lookupHandlerMapping(msg);
 
         if (mapping == null) {
-
-            final DefaultFullHttpResponse notFound = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                                                                                 HttpResponseStatus.NOT_FOUND);
-            notFound.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
-            notFound.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
-
-            ctx.writeAndFlush(notFound);
+            ctx.writeAndFlush(notFound());
             return;
         }
 
@@ -196,7 +189,6 @@ public class ReactiveDispatcher extends SimpleChannelInboundHandler<FullHttpRequ
     public void service(final ChannelHandlerContext ctx, final HandlerMapping mapping, final RequestContext context) {
 
         try {
-
             DispatcherHandler.service(mapping, context);
         }
         catch (Throwable e) {
