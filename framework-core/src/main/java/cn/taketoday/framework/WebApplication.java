@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.framework.env.StandardWebEnvironment;
 import cn.taketoday.framework.server.WebServer;
@@ -43,11 +44,21 @@ public class WebApplication {
     private ConfigurableWebServerApplicationContext applicationContext;
 
     public WebApplication() {
-        applicationContext = new ServletWebServerApplicationContext();
+        if (ClassUtils.isPresent(Constant.ENV_SERVLET)) {
+            applicationContext = new ServletWebServerApplicationContext();
+        }
+        else {
+            applicationContext = new StandardWebServerApplicationContext();
+        }
     }
 
     public WebApplication(Class<?> startupClass) {
-        applicationContext = new ServletWebServerApplicationContext(startupClass);
+        if (ClassUtils.isPresent(Constant.ENV_SERVLET)) {
+            applicationContext = new ServletWebServerApplicationContext(startupClass);
+        }
+        else {
+            applicationContext = new StandardWebServerApplicationContext(startupClass);
+        }
     }
 
     public ConfigurableWebServerApplicationContext getApplicationContext() {
