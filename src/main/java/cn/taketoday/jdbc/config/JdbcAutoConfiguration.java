@@ -50,6 +50,7 @@ import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.jdbc.annotation.EnumValue;
 import cn.taketoday.jdbc.mapping.ColumnMapping;
 import cn.taketoday.jdbc.mapping.result.ResultResolver;
 
@@ -179,6 +180,10 @@ public class JdbcAutoConfiguration implements ApplicationListener<LoadingMissing
         }));
 
         // TODO Enums
+        resultResolvers.add(delegate(p -> p.getType().isEnum() && p.isPresent(EnumValue.class), (rs, i) -> {
+            final String value = rs.getString(i);
+            return value == null ? null : YearMonth.parse(value);
+        }));
 
         // User
         // -------------------------------------
