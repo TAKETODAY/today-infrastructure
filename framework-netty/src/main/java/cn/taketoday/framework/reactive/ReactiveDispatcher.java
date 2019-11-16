@@ -79,9 +79,8 @@ public class ReactiveDispatcher extends SimpleChannelInboundHandler<FullHttpRequ
 
     @Autowired
     public ReactiveDispatcher(ExceptionResolver exceptionResolver, //@off
-                           HandlerMappingRegistry handlerMappingRegistry,
-                           WebServerApplicationContext applicationContext,
-                           @Value(value = "server.contextPath", required = false) String contextPath) //@on
+                              HandlerMappingRegistry handlerMappingRegistry,
+                              WebServerApplicationContext applicationContext) //@on
     {
         if (exceptionResolver == null) {
             throw new ConfigurationException("You must provide an 'exceptionResolver'");
@@ -89,7 +88,10 @@ public class ReactiveDispatcher extends SimpleChannelInboundHandler<FullHttpRequ
         this.exceptionResolver = exceptionResolver;
         this.applicationContext = applicationContext;
         this.handlerMappingRegistry = handlerMappingRegistry;
-        this.contextPath = StringUtils.isEmpty(contextPath) ? Constant.BLANK : contextPath;
+
+        this.contextPath = StringUtils.isEmpty(applicationContext.getContextPath())
+                ? Constant.BLANK
+                : applicationContext.getContextPath();
     }
 
     @Override
