@@ -17,6 +17,12 @@
             <groupId>cn.taketoday</groupId>
             <artifactId>today-framework</artifactId>
             <version>latest</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
