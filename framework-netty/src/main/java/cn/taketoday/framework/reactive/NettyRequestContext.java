@@ -22,6 +22,7 @@ package cn.taketoday.framework.reactive;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
@@ -305,7 +306,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     @Override
     public cn.taketoday.web.HttpHeaders contentType(String contentType) {
-        getResponse().headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
+        getResponseHeaders().set(HttpHeaderNames.CONTENT_TYPE, contentType);
         return this;
     }
 
@@ -324,20 +325,37 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         return request.uri();
     }
 
+    private static final HttpCookie[] EMPTY_HTTP_COOKIE = new HttpCookie[0];
+
     @Override
     public HttpCookie[] cookies() {
-        return null;
+
+        final HttpCookie[] cookies = this.cookies;
+        if (cookies == null) {
+
+            final String header = request.headers().get(HttpHeaderNames.COOKIE);
+            if (StringUtils.isEmpty(header)) {
+                return EMPTY_HTTP_COOKIE;
+            }
+
+            final List<HttpCookie> parsed = HttpCookie.parse(header);
+
+            if (ObjectUtils.isEmpty(parsed)) {
+                return EMPTY_HTTP_COOKIE;
+            }
+            return this.cookies = parsed.toArray(EMPTY_HTTP_COOKIE);
+        }
+        return cookies;
     }
 
     @Override
     public HttpCookie cookie(String name) {
 
-        final String header = request.headers().get(HttpHeaderNames.COOKIE);
-
-        if (StringUtils.isNotEmpty(header)) {
-            HttpCookie.parse(header);
+        for (final HttpCookie cookie : cookies()) {
+            if (cookie.getName().equals(name)) {
+                return cookie;
+            }
         }
-
         return null;
     }
 
@@ -368,7 +386,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     @Override
     public BufferedReader getReader() throws IOException {
-        return null;
+        return new BufferedReader(new InputStreamReader(getInputStream(), Constant.DEFAULT_CHARSET));
     }
 
     @Override
@@ -591,7 +609,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     @Override
     public PrintWriter getWriter() throws IOException {
-        return new PrintWriter(getOutputStream());
+        return new PrintWriter(getOutputStream(), true);
     }
 
     @Override
