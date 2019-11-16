@@ -16,7 +16,7 @@
     <properties>
         <embed.tomcat.version>9.0.22</embed.tomcat.version>
     </properties>
-    
+
     <dependencies>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core -->
@@ -39,6 +39,10 @@
                 <exclusion>
                     <groupId>org.eclipse.jdt</groupId>
                     <artifactId>ecj</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.tomcat.embed</groupId>
+                    <artifactId>tomcat-embed-el</artifactId>
                 </exclusion>
             </exclusions>
             <scope>provided</scope>
