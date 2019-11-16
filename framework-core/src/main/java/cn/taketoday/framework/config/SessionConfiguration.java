@@ -23,8 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 
-import javax.servlet.SessionTrackingMode;
-
 import org.slf4j.LoggerFactory;
 
 import cn.taketoday.context.annotation.Autowired;
@@ -52,7 +50,7 @@ public class SessionConfiguration {
 
     /** Directory used to store session data. */
     private Resource storeDirectory;
-    private SessionTrackingMode[] trackingModes;
+    private TrackingMode[] trackingModes;
     private Duration timeout = Duration.ofMinutes(30);
 
     @Autowired
@@ -63,14 +61,19 @@ public class SessionConfiguration {
         if (this.storeDirectory == null || !this.storeDirectory.exists()) {
             return ApplicationUtils.getTemporalDirectory(startupClass, "web-app-sessions");
         }
-        
+
         if (storeDirectory.isDirectory()) {
 
             LoggerFactory.getLogger(getClass()).info("Use directory: [{}] to store sessions", storeDirectory);
             return storeDirectory.getFile();
         }
-        
+
         throw ExceptionUtils.newConfigurationException(null, "Store directory must be a 'directory'");
     }
 
+    public enum TrackingMode {
+        COOKIE,
+        URL,
+        SSL
+    }
 }
