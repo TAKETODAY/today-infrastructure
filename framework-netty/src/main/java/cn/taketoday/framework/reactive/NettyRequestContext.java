@@ -122,7 +122,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     @Override
     public String queryString() {
         if (null == url || !url.contains("?")) {
-            return Constant.BLANK;
+            return null;
         }
         return url.substring(url.indexOf("?") + 1);
     }
