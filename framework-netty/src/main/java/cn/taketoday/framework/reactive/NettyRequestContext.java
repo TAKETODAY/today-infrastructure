@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
@@ -184,8 +185,9 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T attribute(String name, Class<T> targetClass) {
-        return targetClass.cast(getAttributes().get(name));
+        return (T) ConvertUtils.convert(getAttributes().get(name), targetClass);
     }
 
     @Override
@@ -202,7 +204,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     @Override
     public Map<String, Object> asMap() {
-        return this;
+        return attributes;
     }
 
     @Override
@@ -384,9 +386,25 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         return request.content().capacity();
     }
 
+    private PrintWriter writer;
+    private BufferedReader reader;
+
     @Override
     public BufferedReader getReader() throws IOException {
-        return new BufferedReader(new InputStreamReader(getInputStream(), Constant.DEFAULT_CHARSET));
+        final BufferedReader reader = this.reader;
+        if (reader == null) {
+            return this.reader = new BufferedReader(new InputStreamReader(getInputStream(), Constant.DEFAULT_CHARSET));
+        }
+        return reader;
+    }
+
+    @Override
+    public PrintWriter getWriter() throws IOException {
+        final PrintWriter writer = this.writer;
+        if (writer == null) {
+            return this.writer = new PrintWriter(getOutputStream(), true);
+        }
+        return writer;
     }
 
     @Override
@@ -428,9 +446,8 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
             throw new IllegalStateException("The response has been committed");
         }
 
-        final FullHttpResponse response = getResponse();
-        response.headers().set(HttpHeaderNames.LOCATION, location);
-        response.setStatus(HttpResponseStatus.FOUND);
+        getResponse().setStatus(HttpResponseStatus.FOUND);
+        getResponseHeaders().set(HttpHeaderNames.LOCATION, location);
 
         committed = true;
         return this;
@@ -608,11 +625,6 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     }
 
     @Override
-    public PrintWriter getWriter() throws IOException {
-        return new PrintWriter(getOutputStream(), true);
-    }
-
-    @Override
     public Map<String, String[]> parameters() {
 
         if (initQueryParam) {
@@ -623,6 +635,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         if (!url.contains("?")) {
             return this.parameters;
         }
+        
         Map<String, List<String>> parameters = new QueryStringDecoder(url, CharsetUtil.UTF_8).parameters();
         if (null != parameters) {
             Map<String, String[]> params = new HashMap<>();
