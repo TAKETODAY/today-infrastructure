@@ -22,7 +22,6 @@ package cn.taketoday.context.utils;
 import static cn.taketoday.context.conversion.DelegatingStringTypeConverter.delegate;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URL;
@@ -80,7 +79,7 @@ public abstract class ConvertUtils {
 
         for (TypeConverter converter : getConverters()) {
             if (converter.supports(targetClass, source)) {
-                return converter;//
+                return converter;
             }
         }
         return null;
@@ -94,7 +93,6 @@ public abstract class ConvertUtils {
      * @param targetClass
      *            targetClass
      * @return converted object
-     * @throws IOException
      */
     public static Object convert(Object source, Class<?> targetClass) {
         if (source == null) {
@@ -105,10 +103,25 @@ public abstract class ConvertUtils {
         }
         final TypeConverter typeConverter = getTypeConverter(source, targetClass);
         if (typeConverter == null) {
-            throw new ConversionException("There isn't a 'cn.taketoday.context.conversion.TypeConverter' to convert: [" //
+            throw new ConversionException("There isn't a 'cn.taketoday.context.conversion.TypeConverter' to convert: ["
                     + source + "] to target class: [" + targetClass + "]");
         }
         return typeConverter.convert(targetClass, source);
+    }
+
+    /**
+     * @param <T>
+     *            Target type
+     * @param targetClass
+     *            Target type
+     * @param source
+     *            Source object
+     * @return converted object
+     * @since 2.1.7
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T convert(Class<T> targetClass, Object source) {
+        return (T) convert(source, targetClass);
     }
 
     public static TypeConverter[] getConverters() {
