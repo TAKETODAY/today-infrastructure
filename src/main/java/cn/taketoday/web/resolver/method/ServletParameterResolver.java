@@ -96,6 +96,12 @@ public class ServletParameterResolver {
 
     public static class ServletContextParameterResolver implements ParameterResolver {
 
+        private final ServletContext servletContext;
+
+        public ServletContextParameterResolver(ServletContext servletContext) {
+            this.servletContext = servletContext;
+        }
+
         @Override
         public boolean supports(final MethodParameter parameter) {
             return parameter.isAssignableFrom(ServletContext.class);
@@ -103,7 +109,7 @@ public class ServletParameterResolver {
 
         @Override
         public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-            return requestContext.nativeRequest(HttpServletRequest.class).getServletContext();
+            return servletContext;
         }
     }
 
@@ -165,6 +171,12 @@ public class ServletParameterResolver {
 
     public static class ServletContextAttributeParameterResolver implements ParameterResolver {
 
+        private final ServletContext servletContext;
+
+        public ServletContextAttributeParameterResolver(ServletContext servletContext) {
+            this.servletContext = servletContext;
+        }
+
         @Override
         public boolean supports(MethodParameter parameter) {
             return parameter.isAnnotationPresent(Application.class);
@@ -172,9 +184,7 @@ public class ServletParameterResolver {
 
         @Override
         public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-            return requestContext.nativeRequest(HttpServletRequest.class)//
-                    .getServletContext()//
-                    .getAttribute(parameter.getName());
+            return servletContext.getAttribute(parameter.getName());
         }
     }
 }

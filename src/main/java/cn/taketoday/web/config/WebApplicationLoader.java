@@ -68,7 +68,6 @@ import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.method.ArrayParameterResolver;
 import cn.taketoday.web.resolver.method.BeanParameterResolver;
 import cn.taketoday.web.resolver.method.CookieParameterResolver;
-import cn.taketoday.web.resolver.method.DefaultMultipartResolver;
 import cn.taketoday.web.resolver.method.HeaderParameterResolver;
 import cn.taketoday.web.resolver.method.MapParameterResolver;
 import cn.taketoday.web.resolver.method.ModelParameterResolver;
@@ -275,7 +274,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
               }
         ));
 
-        // HandlerMethod HandlerMapping
+        // HandlerMethod HandlerMapping @on
         resolvers.add(delegate((m) -> m.is(HandlerMethod.class), (ctx, m) -> m.getHandlerMethod()));
 
         // For cookies
@@ -288,15 +287,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         // For multipart
         // -------------------------------------------
 
-        final MultipartConfiguration multipartConfiguration = //
-                applicationContext.getBean(MultipartConfiguration.class);
-
-        mvcConfiguration.configureMultipart(multipartConfiguration);
-
-        resolvers.add(new DefaultMultipartResolver(multipartConfiguration));
-        resolvers.add(new DefaultMultipartResolver.ArrayMultipartResolver(multipartConfiguration));
-        resolvers.add(new DefaultMultipartResolver.CollectionMultipartResolver(multipartConfiguration));
-        resolvers.add(new DefaultMultipartResolver.MapMultipartParameterResolver(multipartConfiguration));
+        configureMultipart(resolvers, applicationContext.getBean(MultipartConfiguration.class), mvcConfiguration);
 
         // Header
         resolvers.add(new HeaderParameterResolver());
@@ -314,11 +305,16 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         resolvers.add(new BeanParameterResolver());
 
         // User customize parameter resolver
-        // ------------------------------------------//@on
+        // ------------------------------------------
 
         mvcConfiguration.configureParameterResolver(resolvers); // user configure
 
         MethodParameter.addResolver(resolvers);
+    }
+
+    protected void configureMultipart(List<ParameterResolver> resolvers,
+                                      MultipartConfiguration multipartConfiguration, WebMvcConfiguration mvcConfiguration) {
+
     }
 
     /**

@@ -54,7 +54,7 @@ public class CollectionParameterResolver implements ParameterResolver {
     @Override
     public final Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
 
-        if (parameter.getParameterClass() == Set.class) {
+        if (parameter.is(Set.class)) {
             return new HashSet<>(resolveList(requestContext, parameter));
         }
         return resolveList(requestContext, parameter);
@@ -81,11 +81,10 @@ public class CollectionParameterResolver implements ParameterResolver {
                     newInstance = clazz.getConstructor().newInstance();
                 }
 
-                //                    if (!resolvePojoParameter(request, requestParameter, //
-                //                            newInstance, clazz.getDeclaredField(split[3]))) {// 得到Field准备注入
-                //
-                //                        return list;
-                //                    }
+                // if (!resolvePojoParameter(request, requestParameter, //
+                //      newInstance, clazz.getDeclaredField(split[3]))) {// 得到Field准备注入
+                //      return list;
+                // }
                 list.set(index, newInstance);
             }
         }

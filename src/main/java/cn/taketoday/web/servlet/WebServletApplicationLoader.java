@@ -58,6 +58,8 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.event.WebApplicationFailedEvent;
 import cn.taketoday.web.mapping.ResourceMapping;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
+import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.resolver.method.DefaultMultipartResolver;
 import cn.taketoday.web.resolver.method.ParameterResolver;
 import cn.taketoday.web.resolver.method.ServletParameterResolver;
 import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
@@ -205,23 +207,38 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         resolvers.add(new ServletParameterResolver.ServletCookieParameterResolver());
         resolvers.add(new ServletParameterResolver.ServletCookieArrayParameterResolver());
         resolvers.add(new ServletParameterResolver.ServletCookieCollectionParameterResolver());
-        resolvers.add(new ServletParameterResolver.ServletContextAttributeParameterResolver());
 
         // Servlet components parameter
         // ----------------------------
 
         resolvers.add(new ServletParameterResolver.HttpSessionParameterResolver());
-        resolvers.add(new ServletParameterResolver.ServletContextParameterResolver());
         resolvers.add(new ServletParameterResolver.ServletRequestParameterResolver());
         resolvers.add(new ServletParameterResolver.ServletResponseParameterResolver());
+        resolvers.add(new ServletParameterResolver.ServletContextParameterResolver(getServletContext()));
 
         // Attributes
         // ------------------------
 
         resolvers.add(new ServletParameterResolver.HttpSessionAttributeParameterResolver());
-        resolvers.add(new ServletParameterResolver.ServletContextAttributeParameterResolver());
+        resolvers.add(new ServletParameterResolver.ServletContextAttributeParameterResolver(getServletContext()));
 
         super.configureParameterResolver(resolvers, mvcConfiguration);
+    }
+
+    @Override
+    protected void configureMultipart(List<ParameterResolver> resolvers,
+                                      MultipartConfiguration multipartConfiguration, WebMvcConfiguration mvcConfiguration) {
+
+        Objects.requireNonNull(multipartConfiguration, "Multipart Config Can't be null");
+
+        mvcConfiguration.configureMultipart(multipartConfiguration);
+
+        resolvers.add(new DefaultMultipartResolver(multipartConfiguration));
+        resolvers.add(new DefaultMultipartResolver.ArrayMultipartResolver(multipartConfiguration));
+        resolvers.add(new DefaultMultipartResolver.CollectionMultipartResolver(multipartConfiguration));
+        resolvers.add(new DefaultMultipartResolver.MapMultipartParameterResolver(multipartConfiguration));
+
+        super.configureMultipart(resolvers, multipartConfiguration, mvcConfiguration);
     }
 
     @Override
