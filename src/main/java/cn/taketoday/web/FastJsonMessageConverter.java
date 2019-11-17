@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 
@@ -32,6 +31,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.utils.WebUtils;
@@ -43,7 +43,7 @@ import cn.taketoday.web.utils.WebUtils;
 @MissingBean(type = MessageConverter.class)
 public class FastJsonMessageConverter implements MessageConverter {
 
-    public final SerializerFeature[] serializeFeatures;
+    private SerializerFeature[] serializeFeatures;
 
     @Autowired
     public FastJsonMessageConverter(@Env(Constant.FAST_JSON_SERIALIZE_FEATURES) SerializerFeature[] feature) {
@@ -59,16 +59,17 @@ public class FastJsonMessageConverter implements MessageConverter {
     public void write(final RequestContext requestContext, final Object message) throws IOException {
 
         if (message instanceof CharSequence) {
-            requestContext.getWriter().write(message.toString());
+            requestContext.getOutputStream().write(message.toString().getBytes(Constant.DEFAULT_CHARSET));
         }
         else {
             requestContext.contentType(Constant.CONTENT_TYPE_JSON);
-            JSON.writeJSONString(requestContext.getWriter(), message, serializeFeatures);
+            JSON.writeJSONString(requestContext.getOutputStream(), message, getSerializeFeatures());
         }
     }
 
     @Override
     public Object read(final RequestContext requestContext, final MethodParameter parameter) throws IOException {
+
         final Object requestBody = requestContext.requestBody();
         if (requestBody != null) {
             return toJavaObject(parameter, requestBody);
@@ -76,12 +77,7 @@ public class FastJsonMessageConverter implements MessageConverter {
 
         final StringBuilder builder = new StringBuilder((int) (requestContext.contentLength() + 16));
         try {
-
-            final BufferedReader reader = requestContext.getReader();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line);
-            }
+            StringUtils.appendLine(requestContext.getReader(), builder);
         }
         catch (IOException e) {
             throw WebUtils.newBadRequest("Request body", parameter, e);
@@ -89,7 +85,6 @@ public class FastJsonMessageConverter implements MessageConverter {
         if (builder.length() == 0) {
             throw WebUtils.newBadRequest("Request body", parameter, null);
         }
-
         return toJavaObject(parameter, requestContext.requestBody(JSON.parse(builder.toString())));
     }
 
@@ -169,5 +164,13 @@ public class FastJsonMessageConverter implements MessageConverter {
             throw WebUtils.newBadRequest("Request body", parameter, null);
         }
         return array;
+    }
+
+    public SerializerFeature[] getSerializeFeatures() {
+        return serializeFeatures;
+    }
+
+    public void setSerializeFeatures(SerializerFeature... serializeFeatures) {
+        this.serializeFeatures = serializeFeatures;
     }
 }
