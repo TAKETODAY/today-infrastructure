@@ -133,11 +133,6 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     }
 
     @Override
-    public boolean isSecure() {
-        return true;
-    }
-
-    @Override
     public InputStream getInputStream() throws IOException {
         final ByteBufInputStream inputStream = this.inputStream;
         if (inputStream == null) {
@@ -635,7 +630,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         if (!url.contains("?")) {
             return this.parameters;
         }
-        
+
         Map<String, List<String>> parameters = new QueryStringDecoder(url, CharsetUtil.UTF_8).parameters();
         if (null != parameters) {
             Map<String, String[]> params = new HashMap<>();
