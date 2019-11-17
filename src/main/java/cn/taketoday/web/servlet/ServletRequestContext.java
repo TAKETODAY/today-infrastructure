@@ -268,11 +268,6 @@ public class ServletRequestContext implements RequestContext, Map<String, Object
     }
 
     @Override
-    public boolean isSecure() {
-        return request.isSecure();
-    }
-
-    @Override
     public String requestHeader(String name) {
         return request.getHeader(name);
     }

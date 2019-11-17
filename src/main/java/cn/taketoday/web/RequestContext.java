@@ -128,6 +128,15 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
     HttpCookie cookie(String name);
 
     /**
+     * Adds the specified cookie to the response. This method can be called multiple
+     * times to set more than one cookie.
+     *
+     * @param cookie
+     *            the Cookie to return to the client
+     */
+    RequestContext addCookie(HttpCookie cookie);
+
+    /**
      * Returns a java.util.Map of the parameters of this request.
      * 
      * <p>
@@ -218,12 +227,6 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
      *         sent the request
      */
     String remoteAddress();
-
-    /**
-     * Return whether this request has been sent over a secure transport mechanism
-     * (such as SSL).
-     */
-    boolean isSecure();
 
     /**
      * Returns the length, in bytes, of the request body and made available by the
@@ -349,15 +352,6 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
      *                if the response has already been committed
      */
     RequestContext reset();
-
-    /**
-     * Adds the specified cookie to the response. This method can be called multiple
-     * times to set more than one cookie.
-     *
-     * @param cookie
-     *            the Cookie to return to the client
-     */
-    RequestContext addCookie(HttpCookie cookie);
 
     /**
      * Sends a temporary redirect response to the client using the specified
