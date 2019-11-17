@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.utils;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -120,7 +121,7 @@ public abstract class StringUtils {
     public static String decodeUrl(String s) {
 
         final int numChars = s.length();
-        
+
         final StringBuilder sb = new StringBuilder(numChars > 500 ? numChars / 2 : numChars);
 
         int i = 0;
@@ -334,12 +335,13 @@ public abstract class StringUtils {
      *             If can't read the string
      */
     public static String readAsText(final InputStream inputStream) throws IOException {
-        final ByteArrayOutputStream result = new ByteArrayOutputStream();
-        final byte[] buffer = new byte[1024];
+        final ByteArrayOutputStream result = new ByteArrayOutputStream(1024);
+        byte[] buffer = new byte[1024];
         int length;
         while ((length = inputStream.read(buffer)) != -1) {
             result.write(buffer, 0, length);
         }
+        buffer = null;
         return result.toString();
     }
 
@@ -371,5 +373,22 @@ public abstract class StringUtils {
      */
     public static String checkUrl(String url) {
         return StringUtils.isEmpty(url) ? Constant.BLANK : (url.charAt(0) == '/' ? url : '/' + url);
+    }
+
+    /**
+     * Append line to {@link StringBuilder}
+     * 
+     * @param reader
+     *            String line read from {@link BufferedReader}
+     * @param builder
+     *            The {@link StringBuilder} append to
+     * @throws IOException
+     *             If an I/O error occurs
+     */
+    public static void appendLine(final BufferedReader reader, final StringBuilder builder) throws IOException {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            builder.append(line);
+        }
     }
 }
