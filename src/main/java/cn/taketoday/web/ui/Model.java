@@ -46,7 +46,7 @@ public interface Model {
      * 
      * @param attributes
      *            The attributes
-     * @return
+     * @return this
      */
     Model attributes(Map<String, Object> attributes);
 

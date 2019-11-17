@@ -22,6 +22,8 @@ package cn.taketoday.web;
 import java.io.BufferedReader;
 import java.io.Flushable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
 import java.util.Enumeration;
@@ -232,13 +234,55 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
      */
     long contentLength();
 
+    /**
+     * Retrieves the body of the request as binary data using a {@link InputStream}.
+     * Either this method or {@link #getReader} may be called to read the body, not
+     * both.
+     *
+     * @return a {@link InputStream} object containing the body of the request
+     *
+     * @exception IllegalStateException
+     *                For Servlet Environment if the {@link #getReader} method has
+     *                already been called for this request
+     *
+     * @exception IOException
+     *                if an input or output exception occurred
+     */
+    @Override
+    InputStream getInputStream() throws IOException;
+
+    /**
+     * Retrieves the body of the request as character data using a
+     * <code>BufferedReader</code>. The reader translates the character data
+     * according to the character encoding used on the body. Either this method or
+     * {@link #getInputStream} may be called to read the body, not both.
+     * 
+     * @return a <code>BufferedReader</code> containing the body of the request
+     * 
+     * @exception IllegalStateException
+     *                For Servlet Environment if {@link #getInputStream} method has
+     *                been called on this request
+     * @exception IOException
+     *                if an input or output exception occurred
+     *
+     * @see #getInputStream
+     */
     @Override
     BufferedReader getReader() throws IOException;
 
     // ------------------
-
+    /**
+     * Request body object
+     */
     Object requestBody();
 
+    /**
+     * Apply request body object
+     * 
+     * @param body
+     *            Target request body object
+     * @return Request body object
+     */
     Object requestBody(Object body);
 
     String[] pathVariables();
@@ -257,7 +301,8 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
     RedirectModel redirectModel(RedirectModel redirectModel);
 
     /**
-     * @return
+     * Get all {@link MultipartFile}s from current request
+     * 
      * @throws IOException
      *             if an I/O error occurred during the retrieval of the Part
      *             components of this request
@@ -349,14 +394,12 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
      *
      * <p>
      * This method is used to set the return status code when there is no error .
-     *
      * <p>
      * This method preserves any cookies and other response headers.
-     *
      * <p>
      * Valid status codes are those in the 2XX, 3XX, 4XX, and 5XX ranges. Other
      * status codes are treated as container specific.
-     *
+     * 
      * @param sc
      *            the status code
      */
@@ -405,6 +448,49 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
      */
     RequestContext sendError(int sc, String msg) throws IOException;
 
+    /**
+     * Returns a {@link OutputStream} suitable for writing binary data in the
+     * response. The Server container does not encode the binary data.
+     * <p>
+     * Calling flush() on the {@link OutputStream} commits the response.
+     *
+     * Either this method or {@link #getWriter} may be called to write the body, not
+     * both, except when {@link #reset} has been called.
+     *
+     * @return a {@link OutputStream} for writing binary data
+     *
+     * @exception IllegalStateException
+     *                For Servlet Environment if the <code>getWriter</code> method
+     *                has been called on this response
+     * @exception IOException
+     *                if an input or output exception occurred
+     * @see #getWriter
+     * @see #reset
+     */
+    @Override
+    OutputStream getOutputStream() throws IOException;
+
+    /**
+     * Returns a <code>PrintWriter</code> object that can send character text to the
+     * client. The <code>PrintWriter</code> uses the UTF-8 character encoding.
+     * <p>
+     * Calling flush() on the <code>PrintWriter</code> commits the response.
+     * <p>
+     * Either this method or {@link #getOutputStream} may be called to write the
+     * body, not both, except when {@link #reset} has been called.
+     * 
+     * @return a <code>PrintWriter</code> object that can return character data to
+     *         the client
+     *
+     * @exception IOException
+     *                if an input or output exception occurred
+     * 
+     * @exception IllegalStateException
+     *                For Servlet Environment if the <code>getOutputStream</code>
+     *                method has already been called for this response object
+     * @see #getOutputStream
+     * @see #reset
+     */
     @Override
     PrintWriter getWriter() throws IOException;
 
