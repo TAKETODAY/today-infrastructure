@@ -143,10 +143,9 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
      * Request parameters are extra information sent with the request. Parameters
      * are contained in the query string or posted form data.
      *
-     * @return an immutable java.util.Map containing parameter names as keys and
-     *         parameter values as map values. The keys in the parameter map are of
-     *         type String. The values in the parameter map are of type String
-     *         array.
+     * @return java.util.Map containing parameter names as keys and parameter values
+     *         as map values. The keys in the parameter map are of type String. The
+     *         values in the parameter map are of type String array.
      */
     Map<String, String[]> parameters();
 
