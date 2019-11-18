@@ -242,6 +242,13 @@ public abstract class StringUtils {
         return (needToChange ? out.toString() : s);
     }
 
+    /**
+     * Parse Parameters
+     * 
+     * @param s
+     *            Input {@link String}
+     * @return Map of list parameters
+     */
     public static Map<String, List<String>> parseParameters(final String s) {
 
         if (isEmpty(s)) {
@@ -288,7 +295,7 @@ public abstract class StringUtils {
             if (valueStart <= nameStart) {
                 valueStart = valueEnd + 1;
             }
-            String name = s.substring(nameStart, valueStart - 1);
+            String name = s.substring(nameStart, valueStart - 1); //FIXME
             String value = s.substring(valueStart, valueEnd);
             List<String> values = params.get(name);
             if (values == null) {
