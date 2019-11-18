@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
@@ -123,6 +124,7 @@ public abstract class StringUtils {
         final int numChars = s.length();
 
         final StringBuilder sb = new StringBuilder(numChars > 500 ? numChars / 2 : numChars);
+        final Charset charset = Constant.DEFAULT_CHARSET;
 
         int i = 0;
         char c;
@@ -152,7 +154,7 @@ public abstract class StringUtils {
                         // A trailing, incomplete byte encoding such as
                         // "%x" will cause an exception to be thrown
                         if ((i < numChars) && (c == '%')) throw new IllegalArgumentException("Incomplete trailing escape (%) pattern");
-                        sb.append(new String(bytes, 0, pos, Constant.DEFAULT_CHARSET));
+                        sb.append(new String(bytes, 0, pos, charset));
                     }
                     catch (NumberFormatException e) {
                         throw new IllegalArgumentException("Illegal hex characters in escape (%) pattern - " + e.getMessage());
@@ -177,15 +179,19 @@ public abstract class StringUtils {
         final StringBuilder out = new StringBuilder(length);
         final CharArrayWriter charArrayWriter = new CharArrayWriter();
 
+        final BitSet dontNeedEncoding = StringUtils.dontNeedEncoding;
+        final int caseDiff = StringUtils.caseDiff;
+        final Charset charset = Constant.DEFAULT_CHARSET;
+
         for (int i = 0; i < length;) {
-            int c = (int) s.charAt(i);
-            //			 System.out.println("Examining character: " + c);
+            int c = s.charAt(i);
+            // System.out.println("Examining character: " + c);
             if (dontNeedEncoding.get(c)) {
                 if (c == ' ') {
                     c = '+';
                     needToChange = true;
                 }
-                //				 System.out.println("Storing: " + c);
+                // System.out.println("Storing: " + c);
                 out.append((char) c);
                 i++;
                 continue;
@@ -198,11 +204,11 @@ public abstract class StringUtils {
                  * the surrogate pairs range occurs outside of a legal surrogate pair. For now,
                  * just treat it as if it were any other character. */
                 if (c >= 0xD800 && c <= 0xDBFF && (i + 1) < length) {
-                    //					System.out.println(Integer.toHexString(c) + " is high surrogate");
+                    // System.out.println(Integer.toHexString(c) + " is high surrogate");
                     int d = (int) s.charAt(i + 1);
-                    //					System.out.println("\tExamining " + Integer.toHexString(d));
+                    // System.out.println("\tExamining " + Integer.toHexString(d));
                     if (d >= 0xDC00 && d <= 0xDFFF) {
-                        //							System.out.println("\t" + Integer.toHexString(d) + " is low surrogate");
+                        // System.out.println("\t" + Integer.toHexString(d) + " is low surrogate");
                         charArrayWriter.write(d);
                         i++;
                     }
@@ -211,7 +217,7 @@ public abstract class StringUtils {
             } while (i < length && !dontNeedEncoding.get((c = (int) s.charAt(i))));
 
             charArrayWriter.flush();
-            byte[] ba = new String(charArrayWriter.toCharArray()).getBytes(Constant.DEFAULT_CHARSET);
+            byte[] ba = new String(charArrayWriter.toCharArray()).getBytes(charset);
             for (int j = 0; j < ba.length; j++) {
                 out.append('%');
                 char ch = Character.forDigit((ba[j] >> 4) & 0xF, 16);
