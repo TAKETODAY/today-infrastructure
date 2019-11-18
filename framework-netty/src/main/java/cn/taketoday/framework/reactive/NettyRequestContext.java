@@ -63,7 +63,6 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
@@ -71,8 +70,10 @@ import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
+import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
+import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -83,14 +84,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NettyRequestContext implements RequestContext, Map<String, Object> {
 
-    private String remoteAddress;
     private String url;
     private String method;
-
-    private boolean initQueryParam;
+    private String remoteAddress;
 
     private Map<String, Object> attributes;
-
     private Map<String, String[]> parameters = new HashMap<>(8);
 
     private ByteBufInputStream inputStream;
@@ -98,8 +96,8 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     private boolean committed = false;
 
-    private HttpCookie[] cookies;
     private Object requestBody;
+    private HttpCookie[] cookies;
     private String[] pathVariables;
     private final String contextPath;
     private ModelAndView modelAndView;
@@ -377,8 +375,37 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     }
 
     @Override
+    public Map<String, String[]> parameters() {
+
+        Map<String, String[]> params = this.parameters;
+
+        if (params == null) {
+
+            final String queryString = queryString();
+            if (StringUtils.isNotEmpty(queryString)) {
+                final Map<String, List<String>> parameters = StringUtils.parseParameters(queryString);
+
+                if (!parameters.isEmpty()) {
+
+                    params = new HashMap<>(32);
+                    final String[] empty = Constant.EMPTY_STRING_ARRAY;
+                    for (Entry<String, List<String>> entry : parameters.entrySet()) {
+                        params.put(entry.getKey(), entry.getValue().toArray(empty));
+                    }
+
+                    // TODO form data
+
+                    return this.parameters = params;
+                }
+            }
+            return Collections.emptyMap();
+        }
+        return params;
+    }
+
+    @Override
     public long contentLength() {
-        return request.content().capacity();
+        return request.content().readableBytes();
     }
 
     private PrintWriter writer;
@@ -619,33 +646,6 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         handlerContext.flush();
     }
 
-    @Override
-    public Map<String, String[]> parameters() {
-
-        if (initQueryParam) {
-            return this.parameters;
-        }
-
-        initQueryParam = true;
-        if (!url.contains("?")) {
-            return this.parameters;
-        }
-
-        Map<String, List<String>> parameters = new QueryStringDecoder(url, CharsetUtil.UTF_8).parameters();
-        if (null != parameters) {
-            Map<String, String[]> params = new HashMap<>();
-            parameters.forEach((k, v) -> {
-                params.put(k, v.toArray(Constant.EMPTY_STRING_ARRAY));
-            });
-            this.parameters = params;
-        }
-
-//        final QueryStringDecoder queryStringDecoder = new QueryStringDecoder(paris, hasPath);
-//        final Map<String, List<String>> parameters = queryStringDecoder.parameters();
-
-        return this.parameters;
-    }
-
     String parseForm() {
 
         final String content = request.content().toString(CharsetUtil.UTF_8);
@@ -655,54 +655,33 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(true);
 
-//    void parseFormData() {
-//        httpDecoder = new HttpPostRequestDecoder(HTTP_DATA_FACTORY, request);
-//        httpDecoder.setDiscardThreshold(0);
-//        httpDecoder.offer(req);
-//        try {
-//            while (httpDecoder.hasNext()) {
-//                final InterfaceHttpData data = httpDecoder.next();
-//                if (InterfaceHttpData.HttpDataType.FileUpload == data.getHttpDataType()) {
-//                    final Map<String, List<MultipartFile>> multipartFiles = new HashMap<>();
-//
-//                    FileUploadMultipartFile FileUploadMultipartFile;
-//                    
-//                    multipartFiles.put(contextPath, null)
-//                    final FileUpload fileUpload = new FileUpload();
-//                    fileUpload.fileUpload = (io.netty.handler.codec.http.multipart.FileUpload) data;
-//                    files.computeIfAbsent(fileUpload.getName(), k -> new ArrayList<>()).add(fileUpload);
-//                }
-//                else {
-//                    final Attribute attribute = (Attribute) data;
-//                    params.put(attribute.getName(), attribute.getValue());
-//                }
-//            }
-//        }
-//        catch (final HttpPostRequestDecoder.EndOfDataDecoderException e) {
-//            // ignore
-//        }
-//        catch (final Exception e) {
-//            LOGGER.log(Level.ERROR, "Parse form data failed:" + e.getMessage());
-//        }
-//    }
+    private InterfaceHttpPostRequestDecoder requestDecoder;
 
     @Override
     public Map<String, List<MultipartFile>> multipartFiles() throws IOException {
 
+        Map<String, List<MultipartFile>> multipartFiles = this.multipartFiles;
+
         if (multipartFiles == null) {
 
-            final Map<String, List<MultipartFile>> multipartFiles = new HashMap<>();
-
-            HttpPostRequestDecoder httpDecoder = new HttpPostRequestDecoder(HTTP_DATA_FACTORY, request);
-            httpDecoder.setDiscardThreshold(0);
-            httpDecoder.offer(request);
+            multipartFiles = new HashMap<>();
+            InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
+            if (requestDecoder == null) {
+                requestDecoder = new HttpPostMultipartRequestDecoder(HTTP_DATA_FACTORY,
+                                                                     request,
+                                                                     Constant.DEFAULT_CHARSET);
+            }
+            requestDecoder.setDiscardThreshold(0);
+            requestDecoder.offer(request);
 
             try {
 
-                while (httpDecoder.hasNext()) {
-                    final InterfaceHttpData data = httpDecoder.next();
+                while (requestDecoder.hasNext()) {
+                    final InterfaceHttpData data = requestDecoder.next();
+
                     if (InterfaceHttpData.HttpDataType.FileUpload == data.getHttpDataType()) {
                         final FileUpload fileUpload = (FileUpload) data;
+
                         final String name = fileUpload.getName();
                         List<MultipartFile> parts = multipartFiles.get(name);
                         if (parts == null) {
