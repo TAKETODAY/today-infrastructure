@@ -28,7 +28,10 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
@@ -237,6 +240,62 @@ public abstract class StringUtils {
             needToChange = true;
         }
         return (needToChange ? out.toString() : s);
+    }
+
+    public static Map<String, List<String>> parseParameters(final String s) {
+
+        if (isEmpty(s)) {
+            return Collections.emptyMap();
+        }
+
+        final Map<String, List<String>> params = new HashMap<>();
+        int nameStart = 0;
+        int valueStart = -1;
+        int i;
+        final int len = s.length();
+        loop: for (i = 0; i < len; i++) {
+            switch (s.charAt(i)) {
+                case '=' :
+                    if (nameStart == i) {
+                        nameStart = i + 1;
+                    }
+                    else if (valueStart < nameStart) {
+                        valueStart = i + 1;
+                    }
+                    break;
+                case '&' :
+                case ';' :
+                    addParam(s, nameStart, valueStart, i, params);
+                    nameStart = i + 1;
+                    break;
+                case '#' :
+                    break loop;
+                default:
+                    // continue
+            }
+        }
+        addParam(s, nameStart, valueStart, i, params);
+        return params;
+    }
+
+    private static void addParam(String s,
+                                 int nameStart,
+                                 int valueStart,
+                                 int valueEnd,
+                                 Map<String, List<String>> params) {
+
+        if (nameStart < valueEnd) {
+            if (valueStart <= nameStart) {
+                valueStart = valueEnd + 1;
+            }
+            String name = s.substring(nameStart, valueStart - 1);
+            String value = s.substring(valueStart, valueEnd);
+            List<String> values = params.get(name);
+            if (values == null) {
+                params.put(name, values = new ArrayList<>(2));
+            }
+            values.add(value);
+        }
     }
 
     /**
