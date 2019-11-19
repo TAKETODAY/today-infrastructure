@@ -18,7 +18,6 @@ package cn.taketoday.context.cglib.proxy;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,13 +32,13 @@ import cn.taketoday.context.cglib.core.RejectModifierPredicate;
  * @version $Id: MixinEverythingEmitter.java,v 1.3 2004/06/24 21:15:19
  *          herbyderby Exp $
  */
-@SuppressWarnings("all")
 class MixinEverythingEmitter extends MixinEmitter {
 
     public MixinEverythingEmitter(ClassVisitor v, String className, Class[] classes) {
         super(v, className, classes, null);
     }
 
+    @Override
     protected Class[] getInterfaces(Class[] classes) {
         List<Class<?>> list = new ArrayList();
         for (Class<?> class1 : classes) {
@@ -48,11 +47,12 @@ class MixinEverythingEmitter extends MixinEmitter {
         return list.toArray(Constant.EMPTY_CLASS_ARRAY);
     }
 
+    @Override
     protected Method[] getMethods(Class type) {
         List<Method> methods = new ArrayList();
-        
+
         Collections.addAll(methods, type.getMethods());
-        
+
         CollectionUtils.filter(methods, new RejectModifierPredicate(Modifier.FINAL | Modifier.STATIC));
         return methods.toArray(new Method[0]);
     }

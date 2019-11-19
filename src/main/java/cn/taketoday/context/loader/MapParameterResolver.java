@@ -53,16 +53,16 @@ public class MapParameterResolver implements ExecutableParameterResolver, Ordere
 
         final Properties loadProps = ContextUtils.loadProps(props, System.getProperties());
         final Class<?> type = parameter.getType();
-        
+
         if (type.isInterface()) { // extends or implements Map
             return loadProps;
         }
-        
+
         @SuppressWarnings("unchecked")
         final Map<Object, Object> ret = (Map<Object, Object>) ClassUtils.newInstance(type);
 
         ret.putAll(loadProps);
-        
+
         return ret;
     }
 

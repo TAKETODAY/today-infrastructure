@@ -26,7 +26,7 @@ import cn.taketoday.context.factory.BeanFactory;
 
 /**
  * @author TODAY <br>
- * 		   2019-10-28 20:27
+ *         2019-10-28 20:27
  */
 public final class DelegatingParameterResolver implements ExecutableParameterResolver, Ordered {
 
@@ -63,9 +63,9 @@ public final class DelegatingParameterResolver implements ExecutableParameterRes
         return new DelegatingParameterResolver(supports, resolver);
     }
 
-    public static DelegatingParameterResolver delegate(SupportsFunction supports, //
+    public static DelegatingParameterResolver delegate(SupportsFunction supports,
                                                        ExecutableParameterResolver resolver, int order) {
         return new DelegatingParameterResolver(supports, resolver, order);
     }
 
-}   
+}
