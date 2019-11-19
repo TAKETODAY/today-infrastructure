@@ -34,6 +34,7 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.ui.JsonSequence;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -57,13 +58,18 @@ public class FastJsonMessageConverter implements MessageConverter {
 
     @Override
     public void write(final RequestContext requestContext, final Object message) throws IOException {
-
+        
         if (message instanceof CharSequence) {
             requestContext.getOutputStream().write(message.toString().getBytes(Constant.DEFAULT_CHARSET));
         }
         else {
             requestContext.contentType(Constant.CONTENT_TYPE_JSON);
-            JSON.writeJSONString(requestContext.getOutputStream(), message, getSerializeFeatures());
+            if (message instanceof JsonSequence) {
+                requestContext.getOutputStream().write(((JsonSequence) message).toJson().getBytes(Constant.DEFAULT_CHARSET));
+            }
+            else {
+                JSON.writeJSONString(requestContext.getOutputStream(), message, getSerializeFeatures());
+            }
         }
     }
 

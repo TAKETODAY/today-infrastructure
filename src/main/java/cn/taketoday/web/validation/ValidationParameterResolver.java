@@ -42,10 +42,8 @@ import cn.taketoday.web.resolver.method.ParameterResolver;
 public class ValidationParameterResolver implements OrderedParameterResolver {
 
     private final Validator validator;
-
-    private final Class<? extends Annotation> VALID_CLASS = ClassUtils.loadClass("javax.validation.Valid");
-
     private static final Map<MethodParameter, ParameterResolver> RESOLVERS = new HashMap<>();
+    private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.loadClass("javax.validation.Valid");
 
     @Autowired
     public ValidationParameterResolver(Validator validator) {
@@ -56,7 +54,6 @@ public class ValidationParameterResolver implements OrderedParameterResolver {
     public boolean supports(MethodParameter parameter) {
 
         if (parameter.isAnnotationPresent(VALID_CLASS)) {
-
             for (final ParameterResolver parameterResolver : MethodParameter.getParameterResolvers()) {
                 if (parameterResolver != this && parameterResolver.supports(parameter)) {
                     RESOLVERS.put(parameter, parameterResolver);
