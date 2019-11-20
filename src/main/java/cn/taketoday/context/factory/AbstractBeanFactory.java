@@ -253,7 +253,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Create bean instance
-     *
+     * <p>
+     * If target bean is {@link Scope#SINGLETON} will be register is to the
+     * singletons pool
+     * 
      * @param def
      *            Bean definition
      * @return Target bean instance
