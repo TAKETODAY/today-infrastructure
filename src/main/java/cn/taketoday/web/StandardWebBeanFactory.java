@@ -55,11 +55,11 @@ public class StandardWebBeanFactory extends StandardBeanFactory {
     @Override
     protected Map<Class<?>, Object> createObjectFactories() {
 
-        final Map<Class<?>, Object> servletEnv = new HashMap<>();
+        final Map<Class<?>, Object> env = new HashMap<>();
 
-        servletEnv.put(RequestContext.class, factory(RequestContextHolder::currentContext));
+        env.put(RequestContext.class, factory(RequestContextHolder::currentContext));
 
-        return servletEnv;
+        return env;
     }
 
     protected <T> ObjectFactory<T> factory(ObjectFactory<T> objectFactory) {
