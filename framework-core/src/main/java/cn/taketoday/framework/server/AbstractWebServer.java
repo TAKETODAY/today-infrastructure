@@ -150,13 +150,11 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
                 environment.setProperty(Constant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
             }
 
-            if (starter != null) { // find webMvcConfigLocation
-                if (StringUtils.isEmpty(webMvcConfigLocation)) {
-                    webMvcConfigLocation = starter.webMvcConfigLocation();
-                    if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
-                        environment.setProperty(Constant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
-                        environment.setProperty(Constant.WEB_MVC_CONFIG_LOCATION, webMvcConfigLocation);
-                    }
+            if (starter != null && StringUtils.isEmpty(webMvcConfigLocation)) { // find webMvcConfigLocation
+                webMvcConfigLocation = starter.webMvcConfigLocation();
+                if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
+                    environment.setProperty(Constant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
+                    environment.setProperty(Constant.WEB_MVC_CONFIG_LOCATION, webMvcConfigLocation);
                 }
             }
         }

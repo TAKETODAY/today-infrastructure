@@ -211,21 +211,23 @@ public class ReactiveDispatcher extends SimpleChannelInboundHandler<FullHttpRequ
      * @since 2.3.7
      */
     protected HandlerMapping lookupHandlerMapping(final HttpRequest request) {
+
+        String key = StringUtils.decodeUrl(request.uri());
+        request.setUri(key);
+
         // The key of handler
-        String requestURI = request.method().name().concat(request.uri());
+        key = request.method().name().concat(key);
 
         final HandlerMappingRegistry handlerMappingRegistry = getHandlerMappingRegistry();
-        final Integer index = handlerMappingRegistry.getIndex(requestURI);
-        if (index == null) {
-            // path variable
-            requestURI = StringUtils.decodeUrl(requestURI);// decode
+        final Integer index = handlerMappingRegistry.getIndex(key);
+        if (index == null) { // path variable
             for (final RegexMapping regexMapping : handlerMappingRegistry.getRegexMappings()) {
                 // TODO path matcher pathMatcher.match(requestURI, requestURI)
-                if (regexMapping.pattern.matcher(requestURI).matches()) {
+                if (regexMapping.pattern.matcher(key).matches()) {
                     return handlerMappingRegistry.get(regexMapping.index);
                 }
             }
-            log.debug("NOT FOUND -> [{}]", requestURI);
+            log.debug("NOT FOUND -> [{}]", key);
             return null;
         }
         return handlerMappingRegistry.get(index.intValue());

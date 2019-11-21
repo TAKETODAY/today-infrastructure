@@ -24,9 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.factory.StandardBeanFactory;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.framework.utils.ApplicationUtils;
+import cn.taketoday.web.StandardWebBeanFactory;
 
 /**
  * @author TODAY <br>
@@ -46,6 +48,11 @@ public class StandardWebServerApplicationContext
 
     public StandardWebServerApplicationContext() {
         this(null);
+    }
+
+    @Override
+    protected StandardBeanFactory createBeanFactory() {
+        return new StandardWebBeanFactory(this);
     }
 
     @Override

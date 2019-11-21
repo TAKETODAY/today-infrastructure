@@ -41,11 +41,11 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.RedirectModel;
+import cn.taketoday.web.utils.WebUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
@@ -71,10 +71,9 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
-import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -86,13 +85,8 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     private String url;
     private String method;
+    private String queryString;
     private String remoteAddress;
-
-    private Map<String, Object> attributes;
-    private Map<String, String[]> parameters = new HashMap<>(8);
-
-    private ByteBufInputStream inputStream;
-    private ByteBufOutputStream outputStream;
 
     private boolean committed = false;
 
@@ -101,6 +95,12 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     private String[] pathVariables;
     private final String contextPath;
     private ModelAndView modelAndView;
+
+    private ByteBufInputStream inputStream;
+    private ByteBufOutputStream outputStream;
+
+    private Map<String, Object> attributes;
+    private Map<String, String[]> parameters;
     private Map<String, List<MultipartFile>> multipartFiles;
 
     private final FullHttpRequest request;
@@ -119,6 +119,13 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     @Override
     public String queryString() {
+        if (null == url || !url.contains("?")) {
+            return null;
+        }
+        return url.substring(url.indexOf("?") + 1);
+    }
+
+    public static String queryString(String url) {
         if (null == url || !url.contains("?")) {
             return null;
         }
@@ -374,33 +381,110 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         return null;
     }
 
+    private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(true);
+
+    private InterfaceHttpPostRequestDecoder requestDecoder;
+
     @Override
     public Map<String, String[]> parameters() {
 
         Map<String, String[]> params = this.parameters;
 
-        if (params == null) {
+        if (params != null) {
+            return params;
+        }
 
-            final String queryString = queryString();
-            if (StringUtils.isNotEmpty(queryString)) {
-                final Map<String, List<String>> parameters = StringUtils.parseParameters(queryString);
+        final String queryString = queryString();
+        if (StringUtils.isNotEmpty(queryString)) {
+            final Map<String, List<String>> parameters = StringUtils.parseParameters(queryString);
 
-                if (!parameters.isEmpty()) {
+            parameters(parameters);
 
-                    params = new HashMap<>(32);
-                    final String[] empty = Constant.EMPTY_STRING_ARRAY;
-                    for (Entry<String, List<String>> entry : parameters.entrySet()) {
-                        params.put(entry.getKey(), entry.getValue().toArray(empty));
+            if (!parameters.isEmpty()) {
+                params = new HashMap<>(32);
+                final String[] empty = Constant.EMPTY_STRING_ARRAY;
+                for (final Entry<String, List<String>> entry : parameters.entrySet()) {
+                    params.put(entry.getKey(), entry.getValue().toArray(empty));
+                }
+                return this.parameters = params;
+            }
+        }
+        return Collections.emptyMap();
+
+    }
+
+    protected void parameters(final Map<String, List<String>> parameters) {
+        InterfaceHttpData data;
+        final InterfaceHttpPostRequestDecoder decoder = getRequestDecoder();
+        while ((data = decoder.next()) != null) {
+            if (InterfaceHttpData.HttpDataType.Attribute == data.getHttpDataType()) {
+                final Attribute attribute = (Attribute) data;
+                try {
+                    final String name = attribute.getName();
+                    List<String> list = parameters.get(name);
+                    if (list == null) {
+                        parameters.put(name, list = new ArrayList<>(4));
                     }
+                    list.add(attribute.getValue());
+                }
+                catch (IOException e) {
 
-                    // TODO form data
-
-                    return this.parameters = params;
                 }
             }
-            return Collections.emptyMap();
         }
-        return params;
+    }
+
+    protected void parseBody() {
+
+        InterfaceHttpPostRequestDecoder requestDecoder = getRequestDecoder();
+
+        InterfaceHttpData data;
+
+        while ((data = requestDecoder.next()) != null) {
+
+            if (InterfaceHttpData.HttpDataType.FileUpload == data.getHttpDataType()) {
+                final FileUpload fileUpload = (FileUpload) data;
+
+                final String name = fileUpload.getName();
+                List<MultipartFile> parts = multipartFiles.get(name);
+                if (parts == null) {
+                    multipartFiles.put(name, parts = new ArrayList<>(4));
+                }
+                parts.add(new FileUploadMultipartFile(fileUpload));
+            }
+            else {
+                final Attribute attribute = (Attribute) data;
+
+                try {
+                    final String value = attribute.getValue();
+
+                }
+                catch (IOException e) {
+                    // TODO 自动生成的 catch 块
+                    e.printStackTrace();
+                }
+
+//                params.put(attribute.getName(), attribute.getValue());
+            }
+        }
+    }
+
+    protected InterfaceHttpPostRequestDecoder getRequestDecoder() {
+        InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
+        if (requestDecoder == null) {
+            if (WebUtils.isMultipart(this)) {
+                requestDecoder = new HttpPostMultipartRequestDecoder(HTTP_DATA_FACTORY,
+                                                                     request,
+                                                                     Constant.DEFAULT_CHARSET);
+            }
+            else {
+                requestDecoder = new HttpPostStandardRequestDecoder(HTTP_DATA_FACTORY,
+                                                                    request,
+                                                                    Constant.DEFAULT_CHARSET);
+            }
+            requestDecoder.setDiscardThreshold(0);
+        }
+        return this.requestDecoder = requestDecoder;
     }
 
     @Override
@@ -506,6 +590,12 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
             }
             handlerContext.writeAndFlush(getResponse());
         }
+
+        final InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
+        if (requestDecoder != null) {
+            requestDecoder.destroy();
+        }
+
         committed = true;
         return this;
     }
@@ -646,64 +736,30 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         handlerContext.flush();
     }
 
-    String parseForm() {
-
-        final String content = request.content().toString(CharsetUtil.UTF_8);
-
-        return content;
-    }
-
-    private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(true);
-
-    private InterfaceHttpPostRequestDecoder requestDecoder;
-
     @Override
     public Map<String, List<MultipartFile>> multipartFiles() throws IOException {
 
         Map<String, List<MultipartFile>> multipartFiles = this.multipartFiles;
 
-        if (multipartFiles == null) {
+        if (multipartFiles != null) {
+            return multipartFiles;
+        }
+        
+        multipartFiles = new HashMap<>(32);
+        InterfaceHttpData data;
+        final InterfaceHttpPostRequestDecoder requestDecoder = getRequestDecoder();
+        while ((data = requestDecoder.next()) != null) {
+            if (InterfaceHttpData.HttpDataType.FileUpload == data.getHttpDataType()) {
 
-            multipartFiles = new HashMap<>();
-            InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
-            if (requestDecoder == null) {
-                requestDecoder = new HttpPostMultipartRequestDecoder(HTTP_DATA_FACTORY,
-                                                                     request,
-                                                                     Constant.DEFAULT_CHARSET);
-            }
-            requestDecoder.setDiscardThreshold(0);
-            requestDecoder.offer(request);
-
-            try {
-
-                while (requestDecoder.hasNext()) {
-                    final InterfaceHttpData data = requestDecoder.next();
-
-                    if (InterfaceHttpData.HttpDataType.FileUpload == data.getHttpDataType()) {
-                        final FileUpload fileUpload = (FileUpload) data;
-
-                        final String name = fileUpload.getName();
-                        List<MultipartFile> parts = multipartFiles.get(name);
-                        if (parts == null) {
-                            multipartFiles.put(name, parts = new ArrayList<>(4));
-                        }
-                        parts.add(new FileUploadMultipartFile(fileUpload));
-                    }
-                    else {
-                        final Attribute attribute = (Attribute) data;
-//                        params.put(attribute.getName(), attribute.getValue());
-                    }
+                final String name = data.getName();
+                List<MultipartFile> parts = multipartFiles.get(name);
+                if (parts == null) {
+                    multipartFiles.put(name, parts = new ArrayList<>(2));
                 }
-                return this.multipartFiles = multipartFiles;
-            }
-            catch (final HttpPostRequestDecoder.EndOfDataDecoderException e) {
-                log.error("ERROR", e);
-            }
-            catch (Exception e) {
-                throw new BadRequestException("Parse form data failed", e);
+                parts.add(new FileUploadMultipartFile((FileUpload) data));
             }
         }
-        return multipartFiles;
+        return this.multipartFiles = multipartFiles;
     }
 
     // Map
