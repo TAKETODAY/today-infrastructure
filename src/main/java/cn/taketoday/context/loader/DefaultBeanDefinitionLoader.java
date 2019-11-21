@@ -260,4 +260,9 @@ public class DefaultBeanDefinitionLoader implements BeanDefinitionLoader {
         );
     }
 
+    @Override
+    public void loadBeanDefinition(String... locations) throws BeanDefinitionStoreException {
+        loadBeanDefinitions(ClassUtils.scan(locations));
+    }
+
 }
