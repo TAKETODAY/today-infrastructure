@@ -84,7 +84,6 @@ import lombok.extern.slf4j.Slf4j;
 public class NettyRequestContext implements RequestContext, Map<String, Object> {
 
     private String url;
-    private String method;
     private String queryString;
     private String remoteAddress;
 
@@ -134,7 +133,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     @Override
     public String method() {
-        return this.method;
+        return this.request.method().name();
     }
 
     @Override
@@ -744,7 +743,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         if (multipartFiles != null) {
             return multipartFiles;
         }
-        
+
         multipartFiles = new HashMap<>(32);
         InterfaceHttpData data;
         final InterfaceHttpPostRequestDecoder requestDecoder = getRequestDecoder();

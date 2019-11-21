@@ -22,7 +22,6 @@ package cn.taketoday.framework;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
@@ -99,13 +98,7 @@ public class WebApplication {
 
             applicationContext.setEnvironment(environment);
 
-            ComponentScan componentScan = startupClass.getAnnotation(ComponentScan.class);
-            if (componentScan != null) {
-                applicationContext.loadContext(componentScan.value());
-            }
-            else {
-                applicationContext.loadContext(startupClass.getPackage().getName());
-            }
+            applicationContext.loadContext(startupClass.getPackage().getName());
 
             final WebServer webServer = applicationContext.getWebServer();
             if (webServer == null) {
