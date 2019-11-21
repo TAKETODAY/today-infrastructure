@@ -82,6 +82,16 @@ public interface BeanDefinitionLoader {
     void loadBeanDefinition(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
 
     /**
+     * Load {@link BeanDefinition}s from input package locations
+     * 
+     * @param locations
+     *            package locations
+     * @throws BeanDefinitionStoreException
+     * @since 2.1.7
+     */
+    void loadBeanDefinition(String... locations) throws BeanDefinitionStoreException;
+
+    /**
      * Register bean definition with given class
      * 
      * @param clazz
@@ -115,4 +125,5 @@ public interface BeanDefinitionLoader {
     default void register(BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
         register(beanDefinition.getName(), beanDefinition);
     }
+
 }

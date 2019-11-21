@@ -25,6 +25,7 @@ import static cn.taketoday.context.utils.ContextUtils.findNames;
 import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
 import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -39,6 +40,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.MissingBean;
@@ -75,9 +77,8 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
 
-    private final Collection<Method> missingMethods = new HashSet<>(32);
-
     private final ConfigurableApplicationContext applicationContext;
+    private final Collection<Method> missingMethods = new HashSet<>(32);
 
     public StandardBeanFactory(ConfigurableApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -130,9 +131,6 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                 .invoke(getDeclaringInstance(stdDef.getDeclaringName()), resolveParameter(factoryMethod, this));
     }
 
-    /**
-     * 
-     */
     @Override
     protected Object getImplementation(String currentBeanName, BeanDefinition currentBeanDefinition) throws Throwable {
         // fix: #3 when get annotated beans that StandardBeanDefinition missed
@@ -199,6 +197,8 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @since 2.1.7
      */
     protected void loadConfigurationBeans(final Class<?> beanClass) {
+
+        final Collection<Method> missingMethods = this.missingMethods;
 
         for (final Method method : beanClass.getDeclaredMethods()) {
 
@@ -499,6 +499,15 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         }
     }
 
+
+    @Override
+    public void loadBeanDefinition(String... locations) throws BeanDefinitionStoreException {
+
+        final Set<Class<?>> scan = ClassUtils.scan(locations);
+
+        loadBeanDefinitions(scan);
+    }
+
     /**
      * Register with given class
      * 
@@ -587,11 +596,27 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
             if (beanDefinition.isAnnotationPresent(Import.class)) { // @since 2.1.7
                 loadImportBeans(beanDefinition);
             }
+            componentScan(beanDefinition);
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
             throw new BeanDefinitionStoreException("An Exception Occurred When Register Bean Definition: [" + //
                     name + "], With Msg: [" + ex + "]", ex);
+        }
+    }
+
+    /**
+     * 
+     * @param source
+     */
+    protected void componentScan(final AnnotatedElement source) {
+
+        final AnnotationAttributes[] attributes = getAnnotationAttributesArray(source, ComponentScan.class);
+
+        if (ObjectUtils.isNotEmpty(attributes)) {
+            for (final AnnotationAttributes componentScanAttribute : attributes) {
+                loadBeanDefinition(componentScanAttribute.getStringArray(Constant.VALUE));
+            }
         }
     }
 
@@ -661,7 +686,6 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                 .setPropertyValues(beanDefinition.getPropertyValues());
 
         registerBeanDefinition(beanName, def);
-
     }
 
     @Override
@@ -679,4 +703,5 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     public ConfigurableApplicationContext getApplicationContext() {
         return applicationContext;
     }
+
 }

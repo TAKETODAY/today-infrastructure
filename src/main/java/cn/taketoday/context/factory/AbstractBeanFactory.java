@@ -19,7 +19,9 @@
  */
 package cn.taketoday.context.factory;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -72,7 +74,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractBeanFactory.class);
 
+    /** bean name creator */
     private BeanNameCreator beanNameCreator;
+    /** object factories */
+    private Map<Class<?>, Object> objectFactories;
     /** dependencies */
     private final Set<PropertyValue> dependencies = new HashSet<>(64);
     /** Bean Post Processors */
@@ -528,33 +533,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     /**
-     * Get child {@link BeanDefinition}s
-     * 
-     * @param beanName
-     *            Bean name
-     * @param beanClass
-     *            Bean class
-     * @return A list of {@link BeanDefinition}s, Never be null
-     */
-    protected List<BeanDefinition> doGetChildDefinition(final String beanName, final Class<?> beanClass) {
-
-        final Set<BeanDefinition> ret = new HashSet<>();
-
-        Class<?> clazz;
-        BeanDefinition childDef;
-
-        for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-            childDef = entry.getValue();
-            clazz = childDef.getBeanClass();
-
-            if (beanClass != clazz && beanClass.isAssignableFrom(clazz) && !beanName.equals(childDef.getName())) {
-                ret.add(childDef); // is beanClass's Child Bean
-            }
-        }
-        return ret.isEmpty() ? Collections.emptyList() : new ArrayList<>(ret);
-    }
-
-    /**
      * Initialize a singleton bean with given name and it's definition.
      *
      * @param name
@@ -592,6 +570,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         postProcessors.addAll(getBeans(BeanPostProcessor.class));
         OrderUtils.reversedSort(postProcessors);
     }
+
+    // handleDependency
+    // ---------------------------------------
 
     /**
      * Handle abstract dependencies
@@ -639,7 +620,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 if (childDef == null) {
                     childDef = childDefs.get(0); // first one
                 }
-
                 log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
 
                 registerBeanDefinition(beanName, new DefaultBeanDefinition(beanName, childDef));
@@ -649,6 +629,132 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             }
         }
     }
+
+    /**
+     * Get child {@link BeanDefinition}s
+     * 
+     * @param beanName
+     *            Bean name
+     * @param beanClass
+     *            Bean class
+     * @return A list of {@link BeanDefinition}s, Never be null
+     */
+    protected List<BeanDefinition> doGetChildDefinition(final String beanName, final Class<?> beanClass) {
+
+        final Set<BeanDefinition> ret = new HashSet<>();
+
+        for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
+            final BeanDefinition childDef = entry.getValue();
+            final Class<?> clazz = childDef.getBeanClass();
+
+            if (beanClass != clazz
+                && beanClass.isAssignableFrom(clazz)
+                && !beanName.equals(childDef.getName())) {
+
+                ret.add(childDef); // is beanClass's Child Bean
+            }
+        }
+
+        if (ret.isEmpty()) { // If user registered BeanDefinition
+            final BeanDefinition handleBeanDef = handleDependency(beanName, beanClass);
+            if (handleBeanDef != null) {
+                ret.add(handleBeanDef);
+            }
+        }
+        return ret.isEmpty() ? Collections.emptyList() : new ArrayList<>(ret);
+    }
+
+    /**
+     * Handle dependency {@link BeanDefinition}
+     * 
+     * @param beanName
+     *            bean name
+     * @param beanClass
+     *            bean class
+     * @return Dependency {@link BeanDefinition}
+     */
+    protected BeanDefinition handleDependency(final String beanName, final Class<?> beanClass) {
+
+        final Object obj = createDependencyInstance(beanName, beanClass);
+        if (obj != null) {
+            registerSingleton(beanName, obj);
+            return new DefaultBeanDefinition(beanName, beanClass);
+        }
+        return null;
+    }
+
+    /**
+     * Create dependency object
+     * 
+     * @param type
+     *            dependency type
+     * @param objectFactory
+     *            Object factory
+     * @return dependency object
+     */
+    protected Object createDependencyInstance(final String beanName, final Class<?> type) {
+
+        final Map<Class<?>, Object> objectFactories = getObjectFactories();
+        if (objectFactories != null) {
+            final Object objectFactory = objectFactories.get(type);
+            if (objectFactory instanceof ObjectFactory) {
+                return Proxy.newProxyInstance(type.getClassLoader(), new Class[] { type },
+                                              new ObjectFactoryDelegatingHandler((ObjectFactory<?>) objectFactory));
+            }
+            if (type.isInstance(objectFactory)) {
+                return objectFactory;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get {@link ObjectFactory}s
+     * 
+     * @since 2.3.7
+     * @return {@link ObjectFactory}s
+     */
+    public final Map<Class<?>, Object> getObjectFactories() {
+        final Map<Class<?>, Object> objectFactories = this.objectFactories;
+        if (objectFactories == null) {
+            return this.objectFactories = createObjectFactories();
+        }
+        return objectFactories;
+    }
+
+    protected Map<Class<?>, Object> createObjectFactories() {
+        return null;
+    }
+
+    public void setObjectFactories(Map<Class<?>, Object> objectFactories) {
+        this.objectFactories = objectFactories;
+    }
+
+    /**
+     * Reflective InvocationHandler for lazy access to the current target object.
+     */
+    @SuppressWarnings("serial")
+    private static class ObjectFactoryDelegatingHandler implements InvocationHandler, Serializable {
+
+        private final ObjectFactory<?> objectFactory;
+
+        public ObjectFactoryDelegatingHandler(ObjectFactory<?> objectFactory) {
+            this.objectFactory = objectFactory;
+        }
+
+        @Override
+        public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+
+            try {
+                return method.invoke(objectFactory.getObject(), args);
+            }
+            catch (InvocationTargetException ex) {
+                throw ex.getTargetException();
+            }
+        }
+    }
+
+    // ---------------------------------------
 
     /**
      * Initializing bean.
