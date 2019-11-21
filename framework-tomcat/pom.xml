@@ -25,6 +25,7 @@
             <artifactId>tomcat-embed-core</artifactId>
             <version>${embed.tomcat.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-websocket</artifactId>
@@ -45,14 +46,12 @@
                     <artifactId>tomcat-embed-el</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>cn.taketoday</groupId>
             <artifactId>today-framework</artifactId>
             <version>latest</version>
-            <scope>provided</scope>
         </dependency>
 
     </dependencies>
