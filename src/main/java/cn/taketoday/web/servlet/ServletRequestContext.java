@@ -484,9 +484,8 @@ public class ServletRequestContext implements RequestContext, Map<String, Object
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T attribute(String name, Class<T> targetClass) {
-        return (T) ConvertUtils.convert(get(name), targetClass);
+        return ConvertUtils.convert(targetClass, get(name));
     }
 
     @Override

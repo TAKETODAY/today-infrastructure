@@ -122,7 +122,14 @@
             <version>6.0.17.Final</version>
             <scope>provided</scope>
         </dependency>
-		
+
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.10.6</version>
+            <scope>provided</scope>
+        </dependency>
+        
 		<!-- test -->
 
         <dependency>
