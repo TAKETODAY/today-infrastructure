@@ -60,6 +60,20 @@ public final class ConcurrentCache<K, V> {
         return v;
     }
 
+    public void remove(K k) {
+        this.eden.remove(k);
+        synchronized (longterm) {
+            this.longterm.remove(k);
+        }
+    }
+
+    public void clear() {
+        this.eden.clear();
+        synchronized (longterm) {
+            this.longterm.clear();
+        }
+    }
+
     public void put(K k, V v) {
         final Map<K, V> eden = this.eden;
         if (eden.size() >= size) {
@@ -71,10 +85,15 @@ public final class ConcurrentCache<K, V> {
         eden.put(k, v);
     }
 
-    public void remove(K k) {
-        this.eden.remove(k);
-        synchronized (longterm) {
-            this.longterm.remove(k);
+    public void putAll(Map<? extends K, ? extends V> m) {
+        final Map<K, V> eden = this.eden;
+        if (eden.size() >= size) {
+            synchronized (longterm) {
+                this.longterm.putAll(eden);
+            }
+            eden.clear();
         }
+        eden.putAll(m);
     }
+
 }
