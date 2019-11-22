@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package com.sun.el.util;
+package cn.taketoday.context.utils;
 
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -39,6 +39,14 @@ public final class ConcurrentCache<K, V> {
         this.longterm = new WeakHashMap<>(size);
     }
 
+    public static <K, V> ConcurrentCache<K, V> create() {
+        return create(1024);
+    }
+
+    public static <K, V> ConcurrentCache<K, V> create(int size) {
+        return new ConcurrentCache<>(size);
+    }
+
     public V get(K k) {
         V v = this.eden.get(k);
         if (v == null) {
@@ -53,12 +61,20 @@ public final class ConcurrentCache<K, V> {
     }
 
     public void put(K k, V v) {
-        if (this.eden.size() >= size) {
+        final Map<K, V> eden = this.eden;
+        if (eden.size() >= size) {
             synchronized (longterm) {
-                this.longterm.putAll(this.eden);
+                this.longterm.putAll(eden);
             }
-            this.eden.clear();
+            eden.clear();
         }
-        this.eden.put(k, v);
+        eden.put(k, v);
+    }
+
+    public void remove(K k) {
+        this.eden.remove(k);
+        synchronized (longterm) {
+            this.longterm.remove(k);
+        }
     }
 }

@@ -68,8 +68,9 @@ import com.sun.el.parser.ELParser;
 import com.sun.el.parser.Node;
 import com.sun.el.parser.NodeVisitor;
 import com.sun.el.stream.StreamELResolver;
-import com.sun.el.util.ConcurrentCache;
 import com.sun.el.util.MessageFactory;
+
+import cn.taketoday.context.utils.ConcurrentCache;
 
 /**
  * @see javax.el.ExpressionFactory

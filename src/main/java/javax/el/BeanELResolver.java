@@ -32,9 +32,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
-import com.sun.el.util.ConcurrentCache;
-
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ConcurrentCache;
 
 /**
  * Defines property resolution behavior on objects using the JavaBeans component
