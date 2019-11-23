@@ -59,7 +59,7 @@
 - :hammer: 重构HandlerMapping
 - :hammer: 重构应用启动逻辑
 - :hammer: 重构拦截器
-
+- :hammer: 重构处理器映射机制
 
 
 
