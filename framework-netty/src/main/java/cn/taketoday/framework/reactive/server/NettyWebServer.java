@@ -29,6 +29,7 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.framework.StandardWebServerApplicationContext;
 import cn.taketoday.framework.WebServerApplicationContext;
+import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.framework.server.WebServerApplicationLoader;
@@ -127,7 +128,6 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
             this.childGroup = new EpollEventLoopGroup(acceptThreadCount, new NamedThreadFactory("epoll-child@"));
         }
         else {
-
             this.parentGroup = new NioEventLoopGroup(acceptThreadCount, new NamedThreadFactory("parent@"));
             this.childGroup = new NioEventLoopGroup(threadCount, new NamedThreadFactory("child@"));
             socketChannel = NioServerSocketChannel.class;
@@ -142,12 +142,13 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
         bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
         try {
-            channel = bootstrap.bind(getHost(), getPort()).sync().channel();
+            channel = bootstrap.bind(getHost(), getPort())
+                    .sync()
+                    .channel();
         }
         catch (InterruptedException e) {
-            e.printStackTrace();
+            new WebServerException(e);
         }
-
     }
 
     @PreDestroy
@@ -176,7 +177,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
         @Override
         public Thread newThread(Runnable runnable) {
             threadNumber.add(1);
-            return new Thread(runnable, prefix + "thread-" + threadNumber.intValue());
+            return new Thread(runnable, prefix.concat("thread-") + threadNumber.intValue());
         }
     }
 

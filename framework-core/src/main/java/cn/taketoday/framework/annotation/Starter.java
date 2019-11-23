@@ -24,8 +24,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.context.Scope;
-import cn.taketoday.context.annotation.Component;
 import cn.taketoday.framework.Constant;
 
 /**
@@ -34,7 +32,6 @@ import cn.taketoday.framework.Constant;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Component(scope = Scope.SINGLETON)
 public @interface Starter {
 
     String webMvcConfigLocation() default Constant.BLANK;

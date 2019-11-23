@@ -21,18 +21,13 @@ package cn.taketoday.framework.reactive;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import javax.annotation.PreDestroy;
-
-import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.WebServerApplicationContext;
@@ -63,7 +58,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 //@Sharable
 @Singleton
-public class ReactiveDispatcher extends SimpleChannelInboundHandler<FullHttpRequest> implements ChannelInboundHandler {
+public class ReactiveDispatcher
+        extends SimpleChannelInboundHandler<FullHttpRequest> implements ChannelInboundHandler, DisposableBean {
 
 //  private static final Logger log = LoggerFactory.getLogger(DispatcherHandler.class);
 
@@ -218,43 +214,23 @@ public class ReactiveDispatcher extends SimpleChannelInboundHandler<FullHttpRequ
         // The key of handler
         key = request.method().name().concat(key);
 
-        final HandlerMappingRegistry handlerMappingRegistry = getHandlerMappingRegistry();
-        final Integer index = handlerMappingRegistry.getIndex(key);
-        if (index == null) { // path variable
+        final HandlerMapping ret = handlerMappingRegistry.get(key);
+        if (ret == null) { // path variable
             for (final RegexMapping regexMapping : handlerMappingRegistry.getRegexMappings()) {
                 // TODO path matcher pathMatcher.match(requestURI, requestURI)
                 if (regexMapping.pattern.matcher(key).matches()) {
-                    return handlerMappingRegistry.get(regexMapping.index);
+                    return regexMapping.handlerMapping;
                 }
             }
             log.debug("NOT FOUND -> [{}]", key);
             return null;
         }
-        return handlerMappingRegistry.get(index.intValue());
+        return ret;
     }
 
-    @PreDestroy
+    @Override
     public void destroy() {
-
-        if (applicationContext != null) {
-            final State state = applicationContext.getState();
-
-            if (state != State.CLOSING && state != State.CLOSED) {
-
-                applicationContext.close();
-
-                final DateFormat dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);//
-                final String msg = new StringBuffer()//
-                        .append("Your application destroyed at: [")//
-                        .append(dateFormat.format(new Date()))//
-                        .append("] on startup date: [")//
-                        .append(dateFormat.format(applicationContext.getStartupDate()))//
-                        .append("]")//
-                        .toString();
-
-                log.info(msg);
-            }
-        }
+        DispatcherHandler.destroy(applicationContext);
     }
 
     public final HandlerMappingRegistry getHandlerMappingRegistry() {
