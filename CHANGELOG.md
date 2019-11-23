@@ -48,6 +48,9 @@
 - :sparkles: 添加BeanDefinition#setInitMethods(String[])
 - :bug: 修复重大漏洞：el执行期间潜在的并发问题
 - :bug: 修复bean实例重复创建
+- :sparkles: 新增ComponentScan支持自定义扫描包
+
+
 
 
 
