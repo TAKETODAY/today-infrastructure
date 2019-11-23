@@ -21,9 +21,13 @@ package cn.taketoday.context.loader;
 
 import java.util.Collection;
 
+import cn.taketoday.context.Scope;
+import cn.taketoday.context.annotation.Component;
+import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
+import cn.taketoday.context.utils.ClassUtils;
 
 /**
  * Create bean definition
@@ -61,16 +65,28 @@ public interface BeanDefinitionLoader {
 
     /**
      * Load bean definition with given bean class.
+     * <p>
+     * The candidate bean class can't be abstract and must pass the condition which
+     * {@link Conditional} is annotated.
      * 
-     * @param clazz
-     *            Bean class
+     * @param candidate
+     *            Candidate bean class the class will be load
      * @throws BeanDefinitionStoreException
      *             If BeanDefinition could not be store
+     * @see{@link #register(Class)}
      */
-    void loadBeanDefinition(Class<?> clazz) throws BeanDefinitionStoreException;
+    void loadBeanDefinition(Class<?> candidate) throws BeanDefinitionStoreException;
 
     /**
      * Load bean definition with given bean class and bean name.
+     * <p>
+     * If the provided bean class annotated {@link Component} annotation will
+     * register beans with given {@link Component} metadata.
+     * <p>
+     * Otherwise register a bean will given default metadata: use the default bean
+     * name creator create the default bean name, use default bean scope
+     * {@link Scope#SINGLETON} , empty initialize method ,empty property value and
+     * empty destroy method.
      * 
      * @param name
      *            Bean name
@@ -84,25 +100,37 @@ public interface BeanDefinitionLoader {
     /**
      * Load {@link BeanDefinition}s from input package locations
      * 
+     * <p>
+     * {@link ClassUtils} will scan the classes from given package locations. And
+     * register the {@link BeanDefinition}s using loadBeanDefinition(Class)
+     * 
      * @param locations
      *            package locations
      * @throws BeanDefinitionStoreException
+     * @see {@link #loadBeanDefinition(Class)}
      * @since 2.1.7
      */
     void loadBeanDefinition(String... locations) throws BeanDefinitionStoreException;
 
     /**
-     * Register bean definition with given class
+     * Register bean definition with given class.
+     * <p>
+     * If candidate bean class isn't present {@link Component} will not register the
+     * {@link BeanDefinition}
+     * <p>
+     * Otherwise will register a bean with given candidate bean class and indicate a
+     * bean name from {@link BeanDefinition} metadata.
      * 
-     * @param clazz
-     *            Bean class
+     * @param candidate
+     *            Candidate bean class
      * @throws BeanDefinitionStoreException
      *             If BeanDefinition could not be store
+     * @see #register(String, BeanDefinition)
      */
-    void register(Class<?> clazz) throws BeanDefinitionStoreException;
+    void register(Class<?> candidate) throws BeanDefinitionStoreException;
 
     /**
-     * Register bean definition with given name
+     * Register bean definition with given name and {@link BeanDefinition}
      * 
      * @param name
      *            Bean name

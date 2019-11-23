@@ -445,7 +445,6 @@ public abstract class StringUtils {
      * 
      * @param url
      *            Input url
-     * @return
      */
     public static String checkUrl(String url) {
         return StringUtils.isEmpty(url) ? Constant.BLANK : (url.charAt(0) == '/' ? url : '/' + url);
