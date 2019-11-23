@@ -43,7 +43,9 @@ public @interface Component {
 
 }
 ```
+
 `@Singleton` 
+
 ```java
 @Component(scope = Scope.SINGLETON)
 @Target({ ElementType.TYPE, ElementType.METHOD })
@@ -58,6 +60,7 @@ public @interface Singleton {
 }
 
 ```
+
 `@Prototype`
 ```java
 @Retention(RetentionPolicy.RUNTIME)
@@ -97,6 +100,7 @@ public @interface Service {
 - 使用`@Resource`注入
 - 使用`@Inject`注入
 - 可自定义注解和实现`PropertyValueResolver`：
+
 ```java
 @FunctionalInterface
 public interface PropertyValueResolver {
@@ -107,7 +111,9 @@ public interface PropertyValueResolver {
     PropertyValue resolveProperty(Field field) throws ContextException;
 }
 ```
+
 - 注入示例：
+
 ```java
 @Controller
 @SuppressWarnings("serial")
@@ -177,66 +183,56 @@ public class LoginController implements Constant, ServletContextAware {
 }
   
 ```
+
 - 实现原理
+
 ```java
 public class AutowiredPropertyResolver implements PropertyValueResolver {
+
     private static final Class<? extends Annotation> NAMED_CLASS = ClassUtils.loadClass("javax.inject.Named");
     private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.loadClass("javax.inject.Inject");
 
     @Override
     public boolean supports(Field field) {
-
-        return field.isAnnotationPresent(Autowired.class) //
-                || field.isAnnotationPresent(Resource.class) //
-                || (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS))//
+        return field.isAnnotationPresent(Autowired.class)
+                || field.isAnnotationPresent(Resource.class)
+                || (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS))
                 || (INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS));
     }
+    
     @Override
-    public PropertyValue resolveProperty(Field field) {
-        final ApplicationContext applicationContext = ContextUtils.getApplicationContext();
-        final BeanNameCreator beanNameCreator = applicationContext.getEnvironment().getBeanNameCreator();
-
-        final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
-
-        String name = null;
-        boolean required = true;
-        final Class<?> propertyClass = field.getType();
-
-        if (autowired != null) {
-            name = autowired.value();
-            if (StringUtils.isEmpty(name)) {
-                name = byType(applicationContext, propertyClass, beanNameCreator);
-            }
-            required = autowired.required();
-        }
-        else if (field.isAnnotationPresent(Resource.class)) {
-            // Resource.class
-            final Resource resource = field.getAnnotation(Resource.class);
-            name = resource.name();
-            if (StringUtils.isEmpty(name)) { // fix resource.type() != Object.class) {
-                name = byType(applicationContext, propertyClass, beanNameCreator);
-            }
-        }
-        else if (NAMED_CLASS != null) {// @Named
-            final Collection<AnnotationAttributes> annotationAttributes = //
-                    ClassUtils.getAnnotationAttributes(field, NAMED_CLASS); // @Named
-
-            if (annotationAttributes.isEmpty()) {
-                name = byType(applicationContext, propertyClass, beanNameCreator);
-            }
-            else {
-                name = annotationAttributes.iterator().next().getString(Constant.VALUE); // name attr
-            }
-        }
-        else {// @Inject
-            name = byType(applicationContext, propertyClass, beanNameCreator);
-        }
-        return new PropertyValue(new BeanReference(name, required, propertyClass), field);
-    }
+	public PropertyValue resolveProperty(Field field) {
+	
+	    final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
+	
+	    String name = null;
+	    boolean required = true;
+	    final Class<?> propertyClass = field.getType();
+	
+	    if (autowired != null) {
+	        name = autowired.value();
+	        required = autowired.required();
+	    }
+	    else if (field.isAnnotationPresent(Resource.class)) {
+	        name = field.getAnnotation(Resource.class).name(); // Resource.class
+	    }
+	    else if (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS)) {// @Named
+	        name = ClassUtils.getAnnotationAttributes(NAMED_CLASS, field).getString(Constant.VALUE);
+	    } // @Inject or name is empty
+	
+	    if (StringUtils.isEmpty(name)) {
+	        name = byType(propertyClass);
+	    }
+	
+	    return new PropertyValue(new BeanReference(name, required, propertyClass), field);
+	}
+}
 ```
+
 看到这你应该明白了注入原理了
 
 ### 使用`@Autowired`构造器注入
+
 ```java
 // cn.taketoday.web.servlet.DispatcherServlet
 public class DispatcherServlet implements Servlet, Serializable {
@@ -561,7 +557,9 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 ```
 
 ### 使用`@Props` 注入Properties或Bean
+
 - 构造器
+
 ```java
     @Autowired
     public PropsBean(@Props(prefix = "site.") Bean bean) {
@@ -576,7 +574,9 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
         //-------
     }
 ```
+
 - Field
+
 ```java
     @Props(prefix = "site.")
     Bean bean;
@@ -585,7 +585,9 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
     @Props(prefix = "site.") 
     Properties properties
 ```
+
 - 实现原理
+
 ```java
 @Order(Ordered.HIGHEST_PRECEDENCE - 2)
 public class PropsPropertyResolver implements PropertyValueResolver {
@@ -597,6 +599,7 @@ public class PropsPropertyResolver implements PropertyValueResolver {
 
 }
 ```
+
 ### 使用`@Value` 支持EL表达式
 - 和`@Props`一样同样支持构造器，Field注入
 - `#{key}` 和Environment#getProperty(String key, Class<T> targetType)效果一样
