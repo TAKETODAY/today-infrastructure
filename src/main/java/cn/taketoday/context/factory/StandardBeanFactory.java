@@ -469,11 +469,11 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     // ---------------------------------------------
 
     @Override
-    public void loadBeanDefinition(Class<?> beanClass) throws BeanDefinitionStoreException {
+    public void loadBeanDefinition(Class<?> candidate) throws BeanDefinitionStoreException {
 
         // don't load abstract class
-        if (!Modifier.isAbstract(beanClass.getModifiers()) && ContextUtils.conditional(beanClass)) {
-            register(beanClass);
+        if (!Modifier.isAbstract(candidate.getModifiers()) && ContextUtils.conditional(candidate)) {
+            register(candidate);
         }
     }
 
@@ -499,34 +499,22 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         }
     }
 
-
     @Override
     public void loadBeanDefinition(String... locations) throws BeanDefinitionStoreException {
-
-        final Set<Class<?>> scan = ClassUtils.scan(locations);
-
-        loadBeanDefinitions(scan);
+        loadBeanDefinitions(ClassUtils.scan(locations));
     }
 
-    /**
-     * Register with given class
-     * 
-     * @param sourceClass
-     *            Source bean class
-     * @throws BeanDefinitionStoreException
-     *             If {@link BeanDefinition} can't store
-     */
     @Override
-    public void register(Class<?> sourceClass) throws BeanDefinitionStoreException {
+    public void register(Class<?> candidate) throws BeanDefinitionStoreException {
 
-        final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(sourceClass, Component.class);
+        final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(candidate, Component.class);
 
         if (ObjectUtils.isNotEmpty(annotationAttributes)) {
 
-            final String defaultBeanName = getBeanNameCreator().create(sourceClass);
+            final String defaultBeanName = getBeanNameCreator().create(candidate);
             for (final AnnotationAttributes attributes : annotationAttributes) {
                 for (final String name : findNames(defaultBeanName, attributes.getStringArray(Constant.VALUE))) {
-                    register(name, build(sourceClass, attributes, name));
+                    register(name, build(candidate, attributes, name));
                 }
             }
         }
@@ -596,7 +584,9 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
             if (beanDefinition.isAnnotationPresent(Import.class)) { // @since 2.1.7
                 loadImportBeans(beanDefinition);
             }
-            componentScan(beanDefinition);
+            if (beanDefinition.isAnnotationPresent(ComponentScan.class)) {
+                componentScan(beanDefinition);
+            }
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
@@ -606,17 +596,15 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     }
 
     /**
+     * Import beans from given package locations
      * 
      * @param source
+     *            {@link AnnotatedElement} that annotated {@link ComponentScan}
      */
     protected void componentScan(final AnnotatedElement source) {
 
-        final AnnotationAttributes[] attributes = getAnnotationAttributesArray(source, ComponentScan.class);
-
-        if (ObjectUtils.isNotEmpty(attributes)) {
-            for (final AnnotationAttributes componentScanAttribute : attributes) {
-                loadBeanDefinition(componentScanAttribute.getStringArray(Constant.VALUE));
-            }
+        for (final AnnotationAttributes attribute : getAnnotationAttributesArray(source, ComponentScan.class)) {
+            loadBeanDefinition(attribute.getStringArray(Constant.VALUE));
         }
     }
 
