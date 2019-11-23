@@ -54,9 +54,9 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
     @Override
     public boolean supports(Field field) {
 
-        return field.isAnnotationPresent(Autowired.class) //
-               || field.isAnnotationPresent(Resource.class) //
-               || (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS))//
+        return field.isAnnotationPresent(Autowired.class)
+               || field.isAnnotationPresent(Resource.class)
+               || (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS))
                || (INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS));
     }
 
