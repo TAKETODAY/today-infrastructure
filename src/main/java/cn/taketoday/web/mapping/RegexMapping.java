@@ -31,13 +31,10 @@ public final class RegexMapping {
      * @since 2.3.7
      */
     public final Pattern pattern;
-    //	private final String regex;
+    public final HandlerMapping handlerMapping;
 
-    public final int index;
-
-    public RegexMapping(final Pattern pattern, final int index) {
-        this.index = index;
+    public RegexMapping(Pattern pattern, HandlerMapping handlerMapping) {
         this.pattern = pattern;
+        this.handlerMapping = handlerMapping;
     }
-
 }

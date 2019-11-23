@@ -20,6 +20,7 @@
 package cn.taketoday.web.session;
 
 import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 
 /**

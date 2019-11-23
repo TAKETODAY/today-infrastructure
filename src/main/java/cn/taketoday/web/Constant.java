@@ -38,6 +38,8 @@ public interface Constant extends cn.taketoday.context.Constant {
 
     String WEB_VERSION = "2.3.7.RELEASE";
 
+    String X_REQUIRED_AUTHORIZATION = "X-Required-Authorization";
+    
     String ENV_SERVLET = "javax.servlet.Servlet";
 
     MethodParameter[] EMPTY_METHOD_PARAMETER = new MethodParameter[0];

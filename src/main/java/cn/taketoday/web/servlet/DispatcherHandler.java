@@ -19,9 +19,16 @@
  */
 package cn.taketoday.web.servlet;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.mapping.HandlerMapping;
 
@@ -60,4 +67,25 @@ public class DispatcherHandler {
         mapping.resolveResult(context, result);
     }
 
+    public static void destroy(WebApplicationContext applicationContext) {
+
+        if (applicationContext != null) {
+            final State state = applicationContext.getState();
+
+            if (state != State.CLOSING && state != State.CLOSED) {
+
+                applicationContext.close();
+                final DateFormat dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);//
+                final String msg = new StringBuffer()//
+                        .append("Your application destroyed at: [")//
+                        .append(dateFormat.format(new Date()))//
+                        .append("] on startup date: [")//
+                        .append(dateFormat.format(applicationContext.getStartupDate()))//
+                        .append("]")//
+                        .toString();
+
+                log.info(msg);
+            }
+        }
+    }
 }

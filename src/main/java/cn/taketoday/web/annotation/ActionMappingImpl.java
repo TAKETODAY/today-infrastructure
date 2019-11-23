@@ -21,12 +21,12 @@ package cn.taketoday.web.annotation;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.Objects;
 
 import cn.taketoday.web.RequestMethod;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-08-23 10:27
  */
 @SuppressWarnings("all")
@@ -52,6 +52,11 @@ public class ActionMappingImpl implements ActionMapping {
     }
 
     @Override
+    public boolean exclude() {
+        return exclude;
+    }
+
+    @Override
     public String toString() {
         return new StringBuilder().append("@")//
                 .append(ActionMapping.class.getName())//
@@ -64,8 +69,8 @@ public class ActionMappingImpl implements ActionMapping {
     }
 
     @Override
-    public boolean exclude() {
-        return exclude;
+    public int hashCode() {
+        return Objects.hash(value, exclude, method);
     }
 
     @Override

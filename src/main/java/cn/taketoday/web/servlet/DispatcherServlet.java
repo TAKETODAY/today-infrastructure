@@ -52,8 +52,9 @@ import cn.taketoday.web.utils.ResultUtils;
  *         2018-06-25 19:47:14
  * @version 2.3.7
  */
-@SuppressWarnings("serial")
 public class DispatcherServlet implements Servlet, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private static final Logger log = LoggerFactory.getLogger(DispatcherServlet.class);
 
@@ -104,7 +105,7 @@ public class DispatcherServlet implements Servlet, Serializable {
         final HandlerMapping mapping = lookupHandlerMapping(req);
 
         if (mapping == null) {
-            res.sendError(HttpServletResponse.SC_NOT_FOUND);
+            res.sendError(404);
             return;
         }
 
@@ -135,20 +136,20 @@ public class DispatcherServlet implements Servlet, Serializable {
         String key = req.getMethod().concat(req.getRequestURI());
 
         final HandlerMappingRegistry registry = this.handlerMappingRegistry;
-        final Integer i = registry.getIndex(key); // index of handler mapping
-        if (i == null) {
+        final HandlerMapping ret = registry.get(key); // handler mapping
+        if (ret == null) {
             // path variable
             key = StringUtils.decodeUrl(key);// decode
             for (final RegexMapping regex : registry.getRegexMappings()) {
                 // TODO path matcher pathMatcher.match(requestURI, requestURI)
                 if (regex.pattern.matcher(key).matches()) {
-                    return registry.get(regex.index);
+                    return regex.handlerMapping;
                 }
             }
             log.debug("NOT FOUND -> [{}]", key);
             return null;
         }
-        return registry.get(i.intValue());
+        return ret;
     }
 
     @Override

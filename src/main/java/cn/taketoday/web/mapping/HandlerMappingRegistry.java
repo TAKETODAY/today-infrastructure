@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.mapping;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.RandomAccess;
@@ -37,29 +37,30 @@ import cn.taketoday.web.Constant;
 @MissingBean(value = Constant.HANDLER_MAPPING_REGISTRY, type = HandlerMappingRegistry.class)
 public class HandlerMappingRegistry implements RandomAccess {
 
-    /** pool **/
-    private HandlerMapping[] array;
     /** regex **/
     private RegexMapping[] regexMappings;
-    /** mapping */
-    private Map<String, Integer> requestMappings;
 
-    public HandlerMappingRegistry setRegexMappings(Map<String, Integer> regexMappings) {
+    private final Map<String, HandlerMapping> handlerMappings;
+
+    public HandlerMappingRegistry() {
+        this(new HashMap<>(1024));
+    }
+
+    public HandlerMappingRegistry(int initialCapacity) {
+        this(new HashMap<>(initialCapacity));
+    }
+
+    public HandlerMappingRegistry(Map<String, HandlerMapping> mappings) {
+        this.handlerMappings = mappings;
+    }
+
+    public HandlerMappingRegistry setRegexMappings(Map<String, HandlerMapping> regexMappings) {
         this.regexMappings = new RegexMapping[regexMappings.size()];
         int i = 0;
-        for (Entry<String, Integer> entry : regexMappings.entrySet()) {
+        for (Entry<String, HandlerMapping> entry : regexMappings.entrySet()) {
             this.regexMappings[i++] = new RegexMapping(Pattern.compile(entry.getKey()), entry.getValue());
         }
         return this;
-    }
-
-    public HandlerMappingRegistry setRequestMappings(Map<String, Integer> requestMappings) {
-        this.requestMappings = requestMappings;
-        return this;
-    }
-
-    public HandlerMappingRegistry() {
-        array = new HandlerMapping[0];
     }
 
     public final RegexMapping[] getRegexMappings() {
@@ -72,53 +73,20 @@ public class HandlerMappingRegistry implements RandomAccess {
      * @return HandlerMapping count
      */
     public int size() {
-        return array.length;
+        return handlerMappings.size();
     }
 
-    /**
-     * Get handler index in array
-     * 
-     * @param key
-     *            request method and request uri
-     */
-    public final Integer getIndex(String key) {
-        return requestMappings.get(key);
+    public final HandlerMapping get(String key) {
+        return handlerMappings.get(key);
     }
 
-    /**
-     * Get HandlerMapping instance.
-     * 
-     * @param index
-     *            the HandlerMapping number
-     */
-    public final HandlerMapping get(int index) {
-        return array[index];
-    }
-
-    /**
-     * Add HandlerMapping to pool.
-     * 
-     * @param e
-     *            HandlerMapping instance
-     */
-    public int add(HandlerMapping e) {
-
-        for (int i = 0; i < array.length; i++) {
-            if (e.equals(array[i])) {
-                return i;
-            }
-        }
-        HandlerMapping[] newArray = new HandlerMapping[array.length + 1];
-        System.arraycopy(array, 0, newArray, 0, array.length);
-        newArray[array.length] = e;
-
-        array = newArray;
-
-        return array.length - 1;
-    }
-
+    @Override
     public String toString() {
-        return Arrays.toString(array);
+        return handlerMappings.toString();
+    }
+
+    public final Map<String, HandlerMapping> getHandlerMappings() {
+        return handlerMappings;
     }
 
 }

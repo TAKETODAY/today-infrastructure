@@ -21,6 +21,7 @@ package cn.taketoday.web.session;
 
 import java.net.HttpCookie;
 
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 
 /**

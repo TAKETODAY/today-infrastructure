@@ -46,7 +46,6 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.AbstractBeanFactory.Prototypes;
-import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -73,7 +72,7 @@ import cn.taketoday.web.mapping.MethodParameter;
  * @author TODAY <br>
  */
 @Singleton(Constant.ACTION_CONFIG)
-public class ActionConfiguration implements Ordered, DisposableBean, WebApplicationInitializer {
+public class ActionConfiguration implements Ordered, WebApplicationInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(ActionConfiguration.class);
 
@@ -85,8 +84,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
 
     private final BeanDefinitionLoader beanDefinitionLoader;
 
-    private Map<String, Integer> regexUrls = new HashMap<>();
-    private Map<String, Integer> requestMappings = new HashMap<>();
+    private Map<String, HandlerMapping> regexUrls = new HashMap<>();
 
     private final AbstractBeanFactory beanFactory;
 
@@ -104,35 +102,6 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
     }
 
     /**
-     * Build {@link HandlerMapping}
-     * 
-     * @param beanClass
-     *            Bean class
-     * @throws Exception
-     *             If any {@link Exception} occurred
-     * @since 2.3.7
-     */
-    public void buildHandlerMapping(final Class<?> beanClass) throws Exception {
-
-        final ActionMapping controllerMapping = //
-                ClassUtils.getAnnotation(ActionMapping.class, beanClass); // find mapping on class
-
-        final Set<String> namespaces = new HashSet<>(4, 1.0f); // name space
-        final Set<RequestMethod> methodsOnClass = new HashSet<>(8, 1.0f); // method
-
-        if (ObjectUtils.isNotEmpty(controllerMapping)) {
-            for (final String value : controllerMapping.value()) {
-                namespaces.add(StringUtils.checkUrl(value));
-            }
-            Collections.addAll(methodsOnClass, controllerMapping.method());
-        }
-
-        for (final Method method : beanClass.getDeclaredMethods()) {
-            this.setActionMapping(beanClass, method, namespaces, methodsOnClass);
-        }
-    }
-
-    /**
      * Start config
      * 
      * @throws Exception
@@ -145,9 +114,39 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
 
             final BeanDefinition def = entry.getValue();
 
-            if (!def.isAbstract() && def.isAnnotationPresent(RootController.class)) {
+            if (!def.isAbstract() && (def.isAnnotationPresent(RootController.class)
+                                      || def.isAnnotationPresent(ActionMapping.class))) { // ActionMapping on the class is ok
                 buildHandlerMapping(def.getBeanClass());
             }
+        }
+    }
+
+    /**
+     * Build {@link HandlerMapping}
+     * 
+     * @param beanClass
+     *            Bean class
+     * @throws Exception
+     *             If any {@link Exception} occurred
+     * @since 2.3.7
+     */
+    public void buildHandlerMapping(final Class<?> beanClass) throws Exception {
+
+        final Set<String> namespaces = new HashSet<>(4, 1.0f); // name space
+        final Set<RequestMethod> methodsOnClass = new HashSet<>(8, 1.0f); // method
+
+        final AnnotationAttributes controllerMapping = // find mapping on class
+                ClassUtils.getAnnotationAttributes(ActionMapping.class, beanClass);
+
+        if (ObjectUtils.isNotEmpty(controllerMapping)) {
+            for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {
+                namespaces.add(StringUtils.checkUrl(value));
+            }
+            Collections.addAll(methodsOnClass, controllerMapping.getAttribute("method", RequestMethod[].class));
+        }
+
+        for (final Method method : beanClass.getDeclaredMethods()) { //TODO parent class mappings
+            this.buildHandlerMapping(beanClass, method, namespaces, methodsOnClass);
         }
     }
 
@@ -159,16 +158,18 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      * @param method
      *            Action or Handler
      * @param namespaces
-     *            Namespace
+     *            Name space is that path mapping on the class level
      * @param methodsOnClass
      *            request method on class
      * @throws Exception
      *             If any {@link Exception} occurred
      */
-    private void setActionMapping(Class<?> beanClass, Method method, //
-                                  Set<String> namespaces, Set<RequestMethod> methodsOnClass) throws Exception //
+    protected void buildHandlerMapping(final Class<?> beanClass,
+                                       final Method method,
+                                       final Set<String> namespaces,
+                                       final Set<RequestMethod> methodsOnClass) throws Exception //
     {
-        final AnnotationAttributes[] annotationAttributes = //
+        final AnnotationAttributes[] annotationAttributes = // find mapping on method
                 ClassUtils.getAnnotationAttributesArray(method, ActionMapping.class);
 
         if (ObjectUtils.isNotEmpty(annotationAttributes)) {
@@ -185,7 +186,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      *            Elements instance
      */
     @SafeVarargs
-    private static <E> Set<E> newHashSet(E... elements) {
+    public static <E> Set<E> newHashSet(E... elements) {
         return new HashSet<>(Arrays.asList(elements));
     }
 
@@ -201,30 +202,34 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      * @param annotationAttributes
      *            {@link ActionMapping} Attributes
      */
-    private void mappingHandlerMapping(HandlerMapping handlerMapping, Set<String> namespaces, //
-                                       Set<RequestMethod> classRequestMethods, AnnotationAttributes[] annotationAttributes) //
+    protected void mappingHandlerMapping(final HandlerMapping handlerMapping,
+                                         final Set<String> namespaces,
+                                         final Set<RequestMethod> classRequestMethods,
+                                         final AnnotationAttributes[] annotationAttributes) // TODO 
     {
-
-        // add the mapping
-        final int handlerMappingIndex = handlerMappingRegistry.add(handlerMapping); // index of handler method
+        final boolean emptyNamespaces = namespaces.isEmpty();
+        final boolean emptyClassRequestMethods = classRequestMethods.isEmpty();
 
         for (final AnnotationAttributes handlerMethodMapping : annotationAttributes) {
-            boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
 
-            Set<RequestMethod> requestMethods = //
+            final boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
+            final Set<RequestMethod> requestMethods = // http request method on method(action/handler)
                     newHashSet(handlerMethodMapping.getAttribute("method", RequestMethod[].class));
 
-            requestMethods.addAll(classRequestMethods);
+            if (!emptyClassRequestMethods) requestMethods.addAll(classRequestMethods);
 
-            for (String urlOnMethod : handlerMethodMapping.getStringArray("value")) { // url on method
+            for (final String urlOnMethod : handlerMethodMapping.getStringArray("value")) { // url on method
                 // splice urls and request methods
-                for (RequestMethod requestMethod : requestMethods) {
-                    if (exclude || namespaces.isEmpty()) {
-                        doMapping(handlerMappingIndex, handlerMapping, StringUtils.checkUrl(urlOnMethod), requestMethod);
+                // ---------------------------------
+                for (final RequestMethod requestMethod : requestMethods) {
+
+                    final String checkedUrl = StringUtils.checkUrl(urlOnMethod);
+                    if (exclude || emptyNamespaces) {
+                        doMapping(checkedUrl, requestMethod, handlerMapping);
                         continue;
                     }
-                    for (String namespace : namespaces) {
-                        doMapping(handlerMappingIndex, handlerMapping, namespace + StringUtils.checkUrl(urlOnMethod), requestMethod);
+                    for (final String namespace : namespaces) {
+                        doMapping(namespace.concat(checkedUrl), requestMethod, handlerMapping);
                     }
                 }
             }
@@ -234,8 +239,6 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
     /**
      * Mapping to {@link HandlerMappingRegistry}
      * 
-     * @param handlerMappingIndex
-     *            index of the {@link HandlerMapping} array
      * @param handlerMethod
      *            {@link HandlerMethod}
      * @param urlOnMethod
@@ -244,21 +247,24 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      *            HTTP request method
      * @see RequestMethod
      */
-    private void doMapping(final int handlerMappingIndex, //
-                           HandlerMethod handlerMethod, String urlOnMethod, RequestMethod requestMethod) //
+    protected void doMapping(final String urlOnMethod,
+                             final RequestMethod requestMethod,
+                             final HandlerMapping handlerMapping) //
     {
-        final String url = requestMethod.name() //
-                + getContextPath() + ContextUtils.resolveValue(urlOnMethod, String.class, variables); // GET/blog/users/1 GET/blog/#{key}/1
+        final String key = new StringBuilder()
+                .append(requestMethod.name())
+                .append(getContextPath())
+                // GET/blog/users/1 GET/blog/#{key}/1
+                .append(ContextUtils.resolveValue(urlOnMethod, String.class, variables))
+                .toString();
 
-        if (!doMappingPathVariable(url, //
-                                   handlerMethod.getParameters(), handlerMethod.getMethod(), handlerMappingIndex, requestMethod.name())) {
+        if (!doMappingPathVariable(key, requestMethod.name(), handlerMapping)) {
 
-            this.requestMappings.put(url, Integer.valueOf(handlerMappingIndex));
-            log.info(//
-                     "Mapped [{}] -> [{}] interceptors -> {}", //
-                     url, handlerMethod.getMethod(), //
-                     Arrays.toString(handlerMappingRegistry.get(handlerMappingIndex).getInterceptors())//
-            );
+            handlerMappingRegistry.getHandlerMappings().put(key, handlerMapping);
+
+            log.info("Mapped [{}] -> [{}] interceptors -> {}",
+                     key, handlerMapping.getMethod(),
+                     Arrays.toString(handlerMapping.getInterceptors()));
         }
     }
 
@@ -277,10 +283,12 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      *            Request method string
      * @return If mapped
      */
-    private boolean doMappingPathVariable(String regexUrl,
-                                          MethodParameter[] methodParameters,
-                                          Method method, int index, String requestMethod_) //
+    protected boolean doMappingPathVariable(final String regexUrl,
+                                            final String requestMethod_,
+                                            final HandlerMapping handlerMapping) //
     {
+        final Method method = handlerMapping.getMethod();
+        final MethodParameter[] methodParameters = handlerMapping.getParameters();
 
         if (!(regexUrl.indexOf('*') > -1 || regexUrl.indexOf('{') > -1)) { //
             return false; // not a path variable
@@ -288,8 +296,10 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
 
         String methodUrl = regexUrl; // copy regex url
 
-        regexUrl = regexUrl.replaceAll(Constant.ANY_PATH, Constant.ANY_PATH_REGEXP);
-        regexUrl = regexUrl.replaceAll(Constant.ONE_PATH, Constant.ONE_PATH_REGEXP);
+        String regexUrlToUse = // replace all (*, **)
+                regexUrl.replaceAll(Constant.ANY_PATH, Constant.ANY_PATH_REGEXP)
+                        .replaceAll(Constant.ONE_PATH, Constant.ONE_PATH_REGEXP);
+
         boolean hasSet = false;
 
         Parameter[] parameters = method.getParameters();
@@ -321,7 +331,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
             }
 
             String parameterName = methodParameter.getName();
-            regexUrl = regexUrl.replace('{' + parameterName + '}', regex);
+            regexUrlToUse = regexUrlToUse.replace('{' + parameterName + '}', regex);
 
             String[] splitRegex = methodUrl.split(Constant.PATH_VARIABLE_REGEXP);
             String tempMethodUrl = methodUrl;
@@ -345,12 +355,12 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
         }
 
         // fix
-        if (regexUrl.indexOf('{') > -1 && regexUrl.indexOf('}') > -1) { // don't have a parameter name named ''
+        if (regexUrlToUse.indexOf('{') > -1 && regexUrlToUse.indexOf('}') > -1) { // don't have a parameter name named ''
             throw new ConfigurationException("Check @PathVariable configuration on method: [" + method + "]");
         }
 
-        this.regexUrls.put(regexUrl, Integer.valueOf(index));
-        log.info("Mapped [{}] -> [{}]", regexUrl, method);
+        this.regexUrls.put(regexUrlToUse, handlerMapping);
+        log.info("Mapped [{}] -> [{}]", regexUrlToUse, method);
         return true;
     }
 
@@ -365,7 +375,7 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
      * @throws Exception
      *             If any {@link Throwable} occurred
      */
-    private HandlerMapping createHandlerMapping(final Class<?> beanClass, final Method method) throws Exception {
+    protected HandlerMapping createHandlerMapping(final Class<?> beanClass, final Method method) throws Exception {
 
         final BeanDefinition def = beanFactory.getBeanDefinition(beanClass);
 
@@ -508,16 +518,6 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
         return ret;
     }
 
-    @Override
-    public void destroy() throws Exception {
-        if (regexUrls != null) {
-            this.regexUrls.clear();
-        }
-        if (requestMappings != null) {
-            this.requestMappings.clear();
-        }
-    }
-
     /**
      * Initialize All Action or Handler
      */
@@ -526,8 +526,8 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
 
         log.info("Initializing Controllers");
         startConfiguration();
-        handlerMappingRegistry.setRegexMappings(new HashMap<>(regexUrls))//
-                .setRequestMappings(new HashMap<>(requestMappings));
+
+        handlerMappingRegistry.setRegexMappings(regexUrls);
     }
 
     /**
@@ -541,11 +541,10 @@ public class ActionConfiguration implements Ordered, DisposableBean, WebApplicat
         log.info("Rebuilding Controllers");
 
         regexUrls.clear();
-        requestMappings.clear();
+        handlerMappingRegistry.getHandlerMappings().clear();
 
         startConfiguration();
-        handlerMappingRegistry.setRegexMappings(new HashMap<>(regexUrls))//
-                .setRequestMappings(new HashMap<>(requestMappings));
+        handlerMappingRegistry.setRegexMappings(regexUrls);
     }
 
     @Override
