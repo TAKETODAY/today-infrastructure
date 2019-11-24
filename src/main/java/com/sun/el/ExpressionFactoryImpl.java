@@ -85,6 +85,26 @@ public class ExpressionFactoryImpl extends ExpressionFactory implements NodeVisi
     private final boolean isBackwardCompatible22;
     private final Map<String, Method> functionMap = new HashMap<String, Method>(16, 1.0f);
 
+    private static final String CACHE_SIZE_PROP = "javax.el.expression.cache.size";
+
+    private static final ConcurrentCache<String, Node> EXPRESSION_CACHE;
+    static {
+
+        String cacheSizeStr;
+        if (System.getSecurityManager() == null) {
+            cacheSizeStr = System.getProperty(CACHE_SIZE_PROP, "2048");
+        }
+        else {
+            cacheSizeStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
+                @Override
+                public String run() {
+                    return System.getProperty(CACHE_SIZE_PROP, "2048");
+                }
+            });
+        }
+        EXPRESSION_CACHE = new ConcurrentCache<>(Integer.parseInt(cacheSizeStr));
+    }
+
     public ExpressionFactoryImpl() {
         this(null);
     }
@@ -165,27 +185,6 @@ public class ExpressionFactoryImpl extends ExpressionFactory implements NodeVisi
     }
 
     // -----------------------build
-
-    private static final String CACHE_SIZE_PROP = "javax.el.expression.cache.size";
-
-    private static final ConcurrentCache<String, Node> EXPRESSION_CACHE;
-    static {
-
-        String cacheSizeStr;
-        if (System.getSecurityManager() == null) {
-            cacheSizeStr = System.getProperty(CACHE_SIZE_PROP, "2048");
-        }
-        else {
-            cacheSizeStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
-                @Override
-                public String run() {
-                    return System.getProperty(CACHE_SIZE_PROP, "2048");
-                }
-            });
-        }
-
-        EXPRESSION_CACHE = new ConcurrentCache<>(Integer.parseInt(cacheSizeStr));
-    }
 
     public static Node createNode(final String expr) throws ELException {
 
