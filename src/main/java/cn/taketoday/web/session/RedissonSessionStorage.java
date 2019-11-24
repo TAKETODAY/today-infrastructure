@@ -22,6 +22,8 @@ package cn.taketoday.web.session;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RedissonClient;
 
+import cn.taketoday.web.Constant;
+
 /**
  * @author TODAY <br>
  *         2019-09-28 10:31
@@ -39,7 +41,7 @@ public class RedissonSessionStorage implements WebSessionStorage {
     }
 
     public RedissonSessionStorage(RedissonClient redisson) {
-        this(3600_000, "", redisson.getMapCache("sessions"));
+        this(3600_000, Constant.BLANK, redisson.getMapCache("sessions"));
     }
 
     public RedissonSessionStorage(long expire) {
@@ -55,7 +57,7 @@ public class RedissonSessionStorage implements WebSessionStorage {
     @Override
     public WebSession get(String id) {
 
-        final WebSession ret = sessions.get(prefix + id);
+        final WebSession ret = sessions.get(prefix.concat(id));
 
         if (ret == null || System.currentTimeMillis() - ret.getCreationTime() > expire) {
             return null;
@@ -65,17 +67,17 @@ public class RedissonSessionStorage implements WebSessionStorage {
 
     @Override
     public WebSession remove(String id) {
-        return sessions.remove(prefix + id);
+        return sessions.remove(prefix.concat(id));
     }
 
     @Override
     public boolean contains(String id) {
-        return sessions.containsKey(prefix + id);
+        return sessions.containsKey(prefix.concat(id));
     }
 
     @Override
     public void store(String id, WebSession session) {
-        sessions.put(prefix + id, session);
+        sessions.put(prefix.concat(id), session);
     }
 
 }
