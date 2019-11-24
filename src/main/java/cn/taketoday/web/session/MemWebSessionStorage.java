@@ -37,7 +37,7 @@ public class MemWebSessionStorage implements WebSessionStorage {
     }
 
     public MemWebSessionStorage(long expire) {
-        this(expire, new HashMap<>(128));
+        this(expire, new HashMap<>(1024));
     }
 
     public MemWebSessionStorage(long expire, Map<String, WebSession> sessions) {
