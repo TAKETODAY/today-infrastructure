@@ -31,12 +31,18 @@ public class WebSessionConfiguration {
 
     @Singleton
     @Import({ WebSessionParameterResolver.class, WebSessionAttributeParameterResolver.class })
-    public DefaultWebSessionManager webSessionManager(@Autowired(required = false) WebSessionStorage sessionStorage) {
+    public DefaultWebSessionManager webSessionManager(@Autowired(required = false) TokenResolver tokenResolver,
+                                                      @Autowired(required = false) WebSessionStorage sessionStorage) {
 
-        if (sessionStorage == null) {
-            return new DefaultWebSessionManager(new MemWebSessionStorage());
-        }
-        return new DefaultWebSessionManager(sessionStorage);
+        final TokenResolver tokenResolverToUse = tokenResolver == null
+                ? new CookieTokenResolver()
+                : tokenResolver;
+                
+        final WebSessionStorage sessionStorageToUse = sessionStorage == null
+                ? new MemWebSessionStorage()
+                : sessionStorage;
+
+        return new DefaultWebSessionManager(tokenResolverToUse, sessionStorageToUse);
     }
 
 }

@@ -63,12 +63,13 @@ public class DefaultWebSessionManager implements WebSessionManager {
 
         String token = StringUtils.getUUIDString();
 
-        while (getSessionStorage().contains(token)) {
+        final WebSessionStorage sessionStorage = getSessionStorage();
+        while (sessionStorage.contains(token)) {
             token = StringUtils.getUUIDString();
         }
 
         final DefaultSession ret = new DefaultSession(token);
-        getSessionStorage().store(token, ret);
+        sessionStorage.store(token, ret);
         return ret;
     }
 
@@ -77,16 +78,17 @@ public class DefaultWebSessionManager implements WebSessionManager {
         final WebSession ret = createSession();
 
         getTokenResolver().saveToken(context, ret);
-
         return ret;
     }
 
     @Override
     public WebSession getSession(String id) {
-        WebSession ret = getSessionStorage().get(id);
+
+        final WebSessionStorage sessionStorage = getSessionStorage();
+        WebSession ret = sessionStorage.get(id);
 
         if (ret == null) {
-            getSessionStorage().store(id, ret = new DefaultSession(id));
+            sessionStorage.store(id, ret = new DefaultSession(id));
         }
 
         return ret;
