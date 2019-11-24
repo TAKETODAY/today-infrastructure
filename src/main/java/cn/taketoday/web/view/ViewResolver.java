@@ -23,7 +23,6 @@ import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- * 
  *         2018-06-23 11:59:50
  */
 @FunctionalInterface

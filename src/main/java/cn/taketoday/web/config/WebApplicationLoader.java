@@ -85,6 +85,7 @@ import cn.taketoday.web.resolver.result.ResultResolver;
 import cn.taketoday.web.resolver.result.ViewResolverResultResolver;
 import cn.taketoday.web.resolver.result.VoidResultResolver;
 import cn.taketoday.web.view.AbstractViewResolver;
+import cn.taketoday.web.view.DefaultViewResolver;
 import cn.taketoday.web.view.ViewResolver;
 
 /**
@@ -193,8 +194,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     protected void configureResultResolver(List<ResultResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
 
         final WebApplicationContext webApplicationContext = getWebApplicationContext();
-        final ViewResolver viewResolver = webApplicationContext.getBean(ViewResolver.class);
-
+        final ViewResolver viewResolver = getViewResolver(webApplicationContext);
         final Environment environment = webApplicationContext.getEnvironment();
         int bufferSize = Integer.parseInt(environment.getProperty(DOWNLOAD_BUFF_SIZE, "10240"));
 
@@ -211,6 +211,14 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         mvcConfiguration.configureResultResolver(resolvers);
         HandlerMethod.addResolver(resolvers);
+    }
+
+    protected ViewResolver getViewResolver(final WebApplicationContext webApplicationContext) {
+        final ViewResolver viewResolver = webApplicationContext.getBean(ViewResolver.class);
+        if (viewResolver == null) {
+            return new DefaultViewResolver();
+        }
+        return viewResolver;
     }
 
     /**
