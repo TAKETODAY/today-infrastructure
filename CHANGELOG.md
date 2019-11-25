@@ -60,6 +60,13 @@
 - :hammer: 重构应用启动逻辑
 - :hammer: 重构拦截器
 - :hammer: 重构处理器映射机制
+- :hammer: 重大重构
+	1. :fire: 舍弃ResultUtils
+	2. :art: 更正设计错误（将ResultResolver改成ViewResolver）
+	3. :art: 更正设计错误（将ViewResolver改成TemplateViewResolver）
+	4. :zap: 优化默认模板处理器DefaultTemplateViewResolver（原名DefaultViewResolver）
+	5. :zap: 优化WebApplicationLoader
+	6. :art: 更正了类名称和包名
 
 
 
