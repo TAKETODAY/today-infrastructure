@@ -732,6 +732,9 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     @Override
     public void flush() throws IOException {
+        
+        outputStream.flush();
+        
         handlerContext.flush();
     }
 

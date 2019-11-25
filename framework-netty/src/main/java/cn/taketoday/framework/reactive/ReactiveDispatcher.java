@@ -37,7 +37,7 @@ import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.RegexMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.servlet.DispatcherHandler;
-import cn.taketoday.web.utils.ResultUtils;
+import cn.taketoday.web.utils.WebUtils;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
@@ -149,7 +149,7 @@ public class ReactiveDispatcher
                     }
                     catch (Throwable e) {
                         try {
-                            ResultUtils.resolveException(context, exceptionResolver, mapping, e);
+                            WebUtils.resolveException(context, exceptionResolver, mapping, e);
                         }
                         catch (Throwable e1) {
                             ctx.fireExceptionCaught(e);
@@ -190,7 +190,7 @@ public class ReactiveDispatcher
         catch (Throwable e) {
             e.printStackTrace();
             try {
-                ResultUtils.resolveException(context, exceptionResolver, mapping, e);
+                WebUtils.resolveException(context, exceptionResolver, mapping, e);
             }
             catch (Throwable e1) {
                 ctx.fireExceptionCaught(e);

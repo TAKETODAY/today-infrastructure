@@ -22,15 +22,19 @@ package cn.taketoday.framework.reactive;
 import java.util.Map;
 import java.util.Properties;
 
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Order;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.view.AbstractFreeMarkerViewResolver;
-import cn.taketoday.web.view.RequestContextParametersHashModel;
+import cn.taketoday.web.view.template.AbstractFreeMarkerTemplateViewResolver;
+import cn.taketoday.web.view.template.RequestContextParametersHashModel;
 import freemarker.ext.servlet.FreemarkerServlet;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultMapAdapter;
+import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.ObjectWrapper;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.utility.ObjectWrapperWithAPISupport;
@@ -39,11 +43,21 @@ import freemarker.template.utility.ObjectWrapperWithAPISupport;
  * @author TODAY <br>
  *         2019-11-22 13:25
  */
-public class ReactiveFreeMarkerViewResolver
-        extends AbstractFreeMarkerViewResolver implements InitializingBean, WebMvcConfiguration {
+@Props(prefix = "web.mvc.view.")
+@Order(Ordered.LOWEST_PRECEDENCE - 100)
+public class ReactiveFreeMarkerTemplateViewResolver
+        extends AbstractFreeMarkerTemplateViewResolver implements InitializingBean, WebMvcConfiguration {
+
+    public ReactiveFreeMarkerTemplateViewResolver(Configuration configuration) {
+        super(new DefaultObjectWrapper(configuration.getIncompatibleImprovements()), configuration, null);
+    }
+
+    public ReactiveFreeMarkerTemplateViewResolver(ObjectWrapper wrapper, Configuration configuration) {
+        super(wrapper, configuration, null);
+    }
 
     @Autowired
-    public ReactiveFreeMarkerViewResolver(ObjectWrapper wrapper, Configuration configuration, Properties settings) {
+    public ReactiveFreeMarkerTemplateViewResolver(ObjectWrapper wrapper, Configuration configuration, Properties settings) {
         super(wrapper, configuration, settings);
     }
 
