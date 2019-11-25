@@ -122,6 +122,7 @@ public final class AstIdentifier extends SimpleNode {
                     return ctx.getELResolver().getValue(ctx, c, this.image);
                 }
             }
+//            return ""; //TODO
             ELSupport.throwUnhandled(null, this.image);
         }
         return ret;

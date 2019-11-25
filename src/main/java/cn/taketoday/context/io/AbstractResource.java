@@ -88,8 +88,9 @@ public abstract class AbstractResource implements Resource {
         List<Resource> resources = new ArrayList<>();
         for (String name : names) { // this resource is a directory
             Resource resource = createRelative(name);
-            if ((filter == null) || filter.accept(resource))
+            if ((filter == null) || filter.accept(resource)) {
                 resources.add(resource);
+            }
         }
         return resources.toArray(new Resource[0]);
     }

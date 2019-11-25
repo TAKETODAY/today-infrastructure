@@ -72,8 +72,9 @@ public class ELManager {
      * @return The ELContext used for parsing and evaluating EL expressions..
      */
     public StandardELContext getELContext() {
+        final StandardELContext elContext = this.elContext;
         if (elContext == null) {
-            elContext = new StandardELContext(getExpressionFactory());
+            return this.elContext = new StandardELContext(getExpressionFactory());
         }
         return elContext;
     }

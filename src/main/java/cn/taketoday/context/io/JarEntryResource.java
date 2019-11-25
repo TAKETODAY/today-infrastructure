@@ -167,6 +167,7 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
             this.jarFile = jarFile;
         }
 
+        @Override
         public void close() throws IOException {
             in.close();
             jarFile.close();

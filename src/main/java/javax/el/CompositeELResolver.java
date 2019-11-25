@@ -75,6 +75,11 @@ public class CompositeELResolver extends ELResolver {
         this.elResolvers = new ELResolver[init];
     }
 
+    public CompositeELResolver(ELResolver... eLResolvers) {
+        this.elResolvers = Objects.requireNonNull(eLResolvers);
+        this.size = eLResolvers.length;
+    }
+
     /**
      * Adds the given resolver to the list of component resolvers.
      *

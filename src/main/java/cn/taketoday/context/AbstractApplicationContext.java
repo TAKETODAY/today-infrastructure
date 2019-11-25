@@ -466,6 +466,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
     }
 
+    @Override
     public abstract AbstractBeanFactory getBeanFactory();
 
     @Override

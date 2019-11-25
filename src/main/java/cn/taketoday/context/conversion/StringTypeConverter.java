@@ -28,6 +28,7 @@ import cn.taketoday.context.exception.ConversionException;
  */
 public abstract class StringTypeConverter implements TypeConverter {
 
+    @Override
     public boolean supports(Class<?> targetClass, Object source) {
         return source instanceof String && supports(targetClass);
     }

@@ -281,6 +281,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
      * 
      * @return {@link BeanNameCreator}
      */
+    @Override
     public BeanNameCreator getBeanNameCreator() {
         if (beanNameCreator == null) {
             beanNameCreator = createBeanNameCreator();

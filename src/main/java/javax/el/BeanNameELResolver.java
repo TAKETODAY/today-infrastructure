@@ -115,6 +115,7 @@ public class BeanNameELResolver extends ELResolver {
     public Object getValue(ELContext context, Object base, Object property) {
 
         if (base == null && property instanceof String) {
+            final BeanNameResolver beanNameResolver = this.beanNameResolver;
             if (beanNameResolver.isNameResolved((String) property)) {
                 Objects.requireNonNull(context).setPropertyResolved(base, property);
                 return beanNameResolver.getBean((String) property);

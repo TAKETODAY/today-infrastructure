@@ -164,8 +164,7 @@ public final class AstValue extends SimpleNode {
 
         // if our base is null (we know there are more properites to evaluate)
         if (base == null) {
-            throw new PropertyNotFoundException(MessageFactory.get(
-                                                                   "error.unreachable.base", this.children[0].getImage()));
+            throw new PropertyNotFoundException(MessageFactory.get("error.unreachable.base", this.children[0].getImage()));
         }
 
         // set up our start/end

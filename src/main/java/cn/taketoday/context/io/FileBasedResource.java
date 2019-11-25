@@ -169,8 +169,9 @@ public class FileBasedResource extends AbstractResource implements WritableResou
         List<Resource> resources = new ArrayList<>();
         for (String name : names) { // this resource is a directory
             FileBasedResource resource = new FileBasedResource(new File(path, name));
-            if ((filter == null) || filter.accept(resource))
+            if ((filter == null) || filter.accept(resource)) {
                 resources.add(resource);
+            }
         }
         return resources.toArray(new Resource[0]);
     }
