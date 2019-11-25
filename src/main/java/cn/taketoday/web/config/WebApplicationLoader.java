@@ -196,7 +196,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     protected void configureViewResolver(List<ViewResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
 
         final WebApplicationContext webApplicationContext = getWebApplicationContext();
-        final TemplateViewResolver viewResolver = getViewResolver(mvcConfiguration);
+        final TemplateViewResolver viewResolver = getTemplateViewResolver(mvcConfiguration);
         final Environment environment = webApplicationContext.getEnvironment();
         int bufferSize = Integer.parseInt(environment.getProperty(DOWNLOAD_BUFF_SIZE, "10240"));
 
@@ -215,7 +215,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         HandlerMethod.addResolver(resolvers);
     }
 
-    protected TemplateViewResolver getViewResolver(final WebMvcConfiguration mvcConfiguration) {
+    protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {
 
         final WebApplicationContext applicationContext = getWebApplicationContext();
         TemplateViewResolver templateViewResolver = applicationContext.getBean(TemplateViewResolver.class);
