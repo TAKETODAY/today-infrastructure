@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.result;
+package cn.taketoday.web.view;
 
 import cn.taketoday.context.Ordered;
 
@@ -25,7 +25,7 @@ import cn.taketoday.context.Ordered;
  * @author TODAY <br>
  *         2019-07-14 19:39
  */
-public interface OrderedResultResolver extends ResultResolver, Ordered {
+public interface OrderedViewResolver extends ViewResolver, Ordered {
 
     @Override
     default int getOrder() {

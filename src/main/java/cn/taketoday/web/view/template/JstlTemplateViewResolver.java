@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.view;
+package cn.taketoday.web.view.template;
 
 import java.util.Map.Entry;
 
@@ -35,26 +35,19 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 /**
+ * Jstl Template
  * 
  * @author TODAY <br>
  *         2018-06-26 11:53:43
  */
-public class JstlViewResolver extends AbstractViewResolver implements InitializingBean {
+public class JstlTemplateViewResolver extends AbstractTemplateViewResolver implements InitializingBean {
 
     @Override
     public void resolveView(final String template, final RequestContext requestContext) throws Throwable {
 
         final HttpServletRequest request = requestContext.nativeRequest();
-        request.getRequestDispatcher(build(template))//
+        request.getRequestDispatcher(prepareTemplate(template))//
                 .forward(request, requestContext.nativeResponse());
-    }
-
-    private final String build(String template) {
-        return new StringBuilder(32)//
-                .append(prefix)//
-                .append(template)//
-                .append(suffix)//
-                .toString();
     }
 
     /**
@@ -88,7 +81,9 @@ public class JstlViewResolver extends AbstractViewResolver implements Initializi
             Dynamic servletRegistration = servletContext.addServlet("jsp", jspServlet);
             servletRegistration.addMapping("*.jsp", "*.jspx");
         }
-        LoggerFactory.getLogger(getClass()).info("Configuration Jstl View Resolver Success.");
+
+        LoggerFactory.getLogger(getClass())
+                .info("Configuration Jstl Template View Resolver Success. prefix: [{}], suffix: [{}]", prefix, suffix);
     }
 
 }

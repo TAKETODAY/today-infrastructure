@@ -17,21 +17,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.result;
+package cn.taketoday.web.view;
 
+import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
 
 /**
  * @author TODAY <br>
- *         2019-07-10 19:22
+ *         2019-07-14 01:19
  */
-@FunctionalInterface
-public interface ResultResolver {
+public class ResponseBodyViewResolver implements OrderedViewResolver {
 
-    default boolean supports(HandlerMethod handlerMethod) {
+    private final MessageConverter messageConverter;
+
+    public ResponseBodyViewResolver(MessageConverter messageConverter) {
+        this.messageConverter = messageConverter;
+    }
+
+    @Override
+    public boolean supports(HandlerMethod handlerMethod) {
         return true;
     }
 
-    void resolveResult(final RequestContext requestContext, final Object result) throws Throwable;
+    @Override
+    public void resolveView(RequestContext requestContext, Object result) throws Throwable {
+        messageConverter.write(requestContext, result);
+    }
+
+    @Override
+    public int getOrder() {
+        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100;
+    }
+
 }

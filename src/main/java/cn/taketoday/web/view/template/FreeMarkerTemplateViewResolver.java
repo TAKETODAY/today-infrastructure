@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.view;
+package cn.taketoday.web.view.template;
 
 import java.util.Collection;
 import java.util.List;
@@ -58,17 +58,17 @@ import freemarker.template.TemplateHashModel;
  */
 @Props(prefix = "web.mvc.view.")
 @Order(Ordered.LOWEST_PRECEDENCE - 100)
-@MissingBean(value = Constant.VIEW_RESOLVER, type = ViewResolver.class)
+@MissingBean(value = Constant.VIEW_RESOLVER, type = TemplateViewResolver.class)
 @ConditionalOnClass({ Constant.ENV_SERVLET, "freemarker.template.Configuration" })
-public class FreeMarkerViewResolver
-        extends AbstractFreeMarkerViewResolver implements InitializingBean, WebMvcConfiguration {
+public class FreeMarkerTemplateViewResolver
+        extends AbstractFreeMarkerTemplateViewResolver implements InitializingBean, WebMvcConfiguration {
 
     private final TaglibFactory taglibFactory;
     private final ServletContext servletContext;
     private final ServletContextHashModel applicationModel;
 
     @Autowired
-    public FreeMarkerViewResolver(
+    public FreeMarkerTemplateViewResolver(
             @Autowired(required = false) ObjectWrapper wrapper,
             @Autowired(required = false) Configuration configuration,
             @Autowired(required = false) TaglibFactory taglibFactory,
@@ -83,7 +83,6 @@ public class FreeMarkerViewResolver
 
         // Create hash model wrapper for servlet context (the application)
         this.applicationModel = new ServletContextHashModel(this.servletContext, wrapper);
-
     }
 
     @Override

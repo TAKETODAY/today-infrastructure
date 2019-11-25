@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.view;
+package cn.taketoday.web.view.template;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -207,5 +207,14 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
     @FunctionalInterface
     public interface ReaderSupplier {
         Reader get(String c) throws IOException;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("DefaultResourceTemplateLoader [prefix=");
+        builder.append(prefix);
+        builder.append(']');
+        return builder.toString();
     }
 }

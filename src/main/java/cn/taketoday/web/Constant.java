@@ -38,8 +38,9 @@ public interface Constant extends cn.taketoday.context.Constant {
 
     String WEB_VERSION = "2.3.7.RELEASE";
 
+    String DEFAULT_TEMPLATE_PATH = "classpath:templates";
     String X_REQUIRED_AUTHORIZATION = "X-Required-Authorization";
-    
+
     String ENV_SERVLET = "javax.servlet.Servlet";
 
     MethodParameter[] EMPTY_METHOD_PARAMETER = new MethodParameter[0];
@@ -69,15 +70,13 @@ public interface Constant extends cn.taketoday.context.Constant {
 	/**********************************************************
 	 * Framework Attribute Keys
 	 */
-	@Deprecated
-	String	KEY_WEB_APPLICATION_CONTEXT 		= "WebApplicationContext";
+//	@Deprecated
+//	String	KEY_WEB_APPLICATION_CONTEXT 		= "WebApplicationContext";
 	String	KEY_THROWABLE 		                = "THROWABLE";
 	String  VALIDATION_ERRORS                   = "validation-errors";
 	/**
 	 * Framework Attribute Keys End
 	 **********************************************************/
-	@Deprecated
-	String	CONVERT_METHOD						= "convert";
 	@Deprecated
 	String	WEB_INF								= "/WEB-INF";
 

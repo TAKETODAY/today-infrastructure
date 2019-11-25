@@ -17,37 +17,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.result;
+package cn.taketoday.web.view;
 
-import cn.taketoday.web.MessageConverter;
+import java.awt.image.RenderedImage;
+
+import javax.imageio.ImageIO;
+
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 01:19
+ *         2019-07-14 15:15
  */
-public class ResponseBodyResultResolver implements OrderedResultResolver {
-
-    private final MessageConverter messageConverter;
-
-    public ResponseBodyResultResolver(MessageConverter messageConverter) {
-        this.messageConverter = messageConverter;
-    }
+public class ImageViewResolver implements ViewResolver {
 
     @Override
     public boolean supports(HandlerMethod handlerMethod) {
-        return true;
+        return handlerMethod.isAssignableFrom(RenderedImage.class);
     }
 
     @Override
-    public void resolveResult(RequestContext requestContext, Object result) throws Throwable {
-        messageConverter.write(requestContext, result);
-    }
+    public void resolveView(final RequestContext requestContext, final Object result) throws Throwable {
 
-    @Override
-    public int getOrder() {
-        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100;
+        requestContext.contentType("image/png"); // sub classes can override this method to apply content type
+
+        ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, requestContext.getOutputStream());
     }
 
 }

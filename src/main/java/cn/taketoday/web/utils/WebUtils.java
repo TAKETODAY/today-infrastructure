@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
 
+import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.HttpHeaders;
@@ -31,6 +32,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.mapping.WebMapping;
+import cn.taketoday.web.resolver.ExceptionResolver;
 
 /**
  * 
@@ -146,4 +149,10 @@ public abstract class WebUtils {
         return Constant.XML_HTTP_REQUEST.equals(request.requestHeader(Constant.X_REQUESTED_WITH));
     }
 
+    public static void resolveException(final RequestContext context,
+                                        final ExceptionResolver resolver,
+                                        final WebMapping webMapping, final Throwable exception) throws Throwable //
+    {
+        resolver.resolveException(context, ExceptionUtils.unwrapThrowable(exception), webMapping);
+    }
 }

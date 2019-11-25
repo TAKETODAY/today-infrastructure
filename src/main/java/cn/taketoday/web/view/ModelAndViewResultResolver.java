@@ -17,33 +17,41 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.result;
+package cn.taketoday.web.view;
 
-import java.awt.image.RenderedImage;
-
-import javax.imageio.ImageIO;
-
+import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Env;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.ui.ModelAndView;
+import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 15:15
+ *         2019-07-14 01:14
  */
-public class ImageResultResolver implements ResultResolver {
+public class ModelAndViewResultResolver extends AbstractViewResolver implements ViewResolver {
 
-    @Override
-    public boolean supports(HandlerMethod handlerMethod) {
-        return handlerMethod.isAssignableFrom(RenderedImage.class);
+    @Autowired
+    public ModelAndViewResultResolver(TemplateViewResolver viewResolver, MessageConverter messageConverter,
+            @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) //
+    {
+        super(viewResolver, messageConverter, downloadFileBuf);
     }
 
     @Override
-    public void resolveResult(final RequestContext requestContext, final Object result) throws Throwable {
+    public boolean supports(HandlerMethod handlerMethod) {
+        return handlerMethod.isAssignableFrom(ModelAndView.class);
+    }
 
-        requestContext.contentType("image/png"); // sub classes can override this method to apply content type
+    @Override
+    public void resolveView(RequestContext requestContext, Object result) throws Throwable {
 
-        ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, requestContext.getOutputStream());
+        if (result instanceof ModelAndView) {
+            resolveModelAndView(requestContext, (ModelAndView) result);
+        }
     }
 
 }

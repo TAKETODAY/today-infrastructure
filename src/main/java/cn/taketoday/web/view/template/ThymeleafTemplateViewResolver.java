@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.view;
+package cn.taketoday.web.view.template;
 
 import javax.servlet.ServletContext;
 
@@ -36,17 +36,20 @@ import cn.taketoday.web.ServletContextAware;
  * @author TODAY <br>
  *         2018-06-26 11:26:01
  */
-public class ThymeleafViewResolver extends AbstractViewResolver implements InitializingBean, ServletContextAware {
-
-    private final TemplateEngine templateEngine;
+public class ThymeleafTemplateViewResolver
+        extends AbstractTemplateViewResolver implements InitializingBean, ServletContextAware {
 
     @Value(value = "#{thymeleaf.cacheable}", required = false)
     private boolean cacheable = true;
-
     private ServletContext servletContext;
+    private final TemplateEngine templateEngine;
 
-    public ThymeleafViewResolver() {
-        templateEngine = new TemplateEngine();
+    public ThymeleafTemplateViewResolver() {
+        this(new TemplateEngine());
+    }
+
+    public ThymeleafTemplateViewResolver(TemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
     }
 
     /**
@@ -75,7 +78,7 @@ public class ThymeleafViewResolver extends AbstractViewResolver implements Initi
     public void resolveView(final String template, final RequestContext context) throws Throwable {
 
         templateEngine.process(template,
-                               new WebContext(context.nativeRequest(), //
+                               new WebContext(context.nativeRequest(),
                                               context.nativeResponse(),
                                               servletContext,
                                               locale),

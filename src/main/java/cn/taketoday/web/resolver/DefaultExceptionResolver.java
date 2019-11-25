@@ -45,9 +45,9 @@ import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.ResourceMapping;
 import cn.taketoday.web.mapping.ViewMapping;
 import cn.taketoday.web.mapping.WebMapping;
-import cn.taketoday.web.resolver.result.ViewResolverResultResolver;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.validation.ValidationException;
+import cn.taketoday.web.view.TemplateResolver;
 
 /**
  * Default implementation
@@ -150,7 +150,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
         else if (!handlerMethod.is(void.class)
                  && !handlerMethod.is(Object.class)
                  && !handlerMethod.is(ModelAndView.class)
-                 && ViewResolverResultResolver.supportsResolver(handlerMethod)) {
+                 && TemplateResolver.supportsResolver(handlerMethod)) {
 
             final String redirect = responseStatus.redirect();
             if (StringUtils.isNotEmpty(redirect)) { // has redirect

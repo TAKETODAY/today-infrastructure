@@ -24,12 +24,11 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.invoker.MethodInvoker;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -37,13 +36,13 @@ import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Controller;
-import cn.taketoday.web.resolver.result.ResultResolver;
+import cn.taketoday.web.view.ViewResolver;
 
 /**
  * @author TODAY <br>
  *         2018-06-25 20:03:11
  */
-public class HandlerMethod implements ObjectFactory<Object> {
+public class HandlerMethod {
 
     /** action **/
     private final Method method;
@@ -54,20 +53,20 @@ public class HandlerMethod implements ObjectFactory<Object> {
     /** @since 2.3.7 */
     private final Type[] genericityClass;
 
+    private final ViewResolver viewResolver;
     private final MethodInvoker handlerInvoker;
-    private final ResultResolver resultResolver;
-    private static final List<ResultResolver> RESULT_RESOLVERS = new ArrayList<>();
+    private static final List<ViewResolver> VIEW_RESOLVERS = new ArrayList<>();
 
     /**
-     * Get correspond result resolver, If there isn't a suitable resolver will be
+     * Get correspond view resolver, If there isn't a suitable resolver will be
      * throw {@link ConfigurationException}
      * 
-     * @return A suitable {@link ResultResolver}
+     * @return A suitable {@link ViewResolver}
      */
-    protected ResultResolver obtainResolver() throws ConfigurationException {
+    protected ViewResolver obtainResolver() throws ConfigurationException {
         if (method != null) {
 
-            for (final ResultResolver resolver : getResultResolvers()) {
+            for (final ViewResolver resolver : getViewResolvers()) {
                 if (resolver.supports(this)) {
                     return resolver;
                 }
@@ -96,7 +95,7 @@ public class HandlerMethod implements ObjectFactory<Object> {
             }
             this.parameters = parameters;
         }
-        this.resultResolver = obtainResolver();
+        this.viewResolver = obtainResolver();
         this.handlerInvoker = method != null ? MethodInvoker.create(method) : null;
     }
 
@@ -185,7 +184,7 @@ public class HandlerMethod implements ObjectFactory<Object> {
     // ------------- resolver
 
     public void resolveResult(final RequestContext requestContext, final Object result) throws Throwable {
-        resultResolver.resolveResult(requestContext, result);
+        viewResolver.resolveView(requestContext, result);
     }
 
     public Object[] resolveParameters(final RequestContext requestContext) throws Throwable {
@@ -209,29 +208,44 @@ public class HandlerMethod implements ObjectFactory<Object> {
     // Useful methods
     // ------------------------------------
 
-    public static void addResolver(ResultResolver... resolvers) {
-        Collections.addAll(RESULT_RESOLVERS, resolvers);
-        OrderUtils.reversedSort(RESULT_RESOLVERS);
+    public static void addResolver(ViewResolver... resolvers) {
+        Collections.addAll(VIEW_RESOLVERS, resolvers);
+        OrderUtils.reversedSort(VIEW_RESOLVERS);
     }
 
-    public static void addResolver(List<ResultResolver> parameterResolver) {
-        RESULT_RESOLVERS.addAll(parameterResolver);
-        OrderUtils.reversedSort(RESULT_RESOLVERS);
+    public static void addResolver(List<ViewResolver> resolver) {
+        VIEW_RESOLVERS.addAll(resolver);
+        OrderUtils.reversedSort(VIEW_RESOLVERS);
     }
 
-    public static List<ResultResolver> getResultResolvers() {
-        return RESULT_RESOLVERS;
+    public static List<ViewResolver> getViewResolvers() {
+        return VIEW_RESOLVERS;
     }
 
     @Override
     public String toString() {
-        return "{method=" + getMethod() + ", parameter=[" + Arrays.toString(getParameters()) + "]}";
+        return method.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return method.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof HandlerMethod) {
+            return Objects.equals(method, ((HandlerMethod) obj).method);
+        }
+        return false;
     }
 
     /**
      * Get The {@link Controller} object
      */
-    @Override
     public Object getObject() {
         return null;
     }

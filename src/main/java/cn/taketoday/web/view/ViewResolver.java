@@ -1,9 +1,9 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
- * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,29 +13,27 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ *   
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.web.view;
 
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.mapping.HandlerMethod;
 
 /**
+ * ViewResolver
+ * 
  * @author TODAY <br>
- *         2018-06-23 11:59:50
+ *         2019-07-10 19:22
  */
 @FunctionalInterface
 public interface ViewResolver {
 
-    /**
-     * Resolve View.
-     * 
-     * @param templateName
-     *            template name
-     * @param requestContext
-     * @throws Throwable
-     */
-    void resolveView(String templateName, RequestContext requestContext) throws Throwable;
+    default boolean supports(HandlerMethod handlerMethod) {
+        return true;
+    }
 
+    void resolveView(final RequestContext requestContext, final Object result) throws Throwable;
 }

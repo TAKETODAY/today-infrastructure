@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.result;
+package cn.taketoday.web.view;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
@@ -26,16 +26,16 @@ import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 01:14
+ *         2019-07-14 00:53
  */
-public class ModelAndViewResultResolver extends AbstractResultResolver implements ResultResolver {
+public class VoidViewResolver extends ModelAndViewResultResolver {
 
     @Autowired
-    public ModelAndViewResultResolver(ViewResolver viewResolver, MessageConverter messageConverter,
+    public VoidViewResolver(TemplateViewResolver viewResolver, MessageConverter messageConverter,
             @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) //
     {
         super(viewResolver, messageConverter, downloadFileBuf);
@@ -43,14 +43,15 @@ public class ModelAndViewResultResolver extends AbstractResultResolver implement
 
     @Override
     public boolean supports(HandlerMethod handlerMethod) {
-        return handlerMethod.isAssignableFrom(ModelAndView.class);
+        return handlerMethod.is(void.class);
     }
 
     @Override
-    public void resolveResult(RequestContext requestContext, Object result) throws Throwable {
+    public void resolveView(RequestContext requestContext, Object result) throws Throwable {
 
-        if (result instanceof ModelAndView) {
-            resolveModelAndView(requestContext, (ModelAndView) result);
+        final ModelAndView modelAndView = requestContext.modelAndView();
+        if (modelAndView != null) {
+            resolveModelAndView(requestContext, modelAndView);
         }
     }
 

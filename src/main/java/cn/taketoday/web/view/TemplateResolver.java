@@ -17,26 +17,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.result;
+package cn.taketoday.web.view;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.utils.ResultUtils;
-import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
  *         2019-07-14 11:32
  */
-public class ViewResolverResultResolver implements ResultResolver {
+public class TemplateResolver implements ViewResolver {
 
     /** view resolver **/
-    private final ViewResolver viewResolver;
+    private final TemplateViewResolver viewResolver;
 
     @Autowired
-    public ViewResolverResultResolver(ViewResolver viewResolver) {
+    public TemplateResolver(TemplateViewResolver viewResolver) {
         this.viewResolver = viewResolver;
     }
 
@@ -61,8 +60,8 @@ public class ViewResolverResultResolver implements ResultResolver {
     }
 
     @Override
-    public void resolveResult(final RequestContext requestContext, final Object result) throws Throwable {
-        ResultUtils.resolveView((String) result, viewResolver, requestContext);
+    public void resolveView(final RequestContext requestContext, final Object result) throws Throwable {
+        AbstractViewResolver.resolveView((String) result, viewResolver, requestContext);
     }
 
 }

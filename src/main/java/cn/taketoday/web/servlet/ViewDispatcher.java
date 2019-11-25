@@ -38,8 +38,9 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.ViewMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
-import cn.taketoday.web.utils.ResultUtils;
-import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.view.AbstractViewResolver;
+import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
@@ -56,7 +57,7 @@ public class ViewDispatcher extends GenericServlet {
     private ExceptionResolver exceptionResolver;
 
     @Autowired(Constant.VIEW_RESOLVER)
-    protected ViewResolver viewResolver;
+    protected TemplateViewResolver viewResolver;
 
     @Override
     public final void service(final ServletRequest req, final ServletResponse res) throws ServletException, IOException {
@@ -91,19 +92,19 @@ public class ViewDispatcher extends GenericServlet {
                 final Object result = mapping.invokeHandler(context);
 
                 if (mapping.is(void.class)) {
-                    ResultUtils.resolveView(mapping.getAssetsPath(), viewResolver, context);
+                    AbstractViewResolver.resolveView(mapping.getAssetsPath(), viewResolver, context);
                 }
                 else {
                     mapping.resolveResult(context, result);
                 }
             }
             else {
-                ResultUtils.resolveView(mapping.getAssetsPath(), viewResolver, context);
+                AbstractViewResolver.resolveView(mapping.getAssetsPath(), viewResolver, context);
             }
         }
         catch (Throwable e) {
             try {
-                ResultUtils.resolveException(context, exceptionResolver, mapping, e);
+                WebUtils.resolveException(context, exceptionResolver, mapping, e);
             }
             catch (Throwable e1) {
                 throw new ServletException(e1);

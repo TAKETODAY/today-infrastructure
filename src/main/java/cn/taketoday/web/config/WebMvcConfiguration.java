@@ -27,9 +27,9 @@ import cn.taketoday.web.annotation.Multipart;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.method.ParameterResolver;
-import cn.taketoday.web.resolver.result.ResultResolver;
-import cn.taketoday.web.view.AbstractViewResolver;
 import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
+import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
@@ -46,20 +46,20 @@ public interface WebMvcConfiguration {
     default void configureParameterResolver(List<ParameterResolver> parameterResolvers) {}
 
     /**
-     * Configure {@link ResultResolver}
-     * 
-     * @param resultResolvers
-     *            {@link ResultResolver} registry
-     */
-    default void configureResultResolver(List<ResultResolver> resultResolvers) {}
-
-    /**
      * Configure {@link ViewResolver}
      * 
-     * @param viewResolver
-     *            {@link ViewResolver} instance
+     * @param resultResolvers
+     *            {@link ViewResolver} registry
      */
-    default void configureViewResolver(AbstractViewResolver viewResolver) {}
+    default void configureVIewResolver(List<ViewResolver> resultResolvers) {}
+
+    /**
+     * Configure {@link TemplateViewResolver}
+     * 
+     * @param viewResolver
+     *            {@link TemplateViewResolver} instance
+     */
+    default void configureTemplateViewResolver(AbstractTemplateViewResolver viewResolver) {}
 
     /**
      * Configure static {@link Resource}

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.view;
+package cn.taketoday.web.view.template;
 
 import static cn.taketoday.web.resolver.method.DelegatingParameterResolver.delegate;
 
@@ -49,14 +49,15 @@ import freemarker.template.TemplateModel;
  * @author TODAY <br>
  *         2019-11-22 13:25
  */
-public abstract class AbstractFreeMarkerViewResolver
-        extends AbstractViewResolver implements InitializingBean, WebMvcConfiguration {
+public abstract class AbstractFreeMarkerTemplateViewResolver
+        extends AbstractTemplateViewResolver implements InitializingBean, WebMvcConfiguration {
 
     protected int cacheSize = 1024;
     protected final ObjectWrapper wrapper;
     protected final Configuration configuration;
 
-    public AbstractFreeMarkerViewResolver(ObjectWrapper wrapper, Configuration configuration, Properties settings) {
+    public AbstractFreeMarkerTemplateViewResolver(ObjectWrapper wrapper, Configuration configuration, Properties settings) {
+        setSuffix(".ftl");
 
         this.wrapper = configObjectWrapper(wrapper);
         this.configuration = configConfiguration(configuration);
@@ -137,8 +138,8 @@ public abstract class AbstractFreeMarkerViewResolver
         configuration.setTemplateLoader(loader);
 
         final Logger logger = LoggerFactory.getLogger(getClass());
-        logger.info("FreeMarker use [{}] to load templates", loader);
-        logger.info("Configuration FreeMarker View Resolver Success.");
+        logger.info("FreeMarker use [{}] to load templates, prefix: [{}], suffix: [{}]", loader, prefix, suffix);
+        logger.info("Configuration FreeMarker Template View Resolver Success.");
     }
 
     @SuppressWarnings("unchecked")

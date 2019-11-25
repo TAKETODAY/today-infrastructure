@@ -45,7 +45,7 @@ import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.RegexMapping;
 import cn.taketoday.web.resolver.ExceptionResolver;
-import cn.taketoday.web.utils.ResultUtils;
+import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -115,7 +115,7 @@ public class DispatcherServlet implements Servlet, Serializable {
         }
         catch (Throwable e) {
             try {
-                ResultUtils.resolveException(context, exceptionResolver, mapping, e);
+                WebUtils.resolveException(context, exceptionResolver, mapping, e);
             }
             catch (Throwable e1) {
                 throw new ServletException(e1);

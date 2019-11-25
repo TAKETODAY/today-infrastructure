@@ -17,34 +17,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.result;
+package cn.taketoday.web.view;
+
+import java.io.File;
 
 import cn.taketoday.context.annotation.Env;
+import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.web.Constant;
-import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.view.ViewResolver;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 17:41
+ *         2019-07-14 11:18
  */
-public class ObjectResultResolver extends AbstractResultResolver implements ResultResolver {
+public class ResourceViewResolver implements ViewResolver {
 
-    public ObjectResultResolver(ViewResolver viewResolver, MessageConverter messageConverter,
-            @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) {
-        super(viewResolver, messageConverter, downloadFileBuf);
+    private final int bufferSize;
+
+    public ResourceViewResolver(@Env(defaultValue = "10240", value = Constant.DOWNLOAD_BUFF_SIZE) int buffSize) {
+        this.bufferSize = buffSize;
     }
 
     @Override
     public boolean supports(HandlerMethod handlerMethod) {
-        return handlerMethod.is(Object.class);
+
+        return handlerMethod.isAssignableFrom(Resource.class)
+               || handlerMethod.isAssignableFrom(File.class);
     }
 
     @Override
-    public void resolveResult(RequestContext requestContext, Object result) throws Throwable {
-        resolveObject(requestContext, result);
+    public void resolveView(RequestContext requestContext, Object result) throws Throwable {
+
+        if (result instanceof Resource) {
+            AbstractViewResolver.downloadFile(requestContext, (Resource) result, bufferSize);
+        }
+        AbstractViewResolver.downloadFile(requestContext, ResourceUtils.getResource((File) result), bufferSize);
     }
 
 }

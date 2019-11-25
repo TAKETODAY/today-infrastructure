@@ -48,7 +48,6 @@ import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.resolver.ResourceResolver;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.utils.AntPathMatcher;
-import cn.taketoday.web.utils.ResultUtils;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -134,7 +133,7 @@ public class ResourceServlet extends GenericServlet {
         }
         catch (Throwable exception) {
             try {
-                ResultUtils.resolveException(requestContext, exceptionResolver, mapping, exception);
+                WebUtils.resolveException(requestContext, exceptionResolver, mapping, exception);
             }
             catch (Throwable e1) {
                 throw new ServletException(e1);

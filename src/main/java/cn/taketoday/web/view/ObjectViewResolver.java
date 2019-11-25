@@ -17,42 +17,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.result;
+package cn.taketoday.web.view;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 00:53
+ *         2019-07-14 17:41
  */
-public class VoidResultResolver extends ModelAndViewResultResolver {
+public class ObjectViewResolver extends AbstractViewResolver implements ViewResolver {
 
-    @Autowired
-    public VoidResultResolver(ViewResolver viewResolver, MessageConverter messageConverter,
-            @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) //
-    {
+    public ObjectViewResolver(TemplateViewResolver viewResolver, MessageConverter messageConverter,
+            @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) {
         super(viewResolver, messageConverter, downloadFileBuf);
     }
 
     @Override
     public boolean supports(HandlerMethod handlerMethod) {
-        return handlerMethod.is(void.class);
+        return handlerMethod.is(Object.class);
     }
 
     @Override
-    public void resolveResult(RequestContext requestContext, Object result) throws Throwable {
-
-        final ModelAndView modelAndView = requestContext.modelAndView();
-        if (modelAndView != null) {
-            resolveModelAndView(requestContext, modelAndView);
-        }
+    public void resolveView(RequestContext requestContext, Object result) throws Throwable {
+        resolveObject(requestContext, result);
     }
 
 }
