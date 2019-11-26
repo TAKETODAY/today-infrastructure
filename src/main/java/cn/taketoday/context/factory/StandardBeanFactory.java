@@ -581,17 +581,27 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                 registerBeanDefinition(nameToUse, beanDefinition);
             }
 
-            if (beanDefinition.isAnnotationPresent(Import.class)) { // @since 2.1.7
-                loadImportBeans(beanDefinition);
-            }
-            if (beanDefinition.isAnnotationPresent(ComponentScan.class)) {
-                componentScan(beanDefinition);
-            }
+            postProcessRegisterBeanDefinition(beanDefinition);
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
             throw new BeanDefinitionStoreException("An Exception Occurred When Register Bean Definition: [" + //
                     name + "], With Msg: [" + ex + "]", ex);
+        }
+    }
+
+    /**
+     * Process after register {@link BeanDefinition}
+     * 
+     * @param beanDefinition
+     *            Target {@link BeanDefinition}
+     */
+    protected void postProcessRegisterBeanDefinition(final BeanDefinition beanDefinition) {
+        if (beanDefinition.isAnnotationPresent(Import.class)) { // @since 2.1.7
+            loadImportBeans(beanDefinition);
+        }
+        if (beanDefinition.isAnnotationPresent(ComponentScan.class)) {
+            componentScan(beanDefinition);
         }
     }
 
