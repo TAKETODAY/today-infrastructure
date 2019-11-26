@@ -27,6 +27,7 @@ import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
+import cn.taketoday.context.io.Resource;
 
 /**
  * 
@@ -39,8 +40,11 @@ public interface Constant extends Opcodes, Serializable {
 
     Type[] TYPES_EMPTY = {};
     Class<?>[] EMPTY_CLASS_ARRAY = {};
-    
-    Serializable EMPTY_OBJECT = new Serializable() {private static final long serialVersionUID = 1L;};
+    Resource[] EMPTY_RESOURCE_ARRAY = {};
+
+    Serializable EMPTY_OBJECT = new Serializable() {
+        private static final long serialVersionUID = 1L;
+    };
 
     //
     // ----------------------------------------------------------------

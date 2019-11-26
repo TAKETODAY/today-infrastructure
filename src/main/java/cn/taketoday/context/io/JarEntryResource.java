@@ -132,6 +132,7 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
     public String[] list() throws IOException {
         try (final JarFile jarFile = getJarFile()) {
 
+            final String name = this.name;
             Set<String> result = new HashSet<>();
             final Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
@@ -148,6 +149,9 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
                         result.add(substring);
                     }
                 }
+            }
+            if (result.isEmpty()) {
+                return Constant.EMPTY_STRING_ARRAY;
             }
             return result.toArray(Constant.EMPTY_STRING_ARRAY);
         }

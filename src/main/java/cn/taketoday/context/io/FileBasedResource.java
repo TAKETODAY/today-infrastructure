@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 
@@ -46,21 +47,20 @@ public class FileBasedResource extends AbstractResource implements WritableResou
     private final Path filePath;
 
     public FileBasedResource(String path) {
-        this.path = StringUtils.cleanPath(path);
-        this.file = new File(path);
+        this.file = new File(this.path = StringUtils.cleanPath(path));
         this.filePath = this.file.toPath();
     }
 
     public FileBasedResource(File file) {
-        this.path = StringUtils.cleanPath(file.getPath());
         this.file = file;
         this.filePath = file.toPath();
+        this.path = StringUtils.cleanPath(file.getPath());
     }
 
     public FileBasedResource(Path filePath) {
-        this.path = StringUtils.cleanPath(filePath.toString());
         this.file = null;
         this.filePath = filePath;
+        this.path = StringUtils.cleanPath(filePath.toString());
     }
 
     /**
@@ -152,28 +152,32 @@ public class FileBasedResource extends AbstractResource implements WritableResou
     @Override
     public Resource createRelative(String relativePath) throws IOException {
         final String pathToUse = ResourceUtils.getRelativePath(path, relativePath);
-        return (this.file != null //
-                ? new FileBasedResource(pathToUse) //
+        return (this.file != null
+                ? new FileBasedResource(pathToUse)
                 : new FileBasedResource(this.filePath.getFileSystem().getPath(pathToUse).normalize()));
     }
 
     @Override
     public Resource[] list(ResourceFilter filter) throws IOException {
 
-        final String names[] = list();
+        final String[] names = list();
 
         if (StringUtils.isArrayEmpty(names)) {
-            return new Resource[0];
+            return Constant.EMPTY_RESOURCE_ARRAY;
         }
-
-        List<Resource> resources = new ArrayList<>();
-        for (String name : names) { // this resource is a directory
-            FileBasedResource resource = new FileBasedResource(new File(path, name));
-            if ((filter == null) || filter.accept(resource)) {
+        
+        final String path = this.path;
+        final List<Resource> resources = new ArrayList<>();
+        for (final String name : names) { // this resource is a directory
+            final FileBasedResource resource = new FileBasedResource(new File(path, name));
+            if (filter == null || filter.accept(resource)) {
                 resources.add(resource);
             }
         }
-        return resources.toArray(new Resource[0]);
+        if (resources.isEmpty()) {
+            return Constant.EMPTY_RESOURCE_ARRAY;
+        }
+        return resources.toArray(Constant.EMPTY_RESOURCE_ARRAY);
     }
 
     @Override

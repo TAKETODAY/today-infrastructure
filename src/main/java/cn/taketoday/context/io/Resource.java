@@ -76,7 +76,6 @@ public interface Resource extends Readable {
     /**
      * Is a directory?
      * 
-     * @return
      * @throws IOException
      */
     boolean isDirectory() throws IOException;

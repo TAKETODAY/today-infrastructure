@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -82,7 +83,7 @@ public abstract class AbstractResource implements Resource {
         final String names[] = list();
 
         if (StringUtils.isArrayEmpty(names)) {
-            return new Resource[0];
+            return Constant.EMPTY_RESOURCE_ARRAY;
         }
 
         List<Resource> resources = new ArrayList<>();
@@ -92,7 +93,10 @@ public abstract class AbstractResource implements Resource {
                 resources.add(resource);
             }
         }
-        return resources.toArray(new Resource[0]);
+        if (resources.isEmpty()) {
+            return Constant.EMPTY_RESOURCE_ARRAY;
+        }
+        return resources.toArray(Constant.EMPTY_RESOURCE_ARRAY);
     }
 
     @Override
