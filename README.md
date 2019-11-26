@@ -740,7 +740,6 @@ public class RedisConfiguration {
 
 ```
 
-
 ### 生命周期
 
 ```java
@@ -761,4 +760,91 @@ import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.InitializingBean;
-import lombok.extern.slf4
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * @author TODAY <br>
+ *         2019-07-25 22:44
+ */
+@Slf4j
+@Singleton
+public class LifecycleBean implements InitializingBean, DisposableBean {
+
+    @PostConstruct
+    public void initData() {
+        log.info("@PostConstruct");
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        log.info("afterPropertiesSet");
+    }
+
+    @PreDestroy
+    public void preDestroy() {
+        log.info("preDestroy");
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        log.info("destroy");
+    }
+
+    @Test
+    public void testLifecycle() {
+
+        final Set<Class<?>> beans = new HashSet<>();
+        beans.add(LifecycleBean.class);
+
+        try (final ApplicationContext applicationContext = new StandardApplicationContext(beans)) {
+            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
+
+            System.out.println(beanDefinitionsMap);
+        }
+    }
+
+}
+```
+
+```log
+2019-07-25 23:14:37.712  INFO - [            main] c.t.context.AbstractApplicationContext    150 - Starting Application Context at [2019-07-25 23:14:37.707].
+2019-07-25 23:14:37.751  INFO - [            main] c.t.context.env.StandardEnvironment       236 - Found Properties Resource: [file:/G:/Projects/Git/github/today-context/target/test-classes/info.properties]
+2019-07-25 23:14:37.771  INFO - [            main] c.t.context.env.StandardEnvironment       129 - Active profiles: [test, dev]
+2019-07-25 23:14:37.858 DEBUG - [            main] c.t.context.AbstractApplicationContext    325 - Loading Application Listeners.
+2019-07-25 23:14:37.896 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.BeanDefinitionLoadingEvent]
+2019-07-25 23:14:37.918 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.LoadingMissingBeanEvent]
+2019-07-25 23:14:37.921 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.BeanDefinitionLoadedEvent]
+2019-07-25 23:14:37.922 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.DependenciesHandledEvent]
+2019-07-25 23:14:37.923 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory   581 - Start loading BeanPostProcessor.
+2019-07-25 23:14:37.926 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.ContextPreRefreshEvent]
+2019-07-25 23:14:37.927 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.ContextRefreshEvent]
+2019-07-25 23:14:37.928 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory  1002 - Initialization of singleton objects.
+2019-07-25 23:14:37.929 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory   651 - Initializing bean named: [lifecycleBean].
+2019-07-25 23:14:37.929  INFO - [            main] test.context.LifecycleBean                 59 - setBeanName: lifecycleBean
+2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 69 - setBeanFactory: cn.taketoday.context.factory.StandardBeanFactory@5ce81285
+2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 74 - setApplicationContext: cn.taketoday.context.StandardApplicationContext@78c03f1f
+2019-07-25 23:14:37.930  INFO - [            main] test.context.LifecycleBean                 64 - setEnvironment: cn.taketoday.context.env.StandardEnvironment@5ec0a365
+2019-07-25 23:14:37.931  INFO - [            main] test.context.LifecycleBean                 79 - @PostConstruct
+2019-07-25 23:14:37.931  INFO - [            main] test.context.LifecycleBean                 84 - afterPropertiesSet
+2019-07-25 23:14:37.931 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory   511 - Singleton bean is being stored in the name of [lifecycleBean]
+2019-07-25 23:14:37.932 DEBUG - [            main] c.t.context.factory.AbstractBeanFactory  1008 - The singleton objects are initialized.
+2019-07-25 23:14:37.932 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.ContextStartedEvent]
+2019-07-25 23:14:37.941  INFO - [            main] c.t.context.AbstractApplicationContext    210 - Application Context Startup in 234ms
+{lifecycleBean={
+	"name":"lifecycleBean",
+	"scope":"SINGLETON",
+	"beanClass":"class test.context.LifecycleBean",
+	"initMethods":"[public void test.context.LifecycleBean.initData()]",
+	"destroyMethods":"[]",
+	"propertyValues":"[]",
+	"initialized":"true",
+	"factoryBean":"false",
+	"abstract":"false"
+}}
+2019-07-25 23:14:37.943 DEBUG - [            main] c.t.context.AbstractApplicationContext    480 - Publish event: [cn.taketoday.context.event.ContextCloseEvent]
+context is closing
+2019-07-25 23:14:37.945  INFO - [            main] c.t.c.listener.ContextCloseListener        52 - Closing: [cn.taketoday.context.StandardApplicationContext@78c03f1f] at [2019-07-25 23:14:37.943]
+2019-07-25 23:14:37.947  INFO - [            main] test.context.LifecycleBean                 89 - preDestroy
+2019-07-25 23:14:37.947  INFO - [            main] test.context.LifecycleBean                 94 - destroy
+
+```
