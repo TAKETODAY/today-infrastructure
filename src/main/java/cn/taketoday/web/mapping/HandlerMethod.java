@@ -77,7 +77,7 @@ public class HandlerMethod {
     }
 
     public HandlerMethod(Method method, List<MethodParameter> parameters) {
-        this(method, parameters == null ? null : parameters.toArray(Constant.EMPTY_METHOD_PARAMETER));
+        this(method, parameters == null ? null : parameters.toArray(new MethodParameter[parameters.size()]));
     }
 
     public HandlerMethod(Method method, MethodParameter... parameters) {

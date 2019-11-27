@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
@@ -44,7 +43,7 @@ public class HandlerMapping extends HandlerMethod implements WebMapping {
                           Method method,
                           List<HandlerInterceptor> interceptors, List<MethodParameter> parameters) {
         
-        this(bean, method, interceptors, parameters.toArray(Constant.EMPTY_METHOD_PARAMETER));
+        this(bean, method, interceptors, parameters.toArray(new MethodParameter[parameters.size()]));
     }
 
     public HandlerMapping(Object bean, 
@@ -54,7 +53,7 @@ public class HandlerMapping extends HandlerMethod implements WebMapping {
         
         this.bean = bean;
         this.interceptors = ObjectUtils.isNotEmpty(interceptors)
-                            ? interceptors.toArray(Constant.EMPTY_HANDLER_INTERCEPTOR)
+                            ? interceptors.toArray(new HandlerInterceptor[interceptors.size()])
                             : null;
     }//@on
 

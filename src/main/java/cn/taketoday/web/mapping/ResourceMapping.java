@@ -195,7 +195,7 @@ public final class ResourceMapping implements WebMapping, Ordered {
         Collections.addAll(pathPatternsList, Objects.requireNonNull(pathPatterns));
         Collections.addAll(pathPatternsList, this.pathPatterns);
 
-        this.pathPatterns = pathPatternsList.toArray(Constant.EMPTY_STRING_ARRAY);
+        this.pathPatterns = pathPatternsList.toArray(new String[pathPatternsList.size()]);
 
         return this;
     }

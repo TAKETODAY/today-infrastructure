@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.context.Constant;
-
 /**
  * @author TODAY <br>
  *         2019-09-27 19:40
@@ -60,7 +58,8 @@ public class DefaultSession implements WebSession, Serializable {
 
     @Override
     public String[] getNames() {
-        return getKeys().toArray(Constant.EMPTY_STRING_ARRAY);
+        final Map<Serializable, Object> attributes = this.attributes;
+        return attributes.keySet().toArray(new String[attributes.size()]);
     }
 
     @Override

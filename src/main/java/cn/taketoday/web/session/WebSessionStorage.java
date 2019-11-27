@@ -26,11 +26,11 @@ package cn.taketoday.web.session;
 public interface WebSessionStorage {
 
     WebSession get(String id);
-    
+
     WebSession remove(String id);
 
     boolean contains(String id);
-    
+
     void store(String id, WebSession session);
-    
+
 }

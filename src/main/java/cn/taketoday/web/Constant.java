@@ -20,7 +20,6 @@
 package cn.taketoday.web;
 
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.mapping.MethodParameter;
 
 /**
  * @author TODAY <br>
@@ -43,7 +42,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 
     String ENV_SERVLET = "javax.servlet.Servlet";
 
-    MethodParameter[] EMPTY_METHOD_PARAMETER = new MethodParameter[0];
+//    MethodParameter[] EMPTY_METHOD_PARAMETER = new MethodParameter[0];
     HandlerInterceptor[] EMPTY_HANDLER_INTERCEPTOR = new HandlerInterceptor[0];
 
     String NOT_FOUND = "Not Found";

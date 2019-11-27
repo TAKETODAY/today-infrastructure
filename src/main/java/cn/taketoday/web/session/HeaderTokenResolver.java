@@ -76,7 +76,7 @@ public class HeaderTokenResolver implements TokenResolver {
 
         final String requiredAuthorizationHeader = getRequiredAuthorizationHeader();
         context.responseHeader(requiredAuthorizationHeader, session.getId().toString());
-        
+
         if (isExposeHeaders()) {
             context.addResponseHeader(Constant.ACCESS_CONTROL_EXPOSE_HEADERS, requiredAuthorizationHeader);
         }

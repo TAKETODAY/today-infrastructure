@@ -111,8 +111,7 @@ public class CompositeTemplateLoader implements TemplateLoader {
 
         OrderUtils.reversedSort(list);
 
-        TemplateLoader[] loader = new TemplateLoader[0];
-        return setTemplateLoaders(list.toArray(loader));
+        return setTemplateLoaders(list.toArray(new TemplateLoader[list.size()]));
     }
 
     /**
@@ -146,8 +145,7 @@ public class CompositeTemplateLoader implements TemplateLoader {
 
         OrderUtils.reversedSort(list);
 
-        TemplateLoader[] loader = new TemplateLoader[0];
-        return setTemplateLoaders(list.toArray(loader));
+        return setTemplateLoaders(list.toArray(new TemplateLoader[list.size()]));
     }
 
     /**

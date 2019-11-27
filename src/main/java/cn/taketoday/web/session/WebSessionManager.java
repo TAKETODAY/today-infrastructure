@@ -28,10 +28,11 @@ import cn.taketoday.web.RequestContext;
 public interface WebSessionManager {
 
     WebSession createSession();
+
     WebSession createSession(RequestContext context);
-    
+
     WebSession getSession(String id);
-    
+
     WebSession getSession(RequestContext context);
 
 }

@@ -37,7 +37,7 @@ public class WebSessionConfiguration {
         final TokenResolver tokenResolverToUse = tokenResolver == null
                 ? new CookieTokenResolver()
                 : tokenResolver;
-                
+
         final WebSessionStorage sessionStorageToUse = sessionStorage == null
                 ? new MemWebSessionStorage()
                 : sessionStorage;

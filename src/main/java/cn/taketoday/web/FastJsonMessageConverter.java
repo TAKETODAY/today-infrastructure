@@ -58,7 +58,7 @@ public class FastJsonMessageConverter implements MessageConverter {
 
     @Override
     public void write(final RequestContext requestContext, final Object message) throws IOException {
-        
+
         if (message instanceof CharSequence) {
             requestContext.getOutputStream().write(message.toString().getBytes(Constant.DEFAULT_CHARSET));
         }

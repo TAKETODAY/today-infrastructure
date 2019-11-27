@@ -107,7 +107,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
                 log.trace("Finding Configuration File From Root Path: [{}]", rootPath);
 
                 scanXml(dir, paths, (path -> (path.isDirectory() || path.getName().endsWith(".xml"))));
-                return StringUtils.arrayToString(paths.toArray(Constant.EMPTY_STRING_ARRAY));
+                return StringUtils.arrayToString(paths.toArray(new String[paths.size()]));
             }
             return null;
         }

@@ -123,7 +123,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
                                          final MethodParameter parameter,
                                          final List<MultipartFile> multipartFiles) throws Throwable {
 
-            return multipartFiles.toArray(new MultipartFile[0]);
+            return multipartFiles.toArray(new MultipartFile[multipartFiles.size()]);
         }
     }
 

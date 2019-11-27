@@ -41,9 +41,9 @@ import cn.taketoday.web.utils.WebUtils;
  *         2019-05-17 11:26
  */
 public class DefaultResourceResolver implements ResourceResolver {
-    
+
     private static final Logger log = LoggerFactory.getLogger(DefaultResourceResolver.class);
-    
+
     private final PathMatcher pathMatcher;
 
     @Autowired

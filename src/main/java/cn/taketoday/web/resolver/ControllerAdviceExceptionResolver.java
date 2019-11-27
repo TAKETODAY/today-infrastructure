@@ -132,8 +132,6 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
         // get all error handlers
         final List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
 
-        final MethodParameter[] emptyArray = Constant.EMPTY_METHOD_PARAMETER;
-
         for (final Object errorHandler : errorHandlers) {
 
             for (final Method method : errorHandler.getClass().getDeclaredMethods()) {
@@ -144,7 +142,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
                     final ExceptionHandlerMapping mapping = //
                             new ExceptionHandlerMapping(errorHandler,
                                                         method,
-                                                        parameters.toArray(emptyArray));
+                                                        parameters.toArray(new MethodParameter[parameters.size()]));
 
                     for (Class<? extends Throwable> exceptionClass : method.getAnnotation(ExceptionHandler.class).value()) {
                         exceptionHandlers.put(exceptionClass, mapping);

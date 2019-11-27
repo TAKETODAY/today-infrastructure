@@ -46,7 +46,7 @@ import cn.taketoday.web.mapping.ViewMapping;
  *         2018-06-23 16:19:53
  */
 public class ViewConfiguration {
-    
+
     private static final Logger log = LoggerFactory.getLogger(ViewConfiguration.class);
 
     private final String contextPath;
@@ -128,9 +128,7 @@ public class ViewConfiguration {
         final String status = action.getAttribute(Constant.ATTR_STATUS); // status
 
         if (StringUtils.isEmpty(name)) {
-            throw new ConfigurationException(//
-                                             "You must specify a 'name' attribute like this: [<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]"//
-            );
+            throw new ConfigurationException("You must specify a 'name' attribute like this: [<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]");
         }
 
         List<MethodParameter> parameters = null;
@@ -155,7 +153,11 @@ public class ViewConfiguration {
         }
 
         if (StringUtils.isNotEmpty(resource)) {
-            resource = ContextUtils.resolveValue(prefix + resource + suffix, String.class, variables);
+            resource = ContextUtils.resolveValue(
+                                                 new StringBuilder(prefix.length() + resource.length() + suffix.length())
+                                                         .append(prefix)
+                                                         .append(resource)
+                                                         .append(suffix).toString(), String.class, variables);
         }
         mapping.setAssetsPath(resource);
         { // @since 2.3.3
@@ -164,7 +166,7 @@ public class ViewConfiguration {
             }
         }
 
-        name = ContextUtils.resolveValue(contextPath + StringUtils.checkUrl(name), String.class, variables);
+        name = ContextUtils.resolveValue(contextPath.concat(StringUtils.checkUrl(name)), String.class, variables);
 
         ViewMapping.register(name, mapping);
         log.info("View Mapped [{} -> {}]", name, mapping);

@@ -24,14 +24,16 @@ import java.util.Set;
 
 /**
  * @author TODAY <br>
- * 		   2019-09-27 20:16
+ *         2019-09-27 20:16
  */
 public interface WebSession {
 
     String[] getNames();
 
     Object getAttribute(String name);
+
     void removeAttribute(String name);
+
     void setAttribute(String name, Object value);
 
     void invalidate();
