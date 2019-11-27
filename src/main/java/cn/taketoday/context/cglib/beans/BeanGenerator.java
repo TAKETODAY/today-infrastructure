@@ -24,8 +24,8 @@ import java.security.ProtectionDomain;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
@@ -110,6 +110,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
     @Override
     public void generateClass(ClassVisitor v) throws Exception {
 
+        final Map<String, Type> props = this.props;
         int size = props.size();
         final Type[] types = new Type[size];
 
@@ -124,7 +125,10 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
                       superclass != null ? Type.getType(superclass) : TYPE_OBJECT, null);
 
         EmitUtils.nullConstructor(ce);
-        EmitUtils.addProperties(ce, props.keySet().toArray(Constant.EMPTY_STRING_ARRAY), types);
+
+        final Set<String> keySet = props.keySet();
+        EmitUtils.addProperties(ce, keySet.toArray(new String[keySet.size()]), types);
+
         ce.endClass();
     }
 

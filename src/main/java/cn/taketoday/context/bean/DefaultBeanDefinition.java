@@ -255,7 +255,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
                 Collections.addAll(pool, newValues);
                 Collections.addAll(pool, propertyValues);
 
-                this.propertyValues = pool.toArray(EMPTY_PROPERTY_VALUE);
+                this.propertyValues = pool.toArray(new PropertyValue[pool.size()]);
             }
         }
     }
@@ -270,7 +270,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
         if (this.propertyValues != null) {
             Collections.addAll(propertyValues, this.propertyValues);
         }
-        this.propertyValues = propertyValues.toArray(EMPTY_PROPERTY_VALUE);
+        this.propertyValues = propertyValues.toArray(new PropertyValue[propertyValues.size()]);
     }
 
     /**

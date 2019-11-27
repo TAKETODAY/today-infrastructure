@@ -764,7 +764,7 @@ public abstract class EmitUtils {
                 final Map<String, List<MethodInfo>> buckets = //
                         CollectionUtils.bucket(members, (MethodInfo value) -> value.getSignature().getName());
 
-                String[] names = buckets.keySet().toArray(Constant.EMPTY_STRING_ARRAY);
+                String[] names = buckets.keySet().toArray(new String[buckets.size()]);
 
                 EmitUtils.stringSwitch(e, names, Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
 
@@ -879,7 +879,7 @@ public abstract class EmitUtils {
                 e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
 
                 final Map<String, List<MethodInfo>> fbuckets = buckets;
-                String[] names = buckets.keySet().toArray(Constant.EMPTY_STRING_ARRAY);
+                String[] names = buckets.keySet().toArray(new String[buckets.size()]);
 
                 EmitUtils.stringSwitch(e, names, Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
 

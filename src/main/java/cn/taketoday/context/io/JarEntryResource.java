@@ -153,7 +153,7 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
             if (result.isEmpty()) {
                 return Constant.EMPTY_STRING_ARRAY;
             }
-            return result.toArray(Constant.EMPTY_STRING_ARRAY);
+            return result.toArray(new String[result.size()]);
         }
     }
 

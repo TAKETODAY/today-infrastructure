@@ -135,8 +135,10 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
         }
 
         if (ObjectUtils.isNotEmpty(classAnns)) {
-            final Set<Annotation> rets = new HashSet<>();
-            final Set<Class<?>> clazz = Stream.of(methodAnns).map(a -> a.annotationType()).collect(Collectors.toSet());
+            final Set<Annotation> rets = new HashSet<>(); //@off
+            final Set<Class<?>> clazz = Stream.of(methodAnns)
+                                                .map(a -> a.annotationType())
+                                                .collect(Collectors.toSet()); //@on
 
             Collections.addAll(rets, methodAnns);
 
@@ -145,7 +147,7 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
                     rets.add(annotation);
                 }
             }
-            return rets.toArray(new Annotation[0]);
+            return rets.toArray(new Annotation[rets.size()]);
         }
         return methodAnns;
     }

@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.cglib.core.CollectionUtils;
 import cn.taketoday.context.cglib.core.ReflectUtils;
@@ -44,16 +43,16 @@ class MixinEverythingEmitter extends MixinEmitter {
         for (Class<?> class1 : classes) {
             ReflectUtils.addAllInterfaces(class1, list);
         }
-        return list.toArray(Constant.EMPTY_CLASS_ARRAY);
+        return list.toArray(new Class[list.size()]);
     }
 
     @Override
     protected Method[] getMethods(Class type) {
-        List<Method> methods = new ArrayList();
+        List<Method> methods = new ArrayList<>();
 
         Collections.addAll(methods, type.getMethods());
 
         CollectionUtils.filter(methods, new RejectModifierPredicate(Modifier.FINAL | Modifier.STATIC));
-        return methods.toArray(new Method[0]);
+        return methods.toArray(new Method[methods.size()]);
     }
 }

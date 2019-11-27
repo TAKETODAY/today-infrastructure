@@ -15,7 +15,6 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
-import static cn.taketoday.context.Constant.EMPTY_STRING_ARRAY;
 import static cn.taketoday.context.Constant.PRIVATE_FINAL_STATIC;
 import static cn.taketoday.context.Constant.SWITCH_STYLE_HASH;
 import static cn.taketoday.context.asm.Type.array;
@@ -78,7 +77,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
                                                                     Constant.TYPE_STRING,
                                                                     Constant.TYPE_STRING)//
     );
-    
+
     private static final Signature INTERCEPT = new Signature("intercept",
                                                              Constant.TYPE_OBJECT,
                                                              array(Constant.TYPE_OBJECT,
@@ -174,7 +173,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
     //        METHOD_0 = methods[0];
     //        TODAY$ACCESS_0 = MethodProxy.create(cls, thisClass, "()Ljava/lang/String;", "toString", "TODAY$ACCESS_0");
     // }
-    
+
     @Override
     public void generateStatic(final CodeEmitter e, final Context context, final List<MethodInfo> methods) throws Exception {
 
@@ -257,7 +256,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
             }
         };
 
-        EmitUtils.stringSwitch(e, sigMap.keySet().toArray(EMPTY_STRING_ARRAY), SWITCH_STYLE_HASH, callback);
+        EmitUtils.stringSwitch(e, sigMap.keySet().toArray(new String[sigMap.size()]), SWITCH_STYLE_HASH, callback);
         e.end_method();
     }
 }

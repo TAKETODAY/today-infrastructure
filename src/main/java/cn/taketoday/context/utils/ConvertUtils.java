@@ -193,7 +193,7 @@ public abstract class ConvertUtils {
 
         OrderUtils.reversedSort(converters);
 
-        setConverters(converters.toArray(new TypeConverter[0]));
+        setConverters(converters.toArray(new TypeConverter[converters.size()]));
     }
 
     /**

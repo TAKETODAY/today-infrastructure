@@ -96,7 +96,7 @@ public abstract class AbstractResource implements Resource {
         if (resources.isEmpty()) {
             return Constant.EMPTY_RESOURCE_ARRAY;
         }
-        return resources.toArray(Constant.EMPTY_RESOURCE_ARRAY);
+        return resources.toArray(new Resource[resources.size()]);
     }
 
     @Override

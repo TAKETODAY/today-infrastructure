@@ -73,7 +73,7 @@ public abstract class CallbackHelper implements CallbackFilter {
             return new Callback[0];
         }
         if (callbacks.get(0) instanceof Callback) {
-            return (Callback[]) callbacks.toArray(new Callback[0]);
+            return (Callback[]) callbacks.toArray(new Callback[callbacks.size()]);
         }
         throw new IllegalStateException("getCallback returned classes, not callbacks; call getCallbackTypes instead");
     }

@@ -183,7 +183,7 @@ public abstract class ContextUtils {
 
         Collections.addAll(propertyValueResolvers, Objects.requireNonNull(resolvers));
         OrderUtils.reversedSort(propertyValueResolvers);
-        setPropertyValueResolvers(propertyValueResolvers.toArray(new PropertyValueResolver[0]));
+        setPropertyValueResolvers(propertyValueResolvers.toArray(new PropertyValueResolver[propertyValueResolvers.size()]));
     }
 
     /**
@@ -483,7 +483,7 @@ public abstract class ContextUtils {
         }
 
         OrderUtils.reversedSort(methods);
-        return methods.toArray(BeanDefinition.EMPTY_METHOD);
+        return methods.toArray(new Method[methods.size()]);
     }
 
     /**
@@ -547,9 +547,9 @@ public abstract class ContextUtils {
             }
         }
 
-        return propertyValues.isEmpty() //
-                ? BeanDefinition.EMPTY_PROPERTY_VALUE //
-                : propertyValues.toArray(BeanDefinition.EMPTY_PROPERTY_VALUE);
+        return propertyValues.isEmpty()
+                ? BeanDefinition.EMPTY_PROPERTY_VALUE
+                : propertyValues.toArray(new PropertyValue[propertyValues.size()]);
     }
 
     /**
@@ -1050,7 +1050,7 @@ public abstract class ContextUtils {
 
         Collections.addAll(parameterResolvers, Objects.requireNonNull(resolvers));
         OrderUtils.reversedSort(parameterResolvers);
-        setParameterResolvers(parameterResolvers.toArray(new ExecutableParameterResolver[0]));
+        setParameterResolvers(parameterResolvers.toArray(new ExecutableParameterResolver[parameterResolvers.size()]));
     }
 
     /**

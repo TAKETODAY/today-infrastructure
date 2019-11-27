@@ -341,7 +341,7 @@ public abstract class StringUtils {
      * @return String array
      */
     public static String[] toStringArray(Collection<String> collection) {
-        return collection.toArray(Constant.EMPTY_STRING_ARRAY);
+        return collection.toArray(new String[collection.size()]);
     }
 
     /**

@@ -369,14 +369,14 @@ public abstract class ReflectUtils {
             if (read && write) {
                 return all;
             }
-            List properties = new ArrayList(all.length);
+            List<PropertyDescriptor> properties = new ArrayList<>(all.length);
             for (int i = 0; i < all.length; i++) {
-                PropertyDescriptor pd = all[i];
+                final PropertyDescriptor pd = all[i];
                 if ((read && pd.getReadMethod() != null) || (write && pd.getWriteMethod() != null)) {
                     properties.add(pd);
                 }
             }
-            return (PropertyDescriptor[]) properties.toArray(new PropertyDescriptor[0]);
+            return properties.toArray(new PropertyDescriptor[properties.size()]);
         }
         catch (IntrospectionException e) {
             throw new CodeGenerationException(e);

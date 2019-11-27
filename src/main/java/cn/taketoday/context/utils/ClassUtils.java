@@ -155,7 +155,7 @@ public abstract class ClassUtils {
             log.error("IOException occurred when load 'META-INF/ignore/jar-prefix'", e);
             throw ExceptionUtils.newContextException(e);
         }
-        IGNORE_SCAN_JARS = ignoreScanJars.toArray(Constant.EMPTY_STRING_ARRAY);
+        IGNORE_SCAN_JARS = ignoreScanJars.toArray(new String[ignoreScanJars.size()]);
 
         // Map primitive types
         // -------------------------------------------
@@ -986,7 +986,7 @@ public abstract class ClassUtils {
                     result.addAll(attr);
                 }
             }
-            return result.isEmpty() ? EMPTY_ANNOTATION_ATTRIBUTES : result.toArray(EMPTY_ANNOTATION_ATTRIBUTES);
+            return result.isEmpty() ? EMPTY_ANNOTATION_ATTRIBUTES : result.toArray(new AnnotationAttributes[result.size()]);
         });
     }
 
@@ -1363,7 +1363,8 @@ public abstract class ClassUtils {
      * @since 2.1.2
      */
     public static Field[] getFieldArray(Class<?> targetClass) {
-        return getFields(targetClass).toArray(new Field[0]);
+        final Collection<Field> fields = getFields(targetClass);
+        return fields.toArray(new Field[fields.size()]);
     }
 
     /**
