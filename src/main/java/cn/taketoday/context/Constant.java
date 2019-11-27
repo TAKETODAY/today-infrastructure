@@ -41,6 +41,7 @@ public interface Constant extends Opcodes, Serializable {
     Type[] TYPES_EMPTY = {};
     Class<?>[] EMPTY_CLASS_ARRAY = {};
     Resource[] EMPTY_RESOURCE_ARRAY = {};
+    AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
 
     Serializable EMPTY_OBJECT = new Serializable() {
         private static final long serialVersionUID = 1L;

@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.utils;
 
+import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -108,12 +110,9 @@ public abstract class ClassUtils {
 
     private static boolean ignoreScanJarsPrefix = true;
 
+    private static final Map<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
     private static final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
     private static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(256);
-
-    private static final Map<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
-
-    private static final AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = new AnnotationAttributes[0];
     private static final Map<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
 
     /** Class resource filter */

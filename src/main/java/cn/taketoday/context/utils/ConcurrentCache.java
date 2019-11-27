@@ -22,6 +22,7 @@ package cn.taketoday.context.utils;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * @author TODAY <br>
@@ -35,8 +36,8 @@ public final class ConcurrentCache<K, V> {
 
     public ConcurrentCache(int size) {
         this.size = size;
-        this.eden = new ConcurrentHashMap<>(size);
         this.longterm = new WeakHashMap<>(size);
+        this.eden = new ConcurrentHashMap<>(size);
     }
 
     public static <K, V> ConcurrentCache<K, V> create() {
@@ -55,6 +56,19 @@ public final class ConcurrentCache<K, V> {
             }
             if (v != null) {
                 this.eden.put(k, v);
+            }
+        }
+        return v;
+    }
+
+    public V get(K k, Function<? super K, ? extends V> function) {
+
+        V v;
+        if ((v = get(k)) == null) {
+            V newValue;
+            if ((newValue = function.apply(k)) != null) {
+                put(k, newValue);
+                return newValue;
             }
         }
         return v;
