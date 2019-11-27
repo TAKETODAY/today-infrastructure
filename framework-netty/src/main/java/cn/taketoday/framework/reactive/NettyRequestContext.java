@@ -344,7 +344,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
             if (ObjectUtils.isEmpty(parsed)) {
                 return EMPTY_HTTP_COOKIE;
             }
-            return this.cookies = parsed.toArray(EMPTY_HTTP_COOKIE);
+            return this.cookies = parsed.toArray(new HttpCookie[parsed.size()]);
         }
         return cookies;
     }
@@ -401,9 +401,9 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
             if (!parameters.isEmpty()) {
                 params = new HashMap<>(32);
-                final String[] empty = Constant.EMPTY_STRING_ARRAY;
                 for (final Entry<String, List<String>> entry : parameters.entrySet()) {
-                    params.put(entry.getKey(), entry.getValue().toArray(empty));
+                    final List<String> value = entry.getValue();
+                    params.put(entry.getKey(), value.toArray(new String[value.size()]));
                 }
                 return this.parameters = params;
             }
@@ -732,9 +732,9 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     @Override
     public void flush() throws IOException {
-        
+
         outputStream.flush();
-        
+
         handlerContext.flush();
     }
 

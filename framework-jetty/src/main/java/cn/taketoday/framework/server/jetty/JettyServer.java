@@ -66,7 +66,6 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.ServletWebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.bean.ErrorPage;
@@ -238,7 +237,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
 
     private String getProtocols(Connector connector) {
         List<String> protocols = connector.getProtocols();
-        return " (" + StringUtils.arrayToString(protocols.toArray(Constant.EMPTY_STRING_ARRAY)) + ")";
+        return " (" + StringUtils.arrayToString(protocols.toArray(new String[protocols.size()])) + ")";
     }
 
     @Override
@@ -380,7 +379,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
         final Set<String> welcomePages = getWelcomePages();
         getWebApplicationConfiguration().configureWelcomePages(welcomePages);
 
-        context.setWelcomeFiles(welcomePages.toArray(Constant.EMPTY_STRING_ARRAY));
+        context.setWelcomeFiles(welcomePages.toArray(new String[welcomePages.size()]));
     }
 
     /**
@@ -402,7 +401,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
         configurations.add(getErrorPageConfiguration());
         configurations.add(getMimeTypeConfiguration());
 
-        return configurations.toArray(new Configuration[0]);
+        return configurations.toArray(new Configuration[configurations.size()]);
     }
 
     /**

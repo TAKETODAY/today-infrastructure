@@ -92,7 +92,7 @@ public abstract class UndertowCompressionUtils {
         }
 
         predicates.add(new MimeTypesPredicate(compression.getMimeTypes()));
-        return predicates.toArray(new Predicate[0]);
+        return predicates.toArray(new Predicate[predicates.size()]);
     }
 
     private static <T> boolean contains(T[] targets, Function<T, Boolean> function) {
@@ -124,7 +124,7 @@ public abstract class UndertowCompressionUtils {
                 for (String excludeAgentPattern : excludeAgentPatterns) {
                     patterns.add(Pattern.compile(excludeAgentPattern));
                 }
-                this.excludeAgentPatterns = patterns.toArray(new Pattern[0]);
+                this.excludeAgentPatterns = patterns.toArray(new Pattern[patterns.size()]);
             }
             else {
                 this.excludeAgentPatterns = null;
@@ -137,7 +137,7 @@ public abstract class UndertowCompressionUtils {
                 for (String includeAgentPattern : includeAgentPatterns) {
                     patterns.add(Pattern.compile(includeAgentPattern));
                 }
-                this.includeAgentPatterns = patterns.toArray(new Pattern[0]);
+                this.includeAgentPatterns = patterns.toArray(new Pattern[patterns.size()]);
             }
             else {
                 this.includeAgentPatterns = null;
