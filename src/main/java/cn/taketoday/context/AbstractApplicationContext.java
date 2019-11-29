@@ -34,7 +34,8 @@ import java.util.Set;
 
 import javax.el.ELManager;
 import javax.el.ELProcessor;
-import javax.el.ExpressionFactory;
+
+import com.sun.el.ExpressionFactoryImpl;
 
 import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.bean.BeanDefinition;
@@ -243,8 +244,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         {// fix: ensure ExpressionFactory's instance consistent @since 2.1.6
             Field declaredField = ClassUtils.forName("javax.el.ELUtil").getDeclaredField("exprFactory");
-            ClassUtils.makeAccessible(declaredField)//
-                    .set(null, ExpressionFactory.newInstance(environment.getProperties()));
+            ClassUtils.makeAccessible(declaredField)
+                    .set(null, new ExpressionFactoryImpl(environment.getProperties()));
         }
         ELProcessor elProcessor = environment.getELProcessor();
         if (elProcessor == null) {
