@@ -43,9 +43,7 @@ public class ConcurrentProperties extends Properties implements ConcurrentMap<Ob
 
     private final ConcurrentHashMap<Object, Object> map = new ConcurrentHashMap<>();
 
-    public ConcurrentProperties() {
-
-    }
+    public ConcurrentProperties() {}
 
     /**
      * Creates an empty property list with the specified defaults.
@@ -149,7 +147,7 @@ public class ConcurrentProperties extends Properties implements ConcurrentMap<Ob
     }
 
     @Override
-    public Set<Map.Entry<Object, Object>> entrySet() {
+    public Set<Entry<Object, Object>> entrySet() {
         return map.entrySet();
     }
 
@@ -195,7 +193,7 @@ public class ConcurrentProperties extends Properties implements ConcurrentMap<Ob
 
     @Override
     public Object merge(Object key, Object value,
-            BiFunction<? super Object, ? super Object, ? extends Object> remappingFunction)//
+                        BiFunction<? super Object, ? super Object, ? extends Object> remappingFunction)//
     {
         return map.merge(key, value, remappingFunction);
     }
@@ -208,7 +206,7 @@ public class ConcurrentProperties extends Properties implements ConcurrentMap<Ob
     @Override
     public Set<String> stringPropertyNames() {
         final Set<String> keys = new HashSet<>();
-        for (Map.Entry<Object, Object> entry : entrySet()) {
+        for (Entry<Object, Object> entry : entrySet()) {
             Object k = entry.getKey();
             if (k instanceof String && entry.getValue() instanceof String) {
                 keys.add((String) k);
@@ -218,10 +216,10 @@ public class ConcurrentProperties extends Properties implements ConcurrentMap<Ob
     }
 
     @Override
-    public Object clone() {
-        ConcurrentProperties concurrentProperties = new ConcurrentProperties();
-        concurrentProperties.putAll(map);
-        return concurrentProperties;
+    public ConcurrentProperties clone() {
+        final ConcurrentProperties ret = new ConcurrentProperties();
+        ret.putAll(map);
+        return ret;
     }
 
     @Override

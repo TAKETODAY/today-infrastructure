@@ -54,7 +54,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
     private static final Logger log = LoggerFactory.getLogger(StandardEnvironment.class);
 
-    private Set<String> activeProfiles = new HashSet<>();
+    private Set<String> activeProfiles = new HashSet<>(4);
 
     private final Properties properties = new ConcurrentProperties();
 
@@ -156,15 +156,13 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
         if (propertiesResource.isDirectory()) {
             log.debug("Start scanning properties resource.");
-            final ResourceFilter propertiesFileFilter = new ResourceFilter() {
-                @Override
-                public boolean accept(Resource file) throws IOException {
-                    if (file.isDirectory()) {
-                        return true;
-                    }
-                    final String name = file.getName();
-                    return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
+
+            final ResourceFilter propertiesFileFilter = (final Resource file) -> {
+                if (file.isDirectory()) {
+                    return true;
                 }
+                final String name = file.getName();
+                return name.endsWith(Constant.PROPERTIES_SUFFIX) && !name.startsWith("pom"); // pom.properties
             };
             doLoadFromDirectory(propertiesResource, this.properties, propertiesFileFilter);
         }
@@ -212,7 +210,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
      *            properties
      * @throws IOException
      */
-    public static void doLoadFromDirectory(final Resource directory, //
+    public static void doLoadFromDirectory(final Resource directory,
                                            final Properties properties,
                                            final ResourceFilter propertiesFileFilter) throws IOException //
     {
@@ -237,7 +235,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
         log.info("Found Properties Resource: [{}]", resource.getLocation());
 
-        try (InputStream inputStream = resource.getInputStream()) {
+        try (final InputStream inputStream = resource.getInputStream()) {
             properties.load(inputStream);
         }
     }
@@ -257,7 +255,8 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     @Override
     public boolean acceptsProfiles(String... profiles) {
 
-        for (String profile : profiles) {
+        final Set<String> activeProfiles = this.activeProfiles;
+        for (final String profile : Objects.requireNonNull(profiles)) {
             if (StringUtils.isNotEmpty(profile) && profile.charAt(0) == '!') {
                 if (!activeProfiles.contains(profile.substring(1))) {
                     return true;
@@ -283,8 +282,9 @@ public class StandardEnvironment implements ConfigurableEnvironment {
      */
     @Override
     public BeanNameCreator getBeanNameCreator() {
+        final BeanNameCreator beanNameCreator = this.beanNameCreator;
         if (beanNameCreator == null) {
-            beanNameCreator = createBeanNameCreator();
+            return this.beanNameCreator = createBeanNameCreator();
         }
         return beanNameCreator;
     }

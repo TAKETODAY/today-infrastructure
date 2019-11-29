@@ -539,8 +539,12 @@ public abstract class ClassUtils {
 
     public static String getClassName(final Resource resource) throws IOException {
         try (final InputStream inputStream = resource.getInputStream()) {
-            return getClassName(new ClassReader(inputStream));
+            return getClassName(inputStream);
         }
+    }
+    
+    public static String getClassName(final InputStream inputStream) throws IOException {
+        return getClassName(new ClassReader(inputStream));
     }
 
     public static String getClassName(ClassReader r) {
