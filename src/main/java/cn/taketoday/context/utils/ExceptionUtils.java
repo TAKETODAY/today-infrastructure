@@ -61,6 +61,13 @@ public abstract class ExceptionUtils {
         return new ContextException(ex);
     }
 
+    public static ContextException newContextException(Throwable ex, String message) {
+        if (ex instanceof ContextException) {
+            return (ContextException) ex;
+        }
+        return new ContextException(message, ex);
+    }
+
     public static ConfigurationException newConfigurationException(Throwable ex) {
         return newConfigurationException(ex, null);
     }

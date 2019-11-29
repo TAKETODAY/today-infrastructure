@@ -997,36 +997,39 @@ public abstract class ContextUtils {
      * Scan classes set from META-INF/xxx
      * 
      * @param resource
-     *            Resource file
+     *            Resource file start with 'META-INF'
      * @return Class set from META-INF/xxx
      * @throws ContextException
      *             If any {@link IOException} occurred
      */
     public static Set<Class<?>> loadFromMetaInfo(final String resource) throws ContextException {
 
-        final Set<Class<?>> ret = new HashSet<>();
-        final ClassLoader classLoader = ClassUtils.getClassLoader();
-        final Charset charset = Constant.DEFAULT_CHARSET;
-        try {
+        if (Objects.requireNonNull(resource).startsWith("META-INF")) {
 
-            final Enumeration<URL> resources = classLoader.getResources(resource);
+            final Set<Class<?>> ret = new HashSet<>();
+            final ClassLoader classLoader = ClassUtils.getClassLoader();
+            final Charset charset = Constant.DEFAULT_CHARSET;
+            try {
 
-            while (resources.hasMoreElements()) {
-                try (final BufferedReader reader = //
-                        new BufferedReader(new InputStreamReader(resources.nextElement().openStream(), charset))) {
+                final Enumeration<URL> resources = classLoader.getResources(resource);
 
-                    String str;
-                    while ((str = reader.readLine()) != null) {
-                        ret.add(classLoader.loadClass(str));
+                while (resources.hasMoreElements()) {
+                    try (final BufferedReader reader = //
+                            new BufferedReader(new InputStreamReader(resources.nextElement().openStream(), charset))) {
+
+                        String str;
+                        while ((str = reader.readLine()) != null) {
+                            ret.add(classLoader.loadClass(str));
+                        }
                     }
                 }
+                return ret;
             }
-            return ret;
+            catch (IOException | ClassNotFoundException e) {
+                throw ExceptionUtils.newContextException(e, "Exception occurred when load from '" + resource + "' Msg: " + e);
+            }
         }
-        catch (IOException | ClassNotFoundException e) {
-            log.error("Exception occurred when load from '" + resource + "' Msg: " + e, e);
-            throw ExceptionUtils.newContextException(e);
-        }
+        throw ExceptionUtils.newConfigurationException(null, "Resource must start with 'META-INF'");
     }
 
     // ExecutableParameterResolver @since 2.17
