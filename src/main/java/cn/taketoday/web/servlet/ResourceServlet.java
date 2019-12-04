@@ -43,6 +43,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.mapping.ResourceMapping;
+import cn.taketoday.web.mapping.ResourceMappingMetaData;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.resolver.DefaultResourceResolver;
 import cn.taketoday.web.resolver.ExceptionResolver;
@@ -82,7 +83,7 @@ public class ResourceServlet extends GenericServlet {
         this.contextPathLength = applicationContext.getContextPath().length();
 
         this.pathMatcher = pathMatcher != null ? pathMatcher : new AntPathMatcher();
-        this.resourceResolver = resourceResolver != null ? resourceResolver : new DefaultResourceResolver(this.pathMatcher);
+        this.resourceResolver = resourceResolver != null ? resourceResolver : new DefaultResourceResolver();
     }
 
     @Override
@@ -95,12 +96,15 @@ public class ResourceServlet extends GenericServlet {
 
         final String path = requestPath(req, contextPathLength);
 
-        final ResourceMapping mapping = lookupResourceHandlerMapping(path, pathMatcher, registry.getResourceMappings());
+        final ResourceMappingMetaData metaData = //
+                lookupResourceMappingMetaData(path, pathMatcher, registry.getResourceMappings());
 
-        if (mapping == null) {
+        if (metaData == null) {
             res.sendError(404);
             return;
         }
+
+        final ResourceMapping mapping = metaData.getResourceMapping();
 
         final RequestContext requestContext = DispatcherServlet.prepareContext(req, res);
 
@@ -116,13 +120,13 @@ public class ResourceServlet extends GenericServlet {
                         return;
                     }
                 }
-                resource = resourceResolver.resolveResource(path, mapping); // may be null
+                resource = resourceResolver.resolveResource(metaData); // may be null
                 for (final HandlerInterceptor interceptor : interceptors) {
                     interceptor.afterProcess(requestContext, mapping, resource);
                 }
             }
             else {
-                resource = resourceResolver.resolveResource(path, mapping); // may be null
+                resource = resourceResolver.resolveResource(metaData); // may be null
             }
 
             if (resource == null || resource.isDirectory()) {// TODO Directory listing
@@ -169,15 +173,14 @@ public class ResourceServlet extends GenericServlet {
      *            All mappings
      * @return Mapped {@link ResourceMapping}
      */
-    protected ResourceMapping lookupResourceHandlerMapping(final String path,
-                                                           final PathMatcher pathMatcher,
-                                                           final List<ResourceMapping> resourceMappings) //
+    protected ResourceMappingMetaData lookupResourceMappingMetaData(final String path,
+                                                                    final PathMatcher pathMatcher,
+                                                                    final List<ResourceMapping> resourceMappings) //
     {
-
-        for (final ResourceMapping resourceHandlerMapping : resourceMappings) {
-            for (final String pathPattern : resourceHandlerMapping.getPathPatterns()) {
+        for (final ResourceMapping resourceMapping : resourceMappings) {
+            for (final String pathPattern : resourceMapping.getPathPatterns()) {
                 if (pathMatcher.match(pathPattern, path)) {
-                    return resourceHandlerMapping;
+                    return new ResourceMappingMetaData(path, pathPattern, pathMatcher, resourceMapping);
                 }
             }
         }

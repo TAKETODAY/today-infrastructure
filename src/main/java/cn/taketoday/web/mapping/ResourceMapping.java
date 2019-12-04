@@ -38,8 +38,9 @@ import lombok.Getter;
  * @since 2.3.7
  */
 @Getter
-@SuppressWarnings("serial")
-public final class ResourceMapping implements WebMapping, Ordered {
+public class ResourceMapping implements WebMapping, Ordered {
+
+    private static final long serialVersionUID = 1L;
 
     private static final int DEFAULT_BUFFER_SIZE = 8192;
 

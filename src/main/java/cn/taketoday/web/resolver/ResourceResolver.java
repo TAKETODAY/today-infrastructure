@@ -19,7 +19,9 @@
  */
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.context.PathMatcher;
 import cn.taketoday.web.mapping.ResourceMapping;
+import cn.taketoday.web.mapping.ResourceMappingMetaData;
 import cn.taketoday.web.resource.WebResource;
 
 /**
@@ -32,11 +34,11 @@ public interface ResourceResolver {
     /**
      * Resolve {@link WebResource}
      * 
-     * @param requestPath
-     *            {@link WebResource} path
-     * @param resourceMapping
+     * @param mappingMetaData
+     *            Contains requestPath, pathPattern, {@link PathMatcher},
      *            {@link ResourceMapping}
+     * @return {@link WebResource}
      */
-    WebResource resolveResource(String requestPath, ResourceMapping resourceMapping) throws Throwable;
+    WebResource resolveResource(ResourceMappingMetaData mappingMetaData) throws Throwable;
 
 }

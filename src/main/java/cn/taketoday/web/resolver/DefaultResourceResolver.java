@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.net.URL;
 
 import cn.taketoday.context.PathMatcher;
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.io.ResourceFilter;
 import cn.taketoday.context.logger.Logger;
@@ -33,6 +32,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.mapping.ResourceMapping;
+import cn.taketoday.web.mapping.ResourceMappingMetaData;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.utils.WebUtils;
 
@@ -44,22 +44,19 @@ public class DefaultResourceResolver implements ResourceResolver {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultResourceResolver.class);
 
-    private final PathMatcher pathMatcher;
-
-    @Autowired
-    public DefaultResourceResolver(PathMatcher pathMatcher) {
-        this.pathMatcher = pathMatcher;
-    }
-
     @Override
-    public WebResource resolveResource(String requestPath, ResourceMapping resourceMapping) throws Throwable {
+    public WebResource resolveResource(final ResourceMappingMetaData metaData) throws Throwable {
+
+        final String requestPath = metaData.getRequestPath();
 
         if (StringUtils.isEmpty(requestPath) || isInvalidPath(requestPath)) {
             return null;
         }
 
+        final ResourceMapping resourceMapping = metaData.getResourceMapping();
+
         String matchedPattern = null;
-        final PathMatcher pathMatcher = this.pathMatcher;
+        final PathMatcher pathMatcher = metaData.getPathMatcher();
         for (final String requestPathPattern : resourceMapping.getPathPatterns()) {
             if (pathMatcher.match(requestPathPattern, requestPath)) {
                 matchedPattern = requestPathPattern;
