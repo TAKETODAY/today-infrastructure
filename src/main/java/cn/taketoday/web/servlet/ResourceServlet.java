@@ -31,13 +31,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.taketoday.context.AntPathMatcher;
+import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
-import cn.taketoday.web.PathMatcher;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
@@ -46,8 +47,8 @@ import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.resolver.DefaultResourceResolver;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.resolver.ResourceResolver;
+import cn.taketoday.web.resource.CacheControl;
 import cn.taketoday.web.resource.WebResource;
-import cn.taketoday.web.utils.AntPathMatcher;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -97,7 +98,7 @@ public class ResourceServlet extends GenericServlet {
         final ResourceMapping mapping = lookupResourceHandlerMapping(path, pathMatcher, registry.getResourceMappings());
 
         if (mapping == null) {
-            res.sendError(HttpServletResponse.SC_NOT_FOUND);
+            res.sendError(404);
             return;
         }
 
@@ -285,14 +286,14 @@ public class ResourceServlet extends GenericServlet {
     protected boolean isGZipEnabled(final WebResource resource,
                                     final ResourceMapping mapping, final String contentType) throws IOException //
     {
-        return mapping.isGzip() //
-               && isContentCompressable(contentType) //
+        return mapping.isGzip()
+               && isContentCompressable(contentType)
                && resource.contentLength() > mapping.getGzipMinLength();
     }
 
     protected boolean isContentCompressable(final String contentType) {
-        return "image/svg+xml".equals(contentType) //
-               || !contentType.startsWith("image") //
+        return "image/svg+xml".equals(contentType)
+               || !contentType.startsWith("image")
                   && !contentType.startsWith("video");
     }
 
@@ -316,18 +317,14 @@ public class ResourceServlet extends GenericServlet {
 
         try (final InputStream source = resource.getInputStream()) {
 
-            //            ByteArrayOutputStream baos = new ByteArrayOutputStream(bufferSize);
-            //            GZIPOutputStream gzip = new GZIPOutputStream(baos);
-            //
-            //            WebUtils.writeToOutputStream(source, gzip, bufferSize);
-            //
-            //            final byte[] byteArray = baos.toByteArray();
-            //
-            //            requestContext.contentLength(byteArray.length);
-            //
-            //            baos.writeTo(requestContext.getOutputStream());
+            // ByteArrayOutputStream baos = new ByteArrayOutputStream(bufferSize);
+            // GZIPOutputStream gzip = new GZIPOutputStream(baos);
+            // WebUtils.writeToOutputStream(source, gzip, bufferSize);
+            // final byte[] byteArray = baos.toByteArray();
+            // requestContext.contentLength(byteArray.length);
+            // baos.writeTo(requestContext.getOutputStream());
 
-            WebUtils.writeToOutputStream(source, //
+            WebUtils.writeToOutputStream(source,
                                          new GZIPOutputStream(requestContext.getOutputStream(), bufferSize), bufferSize);
         }
     }
@@ -343,7 +340,7 @@ public class ResourceServlet extends GenericServlet {
      *             If any IO exception occurred
      */
     protected void write(final Resource resource,
-                         final RequestContext context, //
+                         final RequestContext context,
                          final ResourceMapping resourceMapping) throws IOException //
     {
         context.contentLength(resource.contentLength());
@@ -365,29 +362,32 @@ public class ResourceServlet extends GenericServlet {
     /**
      * Apply the Content-Type, Last-Modified, ETag, Cache-Control, Expires
      * 
-     * @param requestContext
+     * @param context
      *            Current request context
      * @throws IOException
      *             If last modify read error
      */
-    protected void applyHeaders(final RequestContext requestContext, final long lastModified, //
-                                final String eTag, final ResourceMapping resourceMapping) throws IOException //
+    protected void applyHeaders(final RequestContext context,
+                                final long lastModified,
+                                final String eTag,
+                                final ResourceMapping resourceMapping) throws IOException //
     {
         if (lastModified > 0) {
-            requestContext.responseDateHeader(Constant.LAST_MODIFIED, lastModified);
+            context.responseDateHeader(Constant.LAST_MODIFIED, lastModified);
         }
         if (StringUtils.isNotEmpty(eTag)) {
-            requestContext.responseHeader(Constant.ETAG, eTag);
+            context.responseHeader(Constant.ETAG, eTag);
         }
-        if (resourceMapping.getCacheControl() != null) {
-            requestContext.responseHeader(Constant.CACHE_CONTROL, resourceMapping.getCacheControl().toString());
+        final CacheControl cacheControl = resourceMapping.getCacheControl();
+        if (cacheControl != null) {
+            context.responseHeader(Constant.CACHE_CONTROL, cacheControl.toString());
         }
         if (resourceMapping.getExpires() > 0) {
-            requestContext.responseDateHeader(Constant.EXPIRES, System.currentTimeMillis() + resourceMapping.getExpires());
+            context.responseDateHeader(Constant.EXPIRES, System.currentTimeMillis() + resourceMapping.getExpires());
         }
     }
 
-    public String getServletName() {
+    public final String getServletName() {
         return "ResourceServlet";
     }
 

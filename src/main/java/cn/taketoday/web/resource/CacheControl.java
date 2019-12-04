@@ -39,7 +39,7 @@ public final class CacheControl {
 
     private final StringBuilder cacheControl = new StringBuilder();
 
-    public static CacheControl newInstance() {
+    public static CacheControl create() {
         return new CacheControl();
     }
 
@@ -48,7 +48,7 @@ public final class CacheControl {
      * expired ones should not be used.
      */
     public CacheControl mustRevalidate() {
-        return doAppendSettings(Constant.MUST_REVALIDATE);
+        return appendSettings(Constant.MUST_REVALIDATE);
     }
 
     /**
@@ -56,7 +56,7 @@ public final class CacheControl {
      * before releasing a cached copy.
      */
     public CacheControl noCache() {
-        return doAppendSettings(Constant.NO_CACHE);
+        return appendSettings(Constant.NO_CACHE);
     }
 
     /**
@@ -64,7 +64,7 @@ public final class CacheControl {
      * response.
      */
     public CacheControl noStore() {
-        return doAppendSettings(Constant.NO_STORE);
+        return appendSettings(Constant.NO_STORE);
     }
 
     /**
@@ -75,7 +75,7 @@ public final class CacheControl {
      * slow link. The no-transform directive disallows this.
      */
     public CacheControl noTransform() {
-        return doAppendSettings(Constant.NO_TRANSFORM);
+        return appendSettings(Constant.NO_TRANSFORM);
     }
 
     /**
@@ -84,7 +84,7 @@ public final class CacheControl {
      * max-age directive or the Expires header).
      */
     public CacheControl publicCache() {
-        return doAppendSettings(Constant.PUBLIC);
+        return appendSettings(Constant.PUBLIC);
     }
 
     /**
@@ -92,7 +92,7 @@ public final class CacheControl {
      * stored by a shared cache. A private cache may store the response.
      */
     public CacheControl privateCache() {
-        return doAppendSettings(Constant.PRIVATE);
+        return appendSettings(Constant.PRIVATE);
     }
 
     /**
@@ -100,7 +100,7 @@ public final class CacheControl {
      * and is ignored by a private cache.
      */
     public CacheControl proxyRevalidate() {
-        return doAppendSettings(Constant.PROXY_REVALIDATE);
+        return appendSettings(Constant.PROXY_REVALIDATE);
     }
 
     /**
@@ -143,15 +143,26 @@ public final class CacheControl {
         return cacheControl.length() == 0;
     }
 
-    private CacheControl appendSettings(String cacheControl, long duration, TimeUnit unit) {
-        return doAppendSettings(cacheControl + "=" + unit.toSeconds(duration));
-    }
+    private CacheControl appendSettings(String key, long duration, TimeUnit unit) {
 
-    private CacheControl doAppendSettings(String s) {
-        if (!isEmpty()) {
-            cacheControl.append(", ");
-        }
-        cacheControl.append(s);
+        append().append(key)
+                .append('=')
+                .append(unit.toSeconds(duration));
+
         return this;
     }
+
+    private final StringBuilder append() {
+        final StringBuilder cacheControl = this.cacheControl;
+        if (cacheControl.length() != 0) {
+            cacheControl.append(", ");
+        }
+        return cacheControl;
+    }
+
+    private CacheControl appendSettings(String key) {
+        append().append(key);
+        return this;
+    }
+
 }

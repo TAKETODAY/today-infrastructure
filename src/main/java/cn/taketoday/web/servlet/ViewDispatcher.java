@@ -112,12 +112,12 @@ public class ViewDispatcher extends GenericServlet {
         }
     }
 
-    public String getServletName() {
+    public final String getServletName() {
         return "ViewDispatcher";
     }
 
     @Override
-    public String getServletInfo() {
+    public final String getServletInfo() {
         return "ViewDispatcher, Copyright © TODAY & 2017 - 2019 All Rights Reserved";
     }
 

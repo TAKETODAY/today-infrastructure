@@ -88,7 +88,7 @@ public final class ResourceMapping implements WebMapping, Ordered {
         return cacheControl;
     }
 
-    public ResourceMapping setInterceptors(HandlerInterceptor[] interceptors) {
+    public ResourceMapping setInterceptors(HandlerInterceptor... interceptors) {
         this.interceptors = interceptors;
         return this;
     }

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.io.ResourceFilter;
@@ -31,7 +32,6 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.PathMatcher;
 import cn.taketoday.web.mapping.ResourceMapping;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.utils.WebUtils;
@@ -59,9 +59,11 @@ public class DefaultResourceResolver implements ResourceResolver {
         }
 
         String matchedPattern = null;
+        final PathMatcher pathMatcher = this.pathMatcher;
         for (final String requestPathPattern : resourceMapping.getPathPatterns()) {
             if (pathMatcher.match(requestPathPattern, requestPath)) {
                 matchedPattern = requestPathPattern;
+                break;
             }
         }
 
@@ -83,8 +85,8 @@ public class DefaultResourceResolver implements ResourceResolver {
 
                 // log.debug("look in: [{}]", location);
                 // TODO
-                final Resource createRelative = ResourceUtils.getResource(location)//
-                        .createRelative(extractPathWithinPattern);
+                final Resource createRelative = //
+                        ResourceUtils.getResource(location).createRelative(extractPathWithinPattern);
 
                 if (createRelative.exists()) {
                     // log.debug("Relative Resource: [{}]", createRelative);

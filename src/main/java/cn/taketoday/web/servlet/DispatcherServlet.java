@@ -162,12 +162,12 @@ public class DispatcherServlet implements Servlet, Serializable {
         return servletConfig;
     }
 
-    public String getServletName() {
+    public final String getServletName() {
         return "DispatcherServlet";
     }
 
     @Override
-    public String getServletInfo() {
+    public final String getServletInfo() {
         return "DispatcherServlet, Copyright © TODAY & 2017 - 2019 All Rights Reserved";
     }
 
