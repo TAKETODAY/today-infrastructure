@@ -325,10 +325,28 @@ public abstract class StringUtils {
         }
 
         StringTokenizer st = new StringTokenizer(str, delimiter);
-        List<String> tokens = new ArrayList<>();
+        List<String> tokens = new ArrayList<>(4);
+        while (st.hasMoreTokens()) {
+            tokens.add(st.nextToken());
+        }
+        return toStringArray(tokens);
+    }
+
+    public static String[] tokenizeToStringArray(String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
+
+        if (str == null) {
+            return Constant.EMPTY_STRING_ARRAY;
+        }
+        StringTokenizer st = new StringTokenizer(str, delimiters);
+        List<String> tokens = new ArrayList<String>(4);
         while (st.hasMoreTokens()) {
             String token = st.nextToken();
-            tokens.add(token);
+            if (trimTokens) {
+                token = token.trim();
+            }
+            if (!ignoreEmptyTokens || token.length() > 0) {
+                tokens.add(token);
+            }
         }
         return toStringArray(tokens);
     }
