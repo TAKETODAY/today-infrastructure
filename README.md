@@ -87,7 +87,7 @@ public class DateConverter implements Converter<String, Date> {
 
 <Web-Configuration>
 
-        <controller prefix="/error/">
+    <controller prefix="/error/">
         <action resource="400" name="BadRequest" status="400" />
         <action resource="403" name="Forbidden" status="403" />
         <action resource="404" name="NotFound" status="404" />
