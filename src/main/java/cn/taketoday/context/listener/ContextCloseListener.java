@@ -68,8 +68,7 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
             }
         }
         catch (Throwable e) {
-            log.error("An Exception Occurred When Destroy Beans");
-            throw ExceptionUtils.newContextException(e);
+            throw ExceptionUtils.newContextException(e, "An Exception Occurred When Destroy Beans");
         }
         finally {
             ClassUtils.clearCache();
