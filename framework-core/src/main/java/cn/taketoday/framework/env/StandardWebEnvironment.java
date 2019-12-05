@@ -21,7 +21,7 @@ package cn.taketoday.framework.env;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -60,25 +60,10 @@ public class StandardWebEnvironment extends StandardEnvironment {
     public void loadProperties() throws IOException {
 
         // load default properties source : application.yaml or application.properties
+        final Set<String> locations = new HashSet<>(8);
+        final Resource propertiesResource = getPropertiesResource(locations);
 
-        final Set<String> locations = new LinkedHashSet<>();
-
-        Resource propertiesResource = null;
-        try {
-            propertiesResource = ResourceUtils.getResource(Constant.DEFAULT_PROPERTIES_FILE);
-            setPropertiesLocation(Constant.DEFAULT_PROPERTIES_FILE);
-            locations.add(Constant.DEFAULT_PROPERTIES_FILE);
-        }
-        catch (FileNotFoundException e) {
-            try {
-                propertiesResource = ResourceUtils.getResource(Constant.DEFAULT_YAML_FILE);
-                setPropertiesLocation(Constant.DEFAULT_YAML_FILE);
-                locations.add(Constant.DEFAULT_YAML_FILE);
-            }
-            catch (FileNotFoundException yaml) {}
-        }
-
-        if (propertiesResource != null) { // load
+        if (propertiesResource.exists()) { // load
             loadProperties(propertiesResource);
         }
         else {
@@ -86,6 +71,7 @@ public class StandardWebEnvironment extends StandardEnvironment {
         }
 
         // load properties from starter class annotated @PropertiesSource
+        final Class<?> applicationClass = this.applicationClass;
         if (applicationClass != null && applicationClass.isAnnotationPresent(PropertiesSource.class)) {
             for (final String propertiesLocation : //@off
                     StringUtils.split(applicationClass.getAnnotation(PropertiesSource.class).value())) {
@@ -103,6 +89,21 @@ public class StandardWebEnvironment extends StandardEnvironment {
 
         refreshActiveProfiles();
         replaceProperties(locations);
+    }
+
+    protected Resource getPropertiesResource(final Set<String> locations) {
+        Resource propertiesResource = ResourceUtils.getResource(Constant.DEFAULT_PROPERTIES_FILE);
+
+        if (propertiesResource.exists()) {
+            setPropertiesLocation(Constant.DEFAULT_PROPERTIES_FILE);
+            locations.add(Constant.DEFAULT_PROPERTIES_FILE);
+        }
+        else {
+            propertiesResource = ResourceUtils.getResource(Constant.DEFAULT_YAML_FILE);
+            setPropertiesLocation(Constant.DEFAULT_YAML_FILE);
+            locations.add(Constant.DEFAULT_YAML_FILE);
+        }
+        return propertiesResource;
     }
 
     /**
@@ -144,7 +145,6 @@ public class StandardWebEnvironment extends StandardEnvironment {
     protected void loadProperties(Resource resource) throws IOException {
 
         if (isYamlProperties(resource.getName())) {
-
             loadFromYmal(getProperties(), resource);
         }
         else {
