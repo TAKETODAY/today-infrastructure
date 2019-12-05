@@ -21,7 +21,11 @@ package cn.taketoday.context.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.io.ClassPathResource;
@@ -45,7 +49,7 @@ public abstract class ResourceUtils {
      * @throws IOException
      *             if any IO exception occurred
      */
-    public static Resource getResource(String location) throws IOException {
+    public static Resource getResource(final String location) {
 
         // fix location is empty
         if (StringUtils.isEmpty(location)) {
@@ -68,14 +72,15 @@ public abstract class ResourceUtils {
         }
     }
 
-    public static Resource getResource(URL url) throws IOException {
-
-        switch (url.getProtocol()) //@off
-		{
-			case Constant.PROTOCOL_FILE : 	return new FileBasedResource(url.getPath());
-			case Constant.PROTOCOL_JAR :	return new JarEntryResource(url.getPath());
-			default:						return new UrlBasedResource(url); //@on
+    public static Resource getResource(final URL url) {
+        final String protocol = url.getProtocol();
+        if (Constant.PROTOCOL_FILE.equals(protocol)) {
+            return new FileBasedResource(url.getPath());
         }
+        if (Constant.PROTOCOL_JAR.equals(protocol)) {
+            return new JarEntryResource(url);
+        }
+        return new UrlBasedResource(url);
     }
 
     /**
@@ -86,7 +91,7 @@ public abstract class ResourceUtils {
      * @return a {@link FileBasedResource}
      * @throws IOException
      */
-    public static Resource getResource(File file) {
+    public static Resource getResource(final File file) {
         return new FileBasedResource(file);
     }
 
@@ -100,7 +105,7 @@ public abstract class ResourceUtils {
      * apply at the same directory level: relative path "dir2" -> "C:/dir2".
      * 
      */
-    public static String getRelativePath(String path, String relativePath) {
+    public static String getRelativePath(final String path, final String relativePath) {
 
         final int separatorIndex = path.lastIndexOf(Constant.PATH_SEPARATOR);
 
@@ -114,6 +119,123 @@ public abstract class ResourceUtils {
             return newPath.append(relativePath).toString();
         }
         return relativePath;
+    }
+
+    // 
+
+    /**
+     * Determine whether the given URL points to a resource in the file system, i.e.
+     * has protocol "file", "vfsfile" or "vfs".
+     * 
+     * @param url
+     *            the URL to check
+     * @return whether the URL has been identified as a file system URL
+     */
+    public static boolean isFileURL(final URL url) {
+        String protocol = url.getProtocol();
+        return (Constant.URL_PROTOCOL_FILE.equals(protocol) || Constant.URL_PROTOCOL_VFSFILE.equals(protocol));
+    }
+
+    /**
+     * Determine whether the given URL points to a resource in a jar file. i.e. has
+     * protocol "jar", "war, ""zip", "vfszip" or "wsjar".
+     * 
+     * @param url
+     *            the URL to check
+     * @return whether the URL has been identified as a JAR URL
+     */
+    public static boolean isJarURL(final URL url) {
+        final String protocol = url.getProtocol();
+        return (Constant.URL_PROTOCOL_JAR.equals(protocol) || Constant.URL_PROTOCOL_WAR.equals(protocol) ||
+                Constant.URL_PROTOCOL_ZIP.equals(protocol) || Constant.URL_PROTOCOL_VFSZIP.equals(protocol) ||
+                Constant.URL_PROTOCOL_WSJAR.equals(protocol));
+    }
+
+    /**
+     * Determine whether the given URL points to a jar file itself, that is, has
+     * protocol "file" and ends with the ".jar" extension.
+     * 
+     * @param url
+     *            the URL to check
+     * @return whether the URL has been identified as a JAR file URL
+     * @since 4.1
+     */
+    public static boolean isJarFileURL(final URL url) {
+        return (Constant.URL_PROTOCOL_FILE.equals(url.getProtocol()) &&
+                url.getPath().toLowerCase().endsWith(Constant.JAR_FILE_EXTENSION));
+    }
+
+    /**
+     * Extract the URL for the actual jar file from the given URL (which may point
+     * to a resource in a jar file or to a jar file itself).
+     * 
+     * @param jarUrl
+     *            the original URL
+     * @return the URL for the actual jar file
+     * @throws MalformedURLException
+     *             if no valid jar file URL could be extracted
+     */
+    public static URL extractJarFileURL(final URL jarUrl) throws MalformedURLException {
+        String urlFile = jarUrl.getFile();
+        int separatorIndex = urlFile.indexOf(Constant.JAR_URL_SEPARATOR);
+        if (separatorIndex != -1) {
+            String jarFile = urlFile.substring(0, separatorIndex);
+            try {
+                return new URL(jarFile);
+            }
+            catch (MalformedURLException ex) {
+                // Probably no protocol in original jar URL, like "jar:C:/mypath/myjar.jar".
+                // This usually indicates that the jar file resides in the file system.
+                if (!jarFile.startsWith("/")) {
+                    jarFile = "/" + jarFile;
+                }
+                return new URL(Constant.FILE_URL_PREFIX + jarFile);
+            }
+        }
+        else {
+            return jarUrl;
+        }
+    }
+
+    /**
+     * Set the {@link URLConnection#setUseCaches "useCaches"} flag on the given
+     * connection, preferring {@code false} but leaving the flag at {@code true} for
+     * JNLP based resources.
+     * 
+     * @param con
+     *            the URLConnection to set the flag on
+     */
+    public static void useCachesIfNecessary(final URLConnection con) {
+        con.setUseCaches(con.getClass().getSimpleName().startsWith("JNLP"));
+    }
+
+    /**
+     * Create a URI instance for the given URL, replacing spaces with "%20" URI
+     * encoding first.
+     * 
+     * @param url
+     *            the URL to convert into a URI instance
+     * @return the URI instance
+     * @throws URISyntaxException
+     *             if the URL wasn't a valid URI
+     * @see java.net.URL#toURI()
+     */
+    public static URI toURI(final URL url) throws URISyntaxException {
+        return toURI(url.toString());
+    }
+
+    /**
+     * Create a URI instance for the given location String, replacing spaces with
+     * "%20" URI encoding first.
+     * 
+     * @param location
+     *            the location String to convert into a URI instance
+     * @return the URI instance
+     * @throws URISyntaxException
+     *             if the location wasn't a valid URI
+     */
+    public static URI toURI(final String location) throws URISyntaxException {
+        return new URI(StringUtils.replace(location, " ", "%20"));
     }
 
 }

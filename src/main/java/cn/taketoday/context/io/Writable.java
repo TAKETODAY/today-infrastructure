@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 
 import cn.taketoday.context.Constant;
 
@@ -52,4 +54,25 @@ public interface Writable {
     default Writer getWriter() throws IOException {
         return new OutputStreamWriter(getOutputStream(), Constant.DEFAULT_CHARSET);
     }
+
+    /**
+     * Return a {@link WritableByteChannel}.
+     * <p>
+     * It is expected that each call creates a <i>fresh</i> channel.
+     * <p>
+     * The default implementation returns {@link Channels#newChannel(OutputStream)}
+     * with the result of {@link #getOutputStream()}.
+     * 
+     * @return the byte channel for the underlying resource (must not be
+     *         {@code null})
+     * @throws java.io.FileNotFoundException
+     *             if the underlying resource doesn't exist
+     * @throws IOException
+     *             if the content channel could not be opened
+     * @see #getOutputStream()
+     */
+    default WritableByteChannel writableChannel() throws IOException {
+        return Channels.newChannel(getOutputStream());
+    }
+
 }

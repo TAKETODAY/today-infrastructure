@@ -127,7 +127,6 @@ public interface Constant extends Opcodes, Serializable {
 	String 	CGLIB_CLASS_SEPARATOR 	= "$$";
 	char 	CGLIB_CHAR_SEPARATOR 	= INNER_CLASS_SEPARATOR;
 
-	
 	String 	PROTOCOL_JAR 			= "jar";
 	String 	PROTOCOL_FILE 			= "file";
 	String 	JAR_ENTRY_URL_PREFIX 	= "jar:file:/";
@@ -166,5 +165,32 @@ public interface Constant extends Opcodes, Serializable {
 	String	DESTROY_METHODS			= "destroyMethods";
 	String 	TYPE 					= "type";
 	/**
-	 **********************************************/
+	 **********************************************/ //@on
+
+    /** URL prefix for loading from the file system: "file:". */
+    String FILE_URL_PREFIX = "file:";
+    /** URL prefix for loading from a jar file: "jar:". */
+    String JAR_URL_PREFIX = "jar:";
+    /** URL prefix for loading from a war file on Tomcat: "war:". */
+    String WAR_URL_PREFIX = "war:";
+    /** URL protocol for a file in the file system: "file". */
+    String URL_PROTOCOL_FILE = "file";
+    /** URL protocol for an entry from a jar file: "jar". */
+    String URL_PROTOCOL_JAR = "jar";
+    /** URL protocol for an entry from a war file: "war". */
+    String URL_PROTOCOL_WAR = "war";
+    /** URL protocol for an entry from a zip file: "zip". */
+    String URL_PROTOCOL_ZIP = "zip";
+    /** URL protocol for an entry from a WebSphere jar file: "wsjar". */
+    String URL_PROTOCOL_WSJAR = "wsjar";
+    /** URL protocol for an entry from a JBoss jar file: "vfszip". */
+    String URL_PROTOCOL_VFSZIP = "vfszip";
+    /** URL protocol for a JBoss file system resource: "vfsfile". */
+    String URL_PROTOCOL_VFSFILE = "vfsfile";
+    /** File extension for a regular jar file: ".jar". */
+    String JAR_FILE_EXTENSION = ".jar";
+    /** Separator between JAR URL and file path within the JAR: "!/". */
+    String JAR_URL_SEPARATOR = "!/";
+    /** Special separator between WAR URL and jar part on Tomcat. */
+    String WAR_URL_SEPARATOR = "*/";
 }

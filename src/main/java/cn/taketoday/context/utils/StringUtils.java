@@ -424,13 +424,28 @@ public abstract class StringUtils {
      * 
      * @param inputStream
      *            Input stream
-     * @return String
+     * @return String {@link InputStream} read as text
      * @throws IOException
      *             If can't read the string
      */
     public static String readAsText(final InputStream inputStream) throws IOException {
-        final ByteArrayOutputStream result = new ByteArrayOutputStream(1024);
-        byte[] buffer = new byte[1024];
+        return readAsText(inputStream, 1024);
+    }
+
+    /**
+     * Read the {@link InputStream} to text string
+     * 
+     * @param inputStream
+     *            Input stream
+     * @param bufferSize
+     *            Buffer size
+     * @return String {@link InputStream} read as text
+     * @throws IOException
+     *             If can't read the string
+     */
+    public static String readAsText(final InputStream inputStream, final int bufferSize) throws IOException {
+        final ByteArrayOutputStream result = new ByteArrayOutputStream(bufferSize);
+        byte[] buffer = new byte[bufferSize];
         int length;
         while ((length = inputStream.read(buffer)) != -1) {
             result.write(buffer, 0, length);
@@ -483,5 +498,190 @@ public abstract class StringUtils {
         while ((line = reader.readLine()) != null) {
             builder.append(line);
         }
+    }
+
+    /**
+     * Replace all occurrences of a substring within a string with another string.
+     * 
+     * @param inString
+     *            {@code String} to examine
+     * @param oldPattern
+     *            {@code String} to replace
+     * @param newPattern
+     *            {@code String} to insert
+     * @return a {@code String} with the replacements
+     */
+    public static String replace(String inString, String oldPattern, String newPattern) {
+        if (isNotEmpty(inString) || isNotEmpty(oldPattern) || newPattern == null) {
+            return inString;
+        }
+        int index = inString.indexOf(oldPattern);
+        if (index == -1) {
+            return inString; // no occurrence -> can return input as-is
+        }
+
+        int capacity = inString.length();
+        if (newPattern.length() > oldPattern.length()) {
+            capacity += 16;
+        }
+        final StringBuilder sb = new StringBuilder(capacity);
+
+        int pos = 0; // our position in the old string
+        int patLen = oldPattern.length();
+        while (index >= 0) {
+            sb.append(inString, pos, index);
+            sb.append(newPattern);
+            index = inString.indexOf(oldPattern, pos = index + patLen);
+        }
+
+        // append any characters to the right of a match
+        sb.append(inString, pos, inString.length());
+        return sb.toString();
+    }
+
+    /**
+     * Capitalize a {@code String}, changing the first letter to upper case as per
+     * {@link Character#toUpperCase(char)}. No other letters are changed.
+     * 
+     * @param str
+     *            the {@code String} to capitalize
+     * @return the capitalized {@code String}
+     */
+    public static String capitalize(String str) {
+        return changeFirstCharacterCase(str, true);
+    }
+
+    /**
+     * Uncapitalize a {@code String}, changing the first letter to lower case as per
+     * {@link Character#toLowerCase(char)}. No other letters are changed.
+     * 
+     * @param str
+     *            the {@code String} to uncapitalize
+     * @return the uncapitalized {@code String}
+     */
+    public static String uncapitalize(String str) {
+        return changeFirstCharacterCase(str, false);
+    }
+
+    private static String changeFirstCharacterCase(String str, boolean capitalize) {
+
+        if (isNotEmpty(str)) {
+            return str;
+        }
+
+        char baseChar = str.charAt(0);
+        char updatedChar;
+        if (capitalize) {
+            updatedChar = Character.toUpperCase(baseChar);
+        }
+        else {
+            updatedChar = Character.toLowerCase(baseChar);
+        }
+        if (baseChar == updatedChar) {
+            return str;
+        }
+
+        char[] chars = str.toCharArray();
+        chars[0] = updatedChar;
+        return new String(chars, 0, chars.length);
+    }
+
+    /**
+     * Delete any character in a given {@code String}.
+     * 
+     * @param inString
+     *            the original {@code String}
+     * @param charsToDelete
+     *            a set of characters to delete. E.g. "az\n" will delete 'a's, 'z's
+     *            and new lines.
+     * @return the resulting {@code String}
+     */
+    public static String deleteAny(final String inString, final String charsToDelete) {
+
+        if (isNotEmpty(inString) || isNotEmpty(charsToDelete)) {
+            return inString;
+        }
+
+        StringBuilder sb = new StringBuilder(inString.length());
+        for (int i = 0; i < inString.length(); i++) {
+            final char c = inString.charAt(i);
+
+            if (charsToDelete.indexOf(c) == -1) {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Take a {@code String} that is a delimited list and convert it into a
+     * {@code String} array.
+     * <p>
+     * A single {@code delimiter} may consist of more than one character, but it
+     * will still be considered as a single delimiter string, rather than as bunch
+     * of potential delimiter characters, in contrast to
+     * {@link #tokenizeToStringArray}.
+     * 
+     * @param str
+     *            the input {@code String} (potentially {@code null} or empty)
+     * @param delimiter
+     *            the delimiter between elements (this is a single delimiter, rather
+     *            than a bunch individual delimiter characters)
+     * @return an array of the tokens in the list
+     * @see #tokenizeToStringArray
+     */
+    public static String[] delimitedListToStringArray(final String str, final String delimiter) {
+        return delimitedListToStringArray(str, delimiter, null);
+    }
+
+    /**
+     * Take a {@code String} that is a delimited list and convert it into a
+     * {@code String} array.
+     * <p>
+     * A single {@code delimiter} may consist of more than one character, but it
+     * will still be considered as a single delimiter string, rather than as bunch
+     * of potential delimiter characters, in contrast to
+     * {@link #tokenizeToStringArray}.
+     * 
+     * @param str
+     *            the input {@code String} (potentially {@code null} or empty)
+     * @param delimiter
+     *            the delimiter between elements (this is a single delimiter, rather
+     *            than a bunch individual delimiter characters)
+     * @param charsToDelete
+     *            a set of characters to delete; useful for deleting unwanted line
+     *            breaks: e.g. "\r\n\f" will delete all new lines and line feeds in
+     *            a {@code String}
+     * @return an array of the tokens in the list
+     * @see #tokenizeToStringArray
+     */
+    public static String[] delimitedListToStringArray(final String str, final String delimiter, final String charsToDelete) {
+
+        if (str == null) {
+            return Constant.EMPTY_STRING_ARRAY;
+        }
+        if (delimiter == null) {
+            return new String[] { str };
+        }
+
+        List<String> result = new ArrayList<>();
+        if (delimiter.isEmpty()) {
+            for (int i = 0; i < str.length(); i++) {
+                result.add(deleteAny(str.substring(i, i + 1), charsToDelete));
+            }
+        }
+        else {
+            int pos = 0;
+            int delPos;
+            while ((delPos = str.indexOf(delimiter, pos)) != -1) {
+                result.add(deleteAny(str.substring(pos, delPos), charsToDelete));
+                pos = delPos + delimiter.length();
+            }
+            if (str.length() > 0 && pos <= str.length()) {
+                // Add rest of String, but not in case of empty input.
+                result.add(deleteAny(str.substring(pos), charsToDelete));
+            }
+        }
+        return toStringArray(result);
     }
 }

@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 
 import cn.taketoday.context.Constant;
 
@@ -64,6 +66,26 @@ public interface Readable {
      */
     default Reader getReader(String encoding) throws IOException {
         return new InputStreamReader(getInputStream(), encoding);
+    }
+
+    /**
+     * Return a {@link ReadableByteChannel}.
+     * <p>
+     * It is expected that each call creates a <i>fresh</i> channel.
+     * <p>
+     * The default implementation returns {@link Channels#newChannel(InputStream)}
+     * with the result of {@link #getInputStream()}.
+     * 
+     * @return the byte channel for the underlying resource (must not be
+     *         {@code null})
+     * @throws java.io.FileNotFoundException
+     *             if the underlying resource doesn't exist
+     * @throws IOException
+     *             if the content channel could not be opened
+     * @see #getInputStream()
+     */
+    default ReadableByteChannel readableChannel() throws IOException {
+        return Channels.newChannel(getInputStream());
     }
 
 }

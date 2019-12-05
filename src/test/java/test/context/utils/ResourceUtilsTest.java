@@ -19,7 +19,6 @@
  */
 package test.context.utils;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 
@@ -82,7 +81,7 @@ public class ResourceUtilsTest {
         if (resource instanceof JarEntryResource) {
 
             JarEntryResource jarEntryResource = (JarEntryResource) resource.createRelative(
-                    "/maven/cn.taketoday/today-expression/pom.properties");
+                                                                                           "/maven/cn.taketoday/today-expression/pom.properties");
             if (jarEntryResource.exists()) {
                 System.out.println(StringUtils.readAsText(jarEntryResource.getInputStream()));
             }
@@ -104,12 +103,7 @@ public class ResourceUtilsTest {
         }
         ResourceUtils.getResource("info.properties");
 
-        try {
-            ResourceUtils.getResource("info"); // ConfigurationException
-        }
-        catch (FileNotFoundException e) {
-            System.err.println(e);
-        }
+//        final Resource resource2 = ResourceUtils.getResource("info"); // ConfigurationException
 
         // getResource(URL)
 
