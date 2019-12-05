@@ -45,7 +45,7 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
     private final String name;
     private final File jarFile;
 
-    public JarEntryResource(URL url) throws IOException {
+    public JarEntryResource(URL url) {
         this(url, new File(getJarFilePath(url.getPath())), getJarEntryName(url.getPath()));
     }
 
@@ -53,24 +53,20 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
         this(new URL(getJarUrl(path)), new File(getJarFilePath(path)), getJarEntryName(path));
     }
 
-    public JarEntryResource(URL url, File jarFile, String name) throws IOException {
+    public JarEntryResource(URL url, File jarFile, String name) {
         super(url);
         this.name = name;
         this.jarFile = jarFile;
     }
 
-    private static String getJarUrl(String path) {
-
-        final StringBuilder url = new StringBuilder(256);
-
-        if (!path.startsWith(Constant.JAR_ENTRY_URL_PREFIX)) {
-            url.append(Constant.JAR_ENTRY_URL_PREFIX);
+    protected static String getJarUrl(String path) {
+        if (path.startsWith(Constant.JAR_ENTRY_URL_PREFIX)) {
+            return path;
         }
-
-        return url.append(path).toString();
+        return Constant.JAR_ENTRY_URL_PREFIX.concat(path);
     }
 
-    private static String getJarFilePath(String path) {
+    protected static String getJarFilePath(String path) {
 
         if (path.startsWith("file:")) { // fix #11 jar file not found
             return path.substring(5, path.indexOf(Constant.JAR_SEPARATOR));

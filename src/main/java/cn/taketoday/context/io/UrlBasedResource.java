@@ -96,7 +96,7 @@ public class UrlBasedResource extends AbstractResource {
 
     @Override
     public String toString() {
-        return url.toString();
+        return "UrlBasedResource: " + url.toString();
     }
 
 }

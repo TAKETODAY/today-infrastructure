@@ -25,9 +25,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -165,7 +169,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
         if (StringUtils.isArrayEmpty(names)) {
             return Constant.EMPTY_RESOURCE_ARRAY;
         }
-        
+
         final String path = this.path;
         final List<Resource> resources = new ArrayList<>();
         for (final String name : names) { // this resource is a directory
@@ -194,6 +198,31 @@ public class FileBasedResource extends AbstractResource implements WritableResou
         return new File(path).getName();
     }
 
+    /**
+     * This implementation opens a FileChannel for the underlying file.
+     * 
+     * @see java.nio.channels.FileChannel
+     */
+    @Override
+    public ReadableByteChannel readableChannel() throws IOException {
+        try {
+            return FileChannel.open(this.filePath, StandardOpenOption.READ);
+        }
+        catch (NoSuchFileException ex) {
+            throw new FileNotFoundException(ex.getMessage());
+        }
+    }
+
+    /**
+     * This implementation opens a FileChannel for the underlying file.
+     * 
+     * @see java.nio.channels.FileChannel
+     */
+    @Override
+    public WritableByteChannel writableChannel() throws IOException {
+        return FileChannel.open(this.filePath, StandardOpenOption.WRITE);
+    }
+
     @Override
     public boolean equals(Object other) {
         return (this == other || (other instanceof FileBasedResource && this.path.equals(((FileBasedResource) other).path)));
@@ -206,7 +235,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
 
     @Override
     public String toString() {
-        return path;
+        return "FileBasedResource: " + path;
     }
 
 }

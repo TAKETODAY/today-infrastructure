@@ -20,12 +20,15 @@
 package cn.taketoday.context.io;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.util.Objects;
 
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 
@@ -37,26 +40,23 @@ public class ClassPathResource implements Resource, WritableResource {
 
     private final Resource resource;
 
-    public Resource getOriginalResource() {
-        return resource;
-    }
-
-    public ClassPathResource(URL location) throws IOException {
+    public ClassPathResource(URL location) {
         this.resource = ResourceUtils.getResource(location);
     }
 
-    public ClassPathResource(String location) throws IOException {
-        final URL resource = ClassUtils.getClassLoader().getResource(location);
+    public ClassPathResource(String location) {
+        this(location, ClassUtils.getClassLoader());
+    }
+
+    public ClassPathResource(String location, Class<?> resourceClass) {
+        this(location, resourceClass.getClassLoader());
+    }
+
+    public ClassPathResource(String location, ClassLoader classLoader) {
+        Objects.requireNonNull(location, "Location must not be null");
+        final URL resource = (classLoader != null ? classLoader : ClassUtils.getClassLoader()).getResource(location);
         // linux path start with '/'
-        if (resource == null) {
-            this.resource = new FileBasedResource(location);
-            if (!this.resource.exists()) { // fix
-                throw new FileNotFoundException("There isn't exists a resource with location: [" + location + "]");
-            }
-        }
-        else {
-            this.resource = ResourceUtils.getResource(resource);
-        }
+        this.resource = resource == null ? new FileBasedResource(location) : ResourceUtils.getResource(resource);
     }
 
     @Override
@@ -111,10 +111,25 @@ public class ClassPathResource implements Resource, WritableResource {
 
     @Override
     public OutputStream getOutputStream() throws IOException {
-        if (resource instanceof WritableResource) {
-            return ((WritableResource) resource).getOutputStream();
+        final Resource resource = this.resource;
+        if (resource instanceof Writable) {
+            return ((Writable) resource).getOutputStream();
         }
         throw new IOException("Writable operation is not supported");
+    }
+
+    @Override
+    public ReadableByteChannel readableChannel() throws IOException {
+        return resource.readableChannel();
+    }
+
+    @Override
+    public WritableByteChannel writableChannel() throws IOException {
+        final Resource resource = this.resource;
+        if (resource instanceof Writable) {
+            return ((Writable) resource).writableChannel();
+        }
+        throw new ConfigurationException("Writable operation is not supported");
     }
 
     @Override
@@ -127,4 +142,12 @@ public class ClassPathResource implements Resource, WritableResource {
         return resource.list(filter);
     }
 
+    /**
+     * Get Original {@link Resource}
+     * 
+     * @return Original {@link Resource}
+     */
+    public final Resource getOriginalResource() {
+        return resource;
+    }
 }
