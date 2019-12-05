@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package test.context.annotation.condition;
+package cn.taketoday.context.annotation.condition;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -71,7 +71,7 @@ public class ConditionalTest {
     public void testConditionalOnClass() {
 
         try (final ApplicationContext applicationContext = //
-                new StandardApplicationContext("info.properties", "test.context.annotation.condition")) {
+                new StandardApplicationContext("info.properties", "cn.taketoday.context.annotation.condition")) {
 
             assertTrue(applicationContext.containsBeanDefinition(ConditionalClass.class));
             assertTrue(applicationContext.containsBeanDefinition(ConditionalOnMissing.class));
@@ -99,7 +99,7 @@ public class ConditionalTest {
     public void testConditionalOnExpression() {
 
         try (final ApplicationContext applicationContext = //
-                new StandardApplicationContext("info.properties", "test.context.annotation.condition")) {
+                new StandardApplicationContext("info.properties", "cn.taketoday.context.annotation.condition")) {
 
             assertTrue(applicationContext.containsBeanDefinition(ConditionalExpression_.class));
             assertTrue(!applicationContext.containsBeanDefinition(ConditionalExpression__.class));
@@ -137,7 +137,7 @@ public class ConditionalTest {
     public void testConditionalOnProperty() throws Exception {
 
         try (final ApplicationContext applicationContext = //
-                new StandardApplicationContext("info.properties", "test.context.annotation.condition")) {
+                new StandardApplicationContext("info.properties", "cn.taketoday.context.annotation.condition")) {
 
             assertTrue(applicationContext.containsBeanDefinition(ConditionalOnProperty_.class));
             assertTrue(!applicationContext.containsBeanDefinition(ConditionalOnProperty__.class));
@@ -176,7 +176,7 @@ public class ConditionalTest {
     public void testConditionalOnResource() throws Exception {
 
         try (final ApplicationContext applicationContext = //
-                new StandardApplicationContext("info.properties", "test.context.annotation.condition")) {
+                new StandardApplicationContext("info.properties", "cn.taketoday.context.annotation.condition")) {
 
             assertFalse(applicationContext.containsBeanDefinition(ConditionalOnResource_.class));
             

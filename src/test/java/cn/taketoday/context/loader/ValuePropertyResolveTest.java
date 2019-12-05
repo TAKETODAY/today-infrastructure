@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.context.loader;
+package cn.taketoday.context.loader;
 
 import java.util.Properties;
 
@@ -72,7 +72,7 @@ public class ValuePropertyResolveTest {
             // test
             // ----------------------------
             final Properties properties = applicationContext.getEnvironment().getProperties();
-            properties.put("test.context.loader.ValuePropertyResolveTest.test", "TEST");
+            properties.put("cn.taketoday.context.loader.ValuePropertyResolveTest.test", "TEST");
 
             PropertyValue test = propertyResolver.resolveProperty(ValuePropertyResolveTest.class.getDeclaredField("test"));
 

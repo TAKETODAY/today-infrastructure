@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.context;
+package cn.taketoday.context;
 
 import static org.junit.Assert.assertTrue;
 
@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.ApplicationContextTest.RequiredTest.Bean1;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
@@ -39,7 +40,6 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import test.context.ApplicationContextTest.RequiredTest.Bean1;
 import test.demo.config.Config;
 import test.demo.config.ConfigFactoryBean;
 import test.demo.config.ConfigurationBean;

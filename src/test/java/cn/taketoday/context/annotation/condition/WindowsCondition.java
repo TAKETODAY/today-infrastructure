@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.context.annotation.condition;
+package cn.taketoday.context.annotation.condition;
 
 import java.lang.reflect.AnnotatedElement;
 

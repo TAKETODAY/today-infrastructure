@@ -17,32 +17,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.listener;
+package cn.taketoday.context.loader;
 
-import java.util.EventObject;
+import java.util.Set;
 
-import cn.taketoday.context.annotation.ContextListener;
-import cn.taketoday.context.event.ApplicationEventCapable;
-import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
-import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
-import cn.taketoday.context.listener.ApplicationListener;
+import org.junit.Test;
+
+import cn.taketoday.context.loader.CandidateComponentScanner;
 
 /**
  * @author TODAY <br>
- * 		   2019-11-05 23:12
+ *         2019-11-28 23:52
  */
-@ContextListener
-public class ApplicationEventCapableListener implements ApplicationListener<EventObject>, ApplicationEventCapable {
+public class CandidateComponentScannerTest {
 
-    @Override
-    public void onApplicationEvent(EventObject event) {
+    @Test
+    public void testScan() throws Throwable {
 
-        System.err.println("current event: " + event);
-    }
+        final CandidateComponentScanner sharedInstance = CandidateComponentScanner.getSharedInstance();
+        final Set<Class<?>> scan = sharedInstance.scan();
 
-    @Override
-    public Class<?>[] getApplicationEvent() {
-        return new Class<?>[] { BeanDefinitionLoadingEvent.class, BeanDefinitionLoadedEvent.class };
+        for (Class<?> class1 : scan) {
+            System.err.println(class1);
+        }
+
     }
 
 }

@@ -1,4 +1,4 @@
-package test.context.utils;
+package cn.taketoday.context.utils;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.context.Scope;
-import test.context.utils.Bean.P;
-import test.context.utils.Bean.S;
+import cn.taketoday.context.utils.Bean.P;
+import cn.taketoday.context.utils.Bean.S;
 
 @S("s")
 @P("p")

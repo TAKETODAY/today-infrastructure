@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.context.factory;
+package cn.taketoday.context.factory;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -44,7 +44,7 @@ public class BaseTest {
     private long start;
 
     private static ConfigurableApplicationContext applicationContext = //
-            new StandardApplicationContext("", "test.context.factory", "test.demo.config");
+            new StandardApplicationContext("", "cn.taketoday.context.factory", "test.demo.config");
 
     private String process;
 

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.context.aware;
+package cn.taketoday.context.aware;
 
 import org.junit.After;
 import org.junit.Before;

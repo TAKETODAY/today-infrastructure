@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package test.context.loader;
+package cn.taketoday.context.loader;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -100,7 +100,7 @@ public class ImportTest {
     public void testImportConfiguration() throws BeanDefinitionStoreException, ConfigurationException {
 
         try (ConfigurableApplicationContext applicationContext = //
-                new StandardApplicationContext("", "test.context.loader")) {
+                new StandardApplicationContext("", "cn.taketoday.context.loader")) {
 
             assertTrue(applicationContext.containsBeanDefinition("objTest"));
             assertFalse(applicationContext.containsBeanDefinition(ErrorImportTESTBean.class));

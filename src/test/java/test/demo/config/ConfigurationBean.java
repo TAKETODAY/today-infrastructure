@@ -26,9 +26,9 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Profile;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.annotation.condition.WindowsCondition;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import test.context.annotation.condition.WindowsCondition;
 
 /**
  * @author Today <br>

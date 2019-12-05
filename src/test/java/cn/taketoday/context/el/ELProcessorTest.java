@@ -38,7 +38,7 @@
  * holder.
  */
 
-package org.glassfish.el.test;
+package cn.taketoday.context.el;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -150,7 +150,7 @@ public class ELProcessorTest {
         assertTrue(caught);
 
         try {
-            elp.defineFunction("yy", "", "org.glassfish.el.test.ELProcessorTest$MyBean", "getBar");
+            elp.defineFunction("yy", "", "cn.taketoday.context.el.test.ELProcessorTest$MyBean", "getBar");
             Object ret = elp.eval("yy:getBar() == 64");
             assertTrue((Boolean) ret);
         }
@@ -160,7 +160,7 @@ public class ELProcessorTest {
 
         caught = false;
         try {
-            elp.defineFunction("yy", "", "org.glassfish.el.test.ELProcessorTest$MyBean", "getFooBar");
+            elp.defineFunction("yy", "", "cn.taketoday.context.el.test.ELProcessorTest$MyBean", "getFooBar");
             Object ret = elp.eval("yy:getBar() == 100");
             assertTrue((Boolean) ret);
         }
@@ -187,12 +187,12 @@ public class ELProcessorTest {
 
     @Test
     public void testImport() {
-        elm.importClass("org.glassfish.el.test.ELProcessorTest$MyBean");
+        elm.importClass("cn.taketoday.context.el.ELProcessorTest$MyBean");
         assertTrue((Boolean) elp.eval("ELProcessorTest$MyBean.aaaa == 101"));
         assertTrue((Boolean) elp.eval("ELProcessorTest$MyBean.getBar() == 64"));
-        elm.importStatic("org.glassfish.el.test.ELProcessorTest$MyBean.aaaa");
+        elm.importStatic("cn.taketoday.context.el.ELProcessorTest$MyBean.aaaa");
         assertEquals(new Integer(101), elp.eval("aaaa"));
-        elm.importStatic("org.glassfish.el.test.ELProcessorTest$MyBean.getBar");
+        elm.importStatic("cn.taketoday.context.el.ELProcessorTest$MyBean.getBar");
         assertEquals(new Integer(64), elp.eval("getBar()"));
         /*
          * elm.importStatic("a.b.NonExisting.foobar"); elp.eval("foobar");

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.context.utils;
+package cn.taketoday.context.utils;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -149,7 +149,7 @@ public class ObjectUtilsTest {
         // Object[]
         final Class<Class[]> clazz = Class[].class;
         final Object classArrayObject = ObjectUtils.toArrayObject(new String[] { //
-                "test.context.utils.Bean", "test.context.utils.ClassUtilsTest" //
+                "cn.taketoday.context.utils.Bean", "cn.taketoday.context.utils.ClassUtilsTest" //
         }, clazz);
 
         assert classArrayObject.getClass().equals(clazz);

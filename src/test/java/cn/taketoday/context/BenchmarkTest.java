@@ -1,4 +1,4 @@
-package test.context;
+package cn.taketoday.context;
 
 import org.junit.Test;
 

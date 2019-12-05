@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package test.context.el;
+package cn.taketoday.context.el;
 
 import java.util.Date;
 
@@ -94,7 +94,7 @@ public class ELFieldTest {
     @Test
     public void test_Number() {
 
-        applicationContext.loadContext("test.context.el");
+        applicationContext.loadContext("cn.taketoday.context.el");
 
         ELFieldTest bean = applicationContext.getBean(getClass());
         System.err.println(bean.testFloat);
@@ -119,7 +119,7 @@ public class ELFieldTest {
 
         processor.defineBean("user", user);
 
-        applicationContext.loadContext("test.context.el");
+        applicationContext.loadContext("cn.taketoday.context.el");
 
         ELFieldTest bean = applicationContext.getBean(getClass());
         System.err.println(bean);
@@ -142,7 +142,7 @@ public class ELFieldTest {
 
         processor.defineBean("user", user);
 
-        applicationContext.loadContext("test.context.el");
+        applicationContext.loadContext("cn.taketoday.context.el");
 
         ELFieldTest bean = applicationContext.getBean(getClass());
         System.err.println(bean);

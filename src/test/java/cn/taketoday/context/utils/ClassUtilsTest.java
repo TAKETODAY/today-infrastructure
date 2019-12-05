@@ -1,4 +1,4 @@
-package test.context.utils;
+package cn.taketoday.context.utils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -39,9 +39,9 @@ import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.Bean.C;
+import cn.taketoday.context.utils.Bean.S;
 import test.context.props.Config_;
-import test.context.utils.Bean.C;
-import test.context.utils.Bean.S;
 import test.demo.config.Config;
 
 /**
@@ -331,9 +331,9 @@ public class ClassUtilsTest {
             ClassUtils.forName("Float");
         }
         catch (ClassNotFoundException e) {}
-        assert ClassUtils.forName("test.context.utils.ClassUtilsTest.INNER") == INNER.class;
+        assert ClassUtils.forName("cn.taketoday.context.utils.ClassUtilsTest.INNER") == INNER.class;
         try {
-            ClassUtils.forName("test.context.utils.ClassUtilsTest.INNERs");//
+            ClassUtils.forName("cn.taketoday.context.utils.ClassUtilsTest.INNERs");//
         }
         catch (ClassNotFoundException e) {}
 

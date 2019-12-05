@@ -17,13 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package test.context.el;
+package cn.taketoday.context.el;
 
 import org.junit.Test;
 
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.el.BeanFactoryResolver;
-import test.context.el.ELFieldTest.User;
+import cn.taketoday.context.el.ELFieldTest.User;
 
 /**
  * @author TODAY <br>
