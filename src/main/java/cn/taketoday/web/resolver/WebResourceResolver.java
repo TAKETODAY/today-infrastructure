@@ -29,7 +29,7 @@ import cn.taketoday.web.resource.WebResource;
  *         2019-05-17 11:26
  */
 @FunctionalInterface
-public interface ResourceResolver {
+public interface WebResourceResolver {
 
     /**
      * Resolve {@link WebResource}

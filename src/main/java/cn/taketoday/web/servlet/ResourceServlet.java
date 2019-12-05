@@ -47,7 +47,7 @@ import cn.taketoday.web.mapping.ResourceMappingMetaData;
 import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.resolver.DefaultResourceResolver;
 import cn.taketoday.web.resolver.ExceptionResolver;
-import cn.taketoday.web.resolver.ResourceResolver;
+import cn.taketoday.web.resolver.WebResourceResolver;
 import cn.taketoday.web.resource.CacheControl;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.utils.WebUtils;
@@ -65,7 +65,7 @@ public class ResourceServlet extends GenericServlet {
     private final int contextPathLength;
     private final PathMatcher pathMatcher;
     private final ResourceMappingRegistry registry;
-    private final ResourceResolver resourceResolver;
+    private final WebResourceResolver resourceResolver;
     /** exception resolver */
     private final ExceptionResolver exceptionResolver;
 
@@ -75,7 +75,7 @@ public class ResourceServlet extends GenericServlet {
                             ExceptionResolver exceptionResolver,
                             WebApplicationContext applicationContext,
                             @Autowired(required = false) PathMatcher pathMatcher,
-                            @Autowired(required = false) ResourceResolver resourceResolver) //@on
+                            @Autowired(required = false) WebResourceResolver resourceResolver) //@on
     {
 
         this.exceptionResolver = exceptionResolver;
@@ -399,7 +399,7 @@ public class ResourceServlet extends GenericServlet {
         return "ResourceServlet, Copyright © TODAY & 2017 - 2019 All Rights Reserved";
     }
 
-    public final ResourceResolver getResourceResolver() {
+    public final WebResourceResolver getResourceResolver() {
         return resourceResolver;
     }
 }

@@ -40,7 +40,7 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-05-17 11:26
  */
-public class DefaultResourceResolver implements ResourceResolver {
+public class DefaultResourceResolver implements WebResourceResolver {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultResourceResolver.class);
 
