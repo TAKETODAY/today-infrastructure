@@ -20,6 +20,7 @@
 package cn.taketoday.context.io;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +28,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -55,33 +57,42 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
     public JarEntryResource(URL url, File jarFile, String name) {
         super(url);
-        this.name = name;
-        this.jarFile = jarFile;
+        this.name = Objects.requireNonNull(name, "name");
+        this.jarFile = Objects.requireNonNull(jarFile, "jarFile");
     }
 
     protected static String getJarUrl(String path) {
         if (path.startsWith(Constant.JAR_ENTRY_URL_PREFIX)) {
             return path;
         }
-        return Constant.JAR_ENTRY_URL_PREFIX.concat(path);
+        final String concat = Constant.JAR_ENTRY_URL_PREFIX.concat(path);
+        if (concat.endsWith(Constant.JAR_URL_SEPARATOR)) {
+            return concat;
+        }
+        return concat.concat(Constant.JAR_URL_SEPARATOR);
     }
 
     protected static String getJarFilePath(String path) {
 
+        final int indexOf = path.indexOf(Constant.JAR_SEPARATOR);
         if (path.startsWith("file:")) { // fix #11 jar file not found
-            return path.substring(5, path.indexOf(Constant.JAR_SEPARATOR));
+            return indexOf == -1 ? path.substring(5) : path.substring(5, indexOf);
         }
         // jar:file:/xxxxxx.jar!/x
-        return path.substring(0, path.indexOf(Constant.JAR_SEPARATOR));
+        return indexOf == -1 ? path : path.substring(0, indexOf);
     }
 
     private static String getJarEntryName(String path) {
 
+        final int indexOf = path.indexOf(Constant.JAR_SEPARATOR);
+        if (indexOf == -1) {
+            return Constant.BLANK;
+        }
         if (path.charAt(0) == Constant.PATH_SEPARATOR) {
             return path.substring(1);
         }
         // jar:file:/xxxxxx.jar!/x
-        return path.substring(path.indexOf(Constant.JAR_SEPARATOR) + 2);
+        return path.substring(indexOf + 2);
     }
 
     @Override
@@ -92,13 +103,17 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
     @Override
     public InputStream getInputStream() throws IOException {
 
-        final JarFile jarFile = getJarFile();
+        final String name = this.name;
+        if (name.isEmpty()) {
+            return new FileInputStream(jarFile);
+        }
 
+        final JarFile jarFile = getJarFile();
         return new JarEntryInputStream(jarFile.getInputStream(jarFile.getEntry(name)), jarFile);
     }
 
     @Override
-    public JarOutputStream getOutputStream() throws IOException {
+    public JarOutputStream getOutputStream() throws IOException { // TODO 
         return new JarOutputStream(Files.newOutputStream(getFile().toPath()));
     }
 
@@ -109,6 +124,10 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
     @Override
     public boolean exists() {
+        final String name = this.name;
+        if (name.isEmpty()) {
+            return jarFile.exists();
+        }
         try (final JarFile jarFile = getJarFile()) {
             return jarFile.getEntry(name) != null;
         }
@@ -154,8 +173,13 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
     }
 
     @Override
-    public Resource createRelative(String relativePath) throws IOException {
+    public JarEntryResource createRelative(String relativePath) throws IOException {
         return new JarEntryResource(new URL(getLocation(), relativePath), getFile(), ResourceUtils.getRelativePath(name, relativePath));
+    }
+
+    @Override
+    public String toString() {
+        return "JarEntryResource: ".concat(getLocation().toString());
     }
 
     private static class JarEntryInputStream extends FilterInputStream {

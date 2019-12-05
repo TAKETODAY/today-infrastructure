@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+
 import cn.taketoday.context.AntPathMatcher;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.PathMatcher;
@@ -293,8 +294,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
         final ClassLoader cl = getClassLoader();
         final Enumeration<URL> resourceUrls = (cl != null ? cl.getResources(path) : ClassLoader.getSystemResources(path));
         while (resourceUrls.hasMoreElements()) {
-            final URL url = resourceUrls.nextElement();
-            result.add(convertClassLoaderURL(url));
+            result.add(convertClassLoaderURL(resourceUrls.nextElement()));
         }
         if (Constant.BLANK.equals(path)) {
             // The above result is likely to be incomplete, i.e. only containing file system references.
@@ -317,7 +317,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
      * @see Resource
      */
     protected Resource convertClassLoaderURL(URL url) {
-        return new UrlBasedResource(url);
+        return ResourceUtils.getResource(url);
     }
 
     /**
@@ -334,19 +334,12 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
         if (classLoader instanceof URLClassLoader) {
             try {
                 for (URL url : ((URLClassLoader) classLoader).getURLs()) {
-                    try {
-                        final UrlBasedResource jarResource = Constant.URL_PROTOCOL_JAR.equals(url.getProtocol())
-                                ? new UrlBasedResource(url)
-                                : new UrlBasedResource(new StringBuilder(Constant.JAR_URL_PREFIX)//@off
-                                                            .append(url)
-                                                            .append(Constant.JAR_URL_SEPARATOR).toString()); //@on
+                    // jar file
+                    if (url.getPath().endsWith(Constant.URL_PROTOCOL_JAR)) {
+                        JarEntryResource jarResource = new JarEntryResource(url.getPath());
                         if (jarResource.exists()) {
                             result.add(jarResource);
                         }
-                    }
-                    catch (MalformedURLException ex) {
-                        log.debug("Cannot search for matching files underneath [{}] because it cannot be converted to a valid 'jar:' URL: {}",
-                                  url, ex.getMessage());
                     }
                 }
             }
@@ -515,25 +508,6 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
     }
 
     /**
-     * Return whether the given resource handle indicates a jar resource that the
-     * {@code doFindPathMatchingJarResources} method can handle.
-     * <p>
-     * By default, the URL protocols "jar", "zip", "vfszip and "wsjar" will be
-     * treated as jar resources. This template method allows for detecting further
-     * kinds of jar-like resources, e.g. through {@code instanceof} checks on the
-     * resource handle type.
-     * 
-     * @param resource
-     *            the resource handle to check (usually the root directory to start
-     *            path matching from)
-     * @see #doFindPathMatchingJarResources
-     * @see ResourceUtils#isJarURL
-     */
-    protected boolean isJarResource(Resource resource) throws IOException {
-        return false;
-    }
-
-    /**
      * Find all resources in jar files that match the given location pattern via the
      * Ant-style PathMatcher.
      * 
@@ -689,9 +663,12 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
             }
             return Collections.emptySet();
         }
-        String fullPattern = StringUtils.replace(rootDir.getAbsolutePath(), File.separator, "/");
 
-        fullPattern = StringUtils.checkUrl(fullPattern).concat(StringUtils.replace(pattern, File.separator, "/"));
+        String fullPattern = StringUtils.replace(rootDir.getAbsolutePath(), File.separator, "/");
+        if (!pattern.startsWith("/")) {
+            fullPattern += "/";
+        }
+        fullPattern = fullPattern + StringUtils.replace(pattern, File.separator, "/");
 
         Set<File> result = new LinkedHashSet<>(8);
         doRetrieveMatchingFiles(fullPattern, rootDir, result);
@@ -718,6 +695,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
 
         final PathMatcher pathMatcher = getPathMatcher();
         for (final File content : listDirectory(dir)) {
+            // TODO 优化
             final String currPath = StringUtils.replace(content.getAbsolutePath(), File.separator, "/");
             if (content.isDirectory() && pathMatcher.matchStart(fullPattern, currPath.concat("/"))) {
                 if (content.canRead()) {

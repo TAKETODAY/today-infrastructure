@@ -129,7 +129,7 @@ public interface Constant extends Opcodes, Serializable {
 
 	String 	PROTOCOL_JAR 			= "jar";
 	String 	PROTOCOL_FILE 			= "file";
-	String 	JAR_ENTRY_URL_PREFIX 	= "jar:file:/";
+	String 	JAR_ENTRY_URL_PREFIX 	= "jar:file:";
 	String 	JAR_SEPARATOR 			= "!/";
 	int[] 	EMPTY_INT_ARRAY 		= new int[0];
 	

@@ -512,7 +512,7 @@ public abstract class StringUtils {
      * @return a {@code String} with the replacements
      */
     public static String replace(String inString, String oldPattern, String newPattern) {
-        if (isNotEmpty(inString) || isNotEmpty(oldPattern) || newPattern == null) {
+        if (isEmpty(inString) || isEmpty(oldPattern) || newPattern == null) {
             return inString;
         }
         int index = inString.indexOf(oldPattern);
@@ -565,7 +565,7 @@ public abstract class StringUtils {
 
     private static String changeFirstCharacterCase(String str, boolean capitalize) {
 
-        if (isNotEmpty(str)) {
+        if (isEmpty(str)) {
             return str;
         }
 
@@ -598,7 +598,7 @@ public abstract class StringUtils {
      */
     public static String deleteAny(final String inString, final String charsToDelete) {
 
-        if (isNotEmpty(inString) || isNotEmpty(charsToDelete)) {
+        if (isEmpty(inString) || isEmpty(charsToDelete)) {
             return inString;
         }
 
@@ -684,4 +684,31 @@ public abstract class StringUtils {
         }
         return toStringArray(result);
     }
+
+    /**
+     * Concatenate the given {@code String} arrays into one, with overlapping array
+     * elements included twice.
+     * <p>
+     * The order of elements in the original arrays is preserved.
+     * 
+     * @param array1
+     *            the first array (can be {@code null})
+     * @param array2
+     *            the second array (can be {@code null})
+     * @return the new array ({@code null} if both given arrays were {@code null})
+     */
+    public static String[] concatenateStringArrays(String[] array1, String[] array2) {
+        if (ObjectUtils.isEmpty(array1)) {
+            return array2;
+        }
+        if (ObjectUtils.isEmpty(array2)) {
+            return array1;
+        }
+
+        String[] newArr = new String[array1.length + array2.length];
+        System.arraycopy(array1, 0, newArr, 0, array1.length);
+        System.arraycopy(array2, 0, newArr, array1.length, array2.length);
+        return newArr;
+    }
+
 }

@@ -22,12 +22,14 @@ package cn.taketoday.context.io;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 
-import cn.taketoday.context.Constant;
+import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -58,13 +60,34 @@ public class UrlBasedResource extends AbstractResource {
         this.url = new URI(protocol, location, null).toURL();
     }
 
+    /**
+     * This implementation opens an InputStream for the given URL.
+     * <p>
+     * It sets the {@code useCaches} flag to {@code false}, mainly to avoid jar file
+     * locking on Windows.
+     * 
+     * @see java.net.URL#openConnection()
+     * @see java.net.URLConnection#setUseCaches(boolean)
+     * @see java.net.URLConnection#getInputStream()
+     */
     @Override
     public InputStream getInputStream() throws IOException {
-        return this.url.openStream();
+        final URLConnection con = this.url.openConnection();
+        ResourceUtils.useCachesIfNecessary(con);
+        try {
+            return con.getInputStream();
+        }
+        catch (IOException ex) {
+            // Close the HTTP connection (if applicable).
+            if (con instanceof HttpURLConnection) {
+                ((HttpURLConnection) con).disconnect();
+            }
+            throw ex;
+        }
     }
 
     @Override
-    public URL getLocation() throws IOException {
+    public URL getLocation() {
         return url;
     }
 
@@ -83,20 +106,38 @@ public class UrlBasedResource extends AbstractResource {
         return this.url.hashCode();
     }
 
+    /**
+     * This implementation creates a {@code UrlResource}, delegating to
+     * {@link #createRelativeURL(String)} for adapting the relative path.
+     * 
+     * @see #createRelativeURL(String)
+     */
     @Override
-    public Resource createRelative(String relativePath) throws IOException {
-        if (StringUtils.isEmpty(relativePath)) {
-            return this;
+    public UrlBasedResource createRelative(String relativePath) throws IOException {
+        return new UrlBasedResource(createRelativeURL(relativePath));
+    }
+
+    /**
+     * This delegate creates a {@code java.net.URL}, applying the given path
+     * relative to the path of the underlying URL of this resource descriptor. A
+     * leading slash will get dropped; a "#" symbol will get encoded.
+     * 
+     * @see #createRelative(String)
+     * @see java.net.URL#URL(java.net.URL, String)
+     */
+    protected URL createRelativeURL(String relativePath) throws MalformedURLException {
+        if (relativePath.startsWith("/")) {
+            relativePath = relativePath.substring(1);
         }
-        if (relativePath.charAt(0) == Constant.PATH_SEPARATOR) {
-            return new UrlBasedResource(new URL(this.url, relativePath.substring(1)));
-        }
-        return new UrlBasedResource(new URL(this.url, relativePath));
+        // # can appear in filenames, java.net.URL should not treat it as a fragment
+        relativePath = StringUtils.replace(relativePath, "#", "%23");
+        // Use the URL constructor for applying the relative path as a URL spec
+        return new URL(this.url, relativePath);
     }
 
     @Override
     public String toString() {
-        return "UrlBasedResource: " + url.toString();
+        return "UrlBasedResource: ".concat(url.toString());
     }
 
 }

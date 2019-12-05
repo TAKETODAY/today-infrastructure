@@ -21,6 +21,7 @@ package cn.taketoday.context.io;
 
 import java.io.IOException;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 
 /**
@@ -29,10 +30,10 @@ import cn.taketoday.context.Constant;
  *
  * <p>
  * This is an extension to the
- * {@link org.springframework.core.io.ResourceLoader} interface. A passed-in
+ * {@link ResourceLoader} interface. A passed-in
  * ResourceLoader (for example, an
- * {@link org.springframework.context.ApplicationContext} passed in via
- * {@link org.springframework.context.ResourceLoaderAware} when running in a
+ * {@link ApplicationContext} passed in via
+ * {@link ResourceLoaderAware} when running in a
  * context) can be checked whether it implements this extended interface too.
  *
  * <p>

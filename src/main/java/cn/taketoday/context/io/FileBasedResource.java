@@ -235,7 +235,7 @@ public class FileBasedResource extends AbstractResource implements WritableResou
 
     @Override
     public String toString() {
-        return "FileBasedResource: " + path;
+        return "FileBasedResource: ".concat(path);
     }
 
 }
