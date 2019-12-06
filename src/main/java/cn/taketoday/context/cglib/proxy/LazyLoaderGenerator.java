@@ -50,10 +50,8 @@ class LazyLoaderGenerator implements CallbackGenerator {
         final Set<Integer> indexes = new HashSet<>();
 
         for (final MethodInfo method : methods) {
-            if (Modifier.isProtected(method.getModifiers())) {
-                // ignore protected methods
-            }
-            else {
+            // ignore protected methods
+            if (!Modifier.isProtected(method.getModifiers())) {
                 int index = context.getIndex(method);
                 indexes.add(new Integer(index));
                 CodeEmitter e = context.beginMethod(ce, method);

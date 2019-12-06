@@ -125,14 +125,15 @@ public class UrlBasedResource extends AbstractResource {
      * @see #createRelative(String)
      * @see java.net.URL#URL(java.net.URL, String)
      */
-    protected URL createRelativeURL(String relativePath) throws MalformedURLException {
-        if (relativePath.startsWith("/")) {
-            relativePath = relativePath.substring(1);
+    protected URL createRelativeURL(final String relativePath) throws MalformedURLException {
+        String relativePathToUse = relativePath;
+        if (relativePathToUse.startsWith("/")) {
+            relativePathToUse = relativePathToUse.substring(1);
         }
         // # can appear in filenames, java.net.URL should not treat it as a fragment
-        relativePath = StringUtils.replace(relativePath, "#", "%23");
+        relativePathToUse = StringUtils.replace(relativePathToUse, "#", "%23");
         // Use the URL constructor for applying the relative path as a URL spec
-        return new URL(this.url, relativePath);
+        return new URL(this.url, relativePathToUse);
     }
 
     @Override

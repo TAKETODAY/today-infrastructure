@@ -174,9 +174,9 @@ public interface Constant extends Opcodes, Serializable {
     /** URL prefix for loading from a war file on Tomcat: "war:". */
     String WAR_URL_PREFIX = "war:";
     /** URL protocol for a file in the file system: "file". */
-    String URL_PROTOCOL_FILE = "file";
+    String URL_PROTOCOL_FILE = PROTOCOL_FILE;
     /** URL protocol for an entry from a jar file: "jar". */
-    String URL_PROTOCOL_JAR = "jar";
+    String URL_PROTOCOL_JAR = PROTOCOL_JAR;
     /** URL protocol for an entry from a war file: "war". */
     String URL_PROTOCOL_WAR = "war";
     /** URL protocol for an entry from a zip file: "zip". */
@@ -190,7 +190,7 @@ public interface Constant extends Opcodes, Serializable {
     /** File extension for a regular jar file: ".jar". */
     String JAR_FILE_EXTENSION = ".jar";
     /** Separator between JAR URL and file path within the JAR: "!/". */
-    String JAR_URL_SEPARATOR = "!/";
+    String JAR_URL_SEPARATOR = JAR_SEPARATOR;
     /** Special separator between WAR URL and jar part on Tomcat. */
     String WAR_URL_SEPARATOR = "*/";
 }
