@@ -40,6 +40,7 @@ public class CandidateComponentScannerTest {
         for (Class<?> class1 : scan) {
             System.err.println(class1);
         }
+        
 
     }
 

@@ -801,6 +801,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @throws Exception
      *             If any {@link Exception} occurred when initialize with processors
      */
+    @SuppressWarnings("deprecation")
     private Object initWithPostProcessors(Object bean, final String name, final BeanDefinition def, //
                                           final List<BeanPostProcessor> processors) throws Exception //
     {

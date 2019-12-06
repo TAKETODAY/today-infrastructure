@@ -63,9 +63,9 @@ public class CandidateComponentScanner {
     private Set<Class<?>> candidates;
 
     private String[] ignoreScanJarPrefixs;
-
-    private boolean ignoreScanJarsPrefix = true;
+    private Predicate<Resource> jarResourceFilter;
     private static String[] defaultIgnoreScanJarPrefixs;
+    private boolean useDefaultIgnoreScanJarPrefix = true;
 
     private ClassLoader classLoader = ClassUtils.getClassLoader();
 
@@ -78,11 +78,15 @@ public class CandidateComponentScanner {
                    && !resource.getName().startsWith("package-info"));
     };
 
-    public static void loadDefaultIgnoreJarPrefix() {
+    public static String[] getDefaultIgnoreJarPrefix() {
+
+        if (defaultIgnoreScanJarPrefixs != null) {
+            return defaultIgnoreScanJarPrefixs;
+        }
 
         // Load the META-INF/ignore/jar-prefix to ignore some jars
         // --------------------------------------------------------------
-        final Set<String> ignoreScanJars = new HashSet<>();
+        final Set<String> ignoreScanJars = new HashSet<>(64);
 
         try { // @since 2.1.6
 
@@ -99,7 +103,7 @@ public class CandidateComponentScanner {
                     }
                 }
             }
-            defaultIgnoreScanJarPrefixs = ignoreScanJars.toArray(new String[ignoreScanJars.size()]);
+            return defaultIgnoreScanJarPrefixs = ignoreScanJars.toArray(new String[ignoreScanJars.size()]);
         }
         catch (IOException e) {
             throw new ContextException("IOException occurred when load 'META-INF/ignore/jar-prefix'", e);
@@ -199,10 +203,8 @@ public class CandidateComponentScanner {
         else {
             final Set<String> packagesToScan = new HashSet<>(8);
             for (final String location : packages) {
-
                 if (StringUtils.isEmpty(location)) { // contains "" scan all class
-                    scan();
-                    return getCandidates();
+                    return scan();
                 }
                 else {
                     packagesToScan.add(location);
@@ -215,14 +217,11 @@ public class CandidateComponentScanner {
         return getCandidates();
     }
 
-    protected void scanOne(final String location) {
-
+    protected Set<Class<?>> scanOne(final String location) {
         if (StringUtils.isEmpty(location)) {
-            scan();
+            return scan();
         }
-        else {
-            scan(location);
-        }
+        return scan(location);
     }
 
     /**
@@ -285,54 +284,20 @@ public class CandidateComponentScanner {
         }
     }
 
-    Predicate<Resource> defaultFilter = (resource) -> {
-
-        if (defaultIgnoreScanJarPrefixs == null) {
-            loadDefaultIgnoreJarPrefix();
-        }
-
-        final String fileName = resource.getName();
-        for (final String ignoreJarName : defaultIgnoreScanJarPrefixs) {
-            if (fileName.startsWith(ignoreJarName)) {
-                return false;
-            }
-        }
-
-        return true;
-    };
-
     protected void scanInJarFile(final Resource resource,
                                  final String fileName,
                                  final String packageName,
                                  final ThrowableSupplier<JarFile, IOException> supplier) throws IOException //
     {
-
-        if (isIgnoreScanJarsPrefix()) {
-            if (defaultIgnoreScanJarPrefixs == null) {
-                loadDefaultIgnoreJarPrefix();
+        if (getJarResourceFilter().test(resource)) {
+            if (log.isTraceEnabled()) {
+                log.trace("Scan in jar file: [{}]", resource.getLocation());
             }
-
-            for (final String ignoreJarName : defaultIgnoreScanJarPrefixs) {
-                if (fileName.startsWith(ignoreJarName)) {
-                    return;
+            try (final JarFile jarFile = supplier.get()) {
+                final Enumeration<JarEntry> jarEntries = jarFile.entries();
+                while (jarEntries.hasMoreElements()) {
+                    loadClassFromJarEntry(jarEntries.nextElement(), packageName);
                 }
-            }
-
-            if (ignoreScanJarPrefixs != null) {
-                for (final String ignoreJarName : defaultIgnoreScanJarPrefixs) {
-                    if (fileName.startsWith(ignoreJarName)) {
-                        return;
-                    }
-                }
-            }
-        }
-        if (log.isTraceEnabled()) {
-            log.trace("Scan in jar file: [{}]", resource.getLocation());
-        }
-        try (final JarFile jarFile = supplier.get()) {
-            final Enumeration<JarEntry> jarEntries = jarFile.entries();
-            while (jarEntries.hasMoreElements()) {
-                loadClassFromJarEntry(jarEntries.nextElement(), packageName);
             }
         }
     }
@@ -439,6 +404,10 @@ public class CandidateComponentScanner {
      * @return The class path resources loader
      */
     public ClassLoader getClassLoader() {
+        final ClassLoader classLoader = this.classLoader;
+        if (classLoader == null) {
+            return this.classLoader = ClassUtils.getClassLoader();
+        }
         return classLoader;
     }
 
@@ -454,14 +423,6 @@ public class CandidateComponentScanner {
         this.candidates = candidates;
     }
 
-    public static CandidateComponentScanner getSharedInstance() {
-        return sharedScanner;
-    }
-
-    public static void setSharedInstance(CandidateComponentScanner sharedScanner) {
-        CandidateComponentScanner.sharedScanner = sharedScanner;
-    }
-
     public String[] getIgnoreScanJarPrefixs() {
         return ignoreScanJarPrefixs;
     }
@@ -470,12 +431,66 @@ public class CandidateComponentScanner {
         this.ignoreScanJarPrefixs = ignoreScanJarPrefixs;
     }
 
-    public boolean isIgnoreScanJarsPrefix() {
-        return ignoreScanJarsPrefix;
+    public boolean isUseDefaultIgnoreScanJarPrefix() {
+        return useDefaultIgnoreScanJarPrefix;
     }
 
-    public void setIgnoreScanJarsPrefix(boolean ignoreScanJarsPrefix) {
-        this.ignoreScanJarsPrefix = ignoreScanJarsPrefix;
+    public void setUseDefaultIgnoreScanJarPrefix(boolean useDefaultIgnoreScanJarPrefix) {
+        this.useDefaultIgnoreScanJarPrefix = useDefaultIgnoreScanJarPrefix;
     }
 
+    public Predicate<Resource> getJarResourceFilter() {
+        final Predicate<Resource> jarResourceFilter = this.jarResourceFilter;
+        if (jarResourceFilter == null) {
+            return this.jarResourceFilter = new DefaultJarResourcePredicate(this);
+        }
+        return jarResourceFilter;
+    }
+
+    public void setJarResourceFilter(Predicate<Resource> jarResourceFilter) {
+        this.jarResourceFilter = jarResourceFilter;
+    }
+
+    public static CandidateComponentScanner getSharedInstance() {
+        return sharedScanner;
+    }
+
+    public static void setSharedInstance(CandidateComponentScanner sharedScanner) {
+        CandidateComponentScanner.sharedScanner = sharedScanner;
+    }
+
+    final static class DefaultJarResourcePredicate implements Predicate<Resource> {
+
+        private final CandidateComponentScanner scanner;
+
+        DefaultJarResourcePredicate(CandidateComponentScanner scanner) {
+            this.scanner = scanner;
+        }
+
+        @Override
+        public boolean test(Resource resource) {
+
+            if (scanner.isUseDefaultIgnoreScanJarPrefix()) {
+
+                final String fileName = resource.getName();
+                for (final String ignoreJarName : getDefaultIgnoreJarPrefix()) {
+                    if (fileName.startsWith(ignoreJarName)) {
+                        return false;
+                    }
+                }
+            }
+
+            if (scanner.getIgnoreScanJarPrefixs() != null) {
+                final String fileName = resource.getName();
+
+                for (final String ignoreJarName : scanner.getIgnoreScanJarPrefixs()) {
+                    if (fileName.startsWith(ignoreJarName)) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+    }
 }

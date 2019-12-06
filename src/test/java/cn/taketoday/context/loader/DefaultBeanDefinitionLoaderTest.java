@@ -34,8 +34,6 @@ import cn.taketoday.context.env.StandardEnvironment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
-import cn.taketoday.context.loader.DefaultBeanDefinitionLoader;
 import test.demo.config.User;
 
 /**

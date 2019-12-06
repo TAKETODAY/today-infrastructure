@@ -23,8 +23,6 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.context.utils.ObjectUtils;
-
 //contributors: lizongbo: proposed special treatment of array parameter values
 //Joern Huxhorn: pointed out double[] omission, suggested deep array copy
 /**
@@ -123,69 +121,11 @@ public final class MessageFormatter {
      *            The argument to be substituted in place of the formatting anchor
      * @return The formatted message
      */
-    final public static FormattingTuple format(String messagePattern, Object arg) {
-        return arrayFormat(messagePattern, new Object[] { arg });
+    public static String format(String messagePattern, Object arg) {
+        return format(messagePattern, new Object[] { arg });
     }
 
-    /**
-     *
-     * Performs a two argument substitution for the 'messagePattern' passed as
-     * parameter.
-     * <p>
-     * For example,
-     *
-     * <pre>
-     * MessageFormatter.format(&quot;Hi {}. My name is {}.&quot;, &quot;Alice&quot;, &quot;Bob&quot;);
-     * </pre>
-     *
-     * will return the string "Hi Alice. My name is Bob.".
-     *
-     * @param messagePattern
-     *            The message pattern which will be parsed and formatted
-     * @param arg1
-     *            The argument to be substituted in place of the first formatting
-     *            anchor
-     * @param arg2
-     *            The argument to be substituted in place of the second formatting
-     *            anchor
-     * @return The formatted message
-     */
-    final public static FormattingTuple format(final String messagePattern, Object arg1, Object arg2) {
-        return arrayFormat(messagePattern, new Object[] { arg1, arg2 });
-    }
-
-    static final Throwable getThrowableCandidate(Object[] argArray) {
-        if (argArray == null || argArray.length == 0) {
-            return null;
-        }
-
-        final Object lastEntry = argArray[argArray.length - 1];
-        if (lastEntry instanceof Throwable) {
-            return (Throwable) lastEntry;
-        }
-        return null;
-    }
-
-    private static Object[] trimmedCopy(Object[] argArray) {
-        if (ObjectUtils.isEmpty(argArray)) {
-            throw new IllegalStateException("non-sensical empty or null argument array");
-        }
-        final int trimemdLen = argArray.length - 1;
-        Object[] trimmed = new Object[trimemdLen];
-        System.arraycopy(argArray, 0, trimmed, 0, trimemdLen);
-        return trimmed;
-    }
-
-    final public static FormattingTuple arrayFormat(final String messagePattern, final Object[] argArray) {
-        Throwable throwableCandidate = getThrowableCandidate(argArray);
-        Object[] args = argArray;
-        if (throwableCandidate != null) {
-            args = trimmedCopy(argArray);
-        }
-        return arrayFormat(messagePattern, args, throwableCandidate);
-    }
-
-    final public static String format(final String messagePattern, final Object[] argArray) {
+    public static String format(final String messagePattern, final Object[] argArray) {
 
         if (messagePattern == null || argArray == null) {
             return messagePattern;
@@ -213,19 +153,19 @@ public final class MessageFormatter {
             }
             else {
                 if (isEscapedDelimeter(messagePattern, j)) {
-                    if (!isDoubleEscaped(messagePattern, j)) {
-                        L--; // DELIM_START was escaped, thus should not be incremented
-                        sbuf.append(messagePattern, i, j - 1);
-                        sbuf.append(DELIM_START);
-                        i = j + 1;
-                    }
-                    else {
+                    if (isDoubleEscaped(messagePattern, j)) {
                         // The escape character preceding the delimiter start is
                         // itself escaped: "abc x:\\{}"
                         // we have to consume one backward slash
                         sbuf.append(messagePattern, i, j - 1);
                         deeplyAppendParameter(sbuf, argArray[L], new HashMap<Object[], Object>());
                         i = j + 2;
+                    }
+                    else {
+                        L--; // DELIM_START was escaped, thus should not be incremented
+                        sbuf.append(messagePattern, i, j - 1);
+                        sbuf.append(DELIM_START);
+                        i = j + 1;
                     }
                 }
                 else {
@@ -239,11 +179,6 @@ public final class MessageFormatter {
         // append the characters following the last {} pair.
         sbuf.append(messagePattern, i, messagePattern.length());
         return sbuf.toString();
-    }
-
-    final public static FormattingTuple arrayFormat(final String messagePattern,
-                                                    final Object[] argArray, Throwable throwable) {
-        return new FormattingTuple(format(messagePattern, argArray), argArray, throwable);
     }
 
     final static boolean isEscapedDelimeter(final String messagePattern, final int delimeterStartIndex) {
