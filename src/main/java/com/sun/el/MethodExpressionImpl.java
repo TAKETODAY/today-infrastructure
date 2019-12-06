@@ -239,14 +239,13 @@ public final class MethodExpressionImpl extends MethodExpression {
 
         Object value = this.getNode().invoke(new EvaluationContext(context), this.paramTypes, params);
 
-        if (value != null && expectedType != null) {
-            if (!expectedType.isInstance(value)) {
-                try {
-                    value = context.convertToType(value, expectedType);
-                }
-                catch (IllegalArgumentException ex) {
-                    throw new ELException(ex);
-                }
+        final Class<?> expectedType = this.expectedType;
+        if (value != null && expectedType != null && !expectedType.isInstance(value)) {
+            try {
+                value = context.convertToType(value, expectedType);
+            }
+            catch (IllegalArgumentException ex) {
+                throw new ELException(ex);
             }
         }
 

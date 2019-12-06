@@ -197,11 +197,9 @@ public class BeanNameELResolver extends ELResolver {
     @Override
     public Class<?> getType(ELContext context, Object base, Object property) {
 
-        if (base == null && property instanceof String) {
-            if (beanNameResolver.isNameResolved((String) property)) {
-                Objects.requireNonNull(context).setPropertyResolved(true);
-                return beanNameResolver.getBean((String) property).getClass();
-            }
+        if (base == null && property instanceof String && beanNameResolver.isNameResolved((String) property)) {
+            Objects.requireNonNull(context).setPropertyResolved(true);
+            return beanNameResolver.getBean((String) property).getClass();
         }
         return null;
     }
