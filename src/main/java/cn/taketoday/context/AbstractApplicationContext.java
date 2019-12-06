@@ -152,8 +152,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             environment.loadProperties();
         }
         catch (IOException ex) {
-            log.error("An Exception Occurred When Loading Properties, With Msg: [{}]", ex.toString(), ex);
-            throw new ContextException(ex);
+            throw new ContextException("An Exception Occurred When Loading Properties, With Msg: [" + ex + ']', ex);
         }
         postProcessLoadProperties(environment);
 
@@ -223,9 +222,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     public void prepareBeanFactory(Collection<Class<?>> candidates) throws Throwable {
 
         final AbstractBeanFactory beanFactory = getBeanFactory();
-
         final ConfigurableEnvironment environment = getEnvironment();
-
         // check name creator
         final BeanNameCreator beanNameCreator = beanFactory.getBeanNameCreator();
         if (environment.getBeanNameCreator() == null) {
@@ -236,7 +233,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         if (environment.getBeanDefinitionRegistry() == null) {
             environment.setBeanDefinitionRegistry(beanFactory);
         }
-
         // check bean definition loader
         if (environment.getBeanDefinitionLoader() == null) {
             environment.setBeanDefinitionLoader(beanFactory.getBeanDefinitionLoader());
@@ -257,17 +253,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             environment.setELProcessor(elProcessor);
         }
 
-        // register ELManager @since 2.1.5
-        // fix @since 2.1.6 elManager my be null
-        registerSingleton(beanNameCreator.create(ELManager.class), elProcessor.getELManager());
-
-        registerSingleton(beanNameCreator.create(ELProcessor.class), elProcessor);
-        // register Environment
-        registerSingleton(beanNameCreator.create(Environment.class), environment);
-        // register ApplicationContext
-        registerSingleton(beanNameCreator.create(ApplicationContext.class), this);
-        // register BeanFactory @since 2.1.7
-        registerSingleton(beanNameCreator.create(BeanFactory.class), beanFactory);
+        registerFrameworkBeans(beanNameCreator);
 
         // register listener
         registerListener(candidates, applicationListeners);
@@ -282,6 +268,30 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         publishEvent(new DependenciesHandledEvent(this, beanFactory.getDependencies()));
 
         postProcessBeanFactory(beanFactory);
+    }
+
+    /**
+     * Register Framework Beans
+     * 
+     * @param beanNameCreator
+     *            Bean name creator to create bean name
+     */
+    protected void registerFrameworkBeans(final BeanNameCreator beanNameCreator) {
+
+        final ConfigurableEnvironment environment = getEnvironment();
+        final ELProcessor elProcessor = environment.getELProcessor();
+
+        // register ELManager @since 2.1.5
+        // fix @since 2.1.6 elManager my be null
+        registerSingleton(beanNameCreator.create(ELManager.class), elProcessor.getELManager());
+
+        registerSingleton(beanNameCreator.create(ELProcessor.class), elProcessor);
+        // register Environment
+        registerSingleton(beanNameCreator.create(Environment.class), environment);
+        // register ApplicationContext
+        registerSingleton(beanNameCreator.create(ApplicationContext.class), this);
+        // register BeanFactory @since 2.1.7
+        registerSingleton(beanNameCreator.create(BeanFactory.class), getBeanFactory());
     }
 
     /**
