@@ -100,9 +100,6 @@ public class AntPathMatcher implements PathMatcher {
 
     private PathSeparatorPatternCache pathSeparatorPatternCache;
 
-//    private final Map<String, String[]> tokenizedPatternCache = new ConcurrentHashMap<>(256);
-//    private final Map<String, AntPathStringMatcher> stringMatcherCache = new ConcurrentHashMap<>(256);
-
     private final ConcurrentCache<String, String[]> tokenizedPatternCache;
     private final ConcurrentCache<String, AntPathStringMatcher> stringMatcherCache;
 

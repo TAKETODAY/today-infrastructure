@@ -55,7 +55,7 @@ import cn.taketoday.context.Constant;
  * JAR files or classes directories can contain multiple files of the same name.
  *
  * @author Juergen Hoeller
- * @since 1.0.2
+ * @since 2.1.7
  * 
  * @author TODAY <br>
  *         2019-12-05 12:52
@@ -70,8 +70,6 @@ public interface ResourceResolver {
      * "classpath*:" This differs from ResourceLoader's classpath URL prefix in that
      * it retrieves all matching resources for a given name (e.g. "/beans.xml"), for
      * example in the root of all deployed JAR files.
-     * 
-     * @see org.springframework.core.io.ResourceLoader#CLASSPATH_URL_PREFIX
      */
     String CLASSPATH_ALL_URL_PREFIX = "classpath*:";
 

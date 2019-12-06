@@ -239,31 +239,17 @@ public final class MessageFormatter {
         return sbuf.toString();
     }
 
-    final public static FormattingTuple arrayFormat(final String messagePattern, final Object[] argArray, Throwable throwable) {
+    final public static FormattingTuple arrayFormat(final String messagePattern,
+                                                    final Object[] argArray, Throwable throwable) {
         return new FormattingTuple(format(messagePattern, argArray), argArray, throwable);
     }
 
-    final static boolean isEscapedDelimeter(String messagePattern, int delimeterStartIndex) {
-
-        if (delimeterStartIndex == 0) {
-            return false;
-        }
-        char potentialEscape = messagePattern.charAt(delimeterStartIndex - 1);
-        if (potentialEscape == ESCAPE_CHAR) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    final static boolean isEscapedDelimeter(final String messagePattern, final int delimeterStartIndex) {
+        return delimeterStartIndex != 0 && messagePattern.charAt(delimeterStartIndex - 1) == ESCAPE_CHAR;
     }
 
     final static boolean isDoubleEscaped(String messagePattern, int delimeterStartIndex) {
-        if (delimeterStartIndex >= 2 && messagePattern.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return delimeterStartIndex >= 2 && messagePattern.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR;
     }
 
     // special treatment of array values was suggested by 'lizongbo'
@@ -310,11 +296,9 @@ public final class MessageFormatter {
 
     private static void safeObjectAppend(StringBuilder sbuf, Object o) {
         try {
-            String oAsString = o.toString();
-            sbuf.append(oAsString);
+            sbuf.append(o.toString());
         }
         catch (Throwable t) {
-
             System.err.println("LOGGER: Failed toString() invocation on an object of type [" + o.getClass().getName() + "]");
             System.err.println("Reported exception:");
             t.printStackTrace();

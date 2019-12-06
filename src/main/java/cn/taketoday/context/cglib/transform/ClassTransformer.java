@@ -19,9 +19,5 @@ import cn.taketoday.context.asm.ClassVisitor;
 
 public abstract class ClassTransformer extends ClassVisitor {
 
-    public ClassTransformer() {
-//		super(Constant.ASM_API);
-    }
-
     public abstract void setTarget(ClassVisitor target);
 }
