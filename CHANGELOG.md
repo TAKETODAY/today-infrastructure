@@ -1,4 +1,4 @@
-# TODAY web CHANGE LOG
+# TODAY Web CHANGE LOG
 
 :apple: today-web is a servlet based high-performance lightweight web framework
 
