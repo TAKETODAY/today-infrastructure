@@ -23,6 +23,8 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.context.utils.ObjectUtils;
+
 //contributors: lizongbo: proposed special treatment of array parameter values
 //Joern Huxhorn: pointed out double[] omission, suggested deep array copy
 /**
@@ -165,7 +167,7 @@ public final class MessageFormatter {
     }
 
     private static Object[] trimmedCopy(Object[] argArray) {
-        if (argArray == null || argArray.length == 0) {
+        if (ObjectUtils.isEmpty(argArray)) {
             throw new IllegalStateException("non-sensical empty or null argument array");
         }
         final int trimemdLen = argArray.length - 1;

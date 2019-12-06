@@ -116,8 +116,12 @@ public class Log4j2Logger extends AbstractLogger {
         };
 
         if (logger instanceof LocationAwareLogger) {
-            ((LocationAwareLogger) logger).logMessage(getLevel(level), null, FQCN, StackLocatorUtil.calcLocation(FQCN),
-                                                      message, t);
+            ((LocationAwareLogger) logger).logMessage(getLevel(level),
+                                                      null, 
+                                                      FQCN,
+                                                      StackLocatorUtil.calcLocation(FQCN),
+                                                      message, 
+                                                      t);
         }
         else {
             logger.log(getLevel(level), message, t);
