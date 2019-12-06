@@ -2,7 +2,7 @@
 
 :apple:  today-context is a lightweight dependency injection framework.    
 
-## TODAY context 是我学习 Spring IOC 以及自己对IOC的理解之作
+## TODAY Context 是我学习 Spring 以及自己对IOC的理解
 
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://www.codacy.com/app/TAKETODAY/today-context?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-context&amp;utm_campaign=Badge_Grade)
