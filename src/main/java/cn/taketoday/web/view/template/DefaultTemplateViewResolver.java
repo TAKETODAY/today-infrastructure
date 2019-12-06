@@ -236,11 +236,8 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
         @Override
         public boolean isReadOnly(ELContext elContext, Object base, Object property) {
 
-            if (base == null && property instanceof String) {
-                if (context.containsAttribute((String) property)) {
-                    Objects.requireNonNull(elContext).setPropertyResolved(true);
-                    return false;
-                }
+            if (base == null && property instanceof String && context.containsAttribute((String) property)) {
+                Objects.requireNonNull(elContext).setPropertyResolved(true);
             }
             return false;
         }
