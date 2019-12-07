@@ -76,11 +76,6 @@ public class ClassUtilsTest {
 
     }
 
-
-    private @interface TEST {
-
-    }
-
     @Test
     public void test_GetMethodArgsNames() throws NoSuchMethodException, SecurityException, IOException {
         setProcess("test_GetMethodArgsNames");
