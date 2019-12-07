@@ -91,6 +91,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     private boolean fullPrototype = false;
     // @since 2.1.6
     private boolean fullLifecycle = false;
+    /** @since 2.1.7 Preventing repeated initialization of beans(Prevent duplicate initialization)*/
+    private String currentInitializingBeanName;
 
     @Override
     public Object getBean(final String name) throws ContextException {
@@ -777,8 +779,13 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      */
     protected Object initializingBean(final Object bean, final String name, final BeanDefinition def) throws Throwable {
 
+        if (name.equals(currentInitializingBeanName)) {
+            return bean;
+        }
+        currentInitializingBeanName = name;
+        
         log.debug("Initializing bean named: [{}].", name);
-
+        
         aware(bean, name);
 
         final List<BeanPostProcessor> postProcessors = getPostProcessors();
