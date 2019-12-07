@@ -548,7 +548,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         }
 
         Object bean = initializingBean(createBeanInstance(name, beanDefinition), name, beanDefinition);
-        log.debug("Singleton bean is being stored in the name of [{}]", name);
 
 //        registerSingleton(name, bean);
         beanDefinition.setInitialized(true);
@@ -921,11 +920,13 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public final void registerSingleton(final String name, final Object bean) {
-        if (name.charAt(0) != FACTORY_BEAN_PREFIX && bean instanceof FactoryBean) {// @since v2.1.1
-            singletons.put(FACTORY_BEAN_PREFIX + name, bean);
+        String nameToUse = name;
+        if (bean instanceof FactoryBean && name.charAt(0) != FACTORY_BEAN_PREFIX) {// @since v2.1.1
+            nameToUse = FACTORY_BEAN_PREFIX + name;
         }
-        else {
-            singletons.put(name, bean);
+        singletons.put(nameToUse, bean);
+        if (log.isDebugEnabled()) {
+            log.debug("Register Singleton: [{}] = [{}]", nameToUse, bean);
         }
     }
 

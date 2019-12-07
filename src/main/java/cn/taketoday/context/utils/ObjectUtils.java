@@ -181,4 +181,13 @@ public abstract class ObjectUtils {
         return targetClass.cast(toArrayObject(source, targetClass));
     }
 
+    public static String toHexString(final Object obj) {
+        return obj == null
+                ? "null"
+                : new StringBuilder()
+                        .append(obj.getClass().getName())
+                        .append('@')
+                        .append(Integer.toHexString(obj.hashCode())).toString();
+    }
+
 }
