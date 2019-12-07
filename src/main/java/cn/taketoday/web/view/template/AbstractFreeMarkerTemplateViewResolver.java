@@ -64,11 +64,11 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
         this.configuration.setObjectWrapper(this.wrapper);
 
         ContextUtils.getApplicationContext()
-                .getBeansOfType(TemplateModel.class).forEach(configuration::setSharedVariable);
+                .getBeansOfType(TemplateModel.class).forEach(this.configuration::setSharedVariable);
 
         try {
             if (ObjectUtils.isNotEmpty(settings)) {
-                configuration.setSettings(settings);
+                this.configuration.setSettings(settings);
             }
         }
         catch (TemplateException e) {
@@ -83,7 +83,7 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
             ContextUtils.getApplicationContext()
                     .registerSingleton(configurationToUse.getClass().getName(), configurationToUse);
         }
-        return configuration;
+        return configurationToUse;
     }
 
     protected ObjectWrapper configObjectWrapper(final ObjectWrapper wrapper) {
