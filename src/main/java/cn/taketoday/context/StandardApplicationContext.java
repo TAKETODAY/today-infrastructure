@@ -82,11 +82,11 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
 
     @Override
     public AbstractBeanFactory getBeanFactory() {
-
-        if (this.beanFactory == null) {
-            this.beanFactory = createBeanFactory();
+        final AbstractBeanFactory beanFactory = this.beanFactory;
+        if (beanFactory == null) {
+            return this.beanFactory = createBeanFactory();
         }
-        return this.beanFactory;
+        return beanFactory;
     }
 
     protected StandardBeanFactory createBeanFactory() {
@@ -103,7 +103,7 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
 
         // load beans form beans that annotated Configuration
         this.beanFactory.loadConfigurationBeans();
-        
+
         this.beanFactory.loadMissingBean(candidates);
     }
 

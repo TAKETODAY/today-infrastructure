@@ -1,8 +1,6 @@
 package cn.taketoday.context.utils;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.lang.annotation.ElementType;
@@ -38,10 +36,8 @@ import cn.taketoday.context.cglib.proxy.MethodProxy;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.Bean.C;
 import cn.taketoday.context.utils.Bean.S;
-import test.context.props.Config_;
 import test.demo.config.Config;
 
 /**
@@ -83,45 +79,6 @@ public class ClassUtilsTest {
 
     private @interface TEST {
 
-    }
-
-    @Test
-    public void test_Scan() {
-        ClassUtils.addIgnoreAnnotationClass(TEST.class);
-        setProcess("test_Scan");
-        Collection<Class<?>> scanPackage = ClassUtils.scan("test");
-        for (Class<?> class1 : scanPackage) {
-            System.err.println(class1);
-        }
-
-        System.err.println("===========================");
-
-        ClassUtils.clearCache();
-
-        Collection<Class<?>> scan = ClassUtils.scan("test.context.utils", "cn.taketoday");
-//        for (Class<?> class1 : scan) {
-//            System.err.println(class1);
-//        }
-
-        assertFalse(scan.contains(Config_.class));
-
-        assertTrue(scanPackage.size() > 0);
-        // in jar
-
-        final Set<Class<?>> scan2 = ClassUtils.scan("com.sun.el");
-
-        assertTrue(scan2.size() > 0);
-
-        ClassUtils.setIgnoreScanJarsPrefix(false);
-        final Set<Class<?>> scan3 = ClassUtils.scan("com.sun.el");
-        assert scan3.size() != 0;
-        ClassUtils.setIgnoreScanJarsPrefix(false);
-
-        // don't clear cache
-        assertTrue(ClassUtils.scan("").size() > 0);
-
-        ClassUtils.clearCache();
-        assert ClassUtils.scan("cn.taketoday").size() == ClassUtils.getClasses("cn.taketoday").size();
     }
 
     @Test
@@ -379,20 +336,6 @@ public class ClassUtilsTest {
         assert ClassUtils.isAnnotationPresent(AutowiredOnConstructor.class, MySingleton.class);
 
         assert ClassUtils.loadClass("") == null;
-
-        ClassUtils.clearCache();
-        ClassUtils.setIgnoreScanJarsPrefix(false);
-        assert ClassUtils.getAnnotatedClasses(Singleton.class).size() > 0;
-
-        final int size = ClassUtils.getImplClasses(ApplicationContext.class).size();
-        final int size2 = ClassUtils.getImplClasses(ApplicationContext.class, "cn.taketoday").size();
-
-        assert size > 0;
-        assert size2 > 0;
-        assert size == size2;
-
-        ClassUtils.clearCache();
-
     }
 
     @Test

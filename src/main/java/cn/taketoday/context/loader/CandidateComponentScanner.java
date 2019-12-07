@@ -63,11 +63,14 @@ public class CandidateComponentScanner {
     private Set<Class<?>> candidates;
 
     private String[] ignoreScanJarPrefixs;
+    private int initialCandidatesCapacity = 512;
     private Predicate<Resource> jarResourceFilter;
     private static String[] defaultIgnoreScanJarPrefixs;
     private boolean useDefaultIgnoreScanJarPrefix = true;
 
     private ClassLoader classLoader = ClassUtils.getClassLoader();
+
+    private int scanningTimes = 0;
 
     private static CandidateComponentScanner sharedScanner = new CandidateComponentScanner();
 
@@ -115,7 +118,7 @@ public class CandidateComponentScanner {
     }
 
     public CandidateComponentScanner(int initialCapacity) {
-        this(new HashSet<>(initialCapacity));
+        this.initialCandidatesCapacity = initialCapacity;
     }
 
     public CandidateComponentScanner(Set<Class<?>> candidates) {
@@ -161,7 +164,7 @@ public class CandidateComponentScanner {
     }
 
     public final <T> Set<Class<?>> filter(final Predicate<Class<?>> predicate) {
-        return getCandidates()
+        return getScanningCandidates()
                 .parallelStream()
                 .filter(predicate)
                 .collect(Collectors.toSet());
@@ -198,23 +201,22 @@ public class CandidateComponentScanner {
         Objects.requireNonNull(packages, "scan package can't be null");
 
         if (packages.length == 1) {
-            scanOne(packages[0]); // packages.length == 1
+            return scanOne(packages[0]); // packages.length == 1
         }
-        else {
-            final Set<String> packagesToScan = new HashSet<>(8);
-            for (final String location : packages) {
-                if (StringUtils.isEmpty(location)) { // contains "" scan all class
-                    return scan();
-                }
-                else {
-                    packagesToScan.add(location);
-                }
+
+        final Set<String> packagesToScan = new HashSet<>(8);
+        for (final String location : packages) {
+            if (StringUtils.isEmpty(location)) { // contains "" scan all class
+                return scan();
             }
-            for (final String location : packagesToScan) {
-                scan(location);
+            else {
+                packagesToScan.add(location);
             }
         }
-        return getCandidates();
+        for (final String location : packagesToScan) {
+            scan(location);
+        }
+        return getScanningCandidates();
     }
 
     protected Set<Class<?>> scanOne(final String location) {
@@ -247,7 +249,8 @@ public class CandidateComponentScanner {
             while (uri.hasMoreElements()) {
                 scan(ResourceUtils.getResource(uri.nextElement()), packageName);
             }
-            return getCandidates();
+            scanningTimes++;
+            return getScanningCandidates();
         }
         catch (IOException e) {
             throw new ContextException("IO exception occur With Msg: [" + e + ']', e);
@@ -310,9 +313,7 @@ public class CandidateComponentScanner {
     public Set<Class<?>> scan() {
 
         final ClassLoader classLoader = getClassLoader();
-
         try {
-
             final String blank = Constant.BLANK;
             if (classLoader instanceof URLClassLoader) {
                 // fix: protocol is file not a jar protocol
@@ -323,7 +324,8 @@ public class CandidateComponentScanner {
             else {
                 scan(ResourceUtils.getResource(classLoader.getResource(blank)), blank);
             }
-            return getCandidates();
+            scanningTimes++;
+            return getScanningCandidates();
         }
         catch (IOException e) {
             throw new ContextException("IO exception occur With Msg: [" + e + ']', e);
@@ -350,7 +352,7 @@ public class CandidateComponentScanner {
             if (StringUtils.isEmpty(packageName) || nameToUse.startsWith(packageName)) {
                 try {
                     final String className = nameToUse.substring(0, nameToUse.lastIndexOf(PACKAGE_SEPARATOR));
-                    getCandidates().add(getClassLoader().loadClass(className));
+                    getScanningCandidates().add(getClassLoader().loadClass(className));
                 }
                 catch (Error | ClassNotFoundException e) {}
             }
@@ -379,7 +381,7 @@ public class CandidateComponentScanner {
         }
 
         final ClassLoader classLoader = getClassLoader();
-        final Set<Class<?>> candidates = getCandidates();
+        final Set<Class<?>> candidates = getScanningCandidates();
 
         for (final Resource resource : directory.list(CLASS_RESOURCE_FILTER)) {
             if (resource.isDirectory()) { // recursive
@@ -395,7 +397,7 @@ public class CandidateComponentScanner {
     }
 
     public void clear() {
-        getCandidates().clear();
+        getScanningCandidates().clear();
     }
 
     /**
@@ -411,32 +413,53 @@ public class CandidateComponentScanner {
         return classLoader;
     }
 
-    public void setClassLoader(ClassLoader classLoader) {
+    public CandidateComponentScanner setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
+        return this;
     }
 
     public Set<Class<?>> getCandidates() {
         return candidates;
     }
 
-    public void setCandidates(Set<Class<?>> candidates) {
+    public CandidateComponentScanner setCandidates(Set<Class<?>> candidates) {
         this.candidates = candidates;
+        return this;
+    }
+
+    /**
+     * Get Scanning Candidates
+     * 
+     * <p>
+     * this method unlike {@link #getCandidates()} returns null if Candidates have
+     * not been set or scanned
+     * 
+     * @return Get Scanning Candidates never be null
+     */
+    public final Set<Class<?>> getScanningCandidates() {
+        final Set<Class<?>> candidates = getCandidates();
+        if (candidates == null) {
+            return this.candidates = new HashSet<>(initialCandidatesCapacity);
+        }
+        return candidates;
     }
 
     public String[] getIgnoreScanJarPrefixs() {
         return ignoreScanJarPrefixs;
     }
 
-    public void setIgnoreScanJarPrefixs(String... ignoreScanJarPrefixs) {
+    public CandidateComponentScanner setIgnoreScanJarPrefixs(String... ignoreScanJarPrefixs) {
         this.ignoreScanJarPrefixs = ignoreScanJarPrefixs;
+        return this;
     }
 
     public boolean isUseDefaultIgnoreScanJarPrefix() {
         return useDefaultIgnoreScanJarPrefix;
     }
 
-    public void setUseDefaultIgnoreScanJarPrefix(boolean useDefaultIgnoreScanJarPrefix) {
+    public CandidateComponentScanner setUseDefaultIgnoreScanJarPrefix(boolean useDefaultIgnoreScanJarPrefix) {
         this.useDefaultIgnoreScanJarPrefix = useDefaultIgnoreScanJarPrefix;
+        return this;
     }
 
     public Predicate<Resource> getJarResourceFilter() {
@@ -447,8 +470,9 @@ public class CandidateComponentScanner {
         return jarResourceFilter;
     }
 
-    public void setJarResourceFilter(Predicate<Resource> jarResourceFilter) {
+    public CandidateComponentScanner setJarResourceFilter(Predicate<Resource> jarResourceFilter) {
         this.jarResourceFilter = jarResourceFilter;
+        return this;
     }
 
     public static CandidateComponentScanner getSharedInstance() {
@@ -457,6 +481,19 @@ public class CandidateComponentScanner {
 
     public static void setSharedInstance(CandidateComponentScanner sharedScanner) {
         CandidateComponentScanner.sharedScanner = sharedScanner;
+    }
+
+    public int getInitialCandidatesCapacity() {
+        return initialCandidatesCapacity;
+    }
+
+    public CandidateComponentScanner setInitialCandidatesCapacity(int initialCandidatesCapacity) {
+        this.initialCandidatesCapacity = initialCandidatesCapacity;
+        return this;
+    }
+
+    public final int getScanningTimes() {
+        return scanningTimes;
     }
 
     final static class DefaultJarResourcePredicate implements Predicate<Resource> {

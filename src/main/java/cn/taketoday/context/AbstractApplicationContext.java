@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EventObject;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,11 +64,13 @@ import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.listener.ContextCloseListener;
+import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
 /**
@@ -87,16 +90,38 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     /** application listeners **/
     private final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = new HashMap<>(32);
 
+    /** @since 2.1.7 Scan candidates */
+    private CandidateComponentScanner candidateComponentScanner;
+
+    private String[] locations;
+
     public AbstractApplicationContext() {
         applyState(State.NONE);
         ContextUtils.applicationContext = this; // @since 2.1.6
+    }
+
+    public AbstractApplicationContext(String... locations) {
+        this();
+        this.locations = locations;
     }
 
     /**
      * Load all the class in class path
      */
     public void loadContext() {
-        this.loadContext(Constant.BLANK);
+        loadContext(Constant.BLANK);
+    }
+
+    @Override
+    public void loadContext(Collection<Class<?>> candidates) {
+        final CandidateComponentScanner ccanner = getCandidateComponentScanner();
+        if (candidates instanceof Set) {
+            ccanner.setCandidates((Set<Class<?>>) candidates);
+        }
+        else {
+            ccanner.setCandidates(new HashSet<>(candidates));
+        }
+        loadContext((String[]) null);
     }
 
     /**
@@ -107,17 +132,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      */
     @Override
     public void loadContext(String... locations) {
-        this.loadContext(ClassUtils.scan(locations));
-    }
-
-    @Override
-    public void loadContext(Collection<Class<?>> classes) {
+        this.locations = locations;
 
         try {
             // Prepare refresh
             prepareRefresh();
             // Prepare BeanFactory
-            prepareBeanFactory(classes);
+            prepareBeanFactory();
             // Initialize other special beans in specific context subclasses.
             onRefresh();
             // Lazy loading
@@ -213,13 +234,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         getBeanFactory().preInitialization();
     }
 
-    /**
-     * Prepare a bean factory
-     * 
-     * @param candidates
-     *            Candidates class set
-     */
-    public void prepareBeanFactory(Collection<Class<?>> candidates) throws Throwable {
+    public void prepareBeanFactory() throws Throwable {
 
         final AbstractBeanFactory beanFactory = getBeanFactory();
         final ConfigurableEnvironment environment = getEnvironment();
@@ -254,6 +269,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         // register framework beans
         registerFrameworkBeans(beanNameCreator);
 
+        // Loading candidates components
+        final Set<Class<?>> candidates = getComponentCandidates();
         // register listener
         registerListener(candidates, applicationListeners);
 
@@ -267,6 +284,20 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         publishEvent(new DependenciesHandledEvent(this, beanFactory.getDependencies()));
 
         postProcessBeanFactory(beanFactory);
+
+    }
+
+    protected Set<Class<?>> getComponentCandidates() {
+        final CandidateComponentScanner scanner = getCandidateComponentScanner();
+        final String[] locations = this.locations;
+        if (ObjectUtils.isEmpty(locations)) {
+            // Candidates have not been set or scanned
+            if (scanner.getCandidates() == null) {
+                return scanner.scan();// scan all class path
+            }
+            return scanner.getScanningCandidates();
+        }
+        return scanner.scan(locations);
     }
 
     /**
@@ -773,6 +804,25 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     public void setPropertiesLocation(String propertiesLocation) {
         getEnvironment().setPropertiesLocation(propertiesLocation);
+    }
+
+    // @since 2.1.7
+    // ---------------------------
+
+    public CandidateComponentScanner getCandidateComponentScanner() {
+        final CandidateComponentScanner ret = this.candidateComponentScanner;
+        if (ret == null) {
+            return this.candidateComponentScanner = createCandidateComponentScanner();
+        }
+        return ret;
+    }
+
+    protected CandidateComponentScanner createCandidateComponentScanner() {
+        return CandidateComponentScanner.getSharedInstance();
+    }
+
+    public void setCandidateComponentScanner(CandidateComponentScanner candidateComponentScanner) {
+        this.candidateComponentScanner = candidateComponentScanner;
     }
 
 }

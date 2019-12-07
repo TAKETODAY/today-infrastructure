@@ -21,10 +21,8 @@ package cn.taketoday.context.utils;
 
 import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
@@ -42,14 +40,10 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -61,15 +55,10 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
-import cn.taketoday.context.ThrowableSupplier;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.asm.ClassReader;
 import cn.taketoday.context.asm.ClassVisitor;
@@ -80,10 +69,8 @@ import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.io.FileBasedResource;
-import cn.taketoday.context.io.JarEntryResource;
 import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.io.ResourceFilter;
+import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 
@@ -104,23 +91,12 @@ public abstract class ClassUtils {
     private static final Map<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32);
 
     /** @since 2.1.1 */
-    private static final Set<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();//
-
-    private static final String[] IGNORE_SCAN_JARS;
-
-    private static boolean ignoreScanJarsPrefix = true;
+    private static final Set<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();
 
     private static final Map<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
     private static final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
     private static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(256);
     private static final Map<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
-
-    /** Class resource filter */
-    private static final ResourceFilter CLASS_RESOURCE_FILTER = (Resource resource) -> {
-        return resource.isDirectory()//
-                || (resource.getName().endsWith(Constant.CLASS_FILE_SUFFIX) //
-                        && !resource.getName().startsWith("package-info"));
-    };
 
     static {
 
@@ -132,30 +108,6 @@ public abstract class ClassUtils {
             classLoader = ClassLoader.getSystemClassLoader();
         }
         setClassLoader(classLoader);
-
-        // Load the META-INF/ignore/jar-prefix to ignore some jars
-        // --------------------------------------------------------------
-        final Set<String> ignoreScanJars = new HashSet<>();
-
-        try { // @since 2.1.6
-            final Enumeration<URL> resources = classLoader.getResources("META-INF/ignore/jar-prefix");
-            final Charset charset = Constant.DEFAULT_CHARSET;
-            while (resources.hasMoreElements()) {
-                try (final BufferedReader reader = new BufferedReader(//
-                        new InputStreamReader(resources.nextElement().openStream(), charset))) { // fix
-
-                    String str;
-                    while ((str = reader.readLine()) != null) {
-                        ignoreScanJars.add(str);
-                    }
-                }
-            }
-        }
-        catch (IOException e) {
-            log.error("IOException occurred when load 'META-INF/ignore/jar-prefix'", e);
-            throw ExceptionUtils.newContextException(e);
-        }
-        IGNORE_SCAN_JARS = ignoreScanJars.toArray(new String[ignoreScanJars.size()]);
 
         // Map primitive types
         // -------------------------------------------
@@ -191,7 +143,6 @@ public abstract class ClassUtils {
      * clear cache
      */
     public static void clearCache() {
-
         ANNOTATIONS.clear();
         ANNOTATION_ATTRIBUTES.clear();
     }
@@ -204,14 +155,6 @@ public abstract class ClassUtils {
         return ClassUtils.classLoader;
     }
 
-    public static boolean isIgnoreScanJarsPrefix() {
-        return ignoreScanJarsPrefix;
-    }
-
-    public static void setIgnoreScanJarsPrefix(boolean ignoreScanJars) {
-        ClassUtils.ignoreScanJarsPrefix = ignoreScanJars;
-    }
-
     /**
      * get all classes loaded in class path
      * @deprecated Deprecated in 2.1.7 High scan performance without caching
@@ -220,9 +163,6 @@ public abstract class ClassUtils {
     public static Set<Class<?>> getClassCache() {
         return scan(Constant.BLANK);
     }
-
-    @Deprecated
-    public static void setClassCache(Set<Class<?>> classes) {}
 
     // ------------------------------------------ Class Scan
 
@@ -347,70 +287,6 @@ public abstract class ClassUtils {
     }
 
     /**
-     * Find class by annotation.
-     * 
-     * @param annotationClass
-     *            annotation class
-     * @return the set of class
-     */
-    public static Collection<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotationClass) {
-        return filter(clazz -> clazz.isAnnotationPresent(annotationClass));
-    }
-
-    /**
-     * Get all child classes in class path
-     * 
-     * @param superClass
-     *            super class or a interface class
-     * @return a {@link Collection} of impl class
-     */
-    public static Set<Class<?>> getImplClasses(Class<?> superClass) {
-        return filter(clazz -> superClass.isAssignableFrom(clazz) && superClass != clazz);
-    }
-
-    /**
-     * Get all child classes in class path filter with package name
-     * 
-     * @param superClass
-     *            super class or a interface class
-     * @param packageName
-     *            package name
-     * @return a {@link Collection} of impl class
-     */
-    public static Set<Class<?>> getImplClasses(Class<?> superClass, String packageName) {
-        return filter(clazz -> clazz.getName().startsWith(packageName) //
-                && superClass != clazz//
-                && superClass.isAssignableFrom(clazz) //
-        );
-    }
-
-    public static final <T> Set<Class<?>> filter(final Predicate<Class<?>> predicate) {
-        return scan(Constant.BLANK)
-                .parallelStream()
-                .filter(predicate)
-                .collect(Collectors.toSet());
-    }
-
-    /**
-     * Get {@link Collection} of class under the packages
-     * 
-     * @param packages
-     *            package name
-     * @return a {@link Collection} of class under the packages
-     */
-    public static Set<Class<?>> getClasses(final String... packages) {
-        return filter(clazz -> {
-            final String name = clazz.getName();
-            for (final String prefix : packages) {
-                if (StringUtils.isEmpty(prefix) || name.startsWith(prefix)) {
-                    return true;
-                }
-            }
-            return false;
-        });
-    }
-
-    /**
      * Scan class with given package.
      * 
      * @param packages
@@ -418,125 +294,22 @@ public abstract class ClassUtils {
      * @return Class set
      */
     public static Set<Class<?>> scan(final String... packages) {
-
-        Objects.requireNonNull(packages, "scan package can't be null");
-
-        final Set<Class<?>> scanClasses = new HashSet<>(2048);
-        if (packages.length == 1) {
-            scanOne(scanClasses, packages[0]); // packages.length == 1
-        }
-        else {
-            final Set<String> packagesToScan = new HashSet<>(8);
-            for (final String location : packages) {
-
-                if (StringUtils.isEmpty(location)) { // contains "" scan all class
-                    scan(scanClasses);
-                    return scanClasses;
-                }
-                else {
-                    packagesToScan.add(location);
-                }
-            }
-            for (final String location : packagesToScan) {
-                scan(scanClasses, location);
-            }
-        }
-        return scanClasses;
+        return CandidateComponentScanner.getSharedInstance().scan(packages);
     }
-
-    protected static void scanOne(final Set<Class<?>> scanClasses, final String location) {
-
-        if (StringUtils.isEmpty(location)) {
-            scan(scanClasses);
-        }
-        else {
-            scan(scanClasses, location);
-        }
-    }
-
+    
     /**
-     * Scan classes to classes set
-     * 
-     * @param scanClasses
-     *            classes set
-     * @param packageName
-     *            package name
-     */
-    public static void scan(final Collection<Class<?>> scanClasses, final String packageName) {
-
-        final String resourceToUse = //
-                packageName.replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR);
-
-        try {
-            if (traceEnabled) {
-                log.trace("Scan package: [{}]", packageName);
-            }
-            final Enumeration<URL> uri = classLoader.getResources(resourceToUse);
-            while (uri.hasMoreElements()) {
-                scan(scanClasses, ResourceUtils.getResource(uri.nextElement()), packageName);
-            }
-        }
-        catch (IOException e) {
-            log.error("IO exception occur With Msg: [{}]", e, e);
-            throw new ContextException(e);
-        }
-    }
-
-    /**
-     * Scan class in a {@link Resource}
+     * Scan all the classpath classes
      * 
      * @param scanClasses
      *            class set
-     * @param resource
-     *            {@link Resource} in class maybe a jar file or class directory
-     * @param packageName
-     *            if {@link Resource} is a directory will use this packageName
-     * @throws IOException
      * @since 2.1.6
      */
-    private static void scan(final Collection<Class<?>> scanClasses, 
-                             final Resource resource, String packageName) throws IOException {
-
-        if (resource instanceof FileBasedResource) {
-            if (resource.isDirectory()) {
-                findInDirectory(resource, scanClasses);
-                return;
-            }
-            final String fileName = resource.getName();
-            if (fileName.endsWith(".jar")) {
-                scanInJarFile(scanClasses, resource, fileName, packageName, () -> new JarFile(resource.getFile()));
-            }
-        }
-        else if (resource instanceof JarEntryResource) {
-            scanInJarFile(scanClasses, resource, resource.getFile().getName(), packageName,
-                    () -> ((JarEntryResource) resource).getJarFile());
-        }
+    public static void scan(Set<Class<?>> scanClasses) {
+        new CandidateComponentScanner()
+                .setCandidates(scanClasses)
+                .scan();       
     }
-
-    private static void scanInJarFile(final Collection<Class<?>> scanClasses, 
-                                      final Resource resource, //
-                                      final String fileName, 
-                                      final String packageName,
-                                      final ThrowableSupplier<JarFile, IOException> supplier) throws IOException//
-    {
-        if (ignoreScanJarsPrefix) {
-            for (final String ignoreJarName : IGNORE_SCAN_JARS) {
-                if (fileName.startsWith(ignoreJarName)) {
-                    return;
-                }
-            }
-        }
-        if (traceEnabled) {
-            log.trace("Scan in jar file: [{}]", resource.getLocation());
-        }
-        try (final JarFile jarFile = supplier.get()) {
-            final Enumeration<JarEntry> jarEntries = jarFile.entries();
-            while (jarEntries.hasMoreElements()) {
-                loadClassInJar(jarEntries.nextElement(), packageName, scanClasses);
-            }
-        }
-    }
-
+    
     public static String getClassName(final Resource resource) throws IOException {
         try (final InputStream inputStream = resource.getInputStream()) {
             return getClassName(inputStream);
@@ -549,101 +322,6 @@ public abstract class ClassUtils {
 
     public static String getClassName(ClassReader r) {
         return r.getClassName().replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
-    }
-
-    /**
-     * Scan all the classpath classes
-     * 
-     * @param scanClasses
-     *            class set
-     * @since 2.1.6
-     */
-    public static void scan(Collection<Class<?>> scanClasses) {
-
-        try {
-            if (classLoader instanceof URLClassLoader) {
-                // fix: protocol is file not a jar protocol
-                for (final URL url : ((URLClassLoader) classLoader).getURLs()) {
-                    scan(scanClasses, ResourceUtils.getResource(url), Constant.BLANK);
-                }
-            }
-            else {
-                scan(scanClasses, ResourceUtils.getResource(classLoader.getResource(Constant.BLANK)), Constant.BLANK);
-            }
-        }
-        catch (IOException e) {
-            log.error("IO exception occur With Msg: [{}]", e, e);
-            throw new ContextException(e);
-        }
-    }
-
-    /**
-     * Load classes from a {@link JarEntry}
-     * 
-     * @param jarEntry
-     *            the entry of jar
-     * @param scanClasses
-     *            class set
-     */
-    public static void loadClassInJar(JarEntry jarEntry, String packageName, Collection<Class<?>> scanClasses) {
-
-        if (jarEntry.isDirectory()) {
-            return;
-        }
-        final String jarEntryName = jarEntry.getName(); // cn/taketoday/xxx/yyy.class
-        if (jarEntryName.endsWith(Constant.CLASS_FILE_SUFFIX)) {
-
-            // fix #10 classes loading from a jar can't be load @off
-            final String nameToUse = jarEntryName.replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
-
-            if (StringUtils.isEmpty(packageName) || nameToUse.startsWith(packageName)) {
-                try {
-                    scanClasses.add(classLoader.loadClass(//
-                            nameToUse.substring(0, nameToUse.lastIndexOf(Constant.PACKAGE_SEPARATOR))//
-                    ));
-                }
-                catch (Error | ClassNotFoundException e) {} //@on
-            }
-        }
-    }
-
-    /**
-     * <p>
-     * Find in directory.
-     * </p>
-     * Note: don't need packageName
-     * 
-     * @param packagePath
-     *            the package physical path
-     * @param scanClasses
-     *            class set
-     * @throws IOException
-     */
-    private static void findInDirectory(Resource directory, Collection<Class<?>> scanClasses) //
-            throws IOException //
-    {
-        if (!directory.exists()) {
-            log.error("The location: [{}] you provided that does not exist", directory.getLocation());
-            return;
-        }
-
-        // exists
-        if (traceEnabled) {
-            log.trace("Enter: [{}]", directory.getLocation());
-        }
-        for (final Resource resource : directory.list(CLASS_RESOURCE_FILTER)) {
-            if (resource.isDirectory()) { // recursive
-                findInDirectory(resource, scanClasses);
-            }
-            else {
-                try {
-                    scanClasses.add(classLoader.loadClass(getClassName(resource))); // add
-                }
-                catch (ClassNotFoundException | Error e) {
-                    // log.warn("Can't find class: [{}]", className);
-                }
-            }
-        }
     }
 
     // -------------------------------------------------Annotation
@@ -764,13 +442,11 @@ public abstract class ClassUtils {
             return instance;
         }
         catch (NoSuchFieldException e) {
-            log.error("You Must Specify A Field: [{}] In Class: [{}]", name, implClass.getName(), e);
-            throw new ContextException(e);
+            throw new ContextException("You Must Specify A Field: " + name + "] In Class: [" + implClass.getName() + "]", e);
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Inject Attributes Attributes, With Msg: [{}]", ex, ex);
-            throw ExceptionUtils.newContextException(ex);
+            throw new ContextException("An Exception Occurred When Inject Attributes Attributes, With Msg: ["+ ex +"]", ex);
         }
     }
 
@@ -798,8 +474,7 @@ public abstract class ClassUtils {
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Getting Annotation Attributes: [{}]", ex, ex);
-            throw ExceptionUtils.newContextException(ex);
+            throw new ContextException("An Exception Occurred When Getting Annotation Attributes: [" + ex + "]", ex);
         }
     }
 
@@ -1084,8 +759,7 @@ public abstract class ClassUtils {
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Getting Annotation Attributes, With Msg: [{}]", ex.getMessage(), ex);
-            throw ExceptionUtils.newContextException(ex);
+            throw new ContextException("An Exception Occurred When Getting Annotation Attributes, With Msg: [" + ex + "]", ex);
         }
     }
     

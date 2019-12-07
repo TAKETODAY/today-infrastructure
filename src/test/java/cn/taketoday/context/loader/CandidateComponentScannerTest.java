@@ -19,11 +19,11 @@
  */
 package cn.taketoday.context.loader;
 
+import static org.junit.Assert.assertTrue;
+
 import java.util.Set;
 
 import org.junit.Test;
-
-import cn.taketoday.context.loader.CandidateComponentScanner;
 
 /**
  * @author TODAY <br>
@@ -31,16 +31,13 @@ import cn.taketoday.context.loader.CandidateComponentScanner;
  */
 public class CandidateComponentScannerTest {
 
-    @Test
-    public void testScan() throws Throwable {
 
+    @Test
+    public void testScan() {
         final CandidateComponentScanner sharedInstance = CandidateComponentScanner.getSharedInstance();
         final Set<Class<?>> scan = sharedInstance.scan();
-
-        for (Class<?> class1 : scan) {
-            System.err.println(class1);
-        }
-        
+        assertTrue(scan.size() > 0);
+        assertTrue(sharedInstance.getScanningTimes() == 1);
 
     }
 
