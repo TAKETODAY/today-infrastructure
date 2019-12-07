@@ -113,9 +113,7 @@ public class CandidateComponentScanner {
         }
     }
 
-    public CandidateComponentScanner() {
-        this(1024);
-    }
+    public CandidateComponentScanner() {}
 
     public CandidateComponentScanner(int initialCapacity) {
         this.initialCandidatesCapacity = initialCapacity;
