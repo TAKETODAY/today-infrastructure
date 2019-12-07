@@ -34,9 +34,11 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.factory.InitializingBean;
+import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * @author TODAY <br>
@@ -68,14 +70,17 @@ public class SessionFactoryBean extends Configuration //
             addProperties(this.hibernateProperties);
         }
 
-        if (getEntityLocations() != null) {
-            final Set<Class<?>> candidates = ClassUtils.scan(getEntityLocations());
+        final String[] entityLocations = getEntityLocations();
+        if (ObjectUtils.isEmpty(entityLocations)) {
+            final Set<Class<?>> candidates = new CandidateComponentScanner().scan(entityLocations);
             candidates.parallelStream()
                     .filter(c -> c.isAnnotationPresent(Entity.class))
                     .forEach(this::addClass);
         }
         else {
-            ClassUtils.getAnnotatedClasses(Entity.class)
+            CandidateComponentScanner
+                    .getSharedInstance()
+                    .getAnnotatedClasses(Entity.class)
                     .parallelStream()
                     .forEach(this::addClass);
         }
