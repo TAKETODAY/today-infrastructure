@@ -35,6 +35,7 @@ public class CandidateComponentScannerTest {
     @Test
     public void testScan() {
         final CandidateComponentScanner sharedInstance = CandidateComponentScanner.getSharedInstance();
+        sharedInstance.clear();
         final Set<Class<?>> scan = sharedInstance.scan();
         assertTrue(scan.size() > 0);
         assertTrue(sharedInstance.getScanningTimes() == 1);

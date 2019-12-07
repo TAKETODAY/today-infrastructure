@@ -397,6 +397,7 @@ public class CandidateComponentScanner {
     }
 
     public void clear() {
+        this.scanningTimes = 0;
         getScanningCandidates().clear();
     }
 
