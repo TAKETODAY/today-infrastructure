@@ -120,8 +120,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Getting A Bean Named: [{}], With Msg: [{}]", //
-                      name, ex.toString(), ex);
+            log.error("An Exception Occurred When Getting A Bean Named: [{}], With Msg: [{}]", name, ex.toString(), ex);
             throw ExceptionUtils.newContextException(ex);
         }
     }
@@ -140,7 +139,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     protected Object doCreatePrototype(final BeanDefinition def, final String name) throws Throwable {
 
         if (def.isFactoryBean()) {
-
             final FactoryBean<?> $factoryBean = //
                     (FactoryBean<?>) initializingBean(getSingleton(FACTORY_BEAN_PREFIX + name), name, def);
 
@@ -554,7 +552,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
 //        registerSingleton(name, bean);
         beanDefinition.setInitialized(true);
-
         return bean;
     }
 
@@ -566,7 +563,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         log.debug("Start loading BeanPostProcessor.");
 
         final List<BeanPostProcessor> postProcessors = getPostProcessors();
-
         postProcessors.addAll(getBeans(BeanPostProcessor.class));
         OrderUtils.reversedSort(postProcessors);
     }
@@ -675,7 +671,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      */
     protected BeanDefinition handleDependency(final String beanName, final Class<?> beanClass) {
 
-        final Object obj = createDependencyInstance(beanName, beanClass);
+        final Object obj = createDependencyInstance(beanClass);
         if (obj != null) {
             registerSingleton(beanName, obj);
             return new DefaultBeanDefinition(beanName, beanClass);
@@ -688,22 +684,33 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * 
      * @param type
      *            dependency type
-     * @param objectFactory
-     *            Object factory
-     * @return dependency object
+     * @return Dependency object
      */
-    protected Object createDependencyInstance(final String beanName, final Class<?> type) {
+    protected Object createDependencyInstance(final Class<?> type) {
 
         final Map<Class<?>, Object> objectFactories = getObjectFactories();
         if (objectFactories != null) {
-            final Object objectFactory = objectFactories.get(type);
-            if (objectFactory instanceof ObjectFactory) {
-                return Proxy.newProxyInstance(type.getClassLoader(), new Class[] { type },
-                                              new ObjectFactoryDelegatingHandler((ObjectFactory<?>) objectFactory));
-            }
-            if (type.isInstance(objectFactory)) {
-                return objectFactory;
-            }
+            return createDependencyInstance(type, objectFactories.get(type));
+        }
+        return null;
+    }
+
+    /**
+     * Create dependency object
+     * 
+     * @param type
+     *            dependency type
+     * @param objectFactory
+     *            Object factory
+     * @return Dependency object
+     */
+    protected Object createDependencyInstance(final Class<?> type, final Object objectFactory) {
+        if (objectFactory instanceof ObjectFactory) {
+            return Proxy.newProxyInstance(type.getClassLoader(), new Class[] { type },
+                                          new ObjectFactoryDelegatingHandler((ObjectFactory<?>) objectFactory));
+        }
+        if (type.isInstance(objectFactory)) {
+            return objectFactory;
         }
         return null;
     }
@@ -829,7 +836,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *            Bean name
      */
     public final void aware(final Object bean, final String name) {
-
         if (bean instanceof Aware) {
             awareInternal(bean, name);
         }
@@ -847,7 +853,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
-
         final BeanDefinition def = getBeanDefinition(name);
         if (def == null) {
             throw new NoSuchBeanDefinitionException(name);
@@ -862,9 +867,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public Class<?> getType(String name) throws NoSuchBeanDefinitionException {
-
         final BeanDefinition def = getBeanDefinition(name);
-
         if (def == null) {
             throw new NoSuchBeanDefinitionException(name);
         }
@@ -918,7 +921,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public final void registerSingleton(final String name, final Object bean) {
-
         if (name.charAt(0) != FACTORY_BEAN_PREFIX && bean instanceof FactoryBean) {// @since v2.1.1
             singletons.put(FACTORY_BEAN_PREFIX + name, bean);
         }
@@ -1002,7 +1004,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     public void destroyBean(final Object beanInstance, final BeanDefinition def) {
 
         try {
-
             if (beanInstance == null || def == null) {
                 return;
             }
@@ -1011,13 +1012,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             for (final String destroyMethod : def.getDestroyMethods()) {
                 beanClass.getMethod(destroyMethod).invoke(beanInstance);
             }
-
             ContextUtils.destroyBean(beanInstance, beanClass.getDeclaredMethods());
         }
         catch (Throwable e) {
             e = ExceptionUtils.unwrapThrowable(e);
-            log.error("An Exception Occurred When Destroy a bean: [{}], With Msg: [{}]", //
-                      def.getName(), e.toString(), e);
+            log.error("An Exception Occurred When Destroy a bean: [{}], With Msg: [{}]", def.getName(), e.toString(), e);
             throw ExceptionUtils.newContextException(e);
         }
     }
@@ -1180,10 +1179,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public Object refresh(BeanDefinition def) {
-
         try {
             final Object initializingBean = initializingBean(createBeanInstance(def), def.getName(), def);
-
             def.setInitialized(true);
             return initializingBean;
         }
@@ -1202,8 +1199,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @return {@link BeanNameCreator}
      */
     public BeanNameCreator getBeanNameCreator() {
+        final BeanNameCreator beanNameCreator = this.beanNameCreator;
         if (beanNameCreator == null) {
-            beanNameCreator = createBeanNameCreator();
+            return this.beanNameCreator = createBeanNameCreator();
         }
         return beanNameCreator;
     }

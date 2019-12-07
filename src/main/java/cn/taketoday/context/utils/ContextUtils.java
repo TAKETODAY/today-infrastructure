@@ -1010,9 +1010,7 @@ public abstract class ContextUtils {
             final ClassLoader classLoader = ClassUtils.getClassLoader();
             final Charset charset = Constant.DEFAULT_CHARSET;
             try {
-
                 final Enumeration<URL> resources = classLoader.getResources(resource);
-
                 while (resources.hasMoreElements()) {
                     try (final BufferedReader reader = //
                             new BufferedReader(new InputStreamReader(resources.nextElement().openStream(), charset))) {
@@ -1026,10 +1024,10 @@ public abstract class ContextUtils {
                 return ret;
             }
             catch (IOException | ClassNotFoundException e) {
-                throw ExceptionUtils.newContextException(e, "Exception occurred when load from '" + resource + "' Msg: " + e);
+                throw new ContextException("Exception occurred when load from '" + resource + "' Msg: " + e, e);
             }
         }
-        throw ExceptionUtils.newConfigurationException(null, "Resource must start with 'META-INF'");
+        throw new ConfigurationException("Resource must start with 'META-INF'");
     }
 
     // ExecutableParameterResolver @since 2.17

@@ -243,16 +243,15 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             ClassUtils.makeAccessible(declaredField)
                     .set(null, new ExpressionFactoryImpl(environment.getProperties()));
         }
-        ELProcessor elProcessor = environment.getELProcessor();
-        if (elProcessor == null) {
+
+        if (environment.getELProcessor() == null) {
             // setting el manager @since 2.1.5
             final ELManager elManager = new ELManager();
             elManager.setELContext(new ValueELContext(this));
-
-            elProcessor = new ELProcessor(elManager);
-            environment.setELProcessor(elProcessor);
+            environment.setELProcessor(new ELProcessor(elManager));
         }
 
+        // register framework beans
         registerFrameworkBeans(beanNameCreator);
 
         // register listener
@@ -439,7 +438,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     @Override
     public void refresh() throws ContextException {
         try {
-
             // refresh object instance
             publishEvent(new ContextRefreshEvent(this));
             getBeanFactory().initializeSingletons();
@@ -487,10 +485,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     @Override
     public ConfigurableEnvironment getEnvironment() {
-        if (this.environment == null) {
-            this.environment = createEnvironment();
+        final ConfigurableEnvironment environment = this.environment;
+        if (environment == null) {
+            return this.environment = createEnvironment();
         }
-        return this.environment;
+        return environment;
     }
 
     /**
@@ -581,7 +580,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     @Override
     public Object refresh(BeanDefinition beanDefinition) {
         try {
-
             final Object initializingBean = getBeanFactory().refresh(beanDefinition);
             // object refreshed
             publishEvent(new ObjectRefreshedEvent(beanDefinition, this));
