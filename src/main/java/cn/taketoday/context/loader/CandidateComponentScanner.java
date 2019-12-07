@@ -518,10 +518,11 @@ public class CandidateComponentScanner {
                 }
             }
 
-            if (scanner.getIgnoreScanJarPrefixs() != null) {
+            final String[] ignoreScanJarPrefixs = scanner.getIgnoreScanJarPrefixs();
+            if (ignoreScanJarPrefixs != null) {
                 final String fileName = resource.getName();
 
-                for (final String ignoreJarName : scanner.getIgnoreScanJarPrefixs()) {
+                for (final String ignoreJarName : ignoreScanJarPrefixs) {
                     if (fileName.startsWith(ignoreJarName)) {
                         return false;
                     }

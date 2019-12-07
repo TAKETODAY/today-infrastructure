@@ -31,15 +31,31 @@ import org.junit.Test;
  */
 public class CandidateComponentScannerTest {
 
-
     @Test
     public void testScan() {
         final CandidateComponentScanner sharedInstance = CandidateComponentScanner.getSharedInstance();
         sharedInstance.clear();
         final Set<Class<?>> scan = sharedInstance.scan();
-        assertTrue(scan.size() > 0);
+        final int size1 = scan.size();
+        assertTrue(size1 > 0);
         assertTrue(sharedInstance.getScanningTimes() == 1);
 
+        // --------------------
+        final Set<Class<?>> loader = sharedInstance.scan("cn.taketoday.context.loader"); // 15 + 13
+        final int size2 = loader.size();
+//        System.err.println(size2);
+//        System.err.println(size2 - size1);
+        assertTrue(size2 == size1);
+
+        
+        // -------------------------------------
+        sharedInstance.clear();
+        final Set<Class<?>> loader2 = sharedInstance.scan("cn.taketoday.context.loader"); // 15 + 13
+        final int loader2size2 = loader2.size();
+        assertTrue(loader2size2 == 28);
+        
+        
+        
     }
 
 }
