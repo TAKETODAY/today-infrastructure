@@ -85,6 +85,11 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     }
 
     @Override
+    public WebServletApplicationContext obtainWebApplicationContext() {
+        return (WebServletApplicationContext) super.obtainWebApplicationContext();
+    }
+
+    @Override
     public WebServletApplicationContext getWebApplicationContext() {
         return (WebServletApplicationContext) super.getWebApplicationContext();
     }
@@ -119,7 +124,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      *         initialize
      */
     protected ServletContext getServletContext() {
-        return getWebApplicationContext().getServletContext();
+        return obtainWebApplicationContext().getServletContext();
     }
 
     /**
@@ -257,7 +262,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     @Override
     protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
 
-        final WebServletApplicationContext webApplicationContext = getWebApplicationContext();
+        final WebServletApplicationContext webApplicationContext = obtainWebApplicationContext();
         configureResourceRegistry(initializers, getWebMvcConfiguration(webApplicationContext));
 
         configureFilter(webApplicationContext, initializers);
@@ -278,7 +283,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     protected void configureResourceRegistry(List<WebApplicationInitializer> contextInitializers,
                                              ServletWebMvcConfiguration servletWebMvcConfiguration)//
     {
-        final WebServletApplicationContext context = getWebApplicationContext();
+        final WebServletApplicationContext context = obtainWebApplicationContext();
 
         final Set<String> urlMappings = new HashSet<>();
         final ResourceMappingRegistry resourceMappingRegistry = context.getBean(ResourceMappingRegistry.class);

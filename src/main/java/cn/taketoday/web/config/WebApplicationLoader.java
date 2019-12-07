@@ -105,11 +105,15 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      * 
      * @return {@link WebApplicationContext}
      */
-    public WebApplicationContext getWebApplicationContext() {
+    public WebApplicationContext obtainWebApplicationContext() {
         final WebApplicationContext applicationContext = this.applicationContext;
         if (applicationContext == null) {
             throw new ConfigurationException("application context could be null.");
         }
+        return applicationContext;
+    }
+
+    public WebApplicationContext getWebApplicationContext() {
         return applicationContext;
     }
 
@@ -195,7 +199,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      */
     protected void configureViewResolver(List<ViewResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
 
-        final WebApplicationContext webApplicationContext = getWebApplicationContext();
+        final WebApplicationContext webApplicationContext = obtainWebApplicationContext();
         final TemplateViewResolver viewResolver = getTemplateViewResolver(mvcConfiguration);
         final Environment environment = webApplicationContext.getEnvironment();
         int bufferSize = Integer.parseInt(environment.getProperty(DOWNLOAD_BUFF_SIZE, "10240"));
@@ -217,7 +221,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
     protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {
 
-        final WebApplicationContext applicationContext = getWebApplicationContext();
+        final WebApplicationContext applicationContext = obtainWebApplicationContext();
         TemplateViewResolver templateViewResolver = applicationContext.getBean(TemplateViewResolver.class);
 
         if (templateViewResolver == null) {
@@ -276,7 +280,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
               (ctx, m) -> resolveValue(m.getAnnotation(Env.class), m.getParameterClass())//
         ));
 
-        final WebApplicationContext applicationContext = getWebApplicationContext();
+        final WebApplicationContext applicationContext = obtainWebApplicationContext();
         final Properties properties = applicationContext.getEnvironment().getProperties();
 
         resolvers.add(delegate((m) -> m.isAnnotationPresent(Props.class), //
@@ -424,7 +428,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
             }
             return null;
         });
-        final ViewConfiguration viewConfiguration = new ViewConfiguration(getWebApplicationContext());
+        final ViewConfiguration viewConfiguration = new ViewConfiguration(obtainWebApplicationContext());
 
         for (final String file : StringUtils.split(webMvcConfigLocation)) {
 
@@ -440,7 +444,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     }
 
     protected String getWebMvcConfigLocation() throws Throwable {
-        return getWebApplicationContext().getEnvironment().getProperty(WEB_MVC_CONFIG_LOCATION);
+        return obtainWebApplicationContext().getEnvironment().getProperty(WEB_MVC_CONFIG_LOCATION);
     }
 
     /**
@@ -518,7 +522,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
             resolverClass = ClassUtils.forName(attrClass);
         }
         // register resolver
-        final WebApplicationContext webApplicationContext = getWebApplicationContext();
+        final WebApplicationContext webApplicationContext = obtainWebApplicationContext();
         webApplicationContext.registerBean(name, resolverClass);
         log.info("Register [{}] onto [{}]", name, resolverClass.getName());
 
