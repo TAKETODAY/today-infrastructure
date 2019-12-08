@@ -31,8 +31,7 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.mapping.ResourceMapping;
-import cn.taketoday.web.mapping.ResourceMappingMetaData;
+import cn.taketoday.web.mapping.ResourceMappingMatchResult;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.utils.WebUtils;
 
@@ -45,41 +44,31 @@ public class DefaultResourceResolver implements WebResourceResolver {
     private static final Logger log = LoggerFactory.getLogger(DefaultResourceResolver.class);
 
     @Override
-    public WebResource resolveResource(final ResourceMappingMetaData metaData) throws Throwable {
+    public WebResource resolveResource(final ResourceMappingMatchResult matchResult) throws Throwable {
 
-        final String requestPath = metaData.getRequestPath();
+        final String requestPath = matchResult.getRequestPath();
 
         if (StringUtils.isEmpty(requestPath) || isInvalidPath(requestPath)) {
             return null;
         }
 
-        final ResourceMapping resourceMapping = metaData.getResourceMapping();
-
-        String matchedPattern = null;
-        final PathMatcher pathMatcher = metaData.getPathMatcher();
-        for (final String requestPathPattern : resourceMapping.getPathPatterns()) {
-            if (pathMatcher.match(requestPathPattern, requestPath)) {
-                matchedPattern = requestPathPattern;
-                break;
-            }
-        }
+        final String matchedPattern = matchResult.getMatchedPattern();
+        final PathMatcher pathMatcher = matchResult.getPathMatcher();
 
         final String extractPathWithinPattern;
         if (pathMatcher.isPattern(matchedPattern)) {
             extractPathWithinPattern = pathMatcher.extractPathWithinPattern(matchedPattern, requestPath);
+            if (StringUtils.isEmpty(extractPathWithinPattern)) {
+                return null;
+            }
         }
         else {
             extractPathWithinPattern = requestPath;
         }
 
-        if (StringUtils.isEmpty(extractPathWithinPattern)) {
-            return null;
-        }
-
         // log.debug("resource: [{}]", extractPathWithinPattern);
-        for (String location : resourceMapping.getLocations()) {
+        for (String location : matchResult.getResourceMapping().getLocations()) {
             try {
-
                 // log.debug("look in: [{}]", location);
                 // TODO
                 final Resource createRelative = //

@@ -31,12 +31,12 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public class ResourceMappingMetaData implements Serializable {
+public class ResourceMappingMatchResult implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private final String requestPath;
-    private final String pathPattern;
+    private final String matchedPattern;
     private final PathMatcher pathMatcher;
     private final ResourceMapping resourceMapping;
 }
