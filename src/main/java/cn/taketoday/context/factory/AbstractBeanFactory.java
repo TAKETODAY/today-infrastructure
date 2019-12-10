@@ -81,7 +81,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     /** dependencies */
     private final Set<PropertyValue> dependencies = new HashSet<>(64);
     /** Bean Post Processors */
-    private final List<BeanPostProcessor> postProcessors = new ArrayList<>(8);
+    private final List<BeanPostProcessor> postProcessors = new ArrayList<>();
     /** Map of bean instance, keyed by bean name */
     private final Map<String, Object> singletons = new HashMap<>(64);
     /** Map of bean definition objects, keyed by bean name */
@@ -91,7 +91,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     private boolean fullPrototype = false;
     // @since 2.1.6
     private boolean fullLifecycle = false;
-    /** @since 2.1.7 Preventing repeated initialization of beans(Prevent duplicate initialization)*/
+    /**
+     * @since 2.1.7 Preventing repeated initialization of beans(Prevent duplicate
+     *        initialization)
+     */
     private String currentInitializingBeanName;
 
     @Override
@@ -122,8 +125,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Getting A Bean Named: [{}], With Msg: [{}]", name, ex.toString(), ex);
-            throw ExceptionUtils.newContextException(ex);
+            throw new ContextException("An Exception Occurred When Getting A Bean Named: [" + name + "], With Msg: [" + ex + "]", ex);
         }
     }
 
@@ -141,7 +143,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     protected Object doCreatePrototype(final BeanDefinition def, final String name) throws Throwable {
 
         if (def.isFactoryBean()) {
-            final FactoryBean<?> $factoryBean = //
+            final FactoryBean<?> $factoryBean = // FIXME
                     (FactoryBean<?>) initializingBean(getSingleton(FACTORY_BEAN_PREFIX + name), name, def);
 
             return $factoryBean.getBean();
@@ -783,9 +785,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             return bean;
         }
         currentInitializingBeanName = name;
-        
+
         log.debug("Initializing bean named: [{}].", name);
-        
+
         aware(bean, name);
 
         final List<BeanPostProcessor> postProcessors = getPostProcessors();
@@ -1020,12 +1022,19 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             for (final String destroyMethod : def.getDestroyMethods()) {
                 beanClass.getMethod(destroyMethod).invoke(beanInstance);
             }
+            for (final BeanPostProcessor postProcessor : getPostProcessors()) {
+                if (postProcessor instanceof DestructionBeanPostProcessor) {
+                    final DestructionBeanPostProcessor destruction = (DestructionBeanPostProcessor) postProcessor;
+                    if (destruction.requiresDestruction(beanInstance)) {
+                        destruction.postProcessBeforeDestruction(beanInstance, def.getName());
+                    }
+                }
+            }
             ContextUtils.destroyBean(beanInstance, beanClass.getDeclaredMethods());
         }
         catch (Throwable e) {
             e = ExceptionUtils.unwrapThrowable(e);
-            log.error("An Exception Occurred When Destroy a bean: [{}], With Msg: [{}]", def.getName(), e.toString(), e);
-            throw ExceptionUtils.newContextException(e);
+            throw new ContextException("An Exception Occurred When Destroy a bean: [" + def.getName() + "], With Msg: [" + e + "]", e);
         }
     }
 
