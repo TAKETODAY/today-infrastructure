@@ -25,8 +25,7 @@ import cn.taketoday.context.factory.BeanFactory;
  * 
  * {@link BeanFactory} Injection
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-08-03 15:54
  */
 public interface BeanFactoryAware extends Aware {

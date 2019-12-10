@@ -24,8 +24,7 @@ import cn.taketoday.context.ApplicationContext;
 /**
  * {@link ApplicationContext} Injection
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-07-17 21:35:52
  */
 public interface ApplicationContextAware extends Aware {

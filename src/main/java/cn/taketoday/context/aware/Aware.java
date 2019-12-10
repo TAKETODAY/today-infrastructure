@@ -25,8 +25,7 @@ import cn.taketoday.context.annotation.Component;
  * 
  * Framework {@link Component} Injection
  * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-08-03 15:49
  */
 public interface Aware {
