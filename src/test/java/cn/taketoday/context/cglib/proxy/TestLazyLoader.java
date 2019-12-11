@@ -15,21 +15,46 @@
  */
 package cn.taketoday.context.cglib.proxy;
 
+import org.junit.Assert;
+
 import cn.taketoday.context.cglib.CodeGenTestCase;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public class TestLazyLoader extends CodeGenTestCase {
 
+    private static class LazyBean {
+        private String name;
+
+        public LazyBean() {}
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
     public void testLazyLoader() {
         LazyLoader loader = new LazyLoader() {
-            public Object loadObject() {
+
+            @Override
+            public LazyBean loadObject() {
                 System.err.println("loading object");
-                return "foo";
+                final LazyBean lazyBean = new LazyBean();
+                lazyBean.setName("TEST");
+                return lazyBean;
             }
         };
-        Object obj = Enhancer.create(Object.class, loader);
-        assertTrue("foo".equals(obj.toString()));
+        LazyBean obj = (LazyBean) Enhancer.create(LazyBean.class, loader);
+
+        System.err.println(obj.toString());
+        System.err.println(obj.getClass());
+        System.err.println(obj.getName());
+
+        Assert.assertEquals("TEST", obj.getName());
     }
 
     public TestLazyLoader(String testName) {
@@ -44,10 +69,8 @@ public class TestLazyLoader extends CodeGenTestCase {
         return new TestSuite(TestLazyLoader.class);
     }
 
-    public void perform(ClassLoader loader) throws Throwable {
-    }
+    public void perform(ClassLoader loader) throws Throwable {}
 
-    public void testFailOnMemoryLeak() throws Throwable {
-    }
+    public void testFailOnMemoryLeak() throws Throwable {}
 
 }

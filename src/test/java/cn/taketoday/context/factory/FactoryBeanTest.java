@@ -134,7 +134,7 @@ public class FactoryBeanTest {
 
             assertNotEquals(bean, testFactoryBean);
 
-            assertFalse(applicationContext.getBean("$testFactoryBean-prototype") == null);
+            assertFalse(applicationContext.getBean("$testFactoryBean-prototype") != null);
         }
     }
     

@@ -27,7 +27,6 @@ import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
-import cn.taketoday.context.utils.ClassUtils;
 
 /**
  * Create bean definition
@@ -101,8 +100,9 @@ public interface BeanDefinitionLoader {
      * Load {@link BeanDefinition}s from input package locations
      * 
      * <p>
-     * {@link ClassUtils} will scan the classes from given package locations. And
-     * register the {@link BeanDefinition}s using loadBeanDefinition(Class)
+     * {@link CandidateComponentScanner} will scan the classes from given package
+     * locations. And register the {@link BeanDefinition}s using
+     * loadBeanDefinition(Class)
      * 
      * @param locations
      *            package locations

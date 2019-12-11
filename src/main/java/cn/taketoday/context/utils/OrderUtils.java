@@ -28,7 +28,6 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
 
 /**
- * 
  * @author TODAY <br>
  *         2018-11-08 19:02
  */
@@ -72,7 +71,7 @@ public abstract class OrderUtils {
      * @return Reversed Comparator
      */
     public static Comparator<Object> getReversedComparator() {
-        return Comparator.comparingInt(OrderUtils::getOrder).reversed();
+        return getComparator().reversed();
     }
 
     /**
@@ -82,8 +81,8 @@ public abstract class OrderUtils {
      * @since 2.1.7
      */
     public static Comparator<Object> getComparator() {
-        return Comparator.comparingInt(OrderUtils::getOrder);
-    }
+        return (c1, c2) -> Integer.compare(getOrder(c1), getOrder(c2));
+    } 
 
     /**
      * Reversed sort list

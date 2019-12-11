@@ -39,6 +39,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.ThrowableSupplier;
 import cn.taketoday.context.exception.ContextException;
@@ -474,6 +475,11 @@ public class CandidateComponentScanner {
         return this;
     }
 
+    /**
+     * Get {@link ApplicationContext} startup Component Scanner
+     * 
+     * @return {@link ApplicationContext} startup Component Scanner
+     */
     public static CandidateComponentScanner getSharedInstance() {
         return sharedScanner;
     }

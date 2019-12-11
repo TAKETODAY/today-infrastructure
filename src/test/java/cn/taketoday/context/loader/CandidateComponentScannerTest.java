@@ -41,7 +41,7 @@ public class CandidateComponentScannerTest {
         assertTrue(sharedInstance.getScanningTimes() == 1);
 
         // --------------------
-        final Set<Class<?>> loader = sharedInstance.scan("cn.taketoday.context.loader"); // 15 + 13
+        final Set<Class<?>> loader = sharedInstance.scan("cn.taketoday.context.loader"); // 14 + 12
         final int size2 = loader.size();
 //        System.err.println(size2);
 //        System.err.println(size2 - size1);
@@ -50,11 +50,9 @@ public class CandidateComponentScannerTest {
         
         // -------------------------------------
         sharedInstance.clear();
-        final Set<Class<?>> loader2 = sharedInstance.scan("cn.taketoday.context.loader"); // 15 + 13
+        final Set<Class<?>> loader2 = sharedInstance.scan("cn.taketoday.context.loader"); // 14 + 12
         final int loader2size2 = loader2.size();
-        assertTrue(loader2size2 == 28);
-        
-        
+        assertTrue(loader2size2 == 26);
         
     }
 

@@ -49,6 +49,7 @@ import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.BeanReference;
 import cn.taketoday.context.bean.DefaultBeanDefinition;
+import cn.taketoday.context.bean.FactoryBeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.cglib.proxy.Enhancer;
 import cn.taketoday.context.cglib.proxy.MethodInterceptor;
@@ -91,11 +92,14 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     private boolean fullPrototype = false;
     // @since 2.1.6
     private boolean fullLifecycle = false;
+
     /**
      * @since 2.1.7 Preventing repeated initialization of beans(Prevent duplicate
      *        initialization)
      */
     private String currentInitializingBeanName;
+
+//    private HashSet<String> currentInitializingBeanName = new HashSet<>();
 
     @Override
     public Object getBean(final String name) throws ContextException {
@@ -143,10 +147,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     protected Object doCreatePrototype(final BeanDefinition def, final String name) throws Throwable {
 
         if (def.isFactoryBean()) {
-            final FactoryBean<?> $factoryBean = // FIXME
-                    (FactoryBean<?>) initializingBean(getSingleton(FACTORY_BEAN_PREFIX + name), name, def);
-
-            return $factoryBean.getBean();
+            final FactoryBean<?> factoryBean = getFactoryBean(def, name);
+            initializingBean(factoryBean, name, def);
+            return factoryBean.getBean();
         }
         // initialize
         return initializingBean(createBeanInstance(name, def), name, def);
@@ -427,7 +430,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     protected void invokeInitMethods(final Object bean, final Method... methods) throws Exception {
 
         for (final Method method : methods) {
-            //			method.setAccessible(true); // fix: can not access a member
+            //method.setAccessible(true); // fix: can not access a member
             method.invoke(bean, ContextUtils.resolveParameter(ClassUtils.makeAccessible(method), this));
         }
 
@@ -450,10 +453,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     protected Object doCreateSingleton(final BeanDefinition def, final String name) throws Throwable {
 
         if (def.isFactoryBean()) { // If bean is a FactoryBean not initialized
-            final Object $factoryBean = initializingBean(getSingleton(FACTORY_BEAN_PREFIX + name), name, def);
 
+            final FactoryBean<?> factoryBean = getFactoryBean(def, name);
+            initializingBean(factoryBean, name, def);
+            final Object ret = factoryBean.getBean();
             def.setInitialized(true); // $name bean initialized
-            final Object ret = ((FactoryBean<?>) $factoryBean).getBean();// fix
             registerSingleton(name, ret);
             return ret;
         }
@@ -464,30 +468,36 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     /**
      * Create singleton bean.
      * 
-     * @param beanDefinition
+     * @param def
      *            Current {@link BeanDefinition}
      * @throws Throwable
      *             If any {@link Exception} occurred when initialize singleton
      */
-    protected void initializeSingleton(final BeanDefinition beanDefinition) throws Throwable {
+    protected void initializeSingleton(final BeanDefinition def) throws Throwable {
 
-        if (beanDefinition.isSingleton() && !beanDefinition.isInitialized()) {
+        if (def.isSingleton() && !def.isInitialized()) {
+            final String name = def.getName();
+            if (def.isFactoryBean()) {
 
-            final String name = beanDefinition.getName();
-
-            if (beanDefinition.isFactoryBean()) {
-
-                log.debug("[{}] is FactoryBean", name);
-                final FactoryBean<?> $factoryBean = //
-                        (FactoryBean<?>) initializingBean(getSingleton(FACTORY_BEAN_PREFIX + name), name, beanDefinition);
-
-                registerSingleton(name, $factoryBean.getBean());
-                beanDefinition.setInitialized(true);
+                final FactoryBean<?> factoryBean = getFactoryBean(def, name);
+                initializingBean(factoryBean, name, def);
+                final Object bean = factoryBean.getBean();
+                log.debug("Initialize FactoryBean: [{}]", name);
+                registerSingleton(name, bean);
+                def.setInitialized(true);
             }
             else {
-                getImplementation(name, beanDefinition);
+                getImplementation(name, def);
             }
         }
+    }
+
+    protected FactoryBean<?> getFactoryBean(final BeanDefinition def, final String name) throws Throwable {
+        return def instanceof FactoryBeanDefinition
+                ? ((FactoryBeanDefinition<?>) def).getFactory()
+                : (FactoryBean<?>) (def.isSingleton()
+                        ? initializingBean(getSingleton(FACTORY_BEAN_PREFIX.concat(name)), name, def)
+                        : ClassUtils.newInstance(def, this));
     }
 
     /**
@@ -781,11 +791,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      */
     protected Object initializingBean(final Object bean, final String name, final BeanDefinition def) throws Throwable {
 
+//        if (currentInitializingBeanName.contains(name)) {
         if (name.equals(currentInitializingBeanName)) {
             return bean;
         }
         currentInitializingBeanName = name;
-
+//        currentInitializingBeanName.add(name);
         log.debug("Initializing bean named: [{}].", name);
 
         aware(bean, name);
@@ -796,9 +807,14 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             applyPropertyValues(bean, def.getPropertyValues());
             // invoke initialize methods
             invokeInitMethods(bean, def.getInitMethods());
+//            currentInitializingBeanName.remove(name);
+            currentInitializingBeanName = null;
             return bean;
         }
-        return initWithPostProcessors(bean, name, def, postProcessors);
+        final Object initWithPostProcessors = initWithPostProcessors(bean, name, def, postProcessors);
+//        currentInitializingBeanName.remove(name);
+        currentInitializingBeanName = null;
+        return initWithPostProcessors;
     }
 
     /**
@@ -930,7 +946,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     @Override
     public final void registerSingleton(final String name, final Object bean) {
         String nameToUse = name;
-        if (bean instanceof FactoryBean && name.charAt(0) != FACTORY_BEAN_PREFIX) {// @since v2.1.1
+        if (bean instanceof FactoryBean && name.charAt(0) != FACTORY_BEAN_PREFIX_CHAR) {// @since v2.1.1
             nameToUse = FACTORY_BEAN_PREFIX + name;
         }
         singletons.put(nameToUse, bean);
@@ -1043,7 +1059,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
         BeanDefinition beanDefinition = getBeanDefinition(name);
 
-        if (beanDefinition == null && name.charAt(0) == FACTORY_BEAN_PREFIX) {
+        if (beanDefinition == null && name.charAt(0) == FACTORY_BEAN_PREFIX_CHAR) {
             // if it is a factory bean
             final String factoryBeanName = name.substring(1);
             beanDefinition = getBeanDefinition(factoryBeanName);

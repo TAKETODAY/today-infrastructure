@@ -41,7 +41,9 @@ public interface BeanFactory {
     /**
      * If a bean name start with this its a {@link FactoryBean}
      */
-    char FACTORY_BEAN_PREFIX = '$';
+    String FACTORY_BEAN_PREFIX = "$";
+    
+    char FACTORY_BEAN_PREFIX_CHAR = '$';
 
     /**
      * Find the bean with the given type

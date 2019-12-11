@@ -33,15 +33,6 @@ public interface FactoryBean<T> {
     T getBean();
 
     /**
-     * Get the bean' new name
-     * 
-     * @return bean name
-     */
-    default String getBeanName() {
-        return null;
-    }
-
-    /**
      * Get the bean class
      * 
      * @return bean class

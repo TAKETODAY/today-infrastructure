@@ -49,15 +49,18 @@ import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.DefaultBeanDefinition;
+import cn.taketoday.context.bean.FactoryBeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.bean.StandardBeanDefinition;
 import cn.taketoday.context.env.DefaultBeanNameCreator;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.loader.ImportSelector;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -106,17 +109,16 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
         if (def instanceof StandardBeanDefinition) {
             final StandardBeanDefinition stdDef = (StandardBeanDefinition) def;
-            final Method factoryMethod = stdDef.getFactoryMethod();
 
             if (def.isSingleton()) {
                 Object bean = getSingleton(name);
                 if (bean == null) {
-                    registerSingleton(name, bean = createFromFactoryMethod(factoryMethod, stdDef));
+                    registerSingleton(name, bean = createFromFactoryMethod(stdDef.getFactoryMethod(), stdDef));
                 }
                 return bean;
             }
             else {
-                return createFromFactoryMethod(factoryMethod, stdDef);
+                return createFromFactoryMethod(stdDef.getFactoryMethod(), stdDef);
             }
         }
         else {
@@ -181,7 +183,6 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         log.debug("Loading Configuration Beans");
 
         for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
-
             if (entry.getValue().isAnnotationPresent(Configuration.class)) {
                 // @Configuration bean
                 loadConfigurationBeans(entry.getValue().getBeanClass());
@@ -203,7 +204,6 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         for (final Method method : beanClass.getDeclaredMethods()) {
 
             final AnnotationAttributes[] components = getAnnotationAttributesArray(method, Component.class);
-
             if (ObjectUtils.isEmpty(components)) {
                 if (method.isAnnotationPresent(MissingBean.class) && ContextUtils.conditional(method)) {
                     missingMethods.add(method);
@@ -223,7 +223,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @param components
      *            {@link AnnotationAttributes}
      */
-    protected void registerConfigurationBean(final Method method, final AnnotationAttributes[] components) //
+    protected void registerConfigurationBean(final Method method, final AnnotationAttributes[] components)
             throws BeanDefinitionStoreException //
     {
         final Class<?> returnType = method.getReturnType();
@@ -501,7 +501,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     @Override
     public void loadBeanDefinition(String... locations) throws BeanDefinitionStoreException {
-        loadBeanDefinitions(ClassUtils.scan(locations));
+        loadBeanDefinitions(new CandidateComponentScanner().scan(locations));
     }
 
     @Override
@@ -556,7 +556,6 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         final Class<?> beanClass = beanDefinition.getBeanClass();
 
         try {
-
             if (containsBeanDefinition(name)) {
                 final BeanDefinition existBeanDefinition = getBeanDefinition(name);
                 Class<?> existClass = existBeanDefinition.getBeanClass();
@@ -619,71 +618,35 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     }
 
     /**
+     * 
      * If bean definition is a {@link FactoryBean} register its factory's instance
+     * 
+     * @param <T>
      * 
      * @param beanName
      *            Old bean name
-     * @param beanDefinition
+     * @param factoryDef
      *            Bean definition
      * @return returns a new bean name
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
-    protected void registerFactoryBean(final String oldBeanName, final BeanDefinition beanDefinition) throws Throwable {
+    protected void registerFactoryBean(final String oldBeanName, final BeanDefinition factoryDef) throws Throwable {
 
-        FactoryBean<?> $factoryBean = //
-                (FactoryBean<?>) getSingleton(BeanFactory.FACTORY_BEAN_PREFIX + oldBeanName);
+        final FactoryBeanDefinition<?> def = factoryDef instanceof FactoryBeanDefinition
+                ? (FactoryBeanDefinition<?>) factoryDef
+                : factoryDef.isSingleton()
+                        ? new FactoryBeanDefinition<>(factoryDef, new FactoryBeanSupplier<>(factoryDef, this))
+                        : new FactoryBeanDefinition<>(factoryDef, () -> {
+                            try {
+                                return (FactoryBean<?>) ClassUtils.newInstance(factoryDef, this);
+                            }
+                            catch (ReflectiveOperationException e) {
+                                throw new ConfigurationException("Cannot create a bean: [" + factoryDef + "]");
+                            }
+                        });
 
-        boolean register = false;
-        if ($factoryBean == null) { // If not exist declaring instance, create it
-            // declaring object not registed
-            $factoryBean = (FactoryBean<?>) createBeanInstance(beanDefinition); // @since 2.1.7 //TODO
-            // $factoryBean = (FactoryBean<?>) ClassUtils.newInstance(beanDefinition.getBeanClass());
-            register = true;
-        }
-
-        // build a new name
-        String beanName = $factoryBean.getBeanName(); // use new name
-        if (StringUtils.isEmpty(beanName)) {
-
-            // Fix FactoryBean name problem
-            final AnnotationAttributes attr;
-            if (beanDefinition instanceof StandardBeanDefinition) {
-                final Method factoryMethod = ((StandardBeanDefinition) beanDefinition).getFactoryMethod();
-                attr = getAnnotationAttributes(Component.class, factoryMethod);
-                // method name as default name
-                beanName = findNames(factoryMethod.getName(), attr.getStringArray(Constant.VALUE))[0];
-            }
-            else {
-                attr = getAnnotationAttributes(Component.class, beanDefinition.getBeanClass());
-                if (attr != null) {
-                    beanName = findNames(oldBeanName, attr.getStringArray(Constant.VALUE))[0];
-                    if (oldBeanName.equals(beanName)) {
-                        beanName = getBeanNameCreator().create($factoryBean.getBeanClass());
-                    }
-                }
-                else {
-                    beanName = oldBeanName; // use old name, that the name from Annotation or class default name
-                }
-            }
-        }
-        else {
-            register = true;
-        }
-
-        if (register) {// register it
-            registerSingleton(BeanFactory.FACTORY_BEAN_PREFIX + beanName, $factoryBean);
-        }
-
-        final DefaultBeanDefinition def = new DefaultBeanDefinition(beanName, $factoryBean.getBeanClass());
-
-        def.setFactoryBean(true)//
-                .setScope(beanDefinition.getScope())//
-                .setInitMethods(beanDefinition.getInitMethods())//
-                .setDestroyMethods(beanDefinition.getDestroyMethods())//
-                .setPropertyValues(beanDefinition.getPropertyValues());
-
-        registerBeanDefinition(beanName, def);
+        registerBeanDefinition(oldBeanName, def);
     }
 
     @Override

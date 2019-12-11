@@ -31,12 +31,6 @@ import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.factory.AbstractBeanFactory;
-import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.BeanPostProcessor;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
-import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import lombok.ToString;
@@ -47,7 +41,7 @@ import lombok.ToString;
  *         2019-01-22 18:55
  */
 public class BeanFactoryTest extends BaseTest {
-    
+
     private static final Logger log = LoggerFactory.getLogger(BeanFactoryTest.class);
 
     @Test
@@ -175,8 +169,7 @@ public class BeanFactoryTest extends BaseTest {
         try {
             beanFactory.isPrototype("today");
         }
-        catch (NoSuchBeanDefinitionException e) {
-        }
+        catch (NoSuchBeanDefinitionException e) {}
     }
 
     @Test
@@ -203,8 +196,7 @@ public class BeanFactoryTest extends BaseTest {
 
         AbstractBeanFactory beanFactory = (AbstractBeanFactory) getBeanFactory();
 
-        final BeanPostProcessor beanPostProcessor = new BeanPostProcessor() {
-        };
+        final BeanPostProcessor beanPostProcessor = new BeanPostProcessor() {};
 
         final List<BeanPostProcessor> postProcessors = beanFactory.getPostProcessors();
 
@@ -227,9 +219,9 @@ public class BeanFactoryTest extends BaseTest {
 
     }
 
-    @Prototype
     @ToString
-//    @Singleton("test.context.factory.BeanFactoryTest.FactoryBeanTestBean")
+    @Prototype("testBean")
+    // @Singleton("test.context.factory.BeanFactoryTest.FactoryBeanTestBean")
     public static class FactoryBeanTestBean implements FactoryBean<TEST>, InitializingBean {
 
         @Value("${env['upload.maxFileSize']}")
@@ -241,11 +233,6 @@ public class BeanFactoryTest extends BaseTest {
             test.test = testInt;
 
             return test;
-        }
-
-        @Override
-        public String getBeanName() {
-            return "testBean";
         }
 
         @Override

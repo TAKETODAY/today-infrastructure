@@ -19,18 +19,17 @@
  */
 package cn.taketoday.context;
 
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.ApplicationContextTest.RequiredTest.Bean1;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.bean.BeanDefinition;
@@ -124,21 +123,13 @@ public class ApplicationContextTest {
             PropertyValue propertyValue = beanDefinition.getPropertyValue("pro");
             ConfigFactoryBean bean = applicationContext.getBean("$FactoryBean-Config", ConfigFactoryBean.class);
 
-            Map<String, Object> singletonsMap = applicationContext.getSingletons();
-
-            for (Entry<String, Object> entry : singletonsMap.entrySet()) {
-                System.err.println(entry.getKey() + "==" + entry.getValue());
-            }
-
-            assert config != config_;
+            assertNull(bean); // @Prototype 
+            assertNotEquals(config, config_);
 
             log.debug("{}", config.hashCode());
             log.debug("{}", config_.hashCode());
-
-            //			assert config != config_ : "FactoryBean error.";
             log.debug("{}", bean);
             log.debug("{}", propertyValue);
-            log.debug("{}", bean.getPro());
         }
     }
 

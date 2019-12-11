@@ -289,12 +289,12 @@ public abstract class ClassUtils {
     /**
      * Scan class with given package.
      * 
-     * @param packages
+     * @param locations
      *            The packages to scan
      * @return Class set
      */
-    public static Set<Class<?>> scan(final String... packages) {
-        return CandidateComponentScanner.getSharedInstance().scan(packages);
+    public static Set<Class<?>> scan(final String... locations) {
+        return new CandidateComponentScanner().scan(locations);
     }
     
     /**
@@ -629,7 +629,7 @@ public abstract class ClassUtils {
      *            The annotated element
      * @param annotationClass
      *            The annotation class
-     * @return a set of {@link AnnotationAttributes}
+     * @return First of the {@link AnnotationAttributes} on the element
      * @since 2.1.7
      */
     public static <T extends Annotation> AnnotationAttributes //

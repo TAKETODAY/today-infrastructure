@@ -16,7 +16,6 @@
 package cn.taketoday.context.cglib.proxy;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.Objects;
 
 import cn.taketoday.context.Constant;
@@ -41,27 +40,23 @@ import cn.taketoday.context.cglib.core.CodeGenerationException;
  */
 public class Proxy implements Serializable {
 
-    protected final InvocationHandler h;
-
     private static final long serialVersionUID = 1L;
 
-    private static final CallbackFilter BAD_OBJECT_METHOD_FILTER = new CallbackFilter() {
+    protected final InvocationHandler h;
 
-        public int accept(final Method method) {
-
-            if (method.getDeclaringClass().getName().equals("java.lang.Object")) {
-                final String name = method.getName();
-                if (!(name.equals(Constant.HASH_CODE) || name.equals(Constant.EQUALS) || name.equals(Constant.TO_STRING))) {
-                    return 1;
-                }
+    private static final CallbackFilter BAD_OBJECT_METHOD_FILTER = (method) -> {
+        if ("java.lang.Object".equals(method.getDeclaringClass().getName())) {
+            final String name = method.getName();
+            if (!(name.equals(Constant.HASH_CODE) || name.equals(Constant.EQUALS) || name.equals(Constant.TO_STRING))) {
+                return 1;
             }
-            return 0;
         }
+        return 0;
     };
 
     protected Proxy(InvocationHandler h) {
-        Enhancer.registerCallbacks(getClass(), new Callback[] { h, null });
         this.h = h;
+        Enhancer.registerCallbacks(getClass(), new Callback[] { h, null });
     }
 
     // private for security of isProxyClass
@@ -82,13 +77,13 @@ public class Proxy implements Serializable {
     }
 
     public static Class<?> getProxyClass(final ClassLoader loader, final Class<?>... interfaces) {
-
-        return new Enhancer()//
-                .setInterfaces(interfaces)//
-                .setSuperclass(ProxyImpl.class)//
-                .setCallbackTypes(InvocationHandler.class, NoOp.class)//
-                .setCallbackFilter(BAD_OBJECT_METHOD_FILTER)//
-                .setUseFactory(false)//
+        
+        return new Enhancer()
+                .setInterfaces(interfaces)
+                .setSuperclass(ProxyImpl.class)
+                .setCallbackTypes(InvocationHandler.class, NoOp.class)
+                .setCallbackFilter(BAD_OBJECT_METHOD_FILTER)
+                .setUseFactory(false)
                 .createClass();
     }
 
@@ -119,9 +114,7 @@ public class Proxy implements Serializable {
      *             {@code null}
      */
     public static Object newProxyInstance(final ClassLoader loader, final Class<?>[] interfaces, final InvocationHandler h) {
-
         try {
-
             return getProxyClass(loader, interfaces)//
                     .getConstructor(InvocationHandler.class)//
                     .newInstance(Objects.requireNonNull(h));

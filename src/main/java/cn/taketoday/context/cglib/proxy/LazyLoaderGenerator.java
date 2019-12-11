@@ -53,7 +53,7 @@ class LazyLoaderGenerator implements CallbackGenerator {
             // ignore protected methods
             if (!Modifier.isProtected(method.getModifiers())) {
                 int index = context.getIndex(method);
-                indexes.add(new Integer(index));
+                indexes.add(Integer.valueOf(index));
                 CodeEmitter e = context.beginMethod(ce, method);
                 e.load_this();
                 e.dup();

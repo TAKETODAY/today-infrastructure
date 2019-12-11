@@ -193,12 +193,6 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     }
 
     @Override
-    public BeanDefinition setAbstract(boolean Abstract) {
-        // noop
-        return this;
-    }
-
-    @Override
     public BeanDefinition setName(String name) {
         return this;
     }
@@ -206,11 +200,6 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     @Override
     public BeanDefinition setScope(Scope scope) {
         this.scope = scope;
-        return this;
-    }
-
-    @Override
-    public BeanDefinition setBeanClass(Class<?> beanClass) {
         return this;
     }
 

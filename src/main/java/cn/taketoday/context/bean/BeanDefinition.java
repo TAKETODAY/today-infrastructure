@@ -150,17 +150,6 @@ public interface BeanDefinition extends AnnotatedElement {
     BeanDefinition setInitialized(boolean initialized);
 
     /**
-     * Indicates that If the bean is abstract.
-     * 
-     * @param Abstract
-     *            If its a abstract
-     * @return The {@link BeanDefinition}
-     * @deprecated deprecated in 2.1.7 this method will do nothing
-     */
-    @Deprecated
-    BeanDefinition setAbstract(boolean Abstract);
-
-    /**
      * Apply bean' name
      * 
      * @param name
@@ -181,17 +170,6 @@ public interface BeanDefinition extends AnnotatedElement {
      * @return The {@link BeanDefinition}
      */
     BeanDefinition setScope(Scope scope);
-
-    /**
-     * Apply bean' class
-     * 
-     * @param beanClass
-     *            The type of the bean
-     * @return The {@link BeanDefinition}
-     * @deprecated deprecated in 2.1.7 the 'beanClass' property is immutable
-     */
-    @Deprecated
-    BeanDefinition setBeanClass(Class<?> beanClass);
 
     /**
      * Apply bean' initialize {@link Method}s

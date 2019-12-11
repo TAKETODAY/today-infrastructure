@@ -287,7 +287,7 @@ public abstract class ContextUtils {
      * @since 2.1.6
      */
     @SuppressWarnings("unchecked")
-    public static <T> T resolveValue(final String expression, //
+    public static <T> T resolveValue(final String expression,
                                      final Class<T> expectedType, final Properties variables) throws ConfigurationException //
     {
         if (expression.contains(Constant.PLACE_HOLDER_PREFIX)) {
@@ -963,7 +963,6 @@ public abstract class ContextUtils {
             final List<BeanDefinition> ret = new ArrayList<>(componentAttributes.length);
             for (final AnnotationAttributes attributes : componentAttributes) {
                 for (final String name : ContextUtils.findNames(defaultName, attributes.getStringArray(Constant.VALUE))) {
-
                     ret.add(buildBeanDefinition(beanClass, attributes, name));
                 }
             }

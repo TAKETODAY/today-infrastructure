@@ -34,13 +34,13 @@ import cn.taketoday.context.logger.LoggerFactory;
 import lombok.Getter;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-08-08 15:06
  */
 @Getter
-@Prototype
+@Prototype("FactoryBean-Config")
 public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean {
+    
     private static final Logger log = LoggerFactory.getLogger(ConfigFactoryBean.class);
 
     @PostConstruct
@@ -63,11 +63,6 @@ public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean 
     @Override
     public Config getBean() {
         return bean;
-    }
-
-    @Override
-    public String getBeanName() {
-        return "FactoryBean-Config";
     }
 
     @Override

@@ -52,10 +52,15 @@ public final class MethodTooLargeException extends IndexOutOfBoundsException {
      *            the descriptor of the method.
      * @param codeSize
      *            the size of the method's Code attribute, in bytes.
+     * @off
      */
-    public MethodTooLargeException(final String className, final String methodName, final String descriptor,
-            final int codeSize) {
-        super("Method too large: " + className + "." + methodName + " " + descriptor);
+    public MethodTooLargeException(final String className,
+                                   final String methodName, 
+                                   final String descriptor, 
+                                   final int codeSize) { //@on
+        
+        super("Method too large: " + className + '.' + methodName + " " + descriptor);
+        
         this.className = className;
         this.methodName = methodName;
         this.descriptor = descriptor;
