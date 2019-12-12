@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.factory.cycle;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -28,6 +29,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.loader.CandidateComponentScanner;
 
 /**
  * @author TODAY <br>
@@ -38,12 +40,17 @@ public class CycleDependencyTest {
     @Test
     public void testCycleDependency() {
 
+        CandidateComponentScanner.getSharedInstance().clear();
+
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
             applicationContext.loadContext("cn.taketoday.context.factory.cycle");
             assertTrue(applicationContext.getBeanDefinitionCount() == 3);
 
-            System.err.println(applicationContext.getBeanDefinitionNames());
+            final BeanA beanA = applicationContext.getBean(BeanA.class);
+            final BeanB beanB = applicationContext.getBean(BeanB.class);
 
+            assertEquals(beanA, beanB.beanA);
+            assertEquals(beanB, beanA.beanB);
         }
 
     }
