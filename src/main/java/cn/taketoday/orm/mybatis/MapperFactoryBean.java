@@ -41,9 +41,7 @@ public class MapperFactoryBean<T> implements FactoryBean<T>, InitializingBean {
 
     private Class<T> mapperInterface;
 
-    public MapperFactoryBean() {
-
-    }
+    public MapperFactoryBean() {}
 
     public MapperFactoryBean(Class<T> mapperInterface) {
         this.setMapperInterface(mapperInterface);

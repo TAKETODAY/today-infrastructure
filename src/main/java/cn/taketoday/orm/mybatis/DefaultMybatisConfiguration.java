@@ -42,6 +42,7 @@ import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Repository;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.bean.FactoryBeanDefinition;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.listener.ApplicationListener;
@@ -80,10 +81,13 @@ public class DefaultMybatisConfiguration implements ApplicationListener<LoadingM
 
             final String[] names = repository.value();
             final String name = ObjectUtils.isNotEmpty(names) ? names[0] : beanNameCreator.create(beanClass);
-
-            context.registerSingleton(BeanFactory.FACTORY_BEAN_PREFIX + name, new MapperFactoryBean<>(beanClass));
-            context.registerBean(name, MapperFactoryBean.class);
+//            context.registerSingleton(BeanFactory.FACTORY_BEAN_PREFIX.concat(name), new MapperFactoryBean<>(beanClass));
+            context.registerBeanDefinition(name, createBeanDefinition(beanClass, name));
         }
+    }
+
+    protected FactoryBeanDefinition<?> createBeanDefinition(final Class<?> beanClass, final String name) {
+        return new FactoryBeanDefinition<>(name, MapperFactoryBean.class, new MapperFactoryBean<>(beanClass));
     }
 
     @Singleton

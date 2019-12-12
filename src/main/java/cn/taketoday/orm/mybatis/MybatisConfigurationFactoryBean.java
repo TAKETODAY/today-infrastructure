@@ -59,11 +59,6 @@ public class MybatisConfigurationFactoryBean implements FactoryBean<Configuratio
     }
 
     @Override
-    public String getBeanName() {
-        return "mybatisConfiguration";
-    }
-
-    @Override
     public Class<Configuration> getBeanClass() {
         return Configuration.class;
     }
