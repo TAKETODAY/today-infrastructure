@@ -19,8 +19,13 @@
  */
 package cn.taketoday.context.logger;
 
+import java.io.IOException;
+import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+
+import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.utils.ResourceUtils;
 
 /**
  * @author TODAY <br>
@@ -67,21 +72,20 @@ public class JavaLoggingLogger extends AbstractLogger {
     private final java.util.logging.Level levelToJavaLevel(Level level) {
         switch (level) {
             case TRACE :
-                return java.util.logging.Level.FINER;
+                return java.util.logging.Level.FINEST;
             case DEBUG :
-                return java.util.logging.Level.FINE;
-            case INFO :
-                return java.util.logging.Level.INFO;
+                return java.util.logging.Level.FINER;
             case WARN :
                 return java.util.logging.Level.WARNING;
             case ERROR :
                 return java.util.logging.Level.SEVERE;
+            case INFO :
             default:
                 return java.util.logging.Level.INFO;
         }
     }
 
-    static final String thisFQCN = JavaLoggingLogger.class.getName();
+    protected static final String thisFQCN = JavaLoggingLogger.class.getName();
 
     @Override
     protected void logInternal(Level level, String format, Throwable t, Object[] args) {
@@ -137,5 +141,26 @@ public class JavaLoggingLogger extends AbstractLogger {
             record.setSourceClassName(ste.getClassName());
             record.setSourceMethodName(ste.getMethodName());
         }
+    }
+}
+
+class JavaLoggingFactory extends LoggerFactory {
+
+    static {
+        final Resource resource = ResourceUtils.getResource("classpath:logging.properties");
+        if (resource.exists()) {
+            try {
+                LogManager.getLogManager().readConfiguration(resource.getInputStream());
+            }
+            catch (SecurityException | IOException e) {
+                System.err.println("Can't load config file \"" + resource + "\"");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    protected JavaLoggingLogger createLogger(String name) {
+        return new JavaLoggingLogger(name);
     }
 }

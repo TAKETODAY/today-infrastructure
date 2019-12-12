@@ -78,12 +78,8 @@ public abstract class LoggerFactory {
         }
         catch (Throwable e) {}
         
-        factory = new LoggerFactory() {
-            @Override
-            protected Logger createLogger(String name) {
-                return new JavaLoggingLogger(name);
-            }
-        };
+        factory = new JavaLoggingFactory();
+        
         return factory.createLogger(name);
     }
 

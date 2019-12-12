@@ -88,7 +88,6 @@ public class Slf4jLogger extends AbstractLogger {
             ((LocationAwareLogger) target).log(null, FQCN, i, format, args, t);//"Today Context"
         }
         else {
-
             final String msg = MessageFormatter.format(format, args);
             switch (level) {
                 case DEBUG :

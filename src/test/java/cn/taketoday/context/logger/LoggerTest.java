@@ -19,13 +19,84 @@
  */
 package cn.taketoday.context.logger;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
 /**
  * @author TODAY <br>
- * 		   2019-12-06 23:09
+ *         2019-12-06 23:09
  */
 public class LoggerTest {
-    
-    
-    
 
+    @Test
+    public void testSlf4jLogger() throws Exception {
+        LoggerFactory.setFactory(new Slf4jLoggerFactory());
+
+        final Logger logger = LoggerFactory.getLogger(getClass());
+
+        assertTrue(logger instanceof Slf4jLogger);
+        assertEquals(logger.getName(), getClass().getName());
+
+        assertTrue(logger.isWarnEnabled());
+        assertTrue(logger.isInfoEnabled());
+        assertTrue(logger.isErrorEnabled());
+        assertTrue(logger.isTraceEnabled());
+        assertTrue(logger.isDebugEnabled());
+
+        logger.info("testSlf4jLogger");
+        logger.warn("testSlf4jLogger");
+        logger.error("testSlf4jLogger");
+        logger.debug("testSlf4jLogger");
+        logger.trace("testSlf4jLogger");
+    }
+
+    @Test
+    public void testLog4jLogger() throws Exception {
+        LoggerFactory.setFactory(new Log4j2LoggerFactory());
+        final Logger logger = LoggerFactory.getLogger(getClass());
+
+        assertTrue(logger instanceof Log4j2Logger);
+        assertEquals(logger.getName(), getClass().getName());
+
+        assertTrue(logger.isWarnEnabled());
+        assertTrue(logger.isInfoEnabled());
+        assertTrue(logger.isErrorEnabled());
+        assertTrue(logger.isTraceEnabled());
+        assertTrue(logger.isDebugEnabled());
+
+        logger.info("testLog4jLogger");
+        logger.warn("testLog4jLogger");
+        logger.error("testLog4jLogger");
+        logger.debug("testLog4jLogger");
+        logger.trace("testLog4jLogger");
+
+        LoggerFactory.setFactory(new Slf4jLoggerFactory());
+
+    }
+
+    @Test
+    public void testJavaLoggingLogger() throws Exception {
+        LoggerFactory.setFactory(new JavaLoggingFactory());
+        final Logger logger = LoggerFactory.getLogger(getClass());
+
+        assertTrue(logger instanceof JavaLoggingLogger);
+        assertEquals(logger.getName(), getClass().getName());
+
+        assertTrue(logger.isWarnEnabled());
+        assertTrue(logger.isInfoEnabled());
+        assertTrue(logger.isErrorEnabled());
+        assertTrue(!logger.isDebugEnabled());
+        assertTrue(!logger.isTraceEnabled());
+
+        logger.info("testLog4jLogger");
+        logger.warn("testLog4jLogger");
+        logger.error("testLog4jLogger");
+        logger.debug("testLog4jLogger");
+        logger.trace("testLog4jLogger");
+
+        LoggerFactory.setFactory(new Slf4jLoggerFactory());
+
+    }
 }

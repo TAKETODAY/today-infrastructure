@@ -25,7 +25,7 @@ package cn.taketoday.context.logger;
  */
 public abstract class AbstractLogger implements Logger {
 
-    static final String FQCN = AbstractLogger.class.getName();
+    protected static final String FQCN = AbstractLogger.class.getName();
 
     @Override
     public void trace(String msg) {
