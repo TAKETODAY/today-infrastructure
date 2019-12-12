@@ -87,7 +87,9 @@ public class CandidateComponentScanner {
         if (defaultIgnoreScanJarPrefixs != null) {
             return defaultIgnoreScanJarPrefixs;
         }
-
+        
+        log.debug("Loading 'META-INF/ignore/jar-prefix'");
+        
         // Load the META-INF/ignore/jar-prefix to ignore some jars
         // --------------------------------------------------------------
         final Set<String> ignoreScanJars = new HashSet<>(64);

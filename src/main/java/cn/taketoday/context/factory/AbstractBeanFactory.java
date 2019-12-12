@@ -95,11 +95,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * @since 2.1.7 Preventing repeated initialization of beans(Prevent duplicate
-     *        initialization)
+     *        initialization) , Prevent Cycle Dependency
      */
-    private String currentInitializingBeanName;
-
-//    private HashSet<String> currentInitializingBeanName = new HashSet<>();
+    private final HashSet<String> currentInitializingBeanName = new HashSet<>();
 
     @Override
     public Object getBean(final String name) throws ContextException {
@@ -791,12 +789,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      */
     protected Object initializingBean(final Object bean, final String name, final BeanDefinition def) throws Throwable {
 
-//        if (currentInitializingBeanName.contains(name)) {
-        if (name.equals(currentInitializingBeanName)) {
+        if (currentInitializingBeanName.contains(name)) {
             return bean;
         }
-        currentInitializingBeanName = name;
-//        currentInitializingBeanName.add(name);
+        currentInitializingBeanName.add(name);
         log.debug("Initializing bean named: [{}].", name);
 
         aware(bean, name);
@@ -807,13 +803,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             applyPropertyValues(bean, def.getPropertyValues());
             // invoke initialize methods
             invokeInitMethods(bean, def.getInitMethods());
-//            currentInitializingBeanName.remove(name);
-            currentInitializingBeanName = null;
+            currentInitializingBeanName.remove(name);
             return bean;
         }
         final Object initWithPostProcessors = initWithPostProcessors(bean, name, def, postProcessors);
-//        currentInitializingBeanName.remove(name);
-        currentInitializingBeanName = null;
+        currentInitializingBeanName.remove(name);
         return initWithPostProcessors;
     }
 
@@ -947,7 +941,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     public final void registerSingleton(final String name, final Object bean) {
         String nameToUse = name;
         if (bean instanceof FactoryBean && name.charAt(0) != FACTORY_BEAN_PREFIX_CHAR) {// @since v2.1.1
-            nameToUse = FACTORY_BEAN_PREFIX + name;
+            nameToUse = FACTORY_BEAN_PREFIX.concat(name);
         }
         singletons.put(nameToUse, bean);
         if (log.isDebugEnabled()) {
