@@ -243,20 +243,20 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
             for (final String name : findNames(defaultBeanName, component.getStringArray(Constant.VALUE))) {
 
                 // register
-                final StandardBeanDefinition beanDefinition = new StandardBeanDefinition(name, returnType);
+                final StandardBeanDefinition def = new StandardBeanDefinition(name, returnType);
 
-                beanDefinition.setScope(scope);
-                beanDefinition.setDestroyMethods(destroyMethods);
-                beanDefinition.setInitMethods(resolveInitMethod(initMethods, returnType));
-                beanDefinition.setPropertyValues(ContextUtils.resolvePropertyValue(returnType));
+                def.setScope(scope);
+                def.setDestroyMethods(destroyMethods);
+                def.setInitMethods(resolveInitMethod(initMethods, returnType));
+                def.setPropertyValues(ContextUtils.resolvePropertyValue(returnType));
 
-                beanDefinition.setDeclaringName(declaringBeanName)//
+                def.setDeclaringName(declaringBeanName)//
                         .setFactoryMethod(method);
                 // resolve @Props on a bean
 
-                ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
+                ContextUtils.resolveProps(def, applicationContext.getEnvironment());
 
-                register(name, beanDefinition);
+                register(name, def);
             }
         }
     }
@@ -469,7 +469,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     // ---------------------------------------------
 
     @Override
-    public void loadBeanDefinition(Class<?> candidate) throws BeanDefinitionStoreException {
+    public void loadBeanDefinition(final Class<?> candidate) throws BeanDefinitionStoreException {
 
         // don't load abstract class
         if (!Modifier.isAbstract(candidate.getModifiers()) && ContextUtils.conditional(candidate)) {
@@ -478,14 +478,14 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     }
 
     @Override
-    public void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException {
+    public void loadBeanDefinitions(final Collection<Class<?>> beans) throws BeanDefinitionStoreException {
         for (Class<?> clazz : beans) {
             loadBeanDefinition(clazz);
         }
     }
 
     @Override
-    public void loadBeanDefinition(String name, Class<?> beanClass) throws BeanDefinitionStoreException {
+    public void loadBeanDefinition(final String name, final Class<?> beanClass) throws BeanDefinitionStoreException {
 
         final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(beanClass, Component.class);
 
@@ -500,12 +500,12 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     }
 
     @Override
-    public void loadBeanDefinition(String... locations) throws BeanDefinitionStoreException {
+    public void loadBeanDefinition(final String... locations) throws BeanDefinitionStoreException {
         loadBeanDefinitions(new CandidateComponentScanner().scan(locations));
     }
 
     @Override
-    public void register(Class<?> candidate) throws BeanDefinitionStoreException {
+    public void register(final Class<?> candidate) throws BeanDefinitionStoreException {
 
         final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(candidate, Component.class);
 
@@ -533,7 +533,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
-    protected BeanDefinition build(Class<?> beanClass, AnnotationAttributes attributes, String beanName) {
+    protected BeanDefinition build(final Class<?> beanClass, final AnnotationAttributes attributes, final String beanName) {
         return ContextUtils.buildBeanDefinition(beanClass, attributes, beanName);
     }
 
@@ -608,7 +608,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * Import beans from given package locations
      * 
      * @param source
-     *            {@link AnnotatedElement} that annotated {@link ComponentScan}
+     *            {@link BeanDefinition} that annotated {@link ComponentScan}
      */
     protected void componentScan(final AnnotatedElement source) {
 
@@ -619,17 +619,14 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * 
-     * If bean definition is a {@link FactoryBean} register its factory's instance
-     * 
-     * @param <T>
+     * Register {@link FactoryBeanDefinition} to the {@link BeanFactory}
      * 
      * @param beanName
-     *            Old bean name
+     *            Target bean name
      * @param factoryDef
-     *            Bean definition
-     * @return returns a new bean name
+     *            {@link FactoryBean} Bean definition
      * @throws Throwable
-     *             If any {@link Exception} occurred
+     *             If any {@link Throwable} occurred
      */
     protected void registerFactoryBean(final String oldBeanName, final BeanDefinition factoryDef) throws Throwable {
 
@@ -655,7 +652,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     }
 
     @Override
-    public BeanDefinition createBeanDefinition(Class<?> beanClass) {
+    public BeanDefinition createBeanDefinition(final Class<?> beanClass) {
         return build(beanClass,
                      getAnnotationAttributes(Component.class, beanClass),
                      getBeanNameCreator().create(beanClass));
