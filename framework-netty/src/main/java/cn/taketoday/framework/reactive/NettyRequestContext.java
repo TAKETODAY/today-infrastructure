@@ -83,7 +83,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NettyRequestContext implements RequestContext, Map<String, Object> {
 
-    private String url;
+    private final String url;
     private String queryString;
     private String remoteAddress;
 
@@ -109,6 +109,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         this.request = request;
         this.handlerContext = ctx;
         this.contextPath = contextPath;
+        this.url = request.uri();
     }
 
     @Override
@@ -118,17 +119,16 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     @Override
     public String queryString() {
-        if (null == url || !url.contains("?")) {
-            return null;
+        final String queryString = this.queryString;
+        if (queryString == null) {
+            final String url = this.url;
+            int index;
+            if (url == null || (index = url.indexOf('?')) == -1) {
+                return Constant.BLANK;
+            }
+            return this.queryString = url.substring(index + 1);
         }
-        return url.substring(url.indexOf("?") + 1);
-    }
-
-    public static String queryString(String url) {
-        if (null == url || !url.contains("?")) {
-            return null;
-        }
-        return url.substring(url.indexOf("?") + 1);
+        return queryString;
     }
 
     @Override
@@ -386,51 +386,47 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     @Override
     public Map<String, String[]> parameters() {
-
-        Map<String, String[]> params = this.parameters;
-
+        final Map<String, String[]> params = this.parameters;
         if (params != null) {
             return params;
         }
-
-        final String queryString = queryString();
-        if (StringUtils.isNotEmpty(queryString)) {
-            final Map<String, List<String>> parameters = StringUtils.parseParameters(queryString);
-
-            parameters(parameters);
-
-            if (!parameters.isEmpty()) {
-                params = new HashMap<>(32);
-                for (final Entry<String, List<String>> entry : parameters.entrySet()) {
-                    final List<String> value = entry.getValue();
-                    params.put(entry.getKey(), value.toArray(new String[value.size()]));
-                }
-                return this.parameters = params;
-            }
-        }
-        return Collections.emptyMap();
-
+        return this.parameters = parseParameters();
     }
 
-    protected void parameters(final Map<String, List<String>> parameters) {
+    protected Map<String, String[]> parseParameters() {
+
+        final String queryString = queryString();
+        final Map<String, List<String>> parameters = StringUtils.isNotEmpty(queryString)
+                ? StringUtils.parseParameters(queryString)
+                : new HashMap<>();
+
         InterfaceHttpData data;
         final InterfaceHttpPostRequestDecoder decoder = getRequestDecoder();
         while ((data = decoder.next()) != null) {
-            if (InterfaceHttpData.HttpDataType.Attribute == data.getHttpDataType()) {
-                final Attribute attribute = (Attribute) data;
+            if (data instanceof Attribute) {
                 try {
-                    final String name = attribute.getName();
+                    final String name = data.getName();
                     List<String> list = parameters.get(name);
                     if (list == null) {
                         parameters.put(name, list = new ArrayList<>(4));
                     }
-                    list.add(attribute.getValue());
+                    list.add(((Attribute) data).getValue());
                 }
                 catch (IOException e) {
-
+                    throw WebUtils.newBadRequest("HttpData", "name", e);
                 }
             }
         }
+
+        if (!parameters.isEmpty()) {
+            final Map<String, String[]> params = new HashMap<>(parameters.size());
+            for (final Entry<String, List<String>> entry : parameters.entrySet()) {
+                final List<String> value = entry.getValue();
+                params.put(entry.getKey(), value.toArray(new String[value.size()]));
+            }
+            return params;
+        }
+        return Collections.emptyMap();
     }
 
     protected void parseBody() {
@@ -462,7 +458,6 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
                     // TODO 自动生成的 catch 块
                     e.printStackTrace();
                 }
-
 //                params.put(attribute.getName(), attribute.getValue());
             }
         }
@@ -473,12 +468,12 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         if (requestDecoder == null) {
             if (WebUtils.isMultipart(this)) {
                 requestDecoder = new HttpPostMultipartRequestDecoder(HTTP_DATA_FACTORY,
-                                                                     request,
+                                                                     request.retain(),
                                                                      Constant.DEFAULT_CHARSET);
             }
             else {
                 requestDecoder = new HttpPostStandardRequestDecoder(HTTP_DATA_FACTORY,
-                                                                    request,
+                                                                    request.retain(),
                                                                     Constant.DEFAULT_CHARSET);
             }
             requestDecoder.setDiscardThreshold(0);
@@ -553,8 +548,8 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
         getResponse().setStatus(HttpResponseStatus.FOUND);
         getResponseHeaders().set(HttpHeaderNames.LOCATION, location);
+        send();
 
-        committed = true;
         return this;
     }
 
