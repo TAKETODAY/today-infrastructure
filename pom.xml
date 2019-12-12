@@ -74,7 +74,7 @@
             <version>1.7.28</version>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
@@ -87,6 +87,13 @@
             <artifactId>log4j-api</artifactId>
             <version>2.12.1</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.12.1</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
