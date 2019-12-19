@@ -32,7 +32,17 @@ public interface ApplicationEventPublisher {
      * Publish event
      * 
      * @param event
-     *            Event object
+     *            {@link EventObject} Event object
      */
-    void publishEvent(EventObject event);
+    default void publishEvent(EventObject event) {
+        publishEvent((Object) event);
+    }
+
+    /**
+     * Publish event
+     * 
+     * @param event
+     *            Any Event object
+     */
+    void publishEvent(Object event);
 }

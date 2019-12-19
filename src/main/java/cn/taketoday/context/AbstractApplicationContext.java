@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EventObject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -88,7 +87,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // @since 2.1.5
     private State state;
     /** application listeners **/
-    private final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = new HashMap<>(32);
+    private final Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners = new HashMap<>(32);
 
     /** @since 2.1.7 Scan candidates */
     private CandidateComponentScanner candidateComponentScanner;
@@ -353,7 +352,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      *            {@link ApplicationListener} cache
      */
     protected void registerListener(final Collection<Class<?>> classes,
-                                    final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners) //
+                                    final Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) //
     {
         log.debug("Loading Application Listeners.");
 
@@ -395,7 +394,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     @Override
     public void addApplicationListener(final ApplicationListener<?> applicationListener) {
 
-        final Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners = this.applicationListeners;
+        final Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners = this.applicationListeners;
         if (applicationListener instanceof ApplicationEventCapable) { // @since2.1.7
             for (final Class<?> type : ((ApplicationEventCapable) applicationListener).getApplicationEvent()) {
                 doRegisterListener(applicationListeners, applicationListener, type);
@@ -424,14 +423,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      *            The event type
      */
     @SuppressWarnings({ "unchecked" })
-    private final static void doRegisterListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners,
+    private final static void doRegisterListener(Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners,
                                                  Object applicationListener, Class<?> eventType) //
     {
-        List<ApplicationListener<EventObject>> listeners = applicationListeners.get(eventType);
+        List<ApplicationListener<Object>> listeners = applicationListeners.get(eventType);
         if (listeners == null) {
             listeners = new ArrayList<>(8);
         }
-        listeners.add((ApplicationListener<EventObject>) applicationListener);
+        listeners.add((ApplicationListener<Object>) applicationListener);
         if (listeners.size() > 1) {
             OrderUtils.reversedSort(listeners);
         }
@@ -444,7 +443,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      * @param applicationListeners
      *            {@link ApplicationListener} cache
      */
-    protected void postProcessRegisterListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners) {
+    protected void postProcessRegisterListener(Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) {
 
         addApplicationListener(new ContextCloseListener());
 
@@ -490,18 +489,18 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // --------ApplicationEventPublisher
 
     @Override
-    public void publishEvent(final EventObject event) {
+    public void publishEvent(final Object event) {
 
         if (log.isDebugEnabled()) {
             log.debug("Publish event: [{}]", event);
         }
 
-        final List<ApplicationListener<EventObject>> listeners = applicationListeners.get(event.getClass());
+        final List<ApplicationListener<Object>> listeners = applicationListeners.get(event.getClass());
         if (listeners == null || listeners.isEmpty()) {
             return;
         }
 
-        for (final ApplicationListener<EventObject> applicationListener : listeners) {
+        for (final ApplicationListener<Object> applicationListener : listeners) {
             applicationListener.onApplicationEvent(event);
         }
     }

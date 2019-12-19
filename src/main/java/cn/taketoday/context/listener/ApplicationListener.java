@@ -20,7 +20,6 @@
 package cn.taketoday.context.listener;
 
 import java.util.EventListener;
-import java.util.EventObject;
 
 /**
  * @author Today <br>
@@ -28,7 +27,7 @@ import java.util.EventObject;
  *         2018-09-09 21:23
  */
 @FunctionalInterface
-public interface ApplicationListener<E extends EventObject> extends EventListener {
+public interface ApplicationListener<E extends Object> extends EventListener {
 
     /**
      * On event

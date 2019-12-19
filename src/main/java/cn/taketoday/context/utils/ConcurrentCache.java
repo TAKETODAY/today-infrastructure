@@ -62,7 +62,6 @@ public final class ConcurrentCache<K, V> {
     }
 
     public V get(K k, Function<? super K, ? extends V> function) {
-
         V v;
         if ((v = get(k)) == null) {
             V newValue;
