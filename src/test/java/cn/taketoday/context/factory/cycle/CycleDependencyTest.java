@@ -67,6 +67,9 @@ public class CycleDependencyTest {
 
         @Autowired
         BeanA beanA;
+
+        @Autowired
+        BeanB beanB;
     }
 
     @Configuration
