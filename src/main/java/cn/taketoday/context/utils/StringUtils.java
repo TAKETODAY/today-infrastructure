@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -400,6 +401,33 @@ public abstract class StringUtils {
     }
 
     /**
+     * List to string
+     * 
+     * @param list
+     *            Input {@link List} object
+     * @param delimiter
+     *            Delimiter string
+     */
+    public static <T> String listToString(final List<T> list, final String delimiter) {
+        if (list == null) {
+            return null;
+        }
+        final int length = list.size();
+        if (length == 1) {
+            return list.get(0).toString();
+        }
+
+        final StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            builder.append(list.get(i));
+            if (i != length - 1) {
+                builder.append(delimiter);
+            }
+        }
+        return builder.toString();
+    }
+
+    /**
      * Check properties file name
      * 
      * @param fileName
@@ -709,6 +737,19 @@ public abstract class StringUtils {
         System.arraycopy(array1, 0, newArr, 0, array1.length);
         System.arraycopy(array2, 0, newArr, array1.length, array2.length);
         return newArr;
+    }
+
+    // ---------------------------------
+
+    public static <T> List<T> enumerationToList(final Enumeration<T> objs) {
+        if (objs == null) {
+            return Collections.emptyList();
+        }
+        final List<T> ret = new ArrayList<>();
+        while (objs.hasMoreElements()) {
+            ret.add(objs.nextElement());
+        }
+        return ret.isEmpty() ? Collections.emptyList() : ret;
     }
 
 }

@@ -238,4 +238,29 @@ public abstract class ResourceUtils {
         return new URI(StringUtils.replace(location, " ", "%20"));
     }
 
+    /**
+     * Return whether the given resource location is a URL: either a special
+     * "classpath" pseudo URL or a standard URL.
+     * 
+     * @param resourceLocation
+     *            the location String to check
+     * @return whether the location qualifies as a URL
+     * @see #CLASSPATH_URL_PREFIX
+     * @see java.net.URL
+     */
+    public static boolean isUrl(String resourceLocation) {
+        if (resourceLocation == null) {
+            return false;
+        }
+        if (resourceLocation.startsWith(Constant.CLASS_PATH_PREFIX)) {
+            return true;
+        }
+        try {
+            new URL(resourceLocation);
+            return true;
+        }
+        catch (MalformedURLException ex) {
+            return false;
+        }
+    }
 }

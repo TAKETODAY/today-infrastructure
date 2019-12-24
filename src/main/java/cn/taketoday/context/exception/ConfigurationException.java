@@ -19,12 +19,14 @@
  */
 package cn.taketoday.context.exception;
 
+import java.util.function.Supplier;
+
 import cn.taketoday.context.logger.LoggerFactory;
 import lombok.NoArgsConstructor;
 
 /**
  * 
- * configuration exception
+ * Configuration exception
  * 
  * @author TODAY <br>
  *         2018-08-08 09:55
@@ -46,4 +48,19 @@ public class ConfigurationException extends ContextException {
     public ConfigurationException(String message) {
         this(message, null);
     }
+
+    public static <T> T nonNull(final T obj, final String msg) {
+        if (obj == null) {
+            throw new ConfigurationException(msg);
+        }
+        return obj;
+    }
+
+    public static <T> T nonNull(final T obj, final Supplier<String> msg) {
+        if (obj == null) {
+            throw new ConfigurationException(msg.get());
+        }
+        return obj;
+    }
+
 }
