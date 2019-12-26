@@ -58,12 +58,12 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
         return null;
     }
 
-    public void register(String requestURI, ViewController viewMapping) {
-        registerHandler(requestURI, viewMapping);
+    public void register(String requestURI, ViewController viewController) {
+        registerHandler(requestURI, viewController);
     }
 
-    public void register(ViewController viewMapping, String... requestURI) {
-        registerHandler(viewMapping, requestURI);
+    public void register(ViewController viewController, String... requestURI) {
+        registerHandler(viewController, requestURI);
     }
 
     /**
@@ -80,9 +80,9 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
      * @return {@link ViewController}
      */
     public ViewController addViewController(String pathPattern) {
-        final ViewController viewMapping = new ViewController();
-        register(pathPattern, viewMapping);
-        return viewMapping;
+        final ViewController viewController = new ViewController();
+        register(pathPattern, viewController);
+        return viewController;
     }
 
     /**
