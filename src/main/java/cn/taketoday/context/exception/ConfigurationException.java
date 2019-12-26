@@ -49,6 +49,10 @@ public class ConfigurationException extends ContextException {
         this(message, null);
     }
 
+    public static <T> T nonNull(final T obj) {
+        return nonNull(obj, "object must not be null");
+    }
+
     public static <T> T nonNull(final T obj, final String msg) {
         if (obj == null) {
             throw new ConfigurationException(msg);
