@@ -21,6 +21,8 @@ package cn.taketoday.context.aware;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
@@ -28,6 +30,8 @@ import cn.taketoday.context.exception.ContextException;
  */
 public abstract class ApplicationContextSupport implements ApplicationContextAware {
 
+    protected Logger log = LoggerFactory.getLogger(getClass());
+    
     private ApplicationContext applicationContext;
 
     @Override
@@ -77,11 +81,11 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
      */
     protected void initApplicationContext() throws ContextException {}
 
-    public final ApplicationContext getApplicationContext() {
+    public ApplicationContext getApplicationContext() {
         return applicationContext;
     }
 
-    public final ApplicationContext obtainApplicationContext() {
+    public ApplicationContext obtainApplicationContext() {
         final ApplicationContext context = getApplicationContext();
         if (context == null) {
             throw new IllegalStateException("No ApplicationContext");
