@@ -52,9 +52,9 @@ public class DispatcherHandler extends ApplicationContextSupport {
 
     private static final Logger log = LoggerFactory.getLogger(DispatcherHandler.class);
 
+    private String contextPath;
     /** Action mapping registry */
     private HandlerRegistry handlerRegistry;
-
     /** exception resolver */
     private ExceptionResolver exceptionResolver;
 
@@ -75,6 +75,12 @@ public class DispatcherHandler extends ApplicationContextSupport {
     @Override
     protected void initApplicationContext(ApplicationContext context) throws ContextException {
         super.initApplicationContext(context);
+        if (context instanceof WebApplicationContext) {
+            this.contextPath = ((WebApplicationContext) context).getContextPath();
+        }
+        else {
+            throw new ConfigurationException("context must be a WebApplicationContext");
+        }
         setMappingRegistry(new CompositeHandlerRegistry(context.getBeans(HandlerRegistry.class)));
     }
 
@@ -189,12 +195,16 @@ public class DispatcherHandler extends ApplicationContextSupport {
     public HandlerRegistry getHandlerRegistry() {
         return handlerRegistry;
     }
-    
+
     public HandlerRegistry obtainHandlerRegistry() {
         return nonNull(getHandlerRegistry(), "You must provide an 'handler registry'");
     }
 
     public void setMappingRegistry(HandlerRegistry mappingRegistry) {
         this.handlerRegistry = mappingRegistry;
+    }
+
+    public String getContextPath() {
+        return contextPath;
     }
 }

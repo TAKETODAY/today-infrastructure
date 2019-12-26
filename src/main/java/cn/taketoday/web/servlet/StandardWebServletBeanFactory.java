@@ -40,7 +40,6 @@ public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
 
     public StandardWebServletBeanFactory(AbstractApplicationContext applicationContext) {
         super(applicationContext);
-
         if (applicationContext instanceof WebServletApplicationContext == false) {
             throw newConfigurationException(null, "application context must be 'WebServletApplicationContext'");
         }
