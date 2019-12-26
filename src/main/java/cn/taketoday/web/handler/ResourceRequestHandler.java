@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.handler;
 
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPOutputStream;
@@ -45,8 +47,8 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     private final WebResourceResolver resourceResolver;
 
     public ResourceRequestHandler(ResourceMapping mapping, WebResourceResolver resourceResolver) {
-        this.mapping = mapping;
-        this.resourceResolver = resourceResolver;
+        this.mapping = nonNull(mapping, "resource metadata must not be null");
+        this.resourceResolver = nonNull(resourceResolver, "resource resolver must not be null");
     }
 
     @Override
