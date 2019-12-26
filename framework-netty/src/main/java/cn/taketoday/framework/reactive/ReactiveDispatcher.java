@@ -26,75 +26,31 @@ import java.util.concurrent.Executor;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.DisposableBean;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.framework.Constant;
-import cn.taketoday.framework.WebServerApplicationContext;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.HandlerMapping;
-import cn.taketoday.web.mapping.HandlerMappingRegistry;
-import cn.taketoday.web.mapping.RegexMapping;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.web.exception.ExceptionUnhandledException;
+import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.resolver.ExceptionResolver;
-import cn.taketoday.web.servlet.DispatcherHandler;
-import cn.taketoday.web.utils.WebUtils;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  *         2019-07-04 21:50
  */
-@Slf4j
-//@Sharable
 @Singleton
-public class ReactiveDispatcher
-        extends SimpleChannelInboundHandler<FullHttpRequest> implements ChannelInboundHandler, DisposableBean {
+public class ReactiveDispatcher extends DispatcherHandler implements ChannelInboundHandler {
 
-//  private static final Logger log = LoggerFactory.getLogger(DispatcherHandler.class);
-
-    /** context path */
-    private final String contextPath;
-    /** exception resolver */
-    private final ExceptionResolver exceptionResolver;
-    /** Action mapping registry */
-    private final HandlerMappingRegistry handlerMappingRegistry;
-
-    private final WebServerApplicationContext applicationContext;
+    private static final Logger log = LoggerFactory.getLogger(ReactiveDispatcher.class);
 
     @Autowired
-    public ReactiveDispatcher(ExceptionResolver exceptionResolver, //@off
-                              HandlerMappingRegistry handlerMappingRegistry,
-                              WebServerApplicationContext applicationContext) //@on
-    {
-        if (exceptionResolver == null) {
-            throw new ConfigurationException("You must provide an 'exceptionResolver'");
-        }
-        this.exceptionResolver = exceptionResolver;
-        this.applicationContext = applicationContext;
-        this.handlerMappingRegistry = handlerMappingRegistry;
-
-        this.contextPath = StringUtils.isEmpty(applicationContext.getContextPath())
-                ? Constant.BLANK
-                : applicationContext.getContextPath();
-    }
-
-    @Override
-    protected void ensureNotSharable() {}
-
-    @Override
-    public boolean isSharable() {
-        return true;
+    public ReactiveDispatcher(ExceptionResolver exceptionResolver) {
+        super(exceptionResolver);
     }
 
     @Override
@@ -103,73 +59,47 @@ public class ReactiveDispatcher
     }
 
     @Override
-    public boolean acceptInboundMessage(Object msg) throws Exception {
-        return msg instanceof FullHttpRequest;
-    }
-
-    @Override
-    public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
-
-//        System.err.println(msg);
-
-        async(ctx, msg);
-//      sync(ctx, msg);
-    }
-
-    protected void sync(ChannelHandlerContext ctx, FullHttpRequest msg) {
-        // Lookup handler mapping
-        final HandlerMapping mapping = lookupHandlerMapping(msg);
-
-        if (mapping == null) {
-            ctx.writeAndFlush(notFound());
-            return;
+    public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+        if (msg instanceof FullHttpRequest) { // sync(ctx, msg);
+            async(ctx, (FullHttpRequest) msg);
         }
+        else {
+            ctx.fireChannelRead(msg);
+        }
+    }
 
-        final NettyRequestContext nettyRequestContext = new NettyRequestContext(contextPath, ctx, msg);
-
-        service(ctx, mapping, nettyRequestContext);
-        nettyRequestContext.send();
+    protected void sync(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
+        // Lookup handler mapping
+        final NettyRequestContext context = new NettyRequestContext(getContextPath(), ctx, msg);
+        try {
+            handle(context);
+            context.send();
+        }
+        catch (Throwable e) {
+            throw new ExceptionUnhandledException(e);
+        }
     }
 
     private void async(ChannelHandlerContext ctx, FullHttpRequest request) {
 
-        final Executor executor = ctx.executor(); //ctx.channel().eventLoop()
-        final CompletableFuture<FullHttpRequest> future = CompletableFuture.completedFuture(request);
+        final NettyRequestContext context = new NettyRequestContext(getContextPath(), ctx, request);
 
-        future.thenApplyAsync(this::lookupHandlerMapping, executor)
-                .thenApplyAsync(mapping -> {
-                    if (mapping == null) {
-                        ctx.writeAndFlush(notFound());
-                        future.complete(request);
-                        return null;
-                    }
-                    final NettyRequestContext context = new NettyRequestContext(contextPath, ctx, request);
+        final Executor executor = ctx.executor();
+
+        CompletableFuture.completedFuture(context)
+                .thenApplyAsync(this::lookupHandler, executor)
+                .thenApplyAsync(handler -> {
                     try {
-                        DispatcherHandler.service(mapping, context);
+                        handle(handler, context);
                     }
                     catch (Throwable e) {
-                        try {
-                            WebUtils.resolveException(context, exceptionResolver, mapping, e);
-                        }
-                        catch (Throwable e1) {
-                            ctx.fireExceptionCaught(e);
-                        }
+                        ctx.fireExceptionCaught(e);
                     }
-                    return context;
+                    return handler;
                 }, executor)
-                .thenAcceptAsync(context -> {
+                .thenAcceptAsync(handler -> {
                     context.send();
                 }, executor);
-    }
-
-    protected FullHttpResponse notFound() {
-
-        final FullHttpResponse notFound = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                                                                      HttpResponseStatus.NOT_FOUND);
-
-        notFound.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain");
-        notFound.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
-        return notFound;
     }
 
     @Override
@@ -182,67 +112,40 @@ public class ReactiveDispatcher
                 .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
     }
 
-    public void service(final ChannelHandlerContext ctx, final HandlerMapping mapping, final RequestContext context) {
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {}
 
-        try {
-            DispatcherHandler.service(mapping, context);
-        }
-        catch (Throwable e) {
-            e.printStackTrace();
-            try {
-                WebUtils.resolveException(context, exceptionResolver, mapping, e);
-            }
-            catch (Throwable e1) {
-                ctx.fireExceptionCaught(e);
-            }
-        }
-    }
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {}
 
-    /**
-     * Looking for {@link HandlerMapping}
-     * 
-     * @param request
-     *            current request
-     * @return mapped {@link HandlerMapping}
-     * @since 2.3.7
-     */
-    protected HandlerMapping lookupHandlerMapping(final HttpRequest request) {
-
-        String key = StringUtils.decodeUrl(request.uri());
-        request.setUri(key);
-
-        // The key of handler
-        key = request.method().name().concat(key);
-
-        final HandlerMapping ret = handlerMappingRegistry.get(key);
-        if (ret == null) { // path variable
-            for (final RegexMapping regexMapping : handlerMappingRegistry.getRegexMappings()) {
-                // TODO path matcher pathMatcher.match(requestURI, requestURI)
-                if (regexMapping.pattern.matcher(key).matches()) {
-                    return regexMapping.handlerMapping;
-                }
-            }
-            log.debug("NOT FOUND -> [{}]", key);
-            return null;
-        }
-        return ret;
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        ctx.fireChannelRegistered();
     }
 
     @Override
-    public void destroy() {
-        DispatcherHandler.destroy(applicationContext);
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        ctx.fireChannelUnregistered();
     }
 
-    public final HandlerMappingRegistry getHandlerMappingRegistry() {
-        return this.handlerMappingRegistry;
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        ctx.fireChannelActive();
     }
 
-    public final String getContextPath() {
-        return this.contextPath;
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        ctx.fireChannelInactive();
     }
 
-    public final ExceptionResolver getExceptionResolver() {
-        return this.exceptionResolver;
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        ctx.fireUserEventTriggered(evt);
+    }
+
+    @Override
+    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
+        ctx.fireChannelWritabilityChanged();
     }
 
 }

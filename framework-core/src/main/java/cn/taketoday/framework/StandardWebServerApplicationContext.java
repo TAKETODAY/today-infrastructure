@@ -19,7 +19,6 @@
  */
 package cn.taketoday.framework;
 
-import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
 
@@ -38,9 +37,9 @@ public class StandardWebServerApplicationContext
         extends StandardApplicationContext
         implements ConfigurableWebServerApplicationContext, WebServerApplicationContext {
 
-    private String contextPath;
     private WebServer webServer;
     private final Class<?> startupClass;
+    private String contextPath = Constant.BLANK;
 
     public StandardWebServerApplicationContext(Class<?> startupClass) {
         this.startupClass = startupClass;
@@ -56,7 +55,7 @@ public class StandardWebServerApplicationContext
     }
 
     @Override
-    protected void postProcessRegisterListener(Map<Class<?>, List<ApplicationListener<EventObject>>> applicationListeners) {
+    protected void postProcessRegisterListener(Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) {
         super.postProcessRegisterListener(applicationListeners);
         registerSingleton(this);
     }
@@ -80,6 +79,10 @@ public class StandardWebServerApplicationContext
 
     @Override
     public String getContextPath() {
+        final String contextPath = this.contextPath;
+        if (contextPath == null) {
+            return this.contextPath = Constant.BLANK;
+        }
         return contextPath;
     }
 

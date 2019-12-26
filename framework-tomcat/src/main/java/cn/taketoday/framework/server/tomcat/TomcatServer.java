@@ -30,6 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PreDestroy;
 import javax.naming.NamingException;
@@ -67,6 +68,8 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
@@ -81,18 +84,18 @@ import cn.taketoday.framework.server.ServletWebServerApplicationLoader;
 import cn.taketoday.framework.server.WebServer;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  *         2018-10-15 20:44
  */
-@Slf4j
 @Setter
 @Getter
 @MissingBean(type = WebServer.class)
 @Props(prefix = { "server.", "server.tomcat." })
 public class TomcatServer extends AbstractServletWebServer {
+
+    private static final Logger log = LoggerFactory.getLogger(TomcatServer.class);
 
     // connector
     private String protocol = "HTTP/1.1";
@@ -181,7 +184,6 @@ public class TomcatServer extends AbstractServletWebServer {
             return;
         }
         try {
-
             addPreviouslyRemovedConnectors();
 
             getStarted().set(true);
@@ -242,11 +244,10 @@ public class TomcatServer extends AbstractServletWebServer {
     @Override
     @PreDestroy
     public synchronized void stop() throws WebServerException {
-
         try {
-
-            if (getStarted().get()) {
-                getStarted().set(false);
+            final AtomicBoolean started = getStarted();
+            if (started.get()) {
+                started.set(false);
                 stopSilently();
             }
         }
@@ -306,9 +307,7 @@ public class TomcatServer extends AbstractServletWebServer {
 
             // Start the server to trigger initialization listeners
             this.tomcat.start();
-
             try {
-
                 ContextBindings.bindClassLoader(context, context.getNamingToken(),
                                                 getClass().getClassLoader());
             }
@@ -324,7 +323,6 @@ public class TomcatServer extends AbstractServletWebServer {
             stopSilently();
             throw new WebServerException("Unable to start embedded Tomcat", ex);
         }
-
     }
 
     private void configureEngine(Engine engine) {

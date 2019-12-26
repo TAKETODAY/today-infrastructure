@@ -25,16 +25,18 @@ import org.apache.catalina.SessionIdGenerator;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.session.ManagerBase;
 
-import lombok.extern.slf4j.Slf4j;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * 
  * @author TODAY <br>
  *         2019-02-05 13:30
  */
-@Slf4j
 public class TomcatEmbeddedContext extends StandardContext {
 
+    private static final Logger log = LoggerFactory.getLogger(TomcatEmbeddedContext.class);
+    
     private final SessionIdGenerator sessionIdGenerator;
 
     public TomcatEmbeddedContext(SessionIdGenerator generator) {

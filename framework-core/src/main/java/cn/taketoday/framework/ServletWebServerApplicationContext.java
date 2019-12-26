@@ -50,9 +50,7 @@ public class ServletWebServerApplicationContext
 
     @Override
     protected void onRefresh() throws Throwable {
-
         this.webServer = ApplicationUtils.obtainWebServer(this);
-
         super.onRefresh();
     }
 

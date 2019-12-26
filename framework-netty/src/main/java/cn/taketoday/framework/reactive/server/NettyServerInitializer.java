@@ -20,21 +20,23 @@
 package cn.taketoday.framework.reactive.server;
 
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.framework.reactive.ReactiveDispatcher;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  *         2019-07-02 21:34
  */
-@Slf4j
 @Singleton
 public class NettyServerInitializer extends ChannelInitializer<SocketChannel> implements ChannelHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(NettyServerInitializer.class);
 
     private final ReactiveDispatcher reactiveDispatcher;
 

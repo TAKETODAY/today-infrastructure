@@ -19,22 +19,20 @@
  */
 package cn.taketoday.framework;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.framework.env.StandardWebEnvironment;
-import cn.taketoday.framework.server.WebServer;
-import lombok.Getter;
 
 /**
  * @author TODAY <br>
  *         2018-10-16 15:46
  */
-@Getter
 public class WebApplication {
 
     private static final Logger log = LoggerFactory.getLogger(WebApplication.class);
@@ -43,21 +41,15 @@ public class WebApplication {
     private ConfigurableWebServerApplicationContext applicationContext;
 
     public WebApplication() {
-        if (ClassUtils.isPresent(Constant.ENV_SERVLET)) {
-            applicationContext = new ServletWebServerApplicationContext();
-        }
-        else {
-            applicationContext = new StandardWebServerApplicationContext();
-        }
+        applicationContext = ClassUtils.isPresent(Constant.ENV_SERVLET)
+                ? new ServletWebServerApplicationContext()
+                : new StandardWebServerApplicationContext();
     }
 
     public WebApplication(Class<?> startupClass) {
-        if (ClassUtils.isPresent(Constant.ENV_SERVLET)) {
-            applicationContext = new ServletWebServerApplicationContext(startupClass);
-        }
-        else {
-            applicationContext = new StandardWebServerApplicationContext(startupClass);
-        }
+        applicationContext = ClassUtils.isPresent(Constant.ENV_SERVLET)
+                ? new ServletWebServerApplicationContext(startupClass)
+                : new StandardWebServerApplicationContext(startupClass);
     }
 
     public ConfigurableWebServerApplicationContext getApplicationContext() {
@@ -84,28 +76,19 @@ public class WebApplication {
      * @return {@link WebServerApplicationContext}
      */
     public ConfigurableWebServerApplicationContext run(String... args) {
-        log.debug(appBasePath);
+        log.debug(getAppBasePath());
 
         final ConfigurableWebServerApplicationContext applicationContext = getApplicationContext();
-
         try {
-
             applicationContext.registerSingleton(this);
-
             final Class<?> startupClass = applicationContext.getStartupClass();
-
             final ConfigurableEnvironment environment = new StandardWebEnvironment(startupClass, args);
-
             applicationContext.setEnvironment(environment);
 
             applicationContext.loadContext(startupClass.getPackage().getName());
 
-            final WebServer webServer = applicationContext.getWebServer();
-            if (webServer == null) {
-                throw new ConfigurationException("Web server can't be null");
-            }
-
-            webServer.start();
+            nonNull(applicationContext.getWebServer(), "Web server can't be null")
+                    .start();
 
             log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
                      System.currentTimeMillis() - applicationContext.getStartupDate()//
@@ -114,10 +97,13 @@ public class WebApplication {
         catch (Throwable e) {
             e = ExceptionUtils.unwrapThrowable(e);
             applicationContext.close();
-            log.error("Your Application Initialized ERROR: [{}]", e.toString(), e);
-            throw ExceptionUtils.newConfigurationException(e);
+            throw new ConfigurationException("Your Application Initialized ERROR: [" + e + "]", e);
         }
         return applicationContext;
+    }
+
+    public String getAppBasePath() {
+        return appBasePath;
     }
 
 }

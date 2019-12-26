@@ -65,6 +65,8 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.ServletWebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
@@ -79,7 +81,6 @@ import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Jetty web server.
@@ -94,12 +95,13 @@ import lombok.extern.slf4j.Slf4j;
  * @author TODAY <br>
  *         2018-10-15 20:44
  */
-@Slf4j
 @Setter
 @Getter
 @MissingBean(type = WebServer.class)
 @Props(prefix = { "server.", "server.jetty." })
 public class JettyServer extends AbstractServletWebServer implements WebServer {
+
+    private static final Logger log = LoggerFactory.getLogger(JettyServer.class);
 
     private Server server;
 

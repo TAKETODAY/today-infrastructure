@@ -30,19 +30,21 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.framework.WebServerApplicationContext;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  * @author TODAY <br>
  *         2019-02-05 13:09
  */
-@Slf4j
 @MissingBean
 @Props(prefix = "server.docs.")
 public class WebDocumentConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(WebDocumentConfiguration.class);
 
     private static final String[] COMMON_DOC_ROOTS = { //
         "src/main/webapp", "src/main/resources", "public", "static", "assets" //

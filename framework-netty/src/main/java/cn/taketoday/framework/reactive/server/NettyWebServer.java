@@ -27,6 +27,8 @@ import javax.annotation.PreDestroy;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.framework.StandardWebServerApplicationContext;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
@@ -36,8 +38,6 @@ import cn.taketoday.framework.server.WebServerApplicationLoader;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.DefaultEventLoop;
-import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -50,28 +50,23 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.ResourceLeakDetector;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  *         2019-07-02 21:15
  */
-@Slf4j
 @Setter
 @Getter
 @Singleton
 @Props(prefix = { "server.", "server.netty." })
 public class NettyWebServer extends AbstractWebServer implements WebServer {
 
-    private EventLoopGroup childGroup;
-    private EventLoopGroup parentGroup;
-
-    private EventLoop scheduleEventLoop;
+    private static final Logger log = LoggerFactory.getLogger(NettyWebServer.class);
 
     private Channel channel;
-
-    private Class<? extends ServerSocketChannel> socketChannel; // NioServerSocketChannel
-
+    private EventLoopGroup childGroup;
+    private EventLoopGroup parentGroup;
+    private Class<? extends ServerSocketChannel> socketChannel;
     private final StandardWebServerApplicationContext applicationContext;
 
     @Autowired
@@ -80,12 +75,13 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     @Autowired
     public NettyWebServer(StandardWebServerApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
+        applicationContext.setContextPath(getContextPath());
     }
 
     public static boolean epollIsAvailable() {
         try {
             Object obj = Class.forName("io.netty.channel.epoll.Epoll").getMethod("isAvailable").invoke(null);
-            return null != obj
+            return obj != null
                    && Boolean.valueOf(obj.toString())
                    && System.getProperty("os.name").toLowerCase().contains("linux");
         }
@@ -97,23 +93,20 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     @Override
     protected void prepareInitialize() throws Throwable {
         super.prepareInitialize();
-
-        applicationContext.setContextPath(getContextPath());
     }
 
     @Override
     protected void contextInitialized() throws Throwable {
         super.contextInitialized();
 
-        WebServerApplicationLoader loader = new WebServerApplicationLoader(() -> getMergedInitializers());
-        loader.onStartup(applicationContext);
+        new WebServerApplicationLoader(() -> getMergedInitializers())
+                .onStartup(applicationContext);
     }
 
     @Override
     public void start() {
 
         ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
-
         final ServerBootstrap bootstrap = new ServerBootstrap();
 
         int acceptThreadCount = 2;
@@ -133,11 +126,11 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
             socketChannel = NioServerSocketChannel.class;
         }
 
-        bootstrap.group(getParentGroup(), getChildGroup()).channel(getSocketChannel());
-
-        scheduleEventLoop = new DefaultEventLoop();
+        bootstrap.group(getParentGroup(), getChildGroup())
+                .channel(getSocketChannel());
 
         bootstrap.handler(new LoggingHandler(LogLevel.INFO));
+
         bootstrap.childHandler(nettyServerInitializer);
         bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
@@ -155,7 +148,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     @Override
     public void stop() {
 
-        log.info("shutdown");
+        log.info("shutdown: [{}]", this);
 
         if (this.parentGroup != null) {
             this.parentGroup.shutdownGracefully();

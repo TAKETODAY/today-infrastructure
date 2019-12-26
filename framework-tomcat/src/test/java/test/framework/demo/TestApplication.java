@@ -27,7 +27,7 @@ import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.mapping.ResourceMappingRegistry;
+import cn.taketoday.web.mapping.ResourceHandlerRegistry;
 
 /**
  * @author TODAY <br>
@@ -52,7 +52,7 @@ public class TestApplication implements WebMvcConfiguration {
     }
 
     @Override
-    public void configureResourceMappings(ResourceMappingRegistry registry) {
+    public void configureResourceHandler(ResourceHandlerRegistry registry) {
 
         registry.addResourceMapping("/assets/**")//
                 .addLocations("classpath:assets/");

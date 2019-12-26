@@ -30,11 +30,10 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.ConfigurableWebServerApplicationContext;
 import cn.taketoday.framework.Constant;
@@ -60,7 +59,8 @@ public abstract class ApplicationUtils {
         // Get WebServer instance
         WebServer webServer = beanFactory.getBean(WebServer.class);
         if (webServer == null) {
-            throw new ConfigurationException("The context doesn't exist a [cn.taketoday.framework.server.WebServer] bean");
+            throw new ConfigurationException("The context: ["
+                    + beanFactory + "] doesn't exist a [cn.taketoday.framework.server.WebServer] bean");
         }
 
         if (webServer instanceof ConfigurableWebServer) {
@@ -225,9 +225,11 @@ public abstract class ApplicationUtils {
 
         final Map<String, String> argsMap = new LinkedHashMap<>();
         for (final String arg : args) {
-            if (arg.startsWith("--") && arg.contains("=")) {
+            if (arg.startsWith("--") && arg.indexOf('=') > -1) {
                 final String[] param = arg.substring(2).split("=");
-                argsMap.put(param[0], param[1]);
+                if (param.length >= 2) {
+                    argsMap.put(param[0], param[1]);
+                }
             }
         }
         return argsMap;

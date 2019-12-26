@@ -124,10 +124,7 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
      * Before {@link WebApplicationLoader} Startup
      */
     protected List<WebApplicationInitializer> getMergedInitializers() {
-
-        OrderUtils.reversedSort(contextInitializers);
-
-        return contextInitializers;
+        return OrderUtils.reversedSort(contextInitializers);
     }
 
     /**
@@ -182,7 +179,6 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
                     getApplicationContext().getBeans(WebApplicationConfiguration.class);
 
             OrderUtils.reversedSort(configurations);
-
             return webApplicationConfiguration = new CompositeWebApplicationConfiguration(configurations);
         }
 

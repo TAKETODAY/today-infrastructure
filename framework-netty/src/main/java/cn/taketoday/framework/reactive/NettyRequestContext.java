@@ -74,14 +74,14 @@ import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author TODAY <br>
  *         2019-07-04 21:24
  */
-@Slf4j
 public class NettyRequestContext implements RequestContext, Map<String, Object> {
+
+//    private static final Logger log = LoggerFactory.getLogger(NettyRequestContext.class);
 
     private final String url;
     private String queryString;
@@ -105,11 +105,29 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     private final FullHttpRequest request;
     private final ChannelHandlerContext handlerContext;
 
+    private String uri;
+
     public NettyRequestContext(String contextPath, ChannelHandlerContext ctx, FullHttpRequest request) {
         this.request = request;
         this.handlerContext = ctx;
         this.contextPath = contextPath;
         this.url = request.uri();
+        this.uri = request.uri();//TODO
+    }
+
+    @Override
+    public String contextPath() {
+        return contextPath;
+    }
+
+    @Override
+    public String requestURI() {
+        return uri;
+    }
+
+    @Override
+    public String requestURL() {
+        return request.uri();
     }
 
     @Override
@@ -309,21 +327,6 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     public cn.taketoday.web.HttpHeaders contentType(String contentType) {
         getResponseHeaders().set(HttpHeaderNames.CONTENT_TYPE, contentType);
         return this;
-    }
-
-    @Override
-    public String contextPath() {
-        return contextPath;
-    }
-
-    @Override
-    public String requestURI() {
-        return request.uri();
-    }
-
-    @Override
-    public String requestURL() {
-        return request.uri();
     }
 
     private static final HttpCookie[] EMPTY_HTTP_COOKIE = new HttpCookie[0];
@@ -653,6 +656,19 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     @Override
     public int status() {
         return getResponse().status().code();
+    }
+
+    @Override
+    public RequestContext sendError(int sc) throws IOException {
+
+        final FullHttpResponse response = getResponse();
+        response.setStatus(HttpResponseStatus.valueOf(sc));
+
+        handlerContext.writeAndFlush(response);
+
+        committed = true;
+
+        return this;
     }
 
     @Override
