@@ -1,9 +1,9 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
- * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,28 +13,23 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ *   
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.view;
 
-import java.util.regex.Pattern;
+import cn.taketoday.context.Ordered;
 
 /**
  * @author TODAY <br>
- *         2018-11-28 18:12
+ *         2019-07-14 19:39
  */
-public final class RegexMapping {
+public interface OrderedResultHandler extends ResultHandler, Ordered {
 
-    /**
-     * @since 2.3.7
-     */
-    public final Pattern pattern;
-    public final HandlerMapping handlerMapping;
-
-    public RegexMapping(Pattern pattern, HandlerMapping handlerMapping) {
-        this.pattern = pattern;
-        this.handlerMapping = handlerMapping;
+    @Override
+    default int getOrder() {
+        return LOWEST_PRECEDENCE;
     }
+
 }

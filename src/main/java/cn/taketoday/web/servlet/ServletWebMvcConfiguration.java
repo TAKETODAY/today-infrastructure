@@ -19,8 +19,6 @@
  */
 package cn.taketoday.web.servlet;
 
-import java.util.Set;
-
 import cn.taketoday.web.config.WebMvcConfiguration;
 
 /**
@@ -28,13 +26,5 @@ import cn.taketoday.web.config.WebMvcConfiguration;
  *         2019-07-10 23:19
  */
 public interface ServletWebMvcConfiguration extends WebMvcConfiguration {
-
-    /**
-     * Configure {@link ResourceServlet}'s mappings
-     * 
-     * @param urlMappings
-     *            {@link ResourceServlet} url mappings
-     */
-    default void configureResourceServletUrlMappings(Set<String> urlMappings) {}
 
 }

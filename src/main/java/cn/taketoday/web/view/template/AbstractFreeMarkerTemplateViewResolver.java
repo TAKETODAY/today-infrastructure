@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.view.template;
 
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.web.resolver.method.DelegatingParameterResolver.delegate;
 
 import java.util.Collection;
@@ -97,11 +98,10 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
      */
     @Override
     public void afterPropertiesSet() {
-        if (configuration == null) {
-            throw new ConfigurationException("'freemarker.template.Configuration' can't be null");
-        }
-        configuration.setLocale(locale);
-        configuration.setDefaultEncoding(encoding);
+        final Configuration config = nonNull(this.configuration,
+                                             "'freemarker.template.Configuration' can't be null");
+        config.setLocale(locale);
+        config.setDefaultEncoding(encoding);
     }
 
     @Override
@@ -124,7 +124,7 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
             }
 
             if (m.isRequired()) {
-                throw new ConfigurationException("There is no shared variable named: " + m.getName());
+                throw new ConfigurationException("There is no shared variable named: ".concat(m.getName()));
             }
             return ConvertUtils.convert(m.getDefaultValue(), m.getParameterClass());
         }));
@@ -145,10 +145,9 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
     @SuppressWarnings("unchecked")
     protected <T> TemplateLoader createTemplateLoader(List<T> loaders) {
 
-        return loaders.isEmpty()
+        return ObjectUtils.isEmpty(loaders)
                 ? new DefaultResourceTemplateLoader(prefix, cacheSize)
                 : new CompositeTemplateLoader((Collection<TemplateLoader>) loaders, cacheSize);
-
     }
 
     /**

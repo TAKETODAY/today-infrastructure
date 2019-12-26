@@ -35,7 +35,7 @@ public class ModelAndView implements Model {
     private final RequestContext dataModel;
 
     public ModelAndView() {
-        this(null, RequestContextHolder.currentContext());
+        this(null);
     }
 
     public ModelAndView(Object view) {

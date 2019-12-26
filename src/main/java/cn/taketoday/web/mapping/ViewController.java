@@ -19,45 +19,46 @@
  */
 package cn.taketoday.web.mapping;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import cn.taketoday.context.Constant;
 
 /**
  * Views request mapping
  * 
  * @author TODAY <br>
  *         2018-06-25 19:58:07
- * @version 2.0.0
  */
 @SuppressWarnings("serial")
-public class ViewMapping extends HandlerMethod implements WebMapping {
+public class ViewController implements Serializable {
 
     /** 资源路径 */
-    private String assetsPath = "";
+    private String assetsPath = Constant.BLANK;
     /** The resource's content type @since 2.3.3 */
     private String contentType = null;
 
     /** The request status @since 2.3.7 */
-    private int status;
+    private Integer status;
 
-    /** view 视图映射池 */
-    private static final Map<String, ViewMapping> VIEW_REQUEST_MAPPING = new HashMap<>(16, 1f);
+    private final HandlerMethod handlerMethod;
 
-    /** @since 2.3.7 */
-    private final Object handler;
+    public ViewController() {
+        this(null, null, null);
+    }
 
-    public ViewMapping(Object bean, Method method, List<MethodParameter> parameters) {
-        super(method, parameters);
-        this.handler = bean;
+    public ViewController(Object bean, Method method, List<MethodParameter> parameters) {
+        this.handlerMethod = (method != null && parameters != null)
+                ? new HandlerMethod(bean, method, null, parameters)
+                : null;
     }
 
     public final boolean hasAction() {
-        return getMethod() != null;
+        return getHandlerMethod() != null;
     }
 
-    public int getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
@@ -65,7 +66,7 @@ public class ViewMapping extends HandlerMethod implements WebMapping {
         return contentType;
     }
 
-    public ViewMapping setContentType(String contentType) {
+    public ViewController setContentType(String contentType) {
         this.contentType = contentType;
         return this;
     }
@@ -74,25 +75,20 @@ public class ViewMapping extends HandlerMethod implements WebMapping {
         return assetsPath;
     }
 
-    public ViewMapping setAssetsPath(String assetsPath) {
+    public ViewController setAssetsPath(String assetsPath) {
         this.assetsPath = assetsPath;
         return this;
     }
 
-    public ViewMapping setStatus(int status) {
+    public ViewController setStatus(Integer status) {
         this.status = status;
         return this;
     }
 
     @Override
-    public Object getObject() {
-        return handler;
-    }
-
-    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("[assetsPath=");
+        builder.append("ViewController [assetsPath=");
         builder.append(assetsPath);
         builder.append(", contentType=");
         builder.append(contentType);
@@ -102,17 +98,7 @@ public class ViewMapping extends HandlerMethod implements WebMapping {
         return builder.toString();
     }
 
-    // ---------------static
-
-    public static ViewMapping get(String key) {
-        return VIEW_REQUEST_MAPPING.get(key);
-    }
-
-    public static Map<String, ViewMapping> getMappings() {
-        return VIEW_REQUEST_MAPPING;
-    }
-
-    public static void register(String name, ViewMapping viewMapping) {
-        VIEW_REQUEST_MAPPING.put(name, viewMapping);
+    public HandlerMethod getHandlerMethod() {
+        return handlerMethod;
     }
 }

@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.mapping;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,8 +28,10 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.context.Ordered;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
 import cn.taketoday.web.resource.CacheControl;
 import lombok.Getter;
 
@@ -38,7 +41,7 @@ import lombok.Getter;
  * @since 2.3.7
  */
 @Getter
-public class ResourceMapping implements WebMapping, Ordered {
+public class ResourceMapping implements Serializable, Ordered, HandlerInterceptorsCapable {
 
     private static final long serialVersionUID = 1L;
 
@@ -63,9 +66,7 @@ public class ResourceMapping implements WebMapping, Ordered {
     private final List<String> locations = new ArrayList<>();
 
     public ResourceMapping(HandlerInterceptor[] interceptors, String... pathPatterns) {
-
-        this.setInterceptors(interceptors);
-
+        setInterceptors(interceptors);
         setPathPatterns(pathPatterns);
     }
 
@@ -81,6 +82,7 @@ public class ResourceMapping implements WebMapping, Ordered {
         return this.pathPatterns;
     }
 
+    @Override
     public final HandlerInterceptor[] getInterceptors() {
         return interceptors;
     }
@@ -94,6 +96,7 @@ public class ResourceMapping implements WebMapping, Ordered {
         return this;
     }
 
+    @Override
     public final boolean hasInterceptor() {
         return interceptors != null;
     }
@@ -171,14 +174,14 @@ public class ResourceMapping implements WebMapping, Ordered {
      * @return {@code this}
      */
     public ResourceMapping cacheControl(CacheControl cacheControl) {
-        if (cacheControl == null) {
-            throw new IllegalArgumentException("cache control is required");
+        ConfigurationException.nonNull(cacheControl, "cache control is required");
+        if (cacheControl.isEmpty()) {
+            throw new ConfigurationException("cache control is must not be empty");
         }
-        if (cacheControl != null && !cacheControl.isEmpty()) {
+        else {
             this.cacheControl = cacheControl;
         }
         return this;
-
     }
 
     /**
@@ -210,12 +213,10 @@ public class ResourceMapping implements WebMapping, Ordered {
      * @see ResourceMapping#addPathPatterns(String...)
      */
     public ResourceMapping setPathPatterns(String... pathPatterns) {
-        if (pathPatterns == null) {
-            this.pathPatterns = Constant.EMPTY_STRING_ARRAY;
-        }
-        else {
-            this.pathPatterns = pathPatterns;
-        }
+        this.pathPatterns = pathPatterns == null
+                ? this.pathPatterns = Constant.EMPTY_STRING_ARRAY
+                : pathPatterns;
+
         return this;
     }
 

@@ -1,13 +1,13 @@
 cn.taketoday.web.FastJsonMessageConverter
 cn.taketoday.web.config.ViewConfiguration
 cn.taketoday.web.config.ActionConfiguration
-cn.taketoday.web.mapping.HandlerMappingRegistry
-cn.taketoday.web.mapping.ResourceMappingRegistry
 cn.taketoday.web.multipart.MultipartConfiguration
 cn.taketoday.web.resolver.ControllerAdviceExceptionResolver
 cn.taketoday.web.view.template.FreeMarkerTemplateViewResolver
-cn.taketoday.web.servlet.initializer.ViewDispatcherInitializer
 cn.taketoday.web.servlet.initializer.DispatcherServletInitializer
 cn.taketoday.web.validation.DefaultValidator
 cn.taketoday.web.validation.ErrorsParameterResolver
 cn.taketoday.web.validation.ValidationParameterResolver
+cn.taketoday.web.mapping.HandlerMethodRegistry
+cn.taketoday.web.mapping.ResourceHandlerRegistry
+cn.taketoday.web.mapping.ViewControllerHandlerRegistry

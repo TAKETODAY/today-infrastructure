@@ -63,9 +63,8 @@ import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RootController;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.mapping.HandlerMapping;
-import cn.taketoday.web.mapping.HandlerMappingRegistry;
 import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.mapping.HandlerMethodRegistry;
 import cn.taketoday.web.mapping.MethodParameter;
 
 /**
@@ -79,12 +78,12 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
     private final String contextPath;
     private Properties variables;
 
-    @Autowired(Constant.HANDLER_MAPPING_REGISTRY)
-    public HandlerMappingRegistry handlerMappingRegistry;
+    @Autowired(Constant.HANDLER_METHOD_REGISTRY)
+    public HandlerMethodRegistry handlerMethodRegistry;
 
     private final BeanDefinitionLoader beanDefinitionLoader;
 
-    private Map<String, HandlerMapping> regexUrls = new HashMap<>();
+    private Map<String, HandlerMethod> regexUrls = new HashMap<>();
 
     private final AbstractBeanFactory beanFactory;
 
@@ -122,7 +121,7 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
     }
 
     /**
-     * Build {@link HandlerMapping}
+     * Build {@link HandlerMethod}
      * 
      * @param beanClass
      *            Bean class
@@ -145,7 +144,7 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
             Collections.addAll(methodsOnClass, controllerMapping.getAttribute("method", RequestMethod[].class));
         }
 
-        for (final Method method : beanClass.getDeclaredMethods()) { //TODO parent class mappings
+        for (final Method method : beanClass.getDeclaredMethods()) { 
             this.buildHandlerMapping(beanClass, method, namespaces, methodsOnClass);
         }
     }
@@ -191,10 +190,10 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
     }
 
     /**
-     * Mapping given HandlerMapping to {@link HandlerMappingRegistry}
+     * Mapping given HandlerMapping to {@link HandlerMethodRegistry}
      * 
      * @param handlerMapping
-     *            current {@link HandlerMapping}
+     *            current {@link HandlerMethod}
      * @param namespaces
      *            path on class
      * @param classRequestMethods
@@ -202,7 +201,7 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
      * @param annotationAttributes
      *            {@link ActionMapping} Attributes
      */
-    protected void mappingHandlerMapping(final HandlerMapping handlerMapping,
+    protected void mappingHandlerMapping(final HandlerMethod handlerMapping,
                                          final Set<String> namespaces,
                                          final Set<RequestMethod> classRequestMethods,
                                          final AnnotationAttributes[] annotationAttributes) // TODO 
@@ -237,7 +236,7 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
     }
 
     /**
-     * Mapping to {@link HandlerMappingRegistry}
+     * Mapping to {@link HandlerMethodRegistry}
      * 
      * @param handlerMethod
      *            {@link HandlerMethod}
@@ -249,7 +248,7 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
      */
     protected void doMapping(final String urlOnMethod,
                              final RequestMethod requestMethod,
-                             final HandlerMapping handlerMapping) //
+                             final HandlerMethod handlerMapping) //
     {
         final String key = new StringBuilder()
                 .append(requestMethod.name())
@@ -260,7 +259,7 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
 
         if (!doMappingPathVariable(key, requestMethod.name(), handlerMapping)) {
 
-            handlerMappingRegistry.getHandlerMappings().put(key, handlerMapping);
+            handlerMethodRegistry.getHandlerMappings().put(key, handlerMapping);
 
             log.info("Mapped [{}] -> [{}] interceptors -> {}",
                      key, handlerMapping.getMethod(),
@@ -278,14 +277,14 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
      * @param method
      *            Target Action or Handler
      * @param index
-     *            {@link HandlerMapping} index
+     *            {@link HandlerMethod} index
      * @param requestMethod_
      *            Request method string
      * @return If mapped
      */
     protected boolean doMappingPathVariable(final String regexUrl,
                                             final String requestMethod_,
-                                            final HandlerMapping handlerMapping) //
+                                            final HandlerMethod handlerMapping) //
     {
         final Method method = handlerMapping.getMethod();
         final MethodParameter[] methodParameters = handlerMapping.getParameters();
@@ -304,30 +303,23 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
 
         Parameter[] parameters = method.getParameters();
         for (int i = 0; i < parameters.length; i++) {
-            Parameter parameter = parameters[i];
             MethodParameter methodParameter = methodParameters[i];
             if (!methodParameter.isAnnotationPresent(PathVariable.class)) {
                 continue;
             }
-            Class<?> parameterClass = methodParameter.getParameterClass();
-
-            PathVariable pathVariable = parameter.getAnnotation(PathVariable.class);
+            PathVariable pathVariable = methodParameter.getAnnotation(PathVariable.class);
             if (pathVariable == null) {
-                throw new ConfigurationException(//
-                                                 "You must specify a @PathVariable Like this: [public String update(@PathVariable int id, ..) {...}]"//
-                );
+                throw new ConfigurationException("You must specify a @PathVariable Like this: [public String update(@PathVariable int id, ..) {...}]");
             }
+
             String regex = pathVariable.pattern(); // customize regex
             if (StringUtils.isEmpty(regex)) {
                 regex = pathVariable.regex();
             }
+
             if (StringUtils.isEmpty(regex)) {
-                if (parameterClass == String.class) {
-                    regex = Constant.STRING_REGEXP;
-                }
-                else {
-                    regex = Constant.NUMBER_REGEXP;
-                }
+                Class<?> parameterClass = methodParameter.getParameterClass();
+                regex = NumberUtils.isNumber(parameterClass) ? Constant.NUMBER_REGEXP : Constant.STRING_REGEXP;
             }
 
             String parameterName = methodParameter.getName();
@@ -365,17 +357,17 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
     }
 
     /**
-     * Create {@link HandlerMapping}.
+     * Create {@link HandlerMethod}.
      * 
      * @param beanClass
      *            Controller class
      * @param method
      *            Action or Handler
-     * @return A new {@link HandlerMapping}
+     * @return A new {@link HandlerMethod}
      * @throws Exception
      *             If any {@link Throwable} occurred
      */
-    protected HandlerMapping createHandlerMapping(final Class<?> beanClass, final Method method) throws Exception {
+    protected HandlerMethod createHandlerMapping(final Class<?> beanClass, final Method method) throws Exception {
 
         final BeanDefinition def = beanFactory.getBeanDefinition(beanClass);
 
@@ -391,7 +383,7 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
 
         final List<MethodParameter> methodParameters = createMethodParameters(method);
 
-        return HandlerMapping.create(bean, method, getInterceptors(beanClass, method), methodParameters);
+        return HandlerMethod.create(bean, method, getInterceptors(beanClass, method), methodParameters);
     }
 
     /***
@@ -527,7 +519,7 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
         log.info("Initializing Controllers");
         startConfiguration();
 
-        handlerMappingRegistry.setRegexMappings(regexUrls);
+        handlerMethodRegistry.setRegexMappings(regexUrls);
     }
 
     /**
@@ -541,10 +533,10 @@ public class ActionConfiguration implements Ordered, WebApplicationInitializer {
         log.info("Rebuilding Controllers");
 
         regexUrls.clear();
-        handlerMappingRegistry.getHandlerMappings().clear();
+        handlerMethodRegistry.getHandlerMappings().clear();
 
         startConfiguration();
-        handlerMappingRegistry.setRegexMappings(regexUrls);
+        handlerMethodRegistry.setRegexMappings(regexUrls);
     }
 
     @Override

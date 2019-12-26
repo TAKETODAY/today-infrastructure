@@ -44,8 +44,10 @@ public class DefaultResourceResolver implements WebResourceResolver {
     private static final Logger log = LoggerFactory.getLogger(DefaultResourceResolver.class);
 
     @Override
-    public WebResource resolveResource(final ResourceMappingMatchResult matchResult) throws Throwable {
-
+    public WebResource resolveResource(final ResourceMappingMatchResult matchResult) {
+        if (matchResult == null) {
+            return null;
+        }
         final String requestPath = matchResult.getRequestPath();
 
         if (StringUtils.isEmpty(requestPath) || isInvalidPath(requestPath)) {
@@ -87,6 +89,21 @@ public class DefaultResourceResolver implements WebResourceResolver {
     protected boolean isInvalidPath(final String path) {
         if (path.contains("WEB-INF") || path.contains("META-INF")) {
             log.warn("Path with \"WEB-INF\" or \"META-INF\": [{}]", path);
+            return true;
+        }
+        if (path.contains(":/")) {
+            String relativePath = (path.charAt(0) == '/' ? path.substring(1) : path);
+            if (ResourceUtils.isUrl(relativePath) || relativePath.startsWith("url:")) {
+                if (log.isWarnEnabled()) {
+                    log.warn("Path represents URL or has \"url:\" prefix: [{}]", path);
+                }
+                return true;
+            }
+        }
+        if (path.contains("..") && StringUtils.cleanPath(path).contains("../")) {
+            if (log.isWarnEnabled()) {
+                log.warn("Path contains \"../\" after call to StringUtils#cleanPath: [{}]", path);
+            }
             return true;
         }
         return false;

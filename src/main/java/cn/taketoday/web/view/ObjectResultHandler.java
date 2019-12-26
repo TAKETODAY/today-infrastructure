@@ -19,21 +19,37 @@
  */
 package cn.taketoday.web.view;
 
+import cn.taketoday.context.annotation.Env;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
- * ViewResolver
- * 
  * @author TODAY <br>
- *         2019-07-10 19:22
+ *         2019-07-14 17:41
  */
-@FunctionalInterface
-public interface ViewResolver {
+public class ObjectResultHandler extends HandlerMethodResultHandler {
 
-    default boolean supports(HandlerMethod handlerMethod) {
-        return true;
+    public ObjectResultHandler(
+            TemplateViewResolver viewResolver,
+            MessageConverter messageConverter,
+            @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) {
+
+        setMessageConverter(messageConverter);
+        setTemplateViewResolver(viewResolver);
+        setDownloadFileBufferSize(downloadFileBuf);
     }
 
-    void resolveView(final RequestContext requestContext, final Object result) throws Throwable;
+    @Override
+    public boolean supports(HandlerMethod handlerMethod) {
+        return handlerMethod.is(Object.class);
+    }
+
+    @Override
+    public void handleResult(RequestContext requestContext, Object result) throws Throwable {
+        handleObject(requestContext, result);
+    }
+
 }

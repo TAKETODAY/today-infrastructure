@@ -22,20 +22,17 @@ package cn.taketoday.web.view;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.WebMapping;
-import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.RedirectModel;
 import cn.taketoday.web.utils.WebUtils;
@@ -45,7 +42,7 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  * @author TODAY <br>
  *         2019-07-14 10:47
  */
-public abstract class AbstractViewResolver implements ViewResolver {
+public abstract class AbstractResultHandler implements ResultHandler {
 
     private int downloadFileBuf;
     /** view resolver **/
@@ -53,35 +50,35 @@ public abstract class AbstractViewResolver implements ViewResolver {
     /** Template view resolver */
     private TemplateViewResolver templateViewResolver;
 
-    public AbstractViewResolver() {
+    public AbstractResultHandler() {
 
     }
 
-    public AbstractViewResolver(TemplateViewResolver viewResolver, MessageConverter messageConverter, int downloadFileBuf) {
-        this.setTemplateViewResolver(viewResolver);
-        this.setDownloadFileBufferSize(downloadFileBuf);
-        this.setMessageConverter(messageConverter);
+    public AbstractResultHandler(TemplateViewResolver viewResolver, MessageConverter messageConverter, int downloadFileBuf) {
+        setTemplateViewResolver(viewResolver);
+        setMessageConverter(messageConverter);
+        setDownloadFileBufferSize(downloadFileBuf);
     }
 
-    public void resolveObject(final RequestContext requestContext, final Object view) throws Throwable {
+    public void handleObject(final RequestContext requestContext, final Object view) throws Throwable {
 
         if (view instanceof String) {
-            resolveView((String) view, getTemplateViewResolver(), requestContext);
+            handleTemplateView((String) view, requestContext);
         }
         else if (view instanceof File) {
-            downloadFile(requestContext, ResourceUtils.getResource((File) view), getDownloadFileBufferSize());
+            downloadFile(requestContext, ResourceUtils.getResource((File) view));
         }
         else if (view instanceof Resource) {
-            downloadFile(requestContext, (Resource) view, getDownloadFileBufferSize());
+            downloadFile(requestContext, (Resource) view);
         }
         else if (view instanceof ModelAndView) {
             resolveModelAndView(requestContext, (ModelAndView) view);
         }
         else if (view instanceof RenderedImage) {
-            resolveImage(requestContext, (RenderedImage) view);
+            handleImageView((RenderedImage) view, requestContext);
         }
         else {
-            getMessageConverter().write(requestContext, view);
+            obtainMessageConverter().write(requestContext, view);
         }
     }
 
@@ -90,9 +87,9 @@ public abstract class AbstractViewResolver implements ViewResolver {
      * 
      * @since 2.3.3
      */
-    public void resolveModelAndView(final RequestContext requestContext, final ModelAndView modelAndView) throws Throwable {
+    public void resolveModelAndView(final RequestContext context, final ModelAndView modelAndView) throws Throwable {
         if (modelAndView.hasView()) {
-            resolveObject(requestContext, modelAndView.getView());
+            handleObject(context, modelAndView.getView());
         }
     }
 
@@ -107,60 +104,34 @@ public abstract class AbstractViewResolver implements ViewResolver {
      *            Download buffer size
      * @since 2.1.x
      */
-    public final static void downloadFile(final RequestContext context,
-                                          final Resource download, final int bufferSize) throws IOException //
-    {
-        context.contentLength(download.contentLength());
-        context.contentType(Constant.APPLICATION_FORCE_DOWNLOAD);
-
-        context.responseHeader(Constant.CONTENT_TRANSFER_ENCODING, Constant.BINARY);
-        context.responseHeader(Constant.CONTENT_DISPOSITION, new StringBuilder(Constant.ATTACHMENT_FILE_NAME)//
-                .append(StringUtils.encodeUrl(download.getName()))//
-                .append(Constant.QUOTATION_MARKS)//
-                .toString()//
-        );
-
-        try (final InputStream in = download.getInputStream()) {
-
-            WebUtils.writeToOutputStream(in, context.getOutputStream(), bufferSize);
-        }
+    public void downloadFile(final RequestContext context, final Resource download) throws IOException {
+        WebUtils.downloadFile(context, download, getDownloadFileBufferSize());
     }
 
-    public static void resolveException(final RequestContext context,
-                                        final ExceptionResolver resolver, //
-                                        final WebMapping webMapping, final Throwable exception) throws Throwable //
-    {
-        resolver.resolveException(context, ExceptionUtils.unwrapThrowable(exception), webMapping);
-    }
-
-    public static void resolveRedirect(final String redirect, final RequestContext context) throws IOException {
+    public void handleRedirect(final String redirect, final RequestContext context) throws IOException {
 
         if (StringUtils.isEmpty(redirect) || redirect.startsWith(Constant.HTTP)) {
             context.redirect(redirect);
         }
         else {
-            context.redirect(context.contextPath() + redirect);
+            context.redirect(context.contextPath().concat(redirect));
         }
     }
 
-    public static void resolveView(final String resource, //
-                                   final TemplateViewResolver viewResolver,
-                                   final RequestContext requestContext) throws Throwable//
-    {
+    public void handleTemplateView(final String resource, final RequestContext requestContext) throws Throwable {
+
         if (resource.startsWith(Constant.REDIRECT_URL_PREFIX)) {
-            resolveRedirect(resource.substring(Constant.REDIRECT_URL_PREFIX_LENGTH), requestContext);
+            handleRedirect(resource.substring(Constant.REDIRECT_URL_PREFIX_LENGTH), requestContext);
         }
         else {
-
             final RedirectModel redirectModel = requestContext.redirectModel();
-
             if (redirectModel != null) {
                 for (final Entry<String, Object> entry : redirectModel.asMap().entrySet()) {
                     requestContext.attribute(entry.getKey(), entry.getValue());
                 }
                 requestContext.redirectModel(null);
             }
-            viewResolver.resolveView(resource, requestContext);
+            getTemplateViewResolver().resolveView(resource, requestContext);
         }
     }
 
@@ -174,7 +145,7 @@ public abstract class AbstractViewResolver implements ViewResolver {
      * @throws IOException
      * @since 2.3.3
      */
-    public static void resolveImage(final RequestContext requestContext, final RenderedImage image) throws IOException {
+    public void handleImageView(final RenderedImage image, final RequestContext requestContext) throws IOException {
         // need set content type
         ImageIO.write(image, Constant.IMAGE_PNG, requestContext.getOutputStream());
     }
@@ -188,6 +159,14 @@ public abstract class AbstractViewResolver implements ViewResolver {
     }
 
     public MessageConverter getMessageConverter() {
+        return messageConverter;
+    }
+
+    public MessageConverter obtainMessageConverter() {
+        final MessageConverter messageConverter = getMessageConverter();
+        if (messageConverter == null) {
+            throw new ConfigurationException("message converter must not be null");
+        }
         return messageConverter;
     }
 

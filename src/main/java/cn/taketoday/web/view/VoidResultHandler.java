@@ -19,32 +19,42 @@
  */
 package cn.taketoday.web.view;
 
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 17:41
+ *         2019-07-14 00:53
  */
-public class ObjectViewResolver extends AbstractViewResolver implements ViewResolver {
+public class VoidResultHandler extends ModelAndViewResultHandler {
 
-    public ObjectViewResolver(TemplateViewResolver viewResolver, MessageConverter messageConverter,
-            @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) {
+    @Autowired
+    public VoidResultHandler(TemplateViewResolver viewResolver, 
+                             MessageConverter messageConverter,
+                             @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") 
+                             int downloadFileBuf) //
+    {
         super(viewResolver, messageConverter, downloadFileBuf);
     }
 
     @Override
     public boolean supports(HandlerMethod handlerMethod) {
-        return handlerMethod.is(Object.class);
+        return handlerMethod.is(void.class);
     }
 
     @Override
-    public void resolveView(RequestContext requestContext, Object result) throws Throwable {
-        resolveObject(requestContext, result);
+    public void handleResult(RequestContext context, Object result) throws Throwable {
+
+        final ModelAndView modelAndView = context.modelAndView();
+        if (modelAndView != null) {
+            resolveModelAndView(context, modelAndView);
+        }
     }
 
 }

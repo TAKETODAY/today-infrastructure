@@ -42,9 +42,9 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.mapping.ResourceHandlerRegistry;
 import cn.taketoday.web.mapping.ResourceMapping;
 import cn.taketoday.web.mapping.ResourceMappingMatchResult;
-import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.resolver.DefaultResourceResolver;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.resolver.WebResourceResolver;
@@ -57,6 +57,7 @@ import cn.taketoday.web.utils.WebUtils;
  *         2019-05-14 17:59
  * @since 2.3.7
  */
+@Deprecated
 @SuppressWarnings("serial")
 public class ResourceServlet extends GenericServlet {
 
@@ -64,22 +65,21 @@ public class ResourceServlet extends GenericServlet {
 
     private final int contextPathLength;
     private final PathMatcher pathMatcher;
-    private final ResourceMappingRegistry registry;
+    private final ResourceHandlerRegistry registry;
     private final WebResourceResolver resourceResolver;
     /** exception resolver */
     private final ExceptionResolver exceptionResolver;
 
     /** @off*/
     @Autowired
-    public ResourceServlet( ResourceMappingRegistry registry,
+    public ResourceServlet( ResourceHandlerRegistry registry,
                             ExceptionResolver exceptionResolver,
                             WebApplicationContext applicationContext,
                             @Autowired(required = false) PathMatcher pathMatcher,
                             @Autowired(required = false) WebResourceResolver resourceResolver) //@on
     {
-
         this.exceptionResolver = exceptionResolver;
-        this.registry = registry.sortResourceMappings();
+        this.registry = registry;
         this.contextPathLength = applicationContext.getContextPath().length();
 
         this.pathMatcher = pathMatcher != null ? pathMatcher : new AntPathMatcher();
@@ -105,7 +105,6 @@ public class ResourceServlet extends GenericServlet {
         }
 
         final ResourceMapping mapping = matchResult.getResourceMapping();
-
         final RequestContext requestContext = DispatcherServlet.prepareContext(req, res);
 
         try {
@@ -138,7 +137,7 @@ public class ResourceServlet extends GenericServlet {
         }
         catch (Throwable exception) {
             try {
-                WebUtils.resolveException(requestContext, exceptionResolver, mapping, exception);
+                WebUtils.resolveException(mapping, exception, requestContext, exceptionResolver);
             }
             catch (Throwable e1) {
                 throw new ServletException(e1);
@@ -204,55 +203,14 @@ public class ResourceServlet extends GenericServlet {
                                  final WebResource resource,
                                  final ResourceMapping resourceMapping) throws IOException//
     {
-        String contentType = resource.getContentType();
-        if (StringUtils.isEmpty(contentType)) {
-            contentType = getServletConfig().getServletContext().getMimeType(resource.getName());
-            if (StringUtils.isEmpty(contentType)) {
-                contentType = Constant.BLANK;
-            }
-        }
+        final String contentType = getContentType(resource);
         context.contentType(contentType);
 
-        // Validate request headers for caching
-        // ---------------------------------------------------
-
-        // If-None-Match header should contain "*" or ETag. If so, then return 304
-        final String ifNoneMatch = context.requestHeader(Constant.IF_NONE_MATCH);
         final String eTag = resource.getETag();
-        if (matches(ifNoneMatch, eTag)) {
-            context.responseHeader(Constant.ETAG, eTag); // 304.
-            context.status(HttpServletResponse.SC_NOT_MODIFIED);
-            return;
-        }
-
-        // If-Modified-Since header should be greater than LastModified
-        // If so, then return 304
-        // This header is ignored if any If-None-Match header is specified
-        final long ifModifiedSince = context.requestDateHeader(Constant.IF_MODIFIED_SINCE);// If-Modified-Since
         final long lastModified = resource.lastModified();
-        if (ifNoneMatch == null && (ifModifiedSince > 0 && lastModified != 0 && ifModifiedSince >= lastModified)) {
-            //      if (ifNoneMatch == null && ge(ifModifiedSince, lastModified)) {
-            context.responseDateHeader(Constant.LAST_MODIFIED, lastModified); // 304
-            context.status(HttpServletResponse.SC_NOT_MODIFIED);
-            return;
-        }
 
-        // Validate request headers for resume
-        // ----------------------------------------------------
-
-        // If-Match header should contain "*" or ETag. If not, then return 412
-        final String ifMatch = context.requestHeader(Constant.IF_MATCH);
-        if (ifMatch != null && !matches(ifMatch, eTag)) {
-            context.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, null);
-            return;
-        }
-
-        // If-Unmodified-Since header should be greater than LastModified.
-        // If not, then return 412.
-        final long ifUnmodifiedSince = context.requestDateHeader(Constant.IF_UNMODIFIED_SINCE);// "If-Unmodified-Since"
-
-        if (ifUnmodifiedSince > 0 && lastModified > 0 && ifUnmodifiedSince <= lastModified) {
-            context.sendError(HttpServletResponse.SC_PRECONDITION_FAILED, null);
+        // lastModified
+        if (WebUtils.checkNotModified(eTag, lastModified, context)) {
             return;
         }
 
@@ -270,6 +228,18 @@ public class ResourceServlet extends GenericServlet {
         else {
             write(resource, context, resourceMapping);
         }
+    }
+
+    protected String getContentType(final WebResource resource) {
+
+        String contentType = resource.getContentType();
+        if (StringUtils.isEmpty(contentType)) {
+            contentType = getServletConfig().getServletContext().getMimeType(resource.getName());
+            if (StringUtils.isEmpty(contentType)) {
+                contentType = Constant.BLANK;
+            }
+        }
+        return contentType;
     }
 
     protected static boolean isHeadRequest(RequestContext requestContext) {
@@ -349,10 +319,8 @@ public class ResourceServlet extends GenericServlet {
         context.contentLength(resource.contentLength());
 
         try (final InputStream source = resource.getInputStream()) {
-
             WebUtils.writeToOutputStream(source, context.getOutputStream(), resourceMapping.getBufferSize());
         }
-
     }
 
     protected boolean matches(final String matchHeader, final String etag) {

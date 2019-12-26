@@ -19,35 +19,35 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.web.MessageConverter;
+import java.awt.image.RenderedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 01:19
+ *         2019-07-14 15:15
  */
-public class ResponseBodyViewResolver implements OrderedViewResolver {
-
-    private final MessageConverter messageConverter;
-
-    public ResponseBodyViewResolver(MessageConverter messageConverter) {
-        this.messageConverter = messageConverter;
-    }
+public class ImageResultHandler extends HandlerMethodResultHandler implements RuntimeResultHandler {
 
     @Override
     public boolean supports(HandlerMethod handlerMethod) {
-        return true;
+        return handlerMethod.isAssignableFrom(RenderedImage.class);
     }
 
     @Override
-    public void resolveView(RequestContext requestContext, Object result) throws Throwable {
-        messageConverter.write(requestContext, result);
+    public boolean supports(RequestContext context, Object result) {
+        return result instanceof RenderedImage;
     }
 
     @Override
-    public int getOrder() {
-        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100;
+    public void handleResult(final RequestContext context, final Object result) throws IOException {
+        context.contentType("image/png"); // sub classes can override this method to apply content type
+        ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, context.getOutputStream());
     }
 
 }

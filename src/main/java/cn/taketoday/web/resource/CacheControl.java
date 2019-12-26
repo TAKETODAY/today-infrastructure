@@ -35,7 +35,7 @@ import cn.taketoday.web.Constant;
  * @since 2.3.7 @off
  * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">Mozilla Cache-Control</a> @on
  */
-public final class CacheControl {
+public class CacheControl {
 
     private final StringBuilder cacheControl = new StringBuilder();
 
@@ -143,7 +143,7 @@ public final class CacheControl {
         return cacheControl.length() == 0;
     }
 
-    private CacheControl appendSettings(String key, long duration, TimeUnit unit) {
+    protected CacheControl appendSettings(String key, long duration, TimeUnit unit) {
 
         append().append(key)
                 .append('=')
@@ -152,7 +152,7 @@ public final class CacheControl {
         return this;
     }
 
-    private final StringBuilder append() {
+    protected final StringBuilder append() {
         final StringBuilder cacheControl = this.cacheControl;
         if (cacheControl.length() != 0) {
             cacheControl.append(", ");
@@ -160,7 +160,7 @@ public final class CacheControl {
         return cacheControl;
     }
 
-    private CacheControl appendSettings(String key) {
+    protected CacheControl appendSettings(String key) {
         append().append(key);
         return this;
     }

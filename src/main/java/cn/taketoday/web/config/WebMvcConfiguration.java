@@ -24,10 +24,11 @@ import java.util.List;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.web.annotation.Multipart;
-import cn.taketoday.web.mapping.ResourceMappingRegistry;
+import cn.taketoday.web.mapping.ResourceHandlerRegistry;
+import cn.taketoday.web.mapping.ViewControllerHandlerRegistry;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.method.ParameterResolver;
-import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
@@ -46,12 +47,12 @@ public interface WebMvcConfiguration {
     default void configureParameterResolver(List<ParameterResolver> parameterResolvers) {}
 
     /**
-     * Configure {@link ViewResolver}
+     * Configure {@link ResultHandler}
      * 
-     * @param resultResolvers
-     *            {@link ViewResolver} registry
+     * @param resultHandlers
+     *            {@link ResultHandler} registry
      */
-    default void configureVIewResolver(List<ViewResolver> resultResolvers) {}
+    default void configureResultHandler(List<ResultHandler> resultHandlers) {}
 
     /**
      * Configure {@link TemplateViewResolver}
@@ -65,9 +66,9 @@ public interface WebMvcConfiguration {
      * Configure static {@link Resource}
      * 
      * @param registry
-     *            {@link ResourceMappingRegistry}
+     *            {@link ResourceHandlerRegistry}
      */
-    default void configureResourceMappings(ResourceMappingRegistry registry) {}
+    default void configureResourceHandler(ResourceHandlerRegistry registry) {}
 
     /**
      * Configure {@link Multipart}
@@ -101,5 +102,14 @@ public interface WebMvcConfiguration {
      * @since 2.3.7
      */
     default <T extends Object> void configureTemplateLoader(List<T> loaders) {}
+
+    /**
+     * Configure ViewController s
+     * 
+     * @param viewControllerHandlerRegistry
+     *            {@link ViewControllerHandlerRegistry}
+     * @since 2.3.7
+     */
+    default void configureViewController(ViewControllerHandlerRegistry viewControllerHandlerRegistry) {}
 
 }

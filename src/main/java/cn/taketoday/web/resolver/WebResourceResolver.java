@@ -39,6 +39,6 @@ public interface WebResourceResolver {
      *            {@link ResourceMapping}
      * @return {@link WebResource}
      */
-    WebResource resolveResource(ResourceMappingMatchResult mappingMetaData) throws Throwable;
+    WebResource resolveResource(ResourceMappingMatchResult mappingMetaData);
 
 }

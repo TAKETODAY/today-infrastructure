@@ -21,7 +21,6 @@ package cn.taketoday.web.interceptor;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.mapping.WebMapping;
 
 /**
  * Handler Intercepter process around Handler.
@@ -37,25 +36,25 @@ public interface HandlerInterceptor {
      * 
      * @param requestContext
      *            Current request Context
-     * @param webMapping
-     *            request mapping
-     * @return
+     * @param handler
+     *            Request Handler
+     * @return 
      * @throws Throwable
      */
-    boolean beforeProcess(RequestContext requestContext, WebMapping webMapping) throws Throwable;
+    boolean beforeProcess(RequestContext requestContext, Object handler) throws Throwable;
 
     /**
      * After {@link HandlerMethod} process.
      * 
      * @param requestContext
      *            Current request Context
-     * @param webMapping
-     *            request mapping
+     * @param handler
+     *            Request Handler
      * @param result
      *            HandlerMethod returned value
      * @throws Throwable
      */
-    default void afterProcess(RequestContext requestContext, WebMapping webMapping, Object result) throws Throwable {
+    default void afterProcess(RequestContext requestContext, Object handler, Object result) throws Throwable {
 
     }
 }

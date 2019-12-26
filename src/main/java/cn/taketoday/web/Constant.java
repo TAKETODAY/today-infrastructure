@@ -20,6 +20,7 @@
 package cn.taketoday.web;
 
 import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.mapping.ResourceMappingMatchResult;
 
 /**
  * @author TODAY <br>
@@ -57,6 +58,8 @@ public interface Constant extends cn.taketoday.context.Constant {
     String ENABLE_WEB_STARTED_LOG = "enable.started.log";
     String FAST_JSON_SERIALIZE_FEATURES = "fastjson.serialize.features";
 
+    String RESOURCE_MAPPING_MATCH_RESULT = ResourceMappingMatchResult.class.getName().concat(".MatchResult");
+
     //@off
 	/**
 	 * mode
@@ -84,7 +87,8 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	VIEW_DISPATCHER						= "viewDispatcher";
 	String	RESOURCE_SERVLET					= "resourceServlet";
 	String	DISPATCHER_SERVLET					= "dispatcherServlet";
-	String	HANDLER_MAPPING_REGISTRY			= "handlerMappingRegistry";
+	String	HANDLER_METHOD_REGISTRY			    = "handlerMethodRegistry";
+	@Deprecated
 	String	HANDLER_INTERCEPTOR_REGISTRY		= "handlerInterceptorRegistry";
 	
 	// Resolver

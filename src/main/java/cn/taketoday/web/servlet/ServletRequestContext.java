@@ -413,6 +413,12 @@ public class ServletRequestContext implements RequestContext, Map<String, Object
     }
 
     @Override
+    public RequestContext sendError(int sc) throws IOException {
+        response.sendError(sc);
+        return this;
+    }
+
+    @Override
     public RequestContext sendError(int sc, String msg) throws IOException {
         response.sendError(sc, msg);
         return this;

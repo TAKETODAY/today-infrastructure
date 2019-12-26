@@ -63,7 +63,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
     }
 
     @Override
-    public void resolveView(final String templateName, final RequestContext context) throws Throwable {
+    public void resolveView(final String templateName, final RequestContext context) throws IOException {
 
         // prepare full template path to load template
         final String template = prepareTemplate(templateName);

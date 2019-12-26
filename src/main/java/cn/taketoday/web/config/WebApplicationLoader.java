@@ -63,10 +63,12 @@ import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
-import cn.taketoday.web.mapping.ResourceMappingRegistry;
+import cn.taketoday.web.mapping.ResourceHandlerRegistry;
+import cn.taketoday.web.mapping.ViewControllerHandlerRegistry;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.method.ArrayParameterResolver;
 import cn.taketoday.web.resolver.method.BeanParameterResolver;
+import cn.taketoday.web.resolver.method.CollectionParameterResolver;
 import cn.taketoday.web.resolver.method.CookieParameterResolver;
 import cn.taketoday.web.resolver.method.HeaderParameterResolver;
 import cn.taketoday.web.resolver.method.MapParameterResolver;
@@ -76,14 +78,14 @@ import cn.taketoday.web.resolver.method.PathVariableParameterResolver;
 import cn.taketoday.web.resolver.method.RequestBodyParameterResolver;
 import cn.taketoday.web.resolver.method.StreamParameterResolver;
 import cn.taketoday.web.resolver.method.ThrowableHandlerParameterResolver;
-import cn.taketoday.web.view.ImageViewResolver;
-import cn.taketoday.web.view.ModelAndViewResultResolver;
-import cn.taketoday.web.view.ObjectViewResolver;
-import cn.taketoday.web.view.ResourceViewResolver;
-import cn.taketoday.web.view.ResponseBodyViewResolver;
-import cn.taketoday.web.view.TemplateResolver;
-import cn.taketoday.web.view.ViewResolver;
-import cn.taketoday.web.view.VoidViewResolver;
+import cn.taketoday.web.view.ImageResultHandler;
+import cn.taketoday.web.view.ModelAndViewResultHandler;
+import cn.taketoday.web.view.ObjectResultHandler;
+import cn.taketoday.web.view.ResourceResultHandler;
+import cn.taketoday.web.view.ResponseBodyResultHandler;
+import cn.taketoday.web.view.ResultHandler;
+import cn.taketoday.web.view.TemplateResultHandler;
+import cn.taketoday.web.view.VoidResultHandler;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
@@ -129,7 +131,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(applicationContext);
 
-        configureViewResolver(applicationContext.getBeans(ViewResolver.class), mvcConfiguration);
+        configureResultHandler(applicationContext.getBeans(ResultHandler.class), mvcConfiguration);
 
         final Class<Object> loaderClass = ClassUtils.loadClass("freemarker.cache.TemplateLoader");
         if (loaderClass != null) {
@@ -140,7 +142,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         configureParameterResolver(applicationContext.getBeans(ParameterResolver.class), mvcConfiguration);
 
-        configureResourceRegistry(applicationContext.getBean(ResourceMappingRegistry.class), mvcConfiguration);
+        configureResourceHandler(applicationContext.getBean(ResourceHandlerRegistry.class), mvcConfiguration);
 
         if (environment.getProperty(ENABLE_WEB_MVC_XML, Boolean::parseBoolean, true)) {
             initFrameWorkFromWebMvcXml();
@@ -190,14 +192,14 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     }
 
     /**
-     * Configure {@link ViewResolver} to resolve handler method result
+     * Configure {@link ResultHandler} to resolve handler method result
      * 
-     * @param resolvers
-     *            Resolvers registry
+     * @param handlers
+     *            {@link ResultHandler} registry
      * @param mvcConfiguration
      *            All {@link WebMvcConfiguration} object
      */
-    protected void configureViewResolver(List<ViewResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
+    protected void configureResultHandler(List<ResultHandler> handlers, WebMvcConfiguration mvcConfiguration) {
 
         final WebApplicationContext webApplicationContext = obtainWebApplicationContext();
         final TemplateViewResolver viewResolver = getTemplateViewResolver(mvcConfiguration);
@@ -206,17 +208,17 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
 
         final MessageConverter messageConverter = webApplicationContext.getBean(MessageConverter.class);
 
-        resolvers.add(new ImageViewResolver());
-        resolvers.add(new ResourceViewResolver(bufferSize));
-        resolvers.add(new TemplateResolver(viewResolver));
-        resolvers.add(new VoidViewResolver(viewResolver, messageConverter, bufferSize));
-        resolvers.add(new ObjectViewResolver(viewResolver, messageConverter, bufferSize));
-        resolvers.add(new ModelAndViewResultResolver(viewResolver, messageConverter, bufferSize));
+        handlers.add(new ImageResultHandler());
+        handlers.add(new ResourceResultHandler(bufferSize));
+        handlers.add(new TemplateResultHandler(viewResolver));
+        handlers.add(new VoidResultHandler(viewResolver, messageConverter, bufferSize));
+        handlers.add(new ObjectResultHandler(viewResolver, messageConverter, bufferSize));
+        handlers.add(new ModelAndViewResultHandler(viewResolver, messageConverter, bufferSize));
 
-        resolvers.add(new ResponseBodyViewResolver(messageConverter));
+        handlers.add(new ResponseBodyResultHandler(messageConverter));
 
-        mvcConfiguration.configureVIewResolver(resolvers);
-        HandlerMethod.addResolver(resolvers);
+        mvcConfiguration.configureResultHandler(handlers);
+        HandlerMethod.addResultHandler(handlers);
     }
 
     protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {
@@ -334,6 +336,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         resolvers.add(new RequestBodyParameterResolver(bean));
         resolvers.add(new ThrowableHandlerParameterResolver());
 
+        resolvers.add(new CollectionParameterResolver());
         resolvers.add(new BeanParameterResolver());
 
         // User customize parameter resolver
@@ -354,8 +357,8 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      * @param mvcConfiguration
      *            All {@link WebMvcConfiguration} object
      */
-    protected void configureResourceRegistry(ResourceMappingRegistry registry, WebMvcConfiguration mvcConfiguration) {
-        mvcConfiguration.configureResourceMappings(registry);
+    protected void configureResourceHandler(ResourceHandlerRegistry registry, WebMvcConfiguration mvcConfiguration) {
+        mvcConfiguration.configureResourceHandler(registry);
     }
 
     /**
@@ -560,9 +563,9 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         }
 
         @Override
-        public void configureResourceMappings(ResourceMappingRegistry registry) {
+        public void configureResourceHandler(ResourceHandlerRegistry registry) {
             for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                webMvcConfiguration.configureResourceMappings(registry);
+                webMvcConfiguration.configureResourceHandler(registry);
             }
         }
 
@@ -574,9 +577,9 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         }
 
         @Override
-        public void configureVIewResolver(List<ViewResolver> resultResolvers) {
+        public void configureResultHandler(List<ResultHandler> resultResolvers) {
             for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                webMvcConfiguration.configureVIewResolver(resultResolvers);
+                webMvcConfiguration.configureResultHandler(resultResolvers);
             }
         }
 
@@ -605,6 +608,13 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         public <T> void configureTemplateLoader(List<T> loaders) {
             for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
                 webMvcConfiguration.configureTemplateLoader(loaders);
+            }
+        }
+
+        @Override
+        public void configureViewController(ViewControllerHandlerRegistry viewControllerHandlerRegistry) {
+            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+                webMvcConfiguration.configureViewController(viewControllerHandlerRegistry);
             }
         }
 

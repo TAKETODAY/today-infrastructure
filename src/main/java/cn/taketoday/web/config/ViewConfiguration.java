@@ -39,7 +39,8 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.mapping.MethodParameter;
-import cn.taketoday.web.mapping.ViewMapping;
+import cn.taketoday.web.mapping.ViewController;
+import cn.taketoday.web.mapping.ViewControllerHandlerRegistry;
 
 /**
  * @author TODAY <br>
@@ -54,6 +55,8 @@ public class ViewConfiguration {
     private final BeanNameCreator beanNameCreator;
     private final WebApplicationContext applicationContext;
 
+    private ViewControllerHandlerRegistry handlerRegistry;
+
     public ViewConfiguration(WebApplicationContext applicationContext) {
 
         this.applicationContext = applicationContext;
@@ -62,6 +65,7 @@ public class ViewConfiguration {
         this.variables = environment.getProperties();
         this.contextPath = applicationContext.getContextPath();
         this.beanNameCreator = environment.getBeanNameCreator();
+        this.handlerRegistry = applicationContext.getBean(ViewControllerHandlerRegistry.class);
     }
 
     /**
@@ -114,11 +118,11 @@ public class ViewConfiguration {
         }
     }
 
-    protected ViewMapping processAction(final String prefix,
-                                        final String suffix,
-                                        final Element action,
-                                        final Class<?> class_,
-                                        final Object controllerBean) throws Exception //
+    protected ViewController processAction(final String prefix,
+                                           final String suffix,
+                                           final Element action,
+                                           final Class<?> class_,
+                                           final Object controllerBean) throws Exception //
     {
 
         String name = action.getAttribute(Constant.ATTR_NAME); // action name
@@ -146,7 +150,7 @@ public class ViewConfiguration {
             }
         }
 
-        final ViewMapping mapping = new ViewMapping(controllerBean, handlerMethod, parameters);
+        final ViewController mapping = new ViewController(controllerBean, handlerMethod, parameters);
 
         if (StringUtils.isNotEmpty(status)) {
             mapping.setStatus(Integer.parseInt(status));
@@ -168,7 +172,7 @@ public class ViewConfiguration {
 
         name = ContextUtils.resolveValue(contextPath.concat(StringUtils.checkUrl(name)), String.class, variables);
 
-        ViewMapping.register(name, mapping);
+        handlerRegistry.register(name, mapping);
         log.info("View Mapped [{} -> {}]", name, mapping);
         return mapping;
     }

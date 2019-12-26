@@ -57,18 +57,35 @@ public class FastJsonMessageConverter implements MessageConverter {
     }
 
     @Override
-    public void write(final RequestContext requestContext, final Object message) throws IOException {
+    public void write(final RequestContext context, final Object message) throws IOException {
 
         if (message instanceof CharSequence) {
-            requestContext.getOutputStream().write(message.toString().getBytes(Constant.DEFAULT_CHARSET));
+            try {
+                context.getOutputStream().write(message.toString().getBytes(Constant.DEFAULT_CHARSET));
+            }
+            catch (RuntimeException e) {
+                context.getWriter().write(message.toString());
+            }
         }
         else {
-            requestContext.contentType(Constant.CONTENT_TYPE_JSON);
+            context.contentType(Constant.CONTENT_TYPE_JSON);
             if (message instanceof JsonSequence) {
-                requestContext.getOutputStream().write(((JsonSequence) message).toJson().getBytes(Constant.DEFAULT_CHARSET));
+                try {
+                    context.getOutputStream()
+                            .write(((JsonSequence) message).toJson().getBytes(Constant.DEFAULT_CHARSET));
+                }
+                catch (RuntimeException e) {
+                    context.getWriter().write(((JsonSequence) message).toJson());
+                }
             }
             else {
-                JSON.writeJSONString(requestContext.getOutputStream(), message, getSerializeFeatures());
+                try {
+                    JSON.writeJSONString(context.getOutputStream(), message, getSerializeFeatures());
+                }
+                catch (RuntimeException e) {
+                    JSON.writeJSONString(context.getWriter(), message, getSerializeFeatures());
+
+                }
             }
         }
     }

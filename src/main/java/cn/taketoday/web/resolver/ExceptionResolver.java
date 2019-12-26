@@ -20,7 +20,6 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.WebMapping;
 
 /**
  * @author TODAY <br>
@@ -34,11 +33,11 @@ public interface ExceptionResolver {
      * 
      * @param exception
      *            The exception occurred
-     * @param mvcMapping
-     *            Current handler mapping info
+     * @param handler
+     *            Current handler
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
-    void resolveException(RequestContext requestContext, Throwable exception, WebMapping mvcMapping) throws Throwable;
+    void resolveException(RequestContext context, Throwable exception, Object handler) throws Throwable;
 
 }

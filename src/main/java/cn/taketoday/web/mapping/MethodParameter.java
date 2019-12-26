@@ -25,6 +25,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
@@ -59,18 +60,19 @@ public class MethodParameter {
     private static final List<ParameterResolver> PARAMETER_RESOLVERS = new ArrayList<>();
 
     public MethodParameter(String name, //@off
-                            boolean required,
-                            String defaultValue, 
-                            Parameter parameter,
-                            Type[] genericityClass, 
-                            Class<?> parameterClass) {
+                           boolean required,
+                           String defaultValue,
+                           Parameter parameter,
+                           Type[] genericityClass,
+                           Class<?> parameterClass) {//@on
         this.name = name;
         this.required = required;
         this.parameter = parameter;
         this.defaultValue = defaultValue;
-        this.parameterClass = parameterClass;
         this.genericityClass = genericityClass;
-        this.resolver = obtainResolver(); //@on
+        this.parameterClass = Objects.requireNonNull(parameterClass);
+        
+        this.resolver = obtainResolver(); // must invoke at last
     }
 
     public boolean isInterface() {
@@ -123,7 +125,6 @@ public class MethodParameter {
     }
 
     public <A extends Annotation> A getAnnotation(final Class<A> annotationClass) {
-
         if (annotationClass == null) {
             return null;
         }

@@ -46,8 +46,8 @@ public class JstlTemplateViewResolver extends AbstractTemplateViewResolver imple
     public void resolveView(final String template, final RequestContext requestContext) throws Throwable {
 
         final HttpServletRequest request = requestContext.nativeRequest();
-        request.getRequestDispatcher(prepareTemplate(template))//
-                .forward(request, requestContext.nativeResponse());
+            request.getRequestDispatcher(prepareTemplate(template))
+                    .forward(request, requestContext.nativeResponse());
     }
 
     /**

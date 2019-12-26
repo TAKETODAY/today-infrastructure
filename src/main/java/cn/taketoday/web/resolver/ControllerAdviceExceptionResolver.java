@@ -38,7 +38,6 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.ActionConfiguration;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.exception.ExceptionUnhandledException;
-import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
 
@@ -51,24 +50,22 @@ import cn.taketoday.web.mapping.MethodParameter;
 public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver implements WebApplicationInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(ControllerAdviceExceptionResolver.class);
-    private final Map<Class<? extends Throwable>, ExceptionHandlerMapping> exceptionHandlers = new HashMap<>();
+    private final Map<Class<? extends Throwable>, ThrowableHandlerMethod> exceptionHandlers = new HashMap<>();
 
     @Override
     protected void resolveHandlerMappingException(final Throwable ex,
                                                   final RequestContext context,
-                                                  final HandlerMapping handlerMapping) throws Throwable //
+                                                  final HandlerMethod handlerMapping) throws Throwable //
     {
 
-        final ExceptionHandlerMapping exceptionHandler = lookupExceptionHandlerMapping(ex);//
+        final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandlerMapping(ex);//
         if (exceptionHandler != null) {
-
             context.attribute(Constant.KEY_THROWABLE, ex);
             if (handlerMapping.getObject() != null) { // apply status
                 context.status(buildStatus(ex, exceptionHandler, handlerMapping).value());
             }
-
             try {
-                exceptionHandler.resolveResult(context, exceptionHandler.invokeHandler(context));
+                exceptionHandler.handleResult(context, exceptionHandler.invokeHandler(context));
             }
             catch (final InvocationTargetException e) {
                 final Throwable target = e.getTargetException();
@@ -97,7 +94,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
      * @return Current response status
      */
     protected ResponseStatus buildStatus(final Throwable ex,
-                                         final ExceptionHandlerMapping exceptionHandler,
+                                         final ThrowableHandlerMethod exceptionHandler,
                                          final HandlerMethod targetHandler) //
     {
         // ResponseStatus on Target handler
@@ -115,9 +112,9 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
      *            Target {@link Exception}
      * @return Mapped {@link Exception} handler mapping
      */
-    protected ExceptionHandlerMapping lookupExceptionHandlerMapping(final Throwable ex) {
+    protected ThrowableHandlerMethod lookupExceptionHandlerMapping(final Throwable ex) {
 
-        final ExceptionHandlerMapping ret = exceptionHandlers.get(ex.getClass());
+        final ThrowableHandlerMethod ret = exceptionHandlers.get(ex.getClass());
         if (ret == null) {
             return exceptionHandlers.get(Throwable.class); // Global exception handler
         }
@@ -138,11 +135,10 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
                 if (method.isAnnotationPresent(ExceptionHandler.class)) {
 
                     final List<MethodParameter> parameters = ActionConfiguration.createMethodParameters(method);
-
-                    final ExceptionHandlerMapping mapping = //
-                            new ExceptionHandlerMapping(errorHandler,
-                                                        method,
-                                                        parameters.toArray(new MethodParameter[parameters.size()]));
+                    final ThrowableHandlerMethod mapping = //
+                            new ThrowableHandlerMethod(errorHandler,
+                                                       method,
+                                                       parameters.toArray(new MethodParameter[parameters.size()]));
 
                     for (Class<? extends Throwable> exceptionClass : method.getAnnotation(ExceptionHandler.class).value()) {
                         exceptionHandlers.put(exceptionClass, mapping);
@@ -152,20 +148,12 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
         }
     }
 
-    protected static class ExceptionHandlerMapping extends HandlerMethod implements Serializable {
+    protected static class ThrowableHandlerMethod extends HandlerMethod implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
-        private final Object handler;
-
-        public ExceptionHandlerMapping(Object handler, Method method, MethodParameter[] parameters) {
-            super(method, parameters);
-            this.handler = handler;
-        }
-
-        @Override
-        public Object getObject() {
-            return handler;
+        public ThrowableHandlerMethod(Object handler, Method method, MethodParameter[] parameters) {
+            super(handler, method, null, parameters);
         }
     }
 

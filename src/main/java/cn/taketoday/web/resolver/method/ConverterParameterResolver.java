@@ -29,7 +29,7 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-07-13 12:58
  */
-public final class ConverterParameterResolver implements OrderedParameterResolver {
+public class ConverterParameterResolver implements OrderedParameterResolver {
 
     private final int order;
     private final SupportsFunction supports;
@@ -55,7 +55,9 @@ public final class ConverterParameterResolver implements OrderedParameterResolve
 
         final String value = requestContext.parameter(parameter.getName());
         if (StringUtils.isEmpty(value)) {
-            if (parameter.isRequired()) throw WebUtils.newBadRequest(null, parameter, null);
+            if (parameter.isRequired()) {
+                throw WebUtils.newBadRequest(null, parameter, null);
+            }
             return converter.convert(parameter.getDefaultValue());
         }
         return converter.convert(value);

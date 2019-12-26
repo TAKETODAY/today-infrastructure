@@ -56,8 +56,6 @@ import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.event.WebApplicationFailedEvent;
-import cn.taketoday.web.mapping.ResourceMapping;
-import cn.taketoday.web.mapping.ResourceMappingRegistry;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.method.DefaultMultipartResolver;
 import cn.taketoday.web.resolver.method.ParameterResolver;
@@ -186,7 +184,6 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
 
         final WebApplicationContext context = prepareApplicationContext(servletContext);
         try {
-
             try {
                 servletContext.setRequestCharacterEncoding(DEFAULT_ENCODING);
                 servletContext.setResponseCharacterEncoding(DEFAULT_ENCODING);
@@ -198,8 +195,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
             context.publishEvent(new WebApplicationFailedEvent(context, ex));
-            log.error("Your Application Initialized ERROR: [{}]", ex.toString(), ex);
-            throw new ConfigurationException(ex);
+            throw new ConfigurationException("Your Application Initialized ERROR: [" + ex + "]", ex);
         }
     }
 
@@ -263,58 +259,12 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
 
         final WebServletApplicationContext webApplicationContext = obtainWebApplicationContext();
-        configureResourceRegistry(initializers, getWebMvcConfiguration(webApplicationContext));
 
         configureFilter(webApplicationContext, initializers);
         configureServlet(webApplicationContext, initializers);
         configureListener(webApplicationContext, initializers);
 
         super.configureInitializer(initializers, config);
-    }
-
-    /**
-     * Configure ResourceMapping
-     * 
-     * @param contextInitializers
-     *            All {@link WebApplicationInitializer}s
-     * @param servletWebMvcConfiguration
-     *            ServletWebMvcConfiguration
-     */
-    protected void configureResourceRegistry(List<WebApplicationInitializer> contextInitializers,
-                                             ServletWebMvcConfiguration servletWebMvcConfiguration)//
-    {
-        final WebServletApplicationContext context = obtainWebApplicationContext();
-
-        final Set<String> urlMappings = new HashSet<>();
-        final ResourceMappingRegistry resourceMappingRegistry = context.getBean(ResourceMappingRegistry.class);
-        final List<ResourceMapping> resourceHandlerMappings = resourceMappingRegistry.getResourceMappings();
-
-        for (final ResourceMapping resourceMapping : resourceHandlerMappings) {
-            final String[] pathPatterns = resourceMapping.getPathPatterns();
-            for (final String pathPattern : pathPatterns) {
-                if (pathPattern.endsWith("/**")) {
-                    urlMappings.add(pathPattern.substring(0, pathPattern.length() - 1));
-                }
-                else {
-                    urlMappings.add(pathPattern);
-                }
-            }
-        }
-        servletWebMvcConfiguration.configureResourceServletUrlMappings(urlMappings);
-
-        if (!urlMappings.isEmpty()) {
-
-            if (!context.containsBeanDefinition(ResourceServlet.class)) {
-                context.registerBean(Constant.RESOURCE_SERVLET, ResourceServlet.class);
-            }
-
-            WebServletInitializer<ResourceServlet> resource = new WebServletInitializer<>(context.getBean(ResourceServlet.class));
-            resource.setUrlMappings(urlMappings);
-            resource.setName(Constant.RESOURCE_SERVLET);
-
-            log.info("Set ResourceServlet Url Mappings: [{}]", urlMappings);
-            contextInitializers.add(resource);
-        }
     }
 
     /**
@@ -450,20 +400,11 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      * @author TODAY <br>
      *         2019-05-17 17:46
      */
-    public static class ServletCompositeWebMvcConfiguration //
+    public static class ServletCompositeWebMvcConfiguration
             extends CompositeWebMvcConfiguration implements ServletWebMvcConfiguration {
 
         public ServletCompositeWebMvcConfiguration(List<WebMvcConfiguration> webMvcConfigurations) {
             super(webMvcConfigurations);
-        }
-
-        @Override
-        public void configureResourceServletUrlMappings(Set<String> urlMappings) {
-            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                if (webMvcConfiguration instanceof ServletWebMvcConfiguration) {
-                    ((ServletWebMvcConfiguration) webMvcConfiguration).configureResourceServletUrlMappings(urlMappings);
-                }
-            }
         }
 
     }

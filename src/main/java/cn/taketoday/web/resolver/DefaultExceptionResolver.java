@@ -40,14 +40,12 @@ import cn.taketoday.web.exception.FileSizeExceededException;
 import cn.taketoday.web.exception.MethodNotAllowedException;
 import cn.taketoday.web.exception.NotFoundException;
 import cn.taketoday.web.exception.UnauthorizedException;
-import cn.taketoday.web.mapping.HandlerMapping;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.ResourceMapping;
-import cn.taketoday.web.mapping.ViewMapping;
-import cn.taketoday.web.mapping.WebMapping;
+import cn.taketoday.web.mapping.ViewController;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.validation.ValidationException;
-import cn.taketoday.web.view.TemplateResolver;
+import cn.taketoday.web.view.TemplateResultHandler;
 
 /**
  * Default implementation
@@ -61,18 +59,18 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 
     @Override
     public void resolveException(final RequestContext context,
-                                 final Throwable ex, final WebMapping mvcMapping) throws Throwable //
+                                 final Throwable ex, final Object mvcMapping) throws Throwable //
     {
         try {
 
             if (mvcMapping == null) {
                 resolveViewException(ex, context, ex.getMessage());
             }
-            else if (mvcMapping instanceof HandlerMapping) {
-                resolveHandlerMappingException(ex, context, (HandlerMapping) mvcMapping);
+            else if (mvcMapping instanceof HandlerMethod) {
+                resolveHandlerMappingException(ex, context, (HandlerMethod) mvcMapping);
             }
-            else if (mvcMapping instanceof ViewMapping) {
-                resolveViewMappingException(ex, context, (ViewMapping) mvcMapping);
+            else if (mvcMapping instanceof ViewController) {
+                resolveViewMappingException(ex, context, (ViewController) mvcMapping);
             }
             else if (mvcMapping instanceof ResourceMapping) {
                 resolveResourceMappingException(ex, context, (ResourceMapping) mvcMapping);
@@ -88,7 +86,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
     }
 
     /**
-     * Resolve {@link HandlerMapping} exception
+     * Resolve {@link InterceptableHandlerMethod} exception
      * 
      * @param ex
      *            Target {@link Throwable}
@@ -106,38 +104,38 @@ public class DefaultExceptionResolver implements ExceptionResolver {
     }
 
     /**
-     * Resolve {@link HandlerMapping} exception
+     * Resolve {@link InterceptableHandlerMethod} exception
      * 
      * @param ex
      *            Target {@link Throwable}
      * @param context
      *            Current request context
      * @param viewMapping
-     *            {@link ViewMapping}
+     *            {@link ViewController}
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
     protected void resolveViewMappingException(final Throwable ex,
                                                final RequestContext context,
-                                               final ViewMapping viewMapping) throws Throwable {
+                                               final ViewController viewMapping) throws Throwable {
         resolveViewException(ex, context, ex.getMessage());
     }
 
     /**
-     * Resolve {@link HandlerMapping} exception
+     * Resolve {@link InterceptableHandlerMethod} exception
      * 
      * @param ex
      *            Target {@link Throwable}
      * @param context
      *            Current request context
      * @param handlerMapping
-     *            {@link HandlerMapping}
+     *            {@link InterceptableHandlerMethod}
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
     protected void resolveHandlerMappingException(final Throwable ex,
                                                   final RequestContext context,
-                                                  final HandlerMapping handlerMethod) throws Throwable//
+                                                  final HandlerMethod handlerMethod) throws Throwable//
     {
         final ResponseStatus responseStatus = buildStatus(handlerMethod, ex);
         final int status = responseStatus.value();
@@ -145,16 +143,16 @@ public class DefaultExceptionResolver implements ExceptionResolver {
         context.status(status);
 
         if (handlerMethod.isAssignableFrom(RenderedImage.class)) {
-            handlerMethod.resolveResult(context, resolveImageException(ex, context));
+            handlerMethod.handleResult(context, resolveImageException(ex, context));
         }
         else if (!handlerMethod.is(void.class)
                  && !handlerMethod.is(Object.class)
                  && !handlerMethod.is(ModelAndView.class)
-                 && TemplateResolver.supportsResolver(handlerMethod)) {
+                 && TemplateResultHandler.supportsHandlerMethod(handlerMethod)) {
 
             final String redirect = responseStatus.redirect();
             if (StringUtils.isNotEmpty(redirect)) { // has redirect
-                context.redirect(context.contextPath() + redirect);
+                context.redirect(context.contextPath().concat(redirect));
             }
             else {
                 resolveViewException(ex, context, ex.getMessage());

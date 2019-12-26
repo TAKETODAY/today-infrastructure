@@ -32,14 +32,14 @@ public interface ParameterResolver {
     /**
      * Whether the given parameter is supported by this resolver.
      */
-    default boolean supports(final MethodParameter parameter) {
+    default boolean supports(MethodParameter parameter) {
         return true;
     }
 
     /**
      * Resolve parameter
      * 
-     * @param requestContext
+     * @param context
      *            Current request Context
      * @param parameter
      *            parameter
@@ -47,7 +47,7 @@ public interface ParameterResolver {
      *             if any {@link Exception} occurred
      * @return method parameter instances
      */
-    Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable;
+    Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable;
 
     @FunctionalInterface
     public interface SupportsFunction {

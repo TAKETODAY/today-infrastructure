@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.view.template;
 
+import java.io.IOException;
+
 import javax.servlet.ServletContext;
 
 import org.thymeleaf.TemplateEngine;
@@ -75,7 +77,7 @@ public class ThymeleafTemplateViewResolver
      * Resolve Thymeleaf View.
      */
     @Override
-    public void resolveView(final String template, final RequestContext context) throws Throwable {
+    public void resolveView(final String template, final RequestContext context) throws IOException {
 
         templateEngine.process(template,
                                new WebContext(context.nativeRequest(),

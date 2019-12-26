@@ -20,48 +20,40 @@
 package cn.taketoday.web.view;
 
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Env;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 11:32
+ *         2019-07-14 01:14
  */
-public class TemplateResolver implements ViewResolver {
-
-    /** view resolver **/
-    private final TemplateViewResolver viewResolver;
+public class ModelAndViewResultHandler extends HandlerMethodResultHandler {
 
     @Autowired
-    public TemplateResolver(TemplateViewResolver viewResolver) {
-        this.viewResolver = viewResolver;
+    public ModelAndViewResultHandler(TemplateViewResolver viewResolver, MessageConverter messageConverter,
+            @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) //
+    {
+        setMessageConverter(messageConverter);
+        setTemplateViewResolver(viewResolver);
+        setDownloadFileBufferSize(downloadFileBuf);
     }
 
     @Override
     public boolean supports(HandlerMethod handlerMethod) {
-        return supportsResolver(handlerMethod);
-    }
-
-    public static boolean supportsResolver(final HandlerMethod handlerMethod) {
-
-        if (handlerMethod.is(String.class)) {
-
-            if (handlerMethod.isMethodPresent(ResponseBody.class)) {
-                return !handlerMethod.getMethodAnnotation(ResponseBody.class).value();
-            }
-            else if (handlerMethod.isDeclaringClassPresent(ResponseBody.class)) {
-                return !handlerMethod.getDeclaringClassAnnotation(ResponseBody.class).value();
-            }
-            return true;
-        }
-        return false;
+        return handlerMethod.isAssignableFrom(ModelAndView.class);
     }
 
     @Override
-    public void resolveView(final RequestContext requestContext, final Object result) throws Throwable {
-        AbstractViewResolver.resolveView((String) result, viewResolver, requestContext);
+    public void handleResult(RequestContext requestContext, Object result) throws Throwable {
+
+        if (result instanceof ModelAndView) {
+            resolveModelAndView(requestContext, (ModelAndView) result);
+        }
     }
 
 }

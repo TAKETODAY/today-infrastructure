@@ -21,9 +21,6 @@ package cn.taketoday.web.servlet;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -33,51 +30,26 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.HandlerMapping;
-import cn.taketoday.web.mapping.HandlerMappingRegistry;
-import cn.taketoday.web.mapping.RegexMapping;
+import cn.taketoday.web.handler.DispatcherHandler;
+import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.resolver.ExceptionResolver;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
  *         2018-06-25 19:47:14
  * @version 2.3.7
  */
-public class DispatcherServlet implements Servlet, Serializable {
+public class DispatcherServlet extends DispatcherHandler implements Servlet, Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    private static final Logger log = LoggerFactory.getLogger(DispatcherServlet.class);
-
-    /** exception resolver */
-    private final ExceptionResolver exceptionResolver;
-    /** Action mapping registry */
-    private final HandlerMappingRegistry handlerMappingRegistry;
-
-    private final WebServletApplicationContext applicationContext;
 
     private ServletConfig servletConfig;
 
     @Autowired
-    public DispatcherServlet(ExceptionResolver exceptionResolver, //@off
-                             HandlerMappingRegistry handlerMappingRegistry,
-                             WebServletApplicationContext applicationContext) //@on
-    {
-        if (exceptionResolver == null) {
-            throw new ConfigurationException("You must provide an 'exceptionResolver'");
-        }
-        this.exceptionResolver = exceptionResolver;
-        this.applicationContext = applicationContext;
-        this.handlerMappingRegistry = handlerMappingRegistry;
+    public DispatcherServlet(ExceptionResolver exceptionResolver) {
+        super(exceptionResolver);
     }
 
     /**
@@ -94,62 +66,18 @@ public class DispatcherServlet implements Servlet, Serializable {
     }
 
     @Override
-    public void service(final ServletRequest req, final ServletResponse res) throws ServletException, IOException {
-        service((HttpServletRequest) req, (HttpServletResponse) res);
-    }
+    public void service(final ServletRequest request, final ServletResponse response) throws ServletException, IOException {
 
-    public final void service(final HttpServletRequest req,
-                              final HttpServletResponse res) throws ServletException, IOException {
-
-        // Lookup handler mapping
-        final HandlerMapping mapping = lookupHandlerMapping(req);
-
-        if (mapping == null) {
-            res.sendError(404);
-            return;
-        }
-
-        final RequestContext context = prepareContext(req, res);
+        final RequestContext context = prepareContext((HttpServletRequest) request, (HttpServletResponse) response);
+        // Lookup handler
+        final Object handler = lookupHandler(context);
+        final HandlerAdapter adapter = lookupHandlerAdapter(handler);
         try {
-            DispatcherHandler.service(mapping, context);
+            handle(handler, context, adapter);
         }
-        catch (Throwable e) {
-            try {
-                WebUtils.resolveException(context, exceptionResolver, mapping, e);
-            }
-            catch (Throwable e1) {
-                throw new ServletException(e1);
-            }
+        catch (final Throwable e) {
+            throw new ServletException(e);
         }
-    }
-
-    /**
-     * Looking for {@link HandlerMapping}
-     * 
-     * @param req
-     *            Current request
-     * @return mapped {@link HandlerMapping}
-     * @since 2.3.7
-     */
-    protected HandlerMapping lookupHandlerMapping(final HttpServletRequest req) { //TODO Optimize performance
-        // The key of handler
-        String key = req.getMethod().concat(req.getRequestURI());
-
-        final HandlerMappingRegistry registry = this.handlerMappingRegistry;
-        final HandlerMapping ret = registry.get(key); // handler mapping
-        if (ret == null) {
-            // path variable
-            key = StringUtils.decodeUrl(key);// decode
-            for (final RegexMapping regex : registry.getRegexMappings()) {
-                // TODO path matcher pathMatcher.match(requestURI, requestURI)
-                if (regex.pattern.matcher(key).matches()) {
-                    return regex.handlerMapping;
-                }
-            }
-            log.debug("NOT FOUND -> [{}]", key);
-            return null;
-        }
-        return ret;
     }
 
     @Override
@@ -173,35 +101,18 @@ public class DispatcherServlet implements Servlet, Serializable {
 
     @Override
     public void destroy() {
-
-        if (applicationContext != null) {
-            final State state = applicationContext.getState();
-
-            if (state != State.CLOSING && state != State.CLOSED) {
-
-                applicationContext.close();
-
-                final DateFormat dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);//
-                final String msg = new StringBuilder()//
-                        .append("Your application destroyed at: [")//
-                        .append(dateFormat.format(new Date()))//
-                        .append("] on startup date: [")//
-                        .append(dateFormat.format(applicationContext.getStartupDate()))//
-                        .append("]")//
-                        .toString();
-
-                log.info(msg);
-                servletConfig.getServletContext().log(msg);
-            }
-        }
+        super.destroy();
     }
 
-    public final HandlerMappingRegistry getHandlerMappingRegistry() {
-        return this.handlerMappingRegistry;
+    @Override
+    protected void log(String msg) {
+        super.log(msg);
+        servletConfig.getServletContext().log(msg);
     }
 
-    public final ExceptionResolver getExceptionResolver() {
-        return this.exceptionResolver;
+    @Override
+    public WebServletApplicationContext getApplicationContext() {
+        return (WebServletApplicationContext) super.getApplicationContext();
     }
 
 }

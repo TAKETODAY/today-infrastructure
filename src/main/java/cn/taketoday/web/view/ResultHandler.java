@@ -19,17 +19,20 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.context.Ordered;
+import cn.taketoday.web.RequestContext;
 
 /**
+ * ResultHandler
+ * 
  * @author TODAY <br>
- *         2019-07-14 19:39
+ *         2019-07-10 19:22
  */
-public interface OrderedViewResolver extends ViewResolver, Ordered {
+@FunctionalInterface
+public interface ResultHandler {
 
-    @Override
-    default int getOrder() {
-        return LOWEST_PRECEDENCE;
+    default boolean supports(Object handler) {
+        return true;
     }
 
+    void handleResult(RequestContext requestContext, Object result) throws Throwable;
 }

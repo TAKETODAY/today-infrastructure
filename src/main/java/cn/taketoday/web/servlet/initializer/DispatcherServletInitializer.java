@@ -31,7 +31,6 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
-import cn.taketoday.web.servlet.WebServletApplicationContextAware;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -43,14 +42,13 @@ import lombok.Setter;
 @Getter
 @MissingBean
 @ConditionalOnClass(Constant.ENV_SERVLET)
-public class DispatcherServletInitializer extends WebServletInitializer<DispatcherServlet> implements WebServletApplicationContextAware {
+public class DispatcherServletInitializer extends WebServletInitializer<DispatcherServlet> {
 
-    private WebServletApplicationContext applicationContext;
+    private final WebServletApplicationContext applicationContext;
 
     private String dispatcherServletMapping = Constant.DISPATCHER_SERVLET_MAPPING;
 
-    @Override
-    public void setWebServletApplicationContext(WebServletApplicationContext applicationContext) {
+    public DispatcherServletInitializer(WebServletApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
@@ -59,15 +57,16 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
 
         DispatcherServlet dispatcherServlet = super.getServlet();
         if (dispatcherServlet == null) {
-
             multipartConfig();
-
             addUrlMappings(StringUtils.split(dispatcherServletMapping));
 
-            if (!applicationContext.containsBeanDefinition(Constant.DISPATCHER_SERVLET)) {
+            final WebServletApplicationContext applicationContext = getApplicationContext();
+
+            if (!applicationContext.containsBeanDefinition(DispatcherServlet.class)) {
                 applicationContext.registerBean(Constant.DISPATCHER_SERVLET, DispatcherServlet.class);
             }
-            dispatcherServlet = applicationContext.getBean(Constant.DISPATCHER_SERVLET, DispatcherServlet.class);
+
+            dispatcherServlet = applicationContext.getBean(DispatcherServlet.class);
             final Logger log = LoggerFactory.getLogger(DispatcherServletInitializer.class);
 
             log.info("Register Dispatcher Servlet: [{}] With Url Mappings: {}", dispatcherServlet, getUrlMappings());
@@ -78,7 +77,9 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
         return dispatcherServlet;
     }
 
-    private void multipartConfig() {
+    protected void multipartConfig() {
+
+        final WebServletApplicationContext applicationContext = getApplicationContext();
 
         MultipartConfigElement multipartConfig = applicationContext.getBean(MultipartConfigElement.class);
 

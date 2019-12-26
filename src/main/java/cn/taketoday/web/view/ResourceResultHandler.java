@@ -19,39 +19,48 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.context.annotation.Autowired;
+import java.io.File;
+import java.io.IOException;
+
 import cn.taketoday.context.annotation.Env;
+import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.web.Constant;
-import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.view.template.TemplateViewResolver;
+import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 01:14
+ *         2019-07-14 11:18
  */
-public class ModelAndViewResultResolver extends AbstractViewResolver implements ViewResolver {
+public class ResourceResultHandler extends HandlerMethodResultHandler implements RuntimeResultHandler {
 
-    @Autowired
-    public ModelAndViewResultResolver(TemplateViewResolver viewResolver, MessageConverter messageConverter,
-            @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) //
-    {
-        super(viewResolver, messageConverter, downloadFileBuf);
+    private final int bufferSize;
+
+    public ResourceResultHandler(@Env(defaultValue = "10240", value = Constant.DOWNLOAD_BUFF_SIZE) int buffSize) {
+        this.bufferSize = buffSize;
     }
 
     @Override
     public boolean supports(HandlerMethod handlerMethod) {
-        return handlerMethod.isAssignableFrom(ModelAndView.class);
+        return handlerMethod.isAssignableFrom(Resource.class)
+               || handlerMethod.isAssignableFrom(File.class);
     }
 
     @Override
-    public void resolveView(RequestContext requestContext, Object result) throws Throwable {
+    public boolean supports(RequestContext context, Object result) {
+        return result instanceof Resource
+               || result instanceof File;
+    }
 
-        if (result instanceof ModelAndView) {
-            resolveModelAndView(requestContext, (ModelAndView) result);
+    @Override
+    public void handleResult(RequestContext context, Object result) throws IOException {
+
+        if (result instanceof Resource) {
+            WebUtils.downloadFile(context, (Resource) result, bufferSize);
         }
+        WebUtils.downloadFile(context, ResourceUtils.getResource((File) result), bufferSize);
     }
 
 }

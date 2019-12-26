@@ -35,13 +35,17 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Controller;
-import cn.taketoday.web.view.ViewResolver;
+import cn.taketoday.web.handler.InterceptableRequestHandler;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.view.ResultHandler;
 
 /**
  * @author TODAY <br>
  *         2018-06-25 20:03:11
  */
-public class HandlerMethod {
+public class HandlerMethod extends InterceptableRequestHandler {
+
+    private final Object bean; // controller bean 
 
     /** action **/
     private final Method method;
@@ -51,21 +55,51 @@ public class HandlerMethod {
     private final Class<?> reutrnType;
     /** @since 2.3.7 */
     private final Type[] genericityClass;
-
-    private final ViewResolver viewResolver;
+    private final ResultHandler resultHandler;
     private final MethodInvoker handlerInvoker;
-    private static final List<ViewResolver> VIEW_RESOLVERS = new ArrayList<>();
+    private static final List<ResultHandler> RESULT_HANDLERS = new ArrayList<>();
+
+    /** 拦截器 */
+    private final HandlerInterceptor[] interceptors;
+
+    public HandlerMethod(Object bean, Method method, List<HandlerInterceptor> interceptors, List<MethodParameter> params) {
+        this(bean, method, interceptors, params == null ? null : params.toArray(new MethodParameter[params.size()]));
+    }
+
+    public HandlerMethod(Object bean, Method method, List<HandlerInterceptor> interceptors, MethodParameter... params) {
+
+        this.bean = bean;
+        this.method = method;
+        this.reutrnType = method != null ? method.getReturnType() : null;
+        this.genericityClass = ClassUtils.getGenericityClass(reutrnType);
+
+        if (ObjectUtils.isEmpty(params)) {
+            this.parameters = null;
+        }
+        else {
+            for (final MethodParameter parameter : params) {
+                parameter.setHandlerMethod(this);
+            }
+            this.parameters = params;
+        }
+        this.handlerInvoker = method != null ? MethodInvoker.create(method) : null;
+
+        this.interceptors = ObjectUtils.isNotEmpty(interceptors)
+                ? interceptors.toArray(new HandlerInterceptor[interceptors.size()])
+                : null;
+
+        this.resultHandler = obtainResolver();// must invoke at last
+    }
 
     /**
      * Get correspond view resolver, If there isn't a suitable resolver will be
      * throw {@link ConfigurationException}
      * 
-     * @return A suitable {@link ViewResolver}
+     * @return A suitable {@link ResultHandler}
      */
-    protected ViewResolver obtainResolver() throws ConfigurationException {
+    protected ResultHandler obtainResolver() throws ConfigurationException {
         if (method != null) {
-
-            for (final ViewResolver resolver : getViewResolvers()) {
+            for (final ResultHandler resolver : getResultHandlers()) {
                 if (resolver.supports(this)) {
                     return resolver;
                 }
@@ -75,35 +109,18 @@ public class HandlerMethod {
         return null;
     }
 
-    public HandlerMethod(Method method, List<MethodParameter> parameters) {
-        this(method, parameters == null ? null : parameters.toArray(new MethodParameter[parameters.size()]));
+    public static HandlerMethod create(Object bean,
+                                       Method method,
+                                       List<HandlerInterceptor> interceptors,
+                                       MethodParameter... methodParameters) {
+        return new HandlerMethod(bean, method, interceptors, methodParameters);
     }
 
-    public HandlerMethod(Method method, MethodParameter... parameters) {
-
-        this.method = method;
-        this.reutrnType = method != null ? method.getReturnType() : null;
-        this.genericityClass = ClassUtils.getGenericityClass(reutrnType);
-
-        if (ObjectUtils.isEmpty(parameters)) {
-            this.parameters = null;
-        }
-        else {
-            for (final MethodParameter parameter : parameters) {
-                parameter.setHandlerMethod(this);
-            }
-            this.parameters = parameters;
-        }
-        this.viewResolver = obtainResolver();
-        this.handlerInvoker = method != null ? MethodInvoker.create(method) : null;
-    }
-
-    public static HandlerMethod create(final Method method, final MethodParameter... methodParameters) {
-        return new HandlerMethod(method, methodParameters);
-    }
-
-    public static HandlerMethod create(final Method method, final List<MethodParameter> methodParameters) {
-        return new HandlerMethod(method, methodParameters);
+    public static HandlerMethod create(Object bean,
+                                       Method method,
+                                       List<HandlerInterceptor> interceptors,
+                                       List<MethodParameter> methodParameters) {
+        return new HandlerMethod(bean, method, interceptors, methodParameters);
     }
 
     public final Method getMethod() {
@@ -182,8 +199,8 @@ public class HandlerMethod {
 
     // ------------- resolver
 
-    public void resolveResult(final RequestContext requestContext, final Object result) throws Throwable {
-        viewResolver.resolveView(requestContext, result);
+    public void handleResult(final RequestContext requestContext, final Object result) throws Throwable {
+        resultHandler.handleResult(requestContext, result);
     }
 
     public Object[] resolveParameters(final RequestContext requestContext) throws Throwable {
@@ -207,23 +224,23 @@ public class HandlerMethod {
     // Useful methods
     // ------------------------------------
 
-    public static void addResolver(ViewResolver... resolvers) {
-        Collections.addAll(VIEW_RESOLVERS, resolvers);
-        OrderUtils.reversedSort(VIEW_RESOLVERS);
+    public static void addResultHandler(ResultHandler... resolvers) {
+        Collections.addAll(RESULT_HANDLERS, resolvers);
+        OrderUtils.reversedSort(RESULT_HANDLERS);
     }
 
-    public static void addResolver(List<ViewResolver> resolver) {
-        VIEW_RESOLVERS.addAll(resolver);
-        OrderUtils.reversedSort(VIEW_RESOLVERS);
+    public static void addResultHandler(List<ResultHandler> resolver) {
+        RESULT_HANDLERS.addAll(resolver);
+        OrderUtils.reversedSort(RESULT_HANDLERS);
     }
 
-    public static List<ViewResolver> getViewResolvers() {
-        return VIEW_RESOLVERS;
+    public static List<ResultHandler> getResultHandlers() {
+        return RESULT_HANDLERS;
     }
 
     @Override
     public String toString() {
-        return method.toString();
+        return method == null ? super.toString() : method.toString();
     }
 
     @Override
@@ -246,7 +263,24 @@ public class HandlerMethod {
      * Get The {@link Controller} object
      */
     public Object getObject() {
+        return bean;
+    }
+
+    @Override
+    public HandlerInterceptor[] getInterceptors() {
+        return interceptors;
+    }
+
+    @Override
+    public Object handleRequest(final RequestContext context) throws Throwable {
+        final Object result = super.handleRequest(context);
+        handleResult(context, result);
         return null;
+    }
+
+    @Override
+    protected Object handleInternal(final RequestContext context) throws Throwable {
+        return invokeHandler(context);
     }
 
 }
