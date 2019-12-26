@@ -41,7 +41,7 @@ public class ServletHandlerAdapter extends AbstractHandlerAdapter {
     @Override
     public Object handle(RequestContext context, Object handler) throws Throwable {
         ((Servlet)handler).service(context.nativeRequest(), context.nativeResponse());
-        return null;
+        return Constant.EMPTY_OBJECT;
     }
 
 }

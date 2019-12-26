@@ -19,13 +19,11 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.web.RequestContext;
-
 /**
  * @author TODAY <br>
  *         2019-12-25 23:09
  */
 public interface RuntimeResultHandler extends ResultHandler {
 
-    boolean supports(RequestContext context, Object result);
+    boolean supportsResult(Object result);
 }

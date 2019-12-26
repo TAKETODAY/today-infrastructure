@@ -22,6 +22,7 @@ package cn.taketoday.web.mapping;
 import java.io.Serializable;
 
 import cn.taketoday.context.PathMatcher;
+import cn.taketoday.web.handler.ResourceRequestHandler;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -38,5 +39,9 @@ public class ResourceMappingMatchResult implements Serializable {
     private final String requestPath;
     private final String matchedPattern;
     private final PathMatcher pathMatcher;
-    private final ResourceMapping resourceMapping;
+    private final ResourceRequestHandler handler;
+    
+    public final ResourceMapping getMapping() {
+        return handler.getMapping();
+    }
 }

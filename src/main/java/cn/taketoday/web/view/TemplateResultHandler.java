@@ -56,7 +56,7 @@ public class TemplateResultHandler extends HandlerMethodResultHandler implements
     }
 
     @Override
-    public boolean supports(RequestContext context, Object result) {
+    public boolean supportsResult(Object result) {
         return result instanceof String;
     }
 

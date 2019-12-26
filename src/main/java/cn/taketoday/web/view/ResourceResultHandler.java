@@ -49,7 +49,7 @@ public class ResourceResultHandler extends HandlerMethodResultHandler implements
     }
 
     @Override
-    public boolean supports(RequestContext context, Object result) {
+    public boolean supportsResult(Object result) {
         return result instanceof Resource
                || result instanceof File;
     }

@@ -40,7 +40,7 @@ public class ImageResultHandler extends HandlerMethodResultHandler implements Ru
     }
 
     @Override
-    public boolean supports(RequestContext context, Object result) {
+    public boolean supportsResult(Object result) {
         return result instanceof RenderedImage;
     }
 

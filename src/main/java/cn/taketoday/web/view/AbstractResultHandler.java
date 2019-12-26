@@ -42,7 +42,7 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  * @author TODAY <br>
  *         2019-07-14 10:47
  */
-public abstract class AbstractResultHandler implements ResultHandler {
+public abstract class AbstractResultHandler implements ResultHandler, RuntimeResultHandler {
 
     private int downloadFileBuf;
     /** view resolver **/
@@ -58,6 +58,11 @@ public abstract class AbstractResultHandler implements ResultHandler {
         setTemplateViewResolver(viewResolver);
         setMessageConverter(messageConverter);
         setDownloadFileBufferSize(downloadFileBuf);
+    }
+
+    @Override
+    public boolean supportsResult(Object result) {
+        return false;
     }
 
     public void handleObject(final RequestContext requestContext, final Object view) throws Throwable {

@@ -61,6 +61,7 @@ import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
+import cn.taketoday.web.mapping.FunctionHandlerRegistry;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.mapping.ResourceHandlerRegistry;
@@ -143,6 +144,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         configureParameterResolver(applicationContext.getBeans(ParameterResolver.class), mvcConfiguration);
 
         configureResourceHandler(applicationContext.getBean(ResourceHandlerRegistry.class), mvcConfiguration);
+        configureFunctionHandler(applicationContext.getBean(FunctionHandlerRegistry.class), mvcConfiguration);
 
         if (environment.getProperty(ENABLE_WEB_MVC_XML, Boolean::parseBoolean, true)) {
             initFrameWorkFromWebMvcXml();
@@ -163,6 +165,10 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         Runtime.getRuntime().addShutdownHook(new Thread(applicationContext::close));
 
         System.gc();
+    }
+
+    protected void configureFunctionHandler(FunctionHandlerRegistry registry, WebMvcConfiguration mvcConfiguration) {
+        mvcConfiguration.configureFunctionHandler(registry);
     }
 
     /**
@@ -615,6 +621,13 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         public void configureViewController(ViewControllerHandlerRegistry viewControllerHandlerRegistry) {
             for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
                 webMvcConfiguration.configureViewController(viewControllerHandlerRegistry);
+            }
+        }
+
+        @Override
+        public void configureFunctionHandler(FunctionHandlerRegistry functionHandlerRegistry) {
+            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+                webMvcConfiguration.configureFunctionHandler(functionHandlerRegistry);
             }
         }
 

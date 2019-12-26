@@ -24,12 +24,9 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
@@ -38,6 +35,7 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.ActionConfiguration;
+import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.ResourceRequestHandler;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.DefaultResourceResolver;
@@ -49,7 +47,7 @@ import cn.taketoday.web.resolver.WebResourceResolver;
  * @since 2.3.7
  */
 @MissingBean
-public class ResourceHandlerRegistry extends MappedHandlerRegistry {
+public class ResourceHandlerRegistry extends MappedHandlerRegistry implements WebApplicationInitializer {
 
     private int contextPathLength;
     private WebResourceResolver resourceResolver;
@@ -91,11 +89,6 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry {
         return resourceMappings;
     }
 
-    protected ResourceHandlerRegistry sortResourceMappings() {
-        OrderUtils.reversedSort(resourceMappings);
-        return this;
-    }
-
     @Override
     protected String computeKey(RequestContext context) {
         return requestPath(context.requestURI(), contextPathLength);
@@ -106,13 +99,14 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry {
         final Object handler = super.lookupHandler(handlerKey, context);
         if (handler instanceof ResourceMappingMatchResult) {
             context.attribute(Constant.RESOURCE_MAPPING_MATCH_RESULT, handler);
+            return ((ResourceMappingMatchResult) handler).getHandler();
         }
         else if (handler instanceof ResourceRequestHandler) {
             context.attribute(Constant.RESOURCE_MAPPING_MATCH_RESULT,
                               new ResourceMappingMatchResult(handlerKey,
                                                              handlerKey,
                                                              getPathMatcher(),
-                                                             ((ResourceRequestHandler) handler).getMapping()));
+                                                             ((ResourceRequestHandler) handler)));
         }
         return handler;
     }
@@ -125,24 +119,10 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry {
             final String pattern = patternMapping.getPattern();
             if (pathMatcher.match(pattern, handlerKey)) {
                 final ResourceRequestHandler handler = (ResourceRequestHandler) patternMapping.getHandler();
-                return new ResourceMappingMatchResult(handlerKey, pattern, pathMatcher, handler.getMapping());
+                return new ResourceMappingMatchResult(handlerKey, pattern, pathMatcher, handler);
             }
         }
         return null;
-    }
-
-    public Object lookups(RequestContext context) {
-        final String requestURI = context.requestURI();
-        final String path = requestPath(requestURI, contextPathLength);
-
-        final ResourceMappingMatchResult matchResult = lookupResourceMapping(path);
-        if (matchResult == null) {
-            return null;
-        }
-
-        context.attribute("matchResult", matchResult);
-
-        return getResourceResolver().resolveResource(matchResult);
     }
 
     /**
@@ -158,55 +138,27 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry {
         return StringUtils.decodeUrl(length == 0 ? requestURI : requestURI.substring(length));
     }
 
-    /**
-     * Looking for {@link ResourceMapping}
-     * 
-     * @param path
-     *            Request path
-     * @param pathMatcher
-     *            {@link PathMatcher}
-     * @return Mapped {@link ResourceMapping}
-     */
-    protected ResourceMappingMatchResult lookupResourceMapping(final String path) {
-
-        final PathMatcher pathMatcher = getPathMatcher();
-
-        for (final ResourceMapping resourceMapping : getResourceMappings()) {
-            for (final String pathPattern : resourceMapping.getPathPatterns()) {
-                if (pathMatcher.match(pathPattern, path)) {
-                    return new ResourceMappingMatchResult(path, pathPattern, pathMatcher, resourceMapping);
-                }
-            }
-        }
-        return null;
-    }
-
-    @Override
-    protected void initApplicationContext(ApplicationContext context) throws ContextException {
-        super.initApplicationContext(context);
-        
-        sortResourceMappings();
-        if (context instanceof WebApplicationContext) {
-            this.contextPathLength = ((WebApplicationContext) context).getContextPath().length();
-        }
-        else {
-            throw new ConfigurationException("context must be a WebApplicationContext");
-        }
-
-        final WebResourceResolver resourceResolver = getResourceResolver();
-
-        for (final ResourceMapping resourceMapping : getResourceMappings()) {
-            final String[] pathPatterns = resourceMapping.getPathPatterns();
-            registerHandler(new ResourceRequestHandler(resourceMapping, resourceResolver), pathPatterns);
-        }
-    }
-
     public WebResourceResolver getResourceResolver() {
         return resourceResolver;
     }
 
     public void setResourceResolver(WebResourceResolver resourceResolver) {
         this.resourceResolver = resourceResolver;
+    }
+
+    @Override
+    public void onStartup(WebApplicationContext context) throws Throwable {
+        this.contextPathLength = context.getContextPath().length();
+
+        final List<ResourceMapping> resourceMappings = getResourceMappings();
+
+        OrderUtils.reversedSort(resourceMappings);
+
+        final WebResourceResolver resourceResolver = getResourceResolver();
+        for (final ResourceMapping resourceMapping : resourceMappings) {
+            final String[] pathPatterns = resourceMapping.getPathPatterns();
+            registerHandler(new ResourceRequestHandler(resourceMapping, resourceResolver), pathPatterns);
+        }
     }
 
 }

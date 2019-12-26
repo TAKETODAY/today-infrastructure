@@ -24,6 +24,7 @@ import java.util.List;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.web.annotation.Multipart;
+import cn.taketoday.web.mapping.FunctionHandlerRegistry;
 import cn.taketoday.web.mapping.ResourceHandlerRegistry;
 import cn.taketoday.web.mapping.ViewControllerHandlerRegistry;
 import cn.taketoday.web.multipart.MultipartConfiguration;
@@ -106,10 +107,19 @@ public interface WebMvcConfiguration {
     /**
      * Configure ViewController s
      * 
-     * @param viewControllerHandlerRegistry
+     * @param registry
      *            {@link ViewControllerHandlerRegistry}
      * @since 2.3.7
      */
-    default void configureViewController(ViewControllerHandlerRegistry viewControllerHandlerRegistry) {}
+    default void configureViewController(ViewControllerHandlerRegistry registry) {}
+
+    /**
+     * Configure Function Handler
+     * 
+     * @param registry
+     *            {@link FunctionHandlerRegistry}
+     * @since 2.3.7
+     */
+    default void configureFunctionHandler(FunctionHandlerRegistry registry) {}
 
 }

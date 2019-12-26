@@ -41,12 +41,12 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
         this(new HashMap<>(initialCapacity));
     }
 
-    public ViewControllerHandlerRegistry(Map<String, Object> viewRequestMappings) {
-        super(viewRequestMappings);
+    public ViewControllerHandlerRegistry(Map<String, Object> viewControllers) {
+        super(viewControllers);
     }
 
-    public ViewControllerHandlerRegistry(Map<String, Object> viewRequestMappings, int order) {
-        super(viewRequestMappings);
+    public ViewControllerHandlerRegistry(Map<String, Object> viewControllers, int order) {
+        super(viewControllers);
         setOrder(order);
     }
 

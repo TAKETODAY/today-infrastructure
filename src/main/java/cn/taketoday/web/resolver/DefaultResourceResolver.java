@@ -69,7 +69,7 @@ public class DefaultResourceResolver implements WebResourceResolver {
         }
 
         // log.debug("resource: [{}]", extractPathWithinPattern);
-        for (String location : matchResult.getResourceMapping().getLocations()) {
+        for (String location : matchResult.getMapping().getLocations()) {
             try {
                 // log.debug("look in: [{}]", location);
                 // TODO

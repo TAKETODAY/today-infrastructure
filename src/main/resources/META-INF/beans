@@ -9,5 +9,6 @@ cn.taketoday.web.validation.DefaultValidator
 cn.taketoday.web.validation.ErrorsParameterResolver
 cn.taketoday.web.validation.ValidationParameterResolver
 cn.taketoday.web.mapping.HandlerMethodRegistry
+cn.taketoday.web.mapping.FunctionHandlerRegistry
 cn.taketoday.web.mapping.ResourceHandlerRegistry
 cn.taketoday.web.mapping.ViewControllerHandlerRegistry

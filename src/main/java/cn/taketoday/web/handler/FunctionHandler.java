@@ -19,37 +19,14 @@
  */
 package cn.taketoday.web.handler;
 
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- *         2019-12-20 19:15
+ * 		   2019-12-26 21:59
  */
-public class NotFoundRequestAdapter implements HandlerAdapter {
+public interface FunctionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(NotFoundRequestAdapter.class);
-
-    @Override
-    public boolean supports(Object handler) {
-        return handler == null;
-    }
-
-    @Override
-    public Object handle(RequestContext context, Object handler) throws Throwable {
-        context.sendError(404); // TODO not found
-
-        if (log.isDebugEnabled()) {
-            log.debug("NOT FOUND -> [{}]", context.requestURI());
-        }
-        return Constant.EMPTY_OBJECT;
-    }
-
-    @Override
-    public long getLastModified(RequestContext context, Object handler) {
-        return -1;
-    }
+    void handleRequest(RequestContext context) throws Throwable;
 
 }

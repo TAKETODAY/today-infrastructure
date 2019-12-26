@@ -33,6 +33,7 @@ import cn.taketoday.context.invoker.MethodInvoker;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.handler.InterceptableRequestHandler;
@@ -271,11 +272,16 @@ public class HandlerMethod extends InterceptableRequestHandler {
         return interceptors;
     }
 
+    // handleRequest
+    // -----------------------------------------
+
     @Override
     public Object handleRequest(final RequestContext context) throws Throwable {
         final Object result = super.handleRequest(context);
-        handleResult(context, result);
-        return null;
+        if (result != null) {
+            handleResult(context, result);
+        }
+        return Constant.EMPTY_OBJECT;
     }
 
     @Override

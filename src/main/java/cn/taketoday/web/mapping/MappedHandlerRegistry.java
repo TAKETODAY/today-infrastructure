@@ -156,14 +156,18 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
         return patternMappings;
     }
 
-    public void addPatternMappings(final PatternMapping... mappings) {
+    public void addPatternMappings(final PatternMapping... mappings) {// TODO
 
+        final PatternMapping[] newArr;
         final PatternMapping[] patternMappings = getPatternMappings();
-        final PatternMapping[] newArr = new PatternMapping[patternMappings.length + mappings.length];
-
-        System.arraycopy(patternMappings, 0, newArr, 0, patternMappings.length);
-        System.arraycopy(mappings, 0, newArr, patternMappings.length, mappings.length);
-
+        if (patternMappings == null) {
+            newArr = mappings;
+        }
+        else {
+            newArr = new PatternMapping[patternMappings.length + mappings.length];
+            System.arraycopy(patternMappings, 0, newArr, 0, patternMappings.length);
+            System.arraycopy(mappings, 0, newArr, patternMappings.length, mappings.length);
+        }
         setPatternMappings(OrderUtils.reversedSort(newArr));
     }
 

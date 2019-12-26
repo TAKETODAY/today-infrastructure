@@ -35,10 +35,9 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 public class VoidResultHandler extends ModelAndViewResultHandler {
 
     @Autowired
-    public VoidResultHandler(TemplateViewResolver viewResolver, 
-                             MessageConverter messageConverter,
-                             @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") 
-                             int downloadFileBuf) //
+    public VoidResultHandler(TemplateViewResolver viewResolver,
+            MessageConverter messageConverter,
+            @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) //
     {
         super(viewResolver, messageConverter, downloadFileBuf);
     }
@@ -46,6 +45,11 @@ public class VoidResultHandler extends ModelAndViewResultHandler {
     @Override
     public boolean supports(HandlerMethod handlerMethod) {
         return handlerMethod.is(void.class);
+    }
+
+    @Override
+    public boolean supportsResult(Object result) {
+        return result == null;
     }
 
     @Override

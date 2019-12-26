@@ -20,6 +20,7 @@
 package cn.taketoday.web.handler;
 
 import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mapping.HandlerMethod;
 import cn.taketoday.web.mapping.ViewController;
@@ -56,7 +57,7 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
             return view.getAssetsPath();
         }
         handlerMethod.handleResult(context, result);
-        return null;
+        return Constant.EMPTY_OBJECT;
     }
 
     protected void applyContentType(final RequestContext context, final ViewController mapping) {

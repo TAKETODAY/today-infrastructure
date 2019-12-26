@@ -24,6 +24,7 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
@@ -43,6 +44,7 @@ import cn.taketoday.web.resolver.ControllerAdviceExceptionResolver;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.ResultHandler;
+import cn.taketoday.web.view.RuntimeResultHandler;
 
 /**
  * @author TODAY <br>
@@ -60,9 +62,12 @@ public class DispatcherHandler extends ApplicationContextSupport {
 
     private final HandlerAdapter[] requestHandlers = { //
         new RequestHandlerAdapter(), //
+        new FunctionRequestAdapter(), //
         new ViewControllerHandlerAdapter(), //
         new NotFoundRequestAdapter() //
     };
+
+    private RuntimeResultHandler[] resultHandlers;
 
     public DispatcherHandler() {
         this(new ControllerAdviceExceptionResolver());
@@ -82,6 +87,10 @@ public class DispatcherHandler extends ApplicationContextSupport {
             throw new ConfigurationException("context must be a WebApplicationContext");
         }
         setMappingRegistry(new CompositeHandlerRegistry(context.getBeans(HandlerRegistry.class)));
+
+        this.resultHandlers = HandlerMethod.getResultHandlers().stream()
+                .filter(res -> res instanceof RuntimeResultHandler)
+                .toArray(RuntimeResultHandler[]::new);
     }
 
     public Object lookupHandler(final RequestContext context) {
@@ -94,16 +103,17 @@ public class DispatcherHandler extends ApplicationContextSupport {
                 return requestHandler;
             }
         }
-        throw new ConfigurationException("No RequestHandlerAdapter for handler: [" + handler + ']');
+        throw new ConfigurationException("No HandlerAdapter for handler: [" + handler + ']');
     }
 
-    public ResultHandler lookupResultHandler(final Object handler) throws Throwable {
-        for (final ResultHandler resultHandler : HandlerMethod.getResultHandlers()) {
-            if (resultHandler.supports(handler)) {
+    public RuntimeResultHandler lookupResultHandler(final Object result) throws Throwable {
+
+        for (final RuntimeResultHandler resultHandler : resultHandlers) {
+            if (resultHandler.supportsResult(result)) {
                 return resultHandler;
             }
         }
-        throw new ConfigurationException("No ResultHandler for handler: [" + handler + ']');
+        throw new ConfigurationException("No RuntimeResultHandler for result: [" + result + ']');
     }
 
     public boolean notModified(final Object handler,
@@ -137,9 +147,10 @@ public class DispatcherHandler extends ApplicationContextSupport {
             return;
         }
         try {
+
             final Object result = adapter.handle(context, handler);
-            if (result != null) {
-                lookupResultHandler(handler).handleResult(context, result);
+            if (result != Constant.EMPTY_OBJECT) {
+                lookupResultHandler(result).handleResult(context, result);
             }
         }
         catch (Throwable e) {
