@@ -24,7 +24,6 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
@@ -43,7 +42,6 @@ import cn.taketoday.web.mapping.HandlerRegistry;
 import cn.taketoday.web.resolver.ControllerAdviceExceptionResolver;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.utils.WebUtils;
-import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.RuntimeResultHandler;
 
 /**
