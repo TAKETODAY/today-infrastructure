@@ -39,7 +39,7 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-12-25 16:12
  */
-public class ResourceRequestHandler extends InterceptableRequestHandler implements RequestHandler {
+public class ResourceRequestHandler extends InterceptableRequestHandler {
 
     private final ResourceMapping mapping;
     private final WebResourceResolver resourceResolver;

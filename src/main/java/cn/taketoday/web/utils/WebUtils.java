@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLConnection;
 
+import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -32,9 +33,15 @@ import cn.taketoday.web.HttpHeaders;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.exception.AccessForbiddenException;
 import cn.taketoday.web.exception.BadRequestException;
+import cn.taketoday.web.exception.FileSizeExceededException;
+import cn.taketoday.web.exception.MethodNotAllowedException;
+import cn.taketoday.web.exception.NotFoundException;
+import cn.taketoday.web.exception.UnauthorizedException;
 import cn.taketoday.web.mapping.MethodParameter;
 import cn.taketoday.web.resolver.ExceptionResolver;
+import cn.taketoday.web.validation.ValidationException;
 
 /**
  * @author TODAY <br>
@@ -189,6 +196,30 @@ public abstract class WebUtils {
 
             writeToOutputStream(in, context.getOutputStream(), bufferSize);
         }
+    }
+
+    public static int getStatus(final Throwable ex) {
+
+        if (ex instanceof MethodNotAllowedException) {
+            return 405;
+        }
+        else if (ex instanceof BadRequestException
+                 || ex instanceof ValidationException
+                 || ex instanceof ConversionException
+                 || ex instanceof FileSizeExceededException) //
+        {
+            return 400;
+        }
+        else if (ex instanceof NotFoundException) {
+            return 404;
+        }
+        else if (ex instanceof UnauthorizedException) {
+            return 401;
+        }
+        else if (ex instanceof AccessForbiddenException) {
+            return 403;
+        }
+        return 500;
     }
 
     // Utility class for CORS request handling based on the 

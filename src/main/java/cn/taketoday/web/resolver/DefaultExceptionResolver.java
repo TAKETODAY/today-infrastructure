@@ -26,7 +26,6 @@ import java.lang.annotation.Annotation;
 
 import javax.imageio.ImageIO;
 
-import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
@@ -34,17 +33,11 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.exception.AccessForbiddenException;
-import cn.taketoday.web.exception.BadRequestException;
-import cn.taketoday.web.exception.FileSizeExceededException;
-import cn.taketoday.web.exception.MethodNotAllowedException;
-import cn.taketoday.web.exception.NotFoundException;
-import cn.taketoday.web.exception.UnauthorizedException;
+import cn.taketoday.web.handler.ResourceRequestHandler;
 import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.mapping.ResourceMapping;
 import cn.taketoday.web.mapping.ViewController;
 import cn.taketoday.web.ui.ModelAndView;
-import cn.taketoday.web.validation.ValidationException;
+import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.TemplateResultHandler;
 
 /**
@@ -59,22 +52,23 @@ public class DefaultExceptionResolver implements ExceptionResolver {
 
     @Override
     public void resolveException(final RequestContext context,
-                                 final Throwable ex, final Object mvcMapping) throws Throwable //
+                                 final Throwable ex, final Object handler) throws Throwable //
     {
         try {
 
-            if (mvcMapping == null) {
+            if (handler instanceof HandlerMethod) {
+                resolveHandlerMethodException(ex, context, (HandlerMethod) handler);
+            }
+            else if (handler instanceof ViewController) {
+                resolveViewControllerException(ex, context, (ViewController) handler);
+            }
+            else if (handler instanceof ResourceRequestHandler) {
+                resolveResourceMappingException(ex, context, (ResourceRequestHandler) handler);
+            }
+            else {
                 resolveViewException(ex, context, ex.getMessage());
             }
-            else if (mvcMapping instanceof HandlerMethod) {
-                resolveHandlerMappingException(ex, context, (HandlerMethod) mvcMapping);
-            }
-            else if (mvcMapping instanceof ViewController) {
-                resolveViewMappingException(ex, context, (ViewController) mvcMapping);
-            }
-            else if (mvcMapping instanceof ResourceMapping) {
-                resolveResourceMappingException(ex, context, (ResourceMapping) mvcMapping);
-            }
+
             log.debug("Catch Throwable: [{}]", ex.toString(), ex);
         }
         catch (Throwable handlerException) {
@@ -86,56 +80,56 @@ public class DefaultExceptionResolver implements ExceptionResolver {
     }
 
     /**
-     * Resolve {@link InterceptableHandlerMethod} exception
+     * Resolve {@link ResourceRequestHandler} exception
      * 
      * @param ex
      *            Target {@link Throwable}
      * @param context
      *            Current request context
-     * @param resourceMapping
-     *            {@link ResourceMapping}
+     * @param resourceRequestHandler
+     *            {@link ResourceRequestHandler}
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
     protected void resolveResourceMappingException(final Throwable ex,
                                                    final RequestContext context,
-                                                   final ResourceMapping resourceMapping) throws Throwable {
+                                                   final ResourceRequestHandler resourceRequestHandler) throws Throwable {
         resolveViewException(ex, context, ex.getMessage());
     }
 
     /**
-     * Resolve {@link InterceptableHandlerMethod} exception
+     * Resolve {@link ViewController} exception
      * 
      * @param ex
      *            Target {@link Throwable}
      * @param context
      *            Current request context
-     * @param viewMapping
+     * @param viewController
      *            {@link ViewController}
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
-    protected void resolveViewMappingException(final Throwable ex,
-                                               final RequestContext context,
-                                               final ViewController viewMapping) throws Throwable {
+    protected void resolveViewControllerException(final Throwable ex,
+                                                  final RequestContext context,
+                                                  final ViewController viewController) throws Throwable {
         resolveViewException(ex, context, ex.getMessage());
     }
 
     /**
-     * Resolve {@link InterceptableHandlerMethod} exception
+     * Resolve {@link HandlerMethod} exception
      * 
      * @param ex
      *            Target {@link Throwable}
      * @param context
      *            Current request context
-     * @param handlerMapping
-     *            {@link InterceptableHandlerMethod}
+     * @param handlerMethod
+     *            {@link HandlerMethod}
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
-    protected void resolveHandlerMappingException(final Throwable ex,
-                                                  final RequestContext context,
-                                                  final HandlerMethod handlerMethod) throws Throwable//
+    protected void resolveHandlerMethodException(final Throwable ex,
+                                                 final RequestContext context,
+                                                 final HandlerMethod handlerMethod) throws Throwable//
     {
         final ResponseStatus responseStatus = buildStatus(handlerMethod, ex);
         final int status = responseStatus.value();
@@ -159,7 +153,6 @@ public class DefaultExceptionResolver implements ExceptionResolver {
             }
         }
         else {
-
             context.contentType(Constant.CONTENT_TYPE_JSON);
             context.getWriter().write(new StringBuilder()
                     .append("{\"message\":\"").append(responseStatus.msg())
@@ -170,28 +163,8 @@ public class DefaultExceptionResolver implements ExceptionResolver {
         }
     }
 
-    public static int getStatus(Throwable ex) {
-
-        if (ex instanceof MethodNotAllowedException) {
-            return 405;
-        }
-        else if (ex instanceof BadRequestException
-                 || ex instanceof ValidationException
-                 || ex instanceof ConversionException
-                 || ex instanceof FileSizeExceededException) //
-        {
-            return 400;
-        }
-        else if (ex instanceof NotFoundException) {
-            return 404;
-        }
-        else if (ex instanceof UnauthorizedException) {
-            return 401;
-        }
-        else if (ex instanceof AccessForbiddenException) {
-            return 403;
-        }
-        return 500;
+    public int getStatus(Throwable ex) {
+        return WebUtils.getStatus(ex);
     }
 
     /**
@@ -204,16 +177,16 @@ public class DefaultExceptionResolver implements ExceptionResolver {
      * @param msg
      *            Message to client
      */
-    public static void resolveViewException(final Throwable ex,
-                                            final RequestContext context, String msg) throws IOException {
+    public void resolveViewException(final Throwable ex,
+                                     final RequestContext context, String msg) throws IOException {
         context.sendError(getStatus(ex), msg);
     }
 
     /**
      * resolve image
      */
-    public static BufferedImage resolveImageException(final Throwable ex,
-                                                      final RequestContext context) throws IOException {
+    public BufferedImage resolveImageException(final Throwable ex,
+                                               final RequestContext context) throws IOException {
 
         context.contentType(Constant.CONTENT_TYPE_IMAGE);
 
@@ -262,16 +235,15 @@ public class DefaultExceptionResolver implements ExceptionResolver {
         public int value() {
 
             if (status == null) {
-                return getStatus(ex);
+                return WebUtils.getStatus(ex);
             }
 
             final int value = status.value();
-            return value == 0 ? getStatus(ex) : value;
+            return value == 0 ? WebUtils.getStatus(ex) : value;
         }
 
         @Override
         public String msg() {
-
             if (status == null) {
                 return ex.getMessage();
             }

@@ -88,7 +88,7 @@ public class HandlerMethod extends InterceptableRequestHandler {
                 ? interceptors.toArray(new HandlerInterceptor[interceptors.size()])
                 : null;
 
-        this.resultHandler = obtainResolver();// must invoke at last
+        this.resultHandler = obtainResultHandler();// must invoke at last
     }
 
     /**
@@ -97,7 +97,7 @@ public class HandlerMethod extends InterceptableRequestHandler {
      * 
      * @return A suitable {@link ResultHandler}
      */
-    protected ResultHandler obtainResolver() throws ConfigurationException {
+    protected ResultHandler obtainResultHandler() throws ConfigurationException {
         if (method != null) {
             for (final ResultHandler resolver : getResultHandlers()) {
                 if (resolver.supports(this)) {

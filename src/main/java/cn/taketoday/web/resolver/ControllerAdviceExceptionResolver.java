@@ -53,16 +53,16 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
     private final Map<Class<? extends Throwable>, ThrowableHandlerMethod> exceptionHandlers = new HashMap<>();
 
     @Override
-    protected void resolveHandlerMappingException(final Throwable ex,
-                                                  final RequestContext context,
-                                                  final HandlerMethod handlerMapping) throws Throwable //
+    protected void resolveHandlerMethodException(final Throwable ex,
+                                                 final RequestContext context,
+                                                 final HandlerMethod handlerMethod) throws Throwable //
     {
 
-        final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandlerMapping(ex);//
+        final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandlerMethod(ex);//
         if (exceptionHandler != null) {
             context.attribute(Constant.KEY_THROWABLE, ex);
-            if (handlerMapping.getObject() != null) { // apply status
-                context.status(buildStatus(ex, exceptionHandler, handlerMapping).value());
+            if (handlerMethod.getObject() != null) { // apply status
+                context.status(buildStatus(ex, exceptionHandler, handlerMethod).value());
             }
             try {
                 exceptionHandler.handleResult(context, exceptionHandler.invokeHandler(context));
@@ -77,7 +77,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
             }
         }
         else {
-            super.resolveHandlerMappingException(ex, context, handlerMapping);
+            super.resolveHandlerMethodException(ex, context, handlerMethod);
         }
     }
 
@@ -112,7 +112,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
      *            Target {@link Exception}
      * @return Mapped {@link Exception} handler mapping
      */
-    protected ThrowableHandlerMethod lookupExceptionHandlerMapping(final Throwable ex) {
+    protected ThrowableHandlerMethod lookupExceptionHandlerMethod(final Throwable ex) {
 
         final ThrowableHandlerMethod ret = exceptionHandlers.get(ex.getClass());
         if (ret == null) {
