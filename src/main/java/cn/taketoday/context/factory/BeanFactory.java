@@ -33,7 +33,6 @@ import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
  * Bean factory
  * 
  * @author TODAY <br>
- * 
  *         2018-06-23 11:22:26
  */
 public interface BeanFactory {
@@ -42,7 +41,7 @@ public interface BeanFactory {
      * If a bean name start with this its a {@link FactoryBean}
      */
     String FACTORY_BEAN_PREFIX = "$";
-    
+
     char FACTORY_BEAN_PREFIX_CHAR = '$';
 
     /**
@@ -134,7 +133,7 @@ public interface BeanFactory {
      * 
      * @param requiredType
      *            Given bean type
-     * @return A set of beans with given type
+     * @return A set of beans with given type, never be {@code null}
      * @since 2.1.2
      */
     <T> List<T> getBeans(Class<T> requiredType);
@@ -145,7 +144,7 @@ public interface BeanFactory {
      * 
      * @param annotationType
      *            {@link Annotation} type
-     * @return List of annotated beans
+     * @return List of annotated beans, never be {@code null}
      * @since 2.1.5
      */
     <A extends Annotation, T> List<T> getAnnotatedBeans(Class<A> annotationType);
@@ -156,7 +155,7 @@ public interface BeanFactory {
      * 
      * @param requiredType
      *            Given bean type
-     * @return A map of beans with given type
+     * @return A map of beans with given type, never be {@code null}
      * @since 2.1.6
      */
     <T> Map<String, T> getBeansOfType(Class<T> requiredType);
