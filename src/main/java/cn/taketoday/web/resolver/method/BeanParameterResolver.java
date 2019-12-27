@@ -27,7 +27,7 @@ import java.util.Enumeration;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY <br>

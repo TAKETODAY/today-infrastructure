@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.handler.HandlerMethod;
 
 /**
  * @author TODAY <br>

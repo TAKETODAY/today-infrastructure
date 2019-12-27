@@ -17,19 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web;
+package cn.taketoday.web.servlet;
 
 import javax.servlet.ServletContext;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.aware.ApplicationContextSupport;
-import cn.taketoday.web.servlet.WebServletApplicationContext;
+import cn.taketoday.web.ServletContextAware;
+import cn.taketoday.web.WebApplicationContextSupport;
 
 /**
  * @author TODAY <br>
  *         2019-12-21 15:56
  */
-public class WebServletApplicationContextSupport extends ApplicationContextSupport implements ServletContextAware {
+public class WebServletApplicationContextSupport extends WebApplicationContextSupport implements ServletContextAware {
 
     private ServletContext servletContext;
 
@@ -57,11 +57,6 @@ public class WebServletApplicationContextSupport extends ApplicationContextSuppo
     /**
      * Return the current application context as
      * {@link WebServletApplicationContext}.
-     * <p>
-     * <b>NOTE:</b> Only use this if you actually need to access
-     * WebServletApplicationContext-specific functionality. Preferably use
-     * {@code getApplicationContext()} or {@code getServletContext()} else, to be
-     * able to run in non-WebServletApplicationContext environments as well.
      * 
      * @throws IllegalStateException
      *             if not running in a WebApplicationContext
@@ -70,9 +65,9 @@ public class WebServletApplicationContextSupport extends ApplicationContextSuppo
     public final WebServletApplicationContext getWebServletApplicationContext() throws IllegalStateException {
         ApplicationContext ctx = getApplicationContext();
         if (ctx instanceof WebServletApplicationContext) {
-            return (WebServletApplicationContext) getApplicationContext();
+            return (WebServletApplicationContext) ctx;
         }
-        return null;
+        throw new IllegalStateException("ApplicationContext must be a WebServletApplicationContext");
     }
 
     /**
@@ -80,16 +75,15 @@ public class WebServletApplicationContextSupport extends ApplicationContextSuppo
      * 
      * @throws IllegalStateException
      *             if not running within a required ServletContext
-     * @see #isContextRequired()
      */
     public final ServletContext getServletContext() throws IllegalStateException {
         if (this.servletContext != null) {
             return this.servletContext;
         }
+        final WebServletApplicationContext context = getWebServletApplicationContext();
         ServletContext servletContext = null;
-        final WebServletApplicationContext wac = getWebServletApplicationContext();
-        if (wac != null) {
-            servletContext = wac.getServletContext();
+        if (context != null) {
+            servletContext = context.getServletContext();
         }
         if (servletContext == null) {
             throw new IllegalStateException("WebServletApplicationContextSupport instance [" + this +

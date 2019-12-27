@@ -33,7 +33,7 @@ import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.exception.BadRequestException;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.ui.JsonSequence;
 import cn.taketoday.web.utils.WebUtils;
 

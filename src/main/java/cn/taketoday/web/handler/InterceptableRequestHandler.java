@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.web.RequestContext;
@@ -29,9 +30,19 @@ import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
  * @author TODAY <br>
  *         2019-12-25 16:19
  */
-public abstract class InterceptableRequestHandler implements RequestHandler, HandlerInterceptorsCapable {
+public abstract class InterceptableRequestHandler
+        extends OrderedSupport implements RequestHandler, HandlerInterceptorsCapable {
 
     private static final Logger log = LoggerFactory.getLogger(InterceptableRequestHandler.class);
+
+    /** 拦截器 */
+    private HandlerInterceptor[] interceptors;
+
+    public InterceptableRequestHandler() {}
+
+    public InterceptableRequestHandler(HandlerInterceptor... interceptors) {
+        setInterceptors(interceptors);
+    }
 
     protected boolean beforeProcess(final Object handler,
                                     final RequestContext context,
@@ -63,12 +74,10 @@ public abstract class InterceptableRequestHandler implements RequestHandler, Han
 
         final HandlerInterceptor[] interceptors = getInterceptors();
         if (interceptors != null) {
-            // before process
-            if (!beforeProcess(this, context, interceptors)) {
+            if (!beforeProcess(this, context, interceptors)) { // before process
                 return null;
             }
             final Object result = handleInternal(context);
-
             afterProcess(result, this, context, interceptors);
             return result;
         }
@@ -76,5 +85,14 @@ public abstract class InterceptableRequestHandler implements RequestHandler, Han
     }
 
     protected abstract Object handleInternal(RequestContext context) throws Throwable;
+
+    @Override
+    public HandlerInterceptor[] getInterceptors() {
+        return interceptors;
+    }
+
+    public void setInterceptors(HandlerInterceptor... interceptors) {
+        this.interceptors = interceptors;
+    }
 
 }

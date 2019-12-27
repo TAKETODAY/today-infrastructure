@@ -22,12 +22,10 @@ package cn.taketoday.web.view;
 import java.io.File;
 import java.io.IOException;
 
-import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ResourceUtils;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -36,10 +34,8 @@ import cn.taketoday.web.utils.WebUtils;
  */
 public class ResourceResultHandler extends HandlerMethodResultHandler implements RuntimeResultHandler {
 
-    private final int bufferSize;
-
-    public ResourceResultHandler(@Env(defaultValue = "10240", value = Constant.DOWNLOAD_BUFF_SIZE) int buffSize) {
-        this.bufferSize = buffSize;
+    public ResourceResultHandler(int downloadFileBuf) {
+        setDownloadFileBufferSize(downloadFileBuf);
     }
 
     @Override
@@ -56,11 +52,10 @@ public class ResourceResultHandler extends HandlerMethodResultHandler implements
 
     @Override
     public void handleResult(RequestContext context, Object result) throws IOException {
-
         if (result instanceof Resource) {
-            WebUtils.downloadFile(context, (Resource) result, bufferSize);
+            WebUtils.downloadFile(context, (Resource) result, getDownloadFileBufferSize());
         }
-        WebUtils.downloadFile(context, ResourceUtils.getResource((File) result), bufferSize);
+        WebUtils.downloadFile(context, ResourceUtils.getResource((File) result), getDownloadFileBufferSize());
     }
 
 }

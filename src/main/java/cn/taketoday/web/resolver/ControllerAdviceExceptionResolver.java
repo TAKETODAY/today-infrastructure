@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.resolver;
 
+import static cn.taketoday.web.registry.HandlerMethodRegistry.createMethodParameters;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -35,11 +38,11 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.config.ActionConfiguration;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.exception.ExceptionUnhandledException;
-import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.registry.HandlerMethodRegistry;
 
 /**
  * @author TODAY <br>
@@ -51,6 +54,9 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
 
     private static final Logger log = LoggerFactory.getLogger(ControllerAdviceExceptionResolver.class);
     private final Map<Class<? extends Throwable>, ThrowableHandlerMethod> exceptionHandlers = new HashMap<>();
+
+    @Autowired
+    private HandlerMethodRegistry handlerMethodRegistry;
 
     @Override
     protected void resolveHandlerMethodException(final Throwable ex,
@@ -134,7 +140,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
             for (final Method method : errorHandler.getClass().getDeclaredMethods()) {
                 if (method.isAnnotationPresent(ExceptionHandler.class)) {
 
-                    final List<MethodParameter> parameters = ActionConfiguration.createMethodParameters(method);
+                    final List<MethodParameter> parameters = createMethodParameters(method);
                     final ThrowableHandlerMethod mapping = //
                             new ThrowableHandlerMethod(errorHandler,
                                                        method,
@@ -152,7 +158,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
 
         private static final long serialVersionUID = 1L;
 
-        public ThrowableHandlerMethod(Object handler, Method method, MethodParameter[] parameters) {
+        public ThrowableHandlerMethod(Object handler, Method method,MethodParameter[] parameters) {
             super(handler, method, null, parameters);
         }
     }

@@ -20,8 +20,8 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.context.PathMatcher;
-import cn.taketoday.web.mapping.ResourceMapping;
-import cn.taketoday.web.mapping.ResourceMappingMatchResult;
+import cn.taketoday.web.handler.ResourceMapping;
+import cn.taketoday.web.handler.ResourceMappingMatchResult;
 import cn.taketoday.web.resource.WebResource;
 
 /**

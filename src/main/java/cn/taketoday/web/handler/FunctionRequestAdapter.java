@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.handler;
 
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -28,6 +27,12 @@ import cn.taketoday.web.RequestContext;
  */
 public class FunctionRequestAdapter extends AbstractHandlerAdapter {
 
+    public FunctionRequestAdapter() {}
+
+    public FunctionRequestAdapter(int order) {
+        setOrder(order);
+    }
+    
     @Override
     public boolean supports(Object handler) {
         return handler instanceof FunctionHandler;
@@ -36,7 +41,7 @@ public class FunctionRequestAdapter extends AbstractHandlerAdapter {
     @Override
     public Object handle(RequestContext context, Object handler) throws Throwable {
         ((FunctionHandler) handler).handleRequest(context);
-        return Constant.EMPTY_OBJECT;
+        return NONE_RETURN_VALUE;
     }
 
 }

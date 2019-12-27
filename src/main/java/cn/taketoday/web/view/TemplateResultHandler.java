@@ -19,10 +19,9 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseBody;
-import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
@@ -31,7 +30,6 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  */
 public class TemplateResultHandler extends HandlerMethodResultHandler implements RuntimeResultHandler {
 
-    @Autowired
     public TemplateResultHandler(TemplateViewResolver viewResolver) {
         setTemplateViewResolver(viewResolver);
     }
@@ -57,7 +55,7 @@ public class TemplateResultHandler extends HandlerMethodResultHandler implements
 
     @Override
     public boolean supportsResult(Object result) {
-        return result instanceof String;
+        return result instanceof String; // TODO 
     }
 
     @Override

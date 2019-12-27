@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.registry;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
@@ -27,15 +27,16 @@ import java.util.List;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.config.ActionConfiguration;
 import cn.taketoday.web.config.WebApplicationInitializer;
+import cn.taketoday.web.handler.PatternMapping;
+import cn.taketoday.web.handler.ResourceMapping;
+import cn.taketoday.web.handler.ResourceMappingMatchResult;
 import cn.taketoday.web.handler.ResourceRequestHandler;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.DefaultResourceResolver;
@@ -70,10 +71,9 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry implements We
     @SafeVarargs
     public final <T extends HandlerInterceptor> ResourceMapping addResourceMapping(Class<T>... handlerInterceptors) {
 
-        final ActionConfiguration actionConfiguration = //
-                ContextUtils.getApplicationContext().getBean(Constant.ACTION_CONFIG, ActionConfiguration.class);
+        final HandlerMethodRegistry registry = obtainApplicationContext().getBean(HandlerMethodRegistry.class);
 
-        final HandlerInterceptor[] interceptors = actionConfiguration.addInterceptors(handlerInterceptors);
+        final HandlerInterceptor[] interceptors = registry.addInterceptors(handlerInterceptors);
 
         ResourceMapping resourceMapping = new ResourceMapping(ObjectUtils.isEmpty(interceptors) ? null : interceptors);
 

@@ -17,21 +17,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.registry;
 
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebApplicationContextSupport;
 
 /**
  * @author TODAY <br>
  *         2019-12-24 15:02
  */
-public abstract class AbstractHandlerRegistry extends ApplicationContextSupport implements HandlerRegistry, Ordered {
+public abstract class AbstractHandlerRegistry extends WebApplicationContextSupport implements HandlerRegistry, Ordered {
 
     private Object defaultHandler;
 
-    private int order = Ordered.LOWEST_PRECEDENCE; 
+    private int order = Ordered.LOWEST_PRECEDENCE;
 
     @Override
     public final Object lookup(final RequestContext context) {

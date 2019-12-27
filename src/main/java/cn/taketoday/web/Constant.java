@@ -19,8 +19,8 @@
  */
 package cn.taketoday.web;
 
+import cn.taketoday.web.handler.ResourceMappingMatchResult;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.mapping.ResourceMappingMatchResult;
 
 /**
  * @author TODAY <br>
@@ -43,8 +43,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 
     String ENV_SERVLET = "javax.servlet.Servlet";
 
-//    MethodParameter[] EMPTY_METHOD_PARAMETER = new MethodParameter[0];
-    HandlerInterceptor[] EMPTY_HANDLER_INTERCEPTOR = new HandlerInterceptor[0];
+    HandlerInterceptor[] EMPTY_HANDLER_INTERCEPTOR = {};
 
     String NOT_FOUND = "Not Found";
     String BAD_REQUEST = "Bad Request";
@@ -72,8 +71,6 @@ public interface Constant extends cn.taketoday.context.Constant {
 	/**********************************************************
 	 * Framework Attribute Keys
 	 */
-//	@Deprecated
-//	String	KEY_WEB_APPLICATION_CONTEXT 		= "WebApplicationContext";
 	String	KEY_THROWABLE 		                = "THROWABLE";
 	String  VALIDATION_ERRORS                   = "validation-errors";
 	/**
@@ -102,15 +99,6 @@ public interface Constant extends cn.taketoday.context.Constant {
 
 	String 	COLLECTION_PARAM_REGEXP				= "(\\[|\\]|\\.)";
 	String 	MAP_PARAM_REGEXP					= "(\\['|\\']|\\.)";
-	String 	REPLACE_SPLIT_METHOD_URL			= "\\";
-	String 	REPLACE_REGEXP						= "\\\\";
-	String 	NUMBER_REGEXP						= "\\d+";
-	String 	STRING_REGEXP						= "\\w+";
-	String 	ONE_PATH							= "\\*";
-	String 	ANY_PATH							= "\\*\\*";
-	String 	ONE_PATH_REGEXP						= "[\\\\s\\\\S]+";
-	String 	ANY_PATH_REGEXP				 		= "[\\\\s\\\\S|/]+";//[\\s\\S]*
-	String	PATH_VARIABLE_REGEXP				= "\\{(\\w+)\\}";
 
 	// config
 	String	ATTR_ID								= "id";

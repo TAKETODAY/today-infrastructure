@@ -20,7 +20,7 @@
 package cn.taketoday.web.interceptor;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.handler.HandlerMethod;
 
 /**
  * Handler Intercepter process around Handler.

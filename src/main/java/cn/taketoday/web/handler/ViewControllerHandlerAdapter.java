@@ -20,10 +20,7 @@
 package cn.taketoday.web.handler;
 
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.mapping.ViewController;
 
 /**
  * @author TODAY <br>
@@ -31,6 +28,13 @@ import cn.taketoday.web.mapping.ViewController;
  */
 public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
 
+    
+    public ViewControllerHandlerAdapter() {}
+
+    public ViewControllerHandlerAdapter(int order) {
+        setOrder(order);
+    }
+    
     @Override
     public boolean supports(Object handler) {
         return handler instanceof ViewController;
@@ -57,7 +61,7 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
             return view.getAssetsPath();
         }
         handlerMethod.handleResult(context, result);
-        return Constant.EMPTY_OBJECT;
+        return NONE_RETURN_VALUE;
     }
 
     protected void applyContentType(final RequestContext context, final ViewController mapping) {

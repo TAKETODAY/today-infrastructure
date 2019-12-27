@@ -17,31 +17,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.servlet;
 
-import java.io.Serializable;
+import java.util.List;
 
-import cn.taketoday.context.PathMatcher;
-import cn.taketoday.web.handler.ResourceRequestHandler;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import cn.taketoday.web.config.CompositeWebMvcConfiguration;
+import cn.taketoday.web.config.WebMvcConfiguration;
 
 /**
  * @author TODAY <br>
- *         2019-12-05 00:46
+ *         2019-05-17 17:46
  */
-@Getter
-@AllArgsConstructor
-public class ResourceMappingMatchResult implements Serializable {
+public class ServletCompositeWebMvcConfiguration
+        extends CompositeWebMvcConfiguration implements ServletWebMvcConfiguration {
 
-    private static final long serialVersionUID = 1L;
-    
-    private final String requestPath;
-    private final String matchedPattern;
-    private final PathMatcher pathMatcher;
-    private final ResourceRequestHandler handler;
-    
-    public final ResourceMapping getMapping() {
-        return handler.getMapping();
+    public ServletCompositeWebMvcConfiguration(List<WebMvcConfiguration> webMvcConfigurations) {
+        super(webMvcConfigurations);
     }
+
 }

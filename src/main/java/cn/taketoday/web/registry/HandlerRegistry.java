@@ -17,38 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.registry;
 
-import java.util.List;
-
-import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- *         2019-12-08 23:15
+ *         2019-12-08 23:06
  */
-public class CompositeHandlerRegistry implements HandlerRegistry {
+public interface HandlerRegistry {
 
-    private final HandlerRegistry[] webMappingRegistrys;
-
-    public CompositeHandlerRegistry(HandlerRegistry... webMappingRegistrys) {
-        this.webMappingRegistrys = OrderUtils.reversedSort(webMappingRegistrys);
-    }
-
-    public CompositeHandlerRegistry(List<HandlerRegistry> webMappingRegistrys) {
-        this(webMappingRegistrys.toArray(new HandlerRegistry[webMappingRegistrys.size()]));
-    }
-
-    @Override
-    public Object lookup(final RequestContext context) {
-        for (final HandlerRegistry handlerRegistry : webMappingRegistrys) {
-            final Object ret = handlerRegistry.lookup(context);
-            if (ret != null) {
-                return ret;
-            }
-        }
-        return null;
-    }
-
+    Object lookup(RequestContext context);
 }

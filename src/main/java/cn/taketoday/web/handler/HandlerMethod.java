@@ -17,27 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.handler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.invoker.MethodInvoker;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Controller;
-import cn.taketoday.web.handler.InterceptableRequestHandler;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
+import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.ResultHandler;
 
 /**
@@ -54,74 +50,34 @@ public class HandlerMethod extends InterceptableRequestHandler {
     private final MethodParameter[] parameters;
     /** @since 2.3.7 */
     private final Class<?> reutrnType;
+    private ResultHandler resultHandler;
     /** @since 2.3.7 */
     private final Type[] genericityClass;
-    private final ResultHandler resultHandler;
     private final MethodInvoker handlerInvoker;
-    private static final List<ResultHandler> RESULT_HANDLERS = new ArrayList<>();
 
-    /** 拦截器 */
-    private final HandlerInterceptor[] interceptors;
+    private String pathPattern;
 
-    public HandlerMethod(Object bean, Method method, List<HandlerInterceptor> interceptors, List<MethodParameter> params) {
-        this(bean, method, interceptors, params == null ? null : params.toArray(new MethodParameter[params.size()]));
+    public HandlerMethod(Object bean, Method method) {
+        this(bean, method, null);
     }
 
-    public HandlerMethod(Object bean, Method method, List<HandlerInterceptor> interceptors, MethodParameter... params) {
+    public HandlerMethod(Object bean, Method method, List<HandlerInterceptor> interceptors) {
 
         this.bean = bean;
         this.method = method;
         this.reutrnType = method != null ? method.getReturnType() : null;
+        this.parameters = WebUtils.createMethodParametersArray(method);
         this.genericityClass = ClassUtils.getGenericityClass(reutrnType);
 
-        if (ObjectUtils.isEmpty(params)) {
-            this.parameters = null;
-        }
-        else {
-            for (final MethodParameter parameter : params) {
-                parameter.setHandlerMethod(this);
-            }
-            this.parameters = params;
-        }
         this.handlerInvoker = method != null ? MethodInvoker.create(method) : null;
 
-        this.interceptors = ObjectUtils.isNotEmpty(interceptors)
+        setInterceptors(ObjectUtils.isNotEmpty(interceptors)
                 ? interceptors.toArray(new HandlerInterceptor[interceptors.size()])
-                : null;
-
-        this.resultHandler = obtainResultHandler();// must invoke at last
-    }
-
-    /**
-     * Get correspond view resolver, If there isn't a suitable resolver will be
-     * throw {@link ConfigurationException}
-     * 
-     * @return A suitable {@link ResultHandler}
-     */
-    protected ResultHandler obtainResultHandler() throws ConfigurationException {
+                : null);
         if (method != null) {
-            for (final ResultHandler resolver : getResultHandlers()) {
-                if (resolver.supports(this)) {
-                    return resolver;
-                }
-            }
-            throw new ConfigurationException("There isn't have a result resolver to resolve : [" + toString() + "]");
+            setOrder(OrderUtils.getOrder(method) + OrderUtils.getOrder(bean));
         }
-        return null;
-    }
-
-    public static HandlerMethod create(Object bean,
-                                       Method method,
-                                       List<HandlerInterceptor> interceptors,
-                                       MethodParameter... methodParameters) {
-        return new HandlerMethod(bean, method, interceptors, methodParameters);
-    }
-
-    public static HandlerMethod create(Object bean,
-                                       Method method,
-                                       List<HandlerInterceptor> interceptors,
-                                       List<MethodParameter> methodParameters) {
-        return new HandlerMethod(bean, method, interceptors, methodParameters);
+        this.resultHandler = ResultHandler.obtainHandler(this);
     }
 
     public final Method getMethod() {
@@ -222,23 +178,6 @@ public class HandlerMethod extends InterceptableRequestHandler {
         return handlerInvoker.invoke(getObject(), resolveParameters(request));
     }
 
-    // Useful methods
-    // ------------------------------------
-
-    public static void addResultHandler(ResultHandler... resolvers) {
-        Collections.addAll(RESULT_HANDLERS, resolvers);
-        OrderUtils.reversedSort(RESULT_HANDLERS);
-    }
-
-    public static void addResultHandler(List<ResultHandler> resolver) {
-        RESULT_HANDLERS.addAll(resolver);
-        OrderUtils.reversedSort(RESULT_HANDLERS);
-    }
-
-    public static List<ResultHandler> getResultHandlers() {
-        return RESULT_HANDLERS;
-    }
-
     @Override
     public String toString() {
         return method == null ? super.toString() : method.toString();
@@ -267,11 +206,6 @@ public class HandlerMethod extends InterceptableRequestHandler {
         return bean;
     }
 
-    @Override
-    public HandlerInterceptor[] getInterceptors() {
-        return interceptors;
-    }
-
     // handleRequest
     // -----------------------------------------
 
@@ -281,12 +215,30 @@ public class HandlerMethod extends InterceptableRequestHandler {
         if (result != null) {
             handleResult(context, result);
         }
-        return Constant.EMPTY_OBJECT;
+        return HandlerAdapter.NONE_RETURN_VALUE;
     }
 
     @Override
     protected Object handleInternal(final RequestContext context) throws Throwable {
         return invokeHandler(context);
+    }
+
+    public String getPathPattern() {
+        return pathPattern;
+    }
+
+    public void setPathPattern(String pathPattern) {
+        this.pathPattern = pathPattern;
+    }
+
+    // -----------------------------------------
+
+    public static HandlerMethod create(Object bean, Method method) {
+        return new HandlerMethod(bean, method);
+    }
+
+    public static HandlerMethod create(Object bean, Method method, List<HandlerInterceptor> interceptors) {
+        return new HandlerMethod(bean, method, interceptors);
     }
 
 }

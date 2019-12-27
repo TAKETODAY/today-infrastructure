@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.registry;
 
 import static cn.taketoday.web.RequestMethod.DELETE;
 import static cn.taketoday.web.RequestMethod.GET;

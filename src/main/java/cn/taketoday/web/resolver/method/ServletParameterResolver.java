@@ -33,7 +33,7 @@ import javax.servlet.http.HttpSession;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Application;
 import cn.taketoday.web.annotation.Session;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.utils.WebUtils;
 
 /**

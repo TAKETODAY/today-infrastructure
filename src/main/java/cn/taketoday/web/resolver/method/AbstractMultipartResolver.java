@@ -24,7 +24,7 @@ import java.util.List;
 import cn.taketoday.context.utils.DataSize;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.FileSizeExceededException;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.utils.WebUtils;

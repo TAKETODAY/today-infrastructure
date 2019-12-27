@@ -25,7 +25,7 @@ import cn.taketoday.context.annotation.Order;
 import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY <br>

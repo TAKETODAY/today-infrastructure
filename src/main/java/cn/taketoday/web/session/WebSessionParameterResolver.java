@@ -20,7 +20,7 @@
 package cn.taketoday.web.session;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.method.OrderedParameterResolver;
 
 /**

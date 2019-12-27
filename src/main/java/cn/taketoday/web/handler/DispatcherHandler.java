@@ -24,10 +24,11 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
-import cn.taketoday.context.aware.ApplicationContextSupport;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.logger.Logger;
@@ -36,36 +37,32 @@ import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.mapping.CompositeHandlerRegistry;
-import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.mapping.HandlerRegistry;
+import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.registry.CompositeHandlerRegistry;
+import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.resolver.ControllerAdviceExceptionResolver;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.utils.WebUtils;
+import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.RuntimeResultHandler;
 
 /**
  * @author TODAY <br>
  *         2019-11-16 19:05
  */
-public class DispatcherHandler extends ApplicationContextSupport {
+public class DispatcherHandler extends WebApplicationContextSupport {
 
     private static final Logger log = LoggerFactory.getLogger(DispatcherHandler.class);
 
-    private String contextPath;
     /** Action mapping registry */
     private HandlerRegistry handlerRegistry;
-    /** exception resolver */
-    private ExceptionResolver exceptionResolver;
 
-    private final HandlerAdapter[] requestHandlers = { //
-        new RequestHandlerAdapter(), //
-        new FunctionRequestAdapter(), //
-        new ViewControllerHandlerAdapter(), //
-        new NotFoundRequestAdapter() //
-    };
+    private HandlerAdapter[] requestHandlers;
 
     private RuntimeResultHandler[] resultHandlers;
+
+    /** exception resolver */
+    private ExceptionResolver exceptionResolver;
 
     public DispatcherHandler() {
         this(new ControllerAdviceExceptionResolver());
@@ -78,17 +75,23 @@ public class DispatcherHandler extends ApplicationContextSupport {
     @Override
     protected void initApplicationContext(ApplicationContext context) throws ContextException {
         super.initApplicationContext(context);
-        if (context instanceof WebApplicationContext) {
-            this.contextPath = ((WebApplicationContext) context).getContextPath();
-        }
-        else {
-            throw new ConfigurationException("context must be a WebApplicationContext");
-        }
+
         setMappingRegistry(new CompositeHandlerRegistry(context.getBeans(HandlerRegistry.class)));
 
-        this.resultHandlers = HandlerMethod.getResultHandlers().stream()
-                .filter(res -> res instanceof RuntimeResultHandler)
-                .toArray(RuntimeResultHandler[]::new);
+        setResultHandlers(ResultHandler.getRuntimeHandlers());
+
+        final List<HandlerAdapter> adapters = context.getBeans(HandlerAdapter.class);
+        configureHandlerAdapter(adapters, context);
+
+        this.requestHandlers = adapters.toArray(new HandlerAdapter[adapters.size()]);
+    }
+
+    protected void configureHandlerAdapter(final List<HandlerAdapter> adapters, final ApplicationContext context) {
+
+        adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE << 1));
+        adapters.add(new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE - 1));
+        adapters.add(new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE - 2));
+        adapters.add(new NotFoundRequestAdapter(Ordered.HIGHEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE - 100));
     }
 
     public Object lookupHandler(final RequestContext context) {
@@ -104,10 +107,10 @@ public class DispatcherHandler extends ApplicationContextSupport {
         throw new ConfigurationException("No HandlerAdapter for handler: [" + handler + ']');
     }
 
-    public RuntimeResultHandler lookupResultHandler(final Object result) throws Throwable {
+    public RuntimeResultHandler lookupResultHandler(final Object handler, final Object result) throws Throwable {
 
         for (final RuntimeResultHandler resultHandler : resultHandlers) {
-            if (resultHandler.supportsResult(result)) {
+            if (resultHandler.supportsResult(result) || resultHandler.supports(handler)) {
                 return resultHandler;
             }
         }
@@ -145,10 +148,9 @@ public class DispatcherHandler extends ApplicationContextSupport {
             return;
         }
         try {
-
             final Object result = adapter.handle(context, handler);
-            if (result != Constant.EMPTY_OBJECT) {
-                lookupResultHandler(result).handleResult(context, result);
+            if (result != HandlerAdapter.NONE_RETURN_VALUE) {
+                lookupResultHandler(handler, result).handleResult(context, result);
             }
         }
         catch (Throwable e) {
@@ -213,7 +215,8 @@ public class DispatcherHandler extends ApplicationContextSupport {
         this.handlerRegistry = mappingRegistry;
     }
 
-    public String getContextPath() {
-        return contextPath;
+    public void setResultHandlers(RuntimeResultHandler... resultHandlers) {
+        this.resultHandlers = resultHandlers;
     }
+
 }

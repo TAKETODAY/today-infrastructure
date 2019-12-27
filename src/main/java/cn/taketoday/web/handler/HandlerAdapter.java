@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -26,6 +27,12 @@ import cn.taketoday.web.RequestContext;
  *         2019-12-08 20:23
  */
 public interface HandlerAdapter {
+
+    /**
+     * This value indicates that the handler did not return a value, or the result
+     * has been processed
+     */
+    Object NONE_RETURN_VALUE = Constant.EMPTY_OBJECT;
 
     /**
      * Given a handler instance, return whether or not this
@@ -75,11 +82,4 @@ public interface HandlerAdapter {
      */
     long getLastModified(RequestContext context, Object handler);
 
-//    
-//    /**
-//     * Get Etag
-//     *
-//     * @return Etag
-//     */
-//    String getETag(RequestContext context, Object handler);
 }

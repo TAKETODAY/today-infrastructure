@@ -19,6 +19,13 @@
  */
 package cn.taketoday.web.view;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -35,4 +42,50 @@ public interface ResultHandler {
     }
 
     void handleResult(RequestContext requestContext, Object result) throws Throwable;
+
+    List<ResultHandler> resultHandlers = new LinkedList<>();
+
+    static void addHandler(ResultHandler... resolvers) {
+        Collections.addAll(resultHandlers, resolvers);
+        OrderUtils.reversedSort(resultHandlers);
+    }
+
+    static void addHandler(List<ResultHandler> resolver) {
+        resultHandlers.addAll(resolver);
+        OrderUtils.reversedSort(resultHandlers);
+    }
+
+    static void setHandler(List<ResultHandler> resolver) {
+        resultHandlers.clear();
+        resultHandlers.addAll(resolver);
+        OrderUtils.reversedSort(resultHandlers);
+    }
+
+    static List<ResultHandler> getHandlers() {
+        return resultHandlers;
+    }
+
+    static RuntimeResultHandler[] getRuntimeHandlers() {
+        return resultHandlers
+                .stream()
+                .filter(res -> res instanceof RuntimeResultHandler)
+                .toArray(RuntimeResultHandler[]::new);
+    }
+
+    /**
+     * Get correspond view resolver, If there isn't a suitable resolver will be
+     * throw {@link ConfigurationException}
+     * 
+     * @return A suitable {@link ResultHandler}
+     */
+    static ResultHandler obtainHandler(final Object handler) {
+        Objects.requireNonNull(handler, "handler must not be null");
+        for (final ResultHandler resolver : getHandlers()) {
+            if (resolver.supports(handler)) {
+                return resolver;
+            }
+        }
+        throw new ConfigurationException("There isn't have a result resolver to resolve : [" + handler + "]");
+    }
+
 }

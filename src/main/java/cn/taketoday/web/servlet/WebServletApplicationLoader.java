@@ -83,13 +83,8 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     }
 
     @Override
-    public WebServletApplicationContext obtainWebApplicationContext() {
-        return (WebServletApplicationContext) super.obtainWebApplicationContext();
-    }
-
-    @Override
-    public WebServletApplicationContext getWebApplicationContext() {
-        return (WebServletApplicationContext) super.getWebApplicationContext();
+    public WebServletApplicationContext obtainApplicationContext() {
+        return (WebServletApplicationContext) super.obtainApplicationContext();
     }
 
     @Override
@@ -122,7 +117,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      *         initialize
      */
     protected ServletContext getServletContext() {
-        return obtainWebApplicationContext().getServletContext();
+        return obtainApplicationContext().getServletContext();
     }
 
     /**
@@ -160,7 +155,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      */
     protected WebServletApplicationContext prepareApplicationContext(ServletContext servletContext) {
 
-        WebServletApplicationContext ret = getWebApplicationContext();
+        WebServletApplicationContext ret = getWebServletApplicationContext();
 
         if (ret == null) {
 
@@ -175,6 +170,15 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
             log.info("ServletContext: [{}] Configure Success.", servletContext);
         }
         return ret;
+    }
+
+    private WebServletApplicationContext getWebServletApplicationContext() {
+        final ApplicationContext ret = getApplicationContext();
+        if (ret instanceof WebServletApplicationContext) {
+            return (WebServletApplicationContext) ret;
+        }
+        throw new IllegalStateException("ApplicationContext must be a WebServletApplicationContext");
+
     }
 
     @Override
@@ -230,16 +234,13 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     protected void configureMultipart(List<ParameterResolver> resolvers,
                                       MultipartConfiguration multipartConfiguration, WebMvcConfiguration mvcConfiguration) {
 
-        Objects.requireNonNull(multipartConfiguration, "Multipart Config Can't be null");
-
-        mvcConfiguration.configureMultipart(multipartConfiguration);
+        super.configureMultipart(resolvers, multipartConfiguration, mvcConfiguration);
 
         resolvers.add(new DefaultMultipartResolver(multipartConfiguration));
         resolvers.add(new DefaultMultipartResolver.ArrayMultipartResolver(multipartConfiguration));
         resolvers.add(new DefaultMultipartResolver.CollectionMultipartResolver(multipartConfiguration));
         resolvers.add(new DefaultMultipartResolver.MapMultipartParameterResolver(multipartConfiguration));
 
-        super.configureMultipart(resolvers, multipartConfiguration, mvcConfiguration);
     }
 
     @Override
@@ -258,11 +259,11 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     @Override
     protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
 
-        final WebServletApplicationContext webApplicationContext = obtainWebApplicationContext();
+        final WebServletApplicationContext ctx = obtainApplicationContext();
 
-        configureFilter(webApplicationContext, initializers);
-        configureServlet(webApplicationContext, initializers);
-        configureListener(webApplicationContext, initializers);
+        configureFilter(ctx, initializers);
+        configureServlet(ctx, initializers);
+        configureListener(ctx, initializers);
 
         super.configureInitializer(initializers, config);
     }
@@ -396,16 +397,4 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         }
     }
 
-    /**
-     * @author TODAY <br>
-     *         2019-05-17 17:46
-     */
-    public static class ServletCompositeWebMvcConfiguration
-            extends CompositeWebMvcConfiguration implements ServletWebMvcConfiguration {
-
-        public ServletCompositeWebMvcConfiguration(List<WebMvcConfiguration> webMvcConfigurations) {
-            super(webMvcConfigurations);
-        }
-
-    }
 }

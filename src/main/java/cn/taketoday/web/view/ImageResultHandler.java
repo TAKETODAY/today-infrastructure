@@ -26,7 +26,7 @@ import javax.imageio.ImageIO;
 
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.handler.HandlerMethod;
 
 /**
  * @author TODAY <br>

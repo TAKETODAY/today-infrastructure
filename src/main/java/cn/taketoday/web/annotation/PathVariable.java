@@ -38,13 +38,4 @@ public @interface PathVariable {
     /** Request parameter name in path */
     String value() default Constant.BLANK;
 
-    /** Regular expression */
-    String pattern() default Constant.BLANK;
-
-    /**
-     * @deprecated since 2.3.7 use {@link #pattern()}
-     */
-    @Deprecated
-    String regex() default Constant.BLANK;
-
 }

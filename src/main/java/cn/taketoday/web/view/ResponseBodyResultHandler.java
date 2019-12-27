@@ -21,34 +21,36 @@ package cn.taketoday.web.view;
 
 import java.io.IOException;
 
-import cn.taketoday.context.Ordered;
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.HandlerMethod;
 
 /**
  * @author TODAY <br>
  *         2019-07-14 01:19
  */
-public class ResponseBodyResultHandler extends HandlerMethodResultHandler implements Ordered {
+public class ResponseBodyResultHandler extends OrderedSupport implements RuntimeResultHandler {
+
+    private final MessageConverter messageConverter;
 
     public ResponseBodyResultHandler(MessageConverter messageConverter) {
-        setMessageConverter(messageConverter);
+        this.messageConverter = messageConverter;
+        setOrder(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
     }
 
     @Override
-    public boolean supports(HandlerMethod handlerMethod) {
+    public boolean supports(Object handler) {
+        return true;
+    }
+
+    @Override
+    public boolean supportsResult(Object result) {
         return true;
     }
 
     @Override
     public void handleResult(RequestContext requestContext, Object result) throws IOException {
-        obtainMessageConverter().write(requestContext, result);
-    }
-
-    @Override
-    public int getOrder() {
-        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100;
+        messageConverter.write(requestContext, result);
     }
 
 }

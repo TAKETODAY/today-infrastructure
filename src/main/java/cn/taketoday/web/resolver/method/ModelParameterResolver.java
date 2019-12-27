@@ -23,7 +23,7 @@ import java.util.Map;
 
 import cn.taketoday.web.HttpHeaders;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.RedirectModel;

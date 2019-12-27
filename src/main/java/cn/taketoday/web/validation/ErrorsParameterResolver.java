@@ -25,7 +25,7 @@ import java.util.Set;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.method.OrderedParameterResolver;
 
 /**

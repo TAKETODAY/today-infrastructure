@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.handler;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;

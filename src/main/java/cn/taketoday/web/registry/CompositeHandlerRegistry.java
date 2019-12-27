@@ -17,47 +17,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.handler;
+package cn.taketoday.web.registry;
 
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import java.util.List;
+
+import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 
 /**
- * 
- * Process Handler not found
- * 
  * @author TODAY <br>
- *         2019-12-20 19:15
+ *         2019-12-08 23:15
  */
-public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
+public class CompositeHandlerRegistry implements HandlerRegistry {
 
-    private static final Logger log = LoggerFactory.getLogger(NotFoundRequestAdapter.class);
+    private final HandlerRegistry[] webMappingRegistrys;
 
-    public NotFoundRequestAdapter() {}
+    public CompositeHandlerRegistry(HandlerRegistry... webMappingRegistrys) {
+        this.webMappingRegistrys = OrderUtils.reversedSort(webMappingRegistrys);
+    }
 
-    public NotFoundRequestAdapter(int order) {
-        setOrder(order);
+    public CompositeHandlerRegistry(List<HandlerRegistry> webMappingRegistrys) {
+        this(webMappingRegistrys.toArray(new HandlerRegistry[webMappingRegistrys.size()]));
     }
 
     @Override
-    public boolean supports(Object handler) {
-        return handler == null;
-    }
-
-    @Override
-    public Object handle(RequestContext context, Object handler) throws Throwable {
-        context.sendError(404); // TODO not found
-
-        if (log.isDebugEnabled()) {
-            log.debug("NOT FOUND -> [{} {}]", context.method(), context.requestURI());
+    public Object lookup(final RequestContext context) {
+        for (final HandlerRegistry handlerRegistry : webMappingRegistrys) {
+            final Object ret = handlerRegistry.lookup(context);
+            if (ret != null) {
+                return ret;
+            }
         }
-        return NONE_RETURN_VALUE;
-    }
-
-    @Override
-    public long getLastModified(RequestContext context, Object handler) {
-        return -1;
+        return null;
     }
 
 }

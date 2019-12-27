@@ -110,9 +110,4 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
         servletConfig.getServletContext().log(msg);
     }
 
-    @Override
-    public WebServletApplicationContext getApplicationContext() {
-        return (WebServletApplicationContext) super.getApplicationContext();
-    }
-
 }

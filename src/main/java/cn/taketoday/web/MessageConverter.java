@@ -21,7 +21,7 @@ package cn.taketoday.web;
 
 import java.io.IOException;
 
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY <br>

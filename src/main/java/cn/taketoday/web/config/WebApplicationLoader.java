@@ -27,6 +27,7 @@ import static cn.taketoday.web.resolver.method.DelegatingParameterResolver.deleg
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -59,14 +60,14 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
-import cn.taketoday.web.mapping.FunctionHandlerRegistry;
-import cn.taketoday.web.mapping.HandlerMethod;
-import cn.taketoday.web.mapping.MethodParameter;
-import cn.taketoday.web.mapping.ResourceHandlerRegistry;
-import cn.taketoday.web.mapping.ViewControllerHandlerRegistry;
+import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.registry.FunctionHandlerRegistry;
+import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.resolver.method.ArrayParameterResolver;
 import cn.taketoday.web.resolver.method.BeanParameterResolver;
 import cn.taketoday.web.resolver.method.CollectionParameterResolver;
@@ -96,74 +97,56 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  *         2019-07-10 23:12
  */
 @SuppressWarnings("serial")
-public class WebApplicationLoader implements WebApplicationInitializer, Constant {
+public class WebApplicationLoader extends WebApplicationContextSupport implements WebApplicationInitializer, Constant {
 
     private static final Logger log = LoggerFactory.getLogger(WebApplicationLoader.class);
-
-    /** context **/
-    private WebApplicationContext applicationContext;
 
     /**
      * Get {@link WebApplicationContext}
      * 
      * @return {@link WebApplicationContext}
      */
-    public WebApplicationContext obtainWebApplicationContext() {
-        final WebApplicationContext applicationContext = this.applicationContext;
-        if (applicationContext == null) {
-            throw new ConfigurationException("application context could be null.");
-        }
-        return applicationContext;
-    }
-
-    public WebApplicationContext getWebApplicationContext() {
-        return applicationContext;
-    }
-
-    public void setWebApplicationContext(WebApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public WebApplicationContext obtainApplicationContext() {
+        return (WebApplicationContext) super.obtainApplicationContext();
     }
 
     @Override
-    public void onStartup(WebApplicationContext applicationContext) throws Throwable {
-        setWebApplicationContext(applicationContext);
+    public void onStartup(WebApplicationContext context) throws Throwable {
+        setApplicationContext(context);
 
-        final Environment environment = applicationContext.getEnvironment();
+        final Environment environment = context.getEnvironment();
 
-        final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(applicationContext);
+        final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
 
-        configureResultHandler(applicationContext.getBeans(ResultHandler.class), mvcConfiguration);
+        configureResultHandler(mvcConfiguration);
 
         final Class<Object> loaderClass = ClassUtils.loadClass("freemarker.cache.TemplateLoader");
         if (loaderClass != null) {
-            configureTemplateLoader(applicationContext.getBeans(loaderClass), mvcConfiguration);
+            configureTemplateLoader(context.getBeans(loaderClass), mvcConfiguration);
         }
 
-        configureTypeConverter(applicationContext.getBeans(TypeConverter.class), mvcConfiguration);
-
-        configureParameterResolver(applicationContext.getBeans(ParameterResolver.class), mvcConfiguration);
-
-        configureResourceHandler(applicationContext.getBean(ResourceHandlerRegistry.class), mvcConfiguration);
-        configureFunctionHandler(applicationContext.getBean(FunctionHandlerRegistry.class), mvcConfiguration);
+        configureTypeConverter(context.getBeans(TypeConverter.class), mvcConfiguration);
+        configureParameterResolver(context.getBeans(ParameterResolver.class), mvcConfiguration);
+        configureResourceHandler(context.getBean(ResourceHandlerRegistry.class), mvcConfiguration);
+        configureFunctionHandler(context.getBean(FunctionHandlerRegistry.class), mvcConfiguration);
 
         if (environment.getProperty(ENABLE_WEB_MVC_XML, Boolean::parseBoolean, true)) {
             initFrameWorkFromWebMvcXml();
         }
 
         // check all resolver
-        checkFrameWorkResolvers(applicationContext);
+        checkFrameWorkResolvers(context);
 
-        initializerStartup(applicationContext, mvcConfiguration);
+        initializerStartup(context, mvcConfiguration);
 
-        applicationContext.publishEvent(new WebApplicationStartedEvent(applicationContext));
+        context.publishEvent(new WebApplicationStartedEvent(context));
         if (environment.getProperty(ENABLE_WEB_STARTED_LOG, Boolean::parseBoolean, true)) {
             log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-                     System.currentTimeMillis() - applicationContext.getStartupDate()//
+                     System.currentTimeMillis() - context.getStartupDate()//
             );
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread(applicationContext::close));
-
+        Runtime.getRuntime().addShutdownHook(new Thread(context::close));
         System.gc();
     }
 
@@ -205,9 +188,12 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      * @param mvcConfiguration
      *            All {@link WebMvcConfiguration} object
      */
-    protected void configureResultHandler(List<ResultHandler> handlers, WebMvcConfiguration mvcConfiguration) {
+    protected void configureResultHandler(WebMvcConfiguration mvcConfiguration) {
 
-        final WebApplicationContext webApplicationContext = obtainWebApplicationContext();
+        final WebApplicationContext webApplicationContext = obtainApplicationContext();
+
+        List<ResultHandler> handlers = webApplicationContext.getBeans(ResultHandler.class);
+
         final TemplateViewResolver viewResolver = getTemplateViewResolver(mvcConfiguration);
         final Environment environment = webApplicationContext.getEnvironment();
         int bufferSize = Integer.parseInt(environment.getProperty(DOWNLOAD_BUFF_SIZE, "10240"));
@@ -224,12 +210,13 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
         handlers.add(new ResponseBodyResultHandler(messageConverter));
 
         mvcConfiguration.configureResultHandler(handlers);
-        HandlerMethod.addResultHandler(handlers);
+
+        ResultHandler.addHandler(handlers);
     }
 
     protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {
 
-        final WebApplicationContext applicationContext = obtainWebApplicationContext();
+        final WebApplicationContext applicationContext = obtainApplicationContext();
         TemplateViewResolver templateViewResolver = applicationContext.getBean(TemplateViewResolver.class);
 
         if (templateViewResolver == null) {
@@ -288,7 +275,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
               (ctx, m) -> resolveValue(m.getAnnotation(Env.class), m.getParameterClass())//
         ));
 
-        final WebApplicationContext applicationContext = obtainWebApplicationContext();
+        final WebApplicationContext applicationContext = obtainApplicationContext();
         final Properties properties = applicationContext.getEnvironment().getProperties();
 
         resolvers.add(delegate((m) -> m.isAnnotationPresent(Props.class), //
@@ -356,6 +343,8 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     protected void configureMultipart(List<ParameterResolver> resolvers,
                                       MultipartConfiguration multipartConfiguration, WebMvcConfiguration mvcConfiguration) {
 
+        Objects.requireNonNull(multipartConfiguration, "Multipart Config Can't be null");
+        mvcConfiguration.configureMultipart(multipartConfiguration);
     }
 
     /**
@@ -388,9 +377,12 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     }
 
     /**
+     * Configure {@link WebApplicationInitializer}
      * 
      * @param initializers
+     *            {@link WebApplicationInitializer}s
      * @param config
+     *            {@link CompositeWebMvcConfiguration}
      */
     protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
 
@@ -437,7 +429,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
             }
             return null;
         });
-        final ViewConfiguration viewConfiguration = new ViewConfiguration(obtainWebApplicationContext());
+        final ViewConfiguration viewConfiguration = new ViewConfiguration(obtainApplicationContext());
 
         for (final String file : StringUtils.split(webMvcConfigLocation)) {
 
@@ -453,7 +445,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
     }
 
     protected String getWebMvcConfigLocation() throws Throwable {
-        return obtainWebApplicationContext().getEnvironment().getProperty(WEB_MVC_CONFIG_LOCATION);
+        return obtainApplicationContext().getEnvironment().getProperty(WEB_MVC_CONFIG_LOCATION);
     }
 
     /**
@@ -531,7 +523,7 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
             resolverClass = ClassUtils.forName(attrClass);
         }
         // register resolver
-        final WebApplicationContext webApplicationContext = obtainWebApplicationContext();
+        final WebApplicationContext webApplicationContext = obtainApplicationContext();
         webApplicationContext.registerBean(name, resolverClass);
         log.info("Register [{}] onto [{}]", name, resolverClass.getName());
 
@@ -545,98 +537,5 @@ public class WebApplicationLoader implements WebApplicationInitializer, Constant
      * Check resolvers
      */
     protected void checkFrameWorkResolvers(WebApplicationContext applicationContext) {}
-
-    // -------------------------------------
-
-    /**
-     * @author TODAY <br>
-     *         2019-05-17 17:46
-     */
-    public static class CompositeWebMvcConfiguration implements WebMvcConfiguration {
-
-        private final List<WebMvcConfiguration> webMvcConfigurations;
-
-        public CompositeWebMvcConfiguration(List<WebMvcConfiguration> webMvcConfigurations) {
-            OrderUtils.reversedSort(webMvcConfigurations);
-            this.webMvcConfigurations = webMvcConfigurations;
-        }
-
-        @Override
-        public void configureTemplateViewResolver(AbstractTemplateViewResolver viewResolver) {
-            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                webMvcConfiguration.configureTemplateViewResolver(viewResolver);
-            }
-        }
-
-        @Override
-        public void configureResourceHandler(ResourceHandlerRegistry registry) {
-            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                webMvcConfiguration.configureResourceHandler(registry);
-            }
-        }
-
-        @Override
-        public void configureParameterResolver(List<ParameterResolver> parameterResolvers) {
-            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                webMvcConfiguration.configureParameterResolver(parameterResolvers);
-            }
-        }
-
-        @Override
-        public void configureResultHandler(List<ResultHandler> resultResolvers) {
-            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                webMvcConfiguration.configureResultHandler(resultResolvers);
-            }
-        }
-
-        @Override
-        public void configureMultipart(MultipartConfiguration multipartConfiguration) {
-            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                webMvcConfiguration.configureMultipart(multipartConfiguration);
-            }
-        }
-
-        @Override
-        public void configureTypeConverter(List<TypeConverter> typeConverters) {
-            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                webMvcConfiguration.configureTypeConverter(typeConverters);
-            }
-        }
-
-        @Override
-        public void configureInitializer(List<WebApplicationInitializer> initializers) {
-            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                webMvcConfiguration.configureInitializer(initializers);
-            }
-        }
-
-        @Override
-        public <T> void configureTemplateLoader(List<T> loaders) {
-            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                webMvcConfiguration.configureTemplateLoader(loaders);
-            }
-        }
-
-        @Override
-        public void configureViewController(ViewControllerHandlerRegistry viewControllerHandlerRegistry) {
-            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                webMvcConfiguration.configureViewController(viewControllerHandlerRegistry);
-            }
-        }
-
-        @Override
-        public void configureFunctionHandler(FunctionHandlerRegistry functionHandlerRegistry) {
-            for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
-                webMvcConfiguration.configureFunctionHandler(functionHandlerRegistry);
-            }
-        }
-
-        /**
-         * Get all {@link WebMvcConfiguration} beans
-         */
-        public List<WebMvcConfiguration> getWebMvcConfigurations() {
-            return webMvcConfigurations;
-        }
-    }
 
 }

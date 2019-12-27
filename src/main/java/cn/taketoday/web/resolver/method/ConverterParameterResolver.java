@@ -22,7 +22,7 @@ package cn.taketoday.web.resolver.method;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.utils.WebUtils;
 
 /**

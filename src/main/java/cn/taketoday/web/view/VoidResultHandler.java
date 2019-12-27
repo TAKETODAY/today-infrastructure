@@ -19,12 +19,9 @@
  */
 package cn.taketoday.web.view;
 
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Env;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mapping.HandlerMethod;
+import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
@@ -34,11 +31,7 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  */
 public class VoidResultHandler extends ModelAndViewResultHandler {
 
-    @Autowired
-    public VoidResultHandler(TemplateViewResolver viewResolver,
-            MessageConverter messageConverter,
-            @Env(value = Constant.DOWNLOAD_BUFF_SIZE, defaultValue = "10240") int downloadFileBuf) //
-    {
+    public VoidResultHandler(TemplateViewResolver viewResolver, MessageConverter messageConverter, int downloadFileBuf) {
         super(viewResolver, messageConverter, downloadFileBuf);
     }
 

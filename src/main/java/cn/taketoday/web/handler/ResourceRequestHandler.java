@@ -30,8 +30,6 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.mapping.ResourceMapping;
-import cn.taketoday.web.mapping.ResourceMappingMatchResult;
 import cn.taketoday.web.resolver.WebResourceResolver;
 import cn.taketoday.web.resource.CacheControl;
 import cn.taketoday.web.resource.WebResource;

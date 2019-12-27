@@ -27,6 +27,12 @@ import cn.taketoday.web.RequestContext;
  */
 public class RequestHandlerAdapter extends AbstractHandlerAdapter {
 
+    public RequestHandlerAdapter() {}
+
+    public RequestHandlerAdapter(int order) {
+        setOrder(order);
+    }
+
     @Override
     public boolean supports(Object handler) {
         return handler instanceof RequestHandler;

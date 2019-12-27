@@ -19,12 +19,11 @@
  */
 package cn.taketoday.web.resolver.method;
 
+import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.PathVariable;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -33,9 +32,11 @@ import cn.taketoday.web.utils.WebUtils;
  */
 public class PathVariableParameterResolver implements OrderedParameterResolver {
 
+    private PathMatcher pathMatcher;
+
     @Override
     public boolean supports(final MethodParameter parameter) {
-        return parameter.isAnnotationPresent(PathVariable.class);
+        return StringUtils.isNotEmpty(parameter.getPathPattern());
     }
 
     /**
@@ -44,21 +45,16 @@ public class PathVariableParameterResolver implements OrderedParameterResolver {
     @Override
     public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
         try {
-
             final String pathVariable;
             final String[] pathVariables = requestContext.pathVariables();
             if (pathVariables == null) {
-                final String replaceSplitMethodUrl = Constant.REPLACE_SPLIT_METHOD_URL;
-                String requestURI = StringUtils.decodeUrl(requestContext.requestURI()); // TODO avoid double decode
-                for (final String regex : parameter.getSplitMethodUrl()) {
-                    requestURI = requestURI.replace(regex, replaceSplitMethodUrl);
-                }
-                pathVariable = requestContext.pathVariables(requestURI.split(Constant.REPLACE_REGEXP))[parameter.getPathIndex()];
+                String requestURI = StringUtils.decodeUrl(requestContext.requestURI());
+                final String[] extractVariables = getPathMatcher().extractVariables(parameter.getPathPattern(), requestURI);
+                pathVariable = requestContext.pathVariables(extractVariables)[parameter.getPathIndex()];
             }
             else {
                 pathVariable = pathVariables[parameter.getPathIndex()];
             }
-
             return ConvertUtils.convert(pathVariable, parameter.getParameterClass());
         }
         catch (Throwable e) {
@@ -69,6 +65,14 @@ public class PathVariableParameterResolver implements OrderedParameterResolver {
     @Override
     public int getOrder() {
         return HIGHEST_PRECEDENCE;
+    }
+
+    public PathMatcher getPathMatcher() {
+        return pathMatcher;
+    }
+
+    public void setPathMatcher(PathMatcher pathMatcher) {
+        this.pathMatcher = pathMatcher;
     }
 
 }

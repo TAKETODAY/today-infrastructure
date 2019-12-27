@@ -19,14 +19,21 @@
  */
 package cn.taketoday.web.handler;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
  *         2019-12-24 21:39
  */
-public abstract class AbstractHandlerAdapter implements HandlerAdapter {
+public abstract class AbstractHandlerAdapter extends OrderedSupport implements HandlerAdapter {
 
+    public AbstractHandlerAdapter() {}
+
+    public AbstractHandlerAdapter(int order) {
+        super(order);
+    }
+    
     @Override
     public long getLastModified(final RequestContext context, final Object handler) {
         if (handler instanceof LastModified) {

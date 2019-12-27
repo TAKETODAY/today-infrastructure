@@ -38,9 +38,10 @@ import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.mapping.MethodParameter;
-import cn.taketoday.web.mapping.ViewController;
-import cn.taketoday.web.mapping.ViewControllerHandlerRegistry;
+import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.ViewController;
+import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
+import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -144,7 +145,7 @@ public class ViewConfiguration {
 
                 if (!targetMethod.isBridge() && method.equals(targetMethod.getName())) {
                     handlerMethod = targetMethod;
-                    parameters = ActionConfiguration.createMethodParameters(targetMethod);
+                    parameters = WebUtils.createMethodParameters(targetMethod);
                     break;
                 }
             }

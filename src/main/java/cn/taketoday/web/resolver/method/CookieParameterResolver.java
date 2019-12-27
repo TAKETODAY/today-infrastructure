@@ -27,7 +27,7 @@ import java.util.List;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Cookie;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.utils.WebUtils;
 
 /**

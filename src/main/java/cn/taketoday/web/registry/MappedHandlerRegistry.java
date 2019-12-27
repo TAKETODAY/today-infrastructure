@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.registry;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
@@ -30,6 +30,7 @@ import cn.taketoday.context.AntPathMatcher;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.PatternMapping;
 
 /**
  * @author TODAY <br>
@@ -137,19 +138,23 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
             handler = obtainApplicationContext().getBean((String) handler);
         }
 
+        log.debug("Mapped [{}] onto [{}]", handlerKey, handler);
+
         if (getPathMatcher().isPattern(handlerKey)) {
             addPatternMappings(new PatternMapping(handlerKey, handler));
-
-            log.debug("Mapped Pattern [{}] onto [{}]", handlerKey, handler);
         }
         else {
-            log.debug("Mapped [{}] onto [{}]", handlerKey, handler);
             handlers.put(handlerKey, handler); // TODO override handler
         }
     }
 
     public Map<String, Object> getHandlers() {
         return handlers;
+    }
+
+    public void clear() {
+        getHandlers().clear();
+        this.patternMappings = null;
     }
 
     public PatternMapping[] getPatternMappings() {

@@ -17,15 +17,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.handler;
 
-import cn.taketoday.web.RequestContext;
+import java.io.Serializable;
+
+import cn.taketoday.context.PathMatcher;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * @author TODAY <br>
- *         2019-12-08 23:06
+ *         2019-12-05 00:46
  */
-public interface HandlerRegistry {
+@Getter
+@AllArgsConstructor
+public class ResourceMappingMatchResult implements Serializable {
 
-    Object lookup(RequestContext context);
+    private static final long serialVersionUID = 1L;
+    
+    private final String requestPath;
+    private final String matchedPattern;
+    private final PathMatcher pathMatcher;
+    private final ResourceRequestHandler handler;
+    
+    public final ResourceMapping getMapping() {
+        return handler.getMapping();
+    }
 }

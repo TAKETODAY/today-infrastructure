@@ -32,7 +32,7 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.utils.DataSize;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.FileSizeExceededException;
-import cn.taketoday.web.mapping.MethodParameter;
+import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.DefaultMultipartFile;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.multipart.MultipartFile;

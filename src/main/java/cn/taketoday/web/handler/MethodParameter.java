@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.web.mapping;
+package cn.taketoday.web.handler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
@@ -46,8 +46,7 @@ public class MethodParameter {
     private int pathIndex = 0;
     /** the default value */
     private final String defaultValue;
-    /** @since 2.3.1 */
-    private String[] splitMethodUrl = null;
+//    private String[] splitMethodUrl = null;
 
     private final Type[] genericityClass;
 
@@ -71,7 +70,7 @@ public class MethodParameter {
         this.defaultValue = defaultValue;
         this.genericityClass = genericityClass;
         this.parameterClass = Objects.requireNonNull(parameterClass);
-        
+
         this.resolver = obtainResolver(); // must invoke at last
     }
 
@@ -237,15 +236,6 @@ public class MethodParameter {
         return this;
     }
 
-    public String[] getSplitMethodUrl() {
-        return splitMethodUrl;
-    }
-
-    public MethodParameter setSplitMethodUrl(String[] splitMethodUrl) {
-        this.splitMethodUrl = splitMethodUrl;
-        return this;
-    }
-
     public HandlerMethod getHandlerMethod() {
         return handlerMethod;
     }
@@ -253,5 +243,9 @@ public class MethodParameter {
     MethodParameter setHandlerMethod(HandlerMethod handlerMethod) {
         this.handlerMethod = handlerMethod;
         return this;
+    }
+
+    public String getPathPattern() {
+        return handlerMethod.getPathPattern();
     }
 }
