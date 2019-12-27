@@ -390,7 +390,7 @@ public class TomcatServer extends AbstractServletWebServer {
         final ServletWebServerApplicationLoader starter = //
                 new ServletWebServerApplicationLoader(() -> getMergedInitializers());
 
-        starter.setWebApplicationContext(getApplicationContext());
+        starter.setApplicationContext(getApplicationContext());
 
         TomcatEmbeddedContext context = new TomcatEmbeddedContext(sessionIdGenerator);
         context.setFailCtxIfServletStartFails(true);

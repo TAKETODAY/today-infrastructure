@@ -27,7 +27,7 @@ import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.mapping.ResourceHandlerRegistry;
+import cn.taketoday.web.registry.ResourceHandlerRegistry;
 
 /**
  * @author TODAY <br>
