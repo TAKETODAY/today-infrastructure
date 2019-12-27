@@ -21,26 +21,9 @@
 
 <!DOCTYPE Web-Configuration PUBLIC 
 			"-//TODAY BLOG//Web - Configuration DTD 2.0//"
-				"https://taketoday.cn/framework/web/dtd/web-configuration-2.3.3.dtd">
+				"https://taketoday.cn/framework/web/dtd/web-configuration-2.3.7.dtd">
 
 <Web-Configuration>
-
-<!-- 
-	<static-resources mapping="/assets/*;/favicon.ico"/>
-	<multipart class="cn.taketoday.web.multipart.CommonsMultipartResolver">
--->
-	<multipart class="cn.taketoday.web.multipart.DefaultMultipartResolver">
-		<upload-encoding>#{upload.encoding}</upload-encoding>
-		<upload-maxFileSize>#{upload.maxFileSize}</upload-maxFileSize>
-		<upload-maxRequestSize>#{upload.maxRequestSize}</upload-maxRequestSize>
-		<upload-fileSizeThreshold>#{upload.fileSizeThreshold}</upload-fileSizeThreshold>
-	</multipart>
-
-	<view-resolver class="cn.taketoday.web.view.FreeMarkerViewResolver">
-		<view-prefix>/WEB-INF/ftl</view-prefix>
-		<view-suffix>.ftl</view-suffix>
-		<view-encoding>UTF-8</view-encoding>
-	</view-resolver>
 
 	<controller prefix="/error/" >
 		<action resource="400" name="BadRequest" status="400"/>
