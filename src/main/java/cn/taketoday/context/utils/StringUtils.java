@@ -630,8 +630,9 @@ public abstract class StringUtils {
             return inString;
         }
 
-        StringBuilder sb = new StringBuilder(inString.length());
-        for (int i = 0; i < inString.length(); i++) {
+        final int length = inString.length();
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
             final char c = inString.charAt(i);
 
             if (charsToDelete.indexOf(c) == -1) {

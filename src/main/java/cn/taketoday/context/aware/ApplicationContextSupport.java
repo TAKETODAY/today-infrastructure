@@ -81,7 +81,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
      */
     protected void initApplicationContext() throws ContextException {}
 
-    public ApplicationContext getApplicationContext() {
+    public final ApplicationContext getApplicationContext() {
         return applicationContext;
     }
 

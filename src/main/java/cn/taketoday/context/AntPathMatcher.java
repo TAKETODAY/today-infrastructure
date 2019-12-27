@@ -20,6 +20,7 @@
 package cn.taketoday.context;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -443,7 +444,7 @@ public class AntPathMatcher implements PathMatcher {
      * @see #setCachePatterns
      */
     protected AntPathStringMatcher getStringMatcher(String pattern) {
-        
+
         AntPathStringMatcher matcher = this.stringMatcherCache.get(pattern);
         if (matcher == null) {
             matcher = new AntPathStringMatcher(pattern, this.caseSensitive);
@@ -513,6 +514,23 @@ public class AntPathMatcher implements PathMatcher {
             return variables;
         }
         throw new IllegalStateException("Pattern \"" + pattern + "\" is not a match for \"" + path + "\"");
+    }
+
+    @Override
+    public String[] extractVariables(String pattern, String path) {
+        final String[] variables = getStringMatcher(pattern).extractVariables(path);
+        if (variables == null) {
+            throw new IllegalStateException("Pattern \"" + pattern + "\" is not a match for \"" + path + "\"");
+        }
+        return variables;
+    }
+
+    @Override
+    public List<String> extractVariableNames(String pattern) {
+        if (isPattern(pattern)) {
+            return getStringMatcher(pattern).variableNames;
+        }
+        return Collections.emptyList();
     }
 
     /**
@@ -770,9 +788,7 @@ public class AntPathMatcher implements PathMatcher {
             patternBuilder.append(quote(pattern, end, pattern.length()));
 
             this.variableNames = variableNames;
-            this.pattern = (caseSensitive
-                    ? Pattern.compile(patternBuilder.toString())
-                    : Pattern.compile(patternBuilder.toString(), Pattern.CASE_INSENSITIVE));
+            this.pattern = Pattern.compile(patternBuilder.toString(), caseSensitive ? 0 : Pattern.CASE_INSENSITIVE);
         }
 
         private String quote(String s, int start, int end) {
@@ -780,6 +796,28 @@ public class AntPathMatcher implements PathMatcher {
                 return Constant.BLANK;
             }
             return Pattern.quote(s.substring(start, end));
+        }
+
+        public String[] extractVariables(String str) {
+            final Matcher matcher = this.pattern.matcher(str);
+            if (matcher.matches()) {
+                final int groupCount = matcher.groupCount();
+                if (variableNames.size() != groupCount) {
+                    throwIllegalArgumentException();
+                }
+                final String[] ret = new String[groupCount];
+                for (int i = 0; i < groupCount; i++) {
+                    ret[i] = matcher.group(i + 1);
+                }
+                return ret;
+            }
+            return null;
+        }
+
+        protected void throwIllegalArgumentException() {
+            throw new IllegalArgumentException("The number of capturing groups in the pattern segment "
+                    + this.pattern
+                    + " does not match the number of URI template variables it defines, which can occur if capturing groups are used in a URI template regex. Use non-capturing groups instead.");
         }
 
         /**
@@ -796,9 +834,7 @@ public class AntPathMatcher implements PathMatcher {
                     final List<String> variableNames = this.variableNames;
                     final int groupCount = matcher.groupCount();
                     if (variableNames.size() != groupCount) {
-                        throw new IllegalArgumentException("The number of capturing groups in the pattern segment "
-                                + this.pattern
-                                + " does not match the number of URI template variables it defines, which can occur if capturing groups are used in a URI template regex. Use non-capturing groups instead.");
+                        throwIllegalArgumentException();
                     }
                     for (int i = 1; i <= groupCount; i++) {
                         String name = variableNames.get(i - 1);

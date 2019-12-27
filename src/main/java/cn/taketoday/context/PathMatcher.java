@@ -20,6 +20,7 @@
 package cn.taketoday.context;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -144,5 +145,18 @@ public interface PathMatcher {
      *             when the two patterns cannot be combined
      */
     String combine(String pattern1, String pattern2);
+
+    /**
+     * Given a pattern and a full path, extract the URI template variables.
+     * 
+     * @param pattern
+     *            the path pattern, possibly containing URI templates
+     * @param path
+     *            the full path to extract template variables from
+     * @return a path variable array
+     */
+    String[] extractVariables(String pattern, String path);
+
+    List<String> extractVariableNames(String pattern);
 
 }

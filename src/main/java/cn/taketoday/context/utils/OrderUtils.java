@@ -23,6 +23,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
@@ -41,7 +42,7 @@ public abstract class OrderUtils {
      * @return The order
      */
     public static int getOrder(final AnnotatedElement annotated) {
-        final Order order = annotated.getAnnotation(Order.class);
+        final Order order = Objects.requireNonNull(annotated).getAnnotation(Order.class);
         if (order != null) {
             return order.value();
         }
@@ -91,7 +92,7 @@ public abstract class OrderUtils {
      *            Input list
      */
     public static <T> List<T> reversedSort(List<T> list) {
-        list.sort(getReversedComparator());
+        Objects.requireNonNull(list).sort(getReversedComparator());
         return list;
     }
 
@@ -103,7 +104,7 @@ public abstract class OrderUtils {
      * @since 2.1.7
      */
     public static <T> List<T> sort(List<T> list) {
-        list.sort(getComparator());
+        Objects.requireNonNull(list).sort(getComparator());
         return list;
     }
 
