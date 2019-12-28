@@ -41,7 +41,7 @@ public class FunctionRequestAdapter extends AbstractHandlerAdapter {
     @Override
     public Object handle(RequestContext context, Object handler) throws Throwable {
         ((FunctionHandler) handler).handleRequest(context);
-        return NONE_RETURN_VALUE;
+        return null;
     }
 
 }
