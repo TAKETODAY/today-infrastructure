@@ -48,8 +48,6 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.el.ELException;
-import javax.el.ELProcessor;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
@@ -85,6 +83,8 @@ import cn.taketoday.context.loader.PropsPropertyResolver;
 import cn.taketoday.context.loader.ValuePropertyResolver;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ELProcessor;
 
 /**
  * This class provides el, {@link Properties} loading, {@link Parameter}

@@ -21,11 +21,10 @@ package cn.taketoday.context.env;
 
 import java.io.IOException;
 
-import javax.el.ELProcessor;
-
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.expression.ELProcessor;
 
 /**
  * Configurable {@link Environment}

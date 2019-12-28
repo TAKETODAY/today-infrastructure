@@ -41,14 +41,14 @@ package cn.taketoday.context.el;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.el.ELManager;
-import javax.el.ELProcessor;
-import javax.el.ValueExpression;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import cn.taketoday.expression.ELManager;
+import cn.taketoday.expression.ELProcessor;
+import cn.taketoday.expression.ValueExpression;
 
 /**
  *

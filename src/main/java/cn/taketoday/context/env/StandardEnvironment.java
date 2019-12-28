@@ -29,8 +29,6 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.el.ELProcessor;
-
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Constant;
@@ -43,6 +41,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.expression.ELProcessor;
 
 /**
  * Standard implementation of {@link Environment}

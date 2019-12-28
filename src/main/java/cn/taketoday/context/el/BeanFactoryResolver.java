@@ -19,10 +19,9 @@
  */
 package cn.taketoday.context.el;
 
-import javax.el.BeanNameResolver;
-
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.factory.AbstractBeanFactory;
+import cn.taketoday.expression.BeanNameResolver;
 
 /**
  * @author TODAY <br>

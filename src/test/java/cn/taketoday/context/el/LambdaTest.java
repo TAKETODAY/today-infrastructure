@@ -42,11 +42,11 @@ package cn.taketoday.context.el;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.el.ELProcessor;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import cn.taketoday.expression.ELProcessor;
 
 public class LambdaTest {
 

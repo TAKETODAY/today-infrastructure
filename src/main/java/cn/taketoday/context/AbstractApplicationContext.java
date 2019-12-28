@@ -32,11 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.el.ELManager;
-import javax.el.ELProcessor;
-
-import com.sun.el.ExpressionFactoryImpl;
-
 import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.BeanReference;
@@ -71,6 +66,9 @@ import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.expression.ELManager;
+import cn.taketoday.expression.ELProcessor;
+import cn.taketoday.expression.ExpressionFactoryImpl;
 
 /**
  * @author TODAY <br>
@@ -253,7 +251,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
 
         {// fix: ensure ExpressionFactory's instance consistent @since 2.1.6
-            Field declaredField = ClassUtils.forName("javax.el.ELUtil").getDeclaredField("exprFactory");
+            Field declaredField = ClassUtils.forName("cn.taketoday.expression.ELUtil").getDeclaredField("exprFactory");
             ClassUtils.makeAccessible(declaredField)
                     .set(null, new ExpressionFactoryImpl(environment.getProperties()));
         }

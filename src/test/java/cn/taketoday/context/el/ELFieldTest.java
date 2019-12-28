@@ -21,8 +21,6 @@ package cn.taketoday.context.el;
 
 import java.util.Date;
 
-import javax.el.ELProcessor;
-
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -32,6 +30,7 @@ import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.el.ValueELContext;
+import cn.taketoday.expression.ELProcessor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

@@ -21,13 +21,12 @@ package cn.taketoday.context.env;
 
 import java.util.Properties;
 
-import javax.el.ELProcessor;
-
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.expression.ELProcessor;
 
 /**
  * 

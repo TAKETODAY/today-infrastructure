@@ -19,12 +19,11 @@
  */
 package cn.taketoday.context.el;
 
-import javax.el.BeanNameELResolver;
-import javax.el.ELManager;
-import javax.el.StandardELContext;
-
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.Constant;
+import cn.taketoday.expression.BeanNameELResolver;
+import cn.taketoday.expression.ELManager;
+import cn.taketoday.expression.StandardELContext;
 
 /**
  * 
