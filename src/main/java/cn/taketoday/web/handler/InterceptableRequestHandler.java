@@ -34,16 +34,18 @@ import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
  * @author TODAY <br>
  *         2019-12-25 16:19
  */
+@SuppressWarnings("serial")
 public abstract class InterceptableRequestHandler
         extends OrderedSupport implements RequestHandler, HandlerInterceptorsCapable {
 
     private static final Logger log = LoggerFactory.getLogger(InterceptableRequestHandler.class);
 
-    /** 拦截器 */
+    /** 拦截器 */  
     private HandlerInterceptor[] interceptors;
 
     public InterceptableRequestHandler() {}
 
+    
     public InterceptableRequestHandler(HandlerInterceptor[] interceptors) {
         setInterceptors(interceptors);
     }

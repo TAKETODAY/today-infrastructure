@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.handler;
 
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -45,7 +44,7 @@ import cn.taketoday.web.view.ResultHandlers;
  *         2018-06-25 20:03:11
  */
 @SuppressWarnings("serial")
-public class HandlerMethod extends InterceptableRequestHandler implements Serializable, ResultHandlerCapable {
+public class HandlerMethod extends InterceptableRequestHandler implements ResultHandlerCapable {
 
     private final Object bean; // controller bean 
     /** action **/
