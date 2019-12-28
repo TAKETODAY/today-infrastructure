@@ -49,16 +49,15 @@ public class HandlerMethod extends InterceptableRequestHandler implements Result
     private final Object bean; // controller bean 
     /** action **/
     private final Method method;
-    /** parameter list **/
-    private final MethodParameter[] parameters;
     /** @since 2.3.7 */
     private final Class<?> reutrnType;
     private ResultHandler resultHandler;
+    private final ResponseStatus status;
     /** @since 2.3.7 */
     private final Type[] genericityClass;
     private final MethodInvoker handlerInvoker;
-
-    private final ResponseStatus status;
+    /** parameter list **/
+    private final MethodParameter[] parameters;
 
     public HandlerMethod(HandlerMethod handler) {
         this.bean = handler.bean;

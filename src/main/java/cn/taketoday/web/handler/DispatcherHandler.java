@@ -30,7 +30,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ExceptionUtils;
@@ -38,6 +37,7 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
+import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.registry.CompositeHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.resolver.ExceptionResolver;
@@ -51,7 +51,7 @@ import cn.taketoday.web.view.RuntimeResultHandler;
  * @author TODAY <br>
  *         2019-11-16 19:05
  */
-public class DispatcherHandler extends WebApplicationContextSupport {
+public class DispatcherHandler extends WebApplicationContextSupport implements WebApplicationInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(DispatcherHandler.class);
 
@@ -64,29 +64,6 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     /** exception resolver */
     private ExceptionResolver exceptionResolver;
-
-    @Override
-    protected void initApplicationContext(ApplicationContext context) throws ContextException {
-        super.initApplicationContext(context);
-
-        setMappingRegistry(new CompositeHandlerRegistry(context.getBeans(HandlerRegistry.class)));
-        setResultHandlers(ResultHandlers.getRuntimeHandlers());
-
-        final List<HandlerAdapter> adapters = context.getBeans(HandlerAdapter.class);
-        configureHandlerAdapter(adapters, context);
-
-        this.requestHandlers = adapters.toArray(new HandlerAdapter[adapters.size()]);
-        this.exceptionResolver = nonNull(context.getBean(ExceptionResolver.class),
-                                         "You must provide an ExceptionResolver bean");
-    }
-
-    protected void configureHandlerAdapter(final List<HandlerAdapter> adapters, final ApplicationContext context) {
-
-        adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE << 1));
-        adapters.add(new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE - 1));
-        adapters.add(new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE - 2));
-        adapters.add(new NotFoundRequestAdapter(Ordered.HIGHEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE - 100));
-    }
 
     public Object lookupHandler(final RequestContext context) {
         return getHandlerRegistry().lookup(context);
@@ -220,6 +197,28 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     public void setResultHandlers(RuntimeResultHandler... resultHandlers) {
         this.resultHandlers = resultHandlers;
+    }
+
+    protected void configureHandlerAdapter(final List<HandlerAdapter> adapters, final ApplicationContext context) {
+
+        adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE << 1));
+        adapters.add(new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE - 1));
+        adapters.add(new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE - 2));
+        adapters.add(new NotFoundRequestAdapter(Ordered.HIGHEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE - 100));
+    }
+
+    @Override
+    public void onStartup(WebApplicationContext context) throws Throwable {
+
+        setMappingRegistry(new CompositeHandlerRegistry(context.getBeans(HandlerRegistry.class)));
+        setResultHandlers(ResultHandlers.getRuntimeHandlers());
+
+        final List<HandlerAdapter> adapters = context.getBeans(HandlerAdapter.class);
+        configureHandlerAdapter(adapters, context);
+
+        this.requestHandlers = adapters.toArray(new HandlerAdapter[adapters.size()]);
+        this.exceptionResolver = nonNull(context.getBean(ExceptionResolver.class),
+                                         "You must provide an ExceptionResolver bean");
     }
 
 }

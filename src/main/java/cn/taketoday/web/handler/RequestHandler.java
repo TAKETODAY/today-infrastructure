@@ -28,6 +28,7 @@ import cn.taketoday.web.view.RuntimeResultHandler;
  * @author TODAY <br>
  *         2019-12-21 17:37
  */
+@FunctionalInterface
 public interface RequestHandler extends Serializable {
 
     /**

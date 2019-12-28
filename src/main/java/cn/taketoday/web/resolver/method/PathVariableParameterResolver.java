@@ -25,7 +25,7 @@ import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.handler.PathVariableHandlerMethod;
+import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -46,32 +46,28 @@ public class PathVariableParameterResolver implements OrderedParameterResolver {
 
     @Override
     public boolean supports(final MethodParameter parameter) {
-        return parameter.getHandlerMethod() instanceof PathVariableHandlerMethod;
+        return parameter instanceof PathVariableMethodParameter;
     }
 
     /**
      * Resolve Path Variable parameter.
      */
     @Override
-    public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(final RequestContext requestContext, final MethodParameter p) throws Throwable {
+
         try {
-            final String pathVariable;
-            final String[] pathVariables = requestContext.pathVariables();
+            final PathVariableMethodParameter parameter = (PathVariableMethodParameter) p;
+
+            String[] pathVariables = requestContext.pathVariables();
             if (pathVariables == null) {
                 String requestURI = StringUtils.decodeUrl(requestContext.requestURI());
-
-                final PathVariableHandlerMethod handlerMethod = (PathVariableHandlerMethod) parameter.getHandlerMethod();
-
-                final String[] extractVariables = getPathMatcher().extractVariables(handlerMethod.getPathPattern(), requestURI);
-                pathVariable = requestContext.pathVariables(extractVariables)[parameter.getPathIndex()];
+                final String[] extractVariables = getPathMatcher().extractVariables(parameter.getPathPattern(), requestURI);
+                pathVariables = requestContext.pathVariables(extractVariables);
             }
-            else {
-                pathVariable = pathVariables[parameter.getPathIndex()];
-            }
-            return ConvertUtils.convert(pathVariable, parameter.getParameterClass());
+            return ConvertUtils.convert(pathVariables[parameter.getPathIndex()], parameter.getParameterClass());
         }
         catch (Throwable e) {
-            throw WebUtils.newBadRequest("Path variable", parameter.getName(), e);
+            throw WebUtils.newBadRequest("Path variable", p.getName(), e);
         }
     }
 

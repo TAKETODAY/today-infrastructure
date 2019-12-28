@@ -173,12 +173,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     }
 
     private WebServletApplicationContext getWebServletApplicationContext() {
-        final ApplicationContext ret = getApplicationContext();
-        if (ret instanceof WebServletApplicationContext) {
-            return (WebServletApplicationContext) ret;
-        }
-        throw new IllegalStateException("ApplicationContext must be a WebServletApplicationContext");
-
+        return (WebServletApplicationContext) getApplicationContext();
     }
 
     @Override

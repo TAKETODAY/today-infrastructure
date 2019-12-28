@@ -31,7 +31,7 @@ import cn.taketoday.context.utils.OrderUtils;
  * @author TODAY <br>
  *         2019-12-28 13:47
  */
-public class ResultHandlers {
+public abstract class ResultHandlers {
 
     private static final List<ResultHandler> resultHandlers = new LinkedList<>();
 

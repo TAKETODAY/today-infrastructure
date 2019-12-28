@@ -40,6 +40,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Props;
@@ -64,9 +65,9 @@ import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
+import cn.taketoday.web.registry.HandlerMethodRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.resolver.method.ArrayParameterResolver;
 import cn.taketoday.web.resolver.method.BeanParameterResolver;
@@ -76,6 +77,7 @@ import cn.taketoday.web.resolver.method.HeaderParameterResolver;
 import cn.taketoday.web.resolver.method.MapParameterResolver;
 import cn.taketoday.web.resolver.method.ModelParameterResolver;
 import cn.taketoday.web.resolver.method.ParameterResolver;
+import cn.taketoday.web.resolver.method.ParameterResolvers;
 import cn.taketoday.web.resolver.method.PathVariableParameterResolver;
 import cn.taketoday.web.resolver.method.RequestBodyParameterResolver;
 import cn.taketoday.web.resolver.method.StreamParameterResolver;
@@ -276,8 +278,8 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
               (ctx, m) -> resolveValue(m.getAnnotation(Env.class), m.getParameterClass())//
         ));
 
-        final WebApplicationContext applicationContext = obtainApplicationContext();
-        final Properties properties = applicationContext.getEnvironment().getProperties();
+        final WebApplicationContext context = obtainApplicationContext();
+        final Properties properties = context.getEnvironment().getProperties();
 
         resolvers.add(delegate((m) -> m.isAnnotationPresent(Props.class), //
                (ctx, m) -> resolveProps(m.getAnnotation(Props.class), m.getParameterClass(), properties)//
@@ -290,10 +292,10 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
                   final Object bean;
                   if (StringUtils.isEmpty(name)) {
-                      bean = applicationContext.getBean(m.getParameterClass());
+                      bean = context.getBean(m.getParameterClass());
                   }
                   else {
-                      bean = applicationContext.getBean(name, m.getParameterClass());
+                      bean = context.getBean(name, m.getParameterClass());
                   }
                   if (bean == null && autowired.required()) {
                       throw new NoSuchBeanDefinitionException(m.getParameterClass());
@@ -302,7 +304,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
               }
         ));
 
-        // HandlerMethod HandlerMapping @on
+        // HandlerMethod @on
         resolvers.add(delegate((m) -> m.is(HandlerMethod.class), (ctx, m) -> m.getHandlerMethod()));
 
         // For cookies
@@ -315,7 +317,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         // For multipart
         // -------------------------------------------
 
-        configureMultipart(resolvers, applicationContext.getBean(MultipartConfiguration.class), mvcConfiguration);
+        configureMultipart(resolvers, context.getBean(MultipartConfiguration.class), mvcConfiguration);
 
         // Header
         resolvers.add(new HeaderParameterResolver());
@@ -325,9 +327,12 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         resolvers.add(new ArrayParameterResolver());
         resolvers.add(new StreamParameterResolver());
 
-        resolvers.add(new PathVariableParameterResolver());
-        final MessageConverter bean = applicationContext.getBean(MessageConverter.class);
-        resolvers.add(new RequestBodyParameterResolver(bean));
+        final PathMatcher pathMatcher = context.getBean(HandlerMethodRegistry.class).getPathMatcher();
+        
+        resolvers.add(new PathVariableParameterResolver(pathMatcher));
+        
+        final MessageConverter messageConverter = context.getBean(MessageConverter.class);
+        resolvers.add(new RequestBodyParameterResolver(messageConverter));
         resolvers.add(new ThrowableHandlerParameterResolver());
 
         resolvers.add(new CollectionParameterResolver());
@@ -338,7 +343,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
         mvcConfiguration.configureParameterResolver(resolvers); // user configure
 
-        MethodParameter.addResolver(resolvers);
+        ParameterResolvers.addResolver(resolvers);
     }
 
     protected void configureMultipart(List<ParameterResolver> resolvers,

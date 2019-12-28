@@ -32,6 +32,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.method.OrderedParameterResolver;
 import cn.taketoday.web.resolver.method.ParameterResolver;
+import cn.taketoday.web.resolver.method.ParameterResolvers;
 
 /**
  * @author TODAY <br>
@@ -54,7 +55,7 @@ public class ValidationParameterResolver implements OrderedParameterResolver {
     public boolean supports(MethodParameter parameter) {
 
         if (parameter.isAnnotationPresent(VALID_CLASS)) {
-            for (final ParameterResolver parameterResolver : MethodParameter.getParameterResolvers()) {
+            for (final ParameterResolver parameterResolver : ParameterResolvers.getResolvers()) {
                 if (parameterResolver != this && parameterResolver.supports(parameter)) {
                     RESOLVERS.put(parameter, parameterResolver);
                     return true;

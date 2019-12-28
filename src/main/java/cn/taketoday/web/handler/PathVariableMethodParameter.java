@@ -19,17 +19,28 @@
  */
 package cn.taketoday.web.handler;
 
-import java.io.Serializable;
-
-import cn.taketoday.web.RequestContext;
-
 /**
  * @author TODAY <br>
- *         2019-12-26 21:59
+ *         2019-12-28 14:56
  */
-@FunctionalInterface
-public interface FunctionHandler extends Serializable {
+@SuppressWarnings("serial")
+public class PathVariableMethodParameter extends MethodParameter {
 
-    void handleRequest(RequestContext context) throws Throwable;
+    private final int pathIndex;
 
+    private final String pathPattern;
+
+    public PathVariableMethodParameter(int pathIndex, String pathPattern, HandlerMethod handlerMethod, MethodParameter other) {
+        super(handlerMethod, other);
+        this.pathIndex = pathIndex;
+        this.pathPattern = pathPattern;
+    }
+
+    public int getPathIndex() {
+        return pathIndex;
+    }
+
+    public String getPathPattern() {
+        return pathPattern;
+    }
 }

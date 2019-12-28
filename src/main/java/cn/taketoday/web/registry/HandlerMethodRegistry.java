@@ -38,7 +38,6 @@ import java.util.Set;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.bean.BeanDefinition;
@@ -50,6 +49,7 @@ import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.AbstractBeanFactory.Prototypes;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ConcurrentCache;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -64,6 +64,7 @@ import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.PathVariableHandlerMethod;
+import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.handler.PatternMapping;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
@@ -80,6 +81,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
     private Properties variables;
     private AbstractBeanFactory beanFactory;
     private BeanDefinitionLoader beanDefinitionLoader;
+    private final ConcurrentCache<String, Object> patternMatchingCache;
 
     public HandlerMethodRegistry() {
         this(new HashMap<>(512));
@@ -90,11 +92,12 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
     }
 
     public HandlerMethodRegistry(Map<String, Object> handlers) {
-        super(handlers);
+        this(handlers, LOWEST_PRECEDENCE);
     }
 
     public HandlerMethodRegistry(Map<String, Object> handlers, int order) {
         super(handlers, order);
+        this.patternMatchingCache = new ConcurrentCache<>(128);
     }
 
     // MappedHandlerRegistry
@@ -106,23 +109,22 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
     }
 
     @Override
-    protected Object matchingPatternHandler(String handlerKey, PatternMapping[] patternMappings) {
+    protected Object matchingPatternHandler(final String handlerKey, final PatternMapping[] patternMappings) {
 
-        final PathMatcher pathMatcher = getPathMatcher();
-
-        for (final PatternMapping mapping : patternMappings) {
-            if (pathMatcher.match(mapping.getPattern(), handlerKey)) {
-                return mapping.getHandler();
-            }
+        Object hander = patternMatchingCache.get(handlerKey);
+        if (hander == null) {
+            hander = super.matchingPatternHandler(handlerKey, patternMappings);
+            patternMatchingCache.put(handlerKey, hander == null ? Constant.EMPTY_OBJECT : hander);
         }
-        return null;
+        else if (hander == Constant.EMPTY_OBJECT) {
+            return null;
+        }
+        return hander;
     }
 
     public void registerHandler(RequestMethod method, String patternPath, Object handler) {
         super.registerHandler(method.name().concat(patternPath), handler);
     }
-
-    // 
 
     /**
      * Initialize All Action or Handler
@@ -333,11 +335,15 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
     /**
      * Mapping path variable.
      */
-    protected void mappingPathVariable(final String pathPattern, final PathVariableHandlerMethod handlerMethod) {
+    protected void mappingPathVariable(final String pathPattern, final HandlerMethod handler) {
 
+        final List<MethodParameter> parameters = new ArrayList<>();
         final Map<String, MethodParameter> parameterMapping = new HashMap<>();
-        for (MethodParameter methodParameter : handlerMethod.getParameters()) {
+
+        final MethodParameter[] methodParameters = handler.getParameters();
+        for (MethodParameter methodParameter : methodParameters) {
             parameterMapping.put(methodParameter.getName(), methodParameter);
+            parameters.add(methodParameter);
         }
 
         int i = 0;
@@ -345,9 +351,10 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
             final MethodParameter parameter = parameterMapping.get(variable);
             if (parameter == null) {
                 throw new ConfigurationException("There isn't a variable named: ["
-                        + variable + "] in the parameter list at method: [" + handlerMethod.getMethod() + "]");
+                        + variable + "] in the parameter list at method: [" + handler.getMethod() + "]");
             }
-            parameter.setPathIndex(i++);
+            methodParameters[parameters.indexOf(parameter)] = //
+                    new PathVariableMethodParameter(i++, pathPattern, handler, parameter);
         }
     }
 

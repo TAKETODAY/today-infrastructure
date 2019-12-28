@@ -19,55 +19,43 @@
  */
 package cn.taketoday.web.handler;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.resolver.method.ParameterResolver;
+import cn.taketoday.web.resolver.method.ParameterResolvers;
 
 /**
  * @author TODAY
  * @version 2.3.7 <br>
  */
-public class MethodParameter {
+@SuppressWarnings("serial")
+public class MethodParameter implements Serializable {
 
     private final String name;
     private final boolean required;
     private final Class<?> parameterClass;
 
-    private int pathIndex = 0;
     /** the default value */
     private final String defaultValue;
-//    private String[] splitMethodUrl = null;
-
+    private final Parameter parameter; // reflect parameter instance
+    private HandlerMethod handlerMethod;
     private final Type[] genericityClass;
-
     private final ParameterResolver resolver;
 
-    private final Parameter parameter; // reflect parameter instance
-
-    private HandlerMethod handlerMethod;
-
-    private static final List<ParameterResolver> PARAMETER_RESOLVERS = new ArrayList<>();
-
     public MethodParameter(HandlerMethod handlerMethod, MethodParameter other) {
-        this.name = other.name;
-        this.required = other.required;
-        this.parameter = other.parameter;
-        this.handlerMethod = handlerMethod;
-        this.defaultValue = other.defaultValue;
-        this.parameterClass = other.parameterClass;
-        this.genericityClass = other.genericityClass;
-
-        this.resolver = obtainResolver(); // must invoke at last
+        this(other.name,
+             other.required,
+             other.defaultValue,
+             other.parameter,
+             other.genericityClass,
+             other.parameterClass,
+             handlerMethod);
     }
 
     public MethodParameter(String name, //@off
@@ -76,14 +64,31 @@ public class MethodParameter {
                            Parameter parameter,
                            Type[] genericityClass,
                            Class<?> parameterClass) {//@on
+        this(name,
+             required,
+             defaultValue,
+             parameter,
+             genericityClass,
+             parameterClass,
+             null);
+    }
+
+    public MethodParameter(String name, //@off
+                           boolean required,
+                           String defaultValue,
+                           Parameter parameter,
+                           Type[] genericityClass,
+                           Class<?> parameterClass, 
+                           HandlerMethod handlerMethod) {//@on
         this.name = name;
         this.required = required;
-        this.parameter = parameter;
         this.defaultValue = defaultValue;
+        this.handlerMethod = handlerMethod;
         this.genericityClass = genericityClass;
+        this.parameter = Objects.requireNonNull(parameter);
         this.parameterClass = Objects.requireNonNull(parameterClass);
 
-        this.resolver = obtainResolver(); // must invoke at last
+        this.resolver = ParameterResolvers.obtainResolver(this); // must invoke at last
     }
 
     public boolean isInterface() {
@@ -144,46 +149,11 @@ public class MethodParameter {
 
     // ----- resolver
 
-    final Object resolveParameter(final RequestContext requestContext) throws Throwable {
+    protected Object resolveParameter(final RequestContext requestContext) throws Throwable {
         return resolver.resolveParameter(requestContext, this);
     }
 
-    /**
-     * Get correspond parameter resolver, If there isn't a suitable resolver will be
-     * throw {@link ConfigurationException}
-     * 
-     * @return A suitable {@link ParameterResolver}
-     */
-    protected ParameterResolver obtainResolver() throws ConfigurationException {
-
-        for (final ParameterResolver resolver : getParameterResolvers()) {
-            if (resolver.supports(this)) {
-                return resolver;
-            }
-        }
-
-        throw new ConfigurationException("There isn't have a parameter resolver to resolve parameter: [" //
-                + getParameterClass() + "] called: [" + getName() + "] ");
-    }
-
-    public static void addResolver(ParameterResolver... resolver) {
-
-        Collections.addAll(PARAMETER_RESOLVERS, resolver);
-        OrderUtils.reversedSort(PARAMETER_RESOLVERS);
-    }
-
-    public static void addResolver(List<ParameterResolver> resolvers) {
-
-        PARAMETER_RESOLVERS.addAll(resolvers);
-        OrderUtils.reversedSort(PARAMETER_RESOLVERS);
-    }
-
-    public static List<ParameterResolver> getParameterResolvers() {
-        return PARAMETER_RESOLVERS;
-    }
-
     public int getIndex() {
-
         final Parameter[] parameters = parameter.getDeclaringExecutable().getParameters();
         for (int i = 0; i < parameters.length; i++) {
             if (parameters[i].equals(this.parameter)) {
@@ -237,15 +207,6 @@ public class MethodParameter {
 
     public Parameter getParameter() {
         return parameter;
-    }
-
-    public int getPathIndex() {
-        return pathIndex;
-    }
-
-    public MethodParameter setPathIndex(int pathIndex) {
-        this.pathIndex = pathIndex;
-        return this;
     }
 
     public HandlerMethod getHandlerMethod() {
