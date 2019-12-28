@@ -516,14 +516,27 @@ public abstract class ClassUtils {
     /**
      * Get First Annotation
      * 
+     * @param annotated
+     *            The annotated element object
+     * @param annotationClass
+     *            The annotation class
+     * @return The target {@link Annotation} instance
+     * @since 2.1.7
+     */
+    public static <T extends Annotation> T getAnnotation(final Object annotated, final Class<T> annotationClass) {
+        return annotated == null ? null : getAnnotation(annotationClass, annotated.getClass());
+    }
+    /**
+     * Get First Annotation
+     * 
      * @param annotatedElement
      *            The annotated element
      * @param annotationClass
      *            The annotation class
-     * @return the {@link Collection} of {@link Annotation} instance
+     * @return The target {@link Annotation} instance
      * @since 2.1.7
      */
-    public static <T extends Annotation> T getAnnotation(final Class<T> annotationClass, 
+    public static <T extends Annotation> T getAnnotation(final Class<T> annotationClass,
                                                          final AnnotatedElement annotatedElement) {
 
         final T[] annotationArray = getAnnotationArray(annotatedElement, annotationClass);

@@ -93,10 +93,24 @@ public interface BeanDefinitionRegistry {
     boolean containsBeanDefinition(String beanName);
 
     /**
+     * Whether there is a bean with the given name and type.
+     * 
+     * @param beanName
+     *            The name of the bean to look for
+     * @param type
+     *            Bean type
+     * @return If exist a bean with given name and type
+     * @since 2.1.7
+     */
+    default boolean containsBeanDefinition(String beanName, Class<?> type) {
+        return containsBeanDefinition(beanName) && containsBeanDefinition(type);
+    }
+
+    /**
      * Whether there is a bean with the given type.
      * 
      * @param type
-     *            Bean type
+     *            The bean class of the bean to look for
      * @return If exist a bean with given type
      */
     boolean containsBeanDefinition(Class<?> type);
