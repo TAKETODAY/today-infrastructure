@@ -21,7 +21,6 @@ package cn.taketoday.web.handler;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.List;
 
 import cn.taketoday.context.Constant;
 
@@ -45,16 +44,14 @@ public class ViewController implements Serializable {
     private final HandlerMethod handlerMethod;
 
     public ViewController() {
-        this(null, null, null);
+        this(null, null);
     }
 
-    public ViewController(Object bean, Method method, List<MethodParameter> parameters) {
-        this.handlerMethod = (method != null && parameters != null)
-                ? new HandlerMethod(bean, method, null, parameters)
-                : null;
+    public ViewController(Object bean, Method method) {
+        this.handlerMethod = (method == null) ? null : new HandlerMethod(bean, method);
     }
 
-    public final boolean hasAction() {
+    public boolean hasAction() {
         return getHandlerMethod() != null;
     }
 

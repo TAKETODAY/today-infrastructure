@@ -19,6 +19,9 @@
  */
 package cn.taketoday.web.servlet;
 
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.web.servlet.RequestContextHolder.prepareContext;
+
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -30,11 +33,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
-import cn.taketoday.web.resolver.ExceptionResolver;
 
 /**
  * @author TODAY <br>
@@ -47,28 +48,11 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
 
     private ServletConfig servletConfig;
 
-    @Autowired
-    public DispatcherServlet(ExceptionResolver exceptionResolver) {
-        super(exceptionResolver);
-    }
-
-    /**
-     * Prepare {@link RequestContext}
-     * 
-     * @param r
-     *            {@link HttpServletRequest}
-     * @param s
-     *            {@link HttpServletResponse}
-     * @return {@link RequestContext}
-     */
-    public static RequestContext prepareContext(final HttpServletRequest r, final HttpServletResponse s) {
-        return RequestContextHolder.prepareContext(new ServletRequestContext(r, s));
-    }
-
     @Override
     public void service(final ServletRequest request, final ServletResponse response) throws ServletException, IOException {
 
-        final RequestContext context = prepareContext((HttpServletRequest) request, (HttpServletResponse) response);
+        final RequestContext context = prepareContext(new ServletRequestContext((HttpServletRequest) request,
+                                                                                (HttpServletResponse) response));
         // Lookup handler
         final Object handler = lookupHandler(context);
         final HandlerAdapter adapter = lookupHandlerAdapter(handler);
@@ -87,10 +71,10 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
 
     @Override
     public ServletConfig getServletConfig() {
-        return servletConfig;
+        return nonNull(servletConfig, "DispatcherServlet has not been initialized");
     }
 
-    public final String getServletName() {
+    public String getServletName() {
         return "DispatcherServlet";
     }
 
@@ -107,7 +91,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     @Override
     protected void log(String msg) {
         super.log(msg);
-        servletConfig.getServletContext().log(msg);
+        getServletConfig().getServletContext().log(msg);
     }
 
 }

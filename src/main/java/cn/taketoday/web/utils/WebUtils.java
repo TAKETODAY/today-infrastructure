@@ -29,6 +29,7 @@ import java.lang.reflect.Type;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.exception.ConversionException;
@@ -44,12 +45,14 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.RequestParam;
+import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.exception.AccessForbiddenException;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.exception.FileSizeExceededException;
 import cn.taketoday.web.exception.MethodNotAllowedException;
 import cn.taketoday.web.exception.NotFoundException;
 import cn.taketoday.web.exception.UnauthorizedException;
+import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.validation.ValidationException;
@@ -210,7 +213,6 @@ public abstract class WebUtils {
     }
 
     public static int getStatus(final Throwable ex) {
-
         if (ex instanceof MethodNotAllowedException) {
             return 405;
         }
@@ -230,7 +232,23 @@ public abstract class WebUtils {
         else if (ex instanceof AccessForbiddenException) {
             return 403;
         }
+        else {
+            final ResponseStatus status = ClassUtils.getAnnotation(ex, ResponseStatus.class);
+            if (status != null) {
+                return status.value();
+            }
+        }
         return 500;
+    }
+
+    public static ResponseStatus getStatus(final HandlerMethod handler) {
+
+        Objects.requireNonNull(handler, "handler method must not be null");
+        ResponseStatus status = handler.getMethodAnnotation(ResponseStatus.class);
+        if (status == null) {
+            status = handler.getDeclaringClassAnnotation(ResponseStatus.class);
+        }
+        return status;
     }
 
     // Utility class for CORS request handling based on the 

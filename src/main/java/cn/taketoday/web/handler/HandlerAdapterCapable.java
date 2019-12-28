@@ -19,24 +19,11 @@
  */
 package cn.taketoday.web.handler;
 
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.view.RuntimeResultHandler;
-
 /**
  * @author TODAY <br>
- *         2019-12-21 17:37
+ *         2019-12-28 14:12
  */
-public interface RequestHandler {
+public interface HandlerAdapterCapable {
 
-    /**
-     * Handle request
-     * 
-     * @param context
-     *            Current request context
-     * @return Result to be handled with {@link RuntimeResultHandler}
-     * @throws Throwable
-     *             If any exception occurred
-     */
-    Object handleRequest(RequestContext context) throws Throwable;
-
+    HandlerAdapter getHandlerAdapter();
 }

@@ -58,10 +58,12 @@ import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ActionMapping;
 import cn.taketoday.web.annotation.Interceptor;
+import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RootController;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.PathVariableHandlerMethod;
 import cn.taketoday.web.handler.PatternMapping;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
@@ -218,7 +220,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
 
         if (ObjectUtils.isNotEmpty(annotationAttributes)) {
             // do mapping url
-            mappingHandlerMethod(createHandlerMethod(beanClass, method), // create HandlerMapping
+            mappingHandlerMethod(createHandlerMethod(beanClass, method), // create HandlerMethod
                                  namespaces,
                                  methodsOnClass,
                                  annotationAttributes);
@@ -254,7 +256,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
                                         final AnnotationAttributes[] annotationAttributes) // TODO 
     {
         final boolean emptyNamespaces = namespaces.isEmpty();
-        final boolean emptyClassRequestMethods = classRequestMethods.isEmpty();
+        final boolean addClassRequestMethods = !classRequestMethods.isEmpty();
 
         for (final AnnotationAttributes handlerMethodMapping : annotationAttributes) {
 
@@ -262,7 +264,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
             final Set<RequestMethod> requestMethods = // http request method on method(action/handler)
                     newHashSet(handlerMethodMapping.getAttribute("method", RequestMethod[].class));
 
-            if (!emptyClassRequestMethods) requestMethods.addAll(classRequestMethods);
+            if (addClassRequestMethods) requestMethods.addAll(classRequestMethods);
 
             for (final String urlOnMethod : handlerMethodMapping.getStringArray("value")) { // url on method
                 // splice urls and request methods
@@ -272,14 +274,44 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
                     final String checkedUrl = StringUtils.checkUrl(urlOnMethod);
                     if (exclude || emptyNamespaces) {
                         mappingHandlerMethod(checkedUrl, requestMethod, handler);
-                        continue;
                     }
-                    for (final String namespace : namespaces) {
-                        mappingHandlerMethod(namespace.concat(checkedUrl), requestMethod, handler);
+                    else {
+                        for (final String namespace : namespaces) {
+                            mappingHandlerMethod(namespace.concat(checkedUrl), requestMethod, handler);
+                        }
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Transform {@link HandlerMethod} if path contains {@link PathVariable}
+     * 
+     * @param path
+     *            handler key
+     * @param handlerMethod
+     *            Target {@link HandlerMethod}
+     * @return Transformed {@link HandlerMethod}
+     */
+    protected HandlerMethod transformHandlerMethod(final String path, final HandlerMethod handlerMethod) {
+        if (containsPathVariable(path)) {
+            final PathVariableHandlerMethod handler = new PathVariableHandlerMethod(path, handlerMethod);
+            mappingPathVariable(path, handler);
+            return handler;
+        }
+        return handlerMethod;
+    }
+
+    /**
+     * contains {@link PathVariable} char: '{' and '}'
+     * 
+     * @param path
+     *            handler key
+     * @return If contains '{' and '}'
+     */
+    protected boolean containsPathVariable(final String path) {
+        return path.indexOf('{') > -1 && path.indexOf('}') > -1;
     }
 
     /**
@@ -294,24 +326,19 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
      * @see RequestMethod
      */
     protected void mappingHandlerMethod(String urlOnMethod, RequestMethod requestMethod, HandlerMethod handlerMethod) {
-
         // GET/blog/users/1 GET/blog/#{key}/1
         final String key = getContextPath().concat(resolveValue(urlOnMethod, String.class, variables));
-        if (urlOnMethod.indexOf('{') > -1 && urlOnMethod.indexOf('}') > -1) {
-            handlerMethod.setPathPattern(key);
-            mappingPathVariable(key, handlerMethod);
-        }
-        registerHandler(requestMethod, key, handlerMethod);
+        registerHandler(requestMethod, key, transformHandlerMethod(key, handlerMethod));
     }
 
     /**
      * Mapping path variable.
      */
-    protected void mappingPathVariable(final String pathPattern, final HandlerMethod handlerMethod) {
+    protected void mappingPathVariable(final String pathPattern, final PathVariableHandlerMethod handlerMethod) {
 
         final Map<String, MethodParameter> parameterMapping = new HashMap<>();
         for (MethodParameter methodParameter : handlerMethod.getParameters()) {
-            parameterMapping.put(pathPattern, methodParameter);
+            parameterMapping.put(methodParameter.getName(), methodParameter);
         }
 
         int i = 0;

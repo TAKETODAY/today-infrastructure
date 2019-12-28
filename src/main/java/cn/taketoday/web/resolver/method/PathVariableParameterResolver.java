@@ -19,11 +19,13 @@
  */
 package cn.taketoday.web.resolver.method;
 
+import cn.taketoday.context.AntPathMatcher;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.handler.PathVariableHandlerMethod;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -34,9 +36,17 @@ public class PathVariableParameterResolver implements OrderedParameterResolver {
 
     private PathMatcher pathMatcher;
 
+    public PathVariableParameterResolver() {
+        this(new AntPathMatcher());
+    }
+
+    public PathVariableParameterResolver(PathMatcher pathMatcher) {
+        this.pathMatcher = pathMatcher;
+    }
+
     @Override
     public boolean supports(final MethodParameter parameter) {
-        return StringUtils.isNotEmpty(parameter.getPathPattern());
+        return parameter.getHandlerMethod() instanceof PathVariableHandlerMethod;
     }
 
     /**
@@ -49,7 +59,10 @@ public class PathVariableParameterResolver implements OrderedParameterResolver {
             final String[] pathVariables = requestContext.pathVariables();
             if (pathVariables == null) {
                 String requestURI = StringUtils.decodeUrl(requestContext.requestURI());
-                final String[] extractVariables = getPathMatcher().extractVariables(parameter.getPathPattern(), requestURI);
+
+                final PathVariableHandlerMethod handlerMethod = (PathVariableHandlerMethod) parameter.getHandlerMethod();
+
+                final String[] extractVariables = getPathMatcher().extractVariables(handlerMethod.getPathPattern(), requestURI);
                 pathVariable = requestContext.pathVariables(extractVariables)[parameter.getPathIndex()];
             }
             else {

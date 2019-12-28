@@ -58,6 +58,18 @@ public class MethodParameter {
 
     private static final List<ParameterResolver> PARAMETER_RESOLVERS = new ArrayList<>();
 
+    public MethodParameter(HandlerMethod handlerMethod, MethodParameter other) {
+        this.name = other.name;
+        this.required = other.required;
+        this.parameter = other.parameter;
+        this.handlerMethod = handlerMethod;
+        this.defaultValue = other.defaultValue;
+        this.parameterClass = other.parameterClass;
+        this.genericityClass = other.genericityClass;
+
+        this.resolver = obtainResolver(); // must invoke at last
+    }
+
     public MethodParameter(String name, //@off
                            boolean required,
                            String defaultValue,
@@ -243,9 +255,5 @@ public class MethodParameter {
     MethodParameter setHandlerMethod(HandlerMethod handlerMethod) {
         this.handlerMethod = handlerMethod;
         return this;
-    }
-
-    public String getPathPattern() {
-        return handlerMethod.getPathPattern();
     }
 }

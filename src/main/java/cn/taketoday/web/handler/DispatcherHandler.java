@@ -40,10 +40,11 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.registry.CompositeHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.resolver.ControllerAdviceExceptionResolver;
 import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.ResultHandler;
+import cn.taketoday.web.view.ResultHandlerCapable;
+import cn.taketoday.web.view.ResultHandlers;
 import cn.taketoday.web.view.RuntimeResultHandler;
 
 /**
@@ -64,26 +65,19 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     /** exception resolver */
     private ExceptionResolver exceptionResolver;
 
-    public DispatcherHandler() {
-        this(new ControllerAdviceExceptionResolver());
-    }
-
-    public DispatcherHandler(ExceptionResolver exceptionResolver) {
-        this.exceptionResolver = exceptionResolver;
-    }
-
     @Override
     protected void initApplicationContext(ApplicationContext context) throws ContextException {
         super.initApplicationContext(context);
 
         setMappingRegistry(new CompositeHandlerRegistry(context.getBeans(HandlerRegistry.class)));
-
-        setResultHandlers(ResultHandler.getRuntimeHandlers());
+        setResultHandlers(ResultHandlers.getRuntimeHandlers());
 
         final List<HandlerAdapter> adapters = context.getBeans(HandlerAdapter.class);
         configureHandlerAdapter(adapters, context);
 
         this.requestHandlers = adapters.toArray(new HandlerAdapter[adapters.size()]);
+        this.exceptionResolver = nonNull(context.getBean(ExceptionResolver.class),
+                                         "You must provide an ExceptionResolver bean");
     }
 
     protected void configureHandlerAdapter(final List<HandlerAdapter> adapters, final ApplicationContext context) {
@@ -99,6 +93,9 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     }
 
     public HandlerAdapter lookupHandlerAdapter(final Object handler) {
+        if (handler instanceof HandlerAdapterCapable) {
+            return ((HandlerAdapterCapable) handler).getHandlerAdapter();
+        }
         for (final HandlerAdapter requestHandler : requestHandlers) {
             if (requestHandler.supports(handler)) {
                 return requestHandler;
@@ -107,8 +104,10 @@ public class DispatcherHandler extends WebApplicationContextSupport {
         throw new ConfigurationException("No HandlerAdapter for handler: [" + handler + ']');
     }
 
-    public RuntimeResultHandler lookupResultHandler(final Object handler, final Object result) throws Throwable {
-
+    public ResultHandler lookupResultHandler(final Object handler, final Object result) throws Throwable {
+        if (handler instanceof ResultHandlerCapable) {
+            return ((ResultHandlerCapable) handler).getResultHandler();
+        }
         for (final RuntimeResultHandler resultHandler : resultHandlers) {
             if (resultHandler.supportsResult(result) || resultHandler.supports(handler)) {
                 return resultHandler;

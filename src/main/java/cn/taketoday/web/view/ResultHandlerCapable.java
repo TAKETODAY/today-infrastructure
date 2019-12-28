@@ -17,26 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.handler;
-
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.view.RuntimeResultHandler;
+package cn.taketoday.web.view;
 
 /**
  * @author TODAY <br>
- *         2019-12-21 17:37
+ *         2019-12-28 14:15
  */
-public interface RequestHandler {
+public interface ResultHandlerCapable {
 
     /**
-     * Handle request
-     * 
-     * @param context
-     *            Current request context
-     * @return Result to be handled with {@link RuntimeResultHandler}
-     * @throws Throwable
-     *             If any exception occurred
+     * @return must not be null
      */
-    Object handleRequest(RequestContext context) throws Throwable;
-
+    ResultHandler getResultHandler();
 }

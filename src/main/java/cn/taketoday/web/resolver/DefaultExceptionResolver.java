@@ -66,7 +66,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
                 resolveResourceMappingException(ex, context, (ResourceRequestHandler) handler);
             }
             else {
-                resolveViewException(ex, context, ex.getMessage());
+                resolveException(ex, context);
             }
 
             log.debug("Catch Throwable: [{}]", ex.toString(), ex);
@@ -94,7 +94,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
     protected void resolveResourceMappingException(final Throwable ex,
                                                    final RequestContext context,
                                                    final ResourceRequestHandler resourceRequestHandler) throws Throwable {
-        resolveViewException(ex, context, ex.getMessage());
+        resolveException(ex, context);
     }
 
     /**
@@ -112,7 +112,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
     protected void resolveViewControllerException(final Throwable ex,
                                                   final RequestContext context,
                                                   final ViewController viewController) throws Throwable {
-        resolveViewException(ex, context, ex.getMessage());
+        resolveException(ex, context);
     }
 
     /**
@@ -149,7 +149,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
                 context.redirect(context.contextPath().concat(redirect));
             }
             else {
-                resolveViewException(ex, context, ex.getMessage());
+                resolveException(ex, context);
             }
         }
         else {
@@ -177,16 +177,14 @@ public class DefaultExceptionResolver implements ExceptionResolver {
      * @param msg
      *            Message to client
      */
-    public void resolveViewException(final Throwable ex,
-                                     final RequestContext context, String msg) throws IOException {
-        context.sendError(getStatus(ex), msg);
+    public void resolveException(final Throwable ex, final RequestContext context) throws IOException {
+        context.sendError(getStatus(ex), ex.getMessage());
     }
 
     /**
      * resolve image
      */
-    public BufferedImage resolveImageException(final Throwable ex,
-                                               final RequestContext context) throws IOException {
+    public BufferedImage resolveImageException(final Throwable ex, final RequestContext context) throws IOException {
 
         context.contentType(Constant.CONTENT_TYPE_IMAGE);
 
@@ -208,9 +206,9 @@ public class DefaultExceptionResolver implements ExceptionResolver {
      */
     protected DefaultResponseStatus buildStatus(final HandlerMethod handlerMethod, final Throwable ex) {
 
-        ResponseStatus responseStatus = handlerMethod.getMethodAnnotation(ResponseStatus.class);
+        ResponseStatus responseStatus = handlerMethod.getStatus();
         if (responseStatus == null) {
-            responseStatus = handlerMethod.getDeclaringClassAnnotation(ResponseStatus.class);
+            responseStatus = ex.getClass().getAnnotation(ResponseStatus.class);
         }
         return new DefaultResponseStatus(responseStatus, ex);
     }
@@ -222,8 +220,8 @@ public class DefaultExceptionResolver implements ExceptionResolver {
         private final ResponseStatus status;
 
         public DefaultResponseStatus(ResponseStatus status, Throwable ex) {
-            this.status = status;
             this.ex = ex;
+            this.status = status;
         }
 
         @Override

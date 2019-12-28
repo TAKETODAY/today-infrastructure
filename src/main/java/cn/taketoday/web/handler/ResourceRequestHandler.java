@@ -59,7 +59,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
         else {
             handleResult(context, resource);
         }
-        return null;
+        return HandlerAdapter.NONE_RETURN_VALUE;
     }
 
     @Override
@@ -247,5 +247,10 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
 
     public ResourceMapping getMapping() {
         return mapping;
+    }
+    
+    @Override
+    public String toString() {
+        return mapping.toString();
     }
 }

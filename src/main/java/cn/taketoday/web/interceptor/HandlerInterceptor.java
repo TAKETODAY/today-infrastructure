@@ -20,10 +20,9 @@
 package cn.taketoday.web.interceptor;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.HandlerMethod;
 
 /**
- * Handler Intercepter process around Handler.
+ * Handler process around Handler.
  * 
  * @author TODAY <br>
  *         2018-06-25 20:06:11
@@ -32,29 +31,31 @@ import cn.taketoday.web.handler.HandlerMethod;
 public interface HandlerInterceptor {
 
     /**
-     * Before {@link HandlerMethod} process.
+     * Before Handler process.
      * 
-     * @param requestContext
+     * @param context
      *            Current request Context
      * @param handler
-     *            Request Handler
-     * @return 
+     *            Request handler
+     * @return If is it possible to execute the target handler
      * @throws Throwable
+     *             If any exception occurred
      */
-    boolean beforeProcess(RequestContext requestContext, Object handler) throws Throwable;
+    boolean beforeProcess(RequestContext context, Object handler) throws Throwable;
 
     /**
-     * After {@link HandlerMethod} process.
+     * After Handler processed.
      * 
-     * @param requestContext
+     * @param context
      *            Current request Context
      * @param handler
-     *            Request Handler
+     *            Request handler
      * @param result
-     *            HandlerMethod returned value
+     *            Handler returned value
      * @throws Throwable
+     *             If any exception occurred
      */
-    default void afterProcess(RequestContext requestContext, Object handler, Object result) throws Throwable {
+    default void afterProcess(RequestContext context, Object handler, Object result) throws Throwable {
 
     }
 }

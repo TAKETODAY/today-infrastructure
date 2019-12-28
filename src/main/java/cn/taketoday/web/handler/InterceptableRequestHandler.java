@@ -19,6 +19,10 @@
  */
 package cn.taketoday.web.handler;
 
+import static cn.taketoday.context.utils.ObjectUtils.isEmpty;
+
+import java.util.List;
+
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -40,10 +44,24 @@ public abstract class InterceptableRequestHandler
 
     public InterceptableRequestHandler() {}
 
-    public InterceptableRequestHandler(HandlerInterceptor... interceptors) {
+    public InterceptableRequestHandler(HandlerInterceptor[] interceptors) {
         setInterceptors(interceptors);
     }
 
+    /**
+     * Before Handler process.
+     * 
+     * @param context
+     *            Current request Context
+     * @param handler
+     *            Request handler
+     * @param interceptors
+     *            Target handler's {@link HandlerInterceptor}s
+     * 
+     * @return If is it possible to execute the target handler
+     * @throws Throwable
+     *             If any exception occurred in a {@link HandlerInterceptor}
+     */
     protected boolean beforeProcess(final Object handler,
                                     final RequestContext context,
                                     final HandlerInterceptor[] interceptors) throws Throwable {
@@ -59,6 +77,20 @@ public abstract class InterceptableRequestHandler
         return true;
     }
 
+    /**
+     * After Handler processed.
+     *
+     * @param result
+     *            Handler executed result
+     * @param handler
+     *            Target handler
+     * @param context
+     *            Current request context
+     * @param interceptors
+     *            Target handler's {@link HandlerInterceptor}s
+     * @throws Throwable
+     *             If any exception occurred in a {@link HandlerInterceptor}
+     */
     protected void afterProcess(final Object result,
                                 final Object handler,
                                 final RequestContext context,
@@ -75,7 +107,7 @@ public abstract class InterceptableRequestHandler
         final HandlerInterceptor[] interceptors = getInterceptors();
         if (interceptors != null) {
             if (!beforeProcess(this, context, interceptors)) { // before process
-                return null;
+                return HandlerAdapter.NONE_RETURN_VALUE;
             }
             final Object result = handleInternal(context);
             afterProcess(result, this, context, interceptors);
@@ -89,6 +121,10 @@ public abstract class InterceptableRequestHandler
     @Override
     public HandlerInterceptor[] getInterceptors() {
         return interceptors;
+    }
+
+    public void setInterceptors(List<HandlerInterceptor> interceptors) {
+        setInterceptors(isEmpty(interceptors) ? null : interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
     }
 
     public void setInterceptors(HandlerInterceptor... interceptors) {

@@ -19,8 +19,9 @@
  */
 package cn.taketoday.web.config;
 
+import static cn.taketoday.context.utils.ContextUtils.resolveValue;
+
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -31,17 +32,13 @@ import org.w3c.dom.NodeList;
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -49,9 +46,6 @@ import cn.taketoday.web.utils.WebUtils;
  */
 public class ViewConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(ViewConfiguration.class);
-
-    private final String contextPath;
     private final Properties variables;
     private final BeanNameCreator beanNameCreator;
     private final WebApplicationContext applicationContext;
@@ -59,12 +53,10 @@ public class ViewConfiguration {
     private ViewControllerHandlerRegistry handlerRegistry;
 
     public ViewConfiguration(WebApplicationContext applicationContext) {
-
         this.applicationContext = applicationContext;
         final Environment environment = applicationContext.getEnvironment();
 
         this.variables = environment.getProperties();
-        this.contextPath = applicationContext.getContextPath();
         this.beanNameCreator = environment.getBeanNameCreator();
         this.handlerRegistry = applicationContext.getBean(ViewControllerHandlerRegistry.class);
     }
@@ -78,7 +70,7 @@ public class ViewConfiguration {
      * @throws Exception
      *             if any {@link Exception} occurred
      */
-    public void configuration(Element controller) throws Exception {
+    public void configuration(final Element controller) throws Exception {
 
         Objects.requireNonNull(controller, "'controller' element can't be null");
 
@@ -92,15 +84,15 @@ public class ViewConfiguration {
         Class<?> beanClass = null;
         Object controllerBean = null;
         if (StringUtils.isNotEmpty(className)) {
-            beanClass = ClassUtils.forName(className);
+            beanClass = ClassUtils.loadClass(className);
             if (StringUtils.isEmpty(name)) {
                 name = beanNameCreator.create(beanClass);
             }
-            if (!applicationContext.containsBeanDefinition(beanClass)) {
-                applicationContext.registerBean(name, beanClass); // fix
-                applicationContext.refresh(name);
+            final WebApplicationContext context = this.applicationContext;
+            if (!context.containsBeanDefinition(name, beanClass)) {
+                context.registerBean(name, beanClass); // fix
             }
-            controllerBean = applicationContext.getBean(name); // fix
+            controllerBean = context.getBean(name); // fix
         }
 
         NodeList nl = controller.getChildNodes();
@@ -113,7 +105,8 @@ public class ViewConfiguration {
                     processAction(prefix, suffix, (Element) node, beanClass, controllerBean);
                 }
                 else {
-                    log.warn("This element: [{}] is not supported.", nodeName);
+                    LoggerFactory.getLogger(ViewConfiguration.class)
+                            .warn("This element: [{}] is not supported.", nodeName);
                 }
             }
         }
@@ -122,7 +115,7 @@ public class ViewConfiguration {
     protected ViewController processAction(final String prefix,
                                            final String suffix,
                                            final Element action,
-                                           final Class<?> class_,
+                                           final Class<?> controller,
                                            final Object controllerBean) throws Exception //
     {
 
@@ -136,33 +129,29 @@ public class ViewConfiguration {
             throw new ConfigurationException("You must specify a 'name' attribute like this: [<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]");
         }
 
-        List<MethodParameter> parameters = null;
         Method handlerMethod = null;
 
         if (StringUtils.isNotEmpty(method)) {
-
-            for (final Method targetMethod : class_.getDeclaredMethods()) {
-
+            for (final Method targetMethod : controller.getDeclaredMethods()) {
                 if (!targetMethod.isBridge() && method.equals(targetMethod.getName())) {
                     handlerMethod = targetMethod;
-                    parameters = WebUtils.createMethodParameters(targetMethod);
                     break;
                 }
             }
         }
 
-        final ViewController mapping = new ViewController(controllerBean, handlerMethod, parameters);
+        final ViewController mapping = new ViewController(controllerBean, handlerMethod);
 
         if (StringUtils.isNotEmpty(status)) {
             mapping.setStatus(Integer.parseInt(status));
         }
 
         if (StringUtils.isNotEmpty(resource)) {
-            resource = ContextUtils.resolveValue(
-                                                 new StringBuilder(prefix.length() + resource.length() + suffix.length())
-                                                         .append(prefix)
-                                                         .append(resource)
-                                                         .append(suffix).toString(), String.class, variables);
+            resource = resolveValue(
+                                    new StringBuilder(prefix.length() + resource.length() + suffix.length())
+                                            .append(prefix)
+                                            .append(resource)
+                                            .append(suffix).toString(), String.class, variables);
         }
         mapping.setAssetsPath(resource);
         { // @since 2.3.3
@@ -171,10 +160,9 @@ public class ViewConfiguration {
             }
         }
 
-        name = ContextUtils.resolveValue(contextPath.concat(StringUtils.checkUrl(name)), String.class, variables);
+        name = resolveValue(applicationContext.getContextPath().concat(StringUtils.checkUrl(name)), String.class, variables);
 
         handlerRegistry.register(name, mapping);
-        log.info("View Mapped [{} -> {}]", name, mapping);
         return mapping;
     }
 

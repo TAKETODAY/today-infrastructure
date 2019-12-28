@@ -86,6 +86,7 @@ import cn.taketoday.web.view.ObjectResultHandler;
 import cn.taketoday.web.view.ResourceResultHandler;
 import cn.taketoday.web.view.ResponseBodyResultHandler;
 import cn.taketoday.web.view.ResultHandler;
+import cn.taketoday.web.view.ResultHandlers;
 import cn.taketoday.web.view.TemplateResultHandler;
 import cn.taketoday.web.view.VoidResultHandler;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
@@ -211,7 +212,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
         mvcConfiguration.configureResultHandler(handlers);
 
-        ResultHandler.addHandler(handlers);
+        ResultHandlers.addHandler(handlers);
     }
 
     protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {

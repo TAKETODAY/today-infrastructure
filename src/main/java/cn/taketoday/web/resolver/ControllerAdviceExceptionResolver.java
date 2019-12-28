@@ -19,9 +19,6 @@
  */
 package cn.taketoday.web.resolver;
 
-import static cn.taketoday.web.registry.HandlerMethodRegistry.createMethodParameters;
-
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -41,7 +38,6 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.exception.ExceptionUnhandledException;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.registry.HandlerMethodRegistry;
 
 /**
@@ -64,7 +60,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
                                                  final HandlerMethod handlerMethod) throws Throwable //
     {
 
-        final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandlerMethod(ex);//
+        final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandler(ex);//
         if (exceptionHandler != null) {
             context.attribute(Constant.KEY_THROWABLE, ex);
             if (handlerMethod.getObject() != null) { // apply status
@@ -100,7 +96,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
      * @return Current response status
      */
     protected ResponseStatus buildStatus(final Throwable ex,
-                                         final ThrowableHandlerMethod exceptionHandler,
+                                         final ThrowableHandlerMethod exceptionHandler, 
                                          final HandlerMethod targetHandler) //
     {
         // ResponseStatus on Target handler
@@ -118,7 +114,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
      *            Target {@link Exception}
      * @return Mapped {@link Exception} handler mapping
      */
-    protected ThrowableHandlerMethod lookupExceptionHandlerMethod(final Throwable ex) {
+    protected ThrowableHandlerMethod lookupExceptionHandler(final Throwable ex) {
 
         final ThrowableHandlerMethod ret = exceptionHandlers.get(ex.getClass());
         if (ret == null) {
@@ -140,11 +136,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
             for (final Method method : errorHandler.getClass().getDeclaredMethods()) {
                 if (method.isAnnotationPresent(ExceptionHandler.class)) {
 
-                    final List<MethodParameter> parameters = createMethodParameters(method);
-                    final ThrowableHandlerMethod mapping = //
-                            new ThrowableHandlerMethod(errorHandler,
-                                                       method,
-                                                       parameters.toArray(new MethodParameter[parameters.size()]));
+                    final ThrowableHandlerMethod mapping = new ThrowableHandlerMethod(errorHandler, method);
 
                     for (Class<? extends Throwable> exceptionClass : method.getAnnotation(ExceptionHandler.class).value()) {
                         exceptionHandlers.put(exceptionClass, mapping);
@@ -154,12 +146,11 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
         }
     }
 
-    protected static class ThrowableHandlerMethod extends HandlerMethod implements Serializable {
+    @SuppressWarnings("serial")
+    protected static class ThrowableHandlerMethod extends HandlerMethod {
 
-        private static final long serialVersionUID = 1L;
-
-        public ThrowableHandlerMethod(Object handler, Method method,MethodParameter[] parameters) {
-            super(handler, method, null, parameters);
+        public ThrowableHandlerMethod(Object handler, Method method) {
+            super(handler, method, null);
         }
     }
 

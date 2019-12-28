@@ -19,24 +19,21 @@
  */
 package cn.taketoday.web.handler;
 
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.view.RuntimeResultHandler;
-
 /**
  * @author TODAY <br>
- *         2019-12-21 17:37
+ *         2019-12-28 14:56
  */
-public interface RequestHandler {
+@SuppressWarnings("serial")
+public class PathVariableHandlerMethod extends HandlerMethod {
 
-    /**
-     * Handle request
-     * 
-     * @param context
-     *            Current request context
-     * @return Result to be handled with {@link RuntimeResultHandler}
-     * @throws Throwable
-     *             If any exception occurred
-     */
-    Object handleRequest(RequestContext context) throws Throwable;
+    private final String pathPattern;
 
+    public PathVariableHandlerMethod(String pathPattern, HandlerMethod handler) {
+        super(handler);
+        this.pathPattern = pathPattern;
+    }
+
+    public String getPathPattern() {
+        return pathPattern;
+    }
 }
