@@ -64,7 +64,7 @@ public class UpdateExecuter extends Executer implements UpdateOperation {
         return execute(sql, (PreparedStatementCallback<Integer>) (ps) -> {
 
             applyParameters(ps, args);
-            return ps.executeUpdate(sql);
+            return ps.executeUpdate();
         });
     }
 
