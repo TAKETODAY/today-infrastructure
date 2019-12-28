@@ -107,7 +107,6 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
 
     @Override
     protected Object matchingPatternHandler(String handlerKey, PatternMapping[] patternMappings) {
-        //StringUtils.decodeUrl(key)
 
         final PathMatcher pathMatcher = getPathMatcher();
 

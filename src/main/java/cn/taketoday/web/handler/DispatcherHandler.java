@@ -139,13 +139,17 @@ public class DispatcherHandler extends WebApplicationContextSupport {
         handle(handler, context, lookupHandlerAdapter(handler));
     }
 
+    public void handleNotModifiy(final Object handler,
+                                 final RequestContext context,
+                                 final HandlerAdapter adapter) throws Throwable {
+        if (!notModified(handler, context, adapter)) {
+            handle(handler, context, adapter);
+        }
+    }
+
     public void handle(final Object handler,
                        final RequestContext context,
                        final HandlerAdapter adapter) throws Throwable {
-
-        if (notModified(handler, context, adapter)) {
-            return;
-        }
         try {
             final Object result = adapter.handle(context, handler);
             if (result != HandlerAdapter.NONE_RETURN_VALUE) {
