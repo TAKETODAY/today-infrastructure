@@ -19,13 +19,15 @@
  */
 package cn.taketoday.web.handler;
 
+import java.io.Serializable;
+
 import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
  * 		   2019-12-26 21:59
  */
-public interface FunctionHandler {
+public interface FunctionHandler extends Serializable {
 
     void handleRequest(RequestContext context) throws Throwable;
 

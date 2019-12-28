@@ -132,6 +132,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 
 	String	CONTENT_TYPE_IMAGE					= "image/jpeg";
 
+	String	RESPONSE_BODY_PREFIX				= "body:";
 	String	REDIRECT_URL_PREFIX					= "redirect:";
 	int		REDIRECT_URL_PREFIX_LENGTH			= REDIRECT_URL_PREFIX.length();
 	String	QUOTATION_MARKS						= "\"";

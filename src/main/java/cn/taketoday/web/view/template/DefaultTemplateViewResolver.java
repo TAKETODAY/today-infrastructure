@@ -29,7 +29,6 @@ import java.util.Objects;
 import javax.el.CompositeELResolver;
 import javax.el.ELContext;
 import javax.el.ELManager;
-import javax.el.ELProcessor;
 import javax.el.ELResolver;
 import javax.el.EvaluationListener;
 import javax.el.ExpressionFactory;
@@ -57,8 +56,10 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
     private final ExpressionFactory expressionFactory = ELManager.getExpressionFactory();
 
     public DefaultTemplateViewResolver() {
-        final ELProcessor elProcessor = ContextUtils.getELProcessor();
-        final ELManager elManager = elProcessor.getELManager();
+        this(ContextUtils.getELProcessor().getELManager());
+    }
+
+    public DefaultTemplateViewResolver(ELManager elManager) {
         sharedContext = elManager.getELContext();
     }
 

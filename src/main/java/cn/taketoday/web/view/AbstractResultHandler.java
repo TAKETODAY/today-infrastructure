@@ -69,7 +69,7 @@ public abstract class AbstractResultHandler extends OrderedSupport implements Re
     public void handleObject(final RequestContext requestContext, final Object view) throws Throwable {
 
         if (view instanceof String) {
-            handleTemplateView((String) view, requestContext);
+            handleString((String) view, requestContext);
         }
         else if (view instanceof File) {
             downloadFile(requestContext, ResourceUtils.getResource((File) view));
@@ -124,10 +124,13 @@ public abstract class AbstractResultHandler extends OrderedSupport implements Re
         }
     }
 
-    public void handleTemplateView(final String resource, final RequestContext requestContext) throws Throwable {
+    public void handleString(final String resource, final RequestContext requestContext) throws Throwable {
 
         if (resource.startsWith(Constant.REDIRECT_URL_PREFIX)) {
-            handleRedirect(resource.substring(Constant.REDIRECT_URL_PREFIX_LENGTH), requestContext);
+            handleRedirect(resource.substring(9), requestContext);
+        }
+        else if (resource.startsWith(Constant.RESPONSE_BODY_PREFIX)) {
+            getMessageConverter().write(requestContext, resource.substring(5));
         }
         else {
             final RedirectModel redirectModel = requestContext.redirectModel();

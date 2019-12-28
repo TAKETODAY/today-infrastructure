@@ -19,24 +19,69 @@
  */
 package cn.taketoday.web.view;
 
+import java.lang.invoke.SerializedLambda;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
  *         2019-07-14 11:32
  */
-public class TemplateResultHandler extends HandlerMethodResultHandler implements RuntimeResultHandler {
+public class TemplateResultHandler extends AbstractResultHandler implements RuntimeResultHandler {
+
+    private boolean allowLambdaDetect;
+
+    public TemplateResultHandler() {
+        this(false, new DefaultTemplateViewResolver());
+    }
 
     public TemplateResultHandler(TemplateViewResolver viewResolver) {
+        this(false, viewResolver);
+    }
+
+    public TemplateResultHandler(boolean lambdaDetect, TemplateViewResolver viewResolver) {
+        setAllowLambdaDetect(lambdaDetect);
         setTemplateViewResolver(viewResolver);
     }
 
     @Override
-    public boolean supports(HandlerMethod handlerMethod) {
-        return supportsHandlerMethod(handlerMethod);
+    public boolean supports(Object handler) {
+        if (handler instanceof HandlerMethod) {
+            return supportsHandlerMethod((HandlerMethod) handler);
+        }
+        return isAllowLambdaDetect() && supportsLambda(handler);
+    }
+
+    public static boolean supportsLambda(final Object handler) {
+        if (handler != null) {
+            try {
+                final Method m = ClassUtils.makeAccessible(handler.getClass().getDeclaredMethod("writeReplace"));
+
+                final SerializedLambda lambda = (SerializedLambda) m.invoke(handler);
+                final Class<?> implClass = ClassUtils.loadClass(lambda.getImplClass().replace('/', '.'));
+
+                final Method declaredMethod = implClass.getDeclaredMethod(lambda.getImplMethodName(), RequestContext.class);
+
+                if (declaredMethod.isAnnotationPresent(ResponseBody.class)) {
+                    return !declaredMethod.getAnnotation(ResponseBody.class).value();
+                }
+                else {
+                    final Class<?> declaringClass = declaredMethod.getDeclaringClass();
+                    if (declaringClass.isAnnotationPresent(ResponseBody.class)) {
+                        return !declaringClass.getAnnotation(ResponseBody.class).value();
+                    }
+                }
+            }
+            catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {}
+        }
+        return false;
     }
 
     public static boolean supportsHandlerMethod(final HandlerMethod handlerMethod) {
@@ -54,13 +99,16 @@ public class TemplateResultHandler extends HandlerMethodResultHandler implements
     }
 
     @Override
-    public boolean supportsResult(Object result) {
-        return result instanceof String; // TODO 
+    public void handleResult(final RequestContext context, final Object result) throws Throwable {
+        handleString((String) result, context);
     }
 
-    @Override
-    public void handleResult(final RequestContext context, final Object result) throws Throwable {
-        handleTemplateView((String) result, context);
+    public boolean isAllowLambdaDetect() {
+        return allowLambdaDetect;
+    }
+
+    public void setAllowLambdaDetect(boolean allowLambdaDetect) {
+        this.allowLambdaDetect = allowLambdaDetect;
     }
 
 }

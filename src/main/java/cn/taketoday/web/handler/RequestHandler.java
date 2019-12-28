@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.handler;
 
+import java.io.Serializable;
+
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.RuntimeResultHandler;
 
@@ -26,7 +28,7 @@ import cn.taketoday.web.view.RuntimeResultHandler;
  * @author TODAY <br>
  *         2019-12-21 17:37
  */
-public interface RequestHandler {
+public interface RequestHandler extends Serializable {
 
     /**
      * Handle request
