@@ -12,9 +12,8 @@
 
     <description>Tomcat Web Server Plugin</description>
 
-
     <properties>
-        <embed.tomcat.version>9.0.22</embed.tomcat.version>
+        <embed.tomcat.version>9.0.30</embed.tomcat.version>
     </properties>
 
     <dependencies>
@@ -47,7 +46,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>1.1</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>cn.taketoday</groupId>
             <artifactId>today-framework</artifactId>
