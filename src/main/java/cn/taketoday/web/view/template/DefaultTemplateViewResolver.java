@@ -33,10 +33,10 @@ import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.expression.CompositeELResolver;
 import cn.taketoday.expression.ELContext;
-import cn.taketoday.expression.ELManager;
 import cn.taketoday.expression.ELResolver;
 import cn.taketoday.expression.EvaluationListener;
 import cn.taketoday.expression.ExpressionFactory;
+import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.FunctionMapper;
 import cn.taketoday.expression.StandardELContext;
 import cn.taketoday.expression.ValueExpression;
@@ -52,13 +52,13 @@ import cn.taketoday.web.ui.Model;
 public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
 
     private final StandardELContext sharedContext;
-    private final ExpressionFactory expressionFactory = ELManager.getExpressionFactory();
+    private final ExpressionFactory expressionFactory = ExpressionFactory.getSharedInstance();
 
     public DefaultTemplateViewResolver() {
-        this(ContextUtils.getELProcessor().getELManager());
+        this(ContextUtils.getExpressionProcessor().getELManager());
     }
 
-    public DefaultTemplateViewResolver(ELManager elManager) {
+    public DefaultTemplateViewResolver(ExpressionManager elManager) {
         sharedContext = elManager.getELContext();
     }
 
