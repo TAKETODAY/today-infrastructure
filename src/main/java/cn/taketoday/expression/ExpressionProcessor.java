@@ -44,6 +44,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import cn.taketoday.context.Constant;
+
 /**
  * <p>
  * Provides an API for using EL in a stand-alone environment.
@@ -66,7 +68,7 @@ import java.lang.reflect.Modifier;
  * 
  * <p>
  * For EL users who want to manipulate EL environments, like adding custom
- * {@link ELResolver}s, {@link ELManager} can be used.
+ * {@link ELResolver}s, {@link ExpressionManager} can be used.
  * </p>
  *
  * <h3>Scope and Life Cycle</h3>
@@ -81,13 +83,14 @@ import java.lang.reflect.Modifier;
  * <h3>Automatic Bracketing of Expressions</h3>
  * <p>
  * A note about the EL expressions strings used in the class. The strings
- * allowed in the methods {@link ELProcessor#getValue},
- * {@link ELProcessor#setValue}, and {@link ELProcessor#setVariable} are limited
- * to non-composite expressions, i.e. expressions of the form ${...} or #{...}
- * only. Also, it is not necessary (in fact not allowed) to bracket the
- * expression strings with ${ or #{ and } in these methods: they will be
- * automatically bracketed. This reduces the visual cluster, without any lost of
- * functionalities (thanks to the addition of the concatenation operator).
+ * allowed in the methods {@link ExpressionProcessor#getValue},
+ * {@link ExpressionProcessor#setValue}, and
+ * {@link ExpressionProcessor#setVariable} are limited to non-composite
+ * expressions, i.e. expressions of the form ${...} or #{...} only. Also, it is
+ * not necessary (in fact not allowed) to bracket the expression strings with ${
+ * or #{ and } in these methods: they will be automatically bracketed. This
+ * reduces the visual cluster, without any lost of functionalities (thanks to
+ * the addition of the concatenation operator).
  *
  * <h3>Example</h3> The following code snippet illustrates the use of
  * ELProcessor to define a bean and evaluate its property. <blockquote>
@@ -102,18 +105,18 @@ import java.lang.reflect.Modifier;
  * 
  * @since EL 3.0
  */
-public class ELProcessor {
+public class ExpressionProcessor {
 
-    private final ELManager elManager;
     private final ExpressionFactory factory;
+    private final ExpressionManager elManager;
 
-    public ELProcessor(ELManager elManager) {
-        this.elManager = elManager;
-        this.factory = ELManager.getExpressionFactory();
+    public ExpressionProcessor() {
+        this(new ExpressionManager());
     }
 
-    public ELProcessor() {
-        this(new ELManager());
+    public ExpressionProcessor(ExpressionManager elManager) {
+        this.elManager = elManager;
+        this.factory = elManager.getExpressionFactory();
     }
 
     /**
@@ -121,7 +124,7 @@ public class ELProcessor {
      * 
      * @return The ELManager used for EL processing.
      */
-    public ELManager getELManager() {
+    public ExpressionManager getELManager() {
         return elManager;
     }
 
@@ -225,7 +228,6 @@ public class ELProcessor {
     public void defineFunction(final String prefix, String function, final String className, String method) //
             throws ClassNotFoundException, NoSuchMethodException //
     {
-
         if (prefix == null || function == null || className == null || method == null) {
             throw new NullPointerException("Null argument for defineFunction");
         }
@@ -272,7 +274,7 @@ public class ELProcessor {
         if (!Modifier.isStatic(meth.getModifiers())) {
             throw new NoSuchMethodException("The method specified in defineFunction must be static: " + meth);
         }
-        if (function.equals("")) {
+        if (Constant.BLANK.equals(function)) {
             function = method;
         }
         elManager.mapFunction(prefix, function, meth);
@@ -303,7 +305,7 @@ public class ELProcessor {
         if (!Modifier.isStatic(method.getModifiers())) {
             throw new NoSuchMethodException("The method specified in defineFunction must be static: " + method);
         }
-        if ("".equals(function)) {
+        if (Constant.BLANK.equals(function)) {
             function = method.getName();
         }
         elManager.mapFunction(prefix, function, method);

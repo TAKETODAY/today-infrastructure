@@ -41,7 +41,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.expression.ELProcessor;
+import cn.taketoday.expression.ExpressionProcessor;
 
 /**
  * Standard implementation of {@link Environment}
@@ -298,14 +298,8 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     }
 
     @Override
-    public ELProcessor getELProcessor() {
-        return ContextUtils.getELProcessor();
-    }
-
-    @Override
-    public ConfigurableEnvironment setELProcessor(final ELProcessor elProcessor) {
-        ContextUtils.setELProcessor(elProcessor);
-        return this;
+    public ExpressionProcessor getExpressionProcessor() {
+        return ContextUtils.getExpressionProcessor();
     }
 
     @Override

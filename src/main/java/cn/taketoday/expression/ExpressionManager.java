@@ -51,17 +51,28 @@ import java.lang.reflect.Method;
  *
  * @since EL 3.0
  */
-public class ELManager {
+public class ExpressionManager {
 
-    private StandardELContext elContext;
+    private final StandardELContext elContext;
+    private final ExpressionFactory exprFactory;
+
+    public ExpressionManager(StandardELContext elContext, ExpressionFactory exprFactory) {
+        this.elContext = elContext;
+        this.exprFactory = exprFactory;
+    }
+    
+    public ExpressionManager() {
+        this.exprFactory = ExpressionFactory.getSharedInstance();
+        this.elContext = new StandardELContext(exprFactory);
+    }
 
     /**
      * Return the ExpressionFactory instance used for EL evaluations.
      * 
      * @return The ExpressionFactory
      */
-    public static ExpressionFactory getExpressionFactory() {
-        return ELUtil.getExpressionFactory();
+    public ExpressionFactory getExpressionFactory() {
+        return exprFactory;
     }
 
     /**
@@ -72,30 +83,7 @@ public class ELManager {
      * @return The ELContext used for parsing and evaluating EL expressions..
      */
     public StandardELContext getELContext() {
-        final StandardELContext elContext = this.elContext;
-        if (elContext == null) {
-            return this.elContext = new StandardELContext(getExpressionFactory());
-        }
         return elContext;
-    }
-
-    /**
-     * Set the ELContext used for parsing and evaluating EL expressions. The
-     * supplied ELContext will not be modified, except for the context object map.
-     * 
-     * @param context
-     *            The new ELContext.
-     * @return The previous ELContext, null if none.
-     */
-    public ELContext setELContext(ELContext context) {
-        final ELContext prev = elContext;
-        if (context instanceof StandardELContext) {
-            elContext = (StandardELContext) context;
-        }
-        else {
-            elContext = new StandardELContext(context);
-        }
-        return prev;
     }
 
     /**

@@ -19,23 +19,20 @@
  */
 package cn.taketoday.context.el;
 
-import cn.taketoday.context.AbstractApplicationContext;
-import cn.taketoday.context.Constant;
+import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.expression.BeanNameELResolver;
-import cn.taketoday.expression.ELManager;
+import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.StandardELContext;
 
 /**
- * 
  * @author TODAY <br>
  *         2019-02-21 19:41
  */
 public class ValueELContext extends StandardELContext {
 
-    public ValueELContext(AbstractApplicationContext applicationContext) {
-        super(ELManager.getExpressionFactory());
-        getBeans().put(Constant.ENV, applicationContext.getEnvironment().getProperties()); // @since 2.1.6
-        addELResolver(new BeanNameELResolver(new BeanFactoryResolver(applicationContext)));
+    public ValueELContext(ExpressionFactory exprFactory, AbstractBeanFactory beanFactory) {
+        super(exprFactory);
+        addELResolver(new BeanNameELResolver(new BeanFactoryResolver(beanFactory)));
     }
 
 }

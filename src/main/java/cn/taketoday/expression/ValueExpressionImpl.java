@@ -141,7 +141,7 @@ public final class ValueExpressionImpl extends ValueExpression {
      */
     private Node getNode() throws ELException {
         if (this.node == null) {
-            this.node = ExpressionFactoryImpl.createNode(this.expr);
+            this.node = ExpressionFactory.createNode(this.expr);
         }
         return this.node;
     }

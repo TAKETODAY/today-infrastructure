@@ -50,7 +50,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import cn.taketoday.expression.ELContext;
-import cn.taketoday.expression.ELProcessor;
+import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.TypeConverter;
 
 /**
@@ -58,7 +58,7 @@ import cn.taketoday.expression.TypeConverter;
  * @author kichung
  */
 public class ConvertTest {
-    ELProcessor elp;
+    ExpressionProcessor elp;
 
     public ConvertTest() {}
 
@@ -70,7 +70,7 @@ public class ConvertTest {
 
     @Before
     public void setUp() {
-        elp = new ELProcessor();
+        elp = new ExpressionProcessor();
     }
 
     @After

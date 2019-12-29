@@ -40,6 +40,7 @@
 
 package cn.taketoday.expression.parser;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.expression.ELException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
@@ -57,14 +58,14 @@ public class AstMethodArguments extends SimpleNode {
     }
 
     public Object[] getParameters(EvaluationContext ctx) throws ELException {
-
-        if (this.children == null) {
-            return new Object[0];
+        final Node[] children = this.children;
+        if (children == null) {
+            return Constant.EMPTY_OBJECT_ARRAY;
         }
 
-        final Object[] obj = new Object[this.children.length];
+        final Object[] obj = new Object[children.length];
         for (int i = 0; i < obj.length; i++) {
-            obj[i] = this.children[i].getValue(ctx);
+            obj[i] = children[i].getValue(ctx);
         }
         return obj;
     }

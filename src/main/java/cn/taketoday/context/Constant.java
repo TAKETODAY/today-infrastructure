@@ -39,10 +39,11 @@ public interface Constant extends Opcodes, Serializable {
     String CONTEXT_VERSION = "2.1.7";
 
     Type[] TYPES_EMPTY = {};
+    Object[] EMPTY_OBJECT_ARRAY = {};
     Class<?>[] EMPTY_CLASS_ARRAY = {};
     Resource[] EMPTY_RESOURCE_ARRAY = {};
     AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
-
+    
     Serializable EMPTY_OBJECT = new Serializable() {
         private static final long serialVersionUID = 1L;
     };

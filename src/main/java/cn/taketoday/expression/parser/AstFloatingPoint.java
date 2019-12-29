@@ -71,10 +71,10 @@ public final class AstFloatingPoint extends SimpleNode {
     }
 
     public Object getValue(EvaluationContext ctx) throws ELException {
-        return this.getFloatingPoint();
+        return getFloatingPoint();
     }
 
     public Class<?> getType(EvaluationContext ctx) throws ELException {
-        return this.getFloatingPoint().getClass();
+        return getFloatingPoint().getClass();
     }
 }

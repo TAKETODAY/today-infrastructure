@@ -62,7 +62,7 @@ public class StandardELContext extends ELContext {
     private final FunctionMapper functionMapper;
     private final VariableMapper variableMapper;
 
-    private final Map<String, Object> beans = new HashMap<>(8, 1.0f);
+    private final Map<String, Object> beans = new HashMap<>(8);
 
     private final ELContext delegate;
 

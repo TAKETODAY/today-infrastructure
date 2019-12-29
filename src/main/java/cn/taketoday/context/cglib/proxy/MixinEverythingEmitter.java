@@ -33,7 +33,7 @@ import cn.taketoday.context.cglib.core.RejectModifierPredicate;
  */
 class MixinEverythingEmitter extends MixinEmitter {
 
-    public MixinEverythingEmitter(ClassVisitor v, String className, Class[] classes) {
+    public MixinEverythingEmitter(ClassVisitor v, String className, Class<?>[] classes) {
         super(v, className, classes, null);
     }
 

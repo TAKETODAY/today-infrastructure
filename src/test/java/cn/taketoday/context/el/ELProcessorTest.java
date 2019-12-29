@@ -50,20 +50,20 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import cn.taketoday.expression.ELContext;
-import cn.taketoday.expression.ELManager;
-import cn.taketoday.expression.ELProcessor;
 import cn.taketoday.expression.ExpressionFactory;
+import cn.taketoday.expression.ExpressionManager;
+import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.MethodExpression;
 
 public class ELProcessorTest {
 
-    static ELProcessor elp;
-    static ELManager elm;
+    static ExpressionProcessor elp;
+    static ExpressionManager elm;
     static ExpressionFactory factory;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        elp = new ELProcessor();
+        elp = new ExpressionProcessor();
         elm = elp.getELManager();
         factory = elm.getExpressionFactory();
     }

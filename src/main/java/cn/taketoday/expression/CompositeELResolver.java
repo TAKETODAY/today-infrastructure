@@ -616,7 +616,7 @@ public class CompositeELResolver extends ELResolver {
     public Object convertToType(ELContext context, Object obj, Class<?> targetType) {
 
         context.setPropertyResolved(false);
-
+        
         final int size = this.size;
         if (size > 0) {
             final ELResolver[] elResolvers = this.elResolvers;

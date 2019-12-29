@@ -50,7 +50,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import cn.taketoday.expression.ELProcessor;
+import cn.taketoday.expression.ExpressionProcessor;
 
 /**
  *
@@ -58,7 +58,7 @@ import cn.taketoday.expression.ELProcessor;
  */
 public class ElasticityTest {
 
-    ELProcessor elp;
+    ExpressionProcessor elp;
 
     public ElasticityTest() {}
 
@@ -70,7 +70,7 @@ public class ElasticityTest {
 
     @Before
     public void setUp() {
-        elp = new ELProcessor();
+        elp = new ExpressionProcessor();
     }
 
     @After

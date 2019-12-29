@@ -21,7 +21,6 @@ package cn.taketoday.context;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,7 +35,6 @@ import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.BeanReference;
 import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.el.ValueELContext;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.DefaultBeanNameCreator;
 import cn.taketoday.context.env.Environment;
@@ -66,9 +64,8 @@ import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.expression.ELManager;
-import cn.taketoday.expression.ELProcessor;
-import cn.taketoday.expression.ExpressionFactoryImpl;
+import cn.taketoday.expression.ExpressionManager;
+import cn.taketoday.expression.ExpressionProcessor;
 
 /**
  * @author TODAY <br>
@@ -249,20 +246,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         if (environment.getBeanDefinitionLoader() == null) {
             environment.setBeanDefinitionLoader(beanFactory.getBeanDefinitionLoader());
         }
-
-        {// fix: ensure ExpressionFactory's instance consistent @since 2.1.6
-            Field declaredField = ClassUtils.forName("cn.taketoday.expression.ELUtil").getDeclaredField("exprFactory");
-            ClassUtils.makeAccessible(declaredField)
-                    .set(null, new ExpressionFactoryImpl(environment.getProperties()));
-        }
-
-        if (environment.getELProcessor() == null) {
-            // setting el manager @since 2.1.5
-            final ELManager elManager = new ELManager();
-            elManager.setELContext(new ValueELContext(this));
-            environment.setELProcessor(new ELProcessor(elManager));
-        }
-
+        
         // register framework beans
         registerFrameworkBeans(beanNameCreator);
 
@@ -306,13 +290,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     protected void registerFrameworkBeans(final BeanNameCreator beanNameCreator) {
 
         final ConfigurableEnvironment environment = getEnvironment();
-        final ELProcessor elProcessor = environment.getELProcessor();
+        final ExpressionProcessor elProcessor = environment.getExpressionProcessor();
 
         // register ELManager @since 2.1.5
         // fix @since 2.1.6 elManager my be null
-        registerSingleton(beanNameCreator.create(ELManager.class), elProcessor.getELManager());
+        registerSingleton(beanNameCreator.create(ExpressionManager.class), elProcessor.getELManager());
 
-        registerSingleton(beanNameCreator.create(ELProcessor.class), elProcessor);
+        registerSingleton(beanNameCreator.create(ExpressionProcessor.class), elProcessor);
         // register Environment
         registerSingleton(beanNameCreator.create(Environment.class), environment);
         // register ApplicationContext

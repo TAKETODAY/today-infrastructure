@@ -52,16 +52,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import cn.taketoday.expression.ELException;
-import cn.taketoday.expression.ELProcessor;
+import cn.taketoday.expression.ExpressionProcessor;
 
 public class StreamTest {
 
-    static ELProcessor elp;
+    static ExpressionProcessor elp;
     static DataBase database = null;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        elp = new ELProcessor();
+        elp = new ExpressionProcessor();
         database = new DataBase();
         database.init();
         elp.defineBean("customers", database.getCustomers());

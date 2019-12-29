@@ -51,8 +51,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import cn.taketoday.expression.ELContext;
-import cn.taketoday.expression.ELManager;
-import cn.taketoday.expression.ELProcessor;
+import cn.taketoday.expression.ExpressionManager;
+import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.EvaluationListener;
 
 /**
@@ -77,8 +77,8 @@ public class EvalListenerTest {
 
     @Test
     public void testEvalListener() {
-        ELProcessor elp = new ELProcessor();
-        ELManager elm = elp.getELManager();
+        ExpressionProcessor elp = new ExpressionProcessor();
+        ExpressionManager elm = elp.getELManager();
         final ArrayList<String> msgs = new ArrayList<String>();
         elm.addEvaluationListener(new EvaluationListener() {
             @Override
@@ -103,8 +103,8 @@ public class EvalListenerTest {
 
     @Test
     public void testResListener() {
-        ELProcessor elp = new ELProcessor();
-        ELManager elm = elp.getELManager();
+        ExpressionProcessor elp = new ExpressionProcessor();
+        ExpressionManager elm = elp.getELManager();
         final ArrayList<String> msgs = new ArrayList<String>();
         elm.addEvaluationListener(new EvaluationListener() {
             @Override

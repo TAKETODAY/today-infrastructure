@@ -46,8 +46,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import cn.taketoday.expression.ELManager;
-import cn.taketoday.expression.ELProcessor;
+import cn.taketoday.expression.ExpressionManager;
+import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.ValueExpression;
 
 /**
@@ -56,13 +56,13 @@ import cn.taketoday.expression.ValueExpression;
  */
 public class OperatorTest {
 
-    static ELProcessor elp;
+    static ExpressionProcessor elp;
 
     public OperatorTest() {}
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        elp = new ELProcessor();
+        elp = new ExpressionProcessor();
     }
 
     @AfterClass
@@ -125,7 +125,7 @@ public class OperatorTest {
     public void testMisc() {
         testExpr("quote", "\"'\"", "'");
         testExpr("quote", "'\"'", "\"");
-        ELManager elm = elp.getELManager();
+        ExpressionManager elm = elp.getELManager();
         ValueExpression v = elm.getExpressionFactory().createValueExpression(
                                                                              elm.getELContext(), "#${1+1}", Object.class);
         Object ret = v.getValue(elm.getELContext());

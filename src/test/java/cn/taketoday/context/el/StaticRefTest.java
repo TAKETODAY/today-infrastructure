@@ -49,7 +49,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import cn.taketoday.expression.ELProcessor;
+import cn.taketoday.expression.ExpressionProcessor;
 
 /**
  *
@@ -57,7 +57,7 @@ import cn.taketoday.expression.ELProcessor;
  */
 public class StaticRefTest {
 
-    ELProcessor elp;
+    ExpressionProcessor elp;
 
     public StaticRefTest() {}
 
@@ -69,7 +69,7 @@ public class StaticRefTest {
 
     @Before
     public void setUp() {
-        elp = new ELProcessor();
+        elp = new ExpressionProcessor();
     }
 
     @After

@@ -25,19 +25,18 @@ import cn.taketoday.expression.BeanNameResolver;
 
 /**
  * @author TODAY <br>
- *         2019-02-21 17:02
- */
-/**
- * 
- * @author TODAY <br>
  *         2019-02-23 10:36
  */
 public class BeanFactoryResolver extends BeanNameResolver {
 
     private final AbstractBeanFactory beanFactory;
 
-    public BeanFactoryResolver(AbstractApplicationContext applicationContext) {
-        this.beanFactory = applicationContext.getBeanFactory();
+    public BeanFactoryResolver(AbstractBeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
+    }
+
+    public BeanFactoryResolver(AbstractApplicationContext beanFactory) {
+        this(beanFactory.getBeanFactory());
     }
 
     @Override

@@ -10,17 +10,17 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import cn.taketoday.expression.ELProcessor;
+import cn.taketoday.expression.ExpressionProcessor;
 
 @Ignore
 public class LinqTest {
 
-    static ELProcessor elp;
+    static ExpressionProcessor elp;
     static DataBase database = null;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        elp = new ELProcessor();
+        elp = new ExpressionProcessor();
         database = new DataBase();
         database.init();
         elp.defineBean("customers", database.getCustomers());

@@ -22,8 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Stack;
+
+import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.utils.ConvertUtils;
 
 /**
  * Context information for expression parsing and evaluation.
@@ -70,7 +72,7 @@ import java.util.Stack;
  * <p>
  * When used in a stand-alone environment, {@link StandardELContext} provides a
  * default <code>ELContext</code>, which is managed and modified by
- * {@link ELManager}.
+ * {@link ExpressionManager}.
  *
  * <p>
  * Because it stores state during expression evaluation, an
@@ -218,10 +220,10 @@ public abstract class ELContext {
      *             if key is null.
      */
     public Object getContext(Class<?> key) {
-        if (map == null) {
+        if (map == null || key == null) {
             return null;
         }
-        return map.get(Objects.requireNonNull(key));
+        return map.get(key);
     }
 
     /**
@@ -378,7 +380,7 @@ public abstract class ELContext {
      * @return true if arg is a LambdaArgument, false otherwise.
      */
     public boolean isLambdaArgument(String arg) {
-
+        final Stack<Map<String, Object>> lambdaArgs = this.lambdaArgs;
         if (lambdaArgs == null) {
             return false;
         }
@@ -406,6 +408,7 @@ public abstract class ELContext {
      * @since EL 3.0
      */
     public Object getLambdaArgument(String arg) {
+        final Stack<Map<String, Object>> lambdaArgs = this.lambdaArgs;
         if (lambdaArgs == null) {
             return null;
         }
@@ -464,15 +467,19 @@ public abstract class ELContext {
      *            The target type for the conversion.
      * @throws ELException
      *             thrown if errors occur.
-     *
      * @since EL 3.0
      */
     public Object convertToType(Object obj, Class<?> targetType) {
-
         final boolean propertyResolvedSave = isPropertyResolved();
         try {
-
             setPropertyResolved(false);
+            if (targetType.isInstance(obj)) {
+                return obj;
+            }
+            final TypeConverter typeConverter = ConvertUtils.getTypeConverter(obj, targetType);
+            if (typeConverter != null) {
+                return typeConverter.convert(targetType, obj);
+            }
             final ELResolver elResolver = getELResolver();
             if (elResolver != null) {
                 Object res = elResolver.convertToType(this, obj, targetType);
@@ -484,7 +491,6 @@ public abstract class ELContext {
         finally {
             setPropertyResolved(propertyResolvedSave);
         }
-
-        return ELUtil.getExpressionFactory().coerceToType(obj, targetType);
+        return ExpressionFactory.getSharedInstance().coerceToType(obj, targetType);
     }
 }

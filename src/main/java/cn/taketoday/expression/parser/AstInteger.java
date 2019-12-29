@@ -58,22 +58,22 @@ public final class AstInteger extends SimpleNode {
     private Number number;
 
     protected Number getInteger() {
-        if (this.number == null) {
+        if (number == null) {
             try {
-                this.number = Long.valueOf(this.image);
+                number = Long.valueOf(image);
             }
             catch (ArithmeticException e1) {
-                this.number = new BigInteger(this.image);
+                number = new BigInteger(image);
             }
         }
         return number;
     }
 
     public Class<?> getType(EvaluationContext ctx) throws ELException {
-        return this.getInteger().getClass();
+        return getInteger().getClass();
     }
 
     public Object getValue(EvaluationContext ctx) throws ELException {
-        return this.getInteger();
+        return getInteger();
     }
 }

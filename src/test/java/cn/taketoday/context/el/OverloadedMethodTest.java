@@ -50,9 +50,9 @@ import org.junit.Test;
 
 import cn.taketoday.expression.ELContext;
 import cn.taketoday.expression.ELException;
-import cn.taketoday.expression.ELManager;
-import cn.taketoday.expression.ELProcessor;
 import cn.taketoday.expression.ExpressionFactory;
+import cn.taketoday.expression.ExpressionManager;
+import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.MethodExpression;
 import cn.taketoday.expression.MethodNotFoundException;
 
@@ -62,15 +62,16 @@ import cn.taketoday.expression.MethodNotFoundException;
  */
 public class OverloadedMethodTest {
 
-    ELProcessor elp;
+    ExpressionProcessor elp;
     ExpressionFactory exprFactory;
     ELContext elContext;
 
     @Before
     public void setUp() {
-        elp = new ELProcessor();
-        exprFactory = ELManager.getExpressionFactory();
-        elContext = elp.getELManager().getELContext();
+        exprFactory = ExpressionFactory.getSharedInstance();
+        final ExpressionManager elManager = new ExpressionManager();
+        elContext = elManager.getELContext();
+        elp = new ExpressionProcessor(elManager);
 
         elp.defineBean("foo", new MyBean());
 
@@ -182,8 +183,7 @@ public class OverloadedMethodTest {
     @Test
     public void testMethodExprInvoking() {
 
-        MethodExpression methodExpr = exprFactory.createMethodExpression(
-                                                                         elContext,
+        MethodExpression methodExpr = exprFactory.createMethodExpression(elContext,
                                                                          "${foo.methodForMethodExpr2}",
                                                                          String.class,
                                                                          new Class<?>[]

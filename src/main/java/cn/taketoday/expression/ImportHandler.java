@@ -47,6 +47,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.context.utils.ClassUtils;
+
 /**
  * Handles imports of class names and package names. An imported package name
  * implicitly imports all the classes in the package. A class that has been
@@ -129,14 +131,14 @@ public class ImportHandler {
      *             if the class is abstract or is an interface, or not public.
      */
     public Class<?> resolveClass(String name) {
-
+        final Map<String, String> classNameMap = this.classNameMap;
         String className = classNameMap.get(name);
         if (className != null) {
             return resolveClassFor(className);
         }
 
         for (String packageName : packages) {
-            String fullClassName = packageName + "." + name;
+            String fullClassName = packageName + '.' + name;
             Class<?> c = resolveClassFor(fullClassName);
             if (c != null) {
                 classNameMap.put(name, fullClassName);
@@ -186,7 +188,7 @@ public class ImportHandler {
     private Class<?> getClassFor(String className) {
         if (!notAClass.contains(className)) {
             try {
-                return Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+                return ClassUtils.forName(className);
             }
             catch (ClassNotFoundException ex) {
                 notAClass.add(className);

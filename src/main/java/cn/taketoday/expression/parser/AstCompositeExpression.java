@@ -40,6 +40,8 @@
 
 package cn.taketoday.expression.parser;
 
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.expression.ELException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
@@ -58,16 +60,17 @@ public final class AstCompositeExpression extends SimpleNode {
     }
 
     public Object getValue(EvaluationContext ctx) throws ELException {
-        StringBuilder sb = new StringBuilder();
-        Object obj = null;
-        if (this.children != null) {
-            for (int i = 0; i < this.children.length; i++) {
-                obj = this.children[i].getValue(ctx);
+        final Node[] children = this.children;
+        if (ObjectUtils.isNotEmpty(children)) {
+            StringBuilder sb = new StringBuilder();
+            for (final Node node : children) {
+                final Object obj = node.getValue(ctx);
                 if (obj != null) {
                     sb.append(obj);
                 }
             }
+            return sb.toString();
         }
-        return sb.toString();
+        return Constant.BLANK;
     }
 }

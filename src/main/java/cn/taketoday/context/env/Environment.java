@@ -26,7 +26,7 @@ import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.expression.ELProcessor;
+import cn.taketoday.expression.ExpressionProcessor;
 
 /**
  * 
@@ -164,10 +164,10 @@ public interface Environment {
     BeanDefinitionRegistry getBeanDefinitionRegistry();
 
     /**
-     * Get {@link ELProcessor}
+     * Get {@link ExpressionProcessor}
      * 
-     * @return {@link ELProcessor}
-     * @since 2.1.5
+     * @return {@link ExpressionProcessor}
+     * @since 2.1.7
      */
-    ELProcessor getELProcessor();
+    ExpressionProcessor getExpressionProcessor();
 }

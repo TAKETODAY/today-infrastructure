@@ -17,7 +17,8 @@
 
 package cn.taketoday.expression;
 
-import static cn.taketoday.expression.ELUtil.invokeMethod;
+import static cn.taketoday.expression.util.ReflectionUtil.findMethod;
+import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
 
 import java.beans.BeanInfo;
 import java.beans.FeatureDescriptor;
@@ -364,7 +365,7 @@ public class BeanELResolver extends ELResolver {
         }
 
         final Object ret = invokeMethod(Objects.requireNonNull(context),
-                                        ELUtil.findMethod(base.getClass(), method.toString(), paramTypes, params, false),
+                                        findMethod(base.getClass(), method.toString(), paramTypes, params, false),
                                         base,
                                         params);
 

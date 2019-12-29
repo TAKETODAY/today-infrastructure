@@ -48,15 +48,17 @@ import cn.taketoday.expression.lang.EvaluationContext;
  * @author Kin-man Chung
  */
 public class AstListData extends SimpleNode {
+
     public AstListData(int id) {
         super(id);
     }
 
     public Object getValue(EvaluationContext ctx) {
-        ArrayList<Object> list = new ArrayList<Object>();
-        int paramCount = this.jjtGetNumChildren();
+        final ArrayList<Object> list = new ArrayList<>();
+        final int paramCount = jjtGetNumChildren();
+        final Node[] children = this.children;
         for (int i = 0; i < paramCount; i++) {
-            list.add(this.children[i].getValue(ctx));
+            list.add(children[i].getValue(ctx));
         }
         return list;
     }

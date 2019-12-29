@@ -190,34 +190,36 @@ public abstract class SimpleNode extends ELSupport implements Node {
 
     @Override
     public boolean equals(Object node) {
+
         if (!(node instanceof SimpleNode)) {
             return false;
         }
         SimpleNode n = (SimpleNode) node;
-        if (this.id != n.id) {
+        if (id != n.id) {
             return false;
         }
-        if (this.children == null && n.children == null) {
-            if (this.image == null) {
+        final Node[] children = this.children;
+        if (children == null && n.children == null) {
+            if (image == null) {
                 return n.image == null;
             }
-            return this.image.equals(n.image);
+            return image.equals(n.image);
         }
-        if (this.children == null || n.children == null) {
+        if (children == null || n.children == null) {
             // One is null and the other is non-null
             return false;
         }
-        if (this.children.length != n.children.length) {
+        if (children.length != n.children.length) {
             return false;
         }
-        if (this.children.length == 0) {
-            if (this.image == null) {
+        if (children.length == 0) {
+            if (image == null) {
                 return n.image == null;
             }
-            return this.image.equals(n.image);
+            return image.equals(n.image);
         }
-        for (int i = 0; i < this.children.length; i++) {
-            if (!this.children[i].equals(n.children[i])) {
+        for (int i = 0; i < children.length; i++) {
+            if (!children[i].equals(n.children[i])) {
                 return false;
             }
         }
@@ -231,15 +233,16 @@ public abstract class SimpleNode extends ELSupport implements Node {
 
     @Override
     public int hashCode() {
-        if (this.children == null || this.children.length == 0) {
-            if (this.image != null) {
-                return this.image.hashCode();
+        final Node[] children = this.children;
+        if (children == null || children.length == 0) {
+            if (image != null) {
+                return image.hashCode();
             }
-            return this.id;
+            return id;
         }
         int h = 0;
-        for (int i = this.children.length - 1; i >= 0; i--) {
-            h = h + h + h + this.children[i].hashCode();
+        for (int i = children.length - 1; i >= 0; i--) {
+            h = h + h + h + children[i].hashCode();
         }
         h = h + h + h + id;
         return h;

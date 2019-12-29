@@ -56,12 +56,13 @@ public class AstMapData extends SimpleNode {
     }
 
     public Object getValue(EvaluationContext ctx) {
-        HashSet<Object> set = new HashSet<Object>();
-        HashMap<Object, Object> map = new HashMap<Object, Object>();
+        final Node[] children = this.children;
+        final HashSet<Object> set = new HashSet<>();
+        final HashMap<Object, Object> map = new HashMap<>();
 
-        int paramCount = this.jjtGetNumChildren();
+        int paramCount = jjtGetNumChildren();
         for (int i = 0; i < paramCount; i++) {
-            Node entry = this.children[i];
+            Node entry = children[i];
             Object v1 = entry.jjtGetChild(0).getValue(ctx);
             if (entry.jjtGetNumChildren() > 1) {
                 // expr: expr

@@ -54,6 +54,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.expression.ELContext;
 import cn.taketoday.expression.ELException;
 import cn.taketoday.expression.MethodNotFoundException;
@@ -81,7 +82,7 @@ public abstract class ReflectionUtil {
 
     @SuppressWarnings("rawtypes")
     public static Class forName(String name) throws ClassNotFoundException {
-        if (null == name || Constant.BLANK.equals(name)) {
+        if (StringUtils.isEmpty(name)) {
             return null;
         }
         Class c = forNamePrimitive(name);
@@ -186,6 +187,43 @@ public abstract class ReflectionUtil {
         }
     }
 
+    public static Object invokeConstructor(ELContext context, Constructor<?> c, Object[] params) {
+        try {
+
+            return c.newInstance(buildParameters(context, c.getParameterTypes(), c.isVarArgs(), params));
+        }
+        catch (IllegalAccessException | IllegalArgumentException iae) {
+            throw new ELException(iae);
+        }
+        catch (InvocationTargetException | InstantiationException ie) {
+            throw new ELException(ie.getCause());
+        }
+    }
+
+    public static Constructor<?> findConstructor(Class<?> klass, Class<?>[] paramTypes, Object[] params) {
+
+        if (klass == null) {
+            throw new MethodNotFoundException("Method not found: " + klass
+                    + '.' + Constant.CONSTRUCTOR_NAME + '(' + paramString(paramTypes) + ')');
+        }
+
+        if (paramTypes == null) {
+            paramTypes = getTypesFromValues(params);
+        }
+
+        Constructor<?>[] constructors = klass.getConstructors();
+
+        List<Wrapper> wrappers = Wrapper.wrap(constructors);
+
+        String methodName = Constant.CONSTRUCTOR_NAME;
+        Wrapper result = findWrapper(klass, wrappers, methodName, paramTypes, params);
+
+        if (result == null) {
+            return null;
+        }
+        return getConstructor(klass, (Constructor<?>) result.unWrap());
+    }
+
     /*
      * This method duplicates code in javax.el.ELUtil. When making changes keep the
      * code in sync.
@@ -211,6 +249,16 @@ public abstract class ReflectionUtil {
             return null;
         }
         return getMethod(clazz, (Method) result.unWrap());
+    }
+
+    public static Method findMethod(Class<?> klass, String method, Class<?>[] paramTypes, Object[] params, boolean staticOnly) {
+
+        Method m = findMethod(klass, method, paramTypes, params);
+        if (staticOnly && !Modifier.isStatic(m.getModifiers())) {
+            throw new MethodNotFoundException("Method " + method + "for class " + klass + " not found or accessible");
+        }
+
+        return m;
     }
 
     /*
@@ -680,31 +728,25 @@ public abstract class ReflectionUtil {
                 }
                 else {
                     Class<?> varArgClass = parameterTypes[varArgIndex].getComponentType();
-                    final Object varargs = Array.newInstance(
-                                                             varArgClass,
-                                                             (paramCount - varArgIndex));
-                    for (int i = (varArgIndex); i < paramCount; i++) {
-                        Array.set(varargs, i - varArgIndex,
-                                  context.convertToType(params[i], varArgClass));
+                    final Object varargs = Array.newInstance(varArgClass, (paramCount - varArgIndex));
+                    for (int i = varArgIndex; i < paramCount; i++) {
+                        Array.set(varargs, i - varArgIndex, context.convertToType(params[i], varArgClass));
                     }
                     parameters[varArgIndex] = varargs;
                 }
             }
             else {
                 for (int i = 0; i < parameterTypes.length && i < paramCount; i++) {
-                    parameters[i] = context.convertToType(params[i],
-                                                          parameterTypes[i]);
+                    parameters[i] = context.convertToType(params[i], parameterTypes[i]);
                 }
             }
         }
         return parameters;
     }
 
-    /*
-     * This method duplicates code in javax.el.ELUtil. When making changes keep the
-     * code in sync.
-     */
-    private abstract static class Wrapper {
+    /* This method duplicates code in com.sun.el.util.ReflectionUtil. When making
+     * changes keep the code in sync. */
+    public abstract static class Wrapper {
 
         public static List<Wrapper> wrap(Method[] methods, String name) {
             List<Wrapper> result = new ArrayList<>();
@@ -716,13 +758,13 @@ public abstract class ReflectionUtil {
             return result;
         }
 
-//        public static List<Wrapper> wrap(Constructor<?>[] constructors) {
-//            List<Wrapper> result = new ArrayList<>();
-//            for (Constructor<?> constructor : constructors) {
-//                result.add(new ConstructorWrapper(constructor));
-//            }
-//            return result;
-//        }
+        public static List<Wrapper> wrap(Constructor<?>[] constructors) {
+            List<Wrapper> result = new ArrayList<>();
+            for (Constructor<?> constructor : constructors) {
+                result.add(new ConstructorWrapper(constructor));
+            }
+            return result;
+        }
 
         public abstract Object unWrap();
 
@@ -733,11 +775,10 @@ public abstract class ReflectionUtil {
         public abstract boolean isBridge();
     }
 
-    /*
-     * This method duplicates code in javax.el.ELUtil. When making changes keep the
-     * code in sync.
-     */
+    /* This method duplicates code in com.sun.el.util.ReflectionUtil. When making
+     * changes keep the code in sync. */
     private static class MethodWrapper extends Wrapper {
+
         private final Method m;
 
         public MethodWrapper(Method m) {
@@ -765,36 +806,34 @@ public abstract class ReflectionUtil {
         }
     }
 
-    /*
-     * This method duplicates code in javax.el.ELUtil. When making changes keep the
-     * code in sync.
-     */
-//    private static class ConstructorWrapper extends Wrapper {
-//        private final Constructor<?> c;
-//
-//        public ConstructorWrapper(Constructor<?> c) {
-//            this.c = c;
-//        }
-//
-//        @Override
-//        public Object unWrap() {
-//            return c;
-//        }
-//
-//        @Override
-//        public Class<?>[] getParameterTypes() {
-//            return c.getParameterTypes();
-//        }
-//
-//        @Override
-//        public boolean isVarArgs() {
-//            return c.isVarArgs();
-//        }
-//
-//        @Override
-//        public boolean isBridge() {
-//            return false;
-//        }
-//    }
+    /* This method duplicates code in com.sun.el.util.ReflectionUtil. When making
+     * changes keep the code in sync. */
+    private static class ConstructorWrapper extends Wrapper {
+        private final Constructor<?> c;
+
+        public ConstructorWrapper(Constructor<?> c) {
+            this.c = c;
+        }
+
+        @Override
+        public Object unWrap() {
+            return c;
+        }
+
+        @Override
+        public Class<?>[] getParameterTypes() {
+            return c.getParameterTypes();
+        }
+
+        @Override
+        public boolean isVarArgs() {
+            return c.isVarArgs();
+        }
+
+        @Override
+        public boolean isBridge() {
+            return false;
+        }
+    }
 
 }

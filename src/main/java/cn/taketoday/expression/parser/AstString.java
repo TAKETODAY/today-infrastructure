@@ -56,10 +56,10 @@ public final class AstString extends SimpleNode {
     private String string;
 
     public String getString() {
-        if (this.string == null) {
-            this.string = this.image.substring(1, this.image.length() - 1);
+        if (string == null) {
+            string = image.substring(1, image.length() - 1);
         }
-        return this.string;
+        return string;
     }
 
     public Class<?> getType(EvaluationContext ctx) throws ELException {
@@ -67,7 +67,7 @@ public final class AstString extends SimpleNode {
     }
 
     public Object getValue(EvaluationContext ctx) throws ELException {
-        return this.getString();
+        return getString();
     }
 
     public void setImage(String image) {

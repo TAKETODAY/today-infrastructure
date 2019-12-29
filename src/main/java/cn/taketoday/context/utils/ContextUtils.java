@@ -49,6 +49,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConcurrentProperties;
@@ -67,6 +68,7 @@ import cn.taketoday.context.bean.DefaultBeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.bean.StandardBeanDefinition;
 import cn.taketoday.context.conversion.TypeConverter;
+import cn.taketoday.context.el.ValueELContext;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
@@ -84,7 +86,9 @@ import cn.taketoday.context.loader.ValuePropertyResolver;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.expression.ELException;
-import cn.taketoday.expression.ELProcessor;
+import cn.taketoday.expression.ExpressionFactory;
+import cn.taketoday.expression.ExpressionManager;
+import cn.taketoday.expression.ExpressionProcessor;
 
 /**
  * This class provides el, {@link Properties} loading, {@link Parameter}
@@ -98,7 +102,7 @@ public abstract class ContextUtils {
     private static final Logger log = LoggerFactory.getLogger(ContextUtils.class);
 
     // @since 2.1.6 shared elProcessor
-    private static ELProcessor elProcessor;
+    private static ExpressionProcessor elProcessor;
     // @since 2.1.6 shared applicationContext
     public static ApplicationContext applicationContext;
 
@@ -131,21 +135,43 @@ public abstract class ContextUtils {
     }
 
     /**
-     * Get shared {@link ELProcessor}
+     * Get shared {@link ExpressionProcessor}
      * 
-     * @return Shared {@link ELProcessor}
+     * @return Shared {@link ExpressionProcessor}
      */
-    public static ELProcessor getELProcessor() {
+    public static ExpressionProcessor getExpressionProcessor() {
+        if (elProcessor == null) {
+            synchronized (ContextUtils.class) {
+                if (elProcessor == null) {
+                    final ApplicationContext ctx = getApplicationContext();
+                    if (ctx instanceof AbstractApplicationContext) {
+                        final Properties properties = ctx.getEnvironment().getProperties();
+                        
+                        final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
+                        final AbstractBeanFactory beanFactory = ((AbstractApplicationContext) ctx).getBeanFactory();
+
+                        final ValueELContext elContext = new ValueELContext(exprFactory, beanFactory);
+
+                        elContext.defineBean(Constant.ENV, properties); // @since 2.1.6
+
+                        return elProcessor = new ExpressionProcessor(new ExpressionManager(elContext, exprFactory));
+                    }
+                    else {
+                        throw new ConfigurationException("ApplicationContext must be a AbstractApplicationContext and must not be null");
+                    }
+                }
+            }
+        }
         return elProcessor;
     }
 
     /**
-     * {@link ELProcessor}
+     * {@link ExpressionProcessor}
      * 
      * @param elProcessor
      *            A new elProcessor
      */
-    public static void setELProcessor(final ELProcessor elProcessor) {
+    public static void setExpressionProcessor(final ExpressionProcessor elProcessor) {
         ContextUtils.elProcessor = elProcessor;
     }
 
@@ -297,7 +323,7 @@ public abstract class ContextUtils {
 
         if (expression.contains(Constant.EL_PREFIX)) {
             try {
-                return getELProcessor().getValue(expression, expectedType);
+                return getExpressionProcessor().getValue(expression, expectedType);
             }
             catch (ELException e) {
                 throw new ConfigurationException(e);

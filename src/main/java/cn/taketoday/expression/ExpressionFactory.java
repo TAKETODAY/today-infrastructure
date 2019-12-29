@@ -1,25 +1,66 @@
 /*
- * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
- * Copyright 2004 The Apache Software Foundation
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common Development
+ * and Distribution License("CDDL") (collectively, the "License").  You
+ * may not use this file except in compliance with the License.  You can
+ * obtain a copy of the License at
+ * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
+ * or packager/legal/LICENSE.txt.  See the License for the specific
+ * language governing permissions and limitations under the License.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * When distributing the software, include this License Header Notice in each
+ * file and include the License file at packager/legal/LICENSE.txt.
+ *
+ * GPL Classpath Exception:
+ * Oracle designates this particular file as subject to the "Classpath"
+ * exception as provided by Oracle in the GPL Version 2 section of the License
+ * file that accompanied this code.
+ *
+ * Modifications:
+ * If applicable, add the following below the License Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyright [year] [name of copyright owner]"
+ *
+ * Contributor(s):
+ * If you wish your version of this file to be governed by only the CDDL or
+ * only the GPL Version 2, indicate your decision by adding "[Contributor]
+ * elects to include this software in this distribution under the [CDDL or GPL
+ * Version 2] license."  If you don't indicate a single choice of license, a
+ * recipient has the option to distribute your version of this file under
+ * either the CDDL, the GPL Version 2 or to extend the choice of license to
+ * its licensees as provided above.  However, if you add GPL Version 2 code
+ * and therefore, elected the GPL Version 2 license, then the option applies
+ * only if the new code is made subject to such option by the copyright
+ * holder.
  */
 
 package cn.taketoday.expression;
 
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import cn.taketoday.context.utils.ConcurrentCache;
+import cn.taketoday.expression.lang.ELSupport;
+import cn.taketoday.expression.parser.AstDeferredExpression;
+import cn.taketoday.expression.parser.AstDynamicExpression;
+import cn.taketoday.expression.parser.AstFunction;
+import cn.taketoday.expression.parser.AstIdentifier;
+import cn.taketoday.expression.parser.AstLiteralExpression;
+import cn.taketoday.expression.parser.AstMethodArguments;
+import cn.taketoday.expression.parser.AstValue;
+import cn.taketoday.expression.parser.ELParser;
+import cn.taketoday.expression.parser.Node;
+import cn.taketoday.expression.parser.NodeVisitor;
+import cn.taketoday.expression.stream.StreamELResolver;
+import cn.taketoday.expression.util.MessageFactory;
 
 /**
  * Provides an implementation for creating and evaluating EL expressions.
@@ -105,124 +146,65 @@ import java.util.Properties;
  *
  * @since JSP 2.1
  */
-public abstract class ExpressionFactory {
+public class ExpressionFactory implements NodeVisitor {
 
-    /**
-     * Creates a new instance of a <code>ExpressionFactory</code>. This method uses
-     * the following ordered lookup procedure to determine the
-     * <code>ExpressionFactory</code> implementation class to load:
-     * <ul>
-     * <li>Use the Services API (as detailed in the JAR specification). If a
-     * resource with the name of
-     * <code>META-INF/services/javax.el.ExpressionFactory</code> exists, then its
-     * first line, if present, is used as the UTF-8 encoded name of the
-     * implementation class.</li>
-     * <li>Use the properties file "lib/el.properties" in the JRE directory. If this
-     * file exists and it is readable by the
-     * <code> java.util.Properties.load(InputStream)</code> method, and it contains
-     * an entry whose key is "javax.el.ExpressionFactory", then the value of that
-     * entry is used as the name of the implementation class.</li>
-     * <li>Use the <code>javax.el.ExpressionFactory</code> system property. If a
-     * system property with this name is defined, then its value is used as the name
-     * of the implementation class.</li>
-     * <li>Use a platform default implementation.</li>
-     * </ul>
-     */
-    public static ExpressionFactory newInstance() {
-        return ExpressionFactory.newInstance(null);
+    private final Properties properties;
+    private final Map<String, Method> functionMap = new HashMap<>();
+
+    private static final String CACHE_SIZE_PROP = "expression.cache.size";
+    private static final ExpressionFactory sharedExpressionFactory;
+    private static final ConcurrentCache<String, Node> EXPRESSION_CACHE;
+
+    static {
+        String cacheSizeStr = System.getSecurityManager() == null
+                ? System.getProperty(CACHE_SIZE_PROP, "2048")
+                : AccessController.doPrivileged((PrivilegedAction<String>) () -> {
+                    return System.getProperty(CACHE_SIZE_PROP, "2048");
+                });
+
+        EXPRESSION_CACHE = new ConcurrentCache<>(Integer.parseInt(cacheSizeStr));
+        sharedExpressionFactory = new ExpressionFactory();
+    }
+
+    public ExpressionFactory() {
+        this(null);
+    }
+
+    public ExpressionFactory(Properties properties) {
+        this.properties = properties;
     }
 
     /**
-     * <p>
-     * Create a new instance of a <code>ExpressionFactory</code>, with optional
-     * properties. This method uses the same lookup procedure as the one used in
-     * <code>newInstance()</code>.
-     * </p>
-     * <p>
-     * If the argument <code>properties</code> is not null, and if the
-     * implementation contains a constructor with a single parameter of type
-     * <code>java.util.Properties</code>, then the constructor is used to create the
-     * instance.
-     * </p>
-     * <p>
-     * Properties are optional and can be ignored by an implementation.
-     * </p>
-     * <p>
-     * The name of a property should start with "javax.el."
-     * </p>
-     * <p>
-     * The following are some suggested names for properties.
-     * <ul>
-     * <li>javax.el.cacheSize</li>
-     * </ul>
-     * </p>
-     *
-     * @param properties
-     *            Properties passed to the implementation. If null, then no
-     *            properties.
-     */
-    public static ExpressionFactory newInstance(Properties properties) {
-        return (ExpressionFactory) FactoryFinder.find("cn.taketoday.expression.ExpressionFactory", //
-                                                      "cn.taketoday.expression.ExpressionFactoryImpl", properties);
-    }
-
-    /**
-     * Parses an expression into a {@link ValueExpression} for later evaluation. Use
-     * this method for expressions that refer to values.
+     * Coerces an object to a specific type according to the EL type conversion
+     * rules. The custom type conversions in the <code>ELResolver</code>s are not
+     * considered.
      *
      * <p>
-     * This method should perform syntactic validation of the expression. If in
-     * doing so it detects errors, it should raise an <code>ELException</code>.
+     * An <code>ELException</code> is thrown if an error results from applying the
+     * conversion rules.
      * </p>
      *
-     * @param context
-     *            The EL context used to parse the expression. The
-     *            <code>FunctionMapper</code> and <code>VariableMapper</code> stored
-     *            in the ELContext are used to resolve functions and variables found
-     *            in the expression. They can be <code>null</code>, in which case
-     *            functions or variables are not supported for this expression. The
-     *            object returned must invoke the same functions and access the same
-     *            variable mappings regardless of whether the mappings in the
-     *            provided <code>FunctionMapper</code> and
-     *            <code>VariableMapper</code> instances change between calling
-     *            <code>ExpressionFactory.createValueExpression()</code> and any
-     *            method on <code>ValueExpression</code>.
-     *            <p>
-     *            Note that within the EL, the ${} and #{} syntaxes are treated
-     *            identically. This includes the use of VariableMapper and
-     *            FunctionMapper at expression creation time. Each is invoked if not
-     *            null, independent of whether the #{} or ${} syntax is used for the
-     *            expression.
-     *            </p>
-     * @param expression
-     *            The expression to parse
-     * @param expectedType
-     *            The type the result of the expression will be coerced to after
-     *            evaluation.
-     * @return The parsed expression
-     * @throws NullPointerException
-     *             Thrown if expectedType is null.
+     * @param obj
+     *            The object to coerce.
+     * @param targetType
+     *            The target type for the coercion.
      * @throws ELException
-     *             Thrown if there are syntactical errors in the provided
-     *             expression.
+     *             thrown if an error results from applying the conversion rules.
      */
-    public abstract ValueExpression createValueExpression(ELContext context, String expression, Class<?> expectedType);
+    public Object coerceToType(Object obj, Class<?> type) {
+        try {
+            return ELSupport.coerceToType(obj, type);
+        }
+        catch (IllegalArgumentException ex) {
+            throw new ELException(ex);
+        }
+    }
 
-    /**
-     * Creates a ValueExpression that wraps an object instance. This method can be
-     * used to pass any object as a ValueExpression. The wrapper ValueExpression is
-     * read only, and returns the wrapped object via its <code>getValue()</code>
-     * method, optionally coerced.
-     *
-     * @param instance
-     *            The object instance to be wrapped.
-     * @param expectedType
-     *            The type the result of the expression will be coerced to after
-     *            evaluation. There will be no coercion if it is Object.class,
-     * @throws NullPointerException
-     *             Thrown if expectedType is null.
-     */
-    public abstract ValueExpression createValueExpression(Object instance, Class<?> expectedType);
+    protected Node build(final String expression, ELContext context) throws ELException {
+        final Node n = createNode(expression);
+        this.prepare(n, context);
+        return n;
+    }
 
     /**
      * Parses an expression into a {@link MethodExpression} for later evaluation.
@@ -282,27 +264,102 @@ public abstract class ExpressionFactory {
      * @throws NullPointerException
      *             if paramTypes is <code>null</code>.
      */
-    public abstract MethodExpression createMethodExpression(ELContext context, String expression, Class<?> expectedReturnType,
-                                                            Class<?>[] expectedParamTypes);
+
+    public MethodExpression createMethodExpression(ELContext context, String expression, Class<?> expectedReturnType, //
+                                                   Class<?>[] expectedParamTypes)//
+    {
+        MethodExpression methodExpression;
+
+        final Node node = this.build(expression, context);
+
+        if (node instanceof AstValue || node instanceof AstIdentifier) {
+            methodExpression = new MethodExpressionImpl(expression, node, expectedParamTypes, expectedReturnType);
+        }
+        else if (node instanceof AstLiteralExpression) {
+            methodExpression = new MethodExpressionLiteral(expression, expectedReturnType, expectedParamTypes);
+        }
+        else {
+            throw new ELException("Not a Valid Method Expression: " + expression);
+        }
+
+        if (expectedParamTypes == null && !methodExpression.isParametersProvided()) {
+            throw new NullPointerException(MessageFactory.get("error.method.nullParms"));
+        }
+        return methodExpression;
+    }
 
     /**
-     * Coerces an object to a specific type according to the EL type conversion
-     * rules. The custom type conversions in the <code>ELResolver</code>s are not
-     * considered.
+     * Parses an expression into a {@link ValueExpression} for later evaluation. Use
+     * this method for expressions that refer to values.
      *
      * <p>
-     * An <code>ELException</code> is thrown if an error results from applying the
-     * conversion rules.
+     * This method should perform syntactic validation of the expression. If in
+     * doing so it detects errors, it should raise an <code>ELException</code>.
      * </p>
      *
-     * @param obj
-     *            The object to coerce.
-     * @param targetType
-     *            The target type for the coercion.
+     * @param context
+     *            The EL context used to parse the expression. The
+     *            <code>FunctionMapper</code> and <code>VariableMapper</code> stored
+     *            in the ELContext are used to resolve functions and variables found
+     *            in the expression. They can be <code>null</code>, in which case
+     *            functions or variables are not supported for this expression. The
+     *            object returned must invoke the same functions and access the same
+     *            variable mappings regardless of whether the mappings in the
+     *            provided <code>FunctionMapper</code> and
+     *            <code>VariableMapper</code> instances change between calling
+     *            <code>ExpressionFactory.createValueExpression()</code> and any
+     *            method on <code>ValueExpression</code>.
+     *            <p>
+     *            Note that within the EL, the ${} and #{} syntaxes are treated
+     *            identically. This includes the use of VariableMapper and
+     *            FunctionMapper at expression creation time. Each is invoked if not
+     *            null, independent of whether the #{} or ${} syntax is used for the
+     *            expression.
+     *            </p>
+     * @param expression
+     *            The expression to parse
+     * @param expectedType
+     *            The type the result of the expression will be coerced to after
+     *            evaluation.
+     * @return The parsed expression
+     * @throws NullPointerException
+     *             Thrown if expectedType is null.
      * @throws ELException
-     *             thrown if an error results from applying the conversion rules.
+     *             Thrown if there are syntactical errors in the provided
+     *             expression.
      */
-    public abstract Object coerceToType(Object obj, Class<?> targetType);
+
+    public ValueExpression createValueExpression(ELContext context, String expression, Class<?> expectedType) {
+        // if expectedType == null will not convert object
+        return new ValueExpressionImpl(expression, build(expression, context), expectedType);
+    }
+
+    /**
+     * Creates a ValueExpression that wraps an object instance. This method can be
+     * used to pass any object as a ValueExpression. The wrapper ValueExpression is
+     * read only, and returns the wrapped object via its <code>getValue()</code>
+     * method, optionally coerced.
+     *
+     * @param instance
+     *            The object instance to be wrapped.
+     * @param expectedType
+     *            The type the result of the expression will be coerced to after
+     *            evaluation. There will be no coercion if it is Object.class,
+     * @throws NullPointerException
+     *             Thrown if expectedType is null.
+     */
+
+    public ValueExpression createValueExpression(Object instance, Class<?> expectedType) {
+        // if expectedType == null will not convert object
+        return new ValueExpressionLiteral(instance, expectedType);
+    }
+
+    public String getProperty(String key) {
+        if (properties == null) {
+            return null;
+        }
+        return properties.getProperty(key);
+    }
 
     /**
      * Retrieves an ELResolver that implements the operations in collections.
@@ -321,8 +378,9 @@ public abstract class ExpressionFactory {
      *
      * @since EL 3.0
      */
+
     public ELResolver getStreamELResolver() {
-        return null;
+        return StreamELResolver.getInstance();
     }
 
     /**
@@ -332,7 +390,115 @@ public abstract class ExpressionFactory {
      *
      * @since EL 3.0
      */
+
     public Map<String, Method> getInitFunctionMap() {
-        return null;
+        return this.functionMap;
+    }
+
+    // -----------------------build
+
+    public static Node createNode(final String expr) throws ELException {
+
+        if (expr == null) {
+            throw new ELException(MessageFactory.get("error.null"));
+        }
+
+        Node node = EXPRESSION_CACHE.get(expr);
+
+        if (node == null) {
+            node = ELParser.parse(expr);
+            // validate composite expression
+            int numChildren = node.jjtGetNumChildren();
+            if (numChildren == 1) {
+                node = node.jjtGetChild(0);
+            }
+            else {
+                Class<?> type = null;
+                Node child = null;
+                for (int i = 0; i < numChildren; i++) {
+                    child = node.jjtGetChild(i);
+                    if (child instanceof AstLiteralExpression) {
+                        continue;
+                    }
+                    if (type == null) {
+                        type = child.getClass();
+                    }
+                    else {
+                        if (!type.equals(child.getClass())) {
+                            throw new ELException(MessageFactory.get("error.mixed", expr));
+                        }
+                    }
+                }
+            }
+
+            if (node instanceof AstDynamicExpression || node instanceof AstDeferredExpression) {
+                node = node.jjtGetChild(0);
+            }
+            EXPRESSION_CACHE.put(expr, node);
+        }
+        return node;
+    }
+
+    /**
+     * Scan the expression nodes and captures the functions and variables used in
+     * this expression. This ensures that any changes to the functions or variables
+     * mappings during the expression will not affect the evaluation of this
+     * expression, as the functions and variables are bound and resolved at parse
+     * time, as specified in the spec.
+     */
+    protected void prepare(Node node, ELContext context) throws ELException {
+        node.accept(this, context);
+    }
+
+    // ------------------------NodeVisitor
+
+    @Override
+    public void visit(Node node, ELContext context) throws ELException {
+
+        if (node instanceof AstFunction) {
+
+            FunctionMapper fnMapper = context.getFunctionMapper();
+            VariableMapper varMapper = context.getVariableMapper();
+
+            AstFunction funcNode = (AstFunction) node;
+            if ((funcNode.getPrefix().length() == 0) && //
+                (fnMapper == null || fnMapper.resolveFunction(funcNode.getPrefix(), funcNode.getLocalName()) == null)) //
+            {
+                // This can be a call to a LambdaExpression. The target
+                // of the call is a bean or an EL variable. Capture
+                // the variable name in the variable mapper if it is an
+                // variable. The decision to invoke the static method or
+                // the LambdaExpression will be made at runtime.
+                if (varMapper != null) {
+                    varMapper.resolveVariable(funcNode.getLocalName());
+                }
+                return;
+            }
+
+            if (fnMapper == null) {
+                throw new ELException(MessageFactory.get("error.fnMapper.null"));
+            }
+            Method m = fnMapper.resolveFunction(funcNode.getPrefix(), funcNode.getLocalName());
+            if (m == null) {
+                throw new ELException(MessageFactory.get("error.fnMapper.method", funcNode.getOutputName()));
+            }
+            int pcnt = m.getParameterTypes().length;
+            int acnt = ((AstMethodArguments) node.jjtGetChild(0)).getParameterCount();
+            if (acnt != pcnt) {
+                throw new ELException(MessageFactory.get("error.fnMapper.paramcount", funcNode.getOutputName(), "" + pcnt, "" + acnt));
+            }
+        }
+        else if (node instanceof AstIdentifier) {
+
+            final VariableMapper varMapper = context.getVariableMapper();
+            if (varMapper != null) {
+                // simply capture it
+                varMapper.resolveVariable(((AstIdentifier) node).getImage());
+            }
+        }
+    }
+
+    public static ExpressionFactory getSharedInstance() {
+        return sharedExpressionFactory;
     }
 }

@@ -40,6 +40,11 @@
 
 package cn.taketoday.expression;
 
+import static cn.taketoday.expression.util.ReflectionUtil.findConstructor;
+import static cn.taketoday.expression.util.ReflectionUtil.findMethod;
+import static cn.taketoday.expression.util.ReflectionUtil.invokeConstructor;
+import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
+
 import java.beans.FeatureDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -215,12 +220,12 @@ public class StaticFieldELResolver extends ELResolver {
 
         Object ret;
         if ("<init>".equals(name)) {
-            Constructor<?> constructor = ELUtil.findConstructor(klass, paramTypes, params);
-            ret = ELUtil.invokeConstructor(context, constructor, params);
+            Constructor<?> constructor = findConstructor(klass, paramTypes, params);
+            ret = invokeConstructor(context, constructor, params);
         }
         else {
-            Method meth = ELUtil.findMethod(klass, name, paramTypes, params, true);
-            ret = ELUtil.invokeMethod(context, meth, null, params);
+            Method meth = findMethod(klass, name, paramTypes, params, true);
+            ret = invokeMethod(context, meth, null, params);
         }
         context.setPropertyResolved(base, method);
         return ret;
