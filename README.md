@@ -39,6 +39,7 @@ public class TestApplication implements WebMvcConfiguration {
 * [FastJSON](https://github.com/alibaba/fastjson): A fast JSON parser/generator for Java
 * [Freemarker](https://github.com/apache/freemarker): Apache Freemarker
 * [Apache Commons FileUpload](https://github.com/apache/commons-fileupload): Apache Commons FileUpload
+* [Netty](https://github.com/netty/netty): Netty project - an event-driven asynchronous network application framework
 * [Jetty](https://github.com/eclipse/jetty.project): Eclipse Jetty® - Web Container 
 * [Tomcat](https://github.com/apache/tomcat): Apache Tomcat
 * [Undertow](https://github.com/undertow-io/undertow): High performance non-blocking webserver
