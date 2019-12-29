@@ -37,18 +37,119 @@
 
 ## 使用说明
 
-> 通过 `@Controller` `@RestController` 配置控制器
+### 函数式路由
+```java
+@Component
+@ResponseBody
+public class FunctionController {
+
+    public String function(RequestContext request) {
+        return "body:" + request.method() + " requestURI -> " + request.requestURI();
+    }
+
+    public String test(RequestContext request) {
+        return "body:" + request.method() + " test -> " + request.requestURI();
+    }
+
+    public void script(RequestContext request) throws IOException {
+
+        ModelAndView modelAndView = new ModelAndView();
+        request.modelAndView(modelAndView);
+
+        modelAndView.setContentType("text/html;charset=UTF-8");
+        modelAndView.setView(new StringBuilder("<script>alert('HELLO， 你好 script');</script>"));
+    }
+}
+@Configuration
+//@EnableDefaultMybatis
+//@EnableRedissonCaching
+public class WebMvcConfig implements WebMvcConfiguration {
+
+    @Autowired
+    private FunctionController functionController;
+
+    @Override
+    public void configureFunctionHandler(FunctionHandlerRegistry registry) {
+
+        registry.get("/function", functionController::function);
+        registry.get("/function/test", functionController::test);
+        registry.get("/function/script", functionController::script);
+
+        registry.get("/function/error/500", (context) -> {
+            context.sendError(500);
+        });
+    }
+}
+```
+
+### 注解路由
 
 ```java
 //@Controller
 @RestController
 @RequestMapping("/users")
-public class IndexController {
+public class UserController {
     
 }
 ```
+### ViewController
+```java
+@Override
+public void configureViewController(ViewControllerHandlerRegistry registry) {
+    registry.addViewController("/github", "redirect:https://github.com");
+    registry.addViewController("/login.do")
+            .setAssetsPath("redirect:/login");
+}
+```
+### 静态资源
+```java
+@Singleton
+@Profile("dev")
+public ResourceHandlerRegistry devRsourceMappingRegistry(@Env("site.uploadPath") String upload,
+                                                         @Env("site.assetsPath") String assetsPath) //
+{
+    final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
 
-> 配置请求
+    registry.addResourceMapping("/assets/**")//
+            .addLocations(assetsPath);
+
+    registry.addResourceMapping("/upload/**")//
+            .addLocations(upload);
+
+    registry.addResourceMapping("/logo.png")//
+            .addLocations("file:///D:/dev/www.yhj.com/webapps/assets/images/logo.png");
+
+    registry.addResourceMapping("/favicon.ico")//
+            .addLocations("classpath:/favicon.ico");
+
+    return registry;
+}
+
+@Singleton
+@Profile("prod")
+public ResourceHandlerRegistry prodResourceMappingRegistry() {
+
+    final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
+
+    registry.addResourceMapping(LoginInterceptor.class)//
+            .setPathPatterns("/assets/admin/**")//
+            .setOrder(Ordered.HIGHEST_PRECEDENCE)//
+            .addLocations("/assets/admin/");
+
+    return registry;
+}
+
+@Override
+public void configureResourceHandler(ResourceHandlerRegistry registry) {
+
+    registry.addResourceMapping(LoginInterceptor.class)//
+            .setPathPatterns("/assets/admin/**")//
+            .setOrder(Ordered.HIGHEST_PRECEDENCE)//
+            .addLocations("/assets/admin/");
+}
+```
+
+### 详细配置
 
 ```java
 @GET("index")
@@ -65,19 +166,19 @@ public (String|List<?>|Set<?>|Map<?>|void|File|Image|...) \\w+ (request, request
     return </>;
 }
 ```
-> 自定义参数转换器
+### 自定义参数转换器
 
 ```java
-@ParameterConverter 
+@Component 
 public class DateConverter implements Converter<String, Date> {
     @Override
-    public Date doConvert(String source) throws ConversionException {
+    public Date convert(String source) throws ConversionException {
         ...
     }
 }
 ```
 
-> 也可以通过xml文件配置简单视图，静态资源，自定义视图解析器，文件上传解析器，异常处理器，参数解析器
+### 也可以通过xml文件配置简单视图
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -109,7 +210,7 @@ public class DateConverter implements Converter<String, Date> {
 
 </Web-Configuration>
 ```
->  登录实例
+### 登录实例
 
 ```java
 @Controller
@@ -153,7 +254,7 @@ public class UserController {
 }
 ```
 
-> 文件下载，支持直接返回给浏览器图片
+### 文件下载，支持直接返回给浏览器图片
 
 ```java
 @RequestMapping(value = {"/download"}, method = RequestMethod.GET)
@@ -181,7 +282,7 @@ public final BufferedImage captcha(HttpServletRequest request) throws IOExceptio
 }
 ```
 
-> 文件上传，支持多文件
+### 文件上传，支持多文件
 
 ```java
 @RequestMapping(value = { "/upload" }, method = RequestMethod.POST)
