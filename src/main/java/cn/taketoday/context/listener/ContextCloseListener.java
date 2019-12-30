@@ -27,12 +27,12 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.event.ContextCloseEvent;
+import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
-import cn.taketoday.context.utils.ExceptionUtils;
 
 /**
  * @author TODAY <br>
@@ -68,7 +68,7 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
             }
         }
         catch (Throwable e) {
-            throw ExceptionUtils.newContextException(e, "An Exception Occurred When Destroy Beans");
+            throw new ContextException("An Exception Occurred When Destroy Beans", e);
         }
         finally {
             ClassUtils.clearCache();

@@ -862,7 +862,7 @@ public abstract class ClassUtils {
             return newInstance(beanClass, ContextUtils.getApplicationContext());
         }
         catch (ReflectiveOperationException e) {
-            throw ExceptionUtils.newContextException(e);
+            throw new ContextException(e);
         }
     }
 
@@ -880,7 +880,7 @@ public abstract class ClassUtils {
             return (T) newInstance(classLoader.loadClass(beanClassName));
         }
         catch (Throwable e) {
-            throw ExceptionUtils.newContextException(e);
+            throw new ContextException(e);
         }
     }
 
@@ -1218,7 +1218,7 @@ public abstract class ClassUtils {
             return invokeMethod(makeAccessible(method), target, args);
         }
         catch (Exception ex) {
-            throw ExceptionUtils.newContextException(ExceptionUtils.unwrapThrowable(ex));
+            throw new ContextException(ExceptionUtils.unwrapThrowable(ex));
         }
     }
 

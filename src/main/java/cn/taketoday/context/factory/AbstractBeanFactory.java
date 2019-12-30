@@ -1200,7 +1200,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             def.setInitialized(true);
         }
         catch (Throwable ex) {
-            throw ExceptionUtils.newContextException(ex);
+            throw new ContextException(ex);
         }
     }
 
@@ -1212,7 +1212,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             return initializingBean;
         }
         catch (Throwable ex) {
-            throw ExceptionUtils.newContextException(ex);
+            throw new ContextException(ex);
         }
     }
 

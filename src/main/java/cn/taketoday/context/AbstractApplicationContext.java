@@ -145,8 +145,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         catch (Throwable ex) {
             applyState(State.FAILED);
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Loading Context, With Msg: [{}]", ex.toString(), ex);
-            throw ExceptionUtils.newContextException(ex);
+            throw new ContextException("An Exception Occurred When Loading Context, With Msg: [" + ex + "]", ex);
         }
     }
 
@@ -246,7 +245,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         if (environment.getBeanDefinitionLoader() == null) {
             environment.setBeanDefinitionLoader(beanFactory.getBeanDefinitionLoader());
         }
-        
+
         // register framework beans
         registerFrameworkBeans(beanNameCreator);
 
@@ -350,7 +349,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     protected void registerListener(Class<?> listenerClass) {
 
         if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
-            throw ExceptionUtils.newConfigurationException(null, "ContextListener must be a 'ApplicationListener'");
+            throw new ConfigurationException("ContextListener must be a 'ApplicationListener'");
         }
 
         try {
@@ -368,8 +367,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Register Application Listener, With Msg: [{}]", ex.toString(), ex);
-            throw ExceptionUtils.newContextException(ex);
+            throw new ContextException("An Exception Occurred When Register Application Listener, With Msg: [" + ex + "]", ex);
         }
     }
 
@@ -456,8 +454,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("An Exception Occurred When Refresh Context: [{}] With Msg: [{}]", this, ex.toString(), ex);
-            throw ExceptionUtils.newContextException(ex);
+            throw new ContextException("An Exception Occurred When Refresh Context: [" + this + "] With Msg: [" + ex + "]", ex);
         }
     }
 
@@ -584,23 +581,21 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("Can't refresh a bean named: [{}], With Msg: [{}]", name, ex.getMessage(), ex);
-            throw ExceptionUtils.newContextException(ex);
+            throw new ContextException("Can't refresh a bean named: [" + name + "], With Msg: [" + ex + "]", ex);
         }
     }
 
     @Override
-    public Object refresh(BeanDefinition beanDefinition) {
+    public Object refresh(BeanDefinition def) {
         try {
-            final Object initializingBean = getBeanFactory().refresh(beanDefinition);
+            final Object initializingBean = getBeanFactory().refresh(def);
             // object refreshed
-            publishEvent(new ObjectRefreshedEvent(beanDefinition, this));
+            publishEvent(new ObjectRefreshedEvent(def, this));
             return initializingBean;
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            log.error("Can't refresh a bean named: [{}], With Msg: [{}]", beanDefinition.getName(), ex.getMessage(), ex);
-            throw ExceptionUtils.newContextException(ex);
+            throw new ContextException("Can't refresh a bean named: [" + def.getName() + "], With Msg: [" + ex + "]", ex);
         }
     }
 

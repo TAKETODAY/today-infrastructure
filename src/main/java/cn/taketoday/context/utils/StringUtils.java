@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -738,19 +737,6 @@ public abstract class StringUtils {
         System.arraycopy(array1, 0, newArr, 0, array1.length);
         System.arraycopy(array2, 0, newArr, array1.length, array2.length);
         return newArr;
-    }
-
-    // ---------------------------------
-
-    public static <T> List<T> enumerationToList(final Enumeration<T> objs) {
-        if (objs == null) {
-            return Collections.emptyList();
-        }
-        final List<T> ret = new ArrayList<>();
-        while (objs.hasMoreElements()) {
-            ret.add(objs.nextElement());
-        }
-        return ret.isEmpty() ? Collections.emptyList() : ret;
     }
 
 }

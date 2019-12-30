@@ -22,9 +22,6 @@ package cn.taketoday.context.utils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.ContextException;
-
 /**
  * 
  * @author TODAY <br>
@@ -52,31 +49,6 @@ public abstract class ExceptionUtils {
                 return unwrapped;
             }
         }
-    }
-
-    public static ContextException newContextException(Throwable ex) {
-        if (ex instanceof ContextException) {
-            return (ContextException) ex;
-        }
-        return new ContextException(ex);
-    }
-
-    public static ContextException newContextException(Throwable ex, String message) {
-        if (ex instanceof ContextException) {
-            return (ContextException) ex;
-        }
-        return new ContextException(message, ex);
-    }
-
-    public static ConfigurationException newConfigurationException(Throwable ex) {
-        return newConfigurationException(ex, null);
-    }
-
-    public static ConfigurationException newConfigurationException(Throwable ex, String message) {
-        if (ex instanceof ConfigurationException) {
-            return (ConfigurationException) ex;
-        }
-        return new ConfigurationException(message, ex);
     }
 
 }

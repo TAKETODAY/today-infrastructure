@@ -162,7 +162,7 @@ public final class AstFunction extends SimpleNode {
                 else {
                     // Check if this is a imported static method
                     c = ctx.getImportHandler().resolveStatic(localName);
-                    methodName = localName;;
+                    methodName = localName;
                 }
                 if (c != null) {
                     // Use StaticFieldELResolver to invoke the constructor or the static method.
