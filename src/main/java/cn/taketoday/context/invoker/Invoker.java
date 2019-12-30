@@ -26,9 +26,5 @@ package cn.taketoday.context.invoker;
 @FunctionalInterface
 public interface Invoker {
 
-    default Object invoke() {
-        return invoke(null, null);
-    }
-
     Object invoke(Object obj, Object[] args);
 }
