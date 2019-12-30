@@ -94,7 +94,7 @@ public abstract class AbstractResultHandler extends OrderedSupport implements Re
      * @since 2.3.3
      */
     public void resolveModelAndView(final RequestContext context, final ModelAndView modelAndView) throws Throwable {
-        if (modelAndView.hasView()) {
+        if (modelAndView != null && modelAndView.hasView()) {
             handleObject(context, modelAndView.getView());
         }
     }
