@@ -15,6 +15,16 @@
  */
 package cn.taketoday.context.cglib.core;
 
+import static cn.taketoday.context.Constant.BLANK;
+import static cn.taketoday.context.Constant.TYPE_BOOLEAN;
+import static cn.taketoday.context.Constant.TYPE_BYTE;
+import static cn.taketoday.context.Constant.TYPE_CHARACTER;
+import static cn.taketoday.context.Constant.TYPE_DOUBLE;
+import static cn.taketoday.context.Constant.TYPE_FLOAT;
+import static cn.taketoday.context.Constant.TYPE_INTEGER;
+import static cn.taketoday.context.Constant.TYPE_LONG;
+import static cn.taketoday.context.Constant.TYPE_SHORT;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,7 +36,6 @@ import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.utils.ObjectUtils;
 
 /**
- * 
  * @author TODAY <br>
  *         2019-09-03 14:19
  */
@@ -68,7 +77,7 @@ public abstract class TypeUtils {
 
     public static String getPackageName(String className) {
         int idx = className.lastIndexOf('.');
-        return (idx < 0) ? Constant.BLANK : className.substring(0, idx);
+        return (idx < 0) ? BLANK : className.substring(0, idx);
     }
 
     public static String upperFirst(String s) {
@@ -214,7 +223,7 @@ public abstract class TypeUtils {
     }
 
     private static String map(String type) {
-        if (Constant.BLANK.equals(type)) {
+        if (BLANK.equals(type)) {
             return type;
         }
         String t = transforms.get(type);
@@ -239,41 +248,41 @@ public abstract class TypeUtils {
     public static Type getBoxedType(Type type) {
         switch (type.getSort()) //@off
         {
-            case Type.CHAR :    return Constant.TYPE_CHARACTER;
-            case Type.BOOLEAN : return Constant.TYPE_BOOLEAN;
-            case Type.DOUBLE :  return Constant.TYPE_DOUBLE;
-            case Type.FLOAT :   return Constant.TYPE_FLOAT;
-            case Type.LONG :    return Constant.TYPE_LONG;
-            case Type.INT :     return Constant.TYPE_INTEGER;
-            case Type.SHORT :   return Constant.TYPE_SHORT;
-            case Type.BYTE :    return Constant.TYPE_BYTE;
+            case Type.CHAR :    return TYPE_CHARACTER;
+            case Type.BOOLEAN : return TYPE_BOOLEAN;
+            case Type.DOUBLE :  return TYPE_DOUBLE;
+            case Type.FLOAT :   return TYPE_FLOAT;
+            case Type.LONG :    return TYPE_LONG;
+            case Type.INT :     return TYPE_INTEGER;
+            case Type.SHORT :   return TYPE_SHORT;
+            case Type.BYTE :    return TYPE_BYTE;
             default:            return type; //@on
         }
     }
 
     public static Type getUnboxedType(Type type) {
-        if (Constant.TYPE_INTEGER.equals(type)) {
+        if (TYPE_INTEGER.equals(type)) {
             return Type.INT_TYPE;
         }
-        else if (Constant.TYPE_BOOLEAN.equals(type)) {
+        else if (TYPE_BOOLEAN.equals(type)) {
             return Type.BOOLEAN_TYPE;
         }
-        else if (Constant.TYPE_DOUBLE.equals(type)) {
+        else if (TYPE_DOUBLE.equals(type)) {
             return Type.DOUBLE_TYPE;
         }
-        else if (Constant.TYPE_LONG.equals(type)) {
+        else if (TYPE_LONG.equals(type)) {
             return Type.LONG_TYPE;
         }
-        else if (Constant.TYPE_CHARACTER.equals(type)) {
+        else if (TYPE_CHARACTER.equals(type)) {
             return Type.CHAR_TYPE;
         }
-        else if (Constant.TYPE_BYTE.equals(type)) {
+        else if (TYPE_BYTE.equals(type)) {
             return Type.BYTE_TYPE;
         }
-        else if (Constant.TYPE_FLOAT.equals(type)) {
+        else if (TYPE_FLOAT.equals(type)) {
             return Type.FLOAT_TYPE;
         }
-        else if (Constant.TYPE_SHORT.equals(type)) {
+        else if (TYPE_SHORT.equals(type)) {
             return Type.SHORT_TYPE;
         }
         else {
@@ -324,7 +333,7 @@ public abstract class TypeUtils {
         return types;
     }
 
-    public static int ICONST(int value) {
+    public static int iconst(int value) {
         switch (value) //@off
         { 
             case -1 :   return Constant.ICONST_M1;
@@ -338,7 +347,7 @@ public abstract class TypeUtils {
         }
     }
 
-    public static int LCONST(long value) {
+    public static int lconst(long value) {
         if (value == 0L) {
             return Constant.LCONST_0;
         }
@@ -348,7 +357,7 @@ public abstract class TypeUtils {
         return -1; // error
     }
 
-    public static int FCONST(float value) {
+    public static int fconst(float value) {
         if (value == 0f) {
             return Constant.FCONST_0;
         }
@@ -361,7 +370,7 @@ public abstract class TypeUtils {
         return -1; // error
     }
 
-    public static int DCONST(double value) {
+    public static int dconst(double value) {
         if (value == 0d) {
             return Constant.DCONST_0;
         }
@@ -371,7 +380,7 @@ public abstract class TypeUtils {
         return -1; // error
     }
 
-    public static int NEWARRAY(Type type) {
+    public static int newArray(Type type) {
         switch (type.getSort()) { //@off
             case Type.BYTE :    return Constant.T_BYTE;
             case Type.CHAR :    return Constant.T_CHAR;

@@ -30,14 +30,14 @@ import cn.taketoday.context.asm.Type;
 @SuppressWarnings("all")
 public class CodeEmitter extends LocalVariablesSorter {
 
-    private static final Signature BOOLEAN_VALUE = TypeUtils.parseSignature("boolean booleanValue()");
-    private static final Signature CHAR_VALUE = TypeUtils.parseSignature("char charValue()");
-    private static final Signature LONG_VALUE = TypeUtils.parseSignature("long longValue()");
-    private static final Signature DOUBLE_VALUE = TypeUtils.parseSignature("double doubleValue()");
-    private static final Signature FLOAT_VALUE = TypeUtils.parseSignature("float floatValue()");
+    private static final Signature CSTRUCT_STRING = TypeUtils.parseConstructor("String");
     private static final Signature INT_VALUE = TypeUtils.parseSignature("int intValue()");
     private static final Signature CSTRUCT_NULL = TypeUtils.parseConstructor(Constant.BLANK);
-    private static final Signature CSTRUCT_STRING = TypeUtils.parseConstructor("String");
+    private static final Signature CHAR_VALUE = TypeUtils.parseSignature("char charValue()");
+    private static final Signature LONG_VALUE = TypeUtils.parseSignature("long longValue()");
+    private static final Signature FLOAT_VALUE = TypeUtils.parseSignature("float floatValue()");
+    private static final Signature DOUBLE_VALUE = TypeUtils.parseSignature("double doubleValue()");
+    private static final Signature BOOLEAN_VALUE = TypeUtils.parseSignature("boolean booleanValue()");
 
     public static final int ADD = Constant.IADD;
     public static final int MUL = Constant.IMUL;
@@ -375,7 +375,7 @@ public class CodeEmitter extends LocalVariablesSorter {
             mv.visitLdcInsn(Integer.valueOf(i));
         }
         else if (i <= 5) {
-            mv.visitInsn(TypeUtils.ICONST(i));
+            mv.visitInsn(TypeUtils.iconst(i));
         }
         else if (i <= Byte.MAX_VALUE) {
             mv.visitIntInsn(Constant.BIPUSH, i);
@@ -390,7 +390,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 
     public void push(long value) {
         if (value == 0L || value == 1L) {
-            mv.visitInsn(TypeUtils.LCONST(value));
+            mv.visitInsn(TypeUtils.lconst(value));
         }
         else {
             mv.visitLdcInsn(new Long(value));
@@ -399,7 +399,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 
     public void push(float value) {
         if (value == 0f || value == 1f || value == 2f) {
-            mv.visitInsn(TypeUtils.FCONST(value));
+            mv.visitInsn(TypeUtils.fconst(value));
         }
         else {
             mv.visitLdcInsn(new Float(value));
@@ -408,7 +408,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 
     public void push(double value) {
         if (value == 0d || value == 1d) {
-            mv.visitInsn(TypeUtils.DCONST(value));
+            mv.visitInsn(TypeUtils.dconst(value));
         }
         else {
             mv.visitLdcInsn(new Double(value));
@@ -425,7 +425,7 @@ public class CodeEmitter extends LocalVariablesSorter {
 
     public void newArray(Type type) {
         if (TypeUtils.isPrimitive(type)) {
-            mv.visitIntInsn(Constant.NEWARRAY, TypeUtils.NEWARRAY(type));
+            mv.visitIntInsn(Constant.NEWARRAY, TypeUtils.newArray(type));
         }
         else {
             emit_type(Constant.ANEWARRAY, type);
