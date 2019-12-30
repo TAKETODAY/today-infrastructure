@@ -50,8 +50,8 @@ public class ServletParameterResolver {
         }
 
         @Override
-        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-            return requestContext.nativeRequest();
+        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+            return context.nativeRequest();
         }
     }
 
@@ -63,8 +63,8 @@ public class ServletParameterResolver {
         }
 
         @Override
-        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-            return requestContext.nativeResponse();
+        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+            return context.nativeResponse();
         }
     }
 
@@ -76,8 +76,8 @@ public class ServletParameterResolver {
         }
 
         @Override
-        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-            return requestContext.nativeSession();
+        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+            return context.nativeSession();
         }
     }
 
@@ -89,8 +89,8 @@ public class ServletParameterResolver {
         }
 
         @Override
-        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-            return requestContext.nativeSession(HttpSession.class).getAttribute(parameter.getName());
+        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+            return context.nativeSession(HttpSession.class).getAttribute(parameter.getName());
         }
     }
 
@@ -104,11 +104,11 @@ public class ServletParameterResolver {
 
         @Override
         public boolean supports(final MethodParameter parameter) {
-            return parameter.isAssignableFrom(ServletContext.class);
+            return parameter.is(ServletContext.class);
         }
 
         @Override
-        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
             return servletContext;
         }
     }
@@ -119,14 +119,14 @@ public class ServletParameterResolver {
 
         @Override
         public boolean supports(final MethodParameter parameter) {
-            return parameter.isAssignableFrom(Cookie.class);
+            return parameter.is(Cookie.class);
         }
 
         @Override
-        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
             final String name = parameter.getName();
-            for (final Cookie cookie : requestContext.nativeRequest(HttpServletRequest.class).getCookies()) {
+            for (final Cookie cookie : context.nativeRequest(HttpServletRequest.class).getCookies()) {
                 if (name.equals(cookie.getName())) {
                     return cookie;
                 }
@@ -147,9 +147,9 @@ public class ServletParameterResolver {
         }
 
         @Override
-        protected List<?> resolveList(RequestContext requestContext, MethodParameter parameter) throws Throwable {
+        protected List<?> resolveList(RequestContext context, MethodParameter parameter) throws Throwable {
 
-            final Cookie[] cookies = requestContext.nativeRequest(HttpServletRequest.class).getCookies();
+            final Cookie[] cookies = context.nativeRequest(HttpServletRequest.class).getCookies();
             final List<Cookie> ret = new ArrayList<>(cookies.length);
             Collections.addAll(ret, cookies);
             return ret;
@@ -164,8 +164,8 @@ public class ServletParameterResolver {
         }
 
         @Override
-        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-            return requestContext.nativeRequest(HttpServletRequest.class).getCookies();
+        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+            return context.nativeRequest(HttpServletRequest.class).getCookies();
         }
     }
 
@@ -183,7 +183,7 @@ public class ServletParameterResolver {
         }
 
         @Override
-        public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
             return servletContext.getAttribute(parameter.getName());
         }
     }

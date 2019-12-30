@@ -19,12 +19,11 @@
  */
 package cn.taketoday.web;
 
-import static cn.taketoday.context.utils.ExceptionUtils.newConfigurationException;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.factory.StandardBeanFactory;
 import cn.taketoday.web.servlet.RequestContextHolder;
@@ -38,7 +37,7 @@ public class StandardWebBeanFactory extends StandardBeanFactory {
     public StandardWebBeanFactory(ConfigurableApplicationContext applicationContext) {
         super(applicationContext);
         if (applicationContext instanceof ConfigurableWebApplicationContext == false) {
-            throw newConfigurationException(null, "application context must be 'ConfigurableWebApplicationContext'");
+            throw new ConfigurationException("application context must be 'ConfigurableWebApplicationContext'");
         }
     }
 

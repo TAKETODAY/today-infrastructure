@@ -19,8 +19,11 @@
  */
 package cn.taketoday.web.servlet;
 
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+
 import java.io.File;
 import java.io.FileFilter;
+import java.lang.annotation.Annotation;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +40,7 @@ import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletSecurityElement;
+import javax.servlet.annotation.HandlesTypes;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebFilter;
@@ -48,6 +52,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -227,14 +232,15 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
 
     @Override
     protected void configureMultipart(List<ParameterResolver> resolvers,
-                                      MultipartConfiguration multipartConfiguration, WebMvcConfiguration mvcConfiguration) {
+                                      MultipartConfiguration multipartConfig,
+                                      WebMvcConfiguration webMvcConfiguration) {
 
-        super.configureMultipart(resolvers, multipartConfiguration, mvcConfiguration);
+        super.configureMultipart(resolvers, multipartConfig, webMvcConfiguration);
 
-        resolvers.add(new DefaultMultipartResolver(multipartConfiguration));
-        resolvers.add(new DefaultMultipartResolver.ArrayMultipartResolver(multipartConfiguration));
-        resolvers.add(new DefaultMultipartResolver.CollectionMultipartResolver(multipartConfiguration));
-        resolvers.add(new DefaultMultipartResolver.MapMultipartParameterResolver(multipartConfiguration));
+        resolvers.add(new DefaultMultipartResolver(multipartConfig));
+        resolvers.add(new DefaultMultipartResolver.ArrayMultipartResolver(multipartConfig));
+        resolvers.add(new DefaultMultipartResolver.CollectionMultipartResolver(multipartConfig));
+        resolvers.add(new DefaultMultipartResolver.MapMultipartParameterResolver(multipartConfig));
 
     }
 
@@ -260,6 +266,8 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         configureServlet(ctx, initializers);
         configureListener(ctx, initializers);
 
+        initializers.add(new WebApplicationServletContainerInitializer());
+
         super.configureInitializer(initializers, config);
     }
 
@@ -276,7 +284,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     {
 
         List<Filter> filters = applicationContext.getAnnotatedBeans(WebFilter.class);
-        for (Filter filter : filters) {
+        for (final Filter filter : filters) {
 
             final Class<?> beanClass = filter.getClass();
 
@@ -392,4 +400,36 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         }
     }
 
+    final class WebApplicationServletContainerInitializer implements WebApplicationInitializer {
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void onStartup(WebApplicationContext context) throws Throwable {
+
+            final List<ServletContainerInitializer> initializers = context.getBeans(ServletContainerInitializer.class);
+            final ServletContext servletContext = nonNull(getServletContext(), "Servlet context muist not be null");
+
+            for (final ServletContainerInitializer initializer : initializers) {
+                final HandlesTypes handles = ClassUtils.getAnnotation(initializer, HandlesTypes.class);
+
+                Set<Class<?>> c = null;
+                if (handles != null) {
+                    c = new HashSet<>();
+                    for (final Class<?> handlesType : handles.value()) {
+                        if (handlesType.isAnnotation()) {
+                            c.addAll(context.getCandidateComponentScanner().getAnnotatedClasses((Class<? extends Annotation>) handlesType));
+                        }
+                        else if (handlesType.isInterface()) {
+                            c.addAll(context.getCandidateComponentScanner().getImplementationClasses(handlesType));
+                        }
+                        else {
+                            c.add(handlesType);
+                        }
+                    }
+                }
+                initializer.onStartup(c, servletContext);
+            }
+        }
+
+    }
 }

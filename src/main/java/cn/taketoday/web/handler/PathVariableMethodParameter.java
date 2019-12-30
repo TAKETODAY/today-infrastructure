@@ -27,7 +27,6 @@ package cn.taketoday.web.handler;
 public class PathVariableMethodParameter extends MethodParameter {
 
     private final int pathIndex;
-
     private final String pathPattern;
 
     public PathVariableMethodParameter(int pathIndex, String pathPattern, HandlerMethod handlerMethod, MethodParameter other) {

@@ -19,8 +19,6 @@
  */
 package cn.taketoday.web.servlet;
 
-import static cn.taketoday.context.utils.ExceptionUtils.newConfigurationException;
-
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -29,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import cn.taketoday.context.AbstractApplicationContext;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.StandardWebBeanFactory;
 
@@ -41,7 +40,7 @@ public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
     public StandardWebServletBeanFactory(AbstractApplicationContext applicationContext) {
         super(applicationContext);
         if (applicationContext instanceof WebServletApplicationContext == false) {
-            throw newConfigurationException(null, "application context must be 'WebServletApplicationContext'");
+            throw new ConfigurationException("application context must be 'WebServletApplicationContext'");
         }
     }
 

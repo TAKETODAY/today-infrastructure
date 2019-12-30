@@ -26,6 +26,7 @@ import java.util.List;
 
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -193,7 +194,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
                 return result;
             }
         }
-        return StringUtils.enumerationToList(context.requestHeaderNames());
+        return CollectionUtils.enumerationToList(context.requestHeaderNames());
     }
 
 }

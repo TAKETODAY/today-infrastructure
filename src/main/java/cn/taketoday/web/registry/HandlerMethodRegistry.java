@@ -20,18 +20,20 @@
 package cn.taketoday.web.registry;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.context.utils.CollectionUtils.newHashSet;
 import static cn.taketoday.context.utils.ContextUtils.resolveValue;
+import static cn.taketoday.context.utils.StringUtils.checkUrl;
+import static java.util.Collections.addAll;
+import static java.util.Objects.requireNonNull;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -51,7 +53,6 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConcurrentCache;
 import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
@@ -187,9 +188,9 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
 
         if (ObjectUtils.isNotEmpty(controllerMapping)) {
             for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {
-                namespaces.add(StringUtils.checkUrl(value));
+                namespaces.add(checkUrl(value));
             }
-            Collections.addAll(methodsOnClass, controllerMapping.getAttribute("method", RequestMethod[].class));
+            addAll(methodsOnClass, controllerMapping.getAttribute("method", RequestMethod[].class));
         }
 
         for (final Method method : beanClass.getDeclaredMethods()) {
@@ -229,17 +230,6 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
     }
 
     /**
-     * create a hash set
-     * 
-     * @param elements
-     *            Elements instance
-     */
-    @SafeVarargs
-    public static <E> Set<E> newHashSet(E... elements) {
-        return new HashSet<>(Arrays.asList(elements));
-    }
-
-    /**
      * Mapping given HandlerMapping to {@link HandlerMethodRegistry}
      * 
      * @param handler
@@ -272,7 +262,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
                 // ---------------------------------
                 for (final RequestMethod requestMethod : requestMethods) {
 
-                    final String checkedUrl = StringUtils.checkUrl(urlOnMethod);
+                    final String checkedUrl = checkUrl(urlOnMethod);
                     if (exclude || emptyNamespaces) {
                         mappingHandlerMethod(checkedUrl, requestMethod, handler);
                     }
@@ -337,7 +327,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
      */
     protected void mappingPathVariable(final String pathPattern, final HandlerMethod handler) {
 
-        final List<MethodParameter> parameters = new ArrayList<>();
+        final List<MethodParameter> parameters = new LinkedList<>();
         final Map<String, MethodParameter> parameterMapping = new HashMap<>();
 
         final MethodParameter[] methodParameters = handler.getParameters();
@@ -402,13 +392,13 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
         // 设置类拦截器
         final Interceptor controllerInterceptors = controllerClass.getAnnotation(Interceptor.class);
         if (controllerInterceptors != null) {
-            Collections.addAll(ret, addInterceptors(controllerInterceptors.value()));
+            addAll(ret, addInterceptors(controllerInterceptors.value()));
         }
         // HandlerInterceptor on a method
         final Interceptor actionInterceptors = action.getAnnotation(Interceptor.class);
 
         if (actionInterceptors != null) {
-            Collections.addAll(ret, addInterceptors(actionInterceptors.value()));
+            addAll(ret, addInterceptors(actionInterceptors.value()));
             final ApplicationContext beanFactory = obtainApplicationContext();
             for (Class<? extends HandlerInterceptor> interceptor : actionInterceptors.exclude()) {
                 ret.remove(beanFactory.getBean(interceptor));
@@ -445,7 +435,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
                 }
             }
             final HandlerInterceptor instance = beanFactory.getBean(interceptor);
-            ret[i++] = Objects.requireNonNull(instance, "Can't get target interceptor bean");
+            ret[i++] = requireNonNull(instance, "Can't get target interceptor bean");
         }
         return ret;
     }
