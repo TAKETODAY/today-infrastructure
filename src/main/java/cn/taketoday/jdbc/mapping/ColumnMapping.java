@@ -51,7 +51,7 @@ import cn.taketoday.jdbc.mapping.result.ResultResolver;
  *         2019-08-21 18:53
  */
 public class ColumnMapping implements PropertyAccessor {
-    
+
     private static final Logger log = LoggerFactory.getLogger(ColumnMapping.class);
 
     // Field
@@ -175,8 +175,7 @@ public class ColumnMapping implements PropertyAccessor {
             }
         }
 
-        throw ExceptionUtils.newConfigurationException(null,
-                                                       "There isn't have a result resolver to resolve : [" + toString() + "]");
+        throw new ConfigurationException("There isn't have a result resolver to resolve : [" + toString() + "]");
     }
 
     public static void addResolver(ResultResolver... resolvers) {
