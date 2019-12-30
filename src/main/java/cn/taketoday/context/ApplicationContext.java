@@ -26,13 +26,15 @@ import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.listener.ApplicationEventPublisher;
+import cn.taketoday.context.loader.CandidateComponentScannerCapable;
 
 /**
  * 
  * @author TODAY <br>
  *         2018-06-23 16:39:36
  */
-public interface ApplicationContext extends ConfigurableBeanFactory, ApplicationEventPublisher, Closeable {
+public interface ApplicationContext
+        extends ConfigurableBeanFactory, ApplicationEventPublisher, Closeable, CandidateComponentScannerCapable {
 
     /**
      * Get {@link Environment}

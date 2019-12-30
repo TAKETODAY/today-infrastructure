@@ -87,9 +87,9 @@ public class CandidateComponentScanner {
         if (defaultIgnoreScanJarPrefixs != null) {
             return defaultIgnoreScanJarPrefixs;
         }
-        
+
         log.debug("Loading 'META-INF/ignore/jar-prefix'");
-        
+
         // Load the META-INF/ignore/jar-prefix to ignore some jars
         // --------------------------------------------------------------
         final Set<String> ignoreScanJars = new HashSet<>(64);
@@ -133,7 +133,7 @@ public class CandidateComponentScanner {
      *            annotation class
      * @return the set of class
      */
-    public Collection<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotationClass) {
+    public Set<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotationClass) {
         return filter(clazz -> clazz.isAnnotationPresent(annotationClass));
     }
 

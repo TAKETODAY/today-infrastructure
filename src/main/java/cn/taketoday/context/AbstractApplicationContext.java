@@ -785,6 +785,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // @since 2.1.7
     // ---------------------------
 
+    @Override
     public CandidateComponentScanner getCandidateComponentScanner() {
         final CandidateComponentScanner ret = this.candidateComponentScanner;
         if (ret == null) {
