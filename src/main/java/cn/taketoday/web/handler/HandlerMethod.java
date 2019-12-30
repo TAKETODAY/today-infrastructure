@@ -243,7 +243,10 @@ public class HandlerMethod extends InterceptableRequestHandler implements Result
 
     @Override
     protected Object handleInternal(final RequestContext context) throws Throwable {
-        return invokeHandler(context);
+        final Object[] args = resolveParameters(context);
+        return args == null
+                ? handlerInvoker.invoke(null, null)
+                : handlerInvoker.invoke(getObject(), args);
     }
 
     // -----------------------------------------
@@ -257,7 +260,7 @@ public class HandlerMethod extends InterceptableRequestHandler implements Result
     }
 
     @Override
-    public ResultHandler getResultHandler() {
+    public ResultHandler getHandler() {
         return resultHandler;
     }
 

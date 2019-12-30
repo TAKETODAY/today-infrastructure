@@ -23,7 +23,8 @@ package cn.taketoday.web.handler;
  * @author TODAY <br>
  *         2019-12-28 14:12
  */
+@FunctionalInterface
 public interface HandlerAdapterCapable {
 
-    HandlerAdapter getHandlerAdapter();
+    HandlerAdapter getAdapter();
 }

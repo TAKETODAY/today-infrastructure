@@ -71,7 +71,7 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
 
     public HandlerAdapter lookupHandlerAdapter(final Object handler) {
         if (handler instanceof HandlerAdapterCapable) {
-            return ((HandlerAdapterCapable) handler).getHandlerAdapter();
+            return ((HandlerAdapterCapable) handler).getAdapter();
         }
         for (final HandlerAdapter requestHandler : requestHandlers) {
             if (requestHandler.supports(handler)) {
@@ -83,7 +83,7 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
 
     public ResultHandler lookupResultHandler(final Object handler, final Object result) throws Throwable {
         if (handler instanceof ResultHandlerCapable) {
-            return ((ResultHandlerCapable) handler).getResultHandler();
+            return ((ResultHandlerCapable) handler).getHandler();
         }
         for (final RuntimeResultHandler resultHandler : resultHandlers) {
             if (resultHandler.supportsResult(result) || resultHandler.supports(handler)) {

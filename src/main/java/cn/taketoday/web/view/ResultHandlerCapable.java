@@ -23,10 +23,11 @@ package cn.taketoday.web.view;
  * @author TODAY <br>
  *         2019-12-28 14:15
  */
+@FunctionalInterface
 public interface ResultHandlerCapable {
 
     /**
      * @return must not be null
      */
-    ResultHandler getResultHandler();
+    ResultHandler getHandler();
 }
