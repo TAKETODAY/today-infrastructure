@@ -26,9 +26,9 @@ import java.time.Duration;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.framework.utils.ApplicationUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -67,7 +67,7 @@ public class SessionConfiguration {
             return storeDirectory.getFile();
         }
 
-        throw ExceptionUtils.newConfigurationException(null, "Store directory must be a 'directory'");
+        throw new ConfigurationException("Store directory must be a 'directory'");
     }
 
     public enum TrackingMode {
