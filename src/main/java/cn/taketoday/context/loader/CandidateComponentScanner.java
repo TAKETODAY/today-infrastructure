@@ -240,8 +240,8 @@ public class CandidateComponentScanner {
 
         final String resourceToUse = packageName.replace(PACKAGE_SEPARATOR, PATH_SEPARATOR);
 
-        if (log.isTraceEnabled()) {
-            log.trace("Scanning package: [{}]", packageName);
+        if (log.isDebugEnabled()) {
+            log.debug("Scanning package: [{}]", packageName);
         }
 
         try {
