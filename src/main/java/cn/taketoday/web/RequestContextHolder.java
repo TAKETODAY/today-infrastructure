@@ -17,21 +17,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.servlet;
+package cn.taketoday.web;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.net.HttpCookie;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.web.HttpHeaders;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
@@ -43,6 +42,8 @@ import cn.taketoday.web.ui.RedirectModel;
  * @since 2.3.7
  */
 public abstract class RequestContextHolder {
+
+    private static final RequestContext ApplicationNotStartedContext = new ApplicationNotStartedContext();
 
     private static final ThreadLocal<RequestContext> CURRENT_REQUEST_CONTEXT = new ThreadLocal<>();
 
@@ -56,8 +57,8 @@ public abstract class RequestContextHolder {
     }
 
     public static RequestContext currentContext() {
-        final RequestContext requestContext = CURRENT_REQUEST_CONTEXT.get();
-        return requestContext;
+        final RequestContext ret = CURRENT_REQUEST_CONTEXT.get();
+        return ret == null ? ApplicationNotStartedContext : ret;
     }
 
     public static <T> T currentRequest() {
@@ -72,136 +73,114 @@ public abstract class RequestContextHolder {
         return currentContext().nativeSession();
     }
 
-    class EmptyRequestContext implements RequestContext {
+    @SuppressWarnings("serial")
+    static class ApplicationNotStartedContext implements RequestContext, Serializable {
 
         @Override
         public Model attributes(Map<String, Object> attributes) {
-
             return null;
         }
 
         @Override
         public Enumeration<String> attributes() {
-
             return null;
         }
 
         @Override
         public Object attribute(String name) {
-
             return null;
         }
 
         @Override
         public <T> T attribute(String name, Class<T> targetClass) {
-
             return null;
         }
 
         @Override
         public Model attribute(String name, Object value) {
-
             return null;
         }
 
         @Override
         public Model removeAttribute(String name) {
-
             return null;
         }
 
         @Override
         public Map<String, Object> asMap() {
-
             return null;
         }
 
         @Override
-        public void clear() {
-
-        }
+        public void clear() {}
 
         @Override
         public String requestHeader(String name) {
-
             return null;
         }
 
         @Override
         public Enumeration<String> requestHeaders(String name) {
-
             return null;
         }
 
         @Override
         public Enumeration<String> requestHeaderNames() {
-
             return null;
         }
 
         @Override
         public int requestIntHeader(String name) {
-
             return 0;
         }
 
         @Override
         public long requestDateHeader(String name) {
-
             return 0;
         }
 
         @Override
         public String contentType() {
-
             return null;
         }
 
         @Override
         public String responseHeader(String name) {
-
             return null;
         }
 
         @Override
         public Collection<String> responseHeaders(String name) {
-
             return null;
         }
 
         @Override
         public Collection<String> responseHeaderNames() {
-
             return null;
         }
 
         @Override
         public HttpHeaders responseHeader(String name, String value) {
-
             return null;
         }
 
         @Override
         public HttpHeaders addResponseHeader(String name, String value) {
-
             return null;
         }
 
         @Override
         public HttpHeaders responseDateHeader(String name, long date) {
-
             return null;
         }
 
         @Override
         public HttpHeaders addResponseDateHeader(String name, long date) {
-
             return null;
         }
 
         @Override
         public HttpHeaders responseIntHeader(String name, int value) {
-
             return null;
         }
 
@@ -216,8 +195,7 @@ public abstract class RequestContextHolder {
         }
 
         @Override
-        public void flush() throws IOException {
-        }
+        public void flush() throws IOException {}
 
         @Override
         public String contextPath() {
@@ -424,5 +402,9 @@ public abstract class RequestContextHolder {
             return null;
         }
 
+        @Override
+        public String toString() {
+            return "Application has not been started";
+        }
     }
 }
