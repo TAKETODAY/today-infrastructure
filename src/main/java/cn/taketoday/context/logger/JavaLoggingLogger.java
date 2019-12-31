@@ -24,8 +24,8 @@ import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.ResourceUtils;
 
 /**
  * @author TODAY <br>
@@ -147,7 +147,8 @@ public class JavaLoggingLogger extends AbstractLogger {
 class JavaLoggingFactory extends LoggerFactory {
 
     static {
-        final Resource resource = ResourceUtils.getResource("classpath:logging.properties");
+        final Resource resource = new ClassPathResource("logging.properties",
+                                                        Thread.currentThread().getContextClassLoader());
         if (resource.exists()) {
             try {
                 LogManager.getLogManager().readConfiguration(resource.getInputStream());
