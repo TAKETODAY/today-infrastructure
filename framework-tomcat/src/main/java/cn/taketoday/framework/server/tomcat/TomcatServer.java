@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.PreDestroy;
 import javax.naming.NamingException;
 import javax.servlet.Servlet;
+import javax.servlet.ServletContainerInitializer;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
@@ -61,12 +62,12 @@ import org.apache.catalina.util.StandardSessionIdGenerator;
 import org.apache.coyote.ProtocolHandler;
 import org.apache.coyote.http11.AbstractHttp11Protocol;
 import org.apache.coyote.http2.Http2Protocol;
-import org.apache.jasper.servlet.JasperInitializer;
 import org.apache.naming.ContextBindings;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -417,15 +418,28 @@ public class TomcatServer extends AbstractServletWebServer {
         loader.setDelegate(true);
         context.setLoader(loader);
 
-        final JspServletConfiguration jspServletConfiguration = getJspServletConfiguration();
-        if (jspServletConfiguration != null && jspServletConfiguration.isEnable()) {
-            context.addServletContainerInitializer(new JasperInitializer(), null);
-        }
+        configureJasperInitializer(context);
 
         host.addChild(context);
 
         context.addServletContainerInitializer(starter, Collections.emptySet());
         configureTomcatContext(context);
+    }
+
+    protected void configureJasperInitializer(TomcatEmbeddedContext context) {
+        
+        final JspServletConfiguration jspServletConfiguration = getJspServletConfiguration();
+        if (jspServletConfiguration != null && jspServletConfiguration.isEnable()) {
+            // org.apache.jasper.servlet.JasperInitializer
+            final Class<ServletContainerInitializer> jasperInitializer = //
+                    ClassUtils.loadClass("org.apache.jasper.servlet.JasperInitializer");
+            if (jasperInitializer != null) {
+                context.addServletContainerInitializer(ClassUtils.newInstance(jasperInitializer), null);
+            }
+            else {
+                throw new ConfigurationException("jasperInitializer");
+            }
+        }
     }
 
     /**
