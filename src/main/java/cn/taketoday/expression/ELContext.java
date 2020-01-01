@@ -17,9 +17,7 @@
 
 package cn.taketoday.expression;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
@@ -80,8 +78,6 @@ import cn.taketoday.context.utils.ConvertUtils;
  * never share an <code>ELContext</code> instance between two or more threads.
  * </p>
  *
- * @see ELContextListener
- * @see ELContextEvent
  * @see ELResolver
  * @see FunctionMapper
  * @see VariableMapper
@@ -95,7 +91,6 @@ public abstract class ELContext {
 
     private boolean resolved;
     private HashMap<Class<?>, Object> map;
-    private List<EvaluationListener> listeners;
     private Stack<Map<String, Object>> lambdaArgs;
 
     /**
@@ -106,7 +101,7 @@ public abstract class ELContext {
     /**
      * Called to indicate that a <code>ELResolver</code> has successfully resolved a
      * given (base, property) pair. Use {@link #setPropertyResolved(Object, Object)}
-     * if resolved is true and to notify {@link EvaluationListener}s.
+     * if resolved is true.
      *
      * <p>
      * The {@link CompositeELResolver} checks this property to determine whether it
@@ -123,7 +118,7 @@ public abstract class ELContext {
 
     /**
      * Called to indicate that a <code>ELResolver</code> has successfully resolved a
-     * given (base, property) pair and to notify the {@link EvaluationListener}s.
+     * given (base, property) pair.
      *
      * <p>
      * The {@link CompositeELResolver} checks this property to determine whether it
@@ -139,9 +134,7 @@ public abstract class ELContext {
      * @since EL 3.0
      */
     public void setPropertyResolved(Object base, Object property) {
-        setPropertyResolved(true); // Don't set the variable here, for 2.2 users
-                                   // ELContext may be overridden or delegated.
-        notifyPropertyResolved(base, property);
+        setPropertyResolved(true); // Don't set the variable here, for 2.2 users ELContext may be overridden or delegated.
     }
 
     /**
@@ -299,78 +292,6 @@ public abstract class ELContext {
      *         variables.
      */
     public abstract VariableMapper getVariableMapper();
-
-    /**
-     * Registers an evaluation listener to the ELContext.
-     *
-     * @param listener
-     *            The listener to be added.
-     *
-     * @since EL 3.0
-     */
-    public void addEvaluationListener(EvaluationListener listener) {
-        if (listeners == null) {
-            listeners = new ArrayList<>();
-        }
-        listeners.add(listener);
-    }
-
-    /**
-     * Returns the list of registered evaluation listeners.
-     * 
-     * @return The list of registered evaluation listeners.
-     * @since EL 3.0
-     */
-    public List<EvaluationListener> getEvaluationListeners() {
-        if (listeners == null) {
-            return new ArrayList<>();
-        }
-        return listeners;
-    }
-
-    /**
-     * Notifies the listeners before an EL expression is evaluated
-     * 
-     * @param expr
-     *            The EL expression string to be evaluated
-     */
-    public void notifyBeforeEvaluation(String expr) {
-        if (listeners != null) {
-            for (EvaluationListener listener : listeners) {
-                listener.beforeEvaluation(this, expr);
-            }
-        }
-    }
-
-    /**
-     * Notifies the listeners after an EL expression is evaluated
-     * 
-     * @param expr
-     *            The EL expression string that has been evaluated
-     */
-    public void notifyAfterEvaluation(String expr) {
-        if (listeners != null) {
-            for (EvaluationListener listener : listeners) {
-                listener.afterEvaluation(this, expr);
-            }
-        }
-    }
-
-    /**
-     * Notifies the listeners when the (base, property) pair is resolved
-     * 
-     * @param base
-     *            The base object
-     * @param property
-     *            The property Object
-     */
-    public void notifyPropertyResolved(Object base, Object property) {
-        if (listeners != null) {
-            for (EvaluationListener listener : listeners) {
-                listener.propertyResolved(this, base, property);
-            }
-        }
-    }
 
     /**
      * Inquires if the name is a LambdaArgument

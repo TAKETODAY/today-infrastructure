@@ -156,19 +156,17 @@ public final class MethodExpressionImpl extends MethodExpression {
      * @see cn.taketoday.expression.MethodExpression#getMethodInfo(cn.taketoday.expression.ELContext)
      */
     public MethodInfo getMethodInfo(ELContext context)
-            throws PropertyNotFoundException, MethodNotFoundException, ELException {
-
-        context.notifyBeforeEvaluation(expr);
-        final MethodInfo ret = this.getNode().getMethodInfo(new EvaluationContext(context), this.paramTypes);
-        context.notifyAfterEvaluation(expr);
-        return ret;
+            throws PropertyNotFoundException, MethodNotFoundException, ELException//
+    {
+        return getNode().getMethodInfo(new EvaluationContext(context), this.paramTypes);
     }
 
-    private Node getNode() throws ELException {
-        if (this.node == null) {
-            this.node = ExpressionFactory.createNode(this.expr);
+    private final Node getNode() throws ELException {
+        final Node node = this.node;
+        if (node == null) {
+            return this.node = ExpressionFactory.createNode(this.expr);
         }
-        return this.node;
+        return node;
     }
 
     /**
@@ -219,13 +217,12 @@ public final class MethodExpressionImpl extends MethodExpression {
      *             is an <code>InvocationTargetException</code>, extract its
      *             <code>cause</code> and pass it to the <code>ELException</code>
      *             constructor.
-     * @see cn.taketoday.expression.MethodExpression#invoke(cn.taketoday.expression.ELContext, java.lang.Object[])
+     * @see cn.taketoday.expression.MethodExpression#invoke(cn.taketoday.expression.ELContext,
+     *      java.lang.Object[])
      */
     public Object invoke(final ELContext context, Object[] params) throws PropertyNotFoundException, //
             MethodNotFoundException, ELException //
     {
-        context.notifyBeforeEvaluation(this.expr);
-
         Object value = this.getNode().invoke(new EvaluationContext(context), this.paramTypes, params);
 
         final Class<?> expectedType = this.expectedType;
@@ -237,8 +234,6 @@ public final class MethodExpressionImpl extends MethodExpression {
                 throw new ELException(ex);
             }
         }
-
-        context.notifyAfterEvaluation(this.expr);
 
         return value;
     }

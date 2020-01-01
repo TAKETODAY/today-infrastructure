@@ -19,13 +19,11 @@
  */
 package cn.taketoday.expression.lang;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.expression.ELContext;
 import cn.taketoday.expression.ELResolver;
-import cn.taketoday.expression.EvaluationListener;
 import cn.taketoday.expression.FunctionMapper;
 import cn.taketoday.expression.ImportHandler;
 import cn.taketoday.expression.VariableMapper;
@@ -99,31 +97,6 @@ public final class EvaluationContext extends ELContext {
     @Override
     public ImportHandler getImportHandler() {
         return elContext.getImportHandler();
-    }
-
-    @Override
-    public void addEvaluationListener(EvaluationListener listener) {
-        elContext.addEvaluationListener(listener);
-    }
-
-    @Override
-    public List<EvaluationListener> getEvaluationListeners() {
-        return elContext.getEvaluationListeners();
-    }
-
-    @Override
-    public void notifyBeforeEvaluation(String expression) {
-        elContext.notifyBeforeEvaluation(expression);
-    }
-
-    @Override
-    public void notifyAfterEvaluation(String expression) {
-        elContext.notifyAfterEvaluation(expression);
-    }
-
-    @Override
-    public void notifyPropertyResolved(Object base, Object property) {
-        elContext.notifyPropertyResolved(base, property);
     }
 
     @Override

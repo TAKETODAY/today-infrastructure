@@ -191,14 +191,4 @@ public class ExpressionManager {
     public Object defineBean(String name, Object bean) {
         return getELContext().getBeans().put(name, bean);
     }
-
-    /**
-     * Register an evaluation listener.
-     *
-     * @param listener
-     *            The evaluation listener to be added.
-     */
-    public void addEvaluationListener(EvaluationListener listener) {
-        getELContext().addEvaluationListener(listener);
-    }
 }
