@@ -19,11 +19,9 @@
  */
 package cn.taketoday.web.view.template;
 
-import java.beans.FeatureDescriptor;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.Iterator;
 import java.util.Objects;
 
 import cn.taketoday.context.annotation.Props;
@@ -34,7 +32,6 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.expression.CompositeELResolver;
 import cn.taketoday.expression.ELContext;
 import cn.taketoday.expression.ELResolver;
-import cn.taketoday.expression.EvaluationListener;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.FunctionMapper;
@@ -164,20 +161,6 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
             setPropertyResolved(true);
         }
 
-        @Override
-        public void addEvaluationListener(EvaluationListener listener) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void notifyAfterEvaluation(String expr) {}
-
-        @Override
-        public void notifyBeforeEvaluation(String expr) {}
-
-        @Override
-        public void notifyPropertyResolved(Object base, Object property) {}
-
     }
 
     /**
@@ -242,14 +225,6 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
             return false;
         }
 
-        public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-            return null;
-        }
-
-        @Override
-        public Class<?> getCommonPropertyType(ELContext context, Object base) {
-            return String.class;
-        }
     }
 
 }
