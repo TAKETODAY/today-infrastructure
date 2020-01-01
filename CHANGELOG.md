@@ -67,8 +67,21 @@
 	4. :zap: 优化默认模板处理器DefaultTemplateViewResolver（原名DefaultViewResolver）
 	5. :zap: 优化WebApplicationLoader
 	6. :art: 更正了类名称和包名
-
-
+- :hammer: 重大重构
+	1. :fire: 舍弃WebMapping
+	2. :sparkles: 添加WebServletApplicationContextSupport
+	3. :fire: 舍弃ViewDispatcher修改为ViewController
+	4. :sparkles: 添加NotFoundRequestAdapter处理handler找不到的情况
+	5. :zap: 优化ModelAndView
+	6. :sparkles: MimeType
+	7. :sparkles: MediaType
+	8. :sparkles: 使用HandlerRegistry映射handler
+	9. :sparkles: 使用HandlerAdapter适配handler
+	10. :zap: 优化HandlerInterceptor
+	11. :fire: 删除HandlerInterceptorRegistry
+	12. :zap: 优化HandlerMethod
+	13. :sparkles: 添加ResultHandler
+	14. :sparkles: 使用PatternMapping映射
 
 
 ## v2.3.6
