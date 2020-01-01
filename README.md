@@ -365,7 +365,7 @@ public class DispatcherServlet implements Servlet, Serializable {
 
     @Override
     public String getServletInfo() {
-        return "DispatcherServlet, Copyright © TODAY & 2017 - 2019 All Rights Reserved";
+        return "DispatcherServlet, Copyright © TODAY & 2017 - 2020 All Rights Reserved";
     }
 
     @Override
