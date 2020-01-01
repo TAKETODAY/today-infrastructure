@@ -7,27 +7,68 @@
 
 ```java
 
-@RestController
+@Slf4j
+@Configuration
+@RequestMapping
+@ContextListener
+@EnableHotReload
+@EnableDefaultMybatis
+@EnableRedissonCaching
+@Import({ TomcatServer.class })
+@ComponentScan("cn.taketoday.blog")
 @PropertiesSource("classpath:info.properties")
-public class TestApplication implements WebMvcConfiguration {
+@MultipartConfig(maxFileSize = 10240000, fileSizeThreshold = 1000000000, maxRequestSize = 1024000000)
+public class TestApplication implements WebMvcConfiguration, ApplicationListener<ContextStartedEvent> {
 
     public static void main(String[] args) {
         WebApplication.run(TestApplication.class, args);
     }
 
     @GET("index/{q}")
-    public String index(@PathVariable String q, HttpSession httpSession) {
+    public String index(String q) {
         return q;
+    }
+    
+    @Singleton
+    @Profile("prod")
+    public ResourceHandlerRegistry prodResourceMappingRegistry() {
+
+        final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
+
+        registry.addResourceMapping(LoginInterceptor.class)//
+                .setPathPatterns("/assets/admin/**")//
+                .setOrder(Ordered.HIGHEST_PRECEDENCE)//
+                .addLocations("/assets/admin/");
+
+        return registry;
+    }
+    
+	@Singleton
+    @Profile("dev")
+    public ResourceHandlerRegistry devRsourceMappingRegistry(@Env("site.uploadPath") String upload,
+                                                             @Env("site.assetsPath") String assetsPath) //
+    {
+        final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
+
+        registry.addResourceMapping("/assets/**")//
+                .addLocations(assetsPath);
+
+        registry.addResourceMapping("/upload/**")//
+                .addLocations(upload);
+
+        registry.addResourceMapping("/logo.png")//
+                .addLocations("file:///D:/dev/www.yhj.com/webapps/assets/images/logo.png");
+
+        registry.addResourceMapping("/favicon.ico")//
+                .addLocations("classpath:/favicon.ico");
+
+        return registry;
     }
 
     @Override
-    public void configureResourceMappings(ResourceMappingRegistry registry) {
-
-        registry.addResourceMapping("/assets/**")//
-                .addLocations("classpath:assets/");
-
+    public void onApplicationEvent(ContextStartedEvent event) {
+        log.info("----------------Application Started------------------");
     }
-
 }
 ```
 
