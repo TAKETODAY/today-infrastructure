@@ -61,7 +61,7 @@ public class CollectionParameterResolver implements ParameterResolver {
     }
 
     protected List<?> resolveList(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-        
+
         final String parameterName = parameter.getName();
         final List<Object> list = new ParamList<>();
         final Class<?> clazz = (Class<?>) parameter.getGenericityClass()[0];

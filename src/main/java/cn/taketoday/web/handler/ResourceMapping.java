@@ -235,7 +235,7 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
         StringBuilder builder = new StringBuilder();
         builder.append("[interceptors=")
                 .append(Arrays.toString(interceptors))
-                .append(", cacheControl=") .append(cacheControl)
+                .append(", cacheControl=").append(cacheControl)
                 .append(", gzip=").append(gzip)
                 .append(", gzipMinLength=").append(gzipMinLength)
                 .append(", bufferSize=").append(bufferSize)

@@ -328,9 +328,9 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         resolvers.add(new StreamParameterResolver());
 
         final PathMatcher pathMatcher = context.getBean(HandlerMethodRegistry.class).getPathMatcher();
-        
+
         resolvers.add(new PathVariableParameterResolver(pathMatcher));
-        
+
         final MessageConverter messageConverter = context.getBean(MessageConverter.class);
         resolvers.add(new RequestBodyParameterResolver(messageConverter));
         resolvers.add(new ThrowableHandlerParameterResolver());

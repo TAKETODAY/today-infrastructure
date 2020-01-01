@@ -216,8 +216,7 @@ public abstract class RequestContextHolder {
         }
 
         @Override
-        public void flush() throws IOException {
-        }
+        public void flush() throws IOException {}
 
         @Override
         public String contextPath() {

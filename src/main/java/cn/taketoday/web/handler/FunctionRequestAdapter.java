@@ -32,7 +32,7 @@ public class FunctionRequestAdapter extends AbstractHandlerAdapter {
     public FunctionRequestAdapter(int order) {
         setOrder(order);
     }
-    
+
     @Override
     public boolean supports(Object handler) {
         return handler instanceof FunctionHandler;

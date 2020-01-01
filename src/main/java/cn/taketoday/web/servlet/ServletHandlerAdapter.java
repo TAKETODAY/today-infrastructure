@@ -28,7 +28,7 @@ import cn.taketoday.web.handler.AbstractHandlerAdapter;
 
 /**
  * @author TODAY <br>
- * 		   2019-12-24 22:01
+ *         2019-12-24 22:01
  */
 @ConditionalOnClass(Constant.ENV_SERVLET)
 public class ServletHandlerAdapter extends AbstractHandlerAdapter {
@@ -40,7 +40,7 @@ public class ServletHandlerAdapter extends AbstractHandlerAdapter {
 
     @Override
     public Object handle(RequestContext context, Object handler) throws Throwable {
-        ((Servlet)handler).service(context.nativeRequest(), context.nativeResponse());
+        ((Servlet) handler).service(context.nativeRequest(), context.nativeResponse());
         return NONE_RETURN_VALUE;
     }
 

@@ -42,7 +42,6 @@ import cn.taketoday.web.ui.RedirectModel;
  */
 public /*abstract*/ class Controller implements RequestContext {
 
-
     public RequestContext getRequestContext() {
         return RequestContextHolder.currentContext();
     }
@@ -105,7 +104,7 @@ public /*abstract*/ class Controller implements RequestContext {
     @Override
     public void clear() {
         // TODO 自动生成的方法存根
-        
+
     }
 
     @Override
@@ -207,7 +206,7 @@ public /*abstract*/ class Controller implements RequestContext {
     @Override
     public void flush() throws IOException {
         // TODO 自动生成的方法存根
-        
+
     }
 
     @Override

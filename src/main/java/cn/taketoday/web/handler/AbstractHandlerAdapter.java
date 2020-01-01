@@ -33,7 +33,7 @@ public abstract class AbstractHandlerAdapter extends OrderedSupport implements H
     public AbstractHandlerAdapter(int order) {
         super(order);
     }
-    
+
     @Override
     public long getLastModified(final RequestContext context, final Object handler) {
         if (handler instanceof LastModified) {

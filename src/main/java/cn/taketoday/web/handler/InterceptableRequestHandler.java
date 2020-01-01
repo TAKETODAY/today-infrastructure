@@ -40,12 +40,11 @@ public abstract class InterceptableRequestHandler
 
     private static final Logger log = LoggerFactory.getLogger(InterceptableRequestHandler.class);
 
-    /** 拦截器 */  
+    /** 拦截器 */
     private HandlerInterceptor[] interceptors;
 
     public InterceptableRequestHandler() {}
 
-    
     public InterceptableRequestHandler(HandlerInterceptor[] interceptors) {
         setInterceptors(interceptors);
     }

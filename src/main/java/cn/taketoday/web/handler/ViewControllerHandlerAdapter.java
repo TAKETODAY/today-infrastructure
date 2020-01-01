@@ -33,7 +33,7 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
     public ViewControllerHandlerAdapter(int order) {
         setOrder(order);
     }
-    
+
     @Override
     public boolean supports(Object handler) {
         return handler instanceof ViewController;

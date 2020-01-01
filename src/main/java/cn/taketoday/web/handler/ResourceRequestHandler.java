@@ -249,7 +249,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     public ResourceMapping getMapping() {
         return mapping;
     }
-    
+
     @Override
     public String toString() {
         return mapping.toString();

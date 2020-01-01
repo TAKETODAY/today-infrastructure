@@ -34,12 +34,12 @@ import lombok.Getter;
 public class ResourceMappingMatchResult implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     private final String requestPath;
     private final String matchedPattern;
     private final PathMatcher pathMatcher;
     private final ResourceRequestHandler handler;
-    
+
     public final ResourceMapping getMapping() {
         return handler.getMapping();
     }

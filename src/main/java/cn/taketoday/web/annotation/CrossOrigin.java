@@ -57,7 +57,6 @@ import cn.taketoday.web.cors.CorsConfiguration;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CrossOrigin {
 
-
     /**
      * The list of allowed origins that be specific origins, e.g.
      * {@code "https://domain1.com"}, or {@code "*"} for all origins.

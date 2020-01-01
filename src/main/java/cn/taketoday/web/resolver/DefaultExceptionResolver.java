@@ -68,7 +68,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
             else {
                 resolveException(ex, context);
             }
-            
+
             if (log.isDebugEnabled()) {
                 log.debug("Catch Throwable: [{}]", ex.toString(), ex);
             }

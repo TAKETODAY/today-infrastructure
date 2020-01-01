@@ -96,7 +96,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
      * @return Current response status
      */
     protected ResponseStatus buildStatus(final Throwable ex,
-                                         final ThrowableHandlerMethod exceptionHandler, 
+                                         final ThrowableHandlerMethod exceptionHandler,
                                          final HandlerMethod targetHandler) //
     {
         // ResponseStatus on Target handler

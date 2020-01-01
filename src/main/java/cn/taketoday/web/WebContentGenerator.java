@@ -21,7 +21,7 @@ package cn.taketoday.web;
 
 /**
  * @author TODAY <br>
- * 		   2019-12-24 12:40
+ *         2019-12-24 12:40
  */
 public class WebContentGenerator {
 
