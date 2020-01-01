@@ -231,7 +231,7 @@ public class StandardELContext extends ELContext {
 
     private final static class DefaultVariableMapper extends VariableMapper {
 
-        private final Map<String, ValueExpression> variables = new HashMap<>(16, 1.0f);
+        private final Map<String, ValueExpression> variables = new HashMap<>();
 
         @Override
         public ValueExpression resolveVariable(String variable) {

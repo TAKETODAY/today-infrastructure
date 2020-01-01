@@ -40,9 +40,6 @@
 
 package cn.taketoday.expression;
 
-import java.beans.FeatureDescriptor;
-import java.util.Iterator;
-
 /**
  * A convenient class for writing an ELResolver to do custom type conversions.
  *
@@ -86,16 +83,6 @@ public abstract class TypeConverter extends ELResolver {
     @Override
     public boolean isReadOnly(ELContext context, Object base, Object property) {
         return false;
-    }
-
-    @Override
-    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        return null;
-    }
-
-    @Override
-    public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        return null;
     }
 
     /**

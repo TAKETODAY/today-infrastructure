@@ -17,8 +17,6 @@
 
 package cn.taketoday.expression;
 
-import java.beans.FeatureDescriptor;
-import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -509,90 +507,6 @@ public class CompositeELResolver extends ELResolver {
         return false; // Does not matter
     }
 
-    /**
-     * Returns information about the set of variables or properties that can be
-     * resolved for the given <code>base</code> object. One use for this method is
-     * to assist tools in auto-completion. The results are collected from all
-     * component resolvers.
-     *
-     * <p>
-     * The <code>propertyResolved</code> property of the <code>ELContext</code> is
-     * not relevant to this method. The results of all <code>ELResolver</code>s are
-     * concatenated.
-     * </p>
-     *
-     * <p>
-     * The <code>Iterator</code> returned is an iterator over the collection of
-     * <code>FeatureDescriptor</code> objects returned by the iterators returned by
-     * each component resolver's <code>getFeatureDescriptors</code> method. If
-     * <code>null</code> is returned by a resolver, it is skipped.
-     * </p>
-     * 
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The base object whose set of valid properties is to be enumerated,
-     *            or <code>null</code> to enumerate the set of top-level variables
-     *            that this resolver can evaluate.
-     * @return An <code>Iterator</code> containing zero or more (possibly infinitely
-     *         more) <code>FeatureDescriptor</code> objects, or <code>null</code> if
-     *         this resolver does not handle the given <code>base</code> object or
-     *         that the results are too complex to represent with this method
-     */
-    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        return new CompositeIterator(elResolvers, size, context, base);
-    }
-
-    /**
-     * Returns the most general type that this resolver accepts for the
-     * <code>property</code> argument, given a <code>base</code> object. One use for
-     * this method is to assist tools in auto-completion. The result is obtained by
-     * querying all component resolvers.
-     *
-     * <p>
-     * The <code>Class</code> returned is the most specific class that is a common
-     * superclass of all the classes returned by each component resolver's
-     * <code>getCommonPropertyType</code> method. If <code>null</code> is returned
-     * by a resolver, it is skipped.
-     * </p>
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The base object to return the most general property type for, or
-     *            <code>null</code> to enumerate the set of top-level variables that
-     *            this resolver can evaluate.
-     * @return <code>null</code> if this <code>ELResolver</code> does not know how
-     *         to handle the given <code>base</code> object; otherwise
-     *         <code>Object.class</code> if any type of <code>property</code> is
-     *         accepted; otherwise the most general <code>property</code> type
-     *         accepted for the given <code>base</code>.
-     */
-    public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        Class<?> commonPropertyType = null;
-
-        final int size = this.size;
-        if (size > 0) {
-            final ELResolver[] elResolvers = this.elResolvers;
-            for (int i = 0; i < size; i++) {
-                Class<?> type = elResolvers[i].getCommonPropertyType(context, base);
-                if (type == null) {
-                    // skip this EL Resolver
-                    continue;
-                }
-                else if (commonPropertyType == null) {
-                    commonPropertyType = type;
-                }
-                else if (commonPropertyType.isAssignableFrom(type)) {
-                    continue;
-                }
-                else if (type.isAssignableFrom(commonPropertyType)) {
-                    commonPropertyType = type;
-                }
-            }
-        }
-        return commonPropertyType;
-    }
 
     /**
      * Converts an object to a specific type.
@@ -630,52 +544,4 @@ public class CompositeELResolver extends ELResolver {
         return null;
     }
 
-    private static class CompositeIterator implements Iterator<FeatureDescriptor> {
-
-        private int index = 0;
-        private final int size;
-        private final Object base;
-        private final ELContext context;
-        private final ELResolver[] resolvers;
-        private Iterator<FeatureDescriptor> propertyIter = null;
-
-        CompositeIterator(ELResolver[] resolvers, int size, ELContext context, Object base) {
-            this.resolvers = resolvers;
-            this.size = size;
-            this.context = context;
-            this.base = base;
-        }
-
-        public boolean hasNext() {
-            if (propertyIter == null || !propertyIter.hasNext()) {
-                while (index < size) {
-                    ELResolver elResolver = resolvers[index++];
-                    propertyIter = elResolver.getFeatureDescriptors(context, base);
-                    if (propertyIter != null) {
-                        return propertyIter.hasNext();
-                    }
-                }
-                return false;
-            }
-            return propertyIter.hasNext();
-        }
-
-        public FeatureDescriptor next() {
-            if (propertyIter == null || !propertyIter.hasNext()) {
-                while (index < size) {
-                    ELResolver elResolver = resolvers[index++];
-                    propertyIter = elResolver.getFeatureDescriptors(context, base);
-                    if (propertyIter != null) {
-                        return propertyIter.next();
-                    }
-                }
-                return null;
-            }
-            return propertyIter.next();
-        }
-
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-    }
 }

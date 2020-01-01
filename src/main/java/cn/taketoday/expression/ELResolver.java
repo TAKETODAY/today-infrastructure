@@ -17,9 +17,6 @@
 
 package cn.taketoday.expression;
 
-import java.beans.FeatureDescriptor;
-import java.util.Iterator;
-
 /**
  * Enables customization of variable, property, method call, and type conversion
  * resolution behavior for EL expression evaluation.
@@ -334,105 +331,6 @@ public abstract class ELResolver {
      *             cause property of this exception, if available.
      */
     public abstract boolean isReadOnly(ELContext context, Object base, Object property);
-
-    /**
-     * Returns information about the set of variables or properties that can be
-     * resolved for the given <code>base</code> object. One use for this method is
-     * to assist tools in auto-completion.
-     *
-     * <p>
-     * If the <code>base</code> parameter is <code>null</code>, the resolver must
-     * enumerate the list of top-level variables it can resolve.
-     * </p>
-     *
-     * <p>
-     * The <code>Iterator</code> returned must contain zero or more instances of
-     * {@link java.beans.FeatureDescriptor}, in no guaranteed order. In the case of
-     * primitive types such as <code>int</code>, the value <code>null</code> must be
-     * returned. This is to prevent the useless iteration through all possible
-     * primitive values. A return value of <code>null</code> indicates that this
-     * resolver does not handle the given <code>base</code> object or that the
-     * results are too complex to represent with this method and the
-     * {@link #getCommonPropertyType} method should be used instead.
-     * </p>
-     *
-     * <p>
-     * Each <code>FeatureDescriptor</code> will contain information about a single
-     * variable or property. In addition to the standard properties, the
-     * <code>FeatureDescriptor</code> must have two named attributes (as set by the
-     * <code>setValue</code> method):
-     * <ul>
-     * <li>{@link #TYPE} - The value of this named attribute must be an instance of
-     * <code>java.lang.Class</code> and specify the runtime type of the variable or
-     * property.</li>
-     * <li>{@link #RESOLVABLE_AT_DESIGN_TIME} - The value of this named attribute
-     * must be an instance of <code>java.lang.Boolean</code> and indicates whether
-     * it is safe to attempt to resolve this property at design-time. For instance,
-     * it may be unsafe to attempt a resolution at design time if the
-     * <code>ELResolver</code> needs access to a resource that is only available at
-     * runtime and no acceptable simulated value can be provided.</li>
-     * </ul>
-     * </p>
-     *
-     * <p>
-     * The caller should be aware that the <code>Iterator</code> returned might
-     * iterate through a very large or even infinitely large set of properties. Care
-     * should be taken by the caller to not get stuck in an infinite loop.
-     * </p>
-     *
-     * <p>
-     * This is a "best-effort" list. Not all <code>ELResolver</code>s will return
-     * completely accurate results, but all must be callable at both design-time and
-     * runtime (i.e. whether or not <code>Beans.isDesignTime()</code> returns
-     * <code>true</code>), without causing errors.
-     * </p>
-     *
-     * <p>
-     * The <code>propertyResolved</code> property of the <code>ELContext</code> is
-     * not relevant to this method. The results of all <code>ELResolver</code>s are
-     * concatenated in the case of composite resolvers.
-     * </p>
-     * 
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The base object whose set of valid properties is to be enumerated,
-     *            or <code>null</code> to enumerate the set of top-level variables
-     *            that this resolver can evaluate.
-     * @return An <code>Iterator</code> containing zero or more (possibly infinitely
-     *         more) <code>FeatureDescriptor</code> objects, or <code>null</code> if
-     *         this resolver does not handle the given <code>base</code> object or
-     *         that the results are too complex to represent with this method
-     * @see java.beans.FeatureDescriptor
-     */
-    public abstract Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base);
-
-    /**
-     * Returns the most general type that this resolver accepts for the
-     * <code>property</code> argument, given a <code>base</code> object. One use for
-     * this method is to assist tools in auto-completion.
-     *
-     * <p>
-     * This assists tools in auto-completion and also provides a way to express that
-     * the resolver accepts a primitive value, such as an integer index into an
-     * array. For example, the {@link ArrayELResolver} will accept any
-     * <code>int</code> as a <code>property</code>, so the return value would be
-     * <code>Integer.class</code>.
-     * </p>
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The base object to return the most general property type for, or
-     *            <code>null</code> to enumerate the set of top-level variables that
-     *            this resolver can evaluate.
-     * @return <code>null</code> if this <code>ELResolver</code> does not know how
-     *         to handle the given <code>base</code> object; otherwise
-     *         <code>Object.class</code> if any type of <code>property</code> is
-     *         accepted; otherwise the most general <code>property</code> type
-     *         accepted for the given <code>base</code>.
-     */
-    public abstract Class<?> getCommonPropertyType(ELContext context, Object base);
 
     /**
      * Converts an object to a specific type.

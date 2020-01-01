@@ -259,17 +259,4 @@ public class BeanNameELResolver extends ELResolver {
         return null;
     }
 
-    /**
-     * Always returns <code>String.class</code>, since a bean name is a String.
-     * 
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            <code>null</code>.
-     * @return <code>String.class</code>.
-     */
-    @Override
-    public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        return String.class;
-    }
 }

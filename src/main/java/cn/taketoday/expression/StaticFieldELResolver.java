@@ -45,12 +45,10 @@ import static cn.taketoday.expression.util.ReflectionUtil.findMethod;
 import static cn.taketoday.expression.util.ReflectionUtil.invokeConstructor;
 import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
 
-import java.beans.FeatureDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -316,34 +314,4 @@ public class StaticFieldELResolver extends ELResolver {
         return true;
     }
 
-    /**
-     * Returns the properties that can be resolved. Always returns
-     * <code>null</code>, since there is no reason to iterate through a list of one
-     * element: field name.
-     * 
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            An <code>ELClass</code>.
-     * @return <code>null</code>.
-     */
-    @Override
-    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        return null;
-    }
-
-    /**
-     * Returns the type of the property. Always returns <code>String.class</code>,
-     * since a field name is a String.
-     * 
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            An <code>ELClass</code>.
-     * @return <code>String.class</code>.
-     */
-    @Override
-    public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        return String.class;
-    }
 }
