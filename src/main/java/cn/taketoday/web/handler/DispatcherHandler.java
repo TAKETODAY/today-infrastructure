@@ -58,12 +58,52 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
     /** Action mapping registry */
     private HandlerRegistry handlerRegistry;
 
-    private HandlerAdapter[] requestHandlers;
+    private HandlerAdapter[] handlerAdapters;
 
     private RuntimeResultHandler[] resultHandlers;
 
     /** exception resolver */
     private ExceptionResolver exceptionResolver;
+
+    @Override
+    public WebApplicationContext obtainApplicationContext() {
+        return (WebApplicationContext) super.obtainApplicationContext();
+    }
+
+    public HandlerRegistry getHandlerRegistry() {
+        return handlerRegistry;
+    }
+
+    public HandlerRegistry obtainHandlerRegistry() {
+        return nonNull(getHandlerRegistry(), "You must provide an 'handler registry'");
+    }
+
+    public ExceptionResolver obtainExceptionResolver() {
+        return nonNull(getExceptionResolver(), "You must provide an 'exceptionResolver'");
+    }
+
+    public ExceptionResolver getExceptionResolver() {
+        return exceptionResolver;
+    }
+
+    public void setHandlerRegistry(HandlerRegistry handlerRegistry) {
+        this.handlerRegistry = nonNull(handlerRegistry, "handler registry must not be null");
+    }
+
+    public void setHandlerAdapters(HandlerAdapter... handlerAdapters) {
+        this.handlerAdapters = nonNull(handlerAdapters, "request handlers must not be null");
+    }
+
+    public void setExceptionResolver(ExceptionResolver exceptionResolver) {
+        this.exceptionResolver = nonNull(exceptionResolver, "exception resolver must not be null");
+    }
+
+    public void setResultHandlers(RuntimeResultHandler... resultHandlers) {
+        this.resultHandlers = nonNull(resultHandlers, "result handlers must not be null");
+    }
+
+    // Handler
+    // ----------------------------------
 
     public Object lookupHandler(final RequestContext context) {
         return getHandlerRegistry().lookup(context);
@@ -73,7 +113,7 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
         if (handler instanceof HandlerAdapterCapable) {
             return ((HandlerAdapterCapable) handler).getAdapter();
         }
-        for (final HandlerAdapter requestHandler : requestHandlers) {
+        for (final HandlerAdapter requestHandler : handlerAdapters) {
             if (requestHandler.supports(handler)) {
                 return requestHandler;
             }
@@ -170,33 +210,20 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
         log.info(msg);
     }
 
-    public ExceptionResolver obtainExceptionResolver() {
-        return nonNull(getExceptionResolver(), "You must provide an 'exceptionResolver'");
-    }
-
-    public ExceptionResolver getExceptionResolver() {
-        return exceptionResolver;
-    }
+    // WebApplicationInitializer
+    // --------------------------------------------------
 
     @Override
-    public WebApplicationContext obtainApplicationContext() {
-        return (WebApplicationContext) super.obtainApplicationContext();
-    }
+    public void onStartup(WebApplicationContext context) throws Throwable {
 
-    public HandlerRegistry getHandlerRegistry() {
-        return handlerRegistry;
-    }
+        setResultHandlers(ResultHandlers.getRuntimeHandlers()); // apply result handler
+        setExceptionResolver(context.getBean(ExceptionResolver.class));// apply exception resolver
 
-    public HandlerRegistry obtainHandlerRegistry() {
-        return nonNull(getHandlerRegistry(), "You must provide an 'handler registry'");
-    }
+        final List<HandlerAdapter> adapters = context.getBeans(HandlerAdapter.class);
+        configureHandlerAdapter(adapters, context);
+        setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));// apply request handler 
 
-    public void setMappingRegistry(HandlerRegistry mappingRegistry) {
-        this.handlerRegistry = mappingRegistry;
-    }
-
-    public void setResultHandlers(RuntimeResultHandler... resultHandlers) {
-        this.resultHandlers = resultHandlers;
+        setHandlerRegistry(new CompositeHandlerRegistry(context.getBeans(HandlerRegistry.class)));
     }
 
     protected void configureHandlerAdapter(final List<HandlerAdapter> adapters, final ApplicationContext context) {
@@ -205,20 +232,6 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
         adapters.add(new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE - 1));
         adapters.add(new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE - 2));
         adapters.add(new NotFoundRequestAdapter(Ordered.HIGHEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE - 100));
-    }
-
-    @Override
-    public void onStartup(WebApplicationContext context) throws Throwable {
-
-        setMappingRegistry(new CompositeHandlerRegistry(context.getBeans(HandlerRegistry.class)));
-        setResultHandlers(ResultHandlers.getRuntimeHandlers());
-
-        final List<HandlerAdapter> adapters = context.getBeans(HandlerAdapter.class);
-        configureHandlerAdapter(adapters, context);
-
-        this.requestHandlers = adapters.toArray(new HandlerAdapter[adapters.size()]);
-        this.exceptionResolver = nonNull(context.getBean(ExceptionResolver.class),
-                                         "You must provide an ExceptionResolver bean");
     }
 
 }

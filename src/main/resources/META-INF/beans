@@ -7,6 +7,7 @@ cn.taketoday.web.servlet.initializer.DispatcherServletInitializer
 cn.taketoday.web.validation.DefaultValidator
 cn.taketoday.web.validation.ErrorsParameterResolver
 cn.taketoday.web.validation.ValidationParameterResolver
+cn.taketoday.web.handler.NotFoundRequestAdapter
 cn.taketoday.web.registry.HandlerMethodRegistry
 cn.taketoday.web.registry.FunctionHandlerRegistry
 cn.taketoday.web.registry.ResourceHandlerRegistry

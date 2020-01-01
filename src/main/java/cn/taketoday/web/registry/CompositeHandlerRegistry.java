@@ -30,10 +30,10 @@ import cn.taketoday.web.RequestContext;
  */
 public class CompositeHandlerRegistry implements HandlerRegistry {
 
-    private final HandlerRegistry[] webMappingRegistrys;
+    private final HandlerRegistry[] handlerRegistries;
 
     public CompositeHandlerRegistry(HandlerRegistry... webMappingRegistrys) {
-        this.webMappingRegistrys = OrderUtils.reversedSort(webMappingRegistrys);
+        this.handlerRegistries = OrderUtils.reversedSort(webMappingRegistrys);
     }
 
     public CompositeHandlerRegistry(List<HandlerRegistry> webMappingRegistrys) {
@@ -42,8 +42,8 @@ public class CompositeHandlerRegistry implements HandlerRegistry {
 
     @Override
     public Object lookup(final RequestContext context) {
-        for (final HandlerRegistry handlerRegistry : webMappingRegistrys) {
-            final Object ret = handlerRegistry.lookup(context);
+        for (final HandlerRegistry registry : handlerRegistries) {
+            final Object ret = registry.lookup(context);
             if (ret != null) {
                 return ret;
             }

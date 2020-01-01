@@ -19,17 +19,18 @@
  */
 package cn.taketoday.web.handler;
 
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 
 /**
- * 
  * Process Handler not found
  * 
  * @author TODAY <br>
  *         2019-12-20 19:15
  */
+@MissingBean(type = NotFoundRequestAdapter.class)
 public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(NotFoundRequestAdapter.class);
@@ -47,12 +48,15 @@ public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
 
     @Override
     public Object handle(RequestContext context, Object handler) throws Throwable {
-        context.sendError(404); // TODO not found
+        context.sendError(404);
+        logNotFound(context);
+        return NONE_RETURN_VALUE;
+    }
 
+    protected void logNotFound(RequestContext context) {
         if (log.isDebugEnabled()) {
             log.debug("NOT FOUND -> [{} {}]", context.method(), context.requestURI());
         }
-        return NONE_RETURN_VALUE;
     }
 
     @Override
