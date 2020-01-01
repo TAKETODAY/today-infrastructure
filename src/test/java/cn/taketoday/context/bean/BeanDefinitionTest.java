@@ -26,9 +26,6 @@ import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.bean.DefaultBeanDefinition;
-import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 
@@ -82,13 +79,13 @@ public class BeanDefinitionTest {
             beanDefinition.addPropertyValue();
 
             beanDefinition.addPropertyValue(//
-                    new PropertyValue("TEST_STRING", test), //
-                    new PropertyValue(123.123, testDouble)//
+                                            new PropertyValue("TEST_STRING", test), //
+                                            new PropertyValue(123.123, testDouble)//
             );
 
             beanDefinition.addPropertyValue(//
-                    new PropertyValue("TEST_STRING", test), //
-                    new PropertyValue(123.123, testDouble)//
+                                            new PropertyValue("TEST_STRING", test), //
+                                            new PropertyValue(123.123, testDouble)//
             );
 
             beanDefinition.getPropertyValue("test");

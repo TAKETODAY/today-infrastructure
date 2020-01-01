@@ -34,7 +34,6 @@ import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.loader.ImportSelector;
 
 /**
  * @author TODAY <br>
@@ -44,13 +43,13 @@ public class ImportTest {
 
     @Import(TEST.class)
     public static class ErrorImportTESTBean {
-        
+
     }
 
     @Singleton
     @Import(TEST.class)
     public static class ImportTESTBean {
-        
+
     }
 
     public static class TEST {

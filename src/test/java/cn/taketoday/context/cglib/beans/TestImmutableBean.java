@@ -36,8 +36,7 @@ public class TestImmutableBean extends TestCase {
             bean.setIntP(43);
             fail("expecting illegal state exception");
         }
-        catch (IllegalStateException ignore) {
-        }
+        catch (IllegalStateException ignore) {}
     }
 
     public TestImmutableBean(java.lang.String testName) {

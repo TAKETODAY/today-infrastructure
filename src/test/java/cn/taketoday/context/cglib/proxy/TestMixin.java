@@ -31,8 +31,8 @@ import junit.framework.TestSuite;
 public class TestMixin extends CodeGenTestCase {
     public void testSimple() throws Exception {
         Object obj = Mixin.create(new Class[] { DI1.class, DI2.class },
-                new Object[]
-                { new D1(), new D2() });
+                                  new Object[]
+                                  { new D1(), new D2() });
         assertTrue(((DI1) obj).herby().equals("D1"));
         assertTrue(((DI2) obj).derby().equals("D2"));
     }
@@ -41,10 +41,10 @@ public class TestMixin extends CodeGenTestCase {
         Object obj = Mixin.create(new Object[] { new D1(), new D2() });
         Object obj2 = Mixin.create(new Object[] { new D1(), new D2() });
         assertEquals("Mixin.create should use exactly the same class when called with same parameters",
-                obj.getClass(), obj2.getClass());
+                     obj.getClass(), obj2.getClass());
         Object obj3 = Mixin.create(new Object[] { new D1(), new D4() });
         assertNotSame("Mixin.create should use different classes for different parameters",
-                obj.getClass(), obj3.getClass());
+                      obj.getClass(), obj3.getClass());
         assertTrue(((DI1) obj).herby().equals("D1"));
         assertTrue(((DI2) obj).derby().equals("D2"));
     }
@@ -118,8 +118,7 @@ public class TestMixin extends CodeGenTestCase {
         Set<?> getters = new HashSet<>();
         PropertyDescriptor[] descriptors = Introspector.getBeanInfo(beanClass).getPropertyDescriptors();
         for (int i = 0; i < descriptors.length; i++) {
-            if (descriptors[i].getName().equals(property))
-                return descriptors[i];
+            if (descriptors[i].getName().equals(property)) return descriptors[i];
         }
         return null;
     }

@@ -53,7 +53,7 @@ public class TestProxy extends CodeGenTestCase {
         Class proxyClass = Proxy.getProxyClass(TestProxy.class.getClassLoader(), new Class[] { Map.class });
         Map proxyMap = (Map) proxyClass.getConstructor(new Class[] { InvocationHandler.class }).newInstance(new Object[] { handler });
         assertEquals("proxy delegation not correct",
-                map.get("test"), proxyMap.get("test"));
+                     map.get("test"), proxyMap.get("test"));
     }
 
     public void testGetProxyInstance() throws Exception {
@@ -80,7 +80,7 @@ public class TestProxy extends CodeGenTestCase {
 
     public void testIsNotProxyClass() throws Exception {
         assertTrue("fake proxy accepted as real",
-                !Proxy.isProxyClass(FakeProxy.class));
+                   !Proxy.isProxyClass(FakeProxy.class));
     }
 
     private static class ReturnNullHandler implements InvocationHandler {
@@ -92,15 +92,14 @@ public class TestProxy extends CodeGenTestCase {
     public void testReturnNull() throws Exception {
         System.err.println("hello");
         ProxySampleInterface_ReturnsBasic rb = (ProxySampleInterface_ReturnsBasic) Proxy.newProxyInstance(null,
-                new Class[]
-                { ProxySampleInterface_ReturnsBasic.class },
-                new ReturnNullHandler());
+                                                                                                          new Class[]
+                                                                                                          { ProxySampleInterface_ReturnsBasic.class },
+                                                                                                          new ReturnNullHandler());
         try {
             int result = rb.getKala(11);
             fail("must throw an exception, but returned " + result);
         }
-        catch (NullPointerException ignore) {
-        }
+        catch (NullPointerException ignore) {}
     }
 
     public void testGetInvocationHandler() throws Exception {

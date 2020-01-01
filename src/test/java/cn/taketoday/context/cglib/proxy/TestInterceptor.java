@@ -38,8 +38,7 @@ public class TestInterceptor implements MethodInterceptor, Serializable {
         value = ser;
     }
 
-    public TestInterceptor() {
-    }
+    public TestInterceptor() {}
 
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
         System.out.println(method);
@@ -63,10 +62,9 @@ public class TestInterceptor implements MethodInterceptor, Serializable {
     }
 
     public Object afterReturn(Object obj, Method method, Object[] args,
-            boolean invokedSuper, Object retValFromSuper,
-            Throwable e) throws Throwable {
-        if (e != null)
-            throw e.fillInStackTrace();
+                              boolean invokedSuper, Object retValFromSuper,
+                              Throwable e) throws Throwable {
+        if (e != null) throw e.fillInStackTrace();
         return retValFromSuper;
     }
 }

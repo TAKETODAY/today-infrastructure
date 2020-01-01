@@ -45,8 +45,7 @@ public class TestAddClassInit extends AbstractTransformTest {
 
     }
 
-    public TestAddClassInit() {
-    }
+    public TestAddClassInit() {}
 
     public void testInitTransform() {
         assertEquals(i, 11);

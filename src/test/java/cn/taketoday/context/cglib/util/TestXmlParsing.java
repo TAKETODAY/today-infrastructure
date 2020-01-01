@@ -288,10 +288,8 @@ public class TestXmlParsing extends CodeGenTestCase {
         return new TestSuite(TestXmlParsing.class);
     }
 
-    public void perform(ClassLoader loader) throws Throwable {
-    }
+    public void perform(ClassLoader loader) throws Throwable {}
 
-    public void testFailOnMemoryLeak() throws Throwable {
-    }
+    public void testFailOnMemoryLeak() throws Throwable {}
 
 }

@@ -21,8 +21,7 @@ import junit.framework.TestSuite;
 
 public class TestNoOp extends CodeGenTestCase {
     private static class Foo {
-        public Foo() {
-        }
+        public Foo() {}
 
         public String toString() {
             return "foo";
@@ -46,10 +45,8 @@ public class TestNoOp extends CodeGenTestCase {
         return new TestSuite(TestNoOp.class);
     }
 
-    public void perform(ClassLoader loader) throws Throwable {
-    }
+    public void perform(ClassLoader loader) throws Throwable {}
 
-    public void testFailOnMemoryLeak() throws Throwable {
-    }
+    public void testFailOnMemoryLeak() throws Throwable {}
 
 }

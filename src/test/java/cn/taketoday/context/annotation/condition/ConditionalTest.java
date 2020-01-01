@@ -27,11 +27,6 @@ import org.junit.Test;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.annotation.condition.ConditionalOnClass;
-import cn.taketoday.context.annotation.condition.ConditionalOnExpression;
-import cn.taketoday.context.annotation.condition.ConditionalOnMissingClass;
-import cn.taketoday.context.annotation.condition.ConditionalOnProperty;
-import cn.taketoday.context.annotation.condition.ConditionalOnResource;
 
 /**
  * @author TODAY <br>
@@ -179,7 +174,7 @@ public class ConditionalTest {
                 new StandardApplicationContext("info.properties", "cn.taketoday.context.annotation.condition")) {
 
             assertFalse(applicationContext.containsBeanDefinition(ConditionalOnResource_.class));
-            
+
             assertTrue(applicationContext.containsBeanDefinition(ConditionalOnResource__.class));
             assertTrue(applicationContext.containsBeanDefinition(ConditionalOnResource___.class));
             assertTrue(applicationContext.containsBeanDefinition(ConditionalOnResource____.class));

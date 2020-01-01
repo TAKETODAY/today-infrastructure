@@ -55,7 +55,8 @@ public class DemoTest {
             UserRepository userDao = applicationContext.getBean(UserRepository.class);
             DefaultUserRepository userDaoImpl = applicationContext.getBean(DefaultUserRepository.class);
 
-            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry().getBeanDefinitions();
+            Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getEnvironment().getBeanDefinitionRegistry()
+                    .getBeanDefinitions();
 
             Set<Entry<String, Object>> entrySet = applicationContext.getSingletons().entrySet();
 

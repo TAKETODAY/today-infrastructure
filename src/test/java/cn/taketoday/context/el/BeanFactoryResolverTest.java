@@ -22,7 +22,6 @@ package cn.taketoday.context.el;
 import org.junit.Test;
 
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.el.BeanFactoryResolver;
 import cn.taketoday.context.el.ELFieldTest.User;
 
 /**

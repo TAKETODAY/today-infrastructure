@@ -34,8 +34,7 @@ public class TestInterceptFields extends AbstractTransformTest implements Interc
     String field;
 
     /** Creates a new instance of TestInterceptFields */
-    public TestInterceptFields() {
-    }
+    public TestInterceptFields() {}
 
     /** Creates a new instance of TestInterceptFields */
     public TestInterceptFields(String name) {
@@ -59,17 +58,17 @@ public class TestInterceptFields extends AbstractTransformTest implements Interc
 
                 return new InterceptFieldTransformer(
 
-                        new InterceptFieldFilter() {
+                                                     new InterceptFieldFilter() {
 
-                            public boolean acceptRead(Type owner, String name) {
-                                return true;
-                            }
+                                                         public boolean acceptRead(Type owner, String name) {
+                                                             return true;
+                                                         }
 
-                            public boolean acceptWrite(Type owner, String name) {
-                                return true;
-                            }
+                                                         public boolean acceptWrite(Type owner, String name) {
+                                                             return true;
+                                                         }
 
-                        }
+                                                     }
 
                 );
 

@@ -22,7 +22,6 @@ package cn.taketoday.context.listener;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
-import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 
@@ -36,7 +35,6 @@ public class BeanDefinitionLoadedListener_3 implements ApplicationListener<BeanD
 
     private static final Logger log = LoggerFactory.getLogger(BeanDefinitionLoadedListener_3.class);
 
-    
     @Override
     public void onApplicationEvent(BeanDefinitionLoadedEvent event) {
         log.debug("BeanDefinitionLoadedListener_3");

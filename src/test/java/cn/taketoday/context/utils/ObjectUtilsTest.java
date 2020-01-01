@@ -28,7 +28,6 @@ import org.junit.Test;
 
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ConversionException;
-import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * 
@@ -149,7 +148,7 @@ public class ObjectUtilsTest {
         // Object[]
         final Class<Class[]> clazz = Class[].class;
         final Object classArrayObject = ObjectUtils.toArrayObject(new String[] { //
-                "cn.taketoday.context.utils.Bean", "cn.taketoday.context.utils.ClassUtilsTest" //
+            "cn.taketoday.context.utils.Bean", "cn.taketoday.context.utils.ClassUtilsTest" //
         }, clazz);
 
         assert classArrayObject.getClass().equals(clazz);

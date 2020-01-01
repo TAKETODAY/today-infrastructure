@@ -25,7 +25,6 @@ import org.junit.Before;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import lombok.Getter;
@@ -38,9 +37,9 @@ import lombok.Setter;
 @Setter
 @Getter
 public class BaseTest {
-    
+
     private static final Logger log = LoggerFactory.getLogger(BaseTest.class);
-    
+
     private long start;
 
     private static ConfigurableApplicationContext applicationContext = //

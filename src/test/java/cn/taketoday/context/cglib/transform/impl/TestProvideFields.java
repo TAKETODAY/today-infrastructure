@@ -31,8 +31,7 @@ public class TestProvideFields extends AbstractTransformTest {
     String field = "test";
 
     /** Creates a new instance of TestProvideFields */
-    public TestProvideFields() {
-    }
+    public TestProvideFields() {}
 
     /** Creates a new instance of TestProvideFields */
     public TestProvideFields(String name) {

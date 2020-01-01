@@ -33,8 +33,7 @@ public abstract class Source implements java.io.Serializable {
         return "";
     }
 
-    public Source() {
-    }
+    public Source() {}
 
     public void callAll() {
         protectedMethod();
@@ -51,11 +50,9 @@ public abstract class Source implements java.io.Serializable {
         multiArg(1, 1, 1, 1, "", "", "");
     }
 
-    protected void protectedMethod() {
-    }
+    protected void protectedMethod() {}
 
-    void packageMethod() {
-    }
+    void packageMethod() {}
 
     abstract void abstractMethod();
 
@@ -71,11 +68,9 @@ public abstract class Source implements java.io.Serializable {
         throw new AbstractMethodError();
     }
 
-    public synchronized void synchronizedMethod() {
-    }
+    public synchronized void synchronizedMethod() {}
 
-    public final void finalMethod() {
-    }
+    public final void finalMethod() {}
 
     public int intType(int val) {
         return val;
@@ -126,7 +121,7 @@ public abstract class Source implements java.io.Serializable {
     }
 
     public void multiArg(int arg1, long arg2,
-            double arg3, float arg4, Object arg5, Object arg6, Object arg7) {
+                         double arg3, float arg4, Object arg5, Object arg6, Object arg7) {
 
     }
 

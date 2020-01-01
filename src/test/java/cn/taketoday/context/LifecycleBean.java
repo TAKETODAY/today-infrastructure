@@ -28,8 +28,6 @@ import javax.annotation.PreDestroy;
 
 import org.junit.Test;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.BeanFactoryAware;

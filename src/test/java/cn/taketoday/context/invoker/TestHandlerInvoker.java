@@ -23,8 +23,6 @@ import java.lang.reflect.Method;
 
 import org.junit.Test;
 
-import cn.taketoday.context.invoker.MethodInvoker;
-
 /**
  * @author TODAY <br>
  *         2019-10-18 23:34

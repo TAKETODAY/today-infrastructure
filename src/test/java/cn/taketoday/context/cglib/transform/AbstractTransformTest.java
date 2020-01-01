@@ -50,6 +50,5 @@ abstract public class AbstractTransformTest extends TestCase {
         }
     }
 
-    protected void postProcess(Class c) {
-    }
+    protected void postProcess(Class c) {}
 }

@@ -31,8 +31,10 @@ public final class ProxySample implements ProxySampleInterface_ReturnsObject, Pr
         try {
             // invocation is also generated
             result = (String) handler.invoke(this, ProxySampleInterface_ReturnsObject.class.getMethod("getKala",
-                    new Class[]
-                    { String.class }), new Object[] { kalamees });
+                                                                                                      new Class[]
+                                                                                                      { String.class }),
+                                             new Object[]
+                                             { kalamees });
         }
         catch (ClassCastException e) {
             throw e;
@@ -61,8 +63,10 @@ public final class ProxySample implements ProxySampleInterface_ReturnsObject, Pr
         try {
             // invocation is also generated
             result = (Integer) handler.invoke(this, ProxySampleInterface_ReturnsBasic.class.getMethod("getKala",
-                    new Class[]
-                    { Float.TYPE }), new Object[] { new Float(kalamees) });
+                                                                                                      new Class[]
+                                                                                                      { Float.TYPE }),
+                                              new Object[]
+                                              { new Float(kalamees) });
         }
         catch (ClassCastException e) {
             throw e;

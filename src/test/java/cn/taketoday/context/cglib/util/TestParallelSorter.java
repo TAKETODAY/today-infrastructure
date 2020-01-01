@@ -83,8 +83,7 @@ public class TestParallelSorter extends CodeGenTestCase {
         int c = 0;
         while ((line = r.readLine()) != null) {
             list.add(line);
-            if (c++ == 20)
-                break;
+            if (c++ == 20) break;
         }
         return list.toArray();
     }
@@ -107,10 +106,8 @@ public class TestParallelSorter extends CodeGenTestCase {
         return new TestSuite(TestParallelSorter.class);
     }
 
-    public void perform(ClassLoader loader) throws Throwable {
-    }
+    public void perform(ClassLoader loader) throws Throwable {}
 
-    public void testFailOnMemoryLeak() throws Throwable {
-    }
+    public void testFailOnMemoryLeak() throws Throwable {}
 
 }

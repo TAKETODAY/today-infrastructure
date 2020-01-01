@@ -24,9 +24,6 @@ import org.junit.Test;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.bean.BeanReference;
-import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.ContextException;
 
 /**

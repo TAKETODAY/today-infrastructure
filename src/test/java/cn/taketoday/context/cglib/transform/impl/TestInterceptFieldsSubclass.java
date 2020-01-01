@@ -51,7 +51,7 @@ public class TestInterceptFieldsSubclass extends TestInterceptFields {
     }
 
     public Object writeObject(Object _this, String name, Object oldValue,
-            Object newValue) {
+                              Object newValue) {
 
         if (name.equals("field")) {
             writeTest = true;

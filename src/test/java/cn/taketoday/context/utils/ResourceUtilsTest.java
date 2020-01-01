@@ -26,8 +26,6 @@ import org.junit.Test;
 
 import cn.taketoday.context.io.JarEntryResource;
 import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.ResourceUtils;
-import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY <br>

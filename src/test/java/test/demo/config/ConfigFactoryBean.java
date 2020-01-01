@@ -40,7 +40,7 @@ import lombok.Getter;
 @Getter
 @Prototype("FactoryBean-Config")
 public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean {
-    
+
     private static final Logger log = LoggerFactory.getLogger(ConfigFactoryBean.class);
 
     @PostConstruct

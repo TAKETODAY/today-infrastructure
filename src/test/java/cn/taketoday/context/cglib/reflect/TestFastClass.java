@@ -25,8 +25,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public class TestFastClass extends cn.taketoday.context.cglib.CodeGenTestCase {
-    public static class Simple {
-    }
+    public static class Simple {}
 
     public static class ThrowsSomething {
         public void foo() throws IOException {
@@ -51,8 +50,7 @@ public class TestFastClass extends cn.taketoday.context.cglib.CodeGenTestCase {
         }
     }
 
-    public static class Child extends cn.taketoday.context.cglib.reflect.sub.Parent {
-    }
+    public static class Child extends cn.taketoday.context.cglib.reflect.sub.Parent {}
 
     public void testSuperclass() throws Throwable {
         FastClass fc = FastClass.create(Child.class);
@@ -67,8 +65,7 @@ public class TestFastClass extends cn.taketoday.context.cglib.CodeGenTestCase {
             fc.invoke("foo", new Class[] { Integer.TYPE }, ts, new Object[0]);
             fail("expected exception");
         }
-        catch (IllegalArgumentException ignore) {
-        }
+        catch (IllegalArgumentException ignore) {}
     }
 
     public void testComplex() throws Throwable {
@@ -86,8 +83,8 @@ public class TestFastClass extends cn.taketoday.context.cglib.CodeGenTestCase {
 
         Method m1 = MemberSwitchBean.class.getMethod("foo", Integer.TYPE, String.class);
         assertEquals("fc.getMethod(m1).invoke(bean, new Object[]{ new Integer(0), \"\" })", 6, fc.getMethod(m1).invoke(bean,
-                new Object[]
-                { 0, "" }));
+                                                                                                                       new Object[]
+                                                                                                                       { 0, "" }));
 
         // TODO: should null be allowed here?
         Method m2 = MemberSwitchBean.class.getDeclaredMethod("pkg", (Class[]) null);
@@ -101,8 +98,7 @@ public class TestFastClass extends cn.taketoday.context.cglib.CodeGenTestCase {
     }
 
     private static abstract class ReallyBigClass {
-        public ReallyBigClass() {
-        }
+        public ReallyBigClass() {}
 
         abstract public void method1(int i, short s, float f);
 
@@ -1073,8 +1069,8 @@ public class TestFastClass extends cn.taketoday.context.cglib.CodeGenTestCase {
     public void testGetMethod() throws Exception {
         FastClass fc = FastClass.create(Base.class);
         FastMethod method = fc.getMethod(
-                Base.class.getDeclaredMethod("foo", new Class[]
-                { String.class }));
+                                         Base.class.getDeclaredMethod("foo", new Class[]
+                                         { String.class }));
         assertEquals("hello world", method.invoke(new Base(), new Object[] { "hello world" }));
     }
 
@@ -1087,8 +1083,8 @@ public class TestFastClass extends cn.taketoday.context.cglib.CodeGenTestCase {
     public void testGetMethod_covarientOverride() throws Exception {
         FastClass fc = FastClass.create(Sub.class);
         FastMethod method = fc.getMethod(
-                Sub.class.getDeclaredMethod("foo", new Class[]
-                { String.class }));
+                                         Sub.class.getDeclaredMethod("foo", new Class[]
+                                         { String.class }));
         assertEquals("foofoo", method.invoke(new Sub(), new Object[] { "foo" }));
     }
 
@@ -1138,8 +1134,7 @@ public class TestFastClass extends cn.taketoday.context.cglib.CodeGenTestCase {
             fc.getMethod(removeRangeMethod);
             fail();
         }
-        catch (IllegalArgumentException iae) {
-        }
+        catch (IllegalArgumentException iae) {}
     }
 
     public void testPackagePrivateMethod_bootstrapClassLoader() throws Exception {
@@ -1153,8 +1148,7 @@ public class TestFastClass extends cn.taketoday.context.cglib.CodeGenTestCase {
             fc.getMethod(method);
             fail();
         }
-        catch (IllegalArgumentException iae) {
-        }
+        catch (IllegalArgumentException iae) {}
     }
 
 }

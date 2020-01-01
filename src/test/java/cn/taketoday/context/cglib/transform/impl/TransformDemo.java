@@ -76,10 +76,11 @@ public class TransformDemo {
                             InterceptFieldTransformer t1 = new InterceptFieldTransformer(new Filter());
 
                             AddStaticInitTransformer t2 = new AddStaticInitTransformer(TransformDemo.class.getMethod("register",
-                                    new Class[]
-                                    { Class.class }));
+                                                                                                                     new Class[]
+                                                                                                                     { Class.class }));
 
-                            AddDelegateTransformer t3 = new AddDelegateTransformer(new Class[] { PersistenceCapable.class }, PersistenceCapableImpl.class);
+                            AddDelegateTransformer t3 = new AddDelegateTransformer(new Class[] { PersistenceCapable.class },
+                                                                                   PersistenceCapableImpl.class);
 
                             FieldProviderTransformer t4 = new FieldProviderTransformer();
 
@@ -96,7 +97,7 @@ public class TransformDemo {
             public boolean accept(String name) {
                 System.out.println("load : " + name);
                 boolean f = Base.class.getName().equals(name) || MA.class.getName().equals(name) || TransformDemo.class.getName().equals(
-                        name);
+                                                                                                                                         name);
                 if (f) {
                     System.out.println("transforming " + name);
                 }

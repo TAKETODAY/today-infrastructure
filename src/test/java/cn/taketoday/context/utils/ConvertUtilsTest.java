@@ -40,8 +40,6 @@ import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.utils.ConvertUtils;
-import cn.taketoday.context.utils.StringUtils;
 
 /**
  * 
@@ -65,18 +63,18 @@ public class ConvertUtilsTest {
     @Test
     public void addConverter() {
         ConvertUtils.addConverter(
-                new TypeConverter() {
+                                  new TypeConverter() {
 
-                    @Override
-                    public boolean supports(Class<?> targetClass, Object source) {
-                        return false;
-                    }
+                                      @Override
+                                      public boolean supports(Class<?> targetClass, Object source) {
+                                          return false;
+                                      }
 
-                    @Override
-                    public Object convert(Class<?> targetClass, Object source) throws ConversionException {
-                        return null;
-                    }
-                });
+                                      @Override
+                                      public Object convert(Class<?> targetClass, Object source) throws ConversionException {
+                                          return null;
+                                      }
+                                  });
     }
 
     @Test
@@ -107,8 +105,7 @@ public class ConvertUtilsTest {
         try {
             ConvertUtils.convert(".Float", ConvertUtilsTest.class);
         }
-        catch (ConversionException e) {
-        }
+        catch (ConversionException e) {}
         // -- Class
         assert ConvertUtils.convert("java.lang.Float", Class.class).equals(Float.class);
         try {
@@ -166,8 +163,7 @@ public class ConvertUtilsTest {
         try {
             ConvertUtils.convert("123", TEST_NONE.class);
         }
-        catch (ConversionException e) {
-        }
+        catch (ConversionException e) {}
 
         try {
             ConvertUtils.convert("123", TEST_THROW.class);

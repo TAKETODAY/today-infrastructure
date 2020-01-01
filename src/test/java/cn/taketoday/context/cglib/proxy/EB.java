@@ -12,6 +12,5 @@ public class EB extends EA implements Comparable {
         this.count = count;
     }
 
-    public final void finalTest() {
-    }
+    public final void finalTest() {}
 }

@@ -23,9 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;

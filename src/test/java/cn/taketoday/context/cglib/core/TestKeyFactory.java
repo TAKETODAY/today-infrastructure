@@ -70,7 +70,7 @@ public class TestKeyFactory extends cn.taketoday.context.cglib.CodeGenTestCase {
     public void testSimple() throws Exception {
         MyKey mykey = (MyKey) KeyFactory.create(MyKey.class);
         assertTrue(mykey.newInstance(5, new int[] { 6, 7 }, false).hashCode() == mykey.newInstance(5, new int[] { 6, 7 },
-                false).hashCode());
+                                                                                                   false).hashCode());
     }
 
     private Object helper(Class type) {

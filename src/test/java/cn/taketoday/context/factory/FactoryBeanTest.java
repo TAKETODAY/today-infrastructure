@@ -39,7 +39,6 @@ import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.utils.ContextUtils;
 
 /**
@@ -81,7 +80,7 @@ public class FactoryBeanTest {
 
     @Import(FactoryBeanConfiguration.class)
     static class FactoryBeanConfigurationImporter {
-        
+
     }
 
     // test
@@ -137,21 +136,21 @@ public class FactoryBeanTest {
             assertFalse(applicationContext.getBean("$testFactoryBean-prototype") != null);
         }
     }
-    
+
     @Test
     public void testConfigurationFactoryBean() throws NoSuchBeanDefinitionException {
-        
+
         HashSet<Class<?>> classes = new HashSet<Class<?>>(Arrays.asList(TESTFactoryBean.class));
-        
+
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-        
+
             applicationContext.loadContext(classes);
 
             applicationContext.registerBean("factoryBeanConfigurationImporter", FactoryBeanConfigurationImporter.class);
-            
+
             FactoryBeanConfiguration bean = applicationContext.getBean(FactoryBeanConfiguration.class);
             Object testFactoryBean = applicationContext.getBean("testFactoryBean");
-            
+
             assertNotNull(bean);
             assertNotNull(testFactoryBean);
             assertTrue(testFactoryBean instanceof TEST);
@@ -160,8 +159,5 @@ public class FactoryBeanTest {
             assertTrue(applicationContext.getBean("$testFactoryBean") instanceof TESTFactoryBean);
         }
     }
-    
-    
-    
 
 }

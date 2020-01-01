@@ -37,7 +37,6 @@ import cn.taketoday.context.asm.MethodVisitor;
 import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.cglib.CodeGenTestCase;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
-import cn.taketoday.context.cglib.core.DefaultNamingPolicy;
 import cn.taketoday.context.cglib.core.NamingPolicy;
 import cn.taketoday.context.cglib.core.ReflectUtils;
 import cn.taketoday.context.cglib.reflect.FastClass;
@@ -77,14 +76,14 @@ public class TestEnhancer extends CodeGenTestCase {
     public void testEnhance() throws Throwable {
 
         java.util.Vector<?> vector1 = (java.util.Vector<?>) Enhancer.create(
-                java.util.Vector.class,
-                new Class[]
-                { java.util.List.class }, TEST_INTERCEPTOR);
+                                                                            java.util.Vector.class,
+                                                                            new Class[]
+                                                                            { java.util.List.class }, TEST_INTERCEPTOR);
 
         java.util.Vector<?> vector2 = (java.util.Vector<?>) Enhancer.create(
-                java.util.Vector.class,
-                new Class[]
-                { java.util.List.class }, TEST_INTERCEPTOR);
+                                                                            java.util.Vector.class,
+                                                                            new Class[]
+                                                                            { java.util.List.class }, TEST_INTERCEPTOR);
 
         assertTrue("Cache failed", vector1.getClass() == vector2.getClass());
     }
@@ -96,9 +95,9 @@ public class TestEnhancer extends CodeGenTestCase {
             private static final long serialVersionUID = 1L;
 
             public Object afterReturn(Object obj, Method method,
-                    Object args[],
-                    boolean invokedSuper, Object retValFromSuper,
-                    java.lang.Throwable e) throws java.lang.Throwable {
+                                      Object args[],
+                                      boolean invokedSuper, Object retValFromSuper,
+                                      java.lang.Throwable e) throws java.lang.Throwable {
 
                 int mod = method.getModifiers();
 
@@ -120,8 +119,8 @@ public class TestEnhancer extends CodeGenTestCase {
         };
 
         Source source = (Source) Enhancer.create(
-                Source.class,
-                null, interceptor);
+                                                 Source.class,
+                                                 null, interceptor);
 
         source.callAll();
         assertTrue("protected", invokedProtectedMethod);
@@ -132,8 +131,8 @@ public class TestEnhancer extends CodeGenTestCase {
     public void testEnhanced() throws Throwable {
 
         Source source = (Source) Enhancer.create(
-                Source.class,
-                null, TEST_INTERCEPTOR);
+                                                 Source.class,
+                                                 null, TEST_INTERCEPTOR);
 
         TestCase.assertTrue("enhance", Source.class != source.getClass());
 
@@ -141,14 +140,14 @@ public class TestEnhancer extends CodeGenTestCase {
 
     public void testFinalizeNotProxied() throws Throwable {
         Source source = (Source) Enhancer.create(
-                Source.class,
-                null, TEST_INTERCEPTOR);
+                                                 Source.class,
+                                                 null, TEST_INTERCEPTOR);
 
         try {
             Method finalize = source.getClass().getDeclaredMethod("finalize");
             assertNull(
-                    "CGLIB should enhanced object should not declare finalize() method so proxy objects are not eligible for finalization, thus faster",
-                    finalize);
+                       "CGLIB should enhanced object should not declare finalize() method so proxy objects are not eligible for finalization, thus faster",
+                       finalize);
         }
         catch (NoSuchMethodException e) {
             // expected
@@ -165,7 +164,8 @@ public class TestEnhancer extends CodeGenTestCase {
 
         Factory factory = (Factory) proxy;
         assertEquals("((EA)factory.newInstance(factory.getCallbacks())).getName()", "herby", ((EA) factory.newInstance(
-                factory.getCallbacks())).getName());
+                                                                                                                       factory.getCallbacks()))
+                                                                                                                               .getName());
     }
 
     class DelegateInterceptor implements MethodInterceptor {
@@ -194,8 +194,8 @@ public class TestEnhancer extends CodeGenTestCase {
     public void testTypes() throws Throwable {
 
         Source source = (Source) Enhancer.create(
-                Source.class,
-                null, TEST_INTERCEPTOR);
+                                                 Source.class,
+                                                 null, TEST_INTERCEPTOR);
         TestCase.assertTrue("intType", 1 == source.intType(1));
         TestCase.assertTrue("longType", 1L == source.longType(1L));
         TestCase.assertTrue("floatType", 1.1f == source.floatType(1.1f));
@@ -209,8 +209,8 @@ public class TestEnhancer extends CodeGenTestCase {
     public void testModifiers() throws Throwable {
 
         Source source = (Source) Enhancer.create(
-                Source.class,
-                null, TEST_INTERCEPTOR);
+                                                 Source.class,
+                                                 null, TEST_INTERCEPTOR);
 
         Class<?> enhancedClass = source.getClass();
 
@@ -229,36 +229,34 @@ public class TestEnhancer extends CodeGenTestCase {
     public void testObject() throws Throwable {
 
         Object source = Enhancer.create(
-                null,
-                null, TEST_INTERCEPTOR);
+                                        null,
+                                        null, TEST_INTERCEPTOR);
 
         assertTrue("parent is object",
-                source.getClass().getSuperclass() == Object.class);
+                   source.getClass().getSuperclass() == Object.class);
 
     }
 
     public void testSystemClassLoader() throws Throwable {
 
         Object source = enhance(
-                null,
-                null, TEST_INTERCEPTOR, ClassLoader.getSystemClassLoader());
+                                null,
+                                null, TEST_INTERCEPTOR, ClassLoader.getSystemClassLoader());
         source.toString();
         assertTrue("SystemClassLoader",
-                source.getClass().getClassLoader() == ClassLoader.getSystemClassLoader());
+                   source.getClass().getClassLoader() == ClassLoader.getSystemClassLoader());
 
     }
 
     public void testCustomClassLoader() throws Throwable {
 
-        ClassLoader custom = new ClassLoader(this.getClass().getClassLoader()) {
-        };
+        ClassLoader custom = new ClassLoader(this.getClass().getClassLoader()) {};
 
         Object source = enhance(null, null, TEST_INTERCEPTOR, custom);
         source.toString();
         assertTrue("Custom classLoader", source.getClass().getClassLoader() == custom);
 
-        custom = new ClassLoader() {
-        };
+        custom = new ClassLoader() {};
 
         source = enhance(null, null, TEST_INTERCEPTOR, custom);
         source.toString();
@@ -304,7 +302,7 @@ public class TestEnhancer extends CodeGenTestCase {
             }
             else {
                 assertEquals("GC iteration " + i + ", proxy class should survive GC and be reused even across GC",
-                        proxyClassName, actualProxyClassName);
+                             proxyClassName, actualProxyClassName);
             }
             System.gc();
         }
@@ -323,7 +321,8 @@ public class TestEnhancer extends CodeGenTestCase {
 
                     try {
                         InputStream classStream = ResourceUtils.getResource(
-                                "classpath:cn/taketoday/context/cglib/proxy/EA.class").getInputStream();
+                                                                            "classpath:cn/taketoday/context/cglib/proxy/EA.class")
+                                .getInputStream();
                         byte[] classBytes = toByteArray(classStream);
                         return this.defineClass("cn.taketoday.context.cglib.proxy.EA", classBytes, 0, classBytes.length);
                     }
@@ -350,8 +349,8 @@ public class TestEnhancer extends CodeGenTestCase {
             }
         }
         assertTrue(
-                "CGLIB should allow classloaders to be evicted. PhantomReference<ClassLoader> was not cleared after 10 gc cycles, thus it is likely some cache is preventing the class loader to be garbage collected",
-                clRef.isEnqueued());
+                   "CGLIB should allow classloaders to be evicted. PhantomReference<ClassLoader> was not cleared after 10 gc cycles, thus it is likely some cache is preventing the class loader to be garbage collected",
+                   clRef.isEnqueued());
 
     }
 
@@ -378,21 +377,23 @@ public class TestEnhancer extends CodeGenTestCase {
         Object source_ = enhance(eaClassFromCustomClassloader, null, callbackFilter, TEST_INTERCEPTOR, null);
         Object source = enhance(eaClassFromCustomClassloader, null, callbackFilter, TEST_INTERCEPTOR, custom);
         assertSame(
-                "Same proxy class is expected since Enhancer with null (default) ClassLoader should use " + " target class.getClassLoader(), thus the same cache key instance should be reused",
-                source.getClass(), source_.getClass());
+                   "Same proxy class is expected since Enhancer with null (default) ClassLoader should use "
+                           + " target class.getClassLoader(), thus the same cache key instance should be reused",
+                   source.getClass(), source_.getClass());
 
         Object source2 = enhance(eaClassFromCustomClassloader, null, callbackFilter, TEST_INTERCEPTOR, custom);
         assertSame("enhance should return cached Enhancer when calling with same parameters",
-                source.getClass(), source2.getClass());
+                   source.getClass(), source2.getClass());
 
         Object source2_ = enhance(eaClassFromCustomClassloader, null, callbackFilter, TEST_INTERCEPTOR, null);
         assertSame(
-                "Same proxy class is expected since Enhancer with null (default) ClassLoader should use " + " target class.getClassLoader(), thus the same cache key instance should be reused",
-                source.getClass(), source2_.getClass());
+                   "Same proxy class is expected since Enhancer with null (default) ClassLoader should use "
+                           + " target class.getClassLoader(), thus the same cache key instance should be reused",
+                   source.getClass(), source2_.getClass());
 
         Object source3 = enhance(eaClassFromCustomClassloader, null, null, TEST_INTERCEPTOR, custom);
         assertNotSame("enhance should return different instance when callbackFilter differs",
-                source.getClass(), source3.getClass());
+                      source.getClass(), source3.getClass());
 
         return source;
     }
@@ -437,7 +438,7 @@ public class TestEnhancer extends CodeGenTestCase {
         Object a = Enhancer.create(Source.class, null, new TestFilter(1), callbacks);
         Object b = Enhancer.create(Source.class, null, new TestFilter(1), callbacks);
         assertSame("Using the same as per .equal() CallbackFilter, thus Enhancer should reuse the same proxy class",
-                a.getClass(), b.getClass());
+                   a.getClass(), b.getClass());
     }
 
     public void testCallbackFilterNotEqualsVsClassReuse() {
@@ -445,14 +446,14 @@ public class TestEnhancer extends CodeGenTestCase {
         Object a = Enhancer.create(Source.class, null, new TestFilter(1), callbacks);
         Object b = Enhancer.create(Source.class, null, new TestFilter(2), callbacks);
         assertNotSame("Using the different CallbackFilter instances, thus Enhancer should generate new proxy class",
-                a.getClass(), b.getClass());
+                      a.getClass(), b.getClass());
     }
 
     public void testRuntimException() throws Throwable {
 
         Source source = (Source) Enhancer.create(
-                Source.class,
-                null, TEST_INTERCEPTOR);
+                                                 Source.class,
+                                                 null, TEST_INTERCEPTOR);
 
         try {
 
@@ -467,8 +468,7 @@ public class TestEnhancer extends CodeGenTestCase {
     }
 
     static abstract class CastTest {
-        CastTest() {
-        }
+        CastTest() {}
 
         abstract int getInt();
     }
@@ -494,7 +494,7 @@ public class TestEnhancer extends CodeGenTestCase {
         Enhancer.create(EC1.class, null, TEST_INTERCEPTOR).toString();
         ((EB) Enhancer.create(EB.class, null, TEST_INTERCEPTOR)).finalTest();
         assertTrue("abstract method", ((EC1) Enhancer.create(EC1.class,
-                null, TEST_INTERCEPTOR)).compareTo(new EC1()) == -1);
+                                                             null, TEST_INTERCEPTOR)).compareTo(new EC1()) == -1);
         Enhancer.create(ED.class, null, TEST_INTERCEPTOR).toString();
         Enhancer.create(ClassLoader.class, null, TEST_INTERCEPTOR).toString();
     }
@@ -512,7 +512,7 @@ public class TestEnhancer extends CodeGenTestCase {
     public void testAround() throws Throwable {
         AroundDemo demo = (AroundDemo) Enhancer.create(AroundDemo.class, null, new MethodInterceptor() {
             public Object intercept(Object obj, Method method, Object[] args,
-                    MethodProxy proxy) throws Throwable {
+                                    MethodProxy proxy) throws Throwable {
                 if (method.getName().equals("getFirstName")) {
                     return "Christopher";
                 }
@@ -540,14 +540,14 @@ public class TestEnhancer extends CodeGenTestCase {
         assertTrue(testClone.clone() != null);
 
         testClone = (TestClone) Enhancer.create(TestClone.class,
-                new MethodInterceptor() {
+                                                new MethodInterceptor() {
 
-                    public Object intercept(Object obj, java.lang.reflect.Method method, Object[] args,
-                            MethodProxy proxy) throws Throwable {
-                        return proxy.invokeSuper(obj, args);
-                    }
+                                                    public Object intercept(Object obj, java.lang.reflect.Method method, Object[] args,
+                                                                            MethodProxy proxy) throws Throwable {
+                                                        return proxy.invokeSuper(obj, args);
+                                                    }
 
-                });
+                                                });
 
         assertTrue(testClone.clone() != null);
 
@@ -558,8 +558,7 @@ public class TestEnhancer extends CodeGenTestCase {
     }
 
     public static class FinalB implements FinalA {
-        final public void foo() {
-        }
+        final public void foo() {}
     }
 
     public void testFinal() throws Throwable {
@@ -588,25 +587,25 @@ public class TestEnhancer extends CodeGenTestCase {
         e.setCallbackType(MethodInterceptor.class);
         Class<?> f = e.createClass();
         ArgInit a = (ArgInit) ReflectUtils.newInstance(f,
-                new Class[]
-                { String.class },
-                new Object[]
-                { "test" });
+                                                       new Class[]
+                                                       { String.class },
+                                                       new Object[]
+                                                       { "test" });
         assertEquals("test", a.toString());
         ((Factory) a).setCallback(0, TEST_INTERCEPTOR);
         assertEquals("test", a.toString());
 
         Callback[] callbacks = new Callback[] { TEST_INTERCEPTOR };
         ArgInit b = (ArgInit) ((Factory) a).newInstance(new Class[] { String.class },
-                new Object[]
-                { "test2" },
-                callbacks);
+                                                        new Object[]
+                                                        { "test2" },
+                                                        callbacks);
         assertEquals("test2", b.toString());
         try {
             ((Factory) a).newInstance(new Class[] { String.class, String.class },
-                    new Object[]
-                    { "test" },
-                    callbacks);
+                                      new Object[]
+                                      { "test" },
+                                      callbacks);
             fail("must throw exception");
         }
         catch (IllegalArgumentException iae) {
@@ -636,7 +635,7 @@ public class TestEnhancer extends CodeGenTestCase {
 
     public void testAbstractMethodCallInConstructor() throws Throwable {
         AbstractMethodCallInConstructor obj = (AbstractMethodCallInConstructor) Enhancer.create(AbstractMethodCallInConstructor.class,
-                TEST_INTERCEPTOR);
+                                                                                                TEST_INTERCEPTOR);
         obj.foo();
     }
 
@@ -648,15 +647,14 @@ public class TestEnhancer extends CodeGenTestCase {
         };
         DI1 d = (DI1) Enhancer.create(DI1.class, new MethodInterceptor() {
             public Object intercept(Object obj, java.lang.reflect.Method method, Object[] args,
-                    MethodProxy proxy) throws Throwable {
+                                    MethodProxy proxy) throws Throwable {
                 return proxy.invoke(other, args);
             }
         });
         assertTrue("boop".equals(d.herby()));
     }
 
-    static class NamingPolicyDummy {
-    }
+    static class NamingPolicyDummy {}
 
 //    public void testNamingPolicy() throws Throwable {
 //        Enhancer e = new Enhancer();
@@ -692,8 +690,7 @@ public class TestEnhancer extends CodeGenTestCase {
         Enhancer e = new Enhancer();
         e.setUseCache(false);
         e.setCallback(NoOp.INSTANCE);
-        e.setClassLoader(new ClassLoader(this.getClass().getClassLoader()) {
-        });
+        e.setClassLoader(new ClassLoader(this.getClass().getClassLoader()) {});
         e.setNamingPolicy(new NamingPolicy() {
             public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
                 return "cn.taketoday.context.cglib.Object$$ByDerby$$123";
@@ -726,8 +723,7 @@ public class TestEnhancer extends CodeGenTestCase {
         Enhancer e = new Enhancer();
         final String desiredClassName = "cn.taketoday.context.cglib.Object$$42";
         e.setCallback(NoOp.INSTANCE);
-        e.setClassLoader(new ClassLoader(this.getClass().getClassLoader()) {
-        });
+        e.setClassLoader(new ClassLoader(this.getClass().getClassLoader()) {});
         e.setNamingPolicy(new NamingPolicy() {
             public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
                 return desiredClassName;
@@ -747,7 +743,7 @@ public class TestEnhancer extends CodeGenTestCase {
     }
 
     public static Object enhance(Class<?> cls, Class<?> interfaces[], CallbackFilter callbackFilter, Callback callback,
-            ClassLoader loader) {
+                                 ClassLoader loader) {
         Enhancer e = new Enhancer();
         e.setSuperclass(cls);
         e.setInterfaces(interfaces);
@@ -792,8 +788,7 @@ public class TestEnhancer extends CodeGenTestCase {
         void foo();
     }
 
-    abstract static class MethDecImpl implements MethDec {
-    }
+    abstract static class MethDecImpl implements MethDec {}
 
     public void testMethodDeclarer() throws Exception {
         final boolean[] result = new boolean[] { false };
@@ -810,8 +805,7 @@ public class TestEnhancer extends CodeGenTestCase {
         assertTrue(result[0]);
     }
 
-    interface ClassOnlyX {
-    }
+    interface ClassOnlyX {}
 
     public void testClassOnlyFollowedByInstance() {
         Enhancer enhancer = new Enhancer();
@@ -845,9 +839,9 @@ public class TestEnhancer extends CodeGenTestCase {
         boolean called;
 
         public Object intercept(Object obj,
-                Method method,
-                Object[] args,
-                MethodProxy proxy) throws Throwable {
+                                Method method,
+                                Object[] args,
+                                MethodProxy proxy) throws Throwable {
             if (method.equals(EQUALS_METHOD)) {
                 return proxy.invoke(this, args);
             }
@@ -890,11 +884,10 @@ public class TestEnhancer extends CodeGenTestCase {
         e.setSuperclass(ExceptionThrower.class);
         e.setCallback(new MethodInterceptor() {
             public Object intercept(Object obj,
-                    Method method,
-                    Object[] args,
-                    MethodProxy proxy) throws Throwable {
-                switch (((Integer) args[0]).intValue())
-                {
+                                    Method method,
+                                    Object[] args,
+                                    MethodProxy proxy) throws Throwable {
+                switch (((Integer) args[0]).intValue()) {
                     case 1 :
                         throw new MyThrowable();
                     case 2 :
@@ -910,24 +903,21 @@ public class TestEnhancer extends CodeGenTestCase {
         try {
             et.throwsThrowable(1);
         }
-        catch (MyThrowable t) {
-        }
+        catch (MyThrowable t) {}
         catch (Throwable t) {
             fail();
         }
         try {
             et.throwsThrowable(2);
         }
-        catch (MyException t) {
-        }
+        catch (MyException t) {}
         catch (Throwable t) {
             fail();
         }
         try {
             et.throwsThrowable(3);
         }
-        catch (MyRuntimeException t) {
-        }
+        catch (MyRuntimeException t) {}
         catch (Throwable t) {
             fail();
         }
@@ -941,16 +931,14 @@ public class TestEnhancer extends CodeGenTestCase {
         try {
             et.throwsException(2);
         }
-        catch (MyException t) {
-        }
+        catch (MyException t) {}
         catch (Throwable t) {
             fail();
         }
         try {
             et.throwsException(3);
         }
-        catch (MyRuntimeException t) {
-        }
+        catch (MyRuntimeException t) {}
         catch (Throwable t) {
             fail();
         }
@@ -976,8 +964,7 @@ public class TestEnhancer extends CodeGenTestCase {
         try {
             et.throwsNothing(3);
         }
-        catch (MyRuntimeException t) {
-        }
+        catch (MyRuntimeException t) {}
         catch (Throwable t) {
             fail();
         }
@@ -1002,10 +989,10 @@ public class TestEnhancer extends CodeGenTestCase {
 
     private static ArgInit newArgInit(Class<?> clazz, String value) {
         return (ArgInit) ReflectUtils.newInstance(clazz,
-                new Class[]
-                { String.class },
-                new Object[]
-                { value });
+                                                  new Class[]
+                                                  { String.class },
+                                                  new Object[]
+                                                  { value });
     }
 
     private static class StringValue
@@ -1065,7 +1052,8 @@ public class TestEnhancer extends CodeGenTestCase {
     }
 
     public void testCallbackHelper() {
-        @SuppressWarnings("unused") final ArgInit delegate = new ArgInit("helper");
+        @SuppressWarnings("unused")
+        final ArgInit delegate = new ArgInit("helper");
         Class<?> sc = ArgInit.class;
         Class<?>[] interfaces = new Class[] { DI1.class, DI2.class };
 
@@ -1117,8 +1105,7 @@ public class TestEnhancer extends CodeGenTestCase {
         e.setInterfaces(new Class[] { ReturnTypeA.class, ReturnTypeB.class });
         e.setCallback(new MethodInterceptor() {
             public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-                if (method.getReturnType().equals(String.class))
-                    return "hello";
+                if (method.getReturnType().equals(String.class)) return "hello";
                 return new Integer(42);
             }
         });
@@ -1220,8 +1207,7 @@ public class TestEnhancer extends CodeGenTestCase {
     }
 
     static class Foo {
-        Foo() {
-        }
+        Foo() {}
     }
 
     public void testBridgeForcesInvokeVirtual() {
@@ -1378,19 +1364,19 @@ public class TestEnhancer extends CodeGenTestCase {
         {
             ClassWriter cw = new ClassWriter(0);
             cw.visit(
-                    49,
-                    Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE,
-                    "I",
-                    "<A:Ljava/lang/Object;B:Ljava/lang/Object;>Ljava/lang/Object;",
-                    "java/lang/Object",
-                    null);
+                     49,
+                     Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE,
+                     "I",
+                     "<A:Ljava/lang/Object;B:Ljava/lang/Object;>Ljava/lang/Object;",
+                     "java/lang/Object",
+                     null);
             {
                 MethodVisitor mv = cw.visitMethod(
-                        Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
-                        "f",
-                        "(Ljava/lang/Object;)Ljava/lang/Object;",
-                        "(TB;)TA;",
-                        null);
+                                                  Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
+                                                  "f",
+                                                  "(Ljava/lang/Object;)Ljava/lang/Object;",
+                                                  "(TB;)TA;",
+                                                  null);
                 mv.visitEnd();
             }
             cw.visitEnd();
@@ -1399,13 +1385,13 @@ public class TestEnhancer extends CodeGenTestCase {
         {
             ClassWriter cw = new ClassWriter(0);
             cw.visit(
-                    49,
-                    Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_ABSTRACT,
-                    "Z",
-                    "<U:Ljava/lang/Number;>Ljava/lang/Object;LI<TU;Ljava/lang/String;>;",
-                    "java/lang/Object",
-                    new String[]
-                    { "I" });
+                     49,
+                     Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER | Opcodes.ACC_ABSTRACT,
+                     "Z",
+                     "<U:Ljava/lang/Number;>Ljava/lang/Object;LI<TU;Ljava/lang/String;>;",
+                     "java/lang/Object",
+                     new String[]
+                     { "I" });
             {
                 MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
                 mv.visitCode();
@@ -1417,11 +1403,11 @@ public class TestEnhancer extends CodeGenTestCase {
             }
             {
                 MethodVisitor mv = cw.visitMethod(
-                        Opcodes.ACC_PUBLIC,
-                        "f",
-                        "(Ljava/lang/String;)Ljava/lang/Number;",
-                        "(Ljava/lang/String;)TU;",
-                        null);
+                                                  Opcodes.ACC_PUBLIC,
+                                                  "f",
+                                                  "(Ljava/lang/String;)Ljava/lang/Number;",
+                                                  "(Ljava/lang/String;)TU;",
+                                                  null);
                 mv.visitCode();
                 mv.visitInsn(Opcodes.ACONST_NULL);
                 mv.visitInsn(Opcodes.ARETURN);
@@ -1434,7 +1420,7 @@ public class TestEnhancer extends CodeGenTestCase {
         {
             ClassWriter cw = new ClassWriter(0);
             cw.visit(
-                    49, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, "X", "LZ<Ljava/lang/Integer;>;", "Z", null);
+                     49, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, "X", "LZ<Ljava/lang/Integer;>;", "Z", null);
             {
                 MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
                 mv.visitCode();
@@ -1446,17 +1432,17 @@ public class TestEnhancer extends CodeGenTestCase {
             }
             {
                 MethodVisitor mv = cw.visitMethod(
-                        Opcodes.ACC_PUBLIC | Opcodes.ACC_BRIDGE | Opcodes.ACC_SYNTHETIC,
-                        "f",
-                        "(Ljava/lang/Object;)Ljava/lang/Object;",
-                        null,
-                        null);
+                                                  Opcodes.ACC_PUBLIC | Opcodes.ACC_BRIDGE | Opcodes.ACC_SYNTHETIC,
+                                                  "f",
+                                                  "(Ljava/lang/Object;)Ljava/lang/Object;",
+                                                  null,
+                                                  null);
                 mv.visitCode();
                 mv.visitVarInsn(Opcodes.ALOAD, 0);
                 mv.visitVarInsn(Opcodes.ALOAD, 1);
                 mv.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/String");
                 mv.visitMethodInsn(
-                        Opcodes.INVOKESPECIAL, "Z", "f", "(Ljava/lang/String;)Ljava/lang/Number;", false);
+                                   Opcodes.INVOKESPECIAL, "Z", "f", "(Ljava/lang/String;)Ljava/lang/Number;", false);
                 mv.visitInsn(Opcodes.ARETURN);
                 mv.visitMaxs(2, 2);
                 mv.visitEnd();
@@ -1531,18 +1517,18 @@ public class TestEnhancer extends CodeGenTestCase {
         {
             ClassWriter classWriter = new ClassWriter(0);
             classWriter.visit(
-                    Opcodes.V1_8,
-                    Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_PUBLIC,
-                    "A",
-                    "<T:Ljava/lang/Object;>Ljava/lang/Object;",
-                    "java/lang/Object",
-                    null);
+                              Opcodes.V1_8,
+                              Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_PUBLIC,
+                              "A",
+                              "<T:Ljava/lang/Object;>Ljava/lang/Object;",
+                              "java/lang/Object",
+                              null);
             MethodVisitor methodVisitor = classWriter.visitMethod(
-                    Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
-                    "f",
-                    "(Ljava/lang/Object;)V",
-                    "(TT;)V",
-                    null);
+                                                                  Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
+                                                                  "f",
+                                                                  "(Ljava/lang/Object;)V",
+                                                                  "(TT;)V",
+                                                                  null);
             methodVisitor.visitEnd();
             classWriter.visitEnd();
 
@@ -1552,29 +1538,29 @@ public class TestEnhancer extends CodeGenTestCase {
         {
             ClassWriter classWriter = new ClassWriter(0);
             classWriter.visit(
-                    Opcodes.V1_8,
-                    Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_PUBLIC,
-                    "B",
-                    "<T:Ljava/lang/Number;>Ljava/lang/Object;LA<TT;>;",
-                    "java/lang/Object",
-                    new String[]
-                    { "A" });
+                              Opcodes.V1_8,
+                              Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_PUBLIC,
+                              "B",
+                              "<T:Ljava/lang/Number;>Ljava/lang/Object;LA<TT;>;",
+                              "java/lang/Object",
+                              new String[]
+                              { "A" });
             {
                 MethodVisitor methodVisitor = classWriter.visitMethod(
-                        Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
-                        "f",
-                        "(Ljava/lang/Number;)V",
-                        "(TT;)V",
-                        null);
+                                                                      Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT,
+                                                                      "f",
+                                                                      "(Ljava/lang/Number;)V",
+                                                                      "(TT;)V",
+                                                                      null);
                 methodVisitor.visitEnd();
             }
             {
                 MethodVisitor methodVisitor = classWriter.visitMethod(
-                        Opcodes.ACC_PUBLIC | Opcodes.ACC_BRIDGE | Opcodes.ACC_SYNTHETIC,
-                        "f",
-                        "(Ljava/lang/Object;)V",
-                        null,
-                        null);
+                                                                      Opcodes.ACC_PUBLIC | Opcodes.ACC_BRIDGE | Opcodes.ACC_SYNTHETIC,
+                                                                      "f",
+                                                                      "(Ljava/lang/Object;)V",
+                                                                      null,
+                                                                      null);
                 methodVisitor.visitCode();
                 methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
                 methodVisitor.visitVarInsn(Opcodes.ALOAD, 1);
@@ -1617,11 +1603,11 @@ public class TestEnhancer extends CodeGenTestCase {
         e.setClassLoader(classLoader);
         e.setInterfaces(new Class[] { classLoader.loadClass("B") });
         e.setCallbackFilter(
-                new CallbackFilter() {
-                    public int accept(Method method) {
-                        return method.isBridge() ? 1 : 0;
-                    }
-                });
+                            new CallbackFilter() {
+                                public int accept(Method method) {
+                                    return method.isBridge() ? 1 : 0;
+                                }
+                            });
         e.setCallbacks(new Callback[] { new MethodInterceptor() {
             public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) {
                 if (method.getParameterTypes().length > 0) {
@@ -1662,14 +1648,11 @@ public class TestEnhancer extends CodeGenTestCase {
         throw new IllegalStateException("Unknown Java version: " + System.getProperty("java.specification.version"));
     }
 
-    static class ErasedType {
-    }
+    static class ErasedType {}
 
-    static class RetType extends ErasedType {
-    }
+    static class RetType extends ErasedType {}
 
-    static class Refined extends RetType {
-    }
+    static class Refined extends RetType {}
 
     static abstract class Superclass<T extends ErasedType> {
         // Check narrowing return value & parameters
@@ -1678,8 +1661,7 @@ public class TestEnhancer extends CodeGenTestCase {
         }
 
         // Check void return value
-        public void voidReturn(T t) {
-        }
+        public void voidReturn(T t) {}
 
         // Check primitive return value
         public int intReturn(T t) {
@@ -1723,8 +1705,7 @@ public class TestEnhancer extends CodeGenTestCase {
         }
     }
 
-    static class Concrete {
-    }
+    static class Concrete {}
 
     static class ReverseImpl extends ReverseSuper<RetType> {
         public Refined aMethod(Concrete b, Refined c, RetType d, ErasedType e) {
@@ -1741,16 +1722,14 @@ public class TestEnhancer extends CodeGenTestCase {
     }
 
     static abstract class PackageViz implements VizIntf {
-        public void aMethod(Concrete e) {
-        }
+        public void aMethod(Concrete e) {}
     }
 
     // inherits aMethod from PackageViz, but bridges to make it
     // publicly accessible. the bridge here has the same
     // target signature, so it absolutely requires invokespecial,
     // otherwise we recurse forever.
-    public static class PublicViz extends PackageViz implements VizIntf {
-    }
+    public static class PublicViz extends PackageViz implements VizIntf {}
 
     private static class Interceptor implements MethodInterceptor {
         private final List<Class<?>> retList;

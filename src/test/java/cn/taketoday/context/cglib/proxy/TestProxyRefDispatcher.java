@@ -100,10 +100,8 @@ public class TestProxyRefDispatcher extends CodeGenTestCase {
         return new TestSuite(TestProxyRefDispatcher.class);
     }
 
-    public void perform(ClassLoader loader) throws Throwable {
-    }
+    public void perform(ClassLoader loader) throws Throwable {}
 
-    public void testFailOnMemoryLeak() throws Throwable {
-    }
+    public void testFailOnMemoryLeak() throws Throwable {}
 
 }

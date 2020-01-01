@@ -2,8 +2,6 @@ package cn.taketoday.context;
 
 import org.junit.Test;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
 import test.demo.config.Config;
 
 /**

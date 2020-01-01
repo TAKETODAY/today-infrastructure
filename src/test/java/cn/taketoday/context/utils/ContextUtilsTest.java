@@ -45,8 +45,6 @@ import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.StandardBeanDefinition;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

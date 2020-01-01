@@ -97,8 +97,8 @@ public class TestDelegates extends cn.taketoday.context.cglib.CodeGenTestCase {
 
     public void testStaticDelegate() throws Throwable {
         MainDelegate start = (MainDelegate) MethodDelegate.createStatic(MainTest.class,
-                "alternateMain",
-                MainDelegate.class);
+                                                                        "alternateMain",
+                                                                        MainDelegate.class);
         assertTrue(start.main(null) == 7);
     }
 
@@ -175,10 +175,8 @@ public class TestDelegates extends cn.taketoday.context.cglib.CodeGenTestCase {
         return new TestSuite(TestDelegates.class);
     }
 
-    public void perform(ClassLoader loader) throws Throwable {
-    }
+    public void perform(ClassLoader loader) throws Throwable {}
 
-    public void testFailOnMemoryLeak() throws Throwable {
-    }
+    public void testFailOnMemoryLeak() throws Throwable {}
 
 }

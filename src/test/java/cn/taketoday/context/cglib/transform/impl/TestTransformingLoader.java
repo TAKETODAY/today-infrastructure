@@ -106,13 +106,14 @@ public class TestTransformingLoader extends cn.taketoday.context.cglib.CodeGenTe
 
     private static Class loadHelper(final ClassTransformer t, Class target) throws ClassNotFoundException {
         ClassLoader parent = TestTransformingLoader.class.getClassLoader();
-        TransformingClassLoader loader = new TransformingClassLoader(parent, TEST_FILTER,
+        TransformingClassLoader loader = new TransformingClassLoader(parent,
+                                                                     TEST_FILTER,
 
-                new ClassTransformerFactory() {
-                    public ClassTransformer newInstance() {
-                        return t;
-                    }
-                }
+                                                                     new ClassTransformerFactory() {
+                                                                         public ClassTransformer newInstance() {
+                                                                             return t;
+                                                                         }
+                                                                     }
 
         );
         return loader.loadClass(target.getName());
@@ -130,10 +131,8 @@ public class TestTransformingLoader extends cn.taketoday.context.cglib.CodeGenTe
         return new TestSuite(TestTransformingLoader.class);
     }
 
-    public void perform(ClassLoader loader) throws Throwable {
-    }
+    public void perform(ClassLoader loader) throws Throwable {}
 
-    public void testFailOnMemoryLeak() throws Throwable {
-    }
+    public void testFailOnMemoryLeak() throws Throwable {}
 
 }

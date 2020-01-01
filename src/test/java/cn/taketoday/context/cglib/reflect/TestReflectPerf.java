@@ -79,7 +79,9 @@ public class TestReflectPerf extends cn.taketoday.context.cglib.CodeGenTestCase 
         long t9 = System.currentTimeMillis();
 
         System.out.println(
-                "fc           = " + (t2 - t1) + "\n" + "reflect+args = " + (t3 - t2) + "\n" + "reflect      = " + (t4 - t3) + "\n" + "fm+args      = " + (t5 - t4) + "\n" + "fm           = " + (t6 - t5) + "\n" + "fc w/idx     = " + (t7 - t6) + "\n" + "delegate     = " + (t8 - t7) + "\n" + "raw          = " + (t9 - t8));
+                           "fc           = " + (t2 - t1) + "\n" + "reflect+args = " + (t3 - t2) + "\n" + "reflect      = " + (t4 - t3)
+                                   + "\n" + "fm+args      = " + (t5 - t4) + "\n" + "fm           = " + (t6 - t5) + "\n" + "fc w/idx     = "
+                                   + (t7 - t6) + "\n" + "delegate     = " + (t8 - t7) + "\n" + "raw          = " + (t9 - t8));
     }
 
     public TestReflectPerf(String testName) {
@@ -94,10 +96,8 @@ public class TestReflectPerf extends cn.taketoday.context.cglib.CodeGenTestCase 
         return new TestSuite(TestReflectPerf.class);
     }
 
-    public void perform(ClassLoader loader) throws Throwable {
-    }
+    public void perform(ClassLoader loader) throws Throwable {}
 
-    public void testFailOnMemoryLeak() throws Throwable {
-    }
+    public void testFailOnMemoryLeak() throws Throwable {}
 
 }

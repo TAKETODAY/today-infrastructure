@@ -28,7 +28,6 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.loader.PropsPropertyResolver;
 
 /**
  * @author Today <br>

@@ -28,8 +28,7 @@ import junit.framework.TestSuite;
  */
 public class TestBeanMapProxy extends cn.taketoday.context.cglib.CodeGenTestCase {
     public void testBeanMap() throws Exception {
-        HashMap identity = new HashMap() {
-        }; // use anonymous class for correct class loader
+        HashMap identity = new HashMap() {}; // use anonymous class for correct class loader
         Person person = (Person) BeanMapProxy.newInstance(identity, new Class[] { Person.class });
         person.setName("Chris");
         assertTrue("Chris".equals(person.getName()));
@@ -58,7 +57,6 @@ public class TestBeanMapProxy extends cn.taketoday.context.cglib.CodeGenTestCase
         // nothing to test at this time
     }
 
-    public void testFailOnMemoryLeak() throws Throwable {
-    }
+    public void testFailOnMemoryLeak() throws Throwable {}
 
 }

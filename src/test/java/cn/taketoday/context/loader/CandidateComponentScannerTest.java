@@ -47,13 +47,12 @@ public class CandidateComponentScannerTest {
 //        System.err.println(size2 - size1);
         assertTrue(size2 == size1);
 
-        
         // -------------------------------------
         sharedInstance.clear();
         final Set<Class<?>> loader2 = sharedInstance.scan("cn.taketoday.context.loader"); // 14 + 12
         final int loader2size2 = loader2.size();
         assertTrue(loader2size2 == 26);
-        
+
     }
 
 }

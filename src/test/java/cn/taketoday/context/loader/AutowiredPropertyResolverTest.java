@@ -30,8 +30,6 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.loader.AutowiredPropertyResolver;
-import cn.taketoday.context.loader.PropertyValueResolver;
 
 /**
  * @author Today <br>
@@ -59,7 +57,8 @@ public class AutowiredPropertyResolverTest {
             applicationContext.getEnvironment().getBeanDefinitionLoader();
 
             PropertyValue resolveProperty = autowiredPropertyResolver.resolveProperty(//
-                    AutowiredPropertyResolverTest.class.getDeclaredField("name")//
+                                                                                      AutowiredPropertyResolverTest.class.getDeclaredField(
+                                                                                                                                           "name")//
             );
 
             System.err.println(resolveProperty);

@@ -26,8 +26,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
@@ -44,9 +42,8 @@ import test.demo.config.User;
 @Setter
 @Getter
 @Configuration
-public class MissingBeanTest {  
+public class MissingBeanTest {
     private static final Logger log = LoggerFactory.getLogger(MissingBeanTest.class);
-
 
     private long start;
 

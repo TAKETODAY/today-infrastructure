@@ -61,10 +61,8 @@ public class TestInterfaceMaker extends CodeGenTestCase {
         junit.textui.TestRunner.main(testCaseName);
     }
 
-    public void perform(ClassLoader loader) throws Throwable {
-    }
+    public void perform(ClassLoader loader) throws Throwable {}
 
-    public void testFailOnMemoryLeak() throws Throwable {
-    }
+    public void testFailOnMemoryLeak() throws Throwable {}
 
 }

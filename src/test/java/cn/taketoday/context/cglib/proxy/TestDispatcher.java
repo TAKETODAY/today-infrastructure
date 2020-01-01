@@ -90,10 +90,8 @@ public class TestDispatcher extends CodeGenTestCase {
         return new TestSuite(TestDispatcher.class);
     }
 
-    public void perform(ClassLoader loader) throws Throwable {
-    }
+    public void perform(ClassLoader loader) throws Throwable {}
 
-    public void testFailOnMemoryLeak() throws Throwable {
-    }
+    public void testFailOnMemoryLeak() throws Throwable {}
 
 }

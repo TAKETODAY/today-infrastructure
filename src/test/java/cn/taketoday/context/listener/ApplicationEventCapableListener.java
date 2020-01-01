@@ -25,11 +25,10 @@ import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.event.ApplicationEventCapable;
 import cn.taketoday.context.event.BeanDefinitionLoadedEvent;
 import cn.taketoday.context.event.BeanDefinitionLoadingEvent;
-import cn.taketoday.context.listener.ApplicationListener;
 
 /**
  * @author TODAY <br>
- * 		   2019-11-05 23:12
+ *         2019-11-05 23:12
  */
 @ContextListener
 public class ApplicationEventCapableListener implements ApplicationListener<EventObject>, ApplicationEventCapable {
