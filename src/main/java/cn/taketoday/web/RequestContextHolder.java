@@ -37,6 +37,11 @@ import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.RedirectModel;
 
 /**
+ * Holder class to expose the web request in the form of a thread-bound
+ * {@link RequestContext} object. The request will be inherited by any child
+ * threads spawned by the current thread if the {@code inheritable} flag is set
+ * to {@code true}.
+ * 
  * @author TODAY <br>
  *         2019-03-23 10:29
  * @since 2.3.7

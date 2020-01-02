@@ -39,6 +39,8 @@ import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.RedirectModel;
 
 /**
+ * Context holder for request-specific state.
+ * 
  * @author TODAY <br>
  *         2019-06-22 15:48
  * @since 2.3.7

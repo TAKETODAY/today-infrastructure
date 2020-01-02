@@ -23,7 +23,7 @@ import java.util.Enumeration;
 import java.util.Map;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.RequestContextHolder;
+import cn.taketoday.web.RequestContextHolder;
 
 /**
  * @author TODAY <br>

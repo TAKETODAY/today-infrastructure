@@ -20,7 +20,7 @@
 package cn.taketoday.web.servlet;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.web.servlet.RequestContextHolder.prepareContext;
+import static cn.taketoday.web.RequestContextHolder.prepareContext;
 
 import java.io.IOException;
 import java.io.Serializable;

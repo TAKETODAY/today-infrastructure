@@ -28,6 +28,7 @@ import javax.servlet.http.HttpSession;
 
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.StandardWebBeanFactory;
 

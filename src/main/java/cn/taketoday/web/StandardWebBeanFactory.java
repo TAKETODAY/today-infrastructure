@@ -26,7 +26,6 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.factory.StandardBeanFactory;
-import cn.taketoday.web.servlet.RequestContextHolder;
 
 /**
  * @author TODAY <br>
@@ -38,7 +37,7 @@ public class StandardWebBeanFactory extends StandardBeanFactory {
         super(applicationContext);
         if (applicationContext instanceof ConfigurableWebApplicationContext == false) {
             throw new ConfigurationException("application context must be 'ConfigurableWebApplicationContext'");
-        }
+        }   
     }
 
     @Override
