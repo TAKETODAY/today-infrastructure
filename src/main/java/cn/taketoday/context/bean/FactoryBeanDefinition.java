@@ -81,7 +81,11 @@ public class FactoryBeanDefinition<T> implements BeanDefinition {
     }
 
     public FactoryBean<T> getFactory() {
-        return ConfigurationException.nonNull(factorySupplier.get(), "The provided FactoryBean cannot be null");
+        final FactoryBean<T> obj = factorySupplier.get();
+        if (obj == null) {
+            throw new ConfigurationException("The provided FactoryBean cannot be null");
+        }
+        return obj;
     }
 
     public void setFactory(FactoryBean<T> factory) {

@@ -39,7 +39,7 @@ class MixinEverythingEmitter extends MixinEmitter {
 
     @Override
     protected Class[] getInterfaces(Class[] classes) {
-        List<Class<?>> list = new ArrayList();
+        List<Class<?>> list = new ArrayList<>();
         for (Class<?> class1 : classes) {
             ReflectUtils.addAllInterfaces(class1, list);
         }

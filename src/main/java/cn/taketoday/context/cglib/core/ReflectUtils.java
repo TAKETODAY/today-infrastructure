@@ -15,6 +15,10 @@
  */
 package cn.taketoday.context.cglib.core;
 
+import static java.lang.reflect.Modifier.FINAL;
+import static java.lang.reflect.Modifier.STATIC;
+import static java.security.AccessController.doPrivileged;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -26,16 +30,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.Constant;
@@ -49,8 +52,8 @@ import cn.taketoday.context.utils.ClassUtils;
 @SuppressWarnings("all")
 public abstract class ReflectUtils {
 
-    private static final Map<String, Class> primitives = new HashMap<>(8);
-    private static final Map<String, String> transforms = new HashMap<>(8);
+    private static final HashMap<String, Class> primitives = new HashMap<>(8);
+    private static final HashMap<String, String> transforms = new HashMap<>(8);
 
     private static final ClassLoader defaultLoader = ReflectUtils.class.getClassLoader();
     private static Method DEFINE_CLASS, DEFINE_CLASS_UNSAFE;
@@ -58,7 +61,7 @@ public abstract class ReflectUtils {
     private static final Object UNSAFE;
     private static final Throwable THROWABLE;
 
-    private static final List<Method> OBJECT_METHODS = new ArrayList<Method>();
+    private static final ArrayList<Method> OBJECT_METHODS = new ArrayList<>();
 
     static {
 
@@ -69,16 +72,16 @@ public abstract class ReflectUtils {
         try {
             protectionDomain = getProtectionDomain(ReflectUtils.class);
             try {
-                defineClass = (Method) AccessController.doPrivileged(new PrivilegedExceptionAction() {
-                    public Object run() throws Exception {
-                        Class loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
-                        Method defineClass = loader.getDeclaredMethod("defineClass",
-                                                                      String.class, byte[].class, Integer.TYPE, Integer.TYPE,
-                                                                      ProtectionDomain.class);
-
-                        defineClass.setAccessible(true);
-                        return defineClass;
-                    }
+                defineClass = doPrivileged((PrivilegedExceptionAction<Method>) () -> {
+                    final Class loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
+                    final Method ret = loader.getDeclaredMethod("defineClass",
+                                                                String.class,
+                                                                byte[].class,
+                                                                Integer.TYPE,
+                                                                Integer.TYPE,
+                                                                ProtectionDomain.class);
+                    ret.setAccessible(true);
+                    return ret;
                 });
                 defineClassUnsafe = null;
                 unsafe = null;
@@ -87,29 +90,30 @@ public abstract class ReflectUtils {
                 // Fallback on Jigsaw where this method is not available.
                 throwable = t;
                 defineClass = null;
-                unsafe = AccessController.doPrivileged(new PrivilegedExceptionAction() {
-                    public Object run() throws Exception {
-                        Class u = Class.forName("sun.misc.Unsafe");
-                        Field theUnsafe = u.getDeclaredField("theUnsafe");
-                        theUnsafe.setAccessible(true);
-                        return theUnsafe.get(null);
-                    }
+                unsafe = doPrivileged((PrivilegedExceptionAction) () -> {
+                    Class u = Class.forName("sun.misc.Unsafe");
+                    Field theUnsafe = u.getDeclaredField("theUnsafe");
+                    theUnsafe.setAccessible(true);
+                    return theUnsafe.get(null);
                 });
+
                 Class u = Class.forName("sun.misc.Unsafe");
                 defineClassUnsafe = u.getMethod("defineClass",
-                                                String.class, byte[].class, Integer.TYPE, Integer.TYPE, ClassLoader.class,
+                                                String.class,
+                                                byte[].class,
+                                                Integer.TYPE,
+                                                Integer.TYPE,
+                                                ClassLoader.class,
                                                 ProtectionDomain.class);
             }
-            AccessController.doPrivileged(new PrivilegedExceptionAction() {
-                public Object run() throws Exception {
-                    for (Method method : Object.class.getDeclaredMethods()) {
-                        if ("finalize".equals(method.getName()) || (method.getModifiers() & (Modifier.FINAL | Modifier.STATIC)) > 0) {
-                            continue;
-                        }
-                        OBJECT_METHODS.add(method);
+            doPrivileged((PrivilegedExceptionAction) () -> {
+                for (Method method : Object.class.getDeclaredMethods()) {
+                    if ("finalize".equals(method.getName()) || (method.getModifiers() & (FINAL | STATIC)) > 0) {
+                        continue;
                     }
-                    return null;
+                    OBJECT_METHODS.add(method);
                 }
+                return null;
             });
         }
         catch (Throwable t) {
@@ -121,11 +125,11 @@ public abstract class ReflectUtils {
             defineClassUnsafe = null;
             unsafe = null;
         }
-        PROTECTION_DOMAIN = protectionDomain;
-        DEFINE_CLASS = defineClass;
-        DEFINE_CLASS_UNSAFE = defineClassUnsafe;
         UNSAFE = unsafe;
         THROWABLE = throwable;
+        DEFINE_CLASS = defineClass;
+        PROTECTION_DOMAIN = protectionDomain;
+        DEFINE_CLASS_UNSAFE = defineClassUnsafe;
     }
 
     private static final String[] CGLIB_PACKAGES = { "java.lang" };
@@ -150,15 +154,11 @@ public abstract class ReflectUtils {
         transforms.put("boolean", "Z");
     }
 
-    public static ProtectionDomain getProtectionDomain(final Class source) {
-        if (source == null) {
-            return null;
-        }
-        return AccessController.doPrivileged((PrivilegedAction<ProtectionDomain>) () -> source.getProtectionDomain());
+    public static ProtectionDomain getProtectionDomain(final Class<?> source) {
+        return source == null ? null : doPrivileged((PrivilegedAction<ProtectionDomain>) () -> source.getProtectionDomain());
     }
 
     public static Type[] getExceptionTypes(Member member) {
-
         if (member instanceof Executable) {
             return TypeUtils.getTypes(((Executable) member).getExceptionTypes());
         }
@@ -182,7 +182,6 @@ public abstract class ReflectUtils {
 
     public static Constructor findConstructor(String desc, ClassLoader loader) {
         try {
-
             String className = desc.substring(0, desc.indexOf('(')).trim();
             return getClass(className, loader).getConstructor(parseTypes(desc, loader));
         }
@@ -211,7 +210,7 @@ public abstract class ReflectUtils {
     private static Class[] parseTypes(String desc, ClassLoader loader) throws ClassNotFoundException {
         int lparen = desc.indexOf('(');
         int rparen = desc.indexOf(')', lparen);
-        List params = new ArrayList();
+        ArrayList<String> params = new ArrayList<>();
         int start = lparen + 1;
         for (;;) {
             int comma = desc.indexOf(',', start);
@@ -224,10 +223,12 @@ public abstract class ReflectUtils {
         if (start < rparen) {
             params.add(desc.substring(start, rparen).trim());
         }
-        Class[] types = new Class[params.size()];
-        for (int i = 0; i < types.length; i++) {
-            types[i] = getClass((String) params.get(i), loader);
+        int i = 0;
+        Class<?>[] types = new Class[params.size()];
+        for (final String name : params) {
+            types[i++] = getClass(name, loader);
         }
+
         return types;
     }
 
@@ -244,35 +245,43 @@ public abstract class ReflectUtils {
         while ((index = className.indexOf("[]", index) + 1) > 0) {
             dimensions++;
         }
-        StringBuffer brackets = new StringBuffer(className.length() - dimensions);
+        StringBuilder brackets = new StringBuilder(className.length() - dimensions);
         for (int i = 0; i < dimensions; i++) {
             brackets.append('[');
         }
         className = className.substring(0, className.length() - 2 * dimensions);
 
-        String prefix = (dimensions > 0) ? brackets + "L" : "";
-        String suffix = (dimensions > 0) ? ";" : "";
-        try {
-            return Class.forName(prefix + className + suffix, false, loader);
+        final String prefix = (dimensions > 0) ? brackets + "L" : Constant.BLANK;
+        final String suffix = (dimensions > 0) ? ";" : Constant.BLANK;
+        try {//@off
+            return Class.forName(new StringBuilder(prefix)
+                                         .append(className)
+                                         .append(suffix)
+                                         .toString(), false, loader);//@on
         }
         catch (ClassNotFoundException ignore) {}
         for (int i = 0; i < packages.length; i++) {
             try {
-                return Class.forName(prefix + packages[i] + '.' + className + suffix, false, loader);
+//@off
+                return Class.forName(new StringBuilder(prefix)
+                                     .append(packages[i])
+                                     .append('.')
+                                     .append(className)
+                                     .append(suffix).toString(), false, loader);//@on
             }
             catch (ClassNotFoundException ignore) {}
         }
         if (dimensions == 0) {
-            Class c = (Class) primitives.get(className);
+            Class c = primitives.get(className);
             if (c != null) {
                 return c;
             }
         }
         else {
-            String transform = (String) transforms.get(className);
+            String transform = transforms.get(className);
             if (transform != null) {
                 try {
-                    return Class.forName(brackets + transform, false, loader);
+                    return Class.forName(brackets.append(transform).toString(), false, loader);
                 }
                 catch (ClassNotFoundException ignore) {}
             }
@@ -310,25 +319,29 @@ public abstract class ReflectUtils {
         }
     }
 
-    public static String[] getNames(Class[] classes) {
-        if (classes == null) return null;
-        String[] names = new String[classes.length];
-        for (int i = 0; i < names.length; i++) {
-            names[i] = classes[i].getName();
+    public static String[] getNames(final Class[] classes) {
+        if (classes == null) {
+            return null;
+        }
+        int i = 0;
+        final String[] names = new String[classes.length];
+        for (final Class clazz : classes) {
+            names[i++] = clazz.getName();
         }
         return names;
     }
 
-    public static Class[] getClasses(Object[] objects) {
-        Class[] classes = new Class[objects.length];
-        for (int i = 0; i < objects.length; i++) {
-            classes[i] = objects[i].getClass();
+    public static Class[] getClasses(final Object[] objects) {
+        int i = 0;
+        final Class[] classes = new Class[objects.length];
+        for (final Object obj : objects) {
+            classes[i++] = obj.getClass();
         }
         return classes;
     }
 
-    public static Method findNewInstance(Class iface) {
-        Method m = findInterfaceMethod(iface);
+    public static Method findNewInstance(Class<?> iface) {
+        final Method m = findInterfaceMethod(iface);
         if (!m.getName().equals("newInstance")) {
             throw new IllegalArgumentException(iface + " missing newInstance method");
         }
@@ -336,7 +349,7 @@ public abstract class ReflectUtils {
     }
 
     public static Method[] getPropertyMethods(PropertyDescriptor[] properties, boolean read, boolean write) {
-        Set<Method> methods = new HashSet<>();
+        final Set<Method> methods = new HashSet<>();
         for (int i = 0; i < properties.length; i++) {
             PropertyDescriptor pd = properties[i];
             if (read) {
@@ -350,28 +363,26 @@ public abstract class ReflectUtils {
         return methods.toArray(new Method[methods.size()]);
     }
 
-    public static PropertyDescriptor[] getBeanProperties(Class type) {
+    public static PropertyDescriptor[] getBeanProperties(Class<?> type) {
         return getPropertiesHelper(type, true, true);
     }
 
-    public static PropertyDescriptor[] getBeanGetters(Class type) {
+    public static PropertyDescriptor[] getBeanGetters(Class<?> type) {
         return getPropertiesHelper(type, true, false);
     }
 
-    public static PropertyDescriptor[] getBeanSetters(Class type) {
+    public static PropertyDescriptor[] getBeanSetters(Class<?> type) {
         return getPropertiesHelper(type, false, true);
     }
 
-    private static PropertyDescriptor[] getPropertiesHelper(Class type, boolean read, boolean write) {
+    private static PropertyDescriptor[] getPropertiesHelper(Class<?> type, boolean read, boolean write) {
         try {
-            BeanInfo info = Introspector.getBeanInfo(type, Object.class);
-            PropertyDescriptor[] all = info.getPropertyDescriptors();
+            PropertyDescriptor[] all = Introspector.getBeanInfo(type, Object.class).getPropertyDescriptors();
             if (read && write) {
                 return all;
             }
-            List<PropertyDescriptor> properties = new ArrayList<>(all.length);
-            for (int i = 0; i < all.length; i++) {
-                final PropertyDescriptor pd = all[i];
+            final ArrayList<PropertyDescriptor> properties = new ArrayList<>(all.length);
+            for (final PropertyDescriptor pd : all) {
                 if ((read && pd.getReadMethod() != null) || (write && pd.getWriteMethod() != null)) {
                     properties.add(pd);
                 }
@@ -383,10 +394,11 @@ public abstract class ReflectUtils {
         }
     }
 
-    public static Method findDeclaredMethod(final Class type, final String methodName, final Class[] parameterTypes)
-            throws NoSuchMethodException {
+    public static Method findDeclaredMethod(final Class<?> type,
+                                            final String methodName,
+                                            final Class<?>[] parameterTypes) throws NoSuchMethodException {
 
-        Class cl = type;
+        Class<?> cl = type;
         while (cl != null) {
             try {
                 return cl.getDeclaredMethod(methodName, parameterTypes);
@@ -399,16 +411,16 @@ public abstract class ReflectUtils {
 
     }
 
-    public static List addAllMethods(final Class type, final List list) {
+    public static List<Method> addAllMethods(final Class<?> type, final List<Method> list) {
 
         if (type == Object.class) {
             list.addAll(OBJECT_METHODS);
         }
         else {
-            list.addAll(Arrays.asList(type.getDeclaredMethods()));
+            Collections.addAll(list, type.getDeclaredMethods());
         }
 
-        final Class superclass = type.getSuperclass();
+        final Class<?> superclass = type.getSuperclass();
         if (superclass != null) {
             addAllMethods(superclass, list);
         }
@@ -418,24 +430,25 @@ public abstract class ReflectUtils {
         return list;
     }
 
-    public static List addAllInterfaces(Class type, List list) {
-        Class superclass = type.getSuperclass();
+    public static List<Class<?>> addAllInterfaces(Class<?> type, List<Class<?>> list) {
+        final Class<?> superclass = type.getSuperclass();
         if (superclass != null) {
-            list.addAll(Arrays.asList(type.getInterfaces()));
+            Collections.addAll(list, type.getInterfaces());
             addAllInterfaces(superclass, list);
         }
         return list;
     }
 
     public static Method findInterfaceMethod(Class iface) {
-        if (!iface.isInterface()) {
-            throw new IllegalArgumentException(iface + " is not an interface");
+
+        if (iface.isInterface()) {
+            final Method[] methods = iface.getDeclaredMethods();
+            if (methods.length != 1) {
+                throw new IllegalArgumentException("expecting exactly 1 method in " + iface);
+            }
+            return methods[0];
         }
-        Method[] methods = iface.getDeclaredMethods();
-        if (methods.length != 1) {
-            throw new IllegalArgumentException("expecting exactly 1 method in " + iface);
-        }
-        return methods[0];
+        throw new IllegalArgumentException(iface + " is not an interface");
     }
 
     public static <T> Class<T> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
@@ -528,17 +541,15 @@ public abstract class ReflectUtils {
 
     // used by MethodInterceptorGenerated generated code
     public static Method[] findMethods(String[] namesAndDescriptors, Method[] methods) {
-        Map map = new HashMap();
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
-            map.put(method.getName() + Type.getMethodDescriptor(method), method);
+
+        final HashMap<String, Method> map = new HashMap<>();
+        for (final Method method : methods) {
+            map.put(method.getName().concat(Type.getMethodDescriptor(method)), method);
         }
-        Method[] result = new Method[namesAndDescriptors.length / 2];
+
+        final Method[] result = new Method[namesAndDescriptors.length / 2];
         for (int i = 0; i < result.length; i++) {
-            result[i] = (Method) map.get(namesAndDescriptors[i * 2] + namesAndDescriptors[i * 2 + 1]);
-            if (result[i] == null) {
-                // TODO: error?
-            }
+            result[i] = map.get(namesAndDescriptors[i * 2] + namesAndDescriptors[i * 2 + 1]);
         }
         return result;
     }

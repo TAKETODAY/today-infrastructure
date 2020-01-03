@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.logger;
 
+import static cn.taketoday.context.logger.MessageFormatter.format;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -34,17 +36,17 @@ public class MessageFormatterTest {
     public void testMessageFormatter() throws Exception {
 
         final String messagePattern = "message: [{}]";
-        final String format = MessageFormatter.format(messagePattern, "TEST VALUE");
+        final String format = format(messagePattern, "TEST VALUE");
 
         assertTrue(format.equals("message: [TEST VALUE]"));
 
-        assertNull(MessageFormatter.format(null, null));
+        assertNull(format(null, null));
 
-        assertTrue(MessageFormatter.format(messagePattern, null).equals(messagePattern)); // no params
+        assertTrue(format(messagePattern, null).equals(messagePattern)); // no params
 
-        assertTrue(MessageFormatter.format("message: []", "").equals("message: []")); // empty {}
-        assertTrue(MessageFormatter.format("message: [\\{}]", "").equals("message: [{}]")); //isEscapedDelimeter
-        assertTrue(MessageFormatter.format("message: [\\\\{}]", "").equals("message: [\\]")); // double Escaped Delimeter
+        assertTrue(format("message: []", "").equals("message: []")); // empty {}
+        assertTrue(format("message: [\\{}]", "").equals("message: [{}]")); //isEscapedDelimeter
+        assertTrue(format("message: [\\\\{}]", "").equals("message: [\\]")); // double Escaped Delimeter
 
         // TODO deep append parameters 
 
@@ -54,10 +56,22 @@ public class MessageFormatterTest {
 
         final String ret = "string: [TEST], double: [123.124], float: [123.123], int: [123]";
 
-        final String format2 = MessageFormatter.format("string: [{}], double: [{}], float: [{}], int: [{}]", params);
+        final String format2 = format("string: [{}], double: [{}], float: [{}], int: [{}]", params);
         System.err.println(format2);
         assertTrue(format2.equals(ret));
 
+        // deep
+        Object[] paramsArray = new Object[] { //
+            "TEST", new double[] { 123.124D }, new float[] { 123.123F }, //
+            new int[] { 123 }, new long[] { 123L }, new byte[] { 123 }, //
+            new char[] { 'c' }, new boolean[] { true }, new short[] { 123 }, null, new Object[] { "123", 'c' }
+        };
+        final String retArray = "s: [TEST], d: [123.124], f: [123.123], i: [123], l: [123], b: [123], c: [c], b: [true], s: [123], null, [123, c]";
+        final String formatArray = format("s: [{}], d: {}, f: {}, i: {}, l: {}, b: {}, c: {}, b: {}, s: {}, {}, {}",
+                                          paramsArray);
+
+        System.err.println(formatArray);
+        assertEquals(formatArray, retArray);
     }
 
 }

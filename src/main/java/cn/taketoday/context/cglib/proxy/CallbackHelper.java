@@ -21,7 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * @author TODAY <br>
@@ -29,7 +31,7 @@ import cn.taketoday.context.cglib.core.ReflectUtils;
  */
 public abstract class CallbackHelper implements CallbackFilter {
 
-    private List<Object> callbacks = new ArrayList<>();
+    private ArrayList<Object> callbacks = new ArrayList<>();
 
     private Map<Method, Integer> methodMap = new HashMap<>();
 
@@ -69,21 +71,24 @@ public abstract class CallbackHelper implements CallbackFilter {
 
     public Callback[] getCallbacks() {
         final List<Object> callbacks = this.callbacks;
-        if (callbacks.isEmpty()) {
+        if (ObjectUtils.isEmpty(callbacks)) {
             return new Callback[0];
         }
         if (callbacks.get(0) instanceof Callback) {
-            return (Callback[]) callbacks.toArray(new Callback[callbacks.size()]);
+            return callbacks.toArray(new Callback[callbacks.size()]);
         }
         throw new IllegalStateException("getCallback returned classes, not callbacks; call getCallbackTypes instead");
     }
 
     public Class<?>[] getCallbackTypes() {
-        if (callbacks.size() == 0) return new Class[0];
+        final List<Object> callbacks = this.callbacks;
+        if (ObjectUtils.isEmpty(callbacks)) {
+            return Constant.EMPTY_CLASS_ARRAY;
+        }
         if (callbacks.get(0) instanceof Callback) {
             return ReflectUtils.getClasses(getCallbacks());
         }
-        return (Class[]) callbacks.toArray(new Class[callbacks.size()]);
+        return callbacks.toArray(new Class[callbacks.size()]);
     }
 
     public int accept(Method method) {
@@ -95,9 +100,6 @@ public abstract class CallbackHelper implements CallbackFilter {
     }
 
     public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        }
-        return o instanceof CallbackHelper && methodMap.equals(((CallbackHelper) o).methodMap);
+        return o == this || o instanceof CallbackHelper && methodMap.equals(((CallbackHelper) o).methodMap);
     }
 }

@@ -330,14 +330,20 @@ public class ClassEmitter extends ClassTransformer {
         }
 
         public boolean equals(Object o) {
-            if (o == null) return false;
-            if (!(o instanceof FieldInfo)) return false;
-            FieldInfo other = (FieldInfo) o;
+            if (!(o instanceof FieldInfo)) {
+                return false;
+            }
+            final FieldInfo other = (FieldInfo) o;
             if (access != other.access || !name.equals(other.name) || !type.equals(other.type)) {
                 return false;
             }
-            if ((value == null) ^ (other.value == null)) return false;
-            if (value != null && !value.equals(other.value)) return false;
+            final Object value = this.value;
+            if ((value == null) ^ (other.value == null)) {
+                return false;
+            }
+            if (value != null && !value.equals(other.value)) {
+                return false;
+            }
             return true;
         }
 
