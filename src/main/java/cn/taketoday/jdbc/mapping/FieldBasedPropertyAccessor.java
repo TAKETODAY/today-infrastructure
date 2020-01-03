@@ -22,6 +22,7 @@ package cn.taketoday.jdbc.mapping;
 import java.lang.reflect.Field;
 
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.ClassUtils;
 
 /**
  * @author TODAY <br>
@@ -32,7 +33,7 @@ public class FieldBasedPropertyAccessor implements PropertyAccessor {
     private final Field field;
 
     public FieldBasedPropertyAccessor(Field field) {
-        this.field = field;
+        this.field = ClassUtils.makeAccessible(field);
     }
 
     @Override

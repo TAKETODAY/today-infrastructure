@@ -127,13 +127,11 @@ public class ColumnMapping implements PropertyAccessor {
         final String name = field.getName();
 
         try {
-
             final BeanInfo beanInfo = Introspector.getBeanInfo(field.getDeclaringClass());
-
             final PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
 
             if (ObjectUtils.isEmpty(propertyDescriptors)) {
-                return new FieldBasedPropertyAccessor(ClassUtils.makeAccessible(field));
+                return new FieldBasedPropertyAccessor(field);
             }
             for (final PropertyDescriptor propertyDescriptor : propertyDescriptors) {
 
@@ -146,13 +144,13 @@ public class ColumnMapping implements PropertyAccessor {
                     if (writeMethod != null && readMethod != null) {
                         return new MethodBasedPropertyAccessor(readMethod, writeMethod);
                     }
-                    return new FieldBasedPropertyAccessor(ClassUtils.makeAccessible(field));
+                    return new FieldBasedPropertyAccessor(field);
                 }
             }
         }
         catch (IntrospectionException e) {
             LoggerFactory.getLogger(getClass()).warn("Use reflect to access this field: [{}]", field, e);
-            return new FieldBasedPropertyAccessor(ClassUtils.makeAccessible(field));
+            return new FieldBasedPropertyAccessor(field);
         }
         LoggerFactory.getLogger(getClass()).error("Can't obtain an accessor to access this field: [{}]", field);
         return null;
@@ -174,7 +172,6 @@ public class ColumnMapping implements PropertyAccessor {
                 return resolver;
             }
         }
-
         throw new ConfigurationException("There isn't have a result resolver to resolve : [" + toString() + "]");
     }
 
@@ -203,7 +200,7 @@ public class ColumnMapping implements PropertyAccessor {
     }
 
     public void resolveResult(Object obj, ResultSet resultSet) throws SQLException {
-        accessor.set(obj, resolver.resolveResult(resultSet, column));
+        set(obj, resolver.resolveResult(resultSet, column));
     }
 
     // Some useful methods

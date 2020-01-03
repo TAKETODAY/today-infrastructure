@@ -26,6 +26,7 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.jdbc.utils.DataSourceUtils;
@@ -39,17 +40,37 @@ public abstract class Executer implements BasicOperation {
     protected static final Logger log = LoggerFactory.getLogger("cn.taketoday.jdbc.Executer");
 
     protected static final boolean DEBUG_ENABLED = log.isDebugEnabled();
-    
+
     private DataSource dataSource; //data source
 
     private Integer maxRows;
     private Integer fetchSize;
     private Integer queryTimeout;
 
+    /**
+     * Get {@link DataSource} from this {@link Executer}
+     * 
+     * @return {@link DataSource} object
+     */
     public DataSource getDataSource() {
         return dataSource;
     }
 
+    public final DataSource obtainDataSource() {
+        final DataSource dataSource = getDataSource();
+        if (dataSource == null) {
+            throw new ConfigurationException("Data source is required");
+        }
+        return dataSource;
+    }
+
+    /**
+     * Setting {@link DataSource} to this {@link Executer}
+     * 
+     * @param dataSource
+     *            Target {@link DataSource}
+     * @return This {@link Executer}
+     */
     public Executer setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         return this;
@@ -153,6 +174,14 @@ public abstract class Executer implements BasicOperation {
         return this.queryTimeout;
     }
 
+    /**
+     * Setting the Statement's settings
+     * 
+     * @param stmt
+     *            Target {@link Statement}
+     * @throws SQLException
+     *             If a database access error occurs
+     */
     protected void applyStatementSettings(final Statement stmt) throws SQLException {
 
         final Integer fetchSize = getFetchSize();
@@ -165,7 +194,7 @@ public abstract class Executer implements BasicOperation {
             stmt.setMaxRows(maxRows.intValue());
         }
 
-        DataSourceUtils.applyTimeout(stmt, getDataSource(), getQueryTimeout());
+        DataSourceUtils.applyTimeout(stmt, obtainDataSource(), getQueryTimeout());
     }
 
     protected void applyParameters(final PreparedStatement ps, final Object[] args) throws SQLException {
@@ -188,7 +217,7 @@ public abstract class Executer implements BasicOperation {
     @Override
     public <T> T execute(final ConnectionCallback<T> action) throws SQLException {
 
-        final DataSource dataSource = getDataSource();
+        final DataSource dataSource = obtainDataSource();
 
         final Connection con = DataSourceUtils.getConnection(dataSource);
         try {

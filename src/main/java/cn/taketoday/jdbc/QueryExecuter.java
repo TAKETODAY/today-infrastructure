@@ -81,13 +81,10 @@ public class QueryExecuter extends Executer implements QueryOperation, QueryOpti
 
     @Override
     public void query(final String sql, final Object[] args, final ResultSetHandler rch) throws SQLException {
-
         execute((ConnectionCallback<Void>) (Connection con) -> {
 
             try (final PreparedStatement statement = con.prepareStatement(sql)) {
-
                 applyStatementSettings(statement, args);
-
                 try (final ResultSet result = statement.executeQuery()) {
                     if (result.next()) {
                         rch.handleResult(result);
@@ -140,9 +137,10 @@ public class QueryExecuter extends Executer implements QueryOperation, QueryOpti
 
             final ResultSetMetaData metaData = result.getMetaData();
             final int columnCount = metaData.getColumnCount() + 1;
-            final TableMapping table = TABLE_MAPPINGS.computeIfAbsent(elementType, TableMapping::new);
 
             final class ResultSetExtractor0 implements ResultSetExtractor<T> {
+
+                final TableMapping table = TABLE_MAPPINGS.computeIfAbsent(elementType, TableMapping::new);
 
                 @Override
                 public T extractData(ResultSet rs) throws SQLException {
