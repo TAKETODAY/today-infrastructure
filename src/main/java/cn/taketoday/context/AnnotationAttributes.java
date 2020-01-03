@@ -29,8 +29,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.context.utils.OrderUtils;
+
 /**
- *
  * @author Chris Beams
  * @author Sam Brannen
  * @author Juergen Hoeller
@@ -39,7 +40,7 @@ import java.util.Objects;
  * @since 2.1.1
  */
 @SuppressWarnings("serial")
-public class AnnotationAttributes extends HashMap<String, Object> {
+public class AnnotationAttributes extends HashMap<String, Object> implements Ordered {
 
     private static final String UNKNOWN = "unknown";
 
@@ -87,12 +88,25 @@ public class AnnotationAttributes extends HashMap<String, Object> {
         return this.annotationType;
     }
 
+    // 
+    // ---------------------------------------
+
     public String getString(String attributeName) {
         return getAttribute(attributeName, String.class);
     }
 
     public String[] getStringArray(String attributeName) {
         return getAttribute(attributeName, String[].class);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> Class<? extends T>[] getClassArray(String attributeName) {
+        return getAttribute(attributeName, Class[].class);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> Class<? extends T> getClass(String attributeName) {
+        return getAttribute(attributeName, Class.class);
     }
 
     public boolean getBoolean(String attributeName) {
@@ -218,6 +232,11 @@ public class AnnotationAttributes extends HashMap<String, Object> {
             return super.equals(object);
         }
         return false;
+    }
+
+    @Override
+    public int getOrder() {
+        return OrderUtils.getOrder(annotationType);
     }
 
 }

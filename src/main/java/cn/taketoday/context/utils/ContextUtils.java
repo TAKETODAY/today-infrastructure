@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.utils;
 
+import static cn.taketoday.context.Constant.VALUE;
 import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
 
 import java.io.BufferedReader;
@@ -146,7 +147,7 @@ public abstract class ContextUtils {
                     final ApplicationContext ctx = getApplicationContext();
                     if (ctx instanceof AbstractApplicationContext) {
                         final Properties properties = ctx.getEnvironment().getProperties();
-                        
+
                         final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
                         final AbstractBeanFactory beanFactory = ((AbstractApplicationContext) ctx).getBeanFactory();
 
@@ -807,11 +808,12 @@ public abstract class ContextUtils {
             }
 
             String key = (String) key_;
+            final String blank = Constant.BLANK;
             for (String prefix : prefixs) {
-                if (Constant.BLANK.equals(prefix) || key.startsWith(prefix)) { // start with prefix
+                if (blank.equals(prefix) || key.startsWith(prefix)) { // start with prefix
                     if (replace) {
                         // replace the prefix
-                        key = key.replaceFirst(prefix, Constant.BLANK);
+                        key = key.replaceFirst(prefix, blank);
                     }
                     // resolvePlaceholder(propertiesToUse, (String) entry.getValue())
                     final Object value = entry.getValue();
@@ -836,7 +838,6 @@ public abstract class ContextUtils {
      *            {@link ApplicationContext}
      * @return If matched
      */
-    @SuppressWarnings("unchecked")
     public static boolean conditional(final AnnotatedElement annotated) {
 
         final AnnotationAttributes[] attributes = ClassUtils.getAnnotationAttributesArray(annotated, Conditional.class);
@@ -846,16 +847,12 @@ public abstract class ContextUtils {
             return true;
         }
         if (size == 1) {
-            if (!conditional(annotated, attributes[0].getAttribute(Constant.VALUE, Class[].class))) {
-                return false; // can't match
-            }
+            return conditional(annotated, attributes[0].getClassArray(VALUE));
         }
-        else {
 
-            for (final AnnotationAttributes conditional : OrderUtils.reversedSort(attributes)) {
-                if (!conditional(annotated, conditional.getAttribute(Constant.VALUE, Class[].class))) {
-                    return false; // can't match
-                }
+        for (final AnnotationAttributes conditional : OrderUtils.reversedSort(attributes)) {
+            if (!conditional(annotated, conditional.getClassArray(VALUE))) {
+                return false; // can't match
             }
         }
         return true;
@@ -988,7 +985,7 @@ public abstract class ContextUtils {
         else {
             final List<BeanDefinition> ret = new ArrayList<>(componentAttributes.length);
             for (final AnnotationAttributes attributes : componentAttributes) {
-                for (final String name : ContextUtils.findNames(defaultName, attributes.getStringArray(Constant.VALUE))) {
+                for (final String name : ContextUtils.findNames(defaultName, attributes.getStringArray(VALUE))) {
                     ret.add(buildBeanDefinition(beanClass, attributes, name));
                 }
             }
