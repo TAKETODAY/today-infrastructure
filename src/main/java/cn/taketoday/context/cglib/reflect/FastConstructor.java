@@ -19,34 +19,33 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-08 15:08
  */
 @SuppressWarnings("all")
-public class FastConstructor extends FastMember {
+public class FastConstructor<T> extends FastMember {
 
-    FastConstructor(FastClass fc, Constructor constructor) {
+    FastConstructor(FastClass fc, Constructor<T> constructor) {
         super(fc, constructor, fc.getIndex(constructor.getParameterTypes()));
     }
 
     public Class[] getParameterTypes() {
-        return ((Constructor) member).getParameterTypes();
+        return ((Constructor<T>) member).getParameterTypes();
     }
 
     public Class[] getExceptionTypes() {
-        return ((Constructor) member).getExceptionTypes();
+        return ((Constructor<T>) member).getExceptionTypes();
     }
 
-    public Object newInstance() throws InvocationTargetException {
-        return fc.newInstance(index, null);
+    public T newInstance() throws InvocationTargetException {
+        return (T) fc.newInstance(index, null);
     }
 
-    public Object newInstance(Object[] args) throws InvocationTargetException {
-        return fc.newInstance(index, args);
+    public T newInstance(Object[] args) throws InvocationTargetException {
+        return (T) fc.newInstance(index, args);
     }
 
-    public Constructor getJavaConstructor() {
-        return (Constructor) member;
+    public Constructor<T> getJavaConstructor() {
+        return (Constructor<T>) member;
     }
 }

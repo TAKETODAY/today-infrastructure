@@ -44,8 +44,7 @@ import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.cglib.core.VisibilityPredicate;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-08 15:08
  */
 @SuppressWarnings("all")

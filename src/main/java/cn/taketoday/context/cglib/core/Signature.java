@@ -15,6 +15,8 @@
  */
 package cn.taketoday.context.cglib.core;
 
+import java.lang.reflect.Method;
+
 import cn.taketoday.context.asm.Type;
 
 /**
@@ -25,6 +27,10 @@ public class Signature {
 
     private final String name;
     private final String desc;
+
+    public Signature(Method method) {
+        this(method.getName(), Type.getMethodDescriptor(method));
+    }
 
     public Signature(String name, String desc) {
         // TODO: better error checking
@@ -55,17 +61,24 @@ public class Signature {
         return Type.getArgumentTypes(desc);
     }
 
+    @Override
     public String toString() {
-        return name + desc;
+        return name.concat(desc);
     }
 
+    @Override
     public boolean equals(Object o) {
-        if (o == null) return false;
-        if (!(o instanceof Signature)) return false;
-        Signature other = (Signature) o;
-        return name.equals(other.name) && desc.equals(other.desc);
+        if (o == this) {
+            return true;
+        }
+        if (o instanceof Signature) {
+            final Signature other = (Signature) o;
+            return name.equals(other.name) && desc.equals(other.desc);
+        }
+        return false;
     }
 
+    @Override
     public int hashCode() {
         return name.hashCode() ^ desc.hashCode();
     }

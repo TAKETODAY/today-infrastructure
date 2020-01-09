@@ -16,18 +16,19 @@
 package cn.taketoday.context.cglib.reflect;
 
 import java.lang.reflect.Member;
+import java.util.Objects;
 
 @SuppressWarnings("all")
 abstract public class FastMember {
 
+    protected final int index;
     protected final FastClass fc;
     protected final Member member;
-    protected final int index;
 
     protected FastMember(FastClass fc, Member member, int index) {
-        this.fc = fc;
-        this.member = member;
         this.index = index;
+        this.fc = Objects.requireNonNull(fc);
+        this.member = Objects.requireNonNull(member);
     }
 
     abstract public Class[] getParameterTypes();
@@ -50,18 +51,18 @@ abstract public class FastMember {
         return member.getModifiers();
     }
 
+    @Override
     public String toString() {
         return member.toString();
     }
 
+    @Override
     public int hashCode() {
         return member.hashCode();
     }
 
+    @Override
     public boolean equals(Object o) {
-        if (o == null || !(o instanceof FastMember)) {
-            return false;
-        }
-        return member.equals(((FastMember) o).member);
+        return o == this || (o instanceof FastMember && member.equals(((FastMember) o).member));
     }
 }

@@ -58,18 +58,10 @@ public class MethodProxy {
     public static MethodProxy create(Class<?> c1, Class<?> c2, String desc, String name1, String name2) {
         final Signature sig1 = new Signature(name1, desc);
         final Signature sig2 = new Signature(name2, desc);
-        final FastClass f1 = fastClass(c1);
-        final FastClass f2 = fastClass(c2);
+        final FastClass f1 = FastClass.create(c1);
+        final FastClass f2 = FastClass.create(c2);
 
         return new MethodProxy(sig1, sig2, f1.getIndex(sig1), f2.getIndex(sig2), f1, f2);
-    }
-
-    private static FastClass fastClass(Class<?> type) {
-
-        FastClass.Generator g = new FastClass.Generator(type);
-
-        g.setClassLoader(type.getClassLoader());
-        return g.create();
     }
 
     /**
@@ -165,7 +157,9 @@ public class MethodProxy {
             throw e.getTargetException();
         }
         catch (IllegalArgumentException e) {
-            if (i1 < 0) throw new IllegalArgumentException("Protected method: " + sig1);
+            if (i1 < 0) {
+                throw new IllegalArgumentException("Protected method: " + sig1);
+            }
             throw e;
         }
     }

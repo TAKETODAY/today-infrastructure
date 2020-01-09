@@ -28,12 +28,11 @@ import cn.taketoday.context.cglib.core.ReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-11-08 15:08
  */
 @SuppressWarnings("all")
-abstract public class FastClass {
+public abstract class FastClass {
 
     private final Class type;
 
@@ -133,14 +132,17 @@ abstract public class FastClass {
         return type;
     }
 
+    @Override
     public String toString() {
         return type.toString();
     }
 
+    @Override
     public int hashCode() {
         return type.hashCode();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o == null || !(o instanceof FastClass)) {
             return false;
@@ -202,6 +204,10 @@ abstract public class FastClass {
     abstract public Object newInstance(int index, Object[] args) throws InvocationTargetException;
 
     abstract public int getIndex(Signature sig);
+
+    public int getIndex(Method method) {
+        return getIndex(new Signature(method.getName(), Type.getMethodDescriptor(method)));
+    }
 
     /**
      * Returns the maximum method index for this class.
