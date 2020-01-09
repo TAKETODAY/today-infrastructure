@@ -50,8 +50,8 @@ import cn.taketoday.context.utils.ClassUtils;
 @SuppressWarnings("all")
 public abstract class ReflectUtils {
 
-    private static final HashMap<String, Class> primitives = new HashMap<>(8);
-    private static final HashMap<String, String> transforms = new HashMap<>(8);
+    private static final HashMap<String, Class> primitives = new HashMap<>();
+    private static final HashMap<String, String> transforms = new HashMap<>();
 
     private static final ClassLoader defaultLoader = ReflectUtils.class.getClassLoader();
     private static Method DEFINE_CLASS, DEFINE_CLASS_UNSAFE;
@@ -340,10 +340,10 @@ public abstract class ReflectUtils {
 
     public static Method findNewInstance(Class<?> iface) {
         final Method m = findInterfaceMethod(iface);
-        if (!m.getName().equals("newInstance")) {
-            throw new IllegalArgumentException(iface + " missing newInstance method");
+        if (m.getName().equals("newInstance")) {
+            return m;
         }
-        return m;
+        throw new IllegalArgumentException(iface + " missing newInstance method");
     }
 
     public static Method[] getPropertyMethods(PropertyDescriptor[] properties, boolean read, boolean write) {
