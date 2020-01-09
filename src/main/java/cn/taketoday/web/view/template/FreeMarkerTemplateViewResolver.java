@@ -58,7 +58,7 @@ import freemarker.template.TemplateHashModel;
  */
 @Props(prefix = "web.mvc.view.")
 @Order(Ordered.LOWEST_PRECEDENCE - 100)
-@MissingBean(value = Constant.VIEW_RESOLVER, type = TemplateViewResolver.class)
+@MissingBean(type = TemplateViewResolver.class)
 @ConditionalOnClass({ Constant.ENV_SERVLET, "freemarker.template.Configuration" })
 public class FreeMarkerTemplateViewResolver
         extends AbstractFreeMarkerTemplateViewResolver implements InitializingBean, WebMvcConfiguration {

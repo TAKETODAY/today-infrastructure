@@ -76,23 +76,14 @@ public interface Constant extends cn.taketoday.context.Constant {
 	/**
 	 * Framework Attribute Keys End
 	 **********************************************************/
-	@Deprecated
-	String	WEB_INF								= "/WEB-INF";
 
 	String	DISPATCHER_SERVLET_MAPPING			= "/";
 	String	DEFAULT_MAPPINGS[]					= { DISPATCHER_SERVLET_MAPPING };
-	String	VIEW_DISPATCHER						= "viewDispatcher";
-	String	RESOURCE_SERVLET					= "resourceServlet";
 	String	DISPATCHER_SERVLET					= "dispatcherServlet";
-	String	HANDLER_METHOD_REGISTRY			    = "handlerMethodRegistry";
-	@Deprecated
-	String	HANDLER_INTERCEPTOR_REGISTRY		= "handlerInterceptorRegistry";
-	
 	// Resolver
 	String	VIEW_RESOLVER						= "viewResolver";
 	String	EXCEPTION_RESOLVER					= "exceptionResolver";
 	
-	String	ACTION_CONFIG						= "actionConfig";
 	// the dtd
 	String	DTD_NAME							= "web-configuration";
 	String	WEB_MVC_CONFIG_LOCATION				= "WebMvcConfigLocation";
@@ -125,20 +116,19 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String  VALUE_REDIRECT 						= "redirect";
 
 	String	ELEMENT_ACTION						= "action";
-	/** @since 2.3.7 */
-	String	ELEMENT_RESOURCES					= "resources";
 	String	ELEMENT_CONTROLLER					= "controller";
 	String	ROOT_ELEMENT						= "Web-Configuration";
 
 	String	CONTENT_TYPE_IMAGE					= "image/jpeg";
 
-	String	RESPONSE_BODY_PREFIX				= "body:";
-	String	REDIRECT_URL_PREFIX					= "redirect:";
-	int		REDIRECT_URL_PREFIX_LENGTH			= REDIRECT_URL_PREFIX.length();
 	String	QUOTATION_MARKS						= "\"";
 	String	IMAGE_PNG							= "png";
 	String	HTTP								= "http";
 	String	HTTPS								= "https";
+	String	RESPONSE_BODY_PREFIX				= "body:";
+	String	REDIRECT_URL_PREFIX					= "redirect:";
+	int		REDIRECT_URL_PREFIX_LENGTH			= REDIRECT_URL_PREFIX.length();
+	
 	/*****************************************************
 	 * default values
 	 */

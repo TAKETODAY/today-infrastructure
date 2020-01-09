@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -38,7 +37,6 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.exception.ExceptionUnhandledException;
 import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.registry.HandlerMethodRegistry;
 
 /**
  * @author TODAY <br>
@@ -51,16 +49,13 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
     private static final Logger log = LoggerFactory.getLogger(ControllerAdviceExceptionResolver.class);
     private final Map<Class<? extends Throwable>, ThrowableHandlerMethod> exceptionHandlers = new HashMap<>();
 
-    @Autowired
-    private HandlerMethodRegistry handlerMethodRegistry;
-
     @Override
     protected void resolveHandlerMethodException(final Throwable ex,
                                                  final RequestContext context,
                                                  final HandlerMethod handlerMethod) throws Throwable //
     {
 
-        final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandler(ex);//
+        final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandler(ex);
         if (exceptionHandler != null) {
             context.attribute(Constant.KEY_THROWABLE, ex);
             if (handlerMethod.getObject() != null) { // apply status
