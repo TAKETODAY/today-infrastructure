@@ -44,6 +44,8 @@ package cn.taketoday.expression.parser;
 import java.io.IOException;
 import java.util.Stack;
 
+import cn.taketoday.context.Constant;
+
 /**
  * @author TODAY <br>
  *         2019-02-23 14:26
@@ -1731,7 +1733,7 @@ public class ELParserTokenManager implements ELParserConstants {
             }
             catch (IOException e1) {
                 EOFSeen = true;
-                error_after = curPos <= 1 ? "" : input_stream.GetImage();
+                error_after = curPos <= 1 ? Constant.BLANK : input_stream.GetImage();
                 if (curChar == '\n' || curChar == '\r') {
                     error_line++;
                     error_column = 0;
@@ -1741,7 +1743,7 @@ public class ELParserTokenManager implements ELParserConstants {
             }
             if (!EOFSeen) {
                 input_stream.backup(1);
-                error_after = curPos <= 1 ? "" : input_stream.GetImage();
+                error_after = curPos <= 1 ? Constant.BLANK : input_stream.GetImage();
             }
             throw new TokenMgrError(EOFSeen, curLexState, error_line, error_column, error_after, curChar, TokenMgrError.LEXICAL_ERROR);
         }

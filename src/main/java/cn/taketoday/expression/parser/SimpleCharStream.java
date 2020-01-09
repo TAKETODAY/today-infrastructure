@@ -323,10 +323,11 @@ public class SimpleCharStream {
     public char[] GetSuffix(int len) {
         char[] ret = new char[len];
 
-        if ((bufpos + 1) >= len) System.arraycopy(buffer, bufpos - len + 1, ret, 0, len);
+        if ((bufpos + 1) >= len) {
+            System.arraycopy(buffer, bufpos - len + 1, ret, 0, len);
+        }
         else {
-            System.arraycopy(buffer, bufsize - (len - bufpos - 1), ret, 0,
-                             len - bufpos - 1);
+            System.arraycopy(buffer, bufsize - (len - bufpos - 1), ret, 0, len - bufpos - 1);
             System.arraycopy(buffer, 0, ret, len - bufpos - 1, bufpos + 1);
         }
         return ret;
@@ -343,19 +344,20 @@ public class SimpleCharStream {
      * Method to adjust line and column numbers for the start of a token.
      */
     public void adjustBeginLineColumn(int newLine, int newCol) {
+        final int len;
         int start = tokenBegin;
-        int len;
-
-        if (bufpos >= tokenBegin) {
-            len = bufpos - tokenBegin + inBuf + 1;
+        final int bufsize = this.bufsize;
+        final int bufline[] = this.bufline;
+        final int bufcolumn[] = this.bufcolumn;
+        if (bufpos >= start) {
+            len = bufpos - start + inBuf + 1;
         }
         else {
-            len = bufsize - tokenBegin + bufpos + 1 + inBuf;
+            len = bufsize - start + bufpos + 1 + inBuf;
         }
 
         int i = 0, j = 0, k = 0;
         int nextColDiff = 0, columnDiff = 0;
-
         while (i < len && bufline[j = start % bufsize] == bufline[k = ++start % bufsize]) {
             bufline[j] = newLine;
             nextColDiff = columnDiff + bufcolumn[k] - bufcolumn[j];
