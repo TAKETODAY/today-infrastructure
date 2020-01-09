@@ -449,10 +449,6 @@ public abstract class ReflectUtils {
         throw new IllegalArgumentException(iface + " is not an interface");
     }
 
-    public static <T> Class<T> defineClass(String className, byte[] b, ClassLoader loader) throws Exception {
-        return defineClass(className, b, loader, PROTECTION_DOMAIN);
-    }
-
     public static <T> Class<T> defineClass(String className, byte[] b, //
                                            ClassLoader loader, ProtectionDomain protection) throws Exception //
     {

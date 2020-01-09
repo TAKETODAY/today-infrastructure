@@ -310,18 +310,22 @@ public abstract class ClassUtils {
                 .scan();       
     }
     
+    public static String getClassName(ClassReader r) {
+        return r.getClassName().replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
+    }
+    
+    public static String getClassName(final byte[] classFile) {
+        return getClassName(new ClassReader(classFile));
+    }
+    
     public static String getClassName(final Resource resource) throws IOException {
         try (final InputStream inputStream = resource.getInputStream()) {
             return getClassName(inputStream);
         }
     }
-    
+
     public static String getClassName(final InputStream inputStream) throws IOException {
         return getClassName(new ClassReader(inputStream));
-    }
-
-    public static String getClassName(ClassReader r) {
-        return r.getClassName().replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
     }
 
     // -------------------------------------------------Annotation

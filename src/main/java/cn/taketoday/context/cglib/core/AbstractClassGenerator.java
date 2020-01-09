@@ -15,6 +15,8 @@
  */
 package cn.taketoday.context.cglib.core;
 
+import static cn.taketoday.context.cglib.core.ReflectUtils.defineClass;
+
 import java.lang.ref.WeakReference;
 import java.security.ProtectionDomain;
 import java.util.HashSet;
@@ -24,7 +26,6 @@ import java.util.WeakHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import cn.taketoday.context.asm.ClassReader;
 import cn.taketoday.context.cglib.core.internal.LoadingCache;
 import cn.taketoday.context.utils.ClassUtils;
 
@@ -84,28 +85,16 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
          */
         private final WeakReference<ClassLoader> classLoader;
 
-        private final Predicate uniqueNamePredicate = new Predicate() {
-            public boolean test(Object name) {
-                return reservedClassNames.contains(name);
-            }
-        };
-
-        private static final Function<AbstractClassGenerator, Object> GET_KEY = new Function<AbstractClassGenerator, Object>() {
-            public Object apply(AbstractClassGenerator gen) {
-                return gen.key;
-            }
-        };
+        private static final Function<AbstractClassGenerator, Object> GET_KEY = gen -> gen.key;
+        private final Predicate<Object> uniqueNamePredicate = name -> reservedClassNames.contains(name);
 
         public ClassLoaderData(ClassLoader classLoader) {
+
             if (classLoader == null) {
                 throw new IllegalArgumentException("classLoader == null is not yet supported");
             }
-
             this.classLoader = new WeakReference<>(classLoader);
-
-            final Function<AbstractClassGenerator, Object> load = (gen) -> gen.wrapCachedClass(gen.generate(this));
-
-            this.generatedClasses = new LoadingCache<AbstractClassGenerator, Object, Object>(GET_KEY, load);
+            this.generatedClasses = new LoadingCache<>(GET_KEY, gen -> gen.wrapCachedClass(gen.generate(this)));
         }
 
         public ClassLoader getClassLoader() {
@@ -121,11 +110,9 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
         }
 
         public Object get(AbstractClassGenerator gen, boolean useCache) {
-            if (!useCache) {
-                return gen.generate(ClassLoaderData.this);
-            }
-            Object cachedValue = generatedClasses.get(gen);
-            return gen.unwrapCachedValue(cachedValue);
+            return useCache
+                    ? gen.unwrapCachedValue(generatedClasses.get(gen))
+                    : gen.generate(ClassLoaderData.this);
         }
 
     }
@@ -155,7 +142,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
         return this;
     }
 
-    final protected String getClassName() {
+    protected final String getClassName() {
         return className;
     }
 
@@ -195,8 +182,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
      *            the custom policy, or null to use the default
      */
     public AbstractClassGenerator setNamingPolicy(NamingPolicy namingPolicy) {
-        if (namingPolicy == null) namingPolicy = DefaultNamingPolicy.INSTANCE;
-        this.namingPolicy = namingPolicy;
+        this.namingPolicy = namingPolicy == null ? DefaultNamingPolicy.INSTANCE : namingPolicy;
         return this;
     }
 
@@ -233,7 +219,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
         return this;
     }
 
-    public boolean getAttemptLoad() {
+    public boolean isAttemptLoad() {
         return attemptLoad;
     }
 
@@ -242,8 +228,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
      * default an instance of {@see DefaultGeneratorStrategy} is used.
      */
     public AbstractClassGenerator setStrategy(GeneratorStrategy strategy) {
-        if (strategy == null) strategy = DefaultGeneratorStrategy.INSTANCE;
-        this.strategy = strategy;
+        this.strategy = strategy == null ? DefaultGeneratorStrategy.INSTANCE : strategy;
         return this;
     }
 
@@ -290,6 +275,8 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     }
 
     protected Object create(Object key) {
+        this.key = key;
+
         try {
 
             ClassLoader loader = getClassLoader();
@@ -300,20 +287,17 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
                     cache = CACHE;
                     data = cache.get(loader);
                     if (data == null) {
-                        Map<ClassLoader, ClassLoaderData> newCache = //
-                                new WeakHashMap<ClassLoader, ClassLoaderData>(cache);
-
+                        Map<ClassLoader, ClassLoaderData> newCache = new WeakHashMap<>(cache);
                         newCache.put(loader, data = new ClassLoaderData(loader));
                         CACHE = newCache;
                     }
                 }
             }
-            this.key = key;
-            Object obj = data.get(this, getUseCache());
-            if (obj instanceof Class) {
-                return firstInstance((Class) obj);
-            }
-            return nextInstance(obj);
+
+            final Object obj = data.get(this, getUseCache());
+            return obj instanceof Class
+                    ? firstInstance((Class<T>) obj)
+                    : nextInstance(obj);
         }
         catch (RuntimeException e) {
             throw e;
@@ -342,7 +326,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
                 data.reserveName(name);
                 this.setClassName(name);
             }
-            if (attemptLoad) {
+            if (isAttemptLoad()) {
                 try {
                     return classLoader.loadClass(getClassName());
                 }
@@ -350,14 +334,10 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
                     // ignore
                 }
             }
-            final byte[] b = strategy.generate(this);
-            String className = ClassUtils.getClassName(new ClassReader(b));
-            ProtectionDomain protectionDomain = getProtectionDomain();
+            final byte[] b = getStrategy().generate(this);
+            String className = ClassUtils.getClassName(b);
             synchronized (classLoader) { // just in case
-                if (protectionDomain == null) {
-                    return ReflectUtils.defineClass(className, b, classLoader);
-                }
-                return ReflectUtils.defineClass(className, b, classLoader, protectionDomain);
+                return defineClass(className, b, classLoader, getProtectionDomain());
             }
         }
         catch (RuntimeException | Error e) {
@@ -365,13 +345,14 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
         }
         catch (Exception e) {
             throw new CodeGenerationException(e);
-        } finally {
+        }
+        finally {
             CURRENT.set(save);
         }
     }
 
-    abstract protected Object firstInstance(Class<T> type) throws Exception;
+    protected abstract Object firstInstance(Class<T> type) throws Exception;
 
-    abstract protected Object nextInstance(Object instance) throws Exception;
+    protected abstract Object nextInstance(Object instance) throws Exception;
 
 }

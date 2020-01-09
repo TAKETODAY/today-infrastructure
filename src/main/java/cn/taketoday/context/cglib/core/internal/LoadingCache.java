@@ -62,7 +62,7 @@ public class LoadingCache<K, KK, V> {
             task = (FutureTask<V>) v;
         }
         else {
-            task = new FutureTask<V>((Callable) () -> loader.apply(key));
+            task = new FutureTask<V>(() -> loader.apply(key));
 
             Object prevTask = map.putIfAbsent(cacheKey, task);
             if (prevTask == null) {
