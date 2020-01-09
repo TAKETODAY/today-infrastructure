@@ -40,16 +40,17 @@
 
 package cn.taketoday.expression.lang;
 
+import static cn.taketoday.context.Constant.BLANK;
+import static cn.taketoday.expression.util.MessageFactory.get;
+
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.NumberUtils;
 import cn.taketoday.expression.ELException;
 import cn.taketoday.expression.PropertyNotFoundException;
-import cn.taketoday.expression.util.MessageFactory;
 
 /**
  * A helper class that implements the EL Specification
@@ -58,16 +59,15 @@ import cn.taketoday.expression.util.MessageFactory;
  * @author Kin-man Chung
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
-public abstract class ELSupport {
+public abstract class ExpressionSupport {
 
     private final static Long ZERO = Long.valueOf(0L);
 
     public final static void throwUnhandled(Object base, Object property) throws ELException {
-
         if (base == null) {
-            throw new PropertyNotFoundException(MessageFactory.get("error.resolver.unhandled.null", property));
+            throw new PropertyNotFoundException(get("error.resolver.unhandled.null", property));
         }
-        throw new PropertyNotFoundException(MessageFactory.get("error.resolver.unhandled", base.getClass(), property));
+        throw new PropertyNotFoundException(get("error.resolver.unhandled", base.getClass(), property));
     }
 
     /**
@@ -78,6 +78,7 @@ public abstract class ELSupport {
      * @return The result (an int with values -1, 0, or 1) of the comparison
      * @throws EvaluationException
      */
+    @SuppressWarnings("unchecked")
     public final static int compare(final Object obj0, final Object obj1) throws ELException {
         if (obj0 == obj1 || equals(obj0, obj1)) {
             return 0;
@@ -106,18 +107,12 @@ public abstract class ELSupport {
             return coerceToString(obj0).compareTo(coerceToString(obj1));
         }
         if (obj0 instanceof Comparable) {
-            // Safe cast
-            @SuppressWarnings("unchecked") //
-            Comparable<Object> cobj0 = (Comparable<Object>) obj0;
-            return (obj1 != null) ? cobj0.compareTo(obj1) : 1;
+            return (obj1 != null) ? ((Comparable<Object>) obj0).compareTo(obj1) : 1;
         }
         if (obj1 instanceof Comparable) {
-            // Safe cast
-            @SuppressWarnings("unchecked") //
-            Comparable<Object> cobj1 = (Comparable<Object>) obj1;
-            return (obj0 != null) ? -(cobj1.compareTo(obj0)) : -1;
+            return (obj0 != null) ? -(((Comparable<Object>) obj1).compareTo(obj0)) : -1;
         }
-        throw new ELException(MessageFactory.get("error.compare", obj0, obj1));
+        throw new ELException(get("error.compare", obj0, obj1));
     }
 
     /**
@@ -128,8 +123,7 @@ public abstract class ELSupport {
      * @return true if the objects compared equal
      * @throws EvaluationException
      */
-    public final static boolean equals(final Object obj0, final Object obj1)
-            throws ELException {
+    public final static boolean equals(final Object obj0, final Object obj1) throws ELException {
         if (obj0 == obj1) {
             return true;
         }
@@ -149,20 +143,16 @@ public abstract class ELSupport {
             return coerceToString(obj0).equals(coerceToString(obj1));
         }
         if (isBigDecimalOp(obj0, obj1)) {
-            BigDecimal bd0 = (BigDecimal) coerceToNumber(obj0, BigDecimal.class);
-            return bd0.equals(coerceToNumber(obj1, BigDecimal.class));
+            return coerceToNumber(obj0, BigDecimal.class).equals(coerceToNumber(obj1, BigDecimal.class));
         }
         if (isDoubleOp(obj0, obj1)) {
-            Double d0 = (Double) coerceToNumber(obj0, Double.class);
-            return d0.equals(coerceToNumber(obj1, Double.class));
+            return coerceToNumber(obj0, Double.class).equals(coerceToNumber(obj1, Double.class));
         }
         if (isBigIntegerOp(obj0, obj1)) {
-            BigInteger bi0 = (BigInteger) coerceToNumber(obj0, BigInteger.class);
-            return bi0.equals(coerceToNumber(obj1, BigInteger.class));
+            return coerceToNumber(obj0, BigInteger.class).equals(coerceToNumber(obj1, BigInteger.class));
         }
         if (isLongOp(obj0, obj1)) {
-            Long l0 = (Long) coerceToNumber(obj0, Long.class);
-            return l0.equals(coerceToNumber(obj1, Long.class));
+            return coerceToNumber(obj0, Long.class).equals(coerceToNumber(obj1, Long.class));
         }
         else {
             return obj0.equals(obj1);
@@ -176,7 +166,7 @@ public abstract class ELSupport {
      */
     public final static Boolean coerceToBoolean(final Object obj) throws IllegalArgumentException {
 
-        if (obj == null || Constant.BLANK.equals(obj)) {
+        if (obj == null || BLANK.equals(obj)) {
             return Boolean.FALSE;
         }
         if (obj instanceof Boolean) {
@@ -186,7 +176,7 @@ public abstract class ELSupport {
             return Boolean.valueOf((String) obj);
         }
 
-        throw new IllegalArgumentException(MessageFactory.get("error.convert", obj, obj.getClass(), Boolean.class));
+        throw new IllegalArgumentException(get("error.convert", obj, obj.getClass(), Boolean.class));
     }
 
     // Enum types are hard construct. We can declare this as
@@ -195,7 +185,7 @@ public abstract class ELSupport {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public final static Enum coerceToEnum(final Object obj, Class type) {
 
-        if (obj == null || Constant.BLANK.equals(obj)) {
+        if (obj == null || BLANK.equals(obj)) {
             return null;
         }
         if (obj.getClass().isEnum()) {
@@ -204,38 +194,36 @@ public abstract class ELSupport {
         return Enum.valueOf(type, obj.toString());
     }
 
-    public final static Character coerceToCharacter(final Object obj)
-            throws IllegalArgumentException {
-        if (obj == null || Constant.BLANK.equals(obj)) {
+    public final static Character coerceToCharacter(final Object obj) throws IllegalArgumentException {
+
+        if (obj == null || BLANK.equals(obj)) {
             return Character.valueOf((char) 0);
         }
         if (obj instanceof String) {
             return Character.valueOf(((String) obj).charAt(0));
         }
-        if (ELArithmetic.isNumber(obj)) {
+        if (ExpressionArithmetic.isNumber(obj)) {
             return Character.valueOf((char) ((Number) obj).shortValue());
         }
         if (obj instanceof Character) {
             return (Character) obj;
         }
-        throw new IllegalArgumentException(MessageFactory.get("error.convert",
-                                                              obj, obj.getClass(), Character.class));
+        throw new IllegalArgumentException(get("error.convert",
+                                               obj, obj.getClass(), Character.class));
     }
 
     public final static Number coerceToNumber(final Object obj) {
         if (obj == null) {
             return ZERO;
         }
-        else if (obj instanceof Number) {
+        if (obj instanceof Number) {
             return (Number) obj;
         }
-        else {
-            String str = coerceToString(obj);
-            if (isStringFloat(str)) {
-                return toFloat(str);
-            }
-            return toNumber(str);
+        String str = coerceToString(obj);
+        if (isStringFloat(str)) {
+            return toFloat(str);
         }
+        return toNumber(str);
     }
 
     protected final static Number coerceToNumber(final Number number, final Class<?> type) throws IllegalArgumentException {
@@ -251,7 +239,7 @@ public abstract class ELSupport {
         if (Integer.TYPE == type || Integer.class == type) {
             return number.intValue();
         }
-        if (BigInteger.class.equals(type)) {
+        if (BigInteger.class == type) {
             if (number instanceof BigDecimal) {
                 return ((BigDecimal) number).toBigInteger();
             }
@@ -260,7 +248,7 @@ public abstract class ELSupport {
             }
             return BigInteger.valueOf(number.longValue());
         }
-        if (BigDecimal.class.equals(type)) {
+        if (BigDecimal.class == type) {
             if (number instanceof BigDecimal) {
                 return number;
             }
@@ -282,12 +270,12 @@ public abstract class ELSupport {
             return Float.valueOf(number.floatValue());
         }
 
-        throw new IllegalArgumentException(MessageFactory.get("error.convert",
-                                                              number, number.getClass(), type));
+        throw new IllegalArgumentException(get("error.convert",
+                                               number, number.getClass(), type));
     }
 
     public final static Number coerceToNumber(final Object obj, final Class<?> type) throws IllegalArgumentException {
-        if (obj == null || Constant.BLANK.equals(obj)) {
+        if (obj == null || BLANK.equals(obj)) {
             return coerceToNumber(ZERO, type);
         }
 
@@ -295,48 +283,46 @@ public abstract class ELSupport {
             return coerceToNumber((String) obj, type);
         }
 
-        if (ELArithmetic.isNumber(obj)) {
-            if (obj.getClass().equals(type)) {
-                return (Number) obj;
-            }
-            return coerceToNumber((Number) obj, type);
+        if (ExpressionArithmetic.isNumber(obj)) {
+            return obj.getClass() == type ? (Number) obj : coerceToNumber((Number) obj, type);
         }
 
         if (obj instanceof Character) {
             return coerceToNumber(Short.valueOf((short) ((Character) obj).charValue()), type);
         }
 
-        throw new IllegalArgumentException(MessageFactory.get("error.convert",
-                                                              obj, obj.getClass(), type));
+        throw new IllegalArgumentException(get("error.convert",
+                                               obj, obj.getClass(), type));
     }
 
     protected final static Number coerceToNumber(final String val, final Class<?> type) throws IllegalArgumentException {
-        if (Long.TYPE == type || Long.class.equals(type)) {
+
+        if (long.class == type || Long.class == type) {
             return Long.valueOf(val);
         }
-        if (Integer.TYPE == type || Integer.class.equals(type)) {
+        if (int.class == type || Integer.class == type) {
             return Integer.valueOf(val);
         }
-        if (Double.TYPE == type || Double.class.equals(type)) {
+        if (double.class == type || Double.class == type) {
             return Double.valueOf(val);
         }
-        if (BigInteger.class.equals(type)) {
+        if (BigInteger.class == type) {
             return new BigInteger(val);
         }
-        if (BigDecimal.class.equals(type)) {
+        if (BigDecimal.class == type) {
             return new BigDecimal(val);
         }
-        if (Byte.TYPE == type || Byte.class.equals(type)) {
+        if (byte.class == type || Byte.class == type) {
             return Byte.valueOf(val);
         }
-        if (Short.TYPE == type || Short.class.equals(type)) {
+        if (short.class == type || Short.class == type) {
             return Short.valueOf(val);
         }
-        if (Float.TYPE == type || Float.class.equals(type)) {
+        if (float.class == type || Float.class == type) {
             return Float.valueOf(val);
         }
 
-        throw new IllegalArgumentException(MessageFactory.get("error.convert", val, String.class, type));
+        throw new IllegalArgumentException(get("error.convert", val, String.class, type));
     }
 
     /**
@@ -346,35 +332,15 @@ public abstract class ELSupport {
      */
     public final static String coerceToString(final Object obj) {
         if (obj == null) {
-            return Constant.BLANK;
+            return BLANK;
         }
-        else if (obj instanceof String) {
+        if (obj instanceof String) {
             return (String) obj;
         }
-        else if (obj instanceof Enum) {
+        if (obj instanceof Enum) {
             return ((Enum<?>) obj).name();
         }
         return obj.toString();
-    }
-
-    public final static void checkType(final Object obj, final Class<?> type)
-            throws IllegalArgumentException {
-
-        if (String.class.equals(type)) {
-            coerceToString(obj);
-        }
-        if (NumberUtils.isNumber(type)) {
-            coerceToNumber(obj, type);
-        }
-        if (Character.class.equals(type) || Character.TYPE == type) {
-            coerceToCharacter(obj);
-        }
-        if (Boolean.class.equals(type) || Boolean.TYPE == type) {
-            coerceToBoolean(obj);
-        }
-        if (type.isEnum()) {
-            coerceToEnum(obj, type);
-        }
     }
 
     public final static Object coerceToType(final Object obj, final Class<?> type) throws IllegalArgumentException {
@@ -393,10 +359,10 @@ public abstract class ELSupport {
         if (NumberUtils.isNumber(type)) {
             return coerceToNumber(obj, type);
         }
-        if (Character.class.equals(type) || Character.TYPE == type) {
+        if (Character.class == type || char.class == type) {
             return coerceToCharacter(obj);
         }
-        if (Boolean.class.equals(type) || Boolean.TYPE == type) {
+        if (Boolean.class == type || boolean.class == type) {
             return coerceToBoolean(obj);
         }
         if (type.isEnum()) {
@@ -408,7 +374,7 @@ public abstract class ELSupport {
         }
 
         if (obj instanceof String) {
-            if (Constant.BLANK.equals(obj)) {
+            if (BLANK.equals(obj)) {
                 return null;
             }
             PropertyEditor editor = PropertyEditorManager.findEditor(type);
@@ -417,7 +383,7 @@ public abstract class ELSupport {
                 return editor.getValue();
             }
         }
-        throw new IllegalArgumentException(MessageFactory.get("error.convert", obj, obj.getClass(), type));
+        throw new IllegalArgumentException(get("error.convert", obj, obj.getClass(), type));
     }
 
     /**
@@ -476,10 +442,12 @@ public abstract class ELSupport {
 
     public final static Number toFloat(final String value) {
         try {
-            if (Double.parseDouble(value) > Double.MAX_VALUE) {
+
+            final double parseDouble = Double.parseDouble(value);
+            if (parseDouble > Double.MAX_VALUE) {
                 return new BigDecimal(value);
             }
-            return Double.valueOf(value);
+            return Double.valueOf(parseDouble);
         }
         catch (NumberFormatException e0) {
             return new BigDecimal(value);

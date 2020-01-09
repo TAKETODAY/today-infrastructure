@@ -41,7 +41,7 @@
 package cn.taketoday.expression.parser;
 
 import cn.taketoday.expression.ELException;
-import cn.taketoday.expression.lang.ELArithmetic;
+import cn.taketoday.expression.lang.ExpressionArithmetic;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
@@ -56,6 +56,6 @@ public final class AstDiv extends ArithmeticNode {
     public Object getValue(EvaluationContext ctx) throws ELException {
         Object obj0 = this.children[0].getValue(ctx);
         Object obj1 = this.children[1].getValue(ctx);
-        return ELArithmetic.divide(obj0, obj1);
+        return ExpressionArithmetic.divide(obj0, obj1);
     }
 }

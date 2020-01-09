@@ -52,8 +52,8 @@ import java.util.Set;
 
 import cn.taketoday.expression.ELException;
 import cn.taketoday.expression.LambdaExpression;
-import cn.taketoday.expression.lang.ELArithmetic;
-import cn.taketoday.expression.lang.ELSupport;
+import cn.taketoday.expression.lang.ExpressionArithmetic;
+import cn.taketoday.expression.lang.ExpressionSupport;
 
 /**
  * @author TODAY <br>
@@ -239,7 +239,7 @@ public class Stream {
                     queue = new PriorityQueue<Object>(16, new Comparator<Object>() {
                         @Override
                         public int compare(Object o1, Object o2) {
-                            return (Integer) ELSupport.coerceToType(comparator.invoke(o1, o2), Integer.class);
+                            return (Integer) ExpressionSupport.coerceToType(comparator.invoke(o1, o2), Integer.class);
                         }
                     });
 
@@ -411,7 +411,7 @@ public class Stream {
         Number sum = Long.valueOf(0);
         final Iterator<Object> iter = iterator();
         while (iter.hasNext()) {
-            sum = ELArithmetic.add(sum, iter.next());
+            sum = ExpressionArithmetic.add(sum, iter.next());
         }
         return sum;
     }
@@ -431,7 +431,7 @@ public class Stream {
         final Iterator<Object> iter = iterator();
         while (iter.hasNext()) {
             Object item = iter.next();
-            if (min == null || ELSupport.compare(min, item) > 0) {
+            if (min == null || ExpressionSupport.compare(min, item) > 0) {
                 min = item;
             }
         }
@@ -443,7 +443,7 @@ public class Stream {
         final Iterator<Object> iter = iterator();
         while (iter.hasNext()) {
             Object item = iter.next();
-            if (max == null || ELSupport.compare(max, item) < 0) {
+            if (max == null || ExpressionSupport.compare(max, item) < 0) {
                 max = item;
             }
         }
@@ -455,7 +455,7 @@ public class Stream {
         final Iterator<Object> iter = iterator();
         while (iter.hasNext()) {
             Object item = iter.next();
-            if (min == null || ELSupport.compare(comparator.invoke(item, min), Long.valueOf(0)) < 0) {
+            if (min == null || ExpressionSupport.compare(comparator.invoke(item, min), Long.valueOf(0)) < 0) {
                 min = item;
             }
         }
@@ -468,7 +468,7 @@ public class Stream {
         final Iterator<Object> iter = iterator();
         while (iter.hasNext()) {
             final Object item = iter.next();
-            if (max == null || ELSupport.compare(comparator.invoke(max, item), Long.valueOf(0)) < 0) {
+            if (max == null || ExpressionSupport.compare(comparator.invoke(max, item), Long.valueOf(0)) < 0) {
                 max = item;
             }
         }
@@ -481,12 +481,12 @@ public class Stream {
         Iterator<Object> iter = iterator();
         while (iter.hasNext()) {
             count++;
-            sum = ELArithmetic.add(sum, iter.next());
+            sum = ExpressionArithmetic.add(sum, iter.next());
         }
         if (count == 0) {
             return Optional.empty();
         }
-        return Optional.of(ELArithmetic.divide(sum, count));
+        return Optional.of(ExpressionArithmetic.divide(sum, count));
     }
 
     abstract class Iterator0 implements Iterator<Object> {

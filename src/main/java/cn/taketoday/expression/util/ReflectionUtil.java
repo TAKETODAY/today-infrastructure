@@ -59,7 +59,7 @@ import cn.taketoday.expression.ELContext;
 import cn.taketoday.expression.ELException;
 import cn.taketoday.expression.MethodNotFoundException;
 import cn.taketoday.expression.PropertyNotFoundException;
-import cn.taketoday.expression.lang.ELSupport;
+import cn.taketoday.expression.lang.ExpressionSupport;
 
 /**
  * Utilities for Managing Serialization and Reflection
@@ -154,7 +154,7 @@ public abstract class ReflectionUtil {
      */
     public static PropertyDescriptor getPropertyDescriptor(Object base,
                                                            Object property) throws ELException, PropertyNotFoundException {
-        String name = ELSupport.coerceToString(property);
+        String name = ExpressionSupport.coerceToString(property);
         try {
             PropertyDescriptor[] desc = Introspector.getBeanInfo(base.getClass()).getPropertyDescriptors();
             for (int i = 0; i < desc.length; i++) {
@@ -609,7 +609,7 @@ public abstract class ReflectionUtil {
         // TODO: This isn't pretty but it works. Significant refactoring would
         // be required to avoid the exception.
         try {
-            ELSupport.coerceToType(src, target);
+            ExpressionSupport.coerceToType(src, target);
         }
         catch (Exception e) {
             return false;
