@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.resolver;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -64,8 +63,7 @@ public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver 
             try {
                 exceptionHandler.handleResult(context, exceptionHandler.invokeHandler(context));
             }
-            catch (final InvocationTargetException e) {
-                final Throwable target = e.getTargetException();
+            catch (final Throwable target) {
                 if (target instanceof ExceptionUnhandledException == false) {
                     log.error("Handling of [{}] resulted in Exception: [{}]", //
                               target.getClass().getName(), target.getClass().getName(), target);
