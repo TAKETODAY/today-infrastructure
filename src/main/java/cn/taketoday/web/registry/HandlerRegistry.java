@@ -27,5 +27,12 @@ import cn.taketoday.web.RequestContext;
  */
 public interface HandlerRegistry {
 
+    /**
+     * Lookup current request context's handler
+     * 
+     * @param context
+     *            Current request context
+     * @return Target handler. If returns {@code null} indicates no handler
+     */
     Object lookup(RequestContext context);
 }

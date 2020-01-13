@@ -95,6 +95,7 @@ public class FunctionHandlerRegistry extends MappedHandlerRegistry {
     public FunctionHandlerRegistry PUT(String pathPattern, Object handler) {
         return register(PUT, pathPattern, handler);
     }
+
     // DELETE 
     // ---------------------------------------
 

@@ -90,6 +90,15 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
         return matchingPatternHandler(handlerKey, patternMappings);
     }
 
+    /**
+     * Match pattern handler
+     * 
+     * @param handlerKey
+     *            Handler key
+     * @param patternMappings
+     *            {@link PatternMapping} array. Never be null
+     * @return Matched pattern handler. If returns {@code null} indicates no handler
+     */
     protected Object matchingPatternHandler(final String handlerKey, final PatternMapping[] patternMappings) {
 
         // pattern

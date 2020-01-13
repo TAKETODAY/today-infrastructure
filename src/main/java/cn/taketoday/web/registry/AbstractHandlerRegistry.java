@@ -45,7 +45,7 @@ public abstract class AbstractHandlerRegistry extends WebApplicationContextSuppo
     protected abstract Object lookupInternal(RequestContext context);
 
     /**
-     * Set the default handler for this handler mapping. This handler will be
+     * Set the default handler for this handler registry. This handler will be
      * returned if no specific mapping was found.
      * <p>
      * Default is {@code null}, indicating no default handler.
