@@ -19,6 +19,9 @@
  */
 package cn.taketoday.context.io;
 
+import static cn.taketoday.context.Constant.BLANK;
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -31,7 +34,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -50,7 +52,7 @@ import cn.taketoday.context.utils.StringUtils;
  * A {@link ResourceResolver} implementation that is able to resolve a specified
  * resource location path into one or more matching Resources. The source path
  * may be a simple path which has a one-to-one mapping to a target
- * {@link core.io.Resource}, or alternatively may contain the special
+ * {@link Resource}, or alternatively may contain the special
  * "{@code classpath*:}" prefix and/or internal Ant-style regular expressions
  * (matched using Spring's {@link AntPathMatcher} utility). Both of the latter
  * are effectively wildcards.
@@ -210,8 +212,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
      * @see AntPathMatcher
      */
     public void setPathMatcher(PathMatcher pathMatcher) {
-        Objects.requireNonNull(pathMatcher, "PathMatcher must not be null");
-        this.pathMatcher = pathMatcher;
+        this.pathMatcher = nonNull(pathMatcher, "PathMatcher must not be null");
     }
 
     /**
@@ -228,7 +229,8 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
 
     @Override
     public Resource[] getResources(String locationPattern) throws IOException {
-        Objects.requireNonNull(locationPattern, "Location pattern must not be null");
+        nonNull(locationPattern, "Location pattern must not be null");
+
         if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
             // a class path resource (multiple resources for same name possible)
             if (getPathMatcher().isPattern(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()))) {
@@ -293,13 +295,13 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
      * @return a mutable Set of matching Resource instances
      */
     protected Set<Resource> doFindAllClassPathResources(String path) throws IOException {
-        Set<Resource> result = new LinkedHashSet<>(16);
+        Set<Resource> result = new LinkedHashSet<>();
         final ClassLoader cl = getClassLoader();
         final Enumeration<URL> resourceUrls = (cl != null ? cl.getResources(path) : ClassLoader.getSystemResources(path));
         while (resourceUrls.hasMoreElements()) {
             result.add(convertClassLoaderURL(resourceUrls.nextElement()));
         }
-        if (Constant.BLANK.equals(path)) { // root path
+        if (BLANK.equals(path)) { // root path
             // The above result is likely to be incomplete, i.e. only containing file system references.
             // We need to have pointers to each of the jar files on the classpath as well...
             addAllClassLoaderJarRoots(cl, result);
@@ -336,14 +338,20 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
     protected void addAllClassLoaderJarRoots(ClassLoader classLoader, Set<Resource> result) {
         if (classLoader instanceof URLClassLoader) {
             try {
+                final String jar = Constant.JAR_FILE_EXTENSION;
                 for (final URL url : ((URLClassLoader) classLoader).getURLs()) {
-                    // jar file
-                    final String path = url.getPath();
-                    if (path.endsWith(Constant.JAR_FILE_EXTENSION)) {
-                        JarEntryResource jarResource = new JarEntryResource(path);
-                        if (jarResource.exists()) {
-                            result.add(jarResource);
+                    try { // jar file
+                        final String path = url.getPath();
+                        if (path.endsWith(jar)) {
+                            final JarEntryResource jarResource = new JarEntryResource(path);
+                            if (jarResource.exists()) {
+                                result.add(jarResource);
+                            }
                         }
+                    }
+                    catch (IOException ex) {
+                        log.debug("Cannot search for matching files underneath [{}] because it cannot be converted to a valid 'jar:' URL: {}",
+                                  url, ex.getMessage());
                     }
                 }
             }
@@ -360,12 +368,11 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
 
         if (classLoader != null) {
             try {
-                // Hierarchy traversal...
-                addAllClassLoaderJarRoots(classLoader.getParent(), result);
+                addAllClassLoaderJarRoots(classLoader.getParent(), result); // Hierarchy traversal...
             }
             catch (Exception ex) {
                 log.debug("Cannot introspect jar files in parent ClassLoader since [{}] does not support 'getParent()': {}",
-                          classLoader, ex);
+                          classLoader, ex.toString(), ex);
             }
         }
     }
@@ -403,7 +410,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
                             .append(filePath)
                             .append(Constant.JAR_URL_SEPARATOR).toString();
 
-                    JarEntryResource jarResource = new JarEntryResource(new URL(url), jarFile, Constant.BLANK);
+                    JarEntryResource jarResource = new JarEntryResource(new URL(url), jarFile, BLANK);
                     // Potentially overlapping with URLClassLoader.getURLs() result above!
                     if (!result.contains(jarResource) && !hasDuplicate(filePath, result) && jarFile.exists()) {
                         result.add(jarResource);
@@ -467,10 +474,10 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
         final String rootDirPath = determineRootDir(locationPattern);
         final String subPattern = locationPattern.substring(rootDirPath.length());
         final Resource[] rootDirResources = getResources(rootDirPath);
-        final Set<Resource> result = new LinkedHashSet<>(16);
+        final Set<Resource> result = new LinkedHashSet<>();
 
         for (final Resource rootDirResource : rootDirResources) {
-            extracted(subPattern, result, rootDirResource);
+            rootDirResource(subPattern, result, rootDirResource);
         }
         if (log.isTraceEnabled()) {
             log.trace("Resolved location pattern [{}] to resources {}", locationPattern, result);
@@ -478,7 +485,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
         return result.toArray(new Resource[result.size()]);
     }
 
-    protected void extracted(final String subPattern, final Set<Resource> result, final Resource rootResource) throws IOException {
+    protected void rootDirResource(final String subPattern, final Set<Resource> result, final Resource rootResource) throws IOException {
         if (rootResource instanceof JarResource) {
             result.addAll(doFindPathMatchingJarResources((JarResource) rootResource, subPattern));
         }
@@ -487,7 +494,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
         }
         else if (rootResource instanceof ClassPathResource) {
             final Resource originalResource = ((ClassPathResource) rootResource).getOriginalResource();
-            extracted(subPattern, result, originalResource);
+            rootDirResource(subPattern, result, originalResource);
         }
     }
 
@@ -542,7 +549,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
         JarURLConnection jarCon = (JarURLConnection) rootDirURL.openConnection();
         ResourceUtils.useCachesIfNecessary(jarCon);
         final JarEntry jarEntry = jarCon.getJarEntry();
-        String rootEntryPath = (jarEntry != null ? jarEntry.getName() : Constant.BLANK);
+        String rootEntryPath = (jarEntry != null ? jarEntry.getName() : BLANK);
         final boolean closeJarFile = !jarCon.getUseCaches();
 
         final JarFile jarFile = rootDirResource.getJarFile();
@@ -552,7 +559,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
                 final String jarFileUrl = jarCon.getJarFileURL().toExternalForm();
                 log.trace("Looking for matching resources in jar file [{}]", jarFileUrl);
             }
-            if (!Constant.BLANK.equals(rootEntryPath) && !rootEntryPath.endsWith("/")) {
+            if (!BLANK.equals(rootEntryPath) && !rootEntryPath.endsWith("/")) {
                 // Root entry path must end with slash to allow for proper matching.
                 // The Sun JRE does not return a slash here, but BEA JRockit does.
                 rootEntryPath = rootEntryPath.concat("/");
@@ -675,7 +682,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
 
         String fullPattern = StringUtils.replace(rootDir.getAbsolutePath(), File.separator, "/");
         if (!pattern.startsWith("/")) {
-            fullPattern += "/";
+            fullPattern += '/';
         }
         fullPattern = fullPattern + StringUtils.replace(pattern, File.separator, "/");
 

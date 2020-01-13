@@ -19,6 +19,12 @@
  */
 package cn.taketoday.context.utils;
 
+import static cn.taketoday.context.Constant.BLANK;
+import static cn.taketoday.context.Constant.CLASS_PATH_PREFIX;
+import static cn.taketoday.context.Constant.PATH_SEPARATOR;
+import static cn.taketoday.context.Constant.PROTOCOL_FILE;
+import static cn.taketoday.context.Constant.PROTOCOL_JAR;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -31,6 +37,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.io.JarEntryResource;
+import cn.taketoday.context.io.PathMatchingResourcePatternResolver;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.io.UrlBasedResource;
 
@@ -40,6 +47,40 @@ import cn.taketoday.context.io.UrlBasedResource;
  * @since 2.1.6
  */
 public abstract class ResourceUtils {
+
+    /**
+     * Resolve the given location pattern into Resource objects.
+     * <p>
+     * Overlapping resource entries that point to the same physical resource should
+     * be avoided, as far as possible. The result should have set semantics.
+     * 
+     * @param pathPattern
+     *            The location pattern to resolve
+     * @return the corresponding Resource objects
+     * @throws IOException
+     *             in case of I/O errors
+     */
+    public static Resource[] getResources(String pathPattern) throws IOException {
+        return getResources(pathPattern, null);
+    }
+
+    /**
+     * Resolve the given location pattern into Resource objects.
+     * <p>
+     * Overlapping resource entries that point to the same physical resource should
+     * be avoided, as far as possible. The result should have set semantics.
+     * 
+     * @param pathPattern
+     *            The location pattern to resolve
+     * @param classLoader
+     *            The {@link ClassLoader} to search (including its ancestors)
+     * @return the corresponding Resource objects
+     * @throws IOException
+     *             in case of I/O errors
+     */
+    public static Resource[] getResources(String pathPattern, ClassLoader classLoader) throws IOException {
+        return new PathMatchingResourcePatternResolver(classLoader).getResources(pathPattern);
+    }
 
     /**
      * Get {@link Resource} with given location
@@ -53,12 +94,12 @@ public abstract class ResourceUtils {
 
         // fix location is empty
         if (StringUtils.isEmpty(location)) {
-            return new ClassPathResource(Constant.BLANK);
+            return new ClassPathResource(BLANK);
         }
 
-        if (location.startsWith(Constant.CLASS_PATH_PREFIX)) {
-            final String path = location.substring(Constant.CLASS_PATH_PREFIX.length());
-            if (path.charAt(0) == Constant.PATH_SEPARATOR) {
+        if (location.startsWith(CLASS_PATH_PREFIX)) {
+            final String path = location.substring(CLASS_PATH_PREFIX.length());
+            if (path.charAt(0) == PATH_SEPARATOR) {
                 return new ClassPathResource(path.substring(1));
             }
             return new ClassPathResource(path);
@@ -74,10 +115,10 @@ public abstract class ResourceUtils {
 
     public static Resource getResource(final URL url) {
         final String protocol = url.getProtocol();
-        if (Constant.PROTOCOL_FILE.equals(protocol)) {
+        if (PROTOCOL_FILE.equals(protocol)) {
             return new FileBasedResource(url.getPath());
         }
-        if (Constant.PROTOCOL_JAR.equals(protocol)) {
+        if (PROTOCOL_JAR.equals(protocol)) {
             return new JarEntryResource(url);
         }
         return new UrlBasedResource(url);
@@ -89,7 +130,6 @@ public abstract class ResourceUtils {
      * @param file
      *            source
      * @return a {@link FileBasedResource}
-     * @throws IOException
      */
     public static Resource getResource(final File file) {
         return new FileBasedResource(file);
@@ -107,14 +147,14 @@ public abstract class ResourceUtils {
      */
     public static String getRelativePath(final String path, final String relativePath) {
 
-        final int separatorIndex = path.lastIndexOf(Constant.PATH_SEPARATOR);
+        final int separatorIndex = path.lastIndexOf(PATH_SEPARATOR);
 
         if (separatorIndex > 0) {
 
             final StringBuilder newPath = new StringBuilder(path.substring(0, separatorIndex));
 
-            if (relativePath.charAt(0) != Constant.PATH_SEPARATOR) {
-                newPath.append(Constant.PATH_SEPARATOR);
+            if (relativePath.charAt(0) != PATH_SEPARATOR) {
+                newPath.append(PATH_SEPARATOR);
             }
             return newPath.append(relativePath).toString();
         }
@@ -187,9 +227,9 @@ public abstract class ResourceUtils {
                 // Probably no protocol in original jar URL, like "jar:C:/mypath/myjar.jar".
                 // This usually indicates that the jar file resides in the file system.
                 if (!jarFile.startsWith("/")) {
-                    jarFile = "/" + jarFile;
+                    jarFile = '/' + jarFile;
                 }
-                return new URL(Constant.FILE_URL_PREFIX + jarFile);
+                return new URL(Constant.FILE_URL_PREFIX.concat(jarFile));
             }
         }
         else {
@@ -252,7 +292,7 @@ public abstract class ResourceUtils {
         if (resourceLocation == null) {
             return false;
         }
-        if (resourceLocation.startsWith(Constant.CLASS_PATH_PREFIX)) {
+        if (resourceLocation.startsWith(CLASS_PATH_PREFIX)) {
             return true;
         }
         try {

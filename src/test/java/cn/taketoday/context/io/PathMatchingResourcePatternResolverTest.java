@@ -29,6 +29,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import cn.taketoday.context.utils.ResourceUtils;
+
 /**
  * @author TODAY <br>
  *         2019-12-05 23:15
@@ -73,6 +75,14 @@ public class PathMatchingResourcePatternResolverTest {
         assertEquals(1, resources.length);
         assertTrue(resources[0].exists());
         assertProtocolAndFilenames(resources, "file", "PathMatchingResourcePatternResolverTest.class");
+        
+        
+        // ---------------------------------------
+        
+        final Resource[] resources2 = ResourceUtils.getResources("cn/taketoday/context/io/PathMatchingResourcePatternResolverTest.class");
+        assertEquals(1, resources2.length);
+        assertTrue(resources2[0].exists());
+        assertProtocolAndFilenames(resources2, "file", "PathMatchingResourcePatternResolverTest.class");
     }
 
     @Test
