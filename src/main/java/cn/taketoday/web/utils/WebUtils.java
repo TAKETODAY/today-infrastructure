@@ -22,29 +22,19 @@ package cn.taketoday.web.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
-import cn.taketoday.context.utils.NumberUtils;
-import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.HttpHeaders;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.exception.AccessForbiddenException;
 import cn.taketoday.web.exception.BadRequestException;
@@ -337,79 +327,4 @@ public abstract class WebUtils {
         }
         return false;
     }
-
-    /***
-     * Build method parameter list
-     * 
-     * @param method
-     *            Target Action or Handler
-     */
-    public static MethodParameter[] createMethodParametersArray(Method method) {
-        final List<MethodParameter> params = createMethodParameters(method);
-        if (ObjectUtils.isEmpty(params)) {
-            return null;
-        }
-        return params.toArray(new MethodParameter[params.size()]);
-    }
-
-    /***
-     * Build method parameter list
-     * 
-     * @param method
-     *            Target Action or Handler
-     */
-    public static List<MethodParameter> createMethodParameters(Method method) {
-        if (method == null) {
-            return null;
-        }
-        final Parameter[] parameters = method.getParameters();
-        final List<MethodParameter> methodParameters = new ArrayList<>();
-        final String[] methodArgsNames = ClassUtils.getMethodArgsNames(method);
-
-        for (int i = 0; i < parameters.length; i++) {
-            methodParameters.add(createMethodParameter(parameters[i], methodArgsNames[i]));
-        }
-        return methodParameters;
-    }
-
-    /**
-     * Create a method parameter
-     * 
-     * @param parameter
-     *            Reflect parameter
-     * @param methodArgsName
-     *            method parameter names
-     * @return {@link MethodParameter}
-     */
-    public static MethodParameter createMethodParameter(final Parameter parameter, final String methodArgsName) {
-
-        Type[] genericityClass = null;
-        String parameterName = Constant.BLANK;
-        Class<?> parameterClass = parameter.getType();
-        // annotation
-        boolean required = false;
-        String defaultValue = null;
-
-        final Type parameterizedType = parameter.getParameterizedType();
-        if (parameterizedType instanceof ParameterizedType) {
-            genericityClass = ((ParameterizedType) parameterizedType).getActualTypeArguments();
-        }
-
-        final AnnotationAttributes attributes = ClassUtils.getAnnotationAttributes(RequestParam.class, parameter);
-        if (attributes != null) {
-            required = attributes.getBoolean("required");
-            defaultValue = attributes.getString("defaultValue");
-            parameterName = attributes.getString(Constant.VALUE);
-        }
-
-        if (StringUtils.isEmpty(defaultValue) && NumberUtils.isNumber(parameterClass)) {
-            defaultValue = "0"; // fix default value
-        }
-
-        if (StringUtils.isEmpty(parameterName)) {
-            parameterName = methodArgsName; // use method parameter name
-        }
-        return new MethodParameter(parameterName, required, defaultValue, parameter, genericityClass, parameterClass);
-    }
-
 }

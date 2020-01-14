@@ -84,7 +84,7 @@ public class ValidationParameterResolver implements OrderedParameterResolver {
                 throw buildException(errors);
             }
             // > 1
-            int index = parameter.getIndex();
+            int index = parameter.getParameterIndex();
             if (++index == length || !parameters[index].isAssignableFrom(Errors.class)) {
                 throw buildException(errors);
             }

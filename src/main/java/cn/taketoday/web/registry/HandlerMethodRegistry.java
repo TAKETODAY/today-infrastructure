@@ -19,7 +19,9 @@
  */
 package cn.taketoday.web.registry;
 
+import static cn.taketoday.context.Constant.EMPTY_OBJECT;
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
 import static cn.taketoday.context.utils.CollectionUtils.newHashSet;
 import static cn.taketoday.context.utils.ContextUtils.resolveValue;
 import static cn.taketoday.context.utils.StringUtils.checkUrl;
@@ -115,9 +117,9 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
         Object hander = patternMatchingCache.get(handlerKey);
         if (hander == null) {
             hander = super.matchingPatternHandler(handlerKey, patternMappings);
-            patternMatchingCache.put(handlerKey, hander == null ? Constant.EMPTY_OBJECT : hander);
+            patternMatchingCache.put(handlerKey, hander == null ? EMPTY_OBJECT : hander);
         }
-        else if (hander == Constant.EMPTY_OBJECT) {
+        else if (hander == EMPTY_OBJECT) {
             return null;
         }
         return hander;
@@ -183,8 +185,8 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
         final Set<String> namespaces = new HashSet<>(4, 1.0f); // name space
         final Set<RequestMethod> methodsOnClass = new HashSet<>(8, 1.0f); // method
 
-        final AnnotationAttributes controllerMapping = // find mapping on class
-                ClassUtils.getAnnotationAttributes(ActionMapping.class, beanClass);
+        // find mapping on class
+        final AnnotationAttributes controllerMapping = getAnnotationAttributes(ActionMapping.class, beanClass);
 
         if (ObjectUtils.isNotEmpty(controllerMapping)) {
             for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {

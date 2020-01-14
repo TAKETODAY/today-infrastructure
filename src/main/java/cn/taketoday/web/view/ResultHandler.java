@@ -34,6 +34,6 @@ public interface ResultHandler {
         return true;
     }
 
-    void handleResult(RequestContext requestContext, Object result) throws Throwable;
+    void handleResult(RequestContext context, Object result) throws Throwable;
 
 }

@@ -94,7 +94,7 @@ public class HandlerMethod extends InterceptableRequestHandler implements Result
         this.method = method;
         setInterceptors(interceptors);
         this.reutrnType = method != null ? method.getReturnType() : null;
-        this.parameters = WebUtils.createMethodParametersArray(method);
+        this.parameters = MethodParameter.ofMethod(method);
         this.genericityClass = ClassUtils.getGenericityClass(reutrnType);
         this.handlerInvoker = method != null ? MethodInvoker.create(method) : null;
 

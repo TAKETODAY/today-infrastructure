@@ -21,12 +21,19 @@ package cn.taketoday.web.handler;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
+import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.NumberUtils;
+import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.resolver.method.ParameterResolver;
 import cn.taketoday.web.resolver.method.ParameterResolvers;
 
@@ -39,6 +46,7 @@ public class MethodParameter implements Serializable {
 
     private final String name;
     private final boolean required;
+    private final int parameterIndex;
     private final Class<?> parameterClass;
 
     /** the default value */
@@ -51,6 +59,7 @@ public class MethodParameter implements Serializable {
     public MethodParameter(HandlerMethod handlerMethod, MethodParameter other) {
         this(other.name,
              other.required,
+             other.parameterIndex,
              other.defaultValue,
              other.parameter,
              other.genericityClass,
@@ -60,12 +69,14 @@ public class MethodParameter implements Serializable {
 
     public MethodParameter(String name, //@off
                            boolean required,
+                           int parameterIndex,
                            String defaultValue,
                            Parameter parameter,
                            Type[] genericityClass,
                            Class<?> parameterClass) {//@on
         this(name,
              required,
+             parameterIndex,
              defaultValue,
              parameter,
              genericityClass,
@@ -75,6 +86,7 @@ public class MethodParameter implements Serializable {
 
     public MethodParameter(String name, //@off
                            boolean required,
+                           int parameterIndex,
                            String defaultValue,
                            Parameter parameter,
                            Type[] genericityClass,
@@ -84,6 +96,7 @@ public class MethodParameter implements Serializable {
         this.required = required;
         this.defaultValue = defaultValue;
         this.handlerMethod = handlerMethod;
+        this.parameterIndex = parameterIndex;
         this.genericityClass = genericityClass;
         this.parameter = Objects.requireNonNull(parameter);
         this.parameterClass = Objects.requireNonNull(parameterClass);
@@ -141,10 +154,7 @@ public class MethodParameter implements Serializable {
     }
 
     public <A extends Annotation> A getAnnotation(final Class<A> annotationClass) {
-        if (annotationClass == null) {
-            return null;
-        }
-        return ClassUtils.getAnnotation(annotationClass, parameter);
+        return annotationClass == null ? null : ClassUtils.getAnnotation(annotationClass, parameter);
     }
 
     // ----- resolver
@@ -153,14 +163,8 @@ public class MethodParameter implements Serializable {
         return resolver.resolveParameter(requestContext, this);
     }
 
-    public int getIndex() {
-        final Parameter[] parameters = parameter.getDeclaringExecutable().getParameters();
-        for (int i = 0; i < parameters.length; i++) {
-            if (parameters[i].equals(this.parameter)) {
-                return i;
-            }
-        }
-        return 0;
+    public int getParameterIndex() {
+        return parameterIndex;
     }
 
     @Override
@@ -217,4 +221,63 @@ public class MethodParameter implements Serializable {
         this.handlerMethod = handlerMethod;
         return this;
     }
+
+    // static
+    // --------------------------------------
+
+    public static MethodParameter[] ofMethod(Method method) {
+
+        final Parameter[] parameters = method.getParameters();
+        final int length = parameters.length;
+
+        final MethodParameter[] ret = new MethodParameter[length];
+        final String[] methodArgsNames = ClassUtils.getMethodArgsNames(method);
+
+        for (int i = 0; i < length; i++) {
+            ret[i] = of(i, parameters[i], methodArgsNames[i]);
+        }
+        return ret;
+    }
+
+    /**
+     * Create a method parameter
+     * 
+     * @param parameter
+     *            Reflect parameter
+     * @param methodArgsName
+     *            method parameter names
+     * @return {@link MethodParameter}
+     */
+    public static MethodParameter of(final int index, final Parameter parameter, final String methodArgsName) {
+
+        Type[] genericityClass = null;
+        String parameterName = Constant.BLANK;
+        Class<?> parameterClass = parameter.getType();
+        // annotation
+        boolean required = false;
+        String defaultValue = null;
+
+        final Type parameterizedType = parameter.getParameterizedType();
+
+        if (parameterizedType instanceof ParameterizedType) {
+            genericityClass = ((ParameterizedType) parameterizedType).getActualTypeArguments();
+        }
+
+        final AnnotationAttributes attributes = ClassUtils.getAnnotationAttributes(RequestParam.class, parameter);
+        if (attributes != null) {
+            required = attributes.getBoolean("required");
+            defaultValue = attributes.getString("defaultValue");
+            parameterName = attributes.getString(Constant.VALUE);
+        }
+
+        if (StringUtils.isEmpty(defaultValue) && NumberUtils.isNumber(parameterClass)) {
+            defaultValue = "0"; // fix default value
+        }
+
+        if (StringUtils.isEmpty(parameterName)) {
+            parameterName = methodArgsName; // use method parameter name
+        }
+        return new MethodParameter(parameterName, required, index, defaultValue, parameter, genericityClass, parameterClass);
+    }
+
 }
