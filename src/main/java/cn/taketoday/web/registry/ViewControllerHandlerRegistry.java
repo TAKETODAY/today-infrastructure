@@ -25,6 +25,7 @@ import java.util.Map;
 import cn.taketoday.context.AntPathMatcher;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.handler.ViewController;
 
 /**
@@ -103,6 +104,22 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
      */
     public ViewController addViewController(String pathPattern, String assetsPath) {
         return addViewController(pathPattern).setAssetsPath(assetsPath);
+    }
+
+    /**
+     * Map a view controller to the given URL path (or pattern) in order to redirect
+     * to another URL.
+     */
+    public ViewController addRedirectViewController(String pathPattern, String redirectUrl) {
+        return addViewController(pathPattern).setAssetsPath(Constant.REDIRECT_URL_PREFIX.concat(redirectUrl));
+    }
+
+    /**
+     * Map a simple controller to the given URL path (or pattern) in order to set
+     * the response status to the given code without rendering a body.
+     */
+    public ViewController addStatusController(String pathPattern, Integer status) {
+        return addViewController(pathPattern).setStatus(status);
     }
 
 }

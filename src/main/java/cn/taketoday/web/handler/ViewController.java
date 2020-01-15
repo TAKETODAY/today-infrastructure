@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.OrderedSupport;
 
 /**
  * Views request mapping
@@ -31,7 +32,7 @@ import cn.taketoday.context.Constant;
  *         2018-06-25 19:58:07
  */
 @SuppressWarnings("serial")
-public class ViewController implements Serializable {
+public class ViewController extends OrderedSupport implements Serializable {
 
     /** 资源路径 */
     private String assetsPath = Constant.BLANK;
@@ -45,6 +46,11 @@ public class ViewController implements Serializable {
 
     public ViewController() {
         this(null, null);
+    }
+
+    public ViewController(int order) {
+        super(order);
+        this.handlerMethod = null;
     }
 
     public ViewController(Object bean, Method method) {
