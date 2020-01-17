@@ -19,17 +19,14 @@
  */
 package cn.taketoday.context.exception;
 
-import lombok.NoArgsConstructor;
-
 /**
- * 
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-07-3 20:24:18
  */
-@NoArgsConstructor
 @SuppressWarnings("serial")
 public class NoSuchBeanDefinitionException extends ContextException {
+
+    public NoSuchBeanDefinitionException() {}
 
     public NoSuchBeanDefinitionException(Throwable cause) {
         super(cause);

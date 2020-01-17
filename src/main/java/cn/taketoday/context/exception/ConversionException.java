@@ -19,16 +19,15 @@
  */
 package cn.taketoday.context.exception;
 
-import lombok.NoArgsConstructor;
-
 /**
  * 
  * @author Today <br>
  *         2018-06-28 17:05:34
  */
-@NoArgsConstructor
 @SuppressWarnings("serial")
 public class ConversionException extends ContextException {
+
+    public ConversionException() {}
 
     public ConversionException(Throwable cause) {
         super(cause);

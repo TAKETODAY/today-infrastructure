@@ -19,15 +19,14 @@
  */
 package cn.taketoday.context.exception;
 
-import lombok.NoArgsConstructor;
-
 /**
  * @author TODAY <br>
  *         2018-08-05 10:08
  */
-@NoArgsConstructor
 @SuppressWarnings("serial")
 public class NoSuchPropertyException extends ContextException {
+
+    public NoSuchPropertyException() {}
 
     public NoSuchPropertyException(Throwable cause) {
         super(cause);

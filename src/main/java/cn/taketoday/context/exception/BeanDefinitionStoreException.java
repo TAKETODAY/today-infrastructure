@@ -19,16 +19,16 @@
  */
 package cn.taketoday.context.exception;
 
-import lombok.NoArgsConstructor;
 
 /**
  * 
  * @author TODAY <br>
  *         2018-07-08 19:54:46
  */
-@NoArgsConstructor
 @SuppressWarnings("serial")
 public class BeanDefinitionStoreException extends ConfigurationException {
+
+    public BeanDefinitionStoreException() {}
 
     public BeanDefinitionStoreException(Class<?> beanClass, Throwable cause) {
         super("Can't store: [" + beanClass.getName() + "]", cause);
