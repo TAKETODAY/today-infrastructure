@@ -453,29 +453,35 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     break;
                 case LPAREN :
                     consumeToken(LPAREN);
-                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-                        case IDENTIFIER :
-                            Identifier();
-                            /*label_3:*/ while (true) {
-
-                                if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) != COMMA) {
-                                    jj_la1[6] = jj_gen;
-                                    break;
-                                }
-//                                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-//                                    case COMMA :;
-//                                        break;
-//                                    default:
-//                                        jj_la1[6] = jj_gen;
-//                                        break label_3;
-//                                }
-                                consumeToken(COMMA);
-                                Identifier();
+                    if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) == IDENTIFIER) {
+                        Identifier();
+                        while (true) {
+                            if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) != COMMA) {
+                                jj_la1[6] = jj_gen;
+                                break;
                             }
-                            break;
-                        default:
-                            jj_la1[7] = jj_gen;;
+                            consumeToken(COMMA);
+                            Identifier();
+                        }
                     }
+                    else {
+                        jj_la1[7] = jj_gen;
+                    }
+//                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+//                        case IDENTIFIER :
+//                            Identifier();
+//                            while (true) {
+//                                if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) != COMMA) {
+//                                    jj_la1[6] = jj_gen;
+//                                    break;
+//                                }
+//                                consumeToken(COMMA);
+//                                Identifier();
+//                            }
+//                            break;
+//                        default:
+//                            jj_la1[7] = jj_gen;;
+//                    }
                     consumeToken(RPAREN);
                     break;
                 default:
