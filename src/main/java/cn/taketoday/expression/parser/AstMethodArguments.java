@@ -62,11 +62,12 @@ public class AstMethodArguments extends SimpleNode {
         if (children == null) {
             return Constant.EMPTY_OBJECT_ARRAY;
         }
-
+        int i = 0;
         final Object[] obj = new Object[children.length];
-        for (int i = 0; i < obj.length; i++) {
-            obj[i] = children[i].getValue(ctx);
+        for (final Node node : children) {
+            obj[i++] = node.getValue(ctx);
         }
+
         return obj;
     }
 

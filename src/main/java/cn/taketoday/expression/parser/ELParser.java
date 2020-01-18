@@ -293,14 +293,19 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      */
     final public void SemiColon() throws ParseException {
         Assignment();
-        label_2: while (true) {
-            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-                case SEMICOLON :;
-                    break;
-                default:
-                    jj_la1[2] = jj_gen;
-                    break label_2;
+        /* label_2:*/ while (true) {
+
+            if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) != SEMICOLON) {
+                jj_la1[2] = jj_gen;
+                break;
             }
+//            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+//                case SEMICOLON :;
+//                    break;
+//                default:
+//                    jj_la1[2] = jj_gen;
+//                    break label_2;
+//            }
             consumeToken(SEMICOLON);
             AstSemiColon jjtn001 = new AstSemiColon(JJTSEMICOLON);
             boolean jjtc001 = true;
@@ -1417,9 +1422,9 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      */
     final public void MethodArguments() throws ParseException {
         /* @bgen(jjtree) MethodArguments */
-        AstMethodArguments jjtn000 = new AstMethodArguments(JJTMETHODARGUMENTS);
+        AstMethodArguments astMethodArguments = new AstMethodArguments(JJTMETHODARGUMENTS);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        jjtree.openNodeScope(astMethodArguments);
         try {
             consumeToken(LPAREN);
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -1438,26 +1443,31 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 case MINUS :
                 case IDENTIFIER :
                     Expression();
-                    label_12: while (true) {
-                        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-                            case COMMA :;
-                                break;
-                            default:
-                                jj_la1[38] = jj_gen;
-                                break label_12;
+                    /*label_12:*/ while (true) {
+                        if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) != COMMA) {
+                            jj_la1[38] = jj_gen;
+                            break;
                         }
+//                        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+//                            case COMMA :;
+//                                break;
+//                            default:
+//                                jj_la1[38] = jj_gen;
+//                                break label_12;
+//                        }
                         consumeToken(COMMA);
                         Expression();
                     }
                     break;
                 default:
-                    jj_la1[39] = jj_gen;;
+                    jj_la1[39] = jj_gen;
+                    break;
             }
             consumeToken(RPAREN);
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                jjtree.clearNodeScope(astMethodArguments);
                 jjtc000 = false;
             }
             else {
@@ -1479,7 +1489,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                jjtree.closeNodeScope(astMethodArguments, true);
             }
         }
     }
@@ -1814,9 +1824,9 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      */
     final public void Function() throws ParseException {
         /* @bgen(jjtree) Function */
-        AstFunction jjtn000 = new AstFunction(FUNCTION);
+        AstFunction astFunction = new AstFunction(FUNCTION);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        jjtree.openNodeScope(astFunction);
 
         try {
             Token t1 = null;
@@ -1828,41 +1838,24 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
             else {
                 jj_la1[49] = jj_gen;
             }
-//            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-//                case COLON :
-//                    consumeToken(COLON);
-//                    t1 = consumeToken(IDENTIFIER);
-//                    break;
-//                default:
-//                    jj_la1[49] = jj_gen;
-//                    break;
-//            }
             if (t1 != null) {
-                jjtn000.setPrefix(t0.image);
-                jjtn000.setLocalName(t1.image);
+                astFunction.setPrefix(t0.image);
+                astFunction.setLocalName(t1.image);
             }
             else {
-                jjtn000.setLocalName(t0.image);
+                astFunction.setLocalName(t0.image);
             }
-            label_16: while (true) {
+            while (true) {
                 MethodArguments();
                 if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) != LPAREN) {
                     jj_la1[50] = jj_gen;
-                    break label_16;
+                    break;
                 }
-
-//                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-//                    case LPAREN :;
-//                        break;
-//                    default:
-//                        jj_la1[50] = jj_gen;
-//                        break label_16;
-//                }
             }
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                jjtree.clearNodeScope(astFunction);
                 jjtc000 = false;
             }
             else {
@@ -1872,7 +1865,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                jjtree.closeNodeScope(astFunction, true);
             }
         }
     }
