@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.utils;
 
+import static java.util.Objects.requireNonNull;
+
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -28,7 +30,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import cn.taketoday.context.Constant;
 
@@ -42,9 +43,9 @@ import cn.taketoday.context.Constant;
  * @author Sebastien Deleuze
  * @author Kazuki Shimizu
  * @author Sam Brannen
- * @since 3.0
  * @see <a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.1"> HTTP 1.1:
  *      Semantics and Content, section 3.1.1.1</a>
+ * @since 2.1.7
  * @author TODAY <br>
  *         2019-12-08 20:02
  */
@@ -609,10 +610,9 @@ public class MediaType extends MimeType implements Serializable {
      * Re-create the given mime type as a media type.
      */
     public static MediaType asMediaType(MimeType mimeType) {
-        if (mimeType instanceof MediaType) {
-            return (MediaType) mimeType;
-        }
-        return new MediaType(mimeType.getType(), mimeType.getSubtype(), mimeType.getParameters());
+        return mimeType instanceof MediaType
+                ? (MediaType) mimeType
+                : new MediaType(mimeType.getType(), mimeType.getSubtype(), mimeType.getParameters());
     }
 
     /**
@@ -665,8 +665,7 @@ public class MediaType extends MimeType implements Serializable {
      *      Semantics and Content, section 5.3.2</a>
      */
     public static void sortBySpecificity(List<MediaType> mediaTypes) {
-        Objects.requireNonNull(mediaTypes, "'mediaTypes' must not be null");
-        if (mediaTypes.size() > 1) {
+        if (requireNonNull(mediaTypes, "'mediaTypes' must not be null").size() > 1) {
             mediaTypes.sort(SPECIFICITY_COMPARATOR);
         }
     }
@@ -699,8 +698,7 @@ public class MediaType extends MimeType implements Serializable {
      * @see #getQualityValue()
      */
     public static void sortByQualityValue(List<MediaType> mediaTypes) {
-        Objects.requireNonNull(mediaTypes, "'mediaTypes' must not be null");
-        if (mediaTypes.size() > 1) {
+        if (requireNonNull(mediaTypes, "'mediaTypes' must not be null").size() > 1) {
             mediaTypes.sort(QUALITY_VALUE_COMPARATOR);
         }
     }
@@ -713,8 +711,7 @@ public class MediaType extends MimeType implements Serializable {
      * @see MediaType#sortByQualityValue(List)
      */
     public static void sortBySpecificityAndQuality(List<MediaType> mediaTypes) {
-        Objects.requireNonNull(mediaTypes, "'mediaTypes' must not be null");
-        if (mediaTypes.size() > 1) {
+        if (requireNonNull(mediaTypes, "'mediaTypes' must not be null").size() > 1) {
             mediaTypes.sort(MediaType.SPECIFICITY_COMPARATOR.thenComparing(MediaType.QUALITY_VALUE_COMPARATOR));
         }
     }

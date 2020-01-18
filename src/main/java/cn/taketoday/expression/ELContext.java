@@ -397,7 +397,7 @@ public abstract class ELContext {
             if (targetType.isInstance(obj)) {
                 return obj;
             }
-            final TypeConverter typeConverter = ConvertUtils.getTypeConverter(obj, targetType);
+            final TypeConverter typeConverter = ConvertUtils.getConverter(obj, targetType);
             if (typeConverter != null) {
                 return typeConverter.convert(targetType, obj);
             }

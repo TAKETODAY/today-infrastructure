@@ -39,11 +39,9 @@ import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.io.Resource;
 
 /**
- * 
  * @author TODAY <br>
  *         2018-07-12 20:43:53
  */
-// @Slf4j
 public abstract class ConvertUtils {
 
     private static TypeConverter[] converters;
@@ -55,6 +53,8 @@ public abstract class ConvertUtils {
                      new StringResourceConverter(),
                      new PrimitiveClassConverter(),
                      new ArrayStringArrayConverter(),
+                     delegate((c) -> c == MimeType.class, MimeType::valueOf),
+                     delegate((c) -> c == MediaType.class, MediaType::valueOf),
                      new StringConstructorConverter(),
                      delegate((c) -> c == Class.class, source -> {
                          try {
@@ -72,17 +72,31 @@ public abstract class ConvertUtils {
     }
 
     public static boolean supports(Object source, Class<?> targetClass) {
-        return getTypeConverter(source, targetClass) != null;
+        return getConverter(source, targetClass) != null;
     }
 
-    public static TypeConverter getTypeConverter(Object source, Class<?> targetClass) {
-
+    /**
+     * Get Target {@link TypeConverter}
+     * 
+     * @param source
+     * @param targetClass
+     * @return
+     */
+    public static TypeConverter getConverter(Object source, Class<?> targetClass) {
         for (TypeConverter converter : getConverters()) {
             if (converter.supports(targetClass, source)) {
                 return converter;
             }
         }
         return null;
+    }
+
+    /**
+     * @deprecated use {@link #getConverter(Object, Class)}
+     */
+    @Deprecated
+    public static TypeConverter getTypeConverter(Object source, Class<?> targetClass) {
+        return getConverter(source, targetClass);
     }
 
     /**
@@ -101,7 +115,7 @@ public abstract class ConvertUtils {
         if (targetClass.isInstance(source)) {
             return source;
         }
-        final TypeConverter typeConverter = getTypeConverter(source, targetClass);
+        final TypeConverter typeConverter = getConverter(source, targetClass);
         if (typeConverter == null) {
             throw new ConversionException("There isn't a 'cn.taketoday.context.conversion.TypeConverter' to convert: ["
                     + source + "] to target class: [" + targetClass + "]");

@@ -55,6 +55,7 @@ import cn.taketoday.context.Constant;
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  * @see MimeTypeUtils
+ * @since 2.1.7
  * @author TODAY <br>
  *         2019-12-08 19:08
  */
@@ -575,7 +576,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
         Iterator<String> otherAttributesIterator = otherAttributes.iterator();
 
         final String charset = PARAM_CHARSET;
-        
+
         while (thisAttributesIterator.hasNext()) {
             String thisAttribute = thisAttributesIterator.next();
             String otherAttribute = otherAttributesIterator.next();

@@ -161,7 +161,7 @@ public abstract class ResourceUtils {
         return relativePath;
     }
 
-    // 
+    // @since 2.1.7
 
     /**
      * Determine whether the given URL points to a resource in the file system, i.e.
@@ -198,7 +198,6 @@ public abstract class ResourceUtils {
      * @param url
      *            the URL to check
      * @return whether the URL has been identified as a JAR file URL
-     * @since 4.1
      */
     public static boolean isJarFileURL(final URL url) {
         return (Constant.URL_PROTOCOL_FILE.equals(url.getProtocol()) &&
@@ -302,5 +301,39 @@ public abstract class ResourceUtils {
         catch (MalformedURLException ex) {
             return false;
         }
+    }
+
+    /**
+     * Extract the URL for the outermost archive from the given jar/war URL (which
+     * may point to a resource in a jar file or to a jar file itself).
+     * <p>
+     * In the case of a jar file nested within a war file, this will return a URL to
+     * the war file since that is the one resolvable in the file system.
+     * 
+     * @param jarUrl
+     *            the original URL
+     * @return the URL for the actual jar file
+     * @throws MalformedURLException
+     *             if no valid jar file URL could be extracted
+     * @see #extractJarFileURL(URL)
+     */
+    public static URL extractArchiveURL(URL jarUrl) throws MalformedURLException {
+        String urlFile = jarUrl.getFile();
+
+        int endIndex = urlFile.indexOf(Constant.WAR_URL_SEPARATOR);
+        if (endIndex != -1) {
+            // Tomcat's "war:file:...mywar.war*/WEB-INF/lib/myjar.jar!/myentry.txt"
+            String warFile = urlFile.substring(0, endIndex);
+            if (Constant.URL_PROTOCOL_WAR.equals(jarUrl.getProtocol())) {
+                return new URL(warFile);
+            }
+            int startIndex = warFile.indexOf(Constant.WAR_URL_PREFIX);
+            if (startIndex != -1) {
+                return new URL(warFile.substring(startIndex + Constant.WAR_URL_PREFIX.length()));
+            }
+        }
+
+        // Regular "jar:file:...myjar.jar!/myentry.txt"
+        return extractJarFileURL(jarUrl);
     }
 }

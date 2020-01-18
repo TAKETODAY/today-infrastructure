@@ -264,7 +264,8 @@ public abstract class MimeTypeUtils {
         boolean inQuotes = false;
         int startIndex = 0;
         int i = 0;
-        while (i < mimeTypes.length()) {
+        final int length = mimeTypes.length();
+        while (i < length) {
             switch (mimeTypes.charAt(i)) {
                 case '"' :
                     inQuotes = !inQuotes;

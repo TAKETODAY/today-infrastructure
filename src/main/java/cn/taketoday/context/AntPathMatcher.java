@@ -154,20 +154,21 @@ public class AntPathMatcher implements PathMatcher {
 
     @Override
     public boolean isPattern(final String path) {
-
-        boolean uriVar = false;
-        final int length = path.length();
-        for (int i = 0; i < length; i++) {
-            final char c = path.charAt(i);
-            if (c == '*' || c == '?') {
-                return true;
-            }
-            if (c == '{') {
-                uriVar = true;
-                continue;
-            }
-            if (c == '}' && uriVar) {
-                return true;
+        if (path != null) {
+            boolean uriVar = false;
+            final int length = path.length();
+            for (int i = 0; i < length; i++) {
+                final char c = path.charAt(i);
+                if (c == '*' || c == '?') {
+                    return true;
+                }
+                if (c == '{') {
+                    uriVar = true;
+                    continue;
+                }
+                if (c == '}' && uriVar) {
+                    return true;
+                }
             }
         }
         return false;
@@ -198,8 +199,8 @@ public class AntPathMatcher implements PathMatcher {
      */
     protected boolean doMatch(String pattern, String path, boolean fullMatch, Map<String, String> uriTemplateVariables) {
 
-        final String pathSeparator = this.pathSeparator;
-        if (path.startsWith(pathSeparator) != pattern.startsWith(pathSeparator)) {
+        final String pathSeparator;
+        if (path == null || path.startsWith(pathSeparator = this.pathSeparator) != pattern.startsWith(pathSeparator)) {
             return false;
         }
 
@@ -831,14 +832,14 @@ public class AntPathMatcher implements PathMatcher {
             if (matcher.matches()) {
                 if (uriTemplateVariables != null) {
                     // SPR-8455
-                    final List<String> variableNames = this.variableNames;
                     final int groupCount = matcher.groupCount();
+                    final List<String> variableNames = this.variableNames;
                     if (variableNames.size() != groupCount) {
                         throwIllegalArgumentException();
                     }
                     for (int i = 1; i <= groupCount; i++) {
-                        String name = variableNames.get(i - 1);
-                        String value = matcher.group(i);
+                        final String name = variableNames.get(i - 1);
+                        final String value = matcher.group(i);
                         uriTemplateVariables.put(name, value);
                     }
                 }
@@ -962,32 +963,30 @@ public class AntPathMatcher implements PathMatcher {
             }
 
             protected void initCounters(final String pattern) {
-                if (pattern == null) {
-                    return;
-                }
-
-                int pos = 0;
-                final int length = pattern.length();
-                while (pos < length) {
-                    if (pattern.charAt(pos) == '{') {
-                        this.uriVars++;
-                        pos++;
-                    }
-                    else if (pattern.charAt(pos) == '*') {
-                        if (pos + 1 < length && pattern.charAt(pos + 1) == '*') {
-                            this.doubleWildcards++;
-                            pos += 2;
-                        }
-                        else if (pos > 0 && !pattern.substring(pos - 1).equals(".*")) {
-                            this.singleWildcards++;
+                if (pattern != null) {
+                    int pos = 0;
+                    final int length = pattern.length();
+                    while (pos < length) {
+                        if (pattern.charAt(pos) == '{') {
+                            this.uriVars++;
                             pos++;
+                        }
+                        else if (pattern.charAt(pos) == '*') {
+                            if (pos + 1 < length && pattern.charAt(pos + 1) == '*') {
+                                this.doubleWildcards++;
+                                pos += 2;
+                            }
+                            else if (pos > 0 && !pattern.substring(pos - 1).equals(".*")) {
+                                this.singleWildcards++;
+                                pos++;
+                            }
+                            else {
+                                pos++;
+                            }
                         }
                         else {
                             pos++;
                         }
-                    }
-                    else {
-                        pos++;
                     }
                 }
             }
@@ -1023,7 +1022,8 @@ public class AntPathMatcher implements PathMatcher {
             public int getLength() {
                 final Integer length = this.length;
                 if (length == null) {
-                    return this.length = (this.pattern != null ? VARIABLE_PATTERN.matcher(this.pattern).replaceAll("#").length() : 0);
+                    return this.length = (this.pattern != null 
+                            ? VARIABLE_PATTERN.matcher(this.pattern).replaceAll("#").length() : 0);
                 }
                 return length;
             }
@@ -1043,21 +1043,5 @@ public class AntPathMatcher implements PathMatcher {
             this.endsOnDoubleWildCard = pathSeparator.concat("**");
         }
     }
-
-//    public static void main(String[] args) {
-//        AntPathMatcher pathMatcher = new AntPathMatcher();
-//
-//        long start = System.currentTimeMillis();
-//
-//        final String pattern = "/index/{id}ds/yhj/{tt}";
-//        final String path = "/index/sdsds/yhj/32";
-//        //		final boolean match = pathMatcher.match(pattern, path);
-//        final Map<String, String> extractUriTemplateVariables = pathMatcher.extractUriTemplateVariables(pattern, path);
-//
-//        System.err.println(extractUriTemplateVariables);
-//        System.err.println(System.currentTimeMillis() - start);
-//
-//        System.err.println(pathMatcher.extractPathWithinPattern("/assets/**", "/assets/admin/js/admin.js"));
-//    }
 
 }
