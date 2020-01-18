@@ -474,35 +474,6 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 consumeToken(-1);
                 throw new ParseException();
             }
-
-//            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-//                case IDENTIFIER :
-//                    Identifier();
-//                    break;
-//                case LPAREN : {
-//                    consumeToken(LPAREN);
-//                    if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) == IDENTIFIER) {
-//                        Identifier();
-//                        while (true) {
-//                            if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) != COMMA) {
-//                                jj_la1[6] = jj_gen;
-//                                break;
-//                            }
-//                            consumeToken(COMMA);
-//                            Identifier();
-//                        }
-//                    }
-//                    else {
-//                        jj_la1[7] = jj_gen;
-//                    }
-//                    consumeToken(RPAREN);
-//                    break;
-//                }
-//                default:
-//                    jj_la1[8] = jj_gen;
-//                    consumeToken(-1);
-//                    throw new ParseException();
-//            }
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
@@ -521,41 +492,72 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         }
     }
 
-    /*
+    /**
      * Choice For Choice markup a ? b : c, right associative
      */
     final public void Choice() throws ParseException {
         Or();
-        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-            case QUESTIONMARK :
-                consumeToken(QUESTIONMARK);
+
+        if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) == QUESTIONMARK) {
+            consumeToken(QUESTIONMARK);
+            Choice();
+            consumeToken(COLON);
+            AstChoice astChoice = new AstChoice(JJTCHOICE);
+            boolean jjtc001 = true;
+            jjtree.openNodeScope(astChoice);
+            try {
                 Choice();
-                consumeToken(COLON);
-                AstChoice jjtn001 = new AstChoice(JJTCHOICE);
-                boolean jjtc001 = true;
-                jjtree.openNodeScope(jjtn001);
-                try {
-                    Choice();
+            }
+            catch (Throwable jjte001) {
+                if (jjtc001) {
+                    jjtree.clearNodeScope(astChoice);
+                    jjtc001 = false;
                 }
-                catch (Throwable jjte001) {
-                    if (jjtc001) {
-                        jjtree.clearNodeScope(jjtn001);
-                        jjtc001 = false;
-                    }
-                    else {
-                        jjtree.popNode();
-                    }
-                    throw jjte001;
+                else {
+                    jjtree.popNode();
                 }
-                finally {
-                    if (jjtc001) {
-                        jjtree.closeNodeScope(jjtn001, 3);
-                    }
+                throw jjte001;
+            }
+            finally {
+                if (jjtc001) {
+                    jjtree.closeNodeScope(astChoice, 3);
                 }
-                break;
-            default:
-                jj_la1[9] = jj_gen;;
+            }
         }
+        else {
+            jj_la1[9] = jj_gen;
+        }
+
+//        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+//            case QUESTIONMARK :
+//                consumeToken(QUESTIONMARK);
+//                Choice();
+//                consumeToken(COLON);
+//                AstChoice jjtn001 = new AstChoice(JJTCHOICE);
+//                boolean jjtc001 = true;
+//                jjtree.openNodeScope(jjtn001);
+//                try {
+//                    Choice();
+//                }
+//                catch (Throwable jjte001) {
+//                    if (jjtc001) {
+//                        jjtree.clearNodeScope(jjtn001);
+//                        jjtc001 = false;
+//                    }
+//                    else {
+//                        jjtree.popNode();
+//                    }
+//                    throw jjte001;
+//                }
+//                finally {
+//                    if (jjtc001) {
+//                        jjtree.closeNodeScope(jjtn001, 3);
+//                    }
+//                }
+//                break;
+//            default:
+//                jj_la1[9] = jj_gen;
+//        }
     }
 
     /*
