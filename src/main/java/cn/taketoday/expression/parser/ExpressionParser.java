@@ -151,6 +151,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
 
         try {
             stop: while (true) {
+
                 switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                     case LITERAL_EXPRESSION :
                         LiteralExpression();
