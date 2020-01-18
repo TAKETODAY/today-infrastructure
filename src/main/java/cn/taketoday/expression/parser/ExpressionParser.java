@@ -56,7 +56,7 @@ import cn.taketoday.expression.util.MessageFactory;
  */
 public class ExpressionParser implements ELParserTreeConstants, ELParserConstants {
 
-    protected final ExpressionParserState jjtree = new ExpressionParserState();
+    protected final ExpressionParserState state = new ExpressionParserState();
 
     public final static AstCompositeExpression parse(String ref) throws ELException {
         try {
@@ -138,63 +138,52 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             jj_2_rtns[i] = new JJCalls();
     }
 
-    /*
+    /**
      * CompositeExpression Allow most flexible parsing, restrict by examining type
      * of returned node
      */
     final public AstCompositeExpression CompositeExpression() throws ParseException {
         /* @bgen(jjtree) CompositeExpression */
-        AstCompositeExpression jjtn000 = new AstCompositeExpression(JJTCOMPOSITEEXPRESSION);
+        AstCompositeExpression astCompositeExpression = new AstCompositeExpression(JJTCOMPOSITEEXPRESSION);
         boolean jjtc000 = true;
 
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(astCompositeExpression);
 
         try {
-
-            label_1: while (true) {
+            stop: while (true) {
                 switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                     case LITERAL_EXPRESSION :
-                    case START_DYNAMIC_EXPRESSION :
-                    case START_DEFERRED_EXPRESSION :;
-                        break;
-                    default:
-                        jj_la1[0] = jj_gen;
-                        break label_1;
-                }
-                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-                    case START_DEFERRED_EXPRESSION :
-                        DeferredExpression();
+                        LiteralExpression();
                         break;
                     case START_DYNAMIC_EXPRESSION :
                         DynamicExpression();
                         break;
-                    case LITERAL_EXPRESSION :
-                        LiteralExpression();
+                    case START_DEFERRED_EXPRESSION :
+                        DeferredExpression();
                         break;
                     default:
-                        jj_la1[1] = jj_gen;
-                        consumeToken(-1);
-                        throw new ParseException();
+                        jj_la1[0] = jj_gen;
+                        break stop;
                 }
             }
             consumeToken(0);
-            jjtree.closeNodeScope(jjtn000, true);
+            state.closeNodeScope(astCompositeExpression, true);
             jjtc000 = false;
-            return jjtn000;
+            return astCompositeExpression;
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                state.clearNodeScope(astCompositeExpression);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
             throw jjte000;
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(astCompositeExpression, true);
             }
         }
     }
@@ -204,31 +193,31 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
      */
     final public void LiteralExpression() throws ParseException {
         /* @bgen(jjtree) LiteralExpression */
-        AstLiteralExpression jjtn000 = new AstLiteralExpression(JJTLITERALEXPRESSION);
+        AstLiteralExpression astLiteralExpression = new AstLiteralExpression(JJTLITERALEXPRESSION);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(astLiteralExpression);
         Token t = null;
         try {
             t = consumeToken(LITERAL_EXPRESSION);
-            jjtree.closeNodeScope(jjtn000, true);
+            state.closeNodeScope(astLiteralExpression, true);
             jjtc000 = false;
-            jjtn000.setImage(t.image);
+            astLiteralExpression.setImage(t.image);
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(astLiteralExpression, true);
             }
         }
     }
 
-    /*
+    /**
      * DeferredExpression #{..} Expressions
      */
     final public void DeferredExpression() throws ParseException {
         /* @bgen(jjtree) DeferredExpression */
-        AstDeferredExpression jjtn000 = new AstDeferredExpression(JJTDEFERREDEXPRESSION);
+        AstDeferredExpression astDeferredExpression = new AstDeferredExpression(JJTDEFERREDEXPRESSION);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(astDeferredExpression);
         try {
             consumeToken(START_DEFERRED_EXPRESSION);
             Expression();
@@ -236,17 +225,17 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                state.clearNodeScope(astDeferredExpression);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
             throw jjte000;
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(astDeferredExpression, true);
             }
         }
     }
@@ -256,9 +245,9 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
      */
     final public void DynamicExpression() throws ParseException {
         /* @bgen(jjtree) DynamicExpression */
-        AstDynamicExpression jjtn000 = new AstDynamicExpression(JJTDYNAMICEXPRESSION);
+        AstDynamicExpression astDynamicExpression = new AstDynamicExpression(JJTDYNAMICEXPRESSION);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(astDynamicExpression);
         try {
             consumeToken(START_DYNAMIC_EXPRESSION);
             Expression();
@@ -266,17 +255,17 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                state.clearNodeScope(astDynamicExpression);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
             throw jjte000;
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(astDynamicExpression, true);
             }
         }
     }
@@ -301,23 +290,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             consumeToken(SEMICOLON);
             AstSemiColon astSemiColon = new AstSemiColon(JJTSEMICOLON);
             boolean jjtc001 = true;
-            jjtree.openNodeScope(astSemiColon);
+            state.openNodeScope(astSemiColon);
             try {
                 Assignment();
             }
             catch (Throwable e) {
                 if (jjtc001) {
-                    jjtree.clearNodeScope(astSemiColon);
+                    state.clearNodeScope(astSemiColon);
                     jjtc001 = false;
                 }
                 else {
-                    jjtree.popNode();
+                    state.popNode();
                 }
                 throw e;
             }
             finally {
                 if (jjtc001) {
-                    jjtree.closeNodeScope(astSemiColon, 2);
+                    state.closeNodeScope(astSemiColon, 2);
                 }
             }
         }
@@ -353,23 +342,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                             consumeToken(ASSIGN);
                             AstAssign jjtn001 = new AstAssign(JJTASSIGN);
                             boolean jjtc001 = true;
-                            jjtree.openNodeScope(jjtn001);
+                            state.openNodeScope(jjtn001);
                             try {
                                 Assignment();
                             }
                             catch (Throwable jjte001) {
                                 if (jjtc001) {
-                                    jjtree.clearNodeScope(jjtn001);
+                                    state.clearNodeScope(jjtn001);
                                     jjtc001 = false;
                                 }
                                 else {
-                                    jjtree.popNode();
+                                    state.popNode();
                                 }
                                 throw jjte001;
                             }
                             finally {
                                 if (jjtc001) {
-                                    jjtree.closeNodeScope(jjtn001, 2);
+                                    state.closeNodeScope(jjtn001, 2);
                                 }
                             }
                             break;
@@ -392,7 +381,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) LambdaExpression */
         AstLambdaExpression astLambdaExpression = new AstLambdaExpression(JJTLAMBDAEXPRESSION);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(astLambdaExpression);
+        state.openNodeScope(astLambdaExpression);
         try {
             LambdaParameters();
             consumeToken(ARROW);
@@ -426,17 +415,17 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(astLambdaExpression);
+                state.clearNodeScope(astLambdaExpression);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
             throw jjte000;
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(astLambdaExpression, true);
+                state.closeNodeScope(astLambdaExpression, true);
             }
         }
     }
@@ -445,7 +434,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) LambdaParameters */
         AstLambdaParameters astLambdaParameters = new AstLambdaParameters(JJTLAMBDAPARAMETERS);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(astLambdaParameters);
+        state.openNodeScope(astLambdaParameters);
         try {
             final int id = (jj_ntk == -1) ? jj_ntk() : jj_ntk;
             if (id == IDENTIFIER) {
@@ -477,17 +466,17 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(astLambdaParameters);
+                state.clearNodeScope(astLambdaParameters);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
             throw jjte000;
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(astLambdaParameters, true);
+                state.closeNodeScope(astLambdaParameters, true);
             }
         }
     }
@@ -504,23 +493,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             consumeToken(COLON);
             AstChoice astChoice = new AstChoice(JJTCHOICE);
             boolean jjtc001 = true;
-            jjtree.openNodeScope(astChoice);
+            state.openNodeScope(astChoice);
             try {
                 Choice();
             }
             catch (Throwable jjte001) {
                 if (jjtc001) {
-                    jjtree.clearNodeScope(astChoice);
+                    state.clearNodeScope(astChoice);
                     jjtc001 = false;
                 }
                 else {
-                    jjtree.popNode();
+                    state.popNode();
                 }
                 throw jjte001;
             }
             finally {
                 if (jjtc001) {
-                    jjtree.closeNodeScope(astChoice, 3);
+                    state.closeNodeScope(astChoice, 3);
                 }
             }
         }
@@ -588,23 +577,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             }
             AstOr jjtn001 = new AstOr(JJTOR);
             boolean jjtc001 = true;
-            jjtree.openNodeScope(jjtn001);
+            state.openNodeScope(jjtn001);
             try {
                 And();
             }
             catch (Throwable jjte001) {
                 if (jjtc001) {
-                    jjtree.clearNodeScope(jjtn001);
+                    state.clearNodeScope(jjtn001);
                     jjtc001 = false;
                 }
                 else {
-                    jjtree.popNode();
+                    state.popNode();
                 }
                 throw jjte001;
             }
             finally {
                 if (jjtc001) {
-                    jjtree.closeNodeScope(jjtn001, 2);
+                    state.closeNodeScope(jjtn001, 2);
                 }
             }
         }
@@ -638,23 +627,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             }
             AstAnd jjtn001 = new AstAnd(JJTAND);
             boolean jjtc001 = true;
-            jjtree.openNodeScope(jjtn001);
+            state.openNodeScope(jjtn001);
             try {
                 Equality();
             }
             catch (Throwable jjte001) {
                 if (jjtc001) {
-                    jjtree.clearNodeScope(jjtn001);
+                    state.clearNodeScope(jjtn001);
                     jjtc001 = false;
                 }
                 else {
-                    jjtree.popNode();
+                    state.popNode();
                 }
                 throw jjte001;
             }
             finally {
                 if (jjtc001) {
-                    jjtree.closeNodeScope(jjtn001, 2);
+                    state.closeNodeScope(jjtn001, 2);
                 }
             }
         }
@@ -693,23 +682,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     }
                     AstEqual jjtn001 = new AstEqual(JJTEQUAL);
                     boolean jjtc001 = true;
-                    jjtree.openNodeScope(jjtn001);
+                    state.openNodeScope(jjtn001);
                     try {
                         Compare();
                     }
                     catch (Throwable jjte001) {
                         if (jjtc001) {
-                            jjtree.clearNodeScope(jjtn001);
+                            state.clearNodeScope(jjtn001);
                             jjtc001 = false;
                         }
                         else {
-                            jjtree.popNode();
+                            state.popNode();
                         }
                         throw jjte001;
                     }
                     finally {
                         if (jjtc001) {
-                            jjtree.closeNodeScope(jjtn001, 2);
+                            state.closeNodeScope(jjtn001, 2);
                         }
                     }
                     break;
@@ -729,24 +718,24 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     }
                     AstNotEqual jjtn002 = new AstNotEqual(JJTNOTEQUAL);
                     boolean jjtc002 = true;
-                    jjtree.openNodeScope(jjtn002);
+                    state.openNodeScope(jjtn002);
                     try {
                         Compare();
                     }
                     catch (Throwable jjte002) {
                         if (jjtc002) {
-                            jjtree.clearNodeScope(jjtn002);
+                            state.clearNodeScope(jjtn002);
                             jjtc002 = false;
                         }
                         else {
-                            jjtree.popNode();
+                            state.popNode();
                         }
 
                         throw jjte002;
                     }
                     finally {
                         if (jjtc002) {
-                            jjtree.closeNodeScope(jjtn002, 2);
+                            state.closeNodeScope(jjtn002, 2);
                         }
                     }
                     break;
@@ -795,24 +784,24 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     }
                     AstLessThan jjtn001 = new AstLessThan(JJTLESSTHAN);
                     boolean jjtc001 = true;
-                    jjtree.openNodeScope(jjtn001);
+                    state.openNodeScope(jjtn001);
                     try {
                         Concatenation();
                     }
                     catch (Throwable jjte001) {
                         if (jjtc001) {
-                            jjtree.clearNodeScope(jjtn001);
+                            state.clearNodeScope(jjtn001);
                             jjtc001 = false;
                         }
                         else {
-                            jjtree.popNode();
+                            state.popNode();
                         }
 
                         throw jjte001;
                     }
                     finally {
                         if (jjtc001) {
-                            jjtree.closeNodeScope(jjtn001, 2);
+                            state.closeNodeScope(jjtn001, 2);
                         }
                     }
                     break;
@@ -832,23 +821,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     }
                     AstGreaterThan jjtn002 = new AstGreaterThan(JJTGREATERTHAN);
                     boolean jjtc002 = true;
-                    jjtree.openNodeScope(jjtn002);
+                    state.openNodeScope(jjtn002);
                     try {
                         Concatenation();
                     }
                     catch (Throwable jjte002) {
                         if (jjtc002) {
-                            jjtree.clearNodeScope(jjtn002);
+                            state.clearNodeScope(jjtn002);
                             jjtc002 = false;
                         }
                         else {
-                            jjtree.popNode();
+                            state.popNode();
                         }
                         throw jjte002;
                     }
                     finally {
                         if (jjtc002) {
-                            jjtree.closeNodeScope(jjtn002, 2);
+                            state.closeNodeScope(jjtn002, 2);
                         }
                     }
                     break;
@@ -868,23 +857,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     }
                     AstLessThanEqual jjtn003 = new AstLessThanEqual(JJTLESSTHANEQUAL);
                     boolean jjtc003 = true;
-                    jjtree.openNodeScope(jjtn003);
+                    state.openNodeScope(jjtn003);
                     try {
                         Concatenation();
                     }
                     catch (Throwable jjte003) {
                         if (jjtc003) {
-                            jjtree.clearNodeScope(jjtn003);
+                            state.clearNodeScope(jjtn003);
                             jjtc003 = false;
                         }
                         else {
-                            jjtree.popNode();
+                            state.popNode();
                         }
                         throw jjte003;
                     }
                     finally {
                         if (jjtc003) {
-                            jjtree.closeNodeScope(jjtn003, 2);
+                            state.closeNodeScope(jjtn003, 2);
                         }
                     }
                     break;
@@ -904,23 +893,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     }
                     AstGreaterThanEqual jjtn004 = new AstGreaterThanEqual(JJTGREATERTHANEQUAL);
                     boolean jjtc004 = true;
-                    jjtree.openNodeScope(jjtn004);
+                    state.openNodeScope(jjtn004);
                     try {
                         Concatenation();
                     }
                     catch (Throwable jjte004) {
                         if (jjtc004) {
-                            jjtree.clearNodeScope(jjtn004);
+                            state.clearNodeScope(jjtn004);
                             jjtc004 = false;
                         }
                         else {
-                            jjtree.popNode();
+                            state.popNode();
                         }
                         throw jjte004;
                     }
                     finally {
                         if (jjtc004) {
-                            jjtree.closeNodeScope(jjtn004, 2);
+                            state.closeNodeScope(jjtn004, 2);
                         }
                     }
                     break;
@@ -948,24 +937,24 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             consumeToken(CONCAT);
             AstConcat jjtn001 = new AstConcat(JJTCONCAT);
             boolean jjtc001 = true;
-            jjtree.openNodeScope(jjtn001);
+            state.openNodeScope(jjtn001);
             try {
                 Math();
             }
             catch (Throwable jjte001) {
                 if (jjtc001) {
-                    jjtree.clearNodeScope(jjtn001);
+                    state.clearNodeScope(jjtn001);
                     jjtc001 = false;
                 }
                 else {
-                    jjtree.popNode();
+                    state.popNode();
                 }
 
                 throw jjte001;
             }
             finally {
                 if (jjtc001) {
-                    jjtree.closeNodeScope(jjtn001, 2);
+                    state.closeNodeScope(jjtn001, 2);
                 }
             }
         }
@@ -990,23 +979,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     consumeToken(PLUS);
                     AstPlus jjtn001 = new AstPlus(JJTPLUS);
                     boolean jjtc001 = true;
-                    jjtree.openNodeScope(jjtn001);
+                    state.openNodeScope(jjtn001);
                     try {
                         Multiplication();
                     }
                     catch (Throwable jjte001) {
                         if (jjtc001) {
-                            jjtree.clearNodeScope(jjtn001);
+                            state.clearNodeScope(jjtn001);
                             jjtc001 = false;
                         }
                         else {
-                            jjtree.popNode();
+                            state.popNode();
                         }
                         throw jjte001;
                     }
                     finally {
                         if (jjtc001) {
-                            jjtree.closeNodeScope(jjtn001, 2);
+                            state.closeNodeScope(jjtn001, 2);
                         }
                     }
                     break;
@@ -1014,24 +1003,24 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     consumeToken(MINUS);
                     AstMinus jjtn002 = new AstMinus(JJTMINUS);
                     boolean jjtc002 = true;
-                    jjtree.openNodeScope(jjtn002);
+                    state.openNodeScope(jjtn002);
                     try {
                         Multiplication();
                     }
                     catch (Throwable jjte002) {
                         if (jjtc002) {
-                            jjtree.clearNodeScope(jjtn002);
+                            state.clearNodeScope(jjtn002);
                             jjtc002 = false;
                         }
                         else {
-                            jjtree.popNode();
+                            state.popNode();
                         }
 
                         throw jjte002;
                     }
                     finally {
                         if (jjtc002) {
-                            jjtree.closeNodeScope(jjtn002, 2);
+                            state.closeNodeScope(jjtn002, 2);
                         }
                     }
                     break;
@@ -1065,23 +1054,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     consumeToken(MULT);
                     AstMult jjtn001 = new AstMult(JJTMULT);
                     boolean jjtc001 = true;
-                    jjtree.openNodeScope(jjtn001);
+                    state.openNodeScope(jjtn001);
                     try {
                         Unary();
                     }
                     catch (Throwable jjte001) {
                         if (jjtc001) {
-                            jjtree.clearNodeScope(jjtn001);
+                            state.clearNodeScope(jjtn001);
                             jjtc001 = false;
                         }
                         else {
-                            jjtree.popNode();
+                            state.popNode();
                         }
                         throw jjte001;
                     }
                     finally {
                         if (jjtc001) {
-                            jjtree.closeNodeScope(jjtn001, 2);
+                            state.closeNodeScope(jjtn001, 2);
                         }
                     }
                     break;
@@ -1101,23 +1090,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     }
                     AstDiv jjtn002 = new AstDiv(JJTDIV);
                     boolean jjtc002 = true;
-                    jjtree.openNodeScope(jjtn002);
+                    state.openNodeScope(jjtn002);
                     try {
                         Unary();
                     }
                     catch (Throwable jjte002) {
                         if (jjtc002) {
-                            jjtree.clearNodeScope(jjtn002);
+                            state.clearNodeScope(jjtn002);
                             jjtc002 = false;
                         }
                         else {
-                            jjtree.popNode();
+                            state.popNode();
                         }
                         throw jjte002;
                     }
                     finally {
                         if (jjtc002) {
-                            jjtree.closeNodeScope(jjtn002, 2);
+                            state.closeNodeScope(jjtn002, 2);
                         }
                     }
                     break;
@@ -1137,24 +1126,24 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     }
                     AstMod jjtn003 = new AstMod(JJTMOD);
                     boolean jjtc003 = true;
-                    jjtree.openNodeScope(jjtn003);
+                    state.openNodeScope(jjtn003);
                     try {
                         Unary();
                     }
                     catch (Throwable jjte003) {
                         if (jjtc003) {
-                            jjtree.clearNodeScope(jjtn003);
+                            state.clearNodeScope(jjtn003);
                             jjtc003 = false;
                         }
                         else {
-                            jjtree.popNode();
+                            state.popNode();
                         }
 
                         throw jjte003;
                     }
                     finally {
                         if (jjtc003) {
-                            jjtree.closeNodeScope(jjtn003, 2);
+                            state.closeNodeScope(jjtn003, 2);
                         }
                     }
                     break;
@@ -1175,17 +1164,17 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                 consumeToken(MINUS);
                 AstNegative jjtn001 = new AstNegative(JJTNEGATIVE);
                 boolean jjtc001 = true;
-                jjtree.openNodeScope(jjtn001);
+                state.openNodeScope(jjtn001);
                 try {
                     Unary();
                 }
                 catch (Throwable jjte001) {
                     if (jjtc001) {
-                        jjtree.clearNodeScope(jjtn001);
+                        state.clearNodeScope(jjtn001);
                         jjtc001 = false;
                     }
                     else {
-                        jjtree.popNode();
+                        state.popNode();
                     }
 
                     throw jjte001;
@@ -1193,7 +1182,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                 }
                 finally {
                     if (jjtc001) {
-                        jjtree.closeNodeScope(jjtn001, true);
+                        state.closeNodeScope(jjtn001, true);
                     }
                 }
                 break;
@@ -1213,23 +1202,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                 }
                 AstNot jjtn002 = new AstNot(JJTNOT);
                 boolean jjtc002 = true;
-                jjtree.openNodeScope(jjtn002);
+                state.openNodeScope(jjtn002);
                 try {
                     Unary();
                 }
                 catch (Throwable jjte002) {
                     if (jjtc002) {
-                        jjtree.clearNodeScope(jjtn002);
+                        state.clearNodeScope(jjtn002);
                         jjtc002 = false;
                     }
                     else {
-                        jjtree.popNode();
+                        state.popNode();
                     }
                     throw jjte002;
                 }
                 finally {
                     if (jjtc002) {
-                        jjtree.closeNodeScope(jjtn002, true);
+                        state.closeNodeScope(jjtn002, true);
                     }
                 }
                 break;
@@ -1237,23 +1226,23 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                 consumeToken(EMPTY);
                 AstEmpty jjtn003 = new AstEmpty(JJTEMPTY);
                 boolean jjtc003 = true;
-                jjtree.openNodeScope(jjtn003);
+                state.openNodeScope(jjtn003);
                 try {
                     Unary();
                 }
                 catch (Throwable jjte003) {
                     if (jjtc003) {
-                        jjtree.clearNodeScope(jjtn003);
+                        state.clearNodeScope(jjtn003);
                         jjtc003 = false;
                     }
                     else {
-                        jjtree.popNode();
+                        state.popNode();
                     }
                     throw jjte003;
                 }
                 finally {
                     if (jjtc003) {
-                        jjtree.closeNodeScope(jjtn003, true);
+                        state.closeNodeScope(jjtn003, true);
                     }
                 }
                 break;
@@ -1282,7 +1271,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
     final public void Value() throws ParseException {
         AstValue jjtn001 = new AstValue(JJTVALUE);
         boolean jjtc001 = true;
-        jjtree.openNodeScope(jjtn001);
+        state.openNodeScope(jjtn001);
         try {
             ValuePrefix();
             label_11: while (true) {
@@ -1299,18 +1288,18 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte001) {
             if (jjtc001) {
-                jjtree.clearNodeScope(jjtn001);
+                state.clearNodeScope(jjtn001);
                 jjtc001 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
 
             throw jjte001;
         }
         finally {
             if (jjtc001) {
-                jjtree.closeNodeScope(jjtn001, jjtree.nodeArity() > 1);
+                state.closeNodeScope(jjtn001, state.nodeArity() > 1);
             }
         }
     }
@@ -1366,7 +1355,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) DotSuffix */
         AstDotSuffix jjtn000 = new AstDotSuffix(JJTDOTSUFFIX);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(jjtn000);
         Token t = null;
         try {
             consumeToken(DOT);
@@ -1382,18 +1371,18 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                state.clearNodeScope(jjtn000);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
 
             throw jjte000;
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(jjtn000, true);
             }
         }
     }
@@ -1405,7 +1394,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) BracketSuffix */
         AstBracketSuffix jjtn000 = new AstBracketSuffix(JJTBRACKETSUFFIX);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(jjtn000);
         try {
             consumeToken(LBRACK);
             Expression();
@@ -1420,18 +1409,18 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                state.clearNodeScope(jjtn000);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
 
             throw jjte000;
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(jjtn000, true);
             }
         }
     }
@@ -1443,7 +1432,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) MethodArguments */
         AstMethodArguments astMethodArguments = new AstMethodArguments(JJTMETHODARGUMENTS);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(astMethodArguments);
+        state.openNodeScope(astMethodArguments);
         try {
 
             consumeToken(LPAREN);
@@ -1480,11 +1469,11 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(astMethodArguments);
+                state.clearNodeScope(astMethodArguments);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
             if (jjte000 instanceof RuntimeException) {
                 throw (RuntimeException) jjte000;
@@ -1496,7 +1485,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(astMethodArguments, true);
+                state.closeNodeScope(astMethodArguments, true);
             }
         }
     }
@@ -1508,7 +1497,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) LambdaExpression */
         AstLambdaExpression jjtn000 = new AstLambdaExpression(JJTLAMBDAEXPRESSION);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(jjtn000);
         try {
             consumeToken(LPAREN);
             LambdaParameters();
@@ -1554,11 +1543,11 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                state.clearNodeScope(jjtn000);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
             if (jjte000 instanceof RuntimeException) {
                 {
@@ -1576,7 +1565,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(jjtn000, true);
             }
         }
     }
@@ -1625,7 +1614,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) MapData */
         AstMapData jjtn000 = new AstMapData(JJTMAPDATA);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(jjtn000);
         try {
             consumeToken(START_MAP);
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -1663,11 +1652,11 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                state.clearNodeScope(jjtn000);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
             if (jjte000 instanceof RuntimeException) {
                 {
@@ -1685,7 +1674,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(jjtn000, true);
             }
         }
     }
@@ -1694,7 +1683,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) MapEntry */
         AstMapEntry jjtn000 = new AstMapEntry(JJTMAPENTRY);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(jjtn000);
         try {
             Expression();
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -1708,11 +1697,11 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                state.clearNodeScope(jjtn000);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
             if (jjte000 instanceof RuntimeException) {
                 {
@@ -1730,7 +1719,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(jjtn000, true);
             }
         }
     }
@@ -1739,7 +1728,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) ListData */
         AstListData jjtn000 = new AstListData(JJTLISTDATA);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(jjtn000);
         try {
             consumeToken(LBRACK);
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
@@ -1777,11 +1766,11 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                state.clearNodeScope(jjtn000);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
             if (jjte000 instanceof RuntimeException) {
                 {
@@ -1799,7 +1788,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(jjtn000, true);
             }
         }
     }
@@ -1811,17 +1800,17 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) Identifier */
         AstIdentifier astIdentifier = new AstIdentifier(JJTIDENTIFIER);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(astIdentifier);
+        state.openNodeScope(astIdentifier);
         Token t = null;
         try {
             t = consumeToken(IDENTIFIER);
-            jjtree.closeNodeScope(astIdentifier, true);
+            state.closeNodeScope(astIdentifier, true);
             jjtc000 = false;
             astIdentifier.setImage(t.image);
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(astIdentifier, true);
+                state.closeNodeScope(astIdentifier, true);
             }
         }
     }
@@ -1833,7 +1822,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) Function */
         AstFunction astFunction = new AstFunction(FUNCTION);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(astFunction);
+        state.openNodeScope(astFunction);
 
         try {
             Token t1 = null;
@@ -1862,17 +1851,17 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(astFunction);
+                state.clearNodeScope(astFunction);
                 jjtc000 = false;
             }
             else {
-                jjtree.popNode();
+                state.popNode();
             }
             throw jjte000;
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(astFunction, true);
+                state.closeNodeScope(astFunction, true);
             }
         }
     }
@@ -1912,22 +1901,22 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
             case TRUE :
                 AstTrue jjtn001 = new AstTrue(JJTTRUE);
-                jjtree.openNodeScope(jjtn001);
+                state.openNodeScope(jjtn001);
                 try {
                     consumeToken(TRUE);
                 }
                 finally {
-                    jjtree.closeNodeScope(jjtn001, true);
+                    state.closeNodeScope(jjtn001, true);
                 }
                 break;
             case FALSE :
                 AstFalse jjtn002 = new AstFalse(JJTFALSE);
-                jjtree.openNodeScope(jjtn002);
+                state.openNodeScope(jjtn002);
                 try {
                     consumeToken(FALSE);
                 }
                 finally {
-                    jjtree.closeNodeScope(jjtn002, true);
+                    state.closeNodeScope(jjtn002, true);
                 }
                 break;
             default:
@@ -1944,16 +1933,16 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) FloatingPoint */
         AstFloatingPoint jjtn000 = new AstFloatingPoint(JJTFLOATINGPOINT);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(jjtn000);
         try {
             final Token t = consumeToken(FLOATING_POINT_LITERAL);
-            jjtree.closeNodeScope(jjtn000, true);
+            state.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtn000.setImage(t.image);
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(jjtn000, true);
             }
         }
     }
@@ -1965,16 +1954,16 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) Integer */
         AstInteger jjtn000 = new AstInteger(JJTINTEGER);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(jjtn000);
         try {
             final Token t = consumeToken(INTEGER_LITERAL);
-            jjtree.closeNodeScope(jjtn000, true);
+            state.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtn000.setImage(t.image);
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(jjtn000, true);
             }
         }
     }
@@ -1986,16 +1975,16 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         /* @bgen(jjtree) String */
         AstString jjtn000 = new AstString(JJTSTRING);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        state.openNodeScope(jjtn000);
         try {
             final Token t = consumeToken(STRING_LITERAL);
-            jjtree.closeNodeScope(jjtn000, true);
+            state.closeNodeScope(jjtn000, true);
             jjtc000 = false;
             jjtn000.setImage(t.image);
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                state.closeNodeScope(jjtn000, true);
             }
         }
     }
@@ -2006,12 +1995,12 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
     public final void Null() throws ParseException {
         /* @bgen(jjtree) Null */
         AstNull astNull = new AstNull(JJTNULL);
-        jjtree.openNodeScope(astNull);
+        state.openNodeScope(astNull);
         try {
             consumeToken(NULL);
         }
         finally {
-            jjtree.closeNodeScope(astNull, true);
+            state.closeNodeScope(astNull, true);
         }
     }
 
