@@ -288,44 +288,36 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         SemiColon();
     }
 
-    /*
-     * SemiColon
+    /**
+     * SemiColon ';'
      */
     final public void SemiColon() throws ParseException {
         Assignment();
-        /* label_2:*/ while (true) {
-
+        while (true) {
             if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) != SEMICOLON) {
                 jj_la1[2] = jj_gen;
                 break;
             }
-//            switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-//                case SEMICOLON :;
-//                    break;
-//                default:
-//                    jj_la1[2] = jj_gen;
-//                    break label_2;
-//            }
             consumeToken(SEMICOLON);
-            AstSemiColon jjtn001 = new AstSemiColon(JJTSEMICOLON);
+            AstSemiColon astSemiColon = new AstSemiColon(JJTSEMICOLON);
             boolean jjtc001 = true;
-            jjtree.openNodeScope(jjtn001);
+            jjtree.openNodeScope(astSemiColon);
             try {
                 Assignment();
             }
-            catch (Throwable jjte001) {
+            catch (Throwable e) {
                 if (jjtc001) {
-                    jjtree.clearNodeScope(jjtn001);
+                    jjtree.clearNodeScope(astSemiColon);
                     jjtc001 = false;
                 }
                 else {
                     jjtree.popNode();
                 }
-                throw jjte001;
+                throw e;
             }
             finally {
                 if (jjtc001) {
-                    jjtree.closeNodeScope(jjtn001, 2);
+                    jjtree.closeNodeScope(astSemiColon, 2);
                 }
             }
         }
@@ -398,9 +390,9 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      */
     final public void LambdaExpression() throws ParseException {
         /* @bgen(jjtree) LambdaExpression */
-        AstLambdaExpression jjtn000 = new AstLambdaExpression(JJTLAMBDAEXPRESSION);
+        AstLambdaExpression astLambdaExpression = new AstLambdaExpression(JJTLAMBDAEXPRESSION);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        jjtree.openNodeScope(astLambdaExpression);
         try {
             LambdaParameters();
             consumeToken(ARROW);
@@ -434,7 +426,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                jjtree.clearNodeScope(astLambdaExpression);
                 jjtc000 = false;
             }
             else {
@@ -444,16 +436,16 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                jjtree.closeNodeScope(astLambdaExpression, true);
             }
         }
     }
 
     final public void LambdaParameters() throws ParseException {
         /* @bgen(jjtree) LambdaParameters */
-        AstLambdaParameters jjtn000 = new AstLambdaParameters(JJTLAMBDAPARAMETERS);
+        AstLambdaParameters astLambdaParameters = new AstLambdaParameters(JJTLAMBDAPARAMETERS);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        jjtree.openNodeScope(astLambdaParameters);
         try {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case IDENTIFIER :
@@ -464,14 +456,19 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                     switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                         case IDENTIFIER :
                             Identifier();
-                            label_3: while (true) {
-                                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-                                    case COMMA :;
-                                        break;
-                                    default:
-                                        jj_la1[6] = jj_gen;
-                                        break label_3;
+                            /*label_3:*/ while (true) {
+
+                                if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) != COMMA) {
+                                    jj_la1[6] = jj_gen;
+                                    break;
                                 }
+//                                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+//                                    case COMMA :;
+//                                        break;
+//                                    default:
+//                                        jj_la1[6] = jj_gen;
+//                                        break label_3;
+//                                }
                                 consumeToken(COMMA);
                                 Identifier();
                             }
@@ -489,7 +486,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         }
         catch (Throwable jjte000) {
             if (jjtc000) {
-                jjtree.clearNodeScope(jjtn000);
+                jjtree.clearNodeScope(astLambdaParameters);
                 jjtc000 = false;
             }
             else {
@@ -499,7 +496,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                jjtree.closeNodeScope(astLambdaParameters, true);
             }
         }
     }
@@ -1426,6 +1423,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
         boolean jjtc000 = true;
         jjtree.openNodeScope(astMethodArguments);
         try {
+
             consumeToken(LPAREN);
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case START_MAP :
@@ -1443,18 +1441,11 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 case MINUS :
                 case IDENTIFIER :
                     Expression();
-                    /*label_12:*/ while (true) {
+                    while (true) {
                         if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) != COMMA) {
                             jj_la1[38] = jj_gen;
                             break;
                         }
-//                        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-//                            case COMMA :;
-//                                break;
-//                            default:
-//                                jj_la1[38] = jj_gen;
-//                                break label_12;
-//                        }
                         consumeToken(COMMA);
                         Expression();
                     }
@@ -1474,18 +1465,12 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
                 jjtree.popNode();
             }
             if (jjte000 instanceof RuntimeException) {
-                {
-                    if (true) throw (RuntimeException) jjte000;
-                }
+                throw (RuntimeException) jjte000;
             }
             if (jjte000 instanceof ParseException) {
-                {
-                    if (true) throw (ParseException) jjte000;
-                }
+                throw (ParseException) jjte000;
             }
-            {
-                if (true) throw jjte000;
-            }
+            throw jjte000;
         }
         finally {
             if (jjtc000) {
@@ -1802,19 +1787,19 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      */
     final public void Identifier() throws ParseException {
         /* @bgen(jjtree) Identifier */
-        AstIdentifier jjtn000 = new AstIdentifier(JJTIDENTIFIER);
+        AstIdentifier astIdentifier = new AstIdentifier(JJTIDENTIFIER);
         boolean jjtc000 = true;
-        jjtree.openNodeScope(jjtn000);
+        jjtree.openNodeScope(astIdentifier);
         Token t = null;
         try {
             t = consumeToken(IDENTIFIER);
-            jjtree.closeNodeScope(jjtn000, true);
+            jjtree.closeNodeScope(astIdentifier, true);
             jjtc000 = false;
-            jjtn000.setImage(t.image);
+            astIdentifier.setImage(t.image);
         }
         finally {
             if (jjtc000) {
-                jjtree.closeNodeScope(jjtn000, true);
+                jjtree.closeNodeScope(astIdentifier, true);
             }
         }
     }
