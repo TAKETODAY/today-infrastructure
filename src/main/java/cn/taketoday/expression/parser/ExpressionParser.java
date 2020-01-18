@@ -154,17 +154,27 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
 
                 switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                     case LITERAL_EXPRESSION :
-                        LiteralExpression();
-                        break;
                     case START_DYNAMIC_EXPRESSION :
-                        DynamicExpression();
-                        break;
                     case START_DEFERRED_EXPRESSION :
-                        DeferredExpression();
                         break;
                     default:
                         jj_la1[0] = jj_gen;
                         break stop;
+                }
+                switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+                    case START_DEFERRED_EXPRESSION :
+                        DeferredExpression();
+                        break;
+                    case START_DYNAMIC_EXPRESSION :
+                        DynamicExpression();
+                        break;
+                    case LITERAL_EXPRESSION :
+                        LiteralExpression();
+                        break;
+                    default:
+                        jj_la1[1] = jj_gen;
+                        consumeToken(-1);
+                        throw new ParseException();
                 }
             }
             consumeToken(0);
@@ -336,7 +346,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                 case NOT1 :
                 case EMPTY :
                 case MINUS :
-                case IDENTIFIER :
+                case IDENTIFIER : {
                     Choice();
                     if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) == ASSIGN) {
                         consumeToken(ASSIGN);
@@ -366,6 +376,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                         jj_la1[3] = jj_gen;
                     }
                     break;
+                }
                 default:
                     jj_la1[4] = jj_gen;
                     consumeToken(-1);
@@ -518,7 +529,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
     }
 
-    /*
+    /**
      * Or For 'or' '||', then And
      */
     final public void Or() throws ParseException {
@@ -526,7 +537,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         label_4: while (true) {
             switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
                 case OR0 :
-                case OR1 :;
+                case OR1 :
                     break;
                 default:
                     jj_la1[10] = jj_gen;
@@ -544,15 +555,15 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     consumeToken(-1);
                     throw new ParseException();
             }
-            AstOr jjtn001 = new AstOr(JJTOR);
+            AstOr astOr = new AstOr(JJTOR);
             boolean jjtc001 = true;
-            state.openNodeScope(jjtn001);
+            state.openNodeScope(astOr);
             try {
                 And();
             }
             catch (Throwable jjte001) {
                 if (jjtc001) {
-                    state.clearNodeScope(jjtn001);
+                    state.clearNodeScope(astOr);
                     jjtc001 = false;
                 }
                 else {
@@ -562,13 +573,13 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             }
             finally {
                 if (jjtc001) {
-                    state.closeNodeScope(jjtn001, 2);
+                    state.closeNodeScope(astOr, 2);
                 }
             }
         }
     }
 
-    /*
+    /**
      * And For 'and' '&&', then Equality
      */
     final public void And() throws ParseException {
@@ -594,15 +605,15 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     consumeToken(-1);
                     throw new ParseException();
             }
-            AstAnd jjtn001 = new AstAnd(JJTAND);
+            AstAnd astAnd = new AstAnd(JJTAND);
             boolean jjtc001 = true;
-            state.openNodeScope(jjtn001);
+            state.openNodeScope(astAnd);
             try {
                 Equality();
             }
             catch (Throwable jjte001) {
                 if (jjtc001) {
-                    state.clearNodeScope(jjtn001);
+                    state.clearNodeScope(astAnd);
                     jjtc001 = false;
                 }
                 else {
@@ -612,13 +623,13 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             }
             finally {
                 if (jjtc001) {
-                    state.closeNodeScope(jjtn001, 2);
+                    state.closeNodeScope(astAnd, 2);
                 }
             }
         }
     }
 
-    /*
+    /**
      * Equality For '==' 'eq' '!=' 'ne', then Compare
      */
     final public void Equality() throws ParseException {
@@ -649,15 +660,15 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                             consumeToken(-1);
                             throw new ParseException();
                     }
-                    AstEqual jjtn001 = new AstEqual(JJTEQUAL);
+                    AstEqual astEqual = new AstEqual(JJTEQUAL);
                     boolean jjtc001 = true;
-                    state.openNodeScope(jjtn001);
+                    state.openNodeScope(astEqual);
                     try {
                         Compare();
                     }
                     catch (Throwable jjte001) {
                         if (jjtc001) {
-                            state.clearNodeScope(jjtn001);
+                            state.clearNodeScope(astEqual);
                             jjtc001 = false;
                         }
                         else {
@@ -667,7 +678,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     }
                     finally {
                         if (jjtc001) {
-                            state.closeNodeScope(jjtn001, 2);
+                            state.closeNodeScope(astEqual, 2);
                         }
                     }
                     break;
@@ -685,26 +696,25 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                             consumeToken(-1);
                             throw new ParseException();
                     }
-                    AstNotEqual jjtn002 = new AstNotEqual(JJTNOTEQUAL);
+                    AstNotEqual astNotEqual = new AstNotEqual(JJTNOTEQUAL);
                     boolean jjtc002 = true;
-                    state.openNodeScope(jjtn002);
+                    state.openNodeScope(astNotEqual);
                     try {
                         Compare();
                     }
                     catch (Throwable jjte002) {
                         if (jjtc002) {
-                            state.clearNodeScope(jjtn002);
+                            state.clearNodeScope(astNotEqual);
                             jjtc002 = false;
                         }
                         else {
                             state.popNode();
                         }
-
                         throw jjte002;
                     }
                     finally {
                         if (jjtc002) {
-                            state.closeNodeScope(jjtn002, 2);
+                            state.closeNodeScope(astNotEqual, 2);
                         }
                     }
                     break;
@@ -1471,7 +1481,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             consumeToken(LPAREN);
             LambdaParameters();
             consumeToken(ARROW);
-            if (jj_2_3(4)) {
+            if (isLambdaExpressionOrCall(4)) {
                 LambdaExpression();
             }
             else {
@@ -1972,7 +1982,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         return is(1, xla);
     }
 
-    private boolean jj_2_3(int xla) {
+    private boolean isLambdaExpressionOrCall(int xla) {
         return is(2, xla);
     }
 
