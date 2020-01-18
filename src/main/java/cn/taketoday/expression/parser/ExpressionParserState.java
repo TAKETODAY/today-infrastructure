@@ -43,7 +43,7 @@ package cn.taketoday.expression.parser;
 
 import java.util.ArrayList;
 
-public class JJTELParserState {
+public class ExpressionParserState {
 
     private final ArrayList<Node> nodes = new ArrayList<>();
     private final ArrayList<Integer> marks = new ArrayList<>();
@@ -52,11 +52,11 @@ public class JJTELParserState {
     private int mk = 0; // current mark
     private boolean node_created;
 
-    public JJTELParserState() {
+    public ExpressionParserState() {
 
     }
 
-    /*
+    /**
      * Determines whether the current node was actually closed and pushed. This
      * should only be called in the final user action of a node scope.
      */
@@ -64,7 +64,7 @@ public class JJTELParserState {
         return node_created;
     }
 
-    /*
+    /**
      * Call this to reinitialize the node stack. It is called automatically by the
      * parser's ReInit() method.
      */
@@ -75,7 +75,7 @@ public class JJTELParserState {
         mk = 0;
     }
 
-    /*
+    /**
      * Returns the root node of the AST. It only makes sense to call this after a
      * successful parse.
      */
@@ -83,13 +83,13 @@ public class JJTELParserState {
         return nodes.get(0);
     }
 
-    /* Pushes a node on to the stack. */
+    /** Pushes a node on to the stack. */
     public void pushNode(Node n) {
         nodes.add(n);
         ++sp;
     }
 
-    /*
+    /**
      * Returns the node on the top of the stack, and remove it from the stack.
      */
     public Node popNode() {
@@ -99,12 +99,12 @@ public class JJTELParserState {
         return nodes.remove(nodes.size() - 1);
     }
 
-    /* Returns the node currently on the top of the stack. */
+    /** Returns the node currently on the top of the stack. */
     public Node peekNode() {
         return nodes.get(nodes.size() - 1);
     }
 
-    /*
+    /**
      * Returns the number of children on the stack in the current node scope.
      */
     public int nodeArity() {
@@ -124,7 +124,7 @@ public class JJTELParserState {
         n.jjtOpen();
     }
 
-    /*
+    /**
      * A definite node is constructed from a specified number of children. That
      * number of nodes are popped from the stack and made the children of the
      * definite node. Then the definite node is pushed on to the stack.

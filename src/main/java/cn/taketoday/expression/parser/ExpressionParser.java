@@ -54,14 +54,14 @@ import cn.taketoday.expression.util.MessageFactory;
  * @author TODAY <br>
  *         2019-02-18 20:06
  */
-public class ELParser implements ELParserTreeConstants, ELParserConstants {
+public class ExpressionParser implements ELParserTreeConstants, ELParserConstants {
 
-    protected final JJTELParserState jjtree = new JJTELParserState();
+    protected final ExpressionParserState jjtree = new ExpressionParserState();
 
     public final static AstCompositeExpression parse(String ref) throws ELException {
         try {
 
-            return new ELParser(new StringReader(ref)).CompositeExpression();
+            return new ExpressionParser(new StringReader(ref)).CompositeExpression();
         }
         catch (ParseException pe) {
             throw new ELException(MessageFactory.get("error.parseFail", ref), pe);
@@ -109,7 +109,7 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      * 
      * @throws UnsupportedEncodingException
      */
-    public ELParser(InputStream stream) throws UnsupportedEncodingException {
+    public ExpressionParser(InputStream stream) throws UnsupportedEncodingException {
         this(stream, null);
     }
 
@@ -118,15 +118,15 @@ public class ELParser implements ELParserTreeConstants, ELParserConstants {
      * 
      * @throws UnsupportedEncodingException
      */
-    public ELParser(InputStream stream, String encoding) throws UnsupportedEncodingException {
+    public ExpressionParser(InputStream stream, String encoding) throws UnsupportedEncodingException {
         this(new ELParserTokenManager(new SimpleCharStream(stream, encoding, 1, 1)));
     }
 
-    public ELParser(Reader stream) {
+    public ExpressionParser(Reader stream) {
         this(new ELParserTokenManager(new SimpleCharStream(stream, 1, 1)));
     }
 
-    public ELParser(ELParserTokenManager parserTokenManager) {
+    public ExpressionParser(ELParserTokenManager parserTokenManager) {
         this.token_source = parserTokenManager;
 
         token = new Token();

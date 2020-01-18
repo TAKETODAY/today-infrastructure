@@ -56,7 +56,7 @@ import cn.taketoday.expression.parser.AstIdentifier;
 import cn.taketoday.expression.parser.AstLiteralExpression;
 import cn.taketoday.expression.parser.AstMethodArguments;
 import cn.taketoday.expression.parser.AstValue;
-import cn.taketoday.expression.parser.ELParser;
+import cn.taketoday.expression.parser.ExpressionParser;
 import cn.taketoday.expression.parser.Node;
 import cn.taketoday.expression.parser.NodeVisitor;
 import cn.taketoday.expression.stream.StreamELResolver;
@@ -406,7 +406,7 @@ public class ExpressionFactory implements NodeVisitor {
         Node node = EXPRESSION_CACHE.get(expr);
 
         if (node == null) {
-            node = ELParser.parse(expr);
+            node = ExpressionParser.parse(expr);
             // validate composite expression
             int numChildren = node.jjtGetNumChildren();
             if (numChildren == 1) {
