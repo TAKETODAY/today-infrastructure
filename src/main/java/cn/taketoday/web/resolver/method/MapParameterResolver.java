@@ -49,7 +49,7 @@ public class MapParameterResolver implements OrderedParameterResolver {
     public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
 
         // parameter class
-        final Class<?> clazz = (Class<?>) parameter.getGenericityClass()[1];
+        final Class<?> clazz = (Class<?>) parameter.getGenericityClass(1);
 
         final String parameterName = parameter.getName();
         final Enumeration<String> parameterNames = requestContext.parameterNames();// all parameter
@@ -67,17 +67,19 @@ public class MapParameterResolver implements OrderedParameterResolver {
                 if (newInstance == null) {
                     newInstance = clazz.getConstructor().newInstance();// default constructor
                 }
-                //                if (!resolvePojoParameter(request, //
-                //                        requestParameter, newInstance, clazz.getDeclaredField(keyList[3]))) {// 得到Field准备注入
-                //
-                //                    return map;
-                //                }
+                // if (!resolvePojoParameter(request, //
+                //          requestParameter, newInstance, clazz.getDeclaredField(keyList[3]))) {// 得到Field准备注入
+                //      return map;
+                // }
                 map.put(key, newInstance);// put directly
             }
         }
+        
+        
+        
         return map;
 
-        //        throw WebUtils.newBadRequest("Collection variable", parameter.getParameterName(), null);
+        // throw WebUtils.newBadRequest("Collection variable", parameter.getParameterName(), null);
     }
 
     @Override

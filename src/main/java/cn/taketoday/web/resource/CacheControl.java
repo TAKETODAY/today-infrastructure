@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.resource;
 
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.web.Constant;
@@ -35,7 +36,9 @@ import cn.taketoday.web.Constant;
  * @since 2.3.7 @off
  * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">Mozilla Cache-Control</a> @on
  */
-public class CacheControl {
+public class CacheControl implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final StringBuilder cacheControl = new StringBuilder();
 

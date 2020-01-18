@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.multipart;
 
+import java.io.Serializable;
+
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.utils.DataSize;
@@ -34,7 +36,9 @@ import lombok.Setter;
 @Getter
 @MissingBean
 @Props(prefix = "multipart.")
-public class MultipartConfiguration {
+public class MultipartConfiguration implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /*** file upload location */
     private String location = System.getProperty("java.io.tmpdir");
