@@ -271,7 +271,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
     }
 
-    /*
+    /**
      * Expression EL Expression Language Root
      */
     final public void Expression() throws ParseException {
@@ -313,7 +313,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
     }
 
-    /*
+    /**
      * Assignment For '=', right associatve, then LambdaExpression or Choice or
      * Assignment
      */
@@ -338,34 +338,61 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                 case MINUS :
                 case IDENTIFIER :
                     Choice();
-                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-                        case ASSIGN :
-                            consumeToken(ASSIGN);
-                            AstAssign jjtn001 = new AstAssign(JJTASSIGN);
-                            boolean jjtc001 = true;
-                            state.openNodeScope(jjtn001);
-                            try {
-                                Assignment();
+                    if (((jj_ntk == -1) ? jj_ntk() : jj_ntk) == ASSIGN) {
+                        consumeToken(ASSIGN);
+                        AstAssign jjtn001 = new AstAssign(JJTASSIGN);
+                        boolean jjtc001 = true;
+                        state.openNodeScope(jjtn001);
+                        try {
+                            Assignment();
+                        }
+                        catch (Throwable jjte001) {
+                            if (jjtc001) {
+                                state.clearNodeScope(jjtn001);
+                                jjtc001 = false;
                             }
-                            catch (Throwable jjte001) {
-                                if (jjtc001) {
-                                    state.clearNodeScope(jjtn001);
-                                    jjtc001 = false;
-                                }
-                                else {
-                                    state.popNode();
-                                }
-                                throw jjte001;
+                            else {
+                                state.popNode();
                             }
-                            finally {
-                                if (jjtc001) {
-                                    state.closeNodeScope(jjtn001, 2);
-                                }
+                            throw jjte001;
+                        }
+                        finally {
+                            if (jjtc001) {
+                                state.closeNodeScope(jjtn001, 2);
                             }
-                            break;
-                        default:
-                            jj_la1[3] = jj_gen;;
+                        }
                     }
+                    else {
+                        jj_la1[3] = jj_gen;
+                    }
+//                    switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+//                        case ASSIGN :
+//                            consumeToken(ASSIGN);
+//                            AstAssign jjtn001 = new AstAssign(JJTASSIGN);
+//                            boolean jjtc001 = true;
+//                            state.openNodeScope(jjtn001);
+//                            try {
+//                                Assignment();
+//                            }
+//                            catch (Throwable jjte001) {
+//                                if (jjtc001) {
+//                                    state.clearNodeScope(jjtn001);
+//                                    jjtc001 = false;
+//                                }
+//                                else {
+//                                    state.popNode();
+//                                }
+//                                throw jjte001;
+//                            }
+//                            finally {
+//                                if (jjtc001) {
+//                                    state.closeNodeScope(jjtn001, 2);
+//                                }
+//                            }
+//                            break;
+//                        default:
+//                            jj_la1[3] = jj_gen;;
+//                    }
                     break;
                 default:
                     jj_la1[4] = jj_gen;
@@ -517,37 +544,6 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         else {
             jj_la1[9] = jj_gen;
         }
-
-//        switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-//            case QUESTIONMARK :
-//                consumeToken(QUESTIONMARK);
-//                Choice();
-//                consumeToken(COLON);
-//                AstChoice jjtn001 = new AstChoice(JJTCHOICE);
-//                boolean jjtc001 = true;
-//                jjtree.openNodeScope(jjtn001);
-//                try {
-//                    Choice();
-//                }
-//                catch (Throwable jjte001) {
-//                    if (jjtc001) {
-//                        jjtree.clearNodeScope(jjtn001);
-//                        jjtc001 = false;
-//                    }
-//                    else {
-//                        jjtree.popNode();
-//                    }
-//                    throw jjte001;
-//                }
-//                finally {
-//                    if (jjtc001) {
-//                        jjtree.closeNodeScope(jjtn001, 3);
-//                    }
-//                }
-//                break;
-//            default:
-//                jj_la1[9] = jj_gen;
-//        }
     }
 
     /*
