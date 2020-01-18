@@ -42,12 +42,11 @@
 package cn.taketoday.expression.parser;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class JJTELParserState {
 
-    private final List<Node> nodes = new ArrayList<>();
-    private final List<Integer> marks = new ArrayList<>();
+    private final ArrayList<Node> nodes = new ArrayList<>();
+    private final ArrayList<Integer> marks = new ArrayList<>();
 
     private int sp = 0; // number of nodes on stack
     private int mk = 0; // current mark
@@ -142,7 +141,7 @@ public class JJTELParserState {
         node_created = true;
     }
 
-    /*
+    /**
      * A conditional node is constructed if its condition is true. All the nodes
      * that have been pushed since the node was opened are made children of the
      * conditional node, which is then pushed on to the stack. If the condition is

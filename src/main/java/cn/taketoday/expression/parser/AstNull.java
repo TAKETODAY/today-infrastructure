@@ -57,8 +57,7 @@ public final class AstNull extends SimpleNode {
         return null;
     }
 
-    public Object getValue(EvaluationContext ctx)
-            throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ELException {
         return null;
     }
 }

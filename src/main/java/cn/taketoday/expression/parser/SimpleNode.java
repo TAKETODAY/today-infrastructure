@@ -40,6 +40,8 @@
 
 package cn.taketoday.expression.parser;
 
+import java.util.Objects;
+
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.expression.ELContext;
 import cn.taketoday.expression.ELException;
@@ -100,7 +102,7 @@ public abstract class SimpleNode extends ExpressionSupport implements Node {
         return (children == null) ? 0 : children.length;
     }
 
-    /*
+    /**
      * You can override these two methods in subclasses of SimpleNode to customize
      * the way the node appears when the tree is dumped. If your output uses more
      * than one line you should override toString(String), otherwise overriding
@@ -108,14 +110,13 @@ public abstract class SimpleNode extends ExpressionSupport implements Node {
      */
     @Override
     public String toString() {
-        if (this.image != null) {
-            return ELParserTreeConstants.jjtNodeName[id] + "[" + this.image + "]";
-        }
-        return ELParserTreeConstants.jjtNodeName[id];
+        return this.image != null
+                ? ELParserTreeConstants.NODE_NAME[id] + "[" + this.image + "]"
+                : ELParserTreeConstants.NODE_NAME[id];
     }
 
     public String toString(String prefix) {
-        return prefix + toString();
+        return Objects.requireNonNull(prefix).concat(toString());
     }
 
     /**

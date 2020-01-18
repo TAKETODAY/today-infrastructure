@@ -40,6 +40,8 @@
 
 package cn.taketoday.expression.parser;
 
+import cn.taketoday.context.Constant;
+
 /**
  * This exception is thrown when parse errors are encountered. You can
  * explicitly create objects of this exception type by calling the method
@@ -61,14 +63,12 @@ public class ParseException extends Exception {
      * "toString" method of parent class "Throwable" to print the error message in
      * the form: ParseException: <result of getMessage>
      */
-    public ParseException(Token currentTokenVal,
-            int[][] expectedTokenSequencesVal,
-            String[] tokenImageVal) {
-        super("");
-        specialConstructor = true;
-        currentToken = currentTokenVal;
-        expectedTokenSequences = expectedTokenSequencesVal;
-        tokenImage = tokenImageVal;
+    public ParseException(Token currentTokenVal, int[][] expectedTokenSequencesVal, String[] tokenImageVal) {
+        super(Constant.BLANK);
+        this.specialConstructor = true;
+        this.currentToken = currentTokenVal;
+        this.tokenImage = tokenImageVal;
+        this.expectedTokenSequences = expectedTokenSequencesVal;
     }
 
     /**
@@ -79,15 +79,14 @@ public class ParseException extends Exception {
      * contain relevant information. The JavaCC generated code does not use these
      * constructors.
      */
-
     public ParseException() {
         super();
-        specialConstructor = false;
+        this.specialConstructor = false;
     }
 
     public ParseException(String message) {
         super(message);
-        specialConstructor = false;
+        this.specialConstructor = false;
     }
 
     /**
@@ -130,7 +129,7 @@ public class ParseException extends Exception {
         if (!specialConstructor) {
             return super.getMessage();
         }
-        String expected = "";
+        String expected = Constant.BLANK;
         int maxSize = 0;
         for (int i = 0; i < expectedTokenSequences.length; i++) {
             if (maxSize < expectedTokenSequences[i].length) {
@@ -156,7 +155,7 @@ public class ParseException extends Exception {
             tok = tok.next;
         }
         retval += "\" at line " + currentToken.next.beginLine + ", column " + currentToken.next.beginColumn;
-        retval += "." + eol;
+        retval += '.' + eol;
         if (expectedTokenSequences.length == 1) {
             retval += "Was expecting:" + eol + "    ";
         }
@@ -177,9 +176,10 @@ public class ParseException extends Exception {
      * version cannot be used as part of an ASCII string literal.
      */
     protected String add_escapes(String str) {
-        StringBuffer retval = new StringBuffer();
+        StringBuilder retval = new StringBuilder();
         char ch;
-        for (int i = 0; i < str.length(); i++) {
+        final int length = str.length();
+        for (int i = 0; i < length; i++) {
             switch (str.charAt(i)) {
                 case 0 :
                     continue;
@@ -209,7 +209,7 @@ public class ParseException extends Exception {
                     continue;
                 default:
                     if ((ch = str.charAt(i)) < 0x20 || ch > 0x7e) {
-                        String s = "0000" + Integer.toString(ch, 16);
+                        String s = "0000".concat(Integer.toString(ch, 16));
                         retval.append("\\u" + s.substring(s.length() - 4, s.length()));
                     }
                     else {
