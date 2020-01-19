@@ -65,20 +65,20 @@ import cn.taketoday.expression.parser.Node;
  * of <code>ValueExpression</code> that encapsulates the parsed expression. The
  * {@link FunctionMapper} is used at parse time, not evaluation time, so one is
  * not needed to evaluate an expression using this class. However, the
- * {@link ELContext} is needed at evaluation time.
+ * {@link ExpressionContext} is needed at evaluation time.
  * </p>
  *
  * <p>
  * The {@link #getValue}, {@link #setValue}, {@link #isReadOnly} and
  * {@link #getType} methods will evaluate the expression each time they are
- * called. The {@link ELResolver} in the <code>ELContext</code> is used to
+ * called. The {@link ExpressionResolver} in the <code>ELContext</code> is used to
  * resolve the top-level variables and to determine the behavior of the
  * <code>.</code> and <code>[]</code> operators. For any of the four methods,
- * the {@link ELResolver#getValue} method is used to resolve all properties up
+ * the {@link ExpressionResolver#getValue} method is used to resolve all properties up
  * to but excluding the last one. This provides the <code>base</code> object. At
  * the last resolution, the <code>ValueExpression</code> will call the
- * corresponding {@link ELResolver#getValue}, {@link ELResolver#setValue},
- * {@link ELResolver#isReadOnly} or {@link ELResolver#getType} method, depending
+ * corresponding {@link ExpressionResolver#getValue}, {@link ExpressionResolver#setValue},
+ * {@link ExpressionResolver#isReadOnly} or {@link ExpressionResolver#getType} method, depending
  * on which was called on the <code>ValueExpression</code>.
  * </p>
  *
@@ -86,7 +86,7 @@ import cn.taketoday.expression.parser.Node;
  * See the notes about comparison, serialization and immutability in the
  * {@link Expression} javadocs.
  *
- * @see cn.taketoday.expression.ELResolver
+ * @see cn.taketoday.expression.ExpressionResolver
  * @see cn.taketoday.expression.Expression
  * @see cn.taketoday.expression.ExpressionFactory
  * @see cn.taketoday.expression.ValueExpression
@@ -137,9 +137,9 @@ public final class ValueExpressionImpl extends ValueExpression {
 
     /**
      * @return The Node for the expression
-     * @throws ELException
+     * @throws ExpressionException
      */
-    private Node getNode() throws ELException {
+    private Node getNode() throws ExpressionException {
         if (this.node == null) {
             this.node = ExpressionFactory.createNode(this.expr);
         }
@@ -147,17 +147,17 @@ public final class ValueExpressionImpl extends ValueExpression {
     }
 
     @Override
-    public Class<?> getType(ELContext context) throws PropertyNotFoundException, ELException {
+    public Class<?> getType(ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
         return getNode().getType(new EvaluationContext(context));
     }
 
     @Override
-    public ValueReference getValueReference(ELContext context) throws PropertyNotFoundException, ELException {
+    public ValueReference getValueReference(ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
         return getNode().getValueReference(new EvaluationContext(context));
     }
 
     @Override
-    public Object getValue(final ELContext context) throws PropertyNotFoundException, ELException {
+    public Object getValue(final ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
 
         Object value = this.getNode().getValue(new EvaluationContext(context));
 
@@ -168,7 +168,7 @@ public final class ValueExpressionImpl extends ValueExpression {
                 }
             }
             catch (IllegalArgumentException ex) {
-                throw new ELException(ex);
+                throw new ExpressionException(ex);
             }
         }
         return value;
@@ -184,19 +184,19 @@ public final class ValueExpressionImpl extends ValueExpression {
         try {
             return this.getNode() instanceof AstLiteralExpression;
         }
-        catch (ELException ele) {
+        catch (ExpressionException ele) {
             return false;
         }
     }
 
     @Override
-    public boolean isReadOnly(ELContext context) throws PropertyNotFoundException, ELException {
+    public boolean isReadOnly(ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
         return getNode().isReadOnly(new EvaluationContext(context));
     }
 
     @Override
-    public void setValue(ELContext context, Object value)
-            throws PropertyNotFoundException, PropertyNotWritableException, ELException //
+    public void setValue(ExpressionContext context, Object value)
+            throws PropertyNotFoundException, PropertyNotWritableException, ExpressionException //
     {
         getNode().setValue(new EvaluationContext(context), value);
     }

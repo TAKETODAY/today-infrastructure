@@ -40,7 +40,7 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 public class AstAssign extends SimpleNode {
@@ -49,7 +49,7 @@ public class AstAssign extends SimpleNode {
         super(id);
     }
 
-    public Object getValue(EvaluationContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ExpressionException {
 
         Object value = children[1].getValue(ctx);
         children[0].setValue(ctx, value);

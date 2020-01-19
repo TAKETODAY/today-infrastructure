@@ -17,10 +17,8 @@
 
 package cn.taketoday.expression;
 
-import java.beans.FeatureDescriptor;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,21 +41,21 @@ import java.util.Objects;
  *
  * <p>
  * <code>ELResolver</code>s are combined together using
- * {@link CompositeELResolver}s, to define rich semantics for evaluating an
- * expression. See the javadocs for {@link ELResolver} for details.
+ * {@link CompositeExpressionResolver}s, to define rich semantics for evaluating an
+ * expression. See the javadocs for {@link ExpressionResolver} for details.
  * </p>
  *
- * @see CompositeELResolver
- * @see ELResolver
+ * @see CompositeExpressionResolver
+ * @see ExpressionResolver
  * @see java.util.List
  * @since JSP 2.1
  */
-public class ListELResolver extends ELResolver {
+public class ListExpressionResolver extends ExpressionResolver {
 
     /**
      * Creates a new read/write <code>ListELResolver</code>.
      */
-    public ListELResolver() {
+    public ListExpressionResolver() {
         this.isReadOnly = false;
     }
 
@@ -69,7 +67,7 @@ public class ListELResolver extends ELResolver {
      *            <code>true</code> if this resolver cannot modify lists;
      *            <code>false</code> otherwise.
      */
-    public ListELResolver(boolean isReadOnly) {
+    public ListExpressionResolver(boolean isReadOnly) {
         this.isReadOnly = isReadOnly;
     }
 
@@ -107,12 +105,12 @@ public class ListELResolver extends ELResolver {
      *             if the given index is out of bounds for this list.
      * @throws NullPointerException
      *             if context is <code>null</code>
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public Class<?> getType(ELContext context, Object base, Object property) {
+    public Class<?> getType(ExpressionContext context, Object base, Object property) {
 
         if (base instanceof List) {
             Objects.requireNonNull(context).setPropertyResolved(true);
@@ -156,12 +154,12 @@ public class ListELResolver extends ELResolver {
      *             if the property could not be coerced into an integer.
      * @throws NullPointerException
      *             if context is <code>null</code>.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public Object getValue(ELContext context, Object base, Object property) {
+    public Object getValue(ExpressionContext context, Object base, Object property) {
 
         if (base instanceof List) {
             Objects.requireNonNull(context).setPropertyResolved(base, property);
@@ -229,13 +227,13 @@ public class ListELResolver extends ELResolver {
      *             operation is not supported by the underlying list.
      * @throws PropertyNotFoundException
      *             if the given index is out of bounds for this list.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void setValue(ELContext context, Object base, Object property, Object val) {
+    public void setValue(ExpressionContext context, Object base, Object property, Object val) {
 
         if (base instanceof List) {
             Objects.requireNonNull(context).setPropertyResolved(base, property);
@@ -304,12 +302,12 @@ public class ListELResolver extends ELResolver {
      *             if the given index is out of bounds for this list.
      * @throws NullPointerException
      *             if context is <code>null</code>
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public boolean isReadOnly(ELContext context, Object base, Object property) {
+    public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
 
         if (base instanceof List) {
             Objects.requireNonNull(context).setPropertyResolved(true);
@@ -322,52 +320,6 @@ public class ListELResolver extends ELResolver {
             return list.getClass() == theUnmodifiableListClass || isReadOnly;
         }
         return false;
-    }
-
-    /**
-     * Always returns <code>null</code>, since there is no reason to iterate through
-     * set set of all integers.
-     *
-     * <p>
-     * The {@link #getCommonPropertyType} method returns sufficient information
-     * about what properties this resolver accepts.
-     * </p>
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The list. Only bases of type <code>List</code> are handled by this
-     *            resolver.
-     * @return <code>null</code>.
-     */
-    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        return null;
-    }
-
-    /**
-     * If the base object is a list, returns the most general type that this
-     * resolver accepts for the <code>property</code> argument. Otherwise, returns
-     * <code>null</code>.
-     *
-     * <p>
-     * Assuming the base is a <code>List</code>, this method will always return
-     * <code>Integer.class</code>. This is because <code>List</code>s accept
-     * integers as their index.
-     * </p>
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The list to analyze. Only bases of type <code>List</code> are
-     *            handled by this resolver.
-     * @return <code>null</code> if base is not a <code>List</code>; otherwise
-     *         <code>Integer.class</code>.
-     */
-    public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        if (base != null && base instanceof List) {
-            return Integer.class;
-        }
-        return null;
     }
 
     private int toInteger(Object p) {

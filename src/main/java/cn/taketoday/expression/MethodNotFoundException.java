@@ -25,7 +25,7 @@ package cn.taketoday.expression;
  * @since JSP 2.1
  */
 @SuppressWarnings("serial")
-public class MethodNotFoundException extends ELException {
+public class MethodNotFoundException extends ExpressionException {
 
     /**
      * Creates a <code>MethodNotFoundException</code> with no detail message.

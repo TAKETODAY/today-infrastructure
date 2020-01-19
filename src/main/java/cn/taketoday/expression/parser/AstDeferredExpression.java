@@ -40,7 +40,7 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
@@ -53,19 +53,19 @@ public final class AstDeferredExpression extends SimpleNode {
         super(id);
     }
 
-    public Class<?> getType(EvaluationContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
         return this.children[0].getType(ctx);
     }
 
-    public Object getValue(EvaluationContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ExpressionException {
         return this.children[0].getValue(ctx);
     }
 
-    public boolean isReadOnly(EvaluationContext ctx) throws ELException {
+    public boolean isReadOnly(EvaluationContext ctx) throws ExpressionException {
         return this.children[0].isReadOnly(ctx);
     }
 
-    public void setValue(EvaluationContext ctx, Object value) throws ELException {
+    public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
         this.children[0].setValue(ctx, value);
     }
 }

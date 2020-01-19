@@ -79,13 +79,13 @@ public class ImportHandler {
      * @param name
      *            The static member name, including the full class name, to be
      *            imported
-     * @throws ELException
+     * @throws ExpressionException
      *             if the name does not include a ".".
      */
-    public void importStatic(String name) throws ELException {
+    public void importStatic(String name) throws ExpressionException {
         int i = name.lastIndexOf('.');
         if (i <= 0) {
-            throw new ELException("The name " + name + " is not a full static member name");
+            throw new ExpressionException("The name " + name + " is not a full static member name");
         }
         String memberName = name.substring(i + 1);
         String className = name.substring(0, i);
@@ -97,13 +97,13 @@ public class ImportHandler {
      * 
      * @param name
      *            The full class name of the class to be imported
-     * @throws ELException
+     * @throws ExpressionException
      *             if the name does not include a ".".
      */
-    public void importClass(String name) throws ELException {
+    public void importClass(String name) throws ExpressionException {
         int i = name.lastIndexOf('.');
         if (i <= 0) {
-            throw new ELException("The name " + name + " is not a full class name");
+            throw new ExpressionException("The name " + name + " is not a full class name");
         }
         String className = name.substring(i + 1);
         classNameMap.put(className, name);
@@ -127,7 +127,7 @@ public class ImportHandler {
      * @return If the class has been imported previously, with {@link #importClass}
      *         or {@link #importPackage}, then its Class instance. Otherwise
      *         <code>null</code>.
-     * @throws ELException
+     * @throws ExpressionException
      *             if the class is abstract or is an interface, or not public.
      */
     public Class<?> resolveClass(String name) {
@@ -158,7 +158,7 @@ public class ImportHandler {
      *         {@link #importStatic}, then the class object representing the class
      *         that declares the static field or method. Otherwise
      *         <code>null</code>.
-     * @throws ELException
+     * @throws ExpressionException
      *             if the class is not public, or is abstract or is an interface.
      */
     public Class<?> resolveStatic(String name) {
@@ -199,7 +199,7 @@ public class ImportHandler {
 
     private void checkModifiers(int modifiers) {
         if (Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers) || !Modifier.isPublic((modifiers))) {
-            throw new ELException("Imported class must be public, and cannot be abstract or an interface");
+            throw new ExpressionException("Imported class must be public, and cannot be abstract or an interface");
         }
     }
 }

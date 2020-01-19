@@ -20,19 +20,19 @@
 package cn.taketoday.context.el;
 
 import cn.taketoday.context.factory.AbstractBeanFactory;
-import cn.taketoday.expression.BeanNameELResolver;
+import cn.taketoday.expression.BeanNameExpressionResolver;
 import cn.taketoday.expression.ExpressionFactory;
-import cn.taketoday.expression.StandardELContext;
+import cn.taketoday.expression.StandardExpressionContext;
 
 /**
  * @author TODAY <br>
  *         2019-02-21 19:41
  */
-public class ValueELContext extends StandardELContext {
+public class ValueExpressionContext extends StandardExpressionContext {
 
-    public ValueELContext(ExpressionFactory exprFactory, AbstractBeanFactory beanFactory) {
+    public ValueExpressionContext(ExpressionFactory exprFactory, AbstractBeanFactory beanFactory) {
         super(exprFactory);
-        addELResolver(new BeanNameELResolver(new BeanFactoryResolver(beanFactory)));
+        addELResolver(new BeanNameExpressionResolver(new BeanFactoryResolver(beanFactory)));
     }
 
 }

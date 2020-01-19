@@ -51,7 +51,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionProcessor;
 
 public class StreamTest {
@@ -246,7 +246,7 @@ public class StreamTest {
         try {
             elp.eval("[].stream().findFirst().get()");
         }
-        catch (ELException ex) {
+        catch (ExpressionException ex) {
             caught = true;
         }
         assertTrue(caught);

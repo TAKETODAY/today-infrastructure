@@ -62,27 +62,27 @@ public final class ValueExpressionLiteral extends ValueExpression {
         this.expectedType = expectedType;
     }
 
-    public Object getValue(ELContext context) {
+    public Object getValue(ExpressionContext context) {
         if (this.expectedType != null) {
             try {
                 return context.convertToType(this.value, this.expectedType);
             }
             catch (IllegalArgumentException ex) {
-                throw new ELException(ex);
+                throw new ExpressionException(ex);
             }
         }
         return this.value;
     }
 
-    public void setValue(ELContext context, Object value) {
+    public void setValue(ExpressionContext context, Object value) {
         throw new PropertyNotWritableException(MessageFactory.get("error.value.literal.write", this.value));
     }
 
-    public boolean isReadOnly(ELContext context) {
+    public boolean isReadOnly(ExpressionContext context) {
         return true;
     }
 
-    public Class<?> getType(ELContext context) {
+    public Class<?> getType(ExpressionContext context) {
         return (this.value != null) ? this.value.getClass() : null;
     }
 

@@ -69,7 +69,7 @@ import cn.taketoday.context.bean.DefaultBeanDefinition;
 import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.bean.StandardBeanDefinition;
 import cn.taketoday.context.conversion.TypeConverter;
-import cn.taketoday.context.el.ValueELContext;
+import cn.taketoday.context.el.ValueExpressionContext;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
@@ -86,7 +86,7 @@ import cn.taketoday.context.loader.PropsPropertyResolver;
 import cn.taketoday.context.loader.ValuePropertyResolver;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
@@ -151,7 +151,7 @@ public abstract class ContextUtils {
                         final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
                         final AbstractBeanFactory beanFactory = ((AbstractApplicationContext) ctx).getBeanFactory();
 
-                        final ValueELContext elContext = new ValueELContext(exprFactory, beanFactory);
+                        final ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, beanFactory);
 
                         elContext.defineBean(Constant.ENV, properties); // @since 2.1.6
 
@@ -326,7 +326,7 @@ public abstract class ContextUtils {
             try {
                 return getExpressionProcessor().getValue(expression, expectedType);
             }
-            catch (ELException e) {
+            catch (ExpressionException e) {
                 throw new ConfigurationException(e);
             }
         }

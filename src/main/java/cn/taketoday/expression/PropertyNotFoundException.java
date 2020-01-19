@@ -30,7 +30,7 @@ package cn.taketoday.expression;
  * @since JSP 2.1
  */
 @SuppressWarnings("serial")
-public class PropertyNotFoundException extends ELException {
+public class PropertyNotFoundException extends ExpressionException {
 
     // -------------------------------------
     /**

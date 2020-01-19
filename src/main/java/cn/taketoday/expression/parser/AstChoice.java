@@ -40,7 +40,7 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
@@ -53,30 +53,30 @@ public final class AstChoice extends SimpleNode {
         super(id);
     }
 
-    public Class<?> getType(EvaluationContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
         Object obj0 = this.children[0].getValue(ctx);
         Boolean b0 = coerceToBoolean(obj0);
         return this.children[((b0.booleanValue() ? 1 : 2))].getType(ctx);
     }
 
-    public Object getValue(EvaluationContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ExpressionException {
         Boolean b0 = coerceToBoolean(this.children[0].getValue(ctx));
         return this.children[((b0.booleanValue() ? 1 : 2))].getValue(ctx);
     }
 
-    public boolean isReadOnly(EvaluationContext ctx) throws ELException {
+    public boolean isReadOnly(EvaluationContext ctx) throws ExpressionException {
         Object obj0 = this.children[0].getValue(ctx);
         Boolean b0 = coerceToBoolean(obj0);
         return this.children[((b0.booleanValue() ? 1 : 2))].isReadOnly(ctx);
     }
 
-    public void setValue(EvaluationContext ctx, Object value) throws ELException {
+    public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
         Object obj0 = this.children[0].getValue(ctx);
         Boolean b0 = coerceToBoolean(obj0);
         this.children[((b0.booleanValue() ? 1 : 2))].setValue(ctx, value);
     }
 
-    public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ELException {
+    public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ExpressionException {
         Boolean b0 = coerceToBoolean(this.children[0].getValue(ctx));
         return this.children[((b0.booleanValue() ? 1 : 2))].invoke(ctx, paramTypes, paramValues);
     }

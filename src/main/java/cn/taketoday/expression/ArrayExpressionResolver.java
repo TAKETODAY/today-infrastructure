@@ -17,9 +17,7 @@
 
 package cn.taketoday.expression;
 
-import java.beans.FeatureDescriptor;
 import java.lang.reflect.Array;
-import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -40,20 +38,20 @@ import java.util.Objects;
  *
  * <p>
  * <code>ELResolver</code>s are combined together using
- * {@link CompositeELResolver}s, to define rich semantics for evaluating an
- * expression. See the javadocs for {@link ELResolver} for details.
+ * {@link CompositeExpressionResolver}s, to define rich semantics for evaluating an
+ * expression. See the javadocs for {@link ExpressionResolver} for details.
  * </p>
  *
- * @see CompositeELResolver
- * @see ELResolver
+ * @see CompositeExpressionResolver
+ * @see ExpressionResolver
  * @since JSP 2.1
  */
-public class ArrayELResolver extends ELResolver {
+public class ArrayExpressionResolver extends ExpressionResolver {
 
     /**
      * Creates a new read/write <code>ArrayELResolver</code>.
      */
-    public ArrayELResolver() {
+    public ArrayExpressionResolver() {
         this.isReadOnly = false;
     }
 
@@ -65,7 +63,7 @@ public class ArrayELResolver extends ELResolver {
      *            <code>true</code> if this resolver cannot modify arrays;
      *            <code>false</code> otherwise.
      */
-    public ArrayELResolver(boolean isReadOnly) {
+    public ArrayExpressionResolver(boolean isReadOnly) {
         this.isReadOnly = isReadOnly;
     }
 
@@ -103,12 +101,12 @@ public class ArrayELResolver extends ELResolver {
      *             if the given index is out of bounds for this array.
      * @throws NullPointerException
      *             if context is <code>null</code>
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public Class<?> getType(ELContext context, Object base, Object property) {
+    public Class<?> getType(ExpressionContext context, Object base, Object property) {
 
         if (base != null) {
             final Class<? extends Object> beanClass = base.getClass();
@@ -156,12 +154,12 @@ public class ArrayELResolver extends ELResolver {
      *             if the property could not be coerced into an integer.
      * @throws NullPointerException
      *             if context is <code>null</code>.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public Object getValue(ELContext context, Object base, Object property) {
+    public Object getValue(ExpressionContext context, Object base, Object property) {
 
         Objects.requireNonNull(context);
 
@@ -219,12 +217,12 @@ public class ArrayELResolver extends ELResolver {
      *             if this resolver was constructed in read-only mode.
      * @throws PropertyNotFoundException
      *             if the given index is out of bounds for this array.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public void setValue(ELContext context, Object base, Object property, Object val) {
+    public void setValue(ExpressionContext context, Object base, Object property, Object val) {
 
         if (base != null) {
             final Class<? extends Object> beanClass = base.getClass();
@@ -281,12 +279,12 @@ public class ArrayELResolver extends ELResolver {
      *             if the given index is out of bounds for this array.
      * @throws NullPointerException
      *             if context is <code>null</code>
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public boolean isReadOnly(ELContext context, Object base, Object property) {
+    public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
 
         if (base != null && base.getClass().isArray()) {
             Objects.requireNonNull(context).setPropertyResolved(true);
@@ -296,52 +294,6 @@ public class ArrayELResolver extends ELResolver {
             }
         }
         return isReadOnly;
-    }
-
-    /**
-     * Always returns <code>null</code>, since there is no reason to iterate through
-     * set set of all integers.
-     *
-     * <p>
-     * The {@link #getCommonPropertyType} method returns sufficient information
-     * about what properties this resolver accepts.
-     * </p>
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The array to analyze. Only bases that are a Java language array
-     *            are handled by this resolver.
-     * @return <code>null</code>.
-     */
-    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        return null;
-    }
-
-    /**
-     * If the base object is a Java language array, returns the most general type
-     * that this resolver accepts for the <code>property</code> argument. Otherwise,
-     * returns <code>null</code>.
-     *
-     * <p>
-     * Assuming the base is an array, this method will always return
-     * <code>Integer.class</code>. This is because arrays accept integers for their
-     * index.
-     * </p>
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The array to analyze. Only bases that are a Java language array
-     *            are handled by this resolver.
-     * @return <code>null</code> if base is not a Java language array; otherwise
-     *         <code>Integer.class</code>.
-     */
-    public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        if (base != null && base.getClass().isArray()) {
-            return Integer.class;
-        }
-        return null;
     }
 
     private int toInteger(Object p) {

@@ -42,7 +42,7 @@ package cn.taketoday.expression.parser;
 
 import java.math.BigInteger;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
@@ -69,11 +69,11 @@ public final class AstInteger extends SimpleNode {
         return number;
     }
 
-    public Class<?> getType(EvaluationContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
         return getInteger().getClass();
     }
 
-    public Object getValue(EvaluationContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ExpressionException {
         return getInteger();
     }
 }

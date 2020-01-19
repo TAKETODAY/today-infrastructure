@@ -62,23 +62,23 @@ import cn.taketoday.expression.lang.EvaluationContext;
  * </p>
  * <p>
  * A <code>LambdaExpression</code> can be invoked by calling
- * {@link LambdaExpression#invoke}, with an {@link cn.taketoday.expression.ELContext} and a
+ * {@link LambdaExpression#invoke}, with an {@link cn.taketoday.expression.ExpressionContext} and a
  * list of the actual arguments. Alternately, a <code>LambdaExpression</code>
  * can be invoked without passing a <code>ELContext</code>, in which case the
  * <code>ELContext</code> previously set by calling
  * {@link LambdaExpression#setELContext} will be used. The evaluation of the
- * <code>ValueExpression</code> in the body uses the {@link ELContext} to
+ * <code>ValueExpression</code> in the body uses the {@link ExpressionContext} to
  * resolve references to the parameters, and to evaluate the lambda expression.
  * The result of the evaluation is returned.
  * </p>
  * 
- * @see ELContext#getLambdaArgument
- * @see ELContext#enterLambdaScope
- * @see ELContext#exitLambdaScope
+ * @see ExpressionContext#getLambdaArgument
+ * @see ExpressionContext#enterLambdaScope
+ * @see ExpressionContext#exitLambdaScope
  */
 public class LambdaExpression {
 
-    private final ELContext context;
+    private final ExpressionContext context;
     private final ValueExpression expression;
     private final List<String> formalParameters;
     // Arguments from nesting lambdas, when the body is another lambda
@@ -94,7 +94,7 @@ public class LambdaExpression {
      * @param context
      *            {@link EvaluationContext}
      */
-    public LambdaExpression(List<String> formalParameters, ValueExpression expression, ELContext context) {
+    public LambdaExpression(List<String> formalParameters, ValueExpression expression, ExpressionContext context) {
         this.formalParameters = formalParameters;
         this.expression = expression;
         this.context = context;
@@ -124,12 +124,12 @@ public class LambdaExpression {
      *            arguments, an empty array must be provided. A Lambda argument can
      *            be <code>null</code>.
      * @return The result of invoking the Lambda expression
-     * @throws ELException
+     * @throws ExpressionException
      *             if not enough arguments are provided
      * @throws NullPointerException
      *             is elContext is null
      */
-    public Object invoke(ELContext elContext, Object... args) throws ELException {
+    public Object invoke(ExpressionContext elContext, Object... args) throws ExpressionException {
         int i = 0;
         final Map<String, Object> lambdaArgs = new HashMap<String, Object>();
 
@@ -138,7 +138,7 @@ public class LambdaExpression {
 
         for (String fParam : formalParameters) {
             if (i >= args.length) {
-                throw new ELException("Expected Argument " + fParam + " missing in Lambda Expression");
+                throw new ExpressionException("Expected Argument " + fParam + " missing in Lambda Expression");
             }
             lambdaArgs.put(fParam, args[i++]);
         }
@@ -182,7 +182,7 @@ public class LambdaExpression {
      *            arguments, an empty array must be provided. A Lambda argument can
      *            be <code>null</code>.
      * @return The result of invoking the Lambda expression
-     * @throws ELException
+     * @throws ExpressionException
      *             if not enough arguments are provided
      */
     public Object invoke(Object... args) {

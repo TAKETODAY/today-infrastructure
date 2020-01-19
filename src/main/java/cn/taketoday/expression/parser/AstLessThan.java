@@ -40,7 +40,7 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
@@ -53,7 +53,7 @@ public final class AstLessThan extends BooleanNode {
     }
 
     public Object getValue(EvaluationContext ctx)
-            throws ELException {
+            throws ExpressionException {
         Object obj0 = this.children[0].getValue(ctx);
         if (obj0 == null) {
             return Boolean.FALSE;

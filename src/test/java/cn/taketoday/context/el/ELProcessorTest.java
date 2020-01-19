@@ -49,7 +49,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import cn.taketoday.expression.ELContext;
+import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
@@ -74,7 +74,7 @@ public class ELProcessorTest {
     @Test
     public void testMethExpr() {
         MethodExpression meth = null;
-        ELContext ctxt = elm.getELContext();
+        ExpressionContext ctxt = elm.getELContext();
         try {
             meth = factory.createMethodExpression(ctxt, "#{str.length}", Object.class, null);
         }

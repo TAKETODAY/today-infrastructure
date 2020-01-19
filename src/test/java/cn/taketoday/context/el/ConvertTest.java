@@ -49,7 +49,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import cn.taketoday.expression.ELContext;
+import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionProcessor;
 import cn.taketoday.expression.TypeConverter;
 
@@ -129,7 +129,7 @@ public class ConvertTest {
     public void testCustom() {
         elp.getELManager().addELResolver(new TypeConverter() {
             @Override
-            public Object convertToType(ELContext context, Object obj, Class<?> type) {
+            public Object convertToType(ExpressionContext context, Object obj, Class<?> type) {
                 if (obj instanceof String && type == MyBean.class) {
                     context.setPropertyResolved(true);
                     return new MyBean((String) obj);

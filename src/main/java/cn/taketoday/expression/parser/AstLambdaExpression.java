@@ -40,7 +40,7 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.LambdaExpression;
 import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.expression.ValueExpressionImpl;
@@ -57,7 +57,7 @@ public class AstLambdaExpression extends SimpleNode {
     }
 
     @Override
-    public Object getValue(EvaluationContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ExpressionException {
         final Node[] children = this.children;
         // Create a lambda expression
         final ValueExpression expr = new ValueExpressionImpl("#{Lambda Expression}", children[1], null);
@@ -73,7 +73,7 @@ public class AstLambdaExpression extends SimpleNode {
         for (int i = 2; i < children.length; i++) {
             if (ret != null) {
                 if (!(ret instanceof LambdaExpression)) {
-                    throw new ELException(MessageFactory.get("error.lambda.call"));
+                    throw new ExpressionException(MessageFactory.get("error.lambda.call"));
                 }
                 lambda = (LambdaExpression) ret;
             }

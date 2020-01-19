@@ -47,7 +47,7 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.util.MessageFactory;
 
 /**
@@ -58,18 +58,18 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
 
     protected final ExpressionParserState state = new ExpressionParserState();
 
-    public final static AstCompositeExpression parse(String ref) throws ELException {
+    public final static AstCompositeExpression parse(String ref) throws ExpressionException {
         try {
 
             return new ExpressionParser(new StringReader(ref)).CompositeExpression();
         }
         catch (ParseException pe) {
-            throw new ELException(MessageFactory.get("error.parseFail", ref), pe);
+            throw new ExpressionException(MessageFactory.get("error.parseFail", ref), pe);
         }
     }
 
     /** Generated Token Manager. */
-    private final ELParserTokenManager token_source;
+    private final ExpressionParserTokenManager token_source;
     /** Current token. */
     public Token token;
     /** Next token. */
@@ -119,14 +119,14 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
      * @throws UnsupportedEncodingException
      */
     public ExpressionParser(InputStream stream, String encoding) throws UnsupportedEncodingException {
-        this(new ELParserTokenManager(new SimpleCharStream(stream, encoding, 1, 1)));
+        this(new ExpressionParserTokenManager(new SimpleCharStream(stream, encoding, 1, 1)));
     }
 
     public ExpressionParser(Reader stream) {
-        this(new ELParserTokenManager(new SimpleCharStream(stream, 1, 1)));
+        this(new ExpressionParserTokenManager(new SimpleCharStream(stream, 1, 1)));
     }
 
-    public ExpressionParser(ELParserTokenManager parserTokenManager) {
+    public ExpressionParser(ExpressionParserTokenManager parserTokenManager) {
         this.token_source = parserTokenManager;
 
         token = new Token();

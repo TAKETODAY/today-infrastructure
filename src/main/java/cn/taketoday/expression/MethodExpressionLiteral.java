@@ -57,11 +57,11 @@ public class MethodExpressionLiteral extends MethodExpression {
         this.paramTypes = paramTypes;
     }
 
-    public MethodInfo getMethodInfo(ELContext context) throws ELException {
+    public MethodInfo getMethodInfo(ExpressionContext context) throws ExpressionException {
         return new MethodInfo(this.expr, this.expectedType, this.paramTypes);
     }
 
-    public Object invoke(ELContext context, Object[] params) throws ELException {
+    public Object invoke(ExpressionContext context, Object[] params) throws ExpressionException {
 
         if (this.expectedType == null) {
             return this.expr;
@@ -72,7 +72,7 @@ public class MethodExpressionLiteral extends MethodExpression {
             return context.convertToType(this.expr, this.expectedType);
         }
         catch (Exception ex) {
-            throw new ELException(ex);
+            throw new ExpressionException(ex);
         }
     }
 

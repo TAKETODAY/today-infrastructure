@@ -43,8 +43,8 @@ package cn.taketoday.expression.parser;
 import java.util.Objects;
 
 import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.expression.ELContext;
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionContext;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.MethodInfo;
 import cn.taketoday.expression.PropertyNotWritableException;
 import cn.taketoday.expression.ValueReference;
@@ -144,32 +144,32 @@ public abstract class SimpleNode extends ExpressionSupport implements Node {
     }
 
     @Override
-    public Class<?> getType(EvaluationContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object getValue(EvaluationContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ExpressionException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ValueReference getValueReference(EvaluationContext ctx) throws ELException {
+    public ValueReference getValueReference(EvaluationContext ctx) throws ExpressionException {
         return null;
     }
 
     @Override
-    public boolean isReadOnly(EvaluationContext ctx) throws ELException {
+    public boolean isReadOnly(EvaluationContext ctx) throws ExpressionException {
         return true;
     }
 
     @Override
-    public void setValue(EvaluationContext ctx, Object value) throws ELException {
+    public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
         throw new PropertyNotWritableException(MessageFactory.get("error.syntax.set"));
     }
 
     @Override
-    public void accept(NodeVisitor visitor, ELContext context) throws ELException {
+    public void accept(NodeVisitor visitor, ExpressionContext context) throws ExpressionException {
         visitor.visit(this, context);
         final Node[] children = this.children;
         if (ObjectUtils.isNotEmpty(children)) {
@@ -180,12 +180,12 @@ public abstract class SimpleNode extends ExpressionSupport implements Node {
     }
 
     @Override
-    public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ELException {
+    public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ExpressionException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ELException {
+    public MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ExpressionException {
         throw new UnsupportedOperationException();
     }
 

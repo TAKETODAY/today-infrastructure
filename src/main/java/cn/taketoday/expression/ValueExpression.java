@@ -38,22 +38,22 @@ package cn.taketoday.expression;
  * <code>ValueExpression</code> that encapsulates the parsed expression. The
  * {@link FunctionMapper} is used at parse time, not evaluation time, so one is
  * not needed to evaluate an expression using this class. However, the
- * {@link ELContext} is needed at evaluation time.
+ * {@link ExpressionContext} is needed at evaluation time.
  * </p>
  *
  * <p>
  * The {@link #getValue}, {@link #setValue}, {@link #isReadOnly},
  * {@link #getType} and {@link #getValueReference} methods will evaluate the
- * expression each time they are called. The {@link ELResolver} in the
+ * expression each time they are called. The {@link ExpressionResolver} in the
  * <code>ELContext</code> is used to resolve the top-level variables and to
  * determine the behavior of the <code>.</code> and <code>[]</code> operators.
- * For any of the five methods, the {@link ELResolver#getValue} method is used
+ * For any of the five methods, the {@link ExpressionResolver#getValue} method is used
  * to resolve all properties up to but excluding the last one. This provides the
  * <code>base</code> object. For all methods other than the
  * {@link #getValueReference} method, at the last resolution, the
  * <code>ValueExpression</code> will call the corresponding
- * {@link ELResolver#getValue}, {@link ELResolver#setValue},
- * {@link ELResolver#isReadOnly} or {@link ELResolver#getType} method, depending
+ * {@link ExpressionResolver#getValue}, {@link ExpressionResolver#setValue},
+ * {@link ExpressionResolver#isReadOnly} or {@link ExpressionResolver#getType} method, depending
  * on which was called on the <code>ValueExpression</code>. For the
  * {@link #getValueReference} method, the (base, property) is not resolved by
  * the ELResolver, but an instance of {@link ValueReference} is created to
@@ -64,7 +64,7 @@ package cn.taketoday.expression;
  * See the notes about comparison, serialization and immutability in the
  * {@link Expression} javadocs.
  *
- * @see ELResolver
+ * @see ExpressionResolver
  * @see Expression
  * @see ExpressionFactory
  * @since JSP 2.1
@@ -90,12 +90,12 @@ public abstract class ValueExpression extends Expression {
      * @throws PropertyNotFoundException
      *             if one of the property resolutions failed because a specified
      *             variable or property does not exist or is not readable.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing property or variable
      *             resolution. The thrown exception must be included as the cause
      *             property of this exception, if available.
      */
-    public abstract Object getValue(ELContext context);
+    public abstract Object getValue(ExpressionContext context);
 
     /**
      * Evaluates the expression relative to the provided context, and sets the
@@ -113,12 +113,12 @@ public abstract class ValueExpression extends Expression {
      * @throws PropertyNotWritableException
      *             if the final variable or property resolution failed because the
      *             specified variable or property is not writable.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while attempting to set the property
      *             or variable. The thrown exception must be included as the cause
      *             property of this exception, if available.
      */
-    public abstract void setValue(ELContext context, Object value);
+    public abstract void setValue(ExpressionContext context, Object value);
 
     /**
      * Evaluates the expression relative to the provided context, and returns
@@ -133,13 +133,13 @@ public abstract class ValueExpression extends Expression {
      * @throws PropertyNotFoundException
      *             if one of the property resolutions failed because a specified
      *             variable or property does not exist or is not readable.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing property or variable
      *             resolution. The thrown exception must be included as the cause
      *             property of this exception, if available. * @throws
      *             NullPointerException if context is <code>null</code>
      */
-    public abstract boolean isReadOnly(ELContext context);
+    public abstract boolean isReadOnly(ExpressionContext context);
 
     /**
      * Evaluates the expression relative to the provided context, and returns the
@@ -163,12 +163,12 @@ public abstract class ValueExpression extends Expression {
      * @throws PropertyNotFoundException
      *             if one of the property resolutions failed because a specified
      *             variable or property does not exist or is not readable.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing property or variable
      *             resolution. The thrown exception must be included as the cause
      *             property of this exception, if available.
      */
-    public abstract Class<?> getType(ELContext context);
+    public abstract Class<?> getType(ExpressionContext context);
 
     /**
      * Returns the type the result of the expression will be coerced to after
@@ -194,7 +194,7 @@ public abstract class ValueExpression extends Expression {
      *
      * @since EL 2.2
      */
-    public ValueReference getValueReference(ELContext context) {
+    public ValueReference getValueReference(ExpressionContext context) {
         return null;
     }
 }

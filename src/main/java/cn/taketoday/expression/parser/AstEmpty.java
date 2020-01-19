@@ -41,7 +41,7 @@
 package cn.taketoday.expression.parser;
 
 import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
@@ -54,11 +54,11 @@ public final class AstEmpty extends SimpleNode {
         super(id);
     }
 
-    public Class<?> getType(EvaluationContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
         return Boolean.class;
     }
 
-    public Object getValue(EvaluationContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ExpressionException {
 
 //        final Object obj = children[0].getValue(ctx);
 //        if (obj == null) {

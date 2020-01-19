@@ -40,7 +40,7 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ImportHandler;
 import cn.taketoday.expression.MethodExpression;
 import cn.taketoday.expression.MethodInfo;
@@ -65,7 +65,7 @@ public final class AstIdentifier extends SimpleNode {
     }
 
     @Override
-    public Class<?> getType(EvaluationContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
         final String image = this.image;
         // First check if this is a lambda argument
         if (ctx.isLambdaArgument(image)) {
@@ -86,7 +86,7 @@ public final class AstIdentifier extends SimpleNode {
         return ret;
     }
 
-    public ValueReference getValueReference(final EvaluationContext ctx) throws ELException {
+    public ValueReference getValueReference(final EvaluationContext ctx) throws ExpressionException {
         final String image = this.image;
         final VariableMapper varMapper = ctx.getVariableMapper();
         if (varMapper != null) {
@@ -99,7 +99,7 @@ public final class AstIdentifier extends SimpleNode {
     }
 
     @Override
-    public Object getValue(final EvaluationContext ctx) throws ELException {
+    public Object getValue(final EvaluationContext ctx) throws ExpressionException {
         final String image = this.image;
         // First check if this is a lambda argument
         if (ctx.isLambdaArgument(image)) {
@@ -127,7 +127,7 @@ public final class AstIdentifier extends SimpleNode {
         return ret;
     }
 
-    public boolean isReadOnly(final EvaluationContext ctx) throws ELException {
+    public boolean isReadOnly(final EvaluationContext ctx) throws ExpressionException {
         final String image = this.image;
         // Lambda arguments are read only.
         if (ctx.isLambdaArgument(image)) {
@@ -148,7 +148,7 @@ public final class AstIdentifier extends SimpleNode {
         return ret;
     }
 
-    public void setValue(final EvaluationContext ctx, final Object value) throws ELException {
+    public void setValue(final EvaluationContext ctx, final Object value) throws ExpressionException {
         final String image = this.image;
         // First check if this is a lambda argument
         if (ctx.isLambdaArgument(image)) {
@@ -171,15 +171,15 @@ public final class AstIdentifier extends SimpleNode {
     }
 
     public Object invoke(final EvaluationContext ctx,
-                         final Class<?>[] paramTypes, final Object[] paramValues) throws ELException {
+                         final Class<?>[] paramTypes, final Object[] paramValues) throws ExpressionException {
         return getMethodExpression(ctx).invoke(ctx, paramValues);
     }
 
-    public MethodInfo getMethodInfo(final EvaluationContext ctx, final Class<?>[] paramTypes) throws ELException {
+    public MethodInfo getMethodInfo(final EvaluationContext ctx, final Class<?>[] paramTypes) throws ExpressionException {
         return getMethodExpression(ctx).getMethodInfo(ctx);
     }
 
-    protected MethodExpression getMethodExpression(final EvaluationContext ctx) throws ELException {
+    protected MethodExpression getMethodExpression(final EvaluationContext ctx) throws ExpressionException {
         // case A: ValueExpression exists, getValue which must  be a MethodExpression
         Object obj = null;
         final String image = this.image;
@@ -205,7 +205,7 @@ public final class AstIdentifier extends SimpleNode {
         else if (obj == null) {
             throw new MethodNotFoundException("Identity '" + image + "' was null and was unable to invoke");
         }
-        throw new ELException("Identity '" + image + "' does not reference a MethodExpression instance, returned type: " + obj
+        throw new ExpressionException("Identity '" + image + "' does not reference a MethodExpression instance, returned type: " + obj
                 .getClass().getName());
     }
 }

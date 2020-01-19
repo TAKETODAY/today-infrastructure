@@ -49,7 +49,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import cn.taketoday.context.utils.NumberUtils;
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.PropertyNotFoundException;
 
 /**
@@ -63,7 +63,7 @@ public abstract class ExpressionSupport {
 
     private final static Long ZERO = Long.valueOf(0L);
 
-    public final static void throwUnhandled(Object base, Object property) throws ELException {
+    public final static void throwUnhandled(Object base, Object property) throws ExpressionException {
         if (base == null) {
             throw new PropertyNotFoundException(get("error.resolver.unhandled.null", property));
         }
@@ -79,7 +79,7 @@ public abstract class ExpressionSupport {
      * @throws EvaluationException
      */
     @SuppressWarnings("unchecked")
-    public final static int compare(final Object obj0, final Object obj1) throws ELException {
+    public final static int compare(final Object obj0, final Object obj1) throws ExpressionException {
         if (obj0 == obj1 || equals(obj0, obj1)) {
             return 0;
         }
@@ -112,7 +112,7 @@ public abstract class ExpressionSupport {
         if (obj1 instanceof Comparable) {
             return (obj0 != null) ? -(((Comparable<Object>) obj1).compareTo(obj0)) : -1;
         }
-        throw new ELException(get("error.compare", obj0, obj1));
+        throw new ExpressionException(get("error.compare", obj0, obj1));
     }
 
     /**
@@ -123,7 +123,7 @@ public abstract class ExpressionSupport {
      * @return true if the objects compared equal
      * @throws EvaluationException
      */
-    public final static boolean equals(final Object obj0, final Object obj1) throws ELException {
+    public final static boolean equals(final Object obj0, final Object obj1) throws ExpressionException {
         if (obj0 == obj1) {
             return true;
         }

@@ -26,15 +26,15 @@ package cn.taketoday.expression;
  * <code>MethodExpression</code> that encapsulates the parsed expression. The
  * {@link FunctionMapper} is used at parse time, not evaluation time, so one is
  * not needed to evaluate an expression using this class. However, the
- * {@link ELContext} is needed at evaluation time.
+ * {@link ExpressionContext} is needed at evaluation time.
  * </p>
  *
  * <p>
  * The {@link #getMethodInfo} and {@link #invoke} methods will evaluate the
- * expression each time they are called. The {@link ELResolver} in the
+ * expression each time they are called. The {@link ExpressionResolver} in the
  * <code>ELContext</code> is used to resolve the top-level variables and to
  * determine the behavior of the <code>.</code> and <code>[]</code> operators.
- * For any of the two methods, the {@link cn.taketoday.expression.ELResolver#getValue} method
+ * For any of the two methods, the {@link cn.taketoday.expression.ExpressionResolver#getValue} method
  * is used to resolve all properties up to but excluding the last one. This
  * provides the <code>base</code> object on which the method appears. If the
  * <code>base</code> object is null, a <code>PropertyNotFoundException</code>
@@ -49,7 +49,7 @@ package cn.taketoday.expression;
  * See the notes about comparison, serialization and immutability in the
  * {@link Expression} javadocs.
  *
- * @see ELResolver
+ * @see ExpressionResolver
  * @see Expression
  * @see ExpressionFactory
  * @since JSP 2.1
@@ -73,12 +73,12 @@ public abstract class MethodExpression extends Expression {
      *             variable or property does not exist or is not readable.
      * @throws MethodNotFoundException
      *             if no suitable method can be found.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing property or variable
      *             resolution. The thrown exception must be included as the cause
      *             property of this exception, if available.
      */
-    public abstract MethodInfo getMethodInfo(ELContext context);
+    public abstract MethodInfo getMethodInfo(ExpressionContext context);
 
     /**
      * If a String literal is specified as the expression, returns the String
@@ -109,12 +109,12 @@ public abstract class MethodExpression extends Expression {
      *             variable or property does not exist or is not readable.
      * @throws MethodNotFoundException
      *             if no suitable method can be found.
-     * @throws ELException
+     * @throws ExpressionException
      *             if a String literal is specified and expectedReturnType of the
      *             MethodExpression is void or if the coercion of the String literal
      *             to the expectedReturnType yields an error (see Section "1.18 Type
      *             Conversion").
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing property or variable
      *             resolution. The thrown exception must be included as the cause
      *             property of this exception, if available. If the exception thrown
@@ -122,7 +122,7 @@ public abstract class MethodExpression extends Expression {
      *             <code>cause</code> and pass it to the <code>ELException</code>
      *             constructor.
      */
-    public abstract Object invoke(ELContext context, Object[] params);
+    public abstract Object invoke(ExpressionContext context, Object[] params);
 
     /**
      * Return whether this MethodExpression was created with parameters.

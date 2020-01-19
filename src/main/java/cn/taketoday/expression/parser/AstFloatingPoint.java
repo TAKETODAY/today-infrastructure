@@ -42,7 +42,7 @@ package cn.taketoday.expression.parser;
 
 import java.math.BigDecimal;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
@@ -70,11 +70,11 @@ public final class AstFloatingPoint extends SimpleNode {
         return this.number;
     }
 
-    public Object getValue(EvaluationContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ExpressionException {
         return getFloatingPoint();
     }
 
-    public Class<?> getType(EvaluationContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
         return getFloatingPoint().getClass();
     }
 }

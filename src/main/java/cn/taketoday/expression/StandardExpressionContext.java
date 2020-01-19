@@ -54,17 +54,17 @@ import cn.taketoday.expression.lang.LocalBeanNameResolver;
  *
  * @since EL 3.0
  */
-public class StandardELContext extends ELContext {
+public class StandardExpressionContext extends ExpressionContext {
 
-    private final ELResolver elResolver;
-    private final CompositeELResolver customResolvers;
+    private final ExpressionResolver elResolver;
+    private final CompositeExpressionResolver customResolvers;
 
     private final FunctionMapper functionMapper;
     private final VariableMapper variableMapper;
 
     private final Map<String, Object> beans = new HashMap<>(8);
 
-    private final ELContext delegate;
+    private final ExpressionContext delegate;
 
     /**
      * Construct a default ELContext for a stand-alone environment.
@@ -73,46 +73,46 @@ public class StandardELContext extends ELContext {
      * <code>CompositeELResover</code> consists of an ordered list of
      * <code>ELResolver</code>s.
      * <ol>
-     * <li>A {@link BeanNameELResolver} for beans defined locally</li>
+     * <li>A {@link BeanNameExpressionResolver} for beans defined locally</li>
      * <li>Any custom <code>ELResolver</code>s</li>
      * <li>An <code>ELResolver</code> supporting the collection operations</li>
-     * <li>A {@link StaticFieldELResolver} for resolving static fields</li>
-     * <li>A {@link MapELResolver} for resolving Map properties</li>
-     * <li>A {@link ResourceBundleELResolver} for resolving ResourceBundle
+     * <li>A {@link StaticFieldExpressionResolver} for resolving static fields</li>
+     * <li>A {@link MapExpressionResolver} for resolving Map properties</li>
+     * <li>A {@link ResourceBundleExpressionResolver} for resolving ResourceBundle
      * properties</li>
-     * <li>A {@link ListELResolver} for resolving List properties</li>
-     * <li>An {@link ArrayELResolver} for resolving array properties</li>
-     * <li>A {@link BeanELResolver} for resolving bean properties</li>
+     * <li>A {@link ListExpressionResolver} for resolving List properties</li>
+     * <li>An {@link ArrayExpressionResolver} for resolving array properties</li>
+     * <li>A {@link BeanExpressionResolver} for resolving bean properties</li>
      * </ol>
      * </p>
      * 
      * @param factory
      *            The ExpressionFactory
      */
-    public StandardELContext(ExpressionFactory factory) {
+    public StandardExpressionContext(ExpressionFactory factory) {
 
         delegate = null;
         variableMapper = new DefaultVariableMapper();
         functionMapper = new DefaultFunctionMapper(factory.getInitFunctionMap());
 
-        customResolvers = new CompositeELResolver(2);
+        customResolvers = new CompositeExpressionResolver(2);
 
-        CompositeELResolver resolver = new CompositeELResolver();
+        CompositeExpressionResolver resolver = new CompositeExpressionResolver();
 
         resolver.add(customResolvers);
-        resolver.add(new BeanNameELResolver(new LocalBeanNameResolver(beans)));
+        resolver.add(new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)));
 
-        resolver.add(new StaticFieldELResolver());
-        resolver.add(new MapELResolver());
-        resolver.add(new ResourceBundleELResolver());
-        resolver.add(new ListELResolver());
-        resolver.add(new ArrayELResolver());
+        resolver.add(new StaticFieldExpressionResolver());
+        resolver.add(new MapExpressionResolver());
+        resolver.add(new ResourceBundleExpressionResolver());
+        resolver.add(new ListExpressionResolver());
+        resolver.add(new ArrayExpressionResolver());
 
-        ELResolver streamELResolver = factory.getStreamELResolver();
+        ExpressionResolver streamELResolver = factory.getStreamELResolver();
         if (streamELResolver != null) {
             resolver.add(streamELResolver);
         }
-        resolver.add(new BeanELResolver());
+        resolver.add(new BeanExpressionResolver());
 
         this.elResolver = resolver;
     }
@@ -123,14 +123,14 @@ public class StandardELContext extends ELContext {
      * @param context
      *            The ELContext that acts as a delegate in most cases
      */
-    public StandardELContext(ELContext context) {
+    public StandardExpressionContext(ExpressionContext context) {
         this.delegate = context;
         // Copy all attributes except map and resolved
-        CompositeELResolver elr = new CompositeELResolver();
-        customResolvers = new CompositeELResolver();
+        CompositeExpressionResolver elr = new CompositeExpressionResolver();
+        customResolvers = new CompositeExpressionResolver();
 
         elr.add(customResolvers);
-        elr.add(new BeanNameELResolver(new LocalBeanNameResolver(beans)));
+        elr.add(new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)));
         elr.add(context.getELResolver());
 
         elResolver = elr;
@@ -162,7 +162,7 @@ public class StandardELContext extends ELContext {
      * @return The ELResolver for this context.
      */
     @Override
-    public ELResolver getELResolver() {
+    public ExpressionResolver getELResolver() {
         return elResolver;
     }
 
@@ -174,7 +174,7 @@ public class StandardELContext extends ELContext {
      * @param cELResolver
      *            The new ELResolver to be added to the context
      */
-    public void addELResolver(ELResolver cELResolver) {
+    public void addELResolver(ExpressionResolver cELResolver) {
         customResolvers.add(cELResolver);
     }
 

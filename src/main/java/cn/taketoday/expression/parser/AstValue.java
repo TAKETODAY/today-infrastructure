@@ -42,8 +42,8 @@ package cn.taketoday.expression.parser;
 
 import java.lang.reflect.Method;
 
-import cn.taketoday.expression.ELException;
-import cn.taketoday.expression.ELResolver;
+import cn.taketoday.expression.ExpressionException;
+import cn.taketoday.expression.ExpressionResolver;
 import cn.taketoday.expression.ImportHandler;
 import cn.taketoday.expression.MethodInfo;
 import cn.taketoday.expression.PropertyNotFoundException;
@@ -79,7 +79,7 @@ public final class AstValue extends SimpleNode {
         super(id);
     }
 
-    public Class<?> getType(EvaluationContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
         Target t = getTarget(ctx);
         if (t.isMethodCall()) {
             return null;
@@ -93,7 +93,7 @@ public final class AstValue extends SimpleNode {
         return ret;
     }
 
-    public ValueReference getValueReference(EvaluationContext ctx) throws ELException {
+    public ValueReference getValueReference(EvaluationContext ctx) throws ExpressionException {
         Target t = getTarget(ctx);
         if (t.isMethodCall()) {
             return null;
@@ -113,9 +113,9 @@ public final class AstValue extends SimpleNode {
         return null;
     }
 
-    private Object getValue(Object base, Node child, EvaluationContext ctx) throws ELException {
+    private Object getValue(Object base, Node child, EvaluationContext ctx) throws ExpressionException {
 
-        final ELResolver resolver = ctx.getELResolver();
+        final ExpressionResolver resolver = ctx.getELResolver();
         final Object property = child.getValue(ctx);
         final AstMethodArguments args = getArguments(child);
         if (args != null) {
@@ -124,7 +124,7 @@ public final class AstValue extends SimpleNode {
                 ctx.setPropertyResolved(false);
                 return resolver.invoke(ctx, base, property, args.getParamTypes(), args.getParameters(ctx));
             }
-            throw new ELException(MessageFactory.get("error.method.name", property));
+            throw new ExpressionException(MessageFactory.get("error.method.name", property));
         }
         Object value = null;
         if (property != null) {
@@ -157,7 +157,7 @@ public final class AstValue extends SimpleNode {
         }
     }
 
-    private final Target getTarget(EvaluationContext ctx) throws ELException {
+    private final Target getTarget(EvaluationContext ctx) throws ExpressionException {
         // evaluate expr-a to value-a
         Object base = getBase(ctx);
 
@@ -186,7 +186,7 @@ public final class AstValue extends SimpleNode {
         return new Target(base, this.children[propCount]);
     }
 
-    public Object getValue(EvaluationContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ExpressionException {
         Object base = getBase(ctx);
         int propCount = this.jjtGetNumChildren();
         int i = 1;
@@ -197,7 +197,7 @@ public final class AstValue extends SimpleNode {
         return base;
     }
 
-    public boolean isReadOnly(EvaluationContext ctx) throws ELException {
+    public boolean isReadOnly(EvaluationContext ctx) throws ExpressionException {
         Target t = getTarget(ctx);
         if (t.isMethodCall()) {
             return true;
@@ -211,13 +211,13 @@ public final class AstValue extends SimpleNode {
         return ret;
     }
 
-    public void setValue(EvaluationContext ctx, Object value) throws ELException {
+    public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
         Target t = getTarget(ctx);
         if (t.isMethodCall()) {
             throw new PropertyNotWritableException(MessageFactory.get("error.syntax.set"));
         }
         Object property = t.suffixNode.getValue(ctx);
-        ELResolver elResolver = ctx.getELResolver();
+        ExpressionResolver elResolver = ctx.getELResolver();
 
         /*
          * Note by kchung 10/2013 The spec does not say if the value should be cocerced
@@ -247,7 +247,7 @@ public final class AstValue extends SimpleNode {
         }
     }
 
-    public MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ELException {
+    public MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ExpressionException {
         Target t = getTarget(ctx);
         if (t.isMethodCall()) {
             return null;
@@ -257,7 +257,7 @@ public final class AstValue extends SimpleNode {
         return new MethodInfo(m.getName(), m.getReturnType(), m.getParameterTypes());
     }
 
-    public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ELException {
+    public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ExpressionException {
         Target t = getTarget(ctx);
         if (t.isMethodCall()) {
             AstMethodArguments args = getArguments(t.suffixNode);
@@ -268,7 +268,7 @@ public final class AstValue extends SimpleNode {
             String method = (String) t.suffixNode.getValue(ctx);
 
             ctx.setPropertyResolved(false);
-            ELResolver resolver = ctx.getELResolver();
+            ExpressionResolver resolver = ctx.getELResolver();
             return resolver.invoke(ctx, t.base, method, paramTypes, params);
         }
         Object property = t.suffixNode.getValue(ctx);

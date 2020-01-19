@@ -50,9 +50,9 @@ import cn.taketoday.context.Constant;
  * @author TODAY <br>
  *         2019-02-23 14:26
  */
-public class ELParserTokenManager implements ELParserConstants {
+public class ExpressionParserTokenManager implements ELParserConstants {
 
-    private final Stack<Integer> stack = new Stack<Integer>();
+    private final Stack<Integer> stack = new Stack<>();
 
     /** Token literal values. */
     public static final String[] jjstrLiteralImages = { //
@@ -90,11 +90,11 @@ public class ELParserTokenManager implements ELParserConstants {
 
     protected final SimpleCharStream input_stream;
 
-    public ELParserTokenManager(SimpleCharStream stream) {
+    public ExpressionParserTokenManager(SimpleCharStream stream) {
         this.input_stream = stream;
     }
 
-    public ELParserTokenManager(SimpleCharStream stream, int lexState) {
+    public ExpressionParserTokenManager(SimpleCharStream stream, int lexState) {
         this(stream);
         SwitchTo(lexState);
     }

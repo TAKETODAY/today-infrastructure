@@ -52,15 +52,15 @@ import cn.taketoday.expression.parser.Node;
  * of <code>MethodExpression</code> that encapsulates the parsed expression. The
  * {@link FunctionMapper} is used at parse time, not evaluation time, so one is
  * not needed to evaluate an expression using this class. However, the
- * {@link ELContext} is needed at evaluation time.
+ * {@link ExpressionContext} is needed at evaluation time.
  * </p>
  *
  * <p>
  * The {@link #getMethodInfo} and {@link #invoke} methods will evaluate the
- * expression each time they are called. The {@link ELResolver} in the
+ * expression each time they are called. The {@link ExpressionResolver} in the
  * <code>ELContext</code> is used to resolve the top-level variables and to
  * determine the behavior of the <code>.</code> and <code>[]</code> operators.
- * For any of the two methods, the {@link ELResolver#getValue} method is used to
+ * For any of the two methods, the {@link ExpressionResolver#getValue} method is used to
  * resolve all properties up to but excluding the last one. This provides the
  * <code>base</code> object on which the method appears. If the
  * <code>base</code> object is null, a <code>NullPointerException</code> must be
@@ -75,7 +75,7 @@ import cn.taketoday.expression.parser.Node;
  * See the notes about comparison, serialization and immutability in the
  * {@link Expression} javadocs.
  *
- * @see cn.taketoday.expression.ELResolver
+ * @see cn.taketoday.expression.ExpressionResolver
  * @see cn.taketoday.expression.Expression
  * @see cn.taketoday.expression.ExpressionFactory
  * @see cn.taketoday.expression.MethodExpression
@@ -149,19 +149,19 @@ public final class MethodExpressionImpl extends MethodExpression {
      *             variable or property does not exist or is not readable.
      * @throws MethodNotFoundException
      *             if no suitable method can be found.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing property or variable
      *             resolution. The thrown exception must be included as the cause
      *             property of this exception, if available.
-     * @see cn.taketoday.expression.MethodExpression#getMethodInfo(cn.taketoday.expression.ELContext)
+     * @see cn.taketoday.expression.MethodExpression#getMethodInfo(cn.taketoday.expression.ExpressionContext)
      */
-    public MethodInfo getMethodInfo(ELContext context)
-            throws PropertyNotFoundException, MethodNotFoundException, ELException//
+    public MethodInfo getMethodInfo(ExpressionContext context)
+            throws PropertyNotFoundException, MethodNotFoundException, ExpressionException//
     {
         return getNode().getMethodInfo(new EvaluationContext(context), this.paramTypes);
     }
 
-    private final Node getNode() throws ELException {
+    private final Node getNode() throws ExpressionException {
         final Node node = this.node;
         if (node == null) {
             return this.node = ExpressionFactory.createNode(this.expr);
@@ -210,18 +210,18 @@ public final class MethodExpressionImpl extends MethodExpression {
      *             variable or property does not exist or is not readable.
      * @throws MethodNotFoundException
      *             if no suitable method can be found.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing property or variable
      *             resolution. The thrown exception must be included as the cause
      *             property of this exception, if available. If the exception thrown
      *             is an <code>InvocationTargetException</code>, extract its
      *             <code>cause</code> and pass it to the <code>ELException</code>
      *             constructor.
-     * @see cn.taketoday.expression.MethodExpression#invoke(cn.taketoday.expression.ELContext,
+     * @see cn.taketoday.expression.MethodExpression#invoke(cn.taketoday.expression.ExpressionContext,
      *      java.lang.Object[])
      */
-    public Object invoke(final ELContext context, Object[] params) throws PropertyNotFoundException, //
-            MethodNotFoundException, ELException //
+    public Object invoke(final ExpressionContext context, Object[] params) throws PropertyNotFoundException, //
+            MethodNotFoundException, ExpressionException //
     {
         Object value = this.getNode().invoke(new EvaluationContext(context), this.paramTypes, params);
 
@@ -231,7 +231,7 @@ public final class MethodExpressionImpl extends MethodExpression {
                 value = context.convertToType(value, expectedType);
             }
             catch (IllegalArgumentException ex) {
-                throw new ELException(ex);
+                throw new ExpressionException(ex);
             }
         }
 

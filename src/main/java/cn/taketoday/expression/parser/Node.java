@@ -40,8 +40,8 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ELContext;
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionContext;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.MethodInfo;
 import cn.taketoday.expression.ValueReference;
 import cn.taketoday.expression.lang.EvaluationContext;
@@ -91,21 +91,21 @@ public interface Node {
 
     String getImage();
 
-    Object getValue(EvaluationContext ctx) throws ELException;
+    Object getValue(EvaluationContext ctx) throws ExpressionException;
 
-    void setValue(EvaluationContext ctx, Object value) throws ELException;
+    void setValue(EvaluationContext ctx, Object value) throws ExpressionException;
 
-    Class<?> getType(EvaluationContext ctx) throws ELException;
+    Class<?> getType(EvaluationContext ctx) throws ExpressionException;
 
-    ValueReference getValueReference(EvaluationContext ctx) throws ELException;
+    ValueReference getValueReference(EvaluationContext ctx) throws ExpressionException;
 
-    boolean isReadOnly(EvaluationContext ctx) throws ELException;
+    boolean isReadOnly(EvaluationContext ctx) throws ExpressionException;
 
-    void accept(NodeVisitor visitor, ELContext context) throws ELException;
+    void accept(NodeVisitor visitor, ExpressionContext context) throws ExpressionException;
 
-    MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ELException;
+    MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ExpressionException;
 
-    Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ELException;
+    Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ExpressionException;
 
     boolean equals(Object n);
 

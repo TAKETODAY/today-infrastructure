@@ -36,7 +36,7 @@ import cn.taketoday.context.utils.ConvertUtils;
  * Functions. This is used only in parsing.</li>
  * <li>a reference to {@link VariableMapper} that will be used to resolve EL
  * Variables. This is used only in parsing.</li>
- * <li>a reference to the base {@link ELResolver} that will be consulted to
+ * <li>a reference to the base {@link ExpressionResolver} that will be consulted to
  * resolve model objects and their properties</li>
  * <li>a collection of all the relevant context objects for use by
  * <code>ELResolver</code>s</li>
@@ -68,7 +68,7 @@ import cn.taketoday.context.utils.ConvertUtils;
  * </p>
  *
  * <p>
- * When used in a stand-alone environment, {@link StandardELContext} provides a
+ * When used in a stand-alone environment, {@link StandardExpressionContext} provides a
  * default <code>ELContext</code>, which is managed and modified by
  * {@link ExpressionManager}.
  *
@@ -78,16 +78,16 @@ import cn.taketoday.context.utils.ConvertUtils;
  * never share an <code>ELContext</code> instance between two or more threads.
  * </p>
  *
- * @see ELResolver
+ * @see ExpressionResolver
  * @see FunctionMapper
  * @see VariableMapper
  * @see ImportHandler
  * @see LambdaExpression
- * @see StandardELContext
+ * @see StandardExpressionContext
  * @see javax.servlet.jsp.JspContext
  * @since EL 2.1 and EL 3.0
  */
-public abstract class ELContext {
+public abstract class ExpressionContext {
 
     private boolean resolved;
     private HashMap<Class<?>, Object> map;
@@ -104,11 +104,11 @@ public abstract class ELContext {
      * if resolved is true.
      *
      * <p>
-     * The {@link CompositeELResolver} checks this property to determine whether it
+     * The {@link CompositeExpressionResolver} checks this property to determine whether it
      * should consider or skip other component resolvers.
      * </p>
      *
-     * @see CompositeELResolver
+     * @see CompositeExpressionResolver
      * @param resolved
      *            true if the property has been resolved, or false if not.
      */
@@ -121,11 +121,11 @@ public abstract class ELContext {
      * given (base, property) pair.
      *
      * <p>
-     * The {@link CompositeELResolver} checks this property to determine whether it
+     * The {@link CompositeExpressionResolver} checks this property to determine whether it
      * should consider or skip other component resolvers.
      * </p>
      *
-     * @see CompositeELResolver
+     * @see CompositeExpressionResolver
      * @param base
      *            The base object
      * @param property
@@ -138,15 +138,15 @@ public abstract class ELContext {
     }
 
     /**
-     * Returns whether an {@link ELResolver} has successfully resolved a given
+     * Returns whether an {@link ExpressionResolver} has successfully resolved a given
      * (base, property) pair.
      *
      * <p>
-     * The {@link CompositeELResolver} checks this property to determine whether it
+     * The {@link CompositeExpressionResolver} checks this property to determine whether it
      * should consider or skip other component resolvers.
      * </p>
      *
-     * @see CompositeELResolver
+     * @see CompositeExpressionResolver
      * @return true if the property has been resolved, or false if not.
      */
     public boolean isPropertyResolved() {
@@ -237,7 +237,7 @@ public abstract class ELContext {
      * @return The resolver to be consulted for variable and property resolution
      *         during expression evaluation.
      */
-    public abstract ELResolver getELResolver();
+    public abstract ExpressionResolver getELResolver();
 
     /**
      * Retrieves the <code>ImportHandler</code> associated with this
@@ -386,7 +386,7 @@ public abstract class ELContext {
      *            The object to convert.
      * @param targetType
      *            The target type for the conversion.
-     * @throws ELException
+     * @throws ExpressionException
      *             thrown if errors occur.
      * @since EL 3.0
      */
@@ -401,7 +401,7 @@ public abstract class ELContext {
             if (typeConverter != null) {
                 return typeConverter.convert(targetType, obj);
             }
-            final ELResolver elResolver = getELResolver();
+            final ExpressionResolver elResolver = getELResolver();
             if (elResolver != null) {
                 Object res = elResolver.convertToType(this, obj, targetType);
                 if (isPropertyResolved()) {

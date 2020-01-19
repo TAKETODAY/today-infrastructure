@@ -40,7 +40,7 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.expression.lang.ExpressionArithmetic;
 
@@ -54,7 +54,7 @@ public final class AstMod extends ArithmeticNode {
     }
 
     public Object getValue(EvaluationContext ctx)
-            throws ELException {
+            throws ExpressionException {
         Object obj0 = this.children[0].getValue(ctx);
         Object obj1 = this.children[1].getValue(ctx);
         return ExpressionArithmetic.mod(obj0, obj1);

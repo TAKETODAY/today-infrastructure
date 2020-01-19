@@ -23,7 +23,7 @@ package cn.taketoday.expression;
  *
  * <p>
  * While evaluating an expression, the <code>ELResolver</code> associated with
- * the {@link ELContext} is consulted to do the initial resolution of the first
+ * the {@link ExpressionContext} is consulted to do the initial resolution of the first
  * variable of an expression. It is also consulted when a <code>.</code> or
  * <code>[]</code> operator is encountered.
  *
@@ -75,7 +75,7 @@ package cn.taketoday.expression;
  * Though only a single <code>ELResolver</code> is associated with an
  * <code>ELContext</code>, there are usually multiple resolvers considered for
  * any given variable or property resolution. <code>ELResolver</code>s are
- * combined together using {@link CompositeELResolver}s, to define rich
+ * combined together using {@link CompositeExpressionResolver}s, to define rich
  * semantics for evaluating an expression.
  * </p>
  *
@@ -105,31 +105,14 @@ package cn.taketoday.expression;
  * design-time or runtime.
  * </p>
  *
- * @see CompositeELResolver
- * @see ELContext#getELResolver
+ * @see CompositeExpressionResolver
+ * @see ExpressionContext#getELResolver
  * @since JSP 2.1
  */
-public abstract class ELResolver {
+public abstract class ExpressionResolver {
 
     // --------------------------------------------------------- Constants
 
-    /**
-     * <p>
-     * The attribute name of the named attribute in the
-     * <code>FeatureDescriptor</code> that specifies the runtime type of the
-     * variable or property.
-     * </p>
-     */
-    public static final String TYPE = "type";
-
-    /**
-     * <p>
-     * The attribute name of the named attribute in the
-     * <code>FeatureDescriptor</code> that specifies whether the variable or
-     * property can be resolved at runtime.
-     * </p>
-     */
-    public static final String RESOLVABLE_AT_DESIGN_TIME = "resolvableAtDesignTime";
 
     /**
      * Attempts to resolve the given <code>property</code> object on the given
@@ -159,12 +142,12 @@ public abstract class ELResolver {
      *             if the given (base, property) pair is handled by this
      *             <code>ELResolver</code> but the specified variable or property
      *             does not exist or is not readable.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public abstract Object getValue(ELContext context, Object base, Object property);
+    public abstract Object getValue(ExpressionContext context, Object base, Object property);
 
     /**
      * Attempts to resolve and invoke the given <code>method</code> on the given
@@ -202,7 +185,7 @@ public abstract class ELResolver {
      *         has a <code>void</code> return type).
      * @throws MethodNotFoundException
      *             if no suitable method can be found.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing (base, method)
      *             resolution. The thrown exception must be included as the cause
      *             property of this exception, if available. If the exception thrown
@@ -211,7 +194,7 @@ public abstract class ELResolver {
      *             constructor.
      * @since EL 2.2
      */
-    public Object invoke(ELContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
+    public Object invoke(ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
         return null;
     }
 
@@ -231,7 +214,7 @@ public abstract class ELResolver {
      *
      * <p>
      * This is not always the same as <code>getValue().getClass()</code>. For
-     * example, in the case of an {@link ArrayELResolver}, the <code>getType</code>
+     * example, in the case of an {@link ArrayExpressionResolver}, the <code>getType</code>
      * method will return the element type of the array, which might be a superclass
      * of the type of the actual element that is currently in the specified array
      * element.
@@ -251,12 +234,12 @@ public abstract class ELResolver {
      *             if the given (base, property) pair is handled by this
      *             <code>ELResolver</code> but the specified variable or property
      *             does not exist or is not readable.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public abstract Class<?> getType(ELContext context, Object base, Object property);
+    public abstract Class<?> getType(ExpressionContext context, Object base, Object property);
 
     /**
      * Attempts to set the value of the given <code>property</code> object on the
@@ -289,12 +272,12 @@ public abstract class ELResolver {
      *             if the given (base, property) pair is handled by this
      *             <code>ELResolver</code> but the specified variable or property is
      *             not writable.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while attempting to set the property
      *             or variable. The thrown exception must be included as the cause
      *             property of this exception, if available.
      */
-    public abstract void setValue(ELContext context, Object base, Object property, Object value);
+    public abstract void setValue(ExpressionContext context, Object base, Object property, Object value);
 
     /**
      * For a given <code>base</code> and <code>property</code>, attempts to
@@ -325,12 +308,12 @@ public abstract class ELResolver {
      *             if the given (base, property) pair is handled by this
      *             <code>ELResolver</code> but the specified variable or property
      *             does not exist.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public abstract boolean isReadOnly(ELContext context, Object base, Object property);
+    public abstract boolean isReadOnly(ExpressionContext context, Object base, Object property);
 
     /**
      * Converts an object to a specific type.
@@ -346,10 +329,10 @@ public abstract class ELResolver {
      *            The object to convert.
      * @param targetType
      *            The target type for the convertion.
-     * @throws ELException
+     * @throws ExpressionException
      *             thrown if errors occur.
      */
-    public Object convertToType(ELContext context, Object obj, Class<?> targetType) {
+    public Object convertToType(ExpressionContext context, Object obj, Class<?> targetType) {
         return null;
     }
 }

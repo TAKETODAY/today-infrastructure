@@ -45,7 +45,7 @@ package cn.taketoday.expression;
  * bean object given its name, to set a value to an existing bean, or to create
  * a bean with the value.
  * 
- * @see BeanNameELResolver
+ * @see BeanNameExpressionResolver
  *
  * @since EL 3.0
  */

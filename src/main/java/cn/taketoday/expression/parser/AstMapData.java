@@ -43,7 +43,7 @@ package cn.taketoday.expression.parser;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
@@ -74,7 +74,7 @@ public class AstMapData extends SimpleNode {
         }
         // It is error to have mixed set/map entries
         if (set.size() > 0 && map.size() > 0) {
-            throw new ELException("Cannot mix set entry with map entry.");
+            throw new ExpressionException("Cannot mix set entry with map entry.");
         }
         if (map.size() > 0) {
             return map;

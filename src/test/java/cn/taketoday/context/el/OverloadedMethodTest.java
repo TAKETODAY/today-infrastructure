@@ -48,8 +48,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.expression.ELContext;
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionContext;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
@@ -64,7 +64,7 @@ public class OverloadedMethodTest {
 
     ExpressionProcessor elp;
     ExpressionFactory exprFactory;
-    ELContext elContext;
+    ExpressionContext elContext;
 
     @Before
     public void setUp() {
@@ -194,7 +194,7 @@ public class OverloadedMethodTest {
             System.err.println(invoke);
             fail("testMethodExprInvoking Failed");
         }
-        catch (ELException e) {
+        catch (ExpressionException e) {
             System.out.println("The following is an expected exception:");
             e.printStackTrace(System.out);
         }

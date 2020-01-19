@@ -57,8 +57,8 @@ import java.util.function.Supplier;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.expression.ELContext;
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionContext;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.MethodNotFoundException;
 import cn.taketoday.expression.PropertyNotFoundException;
 import cn.taketoday.expression.lang.ExpressionSupport;
@@ -110,10 +110,10 @@ public abstract class ReflectionUtil {
      * @param property
      *            The property
      * @return The PropertyDescriptor for the base with the given property
-     * @throws ELException
+     * @throws ExpressionException
      * @throws PropertyNotFoundException
      */
-    public static PropertyDescriptor getPropertyDescriptor(final Object base, final Object property) throws ELException {
+    public static PropertyDescriptor getPropertyDescriptor(final Object base, final Object property) throws ExpressionException {
 
         String name = ExpressionSupport.coerceToString(property);
         try {
@@ -124,7 +124,7 @@ public abstract class ReflectionUtil {
             }
         }
         catch (IntrospectionException ie) {
-            throw new ELException(ie);
+            throw new ExpressionException(ie);
         }
         throw new PropertyNotFoundException(get("error.property.notfound", base, name));
     }
@@ -133,29 +133,29 @@ public abstract class ReflectionUtil {
      * This method duplicates code in javax.el.ELUtil. When making changes keep the
      * code in sync.
      */
-    public static Object invokeMethod(ELContext context, Method m, Object base, Object[] params) {
+    public static Object invokeMethod(ExpressionContext context, Method m, Object base, Object[] params) {
 
         Object[] parameters = buildParameters(context, m.getParameterTypes(), m.isVarArgs(), params);
         try {
             return m.invoke(base, parameters);
         }
         catch (IllegalAccessException | IllegalArgumentException iae) {
-            throw new ELException(iae);
+            throw new ExpressionException(iae);
         }
         catch (InvocationTargetException ite) {
-            throw new ELException(ite.getCause());
+            throw new ExpressionException(ite.getCause());
         }
     }
 
-    public static Object invokeConstructor(ELContext context, Constructor<?> c, Object[] params) {
+    public static Object invokeConstructor(ExpressionContext context, Constructor<?> c, Object[] params) {
         try {
             return c.newInstance(buildParameters(context, c.getParameterTypes(), c.isVarArgs(), params));
         }
         catch (IllegalAccessException | IllegalArgumentException iae) {
-            throw new ELException(iae);
+            throw new ExpressionException(iae);
         }
         catch (InvocationTargetException | InstantiationException ie) {
-            throw new ELException(ie.getCause());
+            throw new ExpressionException(ie.getCause());
         }
     }
 
@@ -656,7 +656,7 @@ public abstract class ReflectionUtil {
         return null;
     }
 
-    static Object[] buildParameters(ELContext context, Class<?>[] parameterTypes,
+    static Object[] buildParameters(ExpressionContext context, Class<?>[] parameterTypes,
                                     boolean isVarArgs, Object[] params) {
         Object[] parameters = null;
         if (parameterTypes.length > 0) {

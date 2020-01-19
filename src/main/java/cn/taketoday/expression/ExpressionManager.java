@@ -53,17 +53,17 @@ import java.lang.reflect.Method;
  */
 public class ExpressionManager {
 
-    private final StandardELContext elContext;
+    private final StandardExpressionContext elContext;
     private final ExpressionFactory exprFactory;
 
-    public ExpressionManager(StandardELContext elContext, ExpressionFactory exprFactory) {
+    public ExpressionManager(StandardExpressionContext elContext, ExpressionFactory exprFactory) {
         this.elContext = elContext;
         this.exprFactory = exprFactory;
     }
     
     public ExpressionManager() {
         this.exprFactory = ExpressionFactory.getSharedInstance();
-        this.elContext = new StandardELContext(exprFactory);
+        this.elContext = new StandardExpressionContext(exprFactory);
     }
 
     /**
@@ -82,7 +82,7 @@ public class ExpressionManager {
      *
      * @return The ELContext used for parsing and evaluating EL expressions..
      */
-    public StandardELContext getELContext() {
+    public StandardExpressionContext getELContext() {
         return elContext;
     }
 
@@ -95,7 +95,7 @@ public class ExpressionManager {
      *            The BeanNameResolver to be registered.
      */
     public void addBeanNameResolver(BeanNameResolver bnr) {
-        getELContext().addELResolver(new BeanNameELResolver(bnr));
+        getELContext().addELResolver(new BeanNameExpressionResolver(bnr));
     }
 
     /**
@@ -107,9 +107,9 @@ public class ExpressionManager {
      * @param elr
      *            The ELResolver to be added to the list of ELResolvers in
      *            ELContext.
-     * @see StandardELContext#addELResolver
+     * @see StandardExpressionContext#addELResolver
      */
-    public void addELResolver(ELResolver elr) {
+    public void addELResolver(ExpressionResolver elr) {
         getELContext().addELResolver(elr);
     }
 
@@ -147,10 +147,10 @@ public class ExpressionManager {
      * 
      * @param staticMemberName
      *            The full class name of the class to be imported
-     * @throws ELException
+     * @throws ExpressionException
      *             if the name is not a full class name.
      */
-    public void importStatic(String staticMemberName) throws ELException {
+    public void importStatic(String staticMemberName) throws ExpressionException {
         getELContext().getImportHandler().importStatic(staticMemberName);
     }
 
@@ -160,10 +160,10 @@ public class ExpressionManager {
      * 
      * @param className
      *            The full class name of the class to be imported
-     * @throws ELException
+     * @throws ExpressionException
      *             if the name is not a full class name.
      */
-    public void importClass(String className) throws ELException {
+    public void importClass(String className) throws ExpressionException {
         getELContext().getImportHandler().importClass(className);
     }
 

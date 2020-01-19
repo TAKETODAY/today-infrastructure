@@ -59,7 +59,7 @@ import cn.taketoday.expression.parser.AstValue;
 import cn.taketoday.expression.parser.ExpressionParser;
 import cn.taketoday.expression.parser.Node;
 import cn.taketoday.expression.parser.NodeVisitor;
-import cn.taketoday.expression.stream.StreamELResolver;
+import cn.taketoday.expression.stream.StreamExpressionResolver;
 import cn.taketoday.expression.util.MessageFactory;
 
 /**
@@ -91,7 +91,7 @@ import cn.taketoday.expression.util.MessageFactory;
  *
  * <p>
  * Resolution of model objects is performed at evaluation time, via the
- * {@link ELResolver} associated with the {@link ELContext} passed to the
+ * {@link ExpressionResolver} associated with the {@link ExpressionContext} passed to the
  * <code>ValueExpression</code> or <code>MethodExpression</code>.
  * </p>
  *
@@ -99,7 +99,7 @@ import cn.taketoday.expression.util.MessageFactory;
  * The ELContext object also provides access to the {@link FunctionMapper} and
  * {@link VariableMapper} to be used when parsing the expression. EL function
  * and variable mapping is performed at parse-time, and the results are bound to
- * the expression. Therefore, the {@link ELContext}, {@link FunctionMapper}, and
+ * the expression. Therefore, the {@link ExpressionContext}, {@link FunctionMapper}, and
  * {@link VariableMapper} are not stored for future use and do not have to be
  * <code>Serializable</code>.
  * </p>
@@ -135,7 +135,7 @@ import cn.taketoday.expression.util.MessageFactory;
  *
  * <p>
  * The following types of input are illegal and must cause an
- * {@link ELException} to be thrown:
+ * {@link ExpressionException} to be thrown:
  * <ul>
  * <li>Multiple expressions using different delimiters (e.g.
  * <code>"${employee.firstName}#{employee.lastName}"</code>).</li>
@@ -188,7 +188,7 @@ public class ExpressionFactory implements NodeVisitor {
      *            The object to coerce.
      * @param targetType
      *            The target type for the coercion.
-     * @throws ELException
+     * @throws ExpressionException
      *             thrown if an error results from applying the conversion rules.
      */
     public Object coerceToType(Object obj, Class<?> type) {
@@ -196,11 +196,11 @@ public class ExpressionFactory implements NodeVisitor {
             return ExpressionSupport.coerceToType(obj, type);
         }
         catch (IllegalArgumentException ex) {
-            throw new ELException(ex);
+            throw new ExpressionException(ex);
         }
     }
 
-    protected Node build(final String expression, ELContext context) throws ELException {
+    protected Node build(final String expression, ExpressionContext context) throws ExpressionException {
         final Node n = createNode(expression);
         this.prepare(n, context);
         return n;
@@ -258,14 +258,14 @@ public class ExpressionFactory implements NodeVisitor {
      *            arguments are used for method selection, and this parameter is
      *            ignored.
      * @return The parsed expression
-     * @throws ELException
+     * @throws ExpressionException
      *             Thrown if there are syntactical errors in the provided
      *             expression.
      * @throws NullPointerException
      *             if paramTypes is <code>null</code>.
      */
 
-    public MethodExpression createMethodExpression(ELContext context, String expression, Class<?> expectedReturnType, //
+    public MethodExpression createMethodExpression(ExpressionContext context, String expression, Class<?> expectedReturnType, //
                                                    Class<?>[] expectedParamTypes)//
     {
         MethodExpression methodExpression;
@@ -279,7 +279,7 @@ public class ExpressionFactory implements NodeVisitor {
             methodExpression = new MethodExpressionLiteral(expression, expectedReturnType, expectedParamTypes);
         }
         else {
-            throw new ELException("Not a Valid Method Expression: " + expression);
+            throw new ExpressionException("Not a Valid Method Expression: " + expression);
         }
 
         if (expectedParamTypes == null && !methodExpression.isParametersProvided()) {
@@ -324,12 +324,12 @@ public class ExpressionFactory implements NodeVisitor {
      * @return The parsed expression
      * @throws NullPointerException
      *             Thrown if expectedType is null.
-     * @throws ELException
+     * @throws ExpressionException
      *             Thrown if there are syntactical errors in the provided
      *             expression.
      */
 
-    public ValueExpression createValueExpression(ELContext context, String expression, Class<?> expectedType) {
+    public ValueExpression createValueExpression(ExpressionContext context, String expression, Class<?> expectedType) {
         // if expectedType == null will not convert object
         return new ValueExpressionImpl(expression, build(expression, context), expectedType);
     }
@@ -379,8 +379,8 @@ public class ExpressionFactory implements NodeVisitor {
      * @since EL 3.0
      */
 
-    public ELResolver getStreamELResolver() {
-        return StreamELResolver.getInstance();
+    public ExpressionResolver getStreamELResolver() {
+        return StreamExpressionResolver.getInstance();
     }
 
     /**
@@ -397,10 +397,10 @@ public class ExpressionFactory implements NodeVisitor {
 
     // -----------------------build
 
-    public static Node createNode(final String expr) throws ELException {
+    public static Node createNode(final String expr) throws ExpressionException {
 
         if (expr == null) {
-            throw new ELException(MessageFactory.get("error.null"));
+            throw new ExpressionException(MessageFactory.get("error.null"));
         }
 
         Node node = EXPRESSION_CACHE.get(expr);
@@ -425,7 +425,7 @@ public class ExpressionFactory implements NodeVisitor {
                     }
                     else {
                         if (!type.equals(child.getClass())) {
-                            throw new ELException(MessageFactory.get("error.mixed", expr));
+                            throw new ExpressionException(MessageFactory.get("error.mixed", expr));
                         }
                     }
                 }
@@ -446,14 +446,14 @@ public class ExpressionFactory implements NodeVisitor {
      * expression, as the functions and variables are bound and resolved at parse
      * time, as specified in the spec.
      */
-    protected void prepare(Node node, ELContext context) throws ELException {
+    protected void prepare(Node node, ExpressionContext context) throws ExpressionException {
         node.accept(this, context);
     }
 
     // ------------------------NodeVisitor
 
     @Override
-    public void visit(Node node, ELContext context) throws ELException {
+    public void visit(Node node, ExpressionContext context) throws ExpressionException {
 
         if (node instanceof AstFunction) {
 
@@ -476,16 +476,16 @@ public class ExpressionFactory implements NodeVisitor {
             }
 
             if (fnMapper == null) {
-                throw new ELException(MessageFactory.get("error.fnMapper.null"));
+                throw new ExpressionException(MessageFactory.get("error.fnMapper.null"));
             }
             Method m = fnMapper.resolveFunction(funcNode.getPrefix(), funcNode.getLocalName());
             if (m == null) {
-                throw new ELException(MessageFactory.get("error.fnMapper.method", funcNode.getOutputName()));
+                throw new ExpressionException(MessageFactory.get("error.fnMapper.method", funcNode.getOutputName()));
             }
             int pcnt = m.getParameterTypes().length;
             int acnt = ((AstMethodArguments) node.jjtGetChild(0)).getParameterCount();
             if (acnt != pcnt) {
-                throw new ELException(MessageFactory.get("error.fnMapper.paramcount", funcNode.getOutputName(), "" + pcnt, "" + acnt));
+                throw new ExpressionException(MessageFactory.get("error.fnMapper.paramcount", funcNode.getOutputName(), "" + pcnt, "" + acnt));
             }
         }
         else if (node instanceof AstIdentifier) {

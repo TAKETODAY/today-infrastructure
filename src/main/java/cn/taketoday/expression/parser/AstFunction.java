@@ -45,7 +45,7 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.FunctionMapper;
 import cn.taketoday.expression.LambdaExpression;
 import cn.taketoday.expression.ValueExpression;
@@ -82,17 +82,17 @@ public final class AstFunction extends SimpleNode {
     }
 
     @Override
-    public Class<?> getType(EvaluationContext ctx) throws ELException {
+    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
 
         FunctionMapper fnMapper = ctx.getFunctionMapper();
 
         // quickly validate again for this request
         if (fnMapper == null) {
-            throw new ELException(MessageFactory.get("error.fnMapper.null"));
+            throw new ExpressionException(MessageFactory.get("error.fnMapper.null"));
         }
         Method m = fnMapper.resolveFunction(prefix, localName);
         if (m == null) {
-            throw new ELException(MessageFactory.get("error.fnMapper.method", this.getOutputName()));
+            throw new ExpressionException(MessageFactory.get("error.fnMapper.method", this.getOutputName()));
         }
         return m.getReturnType();
     }
@@ -126,7 +126,7 @@ public final class AstFunction extends SimpleNode {
     }
 
     @Override
-    public Object getValue(EvaluationContext ctx) throws ELException {
+    public Object getValue(EvaluationContext ctx) throws ExpressionException {
 
         final Node[] children = this.children;
         final String localName = this.localName;
@@ -140,7 +140,7 @@ public final class AstFunction extends SimpleNode {
                 for (int i = 0; i < children.length; i++) {
                     Object[] params = ((AstMethodArguments) children[i]).getParameters(ctx);
                     if (!(val instanceof LambdaExpression)) {
-                        throw new ELException(MessageFactory.get("error.function.syntax", getOutputName()));
+                        throw new ExpressionException(MessageFactory.get("error.function.syntax", getOutputName()));
                     }
                     val = ((LambdaExpression) val).invoke(ctx, params);
                 }
@@ -171,7 +171,7 @@ public final class AstFunction extends SimpleNode {
                 }
             }
             // quickly validate for this request
-            throw new ELException(MessageFactory.get("error.fnMapper.method", this.getOutputName()));
+            throw new ExpressionException(MessageFactory.get("error.fnMapper.method", this.getOutputName()));
         }
 
         final Class<?>[] paramTypes = m.getParameterTypes();
@@ -181,18 +181,18 @@ public final class AstFunction extends SimpleNode {
                 params[i] = ctx.convertToType(params[i], paramTypes[i]);
             }
         }
-        catch (ELException ele) {
-            throw new ELException(MessageFactory.get("error.function", this.getOutputName()), ele);
+        catch (ExpressionException ele) {
+            throw new ExpressionException(MessageFactory.get("error.function", this.getOutputName()), ele);
         }
 
         try {
             return m.invoke(null, params); // static method
         }
         catch (IllegalAccessException iae) {
-            throw new ELException(MessageFactory.get("error.function", getOutputName()), iae);
+            throw new ExpressionException(MessageFactory.get("error.function", getOutputName()), iae);
         }
         catch (InvocationTargetException ite) {
-            throw new ELException(MessageFactory.get("error.function", getOutputName()), ite.getCause());
+            throw new ExpressionException(MessageFactory.get("error.function", getOutputName()), ite.getCause());
         }
     }
 

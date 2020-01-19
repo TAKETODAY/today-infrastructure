@@ -17,12 +17,8 @@
 
 package cn.taketoday.expression;
 
-import java.beans.FeatureDescriptor;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -44,21 +40,21 @@ import java.util.Objects;
  *
  * <p>
  * <code>ELResolver</code>s are combined together using
- * {@link CompositeELResolver}s, to define rich semantics for evaluating an
- * expression. See the javadocs for {@link ELResolver} for details.
+ * {@link CompositeExpressionResolver}s, to define rich semantics for evaluating an
+ * expression. See the javadocs for {@link ExpressionResolver} for details.
  * </p>
  *
- * @see CompositeELResolver
- * @see ELResolver
+ * @see CompositeExpressionResolver
+ * @see ExpressionResolver
  * @see java.util.Map
  * @since JSP 2.1
  */
-public class MapELResolver extends ELResolver {
+public class MapExpressionResolver extends ExpressionResolver {
 
     /**
      * Creates a new read/write <code>MapELResolver</code>.
      */
-    public MapELResolver() {
+    public MapExpressionResolver() {
         this.isReadOnly = false;
     }
 
@@ -70,7 +66,7 @@ public class MapELResolver extends ELResolver {
      *            <code>true</code> if this resolver cannot modify maps;
      *            <code>false</code> otherwise.
      */
-    public MapELResolver(boolean isReadOnly) {
+    public MapExpressionResolver(boolean isReadOnly) {
         this.isReadOnly = isReadOnly;
     }
 
@@ -104,12 +100,12 @@ public class MapELResolver extends ELResolver {
      *         general acceptable type; otherwise undefined.
      * @throws NullPointerException
      *             if context is <code>null</code>
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public Class<?> getType(ELContext context, Object base, Object property) {
+    public Class<?> getType(ExpressionContext context, Object base, Object property) {
 
         Objects.requireNonNull(context);
 
@@ -156,13 +152,13 @@ public class MapELResolver extends ELResolver {
      *             if context is <code>null</code>, or if the key is null and this
      *             map does not permit null keys (the latter is optionally thrown by
      *             the underlying <code>Map</code>).
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
     @SuppressWarnings("rawtypes")
-    public Object getValue(ELContext context, Object base, Object property) {
+    public Object getValue(ExpressionContext context, Object base, Object property) {
 
         if (base instanceof Map) {
             Objects.requireNonNull(context).setPropertyResolved(base, property);
@@ -217,7 +213,7 @@ public class MapELResolver extends ELResolver {
      * @throws IllegalArgumentException
      *             if some aspect of this key or value prevents it from being stored
      *             in this map.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
@@ -225,7 +221,7 @@ public class MapELResolver extends ELResolver {
      *             if this resolver was constructed in read-only mode, or if the put
      *             operation is not supported by the underlying map.
      */
-    public void setValue(ELContext context, Object base, Object property, Object val) {
+    public void setValue(ExpressionContext context, Object base, Object property, Object val) {
 
         Objects.requireNonNull(context);
 
@@ -286,13 +282,13 @@ public class MapELResolver extends ELResolver {
      *         may succeed; otherwise undefined.
      * @throws NullPointerException
      *             if context is <code>null</code>
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
     @SuppressWarnings("rawtypes")
-    public boolean isReadOnly(ELContext context, Object base, Object property) {
+    public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
 
         Objects.requireNonNull(context);
 
@@ -301,97 +297,6 @@ public class MapELResolver extends ELResolver {
             return isReadOnly || ((Map) base).getClass() == theUnmodifiableMapClass;
         }
         return false;
-    }
-
-    /**
-     * If the base object is a map, returns an <code>Iterator</code> containing the
-     * set of keys available in the <code>Map</code>. Otherwise, returns
-     * <code>null</code>.
-     *
-     * <p>
-     * The <code>Iterator</code> returned must contain zero or more instances of
-     * {@link java.beans.FeatureDescriptor}. Each info object contains information
-     * about a key in the Map, and is initialized as follows:
-     * <dl>
-     * <li>displayName - The return value of calling the <code>toString</code>
-     * method on this key, or <code>"null"</code> if the key is
-     * <code>null</code>.</li>
-     * <li>name - Same as displayName property.</li>
-     * <li>shortDescription - Empty string</li>
-     * <li>expert - <code>false</code></li>
-     * <li>hidden - <code>false</code></li>
-     * <li>preferred - <code>true</code></li>
-     * </dl>
-     * In addition, the following named attributes must be set in the returned
-     * <code>FeatureDescriptor</code>s:
-     * <dl>
-     * <li>{@link ELResolver#TYPE} - The return value of calling the
-     * <code>getClass()</code> method on this key, or <code>null</code> if the key
-     * is <code>null</code>.</li>
-     * <li>{@link ELResolver#RESOLVABLE_AT_DESIGN_TIME} - <code>true</code></li>
-     * </dl>
-     * </p>
-     * 
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The map whose keys are to be iterated over. Only bases of type
-     *            <code>Map</code> are handled by this resolver.
-     * @return An <code>Iterator</code> containing zero or more (possibly infinitely
-     *         more) <code>FeatureDescriptor</code> objects, each representing a key
-     *         in this map, or <code>null</code> if the base object is not a map.
-     */
-    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-
-        if (base instanceof Map) {
-            @SuppressWarnings("rawtypes") //
-            Iterator iter = ((Map) base).keySet().iterator();
-            List<FeatureDescriptor> list = new ArrayList<FeatureDescriptor>();
-            while (iter.hasNext()) {
-                Object key = iter.next();
-                FeatureDescriptor descriptor = new FeatureDescriptor();
-                String name = (key == null) ? null : key.toString();
-                descriptor.setName(name);
-                descriptor.setDisplayName(name);
-                descriptor.setShortDescription("");
-                descriptor.setExpert(false);
-                descriptor.setHidden(false);
-                descriptor.setPreferred(true);
-                if (key != null) {
-                    descriptor.setValue("type", key.getClass());
-                }
-                descriptor.setValue("resolvableAtDesignTime", Boolean.TRUE);
-                list.add(descriptor);
-            }
-            return list.iterator();
-        }
-        return null;
-    }
-
-    /**
-     * If the base object is a map, returns the most general type that this resolver
-     * accepts for the <code>property</code> argument. Otherwise, returns
-     * <code>null</code>.
-     *
-     * <p>
-     * Assuming the base is a <code>Map</code>, this method will always return
-     * <code>Object.class</code>. This is because <code>Map</code>s accept any
-     * object as a key.
-     * </p>
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The map to analyze. Only bases of type <code>Map</code> are
-     *            handled by this resolver.
-     * @return <code>null</code> if base is not a <code>Map</code>; otherwise
-     *         <code>Object.class</code>.
-     */
-    public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        if (base instanceof Map) {
-            return Object.class;
-        }
-        return null;
     }
 
     private boolean isReadOnly;

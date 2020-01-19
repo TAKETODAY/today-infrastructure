@@ -40,8 +40,8 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ELContext;
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionContext;
+import cn.taketoday.expression.ExpressionException;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -49,5 +49,5 @@ import cn.taketoday.expression.ELException;
  */
 public interface NodeVisitor {
 
-    void visit(Node node, ELContext context) throws ELException;
+    void visit(Node node, ExpressionContext context) throws ExpressionException;
 }

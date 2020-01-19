@@ -24,13 +24,13 @@ package cn.taketoday.expression;
  * @since JSP 2.1
  */
 @SuppressWarnings("serial")
-public class ELException extends RuntimeException {
+public class ExpressionException extends RuntimeException {
 
     // -------------------------------------
     /**
      * Creates an <code>ELException</code> with no detail message.
      */
-    public ELException() {
+    public ExpressionException() {
         super();
     }
 
@@ -41,7 +41,7 @@ public class ELException extends RuntimeException {
      * @param pMessage
      *            the detail message
      */
-    public ELException(String pMessage) {
+    public ExpressionException(String pMessage) {
         super(pMessage);
     }
 
@@ -52,7 +52,7 @@ public class ELException extends RuntimeException {
      * @param pRootCause
      *            the originating cause of this exception
      */
-    public ELException(Throwable pRootCause) {
+    public ExpressionException(Throwable pRootCause) {
         super(pRootCause);
     }
 
@@ -65,7 +65,7 @@ public class ELException extends RuntimeException {
      * @param pRootCause
      *            the originating cause of this exception
      */
-    public ELException(String pMessage, Throwable pRootCause) {
+    public ExpressionException(String pMessage, Throwable pRootCause) {
         super(pMessage, pRootCause);
     }
 

@@ -39,8 +39,6 @@
  */
 package cn.taketoday.expression;
 
-import java.beans.FeatureDescriptor;
-import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -68,7 +66,7 @@ import java.util.Objects;
  * 
  * @since EL 3.0
  */
-public class BeanNameELResolver extends ELResolver {
+public class BeanNameExpressionResolver extends ExpressionResolver {
 
     private final BeanNameResolver beanNameResolver;
 
@@ -78,7 +76,7 @@ public class BeanNameELResolver extends ELResolver {
      * @param beanNameResolver
      *            The {@link BeanNameResolver} that resolves a bean name.
      */
-    public BeanNameELResolver(BeanNameResolver beanNameResolver) {
+    public BeanNameExpressionResolver(BeanNameResolver beanNameResolver) {
         this.beanNameResolver = beanNameResolver;
     }
 
@@ -106,13 +104,13 @@ public class BeanNameELResolver extends ELResolver {
      *         of the bean with the given name. Otherwise, undefined.
      * @throws NullPointerException
      *             if context is <code>null</code>.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
     @Override
-    public Object getValue(ELContext context, Object base, Object property) {
+    public Object getValue(ExpressionContext context, Object base, Object property) {
 
         if (base == null && property instanceof String) {
             final BeanNameResolver beanNameResolver = this.beanNameResolver;
@@ -148,13 +146,13 @@ public class BeanNameELResolver extends ELResolver {
      *             if context is <code>null</code>
      * @throws PropertyNotWritableException
      *             if the BeanNameResolver does not allow the bean to be modified.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while attempting to set the bean with
      *             the given name. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
     @Override
-    public void setValue(ELContext context, Object base, Object property, Object value) {
+    public void setValue(ExpressionContext context, Object base, Object property, Object value) {
 
         if (base == null && property instanceof String) {
             final String beanName = (String) property;
@@ -189,13 +187,13 @@ public class BeanNameELResolver extends ELResolver {
      *         the bean with the given name. Otherwise, undefined.
      * @throws NullPointerException
      *             if context is <code>null</code>.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
     @Override
-    public Class<?> getType(ELContext context, Object base, Object property) {
+    public Class<?> getType(ExpressionContext context, Object base, Object property) {
 
         if (base == null && property instanceof String && beanNameResolver.isNameResolved((String) property)) {
             Objects.requireNonNull(context).setPropertyResolved(true);
@@ -228,13 +226,13 @@ public class BeanNameELResolver extends ELResolver {
      *         if not; otherwise undefined.
      * @throws NullPointerException
      *             if context is <code>null</code>.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
     @Override
-    public boolean isReadOnly(ELContext context, Object base, Object property) {
+    public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
 
         if (base == null && property instanceof String) {
             if (beanNameResolver.isNameResolved((String) property)) {
@@ -243,20 +241,6 @@ public class BeanNameELResolver extends ELResolver {
             }
         }
         return false;
-    }
-
-    /**
-     * Always returns <code>null</code>, since there is no reason to iterate through
-     * a list of one element: bean name.
-     * 
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            <code>null</code>.
-     * @return <code>null</code>.
-     */
-    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        return null;
     }
 
 }

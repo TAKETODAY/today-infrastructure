@@ -29,7 +29,7 @@ package cn.taketoday.expression;
  * @since JSP 2.1
  */
 @SuppressWarnings("serial")
-public class PropertyNotWritableException extends ELException {
+public class PropertyNotWritableException extends ExpressionException {
 
     // -------------------------------------
     /**

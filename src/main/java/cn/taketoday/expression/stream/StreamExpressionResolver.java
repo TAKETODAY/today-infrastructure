@@ -42,14 +42,15 @@
 
 package cn.taketoday.expression.stream;
 
-import java.beans.FeatureDescriptor;
+import static java.util.Objects.requireNonNull;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Objects;
 
-import cn.taketoday.expression.ELContext;
-import cn.taketoday.expression.ELResolver;
+import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.expression.ExpressionContext;
+import cn.taketoday.expression.ExpressionResolver;
 
 /**
  * This ELResolver intercepts method calls to a Collections, to provide support
@@ -58,29 +59,28 @@ import cn.taketoday.expression.ELResolver;
  * @author TODAY <br>
  *         2019-02-20 17:21
  */
-public class StreamELResolver extends ELResolver {
+public class StreamExpressionResolver extends ExpressionResolver {
 
-    private static final StreamELResolver INSTANCE = new StreamELResolver();
+    private static final StreamExpressionResolver INSTANCE = new StreamExpressionResolver();
 
-    public final static StreamELResolver getInstance() {
+    public final static StreamExpressionResolver getInstance() {
         return INSTANCE;
     }
 
-    public Object invoke(final ELContext context, final Object base, final Object method, //
+    @SuppressWarnings("unchecked")
+    public Object invoke(final ExpressionContext context, final Object base, final Object method, //
                          final Class<?>[] paramTypes, final Object[] params) //
     {
 
         if (base instanceof Collection) {
-            @SuppressWarnings("unchecked")
-            Collection<Object> c = (Collection<Object>) base;
-            if ("stream".equals(method) && params.length == 0) {
-                Objects.requireNonNull(context).setPropertyResolved(true);
-                return new Stream(c.iterator());
+            if ("stream".equals(method) && ObjectUtils.isEmpty(params)) {
+                requireNonNull(context).setPropertyResolved(true);
+                return new Stream(((Collection<Object>) base).iterator());
             }
         }
         if (base.getClass().isArray()) {
-            if ("stream".equals(method) && params.length == 0) {
-                Objects.requireNonNull(context).setPropertyResolved(true);
+            if ("stream".equals(method) && ObjectUtils.isEmpty(params)) {
+                requireNonNull(context).setPropertyResolved(true);
                 return new Stream(arrayIterator(base));
             }
         }
@@ -123,25 +123,18 @@ public class StreamELResolver extends ELResolver {
      * ("When calling " + method + ", expecting an " +
      * "EL lambda expression, but found " + obj); } return (LambdaExpression) obj; }
      */
-    public Object getValue(ELContext context, Object base, Object property) {
+    public Object getValue(ExpressionContext context, Object base, Object property) {
         return null;
     }
 
-    public Class<?> getType(ELContext context, Object base, Object property) {
+    public Class<?> getType(ExpressionContext context, Object base, Object property) {
         return null;
     }
 
-    public void setValue(ELContext context, Object base, Object property, Object value) {}
+    public void setValue(ExpressionContext context, Object base, Object property, Object value) {}
 
-    public boolean isReadOnly(ELContext context, Object base, Object property) {
+    public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
         return false;
     }
 
-    public Iterator<FeatureDescriptor> getFeatureDescriptors(ELContext context, Object base) {
-        return null;
-    }
-
-    public Class<?> getCommonPropertyType(ELContext context, Object base) {
-        return String.class;
-    }
 }

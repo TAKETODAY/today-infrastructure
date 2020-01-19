@@ -53,7 +53,7 @@ import java.util.Objects;
 
 /**
  * <p>
- * An {@link ELResolver} for resolving static fields, enum constants and static
+ * An {@link ExpressionResolver} for resolving static fields, enum constants and static
  * methods. Also handles constructor calls as a special case.
  * </p>
  * <p>
@@ -64,7 +64,7 @@ import java.util.Objects;
  * @see ELClass
  * @since EL 3.0
  */
-public class StaticFieldELResolver extends ELResolver {
+public class StaticFieldExpressionResolver extends ExpressionResolver {
 
     /**
      * <p>
@@ -99,7 +99,7 @@ public class StaticFieldELResolver extends ELResolver {
      *             inaccessible.
      */
     @Override
-    public Object getValue(ELContext context, Object base, Object property) {
+    public Object getValue(ExpressionContext context, Object base, Object property) {
 
         if (base instanceof Class && property instanceof String) {
 
@@ -144,7 +144,7 @@ public class StaticFieldELResolver extends ELResolver {
      * @throws PropertyNotWritableException
      */
     @Override
-    public void setValue(ELContext context, Object base, Object property, Object value) {
+    public void setValue(ExpressionContext context, Object base, Object property, Object value) {
 
         if (base instanceof Class && property instanceof String) {
 
@@ -171,7 +171,7 @@ public class StaticFieldELResolver extends ELResolver {
      * </p>
      * <p>
      * The process involved in the method selection is the same as that used in
-     * {@link BeanELResolver}.
+     * {@link BeanExpressionResolver}.
      * </p>
      *
      * <p>
@@ -196,7 +196,7 @@ public class StaticFieldELResolver extends ELResolver {
      *         has a <code>void</code> return type).
      * @throws MethodNotFoundException
      *             if no suitable method can be found.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing (base, method)
      *             resolution. The thrown exception must be included as the cause
      *             property of this exception, if available. If the exception thrown
@@ -205,7 +205,7 @@ public class StaticFieldELResolver extends ELResolver {
      *             constructor.
      */
     @Override
-    public Object invoke(ELContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
+    public Object invoke(ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
 
         if (!(base instanceof Class && method instanceof String)) {
             return null;
@@ -261,7 +261,7 @@ public class StaticFieldELResolver extends ELResolver {
      *             field is inaccessible.
      */
     @Override
-    public Class<?> getType(ELContext context, Object base, Object property) {
+    public Class<?> getType(ExpressionContext context, Object base, Object property) {
 
         if (base instanceof Class && property instanceof String) {
             try {
@@ -306,7 +306,7 @@ public class StaticFieldELResolver extends ELResolver {
      *             if context is <code>null</code>.
      */
     @Override
-    public boolean isReadOnly(ELContext context, Object base, Object property) {
+    public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
 
         if (base instanceof Class && property instanceof String) {
             Objects.requireNonNull(context).setPropertyResolved(true);

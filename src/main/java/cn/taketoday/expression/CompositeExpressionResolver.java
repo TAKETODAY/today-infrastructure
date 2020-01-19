@@ -55,25 +55,25 @@ import java.util.Objects;
  * from all child <code>ELResolver</code>s for these methods.
  * </p>
  *
- * @see ELContext
- * @see ELResolver
+ * @see ExpressionContext
+ * @see ExpressionResolver
  * @since JSP 2.1
  */
-public class CompositeELResolver extends ELResolver {
+public class CompositeExpressionResolver extends ExpressionResolver {
 
     private int size;
-    private ELResolver[] elResolvers;
+    private ExpressionResolver[] elResolvers;
 
-    public CompositeELResolver() {
+    public CompositeExpressionResolver() {
         this(6);
     }
 
-    public CompositeELResolver(int init) {
+    public CompositeExpressionResolver(int init) {
         this.size = 0;
-        this.elResolvers = new ELResolver[init];
+        this.elResolvers = new ExpressionResolver[init];
     }
 
-    public CompositeELResolver(ELResolver... eLResolvers) {
+    public CompositeExpressionResolver(ExpressionResolver... eLResolvers) {
         this.elResolvers = Objects.requireNonNull(eLResolvers);
         this.size = eLResolvers.length;
     }
@@ -90,12 +90,12 @@ public class CompositeELResolver extends ELResolver {
      * @throws NullPointerException
      *             If the provided resolver is <code>null</code>.
      */
-    public void add(ELResolver elResolver) {
+    public void add(ExpressionResolver elResolver) {
 
         Objects.requireNonNull(elResolver);
 
         if (size >= elResolvers.length) {
-            ELResolver[] newResolvers = new ELResolver[size + 1];
+            ExpressionResolver[] newResolvers = new ExpressionResolver[size + 1];
             System.arraycopy(elResolvers, 0, newResolvers, 0, size);
             elResolvers = newResolvers;
         }
@@ -161,18 +161,18 @@ public class CompositeELResolver extends ELResolver {
      *             if the given (base, property) pair is handled by this
      *             <code>ELResolver</code> but the specified variable or property
      *             does not exist or is not readable.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public Object getValue(ELContext context, Object base, Object property) {
+    public Object getValue(ExpressionContext context, Object base, Object property) {
 
         context.setPropertyResolved(false);
 
         final int size = this.size;
         if (size > 0) {
-            final ELResolver[] elResolvers = this.elResolvers;
+            final ExpressionResolver[] elResolvers = this.elResolvers;
             for (int i = 0; i < size; i++) {
                 final Object value = elResolvers[i].getValue(context, base, property);
                 if (context.isPropertyResolved()) {
@@ -245,13 +245,13 @@ public class CompositeELResolver extends ELResolver {
      *         has a <code>void</code> return type).
      * @since EL 2.2
      */
-    public Object invoke(ELContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
+    public Object invoke(ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
 
         context.setPropertyResolved(false);
 
         final int size = this.size;
         if (size > 0) {
-            final ELResolver[] elResolvers = this.elResolvers;
+            final ExpressionResolver[] elResolvers = this.elResolvers;
             for (int i = 0; i < size; i++) {
                 final Object value = elResolvers[i].invoke(context, base, method, paramTypes, params);
                 if (context.isPropertyResolved()) {
@@ -322,18 +322,18 @@ public class CompositeELResolver extends ELResolver {
      *             if the given (base, property) pair is handled by this
      *             <code>ELResolver</code> but the specified variable or property
      *             does not exist or is not readable.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public Class<?> getType(ELContext context, Object base, Object property) {
+    public Class<?> getType(ExpressionContext context, Object base, Object property) {
 
         context.setPropertyResolved(false);
 
         final int size = this.size;
         if (size > 0) {
-            final ELResolver[] elResolvers = this.elResolvers;
+            final ExpressionResolver[] elResolvers = this.elResolvers;
             for (int i = 0; i < size; i++) {
                 final Class<?> type = elResolvers[i].getType(context, base, property);
                 if (context.isPropertyResolved()) {
@@ -405,17 +405,17 @@ public class CompositeELResolver extends ELResolver {
      *             if the given (base, property) pair is handled by this
      *             <code>ELResolver</code> but the specified variable or property is
      *             not writable.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while attempting to set the property
      *             or variable. The thrown exception must be included as the cause
      *             property of this exception, if available.
      */
-    public void setValue(ELContext context, Object base, Object property, Object val) {
+    public void setValue(ExpressionContext context, Object base, Object property, Object val) {
 
         context.setPropertyResolved(false);
         final int size = this.size;
         if (size > 0) {
-            final ELResolver[] elResolvers = this.elResolvers;
+            final ExpressionResolver[] elResolvers = this.elResolvers;
             for (int i = 0; i < size; i++) {
                 elResolvers[i].setValue(context, base, property, val);
                 if (context.isPropertyResolved()) {
@@ -485,18 +485,18 @@ public class CompositeELResolver extends ELResolver {
      *             if the given (base, property) pair is handled by this
      *             <code>ELResolver</code> but the specified variable or property
      *             does not exist.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while performing the property or
      *             variable resolution. The thrown exception must be included as the
      *             cause property of this exception, if available.
      */
-    public boolean isReadOnly(ELContext context, Object base, Object property) {
+    public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
 
         context.setPropertyResolved(false);
 
         final int size = this.size;
         if (size > 0) {
-            final ELResolver[] elResolvers = this.elResolvers;
+            final ExpressionResolver[] elResolvers = this.elResolvers;
             for (int i = 0; i < size; i++) {
                 final boolean readOnly = elResolvers[i].isReadOnly(context, base, property);
                 if (context.isPropertyResolved()) {
@@ -522,18 +522,18 @@ public class CompositeELResolver extends ELResolver {
      *            The object to convert.
      * @param targetType
      *            The target type for the convertion.
-     * @throws ELException
+     * @throws ExpressionException
      *             thrown if errors occur.
      * @since EL 3.0
      */
     @Override
-    public Object convertToType(ELContext context, Object obj, Class<?> targetType) {
+    public Object convertToType(ExpressionContext context, Object obj, Class<?> targetType) {
 
         context.setPropertyResolved(false);
         
         final int size = this.size;
         if (size > 0) {
-            final ELResolver[] elResolvers = this.elResolvers;
+            final ExpressionResolver[] elResolvers = this.elResolvers;
             for (int i = 0; i < size; i++) {
                 final Object value = elResolvers[i].convertToType(context, obj, targetType);
                 if (context.isPropertyResolved()) {

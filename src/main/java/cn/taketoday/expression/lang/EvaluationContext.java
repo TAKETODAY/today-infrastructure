@@ -22,8 +22,8 @@ package cn.taketoday.expression.lang;
 import java.util.Locale;
 import java.util.Map;
 
-import cn.taketoday.expression.ELContext;
-import cn.taketoday.expression.ELResolver;
+import cn.taketoday.expression.ExpressionContext;
+import cn.taketoday.expression.ExpressionResolver;
 import cn.taketoday.expression.FunctionMapper;
 import cn.taketoday.expression.ImportHandler;
 import cn.taketoday.expression.VariableMapper;
@@ -32,15 +32,15 @@ import cn.taketoday.expression.VariableMapper;
  * @author TODAY <br>
  *         2019-11-10 20:26
  */
-public final class EvaluationContext extends ELContext {
+public final class EvaluationContext extends ExpressionContext {
 
-    private final ELContext elContext;
+    private final ExpressionContext elContext;
 
-    public EvaluationContext(ELContext elContext) {
+    public EvaluationContext(ExpressionContext elContext) {
         this.elContext = elContext;
     }
 
-    public ELContext getELContext() {
+    public ExpressionContext getELContext() {
         return elContext;
     }
 
@@ -60,7 +60,7 @@ public final class EvaluationContext extends ELContext {
     }
 
     @Override
-    public ELResolver getELResolver() {
+    public ExpressionResolver getELResolver() {
         return elContext.getELResolver();
     }
 

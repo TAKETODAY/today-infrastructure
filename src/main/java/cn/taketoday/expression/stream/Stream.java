@@ -42,15 +42,16 @@
 
 package cn.taketoday.expression.stream;
 
+import static java.util.Optional.ofNullable;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.PriorityQueue;
-import java.util.Set;
 
-import cn.taketoday.expression.ELException;
+import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.LambdaExpression;
 import cn.taketoday.expression.lang.ExpressionArithmetic;
 import cn.taketoday.expression.lang.ExpressionSupport;
@@ -85,47 +86,38 @@ public class Stream {
     }
 
     public Stream filter(final LambdaExpression predicate) {
-        return new Stream(this, new Operator() {
-            @Override
-            public Iterator<Object> iterator(final Iterator<Object> upstream) {
-                return new Iterator2(upstream) {
-                    @Override
-                    public void doItem(Object item) {
-                        if ((Boolean) predicate.invoke(item)) {
-                            yield(item);
-                        }
+        return new Stream(this, (upstream) -> {
+            return new Iterator2(upstream) {
+                @Override
+                public void doItem(Object item) {
+                    if ((Boolean) predicate.invoke(item)) {
+                        yield(item);
                     }
-                };
-            }
+                }
+            };
         });
     }
 
     public Stream map(final LambdaExpression mapper) {
-        return new Stream(this, new Operator() {
-            @Override
-            public Iterator<Object> iterator(final Iterator<Object> up) {
-                return new Iterator1(up) {
-                    @Override
-                    public Object next() {
-                        return mapper.invoke(iter.next());
-                    }
-                };
-            }
+        return new Stream(this, (up) -> {
+            return new Iterator1(up) {
+                @Override
+                public Object next() {
+                    return mapper.invoke(iter.next());
+                }
+            };
         });
     }
 
     public Stream peek(final LambdaExpression comsumer) {
-        return new Stream(this, new Operator() {
-            @Override
-            public Iterator<Object> iterator(final Iterator<Object> up) {
-                return new Iterator2(up) {
-                    @Override
-                    protected void doItem(Object item) {
-                        comsumer.invoke(item);
-                        yield(item);
-                    }
-                };
-            }
+        return new Stream(this, up -> {
+            return new Iterator2(up) {
+                @Override
+                protected void doItem(Object item) {
+                    comsumer.invoke(item);
+                    yield(item);
+                }
+            };
         });
     }
 
@@ -133,24 +125,21 @@ public class Stream {
         if (n < 0) {
             throw new IllegalArgumentException("limit must be non-negative");
         }
-        return new Stream(this, new Operator() {
-            @Override
-            public Iterator<Object> iterator(final Iterator<Object> up) {
-                return new Iterator0() {
-                    long limit = n;
+        return new Stream(this, up -> {
+            return new Iterator0() {
+                long limit = n;
 
-                    @Override
-                    public boolean hasNext() {
-                        return (limit > 0) ? up.hasNext() : false;
-                    }
+                @Override
+                public boolean hasNext() {
+                    return (limit > 0) ? up.hasNext() : false;
+                }
 
-                    @Override
-                    public Object next() {
-                        limit--;
-                        return up.next();
-                    }
-                };
-            }
+                @Override
+                public Object next() {
+                    limit--;
+                    return up.next();
+                }
+            };
         });
     }
 
@@ -181,7 +170,7 @@ public class Stream {
             @Override
             public Iterator<Object> iterator(final Iterator<Object> up) {
                 return new Iterator2(up) {
-                    private Set<Object> set = new HashSet<Object>();
+                    private HashSet<Object> set = new HashSet<Object>();
 
                     @Override
                     public void doItem(Object item) {
@@ -279,7 +268,7 @@ public class Stream {
                                 }
                                 Object mapped = mapper.invoke(upstream.next());
                                 if (!(mapped instanceof Stream)) {
-                                    throw new ELException("Expecting a Stream " + "from flatMap's mapper function.");
+                                    throw new ExpressionException("Expecting a Stream " + "from flatMap's mapper function.");
                                 }
                                 iter = ((Stream) mapped).iterator();
                             }
@@ -435,7 +424,7 @@ public class Stream {
                 min = item;
             }
         }
-        return Optional.ofNullable(min);
+        return ofNullable(min);
     }
 
     public Optional<?> max() {
@@ -447,7 +436,7 @@ public class Stream {
                 max = item;
             }
         }
-        return Optional.ofNullable(max);
+        return ofNullable(max);
     }
 
     public Optional<?> min(final LambdaExpression comparator) {
@@ -459,8 +448,7 @@ public class Stream {
                 min = item;
             }
         }
-
-        return Optional.ofNullable(min);
+        return ofNullable(min);
     }
 
     public Optional<?> max(final LambdaExpression comparator) {
@@ -472,7 +460,7 @@ public class Stream {
                 max = item;
             }
         }
-        return Optional.ofNullable(max);
+        return ofNullable(max);
     }
 
     public Optional<?> average() {

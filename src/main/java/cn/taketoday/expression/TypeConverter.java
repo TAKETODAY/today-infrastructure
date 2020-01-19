@@ -65,23 +65,23 @@ package cn.taketoday.expression;
  * @since EL 3.0
  */
 
-public abstract class TypeConverter extends ELResolver {
+public abstract class TypeConverter extends ExpressionResolver {
 
     @Override
-    public Object getValue(ELContext context, Object base, Object property) {
+    public Object getValue(ExpressionContext context, Object base, Object property) {
         return null;
     }
 
     @Override
-    public Class<?> getType(ELContext context, Object base, Object property) {
+    public Class<?> getType(ExpressionContext context, Object base, Object property) {
         return null;
     }
 
     @Override
-    public void setValue(ELContext context, Object base, Object property, Object value) {}
+    public void setValue(ExpressionContext context, Object base, Object property, Object value) {}
 
     @Override
-    public boolean isReadOnly(ELContext context, Object base, Object property) {
+    public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
         return false;
     }
 
@@ -99,9 +99,9 @@ public abstract class TypeConverter extends ELResolver {
      *            The object to convert.
      * @param targetType
      *            The target type for the conversion.
-     * @throws ELException
+     * @throws ExpressionException
      *             thrown if errors occur.
      */
     @Override
-    abstract public Object convertToType(ELContext context, Object obj, Class<?> targetType);
+    abstract public Object convertToType(ExpressionContext context, Object obj, Class<?> targetType);
 }

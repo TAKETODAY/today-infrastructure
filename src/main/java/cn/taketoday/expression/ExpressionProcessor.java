@@ -68,7 +68,7 @@ import cn.taketoday.context.Constant;
  * 
  * <p>
  * For EL users who want to manipulate EL environments, like adding custom
- * {@link ELResolver}s, {@link ExpressionManager} can be used.
+ * {@link ExpressionResolver}s, {@link ExpressionManager} can be used.
  * </p>
  *
  * <h3>Scope and Life Cycle</h3>
@@ -151,7 +151,7 @@ public class ExpressionProcessor {
      */
     @SuppressWarnings("unchecked")
     public <T> T getValue(final String expression, final Class<T> expectedType) {
-        final StandardELContext elContext = elManager.getELContext();
+        final StandardExpressionContext elContext = elManager.getELContext();
         return (T) factory.createValueExpression(elContext, bracket(expression), expectedType)//
                 .getValue(elContext);
     }
@@ -171,13 +171,13 @@ public class ExpressionProcessor {
      * @throws PropertyNotWritableException
      *             if the final variable or property resolution failed because the
      *             specified variable or property is not writable.
-     * @throws ELException
+     * @throws ExpressionException
      *             if an exception was thrown while attempting to set the property
      *             or variable. The thrown exception must be included as the cause
      *             property of this exception, if available.
      */
     public void setValue(final String expression, final Object value) {
-        final StandardELContext elContext = elManager.getELContext();
+        final StandardExpressionContext elContext = elManager.getELContext();
         factory.createValueExpression(elContext, bracket(expression), Object.class)//
                 .setValue(elContext, value);
     }
