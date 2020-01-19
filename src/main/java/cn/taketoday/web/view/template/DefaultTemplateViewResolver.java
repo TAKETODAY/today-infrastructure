@@ -29,13 +29,13 @@ import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.expression.CompositeELResolver;
-import cn.taketoday.expression.ELContext;
-import cn.taketoday.expression.ELResolver;
+import cn.taketoday.expression.CompositeExpressionResolver;
+import cn.taketoday.expression.ExpressionContext;
+import cn.taketoday.expression.ExpressionResolver;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.FunctionMapper;
-import cn.taketoday.expression.StandardELContext;
+import cn.taketoday.expression.StandardExpressionContext;
 import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.web.RequestContext;
@@ -48,7 +48,7 @@ import cn.taketoday.web.ui.Model;
 @Props(prefix = "web.mvc.view.")
 public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
 
-    private final StandardELContext sharedContext;
+    private final StandardExpressionContext sharedContext;
     private final ExpressionFactory expressionFactory = ExpressionFactory.getSharedInstance();
 
     public DefaultTemplateViewResolver() {
@@ -104,7 +104,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
      */
     protected String renderTemplate(final String text, RequestContext context) {
 
-        final ELContext elContext = prepareContext(context);
+        final ExpressionContext elContext = prepareContext(context);
 
         final ValueExpression expression = //
                 expressionFactory.createValueExpression(elContext, text, String.class);
@@ -126,23 +126,23 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
         return StringUtils.readAsText(resource.getInputStream());
     }
 
-    protected ELContext prepareContext(RequestContext context) {
+    protected ExpressionContext prepareContext(RequestContext context) {
         return new TemplateViewResolverELContext(this.sharedContext, context);
     }
 
-    public static class TemplateViewResolverELContext extends ELContext {
+    public static class TemplateViewResolverELContext extends ExpressionContext {
 
-        private final ELResolver elResolver;
-        private final StandardELContext delegate;
+        private final ExpressionResolver elResolver;
+        private final StandardExpressionContext delegate;
 
-        public TemplateViewResolverELContext(StandardELContext delegate, RequestContext context) {
+        public TemplateViewResolverELContext(StandardExpressionContext delegate, RequestContext context) {
             this.delegate = delegate;
-            this.elResolver = new CompositeELResolver(new ModelAttributeELResolver(context),
+            this.elResolver = new CompositeExpressionResolver(new ModelAttributeELResolver(context),
                                                       delegate.getELResolver());
         }
 
         @Override
-        public ELResolver getELResolver() {
+        public ExpressionResolver getELResolver() {
             return elResolver;
         }
 
@@ -169,7 +169,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
      * @author TODAY <br>
      *         2019-11-25 19:48
      */
-    public static class ModelAttributeELResolver extends ELResolver {
+    public static class ModelAttributeELResolver extends ExpressionResolver {
 
         private final RequestContext context;
 
@@ -178,7 +178,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
         }
 
         @Override
-        public Object getValue(ELContext context, Object base, Object property) {
+        public Object getValue(ExpressionContext context, Object base, Object property) {
 
             if (base == null && property instanceof String) {
                 final RequestContext requestContext = this.context;
@@ -191,7 +191,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
         }
 
         @Override
-        public void setValue(ELContext elContext, Object base, Object property, Object value) {
+        public void setValue(ExpressionContext elContext, Object base, Object property, Object value) {
 
             if (base == null && property instanceof String) {
                 final String beanName = (String) property;
@@ -204,7 +204,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
         }
 
         @Override
-        public Class<?> getType(ELContext elContext, Object base, Object property) {
+        public Class<?> getType(ExpressionContext elContext, Object base, Object property) {
 
             if (base == null && property instanceof String) {
                 final RequestContext context = this.context;
@@ -217,7 +217,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
         }
 
         @Override
-        public boolean isReadOnly(ELContext elContext, Object base, Object property) {
+        public boolean isReadOnly(ExpressionContext elContext, Object base, Object property) {
 
             if (base == null && property instanceof String && context.containsAttribute((String) property)) {
                 Objects.requireNonNull(elContext).setPropertyResolved(true);
