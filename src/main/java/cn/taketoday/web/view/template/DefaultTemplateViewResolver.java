@@ -52,11 +52,11 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
     private final ExpressionFactory expressionFactory = ExpressionFactory.getSharedInstance();
 
     public DefaultTemplateViewResolver() {
-        this(ContextUtils.getExpressionProcessor().getELManager());
+        this(ContextUtils.getExpressionProcessor().getManager());
     }
 
     public DefaultTemplateViewResolver(ExpressionManager elManager) {
-        sharedContext = elManager.getELContext();
+        sharedContext = elManager.getContext();
     }
 
     @Override
@@ -138,11 +138,11 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
         public TemplateViewResolverELContext(StandardExpressionContext delegate, RequestContext context) {
             this.delegate = delegate;
             this.elResolver = new CompositeExpressionResolver(new ModelAttributeELResolver(context),
-                                                      delegate.getELResolver());
+                                                      delegate.getResolver());
         }
 
         @Override
-        public ExpressionResolver getELResolver() {
+        public ExpressionResolver getResolver() {
             return elResolver;
         }
 
