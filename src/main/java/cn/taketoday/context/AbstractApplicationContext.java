@@ -293,7 +293,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         // register ELManager @since 2.1.5
         // fix @since 2.1.6 elManager my be null
-        registerSingleton(beanNameCreator.create(ExpressionManager.class), elProcessor.getELManager());
+        registerSingleton(beanNameCreator.create(ExpressionManager.class), elProcessor.getManager());
 
         registerSingleton(beanNameCreator.create(ExpressionProcessor.class), elProcessor);
         // register Environment

@@ -86,7 +86,7 @@ public final class AstValue extends SimpleNode {
         }
         Object property = t.suffixNode.getValue(ctx);
         ctx.setPropertyResolved(false);
-        Class<?> ret = ctx.getELResolver().getType(ctx, t.base, property);
+        Class<?> ret = ctx.getResolver().getType(ctx, t.base, property);
         if (!ctx.isPropertyResolved()) {
             ExpressionSupport.throwUnhandled(t.base, property);
         }
@@ -115,7 +115,7 @@ public final class AstValue extends SimpleNode {
 
     private Object getValue(Object base, Node child, EvaluationContext ctx) throws ExpressionException {
 
-        final ExpressionResolver resolver = ctx.getELResolver();
+        final ExpressionResolver resolver = ctx.getResolver();
         final Object property = child.getValue(ctx);
         final AstMethodArguments args = getArguments(child);
         if (args != null) {
@@ -204,7 +204,7 @@ public final class AstValue extends SimpleNode {
         }
         Object property = t.suffixNode.getValue(ctx);
         ctx.setPropertyResolved(false);
-        boolean ret = ctx.getELResolver().isReadOnly(ctx, t.base, property);
+        boolean ret = ctx.getResolver().isReadOnly(ctx, t.base, property);
         if (!ctx.isPropertyResolved()) {
             ExpressionSupport.throwUnhandled(t.base, property);
         }
@@ -217,7 +217,7 @@ public final class AstValue extends SimpleNode {
             throw new PropertyNotWritableException(MessageFactory.get("error.syntax.set"));
         }
         Object property = t.suffixNode.getValue(ctx);
-        ExpressionResolver elResolver = ctx.getELResolver();
+        ExpressionResolver elResolver = ctx.getResolver();
 
         /*
          * Note by kchung 10/2013 The spec does not say if the value should be cocerced
@@ -268,7 +268,7 @@ public final class AstValue extends SimpleNode {
             String method = (String) t.suffixNode.getValue(ctx);
 
             ctx.setPropertyResolved(false);
-            ExpressionResolver resolver = ctx.getELResolver();
+            ExpressionResolver resolver = ctx.getResolver();
             return resolver.invoke(ctx, t.base, method, paramTypes, params);
         }
         Object property = t.suffixNode.getValue(ctx);

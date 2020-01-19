@@ -60,8 +60,8 @@ public final class EvaluationContext extends ExpressionContext {
     }
 
     @Override
-    public ExpressionResolver getELResolver() {
-        return elContext.getELResolver();
+    public ExpressionResolver getResolver() {
+        return elContext.getResolver();
     }
 
     @Override

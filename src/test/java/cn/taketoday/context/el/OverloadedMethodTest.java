@@ -70,7 +70,7 @@ public class OverloadedMethodTest {
     public void setUp() {
         exprFactory = ExpressionFactory.getSharedInstance();
         final ExpressionManager elManager = new ExpressionManager();
-        elContext = elManager.getELContext();
+        elContext = elManager.getContext();
         elp = new ExpressionProcessor(elManager);
 
         elp.defineBean("foo", new MyBean());

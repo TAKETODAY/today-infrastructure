@@ -124,7 +124,7 @@ public class ExpressionProcessor {
      * 
      * @return The ELManager used for EL processing.
      */
-    public ExpressionManager getELManager() {
+    public ExpressionManager getManager() {
         return elManager;
     }
 
@@ -151,7 +151,7 @@ public class ExpressionProcessor {
      */
     @SuppressWarnings("unchecked")
     public <T> T getValue(final String expression, final Class<T> expectedType) {
-        final StandardExpressionContext elContext = elManager.getELContext();
+        final StandardExpressionContext elContext = elManager.getContext();
         return (T) factory.createValueExpression(elContext, bracket(expression), expectedType)//
                 .getValue(elContext);
     }
@@ -177,7 +177,7 @@ public class ExpressionProcessor {
      *             property of this exception, if available.
      */
     public void setValue(final String expression, final Object value) {
-        final StandardExpressionContext elContext = elManager.getELContext();
+        final StandardExpressionContext elContext = elManager.getContext();
         factory.createValueExpression(elContext, bracket(expression), Object.class)//
                 .setValue(elContext, value);
     }
@@ -195,7 +195,7 @@ public class ExpressionProcessor {
      *            The EL expression to be assigned to the variable.
      */
     public void setVariable(final String var, final String expression) {
-        elManager.setVariable(var, factory.createValueExpression(elManager.getELContext(), bracket(expression), Object.class));
+        elManager.setVariable(var, factory.createValueExpression(elManager.getContext(), bracket(expression), Object.class));
     }
 
     /**

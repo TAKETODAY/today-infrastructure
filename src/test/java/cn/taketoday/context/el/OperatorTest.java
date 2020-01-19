@@ -125,10 +125,10 @@ public class OperatorTest {
     public void testMisc() {
         testExpr("quote", "\"'\"", "'");
         testExpr("quote", "'\"'", "\"");
-        ExpressionManager elm = elp.getELManager();
+        ExpressionManager elm = elp.getManager();
         ValueExpression v = elm.getExpressionFactory().createValueExpression(
-                                                                             elm.getELContext(), "#${1+1}", Object.class);
-        Object ret = v.getValue(elm.getELContext());
+                                                                             elm.getContext(), "#${1+1}", Object.class);
+        Object ret = v.getValue(elm.getContext());
         assertEquals(ret, "#2");
 
         elp.setVariable("debug", "true");

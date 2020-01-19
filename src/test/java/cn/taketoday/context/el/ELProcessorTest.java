@@ -64,7 +64,7 @@ public class ELProcessorTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         elp = new ExpressionProcessor();
-        elm = elp.getELManager();
+        elm = elp.getManager();
         factory = elm.getExpressionFactory();
     }
 
@@ -74,7 +74,7 @@ public class ELProcessorTest {
     @Test
     public void testMethExpr() {
         MethodExpression meth = null;
-        ExpressionContext ctxt = elm.getELContext();
+        ExpressionContext ctxt = elm.getContext();
         try {
             meth = factory.createMethodExpression(ctxt, "#{str.length}", Object.class, null);
         }

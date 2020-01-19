@@ -237,7 +237,7 @@ public abstract class ExpressionContext {
      * @return The resolver to be consulted for variable and property resolution
      *         during expression evaluation.
      */
-    public abstract ExpressionResolver getELResolver();
+    public abstract ExpressionResolver getResolver();
 
     /**
      * Retrieves the <code>ImportHandler</code> associated with this
@@ -401,7 +401,7 @@ public abstract class ExpressionContext {
             if (typeConverter != null) {
                 return typeConverter.convert(targetType, obj);
             }
-            final ExpressionResolver elResolver = getELResolver();
+            final ExpressionResolver elResolver = getResolver();
             if (elResolver != null) {
                 Object res = elResolver.convertToType(this, obj, targetType);
                 if (isPropertyResolved()) {

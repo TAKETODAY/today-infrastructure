@@ -118,7 +118,7 @@ public final class AstFunction extends SimpleNode {
         }
         // Check if this is resolvable by an ELResolver
         ctx.setPropertyResolved(false);
-        final Object ret = ctx.getELResolver().getValue(ctx, null, name);
+        final Object ret = ctx.getResolver().getValue(ctx, null, name);
         if (ctx.isPropertyResolved()) {
             return ret;
         }
@@ -167,7 +167,7 @@ public final class AstFunction extends SimpleNode {
                 if (c != null) {
                     // Use StaticFieldELResolver to invoke the constructor or the static method.
                     final Object[] params = ((AstMethodArguments) children[0]).getParameters(ctx);
-                    return ctx.getELResolver().invoke(ctx, c, methodName, null, params);
+                    return ctx.getResolver().invoke(ctx, c, methodName, null, params);
                 }
             }
             // quickly validate for this request

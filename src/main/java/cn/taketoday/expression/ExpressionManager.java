@@ -60,7 +60,7 @@ public class ExpressionManager {
         this.elContext = elContext;
         this.exprFactory = exprFactory;
     }
-    
+
     public ExpressionManager() {
         this.exprFactory = ExpressionFactory.getSharedInstance();
         this.elContext = new StandardExpressionContext(exprFactory);
@@ -82,7 +82,7 @@ public class ExpressionManager {
      *
      * @return The ELContext used for parsing and evaluating EL expressions..
      */
-    public StandardExpressionContext getELContext() {
+    public StandardExpressionContext getContext() {
         return elContext;
     }
 
@@ -95,7 +95,7 @@ public class ExpressionManager {
      *            The BeanNameResolver to be registered.
      */
     public void addBeanNameResolver(BeanNameResolver bnr) {
-        getELContext().addELResolver(new BeanNameExpressionResolver(bnr));
+        getContext().addResolver(new BeanNameExpressionResolver(bnr));
     }
 
     /**
@@ -109,8 +109,8 @@ public class ExpressionManager {
      *            ELContext.
      * @see StandardExpressionContext#addELResolver
      */
-    public void addELResolver(ExpressionResolver elr) {
-        getELContext().addELResolver(elr);
+    public void addResolver(ExpressionResolver elr) {
+        getContext().addResolver(elr);
     }
 
     /**
@@ -124,7 +124,7 @@ public class ExpressionManager {
      *            The static method to be invoked when the function is used.
      */
     public void mapFunction(String prefix, String function, Method meth) {
-        getELContext().getFunctionMapper().mapFunction(prefix, function, meth);
+        getContext().getFunctionMapper().mapFunction(prefix, function, meth);
     }
 
     /**
@@ -138,7 +138,7 @@ public class ExpressionManager {
      *            The ValueExpression to be assigned to the variable.
      */
     public void setVariable(String variable, ValueExpression expression) {
-        getELContext().getVariableMapper().setVariable(variable, expression);
+        getContext().getVariableMapper().setVariable(variable, expression);
     }
 
     /**
@@ -151,7 +151,7 @@ public class ExpressionManager {
      *             if the name is not a full class name.
      */
     public void importStatic(String staticMemberName) throws ExpressionException {
-        getELContext().getImportHandler().importStatic(staticMemberName);
+        getContext().getImportHandler().importStatic(staticMemberName);
     }
 
     /**
@@ -164,7 +164,20 @@ public class ExpressionManager {
      *             if the name is not a full class name.
      */
     public void importClass(String className) throws ExpressionException {
-        getELContext().getImportHandler().importClass(className);
+        getContext().getImportHandler().importClass(className);
+    }
+
+    /**
+     * Import a class. The imported class must be loadable from the classloader at
+     * the expression evaluation time.
+     * 
+     * @param clazz
+     *            The class
+     * @throws ExpressionException
+     *             if the name is not a full class name.
+     */
+    public void importClass(Class<?> clazz) throws ExpressionException {
+        getContext().getImportHandler().importClass(clazz.getName());
     }
 
     /**
@@ -176,7 +189,7 @@ public class ExpressionManager {
      *            The package name to be imported
      */
     public void importPackage(String packageName) {
-        getELContext().getImportHandler().importPackage(packageName);
+        getContext().getImportHandler().importPackage(packageName);
     }
 
     /**
@@ -189,6 +202,6 @@ public class ExpressionManager {
      *            bean is removed.
      */
     public Object defineBean(String name, Object bean) {
-        return getELContext().getBeans().put(name, bean);
+        return getContext().getBeans().put(name, bean);
     }
 }

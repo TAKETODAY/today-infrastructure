@@ -79,7 +79,7 @@ public final class AstIdentifier extends SimpleNode {
             }
         }
         ctx.setPropertyResolved(false);
-        final Class<?> ret = ctx.getELResolver().getType(ctx, null, image);
+        final Class<?> ret = ctx.getResolver().getType(ctx, null, image);
         if (!ctx.isPropertyResolved()) {
             ExpressionSupport.throwUnhandled(null, image);
         }
@@ -111,14 +111,14 @@ public final class AstIdentifier extends SimpleNode {
             return expr.getValue(ctx);
         }
         ctx.setPropertyResolved(false);
-        final Object ret = ctx.getELResolver().getValue(ctx, null, image);
+        final Object ret = ctx.getResolver().getValue(ctx, null, image);
         if (!ctx.isPropertyResolved()) {
             // Check if this is an imported static field
             final ImportHandler importHandler = ctx.getImportHandler();
             if (importHandler != null) {
                 final Class<?> c = importHandler.resolveStatic(image);
                 if (c != null) {
-                    return ctx.getELResolver().getValue(ctx, c, image);
+                    return ctx.getResolver().getValue(ctx, c, image);
                 }
             }
 //            return ""; //TODO
@@ -141,7 +141,7 @@ public final class AstIdentifier extends SimpleNode {
             }
         }
         ctx.setPropertyResolved(false);
-        boolean ret = ctx.getELResolver().isReadOnly(ctx, null, image);
+        boolean ret = ctx.getResolver().isReadOnly(ctx, null, image);
         if (!ctx.isPropertyResolved()) {
             ExpressionSupport.throwUnhandled(null, image);
         }
@@ -164,7 +164,7 @@ public final class AstIdentifier extends SimpleNode {
             }
         }
         ctx.setPropertyResolved(false);
-        ctx.getELResolver().setValue(ctx, null, image, value);
+        ctx.getResolver().setValue(ctx, null, image, value);
         if (!ctx.isPropertyResolved()) {
             ExpressionSupport.throwUnhandled(null, image);
         }
@@ -195,7 +195,7 @@ public final class AstIdentifier extends SimpleNode {
         // case B: evaluate the identity against the ELResolver, again, must be a MethodExpression to be able to invoke
         if (ve == null) {
             ctx.setPropertyResolved(false);
-            obj = ctx.getELResolver().getValue(ctx, null, image);
+            obj = ctx.getResolver().getValue(ctx, null, image);
         }
 
         // finally provide helpful hints

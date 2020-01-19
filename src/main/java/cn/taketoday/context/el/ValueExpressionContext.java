@@ -32,7 +32,7 @@ public class ValueExpressionContext extends StandardExpressionContext {
 
     public ValueExpressionContext(ExpressionFactory exprFactory, AbstractBeanFactory beanFactory) {
         super(exprFactory);
-        addELResolver(new BeanNameExpressionResolver(new BeanFactoryResolver(beanFactory)));
+        addResolver(new BeanNameExpressionResolver(new BeanFactoryResolver(beanFactory)));
     }
 
 }

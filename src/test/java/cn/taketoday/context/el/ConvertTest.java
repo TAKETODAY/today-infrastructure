@@ -127,7 +127,7 @@ public class ConvertTest {
 
     @Test
     public void testCustom() {
-        elp.getELManager().addELResolver(new TypeConverter() {
+        elp.getManager().addResolver(new TypeConverter() {
             @Override
             public Object convertToType(ExpressionContext context, Object obj, Class<?> type) {
                 if (obj instanceof String && type == MyBean.class) {

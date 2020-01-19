@@ -131,7 +131,7 @@ public class StandardExpressionContext extends ExpressionContext {
 
         elr.add(customResolvers);
         elr.add(new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)));
-        elr.add(context.getELResolver());
+        elr.add(context.getResolver());
 
         elResolver = elr;
 
@@ -162,7 +162,7 @@ public class StandardExpressionContext extends ExpressionContext {
      * @return The ELResolver for this context.
      */
     @Override
-    public ExpressionResolver getELResolver() {
+    public ExpressionResolver getResolver() {
         return elResolver;
     }
 
@@ -174,7 +174,7 @@ public class StandardExpressionContext extends ExpressionContext {
      * @param cELResolver
      *            The new ELResolver to be added to the context
      */
-    public void addELResolver(ExpressionResolver cELResolver) {
+    public void addResolver(ExpressionResolver cELResolver) {
         customResolvers.add(cELResolver);
     }
 
