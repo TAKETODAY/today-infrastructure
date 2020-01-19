@@ -15,6 +15,11 @@
  */
 package cn.taketoday.context.cglib.util;
 
+import static cn.taketoday.context.Constant.SOURCE_FILE;
+import static cn.taketoday.context.Constant.TYPE_OBJECT_ARRAY;
+import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
+import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
+
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
@@ -29,12 +34,12 @@ class ParallelSorterEmitter extends ClassEmitter {
 
     private static final Type PARALLEL_SORTER = TypeUtils.parseType(ParallelSorter.class);
     private static final Signature CSTRUCT_OBJECT_ARRAY = TypeUtils.parseConstructor("Object[]");
-    private static final Signature NEW_INSTANCE = new Signature("newInstance", PARALLEL_SORTER, new Type[] { Constant.TYPE_OBJECT_ARRAY });
+    private static final Signature NEW_INSTANCE = new Signature("newInstance", PARALLEL_SORTER, new Type[] { TYPE_OBJECT_ARRAY });
     private static final Signature SWAP = TypeUtils.parseSignature("void swap(int, int)");
 
     public ParallelSorterEmitter(ClassVisitor v, String className, Object[] arrays) {
         super(v);
-        beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, className, PARALLEL_SORTER, null, Constant.SOURCE_FILE);
+        beginClass(JAVA_VERSION, ACC_PUBLIC, className, PARALLEL_SORTER, null, SOURCE_FILE);
         EmitUtils.nullConstructor(this);
         EmitUtils.factoryMethod(this, NEW_INSTANCE);
         generateConstructor(arrays);
@@ -47,12 +52,12 @@ class ParallelSorterEmitter extends ClassEmitter {
     }
 
     private void generateConstructor(Object[] arrays) {
-        CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, CSTRUCT_OBJECT_ARRAY);
+        CodeEmitter e = beginMethod(ACC_PUBLIC, CSTRUCT_OBJECT_ARRAY);
         e.load_this();
         e.super_invoke_constructor();
         e.load_this();
         e.load_arg(0);
-        e.super_putfield("a", Constant.TYPE_OBJECT_ARRAY);
+        e.super_putfield("a", TYPE_OBJECT_ARRAY);
         for (int i = 0; i < arrays.length; i++) {
             Type type = Type.getType(arrays[i].getClass());
             declare_field(Constant.ACC_PRIVATE, getFieldName(i), type, null);
@@ -68,7 +73,7 @@ class ParallelSorterEmitter extends ClassEmitter {
     }
 
     private void generateSwap(final Object[] arrays) {
-        CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, SWAP);
+        CodeEmitter e = beginMethod(ACC_PUBLIC, SWAP);
         for (int i = 0; i < arrays.length; i++) {
             Type type = Type.getType(arrays[i].getClass());
             Type component = TypeUtils.getComponentType(type);

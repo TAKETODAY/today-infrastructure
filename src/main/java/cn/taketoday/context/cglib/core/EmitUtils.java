@@ -16,8 +16,13 @@
 package cn.taketoday.context.cglib.core;
 
 import static cn.taketoday.context.Constant.SWITCH_STYLE_HASH;
+import static cn.taketoday.context.Constant.SWITCH_STYLE_HASHONLY;
+import static cn.taketoday.context.Constant.SWITCH_STYLE_TRIE;
+import static cn.taketoday.context.Constant.TYPE_CLASS;
 import static cn.taketoday.context.Constant.TYPE_STRING_BUFFER;
 import static cn.taketoday.context.cglib.core.CollectionUtils.bucket;
+import static cn.taketoday.context.cglib.core.TypeUtils.parseConstructor;
+import static cn.taketoday.context.cglib.core.TypeUtils.parseSignature;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -39,30 +44,30 @@ import cn.taketoday.context.cglib.core.internal.CustomizerRegistry;
 @SuppressWarnings("all")
 public abstract class EmitUtils {
 
-    private static final Signature CSTRUCT_NULL = TypeUtils.parseConstructor(Constant.BLANK);
-    private static final Signature CSTRUCT_THROWABLE = TypeUtils.parseConstructor("Throwable");
+    private static final Signature CSTRUCT_NULL = parseConstructor(Constant.BLANK);
+    private static final Signature CSTRUCT_THROWABLE = parseConstructor("Throwable");
 
-    private static final Signature GET_NAME = TypeUtils.parseSignature("String getName()");
-    private static final Signature HASH_CODE = TypeUtils.parseSignature("int hashCode()");
-    private static final Signature EQUALS = TypeUtils.parseSignature("boolean equals(Object)");
-    private static final Signature STRING_LENGTH = TypeUtils.parseSignature("int length()");
-    private static final Signature STRING_CHAR_AT = TypeUtils.parseSignature("char charAt(int)");
-    private static final Signature FOR_NAME = TypeUtils.parseSignature("Class forName(String)");
-    private static final Signature DOUBLE_TO_LONG_BITS = TypeUtils.parseSignature("long doubleToLongBits(double)");
-    private static final Signature FLOAT_TO_INT_BITS = TypeUtils.parseSignature("int floatToIntBits(float)");
-    private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
-    private static final Signature APPEND_STRING = TypeUtils.parseSignature("StringBuffer append(String)");
-    private static final Signature APPEND_INT = TypeUtils.parseSignature("StringBuffer append(int)");
-    private static final Signature APPEND_DOUBLE = TypeUtils.parseSignature("StringBuffer append(double)");
-    private static final Signature APPEND_FLOAT = TypeUtils.parseSignature("StringBuffer append(float)");
-    private static final Signature APPEND_CHAR = TypeUtils.parseSignature("StringBuffer append(char)");
-    private static final Signature APPEND_LONG = TypeUtils.parseSignature("StringBuffer append(long)");
-    private static final Signature APPEND_BOOLEAN = TypeUtils.parseSignature("StringBuffer append(boolean)");
-    private static final Signature LENGTH = TypeUtils.parseSignature("int length()");
-    private static final Signature SET_LENGTH = TypeUtils.parseSignature("void setLength(int)");
+    private static final Signature LENGTH = parseSignature("int length()");
+    private static final Signature HASH_CODE = parseSignature("int hashCode()");
+    private static final Signature GET_NAME = parseSignature("String getName()");
+    private static final Signature STRING_LENGTH = parseSignature("int length()");
+    private static final Signature TO_STRING = parseSignature("String toString()");
+    private static final Signature EQUALS = parseSignature("boolean equals(Object)");
+    private static final Signature SET_LENGTH = parseSignature("void setLength(int)");
+    private static final Signature FOR_NAME = parseSignature("Class forName(String)");
+    private static final Signature STRING_CHAR_AT = parseSignature("char charAt(int)");
+    private static final Signature APPEND_INT = parseSignature("StringBuffer append(int)");
+    private static final Signature APPEND_LONG = parseSignature("StringBuffer append(long)");
+    private static final Signature APPEND_CHAR = parseSignature("StringBuffer append(char)");
+    private static final Signature APPEND_FLOAT = parseSignature("StringBuffer append(float)");
+    private static final Signature APPEND_DOUBLE = parseSignature("StringBuffer append(double)");
+    private static final Signature APPEND_STRING = parseSignature("StringBuffer append(String)");
+    private static final Signature APPEND_BOOLEAN = parseSignature("StringBuffer append(boolean)");
+    private static final Signature FLOAT_TO_INT_BITS = parseSignature("int floatToIntBits(float)");
+    private static final Signature DOUBLE_TO_LONG_BITS = parseSignature("long doubleToLongBits(double)");
 
     private static final Signature GET_DECLARED_METHOD = //
-            TypeUtils.parseSignature("java.lang.reflect.Method getDeclaredMethod(String, Class[])");
+            parseSignature("java.lang.reflect.Method getDeclaredMethod(String, Class[])");
 
     public static final ArrayDelimiters DEFAULT_DELIMITERS = new ArrayDelimiters("{", ", ", "}");
 
@@ -72,7 +77,7 @@ public abstract class EmitUtils {
         e.new_instance_this();
         e.dup();
         e.load_args();
-        e.invoke_constructor_this(TypeUtils.parseConstructor(sig.getArgumentTypes()));
+        e.invoke_constructor_this(parseConstructor(sig.getArgumentTypes()));
         e.return_value();
         e.end_method();
     }
@@ -164,13 +169,13 @@ public abstract class EmitUtils {
     public static void stringSwitch(CodeEmitter e, String[] strings, int switchStyle, ObjectSwitchCallback callback) {
         try {
             switch (switchStyle) {
-                case Constant.SWITCH_STYLE_TRIE :
+                case SWITCH_STYLE_TRIE :
                     stringSwitchTrie(e, strings, callback);
                     break;
                 case SWITCH_STYLE_HASH :
                     stringSwitchHash(e, strings, callback, false);
                     break;
-                case Constant.SWITCH_STYLE_HASHONLY :
+                case SWITCH_STYLE_HASHONLY :
                     stringSwitchHash(e, strings, callback, true);
                     break;
                 default:
@@ -242,7 +247,7 @@ public abstract class EmitUtils {
         });
     }
 
-    protected static int[] getSwitchKeys(Map<Integer, List<MethodInfo>> buckets) {
+    protected static <T> int[] getSwitchKeys(Map<Integer, List<T>> buckets) {
         final int[] keys = new int[buckets.size()];
         int i = 0;
 
@@ -256,26 +261,29 @@ public abstract class EmitUtils {
 
     private static void stringSwitchHash(final CodeEmitter e, final String[] strings,
                                          final ObjectSwitchCallback callback, final boolean skipEquals) throws Exception {
-        final Map buckets = bucket(Arrays.asList(strings), new Transformer() {
+        final Map<Integer, List<String>> buckets = bucket(Arrays.asList(strings), new Transformer() {
             public Object transform(Object value) {
                 return value.hashCode(); // TODO
             }
         });
+
         final Label def = e.make_label();
         final Label end = e.make_label();
         e.dup();
         e.invoke_virtual(Constant.TYPE_OBJECT, HASH_CODE);
         e.process_switch(getSwitchKeys(buckets), new ProcessSwitchCallback() {
             public void processCase(int key, Label ignore_end) throws Exception {
-                List bucket = (List) buckets.get(key);
+                List<String> bucket = buckets.get(key);
                 Label next = null;
                 if (skipEquals && bucket.size() == 1) {
-                    if (skipEquals) e.pop();
-                    callback.processCase((String) bucket.get(0), end);
+                    if (skipEquals) {
+                        e.pop();
+                    }
+                    callback.processCase(bucket.get(0), end);
                 }
                 else {
-                    for (Iterator it = bucket.iterator(); it.hasNext();) {
-                        String string = (String) it.next();
+                    for (Iterator<String> it = bucket.iterator(); it.hasNext();) {
+                        final String string = it.next();
                         if (next != null) {
                             e.mark(next);
                         }
@@ -314,7 +322,7 @@ public abstract class EmitUtils {
             if (type == Type.VOID_TYPE) {
                 throw new IllegalArgumentException("cannot load void type");
             }
-            e.getstatic(TypeUtils.getBoxedType(type), "TYPE", Constant.TYPE_CLASS);
+            e.getstatic(TypeUtils.getBoxedType(type), "TYPE", TYPE_CLASS);
         }
         else {
             loadClassHelper(e, type);
@@ -325,7 +333,7 @@ public abstract class EmitUtils {
         if (e.isStaticHook()) {
             // have to fall back on non-optimized load
             e.push(TypeUtils.emulateClassGetName(type));
-            e.invoke_static(Constant.TYPE_CLASS, FOR_NAME);
+            e.invoke_static(TYPE_CLASS, FOR_NAME);
         }
         else {
             ClassEmitter ce = e.getClassEmitter();
@@ -333,13 +341,13 @@ public abstract class EmitUtils {
 
             // TODO: can end up with duplicated field names when using chained transformers;
             // incorporate static hook # somehow
-            String fieldName = "TODAY$load_class$" + TypeUtils.escapeType(typeName);
+            String fieldName = "TODAY$load_class$".concat(TypeUtils.escapeType(typeName));
             if (!ce.isFieldDeclared(fieldName)) {
-                ce.declare_field(Constant.PRIVATE_FINAL_STATIC, fieldName, Constant.TYPE_CLASS, null);
+                ce.declare_field(Constant.PRIVATE_FINAL_STATIC, fieldName, TYPE_CLASS, null);
                 CodeEmitter hook = ce.getStaticHook();
                 hook.push(typeName);
-                hook.invoke_static(Constant.TYPE_CLASS, FOR_NAME);
-                hook.putstatic(ce.getClassType(), fieldName, Constant.TYPE_CLASS);
+                hook.invoke_static(TYPE_CLASS, FOR_NAME);
+                hook.putstatic(ce.getClassType(), fieldName, TYPE_CLASS);
             }
             e.getfield(fieldName);
         }
@@ -348,6 +356,7 @@ public abstract class EmitUtils {
     public static void pushArray(CodeEmitter e, Object[] array) {
         e.push(array.length);
         e.newArray(Type.getType(remapComponentType(array.getClass().getComponentType())));
+
         for (int i = 0; i < array.length; i++) {
             e.dup();
             e.push(i);
@@ -356,9 +365,8 @@ public abstract class EmitUtils {
         }
     }
 
-    private static Class remapComponentType(Class componentType) {
-        if (componentType.equals(Type.class)) return Class.class;
-        return componentType;
+    private static Class<?> remapComponentType(Class<?> componentType) {
+        return componentType.equals(Type.class) ? Class.class : componentType;
     }
 
     public static void pushObject(CodeEmitter e, Object obj) {
@@ -730,7 +738,7 @@ public abstract class EmitUtils {
         loadClass(e, method.getClassInfo().getType());
         e.push(method.getSignature().getName());
         pushObject(e, method.getSignature().getArgumentTypes());
-        e.invoke_virtual(Constant.TYPE_CLASS, GET_DECLARED_METHOD);
+        e.invoke_virtual(TYPE_CLASS, GET_DECLARED_METHOD);
     }
 
     private interface ParameterTyper {
@@ -841,7 +849,7 @@ public abstract class EmitUtils {
                 if (checked == null || !checked.get(i)) {
                     e.dup();
                     e.aaload(i);
-                    e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
+                    e.invoke_virtual(TYPE_CLASS, GET_NAME);
                     e.push(TypeUtils.emulateClassGetName(types[i]));
                     e.invoke_virtual(Constant.TYPE_OBJECT, EQUALS);
                     e.if_jump(CodeEmitter.EQ, def);
@@ -877,7 +885,7 @@ public abstract class EmitUtils {
 
                 e.dup();
                 e.aaload(index);
-                e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
+                e.invoke_virtual(TYPE_CLASS, GET_NAME);
 
                 final Map<String, List<MethodInfo>> fbuckets = buckets;
                 String[] names = buckets.keySet().toArray(new String[buckets.size()]);

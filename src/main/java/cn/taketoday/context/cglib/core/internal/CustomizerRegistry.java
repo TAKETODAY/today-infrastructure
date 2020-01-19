@@ -17,8 +17,8 @@ import cn.taketoday.context.cglib.core.KeyFactoryCustomizer;
 @SuppressWarnings("all")
 public class CustomizerRegistry {
 
-    private final Class[] customizerTypes;
-    private Map<Class, List<KeyFactoryCustomizer>> customizers = new HashMap<>();
+    private final Class<?>[] customizerTypes;
+    private Map<Class<?>, List<KeyFactoryCustomizer>> customizers = new HashMap<>();
 
     public CustomizerRegistry(Class... customizerTypes) {
         this.customizerTypes = customizerTypes;
@@ -26,11 +26,11 @@ public class CustomizerRegistry {
 
     public void add(KeyFactoryCustomizer customizer) {
         Class<? extends KeyFactoryCustomizer> klass = customizer.getClass();
-        for (Class type : customizerTypes) {
+        for (Class<?> type : customizerTypes) {
             if (type.isAssignableFrom(klass)) {
                 List<KeyFactoryCustomizer> list = customizers.get(type);
                 if (list == null) {
-                    customizers.put(type, list = new ArrayList<KeyFactoryCustomizer>());
+                    customizers.put(type, list = new ArrayList<>());
                 }
                 list.add(customizer);
             }
@@ -39,10 +39,7 @@ public class CustomizerRegistry {
 
     public <T> List<T> get(Class<T> klass) {
         List<KeyFactoryCustomizer> list = customizers.get(klass);
-        if (list == null) {
-            return Collections.emptyList();
-        }
-        return (List<T>) list;
+        return list == null ? Collections.emptyList() : (List<T>) list;
     }
 
     /**

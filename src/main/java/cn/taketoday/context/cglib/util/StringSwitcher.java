@@ -92,8 +92,8 @@ abstract public class StringSwitcher {
 
         private static final Source SOURCE = new Source(StringSwitcher.class.getSimpleName());
 
-        private String[] strings;
         private int[] ints;
+        private String[] strings;
         private boolean fixedInput;
 
         public Generator() {
@@ -157,7 +157,7 @@ abstract public class StringSwitcher {
             EmitUtils.nullConstructor(ce);
             final CodeEmitter e = ce.beginMethod(ACC_PUBLIC, INT_VALUE);
             e.load_arg(0);
-            final List stringList = Arrays.asList(strings);
+            final List<String> stringList = Arrays.asList(strings);
             int style = fixedInput ? Constant.SWITCH_STYLE_HASHONLY : Constant.SWITCH_STYLE_HASH;
             EmitUtils.stringSwitch(e, strings, style, new ObjectSwitchCallback() {
 
@@ -179,7 +179,7 @@ abstract public class StringSwitcher {
 
         @Override
         protected Object firstInstance(Class type) {
-            return (StringSwitcher) ReflectUtils.newInstance(type);
+            return ReflectUtils.newInstance(type);
         }
 
         @Override

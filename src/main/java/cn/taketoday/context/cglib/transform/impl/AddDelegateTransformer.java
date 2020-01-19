@@ -32,6 +32,7 @@ import cn.taketoday.context.cglib.transform.ClassEmitterTransformer;
  */
 @SuppressWarnings("all")
 public class AddDelegateTransformer extends ClassEmitterTransformer {
+    
     private static final String DELEGATE = "$TODAY_DELEGATE";
     private static final Signature CSTRUCT_OBJECT = TypeUtils.parseSignature("void <init>(Object)");
 
@@ -53,15 +54,24 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
     }
 
     @Override
-    public void beginClass(int version, int access, String className, Type superType, Type[] interfaces,
-                           String sourceFile) {
+    public void beginClass(int version,
+                           int access,
+                           String className,
+                           Type superType,
+                           Type[] interfaces,
+                           String sourceFile) //
+    {
 
-        if (!Modifier.isInterface(access)) {
-
+        if (Modifier.isInterface(access)) {
+            super.beginClass(version, access, className, superType, interfaces, sourceFile);
+        }
+        else {
+            final Class[] delegateIf = this.delegateIf;
             Type[] all = TypeUtils.add(interfaces, TypeUtils.getTypes(delegateIf));
             super.beginClass(version, access, className, superType, all, sourceFile);
 
             declare_field(Constant.ACC_PRIVATE | Constant.ACC_TRANSIENT, DELEGATE, delegateType, null);
+            
             for (int i = 0; i < delegateIf.length; i++) {
                 Method[] methods = delegateIf[i].getMethods();
                 for (int j = 0; j < methods.length; j++) {
@@ -71,9 +81,6 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
                 }
             }
         }
-        else {
-            super.beginClass(version, access, className, superType, interfaces, sourceFile);
-        }
     }
 
     @Override
@@ -81,9 +88,11 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
 
         final CodeEmitter e = super.beginMethod(access, sig, exceptions);
         if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)) {
+            
             return new CodeEmitter(e) {
                 private boolean transformInit = true;
-
+                
+                @Override
                 public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
                     super.visitMethodInsn(opcode, owner, name, desc, itf);
                     if (transformInit && opcode == Constant.INVOKESPECIAL) {

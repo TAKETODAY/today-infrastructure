@@ -395,7 +395,7 @@ public abstract class TypeUtils {
     }
 
     public static String escapeType(String s) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0, len = s.length(); i < len; i++) {
             char c = s.charAt(i);
             switch (c) {
