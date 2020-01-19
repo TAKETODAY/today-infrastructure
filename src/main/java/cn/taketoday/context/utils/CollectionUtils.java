@@ -21,6 +21,7 @@ package cn.taketoday.context.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -32,6 +33,10 @@ import java.util.Set;
  *         2019-12-29 23:39
  */
 public abstract class CollectionUtils {
+
+    public static final boolean isCollection(Class<?> cls) {
+        return Collection.class.isAssignableFrom(cls);
+    }
 
     /**
      * Create a hash set

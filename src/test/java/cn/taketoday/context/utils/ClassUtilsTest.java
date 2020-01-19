@@ -10,10 +10,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -256,17 +254,6 @@ public class ClassUtilsTest {
         assert ClassUtils.resolvePrimitiveClassName("java.lang.Float") == null;
         assert ClassUtils.resolvePrimitiveClassName("float") == float.class;
         assert ClassUtils.resolvePrimitiveClassName(null) == null;
-    }
-
-    @Test
-    public void isCollection() throws ClassNotFoundException {
-
-        setProcess("isCollection");
-
-        assert ClassUtils.isCollection(List.class);
-        assert ClassUtils.isCollection(Set.class);
-        assert !ClassUtils.isCollection(INNER.class);
-        assert ClassUtils.isCollection(ArrayList.class);
     }
 
     @Test

@@ -40,8 +40,10 @@
 
 package cn.taketoday.expression.util;
 
+import static cn.taketoday.expression.util.MessageFactory.get;
+import static java.beans.Introspector.getBeanInfo;
+
 import java.beans.IntrospectionException;
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -49,12 +51,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 import cn.taketoday.context.Constant;
-import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.expression.ELContext;
 import cn.taketoday.expression.ELException;
 import cn.taketoday.expression.MethodNotFoundException;
@@ -69,47 +71,6 @@ import cn.taketoday.expression.lang.ExpressionSupport;
  */
 public abstract class ReflectionUtil {
 
-    protected static final String[] EMPTY_STRING = new String[0];
-
-    protected static final String[] PRIMITIVE_NAMES = new String[] { //
-        "boolean", "byte", "char", "double", "float", "int", "long", "short", "void"//
-    };
-
-    @SuppressWarnings("rawtypes")
-    protected static final Class[] PRIMITIVES = new Class[] { //
-        boolean.class, byte.class, char.class, double.class, float.class, int.class, long.class, short.class, Void.TYPE
-    };
-
-    @SuppressWarnings("rawtypes")
-    public static Class forName(String name) throws ClassNotFoundException {
-        if (StringUtils.isEmpty(name)) {
-            return null;
-        }
-        Class c = forNamePrimitive(name);
-        if (c == null) {
-            if (name.endsWith("[]")) {
-                String nc = name.substring(0, name.length() - 2);
-                c = Class.forName(nc, true, Thread.currentThread().getContextClassLoader());
-                c = Array.newInstance(c, 0).getClass();
-            }
-            else {
-                c = Class.forName(name, true, Thread.currentThread().getContextClassLoader());
-            }
-        }
-        return c;
-    }
-
-    @SuppressWarnings("rawtypes")
-    protected static Class forNamePrimitive(String name) {
-        if (name.length() <= 8) {
-            int p = Arrays.binarySearch(PRIMITIVE_NAMES, name);
-            if (p >= 0) {
-                return PRIMITIVES[p];
-            }
-        }
-        return null;
-    }
-
     /**
      * Converts an array of Class names to Class types
      * 
@@ -122,7 +83,7 @@ public abstract class ReflectionUtil {
         if (s == null) return null;
         Class[] c = new Class[s.length];
         for (int i = 0; i < s.length; i++) {
-            c[i] = forName(s[i]);
+            c[i] = ClassUtils.forName(s[i]);
         }
         return c;
     }
@@ -134,7 +95,7 @@ public abstract class ReflectionUtil {
      * @return The array of Classes
      */
     @SuppressWarnings("rawtypes")
-    public static String[] toTypeNameArray(Class[] c) {
+    public static String[] toClassNameArray(Class[] c) {
         if (c == null) return null;
         String[] s = new String[c.length];
         for (int i = 0; i < c.length; i++) {
@@ -152,24 +113,23 @@ public abstract class ReflectionUtil {
      * @throws ELException
      * @throws PropertyNotFoundException
      */
-    public static PropertyDescriptor getPropertyDescriptor(Object base,
-                                                           Object property) throws ELException, PropertyNotFoundException {
+    public static PropertyDescriptor getPropertyDescriptor(final Object base, final Object property) throws ELException {
+
         String name = ExpressionSupport.coerceToString(property);
         try {
-            PropertyDescriptor[] desc = Introspector.getBeanInfo(base.getClass()).getPropertyDescriptors();
-            for (int i = 0; i < desc.length; i++) {
-                if (desc[i].getName().equals(name)) {
-                    return desc[i];
+            for (PropertyDescriptor desc : getBeanInfo(base.getClass()).getPropertyDescriptors()) {
+                if (desc.getName().equals(name)) {
+                    return desc;
                 }
             }
         }
         catch (IntrospectionException ie) {
             throw new ELException(ie);
         }
-        throw new PropertyNotFoundException(MessageFactory.get("error.property.notfound", base, name));
+        throw new PropertyNotFoundException(get("error.property.notfound", base, name));
     }
 
-    /*
+    /**
      * This method duplicates code in javax.el.ELUtil. When making changes keep the
      * code in sync.
      */
@@ -189,7 +149,6 @@ public abstract class ReflectionUtil {
 
     public static Object invokeConstructor(ELContext context, Constructor<?> c, Object[] params) {
         try {
-
             return c.newInstance(buildParameters(context, c.getParameterTypes(), c.isVarArgs(), params));
         }
         catch (IllegalAccessException | IllegalArgumentException iae) {
@@ -215,13 +174,9 @@ public abstract class ReflectionUtil {
 
         List<Wrapper> wrappers = Wrapper.wrap(constructors);
 
-        String methodName = Constant.CONSTRUCTOR_NAME;
+        final String methodName = Constant.CONSTRUCTOR_NAME;
         Wrapper result = findWrapper(klass, wrappers, methodName, paramTypes, params);
-
-        if (result == null) {
-            return null;
-        }
-        return getConstructor(klass, (Constructor<?>) result.unWrap());
+        return result == null ? null : getConstructor(klass, result.unwrap());
     }
 
     /*
@@ -232,7 +187,7 @@ public abstract class ReflectionUtil {
                                     Class<?>[] paramTypes, Object[] paramValues) {
 
         if (clazz == null || methodName == null) {
-            throw new MethodNotFoundException(MessageFactory.get("error.method.notfound", clazz, methodName, paramString(paramTypes)));
+            throw new MethodNotFoundException(get("error.method.notfound", clazz, methodName, paramString(paramTypes)));
         }
 
         if (paramTypes == null) {
@@ -245,10 +200,7 @@ public abstract class ReflectionUtil {
 
         Wrapper result = findWrapper(clazz, wrappers, methodName, paramTypes, paramValues);
 
-        if (result == null) {
-            return null;
-        }
-        return getMethod(clazz, (Method) result.unWrap());
+        return result == null ? null : getMethod(clazz, result.unwrap());
     }
 
     public static Method findMethod(Class<?> klass, String method, Class<?>[] paramTypes, Object[] params, boolean staticOnly) {
@@ -261,16 +213,19 @@ public abstract class ReflectionUtil {
         return m;
     }
 
-    /*
+    /**
      * This method duplicates code in javax.el.ELUtil. When making changes keep the
      * code in sync.
      */
-    private static Wrapper findWrapper(Class<?> clazz, List<Wrapper> wrappers,
-                                       String name, Class<?>[] paramTypes, Object[] paramValues) {
-
-        List<Wrapper> assignableCandidates = new ArrayList<Wrapper>();
-        List<Wrapper> coercibleCandidates = new ArrayList<Wrapper>();
-        List<Wrapper> varArgsCandidates = new ArrayList<Wrapper>();
+    private static Wrapper findWrapper(Class<?> clazz,
+                                       List<Wrapper> wrappers,
+                                       String name,
+                                       Class<?>[] paramTypes,
+                                       Object[] paramValues) //
+    {
+        ArrayList<Wrapper> varArgsCandidates = new ArrayList<>();
+        ArrayList<Wrapper> coercibleCandidates = new ArrayList<>();
+        ArrayList<Wrapper> assignableCandidates = new ArrayList<>();
 
         int paramCount;
         if (paramTypes == null) {
@@ -314,9 +269,8 @@ public abstract class ReflectionUtil {
                     // unwrap the array's component type
                     Class<?> varType = mParamTypes[i].getComponentType();
                     for (int j = i; j < paramCount; j++) {
-                        if (!isAssignableFrom(paramTypes[j], varType) && !(paramValues != null && j < paramValues.length && isCoercibleFrom(
-                                                                                                                                            paramValues[j],
-                                                                                                                                            varType))) {
+                        if (!isAssignableFrom(paramTypes[j], varType)
+                            && !(paramValues != null && j < paramValues.length && isCoercibleFrom(paramValues[j], varType))) {
                             noMatch = true;
                             break;
                         }
@@ -361,32 +315,37 @@ public abstract class ReflectionUtil {
                 // return it
                 return w;
             }
-
         }
 
-        String errorMsg = MessageFactory.get("error.method.ambiguous", clazz, name, paramString(paramTypes));
         if (!assignableCandidates.isEmpty()) {
-            return findMostSpecificWrapper(assignableCandidates, paramTypes, false, errorMsg);
+            return findMostSpecificWrapper(assignableCandidates, paramTypes, false, errorMsg(clazz, name, paramTypes));
         }
         else if (!coercibleCandidates.isEmpty()) {
-            return findMostSpecificWrapper(coercibleCandidates, paramTypes, true, errorMsg);
+            return findMostSpecificWrapper(coercibleCandidates, paramTypes, true, errorMsg(clazz, name, paramTypes));
         }
         else if (!varArgsCandidates.isEmpty()) {
-            return findMostSpecificWrapper(varArgsCandidates, paramTypes, true, errorMsg);
+            return findMostSpecificWrapper(varArgsCandidates, paramTypes, true, errorMsg(clazz, name, paramTypes));
         }
         else {
-            throw new MethodNotFoundException(MessageFactory.get("error.method.notfound", clazz, name, paramString(paramTypes)));
+            throw new MethodNotFoundException(get("error.method.notfound", clazz, name, paramString(paramTypes)));
         }
 
     }
 
-    /*
+    final static Supplier<String> errorMsg(Class<?> clazz, String name, Class<?>[] paramTypes) {
+        return () -> get("error.method.ambiguous", clazz, name, paramString(paramTypes));
+    }
+
+    /**
      * This method duplicates code in javax.el.ELUtil. When making changes keep the
      * code in sync.
      */
     private static Wrapper findMostSpecificWrapper(List<Wrapper> candidates,
-                                                   Class<?>[] matchingTypes, boolean elSpecific, String errorMsg) {
-        List<Wrapper> ambiguouses = new ArrayList<Wrapper>();
+                                                   Class<?>[] matchingTypes,
+                                                   boolean elSpecific,
+                                                   Supplier<String> errorMsg) //
+    {
+        ArrayList<Wrapper> ambiguouses = new ArrayList<>();
         for (Wrapper candidate : candidates) {
             boolean lessSpecific = false;
 
@@ -407,13 +366,13 @@ public abstract class ReflectionUtil {
         }
 
         if (ambiguouses.size() > 1) {
-            throw new MethodNotFoundException(errorMsg);
+            throw new MethodNotFoundException(errorMsg.get());
         }
 
         return ambiguouses.get(0);
     }
 
-    /*
+    /**
      * This method duplicates code in javax.el.ELUtil. When making changes keep the
      * code in sync.
      */
@@ -483,7 +442,7 @@ public abstract class ReflectionUtil {
         }
         else {
             if (elSpecific) {
-                /*
+                /**
                  * Number will be treated as more specific ASTInteger only return Long or
                  * BigInteger, no Byte / Short / Integer. ASTFloatingPoint also.
                  */
@@ -515,35 +474,32 @@ public abstract class ReflectionUtil {
      */
     private static Class<?> getBoxingTypeIfPrimitive(Class<?> clazz) {
         if (clazz.isPrimitive()) {
-            if (clazz == Boolean.TYPE) {
+            if (clazz == boolean.class) {
                 return Boolean.class;
             }
-            else if (clazz == Character.TYPE) {
+            else if (clazz == char.class) {
                 return Character.class;
             }
-            else if (clazz == Byte.TYPE) {
+            else if (clazz == byte.class) {
                 return Byte.class;
             }
-            else if (clazz == Short.TYPE) {
+            else if (clazz == short.class) {
                 return Short.class;
             }
-            else if (clazz == Integer.TYPE) {
+            else if (clazz == int.class) {
                 return Integer.class;
             }
-            else if (clazz == Long.TYPE) {
+            else if (clazz == long.class) {
                 return Long.class;
             }
-            else if (clazz == Float.TYPE) {
+            else if (clazz == float.class) {
                 return Float.class;
             }
             else {
                 return Double.class;
             }
         }
-        else {
-            return clazz;
-        }
-
+        return clazz;
     }
 
     /*
@@ -557,7 +513,6 @@ public abstract class ReflectionUtil {
         for (int i = paramTypes.length - 1; i < length; i++) {
             result[i] = type;
         }
-
         return result;
     }
 
@@ -680,10 +635,6 @@ public abstract class ReflectionUtil {
         return null;
     }
 
-    /*
-     * This method duplicates code in javax.el.ELUtil. When making changes keep the
-     * code in sync.
-     */
     static Constructor<?> getConstructor(Class<?> type, Constructor<?> c) {
         if (c == null || Modifier.isPublic(type.getModifiers())) {
             return c;
@@ -705,10 +656,6 @@ public abstract class ReflectionUtil {
         return null;
     }
 
-    /*
-     * This method duplicates code in javax.el.ELUtil. When making changes keep the
-     * code in sync.
-     */
     static Object[] buildParameters(ELContext context, Class<?>[] parameterTypes,
                                     boolean isVarArgs, Object[] params) {
         Object[] parameters = null;
@@ -744,12 +691,14 @@ public abstract class ReflectionUtil {
         return parameters;
     }
 
-    /* This method duplicates code in com.sun.el.util.ReflectionUtil. When making
-     * changes keep the code in sync. */
+    /**
+     * This method duplicates code in ReflectionUtil. When making changes keep the
+     * code in sync.
+     */
     public abstract static class Wrapper {
 
         public static List<Wrapper> wrap(Method[] methods, String name) {
-            List<Wrapper> result = new ArrayList<>();
+            ArrayList<Wrapper> result = new ArrayList<>();
             for (Method method : methods) {
                 if (method.getName().equals(name)) {
                     result.add(new MethodWrapper(method));
@@ -759,14 +708,14 @@ public abstract class ReflectionUtil {
         }
 
         public static List<Wrapper> wrap(Constructor<?>[] constructors) {
-            List<Wrapper> result = new ArrayList<>();
+            ArrayList<Wrapper> result = new ArrayList<>();
             for (Constructor<?> constructor : constructors) {
                 result.add(new ConstructorWrapper(constructor));
             }
             return result;
         }
 
-        public abstract Object unWrap();
+        public abstract <T> T unwrap();
 
         public abstract Class<?>[] getParameterTypes();
 
@@ -775,8 +724,6 @@ public abstract class ReflectionUtil {
         public abstract boolean isBridge();
     }
 
-    /* This method duplicates code in com.sun.el.util.ReflectionUtil. When making
-     * changes keep the code in sync. */
     private static class MethodWrapper extends Wrapper {
 
         private final Method m;
@@ -786,7 +733,8 @@ public abstract class ReflectionUtil {
         }
 
         @Override
-        public Object unWrap() {
+        @SuppressWarnings("unchecked")
+        public Method unwrap() {
             return m;
         }
 
@@ -806,8 +754,6 @@ public abstract class ReflectionUtil {
         }
     }
 
-    /* This method duplicates code in com.sun.el.util.ReflectionUtil. When making
-     * changes keep the code in sync. */
     private static class ConstructorWrapper extends Wrapper {
         private final Constructor<?> c;
 
@@ -816,7 +762,8 @@ public abstract class ReflectionUtil {
         }
 
         @Override
-        public Object unWrap() {
+        @SuppressWarnings("unchecked")
+        public Constructor<?> unwrap() {
             return c;
         }
 

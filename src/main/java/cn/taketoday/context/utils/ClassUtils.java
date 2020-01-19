@@ -20,6 +20,7 @@
 package cn.taketoday.context.utils;
 
 import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
+import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -135,10 +136,6 @@ public abstract class ClassUtils {
         IGNORE_ANNOTATION_CLASS.add(annotationClass);
     }
 
-    public static final boolean isCollection(Class<?> cls) {
-        return Collection.class.isAssignableFrom(cls);
-    }
-
     /**
      * clear cache
      */
@@ -175,7 +172,7 @@ public abstract class ClassUtils {
      */
     public static boolean isPresent(String className) {
         
-        Objects.requireNonNull(className, "class name can't be null");
+        requireNonNull(className, "class name can't be null");
         try {
             forName(className);
             return true;
@@ -194,19 +191,20 @@ public abstract class ClassUtils {
         }
         return null;
     }
-
+    
     /**
      * Load class .from spring
      * 
      * @param name
-     *            a class full name
+     *              a class full name
+     * @param classLoader
+     *              The Class file loader
      * @return a class
      * @throws ClassNotFoundException
-     *             when class could not be found
-     * @since 2.1.6
+     *             When class could not be found
+     * @since 2.1.7
      */
-    public static Class<?> forName(String name) throws ClassNotFoundException {
-
+    public static Class<?> forName(String name, ClassLoader classLoader) throws ClassNotFoundException {
         Class<?> clazz = resolvePrimitiveClassName(name);
         if (clazz != null) {
             return clazz;
@@ -232,6 +230,9 @@ public abstract class ClassUtils {
             return Array.newInstance(elementClass, 0).getClass();
         }
 
+        if (classLoader == null) {
+            classLoader = getClassLoader();
+        }
         try {
             return Class.forName(name, false, classLoader);
         }
@@ -250,6 +251,20 @@ public abstract class ClassUtils {
             }
             throw ex;
         }
+    }
+
+    /**
+     * Load class .from spring
+     * 
+     * @param name
+     *            a class full name
+     * @return a class
+     * @throws ClassNotFoundException
+     *             when class could not be found
+     * @since 2.1.6
+     */
+    public static Class<?> forName(String name) throws ClassNotFoundException {
+        return forName(name, classLoader);
     }
 
     /**
@@ -352,7 +367,7 @@ public abstract class ClassUtils {
             return null;
         }
 
-        Objects.requireNonNull(implClass, "Implementation class can't be null");
+        requireNonNull(implClass, "Implementation class can't be null");
 
         return (T[]) ANNOTATIONS.computeIfAbsent(new AnnotationKey<>(element, annotationClass), (k) -> {
 
@@ -672,7 +687,7 @@ public abstract class ClassUtils {
         if (targetClass == null) {
             return null;
         }
-        Objects.requireNonNull(element, "annotated element can't be null");
+        requireNonNull(element, "annotated element can't be null");
 
         return ANNOTATION_ATTRIBUTES.computeIfAbsent(new AnnotationKey<>(element, targetClass), (k) -> {
             final Set<AnnotationAttributes> result = new LinkedHashSet<>();
@@ -975,7 +990,7 @@ public abstract class ClassUtils {
      */
     @SuppressWarnings("unchecked")
     public static <T> Class<T> getUserClass(T synthetic) {
-        return (Class<T>) getUserClass(Objects.requireNonNull(synthetic).getClass());
+        return (Class<T>) getUserClass(requireNonNull(synthetic).getClass());
     }
 
     /**
@@ -989,7 +1004,7 @@ public abstract class ClassUtils {
      */
     public static <T> Class<T> getUserClass(Class<T> syntheticClass) {
 
-        final String name = Objects.requireNonNull(syntheticClass).getName();
+        final String name = requireNonNull(syntheticClass).getName();
         final int i = name.indexOf(Constant.CGLIB_CHAR_SEPARATOR);
         if (i > 0) {
             return loadClass(name.substring(0, i));
@@ -1008,7 +1023,7 @@ public abstract class ClassUtils {
      */
     public static <T> Class<T> getUserClass(String name) {
 
-        final int i = Objects.requireNonNull(name).indexOf(Constant.CGLIB_CHAR_SEPARATOR);
+        final int i = requireNonNull(name).indexOf(Constant.CGLIB_CHAR_SEPARATOR);
         if (i > 0) {
             return loadClass(name.substring(0, i));
         }
@@ -1280,7 +1295,7 @@ public abstract class ClassUtils {
      * @return the qualified name of the method
      */
     public static String getQualifiedMethodName(Method method, Class<?> clazz) {
-        Objects.requireNonNull(method, "Method must not be null");
+        requireNonNull(method, "Method must not be null");
         return (clazz != null ? clazz : method.getDeclaringClass()).getName() + '.' + method.getName();
     }
 
