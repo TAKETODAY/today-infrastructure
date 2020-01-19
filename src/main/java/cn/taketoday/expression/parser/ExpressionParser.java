@@ -199,7 +199,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         }
     }
 
-    /*
+    /**
      * LiteralExpression Non-EL Expression blocks
      */
     final public void LiteralExpression() throws ParseException {

@@ -41,8 +41,8 @@
 package cn.taketoday.expression.parser;
 
 import cn.taketoday.expression.ELException;
-import cn.taketoday.expression.lang.ExpressionArithmetic;
 import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.expression.lang.ExpressionArithmetic;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]

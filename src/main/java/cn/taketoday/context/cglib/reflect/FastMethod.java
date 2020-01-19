@@ -18,9 +18,6 @@ package cn.taketoday.context.cglib.reflect;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.asm.Type;
-import cn.taketoday.context.cglib.core.Signature;
-
 @SuppressWarnings("all")
 public class FastMethod extends FastMember {
 
