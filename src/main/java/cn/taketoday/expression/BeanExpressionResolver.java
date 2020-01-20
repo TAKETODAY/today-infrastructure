@@ -19,13 +19,12 @@ package cn.taketoday.expression;
 
 import static cn.taketoday.expression.util.ReflectionUtil.findMethod;
 import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
+import static java.security.AccessController.doPrivileged;
+import static java.util.Objects.requireNonNull;
 
 import java.lang.reflect.Field;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConcurrentCache;
@@ -61,8 +60,8 @@ import cn.taketoday.context.utils.ConcurrentCache;
  *
  * <p>
  * <code>ELResolver</code>s are combined together using
- * {@link CompositeExpressionResolver}s, to define rich semantics for evaluating an
- * expression. See the javadocs for {@link ExpressionResolver} for details.
+ * {@link CompositeExpressionResolver}s, to define rich semantics for evaluating
+ * an expression. See the javadocs for {@link ExpressionResolver} for details.
  * </p>
  *
  * <p>
@@ -145,7 +144,7 @@ public class BeanExpressionResolver extends ExpressionResolver {
             return null;
         }
         final Field field = getBeanProperty(base, property);
-        Objects.requireNonNull(context).setPropertyResolved(true);
+        requireNonNull(context).setPropertyResolved(true);
         return field.getType();
     }
 
@@ -198,13 +197,13 @@ public class BeanExpressionResolver extends ExpressionResolver {
         try {
             final Field field = getBeanProperty(base, property);
             final Object value = field.get(base);
-            Objects.requireNonNull(context).setPropertyResolved(base, property);
+            requireNonNull(context).setPropertyResolved(base, property);
             return value;
         }
+        catch (ExpressionException e) {
+            throw e;
+        }
         catch (Exception ex) {
-            if (ex instanceof ExpressionException) {
-                throw (ExpressionException) ex;
-            }
             throw new ExpressionException(ex);
         }
     }
@@ -271,7 +270,7 @@ public class BeanExpressionResolver extends ExpressionResolver {
 
             final Field field = getBeanProperty(base, property);
             field.set(base, val);
-            Objects.requireNonNull(context).setPropertyResolved(base, property);
+            requireNonNull(context).setPropertyResolved(base, property);
         }
         catch (Exception ex) {
             if (ex instanceof ExpressionException) {
@@ -358,7 +357,7 @@ public class BeanExpressionResolver extends ExpressionResolver {
             return null;
         }
 
-        final Object ret = invokeMethod(Objects.requireNonNull(context),
+        final Object ret = invokeMethod(requireNonNull(context),
                                         findMethod(base.getClass(), method.toString(), paramTypes, params, false),
                                         base,
                                         params);
@@ -420,10 +419,9 @@ public class BeanExpressionResolver extends ExpressionResolver {
             return false;
         }
 
-        Objects.requireNonNull(context).setPropertyResolved(true);
+        requireNonNull(context).setPropertyResolved(true);
         return isReadOnly;
     }
-
 
     private Field getBeanProperty(Object base, Object prop) throws PropertyNotFoundException {
 
@@ -431,8 +429,7 @@ public class BeanExpressionResolver extends ExpressionResolver {
         BeanProperties bps = cache.get(baseClass);
 
         if (bps == null) {
-            bps = new BeanProperties(baseClass);
-            cache.put(baseClass, bps);
+            cache.put(baseClass, bps = new BeanProperties(baseClass));
         }
 
         final Field field = bps.getBeanProperty(prop.toString());
@@ -448,7 +445,7 @@ public class BeanExpressionResolver extends ExpressionResolver {
      */
     private final static class BeanProperties {
 
-        private final Map<String, Field> propertyMap = new HashMap<>();
+        private final HashMap<String, Field> propertyMap = new HashMap<>();
 
         public BeanProperties(Class<?> baseClass) {
             for (final Field field : ClassUtils.getFields(baseClass)) {
@@ -463,22 +460,15 @@ public class BeanExpressionResolver extends ExpressionResolver {
     }
 
     private static final ConcurrentCache<Class<?>, BeanProperties> cache;
-    private static final String CACHE_SIZE_PROP = "javax.el.BeanELResolver.cache.size";
+    private static final String CACHE_SIZE_PROP = "expression.cache.size";
 
     static {
 
-        String cacheSizeStr;
-        if (System.getSecurityManager() == null) {
-            cacheSizeStr = System.getProperty(CACHE_SIZE_PROP, "1024");
-        }
-        else {
-            cacheSizeStr = AccessController.doPrivileged(new PrivilegedAction<String>() {
-                @Override
-                public String run() {
-                    return System.getProperty(CACHE_SIZE_PROP, "1024");
-                }
-            });
-        }
+        String cacheSizeStr = //
+                System.getSecurityManager() == null
+                        ? System.getProperty(CACHE_SIZE_PROP, "1024")
+                        : doPrivileged((PrivilegedAction<String>) () -> System.getProperty(CACHE_SIZE_PROP, "1024"));
+
         cache = new ConcurrentCache<>(Integer.parseInt(cacheSizeStr));
     }
 
