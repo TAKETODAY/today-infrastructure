@@ -19,6 +19,8 @@
  */
 package cn.taketoday.framework.reactive;
 
+import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -339,16 +341,15 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
             final String header = request.headers().get(HttpHeaderNames.COOKIE);
             if (StringUtils.isEmpty(header)) {
-                return EMPTY_HTTP_COOKIE;
+                return this.cookies = EMPTY_HTTP_COOKIE;
             }
-
             final List<HttpCookie> parsed = HttpCookie.parse(header);
 
-            if (ObjectUtils.isEmpty(parsed)) {
-                return EMPTY_HTTP_COOKIE;
-            }
-            return this.cookies = parsed.toArray(new HttpCookie[parsed.size()]);
+            return this.cookies = ObjectUtils.isEmpty(parsed)
+                    ? EMPTY_HTTP_COOKIE
+                    : parsed.toArray(new HttpCookie[parsed.size()]);
         }
+
         return cookies;
     }
 
@@ -377,10 +378,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     public String parameter(String name) {
 
         final String[] parameter = parameters().get(name);
-        if (ObjectUtils.isEmpty(parameter)) {
-            return parameter[0];
-        }
-        return null;
+        return ObjectUtils.isNotEmpty(parameter) ? parameter[0] : null;
     }
 
     private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(true);
@@ -432,56 +430,18 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         return Collections.emptyMap();
     }
 
-    protected void parseBody() {
-
-        InterfaceHttpPostRequestDecoder requestDecoder = getRequestDecoder();
-
-        InterfaceHttpData data;
-
-        while ((data = requestDecoder.next()) != null) {
-
-            if (InterfaceHttpData.HttpDataType.FileUpload == data.getHttpDataType()) {
-                final FileUpload fileUpload = (FileUpload) data;
-
-                final String name = fileUpload.getName();
-                List<MultipartFile> parts = multipartFiles.get(name);
-                if (parts == null) {
-                    multipartFiles.put(name, parts = new ArrayList<>(4));
-                }
-                parts.add(new FileUploadMultipartFile(fileUpload));
-            }
-            else {
-                final Attribute attribute = (Attribute) data;
-
-                try {
-                    final String value = attribute.getValue();
-
-                }
-                catch (IOException e) {
-                    // TODO 自动生成的 catch 块
-                    e.printStackTrace();
-                }
-//                params.put(attribute.getName(), attribute.getValue());
-            }
-        }
-    }
-
     protected InterfaceHttpPostRequestDecoder getRequestDecoder() {
         InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
         if (requestDecoder == null) {
-            if (WebUtils.isMultipart(this)) {
-                requestDecoder = new HttpPostMultipartRequestDecoder(HTTP_DATA_FACTORY,
-                                                                     request.retain(),
-                                                                     Constant.DEFAULT_CHARSET);
-            }
-            else {
-                requestDecoder = new HttpPostStandardRequestDecoder(HTTP_DATA_FACTORY,
-                                                                    request.retain(),
-                                                                    Constant.DEFAULT_CHARSET);
-            }
+
+            requestDecoder = WebUtils.isMultipart(this)
+                    ? new HttpPostMultipartRequestDecoder(HTTP_DATA_FACTORY, request.retain(), DEFAULT_CHARSET)
+                    : new HttpPostStandardRequestDecoder(HTTP_DATA_FACTORY, request.retain(), DEFAULT_CHARSET);
+
             requestDecoder.setDiscardThreshold(0);
+            return this.requestDecoder = requestDecoder;
         }
-        return this.requestDecoder = requestDecoder;
+        return requestDecoder;
     }
 
     @Override
@@ -496,7 +456,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     public BufferedReader getReader() throws IOException {
         final BufferedReader reader = this.reader;
         if (reader == null) {
-            return this.reader = new BufferedReader(new InputStreamReader(getInputStream(), Constant.DEFAULT_CHARSET));
+            return this.reader = new BufferedReader(new InputStreamReader(getInputStream(), DEFAULT_CHARSET));
         }
         return reader;
     }
