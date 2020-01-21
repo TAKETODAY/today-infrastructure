@@ -27,6 +27,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RestController;
+import cn.taketoday.web.exception.UnauthorizedException;
 
 /**
  * @author TODAY <br>
@@ -43,6 +44,11 @@ public class NettyApplication {
     @GET("index")
     public String index() {
         return "Hello Netty";
+    }
+
+    @GET("ex")
+    void ex() {
+        throw new UnauthorizedException("您没登录");
     }
 
     @GET("json")

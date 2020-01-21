@@ -516,7 +516,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         return this;
     }
 
-    private final ByteBuf responseBody = Unpooled.buffer(0);
+    private final ByteBuf responseBody = Unpooled.buffer(16);
 
     public final ByteBuf responseBody() {
         return responseBody;

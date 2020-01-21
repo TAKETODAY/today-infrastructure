@@ -99,7 +99,7 @@ public class ReactiveDispatcher extends DispatcherHandler implements ChannelInbo
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 
         log.error("cause :{}", cause.toString(), cause);
-
+        
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
         ctx.writeAndFlush(response)
                 .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
