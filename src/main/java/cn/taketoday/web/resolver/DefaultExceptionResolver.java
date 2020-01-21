@@ -22,6 +22,7 @@ package cn.taketoday.web.resolver;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 
 import javax.imageio.ImageIO;
@@ -156,12 +157,14 @@ public class DefaultExceptionResolver implements ExceptionResolver {
         }
         else {
             context.contentType(Constant.CONTENT_TYPE_JSON);
-            context.getWriter().write(new StringBuilder()
+            final PrintWriter writer = context.getWriter();
+            writer.write(new StringBuilder()
                     .append("{\"message\":\"").append(responseStatus.msg())
                     .append("\",\"status\":").append(status)
                     .append(",\"success\":false}")
                     .toString()//
             );
+            writer.flush();
         }
     }
 
