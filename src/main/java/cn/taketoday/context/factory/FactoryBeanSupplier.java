@@ -41,7 +41,11 @@ public class FactoryBeanSupplier<T> implements Supplier<FactoryBean<T>> {
     @SuppressWarnings("unchecked")
     public FactoryBeanSupplier(BeanDefinition factoryDef, AbstractBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
-        this.beanClass = (Class<FactoryBean<T>>) factoryDef.getBeanClass();
+        final Class<?> beanClass = factoryDef.getBeanClass();
+        if (!FactoryBean.class.isAssignableFrom(beanClass)) {
+            throw new ConfigurationException("Target bean class must be 'cn.taketoday.context.factory.FactoryBean'");
+        }
+        this.beanClass = (Class<FactoryBean<T>>) beanClass;
         this.factoryBeanName = BeanFactory.FACTORY_BEAN_PREFIX.concat(factoryDef.getName());
     }
 

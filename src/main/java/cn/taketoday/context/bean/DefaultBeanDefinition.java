@@ -289,8 +289,27 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     @Override
     public boolean equals(Object obj) {
-        return obj == this
-               || (obj instanceof BeanDefinition && Objects.equals(((BeanDefinition) obj).getName(), getName()));
+        if (obj == this) {
+            return true;
+        }
+
+        if (obj instanceof DefaultBeanDefinition) {
+            final DefaultBeanDefinition other = (DefaultBeanDefinition) obj;
+
+            return Objects.equals(name, other.name)
+                   && scope == other.scope
+                   && childName == other.childName
+                   && beanClass == other.beanClass
+                   && Objects.deepEquals(initMethods, other.initMethods)
+                   && Objects.deepEquals(destroyMethods, other.destroyMethods)
+                   && Objects.deepEquals(propertyValues, other.propertyValues);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, beanClass);
     }
 
     @Override

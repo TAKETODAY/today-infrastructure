@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -81,7 +82,8 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
 
     private final ConfigurableApplicationContext applicationContext;
-    private final Collection<Method> missingMethods = new HashSet<>(32);
+    private final HashSet<Method> missingMethods = new HashSet<>(32);
+    private final LinkedList<AnnotatedElement> scaned = new LinkedList<>();
 
     public StandardBeanFactory(ConfigurableApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -611,14 +613,15 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      *            {@link BeanDefinition} that annotated {@link ComponentScan}
      */
     protected void componentScan(final AnnotatedElement source) {
-
-        for (final AnnotationAttributes attribute : getAnnotationAttributesArray(source, ComponentScan.class)) {
-            loadBeanDefinition(attribute.getStringArray(Constant.VALUE));
+        if (!scaned.contains(source)) {
+            scaned.add(source);
+            for (final AnnotationAttributes attribute : getAnnotationAttributesArray(source, ComponentScan.class)) {
+                loadBeanDefinition(attribute.getStringArray(Constant.VALUE));
+            }
         }
     }
 
     /**
-     * 
      * Register {@link FactoryBeanDefinition} to the {@link BeanFactory}
      * 
      * @param beanName
