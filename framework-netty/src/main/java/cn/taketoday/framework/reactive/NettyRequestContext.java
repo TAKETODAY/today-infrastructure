@@ -23,9 +23,7 @@ import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpCookie;
 import java.util.ArrayList;
@@ -72,8 +70,7 @@ import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.codec.http.multipart.FileUpload;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
-import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
-import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 
@@ -157,7 +154,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
+    public ByteBufInputStream getInputStream() throws IOException {
         final ByteBufInputStream inputStream = this.inputStream;
         if (inputStream == null) {
             return this.inputStream = new ByteBufInputStream(request.content());
@@ -166,7 +163,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     }
 
     @Override
-    public OutputStream getOutputStream() throws IOException {
+    public ByteBufOutputStream getOutputStream() throws IOException {
 
         final ByteBufOutputStream outputStream = this.outputStream;
         if (outputStream == null) {
@@ -401,9 +398,9 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
                 ? StringUtils.parseParameters(queryString)
                 : new HashMap<>();
 
-        InterfaceHttpData data;
-        final InterfaceHttpPostRequestDecoder decoder = getRequestDecoder();
-        while ((data = decoder.next()) != null) {
+        final List<InterfaceHttpData> bodyHttpDatas = getRequestDecoder().getBodyHttpDatas();
+        for (final InterfaceHttpData data : bodyHttpDatas) {
+
             if (data instanceof Attribute) {
                 try {
                     final String name = data.getName();
@@ -434,9 +431,10 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
         if (requestDecoder == null) {
 
-            requestDecoder = WebUtils.isMultipart(this)
-                    ? new HttpPostMultipartRequestDecoder(HTTP_DATA_FACTORY, request.retain(), DEFAULT_CHARSET)
-                    : new HttpPostStandardRequestDecoder(HTTP_DATA_FACTORY, request.retain(), DEFAULT_CHARSET);
+            requestDecoder = new HttpPostRequestDecoder(HTTP_DATA_FACTORY, this.request, DEFAULT_CHARSET);
+//            requestDecoder = WebUtils.isMultipart(this)
+//                    ? new HttpPostMultipartRequestDecoder(HTTP_DATA_FACTORY, request.retain(), DEFAULT_CHARSET)
+//                    : new HttpPostStandardRequestDecoder(HTTP_DATA_FACTORY, request.retain(), DEFAULT_CHARSET);
 
             requestDecoder.setDiscardThreshold(0);
             return this.requestDecoder = requestDecoder;
@@ -553,7 +551,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
             requestDecoder.destroy();
         }
 
-        committed = true;
+        setCommitted(true);
         return this;
     }
 
@@ -626,7 +624,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
         handlerContext.writeAndFlush(response);
 
-        committed = true;
+        setCommitted(true);
 
         return this;
     }
@@ -639,7 +637,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
         handlerContext.writeAndFlush(response);
 
-        committed = true;
+        setCommitted(true);
 
         return this;
     }
@@ -704,8 +702,6 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     @Override
     public void flush() throws IOException {
 
-        outputStream.flush();
-
         handlerContext.flush();
     }
 
@@ -719,11 +715,9 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         }
 
         multipartFiles = new HashMap<>(32);
-        InterfaceHttpData data;
-        final InterfaceHttpPostRequestDecoder requestDecoder = getRequestDecoder();
-        while ((data = requestDecoder.next()) != null) {
-            if (InterfaceHttpData.HttpDataType.FileUpload == data.getHttpDataType()) {
 
+        for (InterfaceHttpData data : getRequestDecoder().getBodyHttpDatas()) {
+            if (data instanceof FileUpload) {
                 final String name = data.getName();
                 List<MultipartFile> parts = multipartFiles.get(name);
                 if (parts == null) {
@@ -814,6 +808,10 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     public void setSingleFieldHeaders(boolean singleFieldHeaders) {
         this.singleFieldHeaders = singleFieldHeaders;
+    }
+
+    public void setCommitted(boolean committed) {
+        this.committed = committed;
     }
 
 }
