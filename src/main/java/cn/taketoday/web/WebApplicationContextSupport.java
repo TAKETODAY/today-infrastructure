@@ -52,5 +52,11 @@ public class WebApplicationContextSupport extends ApplicationContextSupport {
         }
         throw new IllegalStateException("ApplicationContext must be a WebApplicationContext");
     }
+    
+    @Override
+    public WebApplicationContext obtainApplicationContext() {
+        return (WebApplicationContext) super.obtainApplicationContext();
+    }
+
 
 }

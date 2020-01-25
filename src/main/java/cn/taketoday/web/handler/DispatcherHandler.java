@@ -65,11 +65,6 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
     /** exception resolver */
     private ExceptionResolver exceptionResolver;
 
-    @Override
-    public WebApplicationContext obtainApplicationContext() {
-        return (WebApplicationContext) super.obtainApplicationContext();
-    }
-
     public HandlerRegistry getHandlerRegistry() {
         return handlerRegistry;
     }
