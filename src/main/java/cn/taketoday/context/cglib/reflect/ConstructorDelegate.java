@@ -42,8 +42,8 @@ import cn.taketoday.context.cglib.core.TypeUtils;
  */
 @SuppressWarnings("all")
 abstract public class ConstructorDelegate {
-    private static final ConstructorKey KEY_FACTORY = //
-            (ConstructorKey) KeyFactory.create(ConstructorKey.class, KeyFactory.CLASS_BY_NAME);
+
+    private static final ConstructorKey KEY_FACTORY = KeyFactory.create(ConstructorKey.class, KeyFactory.CLASS_BY_NAME);
 
     interface ConstructorKey {
         public Object newInstance(String declaring, String iface);

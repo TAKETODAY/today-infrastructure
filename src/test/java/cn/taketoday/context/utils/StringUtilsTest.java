@@ -19,6 +19,15 @@
  */
 package cn.taketoday.context.utils;
 
+import static cn.taketoday.context.utils.StringUtils.collectionToString;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import java.util.HashSet;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -122,4 +131,145 @@ public class StringUtilsTest {
         assert StringUtils.tokenizeToStringArray(null, null) == Constant.EMPTY_STRING_ARRAY;
 
     }
+
+    @Test
+    public void testListToString() {
+
+        final List<String> asList = asList("i", "take", "today");
+        final String listToString = collectionToString(asList);
+        assertEquals(listToString, "i,take,today");
+
+        assertEquals(listToString, collectionToString(asList, ","));
+
+        assertEquals(collectionToString(asList("i"), ","), "i");
+
+        assertNull(collectionToString(null));
+
+        //Set 
+        assertEquals(collectionToString(new HashSet<String>() {
+            private static final long serialVersionUID = 1L;
+
+            {
+                add("i");
+                add("take");
+                add("today");
+            }
+        }).length(), "i,take,today".length());
+
+    }
+
+    @Test
+    public void hasTextBlank() {
+        String blank = "          ";
+        assertThat(StringUtils.hasText(blank)).isEqualTo(false);
+    }
+
+    @Test
+    public void hasTextNullEmpty() {
+        assertThat(StringUtils.hasText(null)).isEqualTo(false);
+        assertThat(StringUtils.hasText("")).isEqualTo(false);
+    }
+
+    @Test
+    public void deleteAny() {
+        String inString = "Able was I ere I saw Elba";
+
+        String res = StringUtils.deleteAny(inString, "I");
+        assertThat(res.equals("Able was  ere  saw Elba")).as("Result has no Is [" + res + "]").isTrue();
+
+        res = StringUtils.deleteAny(inString, "AeEba!");
+        assertThat(res.equals("l ws I r I sw l")).as("Result has no Is [" + res + "]").isTrue();
+
+        String mismatch = StringUtils.deleteAny(inString, "#@$#$^");
+        assertThat(mismatch.equals(inString)).as("Result is unchanged").isTrue();
+
+        String whitespace = "This is\n\n\n    \t   a messagy string with whitespace\n";
+        assertThat(whitespace.contains("\n")).as("Has CR").isTrue();
+        assertThat(whitespace.contains("\t")).as("Has tab").isTrue();
+        assertThat(whitespace.contains(" ")).as("Has  sp").isTrue();
+        String cleaned = StringUtils.deleteAny(whitespace, "\n\t ");
+        boolean condition2 = !cleaned.contains("\n");
+        assertThat(condition2).as("Has no CR").isTrue();
+        boolean condition1 = !cleaned.contains("\t");
+        assertThat(condition1).as("Has no tab").isTrue();
+        boolean condition = !cleaned.contains(" ");
+        assertThat(condition).as("Has no sp").isTrue();
+        assertThat(cleaned.length() > 10).as("Still has chars").isTrue();
+    }
+
+    @Test
+    public void getFilename() {
+        assertThat(StringUtils.getFilename(null)).isEqualTo(null);
+        assertThat(StringUtils.getFilename("")).isEqualTo("");
+        assertThat(StringUtils.getFilename("myfile")).isEqualTo("myfile");
+        assertThat(StringUtils.getFilename("mypath/myfile")).isEqualTo("myfile");
+        assertThat(StringUtils.getFilename("myfile.")).isEqualTo("myfile.");
+        assertThat(StringUtils.getFilename("mypath/myfile.")).isEqualTo("myfile.");
+        assertThat(StringUtils.getFilename("myfile.txt")).isEqualTo("myfile.txt");
+        assertThat(StringUtils.getFilename("mypath/myfile.txt")).isEqualTo("myfile.txt");
+    }
+
+    @Test
+    public void getFilenameExtension() {
+        assertThat(StringUtils.getFilenameExtension(null)).isEqualTo(null);
+        assertThat(StringUtils.getFilenameExtension("")).isEqualTo(null);
+        assertThat(StringUtils.getFilenameExtension("myfile")).isEqualTo(null);
+        assertThat(StringUtils.getFilenameExtension("myPath/myfile")).isEqualTo(null);
+        assertThat(StringUtils.getFilenameExtension("/home/user/.m2/settings/myfile")).isEqualTo(null);
+        assertThat(StringUtils.getFilenameExtension("myfile.")).isEqualTo("");
+        assertThat(StringUtils.getFilenameExtension("myPath/myfile.")).isEqualTo("");
+        assertThat(StringUtils.getFilenameExtension("myfile.txt")).isEqualTo("txt");
+        assertThat(StringUtils.getFilenameExtension("mypath/myfile.txt")).isEqualTo("txt");
+        assertThat(StringUtils.getFilenameExtension("/home/user/.m2/settings/myfile.txt")).isEqualTo("txt");
+    }
+
+    @Test
+    public void cleanPath() {
+        assertThat(StringUtils.cleanPath("mypath/myfile")).isEqualTo("mypath/myfile");
+        assertThat(StringUtils.cleanPath("mypath\\myfile")).isEqualTo("mypath/myfile");
+        assertThat(StringUtils.cleanPath("mypath/../mypath/myfile")).isEqualTo("mypath/myfile");
+        assertThat(StringUtils.cleanPath("mypath/myfile/../../mypath/myfile")).isEqualTo("mypath/myfile");
+        assertThat(StringUtils.cleanPath("../mypath/myfile")).isEqualTo("../mypath/myfile");
+        assertThat(StringUtils.cleanPath("../mypath/../mypath/myfile")).isEqualTo("../mypath/myfile");
+        assertThat(StringUtils.cleanPath("mypath/../../mypath/myfile")).isEqualTo("../mypath/myfile");
+        assertThat(StringUtils.cleanPath("/../mypath/myfile")).isEqualTo("/../mypath/myfile");
+        assertThat(StringUtils.cleanPath("/a/:b/../../mypath/myfile")).isEqualTo("/mypath/myfile");
+        assertThat(StringUtils.cleanPath("/")).isEqualTo("/");
+        assertThat(StringUtils.cleanPath("/mypath/../")).isEqualTo("/");
+        assertThat(StringUtils.cleanPath("mypath/..")).isEqualTo("");
+        assertThat(StringUtils.cleanPath("mypath/../.")).isEqualTo("");
+        assertThat(StringUtils.cleanPath("mypath/../")).isEqualTo("./");
+        assertThat(StringUtils.cleanPath("././")).isEqualTo("./");
+        assertThat(StringUtils.cleanPath("./")).isEqualTo("./");
+        assertThat(StringUtils.cleanPath("../")).isEqualTo("../");
+        assertThat(StringUtils.cleanPath("./../")).isEqualTo("../");
+        assertThat(StringUtils.cleanPath(".././")).isEqualTo("../");
+        assertThat(StringUtils.cleanPath("file:/")).isEqualTo("file:/");
+        assertThat(StringUtils.cleanPath("file:/mypath/../")).isEqualTo("file:/");
+        assertThat(StringUtils.cleanPath("file:mypath/..")).isEqualTo("file:");
+        assertThat(StringUtils.cleanPath("file:mypath/../.")).isEqualTo("file:");
+        assertThat(StringUtils.cleanPath("file:mypath/../")).isEqualTo("file:./");
+        assertThat(StringUtils.cleanPath("file:././")).isEqualTo("file:./");
+        assertThat(StringUtils.cleanPath("file:./")).isEqualTo("file:./");
+        assertThat(StringUtils.cleanPath("file:../")).isEqualTo("file:../");
+        assertThat(StringUtils.cleanPath("file:./../")).isEqualTo("file:../");
+        assertThat(StringUtils.cleanPath("file:.././")).isEqualTo("file:../");
+        assertThat(StringUtils.cleanPath("file:///c:/some/../path/the%20file.txt")).isEqualTo("file:///c:/path/the%20file.txt");
+    }
+
+    @Test
+    public void concatenateStringArrays() {
+        String[] input1 = new String[] { "myString2" };
+        String[] input2 = new String[] { "myString1", "myString2" };
+        String[] result = StringUtils.concatenateStringArrays(input1, input2);
+        assertThat(result.length).isEqualTo(3);
+        assertThat(result[0]).isEqualTo("myString2");
+        assertThat(result[1]).isEqualTo("myString1");
+        assertThat(result[2]).isEqualTo("myString2");
+
+        assertThat(StringUtils.concatenateStringArrays(input1, null)).isEqualTo(input1);
+        assertThat(StringUtils.concatenateStringArrays(null, input2)).isEqualTo(input2);
+        assertThat(StringUtils.concatenateStringArrays(null, null)).isNull();
+    }
+
 }

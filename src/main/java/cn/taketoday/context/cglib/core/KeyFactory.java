@@ -89,12 +89,9 @@ abstract public class KeyFactory {
         497900099, 683510293, 938313161, 1288102441, 1768288259 //
     };
 
-    public static final Customizer CLASS_BY_NAME = new Customizer() {
-
-        public void customize(CodeEmitter e, Type type) {
-            if (type.equals(Constant.TYPE_CLASS)) {
-                e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
-            }
+    public static final Customizer CLASS_BY_NAME = (CodeEmitter e, Type type) -> {
+        if (type.equals(Constant.TYPE_CLASS)) {
+            e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
         }
     };
 
@@ -118,14 +115,12 @@ abstract public class KeyFactory {
      * calculate hash code. This customizer uses {@link Type#getSort()} as a hash
      * code.
      */
-    public static final HashCodeCustomizer HASH_ASM_TYPE = new HashCodeCustomizer() {
-        public boolean customize(CodeEmitter e, Type type) {
-            if (Constant.TYPE_TYPE.equals(type)) {
-                e.invoke_virtual(type, GET_SORT);
-                return true;
-            }
-            return false;
+    public static final HashCodeCustomizer HASH_ASM_TYPE = (CodeEmitter e, Type type) -> {
+        if (Constant.TYPE_TYPE.equals(type)) {
+            e.invoke_virtual(type, GET_SORT);
+            return true;
         }
+        return false;
     };
 
     /**
@@ -135,32 +130,30 @@ abstract public class KeyFactory {
      *             Objects and represent Classes as Strings
      */
     @Deprecated
-    public static final Customizer OBJECT_BY_CLASS = new Customizer() {
-        public void customize(CodeEmitter e, Type type) {
-            e.invoke_virtual(Constant.TYPE_OBJECT, GET_CLASS);
-        }
+    public static final Customizer OBJECT_BY_CLASS = (CodeEmitter e, Type type) -> {
+        e.invoke_virtual(Constant.TYPE_OBJECT, GET_CLASS);
     };
 
     protected KeyFactory() {}
 
-    public static KeyFactory create(Class keyInterface) {
+    public static <T> T create(Class<T> keyInterface) {
         return create(keyInterface, null);
     }
 
-    public static KeyFactory create(Class keyInterface, Customizer customizer) {
+    public static <T> T create(Class<T> keyInterface, Customizer customizer) {
         return create(keyInterface.getClassLoader(), keyInterface, customizer);
     }
 
-    public static KeyFactory create(Class keyInterface, KeyFactoryCustomizer first, List<KeyFactoryCustomizer> next) {
+    public static <T> T create(Class<T> keyInterface, KeyFactoryCustomizer first, List<KeyFactoryCustomizer> next) {
         return create(keyInterface.getClassLoader(), keyInterface, first, next);
     }
 
-    public static KeyFactory create(ClassLoader loader, Class keyInterface, Customizer customizer) {
+    public static <T> T create(ClassLoader loader, Class<T> keyInterface, Customizer customizer) {
         return create(loader, keyInterface, customizer, Collections.emptyList());
     }
 
-    public static KeyFactory create(ClassLoader loader, Class keyInterface, //
-                                    KeyFactoryCustomizer customizer, List<KeyFactoryCustomizer> next) //
+    public static <T> T create(ClassLoader loader, Class<T> keyInterface, //
+                               KeyFactoryCustomizer customizer, List<KeyFactoryCustomizer> next) //
     {
         Generator gen = new Generator();
         gen.setInterface(keyInterface);
@@ -174,7 +167,7 @@ abstract public class KeyFactory {
             }
         }
         gen.setClassLoader(loader);
-        return gen.create();
+        return (T) gen.create();
     }
 
     public static class Generator extends AbstractClassGenerator {

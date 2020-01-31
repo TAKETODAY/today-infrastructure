@@ -39,7 +39,7 @@ import cn.taketoday.context.cglib.core.ReflectUtils;
 @SuppressWarnings("all")
 abstract public class Mixin {
 
-    private static final MixinKey KEY_FACTORY = (MixinKey) KeyFactory.create(MixinKey.class, KeyFactory.CLASS_BY_NAME);
+    private static final MixinKey KEY_FACTORY = KeyFactory.create(MixinKey.class, KeyFactory.CLASS_BY_NAME);
     private static final Map ROUTE_CACHE = Collections.synchronizedMap(new HashMap());
 
     public static final int STYLE_INTERFACES = 0;

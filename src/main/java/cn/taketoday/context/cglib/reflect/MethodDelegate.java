@@ -119,8 +119,7 @@ import cn.taketoday.context.cglib.core.TypeUtils;
 @SuppressWarnings("all")
 abstract public class MethodDelegate {
 
-    private static final MethodDelegateKey KEY_FACTORY = //
-            (MethodDelegateKey) KeyFactory.create(MethodDelegateKey.class, KeyFactory.CLASS_BY_NAME);
+    private static final MethodDelegateKey KEY_FACTORY = KeyFactory.create(MethodDelegateKey.class, KeyFactory.CLASS_BY_NAME);
 
     protected Object target;
     protected String eqMethod;

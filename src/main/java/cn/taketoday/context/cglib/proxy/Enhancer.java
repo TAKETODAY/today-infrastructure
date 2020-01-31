@@ -17,6 +17,7 @@ package cn.taketoday.context.cglib.proxy;
 
 import static cn.taketoday.context.Constant.PRIVATE_FINAL_STATIC;
 import static cn.taketoday.context.Constant.SUID_FIELD_NAME;
+import static cn.taketoday.context.Constant.TYPE_OBJECT;
 import static cn.taketoday.context.asm.ClassReader.SKIP_DEBUG;
 import static cn.taketoday.context.asm.ClassReader.SKIP_FRAMES;
 import static cn.taketoday.context.asm.Opcodes.ACC_PRIVATE;
@@ -29,6 +30,8 @@ import static cn.taketoday.context.asm.Type.INT_TYPE;
 import static cn.taketoday.context.asm.Type.LONG_TYPE;
 import static cn.taketoday.context.asm.Type.VOID_TYPE;
 import static cn.taketoday.context.asm.Type.array;
+import static cn.taketoday.context.cglib.core.TypeUtils.parseSignature;
+import static cn.taketoday.context.cglib.core.TypeUtils.parseType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -122,8 +125,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
     private static final Source SOURCE = new Source("Enhance");
 
-    private static final EnhancerKey KEY_FACTORY = //
-            (EnhancerKey) KeyFactory.create(EnhancerKey.class, KeyFactory.HASH_ASM_TYPE, null);
+    private static final EnhancerKey KEY_FACTORY = KeyFactory.create(EnhancerKey.class, KeyFactory.HASH_ASM_TYPE, null);
 
     private static final String BOUND_FIELD = "TODAY$BOUND";
     private static final String CONSTRUCTED_FIELD = "TODAY$CONSTRUCTED";
@@ -148,33 +150,33 @@ public class Enhancer extends AbstractClassGenerator<Object> {
      */
     private static final String CALLBACK_FILTER_FIELD = "TODAY$CALLBACK_FILTER";
 
-    private static final Type OBJECT_TYPE = Constant.TYPE_OBJECT;
-    private static final Type FACTORY = TypeUtils.parseType(Factory.class);
-    private static final Type ILLEGAL_STATE_EXCEPTION = TypeUtils.parseType("IllegalStateException");
-    private static final Type ILLEGAL_ARGUMENT_EXCEPTION = TypeUtils.parseType("IllegalArgumentException");
-    private static final Type THREAD_LOCAL = TypeUtils.parseType("ThreadLocal");
-    private static final Type CALLBACK = TypeUtils.parseType(Callback.class);
+    private static final Type OBJECT_TYPE = TYPE_OBJECT;
+    private static final Type FACTORY = parseType(Factory.class);
+    private static final Type ILLEGAL_STATE_EXCEPTION = parseType("IllegalStateException");
+    private static final Type ILLEGAL_ARGUMENT_EXCEPTION = parseType("IllegalArgumentException");
+    private static final Type THREAD_LOCAL = parseType("ThreadLocal");
+    private static final Type CALLBACK = parseType(Callback.class);
     private static final Type CALLBACK_ARRAY = Type.getType(Callback[].class);
 
     private static final Signature CSTRUCT_NULL = TypeUtils.parseConstructor(Constant.BLANK);
 
     private static final Signature SET_THREAD_CALLBACKS = new Signature(SET_THREAD_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
     private static final Signature SET_STATIC_CALLBACKS = new Signature(SET_STATIC_CALLBACKS_NAME, VOID_TYPE, array(CALLBACK_ARRAY));
-    private static final Signature NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, array(CALLBACK_ARRAY));
+    private static final Signature NEW_INSTANCE = new Signature("newInstance", TYPE_OBJECT, array(CALLBACK_ARRAY));
     private static final Signature MULTIARG_NEW_INSTANCE = new Signature("newInstance",
-                                                                         Constant.TYPE_OBJECT,
+                                                                         TYPE_OBJECT,
                                                                          array(Constant.TYPE_CLASS_ARRAY,
                                                                                Constant.TYPE_OBJECT_ARRAY,
                                                                                CALLBACK_ARRAY));
-    
-    private static final Signature SINGLE_NEW_INSTANCE = new Signature("newInstance", Constant.TYPE_OBJECT, array(CALLBACK));
+
+    private static final Signature SINGLE_NEW_INSTANCE = new Signature("newInstance", TYPE_OBJECT, array(CALLBACK));
     private static final Signature SET_CALLBACK = new Signature("setCallback", VOID_TYPE, array(INT_TYPE, CALLBACK));
     private static final Signature GET_CALLBACK = new Signature("getCallback", CALLBACK, array(INT_TYPE));
     private static final Signature SET_CALLBACKS = new Signature("setCallbacks", VOID_TYPE, array(CALLBACK_ARRAY));
     private static final Signature GET_CALLBACKS = new Signature("getCallbacks", CALLBACK_ARRAY, new Type[0]);
-    private static final Signature THREAD_LOCAL_GET = TypeUtils.parseSignature("Object get()");
-    private static final Signature THREAD_LOCAL_SET = TypeUtils.parseSignature("void set(Object)");
-    private static final Signature BIND_CALLBACKS = TypeUtils.parseSignature("void TODAY$BIND_CALLBACKS(Object)");
+    private static final Signature THREAD_LOCAL_GET = parseSignature("Object get()");
+    private static final Signature THREAD_LOCAL_SET = parseSignature("void set(Object)");
+    private static final Signature BIND_CALLBACKS = parseSignature("void TODAY$BIND_CALLBACKS(Object)");
 
     private EnhancerFactoryData currentData;
     private Object currentKey;
@@ -195,14 +197,13 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     /** Internal interface, only public due to ClassLoader issues. */
     public interface EnhancerKey {
 
-        Object newInstance(String type, //
-                           String[] interfaces, //
-                           WeakCacheKey<CallbackFilter> filter, //
-                           Type[] callbackTypes, //
-                           boolean useFactory, //
-                           boolean interceptDuringConstruction, //
-                           Long serialVersionUID//
-        );
+        Object newInstance(String type,
+                           String[] interfaces,
+                           WeakCacheKey<CallbackFilter> filter,
+                           Type[] callbackTypes,
+                           boolean useFactory,
+                           boolean interceptDuringConstruction,
+                           Long serialVersionUID);
     }
 
     /**
@@ -575,12 +576,11 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
         private void setThreadCallbacks(Callback[] callbacks) {
             try {
-
                 setThreadCallbacks.invoke(generatedClass, (Object) callbacks);
-            } //
+            }
             catch (IllegalAccessException e) {
                 throw new CodeGenerationException(e);
-            } //
+            }
             catch (InvocationTargetException e) {
                 throw new CodeGenerationException(e.getTargetException());
             }

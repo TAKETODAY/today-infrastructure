@@ -75,8 +75,7 @@ abstract public class BeanMap implements Map {
     public static class Generator extends AbstractClassGenerator {
         private static final Source SOURCE = new Source(BeanMap.class.getSimpleName());
 
-        private static final BeanMapKey KEY_FACTORY = //
-                (BeanMapKey) KeyFactory.create(BeanMapKey.class, KeyFactory.CLASS_BY_NAME);
+        private static final BeanMapKey KEY_FACTORY = KeyFactory.create(BeanMapKey.class, KeyFactory.CLASS_BY_NAME);
 
         interface BeanMapKey {
             public Object newInstance(Class type, int require);

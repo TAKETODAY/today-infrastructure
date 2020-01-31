@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -33,6 +34,30 @@ import java.util.Set;
  *         2019-12-29 23:39
  */
 public abstract class CollectionUtils {
+
+    /**
+     * Return {@code true} if the supplied Collection is {@code null} or empty.
+     * Otherwise, return {@code false}.
+     * 
+     * @param collection
+     *            the Collection to check
+     * @return whether the given Collection is empty
+     */
+    public static boolean isEmpty(Collection<?> collection) {
+        return (collection == null || collection.isEmpty());
+    }
+
+    /**
+     * Return {@code true} if the supplied Map is {@code null} or empty. Otherwise,
+     * return {@code false}.
+     * 
+     * @param map
+     *            the Map to check
+     * @return whether the given Map is empty
+     */
+    public static boolean isEmpty(Map<?, ?> map) {
+        return (map == null || map.isEmpty());
+    }
 
     public static final boolean isCollection(Class<?> cls) {
         return Collection.class.isAssignableFrom(cls);

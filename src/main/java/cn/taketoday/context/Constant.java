@@ -45,7 +45,7 @@ public interface Constant extends Opcodes, Serializable {
     Class<?>[] EMPTY_CLASS_ARRAY = {};
     Resource[] EMPTY_RESOURCE_ARRAY = {};
     AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
-    
+
     Serializable EMPTY_OBJECT = new Serializable() {
         private static final long serialVersionUID = 1L;
     };
@@ -196,4 +196,10 @@ public interface Constant extends Opcodes, Serializable {
     String JAR_URL_SEPARATOR = JAR_SEPARATOR;
     /** Special separator between WAR URL and jar part on Tomcat. */
     String WAR_URL_SEPARATOR = "*/";
+
+    String TOP_PATH = "..";
+    String CURRENT_PATH = ".";
+    String FOLDER_SEPARATOR = "/";
+    String WINDOWS_FOLDER_SEPARATOR = "\\";
+    char EXTENSION_SEPARATOR = PACKAGE_SEPARATOR;
 }

@@ -30,6 +30,7 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -92,11 +93,11 @@ public abstract class StringUtils {
         dontNeedEncoding.set('*');
     }
 
-    public final static boolean isEmpty(String str) {
-        return str == null || str.isEmpty();
+    public final static boolean isEmpty(CharSequence str) {
+        return str == null || str.length() == 0;
     }
 
-    public final static boolean isNotEmpty(String str) {
+    public final static boolean isNotEmpty(CharSequence str) {
         return !isEmpty(str);
     }
 
@@ -332,7 +333,10 @@ public abstract class StringUtils {
         return toStringArray(tokens);
     }
 
-    public static String[] tokenizeToStringArray(String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
+    public static String[] tokenizeToStringArray(String str,
+                                                 String delimiters,
+                                                 boolean trimTokens,
+                                                 boolean ignoreEmptyTokens) {
 
         if (str == null) {
             return Constant.EMPTY_STRING_ARRAY;
@@ -400,29 +404,45 @@ public abstract class StringUtils {
     }
 
     /**
-     * List to string
+     * {@link Collection} to string
      * 
-     * @param list
-     *            Input {@link List} object
+     * @param collection
+     *            Input {@link Collection} object
+     * @since 2.1.7
+     */
+    public static <T> String collectionToString(final Collection<T> collection) {
+        return collectionToString(collection, ",");
+    }
+
+    /**
+     * {@link Collection} to string
+     * 
+     * @param collection
+     *            Input {@link Collection} object
      * @param delimiter
      *            Delimiter string
+     * @since 2.1.7
      */
-    public static <T> String listToString(final List<T> list, final String delimiter) {
-        if (list == null) {
+    public static <T> String collectionToString(final Collection<T> coll, final String delimiter) {
+        if (coll == null) {
             return null;
         }
-        final int length = list.size();
+        final int length = coll.size();
         if (length == 1) {
-            return list.get(0).toString();
+            final T target = coll instanceof List ? ((List<T>) coll).get(0) : coll.iterator().next();
+            return target != null ? target.toString() : null;
         }
 
         final StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            builder.append(list.get(i));
-            if (i != length - 1) {
+
+        int i = 0;
+        for (T target : coll) {
+            builder.append(target);
+            if (i++ != length - 1) {
                 builder.append(delimiter);
             }
         }
+
         return builder.toString();
     }
 
@@ -482,17 +502,85 @@ public abstract class StringUtils {
     }
 
     /**
-     * Replace all "\\" to "/"
+     * Normalize the path by suppressing sequences like "path/.." and inner simple
+     * dots.
+     * <p>
+     * The result is convenient for path comparison. For other uses, notice that
+     * Windows separators ("\") are replaced by simple slashes.
      * 
      * @param path
-     *            Input path string
-     * @return Replace path
+     *            the original path
+     * @return the normalized path
      */
-    public static String cleanPath(final String path) {
+    public static String cleanPath(String path) {
         if (isEmpty(path)) {
             return path;
         }
-        return path.replace(Constant.WINDOWS_PATH_SEPARATOR, Constant.PATH_SEPARATOR);
+        String pathToUse = replace(path, Constant.WINDOWS_FOLDER_SEPARATOR, Constant.FOLDER_SEPARATOR);
+
+        // Shortcut if there is no work to do
+        if (pathToUse.indexOf('.') == -1) {
+            return pathToUse;
+        }
+
+        // Strip prefix from path to analyze, to not treat it as part of the
+        // first path element. This is necessary to correctly parse paths like
+        // "file:core/../core/io/Resource.class", where the ".." should just
+        // strip the first "core" directory while keeping the "file:" prefix.
+        int prefixIndex = pathToUse.indexOf(':');
+        String prefix = Constant.BLANK;
+        if (prefixIndex != -1) {
+            prefix = pathToUse.substring(0, prefixIndex + 1);
+            if (prefix.contains(Constant.FOLDER_SEPARATOR)) {
+                prefix = Constant.BLANK;
+            }
+            else {
+                pathToUse = pathToUse.substring(prefixIndex + 1);
+            }
+        }
+        if (pathToUse.startsWith(Constant.FOLDER_SEPARATOR)) {
+            prefix = prefix + Constant.FOLDER_SEPARATOR;
+            pathToUse = pathToUse.substring(1);
+        }
+
+        String[] pathArray = delimitedListToStringArray(pathToUse, Constant.FOLDER_SEPARATOR);
+        LinkedList<String> pathElements = new LinkedList<>();
+        int tops = 0;
+
+        for (int i = pathArray.length - 1; i >= 0; i--) {
+            String element = pathArray[i];
+            if (Constant.CURRENT_PATH.equals(element)) {
+                // Points to current directory - drop it.
+            }
+            else if (Constant.TOP_PATH.equals(element)) {
+                // Registering top path found.
+                tops++;
+            }
+            else {
+                if (tops > 0) {
+                    // Merging path element with element corresponding to top path.
+                    tops--;
+                }
+                else {
+                    // Normal path element found.
+                    pathElements.add(0, element);
+                }
+            }
+        }
+
+        // Remaining top paths need to be retained.
+        for (int i = 0; i < tops; i++) {
+            pathElements.add(0, Constant.TOP_PATH);
+        }
+        // If nothing else left, at least explicitly point to current path.
+        if (pathElements.size() == 1
+            && Constant.BLANK.equals(pathElements.getLast())
+            && !prefix.endsWith(Constant.FOLDER_SEPARATOR)) {
+
+            pathElements.add(0, Constant.CURRENT_PATH);
+        }
+
+        return prefix.concat(collectionToString(pathElements, Constant.FOLDER_SEPARATOR));
     }
 
     /**
@@ -692,7 +780,7 @@ public abstract class StringUtils {
             return new String[] { str };
         }
 
-        List<String> result = new ArrayList<>();
+        ArrayList<String> result = new ArrayList<>();
         if (delimiter.isEmpty()) {
             for (int i = 0; i < str.length(); i++) {
                 result.add(deleteAny(str.substring(i, i + 1), charsToDelete));
@@ -737,6 +825,83 @@ public abstract class StringUtils {
         System.arraycopy(array1, 0, newArr, 0, array1.length);
         System.arraycopy(array2, 0, newArr, array1.length, array2.length);
         return newArr;
+    }
+
+    /**
+     * Check whether the given {@code CharSequence} contains actual <em>text</em>.
+     * <p>
+     * More specifically, this method returns {@code true} if the
+     * {@code CharSequence} is not {@code null}, its length is greater than 0, and
+     * it contains at least one non-whitespace character.
+     * <p>
+     * <pre class="code">
+     * StringUtils.hasText(null) = false
+     * StringUtils.hasText("") = false
+     * StringUtils.hasText(" ") = false
+     * StringUtils.hasText("12345") = true
+     * StringUtils.hasText(" 12345 ") = true
+     * </pre>
+     * 
+     * @param str
+     *            the {@code CharSequence} to check (may be {@code null})
+     * @return {@code true} if the {@code CharSequence} is not {@code null}, its
+     *         length is greater than 0, and it does not contain whitespace only
+     * @see Character#isWhitespace
+     */
+    public static boolean hasText(CharSequence str) {
+        return isNotEmpty(str) && containsText(str);
+    }
+
+    private static boolean containsText(CharSequence str) {
+        int strLen = str.length();
+        for (int i = 0; i < strLen; i++) {
+            if (!Character.isWhitespace(str.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Extract the filename from the given Java resource path, e.g.
+     * {@code "mypath/myfile.txt" -> "myfile.txt"}.
+     * 
+     * @param path
+     *            the file path (may be {@code null})
+     * @return the extracted filename, or {@code null} if none
+     */
+    public static String getFilename(String path) {
+        if (path == null) {
+            return null;
+        }
+        int separatorIndex = path.lastIndexOf(Constant.FOLDER_SEPARATOR);
+        return (separatorIndex != -1 ? path.substring(separatorIndex + 1) : path);
+    }
+
+    /**
+     * Extract the filename extension from the given Java resource path, e.g.
+     * "mypath/myfile.txt" -> "txt".
+     * 
+     * @param path
+     *            the file path (may be {@code null})
+     * @return the extracted filename extension, or {@code null} if none
+     */
+    public static String getFilenameExtension(String path) {
+        if (path == null) {
+            return null;
+        }
+
+        int extIndex = path.lastIndexOf(Constant.EXTENSION_SEPARATOR);
+        if (extIndex == -1) {
+            return null;
+        }
+
+        int folderIndex = path.lastIndexOf(Constant.FOLDER_SEPARATOR);
+        if (folderIndex > extIndex) {
+            return null;
+        }
+
+        return path.substring(extIndex + 1);
     }
 
 }

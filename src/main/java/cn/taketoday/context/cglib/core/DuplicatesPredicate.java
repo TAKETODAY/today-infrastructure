@@ -108,6 +108,7 @@ public class DuplicatesPredicate implements Predicate<Method> {
         }
     }
 
+    @Override
     public boolean test(Method arg) {
         return !rejected.contains(arg) && unique.add(MethodWrapper.create(arg));
     }
