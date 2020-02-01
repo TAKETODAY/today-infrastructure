@@ -101,12 +101,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public Object getBean(final String name) throws ContextException {
-
         final BeanDefinition def = getBeanDefinition(name);
-        if (def != null) {
-            return getBean(name, def);
-        }
-        return getSingleton(name); // if not exits a bean definition return a bean may exits in singletons cache
+        // if not exits a bean definition return a bean may exits in singletons cache
+        return def != null ? getBean(name, def) : getSingleton(name);
     }
 
     @Override
@@ -120,10 +117,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             return getSingleton(name);
         }
         try {
-            if (def.isSingleton()) {
-                return doCreateSingleton(def, name);
-            }
-            return doCreatePrototype(def, name); // prototype
+            return def.isSingleton()
+                    ? doCreateSingleton(def, name)
+                    : doCreatePrototype(def, name); // prototype
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
@@ -193,12 +189,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getBean(String name, Class<T> requiredType) {
-
         final Object bean = getBean(name);
-        if (requiredType.isInstance(bean)) {
-            return (T) bean;
-        }
-        return null;
+        return requiredType.isInstance(bean) ? (T) bean : null;
     }
 
     @Override
@@ -353,10 +345,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             return Prototypes.newProxyInstance(type, getBeanDefinition(name), this);
         }
         final Object bean = getBean(name, type);
-        if (bean == null) {
-            return doGetBeanforType(type);
-        }
-        return bean;
+        return bean != null ? bean : doGetBeanforType(type);
     }
 
     /**
@@ -734,10 +723,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      */
     public final Map<Class<?>, Object> getObjectFactories() {
         final Map<Class<?>, Object> objectFactories = this.objectFactories;
-        if (objectFactories == null) {
-            return this.objectFactories = createObjectFactories();
-        }
-        return objectFactories;
+        return objectFactories == null
+                ? this.objectFactories = createObjectFactories()
+                : objectFactories;
     }
 
     protected Map<Class<?>, Object> createObjectFactories() {
@@ -1128,10 +1116,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     private final Predicate<BeanDefinition> getPredicate(final Class<?> type, final boolean equals) {
-        if (equals) {
-            return (beanDef) -> type == beanDef.getBeanClass();
-        }
-        return (beanDef) -> type.isAssignableFrom(beanDef.getBeanClass());
+        return equals
+                ? (beanDef) -> type == beanDef.getBeanClass()
+                : (beanDef) -> type.isAssignableFrom(beanDef.getBeanClass());
     }
 
     @Override
@@ -1226,11 +1213,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @return {@link BeanNameCreator}
      */
     public BeanNameCreator getBeanNameCreator() {
-        final BeanNameCreator beanNameCreator = this.beanNameCreator;
-        if (beanNameCreator == null) {
-            return this.beanNameCreator = createBeanNameCreator();
-        }
-        return beanNameCreator;
+        final BeanNameCreator ret = this.beanNameCreator;
+        return ret == null ? this.beanNameCreator = createBeanNameCreator() : ret;
     }
 
     /**
@@ -1247,32 +1231,32 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     @Override
-    public final void enableFullPrototype() {
+    public void enableFullPrototype() {
         setFullPrototype(true);
     }
 
     @Override
-    public final void enableFullLifecycle() {
+    public void enableFullLifecycle() {
         setFullLifecycle(true);
     }
 
-    public final boolean isFullPrototype() {
+    public boolean isFullPrototype() {
         return fullPrototype;
     }
 
-    public final boolean isFullLifecycle() {
+    public boolean isFullLifecycle() {
         return fullLifecycle;
     }
 
-    public final void setFullPrototype(boolean fullPrototype) {
+    public void setFullPrototype(boolean fullPrototype) {
         this.fullPrototype = fullPrototype;
     }
 
-    public final void setFullLifecycle(boolean fullLifecycle) {
+    public void setFullLifecycle(boolean fullLifecycle) {
         this.fullLifecycle = fullLifecycle;
     }
 
-    public final void setBeanNameCreator(BeanNameCreator beanNameCreator) {
+    public void setBeanNameCreator(BeanNameCreator beanNameCreator) {
         this.beanNameCreator = beanNameCreator;
     }
 }

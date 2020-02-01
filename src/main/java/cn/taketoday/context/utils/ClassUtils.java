@@ -1002,12 +1002,13 @@ public abstract class ClassUtils {
      * @return The user class
      * @since 2.1.7
      */
+    @SuppressWarnings("unchecked")
     public static <T> Class<T> getUserClass(Class<T> syntheticClass) {
-
-        final String name = requireNonNull(syntheticClass).getName();
-        final int i = name.indexOf(Constant.CGLIB_CHAR_SEPARATOR);
-        if (i > 0) {
-            return loadClass(name.substring(0, i));
+        if (requireNonNull(syntheticClass).getName().lastIndexOf(Constant.CGLIB_CLASS_SEPARATOR) > -1) {
+            Class<?> superclass = syntheticClass.getSuperclass();
+            if (superclass != null && superclass != Object.class) {
+                return (Class<T>) superclass;
+            }
         }
         return syntheticClass;
     }
@@ -1022,12 +1023,8 @@ public abstract class ClassUtils {
      * @since 2.1.7
      */
     public static <T> Class<T> getUserClass(String name) {
-
-        final int i = requireNonNull(name).indexOf(Constant.CGLIB_CHAR_SEPARATOR);
-        if (i > 0) {
-            return loadClass(name.substring(0, i));
-        }
-        return loadClass(name);
+        final int i = requireNonNull(name).indexOf(Constant.CGLIB_CLASS_SEPARATOR);
+        return i > 0 ? loadClass(name.substring(0, i)) : loadClass(name);
     }
 
     // --------------------------------- Field
