@@ -27,17 +27,20 @@ import java.util.Set;
  */
 public class MethodWrapper {
 
-    private static final MethodWrapperKey KEY_FACTORY = (MethodWrapperKey) KeyFactory.create(MethodWrapperKey.class);
+    private static final MethodWrapperKey KEY_FACTORY = KeyFactory.create(MethodWrapperKey.class);
 
     /** Internal interface, only public due to ClassLoader issues. */
     public interface MethodWrapperKey {
+        
         Object newInstance(String name, String[] parameterTypes, String returnType);
     }
 
     private MethodWrapper() {}
 
     public static Object create(Method method) {
-        return KEY_FACTORY.newInstance(method.getName(), ReflectUtils.getNames(method.getParameterTypes()),
+        
+        return KEY_FACTORY.newInstance(method.getName(), 
+                                       ReflectUtils.getNames(method.getParameterTypes()),
                                        method.getReturnType().getName());
     }
 

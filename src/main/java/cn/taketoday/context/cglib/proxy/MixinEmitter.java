@@ -23,7 +23,6 @@ import static cn.taketoday.context.asm.Type.array;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
-import java.util.Set;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
@@ -41,7 +40,6 @@ import cn.taketoday.context.cglib.core.TypeUtils;
  * @author Chris Nokleberg
  * @version $Id: MixinEmitter.java,v 1.9 2006/08/27 21:04:37 herbyderby Exp $
  */
-@SuppressWarnings("all")
 class MixinEmitter extends ClassEmitter {
 
     private static final String FIELD_NAME = "TODAY$DELEGATES";
@@ -50,7 +48,7 @@ class MixinEmitter extends ClassEmitter {
 
     private static final Signature NEW_INSTANCE = new Signature("newInstance", MIXIN, array(TYPE_OBJECT_ARRAY));
 
-    public MixinEmitter(ClassVisitor v, String className, Class[] classes, int[] route) {
+    public MixinEmitter(ClassVisitor v, String className, Class<?>[] classes, int[] route) {
         super(v);
 
         beginClass(JAVA_VERSION, ACC_PUBLIC, className, MIXIN, TypeUtils.getTypes(getInterfaces(classes)), SOURCE_FILE);
@@ -68,7 +66,7 @@ class MixinEmitter extends ClassEmitter {
         e.return_value();
         e.end_method();
 
-        Set unique = new HashSet();
+        HashSet<Object> unique = new HashSet<>();
         for (int i = 0; i < classes.length; i++) {
             Method[] methods = getMethods(classes[i]);
             for (int j = 0; j < methods.length; j++) {
@@ -94,11 +92,11 @@ class MixinEmitter extends ClassEmitter {
         endClass();
     }
 
-    protected Class[] getInterfaces(Class[] classes) {
+    protected Class<?>[] getInterfaces(Class<?>[] classes) {
         return classes;
     }
 
-    protected Method[] getMethods(Class type) {
+    protected Method[] getMethods(Class<?> type) {
         return type.getMethods();
     }
 }

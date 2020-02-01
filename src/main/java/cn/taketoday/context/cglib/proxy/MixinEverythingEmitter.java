@@ -38,7 +38,7 @@ class MixinEverythingEmitter extends MixinEmitter {
     }
 
     @Override
-    protected Class[] getInterfaces(Class[] classes) {
+    protected Class<?>[] getInterfaces(Class<?>[] classes) {
         List<Class<?>> list = new ArrayList<>();
         for (Class<?> class1 : classes) {
             ReflectUtils.addAllInterfaces(class1, list);
@@ -47,7 +47,7 @@ class MixinEverythingEmitter extends MixinEmitter {
     }
 
     @Override
-    protected Method[] getMethods(Class type) {
+    protected Method[] getMethods(Class<?> type) {
         List<Method> methods = new ArrayList<>();
 
         Collections.addAll(methods, type.getMethods());
