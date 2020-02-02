@@ -601,21 +601,24 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
         if (status.isCompleted()) {
             throw new IllegalStateException("Transaction is already completed - do not call commit or rollback more than once per transaction");
         }
-        final SynchronizationMetaData metaData = SynchronizationManager.getMetaData();
         DefaultTransactionStatus defStatus = (DefaultTransactionStatus) status;
         if (defStatus.isLocalRollbackOnly()) {
-//			log.debug("Transactional code has requested rollback");
-            processRollback(metaData, defStatus, false);
+            if (debugEnabled) {
+                log.debug("Transactional code has requested rollback");
+            }
+            processRollback(defStatus, false);
             return;
         }
 
         if (!shouldCommitOnGlobalRollbackOnly() && defStatus.isGlobalRollbackOnly()) {
-//			log.debug("Global transaction is marked as rollback-only but transactional code requested commit");
-            processRollback(metaData, defStatus, true);
+            if (debugEnabled) {
+                log.debug("Global transaction is marked as rollback-only but transactional code requested commit");
+            }
+            processRollback(defStatus, true);
             return;
         }
 
-        processCommit(metaData, defStatus);
+        processCommit(defStatus);
     }
 
     /**
@@ -627,10 +630,11 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * @throws TransactionException
      *             in case of commit failure
      */
-    private void processCommit(final SynchronizationMetaData metaData, DefaultTransactionStatus status) throws TransactionException {
+    private void processCommit(DefaultTransactionStatus status) throws TransactionException {
+
+        final SynchronizationMetaData metaData = SynchronizationManager.getMetaData();
         try {
             boolean beforeCompletionInvoked = false;
-
             try {
                 boolean unexpectedRollback = false;
                 prepareForCommit(metaData, status);
@@ -639,21 +643,22 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                 beforeCompletionInvoked = true;
 
                 if (status.hasSavepoint()) {
-//					log.debug("Releasing transaction savepoint");
-
+                    if (debugEnabled) {
+                        log.debug("Releasing transaction savepoint");
+                    }
                     unexpectedRollback = status.isGlobalRollbackOnly();
                     status.releaseHeldSavepoint();
                 }
                 else if (status.isNewTransaction()) {
-//					log.debug("Initiating transaction commit");
-
+                    if (debugEnabled) {
+                        log.debug("Initiating transaction commit");
+                    }
                     unexpectedRollback = status.isGlobalRollbackOnly();
                     doCommit(metaData, status);
                 }
                 else if (isFailEarlyOnGlobalRollbackOnly()) {
                     unexpectedRollback = status.isGlobalRollbackOnly();
                 }
-
                 // Throw UnexpectedRollbackException if we have a global rollback-only
                 // marker but still didn't get a corresponding exception from commit.
                 if (unexpectedRollback) {
@@ -682,7 +687,6 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                 doRollbackOnCommitException(metaData, status, ex);
                 throw ex;
             }
-
             // Trigger afterCommit callbacks, with an exception thrown there
             // propagated to callers but the transaction still considered as committed.
             try {
@@ -691,7 +695,6 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
             finally {
                 triggerAfterCompletion(metaData, status, TransactionSynchronization.STATUS_COMMITTED);
             }
-
         }
         finally {
             cleanupAfterCompletion(metaData, status);
@@ -710,10 +713,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
         if (status.isCompleted()) {
             throw new IllegalStateException("Transaction is already completed - do not call commit or rollback more than once per transaction");
         }
-
-        DefaultTransactionStatus defStatus = (DefaultTransactionStatus) status;
-        final SynchronizationMetaData metaData = SynchronizationManager.getMetaData();
-        processRollback(metaData, defStatus, false);
+        processRollback((DefaultTransactionStatus) status, false);
     }
 
     /**
@@ -724,10 +724,11 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * @throws TransactionException
      *             in case of rollback failure
      */
-    private void processRollback(final SynchronizationMetaData metaData, DefaultTransactionStatus status, boolean unexpected) {
+    private void processRollback(DefaultTransactionStatus status, boolean unexpected) {
+        final SynchronizationMetaData metaData = SynchronizationManager.getMetaData();
+
         try {
             boolean unexpectedRollback = unexpected;
-
             try {
                 triggerBeforeCompletion(metaData, status);
 
@@ -735,7 +736,6 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                     if (debugEnabled) {
                         log.debug("Rolling back transaction to savepoint");
                     }
-
                     status.rollbackToHeldSavepoint();
                 }
                 else if (status.isNewTransaction()) {
@@ -796,9 +796,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                                              final DefaultTransactionStatus status, final Throwable ex)
             throws TransactionException //
     {
-
         try {
-
             if (status.isNewTransaction()) {
                 if (debugEnabled) {
                     log.debug("Initiating transaction rollback after commit exception", ex);
@@ -813,8 +811,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
             }
         }
         catch (RuntimeException | Error rbex) {
-            log.error("Commit exception overridden by rollback exception", ex);
             triggerAfterCompletion(metaData, status, TransactionSynchronization.STATUS_UNKNOWN);
+            log.error("Commit exception overridden by rollback exception", ex);
             throw rbex;
         }
         triggerAfterCompletion(metaData, status, TransactionSynchronization.STATUS_ROLLED_BACK);
