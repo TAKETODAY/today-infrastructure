@@ -39,7 +39,11 @@ public abstract class SynchronizationManager {
 
     private static final Logger log = LoggerFactory.getLogger(SynchronizationManager.class);
 
-    private static final ThreadLocal<SynchronizationMetaData> META_DATA = new ThreadLocal<>();
+    private static final ThreadLocal<SynchronizationMetaData> META_DATA = new ThreadLocal<SynchronizationMetaData>() {
+        protected SynchronizationMetaData initialValue() {
+            return new SynchronizationMetaData();
+        };
+    };
 
     public final static class SynchronizationMetaData implements Serializable {
 
@@ -231,7 +235,9 @@ public abstract class SynchronizationManager {
             if (isActive()) {
                 throw new IllegalStateException("Cannot activate transaction synchronization - cause its already active");
             }
-            log.debug("Initializing transaction synchronization");
+            if (log.isDebugEnabled()) {
+                log.debug("Initializing transaction synchronization");
+            }
             this.synchronizations = new ArrayList<>(8);
         }
 
@@ -251,7 +257,9 @@ public abstract class SynchronizationManager {
 
         public void clearSynchronization() throws IllegalStateException {
             if (isActive()) {
-                log.debug("Clearing transaction synchronization");
+                if (log.isDebugEnabled()) {
+                    log.debug("Clearing transaction synchronization");
+                }
                 this.synchronizations = null;
             }
             else {
@@ -320,8 +328,9 @@ public abstract class SynchronizationManager {
         }
 
         public void clear() {
-            log.debug("Clear the entire transaction synchronization state for the current thread");
-
+            if (log.isDebugEnabled()) {
+                log.debug("Clear the entire transaction synchronization state for the current thread");
+            }
             this.name = null;
             this.active = null;
             this.readOnly = null;
@@ -434,11 +443,7 @@ public abstract class SynchronizationManager {
     }
 
     public final static SynchronizationMetaData getMetaData() {
-        SynchronizationMetaData ret = META_DATA.get();
-        if (ret == null) {
-            META_DATA.set(ret = new SynchronizationMetaData());
-        }
-        return ret;
+        return META_DATA.get();
     }
 
     /**

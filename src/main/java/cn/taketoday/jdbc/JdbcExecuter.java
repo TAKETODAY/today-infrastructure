@@ -44,7 +44,10 @@ public class JdbcExecuter implements JdbcOperations {
         this.updateOperation = new UpdateExecuter(dataSource);
     }
 
-    public JdbcExecuter(BasicOperation basicOperation, UpdateOperation updateOperation, QueryOptionalOperation queryOperation) {
+    public JdbcExecuter(BasicOperation basicOperation, 
+                        UpdateOperation updateOperation, 
+                        QueryOptionalOperation queryOperation) {
+        
         this.queryOperation = queryOperation;
         this.basicOperation = basicOperation;
         this.updateOperation = updateOperation;
