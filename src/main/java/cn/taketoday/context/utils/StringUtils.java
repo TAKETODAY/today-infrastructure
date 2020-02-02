@@ -117,10 +117,7 @@ public abstract class StringUtils {
      * @return if source is null this will returns null
      */
     public static String[] split(String source) {
-        if (source == null) { // fix
-            return null;
-        }
-        return source.split(Constant.SPLIT_REGEXP);
+        return source == null ? null : source.split(Constant.SPLIT_REGEXP);
     }
 
     public static String decodeUrl(String s) {

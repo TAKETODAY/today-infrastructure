@@ -20,6 +20,7 @@
 package cn.taketoday.context.utils;
 
 import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
+import static cn.taketoday.context.utils.Assert.notNull;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
@@ -72,8 +73,6 @@ import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * 
@@ -82,22 +81,20 @@ import cn.taketoday.context.logger.LoggerFactory;
  */
 public abstract class ClassUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
-
-    public static boolean traceEnabled = log.isTraceEnabled();
+//    private static final Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
     /** class loader **/
     private static ClassLoader classLoader;
 
-    private static final Map<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32);
+    private static final HashMap<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32);
 
     /** @since 2.1.1 */
-    private static final Set<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();
+    private static final HashSet<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();
 
-    private static final Map<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
+    private static final WeakHashMap<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
     private static final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
-    private static final Map<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(256);
-    private static final Map<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
+    private static final HashMap<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(256);
+    private static final WeakHashMap<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
 
     static {
 
@@ -171,8 +168,7 @@ public abstract class ClassUtils {
      * @return whether given class name present in class path
      */
     public static boolean isPresent(String className) {
-        
-        requireNonNull(className, "class name can't be null");
+        notNull(className, "class name can't be null");
         try {
             forName(className);
             return true;
@@ -293,6 +289,7 @@ public abstract class ClassUtils {
      */
     @SuppressWarnings("unchecked")
     public static final <T> Class<T> loadClass(String name, ClassLoader classLoader) {
+        notNull(classLoader, "ClassLoader can't be null");        
         try {
             return (Class<T>) classLoader.loadClass(name);
         }
@@ -367,7 +364,7 @@ public abstract class ClassUtils {
             return null;
         }
 
-        requireNonNull(implClass, "Implementation class can't be null");
+        notNull(implClass, "Implementation class can't be null");
 
         return (T[]) ANNOTATIONS.computeIfAbsent(new AnnotationKey<>(element, annotationClass), (k) -> {
 
@@ -620,7 +617,6 @@ public abstract class ClassUtils {
                 final String key = entry.getKey(); // method name
 
                 try {
-
                     final Method method = targetClass.getDeclaredMethod(key);
 
                     if (method.getReturnType() == void.class //
@@ -687,7 +683,7 @@ public abstract class ClassUtils {
         if (targetClass == null) {
             return null;
         }
-        requireNonNull(element, "annotated element can't be null");
+        notNull(element, "annotated element can't be null");
 
         return ANNOTATION_ATTRIBUTES.computeIfAbsent(new AnnotationKey<>(element, targetClass), (k) -> {
             final Set<AnnotationAttributes> result = new LinkedHashSet<>();
@@ -763,7 +759,6 @@ public abstract class ClassUtils {
             if (IGNORE_ANNOTATION_CLASS.contains(annotationType)) {
                 return Collections.emptySet();
             }
-
             // find the default value of annotation
             // -----------------------------------------
             
@@ -859,10 +854,8 @@ public abstract class ClassUtils {
      */
     public static <A extends Annotation> boolean isAnnotationPresent(final AnnotatedElement element,
                                                                      final Class<A> annType) {
-        if (annType == null) {
-            return false;
-        }
-        return element.isAnnotationPresent(annType)//
+        return annType != null
+                && element.isAnnotationPresent(annType)
                 || ObjectUtils.isNotEmpty(getAnnotationAttributesArray(element, annType));
     }
 
@@ -1292,7 +1285,7 @@ public abstract class ClassUtils {
      * @return the qualified name of the method
      */
     public static String getQualifiedMethodName(Method method, Class<?> clazz) {
-        requireNonNull(method, "Method must not be null");
+        notNull(method, "Method must not be null");
         return (clazz != null ? clazz : method.getDeclaringClass()).getName() + '.' + method.getName();
     }
 

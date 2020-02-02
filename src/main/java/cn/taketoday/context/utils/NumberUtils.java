@@ -53,25 +53,25 @@ public abstract class NumberUtils {
             return 0;
         }
         if (Byte.class == targetClass || byte.class == targetClass) {
-            return Byte.parseByte(text);
+            return Byte.valueOf(text);
         }
         else if (Short.class == targetClass || short.class == targetClass) {
-            return Short.parseShort(text);
+            return Short.valueOf(text);
         }
         else if (Integer.class == targetClass || int.class == targetClass) {
-            return Integer.parseInt(text);
+            return Integer.valueOf(text);
         }
         else if (Long.class == targetClass || long.class == targetClass) {
-            return Long.parseLong(text);
+            return Long.valueOf(text);
         }
         else if (BigInteger.class == targetClass) {
             return new BigInteger(text);
         }
         else if (Float.class == targetClass || float.class == targetClass) {
-            return Float.parseFloat(text);
+            return Float.valueOf(text);
         }
         else if (Double.class == targetClass || double.class == targetClass) {
-            return Double.parseDouble(text);
+            return Double.valueOf(text);
         }
         else if (BigDecimal.class == targetClass || Number.class == targetClass) {
             return new BigDecimal(text);
