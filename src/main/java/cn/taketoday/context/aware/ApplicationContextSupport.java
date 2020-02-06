@@ -30,7 +30,7 @@ import cn.taketoday.context.logger.LoggerFactory;
  */
 public abstract class ApplicationContextSupport implements ApplicationContextAware {
 
-    protected Logger log = LoggerFactory.getLogger(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
     
     private ApplicationContext applicationContext;
 
