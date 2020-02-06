@@ -74,7 +74,7 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
     }
 
     public ExceptionResolver obtainExceptionResolver() {
-        return nonNull(getExceptionResolver(), "You must provide an 'exceptionResolver'");
+        return nonNull(getExceptionResolver(), "You must provide an 'exception resolver'");
     }
 
     public ExceptionResolver getExceptionResolver() {

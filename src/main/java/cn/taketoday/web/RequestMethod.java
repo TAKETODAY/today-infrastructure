@@ -29,4 +29,15 @@ package cn.taketoday.web;
 public enum RequestMethod {
 
     GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS;
+
+    /**
+     * Determine whether this {@code RequestMethod} matches the given method value.
+     * 
+     * @param method
+     *            the method value as a String
+     * @return {@code true} if it matches, {@code false} otherwise
+     */
+    public boolean matches(String method) {
+        return this == valueOf(method);
+    }
 }

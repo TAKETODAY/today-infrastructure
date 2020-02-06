@@ -148,14 +148,14 @@ public class CacheControl implements Serializable {
 
     protected CacheControl appendSettings(String key, long duration, TimeUnit unit) {
 
-        append().append(key)
+        cacheControl().append(key)
                 .append('=')
                 .append(unit.toSeconds(duration));
 
         return this;
     }
 
-    protected final StringBuilder append() {
+    protected final StringBuilder cacheControl() {
         final StringBuilder cacheControl = this.cacheControl;
         if (cacheControl.length() != 0) {
             cacheControl.append(", ");
@@ -164,7 +164,7 @@ public class CacheControl implements Serializable {
     }
 
     protected CacheControl appendSettings(String key) {
-        append().append(key);
+        cacheControl().append(key);
         return this;
     }
 

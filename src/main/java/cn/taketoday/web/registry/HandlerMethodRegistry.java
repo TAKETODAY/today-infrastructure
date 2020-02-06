@@ -68,7 +68,6 @@ import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.PathVariableHandlerMethod;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
-import cn.taketoday.web.handler.PatternMapping;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
@@ -107,16 +106,16 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
     // --------------------------
 
     @Override
-    protected String computeKey(RequestContext context) {
+    protected String computeKey(final RequestContext context) {
         return context.method().concat(context.requestURI());
     }
 
     @Override
-    protected Object matchingPatternHandler(final String handlerKey, final PatternMapping[] patternMappings) {
+    protected Object matchingPatternHandler(final String handlerKey) {
 
         Object hander = patternMatchingCache.get(handlerKey);
         if (hander == null) {
-            hander = super.matchingPatternHandler(handlerKey, patternMappings);
+            hander = super.matchingPatternHandler(handlerKey);
             patternMatchingCache.put(handlerKey, hander == null ? EMPTY_OBJECT : hander);
         }
         else if (hander == EMPTY_OBJECT) {
@@ -451,7 +450,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
     public void reBuiltControllers() throws Throwable {
 
         log.info("Rebuilding Controllers");
-        clear();
+        clearHandlers();
         startConfiguration();
     }
 }

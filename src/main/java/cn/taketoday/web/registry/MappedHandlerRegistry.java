@@ -22,6 +22,7 @@ package cn.taketoday.web.registry;
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ import cn.taketoday.context.AntPathMatcher;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.PatternMapping;
+import cn.taketoday.web.handler.PatternHandler;
 
 /**
  * @author TODAY <br>
@@ -38,8 +39,8 @@ import cn.taketoday.web.handler.PatternMapping;
  */
 public class MappedHandlerRegistry extends AbstractHandlerRegistry {
 
-    private PatternMapping[] patternMappings;
     private final Map<String, Object> handlers;
+    private List<PatternHandler> patternHandlers;
 
     private PathMatcher pathMatcher = new AntPathMatcher();
 
@@ -52,42 +53,48 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     }
 
     public MappedHandlerRegistry(Map<String, Object> handlers) {
-        this.handlers = handlers;
+        this(handlers, LOWEST_PRECEDENCE);
     }
 
     public MappedHandlerRegistry(Map<String, Object> handlers, int order) {
-        this.handlers = handlers;
+        this.handlers = nonNull(handlers, "Handlers mappings can not be null");
         setOrder(order);
     }
 
     @Override
     protected Object lookupInternal(final RequestContext context) {
         final String handlerKey = computeKey(context);
-        final Object handler = lookupHandler(handlerKey, context);
-        if (handler == null) {
-            return handlerNotFound(handlerKey, context);
-        }
-        return handler;
+        final Object handler = lookupHandler(handlerKey);
+        return handler == null ? handlerNotFound(handlerKey, context) : handler;
     }
 
+    /**
+     * Handle handler not found
+     * 
+     * @param handlerKey
+     *            Handler key
+     * @param context
+     *            Current request context
+     * @return A handler default is null
+     */
     protected Object handlerNotFound(String handlerKey, RequestContext context) {
         return null;
     }
 
+    /**
+     * Compute a handler key from current request context
+     * 
+     * @param context
+     *            Current request context
+     * @return Handler key never be null
+     */
     protected String computeKey(final RequestContext context) {
         return context.requestURI();
     }
 
-    protected Object lookupHandler(final String handlerKey, final RequestContext context) {
-        final Object handler = getHandlers().get(handlerKey);
-        if (handler != null) {
-            return handler;
-        }
-        final PatternMapping[] patternMappings = getPatternMappings();
-        if (patternMappings == null) {
-            return null;
-        }
-        return matchingPatternHandler(handlerKey, patternMappings);
+    protected Object lookupHandler(final String handlerKey) {
+        final Object handler = handlers.get(handlerKey);
+        return handler == null ? matchingPatternHandler(handlerKey) : handler;
     }
 
     /**
@@ -95,17 +102,20 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
      * 
      * @param handlerKey
      *            Handler key
-     * @param patternMappings
-     *            {@link PatternMapping} array. Never be null
      * @return Matched pattern handler. If returns {@code null} indicates no handler
      */
-    protected Object matchingPatternHandler(final String handlerKey, final PatternMapping[] patternMappings) {
+    protected Object matchingPatternHandler(final String handlerKey) {
+
+        final List<PatternHandler> patternHandlers = getPatternHandlers();
+        if (patternHandlers == null) {
+            return null;
+        }
 
         // pattern
-        final Map<String, PatternMapping> matchedPatterns = new HashMap<>();
+        final HashMap<String, PatternHandler> matchedPatterns = new HashMap<>();
         final PathMatcher pathMatcher = getPathMatcher();
 
-        for (final PatternMapping mapping : patternMappings) {
+        for (final PatternHandler mapping : patternHandlers) {
             final String pattern = mapping.getPattern();
             if (pathMatcher.match(pattern, handlerKey)) {
                 matchedPatterns.put(pattern, mapping);
@@ -116,7 +126,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
             return null;
         }
 
-        final List<String> patterns = new ArrayList<>(matchedPatterns.keySet());
+        final ArrayList<String> patterns = new ArrayList<>(matchedPatterns.keySet());
         patterns.sort(pathMatcher.getPatternComparator(handlerKey));
 
         if (log.isTraceEnabled() && matchedPatterns.size() > 1) {
@@ -125,20 +135,29 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
         return matchedPatterns.get(patterns.get(0)).getHandler();
     }
 
-    public void setPathMatcher(PathMatcher pathMatcher) {
-        this.pathMatcher = nonNull(pathMatcher, "PathMatcher must not be null");
-    }
-
-    public PathMatcher getPathMatcher() {
-        return this.pathMatcher;
-    }
-
+    /**
+     * Register a Handler to handler keys
+     * 
+     * @param handler
+     *            Target handler
+     * @param handlerKeys
+     *            Handler keys
+     */
     public void registerHandler(Object handler, String... handlerKeys) {
         for (final String path : nonNull(handlerKeys, "Handler Keys must not be null")) {
             registerHandler(path, handler);
         }
     }
 
+    /**
+     * 
+     * Register a Handler to handler key
+     * 
+     * @param handler
+     *            Target handler
+     * @param handlerKey
+     *            Handler key
+     */
     public void registerHandler(String handlerKey, Object handler) {
         nonNull(handler, "Handler must not be null");
         nonNull(handlerKey, "Handler Key must not be null");
@@ -150,43 +169,55 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
         log.debug("Mapped [{}] onto [{}]", handlerKey, handler);
 
         if (getPathMatcher().isPattern(handlerKey)) {
-            addPatternMappings(new PatternMapping(handlerKey, handler));
+            addPatternHandlers(new PatternHandler(handlerKey, handler));
         }
         else {
             handlers.put(handlerKey, handler); // TODO override handler
         }
     }
 
-    public Map<String, Object> getHandlers() {
+    public void addPatternHandlers(final PatternHandler... handlers) {// TODO
+        nonNull(handlers, "Handlers must not be null");
+
+        if (patternHandlers == null) {
+            patternHandlers = new ArrayList<>(handlers.length);
+        }
+        Collections.addAll(patternHandlers, handlers);
+        OrderUtils.reversedSort(patternHandlers);
+    }
+
+    public List<PatternHandler> getPatternHandlers() {
+        return patternHandlers;
+    }
+
+    public void setPatternHandlers(List<PatternHandler> patternMappings) {
+        this.patternHandlers = patternMappings;
+    }
+
+    /**
+     * Setting a new {@link PathMatcher}
+     * 
+     * @param pathMatcher
+     *            new {@link PathMatcher}
+     */
+    public void setPathMatcher(PathMatcher pathMatcher) {
+        this.pathMatcher = nonNull(pathMatcher, "PathMatcher must not be null");
+    }
+
+    /**
+     * Get {@link PathMatcher}
+     */
+    public PathMatcher getPathMatcher() {
+        return this.pathMatcher;
+    }
+
+    public void clearHandlers() {
+        handlers.clear();
+        setPatternHandlers(null);
+    }
+
+    public final Map<String, Object> getHandlers() {
         return handlers;
-    }
-
-    public void clear() {
-        getHandlers().clear();
-        this.patternMappings = null;
-    }
-
-    public PatternMapping[] getPatternMappings() {
-        return patternMappings;
-    }
-
-    public void addPatternMappings(final PatternMapping... mappings) {// TODO
-
-        final PatternMapping[] newArr;
-        final PatternMapping[] patternMappings = getPatternMappings();
-        if (patternMappings == null) {
-            newArr = mappings;
-        }
-        else {
-            newArr = new PatternMapping[patternMappings.length + mappings.length];
-            System.arraycopy(patternMappings, 0, newArr, 0, patternMappings.length);
-            System.arraycopy(mappings, 0, newArr, patternMappings.length, mappings.length);
-        }
-        setPatternMappings(OrderUtils.reversedSort(newArr));
-    }
-
-    public void setPatternMappings(PatternMapping... patternMappings) {
-        this.patternMappings = patternMappings;
     }
 
 }

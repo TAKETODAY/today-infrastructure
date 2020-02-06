@@ -31,14 +31,14 @@ import cn.taketoday.context.utils.OrderUtils;
  * @author TODAY <br>
  *         2019-12-25 14:51
  */
-public class PatternMapping implements Serializable, Ordered {
+public class PatternHandler implements Serializable, Ordered {
 
     private static final long serialVersionUID = 1L;
 
     private final String pattern;
     private final Object handler;
 
-    public PatternMapping(String pattern, Object handler) {
+    public PatternHandler(String pattern, Object handler) {
         this.pattern = nonNull(pattern, "pattern must not be null");
         this.handler = nonNull(handler, "handler must not be null");
     }
@@ -61,8 +61,8 @@ public class PatternMapping implements Serializable, Ordered {
         if (obj == this) {
             return true;
         }
-        if (obj instanceof PatternMapping && obj.getClass() == getClass()) {
-            final PatternMapping other = (PatternMapping) obj;
+        if (obj instanceof PatternHandler && obj.getClass() == getClass()) {
+            final PatternHandler other = (PatternHandler) obj;
             return Objects.equals(other.pattern, pattern)
                    && Objects.equals(other.handler, handler);
         }

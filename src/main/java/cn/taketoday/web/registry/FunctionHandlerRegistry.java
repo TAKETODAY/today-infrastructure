@@ -57,8 +57,7 @@ public class FunctionHandlerRegistry extends MappedHandlerRegistry {
     }
 
     public FunctionHandlerRegistry(Map<String, Object> viewRequestMappings, int order) {
-        super(viewRequestMappings);
-        setOrder(order);
+        super(viewRequestMappings, order);
     }
 
     @Override

@@ -20,6 +20,7 @@
 package cn.taketoday.web.registry;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.web.RequestContextHolder.currentContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.handler.PatternMapping;
+import cn.taketoday.web.handler.PatternHandler;
 import cn.taketoday.web.handler.ResourceMapping;
 import cn.taketoday.web.handler.ResourceMappingMatchResult;
 import cn.taketoday.web.handler.ResourceRequestHandler;
@@ -95,30 +96,36 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry implements We
     }
 
     @Override
-    protected Object lookupHandler(final String handlerKey, final RequestContext context) {
-        final Object handler = super.lookupHandler(handlerKey, context);
+    protected Object lookupHandler(final String handlerKey) {
+        final Object handler = super.lookupHandler(handlerKey);
         if (handler instanceof ResourceMappingMatchResult) {
-            context.attribute(Constant.RESOURCE_MAPPING_MATCH_RESULT, handler);
+            currentContext().attribute(Constant.RESOURCE_MAPPING_MATCH_RESULT, handler);
             return ((ResourceMappingMatchResult) handler).getHandler();
         }
         else if (handler instanceof ResourceRequestHandler) {
-            context.attribute(Constant.RESOURCE_MAPPING_MATCH_RESULT,
-                              new ResourceMappingMatchResult(handlerKey,
-                                                             handlerKey,
-                                                             getPathMatcher(),
-                                                             ((ResourceRequestHandler) handler)));
+            currentContext()
+                    .attribute(Constant.RESOURCE_MAPPING_MATCH_RESULT,
+                               new ResourceMappingMatchResult(handlerKey,
+                                                              handlerKey,
+                                                              getPathMatcher(),
+                                                              ((ResourceRequestHandler) handler)));
         }
         return handler;
     }
 
     @Override
-    protected Object matchingPatternHandler(String handlerKey, PatternMapping[] patternMappings) {
+    protected Object matchingPatternHandler(String handlerKey) {
+
+        final List<PatternHandler> patternHandlers = getPatternHandlers();
+        if (patternHandlers == null) {
+            return null;
+        }
 
         final PathMatcher pathMatcher = getPathMatcher();
-        for (PatternMapping patternMapping : patternMappings) {
-            final String pattern = patternMapping.getPattern();
+        for (PatternHandler patternHandler : patternHandlers) {
+            final String pattern = patternHandler.getPattern();
             if (pathMatcher.match(pattern, handlerKey)) {
-                final ResourceRequestHandler handler = (ResourceRequestHandler) patternMapping.getHandler();
+                final ResourceRequestHandler handler = (ResourceRequestHandler) patternHandler.getHandler();
                 return new ResourceMappingMatchResult(handlerKey, pattern, pathMatcher, handler);
             }
         }

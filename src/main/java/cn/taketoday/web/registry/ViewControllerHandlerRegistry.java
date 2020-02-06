@@ -48,12 +48,11 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
     }
 
     public ViewControllerHandlerRegistry(Map<String, Object> viewControllers, int order) {
-        super(viewControllers);
-        setOrder(order);
+        super(viewControllers, order);
     }
 
     public final ViewController getViewController(String key) {
-        final Object obj = getHandlers().get(key);
+        final Object obj = lookupHandler(key);
         if (obj instanceof ViewController) {
             return (ViewController) obj;
         }

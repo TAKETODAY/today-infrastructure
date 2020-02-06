@@ -19,8 +19,11 @@
  */
 package cn.taketoday.web.registry;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 
@@ -32,12 +35,13 @@ public class CompositeHandlerRegistry implements HandlerRegistry {
 
     private final HandlerRegistry[] handlerRegistries;
 
-    public CompositeHandlerRegistry(HandlerRegistry... webMappingRegistrys) {
-        this.handlerRegistries = OrderUtils.reversedSort(webMappingRegistrys);
+    public CompositeHandlerRegistry(HandlerRegistry... registries) {
+        Assert.notNull(registries);
+        this.handlerRegistries = OrderUtils.reversedSort(registries);
     }
 
-    public CompositeHandlerRegistry(List<HandlerRegistry> webMappingRegistrys) {
-        this(webMappingRegistrys.toArray(new HandlerRegistry[webMappingRegistrys.size()]));
+    public CompositeHandlerRegistry(List<HandlerRegistry> registries) {
+        this(requireNonNull(registries).toArray(new HandlerRegistry[registries.size()]));
     }
 
     @Override

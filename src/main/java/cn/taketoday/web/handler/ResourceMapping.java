@@ -63,7 +63,7 @@ public class ResourceMapping implements Serializable, Ordered, HandlerIntercepto
 
     private int order;
 
-    private final List<String> locations = new ArrayList<>();
+    private final ArrayList<String> locations = new ArrayList<>();
 
     public ResourceMapping(HandlerInterceptor[] interceptors, String... pathPatterns) {
         setInterceptors(interceptors);

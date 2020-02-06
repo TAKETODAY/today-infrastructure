@@ -55,7 +55,5 @@ public interface HandlerInterceptor {
      * @throws Throwable
      *             If any exception occurred
      */
-    default void afterProcess(RequestContext context, Object handler, Object result) throws Throwable {
-
-    }
+    default void afterProcess(RequestContext context, Object handler, Object result) throws Throwable {}
 }

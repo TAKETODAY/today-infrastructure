@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.cors;
 
+import static cn.taketoday.context.utils.StringUtils.collectionToString;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,17 +127,17 @@ public class DefaultCorsProcessor implements CorsProcessor {
 
         if (preFlightRequest) {
             context.responseHeader(Constant.ACCESS_CONTROL_ALLOW_METHODS,
-                                   StringUtils.listToString(allowMethods, ","));
+                                   collectionToString(allowMethods, ","));
         }
 
         if (preFlightRequest && !allowHeaders.isEmpty()) {
             context.responseHeader(Constant.ACCESS_CONTROL_ALLOW_HEADERS,
-                                   StringUtils.listToString(allowHeaders, ","));
+                                   collectionToString(allowHeaders, ","));
         }
 
         if (!ObjectUtils.isEmpty(config.getExposedHeaders())) {
             context.responseHeader(Constant.ACCESS_CONTROL_EXPOSE_HEADERS,
-                                   StringUtils.listToString(config.getExposedHeaders(), ","));
+                                   collectionToString(config.getExposedHeaders(), ","));
         }
 
         if (Boolean.TRUE.equals(config.getAllowCredentials())) {
