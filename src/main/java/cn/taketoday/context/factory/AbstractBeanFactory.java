@@ -263,7 +263,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @throws Throwable
      *             If any {@link Exception} occurred when create bean instance
      */
-    protected Object createBeanInstance(final BeanDefinition def) throws Throwable {
+    protected Object createBeanInstance(final BeanDefinition def) throws Exception {
         return createBeanInstance(def.getName(), def);
     }
 
@@ -282,7 +282,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @throws Throwable
      *             If any {@link Exception} occurred when create bean instance
      */
-    protected Object createBeanInstance(final String name, final BeanDefinition def) throws Throwable {
+    protected Object createBeanInstance(final String name, final BeanDefinition def) throws Exception {
         if (def.isSingleton()) {
             Object bean = getSingleton(name);
             if (bean == null) {
@@ -775,7 +775,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @throws Throwable
      *             If any {@link Exception} occurred when initialize bean
      */
-    protected Object initializingBean(final Object bean, final String name, final BeanDefinition def) throws Throwable {
+    protected Object initializingBean(final Object bean, final String name, final BeanDefinition def) throws Exception {
 
         if (currentInitializingBeanName.contains(name)) {
             return bean;
@@ -1176,18 +1176,15 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         }
 
         try {
-
             if (def.isInitialized()) {
                 log.warn("A bean named: [{}] has already initialized", name);
                 return;
             }
-
             initializingBean(createBeanInstance(name, def), name, def);
-
             def.setInitialized(true);
         }
         catch (Throwable ex) {
-            throw new ContextException(ex);
+            throw new ContextException("Can't refresh a bean named: [" + name + "], With Msg: [" + ex + "]", ex);
         }
     }
 
@@ -1199,7 +1196,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             return initializingBean;
         }
         catch (Throwable ex) {
-            throw new ContextException(ex);
+            throw new ContextException("Can't refresh a bean named: [" + def.getName() + "], With Msg: [" + ex + "]", ex);
         }
     }
 

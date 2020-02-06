@@ -353,7 +353,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
 
         try {
-
             final String name = getEnvironment().getBeanNameCreator().create(listenerClass);
             // if exist bean
             Object applicationListener = getSingleton(name);
@@ -362,7 +361,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
                 applicationListener = ClassUtils.newInstance(listenerClass);
                 registerSingleton(name, applicationListener);
             }
-
             addApplicationListener((ApplicationListener<?>) applicationListener);
         }
         catch (Throwable ex) {
@@ -574,29 +572,17 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     @Override
     public void refresh(String name) {
-        try {
-            getBeanFactory().refresh(name);
-            // object refreshed
-            publishEvent(new ObjectRefreshedEvent(getBeanDefinition(name), this));
-        }
-        catch (Throwable ex) {
-            ex = ExceptionUtils.unwrapThrowable(ex);
-            throw new ContextException("Can't refresh a bean named: [" + name + "], With Msg: [" + ex + "]", ex);
-        }
+        getBeanFactory().refresh(name);
+        // object refreshed
+        publishEvent(new ObjectRefreshedEvent(getBeanDefinition(name), this));
     }
 
     @Override
     public Object refresh(BeanDefinition def) {
-        try {
-            final Object initializingBean = getBeanFactory().refresh(def);
-            // object refreshed
-            publishEvent(new ObjectRefreshedEvent(def, this));
-            return initializingBean;
-        }
-        catch (Throwable ex) {
-            ex = ExceptionUtils.unwrapThrowable(ex);
-            throw new ContextException("Can't refresh a bean named: [" + def.getName() + "], With Msg: [" + ex + "]", ex);
-        }
+        final Object initializingBean = getBeanFactory().refresh(def);
+        // object refreshed
+        publishEvent(new ObjectRefreshedEvent(def, this));
+        return initializingBean;
     }
 
     @Override

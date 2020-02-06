@@ -48,6 +48,7 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.EnvironmentAware;
+import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.bean.DefaultBeanDefinition;
 import cn.taketoday.context.bean.FactoryBeanDefinition;
@@ -107,7 +108,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * from {@link StandardBeanDefinition#getFactoryMethod()}
      */
     @Override
-    protected Object createBeanInstance(String name, BeanDefinition def) throws Throwable {
+    protected Object createBeanInstance(String name, BeanDefinition def) throws Exception {
 
         if (def instanceof StandardBeanDefinition) {
             final StandardBeanDefinition stdDef = (StandardBeanDefinition) def;
@@ -129,7 +130,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     }
 
     protected Object createFromFactoryMethod(final Method factoryMethod,
-                                             final StandardBeanDefinition stdDef) throws Throwable {
+                                             final StandardBeanDefinition stdDef) throws Exception {
 
         return ClassUtils.makeAccessible(factoryMethod)
                 .invoke(getDeclaringInstance(stdDef.getDeclaringName()), resolveParameter(factoryMethod, this));
@@ -154,7 +155,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @return
      * @throws Throwable
      */
-    protected Object getDeclaringInstance(String declaringName) throws Throwable {
+    protected Object getDeclaringInstance(String declaringName) throws Exception {
         final BeanDefinition declaringBeanDef = getBeanDefinition(declaringName);
 
         if (declaringBeanDef == null) {
@@ -448,12 +449,15 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @return {@link ImportSelector} object
      */
     protected <T> T createImporter(BeanDefinition importDef, Class<T> target) {
-
         try {
-            return target.cast(getBean(importDef));
+            final Object bean = getBean(importDef);
+            if (bean instanceof ImportAware) {
+                ((ImportAware) bean).setImportBeanDefinition(importDef);
+            }
+            return target.cast(bean);
         }
         catch (Throwable e) {
-            throw new BeanDefinitionStoreException("Can't initialize a target: [" + target + "]");
+            throw new BeanDefinitionStoreException("Can't initialize a target: [" + importDef + "]");
         }
     }
 
