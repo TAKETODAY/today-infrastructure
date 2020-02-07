@@ -153,11 +153,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>cn.taketoday</groupId>
-            <artifactId>today-aop</artifactId>
-            <version>latest</version>
-        </dependency>
     </dependencies>
 
     <profiles>
