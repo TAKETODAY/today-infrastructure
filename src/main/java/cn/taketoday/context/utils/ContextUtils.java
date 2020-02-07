@@ -21,6 +21,7 @@ package cn.taketoday.context.utils;
 
 import static cn.taketoday.context.Constant.VALUE;
 import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
+import static java.util.Objects.requireNonNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -43,7 +44,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -208,7 +208,7 @@ public abstract class ContextUtils {
             Collections.addAll(propertyValueResolvers, getPropertyValueResolvers());
         }
 
-        Collections.addAll(propertyValueResolvers, Objects.requireNonNull(resolvers));
+        Collections.addAll(propertyValueResolvers, requireNonNull(resolvers));
         OrderUtils.reversedSort(propertyValueResolvers);
         setPropertyValueResolvers(propertyValueResolvers.toArray(new PropertyValueResolver[propertyValueResolvers.size()]));
     }
@@ -781,7 +781,7 @@ public abstract class ContextUtils {
 
         final Properties propertiesToUse;
         if (fileNames.length == 0) {
-            propertiesToUse = Objects.requireNonNull(aplicationProps);
+            propertiesToUse = requireNonNull(aplicationProps);
         }
         else {
             propertiesToUse = new ConcurrentProperties();
@@ -1026,7 +1026,7 @@ public abstract class ContextUtils {
      */
     public static Set<Class<?>> loadFromMetaInfo(final String resource) throws ContextException {
 
-        if (Objects.requireNonNull(resource).startsWith("META-INF")) {
+        if (requireNonNull(resource).startsWith("META-INF")) {
 
             final Set<Class<?>> ret = new HashSet<>();
             final ClassLoader classLoader = ClassUtils.getClassLoader();
@@ -1071,7 +1071,7 @@ public abstract class ContextUtils {
             Collections.addAll(parameterResolvers, getParameterResolvers());
         }
 
-        Collections.addAll(parameterResolvers, Objects.requireNonNull(resolvers));
+        Collections.addAll(parameterResolvers, requireNonNull(resolvers));
         OrderUtils.reversedSort(parameterResolvers);
         setParameterResolvers(parameterResolvers.toArray(new ExecutableParameterResolver[parameterResolvers.size()]));
     }

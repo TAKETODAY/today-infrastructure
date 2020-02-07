@@ -50,7 +50,6 @@ import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 
 /**
- * 
  * @author TODAY <br>
  *         2019-09-07 10:44
  */
@@ -60,8 +59,9 @@ public class StandardProxyCreator implements ProxyCreator {
 
     @Override
     public Object createProxy(TargetSource targetSource, BeanFactory beanFactory) {
-
-        log.debug("Creating Standard Proxy, target source is: [{}]", targetSource);
+        if (log.isDebugEnabled()) {
+            log.debug("Creating Standard Proxy, target source is: [{}]", targetSource);
+        }
 
         final Class<?> targetClass = targetSource.getTargetClass();
         final StandardProxyGenerator proxyGenerator = new StandardProxyGenerator(beanFactory);

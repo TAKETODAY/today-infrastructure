@@ -47,7 +47,6 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
- * 
  * @author TODAY <br>
  *         2018-11-10 13:13
  */
@@ -66,8 +65,8 @@ public class DefaultProxyFactory implements ProxyFactory {
     }
 
     public DefaultProxyFactory(TargetSource targetSource, ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
         this.targetSource = targetSource;
+        this.applicationContext = applicationContext;
     }
 
     @Override

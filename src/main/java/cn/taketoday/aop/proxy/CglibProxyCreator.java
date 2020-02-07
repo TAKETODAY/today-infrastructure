@@ -43,8 +43,10 @@ public class CglibProxyCreator implements ProxyCreator {
     @Override
     public Object createProxy(TargetSource targetSource, BeanFactory beanFactory) {
 
-        log.debug("Creating Cglib Proxy, target source is: [{}]", targetSource);
-
+        if (log.isDebugEnabled()) {
+            log.debug("Creating Standard Proxy, target source is: [{}]", targetSource);
+        }
+        
         final Class<?> targetClass = targetSource.getTargetClass();
         final Enhancer enhancer = new Enhancer()//
                 .setSuperclass(targetClass)//

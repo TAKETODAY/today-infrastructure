@@ -34,7 +34,6 @@ import lombok.Getter;
 
 /**
  * @author TODAY <br>
- * 
  *         2018-11-10 18:48
  */
 public enum AspectsRegistry {

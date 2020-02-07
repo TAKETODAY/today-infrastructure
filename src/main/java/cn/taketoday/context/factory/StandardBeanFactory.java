@@ -24,6 +24,7 @@ import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray
 import static cn.taketoday.context.utils.ContextUtils.findNames;
 import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
 import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
+import static java.util.Objects.requireNonNull;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -84,7 +85,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     private final ConfigurableApplicationContext applicationContext;
     private final HashSet<Method> missingMethods = new HashSet<>(32);
-    private final LinkedList<AnnotatedElement> scaned = new LinkedList<>();
+    private final LinkedList<AnnotatedElement> componentScanned = new LinkedList<>();
 
     public StandardBeanFactory(ConfigurableApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -381,6 +382,19 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     }
 
     /**
+     * Load {@link Import} beans from input bean classes
+     * 
+     * @param beans
+     *            Input bean classes
+     * @since 2.1.7
+     */
+    public void loadImportBeans(Class<?>... beans) {
+        for (final Class<?> bean : requireNonNull(beans)) {
+            loadImportBeans(createBeanDefinition(bean));
+        }
+    }
+
+    /**
      * Load {@link Import} beans from input {@link BeanDefinition}s
      * 
      * @param defs
@@ -617,8 +631,8 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      *            {@link BeanDefinition} that annotated {@link ComponentScan}
      */
     protected void componentScan(final AnnotatedElement source) {
-        if (!scaned.contains(source)) {
-            scaned.add(source);
+        if (!componentScanned.contains(source)) {
+            componentScanned.add(source);
             for (final AnnotationAttributes attribute : getAnnotationAttributesArray(source, ComponentScan.class)) {
                 loadBeanDefinition(attribute.getStringArray(Constant.VALUE));
             }

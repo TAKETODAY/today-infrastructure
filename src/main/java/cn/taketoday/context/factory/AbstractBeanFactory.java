@@ -80,13 +80,13 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     /** object factories */
     private Map<Class<?>, Object> objectFactories;
     /** dependencies */
-    private final Set<PropertyValue> dependencies = new HashSet<>(64);
+    private final HashSet<PropertyValue> dependencies = new HashSet<>(64);
     /** Bean Post Processors */
-    private final List<BeanPostProcessor> postProcessors = new ArrayList<>();
+    private final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
     /** Map of bean instance, keyed by bean name */
-    private final Map<String, Object> singletons = new HashMap<>(64);
+    private final HashMap<String, Object> singletons = new HashMap<>(64);
     /** Map of bean definition objects, keyed by bean name */
-    private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
+    private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
 
     // @since 2.1.6
     private boolean fullPrototype = false;
@@ -260,7 +260,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @param def
      *            Bean definition
      * @return Target bean instance
-     * @throws Throwable
+     * @throws Exception
      *             If any {@link Exception} occurred when create bean instance
      */
     protected Object createBeanInstance(final BeanDefinition def) throws Exception {
@@ -279,7 +279,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @param def
      *            Bean definition
      * @return Target bean instance
-     * @throws Throwable
+     * @throws Exception
      *             If any {@link Exception} occurred when create bean instance
      */
     protected Object createBeanInstance(final String name, final BeanDefinition def) throws Exception {
@@ -772,7 +772,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @param def
      *            Bean definition
      * @return A initialized object
-     * @throws Throwable
+     * @throws Exception
      *             If any {@link Exception} occurred when initialize bean
      */
     protected Object initializingBean(final Object bean, final String name, final BeanDefinition def) throws Exception {
@@ -815,7 +815,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *             If any {@link Exception} occurred when initialize with processors
      */
     @SuppressWarnings("deprecation")
-    private Object initWithPostProcessors(Object bean, final String name, final BeanDefinition def, //
+    private Object initWithPostProcessors(Object bean, 
+                                          final String name, 
+                                          final BeanDefinition def, 
                                           final List<BeanPostProcessor> processors) throws Exception //
     {
         // before properties

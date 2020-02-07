@@ -81,8 +81,8 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
     }
 
     @Override
-    public AbstractBeanFactory getBeanFactory() {
-        final AbstractBeanFactory beanFactory = this.beanFactory;
+    public StandardBeanFactory getBeanFactory() {
+        final StandardBeanFactory beanFactory = this.beanFactory;
         if (beanFactory == null) {
             return this.beanFactory = createBeanFactory();
         }
@@ -95,15 +95,12 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
 
     @Override
     protected void loadBeanDefinitions(AbstractBeanFactory beanFactory, Collection<Class<?>> candidates) {
-
         // load beans form scanned classes
         super.loadBeanDefinitions(beanFactory, candidates);
         // @since 2.1.6
         candidates.addAll(this.beanFactory.loadMetaInfoBeans());
-
         // load beans form beans that annotated Configuration
         this.beanFactory.loadConfigurationBeans();
-
         this.beanFactory.loadMissingBean(candidates);
     }
 
