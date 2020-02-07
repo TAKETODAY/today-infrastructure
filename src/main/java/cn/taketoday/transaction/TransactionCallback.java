@@ -44,7 +44,6 @@ public interface TransactionCallback<T> {
      *            associated transaction status
      * @return a result object, or {@code null}
      * @see TransactionTemplate#execute
-     * @see CallbackPreferringPlatformTransactionManager#execute
      */
     T doInTransaction(TransactionStatus status);
 

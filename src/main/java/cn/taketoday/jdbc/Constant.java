@@ -19,14 +19,6 @@
  */
 package cn.taketoday.jdbc;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.HashSet;
-
 /**
  * @author TODAY <br>
  *         2018-08-28 17:57
@@ -34,7 +26,6 @@ import java.util.HashSet;
 public interface Constant extends cn.taketoday.context.Constant {
 
     String VERSION = "1.0.0.RELEASE";
-    String DATA_SOURCE = "dataSource";
 
     /**
      ********************************************
@@ -59,33 +50,5 @@ public interface Constant extends cn.taketoday.context.Constant {
     String FETCH_JOIN = "join";
     String FETCH_SELECT = "select";
     String FETCH_SUB_SELECT = "subselect";
-
-    Collection<Class<?>> BASIC_TYPE = new HashSet<Class<?>>(21) {
-        private static final long serialVersionUID = 7728364533245398530L;
-        {
-            add(String.class);
-            add(Integer.class);
-            add(Long.class);
-            add(Float.class);
-            add(Double.class);
-            add(BigInteger.class);
-            add(BigDecimal.class);
-            add(Byte.class);
-            add(Short.class);
-            add(int.class);
-            add(long.class);
-            add(byte.class);
-            add(float.class);
-            add(short.class);
-            add(double.class);
-            add(boolean.class);
-            add(Boolean.class);
-            add(byte[].class);
-            add(Date.class);
-            add(Time.class);
-            add(Timestamp.class);
-            add(java.util.Date.class);
-        }
-    };
 
 }

@@ -33,8 +33,8 @@ public interface ResourceTransactionManager extends TransactionManager {
      * {@link SynchronizationManager}'s resource bindings per thread.
      * 
      * @return the target resource factory (never {@code null})
-     * @see TransactionSynchronizationManager#bindResource
-     * @see TransactionSynchronizationManager#getResource
+     * @see SynchronizationManager#bindResource
+     * @see SynchronizationManager#getResource
      */
     Object getResourceFactory();
 }

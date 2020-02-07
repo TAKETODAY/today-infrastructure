@@ -46,10 +46,6 @@ public class DefaultTransactionStatus extends AbstractTransactionStatus {
      *            transaction
      * @param readOnly
      *            whether the transaction is read-only
-     * @param debug
-     *            should debug logging be enabled for the handling of this
-     *            transaction? Caching it in here can prevent repeated calls to ask
-     *            the logging system whether debug logging should be enabled.
      * @param suspendedResources
      *            a holder for resources that have been suspended for this
      *            transaction, if any

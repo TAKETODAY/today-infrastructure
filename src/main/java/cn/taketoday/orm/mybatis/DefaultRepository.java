@@ -52,7 +52,6 @@ public interface DefaultRepository<M, ID extends Serializable> {
      * Save entities to database
      * 
      * @param model
-     * @return
      */
     void saveSelective(M model);
 
@@ -84,30 +83,12 @@ public interface DefaultRepository<M, ID extends Serializable> {
      */
     void updateAll(@Param("models") Collection<M> models);
 
-    /**
-     * 
-     * @return
-     */
     int getTotalRecord();
 
-    /**
-     * 
-     * @param id
-     * @return
-     */
     M findById(ID id);
 
-    /**
-     * @return
-     */
     List<M> findAll();
 
-    /**
-     * 
-     * @param pageNow
-     * @param pageSize
-     * @return
-     */
     List<M> find(@Param("pageNow") int pageNow, @Param("pageSize") int pageSize);
 
     List<M> findLatest();

@@ -95,8 +95,6 @@ public abstract class SynchronizationManager {
         /**
          * Retrieve a resource for the given key that is bound to the current thread.
          * 
-         * @param metaData
-         *            Current {@link SynchronizationMetaData}
          * @param key
          *            the key to check (usually the resource factory)
          * @return a value bound to the current thread (usually the active resource
@@ -405,8 +403,6 @@ public abstract class SynchronizationManager {
          * Actually invoke the {@code afterCompletion} methods of the given Spring
          * TransactionSynchronization objects.
          * 
-         * @param synchronizations
-         *            List of TransactionSynchronization objects
          * @param completionStatus
          *            the completion status according to the constants in the
          *            TransactionSynchronization interface

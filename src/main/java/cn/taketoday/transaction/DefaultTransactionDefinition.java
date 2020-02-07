@@ -287,16 +287,10 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
     }
 
     /**
-     * Return an identifying description for this transaction definition.
-     * <p>
-     * The format matches the one used by
-     * {@link org.springframework.transaction.interceptor.TransactionAttributeEditor},
-     * to be able to feed {@code toString} results into bean properties of type
-     * {@link org.springframework.transaction.interceptor.TransactionAttribute}.
-     * <p>
-     * Has to be overridden in subclasses for correct {@code equals} and
-     * {@code hashCode} behavior. Alternatively, {@link #equals} and
-     * {@link #hashCode} can be overridden themselves.
+     * Return an identifying description for this transaction definition. Has to be
+     * overridden in subclasses for correct {@code equals} and {@code hashCode}
+     * behavior. Alternatively, {@link #equals} and {@link #hashCode} can be
+     * overridden themselves.
      */
     @Override
     public String toString() {

@@ -1062,7 +1062,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      *            transaction object returned by {@code doGetTransaction}
      * @return an object that holds suspended resources (will be kept unexamined for
      *         passing it into doResume)
-     * @throws TransactionSuspensionNotSupportedException
+     * @throws TransactionException
      *             if suspending is not supported by the transaction manager
      *             implementation
      * @throws TransactionException
@@ -1086,11 +1086,9 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * @param suspendedResources
      *            the object that holds suspended resources, as returned by
      *            doSuspend
-     * @throws TransactionSuspensionNotSupportedException
+     * @throws TransactionException
      *             if resuming is not supported by the transaction manager
      *             implementation
-     * @throws TransactionException
-     *             in case of system errors
      * @see #doSuspend
      */
     protected void doResume(final SynchronizationMetaData metaData,

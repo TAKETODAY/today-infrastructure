@@ -92,7 +92,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
     /**
      * Set a savepoint for this transaction. Useful for PROPAGATION_NESTED.
      * 
-     * @see org.springframework.transaction.TransactionDefinition#PROPAGATION_NESTED
+     * @see TransactionDefinition#PROPAGATION_NESTED
      */
     protected void setSavepoint(Object savepoint) {
         this.savepoint = savepoint;
@@ -113,7 +113,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
     /**
      * Create a savepoint and hold it for the transaction.
      * 
-     * @throws org.springframework.transaction.NestedTransactionNotSupportedException
+     * @throws TransactionException
      *             if the underlying transaction does not support savepoints
      */
     public void createAndHoldSavepoint() throws TransactionException {
@@ -146,7 +146,6 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
         setSavepoint(null);
     }
 
-    // ---------------------------------------------------------------------
     // Implementation of SavepointManager
     // ---------------------------------------------------------------------
 
