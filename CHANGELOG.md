@@ -49,6 +49,28 @@
 - :bug: 修复重大漏洞：el执行期间潜在的并发问题
 - :bug: 修复bean实例重复创建
 - :sparkles: 新增ComponentScan支持自定义扫描包
+- :sparkles: 支持ApplicationContextSupport
+- :sparkles: 支持任意事件类型
+- :zap: 优化循环依赖问题
+- :sparkles: 实现 DestructionBeanPostProcessor
+- :hammer: 重构 使用CandidateComponentScanner加载类
+- :sparkles: 新增PathMatchingResourcePatternResolver
+- :sparkles: 添加ClassUtils#getQualifiedMethodName
+- :zap: 优化AnnotationAttributes
+- :zap: 优化ContextUtils
+- :bug: 修复listener顺序问题
+- :bug: 修复META-INFO/beans
+- :bug: 修复bean实例重复创建
+- :sparkles: 新增StringUtils#parseParameters()
+- :zap: 优化Resource
+- :zap: 优化toArray
+- :zap: 优化AntPathMatcher
+- :sparkles: 新增OrderedSupport
+- :sparkles: 新增CandidateComponentScannerCapable
+- :zap: 优化Resource
+- :sparkles: 增加Assert,MultiValueMap
+- :sparkles: 新增ImportAware
+- :sparkles: 将aop整合进来
 
 
 
