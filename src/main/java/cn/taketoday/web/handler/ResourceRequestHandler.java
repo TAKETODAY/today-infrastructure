@@ -20,6 +20,7 @@
 package cn.taketoday.web.handler;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.web.utils.WebUtils.writeToOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,13 +53,15 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
 
     @Override
     public Object handleRequest(RequestContext context) throws Throwable {
-        final WebResource resource = (WebResource) super.handleRequest(context);
-
-        if (resource == null || resource.isDirectory()) {// TODO Directory listing
-            context.sendError(404);
-        }
-        else {
-            handleResult(context, resource);
+        final Object ret = super.handleRequest(context);
+        if (ret instanceof WebResource) {
+            final WebResource resource = (WebResource) ret;
+            if (resource == null || resource.isDirectory()) {// TODO Directory listing
+                context.sendError(404);
+            }
+            else {
+                handleResult(context, resource);
+            }
         }
         return HandlerAdapter.NONE_RETURN_VALUE;
     }
@@ -119,13 +122,9 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     }
 
     protected String getContentType(final WebResource resource) {
-
         String contentType = resource.getContentType();
         if (StringUtils.isEmpty(contentType)) {
             contentType = getContentTypeInternal(resource);
-            if (StringUtils.isEmpty(contentType)) {
-                contentType = Constant.BLANK;
-            }
         }
         return contentType;
     }
@@ -185,8 +184,8 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
             // requestContext.contentLength(byteArray.length);
             // baos.writeTo(requestContext.getOutputStream());
 
-            WebUtils.writeToOutputStream(source,
-                                         new GZIPOutputStream(requestContext.getOutputStream(), bufferSize), bufferSize);
+            writeToOutputStream(source,
+                                new GZIPOutputStream(requestContext.getOutputStream(), bufferSize), bufferSize);
         }
     }
 
@@ -207,7 +206,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
         context.contentLength(resource.contentLength());
 
         try (final InputStream source = resource.getInputStream()) {
-            WebUtils.writeToOutputStream(source, context.getOutputStream(), resourceMapping.getBufferSize());
+            writeToOutputStream(source, context.getOutputStream(), resourceMapping.getBufferSize());
         }
     }
 

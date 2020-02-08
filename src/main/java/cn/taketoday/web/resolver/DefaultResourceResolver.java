@@ -29,6 +29,7 @@ import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.io.ResourceFilter;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.MediaType;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.handler.ResourceMappingMatchResult;
@@ -111,10 +112,10 @@ public class DefaultResourceResolver implements WebResourceResolver {
 
     public static class DefaultDelegateWebResource implements WebResource {
 
-        private final String etag;
+        private String etag;
         private final String name;
         private final long contentLength;
-        private final String contentType;
+        private String contentType;
 
         private final long lastModified;
 
@@ -129,8 +130,6 @@ public class DefaultResourceResolver implements WebResourceResolver {
             this.resource = resource;
             this.lastModified = resource.lastModified();
             this.contentLength = resource.contentLength();
-            this.contentType = WebUtils.resolveFileContentType(resource.getLocation().getPath());
-            this.etag = WebUtils.getEtag(getName(), contentLength(), lastModified());
         }
 
         @Override
@@ -150,11 +149,20 @@ public class DefaultResourceResolver implements WebResourceResolver {
 
         @Override
         public String getContentType() {
+            if (contentType == null) {
+                final MediaType mediaType = MediaType.of(name);
+                if (mediaType != null) {
+                    return this.contentType = mediaType.toString();
+                }
+            }
             return contentType;
         }
 
         @Override
         public String getETag() {
+            if (etag == null) {
+                etag = WebUtils.getEtag(getName(), contentLength(), lastModified());
+            }
             return etag;
         }
 
