@@ -38,13 +38,12 @@ import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
+import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Repository;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.bean.FactoryBeanDefinition;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
-import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -90,7 +89,7 @@ public class DefaultMybatisConfiguration implements ApplicationListener<LoadingM
         return new FactoryBeanDefinition<>(name, MapperFactoryBean.class, new MapperFactoryBean<>(beanClass));
     }
 
-    @Singleton
+    @MissingBean
     public SqlSession sqlSession(@Env("mybatis.env") String envId,
                                  @Env("mybatis.config") String configLocation,
                                  @Autowired(required = true) DataSource dataSource,
