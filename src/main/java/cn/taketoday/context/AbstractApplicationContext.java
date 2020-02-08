@@ -82,7 +82,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // @since 2.1.5
     private State state;
     /** application listeners **/
-    private final Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners = new HashMap<>(32);
+    private final HashMap<Class<?>, List<ApplicationListener<Object>>> applicationListeners = new HashMap<>(32);
 
     /** @since 2.1.7 Scan candidates */
     private CandidateComponentScanner candidateComponentScanner;
@@ -372,10 +372,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     @Override
     public void addApplicationListener(final ApplicationListener<?> applicationListener) {
 
-        final Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners = this.applicationListeners;
-        if (applicationListener instanceof ApplicationEventCapable) { // @since2.1.7
+        final HashMap<Class<?>, List<ApplicationListener<Object>>> applicationListeners = this.applicationListeners;
+        if (applicationListener instanceof ApplicationEventCapable) { // @since 2.1.7
             for (final Class<?> type : ((ApplicationEventCapable) applicationListener).getApplicationEvent()) {
-                doRegisterListener(applicationListeners, applicationListener, type);
+                doRegisterListener(applicationListener, type, applicationListeners);
             }
         }
         else {
@@ -383,7 +383,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
                 // onApplicationEvent
                 if (!method.isBridge() && method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
                     // register listener
-                    doRegisterListener(applicationListeners, applicationListener, method.getParameterTypes()[0]);
+                    doRegisterListener(applicationListener, method.getParameterTypes()[0], applicationListeners);
                     break;
                 }
             }
@@ -401,8 +401,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      *            The event type
      */
     @SuppressWarnings({ "unchecked" })
-    private final static void doRegisterListener(Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners,
-                                                 Object applicationListener, Class<?> eventType) //
+    private static void doRegisterListener(Object applicationListener, Class<?> eventType,
+                                           Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) //
     {
         List<ApplicationListener<Object>> listeners = applicationListeners.get(eventType);
         if (listeners == null) {
@@ -520,21 +520,21 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
-    public final boolean hasStarted() {
+    public boolean hasStarted() {
         return state == State.STARTED;
     }
 
     @Override
-    public final State getState() {
+    public State getState() {
         return state;
     }
 
-    protected final void applyState(State state) {
+    protected void applyState(State state) {
         this.state = state;
     }
 
     @Override
-    public final long getStartupDate() {
+    public long getStartupDate() {
         return startupDate;
     }
 

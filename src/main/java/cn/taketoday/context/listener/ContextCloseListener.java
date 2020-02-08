@@ -44,26 +44,24 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
     @Override
     public void onApplicationEvent(ContextCloseEvent event) {
 
-        final ApplicationContext applicationContext = event.getApplicationContext();
+        final ApplicationContext context = event.getApplicationContext();
 
         final Logger log = LoggerFactory.getLogger(getClass());
 
-        log.info("Closing: [{}] at [{}]", applicationContext,
+        log.info("Closing: [{}] at [{}]", context,
                  new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(event.getTimestamp()));
 
-        if (applicationContext instanceof AbstractApplicationContext) {
-            AbstractBeanFactory beanFactory = ((AbstractApplicationContext) applicationContext).getBeanFactory();
+        if (context instanceof AbstractApplicationContext) {
+            AbstractBeanFactory beanFactory = ((AbstractApplicationContext) context).getBeanFactory();
             beanFactory.getDependencies().clear();
             beanFactory.getPostProcessors().clear();
         }
 
         try {
-
-            for (final String name : applicationContext.getBeanDefinitions().keySet()) {
-                applicationContext.destroyBean(name);
+            for (final String name : context.getBeanDefinitions().keySet()) {
+                context.destroyBean(name);
             }
-
-            for (final Object bean : applicationContext.getSingletons().values()) {
+            for (final Object bean : context.getSingletons().values()) {
                 ContextUtils.destroyBean(bean, bean.getClass().getDeclaredMethods());
             }
         }
