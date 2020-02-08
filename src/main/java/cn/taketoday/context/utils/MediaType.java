@@ -19,19 +19,28 @@
  */
 package cn.taketoday.context.utils;
 
+import static java.util.Collections.singletonMap;
 import static java.util.Objects.requireNonNull;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.io.Resource;
 
 /**
  * A subclass of {@link MimeType} that adds support for quality parameters as
@@ -51,7 +60,7 @@ import cn.taketoday.context.Constant;
  */
 public class MediaType extends MimeType implements Serializable {
 
-    private static final long serialVersionUID = 2069937152339670231L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Public constant media type that includes all media ranges (i.e.
@@ -359,7 +368,7 @@ public class MediaType extends MimeType implements Serializable {
      *             if any of the parameters contain illegal characters
      */
     public MediaType(String type, String subtype, double qualityValue) {
-        this(type, subtype, Collections.singletonMap(PARAM_QUALITY_FACTOR, Double.toString(qualityValue)));
+        this(type, subtype, singletonMap(PARAM_QUALITY_FACTOR, Double.toString(qualityValue)));
     }
 
     /**
@@ -769,5 +778,73 @@ public class MediaType extends MimeType implements Serializable {
             return super.compareParameters(mediaType1, mediaType2);
         }
     };
+
+    // --------------------------------------------
+
+    private static final String MIME_TYPES_FILE_NAME = "/cn/taketoday/context/utils/mime.types";
+
+    private static HashMap<String, MediaType> fileExtensionToMediaTypes;
+
+    /**
+     * Parse the {@code mime.types} file found in the resources. Format is: <code>
+     * # comments begin with a '#'<br>
+     * # the format is &lt;mime type> &lt;space separated file extensions><br>
+     * # for example:<br>
+     * text/plain    txt text<br>
+     * # this would map file.txt and file.text to<br>
+     * # the mime type "text/plain"<br>
+     * </code>
+     * 
+     * @return a map, mapping media types to file extensions.
+     */
+    private static HashMap<String, MediaType> parseMimeTypes() {
+        InputStream is = MediaType.class.getResourceAsStream(MIME_TYPES_FILE_NAME);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
+            HashMap<String, MediaType> result = new HashMap<>();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.isEmpty() || line.charAt(0) == '#') {
+                    continue;
+                }
+                String[] tokens = StringUtils.tokenizeToStringArray(line, " \t\n\r\f");
+                MediaType mediaType = MediaType.parseMediaType(tokens[0]);
+                for (int i = 1; i < tokens.length; i++) {
+                    String fileExtension = tokens[i].toLowerCase(Locale.ENGLISH);
+                    result.put(fileExtension, mediaType);
+                }
+            }
+            return result;
+        }
+        catch (IOException ex) {
+            throw new IllegalStateException("Could not load '" + MIME_TYPES_FILE_NAME + "'", ex);
+        }
+    }
+
+    /**
+     * Determine a media type for the given resource, if possible.
+     * 
+     * @param resource
+     *            the resource to introspect
+     * @return the corresponding media type, or {@code null} if none found
+     */
+    public static MediaType of(Resource resource) {
+        return resource == null ? null : of(resource.getName());
+    }
+
+    /**
+     * Determine a media type for the given file name, if possible.
+     * 
+     * @param filename
+     *            the file name plus extension
+     * @return the corresponding media type, or {@code null} if none found
+     */
+    public static MediaType of(String filename) {
+        final String ext = StringUtils.getFilenameExtension(filename);
+        return ext == null ? null : getFileExtensionMediaTypes().get(ext.toLowerCase(Locale.ENGLISH));
+    }
+
+    public static Map<String, MediaType> getFileExtensionMediaTypes() {
+        return fileExtensionToMediaTypes == null ? fileExtensionToMediaTypes = parseMimeTypes() : fileExtensionToMediaTypes;
+    }
 
 }
