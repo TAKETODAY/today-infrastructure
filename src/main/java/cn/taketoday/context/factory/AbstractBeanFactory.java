@@ -375,25 +375,40 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 throw e.getTargetException();
             }
             finally {
-                if (f.fullLifecycle) {
+                if (f.isFullLifecycle()) {
                     f.destroyBean(b, def); // destroyBean after every call
                 }
             }
         }
 
         public static Object newProxyInstance(Class<?> refType, BeanDefinition def, AbstractBeanFactory f) {
+            return newProxyInstance(refType, def, f, false);
+        }
 
+        /**
+         * @param refType
+         *            Reference bean class
+         * @param def
+         *            Target {@link BeanDefinition}
+         * @param f
+         *            {@link AbstractBeanFactory}
+         * @param proxyTargetClass
+         *            If true use cglib
+         * @return Target prototype object
+         */
+        public static Object newProxyInstance(Class<?> refType,
+                                              BeanDefinition def,
+                                              AbstractBeanFactory f,
+                                              boolean proxyTargetClass) //
+        {
             final Prototypes handler = new Prototypes(f, def);
-
-            if (refType.isInterface()) { // Use Jdk Proxy
-                // @off
+            if (!proxyTargetClass && refType.isInterface()) { // Use Jdk Proxy @off
                 return Proxy.newProxyInstance(refType.getClassLoader(),  def.getBeanClass().getInterfaces(), 
                     (final Object p, final Method m, final Object[] a) -> {
                         return handler.handle(m, a);
                     }
                 ); //@on
             }
-
             return new Enhancer()
                     .setUseCache(true)
                     .setSuperclass(refType)
@@ -402,6 +417,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                     .setCallback((MethodInterceptor) (obj, m, a, proxy) -> handler.handle(m, a))
                     .create();
         }
+
     }
 
     /**
@@ -562,7 +578,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
         log.debug("Start loading BeanPostProcessor.");
 
-        final List<BeanPostProcessor> postProcessors = getPostProcessors();
         postProcessors.addAll(getBeans(BeanPostProcessor.class));
         OrderUtils.reversedSort(postProcessors);
     }
@@ -815,9 +830,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *             If any {@link Exception} occurred when initialize with processors
      */
     @SuppressWarnings("deprecation")
-    private Object initWithPostProcessors(Object bean, 
-                                          final String name, 
-                                          final BeanDefinition def, 
+    private Object initWithPostProcessors(Object bean,
+                                          final String name,
+                                          final BeanDefinition def,
                                           final List<BeanPostProcessor> processors) throws Exception //
     {
         // before properties

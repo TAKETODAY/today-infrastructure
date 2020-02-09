@@ -41,7 +41,7 @@ import cn.taketoday.context.utils.OrderUtils;
 public class CglibMethodInterceptor implements cn.taketoday.context.cglib.proxy.MethodInterceptor {
 
     private final Object target;
-    private final Map<Method, MethodInterceptor[]> aspectMappings;
+    private final HashMap<Method, MethodInterceptor[]> aspectMappings;
 
     public CglibMethodInterceptor(TargetSource targetSource) {
         this.target = targetSource.getTarget();

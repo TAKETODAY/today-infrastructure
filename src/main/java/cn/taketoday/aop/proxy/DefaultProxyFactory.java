@@ -35,10 +35,9 @@ import cn.taketoday.aop.advice.AbstractAdvice;
 import cn.taketoday.aop.advice.AspectsRegistry;
 import cn.taketoday.aop.annotation.Advice;
 import cn.taketoday.aop.annotation.AdviceImpl;
-import cn.taketoday.aop.annotation.Aspect;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
@@ -58,6 +57,7 @@ public class DefaultProxyFactory implements ProxyFactory {
 
     private final TargetSource targetSource;
     private final ApplicationContext applicationContext;
+
     private final Map<Method, List<MethodInterceptor>> aspectMappings = new HashMap<>(16);
 
     public DefaultProxyFactory() {
@@ -157,11 +157,12 @@ public class DefaultProxyFactory implements ProxyFactory {
      * @return
      * @throws Throwable
      */
-    private boolean matchMethod(final Object aspect, final Method aspectMethod, //
-                                final Class<?> targetClass, final Advice[] advices) throws Throwable //
+    protected boolean matchMethod(final Object aspect, final Method aspectMethod, //
+                                  final Class<?> targetClass, final Advice[] advices) throws Throwable //
     {
         boolean weaved = false;
         Method[] targetDeclaredMethods = targetClass.getDeclaredMethods();
+        boolean traceEnabled = log.isTraceEnabled();
 
         for (final Advice advice : advices) {
             Class<? extends MethodInterceptor> interceptor = advice.interceptor(); // interceptor class
@@ -177,11 +178,12 @@ public class DefaultProxyFactory implements ProxyFactory {
             else {
                 methodInterceptor = getInterceptor(aspect, aspectMethod, interceptor, applicationContext);
             }
-            log.trace("Found Interceptor: [{}]", methodInterceptor);
+            if (traceEnabled) {
+                log.trace("Found Interceptor: [{}]", methodInterceptor);
+            }
 
             boolean isAllMethodsWeaved = false;
 
-            boolean traceEnabled = log.isTraceEnabled();
             // annotation matching
             for (Class<? extends Annotation> annotation : advice.value()) {
                 if (targetClass.isAnnotationPresent(annotation)) {
@@ -199,7 +201,7 @@ public class DefaultProxyFactory implements ProxyFactory {
                     continue;
                 }
                 if (traceEnabled) {
-                    log.trace("Class: [{}] Not Present An Annotation Named: [{}]", targetClass.getName(), annotation);
+                    log.trace("Class: [{}] not present: [{}] fallback to match method", targetClass.getName(), annotation);
                 }
                 // method annotation match start
                 for (Method targetMethod : targetDeclaredMethods) {
@@ -306,9 +308,8 @@ public class DefaultProxyFactory implements ProxyFactory {
     public static MethodInterceptor getInterceptor(final Object aspect,
                                                    Method aspectMethod,
                                                    final Class<? extends MethodInterceptor> interceptor,
-                                                   final BeanFactory beanFactory) throws Throwable //
+                                                   final ApplicationContext beanFactory) throws Throwable //
     {
-
         if (interceptor == AbstractAdvice.class || !MethodInterceptor.class.isAssignableFrom(interceptor)) {
             throw new ConfigurationException("You must be implement: [" + AbstractAdvice.class.getName() + //
                     "] or [" + MethodInterceptor.class.getName() + "]");
@@ -319,13 +320,13 @@ public class DefaultProxyFactory implements ProxyFactory {
         }
 
         // fix
-        if (interceptor.isAnnotationPresent(Aspect.class)) {
-            MethodInterceptor bean = beanFactory.getBean(interceptor);
-            if (bean != null) {
-                return bean;
+        if (ClassUtils.isAnnotationPresent(interceptor, Component.class)) {
+            MethodInterceptor ret = beanFactory.getBean(interceptor); //TODO
+            if (ret != null) {
+                return ret;
             }
         }
-        return interceptor.getConstructor().newInstance();
+        return ClassUtils.newInstance(interceptor, beanFactory);
     }
 
     /**
@@ -343,8 +344,7 @@ public class DefaultProxyFactory implements ProxyFactory {
     {
         List<MethodInterceptor> aspectMapping = aspectMappings.get(targetMethod);
         if (aspectMapping == null) {
-            aspectMapping = new ArrayList<>();
-            aspectMappings.put(targetMethod, aspectMapping);
+            aspectMappings.put(targetMethod, aspectMapping = new ArrayList<>());
         }
         aspectMapping.add(advice);
     }

@@ -21,9 +21,10 @@ package cn.taketoday.aop;
 
 import org.junit.Test;
 
+import cn.taketoday.aop.listener.AspectsDestroyListener;
+import cn.taketoday.aop.proxy.AutoProxyCreator;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.StandardBeanFactory;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,20 +39,28 @@ public class AopTest {
 //        System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY, "D:/debug");
     }
 
-    @Import({ DefaultUserService.class, LogAspect.class, MemUserDao.class, TestInterceptor.class, TimeAspect.class })
+    @Import({ //
+        AspectsDestroyListener.class, //
+        DefaultUserService.class, //
+        LogAspect.class, //
+        MemUserDao.class, //
+        TestInterceptor.class, //
+        TimeAspect.class//
+    })
     static class AopConfig {
 
     }
 
     @Test
-    public void testAop() throws NoSuchBeanDefinitionException {
+    public void testAop() throws Throwable {
 
         try (StandardApplicationContext context = new StandardApplicationContext()) {
 
             final StandardBeanFactory beanFactory = context.getBeanFactory();
 
             beanFactory.loadImportBeans(AopConfig.class);
-
+            context.addBeanPostProcessor(new AutoProxyCreator(context));
+            
             UserService bean = context.getBean(UserService.class);
             User user = new User();
             user.setPassword("666");

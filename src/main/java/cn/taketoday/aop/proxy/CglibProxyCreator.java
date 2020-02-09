@@ -44,7 +44,7 @@ public class CglibProxyCreator implements ProxyCreator {
     public Object createProxy(TargetSource targetSource, BeanFactory beanFactory) {
 
         if (log.isDebugEnabled()) {
-            log.debug("Creating Standard Proxy, target source is: [{}]", targetSource);
+            log.debug("Creating Cglib Proxy, target source is: [{}]", targetSource);
         }
         
         final Class<?> targetClass = targetSource.getTargetClass();

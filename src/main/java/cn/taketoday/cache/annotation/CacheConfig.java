@@ -67,7 +67,7 @@ public @interface CacheConfig {
      */
     TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
 
-    public static final CacheConfig EMPTY_CACHE_CONFIG = new CacheConfig() {
+    CacheConfig EMPTY_CACHE_CONFIG = new CacheConfig() {
 
         @Override
         public Class<? extends Annotation> annotationType() {

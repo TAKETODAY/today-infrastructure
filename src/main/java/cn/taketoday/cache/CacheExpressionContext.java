@@ -52,16 +52,12 @@ public class CacheExpressionContext extends ExpressionContext {
 
     @Override
     public ExpressionResolver getResolver() {
-
-        if (elResolver == null) {
-            ExpressionResolver elResolver = delegate.getResolver();
-            CompositeExpressionResolver resolver = new CompositeExpressionResolver(2);
-
-            resolver.add(new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)));
-            resolver.add(elResolver);
-            this.elResolver = resolver;
+        final ExpressionResolver ret = this.elResolver;
+        if (ret == null) {
+            return this.elResolver = new CompositeExpressionResolver(new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)),
+                                                                     delegate.getResolver());
         }
-        return elResolver;
+        return ret;
     }
 
     /**

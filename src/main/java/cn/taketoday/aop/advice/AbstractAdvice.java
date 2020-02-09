@@ -103,10 +103,7 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
                                         final Object returnValue,
                                         final Throwable throwable) throws Throwable //
     {
-        if (adviceParameterLength == 0) {
-            return invoker.invoke(aspect, null);
-        }
-        return invoker.invoke(aspect, resolveParameter(i, returnValue, throwable));
+        return invoker.invoke(aspect, adviceParameterLength == 0 ? null : resolveParameter(i, returnValue, throwable));
     }
 
     /**
@@ -123,7 +120,12 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
     @SuppressWarnings("unchecked")
     protected Object[] resolveParameter(final MethodInvocation invocation, final Object value, final Throwable ex) {
 
-        Object[] args = new Object[adviceParameterLength];
+        final int adviceParameterLength = this.adviceParameterLength;
+
+        final Object[] args = new Object[adviceParameterLength];
+        final Class<?>[] adviceParameterTypes = this.adviceParameterTypes;
+        
+        final byte[] adviceParameters = this.adviceParameters;
         for (int i = 0; i < adviceParameterLength; i++) {
             switch (adviceParameters[i]) {
                 case Constant.TYPE_THROWING : {

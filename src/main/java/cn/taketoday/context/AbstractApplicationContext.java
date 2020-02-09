@@ -227,7 +227,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         getBeanFactory().preInitialization();
     }
 
-    public void prepareBeanFactory() throws Throwable {
+    public void prepareBeanFactory() {
 
         final AbstractBeanFactory beanFactory = getBeanFactory();
         final ConfigurableEnvironment environment = getEnvironment();
