@@ -485,7 +485,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 final FactoryBean<?> factoryBean = getFactoryBean(def, name);
                 initializingBean(factoryBean, name, def);
                 final Object bean = factoryBean.getBean();
-                log.debug("Initialize FactoryBean: [{}]", name);
+                if (log.isDebugEnabled()) {
+                    log.debug("Initialize FactoryBean: [{}]", name);
+                }
                 registerSingleton(name, bean);
                 def.setInitialized(true);
             }
@@ -631,8 +633,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 if (childDef == null) {
                     childDef = childDefs.get(0); // first one
                 }
-                log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
 
+                if (log.isDebugEnabled()) {
+                    log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
+                }
                 registerBeanDefinition(beanName, new DefaultBeanDefinition(beanName, childDef));
             }
             else if (ref.isRequired()) {
@@ -796,8 +800,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             return bean;
         }
         currentInitializingBeanName.add(name);
-        log.debug("Initializing bean named: [{}].", name);
 
+        if (log.isDebugEnabled()) {
+            log.debug("Initializing bean named: [{}].", name);
+        }
         aware(bean, name);
 
         final List<BeanPostProcessor> postProcessors = getPostProcessors();
@@ -1177,8 +1183,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 continue;
             }
             registerSingleton(name, initializingBean(entry.getValue(), name, beanDefinition));
-            log.debug("Pre initialize singleton bean is being stored in the name of [{}].", name);
-
+            if (log.isDebugEnabled()) {
+                log.debug("Pre initialize singleton bean is being stored in the name of [{}].", name);
+            }
             beanDefinition.setInitialized(true);
         }
     }
@@ -1194,7 +1201,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
         try {
             if (def.isInitialized()) {
-                log.warn("A bean named: [{}] has already initialized", name);
+                if (log.isDebugEnabled()) {
+                    log.warn("A bean named: [{}] has already initialized", name);
+                }
                 return;
             }
             initializingBean(createBeanInstance(name, def), name, def);

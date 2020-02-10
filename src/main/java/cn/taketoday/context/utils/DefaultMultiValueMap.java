@@ -22,7 +22,6 @@ package cn.taketoday.context.utils;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -115,12 +114,13 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
 
     @Override
     public Map<K, V> toSingleValueMap() {
-        LinkedHashMap<K, V> singleValueMap = new LinkedHashMap<>(this.map.size());
-        this.map.forEach((key, values) -> {
+        final HashMap<K, V> singleValueMap = new HashMap<>(map.size());
+        for (Entry<K, List<V>> entry : map.entrySet()) {
+            final List<V> values = entry.getValue();
             if (values != null && !values.isEmpty()) {
-                singleValueMap.put(key, values.get(0));
+                singleValueMap.put(entry.getKey(), values.get(0));
             }
-        });
+        }
         return singleValueMap;
     }
 

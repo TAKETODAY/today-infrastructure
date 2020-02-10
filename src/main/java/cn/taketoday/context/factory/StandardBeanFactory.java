@@ -24,6 +24,7 @@ import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray
 import static cn.taketoday.context.utils.ContextUtils.findNames;
 import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
 import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
+import static cn.taketoday.context.utils.ContextUtils.resolveProps;
 import static java.util.Objects.requireNonNull;
 
 import java.lang.reflect.AnnotatedElement;
@@ -258,7 +259,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                         .setFactoryMethod(method);
                 // resolve @Props on a bean
 
-                ContextUtils.resolveProps(def, applicationContext.getEnvironment());
+                resolveProps(def, applicationContext.getEnvironment());
 
                 register(name, def);
             }
@@ -290,24 +291,20 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         final BeanNameCreator beanNameCreator = getBeanNameCreator();
 
         for (final Method method : missingMethods) {
-
-            final Class<?> beanClass = method.getReturnType();
             final MissingBean missingBean = method.getAnnotation(MissingBean.class);
 
-            if (ContextUtils.isMissedBean(missingBean, beanClass, this)) {
+            if (ContextUtils.isMissedBean(missingBean, method, this)) {
 
-                // @Configuration use default bean name
-                StandardBeanDefinition beanDefinition = //
+                final Class<?> beanClass = method.getReturnType();
+                StandardBeanDefinition beanDefinition = // @Configuration use default bean name
                         new StandardBeanDefinition(getBeanName(missingBean, beanClass), beanClass)//
                                 .setFactoryMethod(method)//
                                 .setDeclaringName(beanNameCreator.create(method.getDeclaringClass()));
 
                 if (method.isAnnotationPresent(Props.class)) {
                     // @Props on method
-                    final List<PropertyValue> resolvedProps = //
-                            ContextUtils.resolveProps(method, context.getEnvironment().getProperties());
-
-                    beanDefinition.addPropertyValue(resolvedProps);
+                    final List<PropertyValue> props = resolveProps(method, context.getEnvironment().getProperties());
+                    beanDefinition.addPropertyValue(props);
                 }
                 registerMissingBean(missingBean, beanDefinition);
             }
@@ -332,7 +329,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                 .setInitMethods(resolveInitMethod(missingBean.initMethods(), beanClass))//
                 .setPropertyValues(ContextUtils.resolvePropertyValue(beanClass));
 
-        ContextUtils.resolveProps(beanDefinition, getApplicationContext().getEnvironment());
+        resolveProps(beanDefinition, getApplicationContext().getEnvironment());
 
         // register missed bean
         register(beanDefinition.getName(), beanDefinition);
@@ -599,7 +596,6 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
             else {
                 registerBeanDefinition(nameToUse, beanDefinition);
             }
-
             postProcessRegisterBeanDefinition(beanDefinition);
         }
         catch (Throwable ex) {
@@ -612,15 +608,22 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     /**
      * Process after register {@link BeanDefinition}
      * 
-     * @param beanDefinition
+     * @param targetDef
      *            Target {@link BeanDefinition}
      */
-    protected void postProcessRegisterBeanDefinition(final BeanDefinition beanDefinition) {
-        if (beanDefinition.isAnnotationPresent(Import.class)) { // @since 2.1.7
-            loadImportBeans(beanDefinition);
+    protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) throws Throwable {
+        if (targetDef.isAnnotationPresent(Import.class)) { // @since 2.1.7
+            loadImportBeans(targetDef);
         }
-        if (beanDefinition.isAnnotationPresent(ComponentScan.class)) {
-            componentScan(beanDefinition);
+        if (targetDef.isAnnotationPresent(ComponentScan.class)) {
+            componentScan(targetDef);
+        }
+        // application listener @since 2.1.7
+        final Class<?> beanClass = targetDef.getBeanClass();
+        if (ApplicationListener.class.isAssignableFrom(beanClass)) {
+            final Object listener = ClassUtils.newInstance(beanClass, this);
+            applicationContext.addApplicationListener((ApplicationListener<?>) listener);
+            registerSingleton(targetDef.getName(), listener);
         }
     }
 

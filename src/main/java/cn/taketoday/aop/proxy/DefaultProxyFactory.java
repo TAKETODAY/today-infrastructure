@@ -133,13 +133,10 @@ public class DefaultProxyFactory implements ProxyFactory {
      * @return All Aspects
      */
     protected List<Object> getAspects() {
-
         final AspectsRegistry instance = AspectsRegistry.getInstance();
-
         if (!instance.isAspectsLoaded()) {
             instance.loadAspects(applicationContext);
         }
-
         return instance.getAspects();
     }
 

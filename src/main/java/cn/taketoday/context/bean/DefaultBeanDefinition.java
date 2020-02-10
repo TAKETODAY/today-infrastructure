@@ -37,6 +37,7 @@ import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.factory.FactoryBean;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
@@ -250,7 +251,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     @Override
     public void addPropertyValue(Collection<PropertyValue> propertyValues) {
 
-        if (propertyValues.isEmpty()) {
+        if (CollectionUtils.isEmpty(propertyValues)) {
             return;
         }
 

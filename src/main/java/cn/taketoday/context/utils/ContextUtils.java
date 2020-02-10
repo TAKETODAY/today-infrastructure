@@ -632,16 +632,7 @@ public abstract class ContextUtils {
             return Collections.emptyList();
         }
 
-        final Class<?> type;
-        if (annotatedElement instanceof Class) {
-            type = (Class<?>) annotatedElement;
-        }
-        else if (annotatedElement instanceof Method) {
-            type = ((Method) annotatedElement).getReturnType();
-        }
-        else {
-            throw new ConfigurationException("Not support annotated element: [" + annotatedElement + "]");
-        }
+        final Class<?> type = getBeanClass(annotatedElement);
 
         log.debug("Loading Properties For: [{}]", type.getName());
 
@@ -657,6 +648,16 @@ public abstract class ContextUtils {
             }
         }
         return propertyValues;
+    }
+
+    private static Class<?> getBeanClass(final AnnotatedElement annotated) {
+        if (annotated instanceof Class) {
+            return (Class<?>) annotated;
+        }
+        if (annotated instanceof Method) {
+            return ((Method) annotated).getReturnType();
+        }
+        throw new ConfigurationException("Not support annotated element: [" + annotated + "]");
     }
 
     /**
@@ -939,17 +940,17 @@ public abstract class ContextUtils {
      * 
      * @param missingBean
      *            The {@link Annotation} declared on the class or a method
-     * @param beanClass
-     *            Missed bean class
+     * @param annotated
+     *            Missed bean class or method
      * @param beanFactory
      *            The {@link AbstractBeanFactory}
      * @return If the bean is missed in context
      * @since 2.1.6
      */
-    public static boolean isMissedBean(final MissingBean missingBean, final Class<?> beanClass, //
+    public static boolean isMissedBean(final MissingBean missingBean, final AnnotatedElement annotated, //
                                        final ConfigurableBeanFactory beanFactory) //
     {
-        if (missingBean == null || !conditional(beanClass)) { // fix @Conditional not
+        if (missingBean == null || !conditional(annotated)) { // fix @Conditional not
             return false;
         }
 
@@ -960,7 +961,7 @@ public abstract class ContextUtils {
         final Class<?> type = missingBean.type();
 
         return !((type != void.class && beanFactory.containsBeanDefinition(type, !type.isInterface())) //
-                 || beanFactory.containsBeanDefinition(beanClass));
+                 || beanFactory.containsBeanDefinition(getBeanClass(annotated)));
     }
 
     // bean definition

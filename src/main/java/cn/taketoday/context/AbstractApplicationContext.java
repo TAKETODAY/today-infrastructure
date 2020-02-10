@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context;
 
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -371,6 +373,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     @Override
     public void addApplicationListener(final ApplicationListener<?> applicationListener) {
+        nonNull(applicationListener, "applicationListener can't be null");
 
         final HashMap<Class<?>, List<ApplicationListener<Object>>> applicationListeners = this.applicationListeners;
         if (applicationListener instanceof ApplicationEventCapable) { // @since 2.1.7
@@ -406,13 +409,15 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     {
         List<ApplicationListener<Object>> listeners = applicationListeners.get(eventType);
         if (listeners == null) {
-            listeners = new ArrayList<>(8);
+            applicationListeners.put(eventType, listeners = new ArrayList<>(2));
+            listeners.add((ApplicationListener<Object>) applicationListener);
         }
-        listeners.add((ApplicationListener<Object>) applicationListener);
-        if (listeners.size() > 1) {
-            OrderUtils.reversedSort(listeners);
+        else if (!listeners.contains(applicationListener)) {
+            listeners.add((ApplicationListener<Object>) applicationListener);
+            if (!listeners.isEmpty()) {
+                OrderUtils.reversedSort(listeners);
+            }
         }
-        applicationListeners.put(eventType, listeners);
     }
 
     /**
