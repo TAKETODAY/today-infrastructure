@@ -21,7 +21,6 @@ package cn.taketoday.web;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.aware.ApplicationContextSupport;
-import cn.taketoday.context.exception.ContextException;
 
 /**
  * @author TODAY <br>
@@ -30,12 +29,7 @@ import cn.taketoday.context.exception.ContextException;
 public class WebApplicationContextSupport extends ApplicationContextSupport {
 
     public final String getContextPath() {
-        return getWebApplicationContext().getContextPath();
-    }
-
-    @Override
-    protected void initApplicationContext() throws ContextException {
-        super.initApplicationContext();
+        return obtainApplicationContext().getContextPath();
     }
 
     /**
@@ -52,11 +46,10 @@ public class WebApplicationContextSupport extends ApplicationContextSupport {
         }
         throw new IllegalStateException("ApplicationContext must be a WebApplicationContext");
     }
-    
+
     @Override
     public WebApplicationContext obtainApplicationContext() {
         return (WebApplicationContext) super.obtainApplicationContext();
     }
-
 
 }
