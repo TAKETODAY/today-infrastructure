@@ -163,11 +163,22 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
 
             final BeanDefinition def = entry.getValue();
 
-            if (!def.isAbstract() && (def.isAnnotationPresent(RootController.class)
-                                      || def.isAnnotationPresent(ActionMapping.class))) { // ActionMapping on the class is ok
+            if (!def.isAbstract() && isController(def)) { // ActionMapping on the class is ok
                 buildHandlerMethod(def.getBeanClass());
             }
         }
+    }
+
+    /**
+     * Whether the given type is a handler with handler methods.
+     * 
+     * @param def
+     *            the definition of the bean being checked
+     * @return "true" if this a handler type, "false" otherwise.
+     */
+    protected boolean isController(final BeanDefinition def) {
+        return def.isAnnotationPresent(RootController.class)
+               || def.isAnnotationPresent(ActionMapping.class);
     }
 
     /**
