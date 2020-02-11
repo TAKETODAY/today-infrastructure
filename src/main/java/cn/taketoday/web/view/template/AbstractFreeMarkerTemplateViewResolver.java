@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.logger.Logger;
@@ -127,7 +128,7 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
                 throw new ConfigurationException("There is no shared variable named: ".concat(m.getName()));
             }
             return ConvertUtils.convert(m.getDefaultValue(), m.getParameterClass());
-        }));
+        }, Ordered.LOWEST_PRECEDENCE + 10));
     }
 
     @Override
