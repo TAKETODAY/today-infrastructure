@@ -31,7 +31,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 public abstract class ApplicationContextSupport implements ApplicationContextAware {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
-    
+
     private ApplicationContext applicationContext;
 
     @Override
@@ -81,6 +81,12 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
      */
     protected void initApplicationContext() throws ContextException {}
 
+    /**
+     * Return the ApplicationContext that this object is associated with.
+     * 
+     * @throws IllegalStateException
+     *             if not running in an ApplicationContext
+     */
     public final ApplicationContext getApplicationContext() {
         return applicationContext;
     }

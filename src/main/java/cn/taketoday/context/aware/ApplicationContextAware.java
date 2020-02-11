@@ -29,6 +29,12 @@ import cn.taketoday.context.ApplicationContext;
  */
 public interface ApplicationContextAware extends Aware {
 
-    void setApplicationContext(ApplicationContext applicationContext);
+    /**
+     * Set the ApplicationContext that this object runs in.Normally this call will
+     * be used to initialize the object.
+     * 
+     * @param context
+     */
+    void setApplicationContext(ApplicationContext context);
 
 }
