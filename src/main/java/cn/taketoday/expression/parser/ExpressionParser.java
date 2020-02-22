@@ -1629,18 +1629,12 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                 state.popNode();
             }
             if (jjte000 instanceof RuntimeException) {
-                {
-                    if (true) throw (RuntimeException) jjte000;
-                }
+                throw (RuntimeException) jjte000;
             }
             if (jjte000 instanceof ParseException) {
-                {
-                    if (true) throw (ParseException) jjte000;
-                }
+                throw (ParseException) jjte000;
             }
-            {
-                if (true) throw jjte000;
-            }
+            throw jjte000;
         }
         finally {
             if (jjtc000) {
@@ -1674,18 +1668,13 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                 state.popNode();
             }
             if (jjte000 instanceof RuntimeException) {
-                {
-                    if (true) throw (RuntimeException) jjte000;
-                }
+                throw (RuntimeException) jjte000;
             }
             if (jjte000 instanceof ParseException) {
-                {
-                    if (true) throw (ParseException) jjte000;
-                }
+                throw (ParseException) jjte000;
             }
-            {
-                if (true) throw jjte000;
-            }
+            throw jjte000;
+
         }
         finally {
             if (jjtc000) {
@@ -1743,18 +1732,13 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                 state.popNode();
             }
             if (jjte000 instanceof RuntimeException) {
-                {
-                    if (true) throw (RuntimeException) jjte000;
-                }
+                throw (RuntimeException) jjte000;
+
             }
             if (jjte000 instanceof ParseException) {
-                {
-                    if (true) throw (ParseException) jjte000;
-                }
+                throw (ParseException) jjte000;
             }
-            {
-                if (true) throw jjte000;
-            }
+            throw jjte000;
         }
         finally {
             if (jjtc000) {
@@ -2033,14 +2017,11 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         Token xsp;
         xsp = jj_scanpos;
         if (jj_3R_41()) jj_scanpos = xsp;
-        if (jj_scan_token(RBRACK)) return true;
-        return false;
+        return jj_scan_token(RBRACK);
     }
 
     private boolean jj_3R_34() {
-        if (jj_scan_token(COMMA)) return true;
-        if (jj_scan_token(IDENTIFIER)) return true;
-        return false;
+        return jj_scan_token(COMMA) || jj_scan_token(IDENTIFIER);
     }
 
     private boolean jj_3R_31() {
@@ -2069,15 +2050,11 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         Token xsp;
         xsp = jj_scanpos;
         if (jj_3R_41()) jj_scanpos = xsp;
-        if (jj_scan_token(RCURL)) return true;
-        return false;
+        return jj_scan_token(RCURL);
     }
 
     private boolean jj_3R_86() {
-        if (jj_scan_token(LPAREN)) {
-            return true;
-        }
-        return jj_3R_41();
+        return jj_scan_token(LPAREN) || jj_3R_41();
     }
 
     private boolean jj_3R_30() {
@@ -2202,9 +2179,10 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         if (jj_scan_token(LPAREN)) return true;
         Token xsp;
         xsp = jj_scanpos;
-        if (jj_3R_33()) jj_scanpos = xsp;
-        if (jj_scan_token(RPAREN)) return true;
-        return false;
+        if (jj_3R_33()) {
+            jj_scanpos = xsp;
+        }
+        return jj_scan_token(RPAREN);
     }
 
     private boolean jj_3R_41() {
@@ -2262,8 +2240,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
     }
 
     private boolean jj_3R_66() {
-        if (jj_scan_token(EMPTY)) return true;
-        return jj_3R_60();
+        return jj_scan_token(EMPTY) || jj_3R_60();
     }
 
     private boolean jj_3R_65() {
@@ -2273,8 +2250,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             jj_scanpos = xsp;
             if (jj_scan_token(40)) return true;
         }
-        if (jj_3R_60()) return true;
-        return false;
+        return jj_3R_60();
     }
 
     private boolean jj_3R_60() {
@@ -2294,8 +2270,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
     }
 
     private boolean jj_3R_64() {
-        if (jj_scan_token(MINUS)) return true;
-        return jj_3R_60();
+        return jj_scan_token(MINUS) || jj_3R_60();
     }
 
     private boolean jj_3R_70() {

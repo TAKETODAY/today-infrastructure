@@ -260,10 +260,8 @@ public abstract class ReflectionUtil {
                 if (i == (mParamCount - 1) && w.isVarArgs()) {
                     varArgs = true;
                     // exact var array type match
-                    if (mParamCount == paramCount) {
-                        if (mParamTypes[i] == paramTypes[i]) {
-                            continue;
-                        }
+                    if (mParamCount == paramCount && mParamTypes[i] == paramTypes[i]) {
+                        continue;
                     }
 
                     // unwrap the array's component type
