@@ -28,6 +28,7 @@ import javax.servlet.http.HttpSession;
 
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.ServletContextAware;
 import cn.taketoday.web.StandardWebBeanFactory;
@@ -46,9 +47,9 @@ public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
     }
 
     @Override
-    protected void awareInternal(Object bean, String name) {
+    protected void awareInternal(final Object bean, final BeanDefinition def) {
 
-        super.awareInternal(bean, name);
+        super.awareInternal(bean, def);
 
         final WebServletApplicationContext applicationContext = getApplicationContext();
         if (bean instanceof ServletContextAware) {

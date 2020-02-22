@@ -24,6 +24,7 @@ import java.util.Map;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.factory.StandardBeanFactory;
 
@@ -37,13 +38,13 @@ public class StandardWebBeanFactory extends StandardBeanFactory {
         super(applicationContext);
         if (applicationContext instanceof ConfigurableWebApplicationContext == false) {
             throw new ConfigurationException("application context must be 'ConfigurableWebApplicationContext'");
-        }   
+        }
     }
 
     @Override
-    protected void awareInternal(Object bean, String name) {
+    protected void awareInternal(final Object bean, final BeanDefinition def) {
 
-        super.awareInternal(bean, name);
+        super.awareInternal(bean, def);
 
         if (bean instanceof WebApplicationContextAware) {
             ((WebApplicationContextAware) bean).setWebApplicationContext(getApplicationContext());

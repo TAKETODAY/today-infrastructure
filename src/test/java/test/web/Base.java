@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import lombok.Getter;
 import lombok.Setter;
