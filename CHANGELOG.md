@@ -72,8 +72,10 @@
 - :sparkles: 新增ImportAware
 - :sparkles: 将aop整合进来
 
-
-
+- :hammer: 重大重构: 大量代码优化，重构，更正测试代码
+- :sparkles: 新增AbstractFactoryBean
+- :sparkles: 新增Spring AttributeAccessor
+- :sparkles: 新增BeanClassLoaderAware
 
 
 ## v2.1.6
