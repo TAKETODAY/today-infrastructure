@@ -71,17 +71,25 @@ public class StreamExpressionResolver extends ExpressionResolver {
     public Object invoke(final ExpressionContext context, final Object base, final Object method, //
                          final Class<?>[] paramTypes, final Object[] params) //
     {
-
-        if (base instanceof Collection) {
-            if ("stream".equals(method) && ObjectUtils.isEmpty(params)) {
-                requireNonNull(context).setPropertyResolved(true);
-                return new Stream(((Collection<Object>) base).iterator());
-            }
-        }
-        if (base.getClass().isArray()) {
-            if ("stream".equals(method) && ObjectUtils.isEmpty(params)) {
-                requireNonNull(context).setPropertyResolved(true);
+//        if (base instanceof Collection
+//            && "stream".equals(method)
+//            && ObjectUtils.isEmpty(params)) {
+//            requireNonNull(context).setPropertyResolved(true);
+//            return new Stream(((Collection<Object>) base).iterator());
+//        }
+//        if (base.getClass().isArray()
+//            && "stream".equals(method)
+//            && ObjectUtils.isEmpty(params)) {
+//            requireNonNull(context).setPropertyResolved(true);
+//            return new Stream(arrayIterator(base));
+//        }
+        if ("stream".equals(method) && ObjectUtils.isEmpty(params)) {
+            requireNonNull(context).setPropertyResolved(true);
+            if (base.getClass().isArray()) {
                 return new Stream(arrayIterator(base));
+            }
+            if (base instanceof Collection) {
+                return new Stream(((Collection<Object>) base).iterator());
             }
         }
         return null;

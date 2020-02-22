@@ -65,7 +65,7 @@ public class ImportHandler {
     private final List<String> packages = new ArrayList<>();
     private final HashSet<String> notAClass = new HashSet<>();
 
-    {
+    public ImportHandler() {
         importPackage("java.lang");
     }
 

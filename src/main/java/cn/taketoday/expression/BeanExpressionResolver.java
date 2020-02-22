@@ -272,10 +272,10 @@ public class BeanExpressionResolver extends ExpressionResolver {
             field.set(base, val);
             requireNonNull(context).setPropertyResolved(base, property);
         }
+        catch (ExpressionException e) {
+            throw e;
+        }
         catch (Exception ex) {
-            if (ex instanceof ExpressionException) {
-                throw (ExpressionException) ex;
-            }
             final StringBuilder message = new StringBuilder("Can't set property '")//
                     .append(property.toString())//
                     .append("' on class '")//
