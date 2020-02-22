@@ -1446,7 +1446,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             }
             consumeToken(RPAREN);
         }
-        catch (Throwable jjte000) {
+        catch (Throwable e) {
             if (jjtc000) {
                 state.clearNodeScope(astMethodArguments);
                 jjtc000 = false;
@@ -1454,13 +1454,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             else {
                 state.popNode();
             }
-            if (jjte000 instanceof RuntimeException) {
-                throw (RuntimeException) jjte000;
-            }
-            if (jjte000 instanceof ParseException) {
-                throw (ParseException) jjte000;
-            }
-            throw jjte000;
+            throw e;
         }
         finally {
             if (jjtc000) {
@@ -1524,12 +1518,6 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             }
             else {
                 state.popNode();
-            }
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            }
-            if (e instanceof ParseException) {
-                throw (ParseException) e;
             }
             throw e;
         }
@@ -1620,7 +1608,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             }
             consumeToken(RCURL);
         }
-        catch (Throwable jjte000) {
+        catch (Throwable e) {
             if (jjtc000) {
                 state.clearNodeScope(jjtn000);
                 jjtc000 = false;
@@ -1628,13 +1616,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             else {
                 state.popNode();
             }
-            if (jjte000 instanceof RuntimeException) {
-                throw (RuntimeException) jjte000;
-            }
-            if (jjte000 instanceof ParseException) {
-                throw (ParseException) jjte000;
-            }
-            throw jjte000;
+            throw e;
         }
         finally {
             if (jjtc000) {
@@ -1659,7 +1641,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
                     jj_la1[46] = jj_gen;;
             }
         }
-        catch (Throwable jjte000) {
+        catch (Throwable e) {
             if (jjtc000) {
                 state.clearNodeScope(jjtn000);
                 jjtc000 = false;
@@ -1667,14 +1649,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             else {
                 state.popNode();
             }
-            if (jjte000 instanceof RuntimeException) {
-                throw (RuntimeException) jjte000;
-            }
-            if (jjte000 instanceof ParseException) {
-                throw (ParseException) jjte000;
-            }
-            throw jjte000;
-
+            throw e;
         }
         finally {
             if (jjtc000) {
@@ -1723,7 +1698,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             }
             consumeToken(RBRACK);
         }
-        catch (Throwable jjte000) {
+        catch (Throwable e) {
             if (jjtc000) {
                 state.clearNodeScope(jjtn000);
                 jjtc000 = false;
@@ -1731,14 +1706,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
             else {
                 state.popNode();
             }
-            if (jjte000 instanceof RuntimeException) {
-                throw (RuntimeException) jjte000;
-
-            }
-            if (jjte000 instanceof ParseException) {
-                throw (ParseException) jjte000;
-            }
-            throw jjte000;
+            throw e;
         }
         finally {
             if (jjtc000) {
@@ -2097,8 +2065,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
         Token xsp;
         xsp = jj_scanpos;
         if (jj_3R_30()) jj_scanpos = xsp;
-        if (jj_scan_token(RPAREN)) return true;
-        return false;
+        return jj_scan_token(RPAREN);
     }
 
     private boolean jj_3R_20() {
