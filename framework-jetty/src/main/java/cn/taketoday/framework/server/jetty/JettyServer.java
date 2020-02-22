@@ -63,6 +63,7 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.logger.Logger;
@@ -136,7 +137,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
     }
 
     @Override
-    protected synchronized void contextInitialized() throws Throwable {
+    protected synchronized void contextInitialized() {
 
         super.contextInitialized();
 
@@ -264,7 +265,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
     }
 
     @Override
-    protected void initializeContext() throws Throwable {
+    protected void initializeContext() {
 
         super.initializeContext();
 
@@ -351,7 +352,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
      *            the set of initializers to apply
      * @throws Throwable
      */
-    protected void configureWebAppContext(final WebAppContext context) throws Throwable {
+    protected void configureWebAppContext(final WebAppContext context) {
 
         Objects.requireNonNull(context, "WebAppContext must not be null");
 
@@ -489,7 +490,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
      * @param context
      *            jetty web app context
      */
-    protected void configureSession(final WebAppContext context) throws Throwable {
+    protected void configureSession(final WebAppContext context) {
 
         final SessionHandler sessionHandler = context.getSessionHandler();
         final SessionConfiguration sessionConfiguration = getSessionConfiguration();
@@ -502,7 +503,12 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
             final DefaultSessionCache cache = new DefaultSessionCache(sessionHandler);
             final FileSessionDataStore store = new FileSessionDataStore();
 
-            store.setStoreDir(sessionConfiguration.getStoreDirectory(applicationContext.getStartupClass()));
+            try {
+                store.setStoreDir(sessionConfiguration.getStoreDirectory(applicationContext.getStartupClass()));
+            }
+            catch (IOException e) {
+                throw new ConfigurationException(e);
+            }
 
             cache.setSessionDataStore(store);
             sessionHandler.setSessionCache(cache);
@@ -527,8 +533,13 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
      * @param webAppContext
      * @throws Throwable
      */
-    protected void configureDocumentRoot(final WebAppContext webAppContext) throws Throwable {
-        webAppContext.setBaseResource(getRootResource(getWebDocumentConfiguration().getValidDocumentDirectory()));
+    protected void configureDocumentRoot(final WebAppContext webAppContext) {
+        try {
+            webAppContext.setBaseResource(getRootResource(getWebDocumentConfiguration().getValidDocumentDirectory()));
+        }
+        catch (IOException e) {
+            throw new ConfigurationException(e);
+        }
     }
 
     protected Resource getRootResource(final cn.taketoday.context.io.Resource validDocBase) throws IOException {

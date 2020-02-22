@@ -47,7 +47,7 @@ import cn.taketoday.framework.server.WebServer;
  */
 public abstract class ApplicationUtils {
 
-    public static WebServer obtainWebServer(ConfigurableWebServerApplicationContext beanFactory) throws Throwable {
+    public static WebServer obtainWebServer(ConfigurableWebServerApplicationContext beanFactory) {
 
         ConfigurableEnvironment environment = beanFactory.getEnvironment();
         // disable web mvc xml

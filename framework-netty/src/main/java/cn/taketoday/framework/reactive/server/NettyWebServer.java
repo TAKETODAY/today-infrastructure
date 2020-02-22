@@ -27,6 +27,7 @@ import javax.annotation.PreDestroy;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.framework.StandardWebServerApplicationContext;
@@ -91,16 +92,21 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     }
 
     @Override
-    protected void prepareInitialize() throws Throwable {
+    protected void prepareInitialize() {
         super.prepareInitialize();
     }
 
     @Override
-    protected void contextInitialized() throws Throwable {
+    protected void contextInitialized() {
         super.contextInitialized();
 
-        new WebServerApplicationLoader(() -> getMergedInitializers())
-                .onStartup(applicationContext);
+        try {
+            new WebServerApplicationLoader(() -> getMergedInitializers())
+                    .onStartup(applicationContext);
+        }
+        catch (Throwable e) {
+            throw new ConfigurationException(e);
+        }
     }
 
     @Override

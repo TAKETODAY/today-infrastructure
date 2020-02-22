@@ -36,6 +36,7 @@ import javax.servlet.ServletException;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.io.JarResource;
@@ -198,20 +199,20 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
     }
 
     @Override
-    protected void initializeContext() throws Throwable {
+    protected void initializeContext() {
         super.initializeContext();
 
         manager = createDeploymentManager();
         builder = createBuilder(getPort());
     }
 
-    protected DeploymentManager createDeploymentManager() throws IOException {
+    protected DeploymentManager createDeploymentManager() {
 
         final DeploymentInfo deployment = Servlets.deployment();
 
         final ServletWebServerApplicationLoader starter = //
                 new ServletWebServerApplicationLoader(() -> getMergedInitializers());
-        
+
         //@off
         deployment.addServletContainerInitializer(
                 new ServletContainerInitializerInfo(ServletWebServerApplicationLoader.class, //
@@ -318,8 +319,13 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
         return builder.addHttpListener(port, getHost());
     }
 
-    protected ResourceManager getDocumentRootResourceManager() throws IOException {
-        return getRootResource(getWebDocumentConfiguration().getValidDocumentDirectory());
+    protected ResourceManager getDocumentRootResourceManager() {
+        try {
+            return getRootResource(getWebDocumentConfiguration().getValidDocumentDirectory());
+        }
+        catch (IOException e) {
+            throw new ConfigurationException(e);
+        }
     }
 
     protected ResourceManager getRootResource(final cn.taketoday.context.io.Resource rootDirectory) throws IOException {

@@ -39,6 +39,7 @@ import javax.servlet.annotation.ServletSecurity;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
@@ -98,7 +99,7 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
      * 
      * @throws Throwable
      */
-    protected void addJspServlet() throws Throwable {
+    protected void addJspServlet() {
 
         final JspServletConfiguration jspServletConfiguration = this.jspServletConfiguration;
 
@@ -110,20 +111,24 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
 
         if (jspServletConfiguration.isEnable()) {
 
-            final Servlet jspServlet = ClassUtils.newInstance(jspServletConfiguration.getClassName());
+            try {
+                Servlet jspServlet = ClassUtils.newInstance(jspServletConfiguration.getClassName());
 
-            if (jspServlet != null) {
+                if (jspServlet != null) {
+                    log.info("Jsp is enabled, use jsp servlet: [{}]", jspServlet.getServletInfo());
 
-                log.info("Jsp is enabled, use jsp servlet: [{}]", jspServlet.getServletInfo());
+                    WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(jspServlet);
 
-                WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(jspServlet);
+                    initializer.setName(jspServletConfiguration.getName());
+                    initializer.setOrder(Ordered.HIGHEST_PRECEDENCE);
+                    initializer.addUrlMappings(jspServletConfiguration.getUrlMappings());
+                    initializer.setInitParameters(jspServletConfiguration.getInitParameters());
 
-                initializer.setName(jspServletConfiguration.getName());
-                initializer.setOrder(Ordered.HIGHEST_PRECEDENCE);
-                initializer.addUrlMappings(jspServletConfiguration.getUrlMappings());
-                initializer.setInitParameters(jspServletConfiguration.getInitParameters());
-
-                getContextInitializers().add(initializer);
+                    getContextInitializers().add(initializer);
+                }
+            }
+            catch (ClassNotFoundException e) {
+                throw new ConfigurationException(e);
             }
         }
     }
@@ -219,7 +224,7 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
      * @throws Throwable
      */
     @Override
-    protected void prepareInitialize() throws Throwable {
+    protected void prepareInitialize() {
 
         super.prepareInitialize();
 

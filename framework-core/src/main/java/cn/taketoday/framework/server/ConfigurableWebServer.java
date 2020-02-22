@@ -32,6 +32,6 @@ public interface ConfigurableWebServer extends WebServer {
      * 
      * @throws Throwable
      */
-    void initialize(WebApplicationInitializer... contextInitializers) throws Throwable;
+    void initialize(WebApplicationInitializer... contextInitializers);
 
 }

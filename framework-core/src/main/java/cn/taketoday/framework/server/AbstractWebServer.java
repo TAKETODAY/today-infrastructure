@@ -92,7 +92,7 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
     private WebApplicationConfiguration webApplicationConfiguration;
 
     @Override
-    public void initialize(WebApplicationInitializer... contextInitializers) throws Throwable {
+    public void initialize(WebApplicationInitializer... contextInitializers) {
 
         if (contextInitializers != null) {
             Collections.addAll(this.contextInitializers, contextInitializers);
@@ -113,7 +113,7 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
      * 
      * @throws Throwable
      */
-    protected void contextInitialized() throws Throwable {}
+    protected void contextInitialized() {}
 
     /**
      * Finish initialized
@@ -127,10 +127,7 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
         return OrderUtils.reversedSort(contextInitializers);
     }
 
-    /**
-     * @throws Throwable
-     */
-    protected void prepareInitialize() throws Throwable {
+    protected void prepareInitialize() {
 
         WebServerApplicationContext applicationContext = getApplicationContext();
 
@@ -162,10 +159,8 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
      * 
      * @param contextInitializers
      *            {@link ApplicationContextInitializer}s
-     * @throws Throwable
-     *             If any Throwable occurred
      */
-    protected void initializeContext() throws Throwable {}
+    protected void initializeContext() {}
 
     protected boolean isZeroOrLess(Duration sessionTimeout) {
         return sessionTimeout == null || sessionTimeout.isNegative() || sessionTimeout.isZero();

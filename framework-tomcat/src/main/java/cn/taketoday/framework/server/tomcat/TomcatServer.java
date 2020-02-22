@@ -20,6 +20,7 @@
 package cn.taketoday.framework.server.tomcat;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -267,7 +268,7 @@ public class TomcatServer extends AbstractServletWebServer {
     }
 
     @Override
-    protected void initializeContext() throws Throwable {
+    protected void initializeContext() {
 
         Tomcat tomcat = new Tomcat();
         this.tomcat = tomcat;
@@ -289,7 +290,7 @@ public class TomcatServer extends AbstractServletWebServer {
     }
 
     @Override
-    protected void contextInitialized() throws Throwable {
+    protected void contextInitialized() {
         super.contextInitialized();
 
         log.info("Tomcat initialize on port: '{}' with context path: '{}'", getPort(), getContextPath());
@@ -382,52 +383,57 @@ public class TomcatServer extends AbstractServletWebServer {
         }
     }
 
-    protected void doPrepareContext(Host host) throws Throwable {
+    protected void doPrepareContext(Host host) {
 
         final Resource validDocBase = getWebDocumentConfiguration().getValidDocumentDirectory();
 
-        File documentRoot = validDocBase.getFile();
+        try {
+            File documentRoot = validDocBase.getFile();
 
-        final ServletWebServerApplicationLoader starter = //
-                new ServletWebServerApplicationLoader(() -> getMergedInitializers());
+            final ServletWebServerApplicationLoader starter = //
+                    new ServletWebServerApplicationLoader(() -> getMergedInitializers());
 
-        starter.setApplicationContext(getApplicationContext());
+            starter.setApplicationContext(getApplicationContext());
 
-        TomcatEmbeddedContext context = new TomcatEmbeddedContext(sessionIdGenerator);
-        context.setFailCtxIfServletStartFails(true);
+            TomcatEmbeddedContext context = new TomcatEmbeddedContext(sessionIdGenerator);
+            context.setFailCtxIfServletStartFails(true);
 
-        context.setName(getContextPath());
-        context.setDisplayName(getDisplayName());
-        context.setPath(getContextPath());
+            context.setName(getContextPath());
+            context.setDisplayName(getDisplayName());
+            context.setPath(getContextPath());
 
-        File docBase = (documentRoot == null) ? getTemporalDirectory("docbase") : documentRoot;
+            File docBase = (documentRoot == null) ? getTemporalDirectory("docbase") : documentRoot;
 
-        context.setDocBase(docBase.getAbsolutePath());
-        context.addLifecycleListener(new FixContextListener());
-        context.setParentClassLoader(ClassUtils.getClassLoader());
+            context.setDocBase(docBase.getAbsolutePath());
+            context.addLifecycleListener(new FixContextListener());
+            context.setParentClassLoader(ClassUtils.getClassLoader());
 
-        resetDefaultLocaleMapping(context);
-        addLocaleMappings(context);
+            resetDefaultLocaleMapping(context);
+            addLocaleMappings(context);
 
-        context.setUseRelativeRedirects(useRelativeRedirects);
+            context.setUseRelativeRedirects(useRelativeRedirects);
 
-        WebappLoader loader = new WebappLoader(context.getParentClassLoader());
+            WebappLoader loader = new WebappLoader(context.getParentClassLoader());
 
-        loader.setLoaderClass(WebappClassLoader.class.getName());
+            loader.setLoaderClass(WebappClassLoader.class.getName());
 
-        loader.setDelegate(true);
-        context.setLoader(loader);
+            loader.setDelegate(true);
+            context.setLoader(loader);
 
-        configureJasperInitializer(context);
+            configureJasperInitializer(context);
 
-        host.addChild(context);
+            host.addChild(context);
 
-        context.addServletContainerInitializer(starter, Collections.emptySet());
-        configureTomcatContext(context);
+            context.addServletContainerInitializer(starter, Collections.emptySet());
+            configureTomcatContext(context);
+        }
+        catch (IOException e) {
+            throw new ConfigurationException(e);
+        }
     }
 
     protected void configureJasperInitializer(TomcatEmbeddedContext context) {
-        
+
         final JspServletConfiguration jspServletConfiguration = getJspServletConfiguration();
         if (jspServletConfiguration != null && jspServletConfiguration.isEnable()) {
             // org.apache.jasper.servlet.JasperInitializer
@@ -461,7 +467,7 @@ public class TomcatServer extends AbstractServletWebServer {
     }
 
     @Override
-    protected void prepareInitialize() throws Throwable {
+    protected void prepareInitialize() {
         super.prepareInitialize();
 
         prepareApr();
@@ -492,7 +498,7 @@ public class TomcatServer extends AbstractServletWebServer {
      *            initializers to apply
      * @throws Throwable
      */
-    protected void configureTomcatContext(Context context) throws Throwable {
+    protected void configureTomcatContext(Context context) {
 
         for (LifecycleListener lifecycleListener : this.contextLifecycleListeners) {
             context.addLifecycleListener(lifecycleListener);
@@ -548,7 +554,7 @@ public class TomcatServer extends AbstractServletWebServer {
         }
     }
 
-    protected void configureSession(Context context) throws Throwable {
+    protected void configureSession(Context context) {
 
         context.setSessionTimeout((int) getSessionTimeoutInMinutes());
 
@@ -587,13 +593,16 @@ public class TomcatServer extends AbstractServletWebServer {
         return Math.max(sessionTimeout.toMinutes(), 1);
     }
 
-    protected void configurePersistSession(Manager manager) throws Throwable {
+    protected void configurePersistSession(Manager manager) {
 
         if (manager instanceof StandardManager) {
-
-            final File storeDirectory = getSessionConfiguration().getStoreDirectory(getApplicationContext().getStartupClass());
-
-            ((StandardManager) manager).setPathname(new File(storeDirectory, "SESSIONS.ser").getAbsolutePath());
+            try {
+                File storeDirectory = getSessionConfiguration().getStoreDirectory(getApplicationContext().getStartupClass());
+                ((StandardManager) manager).setPathname(new File(storeDirectory, "SESSIONS.ser").getAbsolutePath());
+            }
+            catch (IOException e) {
+                throw new ConfigurationException(e);
+            }
         }
     }
 
