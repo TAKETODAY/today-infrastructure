@@ -109,10 +109,11 @@ public class Token implements Serializable {
      * the appropriate type and use it in your lexical actions.
      */
     public static final Token newToken(int ofKind) {
-        switch (ofKind) {
-            default:
-                return new Token();
-        }
+//        switch (ofKind) {
+//            default:
+//                return new Token();
+//        }
+        return new Token();
     }
 
 }
