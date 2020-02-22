@@ -950,7 +950,7 @@ public abstract class ClassUtils {
             throw new BeanInstantiationException(beanClass, "No suitable constructor found");
         }
         try {
-            return constructor.newInstance(ContextUtils.resolveParameter(constructor, beanFactory));
+            return constructor.newInstance(resolveParameter(constructor, beanFactory));
         }
         catch (InstantiationException ex) {
             throw new BeanInstantiationException(constructor, "Is it an abstract class?", ex);

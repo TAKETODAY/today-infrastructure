@@ -546,14 +546,15 @@ public abstract class StringUtils {
 
         for (int i = pathArray.length - 1; i >= 0; i--) {
             String element = pathArray[i];
-            if (Constant.CURRENT_PATH.equals(element)) {
-                // Points to current directory - drop it.
+/*          if (Constant.CURRENT_PATH.equals(element)) {
+                 // Points to current directory - drop it.
             }
-            else if (Constant.TOP_PATH.equals(element)) {
+            else */
+            if (Constant.TOP_PATH.equals(element)) {
                 // Registering top path found.
                 tops++;
             }
-            else {
+            else if(!Constant.CURRENT_PATH.equals(element)){
                 if (tops > 0) {
                     // Merging path element with element corresponding to top path.
                     tops--;
