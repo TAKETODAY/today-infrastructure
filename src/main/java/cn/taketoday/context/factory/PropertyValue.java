@@ -17,10 +17,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.bean;
+package cn.taketoday.context.factory;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
+
+import cn.taketoday.context.exception.PropertyValueException;
 
 /**
  * Bean property
@@ -36,8 +38,8 @@ public class PropertyValue {
     private final Field field;
 
     public PropertyValue(Object value, Field field) {
-        this.value = value;
-        this.field = field;
+        this.value = Objects.requireNonNull(value);
+        this.field = Objects.requireNonNull(field);
     }
 
     public Field getField() {
@@ -46,6 +48,19 @@ public class PropertyValue {
 
     public Object getValue() {
         return value;
+    }
+
+    public void set(Object bean, Object value) throws PropertyValueException { //TODO
+        try {
+            field.set(bean, value);
+        }
+//        catch (IllegalArgumentException e) {
+//            throw new PropertyValueException("Specified object :[" +
+//                    value + "] is not an instance of the class :[" + field.getType() + "]", e);
+//        }
+        catch (IllegalAccessException e) {
+            throw new PropertyValueException("Illegal access to the property :[" + this + "]", e);
+        }
     }
 
     @Override
@@ -67,10 +82,12 @@ public class PropertyValue {
 
     @Override
     public String toString() {
-        return new StringBuilder()//
-                .append("{\"value\":\"").append(value)//
-                .append("\",\"field\":\"").append(field)//
-                .append("\"}")//
+        return new StringBuilder()
+                .append("{\"value\":\"").append(value)
+                .append("\",\"property\":\"").append(field.getName())
+                .append("\",\"propertyClass\":\"").append(field.getType())
+                .append("\",\"beanClass:\":\"").append(field.getDeclaringClass())
+                .append("\"}")
                 .toString();
     }
 

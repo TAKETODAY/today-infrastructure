@@ -20,6 +20,21 @@
 package cn.taketoday.context.factory;
 
 /**
+ * Interface to be implemented by objects used within a {@link BeanFactory}
+ * which are themselves factories for individual objects. If a bean implements
+ * this interface, it is used as a factory for an object to expose, not directly
+ * as a bean instance that will be exposed itself.
+ *
+ * <p>
+ * <b>NB: A bean that implements this interface cannot be used as a normal
+ * bean.</b> A FactoryBean is defined in a bean style, but the object exposed
+ * for bean references ({@link #getBean()}) is always the object that it
+ * creates.
+ * 
+ * <p>
+ * The implementation of FactoryBean is a factory; its instance will cached in
+ * {@link BeanFactory} as a singleton bean.
+ * 
  * @author TODAY <br>
  *         2018-08-03 17:38
  */

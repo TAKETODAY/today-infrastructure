@@ -20,7 +20,6 @@
 package cn.taketoday.context.factory;
 
 import cn.taketoday.context.annotation.Order;
-import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 

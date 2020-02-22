@@ -21,7 +21,7 @@ package cn.taketoday.context.aware;
 
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.factory.BeanDefinition;
 
 /**
  * Interface to be implemented by any @{@link Configuration} class that wishes

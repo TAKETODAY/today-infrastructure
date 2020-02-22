@@ -23,8 +23,9 @@ package cn.taketoday.context.exception;
  * @author TODAY <br>
  *         2018-07-3 20:24:18
  */
-@SuppressWarnings("serial")
 public class NoSuchBeanDefinitionException extends ContextException {
+
+    private static final long serialVersionUID = 1L;
 
     public NoSuchBeanDefinitionException() {}
 

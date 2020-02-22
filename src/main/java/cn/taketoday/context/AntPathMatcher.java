@@ -445,11 +445,9 @@ public class AntPathMatcher implements PathMatcher {
      * @see #setCachePatterns
      */
     protected AntPathStringMatcher getStringMatcher(String pattern) {
-
         AntPathStringMatcher matcher = this.stringMatcherCache.get(pattern);
         if (matcher == null) {
-            matcher = new AntPathStringMatcher(pattern, this.caseSensitive);
-            this.stringMatcherCache.put(pattern, matcher);
+            this.stringMatcherCache.put(pattern, matcher = new AntPathStringMatcher(pattern, this.caseSensitive));
         }
         return matcher;
     }
@@ -510,7 +508,6 @@ public class AntPathMatcher implements PathMatcher {
     @Override
     public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
         Map<String, String> variables = new LinkedHashMap<>();
-
         if (doMatch(pattern, path, true, variables)) {
             return variables;
         }

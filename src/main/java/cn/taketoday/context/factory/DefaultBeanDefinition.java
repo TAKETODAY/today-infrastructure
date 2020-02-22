@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.bean;
+package cn.taketoday.context.factory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -34,8 +34,6 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchPropertyException;
-import cn.taketoday.context.factory.FactoryBean;
-import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ContextUtils;
@@ -97,8 +95,8 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     private String childName;
 
     public DefaultBeanDefinition(String name, Class<? extends Object> beanClass) {
-        this.beanClass = beanClass;
         this.name = name;
+        this.beanClass = beanClass;
     }
 
     /**

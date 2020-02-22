@@ -29,9 +29,9 @@ import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.factory.BeanDefinition;
 import test.demo.config.User;
 import test.demo.repository.UserRepository;
 import test.demo.repository.impl.DefaultUserRepository;

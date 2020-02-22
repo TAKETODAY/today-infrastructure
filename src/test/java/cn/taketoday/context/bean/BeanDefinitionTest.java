@@ -26,6 +26,9 @@ import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.DefaultBeanDefinition;
+import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 

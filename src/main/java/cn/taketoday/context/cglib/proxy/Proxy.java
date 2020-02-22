@@ -77,7 +77,6 @@ public class Proxy implements Serializable {
     }
 
     public static Class<?> getProxyClass(final ClassLoader loader, final Class<?>... interfaces) {
-        
         return new Enhancer()
                 .setInterfaces(interfaces)
                 .setSuperclass(ProxyImpl.class)

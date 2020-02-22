@@ -21,6 +21,7 @@ package cn.taketoday.context.utils;
 
 import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
 import static cn.taketoday.context.utils.Assert.notNull;
+import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
@@ -68,9 +69,11 @@ import cn.taketoday.context.asm.Label;
 import cn.taketoday.context.asm.MethodVisitor;
 import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
-import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.exception.BeanInstantiationException;
 import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.factory.StandardBeanDefinition;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 
@@ -869,13 +872,8 @@ public abstract class ClassUtils {
      * @return the instance of target class
      * @since 2.1.2
      */
-    public static <T> T newInstance(Class<T> beanClass) throws ContextException {
-        try {
-            return newInstance(beanClass, ContextUtils.getApplicationContext());
-        }
-        catch (ReflectiveOperationException e) {
-            throw new ContextException(e);
-        }
+    public static <T> T newInstance(Class<T> beanClass) throws BeanInstantiationException {
+        return newInstance(beanClass, ContextUtils.getApplicationContext());
     }
 
     /**
@@ -884,36 +882,52 @@ public abstract class ClassUtils {
      * @param beanClassName
      *            bean class name string
      * @return the instance of target class
+     * @throws ClassNotFoundException
+     *              If the class was not found
      * @since 2.1.2
      */
     @SuppressWarnings("unchecked")
-    public static <T> T newInstance(String beanClassName) throws ContextException {
-        try {
-            return (T) newInstance(classLoader.loadClass(beanClassName));
-        }
-        catch (Throwable e) {
-            throw new ContextException(e);
-        }
+    public static <T> T newInstance(String beanClassName) throws ClassNotFoundException {
+        return (T) newInstance(classLoader.loadClass(beanClassName));
     }
 
     /**
-     * 
      * Use default {@link Constructor} or Annotated {@link Autowired}
      * {@link Constructor} to create bean instance.
      * 
-     * @param beanDefinition
-     *            target bean's definition
+     * <p>
+     * If {@link BeanDefinition} is {@link StandardBeanDefinition} will create bean
+     * from {@link StandardBeanDefinition#getFactoryMethod()}
+     * @param def
+     *            Target bean's definition
      * @param beanFactory
-     *            bean factory
+     *            Bean factory
      * @return {@link BeanDefinition} 's instance
      * @throws ReflectiveOperationException
      *             if any reflective operation exception occurred
      * @since 2.1.5
      */
-    public static Object newInstance(final BeanDefinition beanDefinition, final BeanFactory beanFactory) //
-            throws ReflectiveOperationException //
+    public static Object newInstance(final BeanDefinition def, final BeanFactory beanFactory)
+            throws BeanInstantiationException //
     {
-        return newInstance(beanDefinition.getBeanClass(), beanFactory);
+        if (def instanceof StandardBeanDefinition) {
+            final StandardBeanDefinition stdDef = (StandardBeanDefinition) def;
+            final Method factoryMethod = makeAccessible(stdDef.getFactoryMethod());
+            final Object configuration = beanFactory.getBean(stdDef.getDeclaringName());
+            try {
+                return factoryMethod.invoke(configuration, resolveParameter(factoryMethod, beanFactory));
+            }
+            catch (IllegalAccessException e) {
+                throw new BeanInstantiationException(factoryMethod, "Is the factory method accessible?", e);
+            }
+            catch (IllegalArgumentException e) {
+                throw new BeanInstantiationException(factoryMethod, "Illegal arguments for factory method", e);
+            }
+            catch (InvocationTargetException e) {
+                throw new BeanInstantiationException(factoryMethod, "Factory method threw exception", e.getTargetException());
+            }
+        }
+        return newInstance(def.getBeanClass(), beanFactory);
     }
 
     /**
@@ -928,11 +942,28 @@ public abstract class ClassUtils {
      * @throws ReflectiveOperationException
      *             if any reflective operation exception occurred
      */
-    public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory) //
-            throws ReflectiveOperationException //
+    public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory)
+            throws BeanInstantiationException //
     {
-        final Constructor<T> constructor = obtainConstructor(beanClass);
-        return constructor.newInstance(ContextUtils.resolveParameter(constructor, beanFactory));
+        final Constructor<T> constructor = getSuitableConstructor(beanClass);
+        if (constructor == null) {
+            throw new BeanInstantiationException(beanClass, "No suitable constructor found");
+        }
+        try {
+            return constructor.newInstance(ContextUtils.resolveParameter(constructor, beanFactory));
+        }
+        catch (InstantiationException ex) {
+            throw new BeanInstantiationException(constructor, "Is it an abstract class?", ex);
+        }
+        catch (IllegalAccessException ex) {
+            throw new BeanInstantiationException(constructor, "Is the constructor accessible?", ex);
+        }
+        catch (IllegalArgumentException ex) {
+            throw new BeanInstantiationException(constructor, "Illegal arguments for constructor", ex);
+        }
+        catch (InvocationTargetException ex) {
+            throw new BeanInstantiationException(constructor, "Constructor threw exception", ex.getTargetException());
+        }
     }
 
     /**
@@ -954,6 +985,31 @@ public abstract class ClassUtils {
      * @since 2.1.7
      */
     public static <T> Constructor<T> obtainConstructor(Class<T> beanClass) throws NoSuchMethodException {
+        final Constructor<T> ret = getSuitableConstructor(beanClass);
+        if (ret == null) {
+            throw new NoSuchMethodException("No suitable constructor found in class :[" + beanClass + "]");
+        }
+        return ret;
+    }
+    
+    /**
+     * Get a suitable {@link Constructor}.
+     * <p>
+     * Look for the default constructor, if there is no default constructor, then
+     * get all the constructors, if there is only one constructor then use this
+     * constructor, if not more than one use the @Autowired constructor if there is
+     * no suitable {@link Constructor} will throw an exception
+     * <p>
+     * 
+     * @param <T>
+     *            Target type
+     * @param beanClass
+     *            target bean class
+     * @return Suitable constructor If there isn't a suitable {@link Constructor}
+     * returns null
+     * @since 2.1.7
+     */
+    public static <T> Constructor<T> getSuitableConstructor(Class<T> beanClass) {
         try {
             return accessibleConstructor(beanClass);
         }
@@ -968,8 +1024,8 @@ public abstract class ClassUtils {
                     return makeAccessible(constructor);
                 }
             }
-            throw e;
         }
+        return null;
     }
 
     /**

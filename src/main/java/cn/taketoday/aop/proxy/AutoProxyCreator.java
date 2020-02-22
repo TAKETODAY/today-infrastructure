@@ -23,7 +23,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Order;
-import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanPostProcessor;
 
 /**

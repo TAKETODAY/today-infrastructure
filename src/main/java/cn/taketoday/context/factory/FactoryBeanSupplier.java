@@ -21,9 +21,7 @@ package cn.taketoday.context.factory;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.Assert;
 
 /**
  * {@link FactoryBean} {@link Supplier}
@@ -34,46 +32,27 @@ import cn.taketoday.context.utils.ClassUtils;
 public class FactoryBeanSupplier<T> implements Supplier<FactoryBean<T>> {
 
     private FactoryBean<T> factoryBean;
-    private final String factoryBeanName;
-    private final Class<FactoryBean<T>> beanClass;
+    private final BeanDefinition factoryDef;
     private final AbstractBeanFactory beanFactory;
 
-    @SuppressWarnings("unchecked")
     public FactoryBeanSupplier(BeanDefinition factoryDef, AbstractBeanFactory beanFactory) {
+        Assert.notNull(beanFactory, "beanFactory must not be null");
+        Assert.notNull(factoryDef, "factory BeanDefinition must not be null");
+        Assert.isAssignable(FactoryBean.class, factoryDef.getBeanClass(),
+                            "Target bean class must be 'cn.taketoday.context.factory.FactoryBean'");
         this.beanFactory = beanFactory;
-        final Class<?> beanClass = factoryDef.getBeanClass();
-        if (!FactoryBean.class.isAssignableFrom(beanClass)) {
-            throw new ConfigurationException("Target bean class must be 'cn.taketoday.context.factory.FactoryBean'");
-        }
-        this.beanClass = (Class<FactoryBean<T>>) beanClass;
-        this.factoryBeanName = BeanFactory.FACTORY_BEAN_PREFIX.concat(factoryDef.getName());
+        this.factoryDef = factoryDef instanceof FactoryBeanDefinition
+                ? ((FactoryBeanDefinition<?>) factoryDef).getFactoryDefinition()
+                : factoryDef;
     }
 
     @Override
     public FactoryBean<T> get() {
-        FactoryBean<T> factoryBean = this.factoryBean;
-        if (factoryBean != null) {
-            return factoryBean;
+        final FactoryBean<T> factoryBean = this.factoryBean;
+        if (factoryBean == null) {
+            return this.factoryBean = beanFactory.getFactoryBean(factoryDef);
         }
-        return createIfNecessary(factoryBeanName, beanClass, beanFactory);
+        return factoryBean;
     }
 
-    protected FactoryBean<T> createIfNecessary(final String factoryBeanName,
-                                               final Class<FactoryBean<T>> beanClass,
-                                               final AbstractBeanFactory beanFactory) {
-
-        final Object obj = beanFactory.getSingleton(factoryBeanName);
-        if (obj instanceof FactoryBean) {
-            return beanClass.cast(obj);
-        }
-        try {
-            // Not exist declaring instance(FactoryBean), create it
-            FactoryBean<T> factoryBean = ClassUtils.newInstance(beanClass, beanFactory);
-            beanFactory.registerSingleton(factoryBeanName, factoryBean);
-            return this.factoryBean = factoryBean;
-        }
-        catch (ReflectiveOperationException e) {
-            throw new ConfigurationException("Cannot create a bean: [" + beanClass + "]");
-        }
-    }
 }

@@ -58,20 +58,19 @@ public class ConfigFactoryBean implements FactoryBean<Config>, InitializingBean 
     @Props(value = "info", prefix = "site.")
     private Properties pro;
 
-    private Config bean;
-
     @Override
     public Config getBean() {
+        Config bean = new Config();
+
+        bean.setCdn(pro.getProperty("site.cdn"));
+        bean.setHost(pro.getProperty("site.host"));
+        bean.setCopyright(pro.getProperty("site.copyright"));
         return bean;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        bean = new Config();
-
-        bean.setCdn(pro.getProperty("site.cdn"));
-        bean.setHost(pro.getProperty("site.host"));
-        bean.setCopyright(pro.getProperty("site.copyright"));
+        
     }
 
     @Override

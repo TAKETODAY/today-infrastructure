@@ -23,7 +23,6 @@ import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
 import static cn.taketoday.context.utils.ContextUtils.findNames;
 import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
-import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
 import static cn.taketoday.context.utils.ContextUtils.resolveProps;
 import static java.util.Objects.requireNonNull;
 
@@ -51,16 +50,10 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ImportAware;
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.bean.DefaultBeanDefinition;
-import cn.taketoday.context.bean.FactoryBeanDefinition;
-import cn.taketoday.context.bean.PropertyValue;
-import cn.taketoday.context.bean.StandardBeanDefinition;
 import cn.taketoday.context.env.DefaultBeanNameCreator;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.exception.BeanInitializingException;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
@@ -88,13 +81,19 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     private final HashSet<Method> missingMethods = new HashSet<>(32);
     private final LinkedList<AnnotatedElement> componentScanned = new LinkedList<>();
 
+    /**
+     * @since 2.1.7 Preventing repeated initialization of beans(Prevent duplicate
+     *        initialization) , Prevent Cycle Dependency
+     */
+    private final HashSet<String> currentInitializingBeanName = new HashSet<>();
+
     public StandardBeanFactory(ConfigurableApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
     @Override
-    protected void awareInternal(Object bean, String name) {
-        super.awareInternal(bean, name);
+    protected void awareInternal(final Object bean, final BeanDefinition def) {
+        super.awareInternal(bean, def);
 
         if (bean instanceof ApplicationContextAware) {
             ((ApplicationContextAware) bean).setApplicationContext(getApplicationContext());
@@ -105,80 +104,19 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         }
     }
 
-    /**
-     * If {@link BeanDefinition} is {@link StandardBeanDefinition} will create bean
-     * from {@link StandardBeanDefinition#getFactoryMethod()}
-     */
     @Override
-    protected Object createBeanInstance(String name, BeanDefinition def) throws Exception {
-
-        if (def instanceof StandardBeanDefinition) {
-            final StandardBeanDefinition stdDef = (StandardBeanDefinition) def;
-
-            if (def.isSingleton()) {
-                Object bean = getSingleton(name);
-                if (bean == null) {
-                    registerSingleton(name, bean = createFromFactoryMethod(stdDef.getFactoryMethod(), stdDef));
-                }
-                return bean;
-            }
-            else {
-                return createFromFactoryMethod(stdDef.getFactoryMethod(), stdDef);
-            }
+    protected Object initializeBean(final Object bean, final BeanDefinition def) throws BeanInitializingException {
+        final String name = def.getName();
+        if (currentInitializingBeanName.contains(name)) {
+            return bean;
         }
-        else {
-            return super.createBeanInstance(name, def);
-        }
-    }
-
-    protected Object createFromFactoryMethod(final Method factoryMethod,
-                                             final StandardBeanDefinition stdDef) throws Exception {
-
-        return ClassUtils.makeAccessible(factoryMethod)
-                .invoke(getDeclaringInstance(stdDef.getDeclaringName()), resolveParameter(factoryMethod, this));
-    }
-
-    @Override
-    protected Object getImplementation(String currentBeanName, BeanDefinition currentBeanDefinition) throws Throwable {
-        // fix: #3 when get annotated beans that StandardBeanDefinition missed
-        if (currentBeanDefinition instanceof StandardBeanDefinition) {
-            return initializeSingleton(currentBeanName, currentBeanDefinition);
-        }
-        return super.getImplementation(currentBeanName, currentBeanDefinition);
+        currentInitializingBeanName.add(name);
+        final Object initializingBean = super.initializeBean(bean, def);
+        currentInitializingBeanName.remove(name);
+        return initializingBean;
     }
 
     // -----------------------------------------
-
-    /**
-     * Get declaring instance
-     * 
-     * @param declaringName
-     *            declaring name
-     * @return
-     * @throws Throwable
-     */
-    protected Object getDeclaringInstance(String declaringName) throws Exception {
-        final BeanDefinition declaringBeanDef = getBeanDefinition(declaringName);
-
-        if (declaringBeanDef == null) {
-            throw new NoSuchBeanDefinitionException(declaringName);
-        }
-
-        if (declaringBeanDef.isInitialized()) {
-            return getSingleton(declaringName);
-        }
-
-        // fix: declaring bean not initialized
-        final Object declaringSingleton = //
-                super.initializingBean(createBeanInstance(declaringName, declaringBeanDef), declaringName, declaringBeanDef);
-
-        // put declaring object
-        if (declaringBeanDef.isSingleton()) {
-//            registerSingleton(declaringName, declaringSingleton);
-            declaringBeanDef.setInitialized(true);
-        }
-        return declaringSingleton;
-    }
 
     /**
      * Resolve bean from a class which annotated with @{@link Configuration}
@@ -559,18 +497,18 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * 
      * @param name
      *            Bean name
-     * @param beanDefinition
+     * @param def
      *            Bean definition
      * @throws BeanDefinitionStoreException
      *             If can't store bean
      */
     @Override
-    public void register(final String name, final BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
+    public void register(final String name, final BeanDefinition def) throws BeanDefinitionStoreException {
 
-        ContextUtils.validateBeanDefinition(beanDefinition);
+        ContextUtils.validateBeanDefinition(def);
 
         String nameToUse = name;
-        final Class<?> beanClass = beanDefinition.getBeanClass();
+        final Class<?> beanClass = def.getBeanClass();
 
         try {
             if (containsBeanDefinition(name)) {
@@ -585,18 +523,18 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                 else {
                     nameToUse = beanClass.getName();
                     log.warn("Current bean class: [{}]. You are supposed to change your bean name creater or bean name.", beanClass);
-                    log.warn("Current bean definition: [{}] will be registed as: [{}].", beanDefinition, nameToUse);
+                    log.warn("Current bean definition: [{}] will be registed as: [{}].", def, nameToUse);
                 }
                 log.info("======================|END|======================");
             }
 
             if (FactoryBean.class.isAssignableFrom(beanClass)) { // process FactoryBean
-                registerFactoryBean(nameToUse, beanDefinition);
+                registerFactoryBean(nameToUse, def);
             }
             else {
-                registerBeanDefinition(nameToUse, beanDefinition);
+                registerBeanDefinition(nameToUse, def);
             }
-            postProcessRegisterBeanDefinition(beanDefinition);
+            postProcessRegisterBeanDefinition(def);
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
@@ -621,9 +559,11 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         // application listener @since 2.1.7
         final Class<?> beanClass = targetDef.getBeanClass();
         if (ApplicationListener.class.isAssignableFrom(beanClass)) {
-            final Object listener = ClassUtils.newInstance(beanClass, this);
-            applicationContext.addApplicationListener((ApplicationListener<?>) listener);
-            registerSingleton(targetDef.getName(), listener);
+            Object listener = getSingleton(targetDef.getName());
+            if (listener == null) {
+                listener = createBeanIfNecessary(targetDef);
+                applicationContext.addApplicationListener((ApplicationListener<?>) listener);
+            }
         }
     }
 
@@ -654,18 +594,10 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      */
     protected void registerFactoryBean(final String oldBeanName, final BeanDefinition factoryDef) throws Throwable {
 
-        final FactoryBeanDefinition<?> def = factoryDef instanceof FactoryBeanDefinition
-                ? (FactoryBeanDefinition<?>) factoryDef
-                : factoryDef.isSingleton()
-                        ? new FactoryBeanDefinition<>(factoryDef, new FactoryBeanSupplier<>(factoryDef, this))
-                        : new FactoryBeanDefinition<>(factoryDef, () -> {
-                            try {
-                                return (FactoryBean<?>) ClassUtils.newInstance(factoryDef, this);
-                            }
-                            catch (ReflectiveOperationException e) {
-                                throw new ConfigurationException("Cannot create a bean: [" + factoryDef + "]");
-                            }
-                        });
+        final FactoryBeanDefinition<?> def = //
+                factoryDef instanceof FactoryBeanDefinition
+                        ? (FactoryBeanDefinition<?>) factoryDef
+                        : new FactoryBeanDefinition<>(factoryDef, this);
 
         registerBeanDefinition(oldBeanName, def);
     }

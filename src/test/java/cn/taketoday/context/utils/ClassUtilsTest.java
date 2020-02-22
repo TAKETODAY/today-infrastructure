@@ -321,7 +321,7 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void testOther() throws NoSuchMethodException, SecurityException {
+    public void testOther() throws NoSuchMethodException, SecurityException, ClassNotFoundException {
         setProcess("invokeMethod");
 
         final Method method = AutowiredOnConstructor.class.getDeclaredMethod("test");

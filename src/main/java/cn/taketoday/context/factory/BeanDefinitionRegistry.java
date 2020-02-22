@@ -22,8 +22,6 @@ package cn.taketoday.context.factory;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.context.bean.BeanDefinition;
-
 /**
  * Store bean definitions.
  * 

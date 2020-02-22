@@ -21,8 +21,8 @@ package cn.taketoday.context.loader;
 
 import java.lang.reflect.Field;
 
-import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.factory.PropertyValue;
 
 /**
  * Resolve field property

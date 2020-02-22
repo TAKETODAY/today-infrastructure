@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 

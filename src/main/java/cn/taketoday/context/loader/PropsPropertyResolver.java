@@ -26,7 +26,7 @@ import java.util.Properties;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.utils.ContextUtils;
 
 /**

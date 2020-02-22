@@ -20,6 +20,7 @@
 package cn.taketoday.context;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -32,11 +33,11 @@ import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContextTest.RequiredTest.Bean1;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
+import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.DisposableBean;
+import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import test.demo.config.Config;
@@ -123,7 +124,7 @@ public class ApplicationContextTest {
             PropertyValue propertyValue = beanDefinition.getPropertyValue("pro");
             ConfigFactoryBean bean = applicationContext.getBean("$FactoryBean-Config", ConfigFactoryBean.class);
 
-            assertNull(bean); // @Prototype 
+            assertNotNull(bean); // @Prototype 
             assertNotEquals(config, config_);
 
             log.debug("{}", config.hashCode());

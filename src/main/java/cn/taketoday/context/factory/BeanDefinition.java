@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package cn.taketoday.context.bean;
+package cn.taketoday.context.factory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -27,7 +27,6 @@ import java.util.Collection;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.NoSuchPropertyException;
-import cn.taketoday.context.factory.FactoryBean;
 
 /**
  * Bean definition
@@ -69,14 +68,14 @@ public interface BeanDefinition extends AnnotatedElement {
     /**
      * Get init methods
      * 
-     * @return Get all the init methods
+     * @return Get all the init methods, never be null
      */
     Method[] getInitMethods();
 
     /**
      * Get all the destroy methods name
      * 
-     * @return all the destroy methods name
+     * @return all the destroy methods name, never be null
      */
     String[] getDestroyMethods();
 
@@ -103,8 +102,11 @@ public interface BeanDefinition extends AnnotatedElement {
 
     /**
      * If a {@link Singleton} has initialized
+     * <p>
+     * If this bean is created from {@link FactoryBean} This explains
+     * {@link FactoryBean} is initialized
      * 
-     * @return If Bean is initialized
+     * @return If Bean or {@link FactoryBean} is initialized
      */
     boolean isInitialized();
 

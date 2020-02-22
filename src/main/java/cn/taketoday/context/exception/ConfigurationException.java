@@ -30,8 +30,8 @@ import cn.taketoday.context.logger.LoggerFactory;
  * @author TODAY <br>
  *         2018-08-08 09:55
  */
-@SuppressWarnings("all")
 public class ConfigurationException extends ContextException {
+    private static final long serialVersionUID = 1L;
 
     public ConfigurationException() {}
 

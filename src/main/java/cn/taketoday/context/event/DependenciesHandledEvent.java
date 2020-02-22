@@ -22,7 +22,7 @@ package cn.taketoday.context.event;
 import java.util.Set;
 
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.factory.PropertyValue;
 
 /**
  * 

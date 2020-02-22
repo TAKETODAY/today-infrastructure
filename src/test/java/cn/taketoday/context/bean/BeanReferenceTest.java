@@ -25,6 +25,9 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.BeanReference;
+import cn.taketoday.context.factory.PropertyValue;
 
 /**
  * @author TODAY <br>

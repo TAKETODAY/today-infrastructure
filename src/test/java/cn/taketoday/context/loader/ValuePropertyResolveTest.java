@@ -27,7 +27,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.factory.PropertyValue;
 
 /**
  * @author Today <br>

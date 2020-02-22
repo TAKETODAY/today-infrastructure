@@ -34,9 +34,6 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.annotation.ContextListener;
-import cn.taketoday.context.bean.BeanDefinition;
-import cn.taketoday.context.bean.BeanReference;
-import cn.taketoday.context.bean.PropertyValue;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.DefaultBeanNameCreator;
 import cn.taketoday.context.env.Environment;
@@ -54,8 +51,11 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
+import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;
+import cn.taketoday.context.factory.BeanReference;
+import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.listener.ContextCloseListener;
 import cn.taketoday.context.loader.CandidateComponentScanner;
@@ -223,7 +223,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      * 
      * @throws Throwable
      */
-    protected void onRefresh() throws Throwable {
+    protected void onRefresh() {
         publishEvent(new ContextPreRefreshEvent(this));
         // fix: #1 some singletons could not be initialized.
         getBeanFactory().preInitialization();
@@ -378,7 +378,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         final HashMap<Class<?>, List<ApplicationListener<Object>>> applicationListeners = this.applicationListeners;
         if (applicationListener instanceof ApplicationEventCapable) { // @since 2.1.7
             for (final Class<?> type : ((ApplicationEventCapable) applicationListener).getApplicationEvent()) {
-                doRegisterListener(applicationListener, type, applicationListeners);
+                addApplicationListener(applicationListener, type, applicationListeners);
             }
         }
         else {
@@ -386,7 +386,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
                 // onApplicationEvent
                 if (!method.isBridge() && method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
                     // register listener
-                    doRegisterListener(applicationListener, method.getParameterTypes()[0], applicationListeners);
+                    addApplicationListener(applicationListener, method.getParameterTypes()[0], applicationListeners);
                     break;
                 }
             }
@@ -404,8 +404,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      *            The event type
      */
     @SuppressWarnings({ "unchecked" })
-    private static void doRegisterListener(Object applicationListener, Class<?> eventType,
-                                           Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) //
+    protected void addApplicationListener(Object applicationListener, Class<?> eventType,
+                                          Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) //
     {
         List<ApplicationListener<Object>> listeners = applicationListeners.get(eventType);
         if (listeners == null) {

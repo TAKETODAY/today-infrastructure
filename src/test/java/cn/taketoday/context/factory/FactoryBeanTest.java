@@ -37,7 +37,6 @@ import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.utils.ContextUtils;
 
@@ -54,10 +53,10 @@ public class FactoryBeanTest {
 
     }
 
-    private static class TESTFactoryBean implements FactoryBean<TEST> {
+    private static class TESTFactoryBean extends AbstractFactoryBean<TEST> {
 
         @Override
-        public TEST getBean() {
+        protected TEST createBeanInstance() {
             return new TEST();
         }
 
@@ -101,6 +100,8 @@ public class FactoryBeanTest {
 
             TEST bean = applicationContext.getBean(TEST.class);
 
+            System.err.println(applicationContext.getSingletons());
+
             assertEquals(bean, testFactoryBean);
 
             assertTrue(testFactoryBean == bean);
@@ -133,7 +134,8 @@ public class FactoryBeanTest {
 
             assertNotEquals(bean, testFactoryBean);
 
-            assertFalse(applicationContext.getBean("$testFactoryBean-prototype") != null);
+            final Object $testFactoryBean = applicationContext.getBean("$testFactoryBean-prototype");
+            assertNotNull($testFactoryBean);
         }
     }
 

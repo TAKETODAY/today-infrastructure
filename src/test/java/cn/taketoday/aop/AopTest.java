@@ -19,6 +19,9 @@
  */
 package cn.taketoday.aop;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
 import org.junit.Test;
 
 import cn.taketoday.aop.listener.AspectsDestroyListener;
@@ -61,19 +64,24 @@ public class AopTest {
             beanFactory.loadImportBeans(AopConfig.class);
             context.addBeanPostProcessor(new AutoProxyCreator(context));
             
-            UserService bean = context.getBean(UserService.class);
+            UserService userService = context.getBean(UserService.class);
+            
+            final Class<? extends UserService> userServiceClass = userService.getClass();
+            assertNotEquals(DefaultUserService.class, userServiceClass);
+            assertEquals(DefaultUserService.class, userServiceClass.getSuperclass());
+            
+            
             User user = new User();
             user.setPassword("666");
             user.setEmail("666");
             long start = System.currentTimeMillis();
-            User login = bean.login(user);
+            User login = userService.login(user);
 
 //            for (int i = 0; i < 1000; i++) {
 //                login = bean.login(user);
 //            }
 
             log.debug("{}ms", System.currentTimeMillis() - start);
-
             log.debug("Result:[{}]", login);
             log.debug("{}ms", System.currentTimeMillis() - start);
 

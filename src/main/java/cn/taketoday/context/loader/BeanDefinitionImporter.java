@@ -20,7 +20,7 @@
 package cn.taketoday.context.loader;
 
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 
 /**

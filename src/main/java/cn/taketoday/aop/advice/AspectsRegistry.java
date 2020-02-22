@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.aop.annotation.Aspect;
-import cn.taketoday.context.bean.BeanDefinition;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;

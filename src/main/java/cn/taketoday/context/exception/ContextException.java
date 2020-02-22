@@ -20,11 +20,12 @@
 package cn.taketoday.context.exception;
 
 /**
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-10-05 21:33
  */
-@SuppressWarnings("serial")
 public class ContextException extends RuntimeException {
+    
+    private static final long serialVersionUID = 1L;
 
     public ContextException() {
 

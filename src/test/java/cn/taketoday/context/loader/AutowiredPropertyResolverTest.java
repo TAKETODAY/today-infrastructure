@@ -29,7 +29,7 @@ import org.junit.Test;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.bean.PropertyValue;
+import cn.taketoday.context.factory.PropertyValue;
 
 /**
  * @author Today <br>

@@ -23,7 +23,7 @@ import java.util.Collection;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.bean.BeanDefinition;
+import cn.taketoday.context.factory.BeanDefinition;
 
 /**
  * Register the {@link MissingBean}, can use for other framework to load
