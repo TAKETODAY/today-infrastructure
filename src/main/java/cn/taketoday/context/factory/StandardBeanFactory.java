@@ -21,6 +21,7 @@ package cn.taketoday.context.factory;
 
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
+import static cn.taketoday.context.utils.ContextUtils.conditional;
 import static cn.taketoday.context.utils.ContextUtils.findNames;
 import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
 import static cn.taketoday.context.utils.ContextUtils.resolveProps;
@@ -143,16 +144,16 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     protected void loadConfigurationBeans(final Class<?> beanClass) {
 
         final Collection<Method> missingMethods = this.missingMethods;
+        final ConfigurableApplicationContext context = getApplicationContext();
 
         for (final Method method : beanClass.getDeclaredMethods()) {
-
             final AnnotationAttributes[] components = getAnnotationAttributesArray(method, Component.class);
             if (ObjectUtils.isEmpty(components)) {
-                if (method.isAnnotationPresent(MissingBean.class) && ContextUtils.conditional(method)) {
+                if (method.isAnnotationPresent(MissingBean.class) && conditional(method, context)) {
                     missingMethods.add(method);
                 }
             }
-            else if (ContextUtils.conditional(method)) { // pass the condition
+            else if (conditional(method, context)) { // pass the condition
                 registerConfigurationBean(method, components);
             }
         }
@@ -307,7 +308,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         final BeanNameCreator beanNameCreator = getBeanNameCreator();
         for (final Class<?> beanClass : beans) {
 
-            if (ContextUtils.conditional(beanClass) && !beanClass.isAnnotationPresent(MissingBean.class)) {
+            if (conditional(beanClass) && !beanClass.isAnnotationPresent(MissingBean.class)) {
                 // can't be a missed bean. MissingBean load after normal loading beans
                 ContextUtils.buildBeanDefinitions(beanClass, beanNameCreator.create(beanClass))
                         .forEach(this::register);
@@ -427,7 +428,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     public void loadBeanDefinition(final Class<?> candidate) throws BeanDefinitionStoreException {
 
         // don't load abstract class
-        if (!Modifier.isAbstract(candidate.getModifiers()) && ContextUtils.conditional(candidate)) {
+        if (!Modifier.isAbstract(candidate.getModifiers()) && conditional(candidate, applicationContext)) {
             register(candidate);
         }
     }

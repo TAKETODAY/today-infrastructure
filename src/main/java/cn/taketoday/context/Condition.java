@@ -29,12 +29,13 @@ import java.lang.reflect.AnnotatedElement;
 public interface Condition {
 
     /**
-     * Matches condition
+     * Determine if the condition matches.
      * 
-     * @param annotatedElement
-     *            Annotated element
-     * @return Return {@code false} to indicate that the bean should not be created
+     * @param annotated
+     *            Annotated element being checked
+     * @return Return {@code false} to indicate that the bean should not be
+     *         registered
      */
-    boolean matches(AnnotatedElement annotatedElement);
+    boolean matches(ApplicationContext context, AnnotatedElement annotated);
 
 }

@@ -575,14 +575,13 @@ public class CodeEmitter extends LocalVariablesSorter {
 
     private void emit_invoke(int opcode, Type type, Signature sig, boolean isInterface) {
 
-        if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)
-            && ((opcode == Constant.INVOKEVIRTUAL) || (opcode == Constant.INVOKESTATIC))) {
-
-            // TODO: error
-        }
-        mv.visitMethodInsn(opcode, //
-                           type.getInternalName(), //
-                           sig.getName(), //
+//      if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)
+//            && ((opcode == Constant.INVOKEVIRTUAL) || (opcode == Constant.INVOKESTATIC))) {
+//          TODO: error
+//      }
+        mv.visitMethodInsn(opcode,
+                           type.getInternalName(),
+                           sig.getName(),
                            sig.getDescriptor(),
                            isInterface//
         );

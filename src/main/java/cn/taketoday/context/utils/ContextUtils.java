@@ -21,6 +21,7 @@ package cn.taketoday.context.utils;
 
 import static cn.taketoday.context.Constant.VALUE;
 import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
+import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
 import static java.util.Objects.requireNonNull;
 
 import java.io.BufferedReader;
@@ -835,33 +836,45 @@ public abstract class ContextUtils {
      * 
      * @param annotated
      *            Target class or a method
-     * @param applicationContext
-     *            {@link ApplicationContext}
      * @return If matched
      */
     public static boolean conditional(final AnnotatedElement annotated) {
+        return conditional(annotated, getApplicationContext());
+    }
 
-        final AnnotationAttributes[] attributes = ClassUtils.getAnnotationAttributesArray(annotated, Conditional.class);
-
-        final int size = attributes.length;
-        if (size == 0) {
+    /**
+     * Decide whether to load the bean
+     * 
+     * @param annotated
+     *            Target class or a method
+     * @param context
+     *            {@link ApplicationContext}
+     * @return If matched
+     */
+    public static boolean conditional(final AnnotatedElement annotated, final ApplicationContext context) {
+        final AnnotationAttributes[] attributes = getAnnotationAttributesArray(annotated, Conditional.class);
+        if (ObjectUtils.isEmpty(attributes)) {
             return true;
         }
-        if (size == 1) {
-            return conditional(annotated, attributes[0].getClassArray(VALUE));
+        if (attributes.length == 1) {
+            return conditional(annotated, context, attributes[0].getClassArray(VALUE));
         }
-
         for (final AnnotationAttributes conditional : OrderUtils.reversedSort(attributes)) {
-            if (!conditional(annotated, conditional.getClassArray(VALUE))) {
+            if (!conditional(annotated, context, conditional.getClassArray(VALUE))) {
                 return false; // can't match
             }
         }
         return true;
     }
 
-    public final static boolean conditional(final AnnotatedElement annotated, Class<? extends Condition>[] condition) {
+    public static boolean conditional(final AnnotatedElement annotated,
+                                      final ApplicationContext context,
+                                      final Class<? extends Condition>[] condition) //
+    {
+        Assert.notNull(condition, "Condition Class must not be null");
+
         for (final Class<? extends Condition> conditionClass : condition) {
-            if (!ClassUtils.newInstance(conditionClass).matches(annotated)) {
+            if (!ClassUtils.newInstance(conditionClass, context).matches(context, annotated)) {
                 return false; // can't match
             }
         }
@@ -978,7 +991,7 @@ public abstract class ContextUtils {
     public static List<BeanDefinition> buildBeanDefinitions(Class<?> beanClass, String defaultName) {
 
         final AnnotationAttributes[] componentAttributes = //
-                ClassUtils.getAnnotationAttributesArray(beanClass, Component.class);
+                getAnnotationAttributesArray(beanClass, Component.class);
 
         if (ObjectUtils.isEmpty(componentAttributes)) {
             return Collections.singletonList(buildBeanDefinition(beanClass, null, defaultName));
@@ -1085,9 +1098,11 @@ public abstract class ContextUtils {
      * @param beanFactory
      *            Bean factory
      * @since 2.1.2
-     * @return Parameter list
+     * @return Parameter list objects
      */
-    public static Object[] resolveParameter(Executable executable, BeanFactory beanFactory) {
+    public static Object[] resolveParameter(final Executable executable, final BeanFactory beanFactory) {
+        Assert.notNull(executable, "Executable must not be null");
+        Assert.notNull(beanFactory, "BeanFactory must not be null");
 
         final int parameterLength = executable.getParameterCount();
         if (parameterLength == 0) {

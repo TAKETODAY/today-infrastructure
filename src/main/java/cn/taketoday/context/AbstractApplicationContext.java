@@ -145,6 +145,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             finishRefresh();
         }
         catch (Throwable ex) {
+            close();
             applyState(State.FAILED);
             ex = ExceptionUtils.unwrapThrowable(ex);
             throw new ContextException("An Exception Occurred When Loading Context, With Msg: [" + ex + "]", ex);

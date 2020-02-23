@@ -25,6 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.utils.ContextUtils;
@@ -54,7 +55,7 @@ public @interface ConditionalOnExpression {
 class OnExpressionCondition implements Condition {
 
     @Override
-    public boolean matches(AnnotatedElement annotatedElement) {
-        return ContextUtils.resolveValue(annotatedElement.getAnnotation(ConditionalOnExpression.class).value(), boolean.class);
+    public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
+        return ContextUtils.resolveValue(annotated.getAnnotation(ConditionalOnExpression.class).value(), boolean.class);
     }
 }

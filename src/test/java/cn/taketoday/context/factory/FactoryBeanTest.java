@@ -37,6 +37,7 @@ import cn.taketoday.context.Scope;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.context.aware.ApplicationContextSupport;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.utils.ContextUtils;
 
@@ -69,7 +70,7 @@ public class FactoryBeanTest {
     // @Configuration bean
     // ---------------------------
 
-    static class FactoryBeanConfiguration {
+    static class FactoryBeanConfiguration extends ApplicationContextSupport {
 
         @Singleton
         public TESTFactoryBean testFactoryBean() {

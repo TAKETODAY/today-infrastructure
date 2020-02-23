@@ -19,13 +19,15 @@
  */
 package cn.taketoday.context.env;
 
+import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
+
 import java.lang.reflect.AnnotatedElement;
 
 import cn.taketoday.context.AnnotationAttributes;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.annotation.Profile;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 
 /**
@@ -38,12 +40,11 @@ import cn.taketoday.context.utils.ContextUtils;
 public class ProfileCondition implements Condition {
 
     @Override
-    public boolean matches(final AnnotatedElement annotatedElement) {
+    public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
 
         final Environment environment = ContextUtils.getApplicationContext().getEnvironment();
 
-        for (final AnnotationAttributes attributes : ClassUtils.getAnnotationAttributesArray(annotatedElement, Profile.class)) {
-
+        for (final AnnotationAttributes attributes : getAnnotationAttributesArray(annotated, Profile.class)) {
             if (environment.acceptsProfiles(attributes.getStringArray(Constant.VALUE))) {
                 return true;
             }

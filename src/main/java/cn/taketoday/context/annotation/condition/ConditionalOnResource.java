@@ -25,6 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.utils.ResourceUtils;
@@ -53,7 +54,7 @@ public @interface ConditionalOnResource {
 class OnResourceCondition implements Condition {
 
     @Override
-    public boolean matches(final AnnotatedElement annotatedElement) {
+    public boolean matches(final ApplicationContext context, final AnnotatedElement annotatedElement) {
 
         for (final String resource : annotatedElement.getAnnotation(ConditionalOnResource.class).value()) {
             if (!ResourceUtils.getResource(resource).exists()) {
