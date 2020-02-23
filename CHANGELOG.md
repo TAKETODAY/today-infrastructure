@@ -76,6 +76,7 @@
 - :sparkles: 新增AbstractFactoryBean
 - :sparkles: 新增Spring AttributeAccessor
 - :sparkles: 新增BeanClassLoaderAware
+- :hammer: 重构Condition
 
 
 ## v2.1.6
