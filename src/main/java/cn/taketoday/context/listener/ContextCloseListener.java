@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.listener;
 
+import static cn.taketoday.context.utils.ContextUtils.destroyBean;
+
 import java.text.SimpleDateFormat;
 
 import cn.taketoday.context.AbstractApplicationContext;
@@ -27,12 +29,10 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.event.ContextCloseEvent;
-import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
 
 /**
  * @author TODAY <br>
@@ -57,20 +57,23 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
             beanFactory.getPostProcessors().clear();
         }
 
-        try {
-            for (final String name : context.getBeanDefinitions().keySet()) {
+        for (final String name : context.getBeanDefinitions().keySet()) {
+            try {
                 context.destroyBean(name);
             }
-            for (final Object bean : context.getSingletons().values()) {
-                ContextUtils.destroyBean(bean, bean.getClass().getDeclaredMethods());
+            catch (final Throwable e) {
+                log.error(e.getMessage(), e);
             }
         }
-        catch (Throwable e) {
-            throw new ContextException("An Exception Occurred When Destroy Beans", e);
+        for (final Object bean : context.getSingletons().values()) {
+            try {
+                destroyBean(bean);
+            }
+            catch (final Throwable e) {
+                log.error(e.getMessage(), e);
+            }
         }
-        finally {
-            ClassUtils.clearCache();
-        }
+        ClassUtils.clearCache();
     }
 
 }

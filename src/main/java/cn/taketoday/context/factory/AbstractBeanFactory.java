@@ -21,6 +21,7 @@ package cn.taketoday.context.factory;
 
 import static cn.taketoday.context.utils.ClassUtils.makeAccessible;
 import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
+import static cn.taketoday.context.utils.ExceptionUtils.unwrapThrowable;
 import static java.util.Objects.requireNonNull;
 
 import java.io.Serializable;
@@ -65,7 +66,6 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
-import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
@@ -1063,10 +1063,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                     }
                 }
             }
-            ContextUtils.destroyBean(beanInstance, beanClass.getDeclaredMethods());
+            ContextUtils.destroyBean(beanInstance);
         }
         catch (Throwable e) {
-            e = ExceptionUtils.unwrapThrowable(e);
+            e = unwrapThrowable(e);
             throw new ContextException("An Exception Occurred When Destroy a bean: [" + def.getName() + "], With Msg: [" + e + "]", e);
         }
     }

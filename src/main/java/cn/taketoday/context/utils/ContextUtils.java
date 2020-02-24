@@ -22,6 +22,7 @@ package cn.taketoday.context.utils;
 import static cn.taketoday.context.Constant.VALUE;
 import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
+import static cn.taketoday.context.utils.ClassUtils.getUserClass;
 import static java.util.Objects.requireNonNull;
 
 import java.io.BufferedReader;
@@ -928,13 +929,11 @@ public abstract class ContextUtils {
      * 
      * @param bean
      *            Bean instance
-     * @param methods
-     *            Bean class's methods
      * @throws Throwable
      *             When destroy a bean
      */
-    public static void destroyBean(final Object bean, final Method[] methods) throws Throwable {
-
+    public static void destroyBean(final Object bean) throws Throwable {
+        final Method[] methods = getUserClass(bean).getDeclaredMethods();
         // PreDestroy
         for (final Method method : methods) {
             if (method.isAnnotationPresent(PreDestroy.class)) {
@@ -942,7 +941,6 @@ public abstract class ContextUtils {
                 ClassUtils.makeAccessible(method).invoke(bean);
             }
         }
-
         if (bean instanceof DisposableBean) {
             ((DisposableBean) bean).destroy();
         }
