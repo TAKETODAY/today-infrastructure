@@ -61,7 +61,7 @@ public class AopTest {
 
             final StandardBeanFactory beanFactory = context.getBeanFactory();
 
-            beanFactory.loadImportBeans(AopConfig.class);
+            beanFactory.importBeans(AopConfig.class);
             context.addBeanPostProcessor(new AutoProxyCreator(context));
             
             UserService userService = context.getBean(UserService.class);

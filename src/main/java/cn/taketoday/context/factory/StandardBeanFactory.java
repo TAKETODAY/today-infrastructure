@@ -324,9 +324,9 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      *            Input bean classes
      * @since 2.1.7
      */
-    public void loadImportBeans(Class<?>... beans) {
+    public void importBeans(Class<?>... beans) {
         for (final Class<?> bean : requireNonNull(beans)) {
-            loadImportBeans(createBeanDefinition(bean));
+            importBeans(createBeanDefinition(bean));
         }
     }
 
@@ -337,10 +337,10 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      *            Input {@link BeanDefinition}s
      * @since 2.1.7
      */
-    public void loadImportBeans(final Set<BeanDefinition> defs) {
+    public void importBeans(final Set<BeanDefinition> defs) {
 
         for (final BeanDefinition def : defs) {
-            loadImportBeans(def);
+            importBeans(def);
         }
     }
 
@@ -351,7 +351,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      *            Input {@link BeanDefinition}
      * @since 2.1.7
      */
-    public void loadImportBeans(final BeanDefinition def) {
+    public void importBeans(final BeanDefinition def) {
 
         for (final AnnotationAttributes attr : getAnnotationAttributesArray(def, Import.class)) {
             for (final Class<?> importClass : attr.getAttribute(Constant.VALUE, Class[].class)) {
@@ -552,7 +552,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      */
     protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) throws Throwable {
         if (targetDef.isAnnotationPresent(Import.class)) { // @since 2.1.7
-            loadImportBeans(targetDef);
+            importBeans(targetDef);
         }
         if (targetDef.isAnnotationPresent(ComponentScan.class)) {
             componentScan(targetDef);

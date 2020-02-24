@@ -19,24 +19,12 @@
  */
 package cn.taketoday.context.listener;
 
-import java.util.EventObject;
-
 /**
  * @author TODAY <br>
  *         2018-09-09 21:26
  */
 @FunctionalInterface
 public interface ApplicationEventPublisher {
-
-    /**
-     * Publish event
-     * 
-     * @param event
-     *            {@link EventObject} Event object
-     */
-    default void publishEvent(EventObject event) {
-        publishEvent((Object) event);
-    }
 
     /**
      * Publish event
