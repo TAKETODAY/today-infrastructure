@@ -51,12 +51,6 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
         log.info("Closing: [{}] at [{}]", context,
                  new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(event.getTimestamp()));
 
-        if (context instanceof AbstractApplicationContext) {
-            AbstractBeanFactory beanFactory = ((AbstractApplicationContext) context).getBeanFactory();
-            beanFactory.getDependencies().clear();
-            beanFactory.getPostProcessors().clear();
-        }
-
         for (final String name : context.getBeanDefinitions().keySet()) {
             try {
                 context.destroyBean(name);
@@ -72,6 +66,12 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
             catch (final Throwable e) {
                 log.error(e.getMessage(), e);
             }
+        }
+        
+        if (context instanceof AbstractApplicationContext) {
+            AbstractBeanFactory beanFactory = ((AbstractApplicationContext) context).getBeanFactory();
+            beanFactory.getDependencies().clear();
+            beanFactory.getPostProcessors().clear();
         }
         ClassUtils.clearCache();
     }
