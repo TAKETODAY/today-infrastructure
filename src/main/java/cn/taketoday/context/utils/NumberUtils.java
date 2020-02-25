@@ -25,27 +25,10 @@ import java.math.BigInteger;
 import cn.taketoday.context.exception.ConversionException;
 
 /**
- * 
- * @author Today <br>
+ * @author TODAY <br>
  *         2018-07-06 13:36:29
  */
 public abstract class NumberUtils {
-
-    /**
-     * @deprecated Use {@link ObjectUtils#toArrayObject(String[], Class)}
-     */
-    @Deprecated
-    public final static Object toArrayObject(String source[], Class<?> targetClass) throws ConversionException {
-        return ObjectUtils.toArrayObject(source, targetClass);
-    }
-
-    /**
-     * @deprecated Use {@link ObjectUtils#parseArray(String[], Class)}
-     */
-    @Deprecated
-    public final static <T> T parseArray(String source[], Class<T> targetClass) throws ConversionException {
-        return ObjectUtils.parseArray(source, targetClass);
-    }
 
     public static final Object parseDigit(String text, Class<?> targetClass) throws ConversionException {
 

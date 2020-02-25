@@ -144,18 +144,14 @@ public class AntPathMatcherTest {
     }
 
     @Test
-    public
-            void
-            matchWithTrimTokensEnabled() throws Exception {
+    public void matchWithTrimTokensEnabled() throws Exception {
         pathMatcher.setTrimTokens(true);
 
         assertThat(pathMatcher.match("/foo/bar", "/foo /bar")).isTrue();
     }
 
     @Test
-    public
-            void
-            matchStart() {
+    public void matchStart() {
         // test exact matching
         assertThat(pathMatcher.matchStart("test", "test")).isTrue();
         assertThat(pathMatcher.matchStart("/test", "/test")).isTrue();
@@ -242,9 +238,7 @@ public class AntPathMatcherTest {
     }
 
     @Test
-    public
-            void
-            uniqueDeliminator() {
+    public void uniqueDeliminator() {
         pathMatcher.setPathSeparator(".");
 
         // test exact matching
