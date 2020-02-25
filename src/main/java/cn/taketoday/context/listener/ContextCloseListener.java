@@ -20,6 +20,7 @@
 package cn.taketoday.context.listener;
 
 import static cn.taketoday.context.utils.ContextUtils.destroyBean;
+import static cn.taketoday.context.utils.ExceptionUtils.unwrapThrowable;
 
 import java.text.SimpleDateFormat;
 
@@ -63,7 +64,8 @@ public class ContextCloseListener implements ApplicationListener<ContextCloseEve
             try {
                 destroyBean(bean);
             }
-            catch (final Throwable e) {
+            catch (Throwable e) {
+                e = unwrapThrowable(e);
                 log.error(e.getMessage(), e);
             }
         }

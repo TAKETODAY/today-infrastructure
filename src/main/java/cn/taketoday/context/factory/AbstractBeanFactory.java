@@ -1012,7 +1012,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     @Override
-    public void removeBean(String name) throws NoSuchBeanDefinitionException {
+    public void removeBean(String name) {
         removeBeanDefinition(name);
         removeSingleton(name);
     }
@@ -1067,6 +1067,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         }
         catch (Throwable e) {
             e = unwrapThrowable(e);
+            removeBean(def.getName());
             throw new ContextException("An Exception Occurred When Destroy a bean: [" + def.getName() + "], With Msg: [" + e + "]", e);
         }
     }

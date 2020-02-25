@@ -24,7 +24,6 @@ import java.util.Set;
 import cn.taketoday.context.annotation.Prototype;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
 /**
  * @author TODAY <br>
@@ -62,10 +61,8 @@ public interface ConfigurableBeanFactory
      * 
      * @param name
      *            bean name
-     * @throws NoSuchBeanDefinitionException
-     *             If there isn't a bean
      */
-    void removeBean(String name) throws BeanDefinitionStoreException;
+    void removeBean(String name);
 
     /**
      * Register a bean with the given name and type
