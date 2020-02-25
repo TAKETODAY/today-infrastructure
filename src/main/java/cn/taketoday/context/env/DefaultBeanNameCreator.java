@@ -22,7 +22,6 @@ package cn.taketoday.context.env;
 import static cn.taketoday.context.Constant.KEY_USE_SIMPLE_NAME;
 
 import cn.taketoday.context.BeanNameCreator;
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.utils.Assert;
@@ -37,6 +36,10 @@ public class DefaultBeanNameCreator implements BeanNameCreator {
 
     private final boolean useSimpleName;
 
+    public DefaultBeanNameCreator() {
+        this(true);
+    }
+
     public DefaultBeanNameCreator(@Env(value = KEY_USE_SIMPLE_NAME, defaultValue = "true") boolean useSimpleName) {
         this.useSimpleName = useSimpleName;
     }
@@ -49,16 +52,13 @@ public class DefaultBeanNameCreator implements BeanNameCreator {
     @Override
     public String create(Class<?> beanClass) {
         Assert.notNull(beanClass, "Bean class must not be null");
-
-        if (beanClass == null) {
-            return Constant.DEFAULT;
-        }
         if (useSimpleName) {
             final String simpleName = beanClass.getSimpleName();
             final char c = simpleName.charAt(0);
             if (c > 0x40 && c < 0x5b) {
                 return new StringBuilder(simpleName)
-                        .replace(0, 1, String.valueOf((char) (c | 0x20)))
+                        .deleteCharAt(0)
+                        .insert(0, (char) (c | 0x20))
                         .toString();
             }
             return simpleName;

@@ -62,24 +62,4 @@ public class Product {
         return "Product: " + productID + ", " + name + ", " + category + ", " + unitPrice + ", " + unitsInStock;
     }
 
-    public int getProductID() {
-        return productID;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public double getUnitPrice() {
-        return unitPrice;
-    }
-
-    public int getUnitsInStock() {
-        return unitsInStock;
-    }
-
 }
