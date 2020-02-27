@@ -49,9 +49,9 @@ public class ServletWebServerApplicationContext
     }
 
     @Override
-    protected void onRefresh()  {
+    protected void preRefresh()  {
         this.webServer = ApplicationUtils.obtainWebServer(this);
-        super.onRefresh();
+        super.preRefresh();
     }
 
     @Override
