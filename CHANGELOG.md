@@ -77,7 +77,7 @@
 - :sparkles: 新增Spring AttributeAccessor
 - :sparkles: 新增BeanClassLoaderAware
 - :hammer: 重构Condition
-
+- :sparkles: 新增BeanFactoryPostProcessor
 
 ## v2.1.6
 - :sparkles: feat: add `Environment` new api to get property
