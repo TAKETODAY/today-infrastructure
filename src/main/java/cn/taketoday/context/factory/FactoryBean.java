@@ -28,8 +28,8 @@ package cn.taketoday.context.factory;
  * <p>
  * <b>NB: A bean that implements this interface cannot be used as a normal
  * bean.</b> A FactoryBean is defined in a bean style, but the object exposed
- * for bean references ({@link #getBean()}) is always the object that it
- * creates.
+ * for bean references ({@link #getBean()}) is always the object that it creates
+ * ,and initialization by this factory.
  * 
  * <p>
  * The implementation of FactoryBean is a factory; its instance will cached in

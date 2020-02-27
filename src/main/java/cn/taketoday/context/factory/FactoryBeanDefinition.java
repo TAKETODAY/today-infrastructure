@@ -20,16 +20,15 @@
 package cn.taketoday.context.factory;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.context.utils.ContextUtils.createBeanDefinition;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-import cn.taketoday.context.Scope;
 import cn.taketoday.context.exception.NoSuchPropertyException;
 import cn.taketoday.context.utils.Assert;
-import cn.taketoday.context.utils.ContextUtils;
 
 /**
  * FactoryBean's BeanDefinition
@@ -44,11 +43,11 @@ public class FactoryBeanDefinition<T> implements BeanDefinition {
     private Supplier<FactoryBean<T>> factorySupplier;
 
     public FactoryBeanDefinition(String name, Class<?> factoryClass, FactoryBean<T> factoryBean) {
-        this(ContextUtils.buildBeanDefinition(factoryClass, null, name), () -> factoryBean);
+        this(createBeanDefinition(name, factoryClass), () -> factoryBean);
     }
 
     public FactoryBeanDefinition(String name, Class<?> factoryClass, Supplier<FactoryBean<T>> factorySupplier) {
-        this(ContextUtils.buildBeanDefinition(factoryClass, null, name), factorySupplier);
+        this(createBeanDefinition(name, factoryClass), factorySupplier);
     }
 
     public FactoryBeanDefinition(BeanDefinition factoryDef, AbstractBeanFactory beanFactory) {
@@ -61,7 +60,7 @@ public class FactoryBeanDefinition<T> implements BeanDefinition {
     }
 
     public FactoryBeanDefinition(String name, Class<T> factoryClass, AbstractBeanFactory beanFactory) {
-        this.factoryDef = ContextUtils.buildBeanDefinition(factoryClass, null, name);
+        this.factoryDef = createBeanDefinition(name, factoryClass);
         this.factorySupplier = new FactoryBeanSupplier<>(factoryDef, beanFactory);
     }
 
@@ -124,6 +123,11 @@ public class FactoryBeanDefinition<T> implements BeanDefinition {
     }
 
     @Override
+    public boolean isPrototype() {
+        return factoryDef.isPrototype();
+    }
+
+    @Override
     public Method[] getInitMethods() {
         return factoryDef.getInitMethods();
     }
@@ -134,7 +138,7 @@ public class FactoryBeanDefinition<T> implements BeanDefinition {
     }
 
     @Override
-    public Scope getScope() {
+    public String getScope() {
         return factoryDef.getScope();
     }
 
@@ -171,11 +175,12 @@ public class FactoryBeanDefinition<T> implements BeanDefinition {
 
     @Override
     public BeanDefinition setName(String name) {
+        factoryDef.setName(name);
         return this;
     }
 
     @Override
-    public FactoryBeanDefinition<T> setScope(Scope scope) {
+    public FactoryBeanDefinition<T> setScope(String scope) {
         factoryDef.setScope(scope);
         return this;
     }
@@ -210,8 +215,8 @@ public class FactoryBeanDefinition<T> implements BeanDefinition {
     }
 
     @Override
-    public String getChildBean() {
-        return factoryDef.getChildBean();
+    public BeanDefinition getChild() {
+        return factoryDef.getChild();
     }
 
     @Override

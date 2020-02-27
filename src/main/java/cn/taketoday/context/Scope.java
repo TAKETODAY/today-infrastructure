@@ -19,20 +19,61 @@
  */
 package cn.taketoday.context;
 
+import java.util.ArrayList;
+
+import cn.taketoday.context.factory.BeanDefinition;
+import cn.taketoday.context.factory.ObjectFactory;
+
 /**
  * @author TODAY <br>
  *         2018-07-02 22:38:57
  */
-public enum Scope {
+public interface Scope {
+
+    String SINGLETON = Constant.SINGLETON;
+
+    String PROTOTYPE = Constant.PROTOTYPE;
+
+    ArrayList<Scope> values = new ArrayList<>();
 
     /**
-     * Indicates that the bean is a singleton in the context
+     * Get scope name
      */
-    SINGLETON,
+    String getName();
+
+    Object get(String name, BeanDefinition def);
 
     /**
-     * Indicates that the bean is prototype in the context. Every time you call
-     * {@link ApplicationContext#getBean(String)} you get a new instance.
+     * Return the object with the given name from the underlying scope,
+     * {@link ObjectFactory#getObject() creating it} if not found in the underlying
+     * storage mechanism.
+     * <p>
+     * This is the central operation of a Scope, and the only operation that is
+     * absolutely required.
+     * 
+     * @param name
+     *            the name of the object to retrieve
+     * @param objectFactory
+     *            the {@link ObjectFactory} to use to create the scoped object if it
+     *            is not present in the underlying storage mechanism
+     * @return the desired object (never {@code null})
+     * @throws IllegalStateException
+     *             if the underlying scope is not currently active
      */
-    PROTOTYPE;
+    Object get(String name, ObjectFactory<?> objectFactory);
+
+    Object remove(String name);
+
+    static ArrayList<Scope> values() {
+        return values;
+    }
+
+    static Scope valueOf(String name) {
+        for (final Scope scope : values) {
+            if (scope.getName().equals(name)) {
+                return scope;
+            }
+        }
+        return null;
+    }
 }

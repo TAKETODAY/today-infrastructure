@@ -98,10 +98,10 @@ public class ClassUtilsTest {
         for (Component component : classAnntation) {
             log.info("component: [{}]", component);
             if (component.value().length != 0 && "prototype_config".equals(component.value()[0])) {
-                assert component.scope() == Scope.PROTOTYPE;
+                assert component.scope().equals(Scope.PROTOTYPE);
             }
             else {
-                assert component.scope() == Scope.SINGLETON;
+                assert component.scope().equals(Scope.SINGLETON);
             }
         }
         // use proxy
@@ -113,7 +113,7 @@ public class ClassUtilsTest {
         System.err.println(annotation);
         annotation.hashCode();
         assert annotation.annotationType() == C.class;
-        assert annotation.scope() == Scope.SINGLETON;
+        assert annotation.scope().equals(Scope.SINGLETON);
         assert annotations.size() == 2;
 
         assert !annotation.equals(null);
@@ -176,16 +176,16 @@ public class ClassUtilsTest {
             log.info("annotationType: [{}]", attributes.annotationType());
             assert attributes.annotationType() == C.class;
             if ("s".equals(attributes.getStringArray("value")[0])) {
-                assert attributes.getEnum("scope") == Scope.SINGLETON;
+                assert attributes.getString("scope").equals(Scope.SINGLETON);
             }
             if ("p".equals(attributes.getStringArray("value")[0])) {
-                assert attributes.getEnum("scope") == Scope.PROTOTYPE;
+                assert attributes.getString("scope").equals(Scope.PROTOTYPE);
             }
         }
 
         final AnnotationAttributes attr = ClassUtils.getAnnotationAttributes(C.class, Bean.class);
 
-        assert attr.getEnum("scope") == Scope.SINGLETON;
+        assert attr.getString("scope").equals(Scope.SINGLETON);
     }
 
     @Test

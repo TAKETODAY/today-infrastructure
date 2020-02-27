@@ -66,6 +66,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
+import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
@@ -113,18 +114,18 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             return getSingleton(def.getName());
         }
 
-//        try {
-        final String childBean = def.getChildBean();
-        if (childBean == null) {
-            return initializeBean(def);
+        try {
+            final BeanDefinition child = def.getChild();
+            if (child == null) {
+                return initializeBean(def);
+            }
+            return getImplementation(child, def);
         }
-        return getImplementation(childBean, def);
-//        }
-//        catch (Throwable ex) {
-//            ex = ExceptionUtils.unwrapThrowable(ex);
-//            throw new ContextException("An Exception Occurred When Getting A Bean Named: ["
-//                    + def.getName() + "], With Msg: [" + ex + "]", ex);
-//        }
+        catch (Throwable ex) {
+            ex = ExceptionUtils.unwrapThrowable(ex);
+            throw new ContextException("An Exception Occurred When Getting A Bean Named: ["
+                    + def.getName() + "], With Msg: [" + ex + "]", ex);
+        }
     }
 
     @Override
@@ -451,6 +452,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * be initialized multiple times
      * 
      * @param childName
+     *            Child bean name
      * @param currentDef
      *            Bean definition
      * @return Current {@link BeanDefinition} implementation
@@ -458,18 +460,35 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *             When instantiation of a bean failed
      */
     protected Object getImplementation(final String childName, final BeanDefinition currentDef) throws BeanInstantiationException {
+        return getImplementation(getBeanDefinition(childName), currentDef);
+    }
 
-        final BeanDefinition childDef = getBeanDefinition(childName);
+    /**
+     * Get current {@link BeanDefinition} implementation invoke this method requires
+     * that input {@link BeanDefinition} is not initialized, Otherwise the bean will
+     * be initialized multiple times
+     * 
+     * @param childDef
+     *            Child bean definition
+     * @param currentDef
+     *            Target bean definition
+     * @return Current {@link BeanDefinition} implementation
+     * @throws BeanInstantiationException
+     *             When instantiation of a bean failed
+     */
+    protected Object getImplementation(final BeanDefinition childDef, final BeanDefinition currentDef)
+            throws BeanInstantiationException // 
+    {
         if (!currentDef.isSingleton()) {
             return doCreatePrototype(childDef);
         }
-
         // initialize child bean
         final Object bean = initializeSingleton(getSingleton(currentDef.getName()), childDef);
-
-        // register as parent bean and set initialize flag
-        registerSingleton(currentDef.getName(), bean);
-        currentDef.setInitialized(true);
+        if (!currentDef.isInitialized()) {
+            // register as parent bean and set initialize flag
+            registerSingleton(currentDef.getName(), bean);
+            currentDef.setInitialized(true);
+        }
         return bean;
     }
 
@@ -673,12 +692,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     /**
-     * Register {@link BeanPostProcessor}s to register
+     * Register {@link BeanPostProcessor}s
      */
     public void registerBeanPostProcessors() {
-
         log.debug("Start loading BeanPostProcessor.");
-
         postProcessors.addAll(getBeans(BeanPostProcessor.class));
         OrderUtils.reversedSort(postProcessors);
     }
@@ -951,6 +968,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+        Assert.notNull(beanPostProcessor, "BeanPostProcessor must not be null");
         getPostProcessors().remove(beanPostProcessor);
         getPostProcessors().add(beanPostProcessor);
     }
@@ -961,14 +979,19 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     @Override
-    public final void registerSingleton(final String name, final Object bean) {
-        final Object oldBean = singletons.put(name, bean);
-        if (log.isDebugEnabled()) {
-            if (oldBean == null) {
-                log.debug("Register Singleton: [{}] = [{}]", name, bean);
-            }
-            else if (oldBean != bean) {
-                log.debug("Refresh Singleton: [{}] = [{}] old bean: [{}] ", name, bean, oldBean);
+    public void registerSingleton(final String name, final Object singleton) {
+        Assert.notNull(name, "Bean name must not be null");
+        Assert.notNull(singleton, "Singleton object must not be null");
+
+        synchronized (singletons) {
+            final Object oldBean = singletons.put(name, singleton);
+            if (log.isDebugEnabled()) {
+                if (oldBean == null) {
+                    log.debug("Register Singleton: [{}] = [{}]", name, singleton);
+                }
+                else if (oldBean != singleton) {
+                    log.debug("Refresh Singleton: [{}] = [{}] old bean: [{}] ", name, singleton, oldBean);
+                }
             }
         }
     }
@@ -1035,6 +1058,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 }
             }
         }
+    }
+    
+    @Override
+    public void registerScope(Scope scope) {
+        
     }
 
     /**
@@ -1249,7 +1277,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         return new DefaultBeanNameCreator(true);
     }
 
-    public List<BeanPostProcessor> getPostProcessors() {
+    public final List<BeanPostProcessor> getPostProcessors() {
         return postProcessors;
     }
 

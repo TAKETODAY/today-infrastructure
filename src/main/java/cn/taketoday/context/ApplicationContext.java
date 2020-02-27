@@ -29,7 +29,6 @@ import cn.taketoday.context.listener.ApplicationEventPublisher;
 import cn.taketoday.context.loader.CandidateComponentScannerCapable;
 
 /**
- * 
  * @author TODAY <br>
  *         2018-06-23 16:39:36
  */

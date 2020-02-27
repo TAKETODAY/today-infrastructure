@@ -39,6 +39,7 @@ import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.context.utils.StringUtils;
 
 /**
  * Default implementation of {@link BeanDefinition}
@@ -49,11 +50,11 @@ import cn.taketoday.context.utils.OrderUtils;
 public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     /** bean name. */
-    private final String name;
+    private String name;
     /** bean class. */
     private final Class<? extends Object> beanClass;
     /** bean scope. */
-    private Scope scope = Scope.SINGLETON;
+    private String scope;
 
     /**
      * Invoke before {@link InitializingBean#afterPropertiesSet}
@@ -91,8 +92,8 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
      */
     private boolean factoryBean = false;
 
-    /** Child implementation bean name */
-    private String childName;
+    /** Child implementation */
+    private BeanDefinition childDef;
 
     public DefaultBeanDefinition(String name, Class<? extends Object> beanClass) {
         this.name = name;
@@ -109,9 +110,8 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
      */
     public DefaultBeanDefinition(String beanName, BeanDefinition childDef) {
         this(beanName, childDef.getBeanClass());
-
+        setChild(childDef);
         setScope(childDef.getScope());
-        setChildName(childDef.getName());
         setInitMethods(childDef.getInitMethods());
         setDestroyMethods(childDef.getDestroyMethods());
         setPropertyValues(childDef.getPropertyValues());
@@ -129,7 +129,13 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     @Override
     public boolean isSingleton() {
-        return scope == Scope.SINGLETON;
+        final String scope = getScope();
+        return StringUtils.isEmpty(scope) || Scope.SINGLETON.equals(scope);
+    }
+
+    @Override
+    public boolean isPrototype() {
+        return Scope.PROTOTYPE.equals(scope);
     }
 
     @Override
@@ -148,7 +154,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     }
 
     @Override
-    public Scope getScope() {
+    public String getScope() {
         return scope;
     }
 
@@ -169,7 +175,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     @Override
     public boolean isAbstract() {
-        return childName != null;
+        return childDef != null;
     }
 
     @Override
@@ -193,11 +199,12 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     @Override
     public BeanDefinition setName(String name) {
+        this.name = name;
         return this;
     }
 
     @Override
-    public BeanDefinition setScope(Scope scope) {
+    public BeanDefinition setScope(String scope) {
         this.scope = scope;
         return this;
     }
@@ -270,19 +277,19 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     }
 
     @Override
-    public String getChildBean() {
-        return childName;
+    public BeanDefinition getChild() {
+        return childDef;
     }
 
     /**
      * Apply the child bean name
      * 
      * @param childName
-     *            Child bean name
+     *            Child BeanDefinition
      * @return {@link DefaultBeanDefinition}
      */
-    public DefaultBeanDefinition setChildName(String childName) {
-        this.childName = childName;
+    public DefaultBeanDefinition setChild(BeanDefinition childDef) {
+        this.childDef = childDef;
         return this;
     }
 
@@ -291,14 +298,12 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
         if (obj == this) {
             return true;
         }
-
         if (obj instanceof DefaultBeanDefinition) {
             final DefaultBeanDefinition other = (DefaultBeanDefinition) obj;
-
             return Objects.equals(name, other.name)
-                   && scope == other.scope
-                   && childName == other.childName
+                   && Objects.equals(scope, other.scope)
                    && beanClass == other.beanClass
+                   && Objects.equals(childDef, other.childDef)
                    && Objects.deepEquals(initMethods, other.initMethods)
                    && Objects.deepEquals(destroyMethods, other.destroyMethods)
                    && Objects.deepEquals(propertyValues, other.propertyValues);
@@ -323,7 +328,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
                 .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(propertyValues))//
                 .append("\",\n\t\"initialized\":\"").append(initialized)//
                 .append("\",\n\t\"factoryBean\":\"").append(factoryBean)//
-                .append("\",\n\t\"child\":\"").append(childName)//
+                .append("\",\n\t\"child\":\"").append(childDef)//
                 .append("\"\n}")//
                 .toString();
     }
@@ -338,7 +343,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     @Override
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-        return getBeanClass().getAnnotation(annotationClass);
+        return ClassUtils.getAnnotation(annotationClass, getBeanClass());
     }
 
     @Override

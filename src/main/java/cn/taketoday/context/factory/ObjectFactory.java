@@ -20,13 +20,21 @@
 package cn.taketoday.context.factory;
 
 /**
- * @author Today <br>
+ * Defines a factory which can return an Object instance (possibly shared or
+ * independent) when invoked.
  * 
+ * @author TODAY <br>
  *         2018-09-11 11:01
  */
 @FunctionalInterface
 public interface ObjectFactory<T> {
 
+    /**
+     * Return an instance (possibly shared or independent) of the object managed by
+     * this factory.
+     * 
+     * @return the resulting instance
+     */
     T getObject();
 
 }

@@ -111,7 +111,7 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
 
     @Override
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
-        final T ret = getFactoryMethod().getAnnotation(annotationClass);
+        final T ret = ClassUtils.getAnnotation(annotationClass, getFactoryMethod());
         if (ret == null) {
             return super.getAnnotation(annotationClass);
         }

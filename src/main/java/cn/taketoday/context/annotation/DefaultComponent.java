@@ -33,7 +33,7 @@ import cn.taketoday.context.Scope;
 @SuppressWarnings("all")
 public final class DefaultComponent implements Component {
 
-    private Scope scope = Scope.SINGLETON;
+    private String scope = Scope.SINGLETON;
     private String[] value = Constant.EMPTY_STRING_ARRAY;
     private String[] initMethods = Constant.EMPTY_STRING_ARRAY;
     private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
@@ -49,7 +49,7 @@ public final class DefaultComponent implements Component {
     }
 
     @Override
-    public Scope scope() {
+    public String scope() {
         return scope;
     }
 

@@ -24,6 +24,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.NoSuchPropertyException;
@@ -36,9 +37,9 @@ import cn.taketoday.context.exception.NoSuchPropertyException;
  */
 public interface BeanDefinition extends AnnotatedElement {
 
-    Method[] EMPTY_METHOD = new Method[0];
+    Method[] EMPTY_METHOD = Constant.EMPTY_METHOD;
 
-    PropertyValue[] EMPTY_PROPERTY_VALUE = new PropertyValue[0];
+    PropertyValue[] EMPTY_PROPERTY_VALUE = Constant.EMPTY_PROPERTY_VALUE;
 
     /**
      * Get a property
@@ -57,6 +58,16 @@ public interface BeanDefinition extends AnnotatedElement {
      * @return If the bean is a {@link Singleton}.
      */
     boolean isSingleton();
+
+    /**
+     * Indicates that If the bean is a
+     * {@link cn.taketoday.context.annotation.Prototype Prototype}.
+     * 
+     * @return If the bean is a {@link cn.taketoday.context.annotation.Prototype
+     *         Prototype}.
+     * @since 2.17
+     */
+    boolean isPrototype();
 
     /**
      * Get bean class
@@ -84,7 +95,7 @@ public interface BeanDefinition extends AnnotatedElement {
      * 
      * @return Bean {@link Scope}
      */
-    Scope getScope();
+    String getScope();
 
     /**
      * Get bean name
@@ -114,7 +125,7 @@ public interface BeanDefinition extends AnnotatedElement {
      * if it is from abstract class.
      * 
      * @return if it is from abstract class
-     * @see #getChildBean()
+     * @see #getChild()
      */
     boolean isAbstract();
 
@@ -157,9 +168,7 @@ public interface BeanDefinition extends AnnotatedElement {
      * @param name
      *            The bean's name
      * @return The {@link BeanDefinition}
-     * @deprecated deprecated in 2.1.7 the 'name' property is immutable
      */
-    @Deprecated
     BeanDefinition setName(String name);
 
     /**
@@ -171,7 +180,7 @@ public interface BeanDefinition extends AnnotatedElement {
      * @see Scope#SINGLETON
      * @return The {@link BeanDefinition}
      */
-    BeanDefinition setScope(Scope scope);
+    BeanDefinition setScope(String scope);
 
     /**
      * Apply bean' initialize {@link Method}s
@@ -222,11 +231,11 @@ public interface BeanDefinition extends AnnotatedElement {
     /**
      * Indicates that the abstract bean's child implementation
      * 
-     * @return Child implementation bean name, returns {@code null} indicates that
-     *         this {@link BeanDefinition} is not abstract
+     * @return Child implementation bean, returns {@code null} indicates that this
+     *         {@link BeanDefinition} is not abstract
      * @since 2.1.7
      */
-    String getChildBean();
+    BeanDefinition getChild();
 
     /**
      * Apply bean' initialize {@link Method}s

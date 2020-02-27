@@ -20,6 +20,14 @@
 package cn.taketoday.context;
 
 /**
+ * {@code Ordered} is an interface that can be implemented by objects that
+ * should be <em>orderable</em>, for example in a {@code Collection}.
+ *
+ * <p>
+ * The actual {@link #getOrder() order} can be interpreted as prioritization,
+ * with the first object (with the highest order value) having the highest
+ * priority.
+ * 
  * @author TODAY <br>
  *         2018-11-07 13:08
  */

@@ -22,6 +22,7 @@ package cn.taketoday.context;
 import static cn.taketoday.context.cglib.core.TypeUtils.parseType;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -29,6 +30,7 @@ import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
+import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.io.Resource;
 
 /**
@@ -41,9 +43,11 @@ public interface Constant extends Opcodes, Serializable {
     String CONTEXT_VERSION = "2.1.7";
 
     Type[] TYPES_EMPTY = {};
+    Method[] EMPTY_METHOD = {};
     Object[] EMPTY_OBJECT_ARRAY = {};
     Class<?>[] EMPTY_CLASS_ARRAY = {};
     Resource[] EMPTY_RESOURCE_ARRAY = {};
+    PropertyValue[] EMPTY_PROPERTY_VALUE = {};
     AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
 
     Serializable EMPTY_OBJECT = new Serializable() {
@@ -169,6 +173,16 @@ public interface Constant extends Opcodes, Serializable {
 	String 	TYPE 					= "type";
 	/**
 	 **********************************************/ //@on
+
+    /**
+     * @since 2.1.7
+     */
+    String SINGLETON = "singleton";
+
+    /**
+     * @since 2.1.7
+     */
+    String PROTOTYPE = "prototype";
 
     /** URL prefix for loading from the file system: "file:". */
     String FILE_URL_PREFIX = "file:";

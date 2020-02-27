@@ -116,7 +116,7 @@ public class FactoryBeanTest {
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
 
             List<BeanDefinition> definitions = //
-                    ContextUtils.buildBeanDefinitions(TESTFactoryBean.class, "testFactoryBean-prototype");
+                    ContextUtils.createBeanDefinitions("testFactoryBean-prototype", TESTFactoryBean.class);
 
             assertFalse(definitions.isEmpty());
 

@@ -35,7 +35,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.context.Scope;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ConversionException;
@@ -75,6 +74,10 @@ public class ConvertUtilsTest {
                                           return null;
                                       }
                                   });
+    }
+
+    enum Scope {
+        SINGLETON, PROTOTYPE;
     }
 
     @Test

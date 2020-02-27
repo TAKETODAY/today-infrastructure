@@ -49,11 +49,11 @@ public interface BeanDefinitionRegistry {
     /**
      * register a bean with the given name and type
      * 
-     * @param beanDefinition
+     * @param def
      *            Bean definition
      * @since 1.2.0
      */
-    void registerBeanDefinition(String name, BeanDefinition beanDefinition);
+    void registerBeanDefinition(String name, BeanDefinition def);
 
     /**
      * Remove the BeanDefinition for the given name.
@@ -142,12 +142,12 @@ public interface BeanDefinitionRegistry {
     /**
      * Register {@link BeanDefinition} with {@link BeanDefinition#getName()}
      * 
-     * @param beanDefinition
+     * @param def
      *            Target {@link BeanDefinition}
      * @since 2.1.6
      */
-    default void registerBeanDefinition(BeanDefinition beanDefinition) {
-        registerBeanDefinition(beanDefinition.getName(), beanDefinition);
+    default void registerBeanDefinition(BeanDefinition def) {
+        registerBeanDefinition(def.getName(), def);
     }
 
 }

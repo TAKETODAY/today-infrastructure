@@ -20,9 +20,11 @@
 package cn.taketoday.context.utils;
 
 import static cn.taketoday.context.Constant.VALUE;
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
 import static cn.taketoday.context.utils.ClassUtils.getUserClass;
+import static cn.taketoday.context.utils.ResourceUtils.getResource;
 import static java.util.Objects.requireNonNull;
 
 import java.io.BufferedReader;
@@ -58,7 +60,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Constant;
-import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.DefaultProps;
@@ -202,7 +203,7 @@ public abstract class ContextUtils {
      *            {@link TypeConverter} object
      * @since 2.1.6
      */
-    public static void addPropertyValueResolver(PropertyValueResolver... resolvers) {
+    public static void addPropertyValueResolver(final PropertyValueResolver... resolvers) {
 
         final List<PropertyValueResolver> propertyValueResolvers = new ArrayList<>();
 
@@ -224,7 +225,7 @@ public abstract class ContextUtils {
      *            Annotation values
      * @return Bean names
      */
-    public static String[] findNames(String defaultName, String... names) {
+    public static String[] findNames(final String defaultName, final String... names) {
         if (StringUtils.isArrayEmpty(names)) {
             return new String[] { defaultName }; // default name
         }
@@ -316,8 +317,8 @@ public abstract class ContextUtils {
      * @since 2.1.6
      */
     @SuppressWarnings("unchecked")
-    public static <T> T resolveValue(final String expression,
-                                     final Class<T> expectedType, final Properties variables) throws ConfigurationException //
+    public static <T> T resolveValue(final String expression, final Class<T> expectedType, final Properties variables)
+            throws ConfigurationException //
     {
         if (expression.contains(Constant.PLACE_HOLDER_PREFIX)) {
             final String replaced = resolvePlaceholder(variables, expression, false);
@@ -344,25 +345,19 @@ public abstract class ContextUtils {
      * @throws IOException
      *             If any IO {@link Exception} occurred
      */
-    public static final InputStream getResourceAsStream(String resource) throws IOException {
+    public static final InputStream getResourceAsStream(final String resource) throws IOException {
 
-        InputStream in = ResourceUtils.getResource(resource).getInputStream();
+        InputStream in = getResource(resource).getInputStream();
         if (in == null) {
             throw new IOException("Could not find resource " + resource);
         }
         return in;
     }
 
-    /**
-     * 
-     * @param resource
-     * @return
-     * @throws IOException
-     */
-    public static final Properties getResourceAsProperties(String resource) throws IOException {
-        Properties props = new ConcurrentProperties();
+    public static final Properties getResourceAsProperties(final String resource) throws IOException {
+        ConcurrentProperties props = new ConcurrentProperties();
 
-        try (InputStream in = ResourceUtils.getResource(StringUtils.checkPropertiesName(resource)).getInputStream()) {
+        try (InputStream in = getResource(StringUtils.checkPropertiesName(resource)).getInputStream()) {
             props.load(in);
         }
 
@@ -378,7 +373,7 @@ public abstract class ContextUtils {
      * @throws IOException
      *             If can't get the stream
      */
-    public static final InputStream getUrlAsStream(String urlString) throws IOException {
+    public static final InputStream getUrlAsStream(final String urlString) throws IOException {
         return new URL(urlString).openConnection().getInputStream();
     }
 
@@ -391,8 +386,8 @@ public abstract class ContextUtils {
      * @throws IOException
      *             If any IO {@link Exception} occurred
      */
-    public static final Properties getUrlAsProperties(String urlString) throws IOException {
-        Properties props = new ConcurrentProperties();
+    public static final Properties getUrlAsProperties(final String urlString) throws IOException {
+        ConcurrentProperties props = new ConcurrentProperties();
         try (InputStream in = getUrlAsStream(StringUtils.checkPropertiesName(urlString))) {
             props.load(in);
         }
@@ -410,7 +405,7 @@ public abstract class ContextUtils {
      * @throws ConfigurationException
      *             If not exist target property
      */
-    public static String resolvePlaceholder(Map<Object, Object> properties, String value) throws ConfigurationException {
+    public static String resolvePlaceholder(final Map<Object, Object> properties, final String value) throws ConfigurationException {
         return resolvePlaceholder(properties, value, true);
     }
 
@@ -427,7 +422,7 @@ public abstract class ContextUtils {
      * @throws ConfigurationException
      *             If not exist target property
      */
-    public static String resolvePlaceholder(Map<Object, Object> properties, String input, boolean throw_) //
+    public static String resolvePlaceholder(final Map<Object, Object> properties, String input, final boolean throw_)
             throws ConfigurationException //
     {
         if (input == null || input.length() <= 3) { // #{} > 3
@@ -449,7 +444,7 @@ public abstract class ContextUtils {
                 if (throw_) {
                     throw new ConfigurationException("Properties -> [" + key + "] , must specify a value.");
                 }
-                LoggerFactory.getLogger(ContextUtils.class).debug("There is no property for key: [{}]", key);
+                log.debug("There is no property for key: [{}]", key);
                 return null;
             }
             // find
@@ -467,14 +462,14 @@ public abstract class ContextUtils {
     /**
      * Set init methods to {@link BeanDefinition}
      * 
-     * @param beanDefinition
+     * @param def
      *            Target {@link BeanDefinition}
      * @param initMethods
      *            Resolved init methods
      * @since 2.1.3
      */
-    public static void resolveInitMethod(BeanDefinition beanDefinition, String... initMethods) {
-        beanDefinition.setInitMethods(resolveInitMethod(initMethods, beanDefinition.getBeanClass()));
+    public static void resolveInitMethod(final BeanDefinition def, final String... initMethods) {
+        def.setInitMethods(resolveInitMethod(initMethods, def.getBeanClass()));
     }
 
     /**
@@ -484,7 +479,7 @@ public abstract class ContextUtils {
      *            Init Method s
      * @since 2.1.2
      */
-    public static Method[] resolveInitMethod(Class<?> beanClass, String... initMethods) {
+    public static Method[] resolveInitMethod(final Class<?> beanClass, final String... initMethods) {
         return resolveInitMethod(initMethods, beanClass);
     }
 
@@ -526,14 +521,12 @@ public abstract class ContextUtils {
      *            Init Method name
      * @since 2.1.2
      */
-    private static void addInitMethod(List<Method> methods, Class<?> beanClass, String... initMethods) {
+    private static void addInitMethod(final List<Method> methods, final Class<?> beanClass, final String... initMethods) {
         for (final Method method : beanClass.getDeclaredMethods()) {
-
             if (method.isAnnotationPresent(PostConstruct.class)) {
                 methods.add(method);
                 continue;
             }
-
             for (final String initMethod : initMethods) {
                 if (initMethod.equals(method.getName())) { // equals
                     methods.add(method);
@@ -545,14 +538,14 @@ public abstract class ContextUtils {
     /**
      * Set {@link PropertyValue} to the target {@link BeanDefinition}
      * 
-     * @param beanDefinition
+     * @param def
      *            target bean definition
      * @param applicationContext
      *            {@link ApplicationContext}
      * @since 2.1.3
      */
-    public static void resolvePropertyValue(final BeanDefinition beanDefinition) {
-        beanDefinition.setPropertyValues(resolvePropertyValue(beanDefinition.getBeanClass()));
+    public static void resolvePropertyValue(final BeanDefinition def) {
+        def.setPropertyValues(resolvePropertyValue(def.getBeanClass()));
     }
 
     /**
@@ -566,7 +559,7 @@ public abstract class ContextUtils {
      */
     public static PropertyValue[] resolvePropertyValue(final Class<?> beanClass) {
 
-        final Set<PropertyValue> propertyValues = new HashSet<>(32);
+        final HashSet<PropertyValue> propertyValues = new HashSet<>(32);
         for (final Field field : ClassUtils.getFields(beanClass)) {
             final PropertyValue created = createPropertyValue(field);
             // not required
@@ -590,7 +583,7 @@ public abstract class ContextUtils {
      *            {@link ApplicationContext}
      * @return A new {@link PropertyValue}
      */
-    public static final PropertyValue createPropertyValue(Field field) {
+    public static PropertyValue createPropertyValue(final Field field) {
 
         for (final PropertyValueResolver propertyValueResolver : getPropertyValueResolvers()) {
             if (propertyValueResolver.supports(field)) {
@@ -603,41 +596,38 @@ public abstract class ContextUtils {
     /**
      * Properties injection
      *
-     * @param beanDefinition
+     * @param def
      *            Target bean definition
-     * @param environment
+     * @param env
      *            Application {@link Environment}
      */
-    public static void resolveProps(BeanDefinition beanDefinition, Environment environment) throws ConfigurationException {
-        Class<?> beanClass = beanDefinition.getBeanClass();
-        if (beanClass.isAnnotationPresent(Props.class)) {
-            beanDefinition.addPropertyValue(resolveProps(beanClass, environment.getProperties()));
-        }
+    public static void resolveProps(final BeanDefinition def, final Environment env) throws ConfigurationException {
+        def.addPropertyValue(resolveProps(def, env.getProperties()));
     }
 
     /**
      * Resolve {@link PropertyValue}s from target {@link Method} or {@link Class}
      * 
-     * @param annotatedElement
+     * @param annotated
      *            Target {@link AnnotatedElement}
      * @param properties
      *            {@link Properties} variables source
      * @throws ConfigurationException
      *             If not support {@link AnnotatedElement}
      */
-    public static List<PropertyValue> resolveProps(AnnotatedElement annotatedElement, Properties properties)
+    public static List<PropertyValue> resolveProps(final AnnotatedElement annotated, final Properties properties)
             throws ConfigurationException //
     {
-        final Props props = annotatedElement.getAnnotation(Props.class);
+        final Props props = annotated.getAnnotation(Props.class);
 
         if (props == null) {
             return Collections.emptyList();
         }
 
-        final Class<?> type = getBeanClass(annotatedElement);
-
-        log.debug("Loading Properties For: [{}]", type.getName());
-
+        final Class<?> type = getBeanClass(annotated);
+        if (log.isDebugEnabled()) {
+            log.debug("Loading Properties For: [{}]", type.getName());
+        }
         final List<PropertyValue> propertyValues = new ArrayList<>();
         final String[] prefixs = props.prefix();
         final List<Class<?>> nested = Arrays.asList(props.nested());
@@ -655,6 +645,9 @@ public abstract class ContextUtils {
     private static Class<?> getBeanClass(final AnnotatedElement annotated) {
         if (annotated instanceof Class) {
             return (Class<?>) annotated;
+        }
+        if (annotated instanceof BeanDefinition) {
+            return ((BeanDefinition) annotated).getBeanClass();
         }
         if (annotated instanceof Method) {
             return ((Method) annotated).getReturnType();
@@ -674,14 +667,14 @@ public abstract class ContextUtils {
      *            {@link Properties} variables source
      * @return Resolved field object
      */
-    public static Object resolveProps(final Field declaredField, //
-                                      final List<Class<?>> nested, final String[] prefixs, Properties properties) //
+    public static Object resolveProps(final Field declaredField,
+                                      final List<Class<?>> nested, final String[] prefixs, final Properties properties) //
     {
         final Class<?> fieldType = declaredField.getType();
-
+        final boolean debugEnabled = log.isDebugEnabled();
         for (final String prefix : prefixs) {// maybe a default value: ""
 
-            final String key = prefix + declaredField.getName();
+            final String key = prefix.concat(declaredField.getName());
 
             Object value = properties.get(key);
             if (value == null) { // just null not include empty
@@ -709,9 +702,9 @@ public abstract class ContextUtils {
                 }
                 value = resolveProps(nestedProps.setPrefix(prefixsToUse), fieldType, properties);
             }
-
-            log.debug("Found Property: [{}] = [{}]", key, value);
-
+            if (debugEnabled) {
+                log.debug("Found Property: [{}] = [{}]", key, value);
+            }
             if (value instanceof String) {
                 return resolveValue((String) value, fieldType, properties);
             }
@@ -733,7 +726,7 @@ public abstract class ContextUtils {
      *            {@link Properties} variables source
      * @since 2.1.5
      */
-    public static <T> T resolveProps(final Props props, Class<T> beanClass, Properties properties) {
+    public static <T> T resolveProps(final Props props, final Class<T> beanClass, final Properties properties) {
         return resolveProps(props, ClassUtils.newInstance(beanClass), properties);
     }
 
@@ -748,7 +741,7 @@ public abstract class ContextUtils {
      *            {@link Properties} variables source
      * @since 2.1.5
      */
-    public static <T> T resolveProps(final Props props, T bean, Properties properties) {
+    public static <T> T resolveProps(final Props props, final T bean, final Properties properties) {
 
         final String[] prefixs = props.prefix();
         final List<Class<?>> nested = Arrays.asList(props.nested());
@@ -777,7 +770,7 @@ public abstract class ContextUtils {
      *            Application's {@link Properties}
      * @since 2.1.5
      */
-    public static Properties loadProps(Props props, Properties aplicationProps) {
+    public static Properties loadProps(final Props props, final Properties aplicationProps) {
 
         final Properties ret = new ConcurrentProperties();
         final String[] fileNames = props.value();
@@ -898,18 +891,12 @@ public abstract class ContextUtils {
             if (StringUtils.isEmpty(standardBeanDefinition.getDeclaringName())) {
                 throw new ConfigurationException("Declaring name can't be null");
             }
-            if (standardBeanDefinition.getFactoryMethod() == null) {
-                throw new ConfigurationException("Factory Method can't be null");
-            }
+            nonNull(standardBeanDefinition.getFactoryMethod(), "Factory Method can't be null");
         }
 
-        if (beanDefinition.getName() == null) {
-            throw new ConfigurationException("Definition's bean name can't be null");
-        }
+        nonNull(beanDefinition.getName(), "Definition's bean name can't be null");
+        nonNull(beanDefinition.getBeanClass(), "Definition's bean class can't be null");
 
-        if (beanDefinition.getBeanClass() == null) {
-            throw new ConfigurationException("Definition's bean class can't be null");
-        }
         if (beanDefinition.getDestroyMethods() == null) {
             beanDefinition.setDestroyMethods(Constant.EMPTY_STRING_ARRAY);
         }
@@ -918,9 +905,6 @@ public abstract class ContextUtils {
         }
         if (beanDefinition.getPropertyValues() == null) {
             beanDefinition.setPropertyValues(resolvePropertyValue(beanDefinition.getBeanClass()));
-        }
-        if (beanDefinition.getScope() == null) {
-            beanDefinition.setScope(Scope.SINGLETON);
         }
     }
 
@@ -933,6 +917,7 @@ public abstract class ContextUtils {
      *             When destroy a bean
      */
     public static void destroyBean(final Object bean) throws Throwable {
+
         final Method[] methods = getUserClass(bean).getDeclaredMethods();
         // PreDestroy
         for (final Method method : methods) {
@@ -958,7 +943,8 @@ public abstract class ContextUtils {
      * @return If the bean is missed in context
      * @since 2.1.6
      */
-    public static boolean isMissedBean(final MissingBean missingBean, final AnnotatedElement annotated, //
+    public static boolean isMissedBean(final MissingBean missingBean,
+                                       final AnnotatedElement annotated,
                                        final ConfigurableBeanFactory beanFactory) //
     {
         if (missingBean == null || !conditional(annotated)) { // fix @Conditional not
@@ -986,42 +972,61 @@ public abstract class ContextUtils {
      *            Default bean name
      * @return List of {@link BeanDefinition}s
      */
-    public static List<BeanDefinition> buildBeanDefinitions(Class<?> beanClass, String defaultName) {
-
-        final AnnotationAttributes[] componentAttributes = //
-                getAnnotationAttributesArray(beanClass, Component.class);
-
-        if (ObjectUtils.isEmpty(componentAttributes)) {
-            return Collections.singletonList(buildBeanDefinition(beanClass, null, defaultName));
-        }
-        else {
-            final List<BeanDefinition> ret = new ArrayList<>(componentAttributes.length);
-            for (final AnnotationAttributes attributes : componentAttributes) {
-                for (final String name : ContextUtils.findNames(defaultName, attributes.getStringArray(VALUE))) {
-                    ret.add(buildBeanDefinition(beanClass, attributes, name));
-                }
-            }
-            return ret;
-        }
+    public static List<BeanDefinition> createBeanDefinitions(final String defaultName, final Class<?> beanClass) {
+        return createBeanDefinitions(defaultName, beanClass, applicationContext);
     }
 
-    public static BeanDefinition buildBeanDefinition(Class<?> beanClass, AnnotationAttributes attributes, String beanName) {
-        final BeanDefinition beanDefinition = new DefaultBeanDefinition(beanName, beanClass);//
+    public static List<BeanDefinition> createBeanDefinitions(final String defaultName,
+                                                             final Class<?> beanClass,
+                                                             final ApplicationContext context) {
+        final AnnotationAttributes[] componentAttributes = getAnnotationAttributesArray(beanClass, Component.class);
+        if (ObjectUtils.isEmpty(componentAttributes)) {
+            return Collections.singletonList(createBeanDefinition(defaultName, beanClass));
+        }
+        final ArrayList<BeanDefinition> ret = new ArrayList<>(componentAttributes.length);
+        for (final AnnotationAttributes attributes : componentAttributes) {
+            for (final String name : findNames(defaultName, attributes.getStringArray(VALUE))) {
+                ret.add(createBeanDefinition(name, beanClass, attributes, context));
+            }
+        }
+        return ret;
+    }
+
+    public static BeanDefinition createBeanDefinition(String beanName, Class<?> beanClass) {
+        return createBeanDefinition(beanName, beanClass, applicationContext);
+    }
+
+    public static BeanDefinition createBeanDefinition(String beanName, Class<?> beanClass, ApplicationContext ctx) {
+        return createBeanDefinition(beanName, beanClass, null, ctx);
+    }
+
+    public static BeanDefinition createBeanDefinition(String name, Class<?> bean, AnnotationAttributes attributes) {
+        return createBeanDefinition(name, bean, attributes, applicationContext);
+    }
+
+    public static BeanDefinition createBeanDefinition(final String beanName,
+                                                      final Class<?> beanClass,
+                                                      final AnnotationAttributes attributes,
+                                                      final ApplicationContext applicationContext) {
+
+        Assert.notNull(applicationContext, "ApplicationContext must not be null");
+
+        final DefaultBeanDefinition ret = new DefaultBeanDefinition(beanName, beanClass);
 
         if (attributes == null) {
-            beanDefinition.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)//
-                    .setInitMethods(ContextUtils.resolveInitMethod(null, beanClass));//
+            ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)
+                    .setInitMethods(resolveInitMethod(null, beanClass));
         }
         else {
-            beanDefinition.setScope(attributes.getEnum(Constant.SCOPE))//
-                    .setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))//
-                    .setInitMethods(ContextUtils.resolveInitMethod(attributes.getStringArray(Constant.INIT_METHODS), beanClass));
+            ret.setScope(attributes.getString(Constant.SCOPE))
+                    .setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))
+                    .setInitMethods(resolveInitMethod(attributes.getStringArray(Constant.INIT_METHODS), beanClass));
         }
 
-        beanDefinition.setPropertyValues(ContextUtils.resolvePropertyValue(beanClass));
+        ret.setPropertyValues(resolvePropertyValue(beanClass));
         // fix missing @Props injection
-        ContextUtils.resolveProps(beanDefinition, applicationContext.getEnvironment());
-        return beanDefinition;
+        resolveProps(ret, applicationContext.getEnvironment());
+        return ret;
     }
 
     // META-INF

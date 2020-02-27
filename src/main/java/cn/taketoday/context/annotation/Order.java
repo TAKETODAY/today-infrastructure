@@ -27,6 +27,14 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.Ordered;
 
 /**
+ * {@code @Order} defines the sort order for an annotated component.
+ *
+ * <p>
+ * The {@link #value} is optional and represents an order value as defined in
+ * the {@link Ordered} interface. Higher values have higher priority. The
+ * default value is {@code Ordered.LOWEST_PRECEDENCE}, indicating lowest
+ * priority (losing to any other specified order value).
+ *
  * @author TODAY<br>
  *         2018-11-07 13:15
  */

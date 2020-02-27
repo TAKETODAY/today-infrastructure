@@ -1,6 +1,6 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  * 
@@ -17,16 +17,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.event;
+package cn.taketoday.context.factory;
+
+import cn.taketoday.context.Scope;
 
 /**
  * @author TODAY <br>
- *         2019-11-05 23:03
- * @since 2.1.7
+ *         2020-02-26 22:47
  */
-@FunctionalInterface
-public interface ApplicationEventCapable {
+public class SingletonScope implements Scope {
 
-    Class<?>[] getApplicationEvent();
+    @Override
+    public String getName() {
+        return SINGLETON;
+    }
+
+    @Override
+    public Object get(String name, BeanDefinition def) {
+        return null;
+    }
+
+    @Override
+    public Object get(String name, ObjectFactory<?> objectFactory) {
+        return null;
+    }
+
+    @Override
+    public Object remove(String name) {
+        return null;
+    }
 
 }

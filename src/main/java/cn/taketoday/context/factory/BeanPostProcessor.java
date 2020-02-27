@@ -19,39 +19,86 @@
  */
 package cn.taketoday.context.factory;
 
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
-
 /**
+ * Factory hook that allows for custom modification of new bean instances
+ * &mdash; for example, checking for marker interfaces or wrapping beans with
+ * proxies.
+ *
+ * <p>
+ * Typically, post-processors that populate beans via marker interfaces or the
+ * like will implement {@link #postProcessBeforeInitialization}, while
+ * post-processors that wrap beans with proxies will normally implement
+ * {@link #postProcessAfterInitialization}.
+ *
+ * <h3>Registration</h3>
+ * <p>
+ * An {@code ApplicationContext} can autodetect {@code BeanPostProcessor} beans
+ * in its bean definitions and apply those post-processors to any beans
+ * subsequently created. A plain {@code BeanFactory} allows for programmatic
+ * registration of post-processors, applying them to all beans created through
+ * the bean factory.
+ *
+ * <h3>Ordering</h3>
+ * <p>
+ * {@code BeanPostProcessor} beans that are autodetected in an
+ * {@code ApplicationContext} will be ordered according to
+ * {@link cn.taketoday.context.Ordered Ordered} semantics. In contrast,
+ * {@code BeanPostProcessor} beans that are registered programmatically with a
+ * {@code BeanFactory} will be applied in the order of registration; any
+ * ordering semantics expressed through implementing the {@code PriorityOrdered}
+ * or {@code Ordered} interface will be ignored for programmatically registered
+ * post-processors. Furthermore, the
+ * {@link cn.taketoday.context.annotation.Order @Order} annotation is not taken
+ * into account for {@code BeanPostProcessor} beans.
+ * 
  * @author TODAY <br>
  *         2018-07-18 1:01:19
  */
 public interface BeanPostProcessor {
 
     /**
-     * Before property set
+     * Apply this {@code BeanPostProcessor} to the given new bean instance
+     * <i>before</i> any bean initialization callbacks (like InitializingBean's
+     * {@code afterPropertiesSet} or a custom init-method). The bean will already be
+     * populated with property values. The returned bean instance may be a wrapper
+     * around the original.
+     * <p>
+     * The default implementation returns the given {@code bean} as-is.
      * 
      * @param bean
-     *            Bean instance
+     *            The new bean instance
      * @param def
-     *            Bean definition
-     * @return Bean instance
+     *            The definition of the bean
+     * @return the bean instance to use, either the original or a wrapped one; if
+     *         {@code null}, no subsequent BeanPostProcessors will be invoked
      * @throws Exception
-     *             In case of errors
+     *             in case of errors
+     * @see cn.taketoday.context.factory.InitializingBean#afterPropertiesSet
      */
     default Object postProcessBeforeInitialization(Object bean, BeanDefinition def) throws Exception {
         return bean;
     }
 
     /**
-     * After property set
+     * Apply this {@code BeanPostProcessor} to the given new bean instance
+     * <i>after</i> any bean initialization callbacks (like InitializingBean's
+     * {@code afterPropertiesSet} or a custom init-method). The bean will already be
+     * populated with property values. The returned bean instance may be a wrapper
+     * around the original.
+     * 
+     * <p>
+     * The default implementation returns the given {@code bean} as-is.
      * 
      * @param bean
-     *            Bean instance
-     * @param def
-     *            {@link BeanDefinitionStoreException}
-     * @return Bean instance
+     *            the new bean instance
+     * @param beanName
+     *            the name of the bean
+     * @return the bean instance to use, either the original or a wrapped one; if
+     *         {@code null}, no subsequent BeanPostProcessors will be invoked
      * @throws Exception
-     *             In case of errors
+     *             in case of errors
+     * @see cn.taketoday.context.factory.InitializingBean#afterPropertiesSet
+     * @see cn.taketoday.context.factory.FactoryBean
      */
     default Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
         return bean;

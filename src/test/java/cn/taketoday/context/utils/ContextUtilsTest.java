@@ -247,10 +247,10 @@ public class ContextUtilsTest {
     public void testBuildBeanDefinitions() throws NoSuchFieldException, SecurityException, IOException {
         try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.utils")) {
 
-            List<BeanDefinition> beanDefinitions = ContextUtils.buildBeanDefinitions(getClass(), null);
+            List<BeanDefinition> beanDefinitions = ContextUtils.createBeanDefinitions(null, getClass());
             assert beanDefinitions.size() == 1;
 
-            beanDefinitions = ContextUtils.buildBeanDefinitions(TestBean.class, null);
+            beanDefinitions = ContextUtils.createBeanDefinitions(null, TestBean.class);
             assert beanDefinitions.size() == 1;
 
             final BeanDefinition beanDefinition = beanDefinitions.get(0);

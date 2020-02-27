@@ -53,6 +53,7 @@ import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.factory.BeanFactoryPostProcessor;
 import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.factory.BeanReference;
 import cn.taketoday.context.factory.PropertyValue;
@@ -61,6 +62,7 @@ import cn.taketoday.context.listener.ContextCloseListener;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
@@ -85,11 +87,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     private State state;
     /** application listeners **/
     private final HashMap<Class<?>, List<ApplicationListener<Object>>> applicationListeners = new HashMap<>(32);
-
+    private String[] locations;
     /** @since 2.1.7 Scan candidates */
     private CandidateComponentScanner candidateComponentScanner;
 
-    private String[] locations;
+    private ArrayList<BeanFactoryPostProcessor> factoryPostProcessors;
 
     public AbstractApplicationContext() {
         applyState(State.NONE);
@@ -110,13 +112,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     @Override
     public void loadContext(Collection<Class<?>> candidates) {
-        final CandidateComponentScanner ccanner = getCandidateComponentScanner();
-        if (candidates instanceof Set) {
-            ccanner.setCandidates((Set<Class<?>>) candidates);
-        }
-        else {
-            ccanner.setCandidates(new HashSet<>(candidates));
-        }
+        getCandidateComponentScanner().setCandidates(candidates instanceof Set
+                ? (Set<Class<?>>) candidates
+                : new HashSet<>(candidates)//
+        );
         loadContext((String[]) null);
     }
 
@@ -136,7 +135,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             // Prepare BeanFactory
             prepareBeanFactory();
             // Initialize other special beans in specific context subclasses.
-            onRefresh();
+            preRefresh();
             // Lazy loading
             if (!getEnvironment().getProperty(Constant.ENABLE_LAZY_LOADING, Boolean::parseBoolean, false)) {
                 refresh(); // Initialize all singletons.
@@ -221,10 +220,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * Template method
-     * 
-     * @throws Throwable
      */
-    protected void onRefresh() {
+    protected void preRefresh() {
         publishEvent(new ContextPreRefreshEvent(this));
         // fix: #1 some singletons could not be initialized.
         getBeanFactory().preInitialization();
@@ -315,6 +312,14 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      */
     protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
 
+        registerBeanFactoryPostProcessor();
+
+        if (ObjectUtils.isNotEmpty(factoryPostProcessors)) {
+            for (final BeanFactoryPostProcessor postProcessor : factoryPostProcessors) {
+                postProcessor.postProcessBeanFactory(beanFactory);
+            }
+        }
+
         // register bean post processors
         beanFactory.registerBeanPostProcessors();
 
@@ -326,6 +331,20 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
                     beanReference.applyPrototype();
                 }
             }
+        }
+
+    }
+
+    /**
+     * Register {@link BeanFactoryPostProcessor}s
+     */
+    public void registerBeanFactoryPostProcessor() {
+        log.debug("Start loading BeanFactoryPostProcessor.");
+
+        final List<BeanFactoryPostProcessor> postProcessors = getBeans(BeanFactoryPostProcessor.class);
+        if (!postProcessors.isEmpty()) {
+            getFactoryPostProcessors().addAll(postProcessors);
+            OrderUtils.reversedSort(factoryPostProcessors);
         }
     }
 
@@ -602,6 +621,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
+    public void addBeanFactoryPostProcessor(BeanFactoryPostProcessor postProcessor) {
+        Assert.notNull(postProcessor, "BeanFactoryPostProcessor must not be null");
+
+        getFactoryPostProcessors().add(postProcessor);
+    }
+
+    @Override
     public void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
         getBeanFactory().removeBeanPostProcessor(beanPostProcessor);
     }
@@ -790,8 +816,21 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         return CandidateComponentScanner.getSharedInstance();
     }
 
+    @Override
     public void setCandidateComponentScanner(CandidateComponentScanner candidateComponentScanner) {
         this.candidateComponentScanner = candidateComponentScanner;
     }
 
+    public final List<BeanFactoryPostProcessor> getFactoryPostProcessors() {
+        final ArrayList<BeanFactoryPostProcessor> factoryPostProcessors = this.factoryPostProcessors;
+        if (factoryPostProcessors == null) {
+            return this.factoryPostProcessors = new ArrayList<>();
+        }
+        return factoryPostProcessors;
+    }
+
+    @Override
+    public void registerScope(Scope scope) {
+        
+    }
 }

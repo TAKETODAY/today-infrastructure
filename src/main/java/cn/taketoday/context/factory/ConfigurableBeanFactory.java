@@ -21,8 +21,7 @@ package cn.taketoday.context.factory;
 
 import java.util.Set;
 
-import cn.taketoday.context.annotation.Prototype;
-import cn.taketoday.context.event.ObjectRefreshedEvent;
+import cn.taketoday.context.Scope;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 
 /**
@@ -107,7 +106,8 @@ public interface ConfigurableBeanFactory
     void destroyBean(String name);
 
     /**
-     * Refresh bean with given name, and publish {@link ObjectRefreshedEvent}.
+     * Refresh bean with given name, and publish
+     * {@link cn.taketoday.context.event.ObjectRefreshedEvent ObjectRefreshedEvent}.
      * 
      * @param name
      *            bean name
@@ -116,7 +116,8 @@ public interface ConfigurableBeanFactory
     void refresh(String name);
 
     /**
-     * Refresh bean definition, and publish {@link ObjectRefreshedEvent}.
+     * Refresh bean definition, and publish
+     * {@link cn.taketoday.context.event.ObjectRefreshedEvent ObjectRefreshedEvent}.
      * 
      * @param beanDefinition
      *            bean definition
@@ -153,18 +154,27 @@ public interface ConfigurableBeanFactory
     void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor);
 
     /**
-     * Enable full {@link Prototype} , now {@link PropertyValue} only support
-     * interface
+     * Enable full {@link cn.taketoday.context.annotation.Prototype Prototype} , now
+     * {@link PropertyValue} only support interface
      * 
      * @since 2.1.6
      */
     void enableFullPrototype();
 
     /**
-     * Enable full {@link Prototype}'s life cycle, default is not support
+     * Enable full {@link cn.taketoday.context.annotation.Prototype Prototype}'s
+     * life cycle, default is not support
      * 
      * @since 2.1.6
      */
     void enableFullLifecycle();
 
+    /**
+     * Register the given scope, backed by the given Scope implementation.
+     * 
+     * @param scope
+     *            The backing Scope implementation
+     * @since 2.1.7
+     */
+    void registerScope(Scope scope);
 }

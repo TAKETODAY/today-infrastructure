@@ -30,7 +30,6 @@ import cn.taketoday.context.Condition;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.env.Environment;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**

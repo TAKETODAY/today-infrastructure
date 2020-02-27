@@ -32,7 +32,7 @@ public class Bean {
     public @interface C {
         String[] value() default {};
 
-        Scope scope() default Scope.SINGLETON;
+        String scope() default Scope.SINGLETON;
     }
 
     @Retention(RetentionPolicy.RUNTIME)
