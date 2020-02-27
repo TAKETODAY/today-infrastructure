@@ -19,6 +19,8 @@
  */
 package cn.taketoday.orm.hibernate5;
 
+import static cn.taketoday.context.utils.ContextUtils.createBeanDefinition;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Properties;
@@ -95,7 +97,7 @@ public class DefaultHibernateConfiguration extends Configuration
         }
     }
 
-    protected void registerSessionFactoryBean(Collection<Class<?>> candidates, ApplicationContext applicationContext) {
+    protected void registerSessionFactoryBean(Collection<Class<?>> candidates, ApplicationContext context) {
 
         for (Class<?> entityClass : candidates) {
             if (entityClass.isAnnotationPresent(Entity.class)) {
@@ -103,11 +105,10 @@ public class DefaultHibernateConfiguration extends Configuration
             }
         }
 
-        final BeanDefinition beanDefinition = //
-                ContextUtils.buildBeanDefinitions(SessionFactory.class, SESSION_FACTORY_BEAN_NAME).get(0);
+        final BeanDefinition def = createBeanDefinition(SESSION_FACTORY_BEAN_NAME, SessionFactory.class, context);
 
-        beanDefinition.setDestroyMethods("close");
-        applicationContext.registerBeanDefinition(beanDefinition);
+        def.setDestroyMethods("close");
+        context.registerBeanDefinition(def);
         LoggerFactory.getLogger(getClass()).info("Register 'SessionFactory' bean definition");
     }
 
