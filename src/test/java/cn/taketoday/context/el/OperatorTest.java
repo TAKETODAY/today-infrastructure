@@ -40,6 +40,8 @@
 package cn.taketoday.context.el;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -142,4 +144,24 @@ public class OperatorTest {
          * m.invoke(elm.getELContext(), null);
          */
     }
+
+    boolean booleanEval(String exp) {
+        return (boolean) elp.eval(exp);
+    }
+
+    @Test
+    public void testBoolean() {
+//        elp.eval("1==2");
+
+        assertTrue(null == null);
+        assertFalse(booleanEval("1==2"));
+        assertTrue(booleanEval("1>2||2>1"));
+        assertFalse(booleanEval("1>2&&2<1"));
+        assertFalse(booleanEval("1>2!=2<1"));
+        assertFalse(booleanEval("1>=2||2<=1"));
+        assertTrue(booleanEval("null<=null"));
+        assertTrue(booleanEval("null>=null"));
+
+    }
+
 }

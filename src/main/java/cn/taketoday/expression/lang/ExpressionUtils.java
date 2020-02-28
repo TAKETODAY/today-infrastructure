@@ -49,6 +49,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import cn.taketoday.context.utils.NumberUtils;
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.PropertyNotFoundException;
 
@@ -59,9 +60,9 @@ import cn.taketoday.expression.PropertyNotFoundException;
  * @author Kin-man Chung
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
-public abstract class ExpressionSupport {
+public abstract class ExpressionUtils {
 
-    private final static Long ZERO = Long.valueOf(0L);
+    protected final static Long ZERO = Long.valueOf(0L);
 
     public final static void throwUnhandled(Object base, Object property) throws ExpressionException {
         if (base == null) {
@@ -80,28 +81,29 @@ public abstract class ExpressionSupport {
      */
     @SuppressWarnings("unchecked")
     public final static int compare(final Object obj0, final Object obj1) throws ExpressionException {
-        if (obj0 == obj1 || equals(obj0, obj1)) {
+        if (equals(obj0, obj1)) {
             return 0;
         }
-        if (isBigDecimalOp(obj0, obj1)) {
-            BigDecimal bd0 = (BigDecimal) coerceToNumber(obj0, BigDecimal.class);
-            BigDecimal bd1 = (BigDecimal) coerceToNumber(obj1, BigDecimal.class);
-            return bd0.compareTo(bd1);
+        if (isLongOp(obj0, obj1)) {
+            final Long l0 = (Long) coerceToNumber(obj0, Long.class);
+            final Long l1 = (Long) coerceToNumber(obj1, Long.class);
+            return l0.compareTo(l1);
         }
         if (isDoubleOp(obj0, obj1)) {
-            Double d0 = (Double) coerceToNumber(obj0, Double.class);
-            Double d1 = (Double) coerceToNumber(obj1, Double.class);
+            final Double d0 = (Double) coerceToNumber(obj0, Double.class);
+            final Double d1 = (Double) coerceToNumber(obj1, Double.class);
             return d0.compareTo(d1);
         }
         if (isBigIntegerOp(obj0, obj1)) {
-            BigInteger bi0 = (BigInteger) coerceToNumber(obj0, BigInteger.class);
-            BigInteger bi1 = (BigInteger) coerceToNumber(obj1, BigInteger.class);
+            final BigInteger bi0 = (BigInteger) coerceToNumber(obj0, BigInteger.class);
+            final BigInteger bi1 = (BigInteger) coerceToNumber(obj1, BigInteger.class);
             return bi0.compareTo(bi1);
         }
-        if (isLongOp(obj0, obj1)) {
-            Long l0 = (Long) coerceToNumber(obj0, Long.class);
-            Long l1 = (Long) coerceToNumber(obj1, Long.class);
-            return l0.compareTo(l1);
+
+        if (isBigDecimalOp(obj0, obj1)) {
+            final BigDecimal bd0 = (BigDecimal) coerceToNumber(obj0, BigDecimal.class);
+            final BigDecimal bd1 = (BigDecimal) coerceToNumber(obj1, BigDecimal.class);
+            return bd0.compareTo(bd1);
         }
         if (obj0 instanceof String || obj1 instanceof String) {
             return coerceToString(obj0).compareTo(coerceToString(obj1));
@@ -274,29 +276,30 @@ public abstract class ExpressionSupport {
                                                number, number.getClass(), type));
     }
 
-    public final static Number coerceToNumber(final Object obj, final Class<?> type) throws IllegalArgumentException {
-        if (obj == null || BLANK.equals(obj)) {
+    public static Number coerceToNumber(final Object obj, final Class<?> type) throws IllegalArgumentException {
+
+        if (obj == null) {
             return coerceToNumber(ZERO, type);
         }
-
+        if (obj.getClass() == type) {
+            return (Number) obj;
+        }
         if (obj instanceof String) {
             return coerceToNumber((String) obj, type);
         }
-
         if (ExpressionArithmetic.isNumber(obj)) {
-            return obj.getClass() == type ? (Number) obj : coerceToNumber((Number) obj, type);
+            return coerceToNumber((Number) obj, type);
         }
-
         if (obj instanceof Character) {
             return coerceToNumber(Short.valueOf((short) ((Character) obj).charValue()), type);
         }
-
-        throw new IllegalArgumentException(get("error.convert",
-                                               obj, obj.getClass(), type));
+        throw new IllegalArgumentException(get("error.convert", obj, obj.getClass(), type));
     }
 
     protected final static Number coerceToNumber(final String val, final Class<?> type) throws IllegalArgumentException {
-
+        if (StringUtils.isEmpty(val)) {
+            return coerceToNumber(ZERO, type);
+        }
         if (long.class == type || Long.class == type) {
             return Long.valueOf(val);
         }
@@ -345,15 +348,15 @@ public abstract class ExpressionSupport {
 
     public final static Object coerceToType(final Object obj, final Class<?> type) throws IllegalArgumentException {
 
-        if (type == null || Object.class.equals(type) || type.isInstance(obj)) {
+        if (type == null || type.isInstance(obj)) {
             return obj;
         }
 
-        if (obj == null && !type.isPrimitive() && !String.class.equals(type)) {
+        if (obj == null && !type.isPrimitive() && !(String.class == type)) {
             return null;
         }
 
-        if (String.class.equals(type)) {
+        if (String.class == type) {
             return coerceToString(obj);
         }
         if (NumberUtils.isNumber(type)) {
@@ -369,10 +372,6 @@ public abstract class ExpressionSupport {
             return coerceToEnum(obj, type);
         }
 
-        if (obj == null) {
-            return null;
-        }
-
         if (obj instanceof String) {
             if (BLANK.equals(obj)) {
                 return null;
@@ -386,19 +385,19 @@ public abstract class ExpressionSupport {
         throw new IllegalArgumentException(get("error.convert", obj, obj.getClass(), type));
     }
 
-    /**
-     * @param obj
-     *            An array of objects
-     * @return true if the array contains a null, false otherwise
-     */
-    public final static boolean containsNulls(final Object[] obj) {
-        for (int i = 0; i < obj.length; i++) {
-            if (obj[0] == null) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    /**
+//     * @param obj
+//     *            An array of objects
+//     * @return true if the array contains a null, false otherwise
+//     */
+//    public final static boolean containsNulls(final Object[] obj) {
+//        for (int i = 0; i < obj.length; i++) {
+//            if (obj[0] == null) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     public final static boolean isBigDecimalOp(final Object obj0, final Object obj1) {
         return (obj0 instanceof BigDecimal || obj1 instanceof BigDecimal);

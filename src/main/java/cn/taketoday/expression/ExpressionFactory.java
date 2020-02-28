@@ -48,7 +48,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.context.utils.ConcurrentCache;
-import cn.taketoday.expression.lang.ExpressionSupport;
+import cn.taketoday.expression.lang.ExpressionUtils;
 import cn.taketoday.expression.parser.AstDeferredExpression;
 import cn.taketoday.expression.parser.AstDynamicExpression;
 import cn.taketoday.expression.parser.AstFunction;
@@ -193,7 +193,7 @@ public class ExpressionFactory implements NodeVisitor {
      */
     public Object coerceToType(Object obj, Class<?> type) {
         try {
-            return ExpressionSupport.coerceToType(obj, type);
+            return ExpressionUtils.coerceToType(obj, type);
         }
         catch (IllegalArgumentException ex) {
             throw new ExpressionException(ex);

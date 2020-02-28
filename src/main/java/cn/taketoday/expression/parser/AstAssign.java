@@ -49,9 +49,9 @@ public class AstAssign extends SimpleNode {
         super(id);
     }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-
-        Object value = children[1].getValue(ctx);
+    @Override
+    public Object getValue(final EvaluationContext ctx) throws ExpressionException {
+        final Object value = children[1].getValue(ctx);
         children[0].setValue(ctx, value);
         return value;
     }

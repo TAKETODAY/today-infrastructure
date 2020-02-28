@@ -42,6 +42,7 @@ package cn.taketoday.expression.parser;
 
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.expression.lang.ExpressionUtils;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -62,6 +63,6 @@ public final class AstLessThanEqual extends BooleanNode {
         if (obj0 == null || obj1 == null) {
             return Boolean.FALSE;
         }
-        return (compare(obj0, obj1) <= 0) ? Boolean.TRUE : Boolean.FALSE;
+        return ExpressionUtils.compare(obj0, obj1) <= 0;
     }
 }

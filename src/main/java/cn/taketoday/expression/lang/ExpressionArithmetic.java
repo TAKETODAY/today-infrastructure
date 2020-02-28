@@ -54,13 +54,16 @@ import cn.taketoday.expression.util.MessageFactory;
  * @author Jacob Hookom [jacob@hookom.net]
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
-public abstract class ExpressionArithmetic {
+public abstract class ExpressionArithmetic extends ExpressionUtils {
 
-    private final static Long ZERO = Long.valueOf(0);
     public final static LongDelegate LONG = new LongDelegate();
     public final static DoubleDelegate DOUBLE = new DoubleDelegate();
     public final static BigDecimalDelegate BIGDECIMAL = new BigDecimalDelegate();
     public final static BigIntegerDelegate BIGINTEGER = new BigIntegerDelegate();
+
+    private static final ExpressionArithmetic[] EXPRESSION_ARITHMETICS = new ExpressionArithmetic[] { //
+        BIGDECIMAL, DOUBLE, BIGINTEGER
+    };
 
     public final static class BigDecimalDelegate extends ExpressionArithmetic {
         @Override
@@ -70,9 +73,10 @@ public abstract class ExpressionArithmetic {
 
         @Override
         protected Number convert(Number num) {
-            if (num instanceof BigDecimal) return num;
-            if (num instanceof BigInteger) return new BigDecimal((BigInteger) num);
-            return new BigDecimal(num.doubleValue());
+            if (num instanceof BigDecimal) {
+                return num;
+            }
+            return num instanceof BigInteger ? new BigDecimal((BigInteger) num) : new BigDecimal(num.doubleValue());
         }
 
         @Override
@@ -102,7 +106,7 @@ public abstract class ExpressionArithmetic {
 
         @Override
         public boolean matches(Object obj0, Object obj1) {
-            return (obj0 instanceof BigDecimal || obj1 instanceof BigDecimal);
+            return obj0 instanceof BigDecimal || obj1 instanceof BigDecimal;
         }
     }
 
@@ -144,7 +148,7 @@ public abstract class ExpressionArithmetic {
 
         @Override
         public boolean matches(Object obj0, Object obj1) {
-            return (obj0 instanceof BigInteger || obj1 instanceof BigInteger);
+            return obj0 instanceof BigInteger || obj1 instanceof BigInteger;
         }
     }
 
@@ -155,7 +159,7 @@ public abstract class ExpressionArithmetic {
             if (num0 instanceof BigDecimal) {
                 return ((BigDecimal) num0).add(new BigDecimal(num1.doubleValue()));
             }
-            else if (num1 instanceof BigDecimal) {
+            if (num1 instanceof BigDecimal) {
                 return new BigDecimal(num0.doubleValue()).add((BigDecimal) num1);
             }
             return num0.doubleValue() + num1.doubleValue();
@@ -209,14 +213,14 @@ public abstract class ExpressionArithmetic {
 
         @Override
         public boolean matches(Object obj0, Object obj1) {
-            return (obj0 instanceof Double //
-                    || obj1 instanceof Double//
-                    || obj0 instanceof Float//
-                    || obj1 instanceof Float //
-                    || (obj0 != null && (Double.TYPE == obj0.getClass() || Float.TYPE == obj0.getClass())) //
-                    || (obj1 != null && (Double.TYPE == obj1.getClass() || Float.TYPE == obj1.getClass())) //
-                    || (obj0 instanceof String && ExpressionSupport.isStringFloat((String) obj0)) //
-                    || (obj1 instanceof String && ExpressionSupport.isStringFloat((String) obj1))//
+            return (obj0 instanceof Double
+                    || obj1 instanceof Double
+                    || obj0 instanceof Float
+                    || obj1 instanceof Float
+                    || (obj0 != null && (Double.TYPE == obj0.getClass() || Float.TYPE == obj0.getClass()))
+                    || (obj1 != null && (Double.TYPE == obj1.getClass() || Float.TYPE == obj1.getClass()))
+                    || (obj0 instanceof String && ExpressionUtils.isStringFloat((String) obj0))
+                    || (obj1 instanceof String && ExpressionUtils.isStringFloat((String) obj1))//
             );
         }
     }
@@ -265,98 +269,53 @@ public abstract class ExpressionArithmetic {
         }
     }
 
-    public final static Number add(final Object obj0, final Object obj1) {
+    public static Number add(final Object obj0, final Object obj1) {
+        return operation(obj0, obj1, ExpressionArithmetic::add);
+    }
 
+    public static Number mod(final Object obj0, final Object obj1) {
+        return operation(obj0, obj1, ExpressionArithmetic::mod);
+    }
+
+    public static Number subtract(final Object obj0, final Object obj1) {
+        return operation(obj0, obj1, ExpressionArithmetic::subtract);
+    }
+
+    public static Number multiply(final Object obj0, final Object obj1) {
+        return operation(obj0, obj1, ExpressionArithmetic::multiply);
+    }
+
+    public static Number divide(final Object obj0, final Object obj1) {
         if (obj0 == null && obj1 == null) {
             return ZERO;
         }
-
-        final ExpressionArithmetic delegate;
-        if (BIGDECIMAL.matches(obj0, obj1)) delegate = BIGDECIMAL;
-        else if (DOUBLE.matches(obj0, obj1)) delegate = DOUBLE;
-        else if (BIGINTEGER.matches(obj0, obj1)) delegate = BIGINTEGER;
-        else
-            delegate = LONG;
-
-        Number num0 = delegate.convert(obj0);
-        Number num1 = delegate.convert(obj1);
-
-        return delegate.add(num0, num1);
-    }
-
-    public final static Number mod(final Object obj0, final Object obj1) {
-        if (obj0 == null && obj1 == null) {
-            return Long.valueOf(0);
-        }
-
-        final ExpressionArithmetic delegate;
-        if (BIGDECIMAL.matches(obj0, obj1)) delegate = BIGDECIMAL;
-        else if (DOUBLE.matches(obj0, obj1)) delegate = DOUBLE;
-        else if (BIGINTEGER.matches(obj0, obj1)) delegate = BIGINTEGER;
-        else
-            delegate = LONG;
-
-        Number num0 = delegate.convert(obj0);
-        Number num1 = delegate.convert(obj1);
-
-        return delegate.mod(num0, num1);
-    }
-
-    public final static Number subtract(final Object obj0, final Object obj1) {
-        if (obj0 == null && obj1 == null) {
-            return Long.valueOf(0);
-        }
-
-        final ExpressionArithmetic delegate;
-        if (BIGDECIMAL.matches(obj0, obj1)) delegate = BIGDECIMAL;
-        else if (DOUBLE.matches(obj0, obj1)) delegate = DOUBLE;
-        else if (BIGINTEGER.matches(obj0, obj1)) delegate = BIGINTEGER;
-        else
-            delegate = LONG;
-
-        Number num0 = delegate.convert(obj0);
-        Number num1 = delegate.convert(obj1);
-
-        return delegate.subtract(num0, num1);
-    }
-
-    public final static Number divide(final Object obj0, final Object obj1) {
-        if (obj0 == null && obj1 == null) {
-            return ZERO;
-        }
-
         final ExpressionArithmetic delegate;
         if (BIGDECIMAL.matches(obj0, obj1)) delegate = BIGDECIMAL;
         else if (BIGINTEGER.matches(obj0, obj1)) delegate = BIGDECIMAL;
         else
             delegate = DOUBLE;
-
-        Number num0 = delegate.convert(obj0);
-        Number num1 = delegate.convert(obj1);
-
-        return delegate.divide(num0, num1);
+        return delegate.divide(delegate.convert(obj0), delegate.convert(obj1));
     }
 
-    public final static Number multiply(final Object obj0, final Object obj1) {
-        if (obj0 == null && obj1 == null) {
-            return Long.valueOf(0);
-        }
-
-        final ExpressionArithmetic delegate;
-        if (BIGDECIMAL.matches(obj0, obj1)) delegate = BIGDECIMAL;
-        else if (DOUBLE.matches(obj0, obj1)) delegate = DOUBLE;
-        else if (BIGINTEGER.matches(obj0, obj1)) delegate = BIGINTEGER;
-        else
-            delegate = LONG;
-
-        Number num0 = delegate.convert(obj0);
-        Number num1 = delegate.convert(obj1);
-
-        return delegate.multiply(num0, num1);
-    }
-
-    public final static boolean isNumber(final Object obj) {
+    public static boolean isNumber(final Object obj) {
         return (obj != null && NumberUtils.isNumber(obj.getClass()));
+    }
+
+    interface Operation {
+        Number apply(ExpressionArithmetic who, Number o0, Number o1);
+    }
+
+    protected static Number operation(final Object obj0, final Object obj1, final Operation operation) {
+        if (obj0 == null && obj1 == null) {
+            return ZERO;
+        }
+        for (final ExpressionArithmetic arithmetic : EXPRESSION_ARITHMETICS) {
+            if (arithmetic.matches(obj0, obj1)) {
+                return operation.apply(arithmetic, arithmetic.convert(obj0), arithmetic.convert(obj1));
+            }
+        }
+        final ExpressionArithmetic arithmetic = LONG;
+        return operation.apply(arithmetic, arithmetic.convert(obj0), arithmetic.convert(obj1));
     }
 
     protected ExpressionArithmetic() {

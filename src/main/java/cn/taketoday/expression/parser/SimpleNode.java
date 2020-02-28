@@ -49,14 +49,13 @@ import cn.taketoday.expression.MethodInfo;
 import cn.taketoday.expression.PropertyNotWritableException;
 import cn.taketoday.expression.ValueReference;
 import cn.taketoday.expression.lang.EvaluationContext;
-import cn.taketoday.expression.lang.ExpressionSupport;
 import cn.taketoday.expression.util.MessageFactory;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
-public abstract class SimpleNode extends ExpressionSupport implements Node {
+public abstract class SimpleNode /*extends ExpressionSupport*/ implements Node {
 
     protected Node parent;
 

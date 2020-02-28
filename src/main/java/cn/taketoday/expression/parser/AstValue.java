@@ -50,7 +50,7 @@ import cn.taketoday.expression.PropertyNotFoundException;
 import cn.taketoday.expression.PropertyNotWritableException;
 import cn.taketoday.expression.ValueReference;
 import cn.taketoday.expression.lang.EvaluationContext;
-import cn.taketoday.expression.lang.ExpressionSupport;
+import cn.taketoday.expression.lang.ExpressionUtils;
 import cn.taketoday.expression.util.MessageFactory;
 import cn.taketoday.expression.util.ReflectionUtil;
 
@@ -88,7 +88,7 @@ public final class AstValue extends SimpleNode {
         ctx.setPropertyResolved(false);
         Class<?> ret = ctx.getResolver().getType(ctx, t.base, property);
         if (!ctx.isPropertyResolved()) {
-            ExpressionSupport.throwUnhandled(t.base, property);
+            ExpressionUtils.throwUnhandled(t.base, property);
         }
         return ret;
     }
@@ -131,7 +131,7 @@ public final class AstValue extends SimpleNode {
             ctx.setPropertyResolved(false);
             value = resolver.getValue(ctx, base, property);
             if (!ctx.isPropertyResolved()) {
-                ExpressionSupport.throwUnhandled(base, property);
+                ExpressionUtils.throwUnhandled(base, property);
             }
         }
         return value;
@@ -206,7 +206,7 @@ public final class AstValue extends SimpleNode {
         ctx.setPropertyResolved(false);
         boolean ret = ctx.getResolver().isReadOnly(ctx, t.base, property);
         if (!ctx.isPropertyResolved()) {
-            ExpressionSupport.throwUnhandled(t.base, property);
+            ExpressionUtils.throwUnhandled(t.base, property);
         }
         return ret;
     }
@@ -235,7 +235,7 @@ public final class AstValue extends SimpleNode {
             }
             else {
                 if (value != null || targetType.isPrimitive()) {
-                    value = ExpressionSupport.coerceToType(value, targetType);
+                    value = ExpressionUtils.coerceToType(value, targetType);
                 }
             }
         }
@@ -243,7 +243,7 @@ public final class AstValue extends SimpleNode {
         ctx.setPropertyResolved(false);
         elResolver.setValue(ctx, t.base, property, value);
         if (!ctx.isPropertyResolved()) {
-            ExpressionSupport.throwUnhandled(t.base, property);
+            ExpressionUtils.throwUnhandled(t.base, property);
         }
     }
 

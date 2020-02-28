@@ -40,6 +40,8 @@
 
 package cn.taketoday.expression.parser;
 
+import static cn.taketoday.expression.lang.ExpressionUtils.coerceToBoolean;
+
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
@@ -54,13 +56,7 @@ public final class AstOr extends BooleanNode {
     }
 
     public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        Object obj = this.children[0].getValue(ctx);
-        Boolean b = coerceToBoolean(obj);
-        if (b.booleanValue()) {
-            return b;
-        }
-        obj = this.children[1].getValue(ctx);
-        b = coerceToBoolean(obj);
-        return b;
+        return coerceToBoolean(this.children[0].getValue(ctx))
+               || coerceToBoolean(this.children[1].getValue(ctx));
     }
 }

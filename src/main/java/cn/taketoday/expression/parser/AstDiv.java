@@ -40,8 +40,6 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ExpressionException;
-import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.expression.lang.ExpressionArithmetic;
 
 /**
@@ -53,9 +51,8 @@ public final class AstDiv extends ArithmeticNode {
         super(id);
     }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        Object obj0 = this.children[0].getValue(ctx);
-        Object obj1 = this.children[1].getValue(ctx);
+    @Override
+    protected Object getValueInternal(Object obj0, Object obj1) {
         return ExpressionArithmetic.divide(obj0, obj1);
     }
 }

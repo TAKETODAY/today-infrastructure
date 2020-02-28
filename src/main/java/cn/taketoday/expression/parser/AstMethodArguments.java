@@ -57,7 +57,7 @@ public class AstMethodArguments extends SimpleNode {
         return null;
     }
 
-    public Object[] getParameters(EvaluationContext ctx) throws ExpressionException {
+    public Object[] getParameters(final EvaluationContext ctx) throws ExpressionException {
         final Node[] children = this.children;
         if (children == null) {
             return Constant.EMPTY_OBJECT_ARRAY;

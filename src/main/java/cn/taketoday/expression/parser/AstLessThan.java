@@ -42,26 +42,24 @@ package cn.taketoday.expression.parser;
 
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.expression.lang.ExpressionUtils;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstLessThan extends BooleanNode {
+   
     public AstLessThan(int id) {
         super(id);
     }
 
-    public Object getValue(EvaluationContext ctx)
-            throws ExpressionException {
+    public Object getValue(EvaluationContext ctx) throws ExpressionException {
         Object obj0 = this.children[0].getValue(ctx);
         if (obj0 == null) {
             return Boolean.FALSE;
         }
         Object obj1 = this.children[1].getValue(ctx);
-        if (obj1 == null) {
-            return Boolean.FALSE;
-        }
-        return (compare(obj0, obj1) < 0) ? Boolean.TRUE : Boolean.FALSE;
+        return obj1 != null && ExpressionUtils.compare(obj0, obj1) < 0;
     }
 }

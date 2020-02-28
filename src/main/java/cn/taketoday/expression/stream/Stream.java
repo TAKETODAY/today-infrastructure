@@ -51,10 +51,11 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.PriorityQueue;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.LambdaExpression;
 import cn.taketoday.expression.lang.ExpressionArithmetic;
-import cn.taketoday.expression.lang.ExpressionSupport;
+import cn.taketoday.expression.lang.ExpressionUtils;
 
 /**
  * @author TODAY <br>
@@ -122,9 +123,7 @@ public class Stream {
     }
 
     public Stream limit(final long n) {
-        if (n < 0) {
-            throw new IllegalArgumentException("limit must be non-negative");
-        }
+        Assert.isTrue(n > 0, "limit must be non-negative");
         return new Stream(this, up -> {
             return new Iterator0() {
                 long limit = n;
@@ -144,9 +143,7 @@ public class Stream {
     }
 
     public Stream substream(final long startIndex) {
-        if (startIndex < 0) {
-            throw new IllegalArgumentException("substream index must be non-negative");
-        }
+        Assert.isTrue(startIndex > 0, "substream index must be non-negative");
         return new Stream(this, new Operator() {
             long skip = startIndex;
 
@@ -228,7 +225,7 @@ public class Stream {
                     queue = new PriorityQueue<Object>(16, new Comparator<Object>() {
                         @Override
                         public int compare(Object o1, Object o2) {
-                            return (Integer) ExpressionSupport.coerceToType(comparator.invoke(o1, o2), Integer.class);
+                            return (Integer) ExpressionUtils.coerceToType(comparator.invoke(o1, o2), Integer.class);
                         }
                     });
 
@@ -420,7 +417,7 @@ public class Stream {
         final Iterator<Object> iter = iterator();
         while (iter.hasNext()) {
             Object item = iter.next();
-            if (min == null || ExpressionSupport.compare(min, item) > 0) {
+            if (min == null || ExpressionUtils.compare(min, item) > 0) {
                 min = item;
             }
         }
@@ -432,7 +429,7 @@ public class Stream {
         final Iterator<Object> iter = iterator();
         while (iter.hasNext()) {
             Object item = iter.next();
-            if (max == null || ExpressionSupport.compare(max, item) < 0) {
+            if (max == null || ExpressionUtils.compare(max, item) < 0) {
                 max = item;
             }
         }
@@ -444,7 +441,7 @@ public class Stream {
         final Iterator<Object> iter = iterator();
         while (iter.hasNext()) {
             Object item = iter.next();
-            if (min == null || ExpressionSupport.compare(comparator.invoke(item, min), Long.valueOf(0)) < 0) {
+            if (min == null || ExpressionUtils.compare(comparator.invoke(item, min), Long.valueOf(0)) < 0) {
                 min = item;
             }
         }
@@ -456,7 +453,7 @@ public class Stream {
         final Iterator<Object> iter = iterator();
         while (iter.hasNext()) {
             final Object item = iter.next();
-            if (max == null || ExpressionSupport.compare(comparator.invoke(max, item), Long.valueOf(0)) < 0) {
+            if (max == null || ExpressionUtils.compare(comparator.invoke(max, item), Long.valueOf(0)) < 0) {
                 max = item;
             }
         }

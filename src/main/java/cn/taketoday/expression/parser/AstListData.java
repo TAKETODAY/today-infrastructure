@@ -53,12 +53,11 @@ public class AstListData extends SimpleNode {
         super(id);
     }
 
-    public Object getValue(EvaluationContext ctx) {
+    @Override
+    public Object getValue(final EvaluationContext ctx) {
         final ArrayList<Object> list = new ArrayList<>();
-        final int paramCount = jjtGetNumChildren();
-        final Node[] children = this.children;
-        for (int i = 0; i < paramCount; i++) {
-            list.add(children[i].getValue(ctx));
+        if (children != null) for (final Node child : children) {
+            list.add(child.getValue(ctx));
         }
         return list;
     }

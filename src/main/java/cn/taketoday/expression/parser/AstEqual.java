@@ -42,6 +42,7 @@ package cn.taketoday.expression.parser;
 
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.expression.lang.ExpressionUtils;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -52,10 +53,7 @@ public final class AstEqual extends BooleanNode {
         super(id);
     }
 
-    public Object getValue(EvaluationContext ctx)
-            throws ExpressionException {
-        Object obj0 = this.children[0].getValue(ctx);
-        Object obj1 = this.children[1].getValue(ctx);
-        return Boolean.valueOf(equals(obj0, obj1));
+    public Object getValue(EvaluationContext ctx) throws ExpressionException {
+        return Boolean.valueOf(ExpressionUtils.equals(this.children[0].getValue(ctx), this.children[1].getValue(ctx)));
     }
 }

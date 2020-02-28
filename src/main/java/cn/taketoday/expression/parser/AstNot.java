@@ -42,6 +42,7 @@ package cn.taketoday.expression.parser;
 
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.expression.lang.ExpressionUtils;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -58,7 +59,7 @@ public final class AstNot extends SimpleNode {
 
     public Object getValue(EvaluationContext ctx) throws ExpressionException {
         Object obj = this.children[0].getValue(ctx);
-        Boolean b = coerceToBoolean(obj);
+        Boolean b = ExpressionUtils.coerceToBoolean(obj);
         return Boolean.valueOf(!b.booleanValue());
     }
 }

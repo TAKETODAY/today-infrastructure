@@ -61,7 +61,7 @@ import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.MethodNotFoundException;
 import cn.taketoday.expression.PropertyNotFoundException;
-import cn.taketoday.expression.lang.ExpressionSupport;
+import cn.taketoday.expression.lang.ExpressionUtils;
 
 /**
  * Utilities for Managing Serialization and Reflection
@@ -115,7 +115,7 @@ public abstract class ReflectionUtil {
      */
     public static PropertyDescriptor getPropertyDescriptor(final Object base, final Object property) throws ExpressionException {
 
-        String name = ExpressionSupport.coerceToString(property);
+        String name = ExpressionUtils.coerceToString(property);
         try {
             for (PropertyDescriptor desc : getBeanInfo(base.getClass()).getPropertyDescriptors()) {
                 if (desc.getName().equals(name)) {
@@ -562,7 +562,7 @@ public abstract class ReflectionUtil {
         // TODO: This isn't pretty but it works. Significant refactoring would
         // be required to avoid the exception.
         try {
-            ExpressionSupport.coerceToType(src, target);
+            ExpressionUtils.coerceToType(src, target);
         }
         catch (Exception e) {
             return false;

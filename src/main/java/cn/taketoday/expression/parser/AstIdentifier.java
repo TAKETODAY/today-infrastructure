@@ -50,7 +50,7 @@ import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.expression.ValueReference;
 import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
-import cn.taketoday.expression.lang.ExpressionSupport;
+import cn.taketoday.expression.lang.ExpressionUtils;
 import cn.taketoday.expression.util.MessageFactory;
 
 /**
@@ -81,7 +81,7 @@ public final class AstIdentifier extends SimpleNode {
         ctx.setPropertyResolved(false);
         final Class<?> ret = ctx.getResolver().getType(ctx, null, image);
         if (!ctx.isPropertyResolved()) {
-            ExpressionSupport.throwUnhandled(null, image);
+            ExpressionUtils.throwUnhandled(null, image);
         }
         return ret;
     }
@@ -122,7 +122,7 @@ public final class AstIdentifier extends SimpleNode {
                 }
             }
 //            return ""; //TODO
-            ExpressionSupport.throwUnhandled(null, image);
+            ExpressionUtils.throwUnhandled(null, image);
         }
         return ret;
     }
@@ -143,7 +143,7 @@ public final class AstIdentifier extends SimpleNode {
         ctx.setPropertyResolved(false);
         boolean ret = ctx.getResolver().isReadOnly(ctx, null, image);
         if (!ctx.isPropertyResolved()) {
-            ExpressionSupport.throwUnhandled(null, image);
+            ExpressionUtils.throwUnhandled(null, image);
         }
         return ret;
     }
@@ -166,7 +166,7 @@ public final class AstIdentifier extends SimpleNode {
         ctx.setPropertyResolved(false);
         ctx.getResolver().setValue(ctx, null, image, value);
         if (!ctx.isPropertyResolved()) {
-            ExpressionSupport.throwUnhandled(null, image);
+            ExpressionUtils.throwUnhandled(null, image);
         }
     }
 

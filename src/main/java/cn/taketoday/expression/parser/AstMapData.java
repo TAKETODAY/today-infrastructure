@@ -55,15 +55,13 @@ public class AstMapData extends SimpleNode {
         super(id);
     }
 
+    @Override
     public Object getValue(EvaluationContext ctx) {
-        final Node[] children = this.children;
         final HashSet<Object> set = new HashSet<>();
         final HashMap<Object, Object> map = new HashMap<>();
 
-        int paramCount = jjtGetNumChildren();
-        for (int i = 0; i < paramCount; i++) {
-            Node entry = children[i];
-            Object v1 = entry.jjtGetChild(0).getValue(ctx);
+        for (final Node entry : this.children) {
+            final Object v1 = entry.jjtGetChild(0).getValue(ctx);
             if (entry.jjtGetNumChildren() > 1) {
                 // expr: expr
                 map.put(v1, entry.jjtGetChild(1).getValue(ctx));
@@ -76,9 +74,6 @@ public class AstMapData extends SimpleNode {
         if (set.size() > 0 && map.size() > 0) {
             throw new ExpressionException("Cannot mix set entry with map entry.");
         }
-        if (map.size() > 0) {
-            return map;
-        }
-        return set;
+        return map.size() > 0 ? map : set;
     }
 }

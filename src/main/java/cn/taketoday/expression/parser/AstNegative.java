@@ -45,6 +45,7 @@ import java.math.BigInteger;
 
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
+import cn.taketoday.expression.lang.ExpressionUtils;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -72,7 +73,7 @@ public final class AstNegative extends SimpleNode {
             return ((BigInteger) obj).negate();
         }
         if (obj instanceof String) {
-            if (isStringFloat((String) obj)) {
+            if (ExpressionUtils.isStringFloat((String) obj)) {
                 return Double.valueOf(-Double.parseDouble((String) obj));
             }
             return Long.valueOf(-Long.parseLong((String) obj));
@@ -96,7 +97,7 @@ public final class AstNegative extends SimpleNode {
         if (obj instanceof Byte || Byte.TYPE == type) {
             return Byte.valueOf((byte) -((Byte) obj).byteValue());
         }
-        Long num = (Long) coerceToNumber(obj, Long.class);
+        Long num = (Long) ExpressionUtils.coerceToNumber(obj, Long.class);
         return Long.valueOf(-num.longValue());
     }
 }
