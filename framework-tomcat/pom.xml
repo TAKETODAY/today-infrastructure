@@ -13,7 +13,7 @@
     <description>Tomcat Web Server Plugin</description>
 
     <properties>
-        <embed.tomcat.version>9.0.30</embed.tomcat.version>
+        <embed.tomcat.version>9.0.31</embed.tomcat.version>
     </properties>
 
     <dependencies>
