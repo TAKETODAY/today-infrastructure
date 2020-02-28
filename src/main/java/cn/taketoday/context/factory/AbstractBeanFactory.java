@@ -88,6 +88,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     private final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
     /** Map of bean instance, keyed by bean name */
     private final HashMap<String, Object> singletons = new HashMap<>(128);
+    private final HashMap<String, Scope> registerScopes = new HashMap<>();
     /** Map of bean definition objects, keyed by bean name */
     private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
 
@@ -310,16 +311,16 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     /**
      * Resolve reference {@link PropertyValue}
      * 
-     * @param beanReference
+     * @param ref
      *            {@link BeanReference} record a reference of bean
      * @return A {@link PropertyValue} bean or a proxy
      */
-    protected Object resolvePropertyValue(final BeanReference beanReference) {
+    protected Object resolvePropertyValue(final BeanReference ref) {
 
-        final Class<?> type = beanReference.getReferenceClass();
-        final String name = beanReference.getName();
+        final Class<?> type = ref.getReferenceClass();
+        final String name = ref.getName();
 
-        if (fullPrototype && beanReference.isPrototype() && containsBeanDefinition(name)) {
+        if (fullPrototype && ref.isPrototype() && containsBeanDefinition(name)) {
             return Prototypes.newProxyInstance(type, getBeanDefinition(name), this);
         }
         final Object bean = getBean(name, type);
@@ -500,9 +501,16 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @return A initialized bean, should not be null
      */
     protected Object initializeBean(final BeanDefinition def) {
-        return def.isSingleton()
-                ? initializeSingleton(def)
-                : initializeBean(createBeanInstance(def), def);
+        if (def.isSingleton()) {
+            return initializeSingleton(def);
+        }
+        else if (def.isPrototype()) {
+            return initializeBean(createBeanInstance(def), def);
+        }
+        else {
+            final Scope scope = registerScopes.get(def.getScope());
+            return scope.get(def);
+        }
     }
 
     /**
@@ -1059,10 +1067,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             }
         }
     }
-    
+
     @Override
     public void registerScope(Scope scope) {
-        
+        registerScopes.put(scope.getName(), scope);
     }
 
     /**
@@ -1251,7 +1259,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public Object refresh(BeanDefinition def) {
-        return initializeSingleton(def);
+        return getBean(def);
     }
 
     // -----------------------------

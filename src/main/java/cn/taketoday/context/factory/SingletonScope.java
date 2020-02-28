@@ -33,7 +33,7 @@ public class SingletonScope implements Scope {
     }
 
     @Override
-    public Object get(String name, BeanDefinition def) {
+    public Object get(BeanDefinition def) {
         return null;
     }
 

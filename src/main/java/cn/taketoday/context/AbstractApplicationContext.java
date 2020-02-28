@@ -325,10 +325,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         if (beanFactory.isFullPrototype()) {
             for (PropertyValue propertyValue : beanFactory.getDependencies()) {
-                final BeanReference beanReference = (BeanReference) propertyValue.getValue();
-                final BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanReference.getName());
-                if (beanDefinition != null && !beanDefinition.isSingleton()) {
-                    beanReference.applyPrototype();
+                final BeanReference ref = (BeanReference) propertyValue.getValue();
+                final BeanDefinition def = beanFactory.getBeanDefinition(ref.getName());
+                if (def != null && def.isPrototype()) {
+                    ref.applyPrototype();
                 }
             }
         }

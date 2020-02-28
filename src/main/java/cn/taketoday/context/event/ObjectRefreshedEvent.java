@@ -19,31 +19,41 @@
  */
 package cn.taketoday.context.event;
 
+import static java.util.Objects.requireNonNull;
+
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.factory.BeanDefinition;
 
 /**
- * 
- * {@link Singleton} bean Initialized event
+ * Bean Initialized event
  * 
  * @author TODAY <br>
- * 
  *         2018-09-20 16:48
  */
 @SuppressWarnings("serial")
 public class ObjectRefreshedEvent extends ApplicationContextEvent {
 
     /** which bean definition refreshed **/
-    private final BeanDefinition beanDefinition;
+    private final String name;
+    private BeanDefinition def;
 
-    public ObjectRefreshedEvent(BeanDefinition beanDefinition, ApplicationContext applicationContext) {
-        super(applicationContext);
-        this.beanDefinition = beanDefinition;
+    public ObjectRefreshedEvent(String name, ApplicationContext context) {
+        super(context);
+        this.name = requireNonNull(name);
+    }
+
+    public ObjectRefreshedEvent(BeanDefinition def, ApplicationContext context) {
+        super(context);
+        this.name = null;
+        this.def = requireNonNull(def);
     }
 
     public final BeanDefinition getBeanDefinition() {
-        return beanDefinition;
+        final BeanDefinition def = this.def;
+        if (def == null) {
+            return this.def = getApplicationContext().getBeanDefinition(name);
+        }
+        return def;
     }
 
 }

@@ -41,7 +41,7 @@ public interface Scope {
      */
     String getName();
 
-    Object get(String name, BeanDefinition def);
+    Object get(BeanDefinition def);
 
     /**
      * Return the object with the given name from the underlying scope,

@@ -25,7 +25,6 @@ import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.utils.StringUtils;
 
 /***
- * 
  * Reference to a bean
  * 
  * @author TODAY <br>
