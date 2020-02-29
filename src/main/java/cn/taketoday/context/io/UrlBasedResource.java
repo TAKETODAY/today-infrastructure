@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Objects;
 
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -45,19 +46,19 @@ public class UrlBasedResource extends AbstractResource {
     private final URL url;
 
     public UrlBasedResource(URL url) {
-        this.url = url;
+        this.url = Objects.requireNonNull(url, "Url must not be null");
     }
 
     public UrlBasedResource(URI uri) throws MalformedURLException {
-        this.url = uri.toURL();
+        this(uri.toURL());
     }
 
     public UrlBasedResource(String path) throws MalformedURLException {
-        this.url = new URL(path);
+        this(new URL(path));
     }
 
     public UrlBasedResource(String protocol, String location) throws URISyntaxException, MalformedURLException {
-        this.url = new URI(protocol, location, null).toURL();
+        this(new URI(protocol, location, null).toURL());
     }
 
     /**

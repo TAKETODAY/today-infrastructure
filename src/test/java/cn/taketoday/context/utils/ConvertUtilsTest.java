@@ -19,6 +19,10 @@
  */
 package cn.taketoday.context.utils;
 
+import static cn.taketoday.context.utils.ConvertUtils.convert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -41,7 +45,6 @@ import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.io.Resource;
 
 /**
- * 
  * @author Today <br>
  *         2018-07-12 20:43:53
  */
@@ -84,13 +87,13 @@ public class ConvertUtilsTest {
     public void testConvert() throws IOException {
 
         //
-        assert "123".equals(ConvertUtils.convert("123", String.class));
+        assert "123".equals(convert("123", String.class));
         // ----------number
-        Object convert = ConvertUtils.convert("123", Integer.class);
+        Object convert = convert("123", Integer.class);
         assert convert.getClass() == Integer.class;
         assert convert.equals(123);
 
-        Integer[] convertArray = (Integer[]) ConvertUtils.convert("12;456,121", Integer[].class);
+        Integer[] convertArray = (Integer[]) convert("12;456,121", Integer[].class);
 
         System.err.println(Arrays.toString(convertArray));
 
@@ -98,38 +101,38 @@ public class ConvertUtilsTest {
         assert convertArray.length == 3;
         assert convertArray[0] == 12;
 
-        assert ConvertUtils.convert("123", Long.class).equals(123l);
-        assert ConvertUtils.convert("123", Double.class).equals(123d);
-        assert ConvertUtils.convert("123", Float.class).equals(123f);
-        assert ConvertUtils.convert("123", long.class).equals(123l);
-        assert ConvertUtils.convert("123", double.class).equals(123d);
-        assert ConvertUtils.convert("123", float.class).equals(123f);
+        assert convert("123", Long.class).equals(123l);
+        assert convert("123", Double.class).equals(123d);
+        assert convert("123", Float.class).equals(123f);
+        assert convert("123", long.class).equals(123l);
+        assert convert("123", double.class).equals(123d);
+        assert convert("123", float.class).equals(123f);
 
         try {
-            ConvertUtils.convert(".Float", ConvertUtilsTest.class);
+            convert(".Float", ConvertUtilsTest.class);
         }
         catch (ConversionException e) {}
         // -- Class
-        assert ConvertUtils.convert("java.lang.Float", Class.class).equals(Float.class);
+        assert convert("java.lang.Float", Class.class).equals(Float.class);
         try {
-            ConvertUtils.convert("Float", Class.class);
+            convert("Float", Class.class);
         }
         catch (ConversionException e) {
             assert e.getCause().getClass().equals(ClassNotFoundException.class);
         }
         try {
-            ConvertUtils.convert("/info", Resource.class);
+            convert("/info", Resource.class);
         }
         catch (ConversionException e) {
             assert e.getCause().getClass().equals(FileNotFoundException.class);
         }
 
         // --Resource
-        final Object resource = ConvertUtils.convert("classpath:info.properties", Resource.class);
+        final Object resource = convert("classpath:info.properties", Resource.class);
         assert resource instanceof Resource;
         assert ((Resource) resource).getName().equals("info.properties");//
 
-        final Object url = ConvertUtils.convert("classpath:info.properties", URL.class);
+        final Object url = convert("classpath:info.properties", URL.class);
         assert url instanceof URL;
 
         final InputStream openStream = ((URL) url).openStream();
@@ -138,21 +141,21 @@ public class ConvertUtilsTest {
         assert readAsText != null;
         System.err.println(readAsText);
         // uri
-        final Object uri = ConvertUtils.convert("info.properties", URI.class);
+        final Object uri = convert("info.properties", URI.class);
         assert uri instanceof URI;
         assert StringUtils.readAsText(((URI) uri).toURL().openStream()) != null;
         // file
-        final Object file = ConvertUtils.convert("info.properties", File.class);
+        final Object file = convert("info.properties", File.class);
         assert file instanceof File;
         assert ((File) file).getName().equals("info.properties");
         assert StringUtils.readAsText(Files.newInputStream(((File) file).toPath())) != null;
 
         // enum
-        final Object scope = ConvertUtils.convert("SINGLETON", Scope.class);
+        final Object scope = convert("SINGLETON", Scope.class);
         assert scope instanceof Scope;
         assert scope == Scope.SINGLETON;
         // array
-        final Object scopes = ConvertUtils.convert("SINGLETON,PROTOTYPE", Scope[].class);
+        final Object scopes = convert("SINGLETON,PROTOTYPE", Scope[].class);
         assert scopes instanceof Scope[];
 
         Scope[] sc = (Scope[]) scopes;
@@ -160,21 +163,35 @@ public class ConvertUtilsTest {
         assert sc[1] == Scope.PROTOTYPE;
         // Constructor
 
-        final Object test = ConvertUtils.convert("123", TEST.class);
+        final Object test = convert("123", TEST.class);
         assert test instanceof TEST;
         assert ((TEST) test).test.equals("123");
         try {
-            ConvertUtils.convert("123", TEST_NONE.class);
+            convert("123", TEST_NONE.class);
         }
         catch (ConversionException e) {}
 
         try {
-            ConvertUtils.convert("123", TEST_THROW.class);
+            convert("123", TEST_THROW.class);
         }
         catch (ConversionException e) {
             assert e.getCause().getClass().equals(InvocationTargetException.class);
         }
 
+        final Object convertUtilsTestResource = convert("cn/taketoday/context/utils/ConvertUtilsTest.class", Resource[].class);
+
+        assertTrue(convertUtilsTestResource instanceof Resource[]);
+
+        Resource[] resources = (Resource[]) convertUtilsTestResource;
+        assertEquals(1, resources.length);
+        assertTrue(resources[0].exists());
+
+        Resource[] convertUtilsTestResources = convert(Resource[].class, "cn/taketoday/context/utils/ConvertUtilsTest.class");
+
+        assertEquals(1, convertUtilsTestResources.length);
+        assertTrue(convertUtilsTestResources[0].exists());
+        assertEquals(1, convertUtilsTestResources.length);
+        assertTrue(convertUtilsTestResources[0].equals(resources[0]));
     }
 
     public static class TEST_THROW {

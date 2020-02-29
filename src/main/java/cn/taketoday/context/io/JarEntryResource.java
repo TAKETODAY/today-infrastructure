@@ -182,6 +182,19 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
         return "JarEntryResource: ".concat(getLocation().toString());
     }
 
+    @Override
+    public boolean equals(Object other) {
+
+        if (this == other) {
+            return true;
+        }
+        if (other instanceof JarEntryResource) {
+            return Objects.equals(((JarEntryResource) other).name, name)
+                   && Objects.equals(((JarEntryResource) other).jarFile, jarFile);
+        }
+        return false;
+    }
+
     private static class JarEntryInputStream extends FilterInputStream {
 
         private final JarFile jarFile;

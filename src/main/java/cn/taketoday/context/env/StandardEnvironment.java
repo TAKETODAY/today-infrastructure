@@ -67,15 +67,11 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     private String propertiesLocation = Constant.BLANK; // default ""
 
     public StandardEnvironment() {
-
         if (System.getSecurityManager() != null) {
-            AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                @Override
-                public Object run() {
-                    properties.putAll(System.getProperties());
-                    System.setProperties(properties);
-                    return null;
-                }
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                properties.putAll(System.getProperties());
+                System.setProperties(properties);
+                return null;
             });
         }
         else {
@@ -213,9 +209,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
                                            final Properties properties,
                                            final ResourceFilter propertiesFileFilter) throws IOException //
     {
-
         final Resource[] listResources = directory.list(propertiesFileFilter);
-
         for (final Resource resource : listResources) {
             if (resource.isDirectory()) { // recursive
                 doLoadFromDirectory(resource, properties, propertiesFileFilter);
@@ -232,7 +226,9 @@ public class StandardEnvironment implements ConfigurableEnvironment {
      */
     public static void doLoad(Properties properties, final Resource resource) throws IOException {
 
-        log.info("Found Properties Resource: [{}]", resource.getLocation());
+        if (log.isInfoEnabled()) {
+            log.info("Found Properties Resource: [{}]", resource.getLocation());
+        }
 
         try (final InputStream inputStream = resource.getInputStream()) {
             properties.load(inputStream);
@@ -281,11 +277,11 @@ public class StandardEnvironment implements ConfigurableEnvironment {
      */
     @Override
     public BeanNameCreator getBeanNameCreator() {
-        final BeanNameCreator beanNameCreator = this.beanNameCreator;
-        if (beanNameCreator == null) {
+        final BeanNameCreator ret = this.beanNameCreator;
+        if (ret == null) {
             return this.beanNameCreator = createBeanNameCreator();
         }
-        return beanNameCreator;
+        return ret;
     }
 
     /**

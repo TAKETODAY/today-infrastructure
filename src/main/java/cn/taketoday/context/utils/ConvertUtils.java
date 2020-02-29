@@ -30,6 +30,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
@@ -48,11 +49,9 @@ public abstract class ConvertUtils {
 
     static {
         addConverter(new StringEnumConverter(),
-                     new StringArrayConverter(),
                      new StringNumberConverter(),
                      new StringResourceConverter(),
                      new PrimitiveClassConverter(),
-                     new ArrayStringArrayConverter(),
                      delegate((c) -> c == MimeType.class, MimeType::valueOf),
                      delegate((c) -> c == MediaType.class, MediaType::valueOf),
                      new StringConstructorConverter(),
@@ -67,7 +66,9 @@ public abstract class ConvertUtils {
                      delegate((c) -> c == DataSize.class, DataSize::parse),
                      delegate((c) -> c == Charset.class, Charset::forName),
                      delegate((c) -> c == Duration.class, ConvertUtils::parseDuration),
-                     delegate((c) -> c == Boolean.class || c == boolean.class, Boolean::parseBoolean)//
+                     delegate((c) -> c == Boolean.class || c == boolean.class, Boolean::parseBoolean),
+                     new ArrayStringArrayConverter(),
+                     new StringArrayConverter()//
         );
     }
 
@@ -108,10 +109,11 @@ public abstract class ConvertUtils {
      *            targetClass
      * @return converted object
      */
-    public static Object convert(Object source, Class<?> targetClass) {
+    public static Object convert(final Object source, final Class<?> targetClass) {
         if (source == null) {
             return null;
         }
+        Assert.notNull(targetClass, "targetClass must not be null");
         if (targetClass.isInstance(source)) {
             return source;
         }
@@ -150,28 +152,27 @@ public abstract class ConvertUtils {
      * Convert a string to {@link Duration}
      * 
      * @param value
-     * @return
+     *            Input string
      */
     public static Duration parseDuration(String value) {
 
-        if (value.endsWith("ns")) {
-            return Duration.ofNanos(Long.parseLong(value.substring(0, value.length() - 2)));
+        if (Objects.requireNonNull(value, "Input string must not be null").endsWith("ns")) {
+            return Duration.ofNanos(Long.valueOf(value.substring(0, value.length() - 2)));
         }
         if (value.endsWith("ms")) {
-            return Duration.ofMillis(Long.parseLong(value.substring(0, value.length() - 2)));
+            return Duration.ofMillis(Long.valueOf(value.substring(0, value.length() - 2)));
         }
         if (value.endsWith("min")) {
-            return Duration.ofMinutes(Long.parseLong(value.substring(0, value.length() - 3)));
+            return Duration.ofMinutes(Long.valueOf(value.substring(0, value.length() - 3)));
         }
-
         if (value.endsWith("s")) {
-            return Duration.ofSeconds(Long.parseLong(value.substring(0, value.length() - 1)));
+            return Duration.ofSeconds(Long.valueOf(value.substring(0, value.length() - 1)));
         }
         if (value.endsWith("h")) {
-            return Duration.ofHours(Long.parseLong(value.substring(0, value.length() - 1)));
+            return Duration.ofHours(Long.valueOf(value.substring(0, value.length() - 1)));
         }
         if (value.endsWith("d")) {
-            return Duration.ofDays(Long.parseLong(value.substring(0, value.length() - 1)));
+            return Duration.ofDays(Long.valueOf(value.substring(0, value.length() - 1)));
         }
 
         return Duration.parse(value);
@@ -239,16 +240,20 @@ public abstract class ConvertUtils {
 
         @Override
         public boolean supports(Class<?> targetClass) {
-            return Resource.class == targetClass //
-                   || targetClass == URI.class//
-                   || targetClass == URL.class//
-                   || targetClass == File.class;
+            return targetClass == Resource.class
+                   || targetClass == URI.class
+                   || targetClass == URL.class
+                   || targetClass == File.class
+                   || targetClass == Resource[].class;
         }
 
         @Override
         protected Object convertInternal(Class<?> targetClass, String source) {
 
             try {
+                if (targetClass == Resource[].class) {
+                    return ResourceUtils.getResources(source);
+                }
                 final Resource resource = ResourceUtils.getResource(source);
                 if (targetClass == File.class) {
                     return resource.getFile();

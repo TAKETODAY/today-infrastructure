@@ -133,13 +133,18 @@ public class ClassPathResource implements Resource, WritableResource {
     }
 
     @Override
+    public Resource[] list(ResourceFilter filter) throws IOException {
+        return resource.list(filter);
+    }
+
+    @Override
     public String toString() {
         return resource.toString();
     }
 
     @Override
-    public Resource[] list(ResourceFilter filter) throws IOException {
-        return resource.list(filter);
+    public boolean equals(Object obj) {
+        return obj == this || (obj instanceof ClassPathResource && resource.equals(((ClassPathResource) obj).getOriginalResource()));
     }
 
     /**

@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.StringUtils;
@@ -132,6 +133,11 @@ public abstract class AbstractResource implements Resource {
         catch (IOException e) {
             return super.toString();
         }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj == this || (obj instanceof AbstractResource && Objects.equals(toString(), obj.toString()));
     }
 
 }

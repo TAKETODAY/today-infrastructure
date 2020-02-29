@@ -24,6 +24,13 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
+ * Interface for a resource descriptor that abstracts from the actual type of
+ * underlying resource, such as a file or class path resource.
+ *
+ * <p>
+ * An InputStream can be opened for every resource if it exists in physical
+ * form, but a URL or File handle can just be returned for certain resources.
+ * The actual behavior is implementation-specific.
  * 
  * @author TODAY <br>
  *         2019-05-14 19:55
@@ -69,7 +76,10 @@ public interface Resource extends Readable {
     File getFile() throws IOException;
 
     /**
-     * Whether this resource actually exists.
+     * Determine whether this resource actually exists in physical form.
+     * <p>
+     * This method performs a definitive existence check, whereas the existence of a
+     * {@code Resource} handle only guarantees a valid descriptor handle.
      */
     boolean exists();
 
