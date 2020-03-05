@@ -16,23 +16,24 @@
 package cn.taketoday.context.cglib.beans;
 
 import java.util.AbstractSet;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-@SuppressWarnings("all")
-public /* need it for class loading */ class FixedKeySet extends AbstractSet {
-    private Set set;
-    private int size;
+public /* need it for class loading */ class FixedKeySet extends AbstractSet<String> {
+
+    private final int size;
+    private final Set<String> set;
 
     public FixedKeySet(String[] keys) {
-        size = keys.length;
-        set = Collections.unmodifiableSet(new HashSet(Arrays.asList(keys)));
+        this.size = keys.length;
+        HashSet<String> hashSet = new HashSet<>();
+        Collections.addAll(hashSet, keys);
+        this.set = Collections.unmodifiableSet(hashSet);
     }
 
-    public Iterator iterator() {
+    public Iterator<String> iterator() {
         return set.iterator();
     }
 

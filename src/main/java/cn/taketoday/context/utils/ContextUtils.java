@@ -579,8 +579,6 @@ public abstract class ContextUtils {
      * 
      * @param field
      *            Property
-     * @param applicationContext
-     *            {@link ApplicationContext}
      * @return A new {@link PropertyValue}
      */
     public static PropertyValue createPropertyValue(final Field field) {
@@ -618,6 +616,8 @@ public abstract class ContextUtils {
     public static List<PropertyValue> resolveProps(final AnnotatedElement annotated, final Properties properties)
             throws ConfigurationException //
     {
+        Assert.notNull(annotated, "AnnotatedElement must not be null");
+        
         final Props props = annotated.getAnnotation(Props.class);
 
         if (props == null) {
@@ -668,7 +668,8 @@ public abstract class ContextUtils {
      * @return Resolved field object
      */
     public static Object resolveProps(final Field declaredField,
-                                      final List<Class<?>> nested, final String[] prefixs, final Properties properties) //
+                                      final List<Class<?>> nested, 
+                                      final String[] prefixs, final Properties properties) //
     {
         final Class<?> fieldType = declaredField.getType();
         final boolean debugEnabled = log.isDebugEnabled();
@@ -1105,13 +1106,12 @@ public abstract class ContextUtils {
      */
     public static Object[] resolveParameter(final Executable executable, final BeanFactory beanFactory) {
         Assert.notNull(executable, "Executable must not be null");
-        Assert.notNull(beanFactory, "BeanFactory must not be null");
 
         final int parameterLength = executable.getParameterCount();
         if (parameterLength == 0) {
             return null;
         }
-
+        Assert.notNull(beanFactory, "BeanFactory must not be null");
         // parameter list
         final Object[] args = new Object[parameterLength];
 

@@ -49,7 +49,7 @@ public class ProfileTest {
     }
 
     @Test
-    public void test_Profile() {
+    public void testProfile() {
 
         try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo.config")) {
 
@@ -60,7 +60,7 @@ public class ProfileTest {
     }
 
     @Test
-    public void test_Conditional() {
+    public void testConditional() {
 
         try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo.config")) {
             User yhj = applicationContext.getBean("yhj", User.class);

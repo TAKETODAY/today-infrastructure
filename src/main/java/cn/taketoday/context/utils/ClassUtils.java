@@ -49,7 +49,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -89,15 +88,15 @@ public abstract class ClassUtils {
     /** class loader **/
     private static ClassLoader classLoader;
 
-    private static final HashMap<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32);
+    static final HashMap<String, Class<?>> PRIMITIVE_CACHE = new HashMap<>(32);
 
     /** @since 2.1.1 */
-    private static final HashSet<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();
+    static final HashSet<Class<? extends Annotation>> IGNORE_ANNOTATION_CLASS = new HashSet<>();
 
-    private static final WeakHashMap<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
-    private static final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
-    private static final HashMap<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(256);
-    private static final WeakHashMap<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
+    static final WeakHashMap<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
+    static final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
+    static final HashMap<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(256);
+    static final WeakHashMap<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
 
     static {
 
@@ -112,7 +111,7 @@ public abstract class ClassUtils {
 
         // Map primitive types
         // -------------------------------------------
-        final Set<Class<?>> primitiveTypes = new HashSet<>(32);
+        final HashSet<Class<?>> primitiveTypes = new HashSet<>(32);
         Collections.addAll(primitiveTypes, //
                 boolean.class, byte.class, char.class, int.class, //
                 long.class, double.class, float.class, short.class, //
@@ -366,22 +365,24 @@ public abstract class ClassUtils {
         if (annotationClass == null) {
             return null;
         }
-
-        notNull(implClass, "Implementation class can't be null");
-
-        return (T[]) ANNOTATIONS.computeIfAbsent(new AnnotationKey<>(element, annotationClass), (k) -> {
-
-            final AnnotationAttributes[] annotationAttributes = //
-                    getAnnotationAttributesArray(element, annotationClass);
-
-            int i = 0;
-            final Object array = Array.newInstance(annotationClass, annotationAttributes.length);
-
-            for (final AnnotationAttributes attributes : annotationAttributes) {
-                Array.set(array, i++, injectAttributes(attributes, annotationClass, newInstance(implClass)));
+        final AnnotationKey<T> key = new AnnotationKey<>(element, annotationClass);
+        Object ret = ANNOTATIONS.get(key);
+        if (ret == null) {
+            final AnnotationAttributes[] annAttributes = getAnnotationAttributesArray(key);
+            if (ObjectUtils.isEmpty(annAttributes)) {
+                ret = Constant.EMPTY_OBJECT;
             }
-            return array;
-        });
+            else {
+                int i = 0;
+                notNull(implClass, "Implementation class can't be null");
+                ret = Array.newInstance(annotationClass, annAttributes.length);
+                for (final AnnotationAttributes attributes : annAttributes) {
+                    Array.set(ret, i++, injectAttributes(attributes, annotationClass, newInstance(implClass)));
+                }
+            }
+            ANNOTATIONS.putIfAbsent(key, ret);
+        }
+        return ret == Constant.EMPTY_OBJECT ? null : (T[]) ret;
     }
 
     /**
@@ -396,23 +397,26 @@ public abstract class ClassUtils {
      */
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> T[] getAnnotationArray(AnnotatedElement element, Class<T> targetClass) {
-
         if (targetClass == null) {
             return null;
         }
-
-        return (T[]) ANNOTATIONS.computeIfAbsent(new AnnotationKey<>(element, targetClass), (k) -> {
-
-            final AnnotationAttributes[] annAttributes = getAnnotationAttributesArray(element, targetClass);
-
-            int i = 0;
-            final Object array = Array.newInstance(targetClass, annAttributes.length);
-
-            for (final AnnotationAttributes attributes : annAttributes) {
-                Array.set(array, i++, getAnnotationProxy(targetClass, attributes));
+        final AnnotationKey<T> key = new AnnotationKey<>(element, targetClass);
+        Object ret = ANNOTATIONS.get(key);
+        if (ret == null) {
+            final AnnotationAttributes[] annAttributes = getAnnotationAttributesArray(key);
+            if (ObjectUtils.isEmpty(annAttributes)) {
+                ret = Constant.EMPTY_OBJECT;
             }
-            return array;
-        });
+            else {
+                int i = 0;
+                ret = Array.newInstance(targetClass, annAttributes.length);
+                for (final AnnotationAttributes attributes : annAttributes) {
+                    Array.set(ret, i++, getAnnotationProxy(targetClass, attributes));
+                }
+            }
+            ANNOTATIONS.putIfAbsent(key, ret);
+        }
+        return ret == Constant.EMPTY_OBJECT ? null : (T[]) ret;
     }
 
     /**
@@ -478,9 +482,7 @@ public abstract class ClassUtils {
      * @since 2.1.1
      */
     public static AnnotationAttributes getAnnotationAttributes(final Annotation annotation) throws ContextException {
-
         try {
-
             final Class<? extends Annotation> annotationType = annotation.annotationType();
             final Method[] declaredMethods = annotationType.getDeclaredMethods();
             final AnnotationAttributes attributes = //
@@ -545,6 +547,7 @@ public abstract class ClassUtils {
     public static <T extends Annotation> T getAnnotation(final Object annotated, final Class<T> annotationClass) {
         return annotated == null ? null : getAnnotation(annotationClass, annotated.getClass());
     }
+    
     /**
      * Get First Annotation
      * 
@@ -680,37 +683,62 @@ public abstract class ClassUtils {
      * @return a set of {@link AnnotationAttributes} never be null
      * @since 2.1.1
      */
-    public static <T extends Annotation> AnnotationAttributes[] //
-            getAnnotationAttributesArray(final AnnotatedElement element, final Class<T> targetClass) throws ContextException//
-    {
+    public static <T extends Annotation> AnnotationAttributes[] 
+            getAnnotationAttributesArray(final AnnotatedElement element, 
+                                         final Class<T> targetClass) throws ContextException {
         if (targetClass == null) {
             return null;
         }
-        notNull(element, "annotated element can't be null");
-
-        return ANNOTATION_ATTRIBUTES.computeIfAbsent(new AnnotationKey<>(element, targetClass), (k) -> {
-            final Set<AnnotationAttributes> result = new LinkedHashSet<>();
-            for (final Annotation annotation : element.getAnnotations()) {
-                final Set<AnnotationAttributes> attr = getAnnotationAttributes(annotation, targetClass);
-                if (!attr.isEmpty()) {
-                    result.addAll(attr);
-                }
-            }
-            return result.isEmpty() ? EMPTY_ANNOTATION_ATTRIBUTES : result.toArray(new AnnotationAttributes[result.size()]);
-        });
+        return getAnnotationAttributesArray(new AnnotationKey<>(element, targetClass));
     }
-
+    
+    /**
+     * Get attributes the 'key-value' of annotations
+     * 
+     * @param element
+     *            The annotated element
+     * @param targetClass
+     *            The annotation class
+     * @return a set of {@link AnnotationAttributes} never be null
+     * @since 2.1.7
+     */
+    public static <T extends Annotation> AnnotationAttributes[] 
+            getAnnotationAttributesArray(final AnnotationKey<T> key) throws ContextException //
+    {
+        AnnotationAttributes[] ret = ANNOTATION_ATTRIBUTES.get(key);
+        if (ret == null) {
+            final Annotation[] annotations = key.element.getAnnotations();
+            if (ObjectUtils.isEmpty(annotations)) {
+                ret = EMPTY_ANNOTATION_ATTRIBUTES;            
+            }
+            else {
+                final Class<T> annotationClass = key.annotationClass;
+                final HashSet<AnnotationAttributes> result = new HashSet<>();
+                for (final Annotation annotation : annotations) {
+                    final Set<AnnotationAttributes> attr = getAnnotationAttributes(annotation, annotationClass);
+                    if (!attr.isEmpty()) {
+                        result.addAll(attr);
+                    }
+                }
+                ret = result.isEmpty() ? EMPTY_ANNOTATION_ATTRIBUTES : result.toArray(new AnnotationAttributes[result.size()]);
+            }
+            ANNOTATION_ATTRIBUTES.putIfAbsent(key, ret);
+        }
+        return ret == EMPTY_ANNOTATION_ATTRIBUTES ? null : ret;
+    }
+    
     @SuppressWarnings("serial")
-    private static class AnnotationKey<T> implements Serializable {
+    public static class AnnotationKey<T> implements Serializable {
 
         private final int hash;
         private final Class<T> annotationClass;
-        private final AnnotatedElement annotatedElement;
+        private final AnnotatedElement element;
 
-        public AnnotationKey(AnnotatedElement annotatedElement, Class<T> annotationClass) {
+        public AnnotationKey(AnnotatedElement element, Class<T> annotationClass) {
+            notNull(element, "AnnotatedElement can't be null");
+            this.element = element;
             this.annotationClass = annotationClass;
-            this.annotatedElement = annotatedElement;
-            this.hash = Objects.hash(annotatedElement, annotationClass);
+            this.hash = Objects.hash(element, annotationClass);
         }
 
         @Override
@@ -723,11 +751,9 @@ public abstract class ClassUtils {
             if (this == obj) {
                 return true;
             }
-
             if (obj instanceof AnnotationKey) {
                 final AnnotationKey<?> other = (AnnotationKey<?>) obj;
-
-                return Objects.equals(annotatedElement, other.annotatedElement) //
+                return Objects.equals(element, other.element) //
                         && Objects.equals(annotationClass, other.annotationClass);
             }
             return false;
@@ -748,7 +774,6 @@ public abstract class ClassUtils {
             getAnnotationAttributes(final Annotation annotation, final Class<T> annotationClass) throws ContextException//
     {
         try {
-
             if (annotation == null) {
                 return Collections.emptySet();
             }
@@ -858,8 +883,8 @@ public abstract class ClassUtils {
     public static <A extends Annotation> boolean isAnnotationPresent(final AnnotatedElement element,
                                                                      final Class<A> annType) {
         return annType != null
-                && element.isAnnotationPresent(annType)
-                || ObjectUtils.isNotEmpty(getAnnotationAttributesArray(element, annType));
+                && (element.isAnnotationPresent(annType) 
+                        || ObjectUtils.isNotEmpty(getAnnotationAttributesArray(element, annType)));
     }
 
     // ----------------------------- new instance
@@ -913,9 +938,9 @@ public abstract class ClassUtils {
         if (def instanceof StandardBeanDefinition) {
             final StandardBeanDefinition stdDef = (StandardBeanDefinition) def;
             final Method factoryMethod = makeAccessible(stdDef.getFactoryMethod());
-            final Object configuration = beanFactory.getBean(stdDef.getDeclaringName());
+            final Object config = Modifier.isStatic(factoryMethod.getModifiers()) ? null : beanFactory.getBean(stdDef.getDeclaringName());
             try {
-                return factoryMethod.invoke(configuration, resolveParameter(factoryMethod, beanFactory));
+                return factoryMethod.invoke(config, resolveParameter(factoryMethod, beanFactory));
             }
             catch (IllegalAccessException e) {
                 throw new BeanInstantiationException(factoryMethod, "Is the factory method accessible?", e);
@@ -1196,7 +1221,7 @@ public abstract class ClassUtils {
                     }
 
                     final String[] paramNames = new String[parameterCount];
-                    final List<String> localVariables = methodNode.localVariables;
+                    final ArrayList<String> localVariables = methodNode.localVariables;
                     if (localVariables.size() >= parameterCount) {
                         final int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
                         for (i = 0; i < parameterCount; i++) {
@@ -1243,7 +1268,7 @@ public abstract class ClassUtils {
     final static class MethodNode extends MethodVisitor {
         private final String name;
         private final String desc;
-        private final List<String> localVariables = new ArrayList<>();
+        private final ArrayList<String> localVariables = new ArrayList<>();
 
         MethodNode(final String name, final String desc) {
             this.name = name;

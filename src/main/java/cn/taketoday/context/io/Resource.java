@@ -21,6 +21,7 @@ package cn.taketoday.context.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 
 /**
@@ -66,6 +67,16 @@ public interface Resource extends Readable {
      *             if the resource is not available
      */
     URL getLocation() throws IOException;
+
+    /**
+     * Return a URI handle for this resource.
+     * 
+     * @throws IOException
+     *             if the resource cannot be resolved as URI, i.e. if the resource
+     *             is not available as descriptor
+     * @since 2.1.7
+     */
+    URI getURI() throws IOException;
 
     /**
      * Return a File handle for this resource.

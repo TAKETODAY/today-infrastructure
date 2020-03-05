@@ -49,6 +49,7 @@ public class NumberUtilsTest {
     @Test
     public void test_IsNumber() throws ConversionException {
         assert NumberUtils.isNumber(int.class);
+        assert NumberUtils.isNumber(byte.class);
         assert NumberUtils.isNumber(short.class);
         assert NumberUtils.isNumber(Short.class);
         assert NumberUtils.isNumber(Integer.class);

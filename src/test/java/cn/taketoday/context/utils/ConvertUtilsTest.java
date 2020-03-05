@@ -64,19 +64,16 @@ public class ConvertUtilsTest {
 
     @Test
     public void addConverter() {
-        ConvertUtils.addConverter(
-                                  new TypeConverter() {
-
-                                      @Override
-                                      public boolean supports(Class<?> targetClass, Object source) {
-                                          return false;
-                                      }
-
-                                      @Override
-                                      public Object convert(Class<?> targetClass, Object source) throws ConversionException {
-                                          return null;
-                                      }
-                                  });
+        ConvertUtils.addConverter(new TypeConverter() {
+            @Override
+            public boolean supports(Class<?> targetClass, Object source) {
+                return false;
+            }
+            @Override
+            public Object convert(Class<?> targetClass, Object source) throws ConversionException {
+                return null;
+            }
+        });
     }
 
     enum Scope {

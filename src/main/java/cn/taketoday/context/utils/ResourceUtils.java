@@ -96,21 +96,30 @@ public abstract class ResourceUtils {
         if (StringUtils.isEmpty(location)) {
             return new ClassPathResource(BLANK);
         }
-
         if (location.startsWith(CLASS_PATH_PREFIX)) {
             final String path = location.substring(CLASS_PATH_PREFIX.length());
-            if (path.charAt(0) == PATH_SEPARATOR) {
-                return new ClassPathResource(path.substring(1));
-            }
-            return new ClassPathResource(path);
+            return new ClassPathResource(path.charAt(0) == PATH_SEPARATOR ? path.substring(1) : path);
         }
-
         try {
-            return getResource(new URL(location));
+            return getResource(toURL(location));
         }
-        catch (IOException e) {
+        catch (MalformedURLException e) {
             return new ClassPathResource(location);
         }
+    }
+
+    /**
+     * Resolve the given resource location to a java.net.URL.
+     * <p>
+     * Does not check whether the URL actually exists; simply returns the URL that
+     * the given location would correspond to.
+     * 
+     * @param location
+     *            Url location
+     * @throws MalformedURLException
+     */
+    public static URL toURL(String location) throws MalformedURLException {
+        return new URL(location);
     }
 
     public static Resource getResource(final URL url) {
@@ -186,9 +195,11 @@ public abstract class ResourceUtils {
      */
     public static boolean isJarURL(final URL url) {
         final String protocol = url.getProtocol();
-        return (Constant.URL_PROTOCOL_JAR.equals(protocol) || Constant.URL_PROTOCOL_WAR.equals(protocol) ||
-                Constant.URL_PROTOCOL_ZIP.equals(protocol) || Constant.URL_PROTOCOL_VFSZIP.equals(protocol) ||
-                Constant.URL_PROTOCOL_WSJAR.equals(protocol));
+        return (Constant.URL_PROTOCOL_JAR.equals(protocol)
+                || Constant.URL_PROTOCOL_WAR.equals(protocol)
+                || Constant.URL_PROTOCOL_ZIP.equals(protocol)
+                || Constant.URL_PROTOCOL_VFSZIP.equals(protocol)
+                || Constant.URL_PROTOCOL_WSJAR.equals(protocol));
     }
 
     /**

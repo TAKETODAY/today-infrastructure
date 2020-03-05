@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.utils;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -30,7 +32,6 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ConversionException;
 
 /**
- * 
  * @author Today <br>
  *         2018-07-12 20:46:41
  */
@@ -166,6 +167,17 @@ public class ObjectUtilsTest {
         assert parseArray[3] == 56723562;
 
         System.out.println(Arrays.toString(parseArray));
+    }
+
+    @Test
+    public void testToHexString() throws ConversionException {
+
+        final String hexString = ObjectUtils.toHexString(this);
+
+        assertEquals(hexString, toString());
+
+        assertEquals(ObjectUtils.toHexString(null), "null");
+
     }
 
 }

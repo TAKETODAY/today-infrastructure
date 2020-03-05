@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +64,17 @@ public abstract class AbstractResource implements Resource {
     @Override
     public URL getLocation() throws IOException {
         throw new FileNotFoundException(getName() + " cannot be resolved to URL");
+    }
+
+    @Override
+    public URI getURI() throws IOException {
+        final URL location = getLocation();
+        try {
+            return location.toURI();
+        }
+        catch (URISyntaxException ex) {
+            throw new IOException("Invalid URI [" + location + "]", ex);
+        }
     }
 
     @Override

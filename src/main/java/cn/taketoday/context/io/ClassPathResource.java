@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -154,5 +155,9 @@ public class ClassPathResource implements Resource, WritableResource {
      */
     public final Resource getOriginalResource() {
         return resource;
+    }
+
+    public URI getURI() throws IOException {
+        return resource.getURI();
     }
 }
