@@ -22,6 +22,7 @@ package cn.taketoday.web.resolver;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 
 import cn.taketoday.context.PathMatcher;
@@ -204,6 +205,11 @@ public class DefaultResourceResolver implements WebResourceResolver {
         @Override
         public Resource[] list(ResourceFilter filter) throws IOException {
             return resource.list(filter);
+        }
+
+        @Override
+        public URI getURI() throws IOException {
+            return resource.getURI();
         }
     }
 }
