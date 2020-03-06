@@ -49,6 +49,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -357,10 +358,9 @@ public abstract class ClassUtils {
      * @since 2.1.1
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T[] 
-                getAnnotationArray(final AnnotatedElement element,
-                                   final Class<T> annotationClass,
-                                   final Class<? extends T> implClass) throws ContextException //
+    public static <T extends Annotation> T[] getAnnotationArray(final AnnotatedElement element,
+                                                                final Class<T> annotationClass,
+                                                                final Class<? extends T> implClass) throws ContextException
     {
         if (annotationClass == null) {
             return null;
@@ -380,7 +380,7 @@ public abstract class ClassUtils {
                     Array.set(ret, i++, injectAttributes(attributes, annotationClass, newInstance(implClass)));
                 }
             }
-            ANNOTATIONS.putIfAbsent(key, ret);
+            ANNOTATIONS.put(key, ret);
         }
         return ret == Constant.EMPTY_OBJECT ? null : (T[]) ret;
     }
@@ -414,7 +414,7 @@ public abstract class ClassUtils {
                     Array.set(ret, i++, getAnnotationProxy(targetClass, attributes));
                 }
             }
-            ANNOTATIONS.putIfAbsent(key, ret);
+            ANNOTATIONS.put(key, ret);
         }
         return ret == Constant.EMPTY_OBJECT ? null : (T[]) ret;
     }
@@ -482,12 +482,24 @@ public abstract class ClassUtils {
      * @since 2.1.1
      */
     public static AnnotationAttributes getAnnotationAttributes(final Annotation annotation) throws ContextException {
+        return getAnnotationAttributes(annotation.annotationType(), annotation);
+    }
+    
+    /**
+     * Get Annotation Attributes from an annotation instance
+     * 
+     * @param annotationType
+     *              Input annotation type
+     * @param annotation
+     *              Input annotation
+     * @return {@link AnnotationAttributes} key-value
+     * @since 2.1.7
+     */
+    public static AnnotationAttributes getAnnotationAttributes(final Class<? extends Annotation> annotationType,
+                                                               final Object annotation) throws ContextException {
         try {
-            final Class<? extends Annotation> annotationType = annotation.annotationType();
             final Method[] declaredMethods = annotationType.getDeclaredMethods();
-            final AnnotationAttributes attributes = //
-                    new AnnotationAttributes(annotationType, declaredMethods.length);
-
+            final AnnotationAttributes attributes = new AnnotationAttributes(annotationType, declaredMethods.length);
             for (final Method method : declaredMethods) {
                 attributes.put(method.getName(), method.invoke(annotation));
             }
@@ -715,7 +727,7 @@ public abstract class ClassUtils {
                 final Class<T> annotationClass = key.annotationClass;
                 final HashSet<AnnotationAttributes> result = new HashSet<>();
                 for (final Annotation annotation : annotations) {
-                    final Set<AnnotationAttributes> attr = getAnnotationAttributes(annotation, annotationClass);
+                    final List<AnnotationAttributes> attr = getAnnotationAttributes(annotation, annotationClass);
                     if (!attr.isEmpty()) {
                         result.addAll(attr);
                     }
@@ -761,52 +773,48 @@ public abstract class ClassUtils {
     }
 
     /**
-     * Get target {@link AnnotationAttributes}
+     * Get target {@link AnnotationAttributes} on input annotation
      * 
-     * @param annotationClass
+     * @param target
      *            The annotation class
      * @param annotation
      *            The annotation instance
-     * @return {@link AnnotationAttributes} set never be null
+     * @return {@link AnnotationAttributes} list never be null.
      * @since 2.1.7
      */
-    public static <T extends Annotation> Set<AnnotationAttributes> //
-            getAnnotationAttributes(final Annotation annotation, final Class<T> annotationClass) throws ContextException//
+    public static <T extends Annotation> List<AnnotationAttributes>
+            getAnnotationAttributes(final Annotation annotation, final Class<T> target) throws ContextException//
     {
+        if (annotation == null) {
+            return Collections.emptyList();
+        }
+        final Class<? extends Annotation> annotationType = annotation.annotationType();
+        if (annotationType == target) {// 如果等于对象注解就直接添加
+            return Collections.singletonList(getAnnotationAttributes(annotationType, annotation));
+        }
+        // filter some annotation classes
+        // -----------------------------------------
+        if (IGNORE_ANNOTATION_CLASS.contains(annotationType)) {
+            return Collections.emptyList();
+        }
+        // find the default value of annotation
+        // -----------------------------------------
+        final LinkedList<AnnotationAttributes> ret = new LinkedList<>();
+        
+        findTargetAttributes(annotationType, target, ret, IGNORE_ANNOTATION_CLASS);
+
+        if (ret.isEmpty()) { // there is no an annotation
+            return Collections.emptyList();
+        }
         try {
-            if (annotation == null) {
-                return Collections.emptySet();
-            }
-            final Class<? extends Annotation> annotationType = annotation.annotationType();
-            if (annotationType == annotationClass) {// 如果等于对象注解就直接添加
-                return Collections.singleton(getAnnotationAttributes(annotation));
-            }
-
-            // filter some annotation classes
-            // -----------------------------------------
-            if (IGNORE_ANNOTATION_CLASS.contains(annotationType)) {
-                return Collections.emptySet();
-            }
-            // find the default value of annotation
-            // -----------------------------------------
-            
-            final Set<AnnotationAttributes> ret = new HashSet<>();
-            
-            findTargetAnnotationAttributes(ret, annotationClass, annotationType);
-
-            if (ret.isEmpty()) { // there is no an annotation
-                return Collections.emptySet();
-            }
-
             // found it
-            String name;
-            Object value;
+            // -------------------------------------
+            final Method[] declaredMethods = annotationType.getDeclaredMethods();
             for (final AnnotationAttributes attributes : ret) {
-                for (final Method method : annotationType.getDeclaredMethods()) {
-                    name = method.getName();
-                    value = attributes.get(name);
+                for (final Method method : declaredMethods) {
+                    final Object value = attributes.get(method.getName());
                     if (value == null || eq(method.getReturnType(), value.getClass())) {
-                        attributes.put(name, method.invoke(annotation));
+                        attributes.put(method.getName(), method.invoke(annotation)); // override
                     }
                 }
             }
@@ -841,30 +849,33 @@ public abstract class ClassUtils {
 
     
     /**
-     * Use recursive to find the All target annotation instance
+     * Use recursive to find the All target {@link AnnotationAttributes} instance
      * 
      * @param targetAnnotationType
-     *              target {@link Annotation} class
+     *              Target {@link Annotation} class to find
      * @param annotationType
      *              {@link Annotation} source
-     * @return target {@link AnnotationAttributes}
+     * @param attributes
+     *              All suitable {@link AnnotationAttributes}
+     * @param ignoreAnnotation
+     *              Ignore {@link Annotation}s
      * @since 2.1.7
      */
-    public static <T extends Annotation> void
-                findTargetAnnotationAttributes(final Set<AnnotationAttributes> attributes,
-                                               final Class<T> targetAnnotationType, 
-                                               final Class<? extends Annotation> annotationType)//
+    public static <T extends Annotation> void findTargetAttributes(final Class<?> annotationType,
+                                                                   final Class<T> targetAnnotationType,
+                                                                   final List<AnnotationAttributes> attributes,
+                                                                   final Set<Class<? extends Annotation>> ignoreAnnotation) 
     {
-        final Set<Class<? extends Annotation>> ignoreAnnotation = IGNORE_ANNOTATION_CLASS;
-        for (final Annotation currentAnnotation : annotationType.getAnnotations()) {
-            if (ignoreAnnotation.contains(currentAnnotation.annotationType())) {
+        for (final Annotation current : annotationType.getAnnotations()) {
+            final Class<? extends Annotation> candidateType = current.annotationType();
+            if (ignoreAnnotation.contains(candidateType)) {
                 continue;
             }
-            if (currentAnnotation.annotationType() == targetAnnotationType) {
-                attributes.add(getAnnotationAttributes(currentAnnotation)); // found it
+            if (candidateType == targetAnnotationType) {
+                attributes.add(getAnnotationAttributes(candidateType, current)); // found it
             }
             else {
-                findTargetAnnotationAttributes(attributes, targetAnnotationType, currentAnnotation.annotationType());
+                findTargetAttributes(candidateType, targetAnnotationType, attributes, ignoreAnnotation);
             }
         }
     }

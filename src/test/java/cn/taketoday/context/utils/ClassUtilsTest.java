@@ -12,8 +12,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -107,7 +107,7 @@ public class ClassUtilsTest {
         // use proxy
         Collection<C> annotations = ClassUtils.getAnnotation(Bean.class, C.class);
 
-        Set<AnnotationAttributes> attributes = ClassUtils.getAnnotationAttributes(Bean.class.getAnnotation(S.class), C.class);
+        List<AnnotationAttributes> attributes = ClassUtils.getAnnotationAttributes(Bean.class.getAnnotation(S.class), C.class);
         final AnnotationAttributes next = attributes.iterator().next();
         C annotation = ClassUtils.getAnnotationProxy(C.class, next);
         System.err.println(annotation);
