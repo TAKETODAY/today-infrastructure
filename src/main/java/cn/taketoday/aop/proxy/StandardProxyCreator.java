@@ -74,8 +74,7 @@ public class StandardProxyCreator implements ProxyCreator {
     // Aop standard proxy object generator
     // --------------------------------------------------------------
 
-    private static final AopKey KEY_FACTORY = //
-            (AopKey) KeyFactory.create(AopKey.class, KeyFactory.CLASS_BY_NAME);
+    private static final AopKey KEY_FACTORY = KeyFactory.create(AopKey.class, KeyFactory.CLASS_BY_NAME);
 
     interface AopKey {
         Object newInstance(Class<?> superClass);

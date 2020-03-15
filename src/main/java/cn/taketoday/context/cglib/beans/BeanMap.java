@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import cn.taketoday.context.asm.ClassVisitor;
@@ -245,10 +245,12 @@ abstract public class BeanMap implements Map {
         return keySet().contains(key);
     }
 
-    public boolean containsValue(Object value) {
-        for (Iterator it = keySet().iterator(); it.hasNext();) {
-            Object v = get(it.next());
-            if (((value == null) && (v == null)) || (value != null && value.equals(v))) return true;
+    public boolean containsValue(final Object value) {
+        for (final Object key : keySet()) {
+            final Object v = get(key);
+            if (Objects.equals(value, v)) {
+                return true;
+            }
         }
         return false;
     }
@@ -266,29 +268,25 @@ abstract public class BeanMap implements Map {
     }
 
     public void putAll(Map t) {
-        for (Iterator it = t.keySet().iterator(); it.hasNext();) {
-            Object key = it.next();
+
+        for (final Object key : t.keySet()) {
             put(key, t.get(key));
         }
     }
 
     public boolean equals(Object o) {
-        if (o == null || !(o instanceof Map)) {
-            return false;
-        }
-        Map other = (Map) o;
-        if (size() != other.size()) {
-            return false;
-        }
-        for (Iterator it = keySet().iterator(); it.hasNext();) {
-            Object key = it.next();
-            if (!other.containsKey(key)) {
+        if (o != this) {
+            if (!(o instanceof Map)) {
                 return false;
             }
-            Object v1 = get(key);
-            Object v2 = other.get(key);
-            if (!((v1 == null) ? v2 == null : v1.equals(v2))) {
+            Map other = (Map) o;
+            if (size() != other.size()) {
                 return false;
+            }
+            for (final Object key : keySet()) {
+                if (!Objects.equals(get(key), other.get(key))) {
+                    return false;
+                }
             }
         }
         return true;
@@ -296,10 +294,8 @@ abstract public class BeanMap implements Map {
 
     public int hashCode() {
         int code = 0;
-        for (Iterator it = keySet().iterator(); it.hasNext();) {
-            Object key = it.next();
-            Object value = get(key);
-            code += ((key == null) ? 0 : key.hashCode()) ^ ((value == null) ? 0 : value.hashCode());
+        for (final Object key : keySet()) {
+            code += Objects.hashCode(key) ^ Objects.hashCode(get(key));
         }
         return code;
     }
@@ -307,18 +303,17 @@ abstract public class BeanMap implements Map {
     // TODO: optimize
     public Set entrySet() {
         HashMap copy = new HashMap();
-        for (Iterator it = keySet().iterator(); it.hasNext();) {
-            Object key = it.next();
+        for (final Object key : keySet()) {
             copy.put(key, get(key));
         }
-        return Collections.unmodifiableMap(copy).entrySet();
+        return Collections.unmodifiableSet(copy.entrySet());
     }
 
     public Collection values() {
         Set keys = keySet();
-        List values = new ArrayList(keys.size());
-        for (Iterator it = keys.iterator(); it.hasNext();) {
-            values.add(get(it.next()));
+        ArrayList values = new ArrayList(keys.size());
+        for (Object key : keys) {
+            values.add(get(key));
         }
         return Collections.unmodifiableCollection(values);
     }

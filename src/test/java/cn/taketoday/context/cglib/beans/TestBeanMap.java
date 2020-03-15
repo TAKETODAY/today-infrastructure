@@ -15,6 +15,8 @@
  */
 package cn.taketoday.context.cglib.beans;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -26,6 +28,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 public class TestBeanMap extends cn.taketoday.context.cglib.CodeGenTestCase {
+
     public static class TestBean2 {
         private String foo;
     }
@@ -33,10 +36,10 @@ public class TestBeanMap extends cn.taketoday.context.cglib.CodeGenTestCase {
     public static class TestBean {
         private String foo;
         private String bar = "x";
-        private String baz;
+        protected String baz;
         private int quud;
         private int quick = 42;
-        private int quip;
+        protected int quip;
 
         public String getFoo() {
             return foo;
@@ -130,6 +133,49 @@ public class TestBeanMap extends cn.taketoday.context.cglib.CodeGenTestCase {
         assertTrue(map.containsKey("bar"));
         assertTrue(!map.containsKey("baz"));
     }
+
+    // testContainsValue
+    // -------------------------------------------
+
+    public static class TestBeanFullGetters extends TestBean {
+        public String getBaz() {
+            return baz;
+        }
+
+        public int getQuip() {
+            return quip;
+        }
+    }
+
+    public void testContainsValue() {
+        TestBeanFullGetters bean = new TestBeanFullGetters();
+        BeanMap map = BeanMap.create(bean);
+        assertTrue(map.containsValue(null));
+        bean.setFoo("foo");
+        bean.setBaz("baz");
+        assertFalse(map.containsValue(null));
+        assertTrue(map.containsValue("foo"));
+        assertTrue(map.containsValue("baz"));
+    }
+
+    public void testEquals() {
+
+        TestBeanFullGetters bean = new TestBeanFullGetters();
+        TestBeanFullGetters bean1 = new TestBeanFullGetters();
+        BeanMap map = BeanMap.create(bean);
+        assertEquals(map.size(), 6);
+
+        BeanMap map1 = BeanMap.create(bean1);
+
+        assertEquals(map, map1);
+        assertNotEquals(map, null);
+        assertNotEquals(map1, null);
+        map1.put("foo", "");
+        assertNotEquals(map, map1);
+        assertNotEquals(map, BeanMap.create(new TestBean2()));
+    }
+
+    // -----------------------------------------------------------
 
     public static Object mixinMapIntoBean(final Object bean) {
         Enhancer e = new Enhancer();

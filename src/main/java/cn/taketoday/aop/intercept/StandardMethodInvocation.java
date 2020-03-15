@@ -29,7 +29,6 @@ import org.aopalliance.intercept.MethodInvocation;
 import cn.taketoday.context.invoker.MethodInvoker;
 
 /**
- * 
  * @author TODAY <br>
  *         2018-11-10 13:14
  */
@@ -43,7 +42,7 @@ public class StandardMethodInvocation implements MethodInvocation {
      */
     private int currentAdviceIndex = 0;
 
-    public StandardMethodInvocation(TargetMethodInvocation target, Object... arguments) {
+    public StandardMethodInvocation(TargetMethodInvocation target, Object[] arguments) {
         this.target = target;
         this.args = arguments;
     }
@@ -60,12 +59,11 @@ public class StandardMethodInvocation implements MethodInvocation {
 
     @Override
     public Object proceed() throws Throwable {
-
         final TargetMethodInvocation target = this.target;
         if (currentAdviceIndex == target.adviceLength) {
             return target.proceed(args);
         }
-        return target.advices[currentAdviceIndex++].invoke(this);
+        return target.invokeAdvice(this, currentAdviceIndex++);
     }
 
     @Override
@@ -92,8 +90,8 @@ public class StandardMethodInvocation implements MethodInvocation {
         private final MethodInterceptor[] advices;
 
         public TargetMethodInvocation(Object target, //@off
-                                       Method method, 
-                                       MethodInterceptor[] advices) {
+                                      Method method, 
+                                      MethodInterceptor[] advices) {
             
             this.target = target;
             this.method = method;
@@ -109,7 +107,7 @@ public class StandardMethodInvocation implements MethodInvocation {
 
         @Override
         public Object[] getArguments() {
-            return null;
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -119,6 +117,10 @@ public class StandardMethodInvocation implements MethodInvocation {
 
         public final Object proceed(Object[] args) throws Throwable {
             return invoker.invoke(target, args);
+        }
+        
+        public Object invokeAdvice(final MethodInvocation invocation, final int index) throws Throwable {
+            return advices[index].invoke(invocation);
         }
 
         @Override

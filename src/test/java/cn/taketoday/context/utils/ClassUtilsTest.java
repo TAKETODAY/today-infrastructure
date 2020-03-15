@@ -166,26 +166,26 @@ public class ClassUtilsTest {
         AnnotationAttributes annotationAttributes_ = ClassUtils.getAnnotationAttributes(annotation);
 
         log.info("annotationAttributes: [{}]", annotationAttributes_);
-        assert annotationAttributes_.getStringArray("value").length == 1;
+        assertEquals(annotationAttributes_.getStringArray("value").length, 1);
         log.info("annotationType: [{}]", annotationAttributes_.annotationType());
-        assert annotationAttributes_.annotationType() == S.class;
+        assertEquals(annotationAttributes_.annotationType(), S.class);
 
-        Collection<AnnotationAttributes> annotationAttributes = ClassUtils.getAnnotationAttributes(Bean.class, C.class);
+        List<AnnotationAttributes> annotationAttributes = ClassUtils.getAnnotationAttributes(Bean.class, C.class);
         log.info("annotationAttributes: [{}]", annotationAttributes);
         for (AnnotationAttributes attributes : annotationAttributes) {
             log.info("annotationType: [{}]", attributes.annotationType());
-            assert attributes.annotationType() == C.class;
+            assertEquals(attributes.annotationType(), C.class);
             if ("s".equals(attributes.getStringArray("value")[0])) {
-                assert attributes.getString("scope").equals(Scope.SINGLETON);
+                assertEquals(attributes.getString("scope"), Scope.SINGLETON);
             }
             if ("p".equals(attributes.getStringArray("value")[0])) {
-                assert attributes.getString("scope").equals(Scope.PROTOTYPE);
+                assertEquals(attributes.getString("scope"), Scope.PROTOTYPE);
             }
         }
 
         final AnnotationAttributes attr = ClassUtils.getAnnotationAttributes(C.class, Bean.class);
 
-        assert attr.getString("scope").equals(Scope.SINGLETON);
+        assertEquals(attr.getString("scope"), Scope.SINGLETON);
     }
 
     @Test
@@ -325,7 +325,7 @@ public class ClassUtilsTest {
         setProcess("invokeMethod");
 
         final Method method = AutowiredOnConstructor.class.getDeclaredMethod("test");
-        ClassUtils.invokeMethod(method, new AutowiredOnConstructor(null));
+        ClassUtils.accessInvokeMethod(method, new AutowiredOnConstructor(null));
 
         assert ClassUtils.newInstance(ClassUtilsTest.class.getName()) != null;
 
@@ -339,7 +339,7 @@ public class ClassUtilsTest {
         try {
 
             final Method throwing = AutowiredOnConstructor.class.getDeclaredMethod("throwing");
-            ClassUtils.invokeMethod(throwing, new AutowiredOnConstructor(null));
+            ClassUtils.accessInvokeMethod(throwing, new AutowiredOnConstructor(null));
 
             assert false;
         }

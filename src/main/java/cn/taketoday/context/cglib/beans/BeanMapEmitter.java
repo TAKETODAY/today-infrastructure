@@ -51,7 +51,7 @@ class BeanMapEmitter extends ClassEmitter {
     private static final Signature NEW_INSTANCE = new Signature("newInstance", BEAN_MAP, new Type[] { Constant.TYPE_OBJECT });
     private static final Signature GET_PROPERTY_TYPE = TypeUtils.parseSignature("Class getPropertyType(String)");
 
-    public BeanMapEmitter(ClassVisitor v, String className, Class type, int require) {
+    public BeanMapEmitter(final ClassVisitor v, final String className, final Class type, final int require) {
         super(v);
 
         beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, className, BEAN_MAP, null, Constant.SOURCE_FILE);
@@ -59,18 +59,18 @@ class BeanMapEmitter extends ClassEmitter {
         EmitUtils.factoryMethod(this, NEW_INSTANCE);
         generateConstructor();
 
-        Map getters = makePropertyMap(ReflectUtils.getBeanGetters(type));
-        Map setters = makePropertyMap(ReflectUtils.getBeanSetters(type));
-        Map allProps = new HashMap();
+        final Map getters = makePropertyMap(ReflectUtils.getBeanGetters(type));
+        final Map setters = makePropertyMap(ReflectUtils.getBeanSetters(type));
+        final Map allProps = new HashMap();
         allProps.putAll(getters);
         allProps.putAll(setters);
 
         if (require != 0) {
-            for (Iterator it = allProps.keySet().iterator(); it.hasNext();) {
-                String name = (String) it.next();
-                if ((((require & BeanMap.REQUIRE_GETTER) != 0) && !getters.containsKey(
-                                                                                       name)) || (((require & BeanMap.REQUIRE_SETTER) != 0)
-                                                                                                  && !setters.containsKey(name))) {
+            for (final Iterator it = allProps.keySet().iterator(); it.hasNext();) {
+                final Object name = it.next();
+                if ((((require & BeanMap.REQUIRE_GETTER) != 0) && !getters.containsKey(name))
+                    || (((require & BeanMap.REQUIRE_SETTER) != 0) && !setters.containsKey(name))) {
+
                     it.remove();
                     getters.remove(name);
                     setters.remove(name);
@@ -80,7 +80,7 @@ class BeanMapEmitter extends ClassEmitter {
         generateGet(type, getters);
         generatePut(type, setters);
 
-        String[] allNames = getNames(allProps);
+        final String[] allNames = getNames(allProps);
         generateKeySet(allNames);
         generateGetPropertyType(allProps, allNames);
         endClass();
