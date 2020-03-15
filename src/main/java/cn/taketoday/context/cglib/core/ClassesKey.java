@@ -16,7 +16,7 @@
 package cn.taketoday.context.cglib.core;
 
 public class ClassesKey {
-    private static final Key FACTORY = (Key) KeyFactory.create(Key.class);
+    private static final Key FACTORY = KeyFactory.create(Key.class);
 
     interface Key {
         Object newInstance(Object[] array);

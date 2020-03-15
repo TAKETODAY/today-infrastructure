@@ -16,6 +16,7 @@
 package cn.taketoday.context.cglib.reflect;
 
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 import java.util.List;
 
 import cn.taketoday.context.Constant;
@@ -24,7 +25,6 @@ import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
-import cn.taketoday.context.cglib.core.CollectionUtils;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.Local;
 import cn.taketoday.context.cglib.core.MethodInfo;
@@ -40,18 +40,19 @@ import cn.taketoday.context.cglib.core.TypeUtils;
  */
 abstract public class MulticastDelegate implements Cloneable {
 
-    protected Object[] targets = {};
+    protected Object[] targets = Constant.EMPTY_OBJECT_ARRAY;
 
     protected MulticastDelegate() {}
 
     public List<Object> getTargets() {
-        return CollectionUtils.addAll(targets);
+        return Arrays.asList(targets);
     }
 
     abstract public MulticastDelegate add(Object target);
 
     protected MulticastDelegate addHelper(Object target) {
         MulticastDelegate copy = newInstance();
+        final Object[] targets = this.targets;
         copy.targets = new Object[targets.length + 1];
         System.arraycopy(targets, 0, copy.targets, 0, targets.length);
         copy.targets[targets.length] = target;
@@ -59,7 +60,7 @@ abstract public class MulticastDelegate implements Cloneable {
     }
 
     public MulticastDelegate remove(Object target) {
-
+        final Object[] targets = this.targets;
         for (int i = targets.length - 1; i >= 0; i--) {
             if (targets[i].equals(target)) {
                 MulticastDelegate copy = newInstance();
