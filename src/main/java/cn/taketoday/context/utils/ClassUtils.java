@@ -43,6 +43,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -431,8 +432,8 @@ public abstract class ClassUtils {
      * @return the {@link Collection} of {@link Annotation} instance
      * @since 2.0.x
      */
-    public static <A extends Annotation> List<A> getAnnotation(final AnnotatedElement element, //
-            final Class<A> annotationClass, final Class<? extends A> implClass) throws ContextException//
+    public static <A extends Annotation> List<A> getAnnotation(final AnnotatedElement element,
+            final Class<A> annotationClass, final Class<? extends A> implClass) throws ContextException //
     {
         return Arrays.asList(getAnnotationArray(element, annotationClass, implClass));
     }
@@ -465,7 +466,7 @@ public abstract class ClassUtils {
             return instance;
         }
         catch (NoSuchFieldException e) {
-            throw new ContextException("You Must Specify A Field: " + name + "] In Class: [" + implClass.getName() + "]", e);
+            throw new ContextException("You Must Specify A Field: [" + name + "] In Class: [" + implClass.getName() + "]", e);
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
@@ -721,11 +722,11 @@ public abstract class ClassUtils {
         if (ret == null) {
             final Annotation[] annotations = key.element.getAnnotations();
             if (ObjectUtils.isEmpty(annotations)) {
-                ret = EMPTY_ANNOTATION_ATTRIBUTES;            
+                ret = EMPTY_ANNOTATION_ATTRIBUTES;
             }
             else {
                 final Class<T> annotationClass = key.annotationClass;
-                final HashSet<AnnotationAttributes> result = new HashSet<>();
+                final LinkedList<AnnotationAttributes> result = new LinkedList<>(); // for the order
                 for (final Annotation annotation : annotations) {
                     final List<AnnotationAttributes> attr = getAnnotationAttributes(annotation, annotationClass);
                     if (!attr.isEmpty()) {
@@ -801,59 +802,92 @@ public abstract class ClassUtils {
         // -----------------------------------------
         final LinkedList<AnnotationAttributes> ret = new LinkedList<>();
         
-        findTargetAttributes(annotationType, target, ret, IGNORE_ANNOTATION_CLASS);
+        findTargetAttributes(annotationType, target, ret,
+                             new TransformTarget(annotation, annotationType), IGNORE_ANNOTATION_CLASS);
+        return ret;
+    }
+    
+    interface AnnotationAttributesTransformer {
+        
+        Object get(Method method);
+        
+        void transform(AnnotationAttributes attributes);
+    }
+    
+    
+    static final class TransformTarget implements AnnotationAttributesTransformer {
+        
+        private Method[] declaredMethods;
+        private final Annotation annotation;
+        private final Class<?> annotationType;
 
-        if (ret.isEmpty()) { // there is no an annotation
-            return Collections.emptyList();
+        public TransformTarget(Annotation annotation, Class<?> annotationType) {
+            this.annotation = annotation;
+            this.annotationType = annotationType;
         }
-        try {
-            // found it
+
+        @Override
+        public void transform(final AnnotationAttributes target) {
+            // found it and override same properties
             // -------------------------------------
-            final Method[] declaredMethods = annotationType.getDeclaredMethods();
-            for (final AnnotationAttributes attributes : ret) {
-                for (final Method method : declaredMethods) {
-                    final Object value = attributes.get(method.getName());
-                    if (value == null || eq(method.getReturnType(), value.getClass())) {
-                        attributes.put(method.getName(), method.invoke(annotation)); // override
-                    }
+            final Annotation annotation = this.annotation;
+            for (final Method method : getDeclaredMethods()) {
+                final Object value = target.get(method.getName());
+                if (value == null || eq(method.getReturnType(), value.getClass())) {
+                    target.put(method.getName(), invokeMethod(method, annotation)); // override
                 }
             }
-            return ret;
         }
-        catch (Throwable ex) {
-            ex = ExceptionUtils.unwrapThrowable(ex);
-            throw new ContextException("An Exception Occurred When Getting Annotation Attributes, With Msg: [" + ex + "]", ex);
+
+        protected final Method[] getDeclaredMethods() {
+            final Method[] declaredMethods = this.declaredMethods;
+            if (declaredMethods == null) {
+                return this.declaredMethods = annotationType.getDeclaredMethods();
+            }
+            return declaredMethods;
+        }
+        
+        @Override
+        public Object get(final Method targetMethod) {
+            final String name = targetMethod.getName();
+            // In general there isn't lots of Annotation Attributes
+            for (final Method method : getDeclaredMethods()) { 
+                if (method.getName().equals(name) && eq(method.getReturnType(), targetMethod.getReturnType())) {
+                    return invokeMethod(method, annotation);
+                }
+            }
+            return null;
+        }
+        
+        private static boolean eq(Class<?> returnType, Class<?> clazz) {
+            if (returnType == clazz) {
+                return true;
+            }
+            if (returnType.isPrimitive()) {
+                switch (returnType.getName())
+                {//@off
+                    case "int" :    return clazz == Integer.class;
+                    case "long" :   return clazz == Long.class;
+                    case "byte" :   return clazz == Byte.class;
+                    case "char" :   return clazz == Character.class;
+                    case "float" :  return clazz == Float.class;
+                    case "double" : return clazz == Double.class;
+                    case "short" :  return clazz == Short.class;
+                    case "boolean" :return clazz == Boolean.class;
+                    default:        return false;
+                } //@on
+            }
+            return false;
         }
     }
     
-    private final static boolean eq(Class<?> returnType, Class<?> clazz) {
-        if (returnType == clazz) {
-            return true;
-        }
-        if (returnType.isPrimitive()) {
-            switch (returnType.getName())
-            {//@off
-                case "int" :    return clazz == Integer.class;
-                case "long" :   return clazz == Long.class;
-                case "byte" :   return clazz == Byte.class;
-                case "char" :   return clazz == Character.class;
-                case "float" :  return clazz == Float.class;
-                case "double" : return clazz == Double.class;
-                case "short" :  return clazz == Short.class;
-                case "boolean" :return clazz == Boolean.class;
-                default:        return false;
-            } //@on
-        }
-        return false;
-    }
-
     
     /**
      * Use recursive to find the All target {@link AnnotationAttributes} instance
      * 
-     * @param targetAnnotationType
+     * @param targetType
      *              Target {@link Annotation} class to find
-     * @param annotationType
+     * @param source
      *              {@link Annotation} source
      * @param attributes
      *              All suitable {@link AnnotationAttributes}
@@ -861,23 +895,40 @@ public abstract class ClassUtils {
      *              Ignore {@link Annotation}s
      * @since 2.1.7
      */
-    public static <T extends Annotation> void findTargetAttributes(final Class<?> annotationType,
-                                                                   final Class<T> targetAnnotationType,
-                                                                   final List<AnnotationAttributes> attributes,
-                                                                   final Set<Class<? extends Annotation>> ignoreAnnotation) 
+    static <T extends Annotation> void findTargetAttributes(final Class<?> source,
+                                                            final Class<T> targetType,
+                                                            final List<AnnotationAttributes> attributes,
+                                                            final AnnotationAttributesTransformer transformer,                                                      
+                                                            final Set<Class<? extends Annotation>> ignoreAnnotation) 
     {
-        for (final Annotation current : annotationType.getAnnotations()) {
+        for (final Annotation current : source.getAnnotations()) {
             final Class<? extends Annotation> candidateType = current.annotationType();
             if (ignoreAnnotation.contains(candidateType)) {
                 continue;
             }
-            if (candidateType == targetAnnotationType) {
-                attributes.add(getAnnotationAttributes(candidateType, current)); // found it
+            if (candidateType == targetType) {
+                attributes.add(getAnnotationAttributes(current, candidateType, transformer)); // found it
             }
             else {
-                findTargetAttributes(candidateType, targetAnnotationType, attributes, ignoreAnnotation);
+                findTargetAttributes(candidateType, targetType, attributes, transformer, ignoreAnnotation);
             }
         }
+    }
+
+    public static AnnotationAttributes getAnnotationAttributes(final Annotation current,
+                                                               final Class<? extends Annotation> candidateType,
+                                                               final AnnotationAttributesTransformer transformer) 
+    {
+        final Method[] declaredMethods = candidateType.getDeclaredMethods();
+        final AnnotationAttributes target = new AnnotationAttributes(candidateType, declaredMethods.length);
+        for (final Method method : declaredMethods) {
+            Object value = transformer.get(method);
+            if (value == null) {
+                value = invokeMethod(method, current);
+            }
+            target.put(method.getName(), value);
+        }
+        return target;
     }
 
     /**
@@ -1252,7 +1303,7 @@ public abstract class ClassUtils {
 
     final static class ClassNode extends ClassVisitor {
 
-        private final List<MethodNode> methodNodes = new ArrayList<>();
+        private final ArrayList<MethodNode> methodNodes = new ArrayList<>();
 
         @Override
         public MethodVisitor visitMethod(int access, 
@@ -1310,17 +1361,19 @@ public abstract class ClassUtils {
         }
         return field;
     }
+    
+    public static Object accessInvokeMethod(final Method method, final Object target, final Object... args) {
+        return invokeMethod(makeAccessible(method), target, args);
+    }
 
     public static Object invokeMethod(final Method method, final Object target, final Object... args) {
         try {
             return method.invoke(target, args);
         }
-        catch (IllegalAccessException e) {
-            return invokeMethod(makeAccessible(method), target, args);
-        }
         catch (Exception ex) {
-            throw new ContextException(ExceptionUtils.unwrapThrowable(ex));
+            handleReflectionException(ex);
         }
+        throw new IllegalStateException("Should never get here");
     }
 
     public static Method makeAccessible(final Method method) {
@@ -1347,6 +1400,102 @@ public abstract class ClassUtils {
             constructor.setAccessible(true);
         }
         return constructor;
+    }
+
+    // Exception handling
+
+    /**
+     * Handle the given reflection exception.
+     * <p>
+     * Should only be called if no checked exception is expected to be thrown by a
+     * target method, or if an error occurs while accessing a method or field.
+     * <p>
+     * Throws the underlying RuntimeException or Error in case of an
+     * InvocationTargetException with such a root cause. Throws an
+     * IllegalStateException with an appropriate message or
+     * UndeclaredThrowableException otherwise.
+     * 
+     * @param ex
+     *            the reflection exception to handle
+     */
+    public static void handleReflectionException(Exception ex) {
+        if (ex instanceof NoSuchMethodException) {
+            throw new IllegalStateException("Method not found: " + ex.getMessage());
+        }
+        if (ex instanceof IllegalAccessException) {
+            throw new IllegalStateException("Could not access method or field: " + ex.getMessage());
+        }
+        if (ex instanceof InvocationTargetException) {
+            handleInvocationTargetException((InvocationTargetException) ex);
+        }
+        if (ex instanceof RuntimeException) {
+            throw (RuntimeException) ex;
+        }
+        throw new UndeclaredThrowableException(ex);
+    }
+
+    /**
+     * Handle the given invocation target exception. Should only be called if no
+     * checked exception is expected to be thrown by the target method.
+     * <p>
+     * Throws the underlying RuntimeException or Error in case of such a root cause.
+     * Throws an UndeclaredThrowableException otherwise.
+     * 
+     * @param ex
+     *            the invocation target exception to handle
+     */
+    public static void handleInvocationTargetException(InvocationTargetException ex) {
+        rethrowRuntimeException(ex.getTargetException());
+    }
+
+    /**
+     * Rethrow the given {@link Throwable exception}, which is presumably the
+     * <em>target exception</em> of an {@link InvocationTargetException}. Should
+     * only be called if no checked exception is expected to be thrown by the target
+     * method.
+     * <p>
+     * Rethrows the underlying exception cast to a {@link RuntimeException} or
+     * {@link Error} if appropriate; otherwise, throws an
+     * {@link UndeclaredThrowableException}.
+     * 
+     * @param ex
+     *            the exception to rethrow
+     * @throws RuntimeException
+     *             the rethrown exception
+     */
+    public static void rethrowRuntimeException(Throwable ex) {
+        if (ex instanceof RuntimeException) {
+            throw (RuntimeException) ex;
+        }
+        if (ex instanceof Error) {
+            throw (Error) ex;
+        }
+        throw new UndeclaredThrowableException(ex);
+    }
+
+    /**
+     * Rethrow the given {@link Throwable exception}, which is presumably the
+     * <em>target exception</em> of an {@link InvocationTargetException}. Should
+     * only be called if no checked exception is expected to be thrown by the target
+     * method.
+     * <p>
+     * Rethrows the underlying exception cast to an {@link Exception} or
+     * {@link Error} if appropriate; otherwise, throws an
+     * {@link UndeclaredThrowableException}.
+     * 
+     * @param ex
+     *            the exception to rethrow
+     * @throws Exception
+     *             the rethrown exception (in case of a checked exception)
+     */
+    public static void rethrowException(Throwable ex) throws Exception {
+        if (ex instanceof Exception) {
+            throw (Exception) ex;
+        }
+        if (ex instanceof Error) {
+            throw (Error) ex;
+        }
+        throw new UndeclaredThrowableException(ex);
     }
     
     //

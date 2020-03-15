@@ -53,13 +53,13 @@ public class AnnotationAttributes extends HashMap<String, Object> implements Ord
     }
 
     public AnnotationAttributes(int initialCapacity) {
-        super(initialCapacity, 1.0f);
+        super(initialCapacity, 0.75f);
         this.annotationType = null;
         this.displayName = UNKNOWN;
     }
 
     public AnnotationAttributes(Class<? extends Annotation> annotationType, int initialCapacity) {
-        super(initialCapacity, 1.0f);
+        super(initialCapacity, 0.75f);
         Objects.requireNonNull(annotationType, "'annotationType' must not be null");
         this.annotationType = annotationType;
         this.displayName = annotationType.getName();
