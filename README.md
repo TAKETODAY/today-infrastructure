@@ -113,12 +113,7 @@ public class UserController {
 
 ```java
 @Configuration
-//@EnableDefaultMybatis
-//@EnableRedissonCaching
 public class WebMvcConfig implements WebMvcConfiguration {
-
-    @Autowired
-    private FunctionController functionController;
 
     @Override
     public void configureViewController(ViewControllerHandlerRegistry registry) {
