@@ -1,6 +1,6 @@
 # TODAY WEB
 
-🍎 A Java library for building web application
+🍎 A Java library for building web applications
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/811723d275dc409ba6a823c9e08a5b3b)](https://app.codacy.com/app/TAKETODAY/today-web?utm_source=github.com&utm_medium=referral&utm_content=TAKETODAY/today-web&utm_campaign=Badge_Grade_Dashboard)
 ![Java CI](https://github.com/TAKETODAY/today-web/workflows/Java%20CI/badge.svg)
@@ -323,7 +323,7 @@ public final String multiUpload(HttpServletResponse response, @Multipart Multipa
 * [Lombok](https://github.com/rzwitserloot/lombok): Very spicy additions to the Java programming language
 * [FastJSON](https://github.com/alibaba/fastjson): A fast JSON parser/generator for Java.
 * [Freemarker](https://github.com/apache/freemarker): Apache Freemarker
-* [Today Context](https://github.com/TAKETODAY/today-context): Lightweight dependency injection framework
+* [Today Context](https://github.com/TAKETODAY/today-context): A Java library for dependency injection and aspect oriented programing
 * [Hibernate Validator](https://github.com/hibernate/hibernate-validator): Hibernate Validator - Bean Validation 2.0 (JSR 380) Reference Implementation
 
 
