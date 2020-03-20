@@ -37,6 +37,7 @@
 ## 使用说明
 
 ### 函数式路由
+
 ```java
 @Component
 @ResponseBody
@@ -59,6 +60,7 @@ public class FunctionController {
         modelAndView.setView(new StringBuilder("<script>alert('HELLO， 你好 script');</script>"));
     }
 }
+
 @Configuration
 //@EnableDefaultMybatis
 //@EnableRedissonCaching
@@ -89,9 +91,26 @@ public class WebMvcConfig implements WebMvcConfiguration {
 @RequestMapping("/users")
 public class UserController {
     
+
+    @GET("index")
+    @POST("post")
+    @PUT("articles/{id}")
+    ......
+    @RequestMapping("/users/{id}")
+    @RequestMapping(value = "/**", method = {RequestMethod.GET})
+    @RequestMapping(value = "/*.html", method = {RequestMethod.GET})
+    @RequestMapping(value = {"/index.action", "/index.do", "/index"}, method = RequestMethod.GET)
+    @Interceptor({LoginInterceptor.class, ...})
+    public (String|List<?>|Set<?>|Map<?>|void|File|Image|...) \\w+ (request, request, session,servletContext, str, int, long , byte, short, boolean, @Session("loginUser"), @Header("User-Agent"), @Cookie("JSESSIONID"), @PathVariable("id"), @RequestBody("users"), @Multipart("uploadFiles") MultipartFile[]) {
+        service...
+        return </>;
+    }
 }
+
 ```
+
 ### ViewController
+
 ```java
 @Override
 public void configureViewController(ViewControllerHandlerRegistry registry) {
@@ -100,7 +119,9 @@ public void configureViewController(ViewControllerHandlerRegistry registry) {
             .setAssetsPath("redirect:/login");
 }
 ```
+
 ### 静态资源
+
 ```java
 @Singleton
 @Profile("dev")
@@ -148,23 +169,6 @@ public void configureResourceHandler(ResourceHandlerRegistry registry) {
 }
 ```
 
-### 详细配置
-
-```java
-@GET("index")
-@POST("post")
-@PUT("articles/{id}")
-......
-@RequestMapping("/users/{id}")
-@RequestMapping(value = "/users/**", method = {RequestMethod.GET})
-@RequestMapping(value = "/users/*.html", method = {RequestMethod.GET})
-@RequestMapping(value = {"/index.action", "/index.do", "/index"}, method = RequestMethod.GET)
-@Interceptor({LoginInterceptor.class, ...})
-public (String|List<?>|Set<?>|Map<?>|void|File|Image|...) \\w+ (request, request, session,servletContext, str, int, long , byte, short, boolean, @Session("loginUser"), @Header("User-Agent"), @Cookie("JSESSIONID"), @PathVariable("id"), @RequestBody("users"), @Multipart("uploadFiles") MultipartFile[]) {
-    service...
-    return </>;
-}
-```
 ### 自定义参数转换器
 
 ```java
@@ -317,12 +321,12 @@ public final String multiUpload(HttpServletResponse response, @Multipart Multipa
 
 ## 🙏 鸣谢
 本项目的诞生离不开以下开源项目：
-* [Spring](https://github.com/spring-projects/spring-framework): Spring Framework
-* [Slf4j](https://github.com/qos-ch/slf4j): Simple Logging Facade for Java
-* [EL](https://github.com/TAKETODAY/today-expression): Java Unified Expression Language
-* [Lombok](https://github.com/rzwitserloot/lombok): Very spicy additions to the Java programming language
-* [FastJSON](https://github.com/alibaba/fastjson): A fast JSON parser/generator for Java.
 * [Freemarker](https://github.com/apache/freemarker): Apache Freemarker
+* [Slf4j](https://github.com/qos-ch/slf4j): Simple Logging Facade for Java
+* [Spring](https://github.com/spring-projects/spring-framework): Spring Framework
+* [EL](https://github.com/TAKETODAY/today-expression): Java Unified Expression Language
+* [FastJSON](https://github.com/alibaba/fastjson): A fast JSON parser/generator for Java
+* [Lombok](https://github.com/rzwitserloot/lombok): Very spicy additions to the Java programming language
 * [Today Context](https://github.com/TAKETODAY/today-context): A Java library for dependency injection and aspect oriented programing
 * [Hibernate Validator](https://github.com/hibernate/hibernate-validator): Hibernate Validator - Bean Validation 2.0 (JSR 380) Reference Implementation
 
