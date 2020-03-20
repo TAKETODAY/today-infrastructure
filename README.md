@@ -962,3 +962,18 @@ public void test_Login() throws NoSuchBeanDefinitionException {
     }
 }
 ```
+
+
+
+
+## 🙏 鸣谢
+本项目的诞生离不开以下项目：
+* [Slf4j](https://github.com/qos-ch/slf4j): Simple Logging Facade for Java
+* [Spring](https://github.com/spring-projects/spring-framework): Spring Framework
+* [Lombok](https://github.com/rzwitserloot/lombok): Very spicy additions to the Java programming language
+* [Redisson](https://github.com/redisson/redisson): Redisson - Redis Java client with features of In-Memory Data Grid
+
+## 📄 开源协议
+
+Today Context 使用 [GNU GENERAL PUBLIC LICENSE](https://github.com/TAKETODAY/today-context/blob/master/LICENSE) 开源协议
+
