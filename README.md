@@ -84,8 +84,8 @@ public class TestApplication implements WebMvcConfiguration, ApplicationListener
 * [Jetty](https://github.com/eclipse/jetty.project): Eclipse Jetty® - Web Container 
 * [Tomcat](https://github.com/apache/tomcat): Apache Tomcat
 * [Undertow](https://github.com/undertow-io/undertow): High performance non-blocking webserver
-* [Today Web](https://github.com/TAKETODAY/today-web): Servlet based high-performance lightweight web framework
-* [Today Context](https://github.com/TAKETODAY/today-context): Lightweight dependency injection framework
+* [Today Web](https://github.com/TAKETODAY/today-web): A Java library for building web applications
+* [Today Context](https://github.com/TAKETODAY/today-context): A Java library for dependency injection and aspect oriented programing
 
 
 
