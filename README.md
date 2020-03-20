@@ -112,12 +112,23 @@ public class UserController {
 ### ViewController
 
 ```java
-@Override
-public void configureViewController(ViewControllerHandlerRegistry registry) {
-    registry.addViewController("/github", "redirect:https://github.com");
-    registry.addViewController("/login.do")
-            .setAssetsPath("redirect:/login");
+@Configuration
+//@EnableDefaultMybatis
+//@EnableRedissonCaching
+public class WebMvcConfig implements WebMvcConfiguration {
+
+    @Autowired
+    private FunctionController functionController;
+
+    @Override
+    public void configureViewController(ViewControllerHandlerRegistry registry) {
+        registry.addViewController("/github", "redirect:https://github.com");
+        registry.addRedirectViewController("/login.do", "/login");
+        registry.addViewController("/login.action")
+                .setAssetsPath("redirect:/login");
+    }
 }
+
 ```
 
 ### 静态资源
