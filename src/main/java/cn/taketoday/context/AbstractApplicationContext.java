@@ -64,6 +64,7 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -314,7 +315,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         registerBeanFactoryPostProcessor();
 
-        if (ObjectUtils.isNotEmpty(factoryPostProcessors)) {
+        if (!CollectionUtils.isEmpty(factoryPostProcessors)) {
             for (final BeanFactoryPostProcessor postProcessor : factoryPostProcessors) {
                 postProcessor.postProcessBeanFactory(beanFactory);
             }
