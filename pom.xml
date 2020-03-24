@@ -13,7 +13,7 @@
 
     <name>Today Web Framework</name>
 
-    <description>today-web is a servlet based high-performance lightweight web framework.</description>
+    <description>A Java library for building high-performance web applications.</description>
 
     <licenses>
         <license>
