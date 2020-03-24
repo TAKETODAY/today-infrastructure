@@ -10,7 +10,7 @@
     <version>latest</version>
 
     <name>Today Context</name>
-    <description>today-context is a lightweight dependency injection framework.</description>
+    <description>A Java library for dependency injection and aspect oriented programing.</description>
 
     <licenses>
         <license>
@@ -37,7 +37,7 @@
     <scm>
         <url>https://github.com/TAKETODAY/today-context.git</url>
         <developerConnection>TODAY</developerConnection>
-        <tag>dependency-injection</tag>
+        <tag>dependency-injection, aspect-oriented-programing</tag>
     </scm>
 
     <issueManagement>
