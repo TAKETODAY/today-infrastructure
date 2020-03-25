@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
@@ -399,63 +400,72 @@ public abstract class MimeTypeUtils {
     private static class ConcurrentLruCache<K, V> {
 
         private final int maxSize;
+        private final Lock readLock;
+        private final Lock writeLock;
+        private volatile int size = 0;
         private final Function<K, V> generator;
-        private final ReadWriteLock lock = new ReentrantReadWriteLock();
         private final ConcurrentHashMap<K, V> cache = new ConcurrentHashMap<>();
         private final ConcurrentLinkedQueue<K> queue = new ConcurrentLinkedQueue<>();
 
         public ConcurrentLruCache(int maxSize, Function<K, V> generator) {
-            Objects.requireNonNull(generator, "Generator function should not be null");
-            if (maxSize <= 0) throw new IllegalArgumentException("LRU max size should be positive");
-
+            Assert.isTrue(maxSize > 0, "LRU max size should be positive");
+            Assert.notNull(generator, "Generator function should not be null");
             this.maxSize = maxSize;
             this.generator = generator;
+
+            ReadWriteLock lock = new ReentrantReadWriteLock();
+            this.readLock = lock.readLock();
+            this.writeLock = lock.writeLock();
         }
 
         public V get(K key) {
+            V cached;
 
-            final int maxSize = this.maxSize;
-            final ReadWriteLock lock = this.lock;
-            final ConcurrentHashMap<K, V> cache = this.cache;
-            final ConcurrentLinkedQueue<K> queue = this.queue;
-
-            lock.readLock().lock();
-
-            try {
-                if (queue.size() < maxSize / 2) {
-                    V cached = cache.get(key);
-                    if (cached != null) {
-                        return cached;
-                    }
+            if ((cached = this.cache.get(key)) != null) {
+                if (this.size < this.maxSize / 2) {
+                    return cached;
                 }
-                else if (queue.remove(key)) {
-                    queue.add(key);
-                    return cache.get(key);
+
+                try {
+                    this.readLock.lock();
+                    this.queue.add(key);
+                    this.queue.remove(key);
+                    return cached;
+                }
+                finally {
+                    this.readLock.unlock();
                 }
             }
-            finally {
-                lock.readLock().unlock();
-            }
-            lock.writeLock().lock();
+
+            this.writeLock.lock();
             try {
                 // retrying in case of concurrent reads on the same key
-                if (queue.remove(key)) {
-                    queue.add(key);
-                    return cache.get(key);
+                if ((cached = this.cache.get(key)) != null) {
+                    this.queue.add(key);
+                    this.queue.remove(key);
+                    return cached;
                 }
-                if (queue.size() == maxSize) {
-                    K leastUsed = queue.poll();
+
+                // Generate value first, to prevent size inconsistency
+                V value = this.generator.apply(key);
+
+                int cacheSize = this.size;
+                if (cacheSize == this.maxSize) {
+                    K leastUsed = this.queue.poll();
                     if (leastUsed != null) {
-                        cache.remove(leastUsed);
+                        this.cache.remove(leastUsed);
+                        cacheSize--;
                     }
                 }
-                V value = this.generator.apply(key);
-                queue.add(key);
-                cache.put(key, value);
+
+                this.queue.add(key);
+                this.cache.put(key, value);
+                this.size = cacheSize + 1;
+
                 return value;
             }
             finally {
-                lock.writeLock().unlock();
+                this.writeLock.unlock();
             }
         }
     }

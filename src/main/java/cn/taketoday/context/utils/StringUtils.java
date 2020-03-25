@@ -547,14 +547,14 @@ public abstract class StringUtils {
         for (int i = pathArray.length - 1; i >= 0; i--) {
             String element = pathArray[i];
 /*          if (Constant.CURRENT_PATH.equals(element)) {
-                 // Points to current directory - drop it.
-            }
-            else */
+     // Points to current directory - drop it.
+}
+else */
             if (Constant.TOP_PATH.equals(element)) {
                 // Registering top path found.
                 tops++;
             }
-            else if(!Constant.CURRENT_PATH.equals(element)){
+            else if (!Constant.CURRENT_PATH.equals(element)) {
                 if (tops > 0) {
                     // Merging path element with element corresponding to top path.
                     tops--;
@@ -565,7 +565,12 @@ public abstract class StringUtils {
                 }
             }
         }
-
+        
+        // All path elements stayed the same - shortcut
+        if (pathArray.length == pathElements.size()) {
+            return prefix.concat(pathToUse);
+        }
+        
         // Remaining top paths need to be retained.
         for (int i = 0; i < tops; i++) {
             pathElements.add(0, Constant.TOP_PATH);
