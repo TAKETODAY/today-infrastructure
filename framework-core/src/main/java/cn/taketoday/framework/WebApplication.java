@@ -41,9 +41,7 @@ public class WebApplication {
     private ConfigurableWebServerApplicationContext applicationContext;
 
     public WebApplication() {
-        applicationContext = ClassUtils.isPresent(Constant.ENV_SERVLET)
-                ? new ServletWebServerApplicationContext()
-                : new StandardWebServerApplicationContext();
+        this(null);
     }
 
     public WebApplication(Class<?> startupClass) {
@@ -76,30 +74,30 @@ public class WebApplication {
      * @return {@link WebServerApplicationContext}
      */
     public ConfigurableWebServerApplicationContext run(String... args) {
-        log.debug(getAppBasePath());
+        log.debug("Starting Web Application at [{}]", getAppBasePath());
 
-        final ConfigurableWebServerApplicationContext applicationContext = getApplicationContext();
+        final ConfigurableWebServerApplicationContext context = getApplicationContext();
         try {
-            applicationContext.registerSingleton(this);
-            final Class<?> startupClass = applicationContext.getStartupClass();
+            context.registerSingleton(this);
+            final Class<?> startupClass = context.getStartupClass();
             final ConfigurableEnvironment environment = new StandardWebEnvironment(startupClass, args);
-            applicationContext.setEnvironment(environment);
+            context.setEnvironment(environment);
 
-            applicationContext.loadContext(startupClass.getPackage().getName());
+            context.loadContext(startupClass.getPackage().getName());
 
-            nonNull(applicationContext.getWebServer(), "Web server can't be null")
+            nonNull(context.getWebServer(), "Web server can't be null")
                     .start();
 
             log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
-                     System.currentTimeMillis() - applicationContext.getStartupDate()//
+                     System.currentTimeMillis() - context.getStartupDate()//
             );
+            return context;
         }
         catch (Throwable e) {
             e = ExceptionUtils.unwrapThrowable(e);
-            applicationContext.close();
+            context.close();
             throw new ConfigurationException("Your Application Initialized ERROR: [" + e + "]", e);
         }
-        return applicationContext;
     }
 
     public String getAppBasePath() {

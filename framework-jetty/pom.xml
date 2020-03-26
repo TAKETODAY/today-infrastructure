@@ -13,7 +13,7 @@
     <description>Jetty Web Server Plugin</description>
     
     <properties>
-        <jetty.version>9.4.25.v20191220</jetty.version>
+        <jetty.version>9.4.27.v20200227</jetty.version>
     </properties>
 
     <dependencies>
