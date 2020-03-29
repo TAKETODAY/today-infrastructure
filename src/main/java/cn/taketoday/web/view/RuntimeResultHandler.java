@@ -25,5 +25,15 @@ package cn.taketoday.web.view;
  */
 public interface RuntimeResultHandler extends ResultHandler {
 
+    /**
+     * If this {@link ResultHandler} supports the target handler's result
+     * <p>
+     * This method can test this {@link ResultHandler} supports the target handler
+     * in application runtime
+     * 
+     * @param result
+     *            Target handler's result
+     * @return If this {@link ResultHandler} supports the target handler's result
+     */
     boolean supportsResult(Object result);
 }

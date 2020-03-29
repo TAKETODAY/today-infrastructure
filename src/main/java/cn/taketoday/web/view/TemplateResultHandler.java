@@ -52,7 +52,7 @@ public class TemplateResultHandler extends AbstractResultHandler implements Runt
     }
 
     @Override
-    public boolean supports(Object handler) {
+    public boolean supportsHandler(Object handler) {
         if (handler instanceof HandlerMethod) {
             return supportsHandlerMethod((HandlerMethod) handler);
         }

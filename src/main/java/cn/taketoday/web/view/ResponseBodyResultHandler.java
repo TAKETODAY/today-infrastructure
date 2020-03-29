@@ -39,7 +39,7 @@ public class ResponseBodyResultHandler extends OrderedSupport implements Runtime
     }
 
     @Override
-    public boolean supports(Object handler) {
+    public boolean supportsHandler(Object handler) {
         return true;
     }
 

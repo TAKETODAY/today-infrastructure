@@ -30,10 +30,26 @@ import cn.taketoday.web.RequestContext;
 @FunctionalInterface
 public interface ResultHandler {
 
-    default boolean supports(Object handler) {
+    /**
+     * If this {@link ResultHandler} supports the target handler
+     * <p>
+     * This method can test this {@link ResultHandler} supports the target handler
+     * in application startup time
+     * 
+     * @param handler
+     *            Target handler
+     * @return If this {@link ResultHandler} supports the target handler
+     */
+    default boolean supportsHandler(Object handler) {
         return true;
     }
 
+    /**
+     * 
+     * @param context
+     * @param result
+     * @throws Throwable
+     */
     void handleResult(RequestContext context, Object result) throws Throwable;
 
 }

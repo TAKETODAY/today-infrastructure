@@ -22,9 +22,9 @@ package cn.taketoday.web.view;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 
 /**
@@ -33,21 +33,24 @@ import cn.taketoday.context.utils.OrderUtils;
  */
 public abstract class ResultHandlers {
 
-    private static final List<ResultHandler> resultHandlers = new LinkedList<>();
+    private static final LinkedList<ResultHandler> resultHandlers = new LinkedList<>();
 
-    public static void addHandler(ResultHandler... resolvers) {
-        Collections.addAll(resultHandlers, resolvers);
+    public static void addHandler(ResultHandler... handlers) {
+        Assert.notNull(handlers, "handler must not be null");
+        Collections.addAll(resultHandlers, handlers);
         OrderUtils.reversedSort(resultHandlers);
     }
 
-    public static void addHandler(List<ResultHandler> resolver) {
-        resultHandlers.addAll(resolver);
+    public static void addHandler(List<ResultHandler> handlers) {
+        Assert.notNull(handlers, "handler must not be null");
+        resultHandlers.addAll(handlers);
         OrderUtils.reversedSort(resultHandlers);
     }
 
-    public static void setHandler(List<ResultHandler> resolver) {
+    public static void setHandler(List<ResultHandler> handlers) {
+        Assert.notNull(handlers, "handler must not be null");
         resultHandlers.clear();
-        resultHandlers.addAll(resolver);
+        resultHandlers.addAll(handlers);
         OrderUtils.reversedSort(resultHandlers);
     }
 
@@ -69,9 +72,9 @@ public abstract class ResultHandlers {
      * @return A suitable {@link ResultHandler}
      */
     public static ResultHandler obtainHandler(final Object handler) {
-        Objects.requireNonNull(handler, "handler must not be null");
+        Assert.notNull(handler, "handler must not be null");
         for (final ResultHandler resolver : getHandlers()) {
-            if (resolver.supports(handler)) {
+            if (resolver.supportsHandler(handler)) {
                 return resolver;
             }
         }
