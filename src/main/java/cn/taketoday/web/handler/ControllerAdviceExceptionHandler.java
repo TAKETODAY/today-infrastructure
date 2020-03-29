@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.web.Constant;
@@ -35,14 +34,12 @@ import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.exception.ExceptionUnhandledException;
-import cn.taketoday.web.handler.HandlerMethod;
 
 /**
  * @author TODAY <br>
  *         2019-06-22 19:17
  * @since 2.3.7
  */
-@MissingBean(value = Constant.EXCEPTION_HANDLER, type = ExceptionHandler.class)
 public class ControllerAdviceExceptionHandler extends DefaultExceptionHandler implements WebApplicationInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(ControllerAdviceExceptionHandler.class);
