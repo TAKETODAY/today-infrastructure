@@ -20,6 +20,7 @@
 package cn.taketoday.context.utils;
 
 import static cn.taketoday.context.conversion.DelegatingStringTypeConverter.delegate;
+import static java.util.Objects.requireNonNull;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -30,7 +31,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Order;
@@ -145,7 +145,7 @@ public abstract class ConvertUtils {
     }
 
     public static void setConverters(TypeConverter... converters) {
-        ConvertUtils.converters = converters;
+        ConvertUtils.converters = requireNonNull(converters, "TypeConverter must not be null");
     }
 
     /**
@@ -156,7 +156,7 @@ public abstract class ConvertUtils {
      */
     public static Duration parseDuration(String value) {
 
-        if (Objects.requireNonNull(value, "Input string must not be null").endsWith("ns")) {
+        if (requireNonNull(value, "Input string must not be null").endsWith("ns")) {
             return Duration.ofNanos(Long.valueOf(value.substring(0, value.length() - 2)));
         }
         if (value.endsWith("ms")) {
@@ -186,11 +186,11 @@ public abstract class ConvertUtils {
      * @since 2.1.6
      */
     public static void addConverter(TypeConverter... converters) {
-
-        final List<TypeConverter> typeConverters = new ArrayList<>();
-
-        Collections.addAll(typeConverters, converters);
-        addConverter(typeConverters);
+        if (ObjectUtils.isNotEmpty(converters)) {
+            final List<TypeConverter> typeConverters = new ArrayList<>();
+            Collections.addAll(typeConverters, converters);
+            addConverter(typeConverters);
+        }
     }
 
     /**
@@ -201,14 +201,13 @@ public abstract class ConvertUtils {
      * @since 2.1.6
      */
     public static void addConverter(List<TypeConverter> converters) {
-
-        if (getConverters() != null) {
-            Collections.addAll(converters, getConverters());
+        if (ObjectUtils.isNotEmpty(converters)) {
+            if (getConverters() != null) {
+                Collections.addAll(converters, getConverters());
+            }
+            OrderUtils.reversedSort(converters);
+            setConverters(converters.toArray(new TypeConverter[converters.size()]));
         }
-
-        OrderUtils.reversedSort(converters);
-
-        setConverters(converters.toArray(new TypeConverter[converters.size()]));
     }
 
     /**
