@@ -20,8 +20,8 @@
 package cn.taketoday.framework.reactive;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import cn.taketoday.context.annotation.Singleton;
@@ -79,27 +79,27 @@ public class ReactiveDispatcher extends DispatcherHandler implements ChannelInbo
 
         final Executor executor = ctx.executor();
 
-        CompletableFuture.completedFuture(context)
+        completedFuture(context)
                 .thenApplyAsync(this::lookupHandler, executor)
-                .thenApplyAsync(handler -> {
-                    try {
-                        handle(handler, context);
-                    }
-                    catch (Throwable e) {
-                        ctx.fireExceptionCaught(e);
-                    }
-                    return handler;
-                }, executor)
-                .thenAcceptAsync(handler -> {
-                    context.send();
-                }, executor);
+                .thenApplyAsync(handler -> handle(ctx, context, handler), executor)
+                .thenAcceptAsync(handler -> context.send(), executor);
+    }
+
+    protected Object handle(ChannelHandlerContext ctx, final NettyRequestContext context, Object handler) {
+        try {
+            handle(handler, context);
+        }
+        catch (Throwable e) {
+            ctx.fireExceptionCaught(e);
+        }
+        return handler;
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 
         log.error("cause :{}", cause.toString(), cause);
-        
+
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
         ctx.writeAndFlush(response)
                 .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
