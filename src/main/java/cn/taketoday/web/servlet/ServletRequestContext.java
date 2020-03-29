@@ -46,12 +46,12 @@ import javax.servlet.http.Part;
 
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.web.AbstractRequestContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.BadRequestException;
 import cn.taketoday.web.exception.WebRuntimeException;
 import cn.taketoday.web.multipart.DefaultMultipartFile;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.RedirectModel;
 
 /**
@@ -59,11 +59,9 @@ import cn.taketoday.web.ui.RedirectModel;
  *         2019-07-07 22:27
  * @since 2.3.7
  */
-public class ServletRequestContext implements RequestContext, Map<String, Object> {
+public class ServletRequestContext extends AbstractRequestContext implements RequestContext, Map<String, Object> {
 
-    private HttpCookie[] cookies;
     private String contextPath;
-    private ModelAndView modelAndView;
 
     private final HttpServletRequest request;
     private final HttpServletResponse response;
@@ -88,16 +86,6 @@ public class ServletRequestContext implements RequestContext, Map<String, Object
             return contextPath = request.getContextPath();
         }
         return contextPath;
-    }
-
-    @Override
-    public ModelAndView modelAndView() {
-        return modelAndView;
-    }
-
-    @Override
-    public ModelAndView modelAndView(ModelAndView modelAndView) {
-        return this.modelAndView = modelAndView;
     }
 
     @SuppressWarnings("unchecked")
@@ -192,49 +180,31 @@ public class ServletRequestContext implements RequestContext, Map<String, Object
     }
 
     @Override
-    public HttpCookie[] cookies() {
+    protected HttpCookie[] getCookiesInternal() {
 
-        if (cookies == null) {
+        final Cookie[] servletCookies = request.getCookies();
+        if (ObjectUtils.isEmpty(servletCookies)) { // there is not cookies
+            return null;
+        }
+        final HttpCookie[] cookies = new HttpCookie[servletCookies.length];
 
-            final Cookie[] servletCookies = request.getCookies();
-            if (ObjectUtils.isEmpty(servletCookies)) { // there is not cookies
-                return null;
-            }
-            final HttpCookie[] cookies = new HttpCookie[servletCookies.length];
+        int i = 0;
+        for (final Cookie servletCookie : servletCookies) {
 
-            int i = 0;
-            for (final Cookie servletCookie : servletCookies) {
+            final HttpCookie httpCookie = //
+                    new HttpCookie(servletCookie.getName(), servletCookie.getValue());
 
-                final HttpCookie httpCookie = //
-                        new HttpCookie(servletCookie.getName(), servletCookie.getValue());
+            httpCookie.setPath(servletCookie.getPath());
+            httpCookie.setDomain(servletCookie.getDomain());
+            httpCookie.setMaxAge(servletCookie.getMaxAge());
+            httpCookie.setSecure(servletCookie.getSecure());
+            httpCookie.setVersion(servletCookie.getVersion());
+            httpCookie.setComment(servletCookie.getComment());
+            httpCookie.setHttpOnly(servletCookie.isHttpOnly());
 
-                httpCookie.setPath(servletCookie.getPath());
-                httpCookie.setDomain(servletCookie.getDomain());
-                httpCookie.setMaxAge(servletCookie.getMaxAge());
-                httpCookie.setSecure(servletCookie.getSecure());
-                httpCookie.setVersion(servletCookie.getVersion());
-                httpCookie.setComment(servletCookie.getComment());
-                httpCookie.setHttpOnly(servletCookie.isHttpOnly());
-
-                cookies[i++] = httpCookie;//
-            }
-            return this.cookies = cookies;
+            cookies[i++] = httpCookie;//
         }
         return cookies;
-    }
-
-    @Override
-    public HttpCookie cookie(String name) {
-
-        final HttpCookie[] cookies = cookies();
-        if (cookies != null) {
-            for (final HttpCookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    return cookie;
-                }
-            }
-        }
-        return null;
     }
 
     @Override
