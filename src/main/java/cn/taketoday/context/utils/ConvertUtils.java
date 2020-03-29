@@ -20,6 +20,8 @@
 package cn.taketoday.context.utils;
 
 import static cn.taketoday.context.conversion.DelegatingStringTypeConverter.delegate;
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.context.utils.OrderUtils.reversedSort;
 import static java.util.Objects.requireNonNull;
 
 import java.io.File;
@@ -48,27 +50,27 @@ public abstract class ConvertUtils {
     private static TypeConverter[] converters;
 
     static {
-        addConverter(new StringEnumConverter(),
-                     new StringNumberConverter(),
-                     new StringResourceConverter(),
-                     new PrimitiveClassConverter(),
-                     delegate((c) -> c == MimeType.class, MimeType::valueOf),
-                     delegate((c) -> c == MediaType.class, MediaType::valueOf),
-                     new StringConstructorConverter(),
-                     delegate((c) -> c == Class.class, source -> {
-                         try {
-                             return Class.forName(source);
-                         }
-                         catch (ClassNotFoundException e) {
-                             throw new ConversionException(e);
-                         }
-                     }),
-                     delegate((c) -> c == DataSize.class, DataSize::parse),
-                     delegate((c) -> c == Charset.class, Charset::forName),
-                     delegate((c) -> c == Duration.class, ConvertUtils::parseDuration),
-                     delegate((c) -> c == Boolean.class || c == boolean.class, Boolean::parseBoolean),
-                     new ArrayStringArrayConverter(),
-                     new StringArrayConverter()//
+        setConverters(new StringEnumConverter(),
+                      new StringNumberConverter(),
+                      new StringResourceConverter(),
+                      new PrimitiveClassConverter(),
+                      delegate((c) -> c == MimeType.class, MimeType::valueOf),
+                      delegate((c) -> c == MediaType.class, MediaType::valueOf),
+                      new StringConstructorConverter(),
+                      delegate((c) -> c == Class.class, source -> {
+                          try {
+                              return Class.forName(source);
+                          }
+                          catch (ClassNotFoundException e) {
+                              throw new ConversionException(e);
+                          }
+                      }),
+                      delegate((c) -> c == DataSize.class, DataSize::parse),
+                      delegate((c) -> c == Charset.class, Charset::forName),
+                      delegate((c) -> c == Duration.class, ConvertUtils::parseDuration),
+                      delegate((c) -> c == Boolean.class || c == boolean.class, Boolean::parseBoolean),
+                      new ArrayStringArrayConverter(),
+                      new StringArrayConverter()//
         );
     }
 
@@ -144,8 +146,10 @@ public abstract class ConvertUtils {
         return converters;
     }
 
-    public static void setConverters(TypeConverter... converters) {
-        ConvertUtils.converters = requireNonNull(converters, "TypeConverter must not be null");
+    public static void setConverters(TypeConverter... cts) {
+        synchronized (ConvertUtils.class) {
+            converters = reversedSort(nonNull(cts, "TypeConverter must not be null"));
+        }
     }
 
     /**
@@ -205,7 +209,6 @@ public abstract class ConvertUtils {
             if (getConverters() != null) {
                 Collections.addAll(converters, getConverters());
             }
-            OrderUtils.reversedSort(converters);
             setConverters(converters.toArray(new TypeConverter[converters.size()]));
         }
     }

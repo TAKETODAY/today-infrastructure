@@ -24,6 +24,7 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
 import static cn.taketoday.context.utils.ClassUtils.getUserClass;
+import static cn.taketoday.context.utils.OrderUtils.reversedSort;
 import static cn.taketoday.context.utils.ResourceUtils.getResource;
 import static java.util.Objects.requireNonNull;
 
@@ -115,11 +116,11 @@ public abstract class ContextUtils {
     private static ExecutableParameterResolver[] parameterResolvers;
 
     static {
-        addPropertyValueResolver(new ValuePropertyResolver(),
-                                 new PropsPropertyResolver(),
-                                 new AutowiredPropertyResolver());
+        setPropertyValueResolvers(new ValuePropertyResolver(),
+                                  new PropsPropertyResolver(),
+                                  new AutowiredPropertyResolver());
 
-        addParameterResolvers(new MapParameterResolver(),
+        setParameterResolvers(new MapParameterResolver(),
                               new AutowiredParameterResolver(),
                               delegate((p) -> p.isAnnotationPresent(Env.class), (p, b) -> {
                                   return ContextUtils.resolveValue(p.getAnnotation(Env.class), p.getType());
@@ -175,8 +176,8 @@ public abstract class ContextUtils {
      * @param elProcessor
      *            A new elProcessor
      */
-    public static void setExpressionProcessor(final ExpressionProcessor elProcessor) {
-        ContextUtils.elProcessor = elProcessor;
+    public static void setExpressionProcessor(final ExpressionProcessor processor) {
+        elProcessor = nonNull(processor, "ExpressionProcessor must not be null");
     }
 
     // PropertyValueResolver
@@ -192,8 +193,10 @@ public abstract class ContextUtils {
     /**
      * @since 2.1.6
      */
-    public static void setPropertyValueResolvers(PropertyValueResolver[] propertyValueResolvers) {
-        ContextUtils.propertyValueResolvers = propertyValueResolvers;
+    public static void setPropertyValueResolvers(PropertyValueResolver... resolvers) {
+        synchronized (ContextUtils.class) {
+            propertyValueResolvers = reversedSort(nonNull(resolvers, "PropertyValueResolver must not be null"));
+        }
     }
 
     /**
@@ -201,19 +204,19 @@ public abstract class ContextUtils {
      * 
      * @param resolvers
      *            {@link TypeConverter} object
-     * @since 2.1.6
+     * @since 2.1.7
      */
-    public static void addPropertyValueResolver(final PropertyValueResolver... resolvers) {
+    public static void addPropertyValueResolvers(final PropertyValueResolver... resolvers) {
+        if (ObjectUtils.isNotEmpty(resolvers)) {
+            final List<PropertyValueResolver> valueResolvers = new ArrayList<>();
 
-        final List<PropertyValueResolver> propertyValueResolvers = new ArrayList<>();
+            if (getPropertyValueResolvers() != null) {
+                Collections.addAll(valueResolvers, getPropertyValueResolvers());
+            }
 
-        if (getPropertyValueResolvers() != null) {
-            Collections.addAll(propertyValueResolvers, getPropertyValueResolvers());
+            Collections.addAll(valueResolvers, resolvers);
+            setPropertyValueResolvers(valueResolvers.toArray(new PropertyValueResolver[valueResolvers.size()]));
         }
-
-        Collections.addAll(propertyValueResolvers, requireNonNull(resolvers));
-        OrderUtils.reversedSort(propertyValueResolvers);
-        setPropertyValueResolvers(propertyValueResolvers.toArray(new PropertyValueResolver[propertyValueResolvers.size()]));
     }
 
     /**
@@ -506,7 +509,7 @@ public abstract class ContextUtils {
             return BeanDefinition.EMPTY_METHOD;
         }
 
-        OrderUtils.reversedSort(methods);
+        reversedSort(methods);
         return methods.toArray(new Method[methods.size()]);
     }
 
@@ -617,7 +620,7 @@ public abstract class ContextUtils {
             throws ConfigurationException //
     {
         Assert.notNull(annotated, "AnnotatedElement must not be null");
-        
+
         final Props props = annotated.getAnnotation(Props.class);
 
         if (props == null) {
@@ -668,7 +671,7 @@ public abstract class ContextUtils {
      * @return Resolved field object
      */
     public static Object resolveProps(final Field declaredField,
-                                      final List<Class<?>> nested, 
+                                      final List<Class<?>> nested,
                                       final String[] prefixs, final Properties properties) //
     {
         final Class<?> fieldType = declaredField.getType();
@@ -854,7 +857,7 @@ public abstract class ContextUtils {
         if (attributes.length == 1) {
             return conditional(annotated, context, attributes[0].getClassArray(VALUE));
         }
-        for (final AnnotationAttributes conditional : OrderUtils.reversedSort(attributes)) {
+        for (final AnnotationAttributes conditional : reversedSort(attributes)) {
             if (!conditional(annotated, context, conditional.getClassArray(VALUE))) {
                 return false; // can't match
             }
@@ -1078,20 +1081,24 @@ public abstract class ContextUtils {
     }
 
     public static void setParameterResolvers(ExecutableParameterResolver... resolvers) {
-        ContextUtils.parameterResolvers = resolvers;
+        synchronized (ContextUtils.class) {
+            parameterResolvers = reversedSort(nonNull(resolvers, "ExecutableParameterResolver must not null"));
+        }
     }
 
     public static void addParameterResolvers(ExecutableParameterResolver... resolvers) {
 
-        final List<ExecutableParameterResolver> parameterResolvers = new ArrayList<>();
+        if (ObjectUtils.isNotEmpty(resolvers)) {
 
-        if (getParameterResolvers() != null) {
-            Collections.addAll(parameterResolvers, getParameterResolvers());
+            final List<ExecutableParameterResolver> newResolvers = new ArrayList<>();
+
+            if (getParameterResolvers() != null) {
+                Collections.addAll(newResolvers, getParameterResolvers());
+            }
+
+            Collections.addAll(newResolvers, resolvers);
+            setParameterResolvers(newResolvers.toArray(new ExecutableParameterResolver[newResolvers.size()]));
         }
-
-        Collections.addAll(parameterResolvers, requireNonNull(resolvers));
-        OrderUtils.reversedSort(parameterResolvers);
-        setParameterResolvers(parameterResolvers.toArray(new ExecutableParameterResolver[parameterResolvers.size()]));
     }
 
     /**
