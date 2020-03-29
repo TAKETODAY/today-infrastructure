@@ -82,8 +82,8 @@
 	12. :zap: 优化HandlerMethod
 	13. :sparkles: 添加ResultHandler
 	14. :sparkles: 使用PatternMapping映射
-
-
+- :zap: 取消自动使用DispatcherServletInitializer注册DispatcherServlet
+- :hammer: 重构ExceptionResolver 修改ExceptionResolver为HandlerExceptionHandler更正设计错误
 ## v2.3.6
 - add new today-context version
 - :sparkles: feat: auto register `Servlet`,`Filter`,`Listener`
