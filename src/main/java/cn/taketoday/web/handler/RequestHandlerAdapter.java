@@ -30,7 +30,7 @@ public class RequestHandlerAdapter extends AbstractHandlerAdapter {
     public RequestHandlerAdapter() {}
 
     public RequestHandlerAdapter(int order) {
-        setOrder(order);
+        super(order);
     }
 
     @Override

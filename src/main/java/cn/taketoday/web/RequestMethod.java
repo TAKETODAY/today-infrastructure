@@ -34,7 +34,7 @@ public enum RequestMethod {
      * Determine whether this {@code RequestMethod} matches the given method value.
      * 
      * @param method
-     *            the method value as a String
+     *            the method value as a String. <b>Must Upper Case</b>
      * @return {@code true} if it matches, {@code false} otherwise
      */
     public boolean matches(String method) {
