@@ -24,6 +24,7 @@ import java.util.EventListener;
 
 import javax.servlet.ServletContext;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.logger.LoggerFactory;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,14 +35,12 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class WebListenerInitializer<T extends EventListener> implements OrderedServletContextInitializer {
+public class WebListenerInitializer<T extends EventListener>
+        extends OrderedSupport implements ServletContextInitializer {
 
     private T listener;
-    private int order = LOWEST_PRECEDENCE;
 
-    public WebListenerInitializer() {
-
-    }
+    public WebListenerInitializer() {}
 
     public WebListenerInitializer(T listener) {
         this.listener = listener;
@@ -57,21 +56,12 @@ public class WebListenerInitializer<T extends EventListener> implements OrderedS
     }
 
     @Override
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
-    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n\t\"listener\":\"");
         builder.append(listener);
         builder.append("\",\n\t\"order\":\"");
-        builder.append(order);
+        builder.append(getOrder());
         builder.append("\"\n}");
         return builder.toString();
     }

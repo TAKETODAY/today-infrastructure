@@ -31,6 +31,7 @@ import javax.servlet.Registration;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,11 +42,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class WebComponentInitializer<D extends Registration.Dynamic> implements OrderedServletContextInitializer {
+public abstract class WebComponentInitializer<D extends Registration.Dynamic>
+        extends OrderedSupport implements ServletContextInitializer {
 
     private String name;
-    /** Startup order */
-    private int order = LOWEST_PRECEDENCE;
 
     private boolean asyncSupported = false;
 
@@ -99,15 +99,6 @@ public abstract class WebComponentInitializer<D extends Registration.Dynamic> im
     public void addUrlMappings(String... urlMappings) {
         Objects.requireNonNull(urlMappings, "UrlMappings must not be null");
         this.urlMappings.addAll(Arrays.asList(urlMappings));
-    }
-
-    @Override
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
     }
 
     public String getName() {
