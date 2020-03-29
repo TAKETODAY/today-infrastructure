@@ -33,6 +33,12 @@ import cn.taketoday.web.handler.AbstractHandlerAdapter;
 @ConditionalOnClass(Constant.ENV_SERVLET)
 public class ServletHandlerAdapter extends AbstractHandlerAdapter {
 
+    public ServletHandlerAdapter() {}
+
+    public ServletHandlerAdapter(int order) {
+        super(order);
+    }
+
     @Override
     public boolean supports(Object handler) {
         return handler instanceof Servlet;
