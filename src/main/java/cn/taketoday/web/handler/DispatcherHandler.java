@@ -24,11 +24,8 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContext.State;
-import cn.taketoday.context.Ordered;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -37,8 +34,6 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
-import cn.taketoday.web.config.WebApplicationInitializer;
-import cn.taketoday.web.registry.CompositeHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.ResultHandler;
@@ -49,7 +44,7 @@ import cn.taketoday.web.view.RuntimeResultHandler;
  * @author TODAY <br>
  *         2019-11-16 19:05
  */
-public class DispatcherHandler extends WebApplicationContextSupport implements WebApplicationInitializer {
+public class DispatcherHandler extends WebApplicationContextSupport {
 
     private static final Logger log = LoggerFactory.getLogger(DispatcherHandler.class);
 
@@ -201,27 +196,6 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
 
     protected void log(final String msg) {
         log.info(msg);
-    }
-
-    // WebApplicationInitializer
-    // --------------------------------------------------
-
-    @Override
-    public void onStartup(WebApplicationContext context) throws Throwable {
-
-        final List<HandlerAdapter> adapters = context.getBeans(HandlerAdapter.class);
-        configureHandlerAdapter(adapters, context);
-        setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));// apply request handler 
-
-        setHandlerRegistry(new CompositeHandlerRegistry(context.getBeans(HandlerRegistry.class)));
-    }
-
-    protected void configureHandlerAdapter(final List<HandlerAdapter> adapters, final ApplicationContext context) {
-
-        adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE << 1));
-        adapters.add(new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE - 1));
-        adapters.add(new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE - 2));
-        adapters.add(new NotFoundRequestAdapter(Ordered.HIGHEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE - 100));
     }
 
 }
