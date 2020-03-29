@@ -138,7 +138,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
         public TemplateViewResolverELContext(StandardExpressionContext delegate, RequestContext context) {
             this.delegate = delegate;
             this.elResolver = new CompositeExpressionResolver(new ModelAttributeELResolver(context),
-                                                      delegate.getResolver());
+                                                              delegate.getResolver());
         }
 
         @Override

@@ -219,12 +219,12 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {
 
-        final WebApplicationContext applicationContext = obtainApplicationContext();
-        TemplateViewResolver templateViewResolver = applicationContext.getBean(TemplateViewResolver.class);
+        final WebApplicationContext context = obtainApplicationContext();
+        TemplateViewResolver templateViewResolver = context.getBean(TemplateViewResolver.class);
 
         if (templateViewResolver == null) {
-            applicationContext.registerBean(DefaultTemplateViewResolver.class.getName(), DefaultTemplateViewResolver.class);
-            templateViewResolver = applicationContext.getBean(TemplateViewResolver.class);
+            context.registerBean(DefaultTemplateViewResolver.class.getName(), DefaultTemplateViewResolver.class);
+            templateViewResolver = context.getBean(TemplateViewResolver.class);
         }
 
         configureTemplateViewResolver(templateViewResolver, mvcConfiguration);

@@ -19,8 +19,6 @@
  */
 package cn.taketoday.web.config;
 
-import static cn.taketoday.context.utils.ContextUtils.resolveValue;
-
 import java.lang.reflect.Method;
 import java.util.Objects;
 import java.util.Properties;
@@ -34,6 +32,7 @@ import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
@@ -52,13 +51,16 @@ public class ViewConfiguration {
 
     private ViewControllerHandlerRegistry handlerRegistry;
 
-    public ViewConfiguration(WebApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-        final Environment environment = applicationContext.getEnvironment();
+    public ViewConfiguration(WebApplicationContext context) {
+        this(context, context.getBean(ViewControllerHandlerRegistry.class));
+    }
 
+    public ViewConfiguration(WebApplicationContext context, ViewControllerHandlerRegistry registry) {
+        this.handlerRegistry = registry;
+        this.applicationContext = context;
+        final Environment environment = context.getEnvironment();
         this.variables = environment.getProperties();
         this.beanNameCreator = environment.getBeanNameCreator();
-        this.handlerRegistry = applicationContext.getBean(ViewControllerHandlerRegistry.class);
     }
 
     /**
@@ -143,15 +145,17 @@ public class ViewConfiguration {
         final ViewController mapping = new ViewController(controllerBean, handlerMethod);
 
         if (StringUtils.isNotEmpty(status)) {
-            mapping.setStatus(Integer.parseInt(status));
+            mapping.setStatus(Integer.valueOf(status));
         }
 
         if (StringUtils.isNotEmpty(resource)) {
-            resource = resolveValue(
-                                    new StringBuilder(prefix.length() + resource.length() + suffix.length())
-                                            .append(prefix)
-                                            .append(resource)
-                                            .append(suffix).toString(), String.class, variables);
+            final StringBuilder resourceSb = //
+                    new StringBuilder(prefix.length() + resource.length() + suffix.length())
+                            .append(prefix)
+                            .append(resource)
+                            .append(suffix);
+
+            resource = resolveVariables(resourceSb.toString());
         }
         mapping.setAssetsPath(resource);
         { // @since 2.3.3
@@ -160,10 +164,14 @@ public class ViewConfiguration {
             }
         }
 
-        name = resolveValue(applicationContext.getContextPath().concat(StringUtils.checkUrl(name)), String.class, variables);
+        name = resolveVariables(applicationContext.getContextPath().concat(StringUtils.checkUrl(name)));
 
         handlerRegistry.register(name, mapping);
         return mapping;
+    }
+
+    protected String resolveVariables(final String expression) {
+        return ContextUtils.resolveValue(expression, String.class, variables);
     }
 
 }
