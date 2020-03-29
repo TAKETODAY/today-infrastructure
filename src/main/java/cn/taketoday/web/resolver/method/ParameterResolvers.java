@@ -33,7 +33,7 @@ import cn.taketoday.web.handler.MethodParameter;
  */
 public abstract class ParameterResolvers {
 
-    private static final List<ParameterResolver> PARAMETER_RESOLVERS = new LinkedList<>();
+    private static final LinkedList<ParameterResolver> PARAMETER_RESOLVERS = new LinkedList<>();
 
     /**
      * Get correspond parameter resolver, If there isn't a suitable resolver will be

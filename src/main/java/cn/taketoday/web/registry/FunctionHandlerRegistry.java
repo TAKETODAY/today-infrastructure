@@ -65,7 +65,7 @@ public class FunctionHandlerRegistry extends MappedHandlerRegistry {
         return context.method().concat(context.requestURI());
     }
 
-    // HEAD 
+    // HEAD
     // ---------------------------------------
 
     public FunctionHandlerRegistry head(String pathPattern, RequestHandler handler) {
@@ -80,7 +80,7 @@ public class FunctionHandlerRegistry extends MappedHandlerRegistry {
         return register(HEAD, pathPattern, handler);
     }
 
-    // PUT 
+    // PUT
     // ---------------------------------------
 
     public FunctionHandlerRegistry put(String pathPattern, RequestHandler handler) {

@@ -40,6 +40,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
@@ -64,12 +65,20 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
+import cn.taketoday.web.handler.ControllerAdviceExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
+import cn.taketoday.web.handler.FunctionRequestAdapter;
+import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethod;
+import cn.taketoday.web.handler.NotFoundRequestAdapter;
+import cn.taketoday.web.handler.RequestHandlerAdapter;
+import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
+import cn.taketoday.web.registry.CompositeHandlerRegistry;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerMethodRegistry;
+import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.resolver.method.ArrayParameterResolver;
 import cn.taketoday.web.resolver.method.BeanParameterResolver;
@@ -106,7 +115,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     private static final Logger log = LoggerFactory.getLogger(WebApplicationLoader.class);
 
-    private DispatcherHandler dispatcherHandler;
+    private DispatcherHandler dispatcher;
 
     @Override
     public void onStartup(WebApplicationContext context) throws Throwable {
@@ -114,15 +123,16 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
         final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
 
-        configureTemplateLoader(mvcConfiguration);
         configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
         configureTypeConverter(context.getBeans(TypeConverter.class), mvcConfiguration);
+        configureHandlerAdapter(context.getBeans(HandlerAdapter.class), mvcConfiguration);
+        configureHandlerRegistry(context.getBeans(HandlerRegistry.class), mvcConfiguration);
         configureParameterResolver(context.getBeans(ParameterResolver.class), mvcConfiguration);
         configureResourceHandler(context.getBean(ResourceHandlerRegistry.class), mvcConfiguration);
         configureFunctionHandler(context.getBean(FunctionHandlerRegistry.class), mvcConfiguration);
-        configureExceptionHandler(context.getBean(HandlerExceptionHandler.class), mvcConfiguration);
 
-//        setExceptionResolver();// apply exception resolver
+        configureTemplateLoader(mvcConfiguration);
+        configureExceptionHandler(mvcConfiguration);
 
         final Environment environment = context.getEnvironment();
         if (environment.getProperty(ENABLE_WEB_MVC_XML, Boolean::parseBoolean, true)) {
@@ -145,8 +155,40 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         System.gc();
     }
 
-    protected void configureExceptionHandler(HandlerExceptionHandler exceptionHandler, WebMvcConfiguration mvcConfiguration) {
+    private void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries, WebMvcConfiguration mvcConfiguration) {
+        mvcConfiguration.configureHandlerRegistry(handlerRegistries);
+        obtainDispatcher().setHandlerRegistry(new CompositeHandlerRegistry(handlerRegistries));
+    }
 
+    /**
+     * Configure {@link HandlerAdapter}
+     * 
+     * @param adapters
+     *            {@link HandlerAdapter}s
+     * @param mvcConfiguration
+     *            {@link WebMvcConfiguration}
+     */
+    protected void configureHandlerAdapter(final List<HandlerAdapter> adapters, WebMvcConfiguration mvcConfiguration) {
+
+        adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE << 1));
+        adapters.add(new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE - 1));
+        adapters.add(new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE - 2));
+        adapters.add(new NotFoundRequestAdapter(Ordered.HIGHEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE - 100));
+
+        mvcConfiguration.configureHandlerAdapter(adapters);
+
+        OrderUtils.reversedSort(adapters);
+        obtainDispatcher().setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));// apply request handler 
+    }
+
+    protected void configureExceptionHandler(WebMvcConfiguration mvcConfiguration) {
+
+        final WebApplicationContext context = obtainApplicationContext();
+        HandlerExceptionHandler exceptionHandler = context.getBean(HandlerExceptionHandler.class);
+        if (exceptionHandler == null) {
+            exceptionHandler = new ControllerAdviceExceptionHandler();
+        }
+        obtainDispatcher().setExceptionHandler(exceptionHandler);
     }
 
     protected void configureFunctionHandler(FunctionHandlerRegistry registry, WebMvcConfiguration mvcConfiguration) {
@@ -213,7 +255,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         mvcConfiguration.configureResultHandler(handlers);
 
         ResultHandlers.addHandler(handlers);
-        getDispatcherHandler().setResultHandlers(ResultHandlers.getRuntimeHandlers());// apply result handler
+        obtainDispatcher().setResultHandlers(ResultHandlers.getRuntimeHandlers());// apply result handler
     }
 
     protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {
@@ -353,7 +395,10 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
     }
 
     /**
+     * Configure {@link ResourceHandlerRegistry}
+     * 
      * @param registry
+     *            {@link ResourceHandlerRegistry}
      * @param mvcConfiguration
      *            All {@link WebMvcConfiguration} object
      */
@@ -369,7 +414,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
      * @throws Throwable
      *             If any initialize exception occurred
      */
-    protected void initializerStartup(final WebApplicationContext context, //
+    protected void initializerStartup(final WebApplicationContext context,
                                       final WebMvcConfiguration mvcConfiguration) throws Throwable //
     {
         final List<WebApplicationInitializer> initializers = context.getBeans(WebApplicationInitializer.class);
@@ -424,9 +469,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         }
 
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-
         factory.setIgnoringComments(true);
-
         final DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setEntityResolver((publicId, systemId) -> {
             if (systemId.contains(DTD_NAME) || publicId.contains(DTD_NAME)) {
@@ -434,12 +477,11 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
             }
             return null;
         });
+
         final ViewConfiguration viewConfiguration = new ViewConfiguration(obtainApplicationContext());
 
         for (final String file : StringUtils.split(webMvcConfigLocation)) {
-
             final Resource resource = ResourceUtils.getResource(file);
-
             if (resource == null || !resource.exists()) {
                 throw new ConfigurationException("Your Provided Configuration File: [" + file + "], Does Not Exist");
             }
@@ -543,12 +585,12 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
      */
     protected void checkFrameWorkResolvers(WebApplicationContext applicationContext) {}
 
-    public DispatcherHandler getDispatcherHandler() {
-        return dispatcherHandler;
+    public DispatcherHandler obtainDispatcher() {
+        return dispatcher;
     }
 
-    public void setDispatcherHandler(DispatcherHandler dispatcherHandler) {
-        this.dispatcherHandler = dispatcherHandler;
+    public void setDispatcher(DispatcherHandler dispatcherHandler) {
+        this.dispatcher = dispatcherHandler;
     }
 
 }

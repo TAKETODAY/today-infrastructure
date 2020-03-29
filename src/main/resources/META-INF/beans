@@ -1,7 +1,5 @@
 cn.taketoday.web.FastJsonMessageConverter
-cn.taketoday.web.config.ViewConfiguration
 cn.taketoday.web.multipart.MultipartConfiguration
-cn.taketoday.web.resolver.ControllerAdviceExceptionResolver
 cn.taketoday.web.view.template.FreeMarkerTemplateViewResolver
 cn.taketoday.web.validation.DefaultValidator
 cn.taketoday.web.validation.ErrorsParameterResolver
