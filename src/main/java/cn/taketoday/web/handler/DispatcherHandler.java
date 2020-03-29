@@ -40,11 +40,9 @@ import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.registry.CompositeHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
-import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.ResultHandlerCapable;
-import cn.taketoday.web.view.ResultHandlers;
 import cn.taketoday.web.view.RuntimeResultHandler;
 
 /**
@@ -62,8 +60,8 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
 
     private RuntimeResultHandler[] resultHandlers;
 
-    /** exception resolver */
-    private ExceptionResolver exceptionResolver;
+    /** exception handler */
+    private HandlerExceptionHandler exceptionHandler;
 
     public HandlerRegistry getHandlerRegistry() {
         return handlerRegistry;
@@ -73,12 +71,12 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
         return nonNull(getHandlerRegistry(), "You must provide an 'handler registry'");
     }
 
-    public ExceptionResolver obtainExceptionResolver() {
-        return nonNull(getExceptionResolver(), "You must provide an 'exception resolver'");
+    public HandlerExceptionHandler obtainExceptionHandler() {
+        return nonNull(getExceptionHandler(), "You must provide an 'ExceptionHandler'");
     }
 
-    public ExceptionResolver getExceptionResolver() {
-        return exceptionResolver;
+    public HandlerExceptionHandler getExceptionHandler() {
+        return exceptionHandler;
     }
 
     public void setHandlerRegistry(HandlerRegistry handlerRegistry) {
@@ -89,8 +87,8 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
         this.handlerAdapters = nonNull(handlerAdapters, "request handlers must not be null");
     }
 
-    public void setExceptionResolver(ExceptionResolver exceptionResolver) {
-        this.exceptionResolver = nonNull(exceptionResolver, "exception resolver must not be null");
+    public void setExceptionHandler(HandlerExceptionHandler exceptionHandler) {
+        this.exceptionHandler = nonNull(exceptionHandler, "ExceptionHandler must not be null");
     }
 
     public void setResultHandlers(RuntimeResultHandler... resultHandlers) {
@@ -121,7 +119,7 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
             return ((ResultHandlerCapable) handler).getHandler();
         }
         for (final RuntimeResultHandler resultHandler : resultHandlers) {
-            if (resultHandler.supportsResult(result) || resultHandler.supports(handler)) {
+            if (resultHandler.supportsResult(result) || resultHandler.supportsHandler(handler)) {
                 return resultHandler;
             }
         }
@@ -169,15 +167,15 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
             }
         }
         catch (Throwable e) {
-            resolveException(handler, e, context);
+            handleException(handler, e, context);
         }
     }
 
-    public void resolveException(final Object handler,
-                                 final Throwable exception,
-                                 final RequestContext context) throws Throwable {
+    public void handleException(final Object handler,
+                                final Throwable exception,
+                                final RequestContext context) throws Throwable {
 
-        obtainExceptionResolver().resolveException(context, ExceptionUtils.unwrapThrowable(exception), handler);
+        obtainExceptionHandler().handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
     }
 
     public void destroy() {
@@ -210,9 +208,6 @@ public class DispatcherHandler extends WebApplicationContextSupport implements W
 
     @Override
     public void onStartup(WebApplicationContext context) throws Throwable {
-
-        setResultHandlers(ResultHandlers.getRuntimeHandlers()); // apply result handler
-        setExceptionResolver(context.getBean(ExceptionResolver.class));// apply exception resolver
 
         final List<HandlerAdapter> adapters = context.getBeans(HandlerAdapter.class);
         configureHandlerAdapter(adapters, context);

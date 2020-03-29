@@ -1,9 +1,9 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,11 +13,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ *   
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver;
+package cn.taketoday.web.handler;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
@@ -34,41 +34,34 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.handler.HandlerMethod;
-import cn.taketoday.web.handler.ResourceRequestHandler;
-import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.TemplateResultHandler;
 
 /**
- * Default implementation
- * 
  * @author TODAY <br>
- *         2018-06-25 20:27:22
+ *         2020-03-29 21:01
  */
-@Deprecated
-public class DefaultExceptionResolver implements ExceptionResolver {
+public class DefaultExceptionHandler implements HandlerExceptionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultExceptionResolver.class);
+    private static final Logger log = LoggerFactory.getLogger(DefaultExceptionHandler.class);
 
     @Override
-    public void resolveException(final RequestContext context,
-                                 final Throwable ex, final Object handler) throws Throwable //
-    {
-        try {
+    public void handleException(final RequestContext context, final Throwable ex, final Object handler) throws Throwable {
 
+        try {
+        
             if (handler instanceof HandlerMethod) {
-                resolveHandlerMethodException(ex, context, (HandlerMethod) handler);
+                handleHandlerMethodInternal(ex, context, (HandlerMethod) handler);
             }
             else if (handler instanceof ViewController) {
-                resolveViewControllerException(ex, context, (ViewController) handler);
+                handleViewControllerInternal(ex, context, (ViewController) handler);
             }
             else if (handler instanceof ResourceRequestHandler) {
-                resolveResourceMappingException(ex, context, (ResourceRequestHandler) handler);
+                handleResourceMappingInternal(ex, context, (ResourceRequestHandler) handler);
             }
             else {
-                resolveException(ex, context);
+                handleExceptionInternal(ex, context);
             }
 
             if (log.isDebugEnabled()) {
@@ -95,10 +88,10 @@ public class DefaultExceptionResolver implements ExceptionResolver {
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
-    protected void resolveResourceMappingException(final Throwable ex,
-                                                   final RequestContext context,
-                                                   final ResourceRequestHandler resourceRequestHandler) throws Throwable {
-        resolveException(ex, context);
+    protected void handleResourceMappingInternal(final Throwable ex,
+                                                 final RequestContext context,
+                                                 final ResourceRequestHandler resourceRequestHandler) throws Throwable {
+        handleExceptionInternal(ex, context);
     }
 
     /**
@@ -113,10 +106,10 @@ public class DefaultExceptionResolver implements ExceptionResolver {
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
-    protected void resolveViewControllerException(final Throwable ex,
-                                                  final RequestContext context,
-                                                  final ViewController viewController) throws Throwable {
-        resolveException(ex, context);
+    protected void handleViewControllerInternal(final Throwable ex,
+                                                final RequestContext context,
+                                                final ViewController viewController) throws Throwable {
+        handleExceptionInternal(ex, context);
     }
 
     /**
@@ -131,9 +124,9 @@ public class DefaultExceptionResolver implements ExceptionResolver {
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
-    protected void resolveHandlerMethodException(final Throwable ex,
-                                                 final RequestContext context,
-                                                 final HandlerMethod handlerMethod) throws Throwable//
+    protected void handleHandlerMethodInternal(final Throwable ex,
+                                               final RequestContext context,
+                                               final HandlerMethod handlerMethod) throws Throwable//
     {
         final ResponseStatus responseStatus = buildStatus(handlerMethod, ex);
         final int status = responseStatus.value();
@@ -153,7 +146,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
                 context.redirect(context.contextPath().concat(redirect));
             }
             else {
-                resolveException(ex, context);
+                handleExceptionInternal(ex, context);
             }
         }
         else {
@@ -183,7 +176,7 @@ public class DefaultExceptionResolver implements ExceptionResolver {
      * @param msg
      *            Message to client
      */
-    public void resolveException(final Throwable ex, final RequestContext context) throws IOException {
+    public void handleExceptionInternal(final Throwable ex, final RequestContext context) throws IOException {
         context.sendError(getStatus(ex), ex.getMessage());
     }
 

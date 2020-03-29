@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.web.Constant;
@@ -42,7 +41,7 @@ import cn.taketoday.web.handler.HandlerMethod;
  *         2019-06-22 19:17
  * @since 2.3.7
  */
-@MissingBean(value = Constant.EXCEPTION_RESOLVER, type = ExceptionResolver.class)
+@Deprecated
 public class ControllerAdviceExceptionResolver extends DefaultExceptionResolver implements WebApplicationInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(ControllerAdviceExceptionResolver.class);

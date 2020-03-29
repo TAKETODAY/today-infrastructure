@@ -82,7 +82,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	DISPATCHER_SERVLET					= "dispatcherServlet";
 	// Resolver
 	String	VIEW_RESOLVER						= "viewResolver";
-	String	EXCEPTION_RESOLVER					= "exceptionResolver";
+	String	EXCEPTION_HANDLER					= "exceptionHandler";
 	
 	// the dtd
 	String	DTD_NAME							= "web-configuration";

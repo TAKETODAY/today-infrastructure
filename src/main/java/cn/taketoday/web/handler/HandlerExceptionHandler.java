@@ -1,9 +1,9 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,24 +13,23 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ *   
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver;
+package cn.taketoday.web.handler;
 
 import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- *         2018-10-24 19:18
+ * 		   2020-03-29 20:52
  */
-@Deprecated
 @FunctionalInterface
-public interface ExceptionResolver {
+public interface HandlerExceptionHandler {
 
     /**
-     * Resolve exception
+     * Handle exception
      * 
      * @param exception
      *            The exception occurred
@@ -39,6 +38,6 @@ public interface ExceptionResolver {
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
-    void resolveException(RequestContext context, Throwable exception, Object handler) throws Throwable;
+    void handleException(RequestContext context, Throwable exception, Object handler) throws Throwable;
 
 }

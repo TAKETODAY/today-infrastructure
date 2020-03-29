@@ -64,6 +64,8 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
+import cn.taketoday.web.handler.DispatcherHandler;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
@@ -104,35 +106,25 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     private static final Logger log = LoggerFactory.getLogger(WebApplicationLoader.class);
 
-    /**
-     * Get {@link WebApplicationContext}
-     * 
-     * @return {@link WebApplicationContext}
-     */
-    public WebApplicationContext obtainApplicationContext() {
-        return (WebApplicationContext) super.obtainApplicationContext();
-    }
+    private DispatcherHandler dispatcherHandler;
 
     @Override
     public void onStartup(WebApplicationContext context) throws Throwable {
         setApplicationContext(context);
 
-        final Environment environment = context.getEnvironment();
-
         final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
 
-        configureResultHandler(mvcConfiguration);
-
-        final Class<Object> loaderClass = ClassUtils.loadClass("freemarker.cache.TemplateLoader");
-        if (loaderClass != null) {
-            configureTemplateLoader(context.getBeans(loaderClass), mvcConfiguration);
-        }
-
+        configureTemplateLoader(mvcConfiguration);
+        configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
         configureTypeConverter(context.getBeans(TypeConverter.class), mvcConfiguration);
         configureParameterResolver(context.getBeans(ParameterResolver.class), mvcConfiguration);
         configureResourceHandler(context.getBean(ResourceHandlerRegistry.class), mvcConfiguration);
         configureFunctionHandler(context.getBean(FunctionHandlerRegistry.class), mvcConfiguration);
+        configureExceptionHandler(context.getBean(HandlerExceptionHandler.class), mvcConfiguration);
 
+//        setExceptionResolver();// apply exception resolver
+
+        final Environment environment = context.getEnvironment();
         if (environment.getProperty(ENABLE_WEB_MVC_XML, Boolean::parseBoolean, true)) {
             initFrameWorkFromWebMvcXml();
         }
@@ -153,6 +145,10 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         System.gc();
     }
 
+    protected void configureExceptionHandler(HandlerExceptionHandler exceptionHandler, WebMvcConfiguration mvcConfiguration) {
+
+    }
+
     protected void configureFunctionHandler(FunctionHandlerRegistry registry, WebMvcConfiguration mvcConfiguration) {
         mvcConfiguration.configureFunctionHandler(registry);
     }
@@ -164,8 +160,12 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
      *            TemplateLoaders
      * @since 2.3.7
      */
-    protected <T> void configureTemplateLoader(List<T> beans, WebMvcConfiguration mvcConfiguration) {
-        mvcConfiguration.configureTemplateLoader(beans);
+    protected void configureTemplateLoader(WebMvcConfiguration mvcConfiguration) {
+        final Class<Object> loaderClass = ClassUtils.loadClass("freemarker.cache.TemplateLoader");
+        if (loaderClass != null) {
+            List<?> beans = obtainApplicationContext().getBeans(loaderClass);
+            mvcConfiguration.configureTemplateLoader(beans);
+        }
     }
 
     /**
@@ -191,17 +191,15 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
      * @param mvcConfiguration
      *            All {@link WebMvcConfiguration} object
      */
-    protected void configureResultHandler(WebMvcConfiguration mvcConfiguration) {
+    protected void configureResultHandler(List<ResultHandler> handlers, WebMvcConfiguration mvcConfiguration) {
 
-        final WebApplicationContext webApplicationContext = obtainApplicationContext();
-
-        List<ResultHandler> handlers = webApplicationContext.getBeans(ResultHandler.class);
+        final WebApplicationContext context = obtainApplicationContext();
 
         final TemplateViewResolver viewResolver = getTemplateViewResolver(mvcConfiguration);
-        final Environment environment = webApplicationContext.getEnvironment();
+        final Environment environment = context.getEnvironment();
         int bufferSize = Integer.parseInt(environment.getProperty(DOWNLOAD_BUFF_SIZE, "10240"));
 
-        final MessageConverter messageConverter = webApplicationContext.getBean(MessageConverter.class);
+        final MessageConverter messageConverter = context.getBean(MessageConverter.class);
 
         handlers.add(new ImageResultHandler());
         handlers.add(new ResourceResultHandler(bufferSize));
@@ -215,6 +213,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         mvcConfiguration.configureResultHandler(handlers);
 
         ResultHandlers.addHandler(handlers);
+        getDispatcherHandler().setResultHandlers(ResultHandlers.getRuntimeHandlers());// apply result handler
     }
 
     protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {
@@ -543,5 +542,13 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
      * Check resolvers
      */
     protected void checkFrameWorkResolvers(WebApplicationContext applicationContext) {}
+
+    public DispatcherHandler getDispatcherHandler() {
+        return dispatcherHandler;
+    }
+
+    public void setDispatcherHandler(DispatcherHandler dispatcherHandler) {
+        this.dispatcherHandler = dispatcherHandler;
+    }
 
 }
