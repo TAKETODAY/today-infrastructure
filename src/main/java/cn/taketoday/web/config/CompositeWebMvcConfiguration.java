@@ -23,8 +23,10 @@ import java.util.List;
 
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.web.handler.HandlerAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
+import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.method.ParameterResolver;
@@ -111,6 +113,20 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
     public void configureFunctionHandler(FunctionHandlerRegistry functionHandlerRegistry) {
         for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
             webMvcConfiguration.configureFunctionHandler(functionHandlerRegistry);
+        }
+    }
+
+    @Override
+    public void configureHandlerAdapter(List<HandlerAdapter> adapters) {
+        for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+            webMvcConfiguration.configureHandlerAdapter(adapters);
+        }
+    }
+
+    @Override
+    public void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries) {
+        for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+            webMvcConfiguration.configureHandlerRegistry(handlerRegistries);
         }
     }
 

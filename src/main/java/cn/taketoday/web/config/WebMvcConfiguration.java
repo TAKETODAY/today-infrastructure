@@ -24,8 +24,11 @@ import java.util.List;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.web.annotation.Multipart;
+import cn.taketoday.web.handler.HandlerAdapter;
+import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
+import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.resolver.method.ParameterResolver;
@@ -96,7 +99,7 @@ public interface WebMvcConfiguration {
     default void configureInitializer(List<WebApplicationInitializer> initializers) {}
 
     /**
-     * Configure Freemarker's TemplateLoader s
+     * Configure Freemarker's {@link freemarker.cache.TemplateLoader} s
      * 
      * @param loaders
      *            TemplateLoaders
@@ -105,7 +108,7 @@ public interface WebMvcConfiguration {
     default <T extends Object> void configureTemplateLoader(List<T> loaders) {}
 
     /**
-     * Configure ViewController s
+     * Configure {@link ViewController} s
      * 
      * @param registry
      *            {@link ViewControllerHandlerRegistry}
@@ -121,5 +124,23 @@ public interface WebMvcConfiguration {
      * @since 2.3.7
      */
     default void configureFunctionHandler(FunctionHandlerRegistry registry) {}
+
+    /**
+     * Configure {@link HandlerAdapter}
+     * 
+     * @param adapters
+     *            {@link HandlerAdapter}s
+     * @since 2.3.7
+     */
+    default void configureHandlerAdapter(List<HandlerAdapter> adapters) {}
+
+    /**
+     * Configure {@link HandlerRegistry}
+     * 
+     * @param handlerRegistries
+     *            {@link HandlerRegistry}s
+     * @since 2.3.7
+     */
+    default void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries) {}
 
 }
