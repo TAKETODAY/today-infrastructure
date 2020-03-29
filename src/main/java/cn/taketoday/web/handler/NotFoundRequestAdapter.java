@@ -38,7 +38,7 @@ public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
     public NotFoundRequestAdapter() {}
 
     public NotFoundRequestAdapter(int order) {
-        setOrder(order);
+        super(order);
     }
 
     @Override
