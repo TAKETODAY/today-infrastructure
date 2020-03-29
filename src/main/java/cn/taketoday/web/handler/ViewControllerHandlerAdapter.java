@@ -31,7 +31,7 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
     public ViewControllerHandlerAdapter() {}
 
     public ViewControllerHandlerAdapter(int order) {
-        setOrder(order);
+        super(order);
     }
 
     @Override
