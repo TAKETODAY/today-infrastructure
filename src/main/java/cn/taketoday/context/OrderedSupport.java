@@ -27,7 +27,9 @@ public abstract class OrderedSupport implements Ordered {
 
     private int order;
 
-    public OrderedSupport() {}
+    public OrderedSupport() {
+        this(LOWEST_PRECEDENCE);
+    }
 
     public OrderedSupport(int order) {
         this.order = order;
