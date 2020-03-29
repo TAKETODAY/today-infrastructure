@@ -55,7 +55,7 @@ public class ModelParameterResolver implements ParameterResolver {
             return context.redirectModel(new RedirectModelAttributes());
         }
         if (parameter.isAssignableFrom(ModelAndView.class)) {
-            return context.modelAndView(new ModelAndView(null, context));
+            return context.modelAndView();
         }
         return context;
     }

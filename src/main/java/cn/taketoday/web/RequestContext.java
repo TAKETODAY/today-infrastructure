@@ -32,6 +32,7 @@ import java.util.Map;
 
 import cn.taketoday.context.io.Readable;
 import cn.taketoday.context.io.Writable;
+import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.Model;
@@ -315,9 +316,16 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
 
     // ---------------- response
 
+    /**
+     * Get a {@link ModelAndView}
+     * <p>
+     * If there isn't a {@link ModelAndView} in this {@link RequestContext},
+     * <b>Create One</b>
+     * 
+     * @return Returns {@link ModelAndView}, never be null but except
+     *         {@link ApplicationNotStartedContext}
+     */
     ModelAndView modelAndView();
-
-    ModelAndView modelAndView(ModelAndView modelAndView);
 
     /**
      * Sets the length of the content body in the response , this method sets the

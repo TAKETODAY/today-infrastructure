@@ -323,11 +323,6 @@ public abstract class RequestContextHolder {
         }
 
         @Override
-        public ModelAndView modelAndView(ModelAndView modelAndView) {
-            return null;
-        }
-
-        @Override
         public RequestContext contentLength(long length) {
             return null;
         }

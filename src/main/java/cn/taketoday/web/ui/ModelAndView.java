@@ -42,6 +42,10 @@ public class ModelAndView implements Model {
         this(view, RequestContextHolder.currentContext());
     }
 
+    public ModelAndView(RequestContext dataModel) {
+        this(null, dataModel);
+    }
+
     public ModelAndView(Object view, RequestContext dataModel) {
         this.setView(view);
         this.dataModel = dataModel;
