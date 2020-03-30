@@ -40,10 +40,10 @@ import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
+import cn.taketoday.web.AbstractRequestContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.Model;
-import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.ui.RedirectModel;
 import cn.taketoday.web.utils.WebUtils;
 import io.netty.buffer.ByteBuf;
@@ -78,7 +78,7 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  * @author TODAY <br>
  *         2019-07-04 21:24
  */
-public class NettyRequestContext implements RequestContext, Map<String, Object> {
+public class NettyRequestContext extends AbstractRequestContext implements RequestContext, Map<String, Object> {
 
 //    private static final Logger log = LoggerFactory.getLogger(NettyRequestContext.class);
 
@@ -88,11 +88,7 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
     private boolean committed = false;
 
-    private Object requestBody;
-    private HttpCookie[] cookies;
-    private String[] pathVariables;
     private final String contextPath;
-    private ModelAndView modelAndView;
 
     private ByteBufInputStream inputStream;
     private ByteBufOutputStream outputStream;
@@ -328,37 +324,14 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
         return this;
     }
 
-    private static final HttpCookie[] EMPTY_HTTP_COOKIE = new HttpCookie[0];
-
     @Override
-    public HttpCookie[] cookies() {
-
-        final HttpCookie[] cookies = this.cookies;
-        if (cookies == null) {
-
-            final String header = request.headers().get(HttpHeaderNames.COOKIE);
-            if (StringUtils.isEmpty(header)) {
-                return this.cookies = EMPTY_HTTP_COOKIE;
-            }
-            final List<HttpCookie> parsed = HttpCookie.parse(header);
-
-            return this.cookies = ObjectUtils.isEmpty(parsed)
-                    ? EMPTY_HTTP_COOKIE
-                    : parsed.toArray(new HttpCookie[parsed.size()]);
+    public HttpCookie[] getCookiesInternal() {
+        final String header = request.headers().get(HttpHeaderNames.COOKIE);
+        if (StringUtils.isEmpty(header)) {
+            return null;
         }
-
-        return cookies;
-    }
-
-    @Override
-    public HttpCookie cookie(String name) {
-
-        for (final HttpCookie cookie : cookies()) {
-            if (cookie.getName().equals(name)) {
-                return cookie;
-            }
-        }
-        return null;
+        final List<HttpCookie> parsed = HttpCookie.parse(header);
+        return ObjectUtils.isEmpty(parsed) ? null : parsed.toArray(new HttpCookie[parsed.size()]);
     }
 
     @Override
@@ -469,26 +442,6 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
     }
 
     @Override
-    public Object requestBody() {
-        return requestBody;
-    }
-
-    @Override
-    public Object requestBody(Object body) {
-        return this.requestBody = body;
-    }
-
-    @Override
-    public String[] pathVariables() {
-        return pathVariables;
-    }
-
-    @Override
-    public String[] pathVariables(String[] variables) {
-        return this.pathVariables = variables;
-    }
-
-    @Override
     public RedirectModel redirectModel() {
         return null;
     }
@@ -553,16 +506,6 @@ public class NettyRequestContext implements RequestContext, Map<String, Object> 
 
         setCommitted(true);
         return this;
-    }
-
-    @Override
-    public ModelAndView modelAndView() {
-        return modelAndView;
-    }
-
-    @Override
-    public ModelAndView modelAndView(ModelAndView modelAndView) {
-        return this.modelAndView = modelAndView;
     }
 
     @Override
