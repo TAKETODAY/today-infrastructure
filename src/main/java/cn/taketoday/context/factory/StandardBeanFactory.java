@@ -130,7 +130,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
         for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
             if (entry.getValue().isAnnotationPresent(Configuration.class)) {
                 // @Configuration bean
-                loadConfigurationBeans(entry.getValue().getBeanClass());
+                loadConfigurationBeans(entry.getValue());
             }
         }
     }
@@ -138,15 +138,14 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     /**
      * Load {@link Configuration} beans from input bean class
      * 
-     * @param beanClass
+     * @param def
      *            current {@link Configuration} bean
      * @since 2.1.7
      */
-    protected void loadConfigurationBeans(final Class<?> beanClass) {
-
+    protected void loadConfigurationBeans(final BeanDefinition def) {
         final Collection<Method> missingMethods = this.missingMethods;
         final ConfigurableApplicationContext context = getApplicationContext();
-
+        final Class<?> beanClass = def.getBeanClass();
         for (final Method method : beanClass.getDeclaredMethods()) {
             final AnnotationAttributes[] components = getAnnotationAttributesArray(method, Component.class);
             if (ObjectUtils.isEmpty(components)) {
@@ -155,7 +154,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
                 }
             }
             else if (conditional(method, context)) { // pass the condition
-                registerConfigurationBean(method, components);
+                registerConfigurationBean(def, method, components);
             }
         }
     }
@@ -168,18 +167,17 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @param components
      *            {@link AnnotationAttributes}
      */
-    protected void registerConfigurationBean(final Method method, final AnnotationAttributes[] components)
+    protected void registerConfigurationBean(final BeanDefinition def, final Method method, final AnnotationAttributes[] components)
             throws BeanDefinitionStoreException //
     {
         final Class<?> returnType = method.getReturnType();
-        final BeanNameCreator beanNameCreator = getBeanNameCreator();
 
         final ConfigurableApplicationContext applicationContext = getApplicationContext();
         final ConfigurableEnvironment environment = applicationContext.getEnvironment();
         final Properties properties = environment.getProperties();
         //final String defaultBeanName = beanNameCreator.create(returnType); // @Deprecated in v2.1.7, use method name instead
         final String defaultBeanName = method.getName(); // @since v2.1.7
-        final String declaringBeanName = beanNameCreator.create(method.getDeclaringClass());
+        final String declaringBeanName = def.getName(); // @since v2.1.7
 
         for (final AnnotationAttributes component : components) {
             final String scope = component.getString(Constant.SCOPE);
@@ -189,18 +187,18 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
             for (final String name : findNames(defaultBeanName, component.getStringArray(Constant.VALUE))) {
 
                 // register
-                final StandardBeanDefinition def = new StandardBeanDefinition(name, returnType);
+                final StandardBeanDefinition stdDef = new StandardBeanDefinition(name, returnType);
 
-                def.setScope(scope);
-                def.setDestroyMethods(destroyMethods);
-                def.setInitMethods(resolveInitMethod(initMethods, returnType));
+                stdDef.setScope(scope);
+                stdDef.setDestroyMethods(destroyMethods);
+                stdDef.setInitMethods(resolveInitMethod(initMethods, returnType));
                 // fix Configuration bean shouldn't auto apply properties
                 // def.setPropertyValues(ContextUtils.resolvePropertyValue(returnType)); 
-                def.setDeclaringName(declaringBeanName)
+                stdDef.setDeclaringName(declaringBeanName)
                         .setFactoryMethod(method);
                 // resolve @Props on a bean
-                def.addPropertyValue(resolveProps(def, properties));
-                register(name, def);
+                stdDef.addPropertyValue(resolveProps(stdDef, properties));
+                register(name, stdDef);
             }
         }
     }
@@ -375,7 +373,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
         register(importDef);
 
-        loadConfigurationBeans(importClass); // scan config bean
+        loadConfigurationBeans(importDef); // scan config bean
 
         if (ImportSelector.class.isAssignableFrom(importClass)) {
             for (final String select : createImporter(importDef, ImportSelector.class).selectImports(def)) {

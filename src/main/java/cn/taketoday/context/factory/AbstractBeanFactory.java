@@ -400,11 +400,11 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         // Factory is always a SINGLETON bean
         // ----------------------------------------
 
-        final Object initBean = initializeBean(factoryBean, def);
-
         if (log.isDebugEnabled()) {
             log.debug("Initialize FactoryBean: [{}]", def.getName());
         }
+        final Object initBean = initializeBean(factoryBean, def);
+
         def.setInitialized(true);
         registerSingleton(getFactoryBeanName(def), initBean); // Refresh bean to the mapping
         return (FactoryBean<T>) initBean;
@@ -480,7 +480,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     protected Object getImplementation(final BeanDefinition childDef, final BeanDefinition currentDef)
             throws BeanInstantiationException // 
     {
-        if (!currentDef.isSingleton()) {
+        if (currentDef.isPrototype()) {
             return doCreatePrototype(childDef);
         }
         // initialize child bean
