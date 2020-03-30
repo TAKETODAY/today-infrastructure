@@ -20,11 +20,11 @@
 package cn.taketoday.web.servlet.initializer;
 
 import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.ServletSecurityElement;
 
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.servlet.DispatcherServlet;
@@ -42,59 +42,64 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
 
     private final WebServletApplicationContext applicationContext;
 
-    private String dispatcherServletMapping = Constant.DISPATCHER_SERVLET_MAPPING;
+    public DispatcherServletInitializer(WebServletApplicationContext context) {
+        this(context, null);
+    }
 
-    public DispatcherServletInitializer(WebServletApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public DispatcherServletInitializer(WebServletApplicationContext context, DispatcherServlet dispatcherServlet) {
+        super(dispatcherServlet);
+        this.applicationContext = context;
         setOrder(HIGHEST_PRECEDENCE - 100);
+        setName(Constant.DISPATCHER_SERVLET);
+        addUrlMappings(Constant.DISPATCHER_SERVLET_MAPPING);
     }
 
     @Override
     public DispatcherServlet getServlet() {
-
         DispatcherServlet dispatcherServlet = super.getServlet();
         if (dispatcherServlet == null) {
-            multipartConfig();
-            addUrlMappings(StringUtils.split(dispatcherServletMapping));
-
             final WebServletApplicationContext applicationContext = getApplicationContext();
-
             if (!applicationContext.containsBeanDefinition(DispatcherServlet.class)) {
                 applicationContext.registerBean(Constant.DISPATCHER_SERVLET, DispatcherServlet.class);
             }
-
             dispatcherServlet = applicationContext.getBean(DispatcherServlet.class);
-            final Logger log = LoggerFactory.getLogger(DispatcherServletInitializer.class);
-
-            log.info("Register Dispatcher Servlet: [{}] With Url Mappings: {}", dispatcherServlet, getUrlMappings());
-
-            setName(Constant.DISPATCHER_SERVLET);
             setServlet(dispatcherServlet);
         }
         return dispatcherServlet;
     }
 
-    protected void multipartConfig() {
+    @Override
+    protected void configureRegistration(Dynamic registration) {
+        super.configureRegistration(registration);
 
-        final WebServletApplicationContext applicationContext = getApplicationContext();
+        final Logger log = LoggerFactory.getLogger(DispatcherServletInitializer.class);
+        log.info("Register Dispatcher Servlet: [{}] With Url Mappings: {}", getServlet(), getUrlMappings());
+    }
 
-        MultipartConfigElement multipartConfig = applicationContext.getBean(MultipartConfigElement.class);
-
+    @Override
+    protected void configureMultipart(Dynamic registration) {
+        MultipartConfigElement multipartConfig = getMultipartConfig();
         if (multipartConfig == null) {
-
-            final MultipartConfiguration configuration = applicationContext.getBean(MultipartConfiguration.class);
-
-            multipartConfig = new MultipartConfigElement(configuration.getLocation(),
-                                                         configuration.getMaxFileSize().toBytes(),
-                                                         configuration.getMaxRequestSize().toBytes(),
-                                                         (int) configuration.getFileSizeThreshold().toBytes());
+            final WebServletApplicationContext context = getApplicationContext();
+            multipartConfig = context.getBean(MultipartConfigElement.class);
+            if (multipartConfig == null) {
+                final MultipartConfiguration configuration = context.getBean(MultipartConfiguration.class);
+                multipartConfig = new MultipartConfigElement(configuration.getLocation(),
+                                                             configuration.getMaxFileSize().toBytes(),
+                                                             configuration.getMaxRequestSize().toBytes(),
+                                                             (int) configuration.getFileSizeThreshold().toBytes());
+            }
         }
 
         if (multipartConfig != null) {
             setMultipartConfig(multipartConfig);
         }
-        ServletSecurityElement securityConfig = applicationContext.getBean(ServletSecurityElement.class);
+    }
 
+    @Override
+    protected void configureServletSecurity(Dynamic registration) {
+
+        ServletSecurityElement securityConfig = getApplicationContext().getBean(ServletSecurityElement.class);
         if (securityConfig != null) {
             setServletSecurity(securityConfig);
         }
