@@ -48,6 +48,12 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
 
     private ServletConfig servletConfig;
 
+    public DispatcherServlet() {}
+
+    public DispatcherServlet(WebServletApplicationContext context) {
+        setApplicationContext(context);
+    }
+    
     @Override
     public void service(final ServletRequest request, final ServletResponse response) throws ServletException, IOException {
 
