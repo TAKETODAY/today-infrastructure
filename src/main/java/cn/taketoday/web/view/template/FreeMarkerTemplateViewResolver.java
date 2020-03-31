@@ -21,7 +21,6 @@ package cn.taketoday.web.view.template;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -32,8 +31,6 @@ import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
-import cn.taketoday.context.factory.InitializingBean;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
@@ -61,7 +58,7 @@ import freemarker.template.TemplateHashModel;
 @MissingBean(type = TemplateViewResolver.class)
 @ConditionalOnClass({ Constant.ENV_SERVLET, "freemarker.template.Configuration" })
 public class FreeMarkerTemplateViewResolver
-        extends AbstractFreeMarkerTemplateViewResolver implements InitializingBean, WebMvcConfiguration {
+        extends AbstractFreeMarkerTemplateViewResolver implements WebMvcConfiguration {
 
     private final TaglibFactory taglibFactory;
     private final ServletContext servletContext;
@@ -72,11 +69,10 @@ public class FreeMarkerTemplateViewResolver
             @Autowired(required = false) ObjectWrapper wrapper,
             @Autowired(required = false) Configuration configuration,
             @Autowired(required = false) TaglibFactory taglibFactory,
-            @Props(prefix = "freemarker.", replace = true) Properties settings)//
+            @Autowired(required = true) WebServletApplicationContext context)//
     {
-        super(wrapper, configuration, settings);
-        final WebServletApplicationContext context = //
-                (WebServletApplicationContext) ContextUtils.getApplicationContext();
+        setWrapper(wrapper);
+        setConfiguration(configuration);
 
         this.servletContext = context.getServletContext();
         this.taglibFactory = taglibFactory != null ? taglibFactory : new TaglibFactory(this.servletContext);
@@ -93,7 +89,7 @@ public class FreeMarkerTemplateViewResolver
             if (StringUtils.isNotEmpty(prefix) && prefix.startsWith("/WEB-INF/")) {// prefix -> /WEB-INF/..
                 return new WebappTemplateLoader(servletContext, prefix);
             }
-            return new DefaultResourceTemplateLoader(prefix, cacheSize);
+            return new DefaultResourceTemplateLoader(prefix, suffix, cacheSize);
         }
         return new CompositeTemplateLoader((Collection<TemplateLoader>) loaders, cacheSize);
     }
@@ -108,21 +104,18 @@ public class FreeMarkerTemplateViewResolver
     @Override
     protected TemplateHashModel createModel(final RequestContext context) {
 
-        final ObjectWrapper wrapper = this.getWrapper();
-
+        final ObjectWrapper wrapper = getWrapper();
         final HttpServletRequest request = context.nativeRequest();
-
         final AllHttpScopesHashModel ret = //
                 new AllHttpScopesHashModel(wrapper, servletContext, request);
 
-        ret.putUnlistedModel(FreemarkerServlet.KEY_JSP_TAGLIBS, this.taglibFactory);
+        ret.putUnlistedModel(FreemarkerServlet.KEY_JSP_TAGLIBS, taglibFactory);
         ret.putUnlistedModel(FreemarkerServlet.KEY_APPLICATION, applicationModel);
         // Create hash model wrapper for request
         ret.putUnlistedModel(FreemarkerServlet.KEY_REQUEST, new HttpRequestHashModel(request, wrapper));
         ret.putUnlistedModel(FreemarkerServlet.KEY_REQUEST_PARAMETERS, new HttpRequestParametersHashModel(request));
         // Create hash model wrapper for session
-        ret.putUnlistedModel(FreemarkerServlet.KEY_SESSION,
-                             new HttpSessionHashModel(context.nativeSession(), wrapper));
+        ret.putUnlistedModel(FreemarkerServlet.KEY_SESSION, new HttpSessionHashModel(context.nativeSession(), wrapper));
         return ret;
     }
 

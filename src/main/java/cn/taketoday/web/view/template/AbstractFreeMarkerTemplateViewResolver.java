@@ -19,22 +19,23 @@
  */
 package cn.taketoday.web.view.template;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.web.resolver.method.DelegatingParameterResolver.delegate;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import javax.annotation.PostConstruct;
+
 import cn.taketoday.context.Ordered;
+import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.SharedVariable;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.resolver.method.ParameterResolver;
@@ -52,25 +53,45 @@ import freemarker.template.TemplateModel;
  *         2019-11-22 13:25
  */
 public abstract class AbstractFreeMarkerTemplateViewResolver
-        extends AbstractTemplateViewResolver implements InitializingBean, WebMvcConfiguration {
+        extends AbstractTemplateViewResolver implements WebMvcConfiguration {
 
     protected int cacheSize = 1024;
-    protected final ObjectWrapper wrapper;
-    protected final Configuration configuration;
+    private ObjectWrapper wrapper;
+    private Configuration configuration;
 
-    public AbstractFreeMarkerTemplateViewResolver(ObjectWrapper wrapper, Configuration configuration, Properties settings) {
+    public AbstractFreeMarkerTemplateViewResolver() {
         setSuffix(".ftl");
+    }
 
-        this.wrapper = configObjectWrapper(wrapper);
-        this.configuration = configConfiguration(configuration);
-        this.configuration.setObjectWrapper(this.wrapper);
+    protected void configConfiguration(WebApplicationContext context) {
+        Configuration config = configuration;
+        if (config == null) {
+            config = configuration = new Configuration(Configuration.VERSION_2_3_28);
+            context.registerSingleton(config.getClass().getName(), config);
+        }
+        context.getBeansOfType(TemplateModel.class)
+                .forEach(config::setSharedVariable);
 
-        ContextUtils.getApplicationContext()
-                .getBeansOfType(TemplateModel.class).forEach(this.configuration::setSharedVariable);
+        config.setLocale(locale);
+        config.setDefaultEncoding(encoding);
+    }
+
+    protected void configObjectWrapper() {
+        if (getWrapper() == null) {
+            setWrapper(new DefaultObjectWrapper(Configuration.VERSION_2_3_28));
+        }
+        getConfiguration().setObjectWrapper(getWrapper());
+    }
+
+    @PostConstruct
+    public void initFreeMarker(WebApplicationContext context, @Props(prefix = "freemarker.", replace = true) Properties settings) {
+
+        configConfiguration(context);
+        configObjectWrapper();
 
         try {
             if (ObjectUtils.isNotEmpty(settings)) {
-                this.configuration.setSettings(settings);
+                getConfiguration().setSettings(settings);
             }
         }
         catch (TemplateException e) {
@@ -78,39 +99,12 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
         }
     }
 
-    protected Configuration configConfiguration(final Configuration configuration) {
-        Configuration configurationToUse = configuration;
-        if (configurationToUse == null) {
-            configurationToUse = new Configuration(Configuration.VERSION_2_3_28);
-            ContextUtils.getApplicationContext()
-                    .registerSingleton(configurationToUse.getClass().getName(), configurationToUse);
-        }
-        return configurationToUse;
-    }
-
-    protected ObjectWrapper configObjectWrapper(final ObjectWrapper wrapper) {
-        return wrapper != null ? wrapper : new DefaultObjectWrapper(Configuration.VERSION_2_3_28);
-    }
-
-    /**
-     * Use {@link afterPropertiesSet}
-     * 
-     * @since 2.3.3
-     */
-    @Override
-    public void afterPropertiesSet() {
-        final Configuration config = nonNull(this.configuration,
-                                             "'freemarker.template.Configuration' can't be null");
-        config.setLocale(locale);
-        config.setDefaultEncoding(encoding);
-    }
-
     @Override
     public void configureParameterResolver(List<ParameterResolver> resolvers) {
 
-        resolvers.add(delegate((m) -> m.isAssignableFrom(Configuration.class), (ctx, m) -> configuration));
+        resolvers.add(delegate((m) -> m.isAssignableFrom(Configuration.class), (ctx, m) -> getConfiguration()));
         resolvers.add(delegate((m) -> m.isAnnotationPresent(SharedVariable.class), (ctx, m) -> {
-            final TemplateModel sharedVariable = configuration.getSharedVariable(m.getName());
+            final TemplateModel sharedVariable = getConfiguration().getSharedVariable(m.getName());
 
             if (m.isInstance(sharedVariable)) {
                 return sharedVariable;
@@ -133,21 +127,21 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
 
     @Override
     public <T> void configureTemplateLoader(List<T> loaders) {
-
         final TemplateLoader loader = createTemplateLoader(loaders);
+        getConfiguration().setTemplateLoader(loader);
 
-        configuration.setTemplateLoader(loader);
-
-        final Logger logger = LoggerFactory.getLogger(getClass());
-        logger.info("FreeMarker use [{}] to load templates, prefix: [{}], suffix: [{}]", loader, prefix, suffix);
-        logger.info("Configuration FreeMarker Template View Resolver Success.");
+        final Logger log = LoggerFactory.getLogger(AbstractFreeMarkerTemplateViewResolver.class);
+        if (log.isInfoEnabled()) {
+            log.info("FreeMarker use [{}] to load templates, prefix: [{}], suffix: [{}]", loader, prefix, suffix);
+            log.info("Configuration FreeMarker Template View Resolver Success.");
+        }
     }
 
     @SuppressWarnings("unchecked")
     protected <T> TemplateLoader createTemplateLoader(List<T> loaders) {
 
         return ObjectUtils.isEmpty(loaders)
-                ? new DefaultResourceTemplateLoader(prefix, cacheSize)
+                ? new DefaultResourceTemplateLoader(prefix, suffix, cacheSize)
                 : new CompositeTemplateLoader((Collection<TemplateLoader>) loaders, cacheSize);
     }
 
@@ -163,24 +157,32 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
     @Override
     public void resolveView(final String template, final RequestContext context) throws Throwable {
 
-        configuration.getTemplate(template.concat(suffix), locale, encoding)
+        getConfiguration().getTemplate(template, locale, encoding)
                 .process(createModel(context), context.getWriter());
     }
 
-    public final int getCacheSize() {
+    public int getCacheSize() {
         return cacheSize;
     }
 
-    public final void setCacheSize(int cacheSize) {
+    public void setCacheSize(int cacheSize) {
         this.cacheSize = cacheSize;
     }
 
-    public final ObjectWrapper getWrapper() {
+    public ObjectWrapper getWrapper() {
         return wrapper;
     }
 
-    public final Configuration getConfiguration() {
+    public Configuration getConfiguration() {
         return configuration;
+    }
+
+    public void setWrapper(ObjectWrapper wrapper) {
+        this.wrapper = wrapper;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 
 }

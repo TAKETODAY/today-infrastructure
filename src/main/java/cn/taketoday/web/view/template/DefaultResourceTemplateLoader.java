@@ -40,51 +40,51 @@ import freemarker.cache.TemplateLoader;
 public class DefaultResourceTemplateLoader implements TemplateLoader {
 
     private String prefix;
+    private String suffix;
+
     public final ConcurrentCache<String, TemplateSource> cache;
     private HashMap<String, Object> noneExist = new HashMap<>();
 
     public DefaultResourceTemplateLoader() {
-        this(null, 1024);
+        this(Constant.DEFAULT_TEMPLATE_PATH, Constant.BLANK, 1024);
     }
 
-    public DefaultResourceTemplateLoader(String prefix) {
-        this(prefix, 1024);
+    public DefaultResourceTemplateLoader(String prefix, String suffix) {
+        this(prefix, suffix, 1024);
     }
 
-    public DefaultResourceTemplateLoader(String prefix, int size) {
+    public DefaultResourceTemplateLoader(String prefix, String suffix, int size) {
         this.prefix = prefix;
+        this.suffix = suffix;
         this.cache = ConcurrentCache.create(size);
     }
 
-    protected String getTemplateName(final String prefix, final String name) {
-
-        if (StringUtils.isEmpty(prefix)) {
-            return StringUtils.checkUrl(name);
-        }
-        return prefix.concat(StringUtils.checkUrl(name));
+    protected String getTemplate(final String name) {
+        return new StringBuilder(getPrefix())
+                .append(StringUtils.checkUrl(name))
+                .append(getSuffix())
+                .toString();
     }
 
     @Override
     public Object findTemplateSource(String name) throws IOException {
 
-        final String templateName = getTemplateName(prefix, name);
-
-        if (noneExist.containsKey(templateName)) {
+        if (noneExist.containsKey(name)) {
             return null;
         }
 
-        TemplateSource ret = cache.get(templateName);
+        TemplateSource ret = cache.get(name);
         if (ret == null) {
             try {
-                final Resource res = ResourceUtils.getResource(templateName);
+                final Resource res = ResourceUtils.getResource(getTemplate(name));
                 if (res.exists()) {
-                    cache.put(templateName, ret = TemplateSource.create(res));
+                    cache.put(name, ret = TemplateSource.create(res));
                     return ret;
                 }
             }
             catch (FileNotFoundException e) {}
 
-            noneExist.put(templateName, Constant.EMPTY_OBJECT);
+            noneExist.put(name, Constant.EMPTY_OBJECT);
         }
         return ret;
     }
@@ -109,18 +109,6 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
     @Override
     public void closeTemplateSource(final Object source) throws IOException {}
 
-    // Setter Getter
-    // -----------------------------
-
-    public final String getPrefix() {
-        return prefix;
-    }
-
-    public DefaultResourceTemplateLoader setPrefix(String prefix) {
-        this.prefix = prefix;
-        return this;
-    }
-
     /**
      * Put a Template With from a {@link Resource}
      * 
@@ -133,7 +121,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
      *             If any {@link IOException} occurred
      */
     public DefaultResourceTemplateLoader putTemplate(String name, Resource resource) throws IOException {
-        cache.put(getTemplateName(prefix, name), TemplateSource.create(resource));
+        cache.put(name, TemplateSource.create(resource));
         return this;
     }
 
@@ -147,7 +135,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
      * @return this
      */
     public DefaultResourceTemplateLoader putTemplate(String name, TemplateSource template) {
-        cache.put(getTemplateName(prefix, name), template);
+        cache.put(name, template);
         return this;
     }
 
@@ -162,10 +150,8 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
      *            {@link ReaderSupplier}
      * @return this
      */
-    public DefaultResourceTemplateLoader putTemplate(final String name,
-                                                     final long lastModified,
-                                                     final ReaderSupplier reader) {
-        cache.put(getTemplateName(prefix, name), TemplateSource.create(lastModified, reader));
+    public DefaultResourceTemplateLoader putTemplate(final String name, final long lastModified, final ReaderSupplier reader) {
+        cache.put(name, TemplateSource.create(lastModified, reader));
         return this;
     }
 
@@ -177,7 +163,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
      * @return this
      */
     public DefaultResourceTemplateLoader removeTemplate(String name) {
-        cache.remove(getTemplateName(prefix, name));
+        cache.remove(name);
         return this;
     }
 
@@ -209,12 +195,31 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
         Reader get(String c) throws IOException;
     }
 
+    // Setter Getter
+    // -----------------------------
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("DefaultResourceTemplateLoader [prefix=");
-        builder.append(prefix);
-        builder.append(']');
+        builder.append("DefaultResourceTemplateLoader [prefix=").append(prefix).append(", suffix=").append(suffix).append("]");
         return builder.toString();
+    }
+
+    public String getSuffix() {
+        return suffix;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public DefaultResourceTemplateLoader setPrefix(String prefix) {
+        this.prefix = prefix;
+        return this;
+    }
+
+    public DefaultResourceTemplateLoader setSuffix(String suffix) {
+        this.suffix = suffix;
+        return this;
     }
 }

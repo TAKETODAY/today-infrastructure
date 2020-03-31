@@ -34,8 +34,8 @@ import lombok.Setter;
 @Getter
 public abstract class AbstractTemplateViewResolver implements TemplateViewResolver {
 
-    protected String suffix = Constant.BLANK;
     protected Locale locale = Locale.CHINA;
+    protected String suffix = Constant.BLANK;
     protected String prefix = Constant.DEFAULT_TEMPLATE_PATH;
     protected String encoding = Constant.DEFAULT_ENCODING;
 
