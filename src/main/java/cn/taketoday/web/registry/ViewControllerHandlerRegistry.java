@@ -109,7 +109,6 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
     public ViewController addViewController(String pathPattern) {
         final ViewController viewController = new ViewController();
         register(pathPattern, viewController);
-
         return viewController;
     }
 

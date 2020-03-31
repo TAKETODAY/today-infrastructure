@@ -91,7 +91,7 @@ public class ViewController extends OrderedSupport implements Serializable {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("ViewController [assetsPath=");
+        builder.append("ViewController [resource=");
         builder.append(resource);
         builder.append(", contentType=");
         builder.append(contentType);

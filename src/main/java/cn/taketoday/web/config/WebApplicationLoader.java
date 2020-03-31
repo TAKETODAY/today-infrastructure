@@ -113,11 +113,11 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
         configureTypeConverter(context.getBeans(TypeConverter.class), mvcConfiguration);
         configureHandlerAdapter(context.getBeans(HandlerAdapter.class), mvcConfiguration);
-        configureHandlerRegistry(context.getBeans(HandlerRegistry.class), mvcConfiguration);
         configureParameterResolver(context.getBeans(ParameterResolver.class), mvcConfiguration);
 
-        configureViewControllerHandler(context, mvcConfiguration);
-        
+        configureViewControllerHandler(context, mvcConfiguration);         
+        configureHandlerRegistry(context.getBeans(HandlerRegistry.class), mvcConfiguration);//fix
+
         // check all Components
         checkFrameWorkComponents(context);
         initializerStartup(context, mvcConfiguration);
