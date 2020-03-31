@@ -27,8 +27,6 @@ import java.text.SimpleDateFormat;
 
 import cn.taketoday.context.ApplicationContext.State;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
@@ -45,8 +43,6 @@ import cn.taketoday.web.view.RuntimeResultHandler;
  *         2019-11-16 19:05
  */
 public class DispatcherHandler extends WebApplicationContextSupport {
-
-    private static final Logger log = LoggerFactory.getLogger(DispatcherHandler.class);
 
     /** Action mapping registry */
     private HandlerRegistry handlerRegistry;
