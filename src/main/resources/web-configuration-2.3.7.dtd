@@ -6,7 +6,6 @@
 
 <!ELEMENT Web-Configuration (#PCDATA|controller)*>
 
-<!-- action common configure -->
 <!ELEMENT controller (action)*>
 	<!ATTLIST controller
 		prefix CDATA "/WEB-INF/ftl"
@@ -15,11 +14,11 @@
 		class CDATA #IMPLIED
 	>
 	
-<!-- action -->
 <!ELEMENT action (#PCDATA)>
 	<!ATTLIST action
 		name CDATA #REQUIRED
 		method CDATA #IMPLIED
+		status CDATA #REQUIRED
 		resource CDATA #IMPLIED
 		content-type CDATA "text/html;charset=UTF-8"
 		type (forward|redirect) #IMPLIED
