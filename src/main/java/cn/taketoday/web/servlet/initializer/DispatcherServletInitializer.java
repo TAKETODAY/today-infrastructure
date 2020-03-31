@@ -29,17 +29,16 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author TODAY <br>
  *         2019-02-03 14:08
  */
-@Setter
-@Getter
 public class DispatcherServletInitializer extends WebServletInitializer<DispatcherServlet> {
 
+    private static final Logger log = LoggerFactory.getLogger(DispatcherServletInitializer.class);
+
+    private boolean autoCreateDispatcher;
     private final WebServletApplicationContext applicationContext;
 
     public DispatcherServletInitializer(WebServletApplicationContext context) {
@@ -57,7 +56,7 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
     @Override
     public DispatcherServlet getServlet() {
         DispatcherServlet dispatcherServlet = super.getServlet();
-        if (dispatcherServlet == null) {
+        if (dispatcherServlet == null && isAutoCreateDispatcher()) {
             final WebServletApplicationContext applicationContext = getApplicationContext();
             if (!applicationContext.containsBeanDefinition(DispatcherServlet.class)) {
                 applicationContext.registerBean(Constant.DISPATCHER_SERVLET, DispatcherServlet.class);
@@ -71,24 +70,22 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
     @Override
     protected void configureRegistration(Dynamic registration) {
         super.configureRegistration(registration);
-
-        final Logger log = LoggerFactory.getLogger(DispatcherServletInitializer.class);
-        log.info("Register Dispatcher Servlet: [{}] With Url Mappings: {}", getServlet(), getUrlMappings());
+        if (log.isInfoEnabled()) {
+            log.info("Register Dispatcher Servlet: [{}] With Url Mappings: {}", getServlet(), getUrlMappings());
+        }
     }
 
     @Override
     protected void configureMultipart(Dynamic registration) {
         MultipartConfigElement multipartConfig = getMultipartConfig();
         if (multipartConfig == null) {
-            final WebServletApplicationContext context = getApplicationContext();
-            multipartConfig = context.getBean(MultipartConfigElement.class);
-            if (multipartConfig == null) {
-                final MultipartConfiguration configuration = context.getBean(MultipartConfiguration.class);
-                multipartConfig = new MultipartConfigElement(configuration.getLocation(),
-                                                             configuration.getMaxFileSize().toBytes(),
-                                                             configuration.getMaxRequestSize().toBytes(),
-                                                             (int) configuration.getFileSizeThreshold().toBytes());
-            }
+
+            final MultipartConfiguration configuration = getApplicationContext().getBean(MultipartConfiguration.class);
+            multipartConfig = new MultipartConfigElement(configuration.getLocation(),
+                                                         configuration.getMaxFileSize().toBytes(),
+                                                         configuration.getMaxRequestSize().toBytes(),
+                                                         (int) configuration.getFileSizeThreshold().toBytes());
+            log.info("DispatcherServlet use: {}", configuration);
         }
 
         if (multipartConfig != null) {
@@ -103,6 +100,18 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
         if (securityConfig != null) {
             setServletSecurity(securityConfig);
         }
+    }
+
+    public boolean isAutoCreateDispatcher() {
+        return autoCreateDispatcher;
+    }
+
+    public WebServletApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
+    public void setAutoCreateDispatcher(boolean autoCreateDispatcher) {
+        this.autoCreateDispatcher = autoCreateDispatcher;
     }
 
 }
