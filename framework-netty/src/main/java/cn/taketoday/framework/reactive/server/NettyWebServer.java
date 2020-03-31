@@ -33,9 +33,9 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.framework.StandardWebServerApplicationContext;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
+import cn.taketoday.framework.reactive.NettyWebServerApplicationLoader;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.WebServer;
-import cn.taketoday.framework.server.WebServerApplicationLoader;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -101,7 +101,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
         super.contextInitialized();
 
         try {
-            new WebServerApplicationLoader(() -> getMergedInitializers())
+            new NettyWebServerApplicationLoader(() -> getMergedInitializers())
                     .onStartup(applicationContext);
         }
         catch (Throwable e) {
