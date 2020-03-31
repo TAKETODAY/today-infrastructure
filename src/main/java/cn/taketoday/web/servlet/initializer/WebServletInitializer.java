@@ -42,15 +42,11 @@ import lombok.Setter;
 public class WebServletInitializer<T extends Servlet> extends WebComponentInitializer<ServletRegistration.Dynamic> {
 
     private T servlet;
-
     private int loadOnStartup = -1;
-
     private MultipartConfigElement multipartConfig;
     private ServletSecurityElement servletSecurity;
 
-    public WebServletInitializer() {
-
-    }
+    public WebServletInitializer() {}
 
     public WebServletInitializer(T servlet) {
         this.servlet = servlet;
@@ -87,24 +83,32 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
     protected void configureRegistration(Dynamic registration) {
 
         LoggerFactory.getLogger(WebServletInitializer.class).debug("Configure servlet registration: [{}]", this);
-
-        super.configureRegistration(registration);
-
-        String[] urlMappings = StringUtils.toStringArray(getUrlMappings());
-
-        if (StringUtils.isArrayEmpty(urlMappings)) {
-            urlMappings = Constant.DEFAULT_MAPPINGS;
-        }
-
-        registration.addMapping(urlMappings);
         registration.setLoadOnStartup(this.loadOnStartup);
 
-        if (this.multipartConfig != null) {
-            registration.setMultipartConfig(this.multipartConfig);
-        }
+        super.configureRegistration(registration);
+        configureMultipart(registration);
+        configureUrlMappings(registration);
+        configureServletSecurity(registration);
+    }
 
+    protected void configureUrlMappings(Dynamic registration) {
+
+        final String[] urlMappings = getUrlMappings().isEmpty()
+                ? Constant.DEFAULT_MAPPINGS
+                : StringUtils.toStringArray(getUrlMappings());
+
+        registration.addMapping(urlMappings);
+    }
+
+    protected void configureServletSecurity(Dynamic registration) {
         if (this.servletSecurity != null) {
             registration.setServletSecurity(servletSecurity);
+        }
+    }
+
+    protected void configureMultipart(Dynamic registration) {
+        if (this.multipartConfig != null) {
+            registration.setMultipartConfig(this.multipartConfig);
         }
     }
 
