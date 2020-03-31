@@ -41,7 +41,6 @@ import cn.taketoday.web.handler.RequestHandler;
  * @author TODAY <br>
  *         2019-12-26 17:33
  */
-@MissingBean(type = FunctionHandlerRegistry.class)
 public class FunctionHandlerRegistry extends MappedHandlerRegistry {
 
     public FunctionHandlerRegistry() {

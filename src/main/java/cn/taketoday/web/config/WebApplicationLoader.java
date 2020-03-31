@@ -115,7 +115,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         configureHandlerAdapter(context.getBeans(HandlerAdapter.class), mvcConfiguration);
         configureParameterResolver(context.getBeans(ParameterResolver.class), mvcConfiguration);
 
-        configureViewControllerHandler(context, mvcConfiguration);         
+        configureViewControllerHandler(context, mvcConfiguration);
         configureHandlerRegistry(context.getBeans(HandlerRegistry.class), mvcConfiguration);//fix
 
         // check all Components
@@ -142,7 +142,12 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         mvcConfiguration.configureHandlerRegistry(handlerRegistries);
         final DispatcherHandler obtainDispatcher = obtainDispatcher();
         if (obtainDispatcher.getHandlerRegistry() == null) {
-            obtainDispatcher.setHandlerRegistry(new CompositeHandlerRegistry(handlerRegistries));
+            if (handlerRegistries.size() == 1) {
+                obtainDispatcher.setHandlerRegistry(handlerRegistries.get(0));
+            }
+            else {
+                obtainDispatcher.setHandlerRegistry(new CompositeHandlerRegistry(handlerRegistries));
+            }
         }
     }
 

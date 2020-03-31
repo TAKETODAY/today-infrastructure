@@ -48,7 +48,6 @@ import cn.taketoday.web.resolver.WebResourceResolver;
  *         2019-05-15 21:34
  * @since 2.3.7
  */
-@MissingBean
 public class ResourceHandlerRegistry extends MappedHandlerRegistry implements WebApplicationInitializer {
 
     private int contextPathLength;
