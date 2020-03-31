@@ -6,6 +6,3 @@ cn.taketoday.web.validation.ErrorsParameterResolver
 cn.taketoday.web.validation.ValidationParameterResolver
 cn.taketoday.web.handler.NotFoundRequestAdapter
 cn.taketoday.web.registry.HandlerMethodRegistry
-cn.taketoday.web.registry.FunctionHandlerRegistry
-cn.taketoday.web.registry.ResourceHandlerRegistry
-cn.taketoday.web.registry.ViewControllerHandlerRegistry
