@@ -952,14 +952,15 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public void registerBean(Class<?> clazz) throws BeanDefinitionStoreException {
-        getBeanDefinitionLoader().loadBeanDefinition(clazz);
+        registerBean(getBeanNameCreator().create(clazz), clazz);
     }
 
     @Override
-    public void registerBean(Set<Class<?>> clazz) //
-            throws BeanDefinitionStoreException, ConfigurationException //
-    {
-        getBeanDefinitionLoader().loadBeanDefinitions(clazz);
+    public void registerBean(Set<Class<?>> candidates) throws BeanDefinitionStoreException {
+        final BeanNameCreator nameCreator = getBeanNameCreator();
+        for (final Class<?> candidate : candidates) {
+            registerBean(nameCreator.create(candidate), candidate);
+        }
     }
 
     @Override

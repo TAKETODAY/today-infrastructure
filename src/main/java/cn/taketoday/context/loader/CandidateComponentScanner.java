@@ -241,7 +241,7 @@ public class CandidateComponentScanner {
         final String resourceToUse = packageName.replace(PACKAGE_SEPARATOR, PATH_SEPARATOR);
 
         if (log.isDebugEnabled()) {
-            log.debug("Scanning package: [{}]", packageName);
+            log.debug("Scanning component candidates from package: [{}]", packageName);
         }
 
         try {

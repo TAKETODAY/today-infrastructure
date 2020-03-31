@@ -21,6 +21,7 @@ package cn.taketoday.context.factory;
 
 import java.util.Set;
 
+import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 
@@ -77,12 +78,14 @@ public interface ConfigurableBeanFactory
 
     /**
      * Register a bean with the given type
+     * <p>
+     * This method will use {@link BeanNameCreator} create a bean name and register
+     * it
      * 
      * @param clazz
      *            bean class
      * @throws BeanDefinitionStoreException
      *             If can't store a bean
-     * 
      */
     void registerBean(Class<?> clazz) throws BeanDefinitionStoreException;
 

@@ -143,10 +143,11 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @since 2.1.7
      */
     protected void loadConfigurationBeans(final BeanDefinition def) {
+
         final Collection<Method> missingMethods = this.missingMethods;
         final ConfigurableApplicationContext context = getApplicationContext();
-        final Class<?> beanClass = def.getBeanClass();
-        for (final Method method : beanClass.getDeclaredMethods()) {
+
+        for (final Method method : def.getBeanClass().getDeclaredMethods()) {
             final AnnotationAttributes[] components = getAnnotationAttributesArray(method, Component.class);
             if (ObjectUtils.isEmpty(components)) {
                 if (method.isAnnotationPresent(MissingBean.class) && conditional(method, context)) {
@@ -366,15 +367,11 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @since 2.1.7
      */
     protected void selectImport(final BeanDefinition def, final Class<?> importClass) {
-
         log.debug("Importing: [{}]", importClass);
-
+        
         BeanDefinition importDef = createBeanDefinition(importClass);
-
         register(importDef);
-
         loadConfigurationBeans(importDef); // scan config bean
-
         if (ImportSelector.class.isAssignableFrom(importClass)) {
             for (final String select : createImporter(importDef, ImportSelector.class).selectImports(def)) {
                 register(createBeanDefinition(ClassUtils.loadClass(select)));
@@ -556,8 +553,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
             componentScan(targetDef);
         }
         // application listener @since 2.1.7
-        final Class<?> beanClass = targetDef.getBeanClass();
-        if (ApplicationListener.class.isAssignableFrom(beanClass)) {
+        if (ApplicationListener.class.isAssignableFrom(targetDef.getBeanClass())) {
             Object listener = getSingleton(targetDef.getName());
             if (listener == null) {
                 listener = createBeanIfNecessary(targetDef);
