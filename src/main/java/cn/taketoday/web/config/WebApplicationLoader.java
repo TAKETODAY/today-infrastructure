@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.config;
 
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.utils.ContextUtils.resolveProps;
 import static cn.taketoday.context.utils.ContextUtils.resolveValue;
 import static cn.taketoday.web.resolver.method.ConverterParameterResolver.convert;
@@ -119,20 +120,19 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     @Override
     public void onStartup(WebApplicationContext context) throws Throwable {
-        setApplicationContext(context);
 
         final WebMvcConfiguration mvcConfiguration = getWebMvcConfiguration(context);
+
+        configureTemplateLoader(context, mvcConfiguration);
+        configureResourceHandler(context, mvcConfiguration);
+        configureFunctionHandler(context, mvcConfiguration);
+        configureExceptionHandler(context, mvcConfiguration);
 
         configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
         configureTypeConverter(context.getBeans(TypeConverter.class), mvcConfiguration);
         configureHandlerAdapter(context.getBeans(HandlerAdapter.class), mvcConfiguration);
         configureHandlerRegistry(context.getBeans(HandlerRegistry.class), mvcConfiguration);
         configureParameterResolver(context.getBeans(ParameterResolver.class), mvcConfiguration);
-        configureResourceHandler(context.getBean(ResourceHandlerRegistry.class), mvcConfiguration);
-        configureFunctionHandler(context.getBean(FunctionHandlerRegistry.class), mvcConfiguration);
-
-        configureTemplateLoader(mvcConfiguration);
-        configureExceptionHandler(mvcConfiguration);
 
         final Environment environment = context.getEnvironment();
         if (environment.getProperty(ENABLE_WEB_MVC_XML, Boolean::parseBoolean, true)) {
@@ -157,7 +157,10 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     private void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries, WebMvcConfiguration mvcConfiguration) {
         mvcConfiguration.configureHandlerRegistry(handlerRegistries);
-        obtainDispatcher().setHandlerRegistry(new CompositeHandlerRegistry(handlerRegistries));
+        final DispatcherHandler obtainDispatcher = obtainDispatcher();
+        if (obtainDispatcher.getHandlerRegistry() == null) {
+            obtainDispatcher.setHandlerRegistry(new CompositeHandlerRegistry(handlerRegistries));
+        }
     }
 
     /**
@@ -178,21 +181,30 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         mvcConfiguration.configureHandlerAdapter(adapters);
 
         OrderUtils.reversedSort(adapters);
-        obtainDispatcher().setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));// apply request handler 
+
+        final DispatcherHandler obtainDispatcher = obtainDispatcher();
+        if (obtainDispatcher.getHandlerAdapters() == null) {
+            obtainDispatcher.setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));// apply request handler 
+        }
     }
 
-    protected void configureExceptionHandler(WebMvcConfiguration mvcConfiguration) {
+    protected void configureExceptionHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
 
-        final WebApplicationContext context = obtainApplicationContext();
         HandlerExceptionHandler exceptionHandler = context.getBean(HandlerExceptionHandler.class);
         if (exceptionHandler == null) {
             exceptionHandler = new ControllerAdviceExceptionHandler();
         }
-        obtainDispatcher().setExceptionHandler(exceptionHandler);
+        final DispatcherHandler obtainDispatcher = obtainDispatcher();
+        if (obtainDispatcher.getExceptionHandler() == null) {
+            obtainDispatcher.setExceptionHandler(exceptionHandler);
+        }
     }
 
-    protected void configureFunctionHandler(FunctionHandlerRegistry registry, WebMvcConfiguration mvcConfiguration) {
-        mvcConfiguration.configureFunctionHandler(registry);
+    protected void configureFunctionHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
+        final FunctionHandlerRegistry registry = context.getBean(FunctionHandlerRegistry.class);
+        if (registry != null) {
+            mvcConfiguration.configureFunctionHandler(registry);
+        }
     }
 
     /**
@@ -202,10 +214,10 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
      *            TemplateLoaders
      * @since 2.3.7
      */
-    protected void configureTemplateLoader(WebMvcConfiguration mvcConfiguration) {
+    protected void configureTemplateLoader(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
         final Class<Object> loaderClass = ClassUtils.loadClass("freemarker.cache.TemplateLoader");
         if (loaderClass != null) {
-            List<?> beans = obtainApplicationContext().getBeans(loaderClass);
+            List<?> beans = context.getBeans(loaderClass);
             mvcConfiguration.configureTemplateLoader(beans);
         }
     }
@@ -255,7 +267,10 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         mvcConfiguration.configureResultHandler(handlers);
 
         ResultHandlers.addHandler(handlers);
-        obtainDispatcher().setResultHandlers(ResultHandlers.getRuntimeHandlers());// apply result handler
+        final DispatcherHandler obtainDispatcher = obtainDispatcher();
+        if (obtainDispatcher.getResultHandlers() == null) {
+            obtainDispatcher.setResultHandlers(ResultHandlers.getRuntimeHandlers());// apply result handler
+        }
     }
 
     protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {
@@ -402,8 +417,11 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
      * @param mvcConfiguration
      *            All {@link WebMvcConfiguration} object
      */
-    protected void configureResourceHandler(ResourceHandlerRegistry registry, WebMvcConfiguration mvcConfiguration) {
-        mvcConfiguration.configureResourceHandler(registry);
+    protected void configureResourceHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
+        final ResourceHandlerRegistry registry = context.getBean(ResourceHandlerRegistry.class);
+        if (registry != null) {
+            mvcConfiguration.configureResourceHandler(registry);
+        }
     }
 
     /**
@@ -435,7 +453,6 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
      *            {@link CompositeWebMvcConfiguration}
      */
     protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
-
         config.configureInitializer(initializers);
         OrderUtils.reversedSort(initializers);
     }
@@ -560,22 +577,15 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
     protected Class<?> registerResolver(Element element, Class<?> defaultClass, String name, boolean refresh) //
             throws ClassNotFoundException, BeanDefinitionStoreException //
     {
-        String attrClass = element.getAttribute(ATTR_CLASS); // class="cn.taketoday..."
+        final String attrClass = element.getAttribute(ATTR_CLASS); // class="cn.taketoday..."
+        final Class<?> resolverClass = defaultClass.getName().equals(attrClass) ? defaultClass : ClassUtils.forName(attrClass);
 
-        Class<?> resolverClass = null;
-        if (defaultClass.getName().equals(attrClass)) { // Custom
-            resolverClass = defaultClass; // default
-        }
-        else {
-            resolverClass = ClassUtils.forName(attrClass);
-        }
         // register resolver
-        final WebApplicationContext webApplicationContext = obtainApplicationContext();
-        webApplicationContext.registerBean(name, resolverClass);
+        final WebApplicationContext context = obtainApplicationContext();
+        context.registerBean(name, resolverClass);
         log.info("Register [{}] onto [{}]", name, resolverClass.getName());
-
         if (refresh) {
-            webApplicationContext.refresh(name);
+            context.refresh(name);
         }
         return resolverClass;
     }
@@ -586,7 +596,20 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
     protected void checkFrameWorkResolvers(WebApplicationContext applicationContext) {}
 
     public DispatcherHandler obtainDispatcher() {
+        if (dispatcher == null) {
+            final WebApplicationContext context = obtainApplicationContext();
+            DispatcherHandler dispatcherHandler = context.getBean(DispatcherHandler.class);
+            if (dispatcherHandler == null) {
+                dispatcherHandler = createDispatcher(context);
+                nonNull(dispatcherHandler, "DispatcherHandler must not be null, sub class must create its intsance");
+            }
+            this.dispatcher = dispatcherHandler;
+        }
         return dispatcher;
+    }
+
+    protected DispatcherHandler createDispatcher(WebApplicationContext context) {
+        return new DispatcherHandler(context);
     }
 
     public void setDispatcher(DispatcherHandler dispatcherHandler) {

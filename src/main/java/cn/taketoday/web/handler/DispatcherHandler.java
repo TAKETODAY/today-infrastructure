@@ -50,13 +50,16 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     /** Action mapping registry */
     private HandlerRegistry handlerRegistry;
-
     private HandlerAdapter[] handlerAdapters;
-
     private RuntimeResultHandler[] resultHandlers;
-
     /** exception handler */
     private HandlerExceptionHandler exceptionHandler;
+
+    public DispatcherHandler() {}
+
+    public DispatcherHandler(WebApplicationContext context) {
+        setApplicationContext(context);
+    }
 
     public HandlerRegistry getHandlerRegistry() {
         return handlerRegistry;
@@ -196,6 +199,14 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     protected void log(final String msg) {
         log.info(msg);
+    }
+
+    public final HandlerAdapter[] getHandlerAdapters() {
+        return handlerAdapters;
+    }
+
+    public final RuntimeResultHandler[] getResultHandlers() {
+        return resultHandlers;
     }
 
 }

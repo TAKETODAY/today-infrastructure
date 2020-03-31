@@ -19,11 +19,8 @@
  */
 package cn.taketoday.web.servlet;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-
 import java.io.File;
 import java.io.FileFilter;
-import java.lang.annotation.Annotation;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,7 +37,6 @@ import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletSecurityElement;
-import javax.servlet.annotation.HandlesTypes;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebFilter;
@@ -52,7 +48,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -61,10 +56,12 @@ import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.config.WebApplicationLoader;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.event.WebApplicationFailedEvent;
+import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.resolver.method.DefaultMultipartResolver;
 import cn.taketoday.web.resolver.method.ParameterResolver;
 import cn.taketoday.web.resolver.method.ServletParameterResolver;
+import cn.taketoday.web.servlet.initializer.DispatcherServletInitializer;
 import cn.taketoday.web.servlet.initializer.WebFilterInitializer;
 import cn.taketoday.web.servlet.initializer.WebListenerInitializer;
 import cn.taketoday.web.servlet.initializer.WebServletInitializer;
@@ -159,16 +156,15 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
      * @return {@link WebServletApplicationContext}
      */
     protected WebServletApplicationContext prepareApplicationContext(ServletContext servletContext) {
-
         WebServletApplicationContext ret = getWebServletApplicationContext();
-
         if (ret == null) {
-
             final long startupDate = System.currentTimeMillis();
             log.info("Your application starts to be initialized at: [{}].", //
                      new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(startupDate));
-
-            ret = new StandardWebServletApplicationContext(servletContext);
+            final StandardWebServletApplicationContext context = new StandardWebServletApplicationContext();
+            context.setServletContext(servletContext);
+            setApplicationContext(ret = context);
+            context.loadContext();
         }
         else if (ret instanceof ConfigurableWebServletApplicationContext && ret.getServletContext() == null) {
             ((ConfigurableWebServletApplicationContext) ret).setServletContext(servletContext);
@@ -258,6 +254,25 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     }
 
     @Override
+    protected DispatcherHandler createDispatcher(WebApplicationContext context) {
+
+        DispatcherServlet dispatcherServlet;
+        final DispatcherServletInitializer dispatcherServletInitializer = context.getBean(DispatcherServletInitializer.class);
+        if (dispatcherServletInitializer == null) {
+            dispatcherServlet = new DispatcherServlet();
+            dispatcherServlet.setApplicationContext(context);
+        }
+        else {
+            dispatcherServlet = dispatcherServletInitializer.getServlet();
+            if (dispatcherServlet == null) {
+                
+            }
+        }
+
+        return dispatcherServlet;
+    }
+
+    @Override
     protected void configureInitializer(List<WebApplicationInitializer> initializers, WebMvcConfiguration config) {
 
         final WebServletApplicationContext ctx = obtainApplicationContext();
@@ -266,9 +281,15 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         configureServlet(ctx, initializers);
         configureListener(ctx, initializers);
 
-        initializers.add(new WebApplicationServletContainerInitializer());
+        final DispatcherServlet dispatcherServlet = obtainDispatcher();
+        initializers.add(new DispatcherServletInitializer(ctx, dispatcherServlet));
 
         super.configureInitializer(initializers, config);
+    }
+
+    @Override
+    public DispatcherServlet obtainDispatcher() {
+        return (DispatcherServlet) super.obtainDispatcher();
     }
 
     /**
@@ -400,36 +421,4 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         }
     }
 
-    final class WebApplicationServletContainerInitializer implements WebApplicationInitializer {
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public void onStartup(WebApplicationContext context) throws Throwable {
-
-            final List<ServletContainerInitializer> initializers = context.getBeans(ServletContainerInitializer.class);
-            final ServletContext servletContext = nonNull(getServletContext(), "Servlet context muist not be null");
-
-            for (final ServletContainerInitializer initializer : initializers) {
-                final HandlesTypes handles = ClassUtils.getAnnotation(initializer, HandlesTypes.class);
-
-                Set<Class<?>> c = null;
-                if (handles != null) {
-                    c = new HashSet<>();
-                    for (final Class<?> handlesType : handles.value()) {
-                        if (handlesType.isAnnotation()) {
-                            c.addAll(context.getCandidateComponentScanner().getAnnotatedClasses((Class<? extends Annotation>) handlesType));
-                        }
-                        else if (handlesType.isInterface()) {
-                            c.addAll(context.getCandidateComponentScanner().getImplementationClasses(handlesType));
-                        }
-                        else {
-                            c.add(handlesType);
-                        }
-                    }
-                }
-                initializer.onStartup(c, servletContext);
-            }
-        }
-
-    }
 }

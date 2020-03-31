@@ -52,12 +52,12 @@ public class FunctionHandlerRegistry extends MappedHandlerRegistry {
         this(new HashMap<>(initialCapacity));
     }
 
-    public FunctionHandlerRegistry(Map<String, Object> viewRequestMappings) {
-        super(viewRequestMappings);
+    public FunctionHandlerRegistry(Map<String, Object> handlers) {
+        super(handlers);
     }
 
-    public FunctionHandlerRegistry(Map<String, Object> viewRequestMappings, int order) {
-        super(viewRequestMappings, order);
+    public FunctionHandlerRegistry(Map<String, Object> handlers, int order) {
+        super(handlers, order);
     }
 
     @Override
