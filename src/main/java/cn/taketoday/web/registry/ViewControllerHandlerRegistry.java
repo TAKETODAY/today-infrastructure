@@ -45,14 +45,12 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.io.Resource;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.WebApplicationContext;
-import cn.taketoday.web.config.ViewConfiguration;
 import cn.taketoday.web.handler.ViewController;
 
 /**
@@ -111,6 +109,7 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
     public ViewController addViewController(String pathPattern) {
         final ViewController viewController = new ViewController();
         register(pathPattern, viewController);
+
         return viewController;
     }
 
@@ -213,7 +212,7 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
                 log.debug("Found Element: [{}]", nodeName);
 
                 if (Constant.ELEMENT_CONTROLLER.equals(nodeName)) {
-                    configuration(ele);
+                    configController(ele);
                 } // ELEMENT_RESOURCES // TODO
                 else {
                     log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, Constant.WEB_VERSION);
@@ -232,23 +231,23 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
      *             if any {@link Exception} occurred
      * @since 2.3.7
      */
-    public void configuration(final Element controller) {
+    protected void configController(final Element controller) {
 
         Objects.requireNonNull(controller, "'controller' element can't be null");
 
         // <controller/> element
-        String name = controller.getAttribute(Constant.ATTR_NAME); // controller name
-        String prefix = controller.getAttribute(Constant.ATTR_PREFIX); // prefix
-        String suffix = controller.getAttribute(Constant.ATTR_SUFFIX); // suffix
-        String className = controller.getAttribute(Constant.ATTR_CLASS); // class
+        final String name = controller.getAttribute(Constant.ATTR_NAME); // controller name
+        final String prefix = controller.getAttribute(Constant.ATTR_PREFIX); // prefix
+        final String suffix = controller.getAttribute(Constant.ATTR_SUFFIX); // suffix
+        final String className = controller.getAttribute(Constant.ATTR_CLASS); // class
 
         // @since 2.3.3
-        Object controllerBean = getControllerBean(name, className);
+        final Object controllerBean = getControllerBean(name, className);
 
-        NodeList nl = controller.getChildNodes();
+        final NodeList nl = controller.getChildNodes();
         final int length = nl.getLength();
         for (int i = 0; i < length; i++) {
-            Node node = nl.item(i);
+            final Node node = nl.item(i);
             if (node instanceof Element) {
                 String nodeName = node.getNodeName();
                 // @since 2.3.3
@@ -256,8 +255,7 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
                     processAction(prefix, suffix, (Element) node, controllerBean);
                 }
                 else {
-                    LoggerFactory.getLogger(ViewConfiguration.class)
-                            .warn("This element: [{}] is not supported.", nodeName);
+                    log.warn("This element: [{}] is not supported.", nodeName);
                 }
             }
         }
@@ -292,6 +290,7 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
     protected ViewController processAction(final String prefix, final String suffix, final Element action, final Object controller) {
 
         String name = action.getAttribute(Constant.ATTR_NAME); // action name
+        String order = action.getAttribute(Constant.ATTR_ORDER); // order
         String method = action.getAttribute(Constant.ATTR_METHOD); // handler method
         String resource = action.getAttribute(Constant.ATTR_RESOURCE); // resource
         String contentType = action.getAttribute(Constant.ATTR_CONTENT_TYPE); // content type
@@ -322,6 +321,10 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
 
         if (StringUtils.isNotEmpty(status)) {
             mapping.setStatus(Integer.valueOf(status));
+        }
+
+        if (StringUtils.isNotEmpty(order)) {
+            mapping.setOrder(Integer.parseInt(order));
         }
 
         if (StringUtils.isNotEmpty(resource)) {

@@ -97,6 +97,7 @@ public interface Constant extends cn.taketoday.context.Constant {
 	String	ATTR_RESOURCE						= "resource";
 	String	ATTR_NAME							= "name";
 	String	ATTR_VALUE							= VALUE;
+	String	ATTR_ORDER							= "order";
 	String	ATTR_METHOD							= "method";
 	String	ATTR_MAPPING						= "mapping";
 	/** resource location @since 2.3.7 */

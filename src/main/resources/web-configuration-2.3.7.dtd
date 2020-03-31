@@ -17,6 +17,7 @@
 <!ELEMENT action (#PCDATA)>
 	<!ATTLIST action
 		name CDATA #REQUIRED
+		order CDATA #REQUIRED
 		method CDATA #IMPLIED
 		status CDATA #REQUIRED
 		resource CDATA #IMPLIED

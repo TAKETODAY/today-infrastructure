@@ -25,20 +25,9 @@ import static cn.taketoday.context.utils.ContextUtils.resolveValue;
 import static cn.taketoday.web.resolver.method.ConverterParameterResolver.convert;
 import static cn.taketoday.web.resolver.method.DelegatingParameterResolver.delegate;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Ordered;
@@ -49,14 +38,10 @@ import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.env.Environment;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
-import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.MessageConverter;
@@ -124,7 +109,6 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         configureResourceHandler(context, mvcConfiguration);
         configureFunctionHandler(context, mvcConfiguration);
         configureExceptionHandler(context, mvcConfiguration);
-        configureViewControllerHandler(context, mvcConfiguration);
 
         configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
         configureTypeConverter(context.getBeans(TypeConverter.class), mvcConfiguration);
@@ -132,6 +116,8 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         configureHandlerRegistry(context.getBeans(HandlerRegistry.class), mvcConfiguration);
         configureParameterResolver(context.getBeans(ParameterResolver.class), mvcConfiguration);
 
+        configureViewControllerHandler(context, mvcConfiguration);
+        
         // check all Components
         checkFrameWorkComponents(context);
         initializerStartup(context, mvcConfiguration);
@@ -485,124 +471,24 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
      *             if any Throwable occurred
      */
     protected ViewControllerHandlerRegistry configViewControllerHandlerRegistry(ViewControllerHandlerRegistry registry) throws Throwable {
-
         // find the configure file
-        log.info("TODAY WEB Framework Is Looking For Configuration File.");
-
+        log.info("TODAY WEB Framework Is Looking For ViewController Configuration File.");
         final String webMvcConfigLocation = getWebMvcConfigLocation();
-
         if (StringUtils.isEmpty(webMvcConfigLocation)) {
             log.info("Configuration File does not exist.");
             return registry;
         }
-
-        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setIgnoringComments(true);
-        final DocumentBuilder builder = factory.newDocumentBuilder();
-        builder.setEntityResolver((publicId, systemId) -> {
-            if (systemId.contains(DTD_NAME) || publicId.contains(DTD_NAME)) {
-                return new InputSource(new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes()));
-            }
-            return null;
-        });
-
-        final ViewConfiguration viewConfiguration = new ViewConfiguration(obtainApplicationContext());
-
-        for (final String file : StringUtils.split(webMvcConfigLocation)) {
-            final Resource resource = ResourceUtils.getResource(file);
-            if (resource == null || !resource.exists()) {
-                throw new ConfigurationException("Your Provided Configuration File: [" + file + "], Does Not Exist");
-            }
-            try (final InputStream inputStream = resource.getInputStream()) {
-                registerFromXml(builder.parse(inputStream), resource.toString(), viewConfiguration);// fixed
-            }
+        if (registry == null) {
+            final WebApplicationContext context = obtainApplicationContext();
+            context.registerBean(ViewControllerHandlerRegistry.class);
+            registry = context.getBean(ViewControllerHandlerRegistry.class);
         }
+        registry.configure(webMvcConfigLocation);
         return registry;
     }
 
     protected String getWebMvcConfigLocation() throws Throwable {
         return obtainApplicationContext().getEnvironment().getProperty(WEB_MVC_CONFIG_LOCATION);
-    }
-
-    /**
-     * configure with xml file
-     * 
-     * @param doc
-     *            xml file
-     * @param viewConfiguration
-     * @throws Throwable
-     */
-    @Deprecated
-    protected void registerFromXml(final Document doc, final String filePath, //
-                                   final ViewConfiguration viewConfiguration) throws Throwable //
-    {
-        final Element root = doc.getDocumentElement();
-        if (ROOT_ELEMENT.equals(root.getNodeName())) { // root element
-            log.info("Found Configuration File: [{}].", filePath);
-            configureStart(root, viewConfiguration);
-        }
-    }
-
-    /**
-     * Start configure.
-     * 
-     * @param root
-     *            Root element
-     */
-    @Deprecated
-    protected void configureStart(final Element root, final ViewConfiguration viewConfiguration) throws Throwable {
-
-        final NodeList nl = root.getChildNodes();
-        final int length = nl.getLength();
-
-        for (int i = 0; i < length; i++) {
-            final Node node = nl.item(i);
-            if (node instanceof Element) {
-                final Element ele = (Element) node;
-                final String nodeName = ele.getNodeName();
-
-                log.debug("Found Element: [{}]", nodeName);
-
-                if (ELEMENT_CONTROLLER.equals(nodeName)) {
-                    viewConfiguration.configuration(ele);
-                } // ELEMENT_RESOURCES // TODO
-                else {
-                    log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, Constant.WEB_VERSION);
-                }
-            }
-        }
-    }
-
-    /**
-     * Register resolver to application context.
-     * 
-     * @param element
-     *            xml element
-     * @param defaultClass
-     *            default class
-     * @param name
-     *            bean name
-     * @param refresh
-     *            refresh ?
-     * @return Resolver's Class
-     * @throws ClassNotFoundException
-     * @throws BeanDefinitionStoreException
-     */
-    @Deprecated
-    protected Class<?> registerResolver(Element element, Class<?> defaultClass, String name, boolean refresh) //
-            throws ClassNotFoundException, BeanDefinitionStoreException //
-    {
-        final String attrClass = element.getAttribute(ATTR_CLASS); // class="cn.taketoday..."
-        final Class<?> resolverClass = defaultClass.getName().equals(attrClass) ? defaultClass : ClassUtils.forName(attrClass);
-
-        // register resolver
-        final WebApplicationContext context = obtainApplicationContext();
-        context.registerBean(name, resolverClass);
-        log.info("Register [{}] onto [{}]", name, resolverClass.getName());
-        if (refresh) {
-            context.refresh(name);
-        }
-        return resolverClass;
     }
 
     /**
