@@ -19,21 +19,49 @@
  */
 package cn.taketoday.web.registry;
 
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import cn.taketoday.context.AntPathMatcher;
-import cn.taketoday.context.annotation.MissingBean;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ContextUtils;
+import cn.taketoday.context.utils.ResourceUtils;
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.WebApplicationContext;
+import cn.taketoday.web.config.ViewConfiguration;
 import cn.taketoday.web.handler.ViewController;
 
 /**
  * @author TODAY <br>
  *         2019-12-23 22:10
  */
-@MissingBean
 public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
+
+    private Properties variables;
 
     public ViewControllerHandlerRegistry() {
         this(new HashMap<>());
@@ -119,6 +147,206 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
      */
     public ViewController addStatusController(String pathPattern, Integer status) {
         return addViewController(pathPattern).setStatus(status);
+    }
+
+    // ---------------------------------------------------------
+
+    @Override
+    protected void initApplicationContext(ApplicationContext context) throws ContextException {
+        super.initApplicationContext(context);
+        this.variables = context.getEnvironment().getProperties();
+    }
+
+    /**
+     * 
+     * @param webMvcConfigLocation
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     */
+    public void configure(final String webMvcConfigLocation) throws Exception {
+
+        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setIgnoringComments(true);
+        final DocumentBuilder builder = factory.newDocumentBuilder();
+        builder.setEntityResolver((publicId, systemId) -> {
+            if (systemId.contains(Constant.DTD_NAME) || publicId.contains(Constant.DTD_NAME)) {
+                return new InputSource(new ByteArrayInputStream("<?xml version=\"1.0\" encoding=\"UTF-8\"?>".getBytes()));
+            }
+            return null;
+        });
+
+        for (final String file : StringUtils.split(webMvcConfigLocation)) {
+            final Resource resource = ResourceUtils.getResource(file);
+            if (resource == null || !resource.exists()) {
+                throw new ConfigurationException("Your Provided Configuration File: [" + file + "], Does Not Exist");
+            }
+            try (final InputStream inputStream = resource.getInputStream()) {
+                final Element root = builder.parse(inputStream).getDocumentElement();
+                if (Constant.ROOT_ELEMENT.equals(root.getNodeName())) { // root element
+
+                    log.info("Found Configuration File: [{}].", resource);
+                    registerFromXml(root);
+                }
+            }
+        }
+    }
+
+    /**
+     * configure with xml file
+     * 
+     * @param doc
+     *            xml file
+     * @param viewConfiguration
+     * @throws Throwable
+     */
+    protected void registerFromXml(final Element root) {
+
+        final NodeList nl = root.getChildNodes();
+        final int length = nl.getLength();
+        for (int i = 0; i < length; i++) {
+            final Node node = nl.item(i);
+            if (node instanceof Element) {
+                final Element ele = (Element) node;
+                final String nodeName = ele.getNodeName();
+
+                log.debug("Found Element: [{}]", nodeName);
+
+                if (Constant.ELEMENT_CONTROLLER.equals(nodeName)) {
+                    configuration(ele);
+                } // ELEMENT_RESOURCES // TODO
+                else {
+                    log.warn("This This element: [{}] is not supported in this version: [{}].", nodeName, Constant.WEB_VERSION);
+                }
+            }
+        }
+    }
+
+    /**
+     * 
+     * Start configuration
+     * 
+     * @param controller
+     *            the controller element
+     * @throws Exception
+     *             if any {@link Exception} occurred
+     * @since 2.3.7
+     */
+    public void configuration(final Element controller) {
+
+        Objects.requireNonNull(controller, "'controller' element can't be null");
+
+        // <controller/> element
+        String name = controller.getAttribute(Constant.ATTR_NAME); // controller name
+        String prefix = controller.getAttribute(Constant.ATTR_PREFIX); // prefix
+        String suffix = controller.getAttribute(Constant.ATTR_SUFFIX); // suffix
+        String className = controller.getAttribute(Constant.ATTR_CLASS); // class
+
+        // @since 2.3.3
+        Object controllerBean = getControllerBean(name, className);
+
+        NodeList nl = controller.getChildNodes();
+        final int length = nl.getLength();
+        for (int i = 0; i < length; i++) {
+            Node node = nl.item(i);
+            if (node instanceof Element) {
+                String nodeName = node.getNodeName();
+                // @since 2.3.3
+                if (nodeName.equals(Constant.ELEMENT_ACTION)) {// <action/>
+                    processAction(prefix, suffix, (Element) node, controllerBean);
+                }
+                else {
+                    LoggerFactory.getLogger(ViewConfiguration.class)
+                            .warn("This element: [{}] is not supported.", nodeName);
+                }
+            }
+        }
+    }
+
+    protected Object getControllerBean(final String name, final String className) {
+
+        Object controllerBean = null;
+        final WebApplicationContext context = obtainApplicationContext();
+        if (StringUtils.isNotEmpty(name)) {
+            if (StringUtils.isEmpty(className)) {
+                return nonNull(context.getBean(name), "You must provide a bean named: [" + name + "] or a 'class' attribute");
+            }
+            else {
+                final Class<?> beanClass = ClassUtils.loadClass(className);
+                if ((controllerBean = context.getBean(name, beanClass)) == null) {
+                    context.registerBean(name, beanClass);
+                    controllerBean = context.getBean(name, beanClass);
+                }
+            }
+        }
+        else if (StringUtils.isNotEmpty(className)) {
+            final Class<?> beanClass = ClassUtils.loadClass(className);
+            if ((controllerBean = context.getBean(beanClass)) == null) {
+                context.registerBean(beanClass);
+                controllerBean = context.getBean(beanClass);
+            }
+        }
+        return controllerBean;
+    }
+
+    protected ViewController processAction(final String prefix, final String suffix, final Element action, final Object controller) {
+
+        String name = action.getAttribute(Constant.ATTR_NAME); // action name
+        String method = action.getAttribute(Constant.ATTR_METHOD); // handler method
+        String resource = action.getAttribute(Constant.ATTR_RESOURCE); // resource
+        String contentType = action.getAttribute(Constant.ATTR_CONTENT_TYPE); // content type
+        final String status = action.getAttribute(Constant.ATTR_STATUS); // status
+
+        if (StringUtils.isEmpty(name)) {
+            throw new ConfigurationException("You must specify a 'name' attribute like this: [<action resource=\"https://taketoday.cn\" name=\"TODAY-BLOG\" type=\"redirect\"/>]");
+        }
+
+        Method handlerMethod = null;
+
+        if (StringUtils.isNotEmpty(method)) {
+            if (controller == null) {
+                throw new ConfigurationException("You must specify a 'class' attribute like this: [<controller class=\"xxx.XMLController\" name=\"xmlController\" />]");
+            }
+            for (final Method targetMethod : controller.getClass().getDeclaredMethods()) {
+                if (!targetMethod.isBridge() && method.equals(targetMethod.getName())) {
+                    handlerMethod = targetMethod;
+                    break;
+                }
+            }
+            if (handlerMethod == null) {
+                throw new ConfigurationException("You must specify a method: [" + method + "] in class :[" + controller.getClass() + "]");
+            }
+        }
+
+        final ViewController mapping = new ViewController(controller, handlerMethod);
+
+        if (StringUtils.isNotEmpty(status)) {
+            mapping.setStatus(Integer.valueOf(status));
+        }
+
+        if (StringUtils.isNotEmpty(resource)) {
+            final StringBuilder resourceSb = //
+                    new StringBuilder(prefix.length() + resource.length() + suffix.length())
+                            .append(prefix)
+                            .append(resource)
+                            .append(suffix);
+            resource = resolveVariables(resourceSb.toString());
+        }
+        mapping.setResource(resource);
+        { // @since 2.3.3
+            if (StringUtils.isNotEmpty(contentType)) {
+                mapping.setContentType(contentType);
+            }
+        }
+
+        name = resolveVariables(getContextPath().concat(StringUtils.checkUrl(name)));
+
+        register(name, mapping);
+        return mapping;
+    }
+
+    protected String resolveVariables(final String expression) {
+        return ContextUtils.resolveValue(expression, String.class, variables);
     }
 
 }

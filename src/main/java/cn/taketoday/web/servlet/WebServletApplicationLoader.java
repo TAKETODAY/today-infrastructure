@@ -46,8 +46,7 @@ import javax.servlet.annotation.WebServlet;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -76,8 +75,6 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  */
 @SuppressWarnings("serial")
 public class WebServletApplicationLoader extends WebApplicationLoader implements ServletContainerInitializer {
-
-    private static final Logger log = LoggerFactory.getLogger(WebServletApplicationLoader.class);
 
     @Override
     protected ServletWebMvcConfiguration getWebMvcConfiguration(ApplicationContext applicationContext) {
@@ -241,35 +238,34 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     }
 
     @Override
-    protected void checkFrameWorkResolvers(WebApplicationContext applicationContext) {
+    protected void checkFrameWorkComponents(WebApplicationContext context) {
 
-        if (!applicationContext.containsBeanDefinition(TemplateViewResolver.class)) {
+        if (!context.containsBeanDefinition(TemplateViewResolver.class)) {
             // use freemarker view resolver
-            applicationContext.registerBean(VIEW_RESOLVER, FreeMarkerTemplateViewResolver.class);
-            applicationContext.refresh(VIEW_RESOLVER);
+            context.registerBean(TEMPLATE_VIEW_RESOLVER, FreeMarkerTemplateViewResolver.class);
+            context.refresh(TEMPLATE_VIEW_RESOLVER);
             log.info("Use default view resolver: [{}].", FreeMarkerTemplateViewResolver.class);
         }
-
-        super.checkFrameWorkResolvers(applicationContext);
+        super.checkFrameWorkComponents(context);
     }
 
     @Override
-    protected DispatcherHandler createDispatcher(WebApplicationContext context) {
-
-        DispatcherServlet dispatcherServlet;
-        final DispatcherServletInitializer dispatcherServletInitializer = context.getBean(DispatcherServletInitializer.class);
-        if (dispatcherServletInitializer == null) {
-            dispatcherServlet = new DispatcherServlet();
-            dispatcherServlet.setApplicationContext(context);
-        }
-        else {
-            dispatcherServlet = dispatcherServletInitializer.getServlet();
-            if (dispatcherServlet == null) {
-                
+    protected DispatcherHandler createDispatcher(WebApplicationContext ctx) {
+        Assert.isInstanceOf(WebServletApplicationContext.class, ctx, "context must be a WebServletApplicationContext");
+        final WebServletApplicationContext context = (WebServletApplicationContext) ctx;
+        final DispatcherServletInitializer initializer = context.getBean(DispatcherServletInitializer.class);
+        if (initializer != null) {
+            DispatcherServlet ret = initializer.getServlet();
+            if (ret == null) {
+                ret = doCreateDispatcher(context);
+                initializer.setServlet(ret);
             }
         }
+        return doCreateDispatcher(context);
+    }
 
-        return dispatcherServlet;
+    protected DispatcherServlet doCreateDispatcher(WebServletApplicationContext context) {
+        return new DispatcherServlet(context);
     }
 
     @Override
@@ -281,8 +277,10 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
         configureServlet(ctx, initializers);
         configureListener(ctx, initializers);
 
-        final DispatcherServlet dispatcherServlet = obtainDispatcher();
-        initializers.add(new DispatcherServletInitializer(ctx, dispatcherServlet));
+        // DispatcherServlet Initializer
+        if (!ctx.containsBeanDefinition(DispatcherServletInitializer.class)) {
+            initializers.add(new DispatcherServletInitializer(ctx, obtainDispatcher()));
+        }
 
         super.configureInitializer(initializers, config);
     }

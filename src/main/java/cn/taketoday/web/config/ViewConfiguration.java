@@ -43,6 +43,7 @@ import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
  * @author TODAY <br>
  *         2018-06-23 16:19:53
  */
+@Deprecated
 public class ViewConfiguration {
 
     private final Properties variables;
