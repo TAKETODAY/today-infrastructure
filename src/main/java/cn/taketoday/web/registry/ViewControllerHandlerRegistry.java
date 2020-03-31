@@ -97,12 +97,12 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
      *            Patterns like {@code "/articles/**"} or
      *            {@code "/articles/{id:\\w+}"} are allowed. See
      *            {@link AntPathMatcher} for more details on the syntax.
-     * @param assetsPath
-     *            {@link Resource} location
+     * @param resource
+     *            resource location ,such as redirect url or view template resource
      * @return {@link ViewController}
      */
-    public ViewController addViewController(String pathPattern, String assetsPath) {
-        return addViewController(pathPattern).setAssetsPath(assetsPath);
+    public ViewController addViewController(String pathPattern, String resource) {
+        return addViewController(pathPattern).setResource(resource);
     }
 
     /**
@@ -110,7 +110,7 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
      * to another URL.
      */
     public ViewController addRedirectViewController(String pathPattern, String redirectUrl) {
-        return addViewController(pathPattern).setAssetsPath(Constant.REDIRECT_URL_PREFIX.concat(redirectUrl));
+        return addViewController(pathPattern).setResource(Constant.REDIRECT_URL_PREFIX.concat(redirectUrl));
     }
 
     /**

@@ -157,7 +157,7 @@ public class ViewConfiguration {
 
             resource = resolveVariables(resourceSb.toString());
         }
-        mapping.setAssetsPath(resource);
+        mapping.setResource(resource);
         { // @since 2.3.3
             if (StringUtils.isNotEmpty(contentType)) {
                 mapping.setContentType(contentType);

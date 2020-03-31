@@ -35,7 +35,7 @@ import cn.taketoday.context.OrderedSupport;
 public class ViewController extends OrderedSupport implements Serializable {
 
     /** 资源路径 */
-    private String assetsPath = Constant.BLANK;
+    private String resource = Constant.BLANK;
     /** The resource's content type @since 2.3.3 */
     private String contentType = null;
 
@@ -69,18 +69,8 @@ public class ViewController extends OrderedSupport implements Serializable {
         return contentType;
     }
 
-    public ViewController setContentType(String contentType) {
-        this.contentType = contentType;
-        return this;
-    }
-
-    public String getAssetsPath() {
-        return assetsPath;
-    }
-
-    public ViewController setAssetsPath(String assetsPath) {
-        this.assetsPath = assetsPath;
-        return this;
+    public String getResource() {
+        return resource;
     }
 
     public ViewController setStatus(Integer status) {
@@ -88,11 +78,21 @@ public class ViewController extends OrderedSupport implements Serializable {
         return this;
     }
 
+    public ViewController setResource(String resource) {
+        this.resource = resource;
+        return this;
+    }
+
+    public ViewController setContentType(String contentType) {
+        this.contentType = contentType;
+        return this;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("ViewController [assetsPath=");
-        builder.append(assetsPath);
+        builder.append(resource);
         builder.append(", contentType=");
         builder.append(contentType);
         builder.append(", status=");
