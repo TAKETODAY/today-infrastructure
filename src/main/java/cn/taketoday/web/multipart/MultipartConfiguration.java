@@ -52,4 +52,15 @@ public class MultipartConfiguration implements Serializable {
     private DataSize maxRequestSize = DataSize.ofGigabytes(1); // total size in every single request
     private DataSize fileSizeThreshold = DataSize.ofGigabytes(1); // cache
 
+    @Override
+    public String toString() {
+        return new StringBuilder()
+                .append("MultipartConfiguration [location=").append(location)
+                .append(", encoding=").append(encoding)
+                .append(", maxFileSize=").append(maxFileSize)
+                .append(", maxRequestSize=").append(maxRequestSize)
+                .append(", fileSizeThreshold=").append(fileSizeThreshold)
+                .append("]").toString();
+    }
+
 }
