@@ -25,8 +25,6 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import java.util.concurrent.Executor;
 
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.logger.Logger;
-import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.web.exception.ExceptionUnhandledException;
 import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelFutureListener;
@@ -43,8 +41,6 @@ import io.netty.handler.codec.http.HttpResponseStatus;
  */
 @Singleton
 public class ReactiveDispatcher extends DispatcherHandler implements ChannelInboundHandler {
-
-    private static final Logger log = LoggerFactory.getLogger(ReactiveDispatcher.class);
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {

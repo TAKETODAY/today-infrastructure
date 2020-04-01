@@ -20,13 +20,11 @@
 package cn.taketoday.framework.reactive;
 
 import java.util.Map;
-import java.util.Properties;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Props;
-import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.view.template.AbstractFreeMarkerTemplateViewResolver;
@@ -46,19 +44,16 @@ import freemarker.template.utility.ObjectWrapperWithAPISupport;
 @Props(prefix = "web.mvc.view.")
 @Order(Ordered.LOWEST_PRECEDENCE - 100)
 public class ReactiveFreeMarkerTemplateViewResolver
-        extends AbstractFreeMarkerTemplateViewResolver implements InitializingBean, WebMvcConfiguration {
+        extends AbstractFreeMarkerTemplateViewResolver implements WebMvcConfiguration {
 
     public ReactiveFreeMarkerTemplateViewResolver(Configuration configuration) {
-        super(new DefaultObjectWrapper(configuration.getIncompatibleImprovements()), configuration, null);
-    }
-
-    public ReactiveFreeMarkerTemplateViewResolver(ObjectWrapper wrapper, Configuration configuration) {
-        super(wrapper, configuration, null);
+        this(new DefaultObjectWrapper(configuration.getIncompatibleImprovements()), configuration);
     }
 
     @Autowired
-    public ReactiveFreeMarkerTemplateViewResolver(ObjectWrapper wrapper, Configuration configuration, Properties settings) {
-        super(wrapper, configuration, settings);
+    public ReactiveFreeMarkerTemplateViewResolver(ObjectWrapper wrapper, Configuration configuration) {
+        setConfiguration(configuration);
+        setWrapper(wrapper);
     }
 
     /**
@@ -69,7 +64,7 @@ public class ReactiveFreeMarkerTemplateViewResolver
      * @return {@link TemplateHashModel}
      */
     protected TemplateHashModel createModel(RequestContext context) {
-        final ObjectWrapper wrapper = this.wrapper;
+        final ObjectWrapper wrapper = this.getWrapper();
 
         final Map<String, Object> attributes = context.asMap();
 
