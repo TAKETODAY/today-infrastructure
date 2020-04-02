@@ -510,7 +510,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         else {
             final Scope scope = scopes.get(def.getScope());
             if (scope == null) {
-                throw new ConfigurationException("No such scope: [" + def.getScope() + "] in this BeanFactory");
+                throw new ConfigurationException("No such scope: [" + def.getScope() + "] in this " + this);
             }
             return scope.get(def, this::createPrototype);
         }
