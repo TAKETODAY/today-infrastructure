@@ -52,7 +52,6 @@ import cn.taketoday.context.aware.ApplicationContextAware;
 import cn.taketoday.context.aware.EnvironmentAware;
 import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.env.ConfigurableEnvironment;
-import cn.taketoday.context.env.DefaultBeanNameCreator;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.BeanInitializingException;
@@ -408,7 +407,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     @Override
     protected BeanNameCreator createBeanNameCreator() {
-        return new DefaultBeanNameCreator(getApplicationContext().getEnvironment());
+        return getApplicationContext().getEnvironment().getBeanNameCreator();
     }
 
     @Override

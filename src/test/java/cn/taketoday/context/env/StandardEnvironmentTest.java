@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.env;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.util.Properties;
 
@@ -27,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
@@ -110,5 +113,19 @@ public class StandardEnvironmentTest {
             assert environment.acceptsProfiles("test");
         }
     }
+    
+    @Test
+    public void testBeanNameCreator() throws IOException {
+
+        try (StandardApplicationContext applicationContext = new StandardApplicationContext("", "")) {
+            ConfigurableEnvironment environment = applicationContext.getEnvironment();
+            final BeanNameCreator beanNameCreator = environment.getBeanNameCreator();
+            
+            final BeanNameCreator beanNameCreator2 = applicationContext.getBeanFactory().getBeanNameCreator();
+            
+            assertEquals(beanNameCreator, beanNameCreator2);
+        }
+    }
+    
 
 }

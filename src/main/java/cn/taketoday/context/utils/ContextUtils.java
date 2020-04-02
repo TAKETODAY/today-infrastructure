@@ -151,14 +151,11 @@ public abstract class ContextUtils {
                     final ApplicationContext ctx = getApplicationContext();
                     if (ctx instanceof AbstractApplicationContext) {
                         final Properties properties = ctx.getEnvironment().getProperties();
-
                         final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
                         final AbstractBeanFactory beanFactory = ((AbstractApplicationContext) ctx).getBeanFactory();
-
                         final ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, beanFactory);
 
                         elContext.defineBean(Constant.ENV, properties); // @since 2.1.6
-
                         return elProcessor = new ExpressionProcessor(new ExpressionManager(elContext, exprFactory));
                     }
                     else {
@@ -251,7 +248,7 @@ public abstract class ContextUtils {
         final Object resolveValue = resolveValue(new StringBuilder()
                 .append(Constant.PLACE_HOLDER_PREFIX)
                 .append(value.value())
-                .append(Constant.PLACE_HOLDER_SUFFIX).toString(), expectedType//
+                .append(Constant.PLACE_HOLDER_SUFFIX).toString(), expectedType //
         );
 
         if (resolveValue != null) {

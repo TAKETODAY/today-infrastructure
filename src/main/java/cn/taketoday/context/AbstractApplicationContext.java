@@ -232,11 +232,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         final AbstractBeanFactory beanFactory = getBeanFactory();
         final ConfigurableEnvironment environment = getEnvironment();
-        // check name creator
-        final BeanNameCreator beanNameCreator = beanFactory.getBeanNameCreator();
-        if (environment.getBeanNameCreator() == null) {
-            environment.setBeanNameCreator(beanNameCreator);
-        }
         // must not be null
         // check registry
         if (environment.getBeanDefinitionRegistry() == null) {
@@ -248,7 +243,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         }
 
         // register framework beans
-        registerFrameworkBeans(beanNameCreator);
+        registerFrameworkBeans(beanFactory.getBeanNameCreator());
 
         // Loading candidates components
         final Set<Class<?>> candidates = getComponentCandidates();
@@ -597,6 +592,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
+    public void destroyScopedBean(String beanName) {
+        getBeanFactory().destroyScopedBean(beanName);
+    }
+
+    @Override
     public void refresh(String name) {
         getBeanFactory().refresh(name);
         // object refreshed
@@ -831,7 +831,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
-    public void registerScope(Scope scope) {
-        
+    public void registerScope(String name, Scope scope) {
+        getBeanFactory().registerScope(name, scope);
     }
 }

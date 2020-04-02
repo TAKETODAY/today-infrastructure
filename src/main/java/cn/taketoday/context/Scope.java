@@ -19,10 +19,7 @@
  */
 package cn.taketoday.context;
 
-import java.util.ArrayList;
-
 import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.ObjectFactory;
 
 /**
  * @author TODAY <br>
@@ -34,46 +31,29 @@ public interface Scope {
 
     String PROTOTYPE = Constant.PROTOTYPE;
 
-    ArrayList<Scope> values = new ArrayList<>();
-
     /**
-     * Get scope name
-     */
-    String getName();
-
-    Object get(BeanDefinition def);
-
-    /**
-     * Return the object with the given name from the underlying scope,
-     * {@link ObjectFactory#getObject() creating it} if not found in the underlying
-     * storage mechanism.
+     * Return the object with the given {@link BeanDefinition} from the underlying
+     * scope, {@link ScopeObjectFactory#getObject(BeanDefinition)) creating it} if
+     * not found in the underlying storage mechanism.
      * <p>
      * This is the central operation of a Scope, and the only operation that is
      * absolutely required.
      * 
-     * @param name
+     * @param def
      *            the name of the object to retrieve
      * @param objectFactory
-     *            the {@link ObjectFactory} to use to create the scoped object if it
-     *            is not present in the underlying storage mechanism
+     *            the {@link ScopeObjectFactory} to use to create the scoped object
+     *            if it is not present in the underlying storage mechanism
      * @return the desired object (never {@code null})
      * @throws IllegalStateException
      *             if the underlying scope is not currently active
      */
-    Object get(String name, ObjectFactory<?> objectFactory);
+    Object get(BeanDefinition def, ScopeObjectFactory objectFactory);
 
     Object remove(String name);
 
-    static ArrayList<Scope> values() {
-        return values;
-    }
+    interface ScopeObjectFactory {
 
-    static Scope valueOf(String name) {
-        for (final Scope scope : values) {
-            if (scope.getName().equals(name)) {
-                return scope;
-            }
-        }
-        return null;
+        Object getObject(BeanDefinition def);
     }
 }

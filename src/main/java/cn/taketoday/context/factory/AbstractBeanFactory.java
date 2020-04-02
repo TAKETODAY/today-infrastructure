@@ -88,7 +88,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     private final ArrayList<BeanPostProcessor> postProcessors = new ArrayList<>();
     /** Map of bean instance, keyed by bean name */
     private final HashMap<String, Object> singletons = new HashMap<>(128);
-    private final HashMap<String, Scope> registerScopes = new HashMap<>();
+    private final HashMap<String, Scope> scopes = new HashMap<>();
     /** Map of bean definition objects, keyed by bean name */
     private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
 
@@ -372,7 +372,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * @throws BeanInstantiationException
      *             If any {@link Exception} occurred when create prototype
      */
-    protected Object doCreatePrototype(final BeanDefinition def) throws BeanInstantiationException {
+    protected Object createPrototype(final BeanDefinition def) throws BeanInstantiationException {
         return initializeBean(createBeanInstance(def), def); // initialize
     }
 
@@ -481,7 +481,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             throws BeanInstantiationException // 
     {
         if (currentDef.isPrototype()) {
-            return doCreatePrototype(childDef);
+            return createPrototype(childDef);
         }
         // initialize child bean
         final Object bean = initializeSingleton(getSingleton(currentDef.getName()), childDef);
@@ -505,11 +505,14 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             return initializeSingleton(def);
         }
         else if (def.isPrototype()) {
-            return initializeBean(createBeanInstance(def), def);
+            return createPrototype(def);
         }
         else {
-            final Scope scope = registerScopes.get(def.getScope());
-            return scope.get(def);
+            final Scope scope = scopes.get(def.getScope());
+            if (scope == null) {
+                throw new ConfigurationException("No such scope: [" + def.getScope() + "] in this BeanFactory");
+            }
+            return scope.get(def, this::createPrototype);
         }
     }
 
@@ -1070,8 +1073,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     @Override
-    public void registerScope(Scope scope) {
-        registerScopes.put(scope.getName(), scope);
+    public void registerScope(String name, Scope scope) {
+        Assert.notNull(name, "scope name must not be null");
+        Assert.notNull(scope, "scope object must not be null");
+        scopes.put(name, scope);
     }
 
     /**
@@ -1123,6 +1128,26 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         }
         destroyBean(getSingleton(name), beanDefinition);
         removeBean(name);
+    }
+
+    @Override
+    public void destroyScopedBean(String beanName) {
+        final BeanDefinition def = getBeanDefinition(beanName);
+        if (def == null) {
+            throw new NoSuchBeanDefinitionException(beanName);
+        }
+        if (def.isSingleton() || def.isPrototype()) {
+            throw new IllegalArgumentException("Bean name '"
+                    + beanName + "' does not correspond to an object in a mutable scope");
+        }
+        final Scope scope = scopes.get(def.getScope());
+        if (scope == null) {
+            throw new IllegalStateException("No Scope SPI registered for scope name '" + def.getScope() + "'");
+        }
+        final Object bean = scope.remove(beanName);
+        if (bean != null) {
+            destroyBean(bean, def);
+        }
     }
 
     @Override

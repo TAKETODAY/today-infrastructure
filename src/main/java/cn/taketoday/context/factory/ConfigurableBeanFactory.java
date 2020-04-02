@@ -175,9 +175,23 @@ public interface ConfigurableBeanFactory
     /**
      * Register the given scope, backed by the given Scope implementation.
      * 
+     * @param name
+     *            scope name
      * @param scope
      *            The backing Scope implementation
      * @since 2.1.7
      */
-    void registerScope(Scope scope);
+    void registerScope(String name, Scope scope);
+
+    /**
+     * Destroy the specified scoped bean in the current target scope, if any.
+     * <p>
+     * Any exception that arises during destruction should be caught and logged
+     * instead of propagated to the caller of this method.
+     * 
+     * @param beanName
+     *            the name of the scoped bean
+     * @since 2.1.7
+     */
+    void destroyScopedBean(String beanName);
 }
