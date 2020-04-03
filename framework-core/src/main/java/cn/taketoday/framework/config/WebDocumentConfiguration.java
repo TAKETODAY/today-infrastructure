@@ -75,9 +75,15 @@ public class WebDocumentConfiguration {
      */
     public Resource getValidDocumentDirectory() {
         Resource resource = this.directory;
-        resource = (resource != null) ? resource : getJarFileDocBase();
-        resource = (resource != null) ? resource : getExplodedJarFileDocBase();
-        resource = (resource != null) ? resource : getCommonDocBase();
+        if (resource == null) {
+            resource = getJarFileDocBase();
+        }
+        if (resource == null) {
+            resource = getExplodedJarFileDocBase();
+        }
+        if (resource == null) {
+            resource = getCommonDocBase();
+        }
 
         if (resource == null) {
             log.warn("There is no document root directory");
@@ -88,7 +94,7 @@ public class WebDocumentConfiguration {
         return resource;
     }
 
-    private Resource getJarFileDocBase() {
+    protected Resource getJarFileDocBase() {
         final File archiveFileDocumentRoot = getArchiveFileDocumentRoot(".jar");
         if (archiveFileDocumentRoot == null) {
             return null;
@@ -96,7 +102,7 @@ public class WebDocumentConfiguration {
         return ResourceUtils.getResource(archiveFileDocumentRoot);
     }
 
-    private File getArchiveFileDocumentRoot(String extension) {
+    protected File getArchiveFileDocumentRoot(String extension) {
 
         File file = getCodeSourceArchive();
         log.debug("Code archive: [{}]", file);
@@ -106,7 +112,7 @@ public class WebDocumentConfiguration {
         return null;
     }
 
-    private Resource getExplodedJarFileDocBase() {// /WEB-INF
+    protected Resource getExplodedJarFileDocBase() {// /WEB-INF
         final File explodedJarFileDocBase = getExplodedJarFileDocBase(getCodeSourceArchive());
         if (explodedJarFileDocBase == null) {
             return null;
@@ -114,11 +120,11 @@ public class WebDocumentConfiguration {
         return ResourceUtils.getResource(explodedJarFileDocBase);
     }
 
-    private File getCodeSourceArchive() {
+    protected File getCodeSourceArchive() {
         return getCodeSourceArchive(startupClass.getProtectionDomain().getCodeSource());
     }
 
-    File getCodeSourceArchive(CodeSource codeSource) {
+    protected File getCodeSourceArchive(CodeSource codeSource) {
         try {
             if (codeSource == null) {
                 return null;
@@ -160,7 +166,7 @@ public class WebDocumentConfiguration {
         return null;
     }
 
-    private Resource getCommonDocBase() {
+    protected Resource getCommonDocBase() {
 
         for (String commonDocRoot : COMMON_DOC_ROOTS) {
             File root = new File(commonDocRoot);

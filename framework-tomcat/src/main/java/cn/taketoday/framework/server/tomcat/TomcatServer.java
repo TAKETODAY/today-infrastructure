@@ -385,10 +385,7 @@ public class TomcatServer extends AbstractServletWebServer {
 
     protected void doPrepareContext(Host host) {
 
-        final Resource validDocBase = getWebDocumentConfiguration().getValidDocumentDirectory();
-
         try {
-            File documentRoot = validDocBase.getFile();
 
             final ServletWebServerApplicationLoader starter = //
                     new ServletWebServerApplicationLoader(() -> getMergedInitializers());
@@ -401,10 +398,12 @@ public class TomcatServer extends AbstractServletWebServer {
             context.setName(getContextPath());
             context.setDisplayName(getDisplayName());
             context.setPath(getContextPath());
+            
+            final Resource validDocBase = getWebDocumentConfiguration().getValidDocumentDirectory();
+            if (validDocBase != null && validDocBase.exists() && validDocBase.isDirectory()) {
+                context.setDocBase(validDocBase.getFile().getAbsolutePath());
+            }
 
-            File docBase = (documentRoot == null) ? getTemporalDirectory("docbase") : documentRoot;
-
-            context.setDocBase(docBase.getAbsolutePath());
             context.addLifecycleListener(new FixContextListener());
             context.setParentClassLoader(ClassUtils.getClassLoader());
 

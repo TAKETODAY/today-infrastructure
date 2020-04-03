@@ -22,7 +22,6 @@ package cn.taketoday.framework.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.framework.Constant;
@@ -37,7 +36,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@MissingBean
 @Props(prefix = "server.servlet.jsp.")
 @ConditionalOnClass(Constant.ENV_SERVLET)
 public class JspServletConfiguration {
