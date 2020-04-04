@@ -53,7 +53,7 @@ public class ReactiveFreeMarkerTemplateViewResolver
     @Autowired
     public ReactiveFreeMarkerTemplateViewResolver(ObjectWrapper wrapper, Configuration configuration) {
         setConfiguration(configuration);
-        setWrapper(wrapper);
+        setObjectWrapper(wrapper);
     }
 
     /**
@@ -64,7 +64,7 @@ public class ReactiveFreeMarkerTemplateViewResolver
      * @return {@link TemplateHashModel}
      */
     protected TemplateHashModel createModel(RequestContext context) {
-        final ObjectWrapper wrapper = this.getWrapper();
+        final ObjectWrapper wrapper = this.getObjectWrapper();
 
         final Map<String, Object> attributes = context.asMap();
 
