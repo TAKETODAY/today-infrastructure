@@ -21,11 +21,16 @@ package cn.taketoday.web.view.template;
 
 import static cn.taketoday.web.resolver.method.DelegatingParameterResolver.delegate;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Props;
@@ -40,13 +45,16 @@ import cn.taketoday.web.annotation.SharedVariable;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.resolver.method.ParameterResolver;
 import freemarker.cache.TemplateLoader;
+import freemarker.core.Environment;
 import freemarker.ext.util.WrapperTemplateModel;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.ObjectWrapper;
+import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
+import freemarker.template.Version;
 
 /**
  * @author TODAY <br>
@@ -56,7 +64,7 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
         extends AbstractTemplateViewResolver implements WebMvcConfiguration {
 
     protected int cacheSize = 1024;
-    private ObjectWrapper wrapper;
+    private ObjectWrapper objectWrapper;
     private Configuration configuration;
 
     public AbstractFreeMarkerTemplateViewResolver() {
@@ -66,7 +74,7 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
     protected void configConfiguration(WebApplicationContext context) {
         Configuration config = configuration;
         if (config == null) {
-            config = configuration = new Configuration(Configuration.VERSION_2_3_28);
+            config = configuration = new Configuration(freemakerVersion());
             context.registerSingleton(config.getClass().getName(), config);
         }
         context.getBeansOfType(TemplateModel.class)
@@ -76,11 +84,15 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
         config.setDefaultEncoding(encoding);
     }
 
+    protected Version freemakerVersion() {
+        return Configuration.VERSION_2_3_28;
+    }
+
     protected void configObjectWrapper() {
-        if (getWrapper() == null) {
-            setWrapper(new DefaultObjectWrapper(Configuration.VERSION_2_3_28));
+        if (getObjectWrapper() == null) {
+            setObjectWrapper(new DefaultObjectWrapper(freemakerVersion()));
         }
-        getConfiguration().setObjectWrapper(getWrapper());
+        getConfiguration().setObjectWrapper(getObjectWrapper());
     }
 
     @PostConstruct
@@ -155,11 +167,96 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
     protected abstract TemplateHashModel createModel(RequestContext context);
 
     @Override
-    public void resolveView(final String template, final RequestContext context) throws Throwable {
+    public void resolveView(final String name, final RequestContext context) throws Throwable {
 
-        getConfiguration().getTemplate(template, locale, encoding)
-                .process(createModel(context), context.getWriter());
+        final Template template = getConfiguration().getTemplate(name, locale, encoding);
+        final TemplateHashModel model = createModel(context);
+
+        // Give subclasses a chance to hook into preprocessing
+        if (preTemplateProcess(template, model, context)) {
+            try {
+                // Process the template
+                final Environment env = template.createProcessingEnvironment(model, context.getWriter());
+                env.setOutputEncoding(encoding);
+                processEnvironment(env, context);
+            }
+            finally {
+                // Give subclasses a chance to hook into postprocessing
+                postTemplateProcess(template, model, context);
+            }
+        }
     }
+
+    /**
+     * Called before the execution is passed to
+     * {@link Template#process(Object, java.io.Writer)}. This is a generic hook you
+     * might use in subclasses to perform a specific action before the template is
+     * processed.
+     *
+     * @param context
+     *            The HTTP response. The HTTP headers are already initialized here,
+     *            such as the {@code contentType} and the
+     *            {@code responseCharacterEncoding} are already set, but you can do
+     *            the final adjustments here. The response {@link Writer} isn't
+     *            created yet, so changing HTTP headers and buffering parameters
+     *            works.
+     * @param template
+     *            The template that will get executed
+     * @param model
+     *            The data model that will be passed to the template. By default
+     *            this will be an
+     *            {@link freemarker.ext.servlet.AllHttpScopesHashModel} (which is a
+     *            {@link freemarker.template.SimpleHash} subclass). Thus, you can
+     *            add new variables to the data-model with the
+     *            {@link freemarker.template.SimpleHash#put(String, Object)}
+     *            subclass) method. However, to adjust the data-model, overriding
+     *            {@link #createModel(ObjectWrapper, ServletContext, HttpServletRequest, HttpServletResponse)}
+     *            is probably a more appropriate place.
+     * 
+     * @return true to process the template, false to suppress template processing.
+     */
+    protected boolean preTemplateProcess(final Template template, final TemplateModel model, final RequestContext context)
+            throws IOException {
+        return true;
+    }
+
+    /**
+     * This is the method that actually executes the template. The original
+     * implementation coming from {@link freemarker.ext.servlet.FreemarkerServlet}
+     * simply calls {@link Environment#process()}. Overriding this method allows you
+     * to prepare the {@link Environment} before the execution, or extract
+     * information from the {@link Environment} after the execution. It also allows
+     * you to capture exceptions throw by the template.
+     * 
+     * @param env
+     *            The {@link Environment} object already set up to execute the
+     *            template. You only have to call {@link Environment#process()} and
+     *            the output will be produced by the template.
+     * 
+     * @since 2.3.7
+     */
+    protected void processEnvironment(final Environment env, final RequestContext context)
+            throws TemplateException, IOException {
+        env.process();
+    }
+
+    /**
+     * Called after the execution returns from
+     * {@link Template#process(Object, java.io.Writer)}. This is a generic hook you
+     * might use in subclasses to perform a specific action after the template is
+     * processed. It will be invoked even if the template processing throws an
+     * exception. By default does nothing.
+     * 
+     * @param request
+     *            the actual HTTP request context
+     * @param template
+     *            the template that was executed
+     * @param data
+     *            the data that was passed to the template
+     * @since 2.3.7
+     */
+    protected void postTemplateProcess(final Template template, final TemplateModel data, final RequestContext context)
+            throws IOException {}
 
     public int getCacheSize() {
         return cacheSize;
@@ -169,16 +266,16 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
         this.cacheSize = cacheSize;
     }
 
-    public ObjectWrapper getWrapper() {
-        return wrapper;
+    public ObjectWrapper getObjectWrapper() {
+        return objectWrapper;
     }
 
     public Configuration getConfiguration() {
         return configuration;
     }
 
-    public void setWrapper(ObjectWrapper wrapper) {
-        this.wrapper = wrapper;
+    public void setObjectWrapper(ObjectWrapper wrapper) {
+        this.objectWrapper = wrapper;
     }
 
     public void setConfiguration(Configuration configuration) {
