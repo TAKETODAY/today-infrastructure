@@ -1,8 +1,7 @@
 server:
    port: 8080
    upload: 100MB
-   session:
-      timeout: 60min
+   
    
 context:
    active:

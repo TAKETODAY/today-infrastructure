@@ -191,7 +191,7 @@ public class TomcatServer extends AbstractServletWebServer {
             getStarted().set(true);
             log.info("Tomcat started on port: [{}] with context path '{}'", getPort(), getContextPath());
         }
-        catch (Exception ex) {
+        catch (Throwable ex) {
             stopSilently();
             throw new WebServerException("Unable to start embedded Tomcat server", ex);
         }
