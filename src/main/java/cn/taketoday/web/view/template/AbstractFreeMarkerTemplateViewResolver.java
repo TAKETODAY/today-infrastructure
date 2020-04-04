@@ -28,9 +28,6 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Props;
@@ -210,7 +207,7 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
      *            add new variables to the data-model with the
      *            {@link freemarker.template.SimpleHash#put(String, Object)}
      *            subclass) method. However, to adjust the data-model, overriding
-     *            {@link #createModel(ObjectWrapper, ServletContext, HttpServletRequest, HttpServletResponse)}
+     *            {@link #createModel(RequestContext)}
      *            is probably a more appropriate place.
      * 
      * @return true to process the template, false to suppress template processing.
