@@ -71,7 +71,9 @@ public class FreeMarkerTemplateViewResolver
     private ServletContextHashModel applicationModel;
     private static final String ATTR_SESSION_MODEL = ".freemarker.Session";
 
+    @SuppressWarnings("rawtypes")
     private List/*<String>*/ classpathTlds;
+    @SuppressWarnings("rawtypes")
     private List/*<MetaInfTldSource>*/ metaInfTldSources;
 
     public FreeMarkerTemplateViewResolver() {}
@@ -88,9 +90,7 @@ public class FreeMarkerTemplateViewResolver
     {
         setObjectWrapper(wrapper);
         setConfiguration(configuration);
-
         setServletContext(context.getServletContext());
-        this.taglibFactory = taglibFactory != null ? taglibFactory : new TaglibFactory(this.servletContext);
     }
 
     @Override
@@ -118,50 +118,37 @@ public class FreeMarkerTemplateViewResolver
 
         final ObjectWrapper wrapper = getObjectWrapper();
         final HttpServletRequest request = context.nativeRequest();
-        
+
         final AllHttpScopesHashModel ret = new AllHttpScopesHashModel(wrapper, servletContext, request);
-        ret.putUnlistedModel(FreemarkerServlet.KEY_JSP_TAGLIBS, getTaglibFactory());
         ret.putUnlistedModel(FreemarkerServlet.KEY_APPLICATION, getApplicationModel());
         // Create hash model wrapper for request
         ret.putUnlistedModel(FreemarkerServlet.KEY_REQUEST, new HttpRequestHashModel(request, wrapper));
-        ret.putUnlistedModel(FreemarkerServlet.KEY_REQUEST_PARAMETERS, new HttpRequestParametersHashModel(request));
-        // Create hash model wrapper for session
-
-        HttpSessionHashModel sessionModel;
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            sessionModel = (HttpSessionHashModel) session.getAttribute(ATTR_SESSION_MODEL);
-            if (sessionModel == null) {
-                sessionModel = new HttpSessionHashModel(session, wrapper);
-                initializeSessionAndInstallModel(session, context, sessionModel);
-            }
-        }
-        else {
-            sessionModel = new HttpSessionHashModel(session, wrapper);
-        }
-        ret.putUnlistedModel(FreemarkerServlet.KEY_SESSION, sessionModel);
+        installTaglibFactory(ret);
+        installParametersModel(request, ret);
+        installSessionModel(request, ret);
         return ret;
     }
 
-    protected void initializeSessionAndInstallModel(final HttpSession session,
-                                                    final RequestContext context,
-                                                    final HttpSessionHashModel sessionModel) {
-        session.setAttribute(ATTR_SESSION_MODEL, sessionModel);
-        initializeSession(context);
+    protected void installParametersModel(final HttpServletRequest request, final AllHttpScopesHashModel ret) {
+        ret.putUnlistedModel(FreemarkerServlet.KEY_REQUEST_PARAMETERS, new HttpRequestParametersHashModel(request));
     }
 
-    /**
-     * Called when servlet detects in a request processing that session-global (that
-     * is, HttpSession-specific) attributes are not yet set. This is a generic hook
-     * you might use in subclasses to perform a specific action on first request in
-     * the session. By default it does nothing. It is only invoked on newly created
-     * sessions; it's not invoked when a replicated session is reinstantiated in
-     * another servlet container.
-     * 
-     * @param context
-     *            the actual HTTP request context
-     */
-    protected void initializeSession(final RequestContext context) {}
+    protected void installTaglibFactory(final AllHttpScopesHashModel ret) {
+        ret.putUnlistedModel(FreemarkerServlet.KEY_JSP_TAGLIBS, getTaglibFactory());
+    }
+
+    protected void installSessionModel(final HttpServletRequest request, final AllHttpScopesHashModel ret) {
+        // Create hash model wrapper for session
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            HttpSessionHashModel sessionModel = (HttpSessionHashModel) session.getAttribute(ATTR_SESSION_MODEL);
+            if (sessionModel == null) {
+                sessionModel = new HttpSessionHashModel(session, getObjectWrapper());
+                session.setAttribute(ATTR_SESSION_MODEL, sessionModel);
+            }
+            ret.putUnlistedModel(FreemarkerServlet.KEY_SESSION, sessionModel);
+        }
+    }
 
     @Override
     public void initFreeMarker(WebApplicationContext context, Properties settings) {
@@ -183,6 +170,7 @@ public class FreeMarkerTemplateViewResolver
      * 
      * @since 2.3.7
      */
+    @SuppressWarnings("rawtypes")
     protected List createDefaultMetaInfTldSources() {
         return TaglibFactory.DEFAULT_META_INF_TLD_SOURCES;
     }
@@ -200,6 +188,7 @@ public class FreeMarkerTemplateViewResolver
      * 
      * @since 2.3.7
      */
+    @SuppressWarnings("rawtypes")
     protected List createDefaultClassPathTlds() {
         return TaglibFactory.DEFAULT_CLASSPATH_TLDS;
     }

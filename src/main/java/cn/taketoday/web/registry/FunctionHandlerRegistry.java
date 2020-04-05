@@ -31,7 +31,6 @@ import static cn.taketoday.web.RequestMethod.TRACE;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.handler.FunctionHandler;
