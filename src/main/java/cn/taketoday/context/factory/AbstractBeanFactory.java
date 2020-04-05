@@ -69,6 +69,7 @@ import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY <br>
@@ -976,6 +977,27 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             throws BeanDefinitionStoreException, ConfigurationException //
     {
         getBeanDefinitionLoader().register(name, beanDefinition);
+    }
+
+    @Override
+    public void registerBean(Object obj) throws BeanDefinitionStoreException {
+        registerBean(getBeanNameCreator().create(obj.getClass()), obj);
+    }
+
+    @Override
+    public void registerBean(final String name, final Object obj) throws BeanDefinitionStoreException {
+        Assert.notNull(obj, "bean instance must not be null");
+
+        String nameToUse = name;
+        final Class<? extends Object> beanClass = obj.getClass();
+        if (StringUtils.isEmpty(nameToUse)) {
+            nameToUse = getBeanNameCreator().create(beanClass);
+        }
+        getBeanDefinitionLoader().loadBeanDefinition(nameToUse, beanClass);
+        final BeanDefinition def = getBeanDefinition(name);
+        if (def.isSingleton()) {
+            registerSingleton(name, obj);
+        }
     }
 
     @Override

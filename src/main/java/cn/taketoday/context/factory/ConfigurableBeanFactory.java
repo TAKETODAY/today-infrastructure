@@ -77,6 +77,30 @@ public interface ConfigurableBeanFactory
     void registerBean(String name, Class<?> clazz) throws BeanDefinitionStoreException;
 
     /**
+     * Register a bean with the given name and bean instance
+     * 
+     * @param name
+     *            bean name
+     * @param obj
+     *            bean instance
+     * @throws BeanDefinitionStoreException
+     *             If can't store a bean
+     */
+    void registerBean(String name, Object obj) throws BeanDefinitionStoreException;
+
+    /**
+     * Register a bean with the bean instance
+     * <p>
+     * Use the {@link BeanNameCreator} to create a bean name
+     * 
+     * @param obj
+     *            bean instance
+     * @throws BeanDefinitionStoreException
+     *             If can't store a bean
+     */
+    void registerBean(Object obj) throws BeanDefinitionStoreException;
+
+    /**
      * Register a bean with the given type
      * <p>
      * This method will use {@link BeanNameCreator} create a bean name and register

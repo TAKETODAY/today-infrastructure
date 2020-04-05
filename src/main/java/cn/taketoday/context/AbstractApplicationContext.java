@@ -587,6 +587,16 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
+    public void registerBean(Object obj) throws BeanDefinitionStoreException {
+        getBeanFactory().registerBean(obj);
+    }
+
+    @Override
+    public void registerBean(String name, Object obj) throws BeanDefinitionStoreException {
+        getBeanFactory().registerBean(name, obj);
+    }
+
+    @Override
     public void destroyBean(String name) {
         getBeanFactory().destroyBean(name);
     }
