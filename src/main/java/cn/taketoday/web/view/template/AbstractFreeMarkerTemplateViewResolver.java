@@ -60,6 +60,8 @@ import freemarker.template.Version;
 public abstract class AbstractFreeMarkerTemplateViewResolver
         extends AbstractTemplateViewResolver implements WebMvcConfiguration {
 
+    private static final Logger log = LoggerFactory.getLogger(AbstractFreeMarkerTemplateViewResolver.class);
+
     protected int cacheSize = 1024;
     private ObjectWrapper objectWrapper;
     private Configuration configuration;
@@ -74,6 +76,7 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
             config = configuration = new Configuration(freemakerVersion());
             context.registerSingleton(config.getClass().getName(), config);
         }
+        log.info("Configure FreeMarker TemplateModel");
         context.getBeansOfType(TemplateModel.class)
                 .forEach(config::setSharedVariable);
 
@@ -95,6 +98,8 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
     @PostConstruct
     public void initFreeMarker(WebApplicationContext context, @Props(prefix = "freemarker.", replace = true) Properties settings) {
 
+        log.info("Initialize FreeMarker");
+
         configConfiguration(context);
         configObjectWrapper();
 
@@ -106,6 +111,7 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
         catch (TemplateException e) {
             throw new ConfigurationException("Set FreeMarker's Properties Error, With: [" + e + "]", e);
         }
+        log.info("Configuration FreeMarker Template View Resolver Success.");
     }
 
     @Override
@@ -139,10 +145,8 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
         final TemplateLoader loader = createTemplateLoader(loaders);
         getConfiguration().setTemplateLoader(loader);
 
-        final Logger log = LoggerFactory.getLogger(AbstractFreeMarkerTemplateViewResolver.class);
         if (log.isInfoEnabled()) {
             log.info("FreeMarker use [{}] to load templates, prefix: [{}], suffix: [{}]", loader, prefix, suffix);
-            log.info("Configuration FreeMarker Template View Resolver Success.");
         }
     }
 
@@ -207,8 +211,8 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
      *            add new variables to the data-model with the
      *            {@link freemarker.template.SimpleHash#put(String, Object)}
      *            subclass) method. However, to adjust the data-model, overriding
-     *            {@link #createModel(RequestContext)}
-     *            is probably a more appropriate place.
+     *            {@link #createModel(RequestContext)} is probably a more
+     *            appropriate place.
      * 
      * @return true to process the template, false to suppress template processing.
      */
