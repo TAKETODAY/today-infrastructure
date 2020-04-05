@@ -29,7 +29,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.view.template.AbstractFreeMarkerTemplateViewResolver;
 import cn.taketoday.web.view.template.RequestContextParametersHashModel;
-import freemarker.ext.servlet.FreemarkerServlet;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultMapAdapter;
 import freemarker.template.DefaultObjectWrapper;
@@ -45,6 +44,8 @@ import freemarker.template.utility.ObjectWrapperWithAPISupport;
 @Order(Ordered.LOWEST_PRECEDENCE - 100)
 public class ReactiveFreeMarkerTemplateViewResolver
         extends AbstractFreeMarkerTemplateViewResolver implements WebMvcConfiguration {
+
+    public static final String KEY_REQUEST_PARAMETERS = "RequestParameters";
 
     public ReactiveFreeMarkerTemplateViewResolver(Configuration configuration) {
         this(new DefaultObjectWrapper(configuration.getIncompatibleImprovements()), configuration);
@@ -69,7 +70,7 @@ public class ReactiveFreeMarkerTemplateViewResolver
         final Map<String, Object> attributes = context.asMap();
 
         // Create hash model wrapper for request
-        attributes.put(FreemarkerServlet.KEY_REQUEST_PARAMETERS, new RequestContextParametersHashModel(context));
+        attributes.put(KEY_REQUEST_PARAMETERS, new RequestContextParametersHashModel(context));
 
         return DefaultMapAdapter.adapt(attributes, (ObjectWrapperWithAPISupport) wrapper);
     }
