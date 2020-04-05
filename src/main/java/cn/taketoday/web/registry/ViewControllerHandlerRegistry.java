@@ -86,11 +86,13 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
     }
 
     public void register(String requestURI, ViewController viewController) {
-        registerHandler(requestURI, viewController);
+        registerHandler(StringUtils.checkUrl(requestURI), viewController);
     }
 
     public void register(ViewController viewController, String... requestURI) {
-        registerHandler(viewController, requestURI);
+        for (final String path : nonNull(requestURI, "request URIs must not be null")) {
+            register(path, viewController);
+        }
     }
 
     /**
