@@ -21,10 +21,9 @@ package cn.taketoday.framework.reactive;
 
 import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,14 +87,8 @@ public class NettyRequestContext extends AbstractRequestContext implements Reque
 
     private boolean committed = false;
 
-    private final String contextPath;
-
-    private ByteBufInputStream inputStream;
-    private ByteBufOutputStream outputStream;
-
     private Map<String, Object> attributes;
     private Map<String, String[]> parameters;
-    private Map<String, List<MultipartFile>> multipartFiles;
 
     private final FullHttpRequest request;
     private final ChannelHandlerContext handlerContext;
@@ -105,14 +98,9 @@ public class NettyRequestContext extends AbstractRequestContext implements Reque
     public NettyRequestContext(String contextPath, ChannelHandlerContext ctx, FullHttpRequest request) {
         this.request = request;
         this.handlerContext = ctx;
-        this.contextPath = contextPath;
         this.url = request.uri();
         this.uri = request.uri();//TODO
-    }
-
-    @Override
-    public String contextPath() {
-        return contextPath;
+        setContextPath(contextPath);
     }
 
     @Override
@@ -150,22 +138,13 @@ public class NettyRequestContext extends AbstractRequestContext implements Reque
     }
 
     @Override
-    public ByteBufInputStream getInputStream() throws IOException {
-        final ByteBufInputStream inputStream = this.inputStream;
-        if (inputStream == null) {
-            return this.inputStream = new ByteBufInputStream(request.content());
-        }
-        return inputStream;
+    protected InputStream getInputStreamInternal() throws IOException {
+        return new ByteBufInputStream(request.content());
     }
 
     @Override
-    public ByteBufOutputStream getOutputStream() throws IOException {
-
-        final ByteBufOutputStream outputStream = this.outputStream;
-        if (outputStream == null) {
-            return this.outputStream = new ByteBufOutputStream(responseBody);
-        }
-        return outputStream;
+    protected OutputStream getOutputStreamInternal() throws IOException {
+        return new ByteBufOutputStream(responseBody);
     }
 
     public Map<String, Object> getAttributes() {
@@ -420,27 +399,6 @@ public class NettyRequestContext extends AbstractRequestContext implements Reque
         return request.content().readableBytes();
     }
 
-    private PrintWriter writer;
-    private BufferedReader reader;
-
-    @Override
-    public BufferedReader getReader() throws IOException {
-        final BufferedReader reader = this.reader;
-        if (reader == null) {
-            return this.reader = new BufferedReader(new InputStreamReader(getInputStream(), DEFAULT_CHARSET));
-        }
-        return reader;
-    }
-
-    @Override
-    public PrintWriter getWriter() throws IOException {
-        final PrintWriter writer = this.writer;
-        if (writer == null) {
-            return this.writer = new PrintWriter(getOutputStream(), true);
-        }
-        return writer;
-    }
-
     @Override
     public RedirectModel redirectModel() {
         return null;
@@ -649,15 +607,9 @@ public class NettyRequestContext extends AbstractRequestContext implements Reque
     }
 
     @Override
-    public Map<String, List<MultipartFile>> multipartFiles() throws IOException {
-
-        Map<String, List<MultipartFile>> multipartFiles = this.multipartFiles;
-
-        if (multipartFiles != null) {
-            return multipartFiles;
-        }
-
-        multipartFiles = new HashMap<>(32);
+    protected Map<String, List<MultipartFile>> parseMultipartFiles() throws IOException {
+        
+        final HashMap<String, List<MultipartFile>> multipartFiles = new HashMap<>();
 
         for (InterfaceHttpData data : getRequestDecoder().getBodyHttpDatas()) {
             if (data instanceof FileUpload) {
@@ -669,7 +621,7 @@ public class NettyRequestContext extends AbstractRequestContext implements Reque
                 parts.add(new FileUploadMultipartFile((FileUpload) data));
             }
         }
-        return this.multipartFiles = multipartFiles;
+        return multipartFiles;
     }
 
     // Map
