@@ -41,6 +41,9 @@ public class CookieTokenResolver implements TokenResolver {
 
     public CookieTokenResolver(String cookieName) {
         this(new HttpCookie(cookieName, null));
+        sessionCookie.setPath("/");
+        sessionCookie.setMaxAge(3600);
+        sessionCookie.setHttpOnly(true);
     }
 
     public CookieTokenResolver(HttpCookie sessionCookie) {
