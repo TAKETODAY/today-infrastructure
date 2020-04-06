@@ -61,15 +61,8 @@ import cn.taketoday.web.ui.RedirectModel;
  */
 public class ServletRequestContext extends AbstractRequestContext implements RequestContext, Map<String, Object> {
 
-    private String contextPath;
-
     private final HttpServletRequest request;
     private final HttpServletResponse response;
-
-    private Object requestBody;
-    private String[] pathVariables;
-
-    private Map<String, List<MultipartFile>> multipartFiles;
 
     public ServletRequestContext(HttpServletRequest request, HttpServletResponse response) {
         this.request = request;
@@ -81,11 +74,8 @@ public class ServletRequestContext extends AbstractRequestContext implements Req
     }
 
     @Override
-    public String contextPath() {
-        if (contextPath == null) {
-            return contextPath = request.getContextPath();
-        }
-        return contextPath;
+    protected String getContextPathInternal() {
+        return request.getContextPath();
     }
 
     @SuppressWarnings("unchecked")
@@ -145,22 +135,22 @@ public class ServletRequestContext extends AbstractRequestContext implements Req
     }
 
     @Override
-    public OutputStream getOutputStream() throws IOException {
+    protected OutputStream getOutputStreamInternal() throws IOException {
         return response.getOutputStream();
     }
 
     @Override
-    public PrintWriter getWriter() throws IOException {
-        return response.getWriter();
-    }
-
-    @Override
-    public InputStream getInputStream() throws IOException {
+    protected InputStream getInputStreamInternal() throws IOException {
         return request.getInputStream();
     }
 
     @Override
-    public BufferedReader getReader() throws IOException {
+    protected PrintWriter getWriterInternal() throws IOException {
+        return response.getWriter();
+    }
+
+    @Override
+    public BufferedReader getReaderInternal() throws IOException {
         return request.getReader();
     }
 
@@ -395,26 +385,6 @@ public class ServletRequestContext extends AbstractRequestContext implements Req
     }
 
     @Override
-    public Object requestBody() {
-        return requestBody;
-    }
-
-    @Override
-    public Object requestBody(Object body) {
-        return this.requestBody = body;
-    }
-
-    @Override
-    public String[] pathVariables() {
-        return pathVariables;
-    }
-
-    @Override
-    public String[] pathVariables(String[] variables) {
-        return pathVariables = variables;
-    }
-
-    @Override
     public RedirectModel redirectModel() {
         final Object attribute = request.getSession().getAttribute("redirect-model");
 
@@ -592,30 +562,24 @@ public class ServletRequestContext extends AbstractRequestContext implements Req
     }
 
     @Override
-    public Map<String, List<MultipartFile>> multipartFiles() throws IOException {
+    protected Map<String, List<MultipartFile>> parseMultipartFiles() throws IOException {
 
-        if (multipartFiles == null) {
+        final HashMap<String, List<MultipartFile>> multipartFiles = new HashMap<>();
 
-            final Map<String, List<MultipartFile>> multipartFiles = new HashMap<>();
-
-            try {
-
-                for (final Part part : request.getParts()) {
-
-                    final String name = part.getName();
-                    List<MultipartFile> parts = multipartFiles.get(name);
-                    if (parts == null) {
-                        multipartFiles.put(name, parts = new ArrayList<>(4));
-                    }
-                    parts.add(new DefaultMultipartFile(part));
+        try {
+            for (final Part part : request.getParts()) {
+                final String name = part.getName();
+                List<MultipartFile> parts = multipartFiles.get(name);
+                if (parts == null) {
+                    multipartFiles.put(name, parts = new ArrayList<>(4));
                 }
-                return this.multipartFiles = multipartFiles;
+                parts.add(new DefaultMultipartFile(part));
             }
-            catch (ServletException e) { // if this request is not of type multipart/form-data
-                throw new BadRequestException("This is not a multipart request", e);
-            }
+            return multipartFiles;
         }
-        return multipartFiles;
+        catch (ServletException e) { // if this request is not of type multipart/form-data
+            throw new BadRequestException("This is not a multipart request", e);
+        }
     }
 
     @Override

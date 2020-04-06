@@ -19,8 +19,19 @@
  */
 package cn.taketoday.web;
 
-import java.net.HttpCookie;
+import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.HttpCookie;
+import java.util.List;
+import java.util.Map;
+
+import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.ModelAndView;
 
 /**
@@ -29,11 +40,84 @@ import cn.taketoday.web.ui.ModelAndView;
  */
 public abstract class AbstractRequestContext implements RequestContext {
 
+    private String contextPath;
     private Object requestBody;
     private HttpCookie[] cookies;
     private String[] pathVariables;
     private ModelAndView modelAndView;
     protected static final HttpCookie[] EMPTY_COOKIES = {};
+
+    private PrintWriter writer;
+    private BufferedReader reader;
+    private InputStream inputStream;
+    private OutputStream outputStream;
+
+    private Map<String, List<MultipartFile>> multipartFiles;
+
+    @Override
+    public String contextPath() {
+        final String contextPath = this.contextPath;
+        if (contextPath == null) {
+            return this.contextPath = getContextPathInternal();
+        }
+        return contextPath;
+    }
+
+    public final void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
+
+    protected String getContextPathInternal() {
+        return Constant.BLANK;
+    }
+
+    @Override
+    public BufferedReader getReader() throws IOException {
+        final BufferedReader reader = this.reader;
+        if (reader == null) {
+            return this.reader = getReaderInternal();
+        }
+        return reader;
+    }
+
+    protected BufferedReader getReaderInternal() throws IOException {
+        return new BufferedReader(new InputStreamReader(getInputStream(), DEFAULT_CHARSET));
+    }
+
+    @Override
+    public PrintWriter getWriter() throws IOException {
+        final PrintWriter writer = this.writer;
+        if (writer == null) {
+            return this.writer = getWriterInternal();
+        }
+        return writer;
+    }
+
+    protected PrintWriter getWriterInternal() throws IOException {
+        return new PrintWriter(getOutputStream(), true);
+    }
+
+    @Override
+    public InputStream getInputStream() throws IOException {
+        final InputStream inputStream = this.inputStream;
+        if (inputStream == null) {
+            return this.inputStream = getInputStreamInternal();
+        }
+        return inputStream;
+    }
+
+    protected abstract InputStream getInputStreamInternal() throws IOException;
+
+    @Override
+    public OutputStream getOutputStream() throws IOException {
+        final OutputStream outputStream = this.outputStream;
+        if (outputStream == null) {
+            return this.outputStream = getOutputStreamInternal();
+        }
+        return outputStream;
+    }
+
+    protected abstract OutputStream getOutputStreamInternal() throws IOException;
 
     @Override
     public ModelAndView modelAndView() {
@@ -91,4 +175,18 @@ public abstract class AbstractRequestContext implements RequestContext {
      *         request has no cookies
      */
     protected abstract HttpCookie[] getCookiesInternal();
+
+    // -----------------------------------------------------
+
+    @Override
+    public Map<String, List<MultipartFile>> multipartFiles() throws IOException {
+        final Map<String, List<MultipartFile>> multipartFiles = this.multipartFiles;
+        if (multipartFiles == null) {
+            return this.multipartFiles = parseMultipartFiles();
+        }
+        return multipartFiles;
+    }
+
+    protected abstract Map<String, List<MultipartFile>> parseMultipartFiles() throws IOException;
+
 }
