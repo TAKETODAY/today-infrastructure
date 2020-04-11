@@ -60,4 +60,8 @@ public class ValidationException extends WebRuntimeException implements Errors {
         return errors;
     }
 
+    @Override
+    public String getMessage() {
+        return errors.toString();
+    }
 }

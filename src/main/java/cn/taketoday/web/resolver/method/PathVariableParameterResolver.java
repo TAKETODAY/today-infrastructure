@@ -19,9 +19,10 @@
  */
 package cn.taketoday.web.resolver.method;
 
+import static cn.taketoday.context.utils.ConvertUtils.convert;
+
 import cn.taketoday.context.AntPathMatcher;
 import cn.taketoday.context.PathMatcher;
-import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -53,18 +54,18 @@ public class PathVariableParameterResolver implements OrderedParameterResolver {
      * Resolve Path Variable parameter.
      */
     @Override
-    public Object resolveParameter(final RequestContext requestContext, final MethodParameter p) throws Throwable {
+    public Object resolveParameter(final RequestContext request, final MethodParameter p) throws Throwable {
 
         try {
             final PathVariableMethodParameter parameter = (PathVariableMethodParameter) p;
 
-            String[] pathVariables = requestContext.pathVariables();
+            String[] pathVariables = request.pathVariables();
             if (pathVariables == null) {
-                String requestURI = StringUtils.decodeUrl(requestContext.requestURI());
+                String requestURI = StringUtils.decodeUrl(request.requestURI());
                 final String[] extractVariables = getPathMatcher().extractVariables(parameter.getPathPattern(), requestURI);
-                pathVariables = requestContext.pathVariables(extractVariables);
+                pathVariables = request.pathVariables(extractVariables);
             }
-            return ConvertUtils.convert(pathVariables[parameter.getPathIndex()], parameter.getParameterClass());
+            return convert(pathVariables[parameter.getPathIndex()], parameter.getParameterClass());
         }
         catch (Throwable e) {
             throw WebUtils.newBadRequest("Path variable", p.getName(), e);
