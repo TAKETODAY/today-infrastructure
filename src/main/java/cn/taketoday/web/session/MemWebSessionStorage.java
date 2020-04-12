@@ -26,11 +26,9 @@ import java.util.Map;
  * @author TODAY <br>
  *         2019-09-28 10:31
  */
-public class MemWebSessionStorage implements WebSessionStorage {
+public class MemWebSessionStorage extends AbstractWebSessionStorage implements WebSessionStorage {
 
     private final Map<String, WebSession> sessions;
-
-    private final long expire;
 
     public MemWebSessionStorage() {
         this(3600_000);
@@ -41,34 +39,22 @@ public class MemWebSessionStorage implements WebSessionStorage {
     }
 
     public MemWebSessionStorage(long expire, Map<String, WebSession> sessions) {
-        this.expire = expire;
+        super(expire);
         this.sessions = sessions;
     }
 
     @Override
-    public WebSession get(String id) {
-
-        final WebSession ret = sessions.get(id);
-
-        if (ret == null || System.currentTimeMillis() - ret.getCreationTime() > expire) {
-            return null;
-        }
-        return ret;
+    protected WebSession getInternal(String id) {
+        return sessions.get(id);
     }
 
     @Override
-    public WebSession remove(String id) {
+    public WebSession removeInternal(String id) {
         return sessions.remove(id);
     }
 
     @Override
-    public boolean contains(String id) {
-        return sessions.containsKey(id);
-    }
-
-    @Override
-    public void store(String id, WebSession session) {
+    protected void storeInternal(String id, WebSession session) {
         sessions.put(id, session);
     }
-
 }

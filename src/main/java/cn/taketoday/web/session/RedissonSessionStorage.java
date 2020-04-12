@@ -28,9 +28,8 @@ import cn.taketoday.web.Constant;
  * @author TODAY <br>
  *         2019-09-28 10:31
  */
-public class RedissonSessionStorage implements WebSessionStorage {
+public class RedissonSessionStorage extends AbstractWebSessionStorage implements WebSessionStorage {
 
-    private final long expire;
     private final String prefix;
     private final RMapCache<String, WebSession> sessions;
 
@@ -49,35 +48,29 @@ public class RedissonSessionStorage implements WebSessionStorage {
     }
 
     public RedissonSessionStorage(long expire, String prefix, RMapCache<String, WebSession> sessions) {
-        this.expire = expire;
+        super(expire);
         this.prefix = prefix;
         this.sessions = sessions;
     }
 
     @Override
-    public WebSession get(String id) {
-
-        final WebSession ret = sessions.get(prefix.concat(id));
-
-        if (ret == null || System.currentTimeMillis() - ret.getCreationTime() > expire) {
-            return null;
-        }
-        return ret;
+    protected String computeId(String id) {
+        return prefix.concat(id);
     }
 
     @Override
-    public WebSession remove(String id) {
-        return sessions.remove(prefix.concat(id));
+    protected WebSession getInternal(String id) {
+        return sessions.get(id);
     }
 
     @Override
-    public boolean contains(String id) {
-        return sessions.containsKey(prefix.concat(id));
+    protected WebSession removeInternal(String id) {
+        return sessions.remove(id);
     }
 
     @Override
-    public void store(String id, WebSession session) {
-        sessions.put(prefix.concat(id), session);
+    protected void storeInternal(String id, WebSession session) {
+        sessions.put(id, session);
     }
 
 }
