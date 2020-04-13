@@ -60,9 +60,8 @@ public class DefaultMapCache extends AbstractCache {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T get(Object key, CacheCallback<T> cacheCallback) {
-        return (T) this.store.computeIfAbsent(key, k -> lookupValue(k, cacheCallback));
+    protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) {
+        return this.store.computeIfAbsent(key, k -> lookupValue(k, valueLoader));
     }
 
 }

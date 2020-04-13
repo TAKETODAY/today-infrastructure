@@ -39,9 +39,8 @@ public class ConcurrentMapCache extends AbstractCache {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T get(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
-        return (T) store.get(key, k -> lookupValue(k, valueLoader));
+    protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
+        return store.get(key, k -> lookupValue(k, valueLoader));
     }
 
     @Override

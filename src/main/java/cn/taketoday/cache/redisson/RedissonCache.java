@@ -30,7 +30,6 @@ import cn.taketoday.cache.AbstractCache;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheCallback;
 import cn.taketoday.cache.CacheValueRetrievalException;
-import cn.taketoday.cache.Constant;
 import cn.taketoday.cache.annotation.CacheConfig;
 
 /**
@@ -76,33 +75,27 @@ public class RedissonCache extends AbstractCache implements Cache {
         cache.clear();
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T get(final Object key, final CacheCallback<T> valueLoader) {
-
-        Object value = cache.get(key);
-        if (value == null) {
-            final RLock lock = cache.getLock(key);
-            try {
-                lock.lock();
-                value = cache.get(key);
-                if (value == null) {
-                    final T call = valueLoader.call();
-                    doPut(cache, cacheConfig, key, toStoreValue(call));
-                    return call;
-                }
+    @Override
+    protected <T> Object lookupValue(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
+        final RLock lock = cache.getLock(key);
+        try {
+            lock.lock();
+            Object value = cache.get(key);
+            if (value == null) {
+                final Object newValue = super.lookupValue(key, valueLoader);
+                put(key, newValue);
+                return newValue;
             }
-            catch (Throwable ex) {
-                throw new CacheValueRetrievalException(key, valueLoader, ex);
-            }
-            finally {
-                lock.unlock();
+            else {
+                return value;
             }
         }
-        return (T) value;
-    }
-
-    protected final static Object toStoreValue(Object userValue) {
-        return userValue == null ? Constant.EMPTY_OBJECT : userValue;
+        catch (Throwable ex) {
+            throw new CacheValueRetrievalException(key, valueLoader, ex);
+        }
+        finally {
+            lock.unlock();
+        }
     }
 
     @Override

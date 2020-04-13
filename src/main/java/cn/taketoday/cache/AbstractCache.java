@@ -19,12 +19,18 @@
  */
 package cn.taketoday.cache;
 
+import java.io.Serializable;
+
 /**
  * 
  * @author TODAY <br>
  *         2019-11-02 00:23
  */
 public abstract class AbstractCache implements Cache {
+
+    private static enum EmptyObject implements Serializable {
+        EMPTY_OBJECT
+    }
 
     private String name;
 
@@ -39,8 +45,15 @@ public abstract class AbstractCache implements Cache {
 
     @Override
     public final Object get(final Object key) {
-        final Object ret = lookupValue(key);
-        return ret == Constant.EMPTY_OBJECT ? null : ret;
+        return toRealValue(lookupValue(key));
+    }
+
+    protected final static Object toStoreValue(final Object userValue) {
+        return userValue == null ? EmptyObject.EMPTY_OBJECT : userValue;
+    }
+
+    protected final static Object toRealValue(final Object cachedValue) {
+        return cachedValue == EmptyObject.EMPTY_OBJECT ? null : cachedValue;
     }
 
     @Override
@@ -51,6 +64,20 @@ public abstract class AbstractCache implements Cache {
             throw new IllegalStateException("Cached value is not of required type [" + type.getName() + "]: " + value);
         }
         return (T) value;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public final <T> T get(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
+        return (T) toRealValue(getInternal(key, valueLoader));
+    }
+
+    protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
+        Object ret = lookupValue(key);
+        if (ret == null) {
+            ret = lookupValue(key, valueLoader);
+        }
+        return ret;
     }
 
     protected abstract Object lookupValue(Object key);
@@ -68,7 +95,7 @@ public abstract class AbstractCache implements Cache {
 
     @Override
     public final void put(final Object key, final Object value) {
-        putInternal(key, value == null ? Constant.EMPTY_OBJECT : value);
+        putInternal(key, toStoreValue(value));
     }
 
     protected abstract void putInternal(Object key, Object value);
