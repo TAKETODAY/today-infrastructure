@@ -50,7 +50,7 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
     public void handleException(final RequestContext context, final Throwable ex, final Object handler) throws Throwable {
 
         try {
-        
+
             if (handler instanceof HandlerMethod) {
                 handleHandlerMethodInternal(ex, context, (HandlerMethod) handler);
             }
@@ -155,7 +155,7 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
             writer.write(new StringBuilder()
                     .append("{\"message\":\"").append(responseStatus.msg())
                     .append("\",\"status\":").append(status)
-                    .append(",\"success\":false}")
+                    .append('}')
                     .toString()//
             );
             writer.flush();

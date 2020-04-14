@@ -42,9 +42,9 @@ import cn.taketoday.web.exception.FileSizeExceededException;
 import cn.taketoday.web.exception.MethodNotAllowedException;
 import cn.taketoday.web.exception.NotFoundException;
 import cn.taketoday.web.exception.UnauthorizedException;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.ExceptionResolver;
 import cn.taketoday.web.validation.ValidationException;
 
 /**
@@ -164,12 +164,12 @@ public abstract class WebUtils {
         return "HEAD".equalsIgnoreCase(requestContext.method());
     }
 
-    public static void resolveException(final Object handler,
-                                        final Throwable exception,
-                                        final RequestContext context,
-                                        final ExceptionResolver resolver) throws Throwable //
+    public static void handleException(final Object handler,
+                                       final Throwable exception,
+                                       final RequestContext context,
+                                       final HandlerExceptionHandler resolver) throws Throwable //
     {
-        resolver.resolveException(context, ExceptionUtils.unwrapThrowable(exception), handler);
+        resolver.handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
     }
 
     /**
