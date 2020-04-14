@@ -36,16 +36,10 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.exception.AccessForbiddenException;
 import cn.taketoday.web.exception.BadRequestException;
-import cn.taketoday.web.exception.FileSizeExceededException;
-import cn.taketoday.web.exception.MethodNotAllowedException;
-import cn.taketoday.web.exception.NotFoundException;
-import cn.taketoday.web.exception.UnauthorizedException;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.validation.ValidationException;
 
 /**
  * @author TODAY <br>
@@ -203,30 +197,12 @@ public abstract class WebUtils {
     }
 
     public static int getStatus(final Throwable ex) {
-        if (ex instanceof MethodNotAllowedException) {
-            return 405;
-        }
-        else if (ex instanceof BadRequestException
-                 || ex instanceof ValidationException
-                 || ex instanceof ConversionException
-                 || ex instanceof FileSizeExceededException) //
-        {
+        if (ex instanceof ConversionException) {
             return 400;
         }
-        else if (ex instanceof NotFoundException) {
-            return 404;
-        }
-        else if (ex instanceof UnauthorizedException) {
-            return 401;
-        }
-        else if (ex instanceof AccessForbiddenException) {
-            return 403;
-        }
-        else {
-            final ResponseStatus status = ClassUtils.getAnnotation(ex, ResponseStatus.class);
-            if (status != null) {
-                return status.value();
-            }
+        final ResponseStatus status = ClassUtils.getAnnotation(ex, ResponseStatus.class);
+        if (status != null) {
+            return status.value();
         }
         return 500;
     }

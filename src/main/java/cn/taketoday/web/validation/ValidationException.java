@@ -22,12 +22,14 @@ package cn.taketoday.web.validation;
 import java.util.HashSet;
 import java.util.Set;
 
+import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.exception.WebRuntimeException;
 
 /**
  * @author TODAY <br>
  *         2019-07-21 14:35
  */
+@ResponseStatus(400)
 @SuppressWarnings("serial")
 public class ValidationException extends WebRuntimeException implements Errors {
 
