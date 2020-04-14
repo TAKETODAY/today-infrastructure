@@ -244,7 +244,11 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
             if (status == null) {
                 return ex.getMessage();
             }
-            return status.msg();
+            final String msg = status.msg();
+            if (StringUtils.isEmpty(msg)) {
+                return ex.getMessage();
+            }
+            return msg;
         }
 
         @Override

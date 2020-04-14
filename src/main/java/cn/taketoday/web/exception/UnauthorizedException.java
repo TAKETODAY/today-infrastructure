@@ -26,8 +26,8 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * @author TODAY <br>
  *         2019-07-20 15:51
  */
+@ResponseStatus(401)
 @SuppressWarnings("serial")
-@ResponseStatus(value = 401, msg = Constant.UNAUTHORIZED)
 public class UnauthorizedException extends WebRuntimeException {
 
     public UnauthorizedException() {

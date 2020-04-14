@@ -26,8 +26,8 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * @author TODAY <br>
  *         2018-10-30 16:51
  */
+@ResponseStatus(400)
 @SuppressWarnings("serial")
-@ResponseStatus(value = 400, msg = Constant.BAD_REQUEST)
 public class BadRequestException extends WebRuntimeException {
 
     public BadRequestException() {

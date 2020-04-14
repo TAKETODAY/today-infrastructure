@@ -26,8 +26,8 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * @author TODAY <br>
  *         2018-11-26 20:06
  */
+@ResponseStatus(403)
 @SuppressWarnings("serial")
-@ResponseStatus(value = 403, msg = Constant.ACCESS_FORBIDDEN)
 public class AccessForbiddenException extends WebRuntimeException {
 
     public AccessForbiddenException(Throwable cause) {

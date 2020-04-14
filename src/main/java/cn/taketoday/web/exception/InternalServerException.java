@@ -27,8 +27,8 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * @author TODAY <br>
  *         2018-12-02 09:14
  */
+@ResponseStatus(500)
 @SuppressWarnings("serial")
-@ResponseStatus(value = 500, msg = Constant.INTERNAL_SERVER_ERROR)
 public class InternalServerException extends WebRuntimeException {
 
     public InternalServerException(Throwable cause) {
