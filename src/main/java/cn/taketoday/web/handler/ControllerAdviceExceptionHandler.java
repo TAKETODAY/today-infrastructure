@@ -40,7 +40,8 @@ import cn.taketoday.web.exception.ExceptionUnhandledException;
  *         2019-06-22 19:17
  * @since 2.3.7
  */
-public class ControllerAdviceExceptionHandler extends DefaultExceptionHandler implements WebApplicationInitializer {
+public class ControllerAdviceExceptionHandler
+        extends DefaultExceptionHandler implements WebApplicationInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(ControllerAdviceExceptionHandler.class);
     private final Map<Class<? extends Throwable>, ThrowableHandlerMethod> exceptionHandlers = new HashMap<>();

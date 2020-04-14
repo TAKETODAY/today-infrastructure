@@ -20,6 +20,8 @@
 package cn.taketoday.web.exception;
 
 import cn.taketoday.context.utils.DataSize;
+import cn.taketoday.web.Constant;
+import cn.taketoday.web.annotation.ResponseStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,6 +32,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @SuppressWarnings("serial")
+@ResponseStatus(value = 400, msg = Constant.BAD_REQUEST)
 public class FileSizeExceededException extends WebRuntimeException {
 
     /** The actual size of the request. */

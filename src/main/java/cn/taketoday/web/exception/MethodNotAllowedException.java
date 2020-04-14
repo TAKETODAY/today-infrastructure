@@ -20,12 +20,14 @@
 package cn.taketoday.web.exception;
 
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
  * @author TODAY <br>
  *         2018-7-1 19:38:39
  */
 @SuppressWarnings("serial")
+@ResponseStatus(value = 405, msg = Constant.METHOD_NOT_ALLOWED)
 public class MethodNotAllowedException extends WebRuntimeException {
 
     public MethodNotAllowedException(Throwable cause) {

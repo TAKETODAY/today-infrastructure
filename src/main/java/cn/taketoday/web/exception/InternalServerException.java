@@ -21,12 +21,14 @@ package cn.taketoday.web.exception;
 
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
  * @author TODAY <br>
  *         2018-12-02 09:14
  */
 @SuppressWarnings("serial")
+@ResponseStatus(value = 500, msg = Constant.INTERNAL_SERVER_ERROR)
 public class InternalServerException extends WebRuntimeException {
 
     public InternalServerException(Throwable cause) {

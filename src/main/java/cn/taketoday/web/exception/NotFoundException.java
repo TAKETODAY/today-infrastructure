@@ -20,12 +20,14 @@
 package cn.taketoday.web.exception;
 
 import cn.taketoday.web.Constant;
+import cn.taketoday.web.annotation.ResponseStatus;
 
 /**
  * @author TODAY <br>
  *         2018-11-26 20:04
  */
 @SuppressWarnings("serial")
+@ResponseStatus(value = 404, msg = Constant.NOT_FOUND)
 public class NotFoundException extends WebRuntimeException {
 
     public NotFoundException(Throwable cause) {
