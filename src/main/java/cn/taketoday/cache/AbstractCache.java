@@ -19,7 +19,7 @@
  */
 package cn.taketoday.cache;
 
-import java.io.Serializable;
+import cn.taketoday.context.EmptyObject;
 
 /**
  * 
@@ -27,10 +27,6 @@ import java.io.Serializable;
  *         2019-11-02 00:23
  */
 public abstract class AbstractCache implements Cache {
-
-    private static enum EmptyObject implements Serializable {
-        EMPTY_OBJECT
-    }
 
     private String name;
 
@@ -49,11 +45,11 @@ public abstract class AbstractCache implements Cache {
     }
 
     protected final static Object toStoreValue(final Object userValue) {
-        return userValue == null ? EmptyObject.EMPTY_OBJECT : userValue;
+        return userValue == null ? EmptyObject.INSTANCE : userValue;
     }
 
     protected final static Object toRealValue(final Object cachedValue) {
-        return cachedValue == EmptyObject.EMPTY_OBJECT ? null : cachedValue;
+        return cachedValue == EmptyObject.INSTANCE ? null : cachedValue;
     }
 
     @Override
