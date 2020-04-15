@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 
+import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ConcurrentCache;
 import cn.taketoday.context.utils.ResourceUtils;
@@ -84,7 +85,7 @@ public class DefaultResourceTemplateLoader implements TemplateLoader {
             }
             catch (FileNotFoundException e) {}
 
-            noneExist.put(name, Constant.EMPTY_OBJECT);
+            noneExist.put(name, EmptyObject.INSTANCE);
         }
         return ret;
     }

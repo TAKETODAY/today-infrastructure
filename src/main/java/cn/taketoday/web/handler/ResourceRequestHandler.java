@@ -20,6 +20,7 @@
 package cn.taketoday.web.handler;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.web.Constant.RESOURCE_MATCH_RESULT;
 import static cn.taketoday.web.utils.WebUtils.writeToOutputStream;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.exception.NotFoundException;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resolver.WebResourceResolver;
 import cn.taketoday.web.resource.CacheControl;
@@ -52,18 +54,21 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     }
 
     @Override
-    public Object handleRequest(RequestContext context) throws Throwable {
+    public Object handleRequest(final RequestContext context) throws Throwable {
         final Object ret = super.handleRequest(context);
-        if (ret instanceof WebResource) {
+        if (ret == null) {
+            throw new NotFoundException("Resource Not Found");
+        }
+        else if (ret instanceof WebResource) {
             final WebResource resource = (WebResource) ret;
-            if (resource == null || resource.isDirectory()) {// TODO Directory listing
-                context.sendError(404);
+            if (resource.isDirectory()) {// TODO Directory listing
+                throw new NotFoundException("Resource Not Found");
             }
             else {
                 handleResult(context, resource);
             }
         }
-        return HandlerAdapter.NONE_RETURN_VALUE;
+        return ret;
     }
 
     @Override
@@ -72,12 +77,8 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
     }
 
     @Override
-    protected Object handleInternal(RequestContext context) throws Throwable {
-
-        final ResourceMappingMatchResult matchResult = //
-                (ResourceMappingMatchResult) context.attribute(Constant.RESOURCE_MAPPING_MATCH_RESULT);
-
-        return resourceResolver.resolveResource(matchResult);
+    protected Object handleInternal(final RequestContext context) throws Throwable {
+        return resourceResolver.resolveResource((ResourceMatchResult) context.attribute(RESOURCE_MATCH_RESULT));
     }
 
     /**
@@ -87,14 +88,15 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
      *            Current request context
      * @param resource
      *            {@link Resource}
-     * @param resourceMapping
-     *            {@link ResourceMapping}
      * @throws IOException
      *             If an input or output exception occurs
      */
     protected void handleResult(final RequestContext context, final WebResource resource) throws IOException {
         final String contentType = getContentType(resource);
-        context.contentType(contentType);
+
+        if (StringUtils.isNotEmpty(contentType)) {
+            context.contentType(contentType);
+        }
 
         final String eTag = resource.getETag();
         final long lastModified = resource.lastModified();
@@ -144,7 +146,8 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
      *             If any IO exception occurred
      */
     protected boolean isGZipEnabled(final WebResource resource,
-                                    final ResourceMapping mapping, final String contentType) throws IOException //
+                                    final ResourceMapping mapping,
+                                    final String contentType) throws IOException //
     {
         return mapping.isGzip()
                && isContentCompressable(contentType)

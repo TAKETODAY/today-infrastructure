@@ -31,7 +31,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public class ResourceMappingMatchResult implements Serializable {
+public class ResourceMatchResult implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

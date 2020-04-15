@@ -117,7 +117,7 @@ public abstract class InterceptableRequestHandler
         return handleInternal(context);
     }
 
-    protected abstract Object handleInternal(RequestContext context) throws Throwable;
+    protected abstract Object handleInternal(final RequestContext context) throws Throwable;
 
     @Override
     public HandlerInterceptor[] getInterceptors() {

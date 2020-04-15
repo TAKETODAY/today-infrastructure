@@ -21,7 +21,7 @@ package cn.taketoday.web.resolver;
 
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.web.handler.ResourceMapping;
-import cn.taketoday.web.handler.ResourceMappingMatchResult;
+import cn.taketoday.web.handler.ResourceMatchResult;
 import cn.taketoday.web.resource.WebResource;
 
 /**
@@ -39,6 +39,6 @@ public interface WebResourceResolver {
      *            {@link ResourceMapping}
      * @return {@link WebResource}
      */
-    WebResource resolveResource(ResourceMappingMatchResult mappingMetaData);
+    WebResource resolveResource(ResourceMatchResult mappingMetaData);
 
 }

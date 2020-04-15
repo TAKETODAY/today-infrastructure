@@ -29,6 +29,7 @@ import java.util.Map;
 
 import cn.taketoday.context.AntPathMatcher;
 import cn.taketoday.context.PathMatcher;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.PatternHandler;
@@ -94,7 +95,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
 
     protected Object lookupHandler(final String handlerKey) {
         final Object handler = handlers.get(handlerKey);
-        return handler == null ? matchingPatternHandler(handlerKey) : handler;
+        return handler == null ? lookupPatternHandler(handlerKey) : handler;
     }
 
     /**
@@ -104,13 +105,16 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
      *            Handler key
      * @return Matched pattern handler. If returns {@code null} indicates no handler
      */
-    protected Object matchingPatternHandler(final String handlerKey) {
+    protected Object lookupPatternHandler(final String handlerKey) {
+        final PatternHandler matched = matchingPatternHandler(handlerKey);
+        return matched == null ? null : matched.getHandler();
+    }
 
+    protected PatternHandler matchingPatternHandler(final String handlerKey) {
         final List<PatternHandler> patternHandlers = getPatternHandlers();
-        if (patternHandlers == null) {
+        if (CollectionUtils.isEmpty(patternHandlers)) {
             return null;
         }
-
         // pattern
         final HashMap<String, PatternHandler> matchedPatterns = new HashMap<>();
         final PathMatcher pathMatcher = getPathMatcher();
@@ -132,7 +136,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
         if (log.isTraceEnabled() && matchedPatterns.size() > 1) {
             log.trace("Matching patterns {}", patterns);
         }
-        return matchedPatterns.get(patterns.get(0)).getHandler();
+        return matchedPatterns.get(patterns.get(0));
     }
 
     /**

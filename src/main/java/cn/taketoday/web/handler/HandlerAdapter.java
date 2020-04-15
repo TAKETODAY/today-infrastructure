@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
-import cn.taketoday.web.Constant;
+import cn.taketoday.context.EmptyObject;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -32,7 +32,7 @@ public interface HandlerAdapter {
      * This value indicates that the handler did not return a value, or the result
      * has been processed
      */
-    Object NONE_RETURN_VALUE = Constant.EMPTY_OBJECT;
+    Object NONE_RETURN_VALUE = EmptyObject.INSTANCE;
 
     /**
      * Given a handler instance, return whether or not this

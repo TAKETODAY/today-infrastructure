@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web;
 
-import cn.taketoday.web.handler.ResourceMappingMatchResult;
+import cn.taketoday.web.handler.ResourceMatchResult;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
@@ -57,7 +57,7 @@ public interface Constant extends cn.taketoday.context.Constant {
     String ENABLE_WEB_STARTED_LOG = "enable.started.log";
     String FAST_JSON_SERIALIZE_FEATURES = "fastjson.serialize.features";
 
-    String RESOURCE_MAPPING_MATCH_RESULT = ResourceMappingMatchResult.class.getName().concat(".MatchResult");
+    String RESOURCE_MATCH_RESULT = ResourceMatchResult.class.getName();
 
     //@off
 	/**

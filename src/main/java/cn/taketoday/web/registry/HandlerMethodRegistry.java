@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.registry;
 
-import static cn.taketoday.context.Constant.EMPTY_OBJECT;
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
 import static cn.taketoday.context.utils.CollectionUtils.newHashSet;
@@ -41,6 +40,7 @@ import java.util.Set;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Order;
@@ -111,19 +111,18 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
     }
 
     @Override
-    protected Object matchingPatternHandler(final String handlerKey) {
-
+    protected Object lookupPatternHandler(String handlerKey) {
         Object hander = patternMatchingCache.get(handlerKey);
         if (hander == null) {
-            hander = super.matchingPatternHandler(handlerKey);
-            patternMatchingCache.put(handlerKey, hander == null ? EMPTY_OBJECT : hander);
+            hander = super.lookupPatternHandler(handlerKey);
+            patternMatchingCache.put(handlerKey, hander == null ? EmptyObject.INSTANCE : hander);
         }
-        else if (hander == EMPTY_OBJECT) {
+        else if (hander == EmptyObject.INSTANCE) {
             return null;
         }
         return hander;
     }
-
+    
     public void registerHandler(RequestMethod method, String patternPath, Object handler) {
         super.registerHandler(method.name().concat(patternPath), handler);
     }

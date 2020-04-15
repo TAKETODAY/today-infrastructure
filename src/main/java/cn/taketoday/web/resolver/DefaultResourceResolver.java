@@ -33,7 +33,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.MediaType;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.web.handler.ResourceMappingMatchResult;
+import cn.taketoday.web.handler.ResourceMatchResult;
 import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.utils.WebUtils;
 
@@ -46,7 +46,7 @@ public class DefaultResourceResolver implements WebResourceResolver {
     private static final Logger log = LoggerFactory.getLogger(DefaultResourceResolver.class);
 
     @Override
-    public WebResource resolveResource(final ResourceMappingMatchResult matchResult) {
+    public WebResource resolveResource(final ResourceMatchResult matchResult) {
         if (matchResult == null) {
             return null;
         }
