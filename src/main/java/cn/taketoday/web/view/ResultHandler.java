@@ -24,6 +24,9 @@ import cn.taketoday.web.RequestContext;
 /**
  * ResultHandler
  * 
+ * <p>
+ * Handle handler execution result
+ * 
  * @author TODAY <br>
  *         2019-07-10 19:22
  */
@@ -47,7 +50,9 @@ public interface ResultHandler {
     /**
      * 
      * @param context
+     *            Current HTTP request context
      * @param result
+     *            Handler execution result
      * @throws Throwable
      */
     void handleResult(RequestContext context, Object result) throws Throwable;

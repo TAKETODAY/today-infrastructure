@@ -20,6 +20,11 @@
 package cn.taketoday.web.view;
 
 /**
+ * RuntimeResultHandler
+ * <p>
+ * 
+ * Handle runtime
+ * 
  * @author TODAY <br>
  *         2019-12-25 23:09
  */

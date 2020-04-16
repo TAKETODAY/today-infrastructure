@@ -20,11 +20,21 @@
 package cn.taketoday.web.handler;
 
 /**
+ * <p>
+ * <b>Note:</b> This framework allows hander use
+ * {@link cn.taketoday.web.handler.HandlerAdapterCapable HandlerAdapterCapable}
+ * to specific a HandlerAdapter at startup time
+ * 
  * @author TODAY <br>
  *         2019-12-28 14:12
  */
 @FunctionalInterface
 public interface HandlerAdapterCapable {
 
-    HandlerAdapter getAdapter();
+    /**
+     * Get {@link HandlerAdapter}
+     * 
+     * @return Never be null
+     */
+    HandlerAdapter getHandlerAdapter();
 }

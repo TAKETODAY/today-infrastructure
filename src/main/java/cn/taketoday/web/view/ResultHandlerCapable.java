@@ -20,6 +20,7 @@
 package cn.taketoday.web.view;
 
 /**
+ * 
  * @author TODAY <br>
  *         2019-12-28 14:15
  */
@@ -27,7 +28,9 @@ package cn.taketoday.web.view;
 public interface ResultHandlerCapable {
 
     /**
+     * Get {@link ResultHandler}
+     * 
      * @return must not be null
      */
-    ResultHandler getHandler();
+    ResultHandler getResultHandler();
 }
