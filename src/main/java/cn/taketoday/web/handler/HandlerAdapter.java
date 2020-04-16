@@ -23,6 +23,45 @@ import cn.taketoday.context.EmptyObject;
 import cn.taketoday.web.RequestContext;
 
 /**
+ * 
+ * MVC framework SPI, allowing parameterization of the core MVC workflow.
+ *
+ * <p>
+ * Interface that must be implemented for each handler type to handle a request.
+ * This interface is used to allow the
+ * {@link cn.taketoday.web.handler.DispatcherHandler DispatcherHandler} to be
+ * indefinitely extensible. The {@code DispatcherHandler} accesses all installed
+ * handlers through this interface, meaning that it does not contain code
+ * specific to any handler type.
+ *
+ * <p>
+ * Note that a handler can be of type {@code Object}. This is to enable handlers
+ * from other frameworks to be integrated with this framework without custom
+ * coding, as well as to allow for annotation-driven handler objects that do not
+ * obey any specific Java interface.
+ *
+ * <p>
+ * This interface is not intended for application developers. It is available to
+ * handlers who want to develop their own web workflow.
+ *
+ * <p>
+ * Note: {@code HandlerAdapter} implementors may implement the
+ * {@link cn.taketoday.context.Ordered Ordered} interface to be able to specify
+ * a sorting order (and thus a priority) for getting applied by the
+ * {@code DispatcherHandler}. Non-Ordered instances get treated as lowest
+ * priority.
+ * 
+ * <p>
+ * <b>Note:</b> This framework allows use
+ * {@link cn.taketoday.web.handler.HandlerAdapterCapable HandlerAdapterCapable}
+ * to specific a HandlerAdapter at startup time
+ * 
+ * @see cn.taketoday.web.handler.HandlerAdapterCapable
+ * @see cn.taketoday.web.servlet.ServletHandlerAdapter
+ * @see cn.taketoday.web.handler.RequestHandlerAdapter
+ * @see cn.taketoday.web.handler.NotFoundRequestAdapter
+ * @see cn.taketoday.web.handler.ViewControllerHandlerAdapter
+ * 
  * @author TODAY <br>
  *         2019-12-08 20:23
  */
