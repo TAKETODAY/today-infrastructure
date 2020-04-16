@@ -242,14 +242,6 @@ public abstract class WebUtils {
     // checkNotModified
     // ---------------------------------------------
 
-    public static boolean checkNotModified(long lastModifiedTimestamp, final RequestContext context) throws IOException {
-        return checkNotModified(null, lastModifiedTimestamp, context);
-    }
-
-    public static boolean checkNotModified(String etag, final RequestContext context) throws IOException {
-        return checkNotModified(etag, -1, context);
-    }
-
     protected static boolean matches(final String matchHeader, final String etag) {
         if (matchHeader != null && StringUtils.isNotEmpty(etag)) {
             return "*".equals(etag) || matchHeader.equals(etag);
@@ -257,9 +249,15 @@ public abstract class WebUtils {
         return false;
     }
 
-    public static boolean checkNotModified(final String eTag,
-                                           final long lastModified,
-                                           final RequestContext context) throws IOException {
+    public static boolean checkNotModified(String etag, final RequestContext context) {
+        return checkNotModified(etag, -1, context);
+    }
+
+    public static boolean checkNotModified(long lastModifiedTimestamp, final RequestContext context) {
+        return checkNotModified(null, lastModifiedTimestamp, context);
+    }
+
+    public static boolean checkNotModified(final String eTag, final long lastModified, final RequestContext context) {
 
         // Validate request headers for caching
         // ---------------------------------------------------
