@@ -68,7 +68,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
                 handleResult(context, resource);
             }
         }
-        return ret;
+        return HandlerAdapter.NONE_RETURN_VALUE;
     }
 
     @Override

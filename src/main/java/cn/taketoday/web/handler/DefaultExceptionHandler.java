@@ -83,14 +83,14 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
      *            Target {@link Throwable}
      * @param context
      *            Current request context
-     * @param resourceRequestHandler
+     * @param handler
      *            {@link ResourceRequestHandler}
      * @throws Throwable
      *             If any {@link Exception} occurred
      */
     protected void handleResourceMappingInternal(final Throwable ex,
                                                  final RequestContext context,
-                                                 final ResourceRequestHandler resourceRequestHandler) throws Throwable {
+                                                 final ResourceRequestHandler handler) throws Throwable {
         handleExceptionInternal(ex, context);
     }
 
@@ -174,8 +174,6 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
      *            Target {@link Exception}
      * @param context
      *            Current request context
-     * @param msg
-     *            Message to client
      */
     public void handleExceptionInternal(final Throwable ex, final RequestContext context) throws IOException {
         context.sendError(getStatus(ex), ex.getMessage());
@@ -185,12 +183,10 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
      * resolve image
      */
     public BufferedImage resolveImageException(final Throwable ex, final RequestContext context) throws IOException {
-
         context.contentType(Constant.CONTENT_TYPE_IMAGE);
-
-        return ImageIO.read(ClassUtils.getClassLoader().getResource(new StringBuilder()//
-                .append("/error/")//
-                .append(getStatus(ex))//
+        return ImageIO.read(ClassUtils.getClassLoader().getResource(new StringBuilder()
+                .append("/error/")
+                .append(getStatus(ex))
                 .append(".png").toString())//
         );
     }
