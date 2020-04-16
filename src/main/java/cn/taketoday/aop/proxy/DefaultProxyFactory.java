@@ -29,13 +29,13 @@ import java.util.regex.Pattern;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
-import cn.taketoday.aop.Constant;
 import cn.taketoday.aop.ProxyFactory;
 import cn.taketoday.aop.advice.AbstractAdvice;
 import cn.taketoday.aop.advice.AspectsRegistry;
 import cn.taketoday.aop.annotation.Advice;
 import cn.taketoday.aop.annotation.AdviceImpl;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;

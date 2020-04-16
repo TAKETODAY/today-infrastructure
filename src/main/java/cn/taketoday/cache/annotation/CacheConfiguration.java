@@ -22,7 +22,7 @@ package cn.taketoday.cache.annotation;
 import java.lang.annotation.Annotation;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.cache.Constant;
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.StringUtils;
 
 /**

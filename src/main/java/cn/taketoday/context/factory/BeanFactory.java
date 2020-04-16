@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Scope;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 
@@ -168,7 +169,7 @@ public interface BeanFactory {
     Map<String, BeanDefinition> getBeanDefinitions();
 
     /**
-     * Create the bean with the given {@link BeanDefinition}
+     * Get the bean with the given {@link BeanDefinition}
      * 
      * @param def
      *            {@link BeanDefinition}
@@ -176,5 +177,16 @@ public interface BeanFactory {
      * @since 2.1.7
      */
     Object getBean(BeanDefinition def);
+
+    /**
+     * Get the bean with the given {@link BeanDefinition} and {@link Scope}
+     * 
+     * @param def
+     *            {@link BeanDefinition}
+     * @param scope
+     *            {@link Scope}
+     * @return Target {@link Object}
+     */
+    Object getScopeBean(BeanDefinition def, Scope scope);
 
 }

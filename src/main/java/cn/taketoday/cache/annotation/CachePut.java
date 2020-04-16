@@ -25,7 +25,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.cache.Constant;
+import cn.taketoday.context.Constant;
 
 /**
  * @author TODAY <br>

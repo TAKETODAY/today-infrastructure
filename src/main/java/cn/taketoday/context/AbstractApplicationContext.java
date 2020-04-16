@@ -666,6 +666,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     @Override
+    public Object getScopeBean(BeanDefinition def, Scope scope) {
+        return getBeanFactory().getScopeBean(def, scope);
+    }
+
+    @Override
     public <T> List<T> getBeans(Class<T> requiredType) {
         return getBeanFactory().getBeans(requiredType);
     }

@@ -214,4 +214,18 @@ public interface Constant extends Opcodes, Serializable {
     String FOLDER_SEPARATOR = "/";
     String WINDOWS_FOLDER_SEPARATOR = "\\";
     char EXTENSION_SEPARATOR = PACKAGE_SEPARATOR;
+    
+    /* Indicates the ASM API version that is used throughout cglib */
+    //  int         ASM_API                 = ASM7;
+
+    /*************************************************
+     * Parameter Types
+     */
+    byte TYPE_NULL = 0x00;
+    byte TYPE_THROWING = 0x01;
+    byte TYPE_ARGUMENT = 0x02;
+    byte TYPE_ARGUMENTS = 0x03;
+    byte TYPE_RETURNING = 0x04;
+    byte TYPE_ANNOTATED = 0x05;
+    byte TYPE_JOIN_POINT = 0x06;
 }

@@ -32,14 +32,14 @@ import cn.taketoday.context.exception.PropertyValueException;
  */
 public class PropertyValue {
 
-    /** property value */
-    private final Object value;
     /** field info */
     private final Field field;
+    /** property value */
+    private final Object value;
 
     public PropertyValue(Object value, Field field) {
-        this.value = Objects.requireNonNull(value);
-        this.field = Objects.requireNonNull(field);
+        this.value = value;
+        this.field = Objects.requireNonNull(field, "field must not be null");
     }
 
     public Field getField() {
@@ -54,13 +54,13 @@ public class PropertyValue {
         try {
             field.set(bean, value);
         }
+        catch (IllegalAccessException e) {
+            throw new PropertyValueException("Illegal access to the property :[" + this + "]", e);
+        }
 //        catch (IllegalArgumentException e) {
 //            throw new PropertyValueException("Specified object :[" +
 //                    value + "] is not an instance of the class :[" + field.getType() + "]", e);
 //        }
-        catch (IllegalAccessException e) {
-            throw new PropertyValueException("Illegal access to the property :[" + this + "]", e);
-        }
     }
 
     @Override
@@ -75,7 +75,7 @@ public class PropertyValue {
         }
         if (obj instanceof PropertyValue) {
             final PropertyValue other = ((PropertyValue) obj);
-            return Objects.deepEquals(other.value, value) && Objects.equals(other.field, field);
+            return Objects.deepEquals(other.getValue(), getValue()) && Objects.equals(other.field, field);
         }
         return false;
     }
