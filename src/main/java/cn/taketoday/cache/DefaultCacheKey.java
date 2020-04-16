@@ -22,6 +22,7 @@ package cn.taketoday.cache;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import cn.taketoday.context.EmptyObject;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,7 +37,7 @@ public class DefaultCacheKey implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final DefaultCacheKey EMPTY = new DefaultCacheKey(Constant.EMPTY_OBJECT);
+    public static final DefaultCacheKey EMPTY = new DefaultCacheKey(EmptyObject.INSTANCE);
 
     private final int hash;
     private final Object[] params;

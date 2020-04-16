@@ -50,10 +50,8 @@ public interface Constant extends Opcodes, Serializable {
     PropertyValue[] EMPTY_PROPERTY_VALUE = {};
     AnnotationAttributes[] EMPTY_ANNOTATION_ATTRIBUTES = {};
 
-    Serializable EMPTY_OBJECT = new Serializable() {
-        private static final long serialVersionUID = 1L;
-    };
-
+    Serializable EMPTY_OBJECT = EmptyObject.INSTANCE;
+    
     //
     // ----------------------------------------------------------------
 

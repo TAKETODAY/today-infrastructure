@@ -63,6 +63,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.asm.ClassReader;
 import cn.taketoday.context.asm.ClassVisitor;
@@ -371,7 +372,7 @@ public abstract class ClassUtils {
         if (ret == null) {
             final AnnotationAttributes[] annAttributes = getAnnotationAttributesArray(key);
             if (ObjectUtils.isEmpty(annAttributes)) {
-                ret = Constant.EMPTY_OBJECT;
+                ret = EmptyObject.INSTANCE;
             }
             else {
                 int i = 0;
@@ -383,7 +384,7 @@ public abstract class ClassUtils {
             }
             ANNOTATIONS.put(key, ret);
         }
-        return ret == Constant.EMPTY_OBJECT ? null : (T[]) ret;
+        return ret == EmptyObject.INSTANCE ? null : (T[]) ret;
     }
 
     /**
@@ -406,7 +407,7 @@ public abstract class ClassUtils {
         if (ret == null) {
             final AnnotationAttributes[] annAttributes = getAnnotationAttributesArray(key);
             if (ObjectUtils.isEmpty(annAttributes)) {
-                ret = Constant.EMPTY_OBJECT;
+                ret = EmptyObject.INSTANCE;
             }
             else {
                 int i = 0;
@@ -417,7 +418,7 @@ public abstract class ClassUtils {
             }
             ANNOTATIONS.put(key, ret);
         }
-        return ret == Constant.EMPTY_OBJECT ? null : (T[]) ret;
+        return ret == EmptyObject.INSTANCE ? null : (T[]) ret;
     }
 
     /**
