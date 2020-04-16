@@ -17,31 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package test.web.utils;
+package cn.taketoday.web.utils;
 
 import java.io.Serializable;
 import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import cn.taketoday.web.utils.ParamList;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-12-11 09:28
  */
 public class ParamListTest {
-
-    @Before
-    public void setUp() throws Exception {
-
-    }
 
     @Test
     public void test_IsEmpty() {
