@@ -21,12 +21,10 @@ package cn.taketoday.web.handler;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import cn.taketoday.context.ApplicationContext.State;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
@@ -57,12 +55,226 @@ public class DispatcherHandler extends WebApplicationContextSupport {
         setApplicationContext(context);
     }
 
-    public HandlerRegistry getHandlerRegistry() {
-        return handlerRegistry;
+    // Handler
+    // ----------------------------------
+
+    /**
+     * Find a suitable handler to handle this HTTP request
+     * 
+     * @param context
+     *            Current HTTP request context
+     * @return Target handler, if returns {@code null} indicates that there isn't a
+     *         handler to handle this request
+     */
+    public Object lookupHandler(final RequestContext context) {
+        return handlerRegistry.lookup(context);
     }
 
-    public HandlerRegistry obtainHandlerRegistry() {
-        return nonNull(getHandlerRegistry(), "You must provide an 'handler registry'");
+    /**
+     * Find a {@link HandlerAdapter} for input handler
+     * 
+     * @param handler
+     *            Target handler
+     * @return A {@link HandlerAdapter}
+     * @throws IllegalStateException
+     *             If there isn't a {@link HandlerAdapter} for target handler
+     */
+    public HandlerAdapter lookupHandlerAdapter(final Object handler) throws IllegalStateException {
+        if (handler instanceof HandlerAdapter) {
+            return (HandlerAdapter) handler;
+        }
+        if (handler instanceof HandlerAdapterCapable) {
+            return ((HandlerAdapterCapable) handler).getHandlerAdapter();
+        }
+        for (final HandlerAdapter requestHandler : handlerAdapters) {
+            if (requestHandler.supports(handler)) {
+                return requestHandler;
+            }
+        }
+        throw new IllegalStateException("No HandlerAdapter for handler: [" + handler + ']');
+    }
+
+    /**
+     * Find {@link ResultHandler} for handler and handler execution result
+     * 
+     * @param handler
+     *            Target handler
+     * @param result
+     *            Handler execution result
+     * @return {@link ResultHandler}
+     * @throws IllegalStateException
+     *             If there isn't a {@link ResultHandler} for target handler and
+     *             handler execution result
+     */
+    public ResultHandler lookupResultHandler(final Object handler, final Object result) throws IllegalStateException {
+        if (handler instanceof ResultHandler) {
+            return (ResultHandler) handler;
+        }
+        if (handler instanceof ResultHandlerCapable) {
+            return ((ResultHandlerCapable) handler).getResultHandler();
+        }
+        for (final RuntimeResultHandler resultHandler : resultHandlers) {
+            if (resultHandler.supportsResult(result) || resultHandler.supportsHandler(handler)) {
+                return resultHandler;
+            }
+        }
+        throw new IllegalStateException("No RuntimeResultHandler for result: [" + result + ']');
+    }
+
+    /**
+     * Check if this request is not modified
+     * 
+     * @param handler
+     *            Target handler
+     * @param context
+     *            Current HTTP request context
+     * @param adapter
+     *            Handler's {@link HandlerAdapter Adapter}
+     * @return If not modified
+     */
+    public boolean notModified(final Object handler,
+                               final RequestContext context,
+                               final HandlerAdapter adapter) {
+        final String method = context.method();
+        // Process last-modified header, if supported by the handler.
+        final boolean isGet = "GET".equals(method);
+        if (isGet || "HEAD".equals(method)) {
+            final long lastModified = adapter.getLastModified(context, handler);
+            return isGet && WebUtils.checkNotModified(null, lastModified, context);
+        }
+        return false;
+    }
+
+    /**
+     * Handle HTTP request
+     * 
+     * @param context
+     *            Current HTTP request context
+     * @throws Throwable
+     */
+    public void handle(final RequestContext context) throws Throwable {
+        handle(lookupHandler(context), context);
+    }
+
+    /**
+     * Handle HTTP request
+     * 
+     * @param handler
+     * @param context
+     *            Current HTTP request context
+     * @throws Throwable
+     */
+    public void handle(final Object handler, final RequestContext context) throws Throwable {
+        handle(handler, context, lookupHandlerAdapter(handler));
+    }
+
+    /**
+     * Handle HTTP request not modify
+     * 
+     * @param handler
+     *            Target handler
+     * @param context
+     *            Current HTTP request context
+     * @param adapter
+     *            {@link HandlerAdapter}
+     * @throws Throwable
+     */
+    public void handleNotModifiy(final Object handler,
+                                 final RequestContext context,
+                                 final HandlerAdapter adapter) throws Throwable {
+        if (!notModified(handler, context, adapter)) {
+            handle(handler, context, adapter);
+        }
+    }
+
+    /**
+     * Handle HTTP request
+     * 
+     * @param handler
+     *            Target handler
+     * @param context
+     *            Current HTTP request context
+     * @param adapter
+     *            {@link HandlerAdapter}
+     * @throws Throwable
+     */
+    public void handle(final Object handler,
+                       final RequestContext context,
+                       final HandlerAdapter adapter) throws Throwable {
+        try {
+            final Object result = adapter.handle(context, handler);
+            if (result != HandlerAdapter.NONE_RETURN_VALUE) {
+                lookupResultHandler(handler, result).handleResult(context, result);
+            }
+        }
+        catch (Throwable e) {
+            handleException(handler, e, context);
+        }
+    }
+
+    /**
+     * Handle {@link Exception} occurred in target handler
+     * 
+     * @param handler
+     *            Target handler
+     * @param exception
+     *            {@link Throwable} occurred in target handler
+     * @param context
+     *            Current HTTP request context
+     * @throws Throwable
+     *             If {@link Throwable} occurred in {@link HandlerExceptionHandler}
+     */
+    public void handleException(final Object handler,
+                                final Throwable exception,
+                                final RequestContext context) throws Throwable {
+
+        obtainExceptionHandler().handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
+    }
+
+    /**
+     * Destroy Application
+     */
+    public void destroy() {
+
+        final WebApplicationContext context = obtainApplicationContext();
+        if (context != null) {
+            final State state = context.getState();
+            if (state != State.CLOSING && state != State.CLOSED) {
+                context.close();
+
+                final DateFormat dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
+                final String msg = new StringBuilder("Your application destroyed at: [")
+                        .append(dateFormat.format(System.currentTimeMillis()))
+                        .append("] on startup date: [")
+                        .append(dateFormat.format(context.getStartupDate()))
+                        .append(']')
+                        .toString();
+
+                log(msg);
+            }
+        }
+    }
+
+    /**
+     * Log internal
+     * 
+     * @param msg
+     *            Log message
+     */
+    protected void log(final String msg) {
+        log.info(msg);
+    }
+
+    public final HandlerAdapter[] getHandlerAdapters() {
+        return handlerAdapters;
+    }
+
+    public final RuntimeResultHandler[] getResultHandlers() {
+        return resultHandlers;
+    }
+
+    public final HandlerRegistry getHandlerRegistry() {
+        return handlerRegistry;
     }
 
     public HandlerExceptionHandler obtainExceptionHandler() {
@@ -88,121 +300,4 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     public void setResultHandlers(RuntimeResultHandler... resultHandlers) {
         this.resultHandlers = nonNull(resultHandlers, "result handlers must not be null");
     }
-
-    // Handler
-    // ----------------------------------
-
-    public Object lookupHandler(final RequestContext context) {
-        return getHandlerRegistry().lookup(context);
-    }
-
-    public HandlerAdapter lookupHandlerAdapter(final Object handler) {
-        if (handler instanceof HandlerAdapterCapable) {
-            return ((HandlerAdapterCapable) handler).getAdapter();
-        }
-        for (final HandlerAdapter requestHandler : handlerAdapters) {
-            if (requestHandler.supports(handler)) {
-                return requestHandler;
-            }
-        }
-        throw new ConfigurationException("No HandlerAdapter for handler: [" + handler + ']');
-    }
-
-    public ResultHandler lookupResultHandler(final Object handler, final Object result) throws Throwable {
-        if (handler instanceof ResultHandlerCapable) {
-            return ((ResultHandlerCapable) handler).getHandler();
-        }
-        for (final RuntimeResultHandler resultHandler : resultHandlers) {
-            if (resultHandler.supportsResult(result) || resultHandler.supportsHandler(handler)) {
-                return resultHandler;
-            }
-        }
-        throw new ConfigurationException("No RuntimeResultHandler for result: [" + result + ']');
-    }
-
-    public boolean notModified(final Object handler,
-                               final RequestContext context,
-                               final HandlerAdapter adapter) throws IOException {
-
-        final String method = context.method();
-        // Process last-modified header, if supported by the handler.
-        final boolean isGet = "GET".equals(method);
-        if (isGet || "HEAD".equals(method)) {
-            final long lastModified = adapter.getLastModified(context, handler);
-            return isGet && WebUtils.checkNotModified(null, lastModified, context);
-        }
-        return false;
-    }
-
-    public void handle(final RequestContext context) throws Throwable {
-        final Object handler = lookupHandler(context);
-        handle(handler, context, lookupHandlerAdapter(handler));
-    }
-
-    public void handle(final Object handler, final RequestContext context) throws Throwable {
-        handle(handler, context, lookupHandlerAdapter(handler));
-    }
-
-    public void handleNotModifiy(final Object handler,
-                                 final RequestContext context,
-                                 final HandlerAdapter adapter) throws Throwable {
-        if (!notModified(handler, context, adapter)) {
-            handle(handler, context, adapter);
-        }
-    }
-
-    public void handle(final Object handler,
-                       final RequestContext context,
-                       final HandlerAdapter adapter) throws Throwable {
-        try {
-            final Object result = adapter.handle(context, handler);
-            if (result != HandlerAdapter.NONE_RETURN_VALUE) {
-                lookupResultHandler(handler, result).handleResult(context, result);
-            }
-        }
-        catch (Throwable e) {
-            handleException(handler, e, context);
-        }
-    }
-
-    public void handleException(final Object handler,
-                                final Throwable exception,
-                                final RequestContext context) throws Throwable {
-
-        obtainExceptionHandler().handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
-    }
-
-    public void destroy() {
-
-        final WebApplicationContext context = obtainApplicationContext();
-        if (context != null) {
-            final State state = context.getState();
-            if (state != State.CLOSING && state != State.CLOSED) {
-                context.close();
-
-                final DateFormat dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
-                final String msg = new StringBuilder("Your application destroyed at: [")
-                        .append(dateFormat.format(System.currentTimeMillis()))
-                        .append("] on startup date: [")
-                        .append(dateFormat.format(context.getStartupDate()))
-                        .append(']')
-                        .toString();
-
-                log(msg);
-            }
-        }
-    }
-
-    protected void log(final String msg) {
-        log.info(msg);
-    }
-
-    public final HandlerAdapter[] getHandlerAdapters() {
-        return handlerAdapters;
-    }
-
-    public final RuntimeResultHandler[] getResultHandlers() {
-        return resultHandlers;
-    }
-
 }

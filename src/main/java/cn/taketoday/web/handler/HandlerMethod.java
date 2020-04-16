@@ -36,7 +36,6 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.ResultHandler;
-import cn.taketoday.web.view.ResultHandlerCapable;
 import cn.taketoday.web.view.ResultHandlers;
 
 /**
@@ -44,7 +43,8 @@ import cn.taketoday.web.view.ResultHandlers;
  *         2018-06-25 20:03:11
  */
 @SuppressWarnings("serial")
-public class HandlerMethod extends InterceptableRequestHandler implements ResultHandlerCapable {
+public class HandlerMethod
+        extends InterceptableRequestHandler implements HandlerAdapter, ResultHandler {
 
     private final Object bean; // controller bean 
     /** action **/
@@ -108,6 +108,16 @@ public class HandlerMethod extends InterceptableRequestHandler implements Result
         }
         this.status = WebUtils.getStatus(this);
         this.resultHandler = ResultHandlers.obtainHandler(this);
+    }
+
+    // -----------------------------------------
+
+    public static HandlerMethod create(Object bean, Method method) {
+        return new HandlerMethod(bean, method);
+    }
+
+    public static HandlerMethod create(Object bean, Method method, List<HandlerInterceptor> interceptors) {
+        return new HandlerMethod(bean, method, interceptors);
     }
 
     public final Method getMethod() {
@@ -219,6 +229,7 @@ public class HandlerMethod extends InterceptableRequestHandler implements Result
     // handleRequest
     // -----------------------------------------
 
+    @Override
     public void handleResult(final RequestContext context, final Object result) throws Throwable {
         resultHandler.handleResult(context, result);
     }
@@ -246,19 +257,26 @@ public class HandlerMethod extends InterceptableRequestHandler implements Result
         return handlerInvoker.invoke(getObject(), resolveParameters(context));
     }
 
-    // -----------------------------------------
-
-    public static HandlerMethod create(Object bean, Method method) {
-        return new HandlerMethod(bean, method);
+    @Override
+    public boolean supportsHandler(Object handler) {
+        return handler == this;
     }
 
-    public static HandlerMethod create(Object bean, Method method, List<HandlerInterceptor> interceptors) {
-        return new HandlerMethod(bean, method, interceptors);
+    // HandlerAdapter
+
+    @Override
+    public boolean supports(final Object handler) {
+        return handler == this;
     }
 
     @Override
-    public ResultHandler getHandler() {
-        return resultHandler;
+    public Object handle(final RequestContext context, final Object handler) throws Throwable {
+        return handleRequest(context);
+    }
+
+    @Override
+    public long getLastModified(RequestContext context, Object handler) {
+        return -1;
     }
 
 }
