@@ -90,9 +90,9 @@ public class ControllerAdviceExceptionHandler
                                          final HandlerMethod targetHandler) //
     {
         // ResponseStatus on Target handler
-        final DefaultResponseStatus status = super.buildStatus(targetHandler, ex);
+        final DefaultResponseStatus status = super.getStatus(targetHandler, ex);
         if (status.getOriginalStatus() == null) {
-            return super.buildStatus(exceptionHandler, ex); // get ResponseStatus on exception handler
+            return super.getStatus(exceptionHandler, ex); // get ResponseStatus on exception handler
         }
         return status;
     }

@@ -128,10 +128,8 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
                                                final RequestContext context,
                                                final HandlerMethod handlerMethod) throws Throwable//
     {
-        final ResponseStatus responseStatus = buildStatus(handlerMethod, ex);
-        final int status = responseStatus.value();
-
-        context.status(status);
+        final ResponseStatus responseStatus = getStatus(handlerMethod, ex);
+        context.status(responseStatus.value());
 
         if (handlerMethod.isAssignableFrom(RenderedImage.class)) {
             handlerMethod.handleResult(context, resolveImageException(ex, context));
@@ -152,14 +150,17 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
         else {
             context.contentType(Constant.CONTENT_TYPE_JSON);
             final PrintWriter writer = context.getWriter();
-            writer.write(new StringBuilder()
-                    .append("{\"message\":\"").append(responseStatus.msg())
-                    .append("\",\"status\":").append(status)
-                    .append('}')
-                    .toString()//
-            );
+            writer.write(buildErrorMessage(responseStatus));
             writer.flush();
         }
+    }
+
+    protected String buildErrorMessage(final ResponseStatus responseStatus) {
+        return new StringBuilder()
+                .append("{\"message\":\"")
+                .append(responseStatus.msg())
+                .append("\"}")
+                .toString();
     }
 
     public int getStatus(Throwable ex) {
@@ -203,7 +204,7 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
      *            Current {@link Exception}
      * @return {@link DefaultResponseStatus}
      */
-    protected DefaultResponseStatus buildStatus(final HandlerMethod handlerMethod, final Throwable ex) {
+    protected DefaultResponseStatus getStatus(final HandlerMethod handlerMethod, final Throwable ex) {
 
         ResponseStatus responseStatus = handlerMethod.getStatus();
         if (responseStatus == null) {
