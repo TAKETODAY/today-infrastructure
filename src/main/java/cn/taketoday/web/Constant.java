@@ -60,14 +60,6 @@ public interface Constant extends cn.taketoday.context.Constant {
     String RESOURCE_MATCH_RESULT = ResourceMatchResult.class.getName();
 
     //@off
-	/**
-	 * mode
-	 */
-	String 	DEV 								= "dev";
-	String 	TEST 								= "test";
-	String 	PROD 								= "prod";
-	String 	WEB_DEBUG 							= "webdebug";
-	
 	/**********************************************************
 	 * Framework Attribute Keys
 	 */
