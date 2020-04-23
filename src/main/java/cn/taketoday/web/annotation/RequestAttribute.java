@@ -31,7 +31,7 @@ import cn.taketoday.web.Constant;
  *         2019-02-16 11:34
  */
 @RequestParam
-@Target(ElementType.TYPE)
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestAttribute {
 
