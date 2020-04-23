@@ -27,24 +27,24 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.Constant;
 
 /**
- * @author TODAY <br>
- *         2018-07-01 14:10:04 <br>
- *         2018-08-21 19:16 <b>change</b> add defaultValue()
+ * Annotation which indicates that a method parameter should be bound to a web
+ * request header.
+ * 
+ * @author TODAY<br>
+ *         2018-08-21 19:19 change
  */
 @RequestParam
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Cookie {
+public @interface RequestHeader {
 
     boolean required() default false;
 
-    /**
-     * The name of cookie.
-     */
+    /** Header name */
     String value() default Constant.BLANK;
 
     /**
-     * When required == false, and parameter == null. use default value.
+     * When required == false and parameter == null. use default value.
      */
     String defaultValue() default Constant.BLANK;
 

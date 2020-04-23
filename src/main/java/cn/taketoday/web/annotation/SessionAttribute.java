@@ -28,21 +28,15 @@ import cn.taketoday.web.Constant;
 
 /**
  * @author TODAY<br>
- *         2018-08-21 19:19 change
+ *         2018-08-21 20:19 <br>
+ *         <b>change:</b> add defaultValue()
  */
 @RequestParam
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Header {
+public @interface SessionAttribute {
 
-    boolean required() default false;
-
-    /** Header name */
+    /** Session attribute name */
     String value() default Constant.BLANK;
-
-    /**
-     * When required == false and parameter == null. use default value.
-     */
-    String defaultValue() default Constant.BLANK;
 
 }

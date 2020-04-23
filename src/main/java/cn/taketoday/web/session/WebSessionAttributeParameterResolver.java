@@ -20,7 +20,7 @@
 package cn.taketoday.web.session;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.Session;
+import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.resolver.method.OrderedParameterResolver;
 
@@ -38,7 +38,7 @@ public class WebSessionAttributeParameterResolver implements OrderedParameterRes
 
     @Override
     public boolean supports(MethodParameter parameter) {
-        return parameter.isAnnotationPresent(Session.class);
+        return parameter.isAnnotationPresent(SessionAttribute.class);
     }
 
     @Override

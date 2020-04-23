@@ -32,7 +32,7 @@ import javax.servlet.http.HttpSession;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Application;
-import cn.taketoday.web.annotation.Session;
+import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.utils.WebUtils;
 
@@ -85,7 +85,7 @@ public class ServletParameterResolver {
 
         @Override
         public boolean supports(MethodParameter parameter) {
-            return parameter.isAnnotationPresent(Session.class);
+            return parameter.isAnnotationPresent(SessionAttribute.class);
         }
 
         @Override

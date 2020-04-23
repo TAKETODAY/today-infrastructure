@@ -26,7 +26,7 @@ import java.util.List;
 
 import cn.taketoday.context.Ordered;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.Cookie;
+import cn.taketoday.web.annotation.CookieValue;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.utils.WebUtils;
 
@@ -62,7 +62,7 @@ public class CookieParameterResolver implements ParameterResolver {
 
         @Override
         public boolean supports(MethodParameter parameter) {
-            return parameter.isAnnotationPresent(Cookie.class);
+            return parameter.isAnnotationPresent(CookieValue.class);
         }
 
         @Override

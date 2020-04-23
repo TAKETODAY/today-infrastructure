@@ -27,16 +27,28 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.Constant;
 
 /**
- * @author TODAY<br>
- *         2018-08-21 20:19 <br>
- *         <b>change:</b> add defaultValue()
+ * Annotation which indicates that a method parameter should be bound to an HTTP
+ * cookie.
+ *
+ * @author TODAY <br>
+ *         2018-07-01 14:10:04 <br>
+ *         2018-08-21 19:16 <b>change</b> add defaultValue()
  */
 @RequestParam
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Session {
+public @interface CookieValue {
 
-    /** Session attribute name */
+    boolean required() default false;
+
+    /**
+     * The name of cookie.
+     */
     String value() default Constant.BLANK;
+
+    /**
+     * When required == false, and parameter == null. use default value.
+     */
+    String defaultValue() default Constant.BLANK;
 
 }
