@@ -122,7 +122,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
         }
         return hander;
     }
-    
+
     public void registerHandler(RequestMethod method, String patternPath, Object handler) {
         super.registerHandler(method.name().concat(patternPath), handler);
     }
@@ -371,62 +371,74 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
      *             If any {@link Throwable} occurred
      */
     protected HandlerMethod createHandlerMethod(final Class<?> beanClass, final Method method) throws Exception {
-
-        final AbstractBeanFactory beanFactory = this.beanFactory;
-        final BeanDefinition def = beanFactory.getBeanDefinition(beanClass);
-
-        final Object bean = def.isSingleton()
-                ? beanFactory.getBean(def)
-                : Prototypes.newProxyInstance(beanClass, def, beanFactory);
-
-        if (bean == null) {
+        final Object handlerBean = createHandler(beanClass, this.beanFactory);
+        if (handlerBean == null) {
             throw new ConfigurationException("An unexpected exception occurred: [Can't get bean with given type: ["
                     + beanClass.getName() + "]]"//
             );
         }
-
-        return new HandlerMethod(bean, method, getInterceptors(beanClass, method));
+        return new HandlerMethod(handlerBean, method, getInterceptors(beanClass, method));
     }
 
     /**
-     * Add intercepter to handler .
+     * Create a handler bean instance
+     * 
+     * @param beanClass
+     *            Target bean class
+     * @param beanFactory
+     *            {@link AbstractBeanFactory}
+     * @return Returns a handler bean of target beanClass
+     */
+    protected Object createHandler(final Class<?> beanClass, final AbstractBeanFactory beanFactory) {
+        final BeanDefinition def = beanFactory.getBeanDefinition(beanClass);
+        return def.isSingleton()
+                ? beanFactory.getBean(def)
+                : Prototypes.newProxyInstance(beanClass, def, beanFactory);
+    }
+
+    /**
+     * Get list of intercepters.
      * 
      * @param controllerClass
      *            controller class
      * @param action
      *            method
+     * @return List of {@link HandlerInterceptor} objects
      */
     protected List<HandlerInterceptor> getInterceptors(final Class<?> controllerClass, final Method action) {
 
         final List<HandlerInterceptor> ret = new ArrayList<>();
 
         // 设置类拦截器
-        final Interceptor controllerInterceptors = controllerClass.getAnnotation(Interceptor.class);
+        final Interceptor[] controllerInterceptors = ClassUtils.getAnnotationArray(controllerClass, Interceptor.class);
         if (controllerInterceptors != null) {
-            addAll(ret, addInterceptors(controllerInterceptors.value()));
-        }
-        // HandlerInterceptor on a method
-        final Interceptor actionInterceptors = action.getAnnotation(Interceptor.class);
-
-        if (actionInterceptors != null) {
-            addAll(ret, addInterceptors(actionInterceptors.value()));
-            final ApplicationContext beanFactory = obtainApplicationContext();
-            for (Class<? extends HandlerInterceptor> interceptor : actionInterceptors.exclude()) {
-                ret.remove(beanFactory.getBean(interceptor));
+            for (final Interceptor controllerInterceptor : controllerInterceptors) {
+                addAll(ret, getInterceptors(controllerInterceptor.value()));
             }
         }
-
+        // HandlerInterceptor on a method
+        final Interceptor[] actionInterceptors = ClassUtils.getAnnotationArray(action, Interceptor.class);
+        if (actionInterceptors != null) {
+            for (final Interceptor actionInterceptor : actionInterceptors) {
+                addAll(ret, getInterceptors(actionInterceptor.value()));
+                // exclude interceptors
+                final ApplicationContext beanFactory = obtainApplicationContext();
+                for (Class<? extends HandlerInterceptor> interceptor : actionInterceptor.exclude()) {
+                    ret.remove(beanFactory.getBean(interceptor));
+                }
+            }
+        }
         return ret;
     }
 
     /***
-     * Register intercepter object list
+     * Get {@link HandlerInterceptor} objects
      * 
      * @param interceptors
      *            {@link HandlerInterceptor} class
-     * @return A list of {@link HandlerInterceptor} objects
+     * @return Array of {@link HandlerInterceptor} objects
      */
-    public HandlerInterceptor[] addInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
+    public HandlerInterceptor[] getInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
 
         if (ObjectUtils.isEmpty(interceptors)) {
             return Constant.EMPTY_HANDLER_INTERCEPTOR;

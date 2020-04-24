@@ -75,7 +75,7 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry implements We
 
         final HandlerMethodRegistry registry = obtainApplicationContext().getBean(HandlerMethodRegistry.class);
 
-        final HandlerInterceptor[] interceptors = registry.addInterceptors(handlerInterceptors);
+        final HandlerInterceptor[] interceptors = registry.getInterceptors(handlerInterceptors);
 
         ResourceMapping resourceMapping = new ResourceMapping(ObjectUtils.isEmpty(interceptors) ? null : interceptors);
 
