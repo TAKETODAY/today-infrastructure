@@ -394,7 +394,8 @@ public abstract class ClassUtils {
      *            annotated element
      * @param targetClass
      *            target annotation class
-     * @return the array of {@link Annotation} instance
+     * @return the array of {@link Annotation} instance. If returns null 
+     * it indicates that no targetClass Annotations
      * @since 2.1.1
      */
     @SuppressWarnings("unchecked")
