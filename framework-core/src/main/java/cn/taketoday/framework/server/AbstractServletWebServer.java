@@ -66,15 +66,6 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
 
     private static final Logger log = LoggerFactory.getLogger(AbstractServletWebServer.class);
 
-    private int port = 8080;
-    private String host = "localhost";
-    private String contextPath = "";
-    private String serverHeader = null;
-    private boolean enableHttp2 = false;
-
-    private String displayName = "Web-App";
-
-    private String deployName = "deploy-web-app";
     @Autowired
     private SessionConfiguration sessionConfiguration;
 
