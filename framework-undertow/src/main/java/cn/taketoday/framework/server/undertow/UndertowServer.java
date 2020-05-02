@@ -220,13 +220,14 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
                 )//@on
         );
 
-        deployment.setClassLoader(ClassUtils.getClassLoader());
+        deployment.setClassLoader(getClassLoader());
         deployment.setContextPath(getContextPath());
         deployment.setDisplayName(getDisplayName());
 
-        deployment.setDefaultEncoding(Constant.DEFAULT_ENCODING);
-        deployment.setDefaultRequestEncoding(Constant.DEFAULT_ENCODING);
-        deployment.setDefaultRequestEncoding(Constant.DEFAULT_ENCODING);
+        final String defaultEncoding = getDefaultEncoding();
+        deployment.setDefaultEncoding(defaultEncoding);
+        deployment.setDefaultRequestEncoding(defaultEncoding);
+        deployment.setDefaultRequestEncoding(defaultEncoding);
 
         deployment.setDeploymentName(getDeployName());
 
@@ -256,6 +257,14 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
             sessionManager.setDefaultSessionTimeout(sessionTimeout);
         }
         return manager;
+    }
+
+    protected String getDefaultEncoding() {
+        return Constant.DEFAULT_ENCODING;
+    }
+
+    protected ClassLoader getClassLoader() {
+        return ClassUtils.getClassLoader();
     }
 
     protected void configureLocaleMappings(DeploymentInfo deployment) {
