@@ -57,11 +57,11 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
     public DispatcherServlet getServlet() {
         DispatcherServlet dispatcherServlet = super.getServlet();
         if (dispatcherServlet == null && isAutoCreateDispatcher()) {
-            final WebServletApplicationContext applicationContext = getApplicationContext();
-            if (!applicationContext.containsBeanDefinition(DispatcherServlet.class)) {
-                applicationContext.registerBean(Constant.DISPATCHER_SERVLET, DispatcherServlet.class);
+            final WebServletApplicationContext context = getApplicationContext();
+            if (!context.containsBeanDefinition(DispatcherServlet.class)) {
+                context.registerBean(Constant.DISPATCHER_SERVLET, DispatcherServlet.class);
             }
-            dispatcherServlet = applicationContext.getBean(DispatcherServlet.class);
+            dispatcherServlet = context.getBean(DispatcherServlet.class);
             setServlet(dispatcherServlet);
         }
         return dispatcherServlet;
@@ -90,15 +90,19 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
 
         if (multipartConfig != null) {
             setMultipartConfig(multipartConfig);
+            super.configureMultipart(registration);
         }
     }
 
     @Override
     protected void configureServletSecurity(Dynamic registration) {
-
-        ServletSecurityElement securityConfig = getApplicationContext().getBean(ServletSecurityElement.class);
-        if (securityConfig != null) {
-            setServletSecurity(securityConfig);
+        ServletSecurityElement servletSecurity = getServletSecurity();
+        if (servletSecurity == null) {
+            servletSecurity = getApplicationContext().getBean(ServletSecurityElement.class);
+        }
+        if (servletSecurity != null) {
+            setServletSecurity(servletSecurity);
+            super.configureServletSecurity(registration);
         }
     }
 
