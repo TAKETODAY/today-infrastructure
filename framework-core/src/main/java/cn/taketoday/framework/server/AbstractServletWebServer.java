@@ -28,13 +28,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.servlet.MultipartConfigElement;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletSecurityElement;
 import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.ServletSecurity;
 
 import cn.taketoday.context.Ordered;
@@ -219,29 +217,19 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
 
         super.prepareInitialize();
 
-        final WebServerApplicationContext applicationContext = getApplicationContext();
+        final WebServerApplicationContext context = getApplicationContext();
 
-        final Class<?> startupClass = applicationContext.getStartupClass();
-
-        MultipartConfig multipartConfig = startupClass.getAnnotation(MultipartConfig.class);
-        if (multipartConfig != null) {
-
-            if (applicationContext.containsBeanDefinition(MultipartConfigElement.class)) {
-                log.info("Multiple: [{}] Overriding its bean definition", MultipartConfigElement.class.getName());
-            }
-            applicationContext.registerSingleton(new MultipartConfigElement(multipartConfig));
-            applicationContext.registerBean("multipartConfigElement", MultipartConfigElement.class);
-        }
+        final Class<?> startupClass = context.getStartupClass();
 
         ServletSecurity servletSecurity = startupClass.getAnnotation(ServletSecurity.class);
         if (servletSecurity != null) {
 
-            if (applicationContext.containsBeanDefinition(ServletSecurityElement.class)) {
+            if (context.containsBeanDefinition(ServletSecurityElement.class)) {
                 log.info("Multiple: [{}] Overriding its bean definition", ServletSecurityElement.class.getName());
             }
 
-            applicationContext.registerSingleton(new ServletSecurityElement(servletSecurity));
-            applicationContext.registerBean("servletSecurityElement", ServletSecurityElement.class);
+            context.registerSingleton(new ServletSecurityElement(servletSecurity));
+            context.registerBean("servletSecurityElement", ServletSecurityElement.class);
         }
 
         addDefaultServlet();
