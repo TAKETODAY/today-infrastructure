@@ -96,11 +96,15 @@ public class DefaultWebSessionManager implements WebSessionManager {
 
     @Override
     public WebSession getSession(RequestContext context) {
+        return getSession(context, true);
+    }
 
+    @Override
+    public WebSession getSession(RequestContext context, boolean create) {
         final String token = getTokenResolver().getToken(context);
 
-        final WebSession ret;
-        if (StringUtils.isEmpty(token) || (ret = getSessionStorage().get(token)) == null) {
+        WebSession ret = null;
+        if ((StringUtils.isEmpty(token) || (ret = getSessionStorage().get(token)) == null) && create) {
             return createSession(context);
         }
         return ret;
