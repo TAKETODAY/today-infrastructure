@@ -54,8 +54,6 @@ public abstract class InterceptableRequestHandler
      * 
      * @param context
      *            Current request Context
-     * @param handler
-     *            Request handler
      * @param interceptors
      *            Target handler's {@link HandlerInterceptor}s
      * 
@@ -63,10 +61,8 @@ public abstract class InterceptableRequestHandler
      * @throws Throwable
      *             If any exception occurred in a {@link HandlerInterceptor}
      */
-    protected boolean beforeProcess(final Object handler,
-                                    final RequestContext context,
-                                    final HandlerInterceptor[] interceptors) throws Throwable {
-
+    protected boolean beforeProcess(final RequestContext context, final HandlerInterceptor[] interceptors) throws Throwable {
+        final Object handler = this;
         for (final HandlerInterceptor intercepter : interceptors) {
             if (!intercepter.beforeProcess(context, handler)) {
                 if (log.isDebugEnabled()) {
@@ -83,8 +79,6 @@ public abstract class InterceptableRequestHandler
      *
      * @param result
      *            Handler executed result
-     * @param handler
-     *            Target handler
      * @param context
      *            Current request context
      * @param interceptors
@@ -93,10 +87,9 @@ public abstract class InterceptableRequestHandler
      *             If any exception occurred in a {@link HandlerInterceptor}
      */
     protected void afterProcess(final Object result,
-                                final Object handler,
                                 final RequestContext context,
                                 final HandlerInterceptor[] interceptors) throws Throwable {
-
+        final Object handler = this;
         for (final HandlerInterceptor intercepter : interceptors) {
             intercepter.afterProcess(context, handler, result);
         }
@@ -107,11 +100,11 @@ public abstract class InterceptableRequestHandler
 
         final HandlerInterceptor[] interceptors = getInterceptors();
         if (interceptors != null) {
-            if (!beforeProcess(this, context, interceptors)) { // before process
+            if (!beforeProcess(context, interceptors)) { // before process
                 return HandlerAdapter.NONE_RETURN_VALUE;
             }
             final Object result = handleInternal(context);
-            afterProcess(result, this, context, interceptors);
+            afterProcess(result, context, interceptors);
             return result;
         }
         return handleInternal(context);
