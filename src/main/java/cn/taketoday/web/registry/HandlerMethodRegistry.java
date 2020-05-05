@@ -86,7 +86,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
     private final ConcurrentCache<String, Object> patternMatchingCache;
 
     public HandlerMethodRegistry() {
-        this(new HashMap<>(512));
+        this(512);
     }
 
     public HandlerMethodRegistry(int initialCapacity) {

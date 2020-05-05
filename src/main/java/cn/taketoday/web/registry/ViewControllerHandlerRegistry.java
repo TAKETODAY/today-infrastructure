@@ -126,10 +126,11 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
      *            {@code "/articles/{id:\\w+}"} are allowed. See
      *            {@link AntPathMatcher} for more details on the syntax.
      * @param resource
-     *            resource location ,such as redirect url or view template resource
+     *            resource location,such as redirect url or view template resource
+     *            <b>Or other type of resource</b>
      * @return {@link ViewController}
      */
-    public ViewController addViewController(String pathPattern, String resource) {
+    public ViewController addViewController(String pathPattern, Object resource) {
         return addViewController(pathPattern).setResource(resource);
     }
 

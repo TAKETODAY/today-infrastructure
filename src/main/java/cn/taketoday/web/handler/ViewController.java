@@ -22,7 +22,6 @@ package cn.taketoday.web.handler;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.OrderedSupport;
 
 /**
@@ -35,7 +34,7 @@ import cn.taketoday.context.OrderedSupport;
 public class ViewController extends OrderedSupport implements Serializable {
 
     /** 资源路径 */
-    private String resource = Constant.BLANK;
+    private Object resource;
     /** The resource's content type @since 2.3.3 */
     private String contentType = null;
 
@@ -69,7 +68,7 @@ public class ViewController extends OrderedSupport implements Serializable {
         return contentType;
     }
 
-    public String getResource() {
+    public Object getResource() {
         return resource;
     }
 
@@ -78,7 +77,7 @@ public class ViewController extends OrderedSupport implements Serializable {
         return this;
     }
 
-    public ViewController setResource(String resource) {
+    public ViewController setResource(Object resource) {
         this.resource = resource;
         return this;
     }
