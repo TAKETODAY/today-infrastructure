@@ -34,7 +34,7 @@ public class DefaultClassMatcher implements ClassMatcher {
 
     @Override
     public boolean matches(Object aspect, Class<?> targetClass) {
-        final Class<?> aspectClass = aspect.getClass(); // aspect class
+//        final Class<?> aspectClass = aspect.getClass(); // aspect class
 
 //        final Advice[] advices = ClassUtils.getAnnotationArray(aspectClass, Advice.class, AdviceImpl.class);
 

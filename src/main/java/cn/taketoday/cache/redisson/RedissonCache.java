@@ -82,7 +82,7 @@ public class RedissonCache extends AbstractCache implements Cache {
             lock.lock();
             Object value = cache.get(key);
             if (value == null) {
-                final Object newValue = super.lookupValue(key, valueLoader);
+                final Object newValue = valueLoader.call();
                 put(key, newValue);
                 return newValue;
             }
