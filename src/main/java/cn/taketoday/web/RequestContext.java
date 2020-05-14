@@ -48,6 +48,8 @@ import cn.taketoday.web.ui.RedirectModel;
  */
 public interface RequestContext extends Readable, Writable, Model, HttpHeaders, Flushable {
 
+    HttpCookie[] EMPTY_COOKIES = {};
+
     // --- request
 
     /**
@@ -114,7 +116,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
      * were sent.
      *
      * @return an array of all the <code>Cookies</code> included with this request,
-     *         or <code>null</code> if the request has no cookies
+     *         or {@link #EMPTY_COOKIES} if the request has no cookies
      */
     HttpCookie[] cookies();
 

@@ -174,15 +174,14 @@ public class ServletRequestContext extends AbstractRequestContext implements Req
 
         final Cookie[] servletCookies = request.getCookies();
         if (ObjectUtils.isEmpty(servletCookies)) { // there is not cookies
-            return null;
+            return EMPTY_COOKIES;
         }
         final HttpCookie[] cookies = new HttpCookie[servletCookies.length];
 
         int i = 0;
         for (final Cookie servletCookie : servletCookies) {
 
-            final HttpCookie httpCookie = //
-                    new HttpCookie(servletCookie.getName(), servletCookie.getValue());
+            final HttpCookie httpCookie = new HttpCookie(servletCookie.getName(), servletCookie.getValue());
 
             httpCookie.setPath(servletCookie.getPath());
             httpCookie.setDomain(servletCookie.getDomain());
@@ -192,7 +191,7 @@ public class ServletRequestContext extends AbstractRequestContext implements Req
             httpCookie.setComment(servletCookie.getComment());
             httpCookie.setHttpOnly(servletCookie.isHttpOnly());
 
-            cookies[i++] = httpCookie;//
+            cookies[i++] = httpCookie;
         }
         return cookies;
     }

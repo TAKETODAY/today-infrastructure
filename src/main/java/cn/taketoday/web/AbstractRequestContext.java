@@ -45,7 +45,6 @@ public abstract class AbstractRequestContext implements RequestContext {
     private HttpCookie[] cookies;
     private String[] pathVariables;
     private ModelAndView modelAndView;
-    protected static final HttpCookie[] EMPTY_COOKIES = {};
 
     private PrintWriter writer;
     private BufferedReader reader;
@@ -149,7 +148,7 @@ public abstract class AbstractRequestContext implements RequestContext {
 
     @Override
     public HttpCookie[] cookies() {
-        HttpCookie[] cookies = this.cookies;
+        final HttpCookie[] cookies = this.cookies;
         if (cookies == null) {
             return this.cookies = getCookiesInternal();
         }
@@ -158,21 +157,17 @@ public abstract class AbstractRequestContext implements RequestContext {
 
     @Override
     public HttpCookie cookie(final String name) {
-
-        final HttpCookie[] cookies = cookies();
-        if (cookies != null) {
-            for (final HttpCookie cookie : cookies) {
-                if (cookie.getName().equals(name)) {
-                    return cookie;
-                }
+        for (final HttpCookie cookie : cookies()) {
+            if (cookie.getName().equals(name)) {
+                return cookie;
             }
         }
         return null;
     }
 
     /**
-     * @return an array of all the Cookies included with this request,or null if the
-     *         request has no cookies
+     * @return an array of all the Cookies included with this request,or
+     *         {@link #EMPTY_COOKIES} if the request has no cookies
      */
     protected abstract HttpCookie[] getCookiesInternal();
 
