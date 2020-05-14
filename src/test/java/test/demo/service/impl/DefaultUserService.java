@@ -44,6 +44,9 @@ public class DefaultUserService implements UserService {
 //	@Autowired
 //	@Inject
     private UserRepository userRepository;
+    
+    private UserRepository userRepository1;
+    
 
 //	@Autowired
 //	public DefaultUserService(@Autowired(required = true) UserRepository userDao, @Props(prefix = "site.") Config config) {
@@ -63,6 +66,15 @@ public class DefaultUserService implements UserService {
     @Override
     public boolean register(User user) {
         return userRepository.save(user);
+    }
+
+    public UserRepository getUserRepository() {
+        return userRepository1;
+    }
+
+    @Autowired
+    public void setUserRepository(UserRepository userRepository1) {
+        this.userRepository1 = userRepository1;
     }
 
 }

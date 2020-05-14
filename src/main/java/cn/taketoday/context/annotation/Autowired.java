@@ -31,7 +31,7 @@ import cn.taketoday.context.Constant;
  *         2018-?-? ?:?
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR })
+@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.CONSTRUCTOR, ElementType.METHOD })
 public @interface Autowired {
 
     /** @return Bean name */

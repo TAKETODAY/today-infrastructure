@@ -61,6 +61,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConcurrentProperties;
 import cn.taketoday.context.Condition;
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.annotation.DefaultProps;
@@ -523,7 +524,8 @@ public abstract class ContextUtils {
      */
     private static void addInitMethod(final List<Method> methods, final Class<?> beanClass, final String... initMethods) {
         for (final Method method : beanClass.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(PostConstruct.class)) {
+            if (ClassUtils.isAnnotationPresent(method, PostConstruct.class)
+                    || ClassUtils.isAnnotationPresent(method, Autowired.class)) {
                 methods.add(method);
                 continue;
             }
