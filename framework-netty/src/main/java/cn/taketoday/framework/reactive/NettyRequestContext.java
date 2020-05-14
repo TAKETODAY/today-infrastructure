@@ -307,10 +307,10 @@ public class NettyRequestContext extends AbstractRequestContext implements Reque
     public HttpCookie[] getCookiesInternal() {
         final String header = request.headers().get(HttpHeaderNames.COOKIE);
         if (StringUtils.isEmpty(header)) {
-            return null;
+            return EMPTY_COOKIES;
         }
         final List<HttpCookie> parsed = HttpCookie.parse(header);
-        return ObjectUtils.isEmpty(parsed) ? null : parsed.toArray(new HttpCookie[parsed.size()]);
+        return ObjectUtils.isEmpty(parsed) ? EMPTY_COOKIES : parsed.toArray(new HttpCookie[parsed.size()]);
     }
 
     @Override
