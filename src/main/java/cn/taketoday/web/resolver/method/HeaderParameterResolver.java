@@ -23,6 +23,7 @@ import cn.taketoday.context.Ordered;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestHeader;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
@@ -33,6 +34,11 @@ public class HeaderParameterResolver extends TypeConverterParameterResolver impl
     @Override
     public boolean supports(MethodParameter parameter) {
         return parameter.isAnnotationPresent(RequestHeader.class);
+    }
+    
+    @Override
+    protected void parameterCanNotResolve(MethodParameter parameter) {
+        throw WebUtils.newBadRequest("Header", parameter, null);
     }
 
     @Override

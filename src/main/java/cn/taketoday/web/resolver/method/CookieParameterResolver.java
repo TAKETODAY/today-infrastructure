@@ -42,11 +42,11 @@ public class CookieParameterResolver implements ParameterResolver {
     }
 
     @Override
-    public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
         final String name = parameter.getName();
 
-        for (final HttpCookie cookie : requestContext.cookies()) {
+        for (final HttpCookie cookie : context.cookies()) {
             if (name.equals(cookie.getName())) {
                 return cookie;
             }
@@ -66,10 +66,15 @@ public class CookieParameterResolver implements ParameterResolver {
         }
 
         @Override
-        protected Object resolveSource(final RequestContext requestContext, final MethodParameter parameter) {
+        protected void parameterCanNotResolve(MethodParameter parameter) {
+            throw WebUtils.newBadRequest("Cookie", parameter, null);
+        }
+
+        @Override
+        protected Object resolveSource(final RequestContext context, final MethodParameter parameter) {
 
             final String name = parameter.getName();
-            final HttpCookie[] cookies = requestContext.cookies();
+            final HttpCookie[] cookies = context.cookies();
             if (cookies != null) {
                 for (final HttpCookie cookie : cookies) {
                     if (name.equals(cookie.getName())) {

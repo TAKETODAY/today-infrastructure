@@ -34,15 +34,21 @@ public abstract class TypeConverterParameterResolver implements ParameterResolve
     public abstract boolean supports(MethodParameter parameter);
 
     @Override
-    public final Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-        Object source = resolveSource(requestContext, parameter);
+    public final Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+        Object source = resolveSource(context, parameter);
         if (source == null) {
             if (parameter.isRequired()) {
-                throw WebUtils.newBadRequest("Cookie", parameter, null);
+                parameterCanNotResolve(parameter);
             }
-            source = parameter.getDefaultValue();
+            else {
+                source = parameter.getDefaultValue();
+            }
         }
         return ConvertUtils.convert(source, resolveTargetClass(parameter));
+    }
+
+    protected void parameterCanNotResolve(final MethodParameter parameter) {
+        throw WebUtils.newBadRequest("Parameter", parameter, null);
     }
 
     protected Object resolveSource(final RequestContext requestContext, final MethodParameter parameter) {
