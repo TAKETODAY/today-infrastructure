@@ -23,22 +23,25 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Order;
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 
 /**
  * @author TODAY <br>
  *         2018-08-04 16:01
  */
-@Order(Ordered.HIGHEST_PRECEDENCE - 2)
-public class PropsPropertyResolver implements PropertyValueResolver {
+public class PropsPropertyResolver extends OrderedSupport implements PropertyValueResolver {
+
+    public PropsPropertyResolver() {
+        super(HIGHEST_PRECEDENCE - 2);
+    }
 
     @Override
     public boolean supports(Field field) {
-        return field.isAnnotationPresent(Props.class);
+        return ClassUtils.isAnnotationPresent(field, Props.class);
     }
 
     /**
@@ -47,7 +50,7 @@ public class PropsPropertyResolver implements PropertyValueResolver {
     @Override
     public PropertyValue resolveProperty(Field field) {
 
-        Props props = field.getAnnotation(Props.class);
+        Props props = ClassUtils.getAnnotation(Props.class, field);
 
         Properties properties = //
                 ContextUtils.loadProps(props, ContextUtils.getApplicationContext().getEnvironment().getProperties());

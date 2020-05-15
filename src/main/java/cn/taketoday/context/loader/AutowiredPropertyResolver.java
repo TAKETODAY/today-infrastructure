@@ -19,17 +19,17 @@
  */
 package cn.taketoday.context.loader;
 
+import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
+
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.Map.Entry;
 
-import javax.annotation.Resource;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
-import cn.taketoday.context.Ordered;
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanReference;
@@ -39,29 +39,37 @@ import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
- * This class supports field that annotated {@link Autowired},
- * {@link javax.inject.Inject} or {@link javax.inject.Named}
+ * This {@link PropertyValueResolver} supports field that annotated
+ * {@link Autowired}, {@link javax.annotation.Resource Resource},
+ * {@link javax.inject.Inject Inject} or {@link javax.inject.Named Named}
  * 
  * @author TODAY <br>
  *         2018-08-04 15:56
  */
-@Order(Ordered.HIGHEST_PRECEDENCE)
-public class AutowiredPropertyResolver implements PropertyValueResolver {
+public class AutowiredPropertyResolver extends OrderedSupport implements PropertyValueResolver {
 
     private static final Class<? extends Annotation> NAMED_CLASS = ClassUtils.loadClass("javax.inject.Named");
     private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.loadClass("javax.inject.Inject");
+    private static final Class<? extends Annotation> RESOURCE_CLASS = ClassUtils.loadClass("javax.annotation.Resource");
 
-    @Override
-    public boolean supports(Field field) {
-
-        return field.isAnnotationPresent(Autowired.class)
-               || field.isAnnotationPresent(Resource.class)
-               || (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS))
-               || (INJECT_CLASS != null && field.isAnnotationPresent(INJECT_CLASS));
+    public AutowiredPropertyResolver() {
+        super(HIGHEST_PRECEDENCE);
     }
 
     @Override
-    public PropertyValue resolveProperty(Field field) {
+    public boolean supports(final Field field) {
+        return isInjectable(field);
+    }
+
+    public static boolean isInjectable(final AnnotatedElement element) {
+        return isAnnotationPresent(element, Autowired.class)
+               || isAnnotationPresent(element, RESOURCE_CLASS)
+               || isAnnotationPresent(element, NAMED_CLASS)
+               || isAnnotationPresent(element, INJECT_CLASS);
+    }
+
+    @Override
+    public PropertyValue resolveProperty(final Field field) {
 
         final Autowired autowired = field.getAnnotation(Autowired.class); // auto wired
 
@@ -73,11 +81,10 @@ public class AutowiredPropertyResolver implements PropertyValueResolver {
             name = autowired.value();
             required = autowired.required();
         }
-        else if (field.isAnnotationPresent(Resource.class)) {
-            // Resource.class
-            name = field.getAnnotation(Resource.class).name();
+        else if (isAnnotationPresent(field, RESOURCE_CLASS)) { // @Resource
+            name = ClassUtils.getAnnotationAttributes(RESOURCE_CLASS, field).getString("name");
         }
-        else if (NAMED_CLASS != null && field.isAnnotationPresent(NAMED_CLASS)) {// @Named
+        else if (isAnnotationPresent(field, NAMED_CLASS)) {// @Named
             name = ClassUtils.getAnnotationAttributes(NAMED_CLASS, field).getString(Constant.VALUE);
         } // @Inject or name is empty
 

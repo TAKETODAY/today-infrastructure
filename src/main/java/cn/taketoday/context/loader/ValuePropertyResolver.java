@@ -19,15 +19,18 @@
  */
 package cn.taketoday.context.loader;
 
+import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
+
 import java.lang.reflect.Field;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.Env;
-import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Value;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 
@@ -35,30 +38,34 @@ import cn.taketoday.context.utils.StringUtils;
  * @author TODAY <br>
  *         2018-08-04 15:58
  */
-@Order(Ordered.HIGHEST_PRECEDENCE - 1)
-public class ValuePropertyResolver implements PropertyValueResolver {
+public class ValuePropertyResolver extends OrderedSupport implements PropertyValueResolver {
+
+    public ValuePropertyResolver() {
+        super(Ordered.HIGHEST_PRECEDENCE - 1);
+    }
 
     @Override
-    public boolean supports(Field field) {
-        return field.isAnnotationPresent(Value.class) || field.isAnnotationPresent(Env.class);
+    public boolean supports(final Field field) {
+        return isAnnotationPresent(field, Value.class)
+               || isAnnotationPresent(field, Env.class);
     }
 
     /**
      * Resolve {@link Value} and {@link Env} annotation property.
      */
     @Override
-    public PropertyValue resolveProperty(Field field) {
+    public PropertyValue resolveProperty(final Field field) {
 
         String expression;
         final boolean required;
 
-        final Value value = field.getAnnotation(Value.class);
+        final Value value = ClassUtils.getAnnotation(Value.class, field);
         if (value != null) {
             expression = value.value();
             required = value.required();
         }
         else {
-            final Env env = field.getAnnotation(Env.class);
+            final Env env = ClassUtils.getAnnotation(Env.class, field);
             required = env.required();
             expression = env.value();
 
