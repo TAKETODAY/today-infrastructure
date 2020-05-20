@@ -43,6 +43,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ResourceUtils;
@@ -188,7 +189,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
 
     private static final Logger log = LoggerFactory.getLogger(PathMatchingResourcePatternResolver.class);
 
-    private final ClassLoader classLoader;
+    private ClassLoader classLoader;
 
     private PathMatcher pathMatcher = new AntPathMatcher();
 
@@ -203,6 +204,10 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
     @Override
     public ClassLoader getClassLoader() {
         return classLoader;
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
     }
 
     /**
@@ -228,8 +233,8 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
     }
 
     @Override
-    public Resource[] getResources(String locationPattern) throws IOException {
-        nonNull(locationPattern, "Location pattern must not be null");
+    public Resource[] getResources(final String locationPattern) throws IOException {
+        Assert.notNull(locationPattern, "Location pattern must not be null");
 
         if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
             // a class path resource (multiple resources for same name possible)
@@ -445,7 +450,8 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
         }
         final String duplicatePath = filePath.startsWith("/") ? filePath.substring(1) : "/".concat(filePath);
         try {
-            return result.contains(new JarEntryResource(new StringBuilder(duplicatePath.length() + 11) //@off
+            return result.contains(new JarEntryResource(new StringBuilder(duplicatePath.length()
+                    + 11) //@off
                                                                 .append(Constant.JAR_ENTRY_URL_PREFIX)
                                                                 .append(duplicatePath)
                                                                 .append(Constant.JAR_URL_SEPARATOR).toString())); //@on

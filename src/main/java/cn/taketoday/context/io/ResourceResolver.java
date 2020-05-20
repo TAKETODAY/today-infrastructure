@@ -21,26 +21,11 @@ package cn.taketoday.context.io;
 
 import java.io.IOException;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 
 /**
  * Strategy interface for resolving a location pattern (for example, an
  * Ant-style path pattern) into Resource objects.
- *
- * <p>
- * This is an extension to the
- * {@link ResourceLoader} interface. A passed-in
- * ResourceLoader (for example, an
- * {@link ApplicationContext} passed in via
- * {@link ResourceLoaderAware} when running in a
- * context) can be checked whether it implements this extended interface too.
- *
- * <p>
- * {@link PathMatchingResourcePatternResolver} is a standalone implementation
- * that is usable outside an ApplicationContext, also used by
- * {@link ResourceArrayPropertyEditor} for populating Resource array bean
- * properties.
  *
  * <p>
  * Can be used with any sort of location pattern (e.g.
