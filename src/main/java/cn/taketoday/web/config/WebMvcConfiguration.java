@@ -31,7 +31,7 @@ import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
-import cn.taketoday.web.resolver.method.ParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;

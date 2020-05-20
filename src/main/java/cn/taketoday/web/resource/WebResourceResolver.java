@@ -17,42 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.method;
+package cn.taketoday.web.resource;
 
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.context.PathMatcher;
+import cn.taketoday.web.handler.ResourceMapping;
+import cn.taketoday.web.handler.ResourceMatchResult;
 
 /**
  * @author TODAY <br>
- *         2019-07-07 23:24
+ *         2019-05-17 11:26
  */
 @FunctionalInterface
-public interface ParameterResolver {
+public interface WebResourceResolver {
 
     /**
-     * Whether the given parameter is supported by this resolver.
-     */
-    default boolean supports(MethodParameter parameter) {
-        return true;
-    }
-
-    /**
-     * Resolve parameter
+     * Resolve {@link WebResource}
      * 
-     * @param context
-     *            Current request Context
-     * @param parameter
-     *            parameter
-     * @throws Throwable
-     *             if any {@link Exception} occurred
-     * @return method parameter instances
+     * @param mappingMetaData
+     *            Contains requestPath, pathPattern, {@link PathMatcher},
+     *            {@link ResourceMapping}
+     * @return {@link WebResource}
      */
-    Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable;
-
-    @FunctionalInterface
-    public interface SupportsFunction {
-
-        boolean supports(MethodParameter parameter);
-    }
+    WebResource resolveResource(ResourceMatchResult mappingMetaData);
 
 }

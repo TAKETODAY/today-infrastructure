@@ -17,38 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.method;
+package cn.taketoday.web.resolver;
 
 import cn.taketoday.context.Ordered;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.RequestHeader;
-import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
- *         2019-07-13 11:11
+ *         2019-07-14 19:36
  */
-public class HeaderParameterResolver extends TypeConverterParameterResolver implements Ordered {
+public interface OrderedParameterResolver extends ParameterResolver, Ordered {
 
     @Override
-    public boolean supports(MethodParameter parameter) {
-        return parameter.isAnnotationPresent(RequestHeader.class);
-    }
-    
-    @Override
-    protected void parameterCanNotResolve(MethodParameter parameter) {
-        throw WebUtils.newBadRequest("Header", parameter, null);
-    }
-
-    @Override
-    protected Object resolveSource(final RequestContext requestContext, final MethodParameter parameter) {
-        return requestContext.requestHeader(parameter.getName());
-    }
-
-    @Override
-    public int getOrder() {
-        return HIGHEST_PRECEDENCE;
+    default int getOrder() {
+        return LOWEST_PRECEDENCE;
     }
 
 }

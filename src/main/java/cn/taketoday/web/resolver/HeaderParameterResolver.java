@@ -17,46 +17,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.method;
+package cn.taketoday.web.resolver;
 
-import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.annotation.RequestHeader;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
- *         2019-07-13 11:21
+ *         2019-07-13 11:11
  */
-public abstract class TypeConverterParameterResolver implements ParameterResolver {
+public class HeaderParameterResolver extends TypeConverterParameterResolver implements Ordered {
 
     @Override
-    public abstract boolean supports(MethodParameter parameter);
+    public boolean supports(MethodParameter parameter) {
+        return parameter.isAnnotationPresent(RequestHeader.class);
+    }
+    
+    @Override
+    protected void parameterCanNotResolve(MethodParameter parameter) {
+        throw WebUtils.newBadRequest("Header", parameter, null);
+    }
 
     @Override
-    public final Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-        Object source = resolveSource(context, parameter);
-        if (source == null) {
-            if (parameter.isRequired()) {
-                parameterCanNotResolve(parameter);
-            }
-            else {
-                source = parameter.getDefaultValue();
-            }
-        }
-        return ConvertUtils.convert(source, resolveTargetClass(parameter));
-    }
-
-    protected void parameterCanNotResolve(final MethodParameter parameter) {
-        throw WebUtils.newBadRequest("Parameter", parameter, null);
-    }
-
     protected Object resolveSource(final RequestContext requestContext, final MethodParameter parameter) {
-        return requestContext.parameter(parameter.getName());
+        return requestContext.requestHeader(parameter.getName());
     }
 
-    protected Class<?> resolveTargetClass(final MethodParameter parameter) {
-        return parameter.getParameterClass();
+    @Override
+    public int getOrder() {
+        return HIGHEST_PRECEDENCE;
     }
 
 }

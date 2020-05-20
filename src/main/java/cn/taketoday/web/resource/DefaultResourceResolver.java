@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver;
+package cn.taketoday.web.resource;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +34,6 @@ import cn.taketoday.context.utils.MediaType;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.handler.ResourceMatchResult;
-import cn.taketoday.web.resource.WebResource;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -71,7 +70,7 @@ public class DefaultResourceResolver implements WebResourceResolver {
         }
 
         // log.debug("resource: [{}]", extractPathWithinPattern);
-        for (String location : matchResult.getMapping().getLocations()) {
+        for (final String location : matchResult.getMapping().getLocations()) {
             try {
                 // log.debug("look in: [{}]", location);
                 // TODO

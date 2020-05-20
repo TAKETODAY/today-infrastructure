@@ -30,9 +30,9 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.method.OrderedParameterResolver;
-import cn.taketoday.web.resolver.method.ParameterResolver;
-import cn.taketoday.web.resolver.method.ParameterResolvers;
+import cn.taketoday.web.resolver.OrderedParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolvers;
 
 /**
  * @author TODAY <br>

@@ -40,8 +40,8 @@ import cn.taketoday.web.handler.ResourceMapping;
 import cn.taketoday.web.handler.ResourceMatchResult;
 import cn.taketoday.web.handler.ResourceRequestHandler;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.resolver.DefaultResourceResolver;
-import cn.taketoday.web.resolver.WebResourceResolver;
+import cn.taketoday.web.resource.DefaultResourceResolver;
+import cn.taketoday.web.resource.WebResourceResolver;
 
 /**
  * @author TODAY <br>

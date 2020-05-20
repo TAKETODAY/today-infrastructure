@@ -33,9 +33,9 @@ import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.NotFoundException;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.resolver.WebResourceResolver;
 import cn.taketoday.web.resource.CacheControl;
 import cn.taketoday.web.resource.WebResource;
+import cn.taketoday.web.resource.WebResourceResolver;
 import cn.taketoday.web.utils.WebUtils;
 
 /**

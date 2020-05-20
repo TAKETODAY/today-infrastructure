@@ -19,7 +19,7 @@
  */
 package cn.taketoday.web.view.template;
 
-import static cn.taketoday.web.resolver.method.DelegatingParameterResolver.delegate;
+import static cn.taketoday.web.resolver.DelegatingParameterResolver.delegate;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -40,7 +40,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.SharedVariable;
 import cn.taketoday.web.config.WebMvcConfiguration;
-import cn.taketoday.web.resolver.method.ParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolver;
 import freemarker.cache.TemplateLoader;
 import freemarker.core.Environment;
 import freemarker.ext.util.WrapperTemplateModel;

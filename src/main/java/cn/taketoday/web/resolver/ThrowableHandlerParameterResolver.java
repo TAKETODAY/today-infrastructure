@@ -17,38 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.method;
+package cn.taketoday.web.resolver;
 
-import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Order;
-import cn.taketoday.web.MessageConverter;
+import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY <br>
- *         2019-07-12 22:23
+ *         2019-07-17 22:41
  */
-@Order(Ordered.HIGHEST_PRECEDENCE)
-public class RequestBodyParameterResolver implements ParameterResolver {
-
-    private final MessageConverter messageConverter;
-
-    @Autowired
-    public RequestBodyParameterResolver(MessageConverter messageConverter) {
-        this.messageConverter = messageConverter;
-    }
+public class ThrowableHandlerParameterResolver implements OrderedParameterResolver {
 
     @Override
-    public boolean supports(final MethodParameter parameter) {
-        return parameter.isAnnotationPresent(RequestBody.class);
+    public boolean supports(MethodParameter parameter) {
+        return parameter.isAssignableFrom(Throwable.class);
     }
 
     @Override
     public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-        return messageConverter.read(requestContext, parameter);
+        return requestContext.attribute(Constant.KEY_THROWABLE);
+    }
+
+    @Override
+    public int getOrder() {
+        return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 60;
     }
 
 }

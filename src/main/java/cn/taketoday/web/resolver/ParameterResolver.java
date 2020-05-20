@@ -17,19 +17,42 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.web.resolver.method;
+package cn.taketoday.web.resolver;
 
-import cn.taketoday.context.Ordered;
+import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 19:36
+ *         2019-07-07 23:24
  */
-public interface OrderedParameterResolver extends ParameterResolver, Ordered {
+@FunctionalInterface
+public interface ParameterResolver {
 
-    @Override
-    default int getOrder() {
-        return LOWEST_PRECEDENCE;
+    /**
+     * Whether the given parameter is supported by this resolver.
+     */
+    default boolean supports(MethodParameter parameter) {
+        return true;
+    }
+
+    /**
+     * Resolve parameter
+     * 
+     * @param context
+     *            Current request Context
+     * @param parameter
+     *            parameter
+     * @throws Throwable
+     *             if any {@link Exception} occurred
+     * @return method parameter instances
+     */
+    Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable;
+
+    @FunctionalInterface
+    public interface SupportsFunction {
+
+        boolean supports(MethodParameter parameter);
     }
 
 }
