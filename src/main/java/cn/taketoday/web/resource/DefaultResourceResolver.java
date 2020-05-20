@@ -26,11 +26,14 @@ import java.net.URI;
 import java.net.URL;
 
 import cn.taketoday.context.PathMatcher;
+import cn.taketoday.context.io.PathMatchingResourcePatternResolver;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.io.ResourceFilter;
+import cn.taketoday.context.io.ResourceResolver;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.MediaType;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.handler.ResourceMatchResult;
@@ -43,6 +46,8 @@ import cn.taketoday.web.utils.WebUtils;
 public class DefaultResourceResolver implements WebResourceResolver {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultResourceResolver.class);
+
+    private ResourceResolver resourceResolver = new PathMatchingResourcePatternResolver();
 
     @Override
     public WebResource resolveResource(final ResourceMatchResult matchResult) {
@@ -68,18 +73,21 @@ public class DefaultResourceResolver implements WebResourceResolver {
         else {
             extractPathWithinPattern = requestPath;
         }
+        final ResourceResolver resourceResolver = getResourceResolver();
 
         // log.debug("resource: [{}]", extractPathWithinPattern);
         for (final String location : matchResult.getMapping().getLocations()) {
             try {
                 // log.debug("look in: [{}]", location);
-                // TODO
-                final Resource createRelative = //
-                        ResourceUtils.getResource(location).createRelative(extractPathWithinPattern);
-
-                if (createRelative.exists()) {
-                    // log.debug("Relative Resource: [{}]", createRelative);
-                    return DefaultDelegateWebResource.create(createRelative);
+                final Resource[] resources = resourceResolver.getResources(location);
+                if (ObjectUtils.isNotEmpty(resources)) {
+                    for (final Resource resource : resources) {
+                        final Resource createRelative = resource.createRelative(extractPathWithinPattern);
+                        if (createRelative.exists()) {
+                            // log.debug("Relative Resource: [{}]", createRelative);
+                            return DefaultDelegateWebResource.create(createRelative);
+                        }
+                    }
                 }
             }
             catch (IOException e) {}
@@ -108,6 +116,14 @@ public class DefaultResourceResolver implements WebResourceResolver {
             return true;
         }
         return false;
+    }
+
+    public ResourceResolver getResourceResolver() {
+        return resourceResolver;
+    }
+
+    public void setResourceResolver(ResourceResolver resourceResolver) {
+        this.resourceResolver = resourceResolver;
     }
 
     public static class DefaultDelegateWebResource implements WebResource {
