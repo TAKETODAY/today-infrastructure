@@ -19,64 +19,53 @@
  */
 package cn.taketoday.web;
 
-import java.util.Map;
-
 import javax.servlet.ServletContext;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
 
-import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-12-24 19:17
  */
 @Getter
 @Setter
 public class Base {
 
-    private ServletContext servletContext;
-
-    private StandardWebServletApplicationContext applicationContext;
-    long start = System.currentTimeMillis();
+    protected Jetty jetty;
+    protected ServletContext servletContext;
+    protected long start = System.currentTimeMillis();
+    protected StandardWebServletApplicationContext context;
 
     @Before
     public void before() {
-
-        servletContext = Mockito.mock(ServletContext.class);
-        Mockito.when(servletContext.getContextPath()).thenReturn("");
-        applicationContext = new StandardWebServletApplicationContext();
-
-        applicationContext.setServletContext(servletContext);
-
-        applicationContext.getEnvironment().addActiveProfile("test");
-        applicationContext.loadContext("test.web");
+        final Jetty jetty = getJetty();
+        jetty.start();
+        context = jetty.getApplicationContext();
+        servletContext = context.getServletContext();
     }
 
     @After
     public void after() {
-        if (applicationContext != null) {
-            applicationContext.close();
+        if (context != null) {
+            context.close();
+            getJetty().stop();
         }
     }
 
-    @Test
-    public void test_() {
-        System.err.println(System.currentTimeMillis() - start);
-        Map<String, BeanDefinition> beanDefinitionsMap = applicationContext.getBeanDefinitions();
+    public Jetty getJetty() {
+        if (jetty == null) {
+            jetty = createJetty();
+        }
+        return jetty;
+    }
 
-        System.err.println(beanDefinitionsMap);
-        //		for (Class<?> class1 : ClassUtils.getClassCache()) {
-        //			System.err.println(class1);
-        //		}
-
+    protected Jetty createJetty() {
+        return new Jetty();
     }
 
 }
