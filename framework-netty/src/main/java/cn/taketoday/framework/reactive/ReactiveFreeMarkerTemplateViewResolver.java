@@ -21,9 +21,7 @@ package cn.taketoday.framework.reactive;
 
 import java.util.Map;
 
-import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.config.WebMvcConfiguration;
@@ -41,7 +39,6 @@ import freemarker.template.utility.ObjectWrapperWithAPISupport;
  *         2019-11-22 13:25
  */
 @Props(prefix = "web.mvc.view.")
-@Order(Ordered.LOWEST_PRECEDENCE - 100)
 public class ReactiveFreeMarkerTemplateViewResolver
         extends AbstractFreeMarkerTemplateViewResolver implements WebMvcConfiguration {
 
