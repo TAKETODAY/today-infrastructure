@@ -271,7 +271,9 @@ public class CandidateComponentScanner {
      * @since 2.1.6
      */
     protected void scan(final Resource resource, final String packageName) throws IOException {
-
+        if (log.isTraceEnabled()) {
+            log.trace("Scanning candidate components in [{}]", resource.getLocation());
+        }
         if (resource instanceof FileBasedResource) {
             if (resource.isDirectory()) {
                 findInDirectory(resource);
@@ -314,6 +316,7 @@ public class CandidateComponentScanner {
     public Set<Class<?>> scan() {
 
         final ClassLoader classLoader = getClassLoader();
+        log.debug("Use ClassLoader [{}] to scan", classLoader);
         try {
             final String blank = Constant.BLANK;
             if (classLoader instanceof URLClassLoader) {
@@ -329,7 +332,7 @@ public class CandidateComponentScanner {
             return getScanningCandidates();
         }
         catch (IOException e) {
-            throw new ContextException("IO exception occur With Msg: [" + e + ']', e);
+            throw new ContextException("IO exception occur When scan all the classpath classes, With Msg: [" + e + ']', e);
         }
     }
 
