@@ -45,6 +45,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
      * Get configurable environment
      * 
      * @since 2.1.0
+     * @return {@link ConfigurableEnvironment} never be null
      */
     @Override
     ConfigurableEnvironment getEnvironment();

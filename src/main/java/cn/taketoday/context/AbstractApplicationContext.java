@@ -35,7 +35,6 @@ import java.util.Set;
 
 import cn.taketoday.context.annotation.ContextListener;
 import cn.taketoday.context.env.ConfigurableEnvironment;
-import cn.taketoday.context.env.DefaultBeanNameCreator;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.env.StandardEnvironment;
 import cn.taketoday.context.event.ApplicationEventCapable;
@@ -241,12 +240,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         if (environment.getBeanDefinitionLoader() == null) {
             environment.setBeanDefinitionLoader(beanFactory.getBeanDefinitionLoader());
         }
-
         // register framework beans
+        log.debug("Registering framework beans");
         registerFrameworkBeans(beanFactory.getBeanNameCreator());
-
         // Loading candidates components
+        log.debug("Loading candidates components");
         final Set<Class<?>> candidates = getComponentCandidates();
+        log.debug("There are [{}] candidates components in [{}]", candidates.size(), this);
         // register listener
         registerListener(candidates, applicationListeners);
 
@@ -518,17 +518,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             return this.environment = createEnvironment();
         }
         return environment;
-    }
-
-    /**
-     * create {@link BeanNameCreator}
-     * 
-     * @deprecated Deprecated in 2.1.7 This method shouldn't be here
-     * @return a default {@link BeanNameCreator}
-     */
-    @Deprecated
-    protected BeanNameCreator createBeanNameCreator() {
-        return new DefaultBeanNameCreator(getEnvironment());
     }
 
     /**
