@@ -21,6 +21,7 @@ package cn.taketoday.web.view.template;
 
 import java.util.Locale;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import lombok.Getter;
@@ -32,12 +33,18 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public abstract class AbstractTemplateViewResolver implements TemplateViewResolver {
+public abstract class AbstractTemplateViewResolver extends OrderedSupport implements TemplateViewResolver {
 
     protected Locale locale = Locale.CHINA;
     protected String suffix = Constant.BLANK;
     protected String prefix = Constant.DEFAULT_TEMPLATE_PATH;
     protected String encoding = Constant.DEFAULT_ENCODING;
+
+    public AbstractTemplateViewResolver() {}
+
+    public AbstractTemplateViewResolver(int order) {
+        super(order);
+    }
 
     /**
      * Prepare a template

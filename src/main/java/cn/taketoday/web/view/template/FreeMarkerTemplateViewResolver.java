@@ -27,10 +27,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
 import cn.taketoday.context.utils.Assert;
@@ -60,7 +58,6 @@ import freemarker.template.TemplateHashModel;
  *         2018-06-26 19:16:46
  */
 @Props(prefix = "web.mvc.view.")
-@Order(Ordered.LOWEST_PRECEDENCE - 100)
 @MissingBean(type = TemplateViewResolver.class)
 @ConditionalOnClass({ Constant.ENV_SERVLET, "freemarker.template.Configuration" })
 public class FreeMarkerTemplateViewResolver

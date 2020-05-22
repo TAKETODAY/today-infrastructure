@@ -67,6 +67,7 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
     private Configuration configuration;
 
     public AbstractFreeMarkerTemplateViewResolver() {
+        super(LOWEST_PRECEDENCE - 100);
         setSuffix(".ftl");
     }
 

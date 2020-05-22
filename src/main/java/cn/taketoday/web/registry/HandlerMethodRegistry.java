@@ -41,9 +41,7 @@ import java.util.Set;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.EmptyObject;
-import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.MissingBean;
-import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -77,7 +75,6 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
  *         2018-07-1 20:47:06
  */
 @MissingBean
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class HandlerMethodRegistry extends MappedHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
 
     private Properties variables;
@@ -94,7 +91,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
     }
 
     public HandlerMethodRegistry(Map<String, Object> handlers) {
-        this(handlers, LOWEST_PRECEDENCE);
+        this(handlers, HIGHEST_PRECEDENCE);
     }
 
     public HandlerMethodRegistry(Map<String, Object> handlers, int order) {
