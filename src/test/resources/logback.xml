@@ -19,7 +19,7 @@
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  -->
 <configuration>
-    <contextName>TODAY WEB</contextName>
+    <contextName>TODAY WEB TEST</contextName>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -30,7 +30,7 @@
 <!-- 	
 	<root level="INFO">
 -->
-    <root level="INFO, DEBUG">
+    <root level="TRACE">
         <appender-ref ref="STDOUT" />
     </root>
 
