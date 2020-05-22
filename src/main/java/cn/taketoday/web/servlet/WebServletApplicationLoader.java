@@ -260,6 +260,7 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
                 ret = doCreateDispatcher(context);
                 initializer.setServlet(ret);
             }
+            return ret;
         }
         return doCreateDispatcher(context);
     }
