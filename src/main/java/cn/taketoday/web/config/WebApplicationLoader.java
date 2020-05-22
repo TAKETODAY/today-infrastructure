@@ -138,7 +138,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         }
     }
 
-    private void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries, WebMvcConfiguration mvcConfiguration) {
+    protected void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries, WebMvcConfiguration mvcConfiguration) {
         mvcConfiguration.configureHandlerRegistry(handlerRegistries);
         final DispatcherHandler obtainDispatcher = obtainDispatcher();
         if (obtainDispatcher.getHandlerRegistry() == null) {
