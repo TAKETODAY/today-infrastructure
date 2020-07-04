@@ -21,18 +21,15 @@ package cn.taketoday.web.exception;
 
 import cn.taketoday.context.utils.DataSize;
 import cn.taketoday.web.annotation.ResponseStatus;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author TODAY <br>
  *         2018-07-10 21:42:16
  */
-@Setter
-@Getter
 @ResponseStatus(400)
-@SuppressWarnings("serial")
 public class FileSizeExceededException extends WebRuntimeException {
+
+    private static final long serialVersionUID = 1L;
 
     /** The actual size of the request. */
     private DataSize actual;
@@ -42,6 +39,19 @@ public class FileSizeExceededException extends WebRuntimeException {
     public FileSizeExceededException(DataSize permitted, Throwable cause) {
         super("The upload file exceeds its maximum permitted size: [" + permitted + "]", cause);
         this.permitted = permitted;
+    }
+
+    public DataSize getActual() {
+        return actual;
+    }
+
+    public DataSize getPermitted() {
+        return permitted;
+    }
+
+    public FileSizeExceededException setActual(DataSize actual) {
+        this.actual = actual;
+        return this;
     }
 
 }

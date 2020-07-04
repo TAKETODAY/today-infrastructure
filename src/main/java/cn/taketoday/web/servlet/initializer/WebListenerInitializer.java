@@ -26,15 +26,13 @@ import javax.servlet.ServletContext;
 
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.logger.LoggerFactory;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
+ * Initialize a Servlet Listener
+ * 
  * @author TODAY <br>
  *         2019-02-25 17:59
  */
-@Setter
-@Getter
 public class WebListenerInitializer<T extends EventListener>
         extends OrderedSupport implements ServletContextInitializer {
 
@@ -53,6 +51,16 @@ public class WebListenerInitializer<T extends EventListener>
             LoggerFactory.getLogger(WebListenerInitializer.class).debug("Configure listener registration: [{}]", this);
             servletContext.addListener(listener);
         }
+    }
+
+    // ----------
+
+    public T getListener() {
+        return listener;
+    }
+
+    public void setListener(T listener) {
+        this.listener = listener;
     }
 
     @Override

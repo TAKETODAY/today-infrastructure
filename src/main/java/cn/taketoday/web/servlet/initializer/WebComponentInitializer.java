@@ -27,21 +27,21 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.servlet.Filter;
 import javax.servlet.Registration;
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.StringUtils;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
+ * Initialize {@link Filter}, {@link Servlet},Listener
+ * 
  * @author TODAY <br>
  *         2019-02-03 12:22
  */
-@Getter
-@Setter
 public abstract class WebComponentInitializer<D extends Registration.Dynamic>
         extends OrderedSupport implements ServletContextInitializer {
 
@@ -110,6 +110,28 @@ public abstract class WebComponentInitializer<D extends Registration.Dynamic>
 
     protected String getDefaultName() {
         return null;
+    }
+
+    // -----------
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isAsyncSupported() {
+        return asyncSupported;
+    }
+
+    public void setAsyncSupported(boolean asyncSupported) {
+        this.asyncSupported = asyncSupported;
+    }
+
+    public ServletContext getServletContext() {
+        return servletContext;
+    }
+
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
     }
 
 }

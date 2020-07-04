@@ -30,15 +30,11 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author TODAY <br>
  *         2019-02-03 12:28
  */
-@Setter
-@Getter
 public class WebServletInitializer<T extends Servlet> extends WebComponentInitializer<ServletRegistration.Dynamic> {
 
     private T servlet;
@@ -50,16 +46,6 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
 
     public WebServletInitializer(T servlet) {
         this.servlet = servlet;
-    }
-
-    /**
-     * Returns the {@link MultipartConfigElement multi-part configuration} to be
-     * applied or {@code null}.
-     * 
-     * @return the multipart config
-     */
-    public MultipartConfigElement getMultipartConfig() {
-        return this.multipartConfig;
     }
 
     @Override
@@ -112,6 +98,10 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
         }
     }
 
+    public void setServlet(T servlet) {
+        this.servlet = servlet;
+    }
+
     public T getServlet() {
         return servlet;
     }
@@ -124,6 +114,38 @@ public class WebServletInitializer<T extends Servlet> extends WebComponentInitia
             return servlet.getClass().getName();
         }
         return null;
+    }
+
+    // ---------------
+
+    public int getLoadOnStartup() {
+        return loadOnStartup;
+    }
+
+    public void setLoadOnStartup(int loadOnStartup) {
+        this.loadOnStartup = loadOnStartup;
+    }
+
+    /**
+     * Returns the {@link MultipartConfigElement multi-part configuration} to be
+     * applied or {@code null}.
+     * 
+     * @return the multipart config
+     */
+    public MultipartConfigElement getMultipartConfig() {
+        return this.multipartConfig;
+    }
+
+    public void setMultipartConfig(MultipartConfigElement multipartConfig) {
+        this.multipartConfig = multipartConfig;
+    }
+
+    public ServletSecurityElement getServletSecurity() {
+        return servletSecurity;
+    }
+
+    public void setServletSecurity(ServletSecurityElement servletSecurity) {
+        this.servletSecurity = servletSecurity;
     }
 
     @Override
