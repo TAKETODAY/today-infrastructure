@@ -30,7 +30,6 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.OrderUtils;
-import lombok.Getter;
 
 /**
  * @author TODAY <br>
@@ -40,13 +39,12 @@ public enum AspectsRegistry {
 
     ASPECTS_REGISTRY;
 
-    @Getter
     private final List<Object> aspects = new ArrayList<>();
 
     private boolean aspectsLoaded;
 
     public void addAspect(Object aspect) {
-        aspects.add(aspect);
+        getAspects().add(aspect);
     }
 
     public static AspectsRegistry getInstance() {
@@ -54,7 +52,7 @@ public enum AspectsRegistry {
     }
 
     public void sortAspects() {
-        OrderUtils.reversedSort(aspects);
+        OrderUtils.reversedSort(getAspects());
     }
 
     public boolean isAspectsLoaded() {
@@ -93,6 +91,10 @@ public enum AspectsRegistry {
         catch (Throwable e) {
             throw new ConfigurationException(e);
         }
+    }
+
+    public List<Object> getAspects() {
+        return aspects;
     }
 
 }

@@ -26,16 +26,11 @@ import java.util.Map;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * 
  * @author TODAY <br>
  *         2018-11-10 11:47
  */
-@Getter
-@Setter
 public class TargetSource {
 
     private Object target;
@@ -47,6 +42,38 @@ public class TargetSource {
         this.target = target;
         this.targetClass = targetClass;
         this.interfaces = targetClass.getInterfaces();
+    }
+
+    public Object getTarget() {
+        return target;
+    }
+
+    public void setTarget(Object target) {
+        this.target = target;
+    }
+
+    public Class<?> getTargetClass() {
+        return targetClass;
+    }
+
+    public void setTargetClass(Class<?> targetClass) {
+        this.targetClass = targetClass;
+    }
+
+    public Class<?>[] getInterfaces() {
+        return interfaces;
+    }
+
+    public void setInterfaces(Class<?>[] interfaces) {
+        this.interfaces = interfaces;
+    }
+
+    public Map<Method, List<MethodInterceptor>> getAspectMappings() {
+        return aspectMappings;
+    }
+
+    public void setAspectMappings(Map<Method, List<MethodInterceptor>> aspectMappings) {
+        this.aspectMappings = aspectMappings;
     }
 
     @Override

@@ -23,16 +23,12 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 import cn.taketoday.context.EmptyObject;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * 
  * @author TODAY <br>
  *         2019-02-27 18:12
  */
-@Setter
-@Getter
 public class DefaultCacheKey implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -50,29 +46,33 @@ public class DefaultCacheKey implements Serializable {
      */
     public DefaultCacheKey(Object... params) {
         if (params == null) {
-            this.params = EMPTY.params;
+            this.params = EMPTY.getParams();
         }
         else {
             this.params = new Object[params.length];
-            System.arraycopy(params, 0, this.params, 0, params.length);
+            System.arraycopy(params, 0, this.getParams(), 0, params.length);
         }
-        this.hash = Arrays.deepHashCode(this.params);
+        this.hash = Arrays.deepHashCode(this.getParams());
     }
 
     @Override
     public boolean equals(Object other) {
         return (this == other //
-                || (other instanceof DefaultCacheKey && Arrays.deepEquals(this.params, ((DefaultCacheKey) other).params))//
+                || (other instanceof DefaultCacheKey && Arrays.deepEquals(this.getParams(), ((DefaultCacheKey) other).getParams()))//
         );
     }
 
     @Override
-    public final int hashCode() {
+    public int hashCode() {
         return this.hash;
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " " + Arrays.deepToString(this.params);
+        return getClass().getSimpleName() + " " + Arrays.deepToString(this.getParams());
+    }
+
+    public Object[] getParams() {
+        return params;
     }
 }
