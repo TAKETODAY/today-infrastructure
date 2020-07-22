@@ -73,7 +73,7 @@ public abstract class EmitUtils {
 
     public static void factoryMethod(ClassEmitter ce, Signature sig) {
 
-        CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, sig, null);
+        CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, sig);
         e.new_instance_this();
         e.dup();
         e.load_args();
@@ -94,7 +94,7 @@ public abstract class EmitUtils {
      * Process an array on the stack. Assumes the top item on the stack is an array
      * of the specified type. For each element in the array, puts the element on the
      * stack and triggers the callback.
-     * 
+     *
      * @param type
      *            the type of the array (type.isArray() must be true)
      * @param callback
@@ -130,7 +130,7 @@ public abstract class EmitUtils {
      * stack are arrays of the specified class. The arrays must be the same length.
      * For each pair of elements in the arrays, puts the pair on the stack and
      * triggers the callback.
-     * 
+     *
      * @param type
      *            the type of the arrays (type.isArray() must be true)
      * @param callback
@@ -585,7 +585,7 @@ public abstract class EmitUtils {
      * If both objects on the top of the stack are non-null, does nothing. If one is
      * null, or both are null, both are popped off and execution branches to the
      * respective label.
-     * 
+     *
      * @param oneNull
      *            label to branch to if only one of the objects is null
      * @param bothNull

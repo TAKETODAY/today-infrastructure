@@ -196,7 +196,7 @@ public class ClassEmitter extends ClassTransformer {
         }
         if (staticHook == null) {
             staticHookSig = new Signature("TODAY$STATICHOOK" + getNextHook(), "()V");
-            staticHook = beginMethod(Constant.ACC_STATIC, staticHookSig, null);
+            staticHook = beginMethod(Constant.ACC_STATIC, staticHookSig);
             if (staticInit != null) {
                 staticInit.invoke_static_this(staticHookSig);
             }
@@ -286,7 +286,7 @@ public class ClassEmitter extends ClassTransformer {
     }
 
     public CodeEmitter begin_static() {
-        return beginMethod(Constant.ACC_STATIC, Constant.SIG_STATIC, null);
+        return beginMethod(Constant.ACC_STATIC, Constant.SIG_STATIC);
     }
 
     public void declare_field(int access, String name, Type type, Object value) {

@@ -85,7 +85,7 @@ public interface Constant extends Opcodes, Serializable {
     Type TYPE_SIGNATURE = parseType(Signature.class);
 
     String STATIC_NAME = "<clinit>";
-    String SOURCE_FILE = "<generated>";
+    String SOURCE_FILE = "<cglibGenerated>";
     String SUID_FIELD_NAME = "serialVersionUID";
 
     int PRIVATE_FINAL_STATIC = ACC_PRIVATE | ACC_FINAL | ACC_STATIC;

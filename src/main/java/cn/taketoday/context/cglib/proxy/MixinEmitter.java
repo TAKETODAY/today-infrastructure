@@ -66,23 +66,25 @@ class MixinEmitter extends ClassEmitter {
         e.return_value();
         e.end_method();
 
-        HashSet<Object> unique = new HashSet<>();
+        final HashSet<Object> unique = new HashSet<>();
+        final int accVarargs = Constant.ACC_VARARGS;
+
         for (int i = 0; i < classes.length; i++) {
             Method[] methods = getMethods(classes[i]);
-            for (int j = 0; j < methods.length; j++) {
-                if (unique.add(MethodWrapper.create(methods[j]))) {
-                    MethodInfo method = ReflectUtils.getMethodInfo(methods[j]);
+            for (final Method method : methods) {
+                if (unique.add(MethodWrapper.create(method))) {
+                    MethodInfo methodInfo = ReflectUtils.getMethodInfo(method);
                     int modifiers = ACC_PUBLIC;
-                    if ((method.getModifiers() & Constant.ACC_VARARGS) == Constant.ACC_VARARGS) {
-                        modifiers |= Constant.ACC_VARARGS;
+                    if ((methodInfo.getModifiers() & accVarargs) == accVarargs) {
+                        modifiers |= accVarargs;
                     }
-                    e = EmitUtils.beginMethod(this, method, modifiers);
+                    e = EmitUtils.beginMethod(this, methodInfo, modifiers);
                     e.load_this();
                     e.getfield(FIELD_NAME);
                     e.aaload((route != null) ? route[i] : i);
-                    e.checkcast(method.getClassInfo().getType());
+                    e.checkcast(methodInfo.getClassInfo().getType());
                     e.load_args();
-                    e.invoke(method);
+                    e.invoke(methodInfo);
                     e.return_value();
                     e.end_method();
                 }
