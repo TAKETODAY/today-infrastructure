@@ -40,7 +40,7 @@ import cn.taketoday.context.utils.ExceptionUtils;
 
 /**
  * @author TODAY <br>
- *         2018-11-10 11:26
+ * 2018-11-10 11:26
  */
 public abstract class AbstractAdvice implements Advice, MethodInterceptor {
 
@@ -91,41 +91,44 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
      * Invoke advice method
      *
      * @param i
-     *            Target method invocation
+     *     Target method invocation
      * @param returnValue
-     *            Target method return value
+     *     Target method return value
      * @param throwable
-     *            Target method throws {@link Exception}
+     *     Target method throws {@link Exception}
+     *
      * @throws Throwable
-     *             If any {@link Exception} occurred
+     *     If any {@link Exception} occurred
      */
     protected Object invokeAdviceMethod(final MethodInvocation i,
                                         final Object returnValue,
                                         final Throwable throwable) throws Throwable //
     {
-        return invoker.invoke(aspect, adviceParameterLength == 0 ? null : resolveParameter(i, returnValue, throwable));
+        return invoker.invoke(aspect,
+                              adviceParameterLength == 0 ? null : resolveParameter(i, returnValue, throwable));
     }
 
     /**
      * Resolve method parameter list
      *
      * @param invocation
-     *            The join point
-     * @param value
-     *            The method returned value
+     *     The join point
+     * @param returnedValue
+     *     The method returned value
      * @param ex
-     *            The exception
+     *     The exception
+     *
      * @return Method parameter list
      */
     @SuppressWarnings("unchecked")
-    protected Object[] resolveParameter(final MethodInvocation invocation, final Object value, final Throwable ex) {
-
-        final int adviceParameterLength = this.adviceParameterLength;
-
-        final Object[] args = new Object[adviceParameterLength];
-        final Class<?>[] adviceParameterTypes = this.adviceParameterTypes;
+    protected Object[] resolveParameter(final MethodInvocation invocation,
+                                        final Object returnedValue, final Throwable ex) {
 
         final byte[] adviceParameters = this.adviceParameters;
+        final Object[] args = new Object[adviceParameterLength];
+        final int adviceParameterLength = this.adviceParameterLength;
+        final Class<?>[] adviceParameterTypes = this.adviceParameterTypes;
+
         for (int i = 0; i < adviceParameterLength; i++) {
             switch (adviceParameters[i]) {
                 case Constant.TYPE_THROWING: {
@@ -160,16 +163,14 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
                     args[i] = invocation.getArguments();
                     break;
                 case Constant.TYPE_RETURNING:
-                    args[i] = value;
+                    args[i] = returnedValue;
                     break;
-                case Constant.TYPE_ANNOTATED: {
+                case Constant.TYPE_ANNOTATED:
                     args[i] = resolveAnnotation(invocation, (Class<? extends Annotation>) adviceParameterTypes[i]);
                     break;
-                }
-                case Constant.TYPE_JOIN_POINT: {
+                case Constant.TYPE_JOIN_POINT:
                     args[i] = invocation;
                     break;
-                }
                 default: {
                     Class<?> parameterType = adviceParameterTypes[i];
                     if (Joinpoint.class.isAssignableFrom(parameterType)) {
@@ -186,8 +187,8 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
                             args[i] = throwable;
                         }
                     }
-                    if (value != null && parameterType.isAssignableFrom(value.getClass())) {
-                        args[i] = value;
+                    if (returnedValue != null && parameterType.isAssignableFrom(returnedValue.getClass())) {
+                        args[i] = returnedValue;
                     }
                     break;
                 }
@@ -200,13 +201,14 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
      * Resolve an annotation
      *
      * @param methodInvocation
-     *            The join point
+     *     The join point
      * @param annotationClass
-     *            Given annotation class
+     *     Given annotation class
+     *
      * @return Annotation
      */
-    private final Object resolveAnnotation(MethodInvocation methodInvocation,
-                                           Class<? extends Annotation> annotationClass) {
+    private Object resolveAnnotation(MethodInvocation methodInvocation,
+                                     Class<? extends Annotation> annotationClass) {
         final Method method = methodInvocation.getMethod();
         Annotation annotation = method.getAnnotation(annotationClass);
         if (annotation == null) {
