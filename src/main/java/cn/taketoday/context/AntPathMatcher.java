@@ -383,9 +383,7 @@ public class AntPathMatcher implements PathMatcher {
     /**
      * Tokenize the given path pattern into parts, based on this matcher's settings.
      * <p>
-     * Performs caching based on {@link #setCachePatterns}, delegating to
-     * {@link #tokenizePath(String)} for the actual tokenization algorithm.
-     * 
+     *
      * @param pattern
      *            the pattern to tokenize
      * @return the tokenized pattern parts
@@ -428,10 +426,6 @@ public class AntPathMatcher implements PathMatcher {
     /**
      * Build or retrieve an {@link AntPathStringMatcher} for the given pattern.
      * <p>
-     * The default implementation checks this AntPathMatcher's internal cache (see
-     * {@link #setCachePatterns}), creating a new AntPathStringMatcher instance if
-     * no cached copy is found.
-     * <p>
      * When encountering too many patterns to cache at runtime (the threshold is
      * 65536), it turns the default cache off, assuming that arbitrary permutations
      * of patterns are coming in, with little chance for encountering a recurring
@@ -442,7 +436,6 @@ public class AntPathMatcher implements PathMatcher {
      * @param pattern
      *            the pattern to match against (never {@code null})
      * @return a corresponding AntPathStringMatcher (never {@code null})
-     * @see #setCachePatterns
      */
     protected AntPathStringMatcher getStringMatcher(String pattern) {
         AntPathStringMatcher matcher = this.stringMatcherCache.get(pattern);
@@ -746,7 +739,7 @@ public class AntPathMatcher implements PathMatcher {
 
         private final Pattern pattern;
 
-        private final List<String> variableNames;
+        private final ArrayList<String> variableNames;
 
         public AntPathStringMatcher(String pattern) {
             this(pattern, true);
@@ -756,7 +749,7 @@ public class AntPathMatcher implements PathMatcher {
             StringBuilder patternBuilder = new StringBuilder();
             Matcher matcher = GLOB_PATTERN.matcher(pattern);
             int end = 0;
-            final List<String> variableNames = new ArrayList<>(4);
+            final ArrayList<String> variableNames = new ArrayList<>(4);
             while (matcher.find()) {
                 patternBuilder.append(quote(pattern, end, matcher.start()));
                 String match = matcher.group();
@@ -830,7 +823,7 @@ public class AntPathMatcher implements PathMatcher {
                 if (uriTemplateVariables != null) {
                     // SPR-8455
                     final int groupCount = matcher.groupCount();
-                    final List<String> variableNames = this.variableNames;
+                    final ArrayList<String> variableNames = this.variableNames;
                     if (variableNames.size() != groupCount) {
                         throwIllegalArgumentException();
                     }

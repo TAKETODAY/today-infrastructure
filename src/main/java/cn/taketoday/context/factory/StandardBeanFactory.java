@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -70,7 +70,7 @@ import cn.taketoday.context.utils.StringUtils;
 
 /**
  * Standard {@link BeanFactory} implementation
- * 
+ *
  * @author TODAY <br>
  *         2019-03-23 15:00
  */
@@ -136,7 +136,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Load {@link Configuration} beans from input bean class
-     * 
+     *
      * @param def
      *            current {@link Configuration} bean
      * @since 2.1.7
@@ -172,8 +172,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     {
         final Class<?> returnType = method.getReturnType();
 
-        final ConfigurableApplicationContext applicationContext = getApplicationContext();
-        final ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        final ConfigurableEnvironment environment = getApplicationContext().getEnvironment();
         final Properties properties = environment.getProperties();
         //final String defaultBeanName = beanNameCreator.create(returnType); // @Deprecated in v2.1.7, use method name instead
         final String defaultBeanName = method.getName(); // @since v2.1.7
@@ -205,7 +204,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Load missing beans, default beans
-     * 
+     *
      * @param beanClasses
      *            Class set
      */
@@ -251,7 +250,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Register {@link MissingBean}
-     * 
+     *
      * @param missingBean
      *            {@link MissingBean} metadata
      * @param beanDefinition
@@ -274,7 +273,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Get bean name
-     * 
+     *
      * @param missingBean
      *            {@link MissingBean}
      * @param beanClass
@@ -291,7 +290,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Resolve bean from META-INF/beans
-     * 
+     *
      * @since 2.1.6
      */
     public Set<Class<?>> loadMetaInfoBeans() {
@@ -317,7 +316,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Load {@link Import} beans from input bean classes
-     * 
+     *
      * @param beans
      *            Input bean classes
      * @since 2.1.7
@@ -330,7 +329,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Load {@link Import} beans from input {@link BeanDefinition}s
-     * 
+     *
      * @param defs
      *            Input {@link BeanDefinition}s
      * @since 2.1.7
@@ -344,7 +343,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Load {@link Import} beans from input {@link BeanDefinition}
-     * 
+     *
      * @param def
      *            Input {@link BeanDefinition}
      * @since 2.1.7
@@ -362,12 +361,12 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Select import
-     * 
+     *
      * @since 2.1.7
      */
     protected void selectImport(final BeanDefinition def, final Class<?> importClass) {
         log.debug("Importing: [{}]", importClass);
-        
+
         BeanDefinition importDef = createBeanDefinition(importClass);
         register(importDef);
         loadConfigurationBeans(importDef); // scan config bean
@@ -387,7 +386,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
     /**
      * Create {@link ImportSelector} ,or {@link BeanDefinitionImporter},
      * {@link ApplicationListener} object
-     * 
+     *
      * @param target
      *            Must be {@link ImportSelector} ,or {@link BeanDefinitionImporter}
      * @return {@link ImportSelector} object
@@ -469,7 +468,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Build a bean definition
-     * 
+     *
      * @param beanClass
      *            Given bean class
      * @param attributes
@@ -477,8 +476,6 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      * @param beanName
      *            Bean name
      * @return A default {@link BeanDefinition}
-     * @throws Throwable
-     *             If any {@link Exception} occurred
      */
     protected BeanDefinition build(final String beanName,
                                    final Class<?> beanClass,
@@ -488,7 +485,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Register bean definition with given name
-     * 
+     *
      * @param name
      *            Bean name
      * @param def
@@ -540,7 +537,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Process after register {@link BeanDefinition}
-     * 
+     *
      * @param targetDef
      *            Target {@link BeanDefinition}
      */
@@ -563,7 +560,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Import beans from given package locations
-     * 
+     *
      * @param source
      *            {@link BeanDefinition} that annotated {@link ComponentScan}
      */
@@ -578,9 +575,9 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
 
     /**
      * Register {@link FactoryBeanDefinition} to the {@link BeanFactory}
-     * 
-     * @param beanName
-     *            Target bean name
+     *
+     * @param oldBeanName
+     *            Target old bean name
      * @param factoryDef
      *            {@link FactoryBean} Bean definition
      * @throws Throwable
@@ -588,7 +585,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      */
     protected void registerFactoryBean(final String oldBeanName, final BeanDefinition factoryDef) throws Throwable {
 
-        final FactoryBeanDefinition<?> def = //
+        final FactoryBeanDefinition<?> def =
                 factoryDef instanceof FactoryBeanDefinition
                         ? (FactoryBeanDefinition<?>) factoryDef
                         : new FactoryBeanDefinition<>(factoryDef, this);

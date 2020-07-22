@@ -1,7 +1,7 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,18 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.context.utils;
-
-import static cn.taketoday.context.Constant.VALUE;
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
-import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
-import static cn.taketoday.context.utils.ClassUtils.getUserClass;
-import static cn.taketoday.context.utils.OrderUtils.reversedSort;
-import static cn.taketoday.context.utils.ResourceUtils.getResource;
-import static java.util.Objects.requireNonNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -95,12 +86,21 @@ import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
 
+import static cn.taketoday.context.Constant.VALUE;
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
+import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
+import static cn.taketoday.context.utils.ClassUtils.getUserClass;
+import static cn.taketoday.context.utils.OrderUtils.reversedSort;
+import static cn.taketoday.context.utils.ResourceUtils.getResource;
+import static java.util.Objects.requireNonNull;
+
 /**
  * This class provides el, {@link Properties} loading, {@link Parameter}
  * resolving
- * 
+ *
  * @author TODAY <br>
- *         2019-01-16 20:04
+ * 2019-01-16 20:04
  */
 public abstract class ContextUtils {
 
@@ -122,17 +122,15 @@ public abstract class ContextUtils {
 
         setParameterResolvers(new MapParameterResolver(),
                               new AutowiredParameterResolver(),
-                              delegate((p) -> p.isAnnotationPresent(Env.class), (p, b) -> {
-                                  return ContextUtils.resolveValue(p.getAnnotation(Env.class), p.getType());
-                              }),
-                              delegate((p) -> p.isAnnotationPresent(Value.class), (p, b) -> {
-                                  return ContextUtils.resolveValue(p.getAnnotation(Value.class), p.getType());
-                              }));
+                              delegate((p) -> p.isAnnotationPresent(Env.class),
+                                       (p, b) -> ContextUtils.resolveValue(p.getAnnotation(Env.class), p.getType())),
+                              delegate((p) -> p.isAnnotationPresent(Value.class),
+                                       (p, b) -> ContextUtils.resolveValue(p.getAnnotation(Value.class), p.getType())));
     }
 
     /**
      * Get {@link ApplicationContext}
-     * 
+     *
      * @return {@link ApplicationContext}
      */
     public static ApplicationContext getApplicationContext() {
@@ -141,7 +139,7 @@ public abstract class ContextUtils {
 
     /**
      * Get shared {@link ExpressionProcessor}
-     * 
+     *
      * @return Shared {@link ExpressionProcessor}
      */
     public static ExpressionProcessor getExpressionProcessor() {
@@ -169,9 +167,9 @@ public abstract class ContextUtils {
 
     /**
      * {@link ExpressionProcessor}
-     * 
-     * @param elProcessor
-     *            A new elProcessor
+     *
+     * @param processor
+     *     A new elProcessor
      */
     public static void setExpressionProcessor(final ExpressionProcessor processor) {
         elProcessor = nonNull(processor, "ExpressionProcessor must not be null");
@@ -198,9 +196,10 @@ public abstract class ContextUtils {
 
     /**
      * Add {@link PropertyValueResolver} to {@link #propertyValueResolvers}
-     * 
+     *
      * @param resolvers
-     *            {@link TypeConverter} object
+     *     {@link TypeConverter} object
+     *
      * @since 2.1.7
      */
     public static void addPropertyValueResolvers(final PropertyValueResolver... resolvers) {
@@ -218,11 +217,12 @@ public abstract class ContextUtils {
 
     /**
      * Find bean names
-     * 
+     *
      * @param defaultName
-     *            Default bean name
+     *     Default bean name
      * @param names
-     *            Annotation values
+     *     Annotation values
+     *
      * @return Bean names
      */
     public static String[] findNames(final String defaultName, final String... names) {
@@ -234,21 +234,23 @@ public abstract class ContextUtils {
 
     /**
      * Resolve {@link Env} {@link Annotation}
-     * 
+     *
      * @param value
-     *            {@link Env} {@link Annotation}
+     *     {@link Env} {@link Annotation}
      * @param expectedType
-     *            expected value type
+     *     expected value type
+     *
      * @return A resolved value object
+     *
      * @since 2.1.6
      */
     @SuppressWarnings("unchecked")
     public static <T> T resolveValue(final Env value, final Class<T> expectedType) throws ConfigurationException {
 
         final Object resolveValue = resolveValue(new StringBuilder()
-                .append(Constant.PLACE_HOLDER_PREFIX)
-                .append(value.value())
-                .append(Constant.PLACE_HOLDER_SUFFIX).toString(), expectedType //
+                                                     .append(Constant.PLACE_HOLDER_PREFIX)
+                                                     .append(value.value())
+                                                     .append(Constant.PLACE_HOLDER_SUFFIX).toString(), expectedType //
         );
 
         if (resolveValue != null) {
@@ -267,12 +269,14 @@ public abstract class ContextUtils {
 
     /**
      * Resolve {@link Value} {@link Annotation}
-     * 
+     *
      * @param value
-     *            {@link Value} {@link Annotation}
+     *     {@link Value} {@link Annotation}
      * @param expectedType
-     *            expected value type
+     *     expected value type
+     *
      * @return A resolved value object
+     *
      * @since 2.1.6
      */
     @SuppressWarnings("unchecked")
@@ -294,12 +298,14 @@ public abstract class ContextUtils {
 
     /**
      * Replace a placeholder use default {@link System} properties source or eval el
-     * 
+     *
      * @param expression
-     *            expression {@link String}
+     *     expression {@link String}
      * @param expectedType
-     *            expected value type
+     *     expected value type
+     *
      * @return A resolved value object
+     *
      * @since 2.1.6
      */
     public static <T> T resolveValue(final String expression, final Class<T> expectedType) throws ConfigurationException {
@@ -308,17 +314,19 @@ public abstract class ContextUtils {
 
     /**
      * replace a placeholder or eval el
-     * 
+     *
      * @param expression
-     *            expression {@link String}
+     *     expression {@link String}
      * @param expectedType
-     *            expected value type
+     *     expected value type
+     *
      * @return A resolved value object
+     *
      * @since 2.1.6
      */
     @SuppressWarnings("unchecked")
     public static <T> T resolveValue(final String expression, final Class<T> expectedType, final Properties variables)
-            throws ConfigurationException //
+        throws ConfigurationException //
     {
         if (expression.contains(Constant.PLACE_HOLDER_PREFIX)) {
             final String replaced = resolvePlaceholder(variables, expression, false);
@@ -338,12 +346,14 @@ public abstract class ContextUtils {
 
     /**
      * Get a {@link InputStream} from given resource string
-     * 
+     *
      * @param resource
-     *            Target resource string
+     *     Target resource string
+     *
      * @return A {@link InputStream}
+     *
      * @throws IOException
-     *             If any IO {@link Exception} occurred
+     *     If any IO {@link Exception} occurred
      */
     public static final InputStream getResourceAsStream(final String resource) throws IOException {
 
@@ -366,12 +376,14 @@ public abstract class ContextUtils {
 
     /**
      * Get {@link InputStream} from a url stirng
-     * 
+     *
      * @param urlString
-     *            Target url string
+     *     Target url string
+     *
      * @return {@link InputStream}
+     *
      * @throws IOException
-     *             If can't get the stream
+     *     If can't get the stream
      */
     public static final InputStream getUrlAsStream(final String urlString) throws IOException {
         return new URL(urlString).openConnection().getInputStream();
@@ -379,12 +391,14 @@ public abstract class ContextUtils {
 
     /**
      * Load {@link Properties} from a url string
-     * 
+     *
      * @param urlString
-     *            Target url string
+     *     Target url string
+     *
      * @return {@link Properties}
+     *
      * @throws IOException
-     *             If any IO {@link Exception} occurred
+     *     If any IO {@link Exception} occurred
      */
     public static final Properties getUrlAsProperties(final String urlString) throws IOException {
         ConcurrentProperties props = new ConcurrentProperties();
@@ -396,14 +410,16 @@ public abstract class ContextUtils {
 
     /**
      * Resolve placeholder s
-     * 
+     *
      * @param properties
-     *            {@link Properties}
+     *     {@link Properties}
      * @param value
-     *            the value will as a key, if don't exist return itself
+     *     the value will as a key, if don't exist return itself
+     *
      * @return A resolved string
+     *
      * @throws ConfigurationException
-     *             If not exist target property
+     *     If not exist target property
      */
     public static String resolvePlaceholder(final Map<Object, Object> properties, final String value) throws ConfigurationException {
         return resolvePlaceholder(properties, value, true);
@@ -411,19 +427,21 @@ public abstract class ContextUtils {
 
     /**
      * Resolve placeholder s
-     * 
+     *
      * @param properties
-     *            {@link Properties} variables source
+     *     {@link Properties} variables source
      * @param input
-     *            Input expression
+     *     Input expression
      * @param throw_
-     *            If there doesn't exist the key throw {@link Exception}
+     *     If there doesn't exist the key throw {@link Exception}
+     *
      * @return A resolved string
+     *
      * @throws ConfigurationException
-     *             If not exist target property
+     *     If not exist target property
      */
     public static String resolvePlaceholder(final Map<Object, Object> properties, String input, final boolean throw_)
-            throws ConfigurationException //
+        throws ConfigurationException //
     {
         if (input == null || input.length() <= 3) { // #{} > 3
             return input;
@@ -433,7 +451,7 @@ public abstract class ContextUtils {
 
         final StringBuilder builder = new StringBuilder();
         while ((prefixIndex = input.indexOf(Constant.PLACE_HOLDER_PREFIX)) > -1 //
-               && (suffixIndex = input.indexOf(Constant.PLACE_HOLDER_SUFFIX)) > -1) {
+            && (suffixIndex = input.indexOf(Constant.PLACE_HOLDER_SUFFIX)) > -1) {
 
             builder.append(input.substring(0, prefixIndex));
 
@@ -461,11 +479,12 @@ public abstract class ContextUtils {
 
     /**
      * Set init methods to {@link BeanDefinition}
-     * 
+     *
      * @param def
-     *            Target {@link BeanDefinition}
+     *     Target {@link BeanDefinition}
      * @param initMethods
-     *            Resolved init methods
+     *     Resolved init methods
+     *
      * @since 2.1.3
      */
     public static void resolveInitMethod(final BeanDefinition def, final String... initMethods) {
@@ -474,9 +493,10 @@ public abstract class ContextUtils {
 
     /**
      * @param beanClass
-     *            Bean class
+     *     Bean class
      * @param initMethods
-     *            Init Method s
+     *     Init Method s
+     *
      * @since 2.1.2
      */
     public static Method[] resolveInitMethod(final Class<?> beanClass, final String... initMethods) {
@@ -485,9 +505,10 @@ public abstract class ContextUtils {
 
     /**
      * @param beanClass
-     *            Bean class
+     *     Bean class
      * @param initMethods
-     *            Init Method s
+     *     Init Method s
+     *
      * @since 2.1.7
      */
     public static Method[] resolveInitMethod(String[] initMethods, Class<?> beanClass) {
@@ -512,19 +533,20 @@ public abstract class ContextUtils {
 
     /**
      * Add a method which annotated with {@link PostConstruct}
-     * 
+     *
      * @param methods
-     *            Method list
+     *     Method list
      * @param beanClass
-     *            Bean class
+     *     Bean class
      * @param initMethods
-     *            Init Method name
+     *     Init Method name
+     *
      * @since 2.1.2
      */
     private static void addInitMethod(final List<Method> methods, final Class<?> beanClass, final String... initMethods) {
         for (final Method method : beanClass.getDeclaredMethods()) {
             if (ClassUtils.isAnnotationPresent(method, PostConstruct.class)
-                    || AutowiredPropertyResolver.isInjectable(method)) {
+                || AutowiredPropertyResolver.isInjectable(method)) {
                 methods.add(method);
                 continue;
             }
@@ -538,11 +560,10 @@ public abstract class ContextUtils {
 
     /**
      * Set {@link PropertyValue} to the target {@link BeanDefinition}
-     * 
+     *
      * @param def
-     *            target bean definition
-     * @param applicationContext
-     *            {@link ApplicationContext}
+     *     target bean definition
+     *
      * @since 2.1.3
      */
     public static void resolvePropertyValue(final BeanDefinition def) {
@@ -551,11 +572,10 @@ public abstract class ContextUtils {
 
     /**
      * Process bean's property (field)
-     * 
+     *
      * @param beanClass
-     *            Bean class
-     * @param applicationContext
-     *            {@link ApplicationContext}
+     *     Bean class
+     *
      * @since 2.1.2
      */
     public static PropertyValue[] resolvePropertyValue(final Class<?> beanClass) {
@@ -571,15 +591,16 @@ public abstract class ContextUtils {
         }
 
         return propertyValues.isEmpty()
-                ? BeanDefinition.EMPTY_PROPERTY_VALUE
-                : propertyValues.toArray(new PropertyValue[propertyValues.size()]);
+            ? BeanDefinition.EMPTY_PROPERTY_VALUE
+            : propertyValues.toArray(new PropertyValue[propertyValues.size()]);
     }
 
     /**
      * Create property value
-     * 
+     *
      * @param field
-     *            Property
+     *     Property
+     *
      * @return A new {@link PropertyValue}
      */
     public static PropertyValue createPropertyValue(final Field field) {
@@ -596,9 +617,9 @@ public abstract class ContextUtils {
      * Properties injection
      *
      * @param def
-     *            Target bean definition
+     *     Target bean definition
      * @param env
-     *            Application {@link Environment}
+     *     Application {@link Environment}
      */
     public static void resolveProps(final BeanDefinition def, final Environment env) throws ConfigurationException {
         def.addPropertyValue(resolveProps(def, env.getProperties()));
@@ -606,16 +627,17 @@ public abstract class ContextUtils {
 
     /**
      * Resolve {@link PropertyValue}s from target {@link Method} or {@link Class}
-     * 
+     *
      * @param annotated
-     *            Target {@link AnnotatedElement}
+     *     Target {@link AnnotatedElement}
      * @param properties
-     *            {@link Properties} variables source
+     *     {@link Properties} variables source
+     *
      * @throws ConfigurationException
-     *             If not support {@link AnnotatedElement}
+     *     If not support {@link AnnotatedElement}
      */
     public static List<PropertyValue> resolveProps(final AnnotatedElement annotated, final Properties properties)
-            throws ConfigurationException //
+        throws ConfigurationException //
     {
         Assert.notNull(annotated, "AnnotatedElement must not be null");
 
@@ -658,14 +680,16 @@ public abstract class ContextUtils {
 
     /**
      * Resolve target {@link Field} object
-     * 
+     *
      * @param declaredField
+     *     Target Field
      * @param nested
-     *            Field class's field class
+     *     Field class's field class
      * @param prefixs
-     *            {@link Properties}'s prefix
+     *     {@link Properties}'s prefix
      * @param properties
-     *            {@link Properties} variables source
+     *     {@link Properties} variables source
+     *
      * @return Resolved field object
      */
     public static Object resolveProps(final Field declaredField,
@@ -719,13 +743,14 @@ public abstract class ContextUtils {
 
     /**
      * Resolve target object with {@link Props} and target object's class
-     * 
-     * @param prefixs
-     *            {@link Props#prefix()}
+     *
+     * @param props
+     *     {@link Props}
      * @param beanClass
-     *            Target class, must have default {@link Constructor}
+     *     Target class, must have default {@link Constructor}
      * @param properties
-     *            {@link Properties} variables source
+     *     {@link Properties} variables source
+     *
      * @since 2.1.5
      */
     public static <T> T resolveProps(final Props props, final Class<T> beanClass, final Properties properties) {
@@ -734,13 +759,12 @@ public abstract class ContextUtils {
 
     /**
      * Resolve target object with {@link Props} and target object's instance
-     * 
-     * @param prefixs
-     *            {@link Props#prefix()}
+     *
      * @param bean
-     *            Bean instance
+     *     Bean instance
      * @param properties
-     *            {@link Properties} variables source
+     *     {@link Properties} variables source
+     *
      * @since 2.1.5
      */
     public static <T> T resolveProps(final Props props, final T bean, final Properties properties) {
@@ -765,11 +789,12 @@ public abstract class ContextUtils {
 
     /**
      * Load {@link Properties} from {@link Props} {@link Annotation}
-     * 
+     *
      * @param props
-     *            {@link Props}
+     *     {@link Props}
      * @param aplicationProps
-     *            Application's {@link Properties}
+     *     Application's {@link Properties}
+     *
      * @since 2.1.5
      */
     public static Properties loadProps(final Props props, final Properties aplicationProps) {
@@ -829,9 +854,10 @@ public abstract class ContextUtils {
 
     /**
      * Decide whether to load the bean
-     * 
+     *
      * @param annotated
-     *            Target class or a method
+     *     Target class or a method
+     *
      * @return If matched
      */
     public static boolean conditional(final AnnotatedElement annotated) {
@@ -840,11 +866,12 @@ public abstract class ContextUtils {
 
     /**
      * Decide whether to load the bean
-     * 
+     *
      * @param annotated
-     *            Target class or a method
+     *     Target class or a method
      * @param context
-     *            {@link ApplicationContext}
+     *     {@link ApplicationContext}
+     *
      * @return If matched
      */
     public static boolean conditional(final AnnotatedElement annotated, final ApplicationContext context) {
@@ -879,11 +906,11 @@ public abstract class ContextUtils {
 
     /**
      * Validate bean definition
-     * 
+     *
      * @param beanDefinition
-     *            Target {@link BeanDefinition}
+     *     Target {@link BeanDefinition}
      * @param applicationContext
-     *            Application context
+     *     Application context
      */
     public static void validateBeanDefinition(BeanDefinition beanDefinition) {
 
@@ -912,11 +939,12 @@ public abstract class ContextUtils {
 
     /**
      * Destroy bean instance
-     * 
+     *
      * @param bean
-     *            Bean instance
+     *     Bean instance
+     *
      * @throws Throwable
-     *             When destroy a bean
+     *     When destroy a bean
      */
     public static void destroyBean(final Object bean) throws Throwable {
 
@@ -935,14 +963,16 @@ public abstract class ContextUtils {
 
     /**
      * Is a context missed bean?
-     * 
+     *
      * @param missingBean
-     *            The {@link Annotation} declared on the class or a method
+     *     The {@link Annotation} declared on the class or a method
      * @param annotated
-     *            Missed bean class or method
+     *     Missed bean class or method
      * @param beanFactory
-     *            The {@link AbstractBeanFactory}
+     *     The {@link AbstractBeanFactory}
+     *
      * @return If the bean is missed in context
+     *
      * @since 2.1.6
      */
     public static boolean isMissedBean(final MissingBean missingBean,
@@ -960,18 +990,19 @@ public abstract class ContextUtils {
         final Class<?> type = missingBean.type();
 
         return !((type != void.class && beanFactory.containsBeanDefinition(type, !type.isInterface())) //
-                 || beanFactory.containsBeanDefinition(getBeanClass(annotated)));
+            || beanFactory.containsBeanDefinition(getBeanClass(annotated)));
     }
 
     // bean definition
 
     /**
      * Build for a bean class with given default bean name
-     * 
+     *
      * @param beanClass
-     *            Target bean class
+     *     Target bean class
      * @param defaultName
-     *            Default bean name
+     *     Default bean name
+     *
      * @return List of {@link BeanDefinition}s
      */
     public static List<BeanDefinition> createBeanDefinitions(final String defaultName, final Class<?> beanClass) {
@@ -1017,12 +1048,12 @@ public abstract class ContextUtils {
 
         if (attributes == null) {
             ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)
-                    .setInitMethods(resolveInitMethod(null, beanClass));
+                .setInitMethods(resolveInitMethod(null, beanClass));
         }
         else {
             ret.setScope(attributes.getString(Constant.SCOPE))
-                    .setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))
-                    .setInitMethods(resolveInitMethod(attributes.getStringArray(Constant.INIT_METHODS), beanClass));
+                .setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))
+                .setInitMethods(resolveInitMethod(attributes.getStringArray(Constant.INIT_METHODS), beanClass));
         }
 
         ret.setPropertyValues(resolvePropertyValue(beanClass));
@@ -1036,12 +1067,14 @@ public abstract class ContextUtils {
 
     /**
      * Scan classes set from META-INF/xxx
-     * 
+     *
      * @param resource
-     *            Resource file start with 'META-INF'
+     *     Resource file start with 'META-INF'
+     *
      * @return Class set from META-INF/xxx
+     *
      * @throws ContextException
-     *             If any {@link IOException} occurred
+     *     If any {@link IOException} occurred
      */
     public static Set<Class<?>> loadFromMetaInfo(final String resource) throws ContextException {
 
@@ -1054,7 +1087,7 @@ public abstract class ContextUtils {
                 final Enumeration<URL> resources = classLoader.getResources(resource);
                 while (resources.hasMoreElements()) {
                     try (final BufferedReader reader = //
-                            new BufferedReader(new InputStreamReader(resources.nextElement().openStream(), charset))) {
+                        new BufferedReader(new InputStreamReader(resources.nextElement().openStream(), charset))) {
 
                         String str;
                         while ((str = reader.readLine()) != null) {
@@ -1101,13 +1134,15 @@ public abstract class ContextUtils {
 
     /**
      * Resolve parameters list
-     * 
+     *
      * @param executable
-     *            Target executable instance {@link Method} or a {@link Constructor}
+     *     Target executable instance {@link Method} or a {@link Constructor}
      * @param beanFactory
-     *            Bean factory
-     * @since 2.1.2
+     *     Bean factory
+     *
      * @return Parameter list objects
+     *
+     * @since 2.1.2
      */
     public static Object[] resolveParameter(final Executable executable, final BeanFactory beanFactory) {
         Assert.notNull(executable, "Executable must not be null");

@@ -1,9 +1,9 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.context.Ordered;
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.DefaultProps;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.factory.BeanFactory;
@@ -32,11 +33,20 @@ import cn.taketoday.context.utils.ContextUtils;
 
 /**
  * Resolve {@link Map}
- * 
+ *
  * @author TODAY <br>
- *         2019-10-28 20:27
+ * 2019-10-28 20:27
  */
-public class MapParameterResolver implements ExecutableParameterResolver, Ordered {
+public class MapParameterResolver
+    extends OrderedSupport implements ExecutableParameterResolver, Ordered {
+
+    public MapParameterResolver() {
+        this(Integer.MAX_VALUE);
+    }
+
+    public MapParameterResolver(int order) {
+        super(order);
+    }
 
     @Override
     public boolean supports(Parameter parameter) {
@@ -44,6 +54,7 @@ public class MapParameterResolver implements ExecutableParameterResolver, Ordere
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object resolve(Parameter parameter, BeanFactory beanFactory) {
         Props props = parameter.getAnnotation(Props.class);
 
@@ -58,16 +69,9 @@ public class MapParameterResolver implements ExecutableParameterResolver, Ordere
             return loadProps;
         }
 
-        @SuppressWarnings("unchecked")
         final Map<Object, Object> ret = (Map<Object, Object>) ClassUtils.newInstance(type);
-
         ret.putAll(loadProps);
-
         return ret;
     }
 
-    @Override
-    public int getOrder() {
-        return Integer.MAX_VALUE;
-    }
 }

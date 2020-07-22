@@ -983,7 +983,7 @@ public abstract class ClassUtils {
      * @param beanFactory
      *            Bean factory
      * @return {@link BeanDefinition} 's instance
-     * @throws ReflectiveOperationException
+     * @throws BeanInstantiationException
      *             if any reflective operation exception occurred
      * @since 2.1.5
      */

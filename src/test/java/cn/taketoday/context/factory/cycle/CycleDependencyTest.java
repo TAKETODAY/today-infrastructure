@@ -19,9 +19,6 @@
  */
 package cn.taketoday.context.factory.cycle;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
@@ -30,6 +27,8 @@ import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.loader.CandidateComponentScanner;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author TODAY <br>
@@ -44,15 +43,21 @@ public class CycleDependencyTest {
 
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
             applicationContext.loadContext("cn.taketoday.context.factory.cycle");
-            assertTrue(applicationContext.getBeanDefinitionCount() == 3);
+            assertEquals(3, applicationContext.getBeanDefinitionCount());
 
             final BeanA beanA = applicationContext.getBean(BeanA.class);
             final BeanB beanB = applicationContext.getBean(BeanB.class);
 
             assertEquals(beanA, beanB.beanA);
             assertEquals(beanB, beanA.beanB);
-        }
+            assertEquals(beanB, beanB.beanB);
 
+//            final ConstructorCycleDependency1 one = applicationContext.getBean(ConstructorCycleDependency1.class);
+//            final ConstructorCycleDependency2 two = applicationContext.getBean(ConstructorCycleDependency2.class);
+//
+//            assertEquals(two, one.two);
+//            assertEquals(one, two.one);
+        }
     }
 
     @Singleton
@@ -76,5 +81,23 @@ public class CycleDependencyTest {
     public static class ConfigBean {
 
     }
+
+//    @Singleton
+//    public static class ConstructorCycleDependency1 {
+//        ConstructorCycleDependency2 two;
+//
+//        ConstructorCycleDependency1(ConstructorCycleDependency2 two) {
+//            this.two = two;
+//        }
+//    }
+//
+//    @Singleton
+//    public static class ConstructorCycleDependency2 {
+//        ConstructorCycleDependency1 one;
+//
+//        ConstructorCycleDependency2(ConstructorCycleDependency1 one) {
+//            this.one = one;
+//        }
+//    }
 
 }

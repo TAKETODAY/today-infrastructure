@@ -30,6 +30,7 @@ import java.nio.channels.WritableByteChannel;
 import java.util.Objects;
 
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 
@@ -54,7 +55,7 @@ public class ClassPathResource implements Resource, WritableResource {
     }
 
     public ClassPathResource(String location, ClassLoader classLoader) {
-        Objects.requireNonNull(location, "Location must not be null");
+        Assert.notNull(location, "Location must not be null");
         final URL resource = (classLoader != null ? classLoader : ClassUtils.getClassLoader()).getResource(location);
         // linux path start with '/'
         this.resource = resource == null ? new FileBasedResource(location) : ResourceUtils.getResource(resource);

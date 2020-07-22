@@ -796,22 +796,26 @@ public class MediaType extends MimeType implements Serializable {
      * @return a map, mapping media types to file extensions.
      */
     private static HashMap<String, MediaType> parseMimeTypes() {
-        InputStream is = MediaType.class.getResourceAsStream(MIME_TYPES_FILE_NAME);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
-            HashMap<String, MediaType> result = new HashMap<>();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.isEmpty() || line.charAt(0) == '#') {
-                    continue;
+
+        try (final InputStream is = MediaType.class.getResourceAsStream(MIME_TYPES_FILE_NAME)) {
+            try (final BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.US_ASCII))) {
+
+                final HashMap<String, MediaType> result = new HashMap<>();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    if (line.isEmpty() || line.charAt(0) == '#') {
+                        continue;
+                    }
+                    String[] tokens = StringUtils.tokenizeToStringArray(line, " \t\n\r\f");
+                    MediaType mediaType = MediaType.parseMediaType(tokens[0]);
+                    for (int i = 1; i < tokens.length; i++) {
+                        String fileExtension = tokens[i].toLowerCase(Locale.ENGLISH);
+                        result.put(fileExtension, mediaType);
+                    }
                 }
-                String[] tokens = StringUtils.tokenizeToStringArray(line, " \t\n\r\f");
-                MediaType mediaType = MediaType.parseMediaType(tokens[0]);
-                for (int i = 1; i < tokens.length; i++) {
-                    String fileExtension = tokens[i].toLowerCase(Locale.ENGLISH);
-                    result.put(fileExtension, mediaType);
-                }
+                return result;
             }
-            return result;
         }
         catch (IOException ex) {
             throw new IllegalStateException("Could not load '" + MIME_TYPES_FILE_NAME + "'", ex);

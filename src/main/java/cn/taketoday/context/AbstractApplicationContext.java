@@ -301,7 +301,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     /**
-     * Process after {@link #prepareBeanFactory(Collection)}
+     * Process after {@link #prepareBeanFactory}
      * 
      * @param beanFactory
      *            bean factory
@@ -437,7 +437,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     }
 
     /**
-     * Process after {@link #registerListener()}
+     * Process after {@link #registerListener(Collection, Map)}
      * 
      * @param applicationListeners
      *            {@link ApplicationListener} cache
