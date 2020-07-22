@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -80,7 +80,7 @@ import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 
 /**
- * 
+ *
  * @author TODAY <br>
  *         2018-06-0? ?
  */
@@ -167,7 +167,7 @@ public abstract class ClassUtils {
 
     /**
      * Whether given class name present in class path
-     * 
+     *
      * @param className
      *            class name
      * @return whether given class name present in class path
@@ -192,10 +192,10 @@ public abstract class ClassUtils {
         }
         return null;
     }
-    
+
     /**
      * Load class .from spring
-     * 
+     *
      * @param name
      *              a class full name
      * @param classLoader
@@ -256,7 +256,7 @@ public abstract class ClassUtils {
 
     /**
      * Load class .from spring
-     * 
+     *
      * @param name
      *            a class full name
      * @return a class
@@ -270,7 +270,7 @@ public abstract class ClassUtils {
 
     /**
      * Load class
-     * 
+     *
      * @param <T>
      *            return class type
      * @param name
@@ -283,7 +283,7 @@ public abstract class ClassUtils {
 
     /**
      * Load class with given class name and {@link ClassLoader}
-     * 
+     *
      * @param <T>
      *            return class type
      * @param name
@@ -294,7 +294,7 @@ public abstract class ClassUtils {
      */
     @SuppressWarnings("unchecked")
     public static final <T> Class<T> loadClass(String name, ClassLoader classLoader) {
-        notNull(classLoader, "ClassLoader can't be null");        
+        notNull(classLoader, "ClassLoader can't be null");
         try {
             return (Class<T>) classLoader.loadClass(name);
         }
@@ -305,7 +305,7 @@ public abstract class ClassUtils {
 
     /**
      * Scan class with given package.
-     * 
+     *
      * @param locations
      *            The packages to scan
      * @return Class set
@@ -313,10 +313,10 @@ public abstract class ClassUtils {
     public static Set<Class<?>> scan(final String... locations) {
         return new CandidateComponentScanner().scan(locations);
     }
-    
+
     /**
      * Scan all the classpath classes
-     * 
+     *
      * @param scanClasses
      *            class set
      * @since 2.1.6
@@ -324,17 +324,17 @@ public abstract class ClassUtils {
     public static void scan(Set<Class<?>> scanClasses) {
         new CandidateComponentScanner()
                 .setCandidates(scanClasses)
-                .scan();       
+                .scan();
     }
-    
+
     public static String getClassName(ClassReader r) {
         return r.getClassName().replace(Constant.PATH_SEPARATOR, Constant.PACKAGE_SEPARATOR);
     }
-    
+
     public static String getClassName(final byte[] classFile) {
         return getClassName(new ClassReader(classFile));
     }
-    
+
     public static String getClassName(final Resource resource) throws IOException {
         try (final InputStream inputStream = resource.getInputStream()) {
             return getClassName(inputStream);
@@ -349,7 +349,7 @@ public abstract class ClassUtils {
 
     /**
      * Get the array of {@link Annotation} instance
-     * 
+     *
      * @param element
      *            annotated element
      * @param annotationClass
@@ -389,7 +389,7 @@ public abstract class ClassUtils {
 
     /**
      * Get the array of {@link Annotation} instance
-     * 
+     *
      * @param element
      *            annotated element
      * @param targetClass
@@ -424,7 +424,7 @@ public abstract class ClassUtils {
 
     /**
      * Get Annotation by reflect
-     * 
+     *
      * @param element
      *            The annotated element
      * @param annotationClass
@@ -442,7 +442,7 @@ public abstract class ClassUtils {
 
     /**
      * Inject {@link AnnotationAttributes} by reflect
-     * 
+     *
      * @param source
      *            Element attributes
      * @param annotationClass
@@ -478,7 +478,7 @@ public abstract class ClassUtils {
 
     /**
      * Get Annotation Attributes from an annotation instance
-     * 
+     *
      * @param annotation
      *            annotation instance
      * @return {@link AnnotationAttributes}
@@ -487,10 +487,10 @@ public abstract class ClassUtils {
     public static AnnotationAttributes getAnnotationAttributes(final Annotation annotation) throws ContextException {
         return getAnnotationAttributes(annotation.annotationType(), annotation);
     }
-    
+
     /**
      * Get Annotation Attributes from an annotation instance
-     * 
+     *
      * @param annotationType
      *              Input annotation type
      * @param annotation
@@ -516,7 +516,7 @@ public abstract class ClassUtils {
 
     /**
      * Get Annotation by proxy
-     * 
+     *
      * @param annotatedElement
      *            The annotated element
      * @param annotationClass
@@ -532,7 +532,7 @@ public abstract class ClassUtils {
 
     /**
      * Get First Annotation
-     * 
+     *
      * @param element
      *            The annotated element
      * @param annotationClass
@@ -551,7 +551,7 @@ public abstract class ClassUtils {
 
     /**
      * Get First Annotation
-     * 
+     *
      * @param annotated
      *            The annotated element object
      * @param annotationClass
@@ -562,10 +562,10 @@ public abstract class ClassUtils {
     public static <T extends Annotation> T getAnnotation(final Object annotated, final Class<T> annotationClass) {
         return annotated == null ? null : getAnnotation(annotationClass, annotated.getClass());
     }
-    
+
     /**
      * Get First Annotation
-     * 
+     *
      * @param annotatedElement
      *            The annotated element
      * @param annotationClass
@@ -582,7 +582,7 @@ public abstract class ClassUtils {
 
     /**
 	 * Get Annotation by proxy
-	 * 
+	 *
 	 * @param annotationClass
 	 *            The annotation class
 	 * @param attributes
@@ -614,14 +614,9 @@ public abstract class ClassUtils {
 
     /**
      * Equals
-     * 
+     *
      * @param attributes
      *            key-value attributes
-     * @param args
-     *            InvocationHandler args
-     * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
      * @since 2.1.1
      */
     private static Object eq(final Object proxy, final AnnotationAttributes attributes, final Object object)//
@@ -657,7 +652,7 @@ public abstract class ClassUtils {
 
     /**
      * Get attributes the 'key-value' of annotations
-     * 
+     *
      * @param element
      *            The annotated element
      * @param annotationClass
@@ -673,7 +668,7 @@ public abstract class ClassUtils {
 
     /**
      * Get attributes the 'key-value' of annotations
-     * 
+     *
      * @param element
      *            The annotated element
      * @param annotationClass
@@ -690,7 +685,7 @@ public abstract class ClassUtils {
 
     /**
      * Get attributes the 'key-value' of annotations
-     * 
+     *
      * @param element
      *            The annotated element
      * @param targetClass
@@ -698,26 +693,22 @@ public abstract class ClassUtils {
      * @return a set of {@link AnnotationAttributes} never be null
      * @since 2.1.1
      */
-    public static <T extends Annotation> AnnotationAttributes[] 
-            getAnnotationAttributesArray(final AnnotatedElement element, 
+    public static <T extends Annotation> AnnotationAttributes[]
+            getAnnotationAttributesArray(final AnnotatedElement element,
                                          final Class<T> targetClass) throws ContextException {
         if (targetClass == null) {
             return null;
         }
         return getAnnotationAttributesArray(new AnnotationKey<>(element, targetClass));
     }
-    
+
     /**
      * Get attributes the 'key-value' of annotations
-     * 
-     * @param element
-     *            The annotated element
-     * @param targetClass
-     *            The annotation class
+     *
      * @return a set of {@link AnnotationAttributes} never be null
      * @since 2.1.7
      */
-    public static <T extends Annotation> AnnotationAttributes[] 
+    public static <T extends Annotation> AnnotationAttributes[]
             getAnnotationAttributesArray(final AnnotationKey<T> key) throws ContextException //
     {
         AnnotationAttributes[] ret = ANNOTATION_ATTRIBUTES.get(key);
@@ -741,9 +732,9 @@ public abstract class ClassUtils {
         }
         return ret == EMPTY_ANNOTATION_ATTRIBUTES ? null : ret;
     }
-    
-    @SuppressWarnings("serial")
+
     public static class AnnotationKey<T> implements Serializable {
+        private static final long serialVersionUID = 1L;
 
         private final int hash;
         private final Class<T> annotationClass;
@@ -777,7 +768,7 @@ public abstract class ClassUtils {
 
     /**
      * Get target {@link AnnotationAttributes} on input annotation
-     * 
+     *
      * @param target
      *            The annotation class
      * @param annotation
@@ -803,22 +794,22 @@ public abstract class ClassUtils {
         // find the default value of annotation
         // -----------------------------------------
         final LinkedList<AnnotationAttributes> ret = new LinkedList<>();
-        
+
         findTargetAttributes(annotationType, target, ret,
                              new TransformTarget(annotation, annotationType), IGNORE_ANNOTATION_CLASS);
         return ret;
     }
-    
+
     interface AnnotationAttributesTransformer {
-        
+
         Object get(Method method);
-        
+
         void transform(AnnotationAttributes attributes);
     }
-    
-    
+
+
     static final class TransformTarget implements AnnotationAttributesTransformer {
-        
+
         private Method[] declaredMethods;
         private final Annotation annotation;
         private final Class<?> annotationType;
@@ -848,19 +839,19 @@ public abstract class ClassUtils {
             }
             return declaredMethods;
         }
-        
+
         @Override
         public Object get(final Method targetMethod) {
             final String name = targetMethod.getName();
             // In general there isn't lots of Annotation Attributes
-            for (final Method method : getDeclaredMethods()) { 
+            for (final Method method : getDeclaredMethods()) {
                 if (method.getName().equals(name) && eq(method.getReturnType(), targetMethod.getReturnType())) {
                     return invokeMethod(method, annotation);
                 }
             }
             return null;
         }
-        
+
         private static boolean eq(Class<?> returnType, Class<?> clazz) {
             if (returnType == clazz) {
                 return true;
@@ -882,11 +873,11 @@ public abstract class ClassUtils {
             return false;
         }
     }
-    
-    
+
+
     /**
      * Use recursive to find the All target {@link AnnotationAttributes} instance
-     * 
+     *
      * @param targetType
      *              Target {@link Annotation} class to find
      * @param source
@@ -900,8 +891,8 @@ public abstract class ClassUtils {
     static <T extends Annotation> void findTargetAttributes(final Class<?> source,
                                                             final Class<T> targetType,
                                                             final List<AnnotationAttributes> attributes,
-                                                            final AnnotationAttributesTransformer transformer,                                                      
-                                                            final Set<Class<? extends Annotation>> ignoreAnnotation) 
+                                                            final AnnotationAttributesTransformer transformer,
+                                                            final Set<Class<? extends Annotation>> ignoreAnnotation)
     {
         for (final Annotation current : source.getAnnotations()) {
             final Class<? extends Annotation> candidateType = current.annotationType();
@@ -919,7 +910,7 @@ public abstract class ClassUtils {
 
     public static AnnotationAttributes getAnnotationAttributes(final Annotation current,
                                                                final Class<? extends Annotation> candidateType,
-                                                               final AnnotationAttributesTransformer transformer) 
+                                                               final AnnotationAttributesTransformer transformer)
     {
         final Method[] declaredMethods = candidateType.getDeclaredMethods();
         final AnnotationAttributes target = new AnnotationAttributes(candidateType, declaredMethods.length);
@@ -935,7 +926,7 @@ public abstract class ClassUtils {
 
     /**
      * Whether a {@link Annotation} present on {@link AnnotatedElement}
-     * 
+     *
      * @param <A>
      *            {@link Annotation} type
      * @param element
@@ -947,7 +938,7 @@ public abstract class ClassUtils {
     public static <A extends Annotation> boolean isAnnotationPresent(final AnnotatedElement element,
                                                                      final Class<A> annType) {
         return annType != null
-                && (element.isAnnotationPresent(annType) 
+                && (element.isAnnotationPresent(annType)
                         || ObjectUtils.isNotEmpty(getAnnotationAttributesArray(element, annType)));
     }
 
@@ -955,7 +946,7 @@ public abstract class ClassUtils {
 
     /**
      * Get instance with bean class use default {@link Constructor}
-     * 
+     *
      * @param beanClass
      *            bean class
      * @return the instance of target class
@@ -967,7 +958,7 @@ public abstract class ClassUtils {
 
     /**
      * Get instance with bean class
-     * 
+     *
      * @param beanClassName
      *            bean class name string
      * @return the instance of target class
@@ -983,7 +974,7 @@ public abstract class ClassUtils {
     /**
      * Use default {@link Constructor} or Annotated {@link Autowired}
      * {@link Constructor} to create bean instance.
-     * 
+     *
      * <p>
      * If {@link BeanDefinition} is {@link StandardBeanDefinition} will create bean
      * from {@link StandardBeanDefinition#getFactoryMethod()}
@@ -1022,13 +1013,13 @@ public abstract class ClassUtils {
     /**
      * Use default {@link Constructor} or Annotated {@link Autowired}
      * {@link Constructor} to create bean instance.
-     * 
+     *
      * @param beanClass
      *            target bean class
      * @param beanFactory
      *            bean factory
      * @return bean class 's instance
-     * @throws ReflectiveOperationException
+     * @throws BeanInstantiationException
      *             if any reflective operation exception occurred
      */
     public static <T> T newInstance(final Class<T> beanClass, final BeanFactory beanFactory)
@@ -1063,7 +1054,7 @@ public abstract class ClassUtils {
      * constructor, if not more than one use the @Autowired constructor if there is
      * no suitable {@link Constructor} will throw an exception
      * <p>
-     * 
+     *
      * @param <T>
      *            Target type
      * @param beanClass
@@ -1080,7 +1071,7 @@ public abstract class ClassUtils {
         }
         return ret;
     }
-    
+
     /**
      * Get a suitable {@link Constructor}.
      * <p>
@@ -1089,7 +1080,7 @@ public abstract class ClassUtils {
      * constructor, if not more than one use the @Autowired constructor if there is
      * no suitable {@link Constructor} will throw an exception
      * <p>
-     * 
+     *
      * @param <T>
      *            Target type
      * @param beanClass
@@ -1120,7 +1111,7 @@ public abstract class ClassUtils {
     /**
      * If the class is dynamically generated then the user class will be extracted
      * in a specific format.
-     * 
+     *
      * @param synthetic
      *            Input object
      * @return The user class
@@ -1134,7 +1125,7 @@ public abstract class ClassUtils {
     /**
      * If the class is dynamically generated then the user class will be extracted
      * in a specific format.
-     * 
+     *
      * @param syntheticClass
      *            input test class
      * @return The user class
@@ -1154,7 +1145,7 @@ public abstract class ClassUtils {
     /**
      * If the class is dynamically generated then the user class will be extracted
      * in a specific format.
-     * 
+     *
      * @param name
      *            Class name
      * @return The user class
@@ -1169,7 +1160,7 @@ public abstract class ClassUtils {
 
     /**
      * Get bean instance's {@link Field}
-     * 
+     *
      * @param target
      *            target instance
      * @return all {@link Field}
@@ -1181,7 +1172,7 @@ public abstract class ClassUtils {
 
     /**
      * Get all {@link Field} list
-     * 
+     *
      * @param targetClass
      *            target class
      * @return get all the {@link Field}
@@ -1201,7 +1192,7 @@ public abstract class ClassUtils {
 
     /**
      * Get all {@link Field} array
-     * 
+     *
      * @param targetClass
      *            target class
      * @return get all the {@link Field} array
@@ -1214,7 +1205,7 @@ public abstract class ClassUtils {
 
     /**
      * Get genericity class
-     * 
+     *
      * @param type
      *            source type
      * @since 2.1.7
@@ -1234,7 +1225,7 @@ public abstract class ClassUtils {
     /**
      * Find method parameter list. Uses ObjectWeb's ASM library for analyzing class
      * files.
-     * 
+     *
      * @param method
      *            target method
      * @return method parameter list
@@ -1256,7 +1247,7 @@ public abstract class ClassUtils {
             try (InputStream resourceAsStream = getClassLoader()
                     .getResourceAsStream(declaringClass.getName()
                             .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)
-                                .concat(Constant.CLASS_FILE_SUFFIX))) 
+                                .concat(Constant.CLASS_FILE_SUFFIX)))
             {
 
                 final ClassNode classVisitor = new ClassNode();
@@ -1308,12 +1299,12 @@ public abstract class ClassUtils {
         private final ArrayList<MethodNode> methodNodes = new ArrayList<>();
 
         @Override
-        public MethodVisitor visitMethod(int access, 
+        public MethodVisitor visitMethod(int access,
                                          String name,
                                          String descriptor,
-                                         String signature, 
+                                         String signature,
                                          String[] exceptions) {
-            
+
             if (isSyntheticOrBridged(access) //
                     || Constant.CONSTRUCTOR_NAME.equals(name) //
                     || Constant.STATIC_CLASS_INIT.equals(name)) {
@@ -1324,7 +1315,7 @@ public abstract class ClassUtils {
             return methodNode;
         }
 
-        private final static boolean isSyntheticOrBridged(int access) {
+        private static boolean isSyntheticOrBridged(int access) {
             return (((access & Opcodes.ACC_SYNTHETIC) | (access & Opcodes.ACC_BRIDGE)) > 0);
         }
     }
@@ -1340,9 +1331,9 @@ public abstract class ClassUtils {
         }
 
         @Override
-        public void visitLocalVariable(String name, 
-                                       String descriptor, 
-                                       String signature, 
+        public void visitLocalVariable(String name,
+                                       String descriptor,
+                                       String signature,
                                        Label start, Label end, int index) {
             localVariables.add(name);
         }
@@ -1363,7 +1354,7 @@ public abstract class ClassUtils {
         }
         return field;
     }
-    
+
     public static Object accessInvokeMethod(final Method method, final Object target, final Object... args) {
         return invokeMethod(makeAccessible(method), target, args);
     }
@@ -1416,7 +1407,7 @@ public abstract class ClassUtils {
      * InvocationTargetException with such a root cause. Throws an
      * IllegalStateException with an appropriate message or
      * UndeclaredThrowableException otherwise.
-     * 
+     *
      * @param ex
      *            the reflection exception to handle
      */
@@ -1442,7 +1433,7 @@ public abstract class ClassUtils {
      * <p>
      * Throws the underlying RuntimeException or Error in case of such a root cause.
      * Throws an UndeclaredThrowableException otherwise.
-     * 
+     *
      * @param ex
      *            the invocation target exception to handle
      */
@@ -1459,7 +1450,7 @@ public abstract class ClassUtils {
      * Rethrows the underlying exception cast to a {@link RuntimeException} or
      * {@link Error} if appropriate; otherwise, throws an
      * {@link UndeclaredThrowableException}.
-     * 
+     *
      * @param ex
      *            the exception to rethrow
      * @throws RuntimeException
@@ -1484,7 +1475,7 @@ public abstract class ClassUtils {
      * Rethrows the underlying exception cast to an {@link Exception} or
      * {@link Error} if appropriate; otherwise, throws an
      * {@link UndeclaredThrowableException}.
-     * 
+     *
      * @param ex
      *            the exception to rethrow
      * @throws Exception
@@ -1499,15 +1490,15 @@ public abstract class ClassUtils {
         }
         throw new UndeclaredThrowableException(ex);
     }
-    
+
     //
     // ---------------------------------
-    
-    
+
+
     /**
      * Return the qualified name of the given method, consisting of fully qualified
      * interface/class name + "." + method name.
-     * 
+     *
      * @param method
      *            the method
      * @return the qualified name of the method
@@ -1519,7 +1510,7 @@ public abstract class ClassUtils {
     /**
      * Return the qualified name of the given method, consisting of fully qualified
      * interface/class name + "." + method name.
-     * 
+     *
      * @param method
      *            the method
      * @param clazz
