@@ -26,6 +26,7 @@ import javax.annotation.PostConstruct;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.annotation.Order;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 
@@ -86,20 +87,29 @@ public class CycleDependencyTest {
 
         BeanB beanB;
 
+        int order;
+
+        @Order(3)
         @PostConstruct
         public void init(BeanA beanA, BeanB beanB) {
             this.beanA = beanA;
             this.beanB = beanB;
+            order = 2;
         }
 
+        @Order(2)
         @PostConstruct
         public void init2(BeanA beanA) {
             assertEquals(this.beanA, beanA);
+            assertEquals(order, 2);
+            order = 3;
         }
 
+        @Order(1)
         @PostConstruct
         public void init3(BeanC beanC) {
             assertEquals(this, beanC);
+            assertEquals(order, 3);
         }
     }
 

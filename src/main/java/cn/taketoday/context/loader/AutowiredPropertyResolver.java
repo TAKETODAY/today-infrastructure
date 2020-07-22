@@ -98,8 +98,6 @@ public class AutowiredPropertyResolver extends OrderedSupport implements Propert
     /**
      * Create bean name by type
      * 
-     * @param applicationContext
-     *            {@link BeanFactory}
      * @param targetClass
      *            target property class
      * @return a bean name none null

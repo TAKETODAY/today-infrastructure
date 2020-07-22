@@ -74,7 +74,8 @@ import cn.taketoday.context.utils.StringUtils;
  * @author TODAY <br>
  *         2019-03-23 15:00
  */
-public class StandardBeanFactory extends AbstractBeanFactory implements ConfigurableBeanFactory, BeanDefinitionLoader {
+public class StandardBeanFactory
+        extends AbstractBeanFactory implements ConfigurableBeanFactory, BeanDefinitionLoader {
 
     private static final Logger log = LoggerFactory.getLogger(StandardBeanFactory.class);
 
@@ -585,7 +586,7 @@ public class StandardBeanFactory extends AbstractBeanFactory implements Configur
      */
     protected void registerFactoryBean(final String oldBeanName, final BeanDefinition factoryDef) throws Throwable {
 
-        final FactoryBeanDefinition<?> def =
+        final FactoryBeanDefinition<?> def = //
                 factoryDef instanceof FactoryBeanDefinition
                         ? (FactoryBeanDefinition<?>) factoryDef
                         : new FactoryBeanDefinition<>(factoryDef, this);
