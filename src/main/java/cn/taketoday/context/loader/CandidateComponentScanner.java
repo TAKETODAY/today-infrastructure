@@ -1,9 +1,9 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,14 +13,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.context.loader;
-
-import static cn.taketoday.context.Constant.PACKAGE_SEPARATOR;
-import static cn.taketoday.context.Constant.PATH_SEPARATOR;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,13 +46,17 @@ import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.io.ResourceFilter;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 
+import static cn.taketoday.context.Constant.PACKAGE_SEPARATOR;
+import static cn.taketoday.context.Constant.PATH_SEPARATOR;
+
 /**
  * @author TODAY <br>
- *         2019-11-26 20:02
+ * 2019-11-26 20:02
  */
 public class CandidateComponentScanner {
 
@@ -76,11 +77,10 @@ public class CandidateComponentScanner {
     private static CandidateComponentScanner sharedScanner = new CandidateComponentScanner();
 
     /** Class resource filter */
-    private static final ResourceFilter CLASS_RESOURCE_FILTER = (Resource resource) -> {
-        return resource.isDirectory()
-               || (resource.getName().endsWith(Constant.CLASS_FILE_SUFFIX)
-                   && !resource.getName().startsWith("package-info"));
-    };
+    private static final ResourceFilter CLASS_RESOURCE_FILTER = resource ->
+        resource.isDirectory()
+            || (resource.getName().endsWith(Constant.CLASS_FILE_SUFFIX)
+            && !resource.getName().startsWith("package-info"));
 
     public static String[] getDefaultIgnoreJarPrefix() {
 
@@ -101,7 +101,7 @@ public class CandidateComponentScanner {
 
             while (resources.hasMoreElements()) {
                 try (final BufferedReader reader = //
-                        new BufferedReader(new InputStreamReader(resources.nextElement().openStream(), charset))) {
+                    new BufferedReader(new InputStreamReader(resources.nextElement().openStream(), charset))) {
 
                     String str;
                     while ((str = reader.readLine()) != null) {
@@ -128,9 +128,10 @@ public class CandidateComponentScanner {
 
     /**
      * Find class by annotation.
-     * 
+     *
      * @param annotationClass
-     *            annotation class
+     *     annotation class
+     *
      * @return the set of class
      */
     public Set<Class<?>> getAnnotatedClasses(Class<? extends Annotation> annotationClass) {
@@ -139,9 +140,10 @@ public class CandidateComponentScanner {
 
     /**
      * Get all child classes in class path
-     * 
+     *
      * @param superClass
-     *            super class or a interface class
+     *     super class or a interface class
+     *
      * @return a {@link Collection} of impl class
      */
     public Set<Class<?>> getImplementationClasses(Class<?> superClass) {
@@ -150,32 +152,34 @@ public class CandidateComponentScanner {
 
     /**
      * Get all child classes in class path filter with package name
-     * 
+     *
      * @param superClass
-     *            super class or a interface class
+     *     super class or a interface class
      * @param packageName
-     *            package name
+     *     package name
+     *
      * @return a {@link Collection} of impl class
      */
     public Set<Class<?>> getImplementationClasses(Class<?> superClass, String packageName) {
         return filter(clazz -> clazz.getName().startsWith(packageName)
-                               && superClass != clazz
-                               && superClass.isAssignableFrom(clazz) //
+            && superClass != clazz
+            && superClass.isAssignableFrom(clazz) //
         );
     }
 
-    public final <T> Set<Class<?>> filter(final Predicate<Class<?>> predicate) {
+    public final Set<Class<?>> filter(final Predicate<Class<?>> predicate) {
         return getScanningCandidates()
-                .parallelStream()
-                .filter(predicate)
-                .collect(Collectors.toSet());
+            .parallelStream()
+            .filter(predicate)
+            .collect(Collectors.toSet());
     }
 
     /**
      * Get {@link Collection} of class under the packages
-     * 
+     *
      * @param packages
-     *            package name
+     *     package name
+     *
      * @return a {@link Collection} of class under the packages
      */
     public Set<Class<?>> getClasses(final String... packages) {
@@ -192,9 +196,10 @@ public class CandidateComponentScanner {
 
     /**
      * Scan class with given package.
-     * 
+     *
      * @param packages
-     *            The packages to scan
+     *     The packages to scan
+     *
      * @return Class set
      */
     public Set<Class<?>> scan(final String... packages) {
@@ -229,23 +234,18 @@ public class CandidateComponentScanner {
 
     /**
      * Scan classes to classes set
-     * 
-     * @param scanClasses
-     *            Classes set
+     *
      * @param packageName
-     *            Package name
+     *     Package name
+     *
      * @return candidates class
      */
     public Set<Class<?>> scan(final String packageName) {
-
         final String resourceToUse = packageName.replace(PACKAGE_SEPARATOR, PATH_SEPARATOR);
-
         if (log.isDebugEnabled()) {
             log.debug("Scanning component candidates from package: [{}]", packageName);
         }
-
         try {
-
             final Enumeration<URL> uri = getClassLoader().getResources(resourceToUse);
             while (uri.hasMoreElements()) {
                 scan(ResourceUtils.getResource(uri.nextElement()), packageName);
@@ -260,14 +260,14 @@ public class CandidateComponentScanner {
 
     /**
      * Scan class in a {@link Resource}
-     * 
-     * @param scanClasses
-     *            class set
+     *
      * @param resource
-     *            {@link Resource} in class maybe a jar file or class directory
+     *     {@link Resource} in class maybe a jar file or class directory
      * @param packageName
-     *            if {@link Resource} is a directory will use this packageName
+     *     if {@link Resource} is a directory will use this packageName
+     *
      * @throws IOException
+     *     if the resource is not available
      * @since 2.1.6
      */
     protected void scan(final Resource resource, final String packageName) throws IOException {
@@ -279,27 +279,24 @@ public class CandidateComponentScanner {
                 findInDirectory(resource);
                 return;
             }
-            final String fileName = resource.getName();
-            if (fileName.endsWith(".jar")) {
-                scanInJarFile(resource, fileName, packageName, () -> new JarFile(resource.getFile()));
+            if (resource.getName().endsWith(".jar")) {
+                scanInJarFile(resource, packageName, () -> new JarFile(resource.getFile()));
             }
         }
         else if (resource instanceof JarEntryResource) {
-            scanInJarFile(resource, resource.getFile().getName(), packageName,
-                          () -> ((JarEntryResource) resource).getJarFile());
+            scanInJarFile(resource, packageName, ((JarEntryResource) resource)::getJarFile);
         }
     }
 
     protected void scanInJarFile(final Resource resource,
-                                 final String fileName,
                                  final String packageName,
-                                 final ThrowableSupplier<JarFile, IOException> supplier) throws IOException //
+                                 final ThrowableSupplier<JarFile, IOException> jarFileSupplier) throws IOException //
     {
         if (getJarResourceFilter().test(resource)) {
             if (log.isTraceEnabled()) {
                 log.trace("Scan in jar file: [{}]", resource.getLocation());
             }
-            try (final JarFile jarFile = supplier.get()) {
+            try (final JarFile jarFile = jarFileSupplier.get()) {
                 final Enumeration<JarEntry> jarEntries = jarFile.entries();
                 while (jarEntries.hasMoreElements()) {
                     loadClassFromJarEntry(jarEntries.nextElement(), packageName);
@@ -310,7 +307,7 @@ public class CandidateComponentScanner {
 
     /**
      * Scan all the classpath classes
-     * 
+     *
      * @since 2.1.6
      */
     public Set<Class<?>> scan() {
@@ -326,7 +323,9 @@ public class CandidateComponentScanner {
                 }
             }
             else {
-                scan(ResourceUtils.getResource(classLoader.getResource(blank)), blank);
+                final URL resource = classLoader.getResource(blank);
+                Assert.notNull(resource, "Could't found class root path");
+                scan(ResourceUtils.getResource(resource), blank);
             }
             scanningTimes++;
             return getScanningCandidates();
@@ -338,9 +337,9 @@ public class CandidateComponentScanner {
 
     /**
      * Load classes from a {@link JarEntry}
-     * 
+     *
      * @param jarEntry
-     *            The entry of jar
+     *     The entry of jar
      */
     public void loadClassFromJarEntry(final JarEntry jarEntry, final String packageName) {
 
@@ -358,7 +357,7 @@ public class CandidateComponentScanner {
                     final String className = nameToUse.substring(0, nameToUse.lastIndexOf(PACKAGE_SEPARATOR));
                     getScanningCandidates().add(getClassLoader().loadClass(className));
                 }
-                catch (Error | ClassNotFoundException e) {}
+                catch (ClassNotFoundException | Error ignored) {}
             }
         }
     }
@@ -368,10 +367,9 @@ public class CandidateComponentScanner {
      * Find in directory.
      * </p>
      * Note: don't need packageName
-     * 
-     * @param packagePath
-     *            the package physical path
+     *
      * @throws IOException
+     *     if the resource is not available
      */
     protected void findInDirectory(final Resource directory) throws IOException {
 
@@ -395,7 +393,7 @@ public class CandidateComponentScanner {
                 try {
                     candidates.add(classLoader.loadClass(ClassUtils.getClassName(resource)));
                 }
-                catch (ClassNotFoundException | Error e) {}
+                catch (ClassNotFoundException | Error ignored) {}
             }
         }
     }
@@ -407,7 +405,7 @@ public class CandidateComponentScanner {
 
     /**
      * The class path resources loader
-     * 
+     *
      * @return The class path resources loader
      */
     public ClassLoader getClassLoader() {
@@ -434,11 +432,11 @@ public class CandidateComponentScanner {
 
     /**
      * Get Scanning Candidates
-     * 
+     *
      * <p>
      * this method unlike {@link #getCandidates()} returns null if Candidates have
      * not been set or scanned
-     * 
+     *
      * @return Get Scanning Candidates never be null
      */
     public final Set<Class<?>> getScanningCandidates() {
@@ -482,7 +480,7 @@ public class CandidateComponentScanner {
 
     /**
      * Get {@link ApplicationContext} startup Component Scanner
-     * 
+     *
      * @return {@link ApplicationContext} startup Component Scanner
      */
     public static CandidateComponentScanner getSharedInstance() {
