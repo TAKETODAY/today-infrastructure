@@ -21,10 +21,11 @@ package cn.taketoday.context.factory.cycle;
 
 import org.junit.Test;
 
+import javax.annotation.PostConstruct;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 
@@ -32,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 
 /**
  * @author TODAY <br>
- *         2019-12-12 09:50
+ * 2019-12-12 09:50
  */
 public class CycleDependencyTest {
 
@@ -47,16 +48,17 @@ public class CycleDependencyTest {
 
             final BeanA beanA = applicationContext.getBean(BeanA.class);
             final BeanB beanB = applicationContext.getBean(BeanB.class);
+            applicationContext.getBean(BeanC.class);
 
             assertEquals(beanA, beanB.beanA);
             assertEquals(beanB, beanA.beanB);
             assertEquals(beanB, beanB.beanB);
 
-//            final ConstructorCycleDependency1 one = applicationContext.getBean(ConstructorCycleDependency1.class);
-//            final ConstructorCycleDependency2 two = applicationContext.getBean(ConstructorCycleDependency2.class);
-//
-//            assertEquals(two, one.two);
-//            assertEquals(one, two.one);
+            //            final ConstructorCycleDependency1 one = applicationContext.getBean(ConstructorCycleDependency1.class);
+            //            final ConstructorCycleDependency2 two = applicationContext.getBean(ConstructorCycleDependency2.class);
+            //
+            //            assertEquals(two, one.two);
+            //            assertEquals(one, two.one);
         }
     }
 
@@ -77,27 +79,46 @@ public class CycleDependencyTest {
         BeanB beanB;
     }
 
-    @Configuration
-    public static class ConfigBean {
+    @Singleton
+    public static class BeanC {
 
+        BeanA beanA;
+
+        BeanB beanB;
+
+        @PostConstruct
+        public void init(BeanA beanA, BeanB beanB) {
+            this.beanA = beanA;
+            this.beanB = beanB;
+        }
+
+        @PostConstruct
+        public void init2(BeanA beanA) {
+            assertEquals(this.beanA, beanA);
+        }
+
+        @PostConstruct
+        public void init3(BeanC beanC) {
+            assertEquals(this, beanC);
+        }
     }
 
-//    @Singleton
-//    public static class ConstructorCycleDependency1 {
-//        ConstructorCycleDependency2 two;
-//
-//        ConstructorCycleDependency1(ConstructorCycleDependency2 two) {
-//            this.two = two;
-//        }
-//    }
-//
-//    @Singleton
-//    public static class ConstructorCycleDependency2 {
-//        ConstructorCycleDependency1 one;
-//
-//        ConstructorCycleDependency2(ConstructorCycleDependency1 one) {
-//            this.one = one;
-//        }
-//    }
+    //    @Singleton
+    //    public static class ConstructorCycleDependency1 {
+    //        ConstructorCycleDependency2 two;
+    //
+    //        ConstructorCycleDependency1(ConstructorCycleDependency2 two) {
+    //            this.two = two;
+    //        }
+    //    }
+    //
+    //    @Singleton
+    //    public static class ConstructorCycleDependency2 {
+    //        ConstructorCycleDependency1 one;
+    //
+    //        ConstructorCycleDependency2(ConstructorCycleDependency1 one) {
+    //            this.one = one;
+    //        }
+    //    }
 
 }

@@ -1,7 +1,7 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,11 +15,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.context;
-
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -70,6 +68,8 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
+
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
@@ -137,7 +137,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             // Initialize other special beans in specific context subclasses.
             preRefresh();
             // Lazy loading
-            if (!getEnvironment().getProperty(Constant.ENABLE_LAZY_LOADING, Boolean::parseBoolean, false)) {
+            if (!getEnvironment().getFlag(Constant.ENABLE_LAZY_LOADING)) {
                 refresh(); // Initialize all singletons.
             }
             // Finish refresh
@@ -173,10 +173,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         postProcessLoadProperties(environment);
 
         {// @since 2.1.6
-            if (environment.getProperty(Constant.ENABLE_FULL_PROTOTYPE, boolean.class, false)) {
+            if (environment.getFlag(Constant.ENABLE_FULL_PROTOTYPE)) {
                 enableFullPrototype();
             }
-            if (environment.getProperty(Constant.ENABLE_FULL_LIFECYCLE, boolean.class, false)) {
+            if (environment.getFlag(Constant.ENABLE_FULL_LIFECYCLE)) {
                 enableFullLifecycle();
             }
         }
@@ -184,7 +184,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * Post process after load properties
-     * 
+     *
      * @param environment
      *            {@link Environment}
      */
@@ -194,7 +194,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * Load bean definitions
-     * 
+     *
      * @param beanFactory
      *            Bean factory
      * @param beanClasses
@@ -265,7 +265,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     protected Set<Class<?>> getComponentCandidates() {
         final CandidateComponentScanner scanner = getCandidateComponentScanner();
-        final String[] locations = this.locations;
         if (ObjectUtils.isEmpty(locations)) {
             // Candidates have not been set or scanned
             if (scanner.getCandidates() == null) {
@@ -278,7 +277,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * Register Framework Beans
-     * 
+     *
      * @param beanNameCreator
      *            Bean name creator to create bean name
      */
@@ -302,7 +301,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * Process after {@link #prepareBeanFactory}
-     * 
+     *
      * @param beanFactory
      *            bean factory
      */
@@ -346,7 +345,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * Load all the application listeners in context and register it.
-     * 
+     *
      * @param applicationListeners
      *            {@link ApplicationListener} cache
      */
@@ -364,6 +363,17 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         postProcessRegisterListener(applicationListeners);
     }
 
+    /**
+     * Register {@link ApplicationListener} to {@link #applicationListeners}
+     * <p>
+     * If there isn't a bean create it and register bean to singleton cache
+     * 
+     * @param listenerClass
+     *            Must be {@link ApplicationListener} class
+     * @throws ConfigurationException
+     *             If listenerClass isn't a {@link ApplicationListener}
+     * @see #getEnvironment()
+     */
     protected void registerListener(Class<?> listenerClass) {
 
         if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
@@ -376,7 +386,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
             Object applicationListener = getSingleton(name);
             if (applicationListener == null) {
                 // create bean instance
-                applicationListener = ClassUtils.newInstance(listenerClass);
+                applicationListener = ClassUtils.newInstance(listenerClass, this);
                 registerSingleton(name, applicationListener);
             }
             addApplicationListener((ApplicationListener<?>) applicationListener);
@@ -411,7 +421,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * Register to registry
-     * 
+     *
      * @param applicationListeners
      *            Registry
      * @param applicationListener
@@ -438,7 +448,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * Process after {@link #registerListener(Collection, Map)}
-     * 
+     *
      * @param applicationListeners
      *            {@link ApplicationListener} cache
      */
@@ -453,7 +463,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * Load the META-INF/listeners
-     * 
+     *
      * @since 2.1.6
      */
     public Set<Class<?>> loadMetaInfoListeners() { // fixed #9 Some listener in a jar can't be load
@@ -522,7 +532,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * create {@link ConfigurableEnvironment}
-     * 
+     *
      * @return a default {@link ConfigurableEnvironment}
      */
     protected ConfigurableEnvironment createEnvironment() {
