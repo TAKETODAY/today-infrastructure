@@ -512,13 +512,7 @@ public abstract class ContextUtils {
      * @since 2.1.7
      */
     public static Method[] resolveInitMethod(String[] initMethods, Class<?> beanClass) {
-
-        if (initMethods == null) {
-            initMethods = Constant.EMPTY_STRING_ARRAY;
-        }
-
-        final List<Method> methods = new ArrayList<>(4);
-
+        final ArrayList<Method> methods = new ArrayList<>(2);
         do {
             addInitMethod(methods, beanClass, initMethods);
         } while ((beanClass = beanClass.getSuperclass()) != null && beanClass != Object.class); // all methods
@@ -543,16 +537,20 @@ public abstract class ContextUtils {
      *
      * @since 2.1.2
      */
-    private static void addInitMethod(final List<Method> methods, final Class<?> beanClass, final String... initMethods) {
+    private static void addInitMethod(final List<Method> methods, final Class<?> beanClass, final String[] initMethods) {
+        final boolean initMethodsNotEmpty = StringUtils.isArrayNotEmpty(initMethods);
         for (final Method method : beanClass.getDeclaredMethods()) {
             if (ClassUtils.isAnnotationPresent(method, PostConstruct.class)
                 || AutowiredPropertyResolver.isInjectable(method)) {
                 methods.add(method);
                 continue;
             }
-            for (final String initMethod : initMethods) {
-                if (initMethod.equals(method.getName())) { // equals
-                    methods.add(method);
+            if (initMethodsNotEmpty) {
+                final String name = method.getName();
+                for (final String initMethod : initMethods) {
+                    if (initMethod.equals(name)) { // equals
+                        methods.add(method);
+                    }
                 }
             }
         }
