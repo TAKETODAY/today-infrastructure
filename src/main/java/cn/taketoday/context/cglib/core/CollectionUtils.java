@@ -66,7 +66,7 @@ public abstract class CollectionUtils {
     }
 
     public static <T, R> List<R> transform(final Collection<T> c, final Transformer<T, R> t) {
-        final List<R> result = new ArrayList<>(c.size());
+        final ArrayList<R> result = new ArrayList<>(c.size());
 
         for (final T obj : c) {
             result.add(t.transform(obj));

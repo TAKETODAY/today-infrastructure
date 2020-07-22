@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -34,15 +33,14 @@ import cn.taketoday.context.asm.Opcodes;
 @SuppressWarnings("all")
 public class DuplicatesPredicate implements Predicate<Method> {
 
-    private final Set unique;
-    private final Set rejected;
+    private final Set<Object> unique = new HashSet<>();
+    private final Set<Method> rejected;
 
     /**
      * Constructs a DuplicatesPredicate that will allow subclass bridge methods to
      * be preferred over superclass non-bridge methods.
      */
     public DuplicatesPredicate() {
-        unique = new HashSet();
         rejected = Collections.emptySet();
     }
 
@@ -51,20 +49,18 @@ public class DuplicatesPredicate implements Predicate<Method> {
      * methods despite a subclass method with the same signtaure existing (if the
      * subclass is a bridge method).
      */
-    public DuplicatesPredicate(List allMethods) {
-        rejected = new HashSet();
-        unique = new HashSet();
+    public DuplicatesPredicate(List<Method> allMethods) {
+        rejected = new HashSet<>();
 
         // Traverse through the methods and capture ones that are bridge
         // methods when a subsequent method (from a non-interface superclass)
         // has the same signature but isn't a bridge. Record these so that
         // we avoid using them when filtering duplicates.
-        Map scanned = new HashMap();
-        Map suspects = new HashMap();
-        for (Object o : allMethods) {
-            Method method = (Method) o;
-            Object sig = MethodWrapper.create(method);
-            Method existing = (Method) scanned.get(sig);
+        HashMap<Object, Method> scanned = new HashMap<>();
+        HashMap<Object, Method> suspects = new HashMap<>();
+        for (final Method method : allMethods) {
+            final Object sig = MethodWrapper.create(method);
+            final Method existing = scanned.get(sig);
             if (existing == null) {
                 scanned.put(sig, method);
             }
@@ -78,34 +74,25 @@ public class DuplicatesPredicate implements Predicate<Method> {
         }
 
         if (!suspects.isEmpty()) {
-            Set classes = new HashSet();
+            HashSet<Class<?>> classes = new HashSet<>();
             UnnecessaryBridgeFinder finder = new UnnecessaryBridgeFinder(rejected);
-            for (Object o : suspects.values()) {
-                Method m = (Method) o;
+            for (final Method m : suspects.values()) {
                 classes.add(m.getDeclaringClass());
                 finder.addSuspectMethod(m);
             }
-            for (Object o : classes) {
-                Class c = (Class) o;
-                try {
-                    ClassLoader cl = getClassLoader(c);
-                    if (cl == null) {
-                        continue;
+            for (final Class c : classes) {
+                final ClassLoader cl = getClassLoader(c);
+                if (cl != null) {
+                    try (final InputStream is = cl.getResourceAsStream(c.getName().replace('.', '/') + ".class")) {
+                        if (is != null) {
+                            new ClassReader(is).accept(finder, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
+                        }
                     }
-                    InputStream is = cl.getResourceAsStream(c.getName().replace('.', '/') + ".class");
-                    if (is == null) {
-                        continue;
-                    }
-                    try {
-                        new ClassReader(is).accept(finder, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
-                    }
-                    finally {
-                        is.close();
-                    }
+                    catch (IOException ignored) {}
                 }
-                catch (IOException ignored) {}
             }
         }
+
     }
 
     @Override
@@ -125,12 +112,12 @@ public class DuplicatesPredicate implements Predicate<Method> {
     }
 
     private static class UnnecessaryBridgeFinder extends ClassVisitor {
-        private final Set rejected;
+        private final Set<Method> rejected;
 
         private Signature currentMethodSig = null;
-        private Map methods = new HashMap();
+        private HashMap<Signature, Method> methods = new HashMap<>();
 
-        UnnecessaryBridgeFinder(Set rejected) {
+        UnnecessaryBridgeFinder(Set<Method> rejected) {
             this.rejected = rejected;
         }
 
@@ -142,7 +129,7 @@ public class DuplicatesPredicate implements Predicate<Method> {
 
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
             Signature sig = new Signature(name, desc);
-            final Method currentMethod = (Method) methods.remove(sig);
+            final Method currentMethod = methods.remove(sig);
             if (currentMethod != null) {
                 currentMethodSig = sig;
                 return new MethodVisitor() {

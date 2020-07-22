@@ -45,7 +45,7 @@ public class MethodWrapper {
     }
 
     public static Set<Object> createSet(Collection<Method> methods) {
-        final Set<Object> ret = new HashSet<>();
+        final HashSet<Object> ret = new HashSet<>();
 
         for (final Method method : methods) {
             ret.add(create(method));

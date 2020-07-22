@@ -15,13 +15,15 @@
  */
 package cn.taketoday.context.cglib.reflect;
 
+import static cn.taketoday.context.Constant.SWITCH_STYLE_HASH;
+
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
@@ -85,10 +87,12 @@ class FastClassEmitter extends ClassEmitter {
         e.end_method();
 
         VisibilityPredicate vp = new VisibilityPredicate(type, false);
-        List methods = ReflectUtils.addAllMethods(type, new ArrayList());
+        List<Method> methods = ReflectUtils.addAllMethods(type, new ArrayList<>());
         CollectionUtils.filter(methods, vp);
         CollectionUtils.filter(methods, new DuplicatesPredicate());
-        List constructors = new ArrayList(Arrays.asList(type.getDeclaredConstructors()));
+
+        ArrayList<Member> constructors = new ArrayList<>();
+        Collections.addAll(constructors, type.getDeclaredConstructors());
         CollectionUtils.filter(constructors, vp);
 
         // getIndex(String)
@@ -100,7 +104,7 @@ class FastClassEmitter extends ClassEmitter {
         // getIndex(Class[])
         e = beginMethod(Constant.ACC_PUBLIC, CONSTRUCTOR_GET_INDEX);
         e.load_args();
-        List info = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
+        List<MethodInfo> info = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
         EmitUtils.constructorSwitch(e, info, new GetIndexCallback(e, info));
         e.end_method();
 
@@ -130,11 +134,11 @@ class FastClassEmitter extends ClassEmitter {
     }
 
     // TODO: support constructor indices ("<init>")
-    private void emitIndexBySignature(List methods) {
+    private void emitIndexBySignature(List<Method> methods) {
         CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, SIGNATURE_GET_INDEX);
-        List signatures = CollectionUtils.transform(methods, new Transformer() {
-            public Object transform(Object obj) {
-                return ReflectUtils.getSignature((Method) obj).toString();
+        List<String> signatures = CollectionUtils.transform(methods, new Transformer<Method, String>() {
+            public String transform(Method obj) {
+                return ReflectUtils.getSignature(obj).toString();
             }
         });
         e.load_arg(0);
@@ -149,9 +153,9 @@ class FastClassEmitter extends ClassEmitter {
         CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, METHOD_GET_INDEX);
         if (methods.size() > TOO_MANY_METHODS) {
             // hack for big classes
-            List signatures = CollectionUtils.transform(methods, new Transformer() {
-                public Object transform(Object obj) {
-                    String s = ReflectUtils.getSignature((Method) obj).toString();
+            List<String> signatures = CollectionUtils.transform(methods, new Transformer<Method, String>() {
+                public String transform(Method obj) {
+                    final String s = ReflectUtils.getSignature(obj).toString();
                     return s.substring(0, s.lastIndexOf(')') + 1);
                 }
             });
@@ -161,13 +165,13 @@ class FastClassEmitter extends ClassEmitter {
         }
         else {
             e.load_args();
-            List info = CollectionUtils.transform(methods, MethodInfoTransformer.getInstance());
+            List<MethodInfo> info = CollectionUtils.transform(methods, MethodInfoTransformer.getInstance());
             EmitUtils.methodSwitch(e, info, new GetIndexCallback(e, info));
         }
         e.end_method();
     }
 
-    private void signatureSwitchHelper(final CodeEmitter e, final List signatures) {
+    private void signatureSwitchHelper(final CodeEmitter e, final List<String> signatures) {
         ObjectSwitchCallback callback = new ObjectSwitchCallback() {
             public void processCase(Object key, Label end) {
                 // TODO: remove linear indexOf
@@ -180,17 +184,16 @@ class FastClassEmitter extends ClassEmitter {
                 e.return_value();
             }
         };
-        EmitUtils.stringSwitch(e, (String[]) signatures.toArray(new String[signatures.size()]),
-                               Constant.SWITCH_STYLE_HASH, callback);
+        EmitUtils.stringSwitch(e, signatures.toArray(new String[signatures.size()]), SWITCH_STYLE_HASH, callback);
     }
 
     private static void invokeSwitchHelper(final CodeEmitter e, List members, final int arg, final Type base) {
-        final List info = CollectionUtils.transform(members, MethodInfoTransformer.getInstance());
+        final List<MethodInfo> info = CollectionUtils.transform(members, MethodInfoTransformer.getInstance());
         final Label illegalArg = e.make_label();
-        Block block = e.begin_block();
+        final Block block = e.begin_block();
         e.process_switch(getIntRange(info.size()), new ProcessSwitchCallback() {
             public void processCase(int key, Label end) {
-                MethodInfo method = (MethodInfo) info.get(key);
+                MethodInfo method = info.get(key);
                 Type[] types = method.getSignature().getArgumentTypes();
                 for (int i = 0; i < types.length; i++) {
                     e.load_arg(arg);
@@ -218,18 +221,18 @@ class FastClassEmitter extends ClassEmitter {
 
     private static class GetIndexCallback implements ObjectSwitchCallback {
         private CodeEmitter e;
-        private Map indexes = new HashMap();
+        private HashMap<Object, Integer> indexes = new HashMap<>();
 
         public GetIndexCallback(CodeEmitter e, List methods) {
             this.e = e;
             int index = 0;
-            for (Iterator it = methods.iterator(); it.hasNext();) {
-                indexes.put(it.next(), new Integer(index++));
+            for (Object object : methods) {
+                indexes.put(object, Integer.valueOf(index++));
             }
         }
 
         public void processCase(Object key, Label end) {
-            e.push(((Integer) indexes.get(key)).intValue());
+            e.push(indexes.get(key).intValue());
             e.return_value();
         }
 
