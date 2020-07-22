@@ -1,7 +1,7 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.context.env;
 
@@ -26,10 +26,10 @@ import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.expression.ExpressionProcessor;
 
 /**
- * 
  * @author TODAY <br>
  *         2018-11-14 18:58
  * @since 2.0.1
@@ -43,9 +43,10 @@ public interface Environment {
 
     /**
      * Return whether the given property key is available for resolution
-     * 
+     *
      * @param key
      *            key
+     *
      * @return if contains
      */
     boolean containsProperty(String key);
@@ -53,21 +54,23 @@ public interface Environment {
     /**
      * Return the property value associated with the given key, or {@code null} if
      * the key cannot be resolved.
-     * 
+     *
      * @param key
      *            the property name to resolve
-     * @return
+     *
+     * @return Property value
      */
     String getProperty(String key);
 
     /**
      * Return the property value associated with the given key, or
      * {@code defaultValue} if the key cannot be resolved.
-     * 
+     *
      * @param key
      *            the property name to resolve
      * @param defaultValue
      *            the default value to return if no value is found
+     *
      * @return the property value associated with the given key, or
      *         {@code defaultValue} if the key cannot be resolved.
      */
@@ -76,11 +79,12 @@ public interface Environment {
     /**
      * Return the property value associated with the given key, or {@code null} if
      * the key cannot be resolved.
-     * 
+     *
      * @param key
      *            the property name to resolve
      * @param targetType
      *            the expected type of the property value
+     *
      * @return the property value associated with the given key, or {@code null} if
      *         the key cannot be resolved
      */
@@ -90,16 +94,18 @@ public interface Environment {
 
     /**
      * Return the property value associated with the given key, or
-     * {@link defaultValue} if the key cannot be resolved.
-     * 
+     * {@code defaultValue} if the key cannot be resolved.
+     *
      * @param key
      *            the property name to resolve
      * @param targetType
      *            the expected type of the property value
      * @param defaultValue
      *            if the key cannot be resolved will return this value
+     *
      * @return the property value associated with the given key, or
-     *         {@link defaultValue} if the key cannot be resolved
+     *         {@code defaultValue} if the key cannot be resolved
+     *
      * @since 2.1.6
      */
     default <T> T getProperty(String key, Class<T> targetType, T defaultValue) {
@@ -113,8 +119,9 @@ public interface Environment {
      *            converter to convert a source value to target type value
      * @param defaultValue
      *            if the key cannot be resolved will return this value
+     *
      * @return the property value associated with the given key and convert to
-     *         target type, or {@link defaultValue} if the key cannot be resolved
+     *         target type, or {@code defaultValue} if the key cannot be resolved
      */
     @SuppressWarnings("unchecked")
     default <S, T> T getProperty(String key, Converter<S, T> converter, T defaultValue) {
@@ -127,7 +134,7 @@ public interface Environment {
 
     /**
      * Return the set of profiles explicitly made active for this environment.
-     * 
+     *
      * @return active profiles
      */
     String[] getActiveProfiles();
@@ -135,39 +142,71 @@ public interface Environment {
     /**
      * If active profiles is empty return false. If active profiles is not empty
      * then will compare all active profiles.
-     * 
+     *
      * @param profiles
      *            profiles
+     *
      * @return if accepted
      */
     boolean acceptsProfiles(String... profiles);
 
     /**
      * Get a bean name creator
-     * 
+     *
      * @return {@link BeanNameCreator} never be null
      */
     BeanNameCreator getBeanNameCreator();
 
     /**
      * Get bean definition loader
-     * 
+     *
      * @return {@link BeanDefinitionLoader}
      */
     BeanDefinitionLoader getBeanDefinitionLoader();
 
     /**
      * Get the bean definition registry
-     * 
+     *
      * @return {@link BeanDefinitionRegistry}
      */
     BeanDefinitionRegistry getBeanDefinitionRegistry();
 
     /**
      * Get {@link ExpressionProcessor}
-     * 
+     *
      * @return {@link ExpressionProcessor}
+     *
      * @since 2.1.7
      */
     ExpressionProcessor getExpressionProcessor();
+
+    /**
+     * Retrieve the flag for the given property key.
+     *
+     * @param key
+     *            the property key
+     *
+     * @return {@code true} if the property is set to "true", {@code} false
+     *         otherwise
+     */
+    default boolean getFlag(String key) {
+        return Boolean.parseBoolean(getProperty(key));
+    }
+
+    /**
+     * Retrieve the flag for the given property key.
+     * <p>
+     * If there isn't a key returns defaultFlag
+     * </p>
+     *
+     * @param key
+     *            the property key
+     *
+     * @return {@code true} if the property is set to "true", {@code} false
+     *         otherwise ,If there isn't a key returns defaultFlag
+     */
+    default boolean getFlag(String key, boolean defaultFlag) {
+        final String property = getProperty(key);
+        return StringUtils.isEmpty(property) ? defaultFlag : Boolean.parseBoolean(property);
+    }
 }
