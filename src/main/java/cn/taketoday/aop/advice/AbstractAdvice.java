@@ -1,32 +1,32 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ * <p>
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.aop.advice;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.Joinpoint;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 import cn.taketoday.aop.annotation.Annotated;
 import cn.taketoday.aop.annotation.Argument;
@@ -89,7 +89,7 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
 
     /**
      * Invoke advice method
-     * 
+     *
      * @param i
      *            Target method invocation
      * @param returnValue
@@ -108,7 +108,7 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
 
     /**
      * Resolve method parameter list
-     * 
+     *
      * @param invocation
      *            The join point
      * @param value
@@ -124,11 +124,11 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
 
         final Object[] args = new Object[adviceParameterLength];
         final Class<?>[] adviceParameterTypes = this.adviceParameterTypes;
-        
+
         final byte[] adviceParameters = this.adviceParameters;
         for (int i = 0; i < adviceParameterLength; i++) {
             switch (adviceParameters[i]) {
-                case Constant.TYPE_THROWING : {
+                case Constant.TYPE_THROWING: {
                     if (ex != null) {
                         final Class<?> parameterType = adviceParameterTypes[i];
                         final Throwable throwable = ExceptionUtils.unwrapThrowable(ex);
@@ -140,7 +140,7 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
                     }
                     break;
                 }
-                case Constant.TYPE_ARGUMENT : {
+                case Constant.TYPE_ARGUMENT: {
                     // fix: NullPointerException
                     Object[] arguments = invocation.getArguments();
                     if (arguments.length == 1) {
@@ -149,27 +149,24 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
                     }
                     // for every argument matching
                     for (Object argument : arguments) {
-                        if (argument == null) {
-                            continue;
-                        }
-                        if (argument.getClass() == adviceParameterTypes[i]) {
+                        if (argument != null && argument.getClass() == adviceParameterTypes[i]) {
                             args[i] = argument;
                             break;
                         }
                     }
                     break;
                 }
-                case Constant.TYPE_ARGUMENTS :
+                case Constant.TYPE_ARGUMENTS:
                     args[i] = invocation.getArguments();
                     break;
-                case Constant.TYPE_RETURNING :
+                case Constant.TYPE_RETURNING:
                     args[i] = value;
                     break;
-                case Constant.TYPE_ANNOTATED : {
+                case Constant.TYPE_ANNOTATED: {
                     args[i] = resolveAnnotation(invocation, (Class<? extends Annotation>) adviceParameterTypes[i]);
                     break;
                 }
-                case Constant.TYPE_JOIN_POINT : {
+                case Constant.TYPE_JOIN_POINT: {
                     args[i] = invocation;
                     break;
                 }
@@ -201,7 +198,7 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
 
     /**
      * Resolve an annotation
-     * 
+     *
      * @param methodInvocation
      *            The join point
      * @param annotationClass

@@ -83,8 +83,8 @@ public abstract class LoggerFactory {
         return factory.createLogger(name);
     }
 
-    public static void setFactory(final LoggerFactory type) {
-        factory = type;
+    public static void setFactory(final LoggerFactory loggerFactory) {
+        factory = loggerFactory;
     }
 
 }

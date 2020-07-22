@@ -52,7 +52,8 @@ import cn.taketoday.expression.StandardExpressionContext;
  * @author TODAY <br>
  *         2019-02-27 19:03
  */
-public abstract class AbstractCacheInterceptor extends CacheOperations implements MethodInterceptor, InitializingBean {
+public abstract class AbstractCacheInterceptor
+    extends CacheOperations implements MethodInterceptor, InitializingBean {
 
     private CacheManager cacheManager;
 

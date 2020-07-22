@@ -23,8 +23,9 @@ package cn.taketoday.cache;
  * @author TODAY <br>
  *         2019-02-28 12:54
  */
-@SuppressWarnings("serial")
 public class NoSuchCacheException extends CacheException {
+
+    private static final long serialVersionUID = 1L;
 
     public NoSuchCacheException(String name) {
         super("No such cache named: ".concat(name));
