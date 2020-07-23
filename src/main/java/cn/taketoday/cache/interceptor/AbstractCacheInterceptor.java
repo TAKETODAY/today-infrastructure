@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import javax.annotation.PostConstruct;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -40,7 +42,6 @@ import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConcurrentCache;
 import cn.taketoday.context.utils.ContextUtils;
@@ -52,8 +53,7 @@ import cn.taketoday.expression.StandardExpressionContext;
  * @author TODAY <br>
  *         2019-02-27 19:03
  */
-public abstract class AbstractCacheInterceptor
-    extends CacheOperations implements MethodInterceptor, InitializingBean {
+public abstract class AbstractCacheInterceptor extends CacheOperations implements MethodInterceptor {
 
     private CacheManager cacheManager;
 
@@ -114,18 +114,16 @@ public abstract class AbstractCacheInterceptor
         return cache;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-
-        final ApplicationContext applicationContext = ContextUtils.getApplicationContext();
+    @PostConstruct
+    protected void initCacheInterceptor(ApplicationContext context) {
         if (getCacheManager() == null) {
-            setCacheManager(applicationContext.getBean(CacheManager.class));
+            setCacheManager(context.getBean(CacheManager.class));
         }
 
         ConfigurationException.nonNull(getCacheManager(), "You must provide a 'CacheManager'");
 
         if (getExceptionResolver() == null) {
-            setExceptionResolver(applicationContext.getBean(CacheExceptionResolver.class));
+            setExceptionResolver(context.getBean(CacheExceptionResolver.class));
         }
     }
 
@@ -138,7 +136,7 @@ public abstract class AbstractCacheInterceptor
         String KEY_RESULT = "result";
 
         StandardExpressionContext SHARED_EL_CONTEXT = //
-                ContextUtils.getApplicationContext()
+                ContextUtils.getLastStartupContext()
                         .getEnvironment()
                         .getExpressionProcessor()
                         .getManager()
@@ -149,7 +147,7 @@ public abstract class AbstractCacheInterceptor
         ConcurrentCache<MethodKey, CacheConfiguration> CACHE_OPERATION = new ConcurrentCache<>(512);
         Function<MethodKey, String[]> ARGS_NAMES_FUNCTION = (target) -> ClassUtils.getMethodArgsNames(target.targetMethod);
 
-        Function<MethodKey, CacheConfiguration> CACHE_OPERATION_FUNCTION = (target) -> {
+        Function<MethodKey, CacheConfiguration> CACHE_OPERATION_FUNCTION = target -> {
 
             final Method method = target.targetMethod;
             final Class<? extends Annotation> annClass = target.annotationClass;
