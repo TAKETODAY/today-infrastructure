@@ -24,9 +24,10 @@ import java.util.Set;
 import javax.servlet.ServletContext;
 
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.env.StandardEnvironment;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.StandardBeanFactory;
-import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
@@ -39,36 +40,43 @@ public class StandardWebServletApplicationContext extends StandardApplicationCon
     /** Servlet context */
     private ServletContext servletContext;
 
-    @Override
-    public ServletContext getServletContext() {
-        return servletContext;
-    }
-
-    @Override
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
-    }
-
+    /**
+     * Default Constructor
+     */
     public StandardWebServletApplicationContext() {
-        super();
-        WebUtils.setWebApplicationContext(this);
+        this(new StandardEnvironment());
+    }
+
+    /**
+     * Construct with given {@link ConfigurableEnvironment}
+     * 
+     * @param env
+     *            {@link ConfigurableEnvironment} instance
+     */
+    public StandardWebServletApplicationContext(ConfigurableEnvironment env) {
+        super(env);
+        WebUtils.setLastStartupWebContext(this);
+    }
+
+    public StandardWebServletApplicationContext(StandardBeanFactory beanFactory) {
+        super(beanFactory);
+        WebUtils.setLastStartupWebContext(this);
     }
 
     public StandardWebServletApplicationContext(ServletContext servletContext) {
         this();
         this.servletContext = servletContext;
-        loadContext();
     }
 
     /**
      * @param classes
      *            class set
      * @param servletContext
+     *            {@link ServletContext}
      * @since 2.3.3
      */
     public StandardWebServletApplicationContext(Set<Class<?>> classes, ServletContext servletContext) {
-        this();
-        this.servletContext = servletContext;
+        this(servletContext);
         loadContext(classes);
     }
 
@@ -82,16 +90,9 @@ public class StandardWebServletApplicationContext extends StandardApplicationCon
      * @since 2.3.3
      */
     public StandardWebServletApplicationContext(ServletContext servletContext, String propertiesLocation, String... locations) {
-        this();
-        if (StringUtils.isNotEmpty(propertiesLocation)) {
-            setPropertiesLocation(propertiesLocation);
-        }
-        this.servletContext = servletContext;
+        this(servletContext);
+        setPropertiesLocation(propertiesLocation);
         loadContext(locations);
-    }
-
-    public StandardWebServletApplicationContext(StandardBeanFactory beanFactory) {
-        super(beanFactory);
     }
 
     @Override
@@ -110,6 +111,16 @@ public class StandardWebServletApplicationContext extends StandardApplicationCon
     @Override
     public String getContextPath() {
         return servletContext.getContextPath();
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+        return servletContext;
+    }
+
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
     }
 
 }

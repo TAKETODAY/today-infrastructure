@@ -46,10 +46,8 @@ public interface CorsProcessor {
      * 
      * @param configuration
      *            the applicable CORS configuration (possibly {@code null})
-     * @param request
-     *            the current request
-     * @param response
-     *            the current response
+     * @param context
+     *            the current HTTP context
      * @return {@code false} if the request is rejected, {@code true} otherwise
      */
     boolean processCorsRequest(CorsConfiguration configuration, RequestContext context) throws IOException;

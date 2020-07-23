@@ -51,12 +51,11 @@ public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
 
         super.awareInternal(bean, def);
 
-        final WebServletApplicationContext context = getApplicationContext();
         if (bean instanceof ServletContextAware) {
-            ((ServletContextAware) bean).setServletContext(context.getServletContext());
+            ((ServletContextAware) bean).setServletContext(getApplicationContext().getServletContext());
         }
         if (bean instanceof WebServletApplicationContextAware) {
-            ((WebServletApplicationContextAware) bean).setWebServletApplicationContext(context);
+            ((WebServletApplicationContextAware) bean).setWebServletApplicationContext(getApplicationContext());
         }
     }
 
@@ -68,7 +67,7 @@ public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
         servletEnv.put(HttpSession.class, factory(RequestContextHolder::currentSession));
         servletEnv.put(HttpServletRequest.class, factory(RequestContextHolder::currentRequest));
         servletEnv.put(HttpServletResponse.class, factory(RequestContextHolder::currentResponse));
-        
+
         final WebServletApplicationContext context = getApplicationContext();
         servletEnv.put(ServletContext.class, factory(context::getServletContext));
 

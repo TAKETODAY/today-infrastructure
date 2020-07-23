@@ -48,19 +48,19 @@ import cn.taketoday.web.handler.MethodParameter;
  */
 public abstract class WebUtils {
 
-    private static WebApplicationContext applicationContext;
+    private static WebApplicationContext lastStartupContext;
 
     /**
-     * Get {@link WebApplicationContext}
+     * Get last startup {@link WebApplicationContext}
      * 
      * @return WebApplicationContext
      */
-    public final static WebApplicationContext getWebApplicationContext() {
-        return applicationContext;
+    public final static WebApplicationContext getLastStartupWebContext() {
+        return lastStartupContext;
     }
 
-    public static void setWebApplicationContext(WebApplicationContext applicationContext) {
-        WebUtils.applicationContext = applicationContext;
+    public static void setLastStartupWebContext(WebApplicationContext applicationContext) {
+        WebUtils.lastStartupContext = applicationContext;
     }
 
     /**

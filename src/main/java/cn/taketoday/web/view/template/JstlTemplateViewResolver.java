@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,26 +21,25 @@ package cn.taketoday.web.view.template;
 
 import java.util.Map.Entry;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.http.HttpServletRequest;
 
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.WebServletApplicationContext;
 
 /**
  * Jstl Template
- * 
+ *
  * @author TODAY <br>
  *         2018-06-26 11:53:43
  */
-public class JstlTemplateViewResolver extends AbstractTemplateViewResolver implements InitializingBean {
+public class JstlTemplateViewResolver extends AbstractTemplateViewResolver {
 
     @Override
     public void resolveView(final String template, final RequestContext requestContext) throws Throwable {
@@ -51,20 +50,16 @@ public class JstlTemplateViewResolver extends AbstractTemplateViewResolver imple
     }
 
     /**
-     * @see cn.taketoday.context.factory.InitializingBean#afterPropertiesSet()
      * @since 2.3.3
      */
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    @PostConstruct
+    public void afterPropertiesSet(WebServletApplicationContext applicationContext) {
 
         final String jspServlet = "org.apache.jasper.servlet.JspServlet";
 
         if (!ClassUtils.isPresent(jspServlet)) {
             throw new ConfigurationException("You must provide: [" + jspServlet + "] to your application's class path");
         }
-
-        final WebServletApplicationContext applicationContext = //
-                (WebServletApplicationContext) ContextUtils.getApplicationContext();
 
         final ServletContext servletContext = applicationContext.getServletContext();
 
