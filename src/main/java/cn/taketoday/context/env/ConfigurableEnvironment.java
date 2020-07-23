@@ -24,6 +24,7 @@ import java.io.IOException;
 import cn.taketoday.context.BeanNameCreator;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.expression.ExpressionProcessor;
 
 /**
  * Configurable {@link Environment}
@@ -114,5 +115,15 @@ public interface ConfigurableEnvironment extends Environment {
      * @return {@link ConfigurableEnvironment}
      */
     ConfigurableEnvironment setPropertiesLocation(String propertiesLocation);
+
+    /**
+     * Configure expression processor
+     * 
+     * @param expressionProcessor
+     *            {@link ExpressionProcessor} object
+     * @since 2.1.7
+     * @return {@link ConfigurableEnvironment}
+     */
+    ConfigurableEnvironment setExpressionProcessor(ExpressionProcessor expressionProcessor);
 
 }

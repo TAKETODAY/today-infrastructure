@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context;
 
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -32,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.context.annotation.ContextListener;
+import cn.taketoday.context.el.ValueExpressionContext;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.env.StandardEnvironment;
@@ -66,10 +69,10 @@ import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
-
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
@@ -81,7 +84,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     private long startupDate;
 
-    private ConfigurableEnvironment environment;
+    private final ConfigurableEnvironment environment;
 
     // @since 2.1.5
     private State state;
@@ -93,14 +96,32 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     private ArrayList<BeanFactoryPostProcessor> factoryPostProcessors;
 
-    public AbstractApplicationContext() {
+    /**
+     * Construct with a {@link ConfigurableEnvironment}
+     * 
+     * @param env
+     *            {@link ConfigurableEnvironment} instance
+     * @since 2.1.7
+     */
+    public AbstractApplicationContext(ConfigurableEnvironment env) {
         applyState(State.NONE);
-        ContextUtils.applicationContext = this; // @since 2.1.6
-    }
-
-    public AbstractApplicationContext(String... locations) {
-        this();
-        this.locations = locations;
+        this.environment = env;
+        ContextUtils.setLastStartupContext(this); // @since 2.1.6
+        // check registry
+        if (env.getBeanDefinitionRegistry() == null) {
+            env.setBeanDefinitionRegistry(getBeanFactory());
+        }
+        // check bean definition loader
+        if (env.getBeanDefinitionLoader() == null) {
+            env.setBeanDefinitionLoader(getBeanFactory().getBeanDefinitionLoader());
+        }
+        // Expression
+        if (env.getExpressionProcessor() == null) {
+            final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
+            final ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, getBeanFactory());
+            elContext.defineBean(Constant.ENV, env.getProperties()); // @since 2.1.6
+            env.setExpressionProcessor(new ExpressionProcessor(new ExpressionManager(elContext, exprFactory)));
+        }
     }
 
     /**
@@ -112,10 +133,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     @Override
     public void loadContext(Collection<Class<?>> candidates) {
-        getCandidateComponentScanner().setCandidates(candidates instanceof Set
-                ? (Set<Class<?>>) candidates
-                : new HashSet<>(candidates)//
-        );
+        final Set<Class<?>> candidateSet = candidates instanceof Set ? (Set<Class<?>>) candidates : new HashSet<>(candidates);
+        getCandidateComponentScanner().setCandidates(candidateSet);
+        
         loadContext((String[]) null);
     }
 
@@ -230,15 +250,22 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     public void prepareBeanFactory() {
 
         final AbstractBeanFactory beanFactory = getBeanFactory();
-        final ConfigurableEnvironment environment = getEnvironment();
+        final ConfigurableEnvironment env = getEnvironment();
         // must not be null
         // check registry
-        if (environment.getBeanDefinitionRegistry() == null) {
-            environment.setBeanDefinitionRegistry(beanFactory);
+        if (env.getBeanDefinitionRegistry() == null) {
+            env.setBeanDefinitionRegistry(beanFactory);
         }
         // check bean definition loader
-        if (environment.getBeanDefinitionLoader() == null) {
-            environment.setBeanDefinitionLoader(beanFactory.getBeanDefinitionLoader());
+        if (env.getBeanDefinitionLoader() == null) {
+            env.setBeanDefinitionLoader(beanFactory.getBeanDefinitionLoader());
+        }
+        // Expression
+        if (env.getExpressionProcessor() == null) {
+            final ExpressionFactory exprFactory = ExpressionFactory.getSharedInstance();
+            final ValueExpressionContext elContext = new ValueExpressionContext(exprFactory, beanFactory);
+            elContext.defineBean(Constant.ENV, env.getProperties()); // @since 2.1.6
+            env.setExpressionProcessor(new ExpressionProcessor(new ExpressionManager(elContext, exprFactory)));
         }
         // register framework beans
         log.debug("Registering framework beans");
@@ -283,8 +310,8 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      */
     protected void registerFrameworkBeans(final BeanNameCreator beanNameCreator) {
 
-        final ConfigurableEnvironment environment = getEnvironment();
-        final ExpressionProcessor elProcessor = environment.getExpressionProcessor();
+        final ConfigurableEnvironment env = getEnvironment();
+        final ExpressionProcessor elProcessor = env.getExpressionProcessor();
 
         // register ELManager @since 2.1.5
         // fix @since 2.1.6 elManager my be null
@@ -292,7 +319,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
         registerSingleton(beanNameCreator.create(ExpressionProcessor.class), elProcessor);
         // register Environment
-        registerSingleton(beanNameCreator.create(Environment.class), environment);
+        registerSingleton(beanNameCreator.create(Environment.class), env);
         // register ApplicationContext
         registerSingleton(beanNameCreator.create(ApplicationContext.class), this);
         // register BeanFactory @since 2.1.7
@@ -367,9 +394,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      * Register {@link ApplicationListener} to {@link #applicationListeners}
      * <p>
      * If there isn't a bean create it and register bean to singleton cache
-     * 
+     *
      * @param listenerClass
      *            Must be {@link ApplicationListener} class
+     *
      * @throws ConfigurationException
      *             If listenerClass isn't a {@link ApplicationListener}
      * @see #getEnvironment()
@@ -379,7 +407,6 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
             throw new ConfigurationException("ContextListener must be a 'ApplicationListener'");
         }
-
         try {
             final String name = getEnvironment().getBeanNameCreator().create(listenerClass);
             // if exist bean
@@ -498,16 +525,13 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     @Override
     public void publishEvent(final Object event) {
-
         if (log.isDebugEnabled()) {
             log.debug("Publish event: [{}]", event);
         }
-
         final List<ApplicationListener<Object>> listeners = applicationListeners.get(event.getClass());
-        if (listeners == null || listeners.isEmpty()) {
+        if (CollectionUtils.isEmpty(listeners)) {
             return;
         }
-
         for (final ApplicationListener<Object> applicationListener : listeners) {
             applicationListener.onApplicationEvent(event);
         }
@@ -518,15 +542,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     @Override
     public void setEnvironment(ConfigurableEnvironment environment) {
-        this.environment = environment;
+
     }
 
     @Override
     public ConfigurableEnvironment getEnvironment() {
-        final ConfigurableEnvironment environment = this.environment;
-        if (environment == null) {
-            return this.environment = createEnvironment();
-        }
         return environment;
     }
 
@@ -812,7 +832,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // ----------------------
 
     public void setPropertiesLocation(String propertiesLocation) {
-        getEnvironment().setPropertiesLocation(propertiesLocation);
+        if (StringUtils.isNotEmpty(propertiesLocation)) {
+            getEnvironment().setPropertiesLocation(propertiesLocation);
+        }
     }
 
     // @since 2.1.7

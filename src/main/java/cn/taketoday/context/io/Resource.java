@@ -103,19 +103,24 @@ public interface Resource extends Readable {
 
     /**
      * list {@link Resource} under the directory
-     * 
+     *
      * @return {@link Resource} names
+     *
      * @throws IOException
+     *     if the resource is not available
      */
     String[] list() throws IOException;
 
     /**
      * list {@link Resource} under the directory
-     * 
+     *
      * @param filter
-     *            filter {@link Resource}
+     *     filter {@link Resource}
+     *
      * @return {@link Resource} names
+     *
      * @throws IOException
+     *     if the resource is not available
      */
     Resource[] list(ResourceFilter filter) throws IOException;
 

@@ -570,7 +570,7 @@ public abstract class ClassUtils {
      *            The annotated element
      * @param annotationClass
      *            The annotation class
-     * @return The target {@link Annotation} instance
+     * @return The target {@link Annotation} instance. If annotatedElement is null returns null
      * @since 2.1.7
      */
     public static <T extends Annotation> T getAnnotation(final Class<T> annotationClass,
@@ -937,7 +937,7 @@ public abstract class ClassUtils {
      */
     public static <A extends Annotation> boolean isAnnotationPresent(final AnnotatedElement element,
                                                                      final Class<A> annType) {
-        return annType != null
+        return annType != null && element != null
                 && (element.isAnnotationPresent(annType)
                         || ObjectUtils.isNotEmpty(getAnnotationAttributesArray(element, annType)));
     }
@@ -953,7 +953,7 @@ public abstract class ClassUtils {
      * @since 2.1.2
      */
     public static <T> T newInstance(Class<T> beanClass) throws BeanInstantiationException {
-        return newInstance(beanClass, ContextUtils.getApplicationContext());
+        return newInstance(beanClass, ContextUtils.getLastStartupContext());
     }
 
     /**

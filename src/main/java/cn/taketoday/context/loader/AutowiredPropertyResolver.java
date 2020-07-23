@@ -104,7 +104,7 @@ public class AutowiredPropertyResolver extends OrderedSupport implements Propert
      */
     protected String byType(final Class<?> targetClass) {
 
-        final ApplicationContext applicationContext = ContextUtils.getApplicationContext();
+        final ApplicationContext applicationContext = ContextUtils.getLastStartupContext();
 
         if (applicationContext.hasStarted()) {
             final String name = findName(applicationContext, targetClass);

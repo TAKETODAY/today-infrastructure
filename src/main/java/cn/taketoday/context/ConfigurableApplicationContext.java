@@ -39,6 +39,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
      *            {@link Environment} instance
      * @since 2.1.0
      */
+    @Deprecated
     void setEnvironment(ConfigurableEnvironment environment);
 
     /**

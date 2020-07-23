@@ -21,9 +21,10 @@ package cn.taketoday.context;
 
 import java.util.Collection;
 
+import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.context.env.StandardEnvironment;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.StandardBeanFactory;
-import cn.taketoday.context.utils.StringUtils;
 
 /**
  * Standard {@link ApplicationContext}
@@ -34,6 +35,34 @@ import cn.taketoday.context.utils.StringUtils;
 public class StandardApplicationContext extends AbstractApplicationContext implements ConfigurableApplicationContext {
 
     private StandardBeanFactory beanFactory;
+
+    /**
+     * Default Constructor use default {@link StandardEnvironment}
+     */
+    public StandardApplicationContext() {
+        this(new StandardEnvironment());
+    }
+
+    /**
+     * Construct with given {@link ConfigurableEnvironment}
+     * 
+     * @param env
+     *            {@link ConfigurableEnvironment} instance
+     */
+    public StandardApplicationContext(ConfigurableEnvironment env) {
+        super(env);
+    }
+
+    /**
+     * Set given properties location
+     * 
+     * @param propertiesLocation
+     *            a file or a directory to scan
+     */
+    public StandardApplicationContext(String propertiesLocation) {
+        this();
+        setPropertiesLocation(propertiesLocation);
+    }
 
     /**
      * Start with given class set
@@ -47,16 +76,14 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
     }
 
     /**
-     * Set given properties location
+     * Construct with {@link StandardBeanFactory}
      * 
-     * @param propertiesLocation
-     *            a file or a directory to scan
+     * @param beanFactory
+     *            {@link StandardBeanFactory} instance
      */
-    public StandardApplicationContext(String propertiesLocation) {
+    public StandardApplicationContext(StandardBeanFactory beanFactory) {
         this();
-        if (StringUtils.isNotEmpty(propertiesLocation)) {
-            setPropertiesLocation(propertiesLocation);
-        }
+        this.beanFactory = beanFactory;
     }
 
     /**
@@ -70,14 +97,6 @@ public class StandardApplicationContext extends AbstractApplicationContext imple
     public StandardApplicationContext(String propertiesLocation, String... locations) {
         this(propertiesLocation);
         loadContext(locations);
-    }
-
-    public StandardApplicationContext(StandardBeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
-
-    public StandardApplicationContext() {
-        super();
     }
 
     @Override

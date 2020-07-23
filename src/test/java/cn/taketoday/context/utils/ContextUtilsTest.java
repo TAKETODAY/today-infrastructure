@@ -161,17 +161,21 @@ public class ContextUtilsTest {
             IllegalArgumentException, InvocationTargetException {
 
         ClassUtils.clearCache();
-        try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.utils")) {
-
-            System.err.println(applicationContext.getBeanDefinitions());
+        try (ApplicationContext applicationContext = new StandardApplicationContext("", "cn.taketoday.context.utils")) {
 
             final Environment environment = applicationContext.getEnvironment();
             // placeHolder
-            environment.getProperties().setProperty("placeHolder", "12345");
+            final Properties properties = environment.getProperties();
+            properties.setProperty("placeHolder", "12345");
 
             Constructor<Config> constructor = //
                     Config.class.getConstructor(UserModel.class, Properties.class, //
                                                 Properties.class, int.class, int.class);
+
+            properties.list(System.err);
+            
+            System.err.println(properties.get("placeHolder"));
+            ContextUtils.setLastStartupContext(applicationContext);
 
             Object[] resolveParameter = ContextUtils.resolveParameter(constructor, applicationContext);
 

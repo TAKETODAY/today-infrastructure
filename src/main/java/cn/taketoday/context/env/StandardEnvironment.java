@@ -1,19 +1,19 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ * <p>
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Properties;
@@ -38,14 +38,13 @@ import cn.taketoday.context.io.ResourceFilter;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.expression.ExpressionProcessor;
 
 /**
  * Standard implementation of {@link Environment}
- * 
+ *
  * @author TODAY <br>
  *         2018-11-14 21:23
  */
@@ -53,7 +52,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
     private static final Logger log = LoggerFactory.getLogger(StandardEnvironment.class);
 
-    private HashSet<String> activeProfiles = new HashSet<>(4);
+    private final HashSet<String> activeProfiles = new HashSet<>(4);
 
     private final Properties properties = new ConcurrentProperties();
 
@@ -65,6 +64,8 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     private BeanDefinitionRegistry beanDefinitionRegistry;
 
     private String propertiesLocation = Constant.BLANK; // default ""
+
+    private ExpressionProcessor expressionProcessor;
 
     public StandardEnvironment() {
         if (System.getSecurityManager() != null) {
@@ -119,7 +120,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
     @Override
     public void setActiveProfiles(String... profiles) {
-        this.activeProfiles.addAll(Arrays.asList(profiles));
+        Collections.addAll(activeProfiles, profiles);
         log.info("Active profiles: {}", activeProfiles);
     }
 
@@ -131,14 +132,15 @@ public class StandardEnvironment implements ConfigurableEnvironment {
     @Override
     public void addActiveProfile(String profile) {
         log.info("Add active profile: [{}]", profile);
-        this.activeProfiles.add(profile);
+        activeProfiles.add(profile);
     }
 
     /**
      * Load properties from {@link Resource}
-     * 
+     *
      * @param propertiesResource
      *            {@link Resource}
+     *
      * @throws IOException
      *             When access to the resource if any {@link IOException} occurred
      */
@@ -198,12 +200,14 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
     /**
      * Do load
-     * 
-     * @param dir
+     *
+     * @param directory
      *            base dir
      * @param properties
      *            properties
+     *
      * @throws IOException
+     *             if the resource is not available
      */
     public static void doLoadFromDirectory(final Resource directory,
                                            final Properties properties,
@@ -221,8 +225,12 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
     /**
      * @param properties
+     *            Target properties to store
      * @param resource
+     *            Resource to load
+     *
      * @throws IOException
+     *             if the resource is not available
      */
     public static void doLoad(Properties properties, final Resource resource) throws IOException {
 
@@ -272,7 +280,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
     /**
      * Get a bean name creator
-     * 
+     *
      * @return {@link BeanNameCreator}
      */
     @Override
@@ -286,7 +294,7 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
     /**
      * create {@link BeanNameCreator}
-     * 
+     *
      * @return a default {@link BeanNameCreator}
      */
     protected BeanNameCreator createBeanNameCreator() {
@@ -295,7 +303,13 @@ public class StandardEnvironment implements ConfigurableEnvironment {
 
     @Override
     public ExpressionProcessor getExpressionProcessor() {
-        return ContextUtils.getExpressionProcessor();
+        return expressionProcessor;
+    }
+
+    @Override
+    public ConfigurableEnvironment setExpressionProcessor(ExpressionProcessor expressionProcessor) {
+        this.expressionProcessor = expressionProcessor;
+        return this;
     }
 
     @Override

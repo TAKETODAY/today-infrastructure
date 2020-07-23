@@ -53,7 +53,7 @@ public class PropsPropertyResolver extends OrderedSupport implements PropertyVal
         Props props = ClassUtils.getAnnotation(Props.class, field);
 
         Properties properties = //
-                ContextUtils.loadProps(props, ContextUtils.getApplicationContext().getEnvironment().getProperties());
+                ContextUtils.loadProps(props, ContextUtils.getLastStartupContext().getEnvironment().getProperties());
 
         // feat: Enhance `Props`
         final Class<?> propertyClass = field.getType();

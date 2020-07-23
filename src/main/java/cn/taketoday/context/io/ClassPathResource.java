@@ -27,7 +27,6 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.util.Objects;
 
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.Assert;

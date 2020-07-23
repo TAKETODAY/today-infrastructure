@@ -110,7 +110,6 @@ public class ELFieldTest {
                 .setId(1);
 
         applicationContext.getEnvironment().getExpressionProcessor().defineBean("user", user);
-
         applicationContext.loadContext("cn.taketoday.context.el");
 
         ELFieldTest bean = applicationContext.getBean(getClass());
