@@ -17,11 +17,10 @@
 <!ELEMENT action (#PCDATA)>
 	<!ATTLIST action
 		name CDATA #REQUIRED
-		order CDATA #REQUIRED
+		order CDATA #IMPLIED
 		method CDATA #IMPLIED
-		status CDATA #REQUIRED
+		status CDATA #IMPLIED
 		resource CDATA #IMPLIED
 		content-type CDATA "text/html;charset=UTF-8"
 		type (forward|redirect) #IMPLIED
 	>
-	
