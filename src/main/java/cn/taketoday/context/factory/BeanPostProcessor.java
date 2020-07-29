@@ -91,8 +91,8 @@ public interface BeanPostProcessor {
      * 
      * @param bean
      *            the new bean instance
-     * @param beanName
-     *            the name of the bean
+     * @param def
+     *            the definition of the bean
      * @return the bean instance to use, either the original or a wrapped one; if
      *         {@code null}, no subsequent BeanPostProcessors will be invoked
      * @throws Exception
