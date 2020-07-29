@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.env.ConfigurableEnvironment;
-import cn.taketoday.context.env.Environment;
+import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
@@ -128,20 +128,16 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
     }
 
     protected void prepareInitialize() {
-
-        WebServerApplicationContext applicationContext = getApplicationContext();
-
-        final Environment env = applicationContext.getEnvironment();
-        if (env instanceof ConfigurableEnvironment) {
-
+        final WebServerApplicationContext context = getApplicationContext();
+        if (context.getEnvironment() instanceof ConfigurableEnvironment) {
             final Starter starter;
-            final ConfigurableEnvironment environment = (ConfigurableEnvironment) env;
+            final ConfigurableEnvironment environment = (ConfigurableEnvironment) context.getEnvironment();
             environment.setProperty(Constant.ENABLE_WEB_STARTED_LOG, Boolean.FALSE.toString());
             String webMvcConfigLocation = environment.getProperty(Constant.WEB_MVC_CONFIG_LOCATION);
             if (StringUtils.isNotEmpty(webMvcConfigLocation)) {
                 environment.setProperty(Constant.ENABLE_WEB_MVC_XML, Boolean.TRUE.toString());
             }
-            else if ((starter = applicationContext.getStartupClass().getAnnotation(Starter.class)) != null) {
+            else if ((starter = ClassUtils.getAnnotation(Starter.class, context.getStartupClass())) != null) {
                 // find webMvcConfigLocation
                 webMvcConfigLocation = starter.webMvcConfigLocation();
                 if (StringUtils.isNotEmpty(webMvcConfigLocation)) {

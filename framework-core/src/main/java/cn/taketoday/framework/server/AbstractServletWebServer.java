@@ -220,18 +220,17 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
         final WebServerApplicationContext context = getApplicationContext();
 
         final Class<?> startupClass = context.getStartupClass();
-
-        ServletSecurity servletSecurity = startupClass.getAnnotation(ServletSecurity.class);
-        if (servletSecurity != null) {
-
-            if (context.containsBeanDefinition(ServletSecurityElement.class)) {
-                log.info("Multiple: [{}] Overriding its bean definition", ServletSecurityElement.class.getName());
+        if (startupClass != null) {
+            ServletSecurity servletSecurity = startupClass.getAnnotation(ServletSecurity.class);
+            if (servletSecurity != null) {
+                if (context.containsBeanDefinition(ServletSecurityElement.class)) {
+                    log.info("Multiple: [{}] Overriding its bean definition", ServletSecurityElement.class.getName());
+                }
+                context.registerSingleton(new ServletSecurityElement(servletSecurity));
+                context.registerBean("servletSecurityElement", ServletSecurityElement.class);
             }
-
-            context.registerSingleton(new ServletSecurityElement(servletSecurity));
-            context.registerBean("servletSecurityElement", ServletSecurityElement.class);
         }
-
+        
         addDefaultServlet();
 
         addJspServlet();

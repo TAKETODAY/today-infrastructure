@@ -55,8 +55,8 @@ public class WebDocumentConfiguration {
     private final Class<?> startupClass;
 
     @Autowired
-    public WebDocumentConfiguration(WebServerApplicationContext applicationContext) {
-        this.startupClass = applicationContext.getStartupClass();
+    public WebDocumentConfiguration(WebServerApplicationContext context) { //TODO Startup class
+        this.startupClass = context.getStartupClass() == null ? WebDocumentConfiguration.class : context.getStartupClass();
     }
 
     public Resource getDirectory() {

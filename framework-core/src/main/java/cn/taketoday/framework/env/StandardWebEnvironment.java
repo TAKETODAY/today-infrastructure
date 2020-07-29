@@ -19,6 +19,9 @@
  */
 package cn.taketoday.framework.env;
 
+import static cn.taketoday.context.utils.ClassUtils.getAnnotation;
+import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
@@ -51,6 +54,10 @@ public class StandardWebEnvironment extends StandardEnvironment {
     private final String[] arguments;
     private final Class<?> applicationClass;
 
+    public StandardWebEnvironment() {
+        this(null);
+    }
+
     public StandardWebEnvironment(Class<?> applicationClass, String... arguments) {
         this.arguments = arguments;
         this.applicationClass = applicationClass;
@@ -72,9 +79,9 @@ public class StandardWebEnvironment extends StandardEnvironment {
 
         // load properties from starter class annotated @PropertiesSource
         final Class<?> applicationClass = this.applicationClass;
-        if (applicationClass != null && applicationClass.isAnnotationPresent(PropertiesSource.class)) {
+        if (isAnnotationPresent(applicationClass, PropertiesSource.class)) {
             for (final String propertiesLocation : //@off
-                    StringUtils.split(applicationClass.getAnnotation(PropertiesSource.class).value())) {
+                    StringUtils.split(getAnnotation(PropertiesSource.class, applicationClass).value())) {
                 
                 if(!locations.contains(propertiesLocation)) {
                     loadProperties(propertiesLocation);
@@ -122,6 +129,7 @@ public class StandardWebEnvironment extends StandardEnvironment {
      * @param locations
      *            loaded properties locations
      * @throws IOException
+     *             When access to the resource if any {@link IOException} occurred
      */
     protected void replaceProperties(Set<String> locations) throws IOException {
 

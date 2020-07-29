@@ -21,13 +21,11 @@ package cn.taketoday.framework;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
-import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
-import cn.taketoday.framework.env.StandardWebEnvironment;
 
 /**
  * @author TODAY <br>
@@ -37,21 +35,22 @@ public class WebApplication {
 
     private static final Logger log = LoggerFactory.getLogger(WebApplication.class);
 
+    private final ConfigurableWebServerApplicationContext context;
     private final String appBasePath = System.getProperty("user.dir");
-    private ConfigurableWebServerApplicationContext applicationContext;
 
     public WebApplication() {
         this(null);
     }
 
-    public WebApplication(Class<?> startupClass) {
-        applicationContext = ClassUtils.isPresent(Constant.ENV_SERVLET)
-                ? new ServletWebServerApplicationContext(startupClass)
-                : new StandardWebServerApplicationContext(startupClass);
+    public WebApplication(Class<?> startupClass, String... args) {
+
+        context = ClassUtils.isPresent(Constant.ENV_SERVLET)
+                ? new ServletWebServerApplicationContext(startupClass, args)
+                : new StandardWebServerApplicationContext(startupClass, args);
     }
 
     public ConfigurableWebServerApplicationContext getApplicationContext() {
-        return applicationContext;
+        return context;
     }
 
     /**
@@ -63,7 +62,7 @@ public class WebApplication {
      *            Startup arguments
      */
     public static ConfigurableWebServerApplicationContext run(Class<?> startupClass, String... args) {
-        return new WebApplication(startupClass).run(args);
+        return new WebApplication(startupClass, args).run(args);
     }
 
     /**
@@ -80,10 +79,13 @@ public class WebApplication {
         try {
             context.registerSingleton(this);
             final Class<?> startupClass = context.getStartupClass();
-            final ConfigurableEnvironment environment = new StandardWebEnvironment(startupClass, args);
-            context.setEnvironment(environment);
-
-            context.loadContext(startupClass.getPackage().getName());
+            if (startupClass == null) {
+                log.info("There isn't a Startup Class");
+                context.loadContext(); // load from all classpath 
+            }
+            else {
+                context.loadContext(startupClass.getPackage().getName());
+            }
 
             nonNull(context.getWebServer(), "Web server can't be null")
                     .start();

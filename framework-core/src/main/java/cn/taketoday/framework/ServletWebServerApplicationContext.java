@@ -22,6 +22,8 @@ package cn.taketoday.framework;
 import javax.servlet.Servlet;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.env.ConfigurableEnvironment;
+import cn.taketoday.framework.env.StandardWebEnvironment;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.framework.utils.ApplicationUtils;
 import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
@@ -40,16 +42,31 @@ public class ServletWebServerApplicationContext
 
     private Class<?> startupClass;
 
-    public ServletWebServerApplicationContext(Class<?> startupClass) {
+    public ServletWebServerApplicationContext() {
+        this(new StandardWebEnvironment());
+    }
+
+    public ServletWebServerApplicationContext(Class<?> startupClass, String... args) {
+        this(new StandardWebEnvironment(startupClass, args), startupClass);
+    }
+
+    /**
+     * Construct with given {@link ConfigurableEnvironment}
+     * 
+     * @param env
+     *            {@link ConfigurableEnvironment} instance
+     */
+    public ServletWebServerApplicationContext(ConfigurableEnvironment env) {
+        this(env, null);
+    }
+
+    public ServletWebServerApplicationContext(ConfigurableEnvironment env, Class<?> startupClass) {
+        super(env);
         this.startupClass = startupClass;
     }
 
-    public ServletWebServerApplicationContext() {
-        this(null);
-    }
-
     @Override
-    protected void preRefresh()  {
+    protected void preRefresh() {
         this.webServer = ApplicationUtils.obtainWebServer(this);
         super.preRefresh();
     }

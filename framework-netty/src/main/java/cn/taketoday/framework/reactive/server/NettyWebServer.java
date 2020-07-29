@@ -101,7 +101,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
         super.contextInitialized();
 
         try {
-            new NettyWebServerApplicationLoader(() -> getMergedInitializers())
+            new NettyWebServerApplicationLoader(this::getMergedInitializers)
                     .onStartup(applicationContext);
         }
         catch (Throwable e) {
@@ -164,7 +164,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
         }
     }
 
-    public class NamedThreadFactory implements ThreadFactory {
+    public static class NamedThreadFactory implements ThreadFactory {
 
         private final String prefix;
         private final LongAdder threadNumber = new LongAdder();

@@ -182,7 +182,10 @@ public class DefaultWatcherThread extends Thread implements InitializingBean {
 
                     replaceClassLoader();
 
-                    final Class<Object> startupClass = loadClass(applicationContext.getStartupClass().getName());
+                    Class<?> startupClass = applicationContext.getStartupClass();
+                    if (startupClass != null) {
+                        startupClass = loadClass(startupClass.getName());
+                    }
                     WebApplication.run(startupClass);
 
                     resetWatchKey();

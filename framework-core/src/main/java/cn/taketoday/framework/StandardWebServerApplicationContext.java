@@ -23,8 +23,10 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.context.StandardApplicationContext;
+import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.factory.StandardBeanFactory;
 import cn.taketoday.context.listener.ApplicationListener;
+import cn.taketoday.framework.env.StandardWebEnvironment;
 import cn.taketoday.framework.server.WebServer;
 import cn.taketoday.framework.utils.ApplicationUtils;
 import cn.taketoday.web.StandardWebBeanFactory;
@@ -41,12 +43,27 @@ public class StandardWebServerApplicationContext
     private final Class<?> startupClass;
     private String contextPath = Constant.BLANK;
 
-    public StandardWebServerApplicationContext(Class<?> startupClass) {
-        this.startupClass = startupClass;
+    public StandardWebServerApplicationContext() {
+        this(new StandardWebEnvironment());
     }
 
-    public StandardWebServerApplicationContext() {
-        this(null);
+    public StandardWebServerApplicationContext(Class<?> startupClass, String... args) {
+        this(new StandardWebEnvironment(startupClass, args), startupClass);
+    }
+
+    /**
+     * Construct with given {@link ConfigurableEnvironment}
+     * 
+     * @param env
+     *            {@link ConfigurableEnvironment} instance
+     */
+    public StandardWebServerApplicationContext(ConfigurableEnvironment env) {
+        this(env, null);
+    }
+
+    public StandardWebServerApplicationContext(ConfigurableEnvironment env, Class<?> startupClass) {
+        super(env);
+        this.startupClass = startupClass;
     }
 
     @Override
@@ -62,7 +79,6 @@ public class StandardWebServerApplicationContext
 
     @Override
     protected void preRefresh() {
-
         this.webServer = ApplicationUtils.obtainWebServer(this);
         super.preRefresh();
     }
