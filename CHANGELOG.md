@@ -79,6 +79,23 @@
 - :hammer: 重构Condition
 - :sparkles: 新增BeanFactoryPostProcessor
 
+- :bug: 修复ResourceUtils#getResource文件路径带有转义字符时的错误
+- :zap: 优化AutoProxyCreator, CandidateComponentScanner, AbstractApplicationContext, PropertyValueResolver, ExecutableParameterResolver, StandardBeanFactory, AbstractCacheInterceptor, AspectsDestroyListener
+- :zap: 新增Environment#getFlag
+- :zap: 优化ContextUtils#resolveInitMethod
+- :zap: 减少lombok依赖
+- :zap: 优化加载过程
+- :sparkles: 支持使用Autowired方法注入
+- :zap: 优化RedissonCache
+- :memo: 优化部分Javadoc
+- :zap: 优化扫描日志
+- :zap: 优化PathMatchingResourcePatternResolver
+- :zap: 优化AbstractAdvice代码
+- :zap: 优化cglib
+- :zap: 优化Environment初始化顺序
+
+
+
 ## v2.1.6
 - :sparkles: feat: add `Environment` new api to get property
 - :sparkles: feat: add jar-prefix file to ignore jar scanning
