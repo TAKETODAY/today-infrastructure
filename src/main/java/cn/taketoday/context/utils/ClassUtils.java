@@ -697,7 +697,7 @@ public abstract class ClassUtils {
             getAnnotationAttributesArray(final AnnotatedElement element,
                                          final Class<T> targetClass) throws ContextException {
         if (targetClass == null) {
-            return null;
+            return EMPTY_ANNOTATION_ATTRIBUTES;
         }
         return getAnnotationAttributesArray(new AnnotationKey<>(element, targetClass));
     }
@@ -730,7 +730,7 @@ public abstract class ClassUtils {
             }
             ANNOTATION_ATTRIBUTES.putIfAbsent(key, ret);
         }
-        return ret == EMPTY_ANNOTATION_ATTRIBUTES ? null : ret;
+        return ret;
     }
 
     public static class AnnotationKey<T> implements Serializable {
