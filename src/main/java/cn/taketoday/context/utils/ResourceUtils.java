@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,17 +13,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.context.utils;
-
-import static cn.taketoday.context.Constant.BLANK;
-import static cn.taketoday.context.Constant.CLASS_PATH_PREFIX;
-import static cn.taketoday.context.Constant.PATH_SEPARATOR;
-import static cn.taketoday.context.Constant.PROTOCOL_FILE;
-import static cn.taketoday.context.Constant.PROTOCOL_JAR;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +35,12 @@ import cn.taketoday.context.io.PathMatchingResourcePatternResolver;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.io.UrlBasedResource;
 
+import static cn.taketoday.context.Constant.BLANK;
+import static cn.taketoday.context.Constant.CLASS_PATH_PREFIX;
+import static cn.taketoday.context.Constant.PATH_SEPARATOR;
+import static cn.taketoday.context.Constant.PROTOCOL_FILE;
+import static cn.taketoday.context.Constant.PROTOCOL_JAR;
+
 /**
  * @author TODAY <br>
  *         2019-05-15 13:37
@@ -53,7 +53,7 @@ public abstract class ResourceUtils {
      * <p>
      * Overlapping resource entries that point to the same physical resource should
      * be avoided, as far as possible. The result should have set semantics.
-     * 
+     *
      * @param pathPattern
      *            The location pattern to resolve
      * @return the corresponding Resource objects
@@ -69,7 +69,7 @@ public abstract class ResourceUtils {
      * <p>
      * Overlapping resource entries that point to the same physical resource should
      * be avoided, as far as possible. The result should have set semantics.
-     * 
+     *
      * @param pathPattern
      *            The location pattern to resolve
      * @param classLoader
@@ -84,11 +84,9 @@ public abstract class ResourceUtils {
 
     /**
      * Get {@link Resource} with given location
-     * 
+     *
      * @param location
      *            resource location
-     * @throws IOException
-     *             if any IO exception occurred
      */
     public static Resource getResource(final String location) {
 
@@ -97,7 +95,7 @@ public abstract class ResourceUtils {
             return new ClassPathResource(BLANK);
         }
         if (location.startsWith(CLASS_PATH_PREFIX)) {
-            final String path = location.substring(CLASS_PATH_PREFIX.length());
+            final String path = StringUtils.decodeUrl(location.substring(CLASS_PATH_PREFIX.length()));
             return new ClassPathResource(path.charAt(0) == PATH_SEPARATOR ? path.substring(1) : path);
         }
         try {
@@ -113,10 +111,13 @@ public abstract class ResourceUtils {
      * <p>
      * Does not check whether the URL actually exists; simply returns the URL that
      * the given location would correspond to.
-     * 
+     *
      * @param location
      *            Url location
+     *
      * @throws MalformedURLException
+     *             if no protocol is specified, or an unknown protocol is found, or
+     *             {@code spec} is {@code null}.
      */
     public static URL toURL(String location) throws MalformedURLException {
         return new URL(location);
@@ -125,7 +126,7 @@ public abstract class ResourceUtils {
     public static Resource getResource(final URL url) {
         final String protocol = url.getProtocol();
         if (PROTOCOL_FILE.equals(protocol)) {
-            return new FileBasedResource(url.getPath());
+            return new FileBasedResource(StringUtils.decodeUrl(url.getPath()));
         }
         if (PROTOCOL_JAR.equals(protocol)) {
             return new JarEntryResource(url);
@@ -135,7 +136,7 @@ public abstract class ResourceUtils {
 
     /**
      * Get {@link Resource} from a file
-     * 
+     *
      * @param file
      *            source
      * @return a {@link FileBasedResource}
@@ -152,7 +153,7 @@ public abstract class ResourceUtils {
      * "C:/dir1/", relative paths will be built underneath that root: e.g. relative
      * path "dir2" -> "C:/dir1/dir2". In the case of "C:/dir1", relative paths will
      * apply at the same directory level: relative path "dir2" -> "C:/dir2".
-     * 
+     *
      */
     public static String getRelativePath(final String path, final String relativePath) {
 
@@ -175,7 +176,7 @@ public abstract class ResourceUtils {
     /**
      * Determine whether the given URL points to a resource in the file system, i.e.
      * has protocol "file", "vfsfile" or "vfs".
-     * 
+     *
      * @param url
      *            the URL to check
      * @return whether the URL has been identified as a file system URL
@@ -188,7 +189,7 @@ public abstract class ResourceUtils {
     /**
      * Determine whether the given URL points to a resource in a jar file. i.e. has
      * protocol "jar", "war, ""zip", "vfszip" or "wsjar".
-     * 
+     *
      * @param url
      *            the URL to check
      * @return whether the URL has been identified as a JAR URL
@@ -205,7 +206,7 @@ public abstract class ResourceUtils {
     /**
      * Determine whether the given URL points to a jar file itself, that is, has
      * protocol "file" and ends with the ".jar" extension.
-     * 
+     *
      * @param url
      *            the URL to check
      * @return whether the URL has been identified as a JAR file URL
@@ -218,7 +219,7 @@ public abstract class ResourceUtils {
     /**
      * Extract the URL for the actual jar file from the given URL (which may point
      * to a resource in a jar file or to a jar file itself).
-     * 
+     *
      * @param jarUrl
      *            the original URL
      * @return the URL for the actual jar file
@@ -251,7 +252,7 @@ public abstract class ResourceUtils {
      * Set the {@link URLConnection#setUseCaches "useCaches"} flag on the given
      * connection, preferring {@code false} but leaving the flag at {@code true} for
      * JNLP based resources.
-     * 
+     *
      * @param con
      *            the URLConnection to set the flag on
      */
@@ -262,7 +263,7 @@ public abstract class ResourceUtils {
     /**
      * Create a URI instance for the given URL, replacing spaces with "%20" URI
      * encoding first.
-     * 
+     *
      * @param url
      *            the URL to convert into a URI instance
      * @return the URI instance
@@ -277,7 +278,7 @@ public abstract class ResourceUtils {
     /**
      * Create a URI instance for the given location String, replacing spaces with
      * "%20" URI encoding first.
-     * 
+     *
      * @param location
      *            the location String to convert into a URI instance
      * @return the URI instance
@@ -291,11 +292,11 @@ public abstract class ResourceUtils {
     /**
      * Return whether the given resource location is a URL: either a special
      * "classpath" pseudo URL or a standard URL.
-     * 
+     *
      * @param resourceLocation
      *            the location String to check
      * @return whether the location qualifies as a URL
-     * @see #CLASSPATH_URL_PREFIX
+     * @see Constant#CLASS_PATH_PREFIX
      * @see java.net.URL
      */
     public static boolean isUrl(String resourceLocation) {
@@ -320,7 +321,7 @@ public abstract class ResourceUtils {
      * <p>
      * In the case of a jar file nested within a war file, this will return a URL to
      * the war file since that is the one resolvable in the file system.
-     * 
+     *
      * @param jarUrl
      *            the original URL
      * @return the URL for the actual jar file
