@@ -19,11 +19,6 @@
  */
 package cn.taketoday.context.utils;
 
-import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
-import static cn.taketoday.context.utils.Assert.notNull;
-import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
-import static java.util.Objects.requireNonNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -78,6 +73,11 @@ import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.StandardBeanDefinition;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.loader.CandidateComponentScanner;
+
+import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
+import static cn.taketoday.context.utils.Assert.notNull;
+import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -833,11 +833,11 @@ public abstract class ClassUtils {
         }
 
         protected final Method[] getDeclaredMethods() {
-            final Method[] declaredMethods = this.declaredMethods;
-            if (declaredMethods == null) {
+            final Method[] ret = this.declaredMethods;
+            if (ret == null) {
                 return this.declaredMethods = annotationType.getDeclaredMethods();
             }
-            return declaredMethods;
+            return ret;
         }
 
         @Override
@@ -948,8 +948,12 @@ public abstract class ClassUtils {
      * Get instance with bean class use default {@link Constructor}
      *
      * @param beanClass
-     *            bean class
+     *     bean class
+     *
      * @return the instance of target class
+     *
+     * @throws BeanInstantiationException
+     *     if any reflective operation exception occurred
      * @since 2.1.2
      */
     public static <T> T newInstance(Class<T> beanClass) throws BeanInstantiationException {
