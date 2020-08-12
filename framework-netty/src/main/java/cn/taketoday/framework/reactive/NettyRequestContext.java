@@ -414,9 +414,7 @@ public class NettyRequestContext extends AbstractRequestContext implements Reque
     @Override
     public RequestContext redirect(String location) throws IOException {
 
-        if (committed) {
-            throw new IllegalStateException("The response has been committed");
-        }
+        assertNotCommitted();
 
         getResponse().setStatus(HttpResponseStatus.FOUND);
         getResponseHeaders().set(HttpHeaderNames.LOCATION, location);
@@ -435,9 +433,7 @@ public class NettyRequestContext extends AbstractRequestContext implements Reque
 
     public RequestContext send() {
 
-        if (committed) {
-            throw new IllegalStateException("The response has been committed");
-        }
+        assertNotCommitted();
 
         final HttpHeaders headers = getResponseHeaders();
 
@@ -480,15 +476,19 @@ public class NettyRequestContext extends AbstractRequestContext implements Reque
     @Override
     public RequestContext reset() {
 
-        if (committed) {
-            throw new IllegalStateException("The response has been committed");
-        }
+        assertNotCommitted();
 
         getResponseHeaders().clear();
 
         responseBody.clear();
         getResponse().setStatus(HttpResponseStatus.OK);
         return this;
+    }
+
+    protected void assertNotCommitted() {
+        if (committed()) {
+            throw new IllegalStateException("The response has been committed");
+        }
     }
 
     @Override
@@ -519,27 +519,25 @@ public class NettyRequestContext extends AbstractRequestContext implements Reque
 
     @Override
     public RequestContext sendError(int sc) throws IOException {
-
+        assertNotCommitted();
+        
         final FullHttpResponse response = getResponse();
         response.setStatus(HttpResponseStatus.valueOf(sc));
 
         handlerContext.writeAndFlush(response);
-
         setCommitted(true);
-
         return this;
     }
 
     @Override
     public RequestContext sendError(int sc, String msg) throws IOException {
+        assertNotCommitted();
 
         final FullHttpResponse response = getResponse();
         response.setStatus(HttpResponseStatus.valueOf(sc, msg));
 
         handlerContext.writeAndFlush(response);
-
         setCommitted(true);
-
         return this;
     }
 
