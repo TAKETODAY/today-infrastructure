@@ -1,5 +1,7 @@
 # TODAY framework
-
+![Java8](https://img.shields.io/badge/JDK-8+-success.svg)
+![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)
+[![Author](https://img.shields.io/badge/Author-TODAY-blue.svg)](https://github.com/TAKETODAY)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3fc111bcdf694f96bbf1a063058eea36)](https://app.codacy.com/app/TAKETODAY/today-framework?utm_source=github.com&utm_medium=referral&utm_content=TAKETODAY/today-framework&utm_campaign=Badge_Grade_Settings)
 
 
