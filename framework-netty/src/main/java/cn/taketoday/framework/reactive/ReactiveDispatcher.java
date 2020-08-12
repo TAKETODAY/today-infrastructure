@@ -69,7 +69,7 @@ public class ReactiveDispatcher extends DispatcherHandler implements ChannelInbo
         }
     }
 
-    private void async(ChannelHandlerContext ctx, FullHttpRequest request) {
+    protected void async(ChannelHandlerContext ctx, FullHttpRequest request) {
 
         final NettyRequestContext context = new NettyRequestContext(getContextPath(), ctx, request);
 
