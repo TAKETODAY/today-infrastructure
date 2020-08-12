@@ -2,6 +2,9 @@
 
 🍎 A Java library for dependency injection and aspect oriented programing
 
+![Java8](https://img.shields.io/badge/JDK-8+-success.svg)
+![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)
+[![Author](https://img.shields.io/badge/Author-TODAY-blue.svg)](https://github.com/TAKETODAY)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://www.codacy.com/app/TAKETODAY/today-context?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-context&amp;utm_campaign=Badge_Grade)
 ![Java CI](https://github.com/TAKETODAY/today-context/workflows/Java%20CI/badge.svg)
 
