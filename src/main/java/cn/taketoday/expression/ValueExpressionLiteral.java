@@ -40,74 +40,71 @@
 
 package cn.taketoday.expression;
 
-import cn.taketoday.expression.util.MessageFactory;
-
 /**
- * 
  * @author TODAY <br>
- *         2019-02-18 20:36
+ * 2019-02-18 20:36
  */
 @SuppressWarnings("serial")
 public final class ValueExpressionLiteral extends ValueExpression {
 
-    private final Object value;
-    private final Class<?> expectedType;
+  private final Object value;
+  private final Class<?> expectedType;
 
-    public ValueExpressionLiteral() {
-        this(null, null);
-    }
+  public ValueExpressionLiteral() {
+    this(null, null);
+  }
 
-    public ValueExpressionLiteral(Object value, Class<?> expectedType) {
-        this.value = value;
-        this.expectedType = expectedType;
-    }
+  public ValueExpressionLiteral(Object value, Class<?> expectedType) {
+    this.value = value;
+    this.expectedType = expectedType;
+  }
 
-    public Object getValue(ExpressionContext context) {
-        if (this.expectedType != null) {
-            try {
-                return context.convertToType(this.value, this.expectedType);
-            }
-            catch (IllegalArgumentException ex) {
-                throw new ExpressionException(ex);
-            }
-        }
-        return this.value;
+  public Object getValue(ExpressionContext context) {
+    if (this.expectedType != null) {
+      try {
+        return context.convertToType(this.value, this.expectedType);
+      }
+      catch (IllegalArgumentException ex) {
+        throw new ExpressionException(ex);
+      }
     }
+    return this.value;
+  }
 
-    public void setValue(ExpressionContext context, Object value) {
-        throw new PropertyNotWritableException(MessageFactory.get("error.value.literal.write", this.value));
-    }
+  public void setValue(ExpressionContext context, Object value) {
+    throw new PropertyNotWritableException("ValueExpression is a literal and not writable: " + this.value);
+  }
 
-    public boolean isReadOnly(ExpressionContext context) {
-        return true;
-    }
+  public boolean isReadOnly(ExpressionContext context) {
+    return true;
+  }
 
-    public Class<?> getType(ExpressionContext context) {
-        return (this.value != null) ? this.value.getClass() : null;
-    }
+  public Class<?> getType(ExpressionContext context) {
+    return (this.value != null) ? this.value.getClass() : null;
+  }
 
-    public Class<?> getExpectedType() {
-        return this.expectedType;
-    }
+  public Class<?> getExpectedType() {
+    return this.expectedType;
+  }
 
-    public String getExpressionString() {
-        return (this.value != null) ? this.value.toString() : null;
-    }
+  public String getExpressionString() {
+    return (this.value != null) ? this.value.toString() : null;
+  }
 
-    public boolean equals(Object obj) {
-        return (obj instanceof ValueExpressionLiteral && this.equals((ValueExpressionLiteral) obj));
-    }
+  public boolean equals(Object obj) {
+    return (obj instanceof ValueExpressionLiteral && this.equals((ValueExpressionLiteral) obj));
+  }
 
-    public boolean equals(ValueExpressionLiteral ve) {
-        return (ve != null && (this.value != null && ve.value != null && (this.value == ve.value || this.value.equals(ve.value))));
-    }
+  public boolean equals(ValueExpressionLiteral ve) {
+    return (ve != null && (this.value != null && ve.value != null && (this.value == ve.value || this.value.equals(ve.value))));
+  }
 
-    public int hashCode() {
-        return (this.value != null) ? this.value.hashCode() : 0;
-    }
+  public int hashCode() {
+    return (this.value != null) ? this.value.hashCode() : 0;
+  }
 
-    public boolean isLiteralText() {
-        return true;
-    }
+  public boolean isLiteralText() {
+    return true;
+  }
 
 }

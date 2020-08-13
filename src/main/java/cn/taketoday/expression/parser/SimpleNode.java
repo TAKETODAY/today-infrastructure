@@ -49,7 +49,6 @@ import cn.taketoday.expression.MethodInfo;
 import cn.taketoday.expression.PropertyNotWritableException;
 import cn.taketoday.expression.ValueReference;
 import cn.taketoday.expression.lang.EvaluationContext;
-import cn.taketoday.expression.util.MessageFactory;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -164,7 +163,7 @@ public abstract class SimpleNode /*extends ExpressionSupport*/ implements Node {
 
     @Override
     public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
-        throw new PropertyNotWritableException(MessageFactory.get("error.syntax.set"));
+        throw new PropertyNotWritableException("Illegal Syntax for Set Operation");
     }
 
     @Override

@@ -51,7 +51,6 @@ import cn.taketoday.expression.PropertyNotWritableException;
 import cn.taketoday.expression.ValueReference;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.expression.lang.ExpressionUtils;
-import cn.taketoday.expression.util.MessageFactory;
 import cn.taketoday.expression.util.ReflectionUtil;
 
 /**
@@ -61,223 +60,223 @@ import cn.taketoday.expression.util.ReflectionUtil;
  */
 public final class AstValue extends SimpleNode {
 
-    protected static class Target {
-        protected Object base;
-        protected Node suffixNode;
+  protected static class Target {
+    protected Object base;
+    protected Node suffixNode;
 
-        Target(Object base, Node suffixNode) {
-            this.base = base;
-            this.suffixNode = suffixNode;
-        }
-
-        boolean isMethodCall() {
-            return getArguments(suffixNode) != null;
-        }
+    Target(Object base, Node suffixNode) {
+      this.base = base;
+      this.suffixNode = suffixNode;
     }
 
-    public AstValue(int id) {
-        super(id);
+    boolean isMethodCall() {
+      return getArguments(suffixNode) != null;
     }
+  }
 
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        Target t = getTarget(ctx);
-        if (t.isMethodCall()) {
-            return null;
-        }
-        Object property = t.suffixNode.getValue(ctx);
+  public AstValue(int id) {
+    super(id);
+  }
+
+  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+    Target t = getTarget(ctx);
+    if (t.isMethodCall()) {
+      return null;
+    }
+    Object property = t.suffixNode.getValue(ctx);
+    ctx.setPropertyResolved(false);
+    Class<?> ret = ctx.getResolver().getType(ctx, t.base, property);
+    if (!ctx.isPropertyResolved()) {
+      ExpressionUtils.throwUnhandled(t.base, property);
+    }
+    return ret;
+  }
+
+  public ValueReference getValueReference(EvaluationContext ctx) throws ExpressionException {
+    Target t = getTarget(ctx);
+    if (t.isMethodCall()) {
+      return null;
+    }
+    Object property = t.suffixNode.getValue(ctx);
+    return new ValueReference(t.base, property);
+  }
+
+  private static AstMethodArguments getArguments(Node n) {
+
+    if (n instanceof AstDotSuffix && n.jjtGetNumChildren() > 0) {
+      return (AstMethodArguments) n.jjtGetChild(0);
+    }
+    if (n instanceof AstBracketSuffix && n.jjtGetNumChildren() > 1) {
+      return (AstMethodArguments) n.jjtGetChild(1);
+    }
+    return null;
+  }
+
+  private Object getValue(Object base, Node child, EvaluationContext ctx) throws ExpressionException {
+
+    final ExpressionResolver resolver = ctx.getResolver();
+    final Object property = child.getValue(ctx);
+    final AstMethodArguments args = getArguments(child);
+    if (args != null) {
+      // This is a method call
+      if (property instanceof String) {
         ctx.setPropertyResolved(false);
-        Class<?> ret = ctx.getResolver().getType(ctx, t.base, property);
-        if (!ctx.isPropertyResolved()) {
-            ExpressionUtils.throwUnhandled(t.base, property);
+        return resolver.invoke(ctx, base, property, args.getParamTypes(), args.getParameters(ctx));
+      }
+      throw new ExpressionException("An instance of " + property + " is specified as the static method name, it must be a String");
+    }
+    Object value = null;
+    if (property != null) {
+      ctx.setPropertyResolved(false);
+      value = resolver.getValue(ctx, base, property);
+      if (!ctx.isPropertyResolved()) {
+        ExpressionUtils.throwUnhandled(base, property);
+      }
+    }
+    return value;
+  }
+
+  private final Object getBase(EvaluationContext ctx) {
+    try {
+      return this.children[0].getValue(ctx);
+    }
+    catch (PropertyNotFoundException ex) {
+      // Next check if the base is an imported class
+      if (this.children[0] instanceof AstIdentifier) {
+        String name = ((AstIdentifier) this.children[0]).image;
+        ImportHandler importHandler = ctx.getImportHandler();
+        if (importHandler != null) {
+          Class<?> c = importHandler.resolveClass(name);
+          if (c != null) {
+            return c;
+          }
         }
-        return ret;
+      }
+      throw ex;
+    }
+  }
+
+  private final Target getTarget(EvaluationContext ctx) throws ExpressionException {
+    // evaluate expr-a to value-a
+    Object base = getBase(ctx);
+
+    // if our base is null (we know there are more properites to evaluate)
+    if (base == null) {
+      throw new PropertyNotFoundException("Target Unreachable, identifier ''" + children[0].getImage() + "'' resolved to null");
     }
 
-    public ValueReference getValueReference(EvaluationContext ctx) throws ExpressionException {
-        Target t = getTarget(ctx);
-        if (t.isMethodCall()) {
-            return null;
+    // set up our start/end
+    Object property = null;
+    int propCount = this.jjtGetNumChildren() - 1;
+    int i = 1;
+
+    // evaluate any properties before our target
+    if (propCount > 1) {
+      while (base != null && i < propCount) {
+        base = getValue(base, this.children[i], ctx);
+        i++;
+      }
+      // if we are in this block, we have more properties to resolve,
+      // but our base was null
+      if (base == null) {
+        throw new PropertyNotFoundException("Target Unreachable, ''" + property + "'' returned null");
+      }
+    }
+    return new Target(base, this.children[propCount]);
+  }
+
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    Object base = getBase(ctx);
+    int propCount = this.jjtGetNumChildren();
+    int i = 1;
+    while (base != null && i < propCount) {
+      base = getValue(base, this.children[i], ctx);
+      i++;
+    }
+    return base;
+  }
+
+  public boolean isReadOnly(EvaluationContext ctx) throws ExpressionException {
+    Target t = getTarget(ctx);
+    if (t.isMethodCall()) {
+      return true;
+    }
+    Object property = t.suffixNode.getValue(ctx);
+    ctx.setPropertyResolved(false);
+    boolean ret = ctx.getResolver().isReadOnly(ctx, t.base, property);
+    if (!ctx.isPropertyResolved()) {
+      ExpressionUtils.throwUnhandled(t.base, property);
+    }
+    return ret;
+  }
+
+  public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
+    Target t = getTarget(ctx);
+    if (t.isMethodCall()) {
+      throw new PropertyNotWritableException("Illegal Syntax for Set Operation");
+    }
+    Object property = t.suffixNode.getValue(ctx);
+    ExpressionResolver elResolver = ctx.getResolver();
+
+    /*
+     * Note by kchung 10/2013 The spec does not say if the value should be cocerced
+     * to the target type before setting the value to the target. The conversion is
+     * kept here to be backward compatible.
+     */
+    ctx.setPropertyResolved(false);
+    Class<?> targetType = elResolver.getType(ctx, t.base, property);
+    if (ctx.isPropertyResolved()) {
+      ctx.setPropertyResolved(false);
+      Object targetValue = elResolver.convertToType(ctx, value, targetType);
+
+      if (ctx.isPropertyResolved()) {
+        value = targetValue;
+      }
+      else {
+        if (value != null || targetType.isPrimitive()) {
+          value = ExpressionUtils.coerceToType(value, targetType);
         }
-        Object property = t.suffixNode.getValue(ctx);
-        return new ValueReference(t.base, property);
+      }
     }
 
-    private static AstMethodArguments getArguments(Node n) {
-
-        if (n instanceof AstDotSuffix && n.jjtGetNumChildren() > 0) {
-            return (AstMethodArguments) n.jjtGetChild(0);
-        }
-        if (n instanceof AstBracketSuffix && n.jjtGetNumChildren() > 1) {
-            return (AstMethodArguments) n.jjtGetChild(1);
-        }
-        return null;
+    ctx.setPropertyResolved(false);
+    elResolver.setValue(ctx, t.base, property, value);
+    if (!ctx.isPropertyResolved()) {
+      ExpressionUtils.throwUnhandled(t.base, property);
     }
+  }
 
-    private Object getValue(Object base, Node child, EvaluationContext ctx) throws ExpressionException {
-
-        final ExpressionResolver resolver = ctx.getResolver();
-        final Object property = child.getValue(ctx);
-        final AstMethodArguments args = getArguments(child);
-        if (args != null) {
-            // This is a method call
-            if (property instanceof String) {
-                ctx.setPropertyResolved(false);
-                return resolver.invoke(ctx, base, property, args.getParamTypes(), args.getParameters(ctx));
-            }
-            throw new ExpressionException(MessageFactory.get("error.method.name", property));
-        }
-        Object value = null;
-        if (property != null) {
-            ctx.setPropertyResolved(false);
-            value = resolver.getValue(ctx, base, property);
-            if (!ctx.isPropertyResolved()) {
-                ExpressionUtils.throwUnhandled(base, property);
-            }
-        }
-        return value;
+  public MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ExpressionException {
+    Target t = getTarget(ctx);
+    if (t.isMethodCall()) {
+      return null;
     }
+    Object property = t.suffixNode.getValue(ctx);
+    Method m = ReflectionUtil.findMethod(t.base.getClass(), property.toString(), paramTypes, null);
+    return new MethodInfo(m.getName(), m.getReturnType(), m.getParameterTypes());
+  }
 
-    private final Object getBase(EvaluationContext ctx) {
-        try {
-            return this.children[0].getValue(ctx);
-        }
-        catch (PropertyNotFoundException ex) {
-            // Next check if the base is an imported class
-            if (this.children[0] instanceof AstIdentifier) {
-                String name = ((AstIdentifier) this.children[0]).image;
-                ImportHandler importHandler = ctx.getImportHandler();
-                if (importHandler != null) {
-                    Class<?> c = importHandler.resolveClass(name);
-                    if (c != null) {
-                        return c;
-                    }
-                }
-            }
-            throw ex;
-        }
+  public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ExpressionException {
+    Target t = getTarget(ctx);
+    if (t.isMethodCall()) {
+      AstMethodArguments args = getArguments(t.suffixNode);
+      // Always use the param types in the expression, and ignore those
+      // specified elsewhere, such as TLD
+      paramTypes = args.getParamTypes();
+      Object[] params = args.getParameters(ctx);
+      String method = (String) t.suffixNode.getValue(ctx);
+
+      ctx.setPropertyResolved(false);
+      ExpressionResolver resolver = ctx.getResolver();
+      return resolver.invoke(ctx, t.base, method, paramTypes, params);
     }
+    Object property = t.suffixNode.getValue(ctx);
+    Method m = ReflectionUtil.findMethod(t.base.getClass(), property.toString(), paramTypes, paramValues);
+    return ReflectionUtil.invokeMethod(ctx, m, t.base, paramValues);
+  }
 
-    private final Target getTarget(EvaluationContext ctx) throws ExpressionException {
-        // evaluate expr-a to value-a
-        Object base = getBase(ctx);
-
-        // if our base is null (we know there are more properites to evaluate)
-        if (base == null) {
-            throw new PropertyNotFoundException(MessageFactory.get("error.unreachable.base", this.children[0].getImage()));
-        }
-
-        // set up our start/end
-        Object property = null;
-        int propCount = this.jjtGetNumChildren() - 1;
-        int i = 1;
-
-        // evaluate any properties before our target
-        if (propCount > 1) {
-            while (base != null && i < propCount) {
-                base = getValue(base, this.children[i], ctx);
-                i++;
-            }
-            // if we are in this block, we have more properties to resolve,
-            // but our base was null
-            if (base == null) {
-                throw new PropertyNotFoundException(MessageFactory.get("error.unreachable.property", property));
-            }
-        }
-        return new Target(base, this.children[propCount]);
-    }
-
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        Object base = getBase(ctx);
-        int propCount = this.jjtGetNumChildren();
-        int i = 1;
-        while (base != null && i < propCount) {
-            base = getValue(base, this.children[i], ctx);
-            i++;
-        }
-        return base;
-    }
-
-    public boolean isReadOnly(EvaluationContext ctx) throws ExpressionException {
-        Target t = getTarget(ctx);
-        if (t.isMethodCall()) {
-            return true;
-        }
-        Object property = t.suffixNode.getValue(ctx);
-        ctx.setPropertyResolved(false);
-        boolean ret = ctx.getResolver().isReadOnly(ctx, t.base, property);
-        if (!ctx.isPropertyResolved()) {
-            ExpressionUtils.throwUnhandled(t.base, property);
-        }
-        return ret;
-    }
-
-    public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
-        Target t = getTarget(ctx);
-        if (t.isMethodCall()) {
-            throw new PropertyNotWritableException(MessageFactory.get("error.syntax.set"));
-        }
-        Object property = t.suffixNode.getValue(ctx);
-        ExpressionResolver elResolver = ctx.getResolver();
-
-        /*
-         * Note by kchung 10/2013 The spec does not say if the value should be cocerced
-         * to the target type before setting the value to the target. The conversion is
-         * kept here to be backward compatible.
-         */
-        ctx.setPropertyResolved(false);
-        Class<?> targetType = elResolver.getType(ctx, t.base, property);
-        if (ctx.isPropertyResolved()) {
-            ctx.setPropertyResolved(false);
-            Object targetValue = elResolver.convertToType(ctx, value, targetType);
-
-            if (ctx.isPropertyResolved()) {
-                value = targetValue;
-            }
-            else {
-                if (value != null || targetType.isPrimitive()) {
-                    value = ExpressionUtils.coerceToType(value, targetType);
-                }
-            }
-        }
-
-        ctx.setPropertyResolved(false);
-        elResolver.setValue(ctx, t.base, property, value);
-        if (!ctx.isPropertyResolved()) {
-            ExpressionUtils.throwUnhandled(t.base, property);
-        }
-    }
-
-    public MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ExpressionException {
-        Target t = getTarget(ctx);
-        if (t.isMethodCall()) {
-            return null;
-        }
-        Object property = t.suffixNode.getValue(ctx);
-        Method m = ReflectionUtil.findMethod(t.base.getClass(), property.toString(), paramTypes, null);
-        return new MethodInfo(m.getName(), m.getReturnType(), m.getParameterTypes());
-    }
-
-    public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ExpressionException {
-        Target t = getTarget(ctx);
-        if (t.isMethodCall()) {
-            AstMethodArguments args = getArguments(t.suffixNode);
-            // Always use the param types in the expression, and ignore those
-            // specified elsewhere, such as TLD
-            paramTypes = args.getParamTypes();
-            Object[] params = args.getParameters(ctx);
-            String method = (String) t.suffixNode.getValue(ctx);
-
-            ctx.setPropertyResolved(false);
-            ExpressionResolver resolver = ctx.getResolver();
-            return resolver.invoke(ctx, t.base, method, paramTypes, params);
-        }
-        Object property = t.suffixNode.getValue(ctx);
-        Method m = ReflectionUtil.findMethod(t.base.getClass(), property.toString(), paramTypes, paramValues);
-        return ReflectionUtil.invokeMethod(ctx, m, t.base, paramValues);
-    }
-
-    @Override
-    public boolean isParametersProvided() {
-        return getArguments(this.children[this.jjtGetNumChildren() - 1]) != null;
-    }
+  @Override
+  public boolean isParametersProvided() {
+    return getArguments(this.children[this.jjtGetNumChildren() - 1]) != null;
+  }
 }

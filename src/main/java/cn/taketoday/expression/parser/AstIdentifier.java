@@ -51,7 +51,6 @@ import cn.taketoday.expression.ValueReference;
 import cn.taketoday.expression.VariableMapper;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.expression.lang.ExpressionUtils;
-import cn.taketoday.expression.util.MessageFactory;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -60,152 +59,151 @@ import cn.taketoday.expression.util.MessageFactory;
  */
 public final class AstIdentifier extends SimpleNode {
 
-    public AstIdentifier(int id) {
-        super(id);
+  public AstIdentifier(int id) {
+    super(id);
+  }
+
+  @Override
+  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+    final String image = this.image;
+    // First check if this is a lambda argument
+    if (ctx.isLambdaArgument(image)) {
+      return Object.class;
+    }
+    final VariableMapper varMapper = ctx.getVariableMapper();
+    if (varMapper != null) {
+      ValueExpression expr = varMapper.resolveVariable(image);
+      if (expr != null) {
+        return expr.getType(ctx);
+      }
+    }
+    ctx.setPropertyResolved(false);
+    final Class<?> ret = ctx.getResolver().getType(ctx, null, image);
+    if (!ctx.isPropertyResolved()) {
+      ExpressionUtils.throwUnhandled(null, image);
+    }
+    return ret;
+  }
+
+  public ValueReference getValueReference(final EvaluationContext ctx) throws ExpressionException {
+    final String image = this.image;
+    final VariableMapper varMapper = ctx.getVariableMapper();
+    if (varMapper != null) {
+      final ValueExpression expr = varMapper.resolveVariable(image);
+      if (expr != null) {
+        return expr.getValueReference(ctx);
+      }
+    }
+    return new ValueReference(null, image);
+  }
+
+  @Override
+  public Object getValue(final EvaluationContext ctx) throws ExpressionException {
+    final String image = this.image;
+    // First check if this is a lambda argument
+    if (ctx.isLambdaArgument(image)) {
+      return ctx.getLambdaArgument(image);
     }
 
-    @Override
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        final String image = this.image;
-        // First check if this is a lambda argument
-        if (ctx.isLambdaArgument(image)) {
-            return Object.class;
+    final ValueExpression expr = ctx.getVariableMapper().resolveVariable(image);
+    if (expr != null) {
+      return expr.getValue(ctx);
+    }
+    ctx.setPropertyResolved(false);
+    final Object ret = ctx.getResolver().getValue(ctx, null, image);
+    if (!ctx.isPropertyResolved()) {
+      // Check if this is an imported static field
+      final ImportHandler importHandler = ctx.getImportHandler();
+      if (importHandler != null) {
+        final Class<?> c = importHandler.resolveStatic(image);
+        if (c != null) {
+          return ctx.getResolver().getValue(ctx, c, image);
         }
-        final VariableMapper varMapper = ctx.getVariableMapper();
-        if (varMapper != null) {
-            ValueExpression expr = varMapper.resolveVariable(image);
-            if (expr != null) {
-                return expr.getType(ctx);
-            }
-        }
-        ctx.setPropertyResolved(false);
-        final Class<?> ret = ctx.getResolver().getType(ctx, null, image);
-        if (!ctx.isPropertyResolved()) {
-            ExpressionUtils.throwUnhandled(null, image);
-        }
-        return ret;
+      }
+      //            return ""; //TODO
+      ExpressionUtils.throwUnhandled(null, image);
+    }
+    return ret;
+  }
+
+  public boolean isReadOnly(final EvaluationContext ctx) throws ExpressionException {
+    final String image = this.image;
+    // Lambda arguments are read only.
+    if (ctx.isLambdaArgument(image)) {
+      return true;
+    }
+    final VariableMapper varMapper = ctx.getVariableMapper();
+    if (varMapper != null) {
+      final ValueExpression expr = varMapper.resolveVariable(image);
+      if (expr != null) {
+        return expr.isReadOnly(ctx);
+      }
+    }
+    ctx.setPropertyResolved(false);
+    boolean ret = ctx.getResolver().isReadOnly(ctx, null, image);
+    if (!ctx.isPropertyResolved()) {
+      ExpressionUtils.throwUnhandled(null, image);
+    }
+    return ret;
+  }
+
+  public void setValue(final EvaluationContext ctx, final Object value) throws ExpressionException {
+    final String image = this.image;
+    // First check if this is a lambda argument
+    if (ctx.isLambdaArgument(image)) {
+      throw new PropertyNotWritableException("The Lambda parameter ''" + image + "'' is not writable");
+    }
+    final VariableMapper varMapper = ctx.getVariableMapper();
+    if (varMapper != null) {
+      ValueExpression expr = varMapper.resolveVariable(image);
+      if (expr != null) {
+        expr.setValue(ctx, value);
+        return;
+      }
+    }
+    ctx.setPropertyResolved(false);
+    ctx.getResolver().setValue(ctx, null, image, value);
+    if (!ctx.isPropertyResolved()) {
+      ExpressionUtils.throwUnhandled(null, image);
+    }
+  }
+
+  public Object invoke(final EvaluationContext ctx,
+                       final Class<?>[] paramTypes, final Object[] paramValues) throws ExpressionException {
+    return getMethodExpression(ctx).invoke(ctx, paramValues);
+  }
+
+  public MethodInfo getMethodInfo(final EvaluationContext ctx, final Class<?>[] paramTypes) throws ExpressionException {
+    return getMethodExpression(ctx).getMethodInfo(ctx);
+  }
+
+  protected MethodExpression getMethodExpression(final EvaluationContext ctx) throws ExpressionException {
+    // case A: ValueExpression exists, getValue which must  be a MethodExpression
+    Object obj = null;
+    final String image = this.image;
+    final VariableMapper varMapper = ctx.getVariableMapper();
+    ValueExpression ve = null;
+    if (varMapper != null) {
+      ve = varMapper.resolveVariable(image);
+      if (ve != null) {
+        obj = ve.getValue(ctx);
+      }
     }
 
-    public ValueReference getValueReference(final EvaluationContext ctx) throws ExpressionException {
-        final String image = this.image;
-        final VariableMapper varMapper = ctx.getVariableMapper();
-        if (varMapper != null) {
-            final ValueExpression expr = varMapper.resolveVariable(image);
-            if (expr != null) {
-                return expr.getValueReference(ctx);
-            }
-        }
-        return new ValueReference(null, image);
+    // case B: evaluate the identity against the ELResolver, again, must be a MethodExpression to be able to invoke
+    if (ve == null) {
+      ctx.setPropertyResolved(false);
+      obj = ctx.getResolver().getValue(ctx, null, image);
     }
 
-    @Override
-    public Object getValue(final EvaluationContext ctx) throws ExpressionException {
-        final String image = this.image;
-        // First check if this is a lambda argument
-        if (ctx.isLambdaArgument(image)) {
-            return ctx.getLambdaArgument(image);
-        }
-
-        final ValueExpression expr = ctx.getVariableMapper().resolveVariable(image);
-        if (expr != null) {
-            return expr.getValue(ctx);
-        }
-        ctx.setPropertyResolved(false);
-        final Object ret = ctx.getResolver().getValue(ctx, null, image);
-        if (!ctx.isPropertyResolved()) {
-            // Check if this is an imported static field
-            final ImportHandler importHandler = ctx.getImportHandler();
-            if (importHandler != null) {
-                final Class<?> c = importHandler.resolveStatic(image);
-                if (c != null) {
-                    return ctx.getResolver().getValue(ctx, c, image);
-                }
-            }
-//            return ""; //TODO
-            ExpressionUtils.throwUnhandled(null, image);
-        }
-        return ret;
+    // finally provide helpful hints
+    if (obj instanceof MethodExpression) {
+      return (MethodExpression) obj;
     }
-
-    public boolean isReadOnly(final EvaluationContext ctx) throws ExpressionException {
-        final String image = this.image;
-        // Lambda arguments are read only.
-        if (ctx.isLambdaArgument(image)) {
-            return true;
-        }
-        final VariableMapper varMapper = ctx.getVariableMapper();
-        if (varMapper != null) {
-            final ValueExpression expr = varMapper.resolveVariable(image);
-            if (expr != null) {
-                return expr.isReadOnly(ctx);
-            }
-        }
-        ctx.setPropertyResolved(false);
-        boolean ret = ctx.getResolver().isReadOnly(ctx, null, image);
-        if (!ctx.isPropertyResolved()) {
-            ExpressionUtils.throwUnhandled(null, image);
-        }
-        return ret;
+    else if (obj == null) {
+      throw new MethodNotFoundException("Identity '" + image + "' was null and was unable to invoke");
     }
-
-    public void setValue(final EvaluationContext ctx, final Object value) throws ExpressionException {
-        final String image = this.image;
-        // First check if this is a lambda argument
-        if (ctx.isLambdaArgument(image)) {
-            throw new PropertyNotWritableException(MessageFactory.get("error.lambda.parameter.readonly",
-                                                                      image));
-        }
-        final VariableMapper varMapper = ctx.getVariableMapper();
-        if (varMapper != null) {
-            ValueExpression expr = varMapper.resolveVariable(image);
-            if (expr != null) {
-                expr.setValue(ctx, value);
-                return;
-            }
-        }
-        ctx.setPropertyResolved(false);
-        ctx.getResolver().setValue(ctx, null, image, value);
-        if (!ctx.isPropertyResolved()) {
-            ExpressionUtils.throwUnhandled(null, image);
-        }
-    }
-
-    public Object invoke(final EvaluationContext ctx,
-                         final Class<?>[] paramTypes, final Object[] paramValues) throws ExpressionException {
-        return getMethodExpression(ctx).invoke(ctx, paramValues);
-    }
-
-    public MethodInfo getMethodInfo(final EvaluationContext ctx, final Class<?>[] paramTypes) throws ExpressionException {
-        return getMethodExpression(ctx).getMethodInfo(ctx);
-    }
-
-    protected MethodExpression getMethodExpression(final EvaluationContext ctx) throws ExpressionException {
-        // case A: ValueExpression exists, getValue which must  be a MethodExpression
-        Object obj = null;
-        final String image = this.image;
-        final VariableMapper varMapper = ctx.getVariableMapper();
-        ValueExpression ve = null;
-        if (varMapper != null) {
-            ve = varMapper.resolveVariable(image);
-            if (ve != null) {
-                obj = ve.getValue(ctx);
-            }
-        }
-
-        // case B: evaluate the identity against the ELResolver, again, must be a MethodExpression to be able to invoke
-        if (ve == null) {
-            ctx.setPropertyResolved(false);
-            obj = ctx.getResolver().getValue(ctx, null, image);
-        }
-
-        // finally provide helpful hints
-        if (obj instanceof MethodExpression) {
-            return (MethodExpression) obj;
-        }
-        else if (obj == null) {
-            throw new MethodNotFoundException("Identity '" + image + "' was null and was unable to invoke");
-        }
-        throw new ExpressionException("Identity '" + image + "' does not reference a MethodExpression instance, returned type: " + obj
-                .getClass().getName());
-    }
+    throw new ExpressionException("Identity '" + image + "' does not reference a MethodExpression instance, returned type: " + obj
+        .getClass().getName());
+  }
 }

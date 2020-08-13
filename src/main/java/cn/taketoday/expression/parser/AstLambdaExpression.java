@@ -45,7 +45,6 @@ import cn.taketoday.expression.LambdaExpression;
 import cn.taketoday.expression.ValueExpression;
 import cn.taketoday.expression.ValueExpressionImpl;
 import cn.taketoday.expression.lang.EvaluationContext;
-import cn.taketoday.expression.util.MessageFactory;
 
 /**
  * @author Kin-man Chung
@@ -73,7 +72,7 @@ public class AstLambdaExpression extends SimpleNode {
         for (int i = 2; i < children.length; i++) {
             if (ret != null) {
                 if (!(ret instanceof LambdaExpression)) {
-                    throw new ExpressionException(MessageFactory.get("error.lambda.call"));
+                    throw new ExpressionException("A Lambda expression must return another Lambda expression in this syntax");
                 }
                 lambda = (LambdaExpression) ret;
             }
