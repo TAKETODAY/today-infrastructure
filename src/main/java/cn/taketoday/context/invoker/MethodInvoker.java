@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -53,7 +53,7 @@ public abstract class MethodInvoker implements Invoker {
 
     /**
      * Create a {@link MethodInvoker}
-     * 
+     *
      * @param method
      *            Target method to invoke
      * @return {@link MethodInvoker} sub object
@@ -64,7 +64,7 @@ public abstract class MethodInvoker implements Invoker {
 
     /**
      * Create a {@link MethodInvoker}
-     * 
+     *
      * @param beanClass
      *            Bean Class
      * @param name
@@ -73,7 +73,7 @@ public abstract class MethodInvoker implements Invoker {
      *            Target parameters classes
      * @throws NoSuchMethodException
      *             Thrown when a particular method cannot be found.
-     * 
+     *
      * @return {@link MethodInvoker} sub object
      */
     public static MethodInvoker create(final Class<?> beanClass,
@@ -82,6 +82,10 @@ public abstract class MethodInvoker implements Invoker {
         final Method targetMethod = beanClass.getDeclaredMethod(name, parameters);
 
         return new MethodInvokerGenerator(targetMethod, beanClass).create();
+    }
+
+    public static MethodInvoker generateConstructor(final Class<?> beanClass, final Class<?>... parameters) throws NoSuchMethodException {
+        return create(beanClass, "<init>", parameters);
     }
 
     // MethodInvoker object generator
@@ -163,9 +167,11 @@ public abstract class MethodInvoker implements Invoker {
 
             EmitUtils.nullConstructor(ce);
 
+            final int a_load = Constant.ALOAD;
+
             final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, invokeInfo, ACC_PUBLIC | ACC_FINAL);
             if (!Modifier.isStatic(targetMethod.getModifiers())) {
-                codeEmitter.visitVarInsn(Constant.ALOAD, 1);
+                codeEmitter.visitVarInsn(a_load, 1);
                 codeEmitter.checkcast(Type.getType(targetClass));
                 // codeEmitter.dup();
             }
@@ -173,7 +179,7 @@ public abstract class MethodInvoker implements Invoker {
             if (targetMethod.getParameterCount() != 0) {
                 final Class<?>[] parameterTypes = targetMethod.getParameterTypes();
                 for (int i = 0; i < parameterTypes.length; i++) {
-                    codeEmitter.visitVarInsn(Constant.ALOAD, 2);
+                    codeEmitter.visitVarInsn(a_load, 2);
                     codeEmitter.aaload(i);
 
                     Class<?> parameterClass = parameterTypes[i];
