@@ -17,8 +17,8 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Maven
-      run: mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Pci
-      
+      run: mvn clean install -DskipTests=true
+
 #    - name: Coveralls GitHub Action
 #      uses: coverallsapp/github-action@v1.0.1
 #      with:
