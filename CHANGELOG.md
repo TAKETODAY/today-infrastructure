@@ -93,7 +93,7 @@
 - :zap: 优化AbstractAdvice代码
 - :zap: 优化cglib
 - :zap: 优化Environment初始化顺序
-
+- :sparkles: 新的反射API
 
 
 ## v2.1.6
