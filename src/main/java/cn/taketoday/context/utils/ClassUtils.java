@@ -277,7 +277,7 @@ public abstract class ClassUtils {
      *            class full name
      * @return class if not found will returns null
      */
-    public static final <T> Class<T> loadClass(String name) {
+    public static <T> Class<T> loadClass(String name) {
         return loadClass(name, classLoader);
     }
 
@@ -293,7 +293,7 @@ public abstract class ClassUtils {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public static final <T> Class<T> loadClass(String name, ClassLoader classLoader) {
+    public static <T> Class<T> loadClass(String name, ClassLoader classLoader) {
         notNull(classLoader, "ClassLoader can't be null");
         try {
             return (Class<T>) classLoader.loadClass(name);
@@ -394,7 +394,7 @@ public abstract class ClassUtils {
      *            annotated element
      * @param targetClass
      *            target annotation class
-     * @return the array of {@link Annotation} instance. If returns null 
+     * @return the array of {@link Annotation} instance. If returns null
      * it indicates that no targetClass Annotations
      * @since 2.1.1
      */
@@ -470,9 +470,8 @@ public abstract class ClassUtils {
         catch (NoSuchFieldException e) {
             throw new ContextException("You Must Specify A Field: [" + name + "] In Class: [" + implClass.getName() + "]", e);
         }
-        catch (Throwable ex) {
-            ex = ExceptionUtils.unwrapThrowable(ex);
-            throw new ContextException("An Exception Occurred When Inject Attributes Attributes, With Msg: ["+ ex +"]", ex);
+        catch (IllegalAccessException e) {
+            throw new ContextException("Illegal Access When Inject Attributes", e);
         }
     }
 
@@ -1298,7 +1297,7 @@ public abstract class ClassUtils {
 
     }
 
-    final static class ClassNode extends ClassVisitor {
+    static final class ClassNode extends ClassVisitor {
 
         private final ArrayList<MethodNode> methodNodes = new ArrayList<>();
 
@@ -1350,6 +1349,7 @@ public abstract class ClassUtils {
      * necessary.
      */
     public static Field makeAccessible(final Field field) {
+        notNull(field, "field must not be null");
 
         if ((!Modifier.isPublic(field.getModifiers()) //
                 || !Modifier.isPublic(field.getDeclaringClass().getModifiers())) && !field.isAccessible()) {
@@ -1364,6 +1364,7 @@ public abstract class ClassUtils {
     }
 
     public static Object invokeMethod(final Method method, final Object target, final Object... args) {
+        notNull(method, "method must not be null");
         try {
             return method.invoke(target, args);
         }
@@ -1374,6 +1375,7 @@ public abstract class ClassUtils {
     }
 
     public static Method makeAccessible(final Method method) {
+        notNull(method, "method must not be null");
 
         if ((!Modifier.isPublic(method.getModifiers()) //
                 || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
@@ -1383,13 +1385,15 @@ public abstract class ClassUtils {
         return method;
     }
 
-    public static <T> Constructor<T> accessibleConstructor(final Class<T> clazz, final Class<?>... parameterTypes)
+    public static <T> Constructor<T> accessibleConstructor(final Class<T> targetClass, final Class<?>... parameterTypes)
             throws NoSuchMethodException //
     {
-        return makeAccessible(clazz.getDeclaredConstructor(parameterTypes));
+        notNull(targetClass, "targetClass must not be null");
+        return makeAccessible(targetClass.getDeclaredConstructor(parameterTypes));
     }
 
     public static <T> Constructor<T> makeAccessible(Constructor<T> constructor) {
+        notNull(constructor, "constructor must not be null");
 
         if ((!Modifier.isPublic(constructor.getModifiers()) //
                 || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) && !constructor.isAccessible()) {
