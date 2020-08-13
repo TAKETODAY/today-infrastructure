@@ -4,5 +4,5 @@ jdk:
 
 install:
   - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Pci
-#after_success:
-#  - mvn clean test jacoco:report coveralls:report -Pci
+after_success:
+  - mvn clean test jacoco:report coveralls:report -Pci
