@@ -35,6 +35,8 @@ import sun.reflect.FieldAccessor;
 import sun.reflect.MethodAccessor;
 
 /**
+ * Fast reflection operation
+ * 
  * @author TODAY <br>
  *         2020-08-13 18:45
  */

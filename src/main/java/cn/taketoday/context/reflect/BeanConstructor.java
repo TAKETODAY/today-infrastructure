@@ -20,15 +20,28 @@
 package cn.taketoday.context.reflect;
 
 /**
+ * Fast call bean's {@link java.lang.reflect.Constructor Constructor}
+ * 
  * @author TODAY <br>
  *         2020-08-13 19:31
+ * @see java.lang.reflect.Constructor
  */
 @FunctionalInterface
 public interface BeanConstructor<T> {
 
+    /**
+     * Invoke default {@link java.lang.reflect.Constructor}
+     * 
+     * @return returns T
+     */
     default T newInstance() {
         return newInstance(null);
     }
 
+    /**
+     * Invoke {@link java.lang.reflect.Constructor} with given args
+     * 
+     * @return returns T
+     */
     T newInstance(Object[] args);
 }
