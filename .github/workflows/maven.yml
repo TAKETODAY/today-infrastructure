@@ -1,5 +1,5 @@
 #name: Maven And Coveralls 
-name: Java CI
+name: GitHub CI
 
 on: ["push", "pull_request"]
 
