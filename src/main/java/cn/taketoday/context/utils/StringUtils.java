@@ -40,7 +40,7 @@ import cn.taketoday.context.Constant;
 
 /**
  * @author TODAY <br>
- * 2018-06-26 21:19:09
+ *         2018-06-26 21:19:09
  */
 public abstract class StringUtils {
 
@@ -113,7 +113,7 @@ public abstract class StringUtils {
      * Split with {@link Constant#SPLIT_REGEXP}
      *
      * @param source
-     *     source string
+     *            source string
      *
      * @return if source is null this will returns null
      */
@@ -134,13 +134,13 @@ public abstract class StringUtils {
         byte[] bytes = null;
         while (i < numChars) {
             switch (c = s.charAt(i)) {
-                case '+': {
+                case '+' : {
                     sb.append(' ');
                     i++;
                     needToChange = true;
                     break;
                 }
-                case '%': {
+                case '%' : {
                     try {
                         // (numChars-i)/3 is an upper bound for the number
                         // of remaining bytes
@@ -189,7 +189,7 @@ public abstract class StringUtils {
         final int caseDiff = StringUtils.caseDiff;
         final Charset charset = Constant.DEFAULT_CHARSET;
 
-        for (int i = 0; i < length; ) {
+        for (int i = 0; i < length;) {
             int c = s.charAt(i);
             // System.out.println("Examining character: " + c);
             if (dontNeedEncoding.get(c)) {
@@ -249,7 +249,7 @@ public abstract class StringUtils {
      * Parse Parameters
      *
      * @param s
-     *     Input {@link String}
+     *            Input {@link String}
      *
      * @return Map of list parameters
      */
@@ -264,10 +264,9 @@ public abstract class StringUtils {
         int valueStart = -1;
         int i;
         final int len = s.length();
-        loop:
-        for (i = 0; i < len; i++) {
+        loop: for (i = 0; i < len; i++) {
             switch (s.charAt(i)) {
-                case '=':
+                case '=' :
                     if (nameStart == i) {
                         nameStart = i + 1;
                     }
@@ -275,12 +274,12 @@ public abstract class StringUtils {
                         valueStart = i + 1;
                     }
                     break;
-                case '&':
-                case ';':
+                case '&' :
+                case ';' :
                     addParam(s, nameStart, valueStart, i, params);
                     nameStart = i + 1;
                     break;
-                case '#':
+                case '#' :
                     break loop;
                 default:
                     // continue
@@ -314,9 +313,9 @@ public abstract class StringUtils {
      * Use StringTokenizer to split string to string array
      *
      * @param str
-     *     Input string
+     *            Input string
      * @param delimiter
-     *     Input delimiter
+     *            Input delimiter
      *
      * @return Returns the splitted string array
      */
@@ -360,7 +359,7 @@ public abstract class StringUtils {
      * {@link Collection} to string array
      *
      * @param collection
-     *     All element must be a string
+     *            All element must be a string
      *
      * @return String array
      */
@@ -372,7 +371,7 @@ public abstract class StringUtils {
      * Use default delimiter:',' append array to a string
      *
      * @param array
-     *     Input array object
+     *            Input array object
      */
     public static String arrayToString(Object[] array) {
         return arrayToString(array, ",");
@@ -382,9 +381,9 @@ public abstract class StringUtils {
      * Array to string
      *
      * @param array
-     *     Input array object
+     *            Input array object
      * @param delimiter
-     *     Delimiter string
+     *            Delimiter string
      */
     public static String arrayToString(final Object[] array, final String delimiter) {
         if (array == null) {
@@ -409,7 +408,7 @@ public abstract class StringUtils {
      * {@link Collection} to string
      *
      * @param collection
-     *     Input {@link Collection} object
+     *            Input {@link Collection} object
      *
      * @since 2.1.7
      */
@@ -421,9 +420,9 @@ public abstract class StringUtils {
      * {@link Collection} to string
      *
      * @param coll
-     *     Input {@link Collection} object
+     *            Input {@link Collection} object
      * @param delimiter
-     *     Delimiter string
+     *            Delimiter string
      *
      * @since 2.1.7
      */
@@ -454,7 +453,7 @@ public abstract class StringUtils {
      * Check properties file name
      *
      * @param fileName
-     *     Input file name
+     *            Input file name
      *
      * @return checked properties file name
      */
@@ -475,12 +474,12 @@ public abstract class StringUtils {
      * Read the {@link InputStream} to text string
      *
      * @param inputStream
-     *     Input stream
+     *            Input stream
      *
      * @return String {@link InputStream} read as text
      *
      * @throws IOException
-     *     If can't read the string
+     *             If can't read the string
      */
     public static String readAsText(final InputStream inputStream) throws IOException {
         return readAsText(inputStream, 1024);
@@ -490,14 +489,14 @@ public abstract class StringUtils {
      * Read the {@link InputStream} to text string
      *
      * @param inputStream
-     *     Input stream
+     *            Input stream
      * @param bufferSize
-     *     Buffer size
+     *            Buffer size
      *
      * @return String {@link InputStream} read as text
      *
      * @throws IOException
-     *     If can't read the string
+     *             If can't read the string
      */
     public static String readAsText(final InputStream inputStream, final int bufferSize) throws IOException {
         final ByteArrayOutputStream result = new ByteArrayOutputStream(bufferSize);
@@ -518,7 +517,7 @@ public abstract class StringUtils {
      * Windows separators ("\") are replaced by simple slashes.
      *
      * @param path
-     *     the original path
+     *            the original path
      *
      * @return the normalized path
      */
@@ -608,7 +607,7 @@ else */
      * </pre>
      *
      * @param url
-     *     Input url
+     *            Input url
      */
     public static String checkUrl(String url) {
         return StringUtils.isEmpty(url) ? Constant.BLANK : (url.charAt(0) == '/' ? url : '/' + url);
@@ -618,12 +617,12 @@ else */
      * Append line to {@link StringBuilder}
      *
      * @param reader
-     *     String line read from {@link BufferedReader}
+     *            String line read from {@link BufferedReader}
      * @param builder
-     *     The {@link StringBuilder} append to
+     *            The {@link StringBuilder} append to
      *
      * @throws IOException
-     *     If an I/O error occurs
+     *             If an I/O error occurs
      */
     public static void appendLine(final BufferedReader reader, final StringBuilder builder) throws IOException {
         String line;
@@ -636,11 +635,11 @@ else */
      * Replace all occurrences of a substring within a string with another string.
      *
      * @param inString
-     *     {@code String} to examine
+     *            {@code String} to examine
      * @param oldPattern
-     *     {@code String} to replace
+     *            {@code String} to replace
      * @param newPattern
-     *     {@code String} to insert
+     *            {@code String} to insert
      *
      * @return a {@code String} with the replacements
      */
@@ -677,7 +676,7 @@ else */
      * {@link Character#toUpperCase(char)}. No other letters are changed.
      *
      * @param str
-     *     the {@code String} to capitalize
+     *            the {@code String} to capitalize
      *
      * @return the capitalized {@code String}
      */
@@ -690,7 +689,7 @@ else */
      * {@link Character#toLowerCase(char)}. No other letters are changed.
      *
      * @param str
-     *     the {@code String} to uncapitalize
+     *            the {@code String} to uncapitalize
      *
      * @return the uncapitalized {@code String}
      */
@@ -698,26 +697,18 @@ else */
         return changeFirstCharacterCase(str, false);
     }
 
-    private static String changeFirstCharacterCase(String str, boolean capitalize) {
-
+    public static String changeFirstCharacterCase(String str, boolean capitalize) {
         if (isEmpty(str)) {
             return str;
         }
-
-        char baseChar = str.charAt(0);
-        char updatedChar;
-        if (capitalize) {
-            updatedChar = Character.toUpperCase(baseChar);
-        }
-        else {
-            updatedChar = Character.toLowerCase(baseChar);
-        }
-        if (baseChar == updatedChar) {
+        final char firstChar = str.charAt(0);
+        if (capitalize
+                ? (firstChar >= 'A' && firstChar <= 'Z')// already upper case
+                : (firstChar >= 'a' && firstChar <= 'z')) {
             return str;
         }
-
-        char[] chars = str.toCharArray();
-        chars[0] = updatedChar;
+        final char[] chars = str.toCharArray();
+        chars[0] = capitalize ? Character.toUpperCase(firstChar) : Character.toLowerCase(firstChar);
         return new String(chars, 0, chars.length);
     }
 
@@ -725,10 +716,10 @@ else */
      * Delete any character in a given {@code String}.
      *
      * @param inString
-     *     the original {@code String}
+     *            the original {@code String}
      * @param charsToDelete
-     *     a set of characters to delete. E.g. "az\n" will delete 'a's, 'z's
-     *     and new lines.
+     *            a set of characters to delete. E.g. "az\n" will delete 'a's, 'z's
+     *            and new lines.
      *
      * @return the resulting {@code String}
      */
@@ -760,10 +751,10 @@ else */
      * {@link #tokenizeToStringArray}.
      *
      * @param str
-     *     the input {@code String} (potentially {@code null} or empty)
+     *            the input {@code String} (potentially {@code null} or empty)
      * @param delimiter
-     *     the delimiter between elements (this is a single delimiter, rather
-     *     than a bunch individual delimiter characters)
+     *            the delimiter between elements (this is a single delimiter, rather
+     *            than a bunch individual delimiter characters)
      *
      * @return an array of the tokens in the list
      *
@@ -783,14 +774,14 @@ else */
      * {@link #tokenizeToStringArray}.
      *
      * @param str
-     *     the input {@code String} (potentially {@code null} or empty)
+     *            the input {@code String} (potentially {@code null} or empty)
      * @param delimiter
-     *     the delimiter between elements (this is a single delimiter, rather
-     *     than a bunch individual delimiter characters)
+     *            the delimiter between elements (this is a single delimiter, rather
+     *            than a bunch individual delimiter characters)
      * @param charsToDelete
-     *     a set of characters to delete; useful for deleting unwanted line
-     *     breaks: e.g. "\r\n\f" will delete all new lines and line feeds in
-     *     a {@code String}
+     *            a set of characters to delete; useful for deleting unwanted line
+     *            breaks: e.g. "\r\n\f" will delete all new lines and line feeds in
+     *            a {@code String}
      *
      * @return an array of the tokens in the list
      *
@@ -833,9 +824,9 @@ else */
      * The order of elements in the original arrays is preserved.
      *
      * @param array1
-     *     the first array (can be {@code null})
+     *            the first array (can be {@code null})
      * @param array2
-     *     the second array (can be {@code null})
+     *            the second array (can be {@code null})
      *
      * @return the new array ({@code null} if both given arrays were {@code null})
      */
@@ -869,10 +860,10 @@ else */
      * </pre>
      *
      * @param str
-     *     the {@code CharSequence} to check (may be {@code null})
+     *            the {@code CharSequence} to check (may be {@code null})
      *
      * @return {@code true} if the {@code CharSequence} is not {@code null}, its
-     * length is greater than 0, and it does not contain whitespace only
+     *         length is greater than 0, and it does not contain whitespace only
      *
      * @see Character#isWhitespace
      */
@@ -895,7 +886,7 @@ else */
      * {@code "mypath/myfile.txt" -> "myfile.txt"}.
      *
      * @param path
-     *     the file path (may be {@code null})
+     *            the file path (may be {@code null})
      *
      * @return the extracted filename, or {@code null} if none
      */
@@ -912,7 +903,7 @@ else */
      * "mypath/myfile.txt" -> "txt".
      *
      * @param path
-     *     the file path (may be {@code null})
+     *            the file path (may be {@code null})
      *
      * @return the extracted filename extension, or {@code null} if none
      */
