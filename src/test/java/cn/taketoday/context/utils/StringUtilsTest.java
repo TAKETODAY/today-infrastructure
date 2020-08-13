@@ -273,4 +273,19 @@ public class StringUtilsTest {
         assertThat(StringUtils.concatenateStringArrays(null, null)).isNull();
     }
 
+    @Test
+    public void testCapitalize() {
+        assertEquals(StringUtils.capitalize("java"), "Java");
+        assertEquals(StringUtils.capitalize("Java"), "Java");
+        
+        assertEquals(StringUtils.uncapitalize("java"), "java");
+        assertEquals(StringUtils.uncapitalize("Java"), "java");
+        
+        assertEquals(StringUtils.changeFirstCharacterCase("Java", false), "java");
+        assertEquals(StringUtils.changeFirstCharacterCase("Java", true), "Java");
+        assertEquals(StringUtils.changeFirstCharacterCase(null, true), null);
+        assertEquals(StringUtils.changeFirstCharacterCase("", true), "");
+        
+    }
+
 }
