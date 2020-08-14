@@ -40,7 +40,7 @@ import sun.reflect.MethodAccessor;
  * @author TODAY <br>
  *         2020-08-13 18:45
  */
-@SuppressWarnings("restriction")
+//@SuppressWarnings("restriction")
 public abstract class ReflectionUtils {
 
     private static final MethodAccessor CONSTRUCTOR;

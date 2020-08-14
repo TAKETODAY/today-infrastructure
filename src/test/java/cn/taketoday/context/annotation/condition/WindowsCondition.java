@@ -33,9 +33,6 @@ public class WindowsCondition implements Condition {
     @Override
     public boolean matches(final ApplicationContext context, AnnotatedElement annotatedElement) {
         String system = context.getEnvironment().getProperty("os.name");
-        if (system != null && system.contains("Windows")) {
-            return true;
-        }
-        return false;
+        return system != null && system.contains("Windows");
     }
 }

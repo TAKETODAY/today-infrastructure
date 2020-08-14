@@ -72,7 +72,7 @@ public class ConfigurationBean {
         return new User().setUserName("yhj");
     }
 
-    @Singleton("user_")
+    @Singleton("user_windows")
     @Conditional(WindowsCondition.class)
     public User windowsUser() {
         return new User().setUserName("Windows");

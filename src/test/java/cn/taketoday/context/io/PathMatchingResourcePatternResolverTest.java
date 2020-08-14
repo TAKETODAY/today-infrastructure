@@ -125,8 +125,7 @@ public class PathMatchingResourcePatternResolverTest {
         Resource[] resources = resolver.getResources("classpath*:**/pom.properties");
         boolean found = false;
         for (Resource resource : resources) {
-//            System.err.println(resource);
-            if (resource.getName().equals("pom.properties")) {
+            if (resource.getName().endsWith("pom.properties")) {
                 found = true;
             }
         }

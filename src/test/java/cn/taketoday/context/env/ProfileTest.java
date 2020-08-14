@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@ package cn.taketoday.context.env;
 import java.util.Arrays;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,9 +30,11 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import test.demo.config.User;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Today <br>
- * 
+ *
  *         2018-11-15 19:59
  */
 public class ProfileTest {
@@ -62,13 +65,16 @@ public class ProfileTest {
     @Test
     public void testConditional() {
 
-        try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.demo.config")) {
-            User yhj = applicationContext.getBean("yhj", User.class);
-            User user = applicationContext.getBean("user_", User.class);
-            assert yhj == null;
-            System.out.println(user);
-            System.err.println(Arrays.toString(applicationContext.getEnvironment().getActiveProfiles()));
-            assert "Windows".equals(user.getUserName());
+        try (ApplicationContext context = new StandardApplicationContext("", "test.demo.config")) {
+            User yhj = context.getBean("yhj", User.class);
+            Assert.assertNull(yhj);
+
+            String system = context.getEnvironment().getProperty("os.name");
+            if (system != null && system.contains("Windows")) {
+                User user = context.getBean("user_windows", User.class);
+                assert "Windows".equals(user.getUserName());
+            }
+            assertThat(context.getEnvironment().getActiveProfiles()).hasSize(2);
         }
     }
 

@@ -62,34 +62,25 @@ public class ResourceUtilsTest {
     public void testGetResource() throws IOException {
 
 //		final Resource resource = ResourceUtils.getResource("/META-INF/maven/cn.taketoday/today-expression/pom.properties");
-        Resource resource = ResourceUtils.getResource("classpath:/META-INF/maven/org.slf4j/slf4j-api/pom.properties");
-
-        System.err.println(resource);
+        Resource resource = ResourceUtils.getResource("classpath:META-INF/maven/org.slf4j/slf4j-api/pom.properties");
         Resource createRelative = resource.createRelative("pom.xml");
-        System.err.println(createRelative);
+        assertThat(createRelative.exists()).isTrue();
+        assertThat(resource.exists()).isTrue();
 
-        assert createRelative.exists();
-        assert resource.exists();
+        final String userDir = System.getProperty("user.dir");
 
-        resource = ResourceUtils.getResource("file:/D:/Projects/Git/github/today-context/src/main/resources/META-INF/ignore/jar-prefix");
+        resource = ResourceUtils.getResource("file://" + userDir + "/src/main/resources/META-INF/ignore/jar-prefix");
+        assertThat(resource.exists()).isTrue();
+        assertThat(StringUtils.readAsText(resource.getInputStream())).isNotEmpty();
 
-        System.err.println(resource);
-
-        assert resource.exists();
-
-        System.err.println(StringUtils.readAsText(resource.getInputStream()));
-
-        resource = ResourceUtils.getResource("jar:file:/D:/Projects/Git/github/today-context/src/test/resources/test.jar!/META-INF/");
-        System.err.println(resource);
+        resource = ResourceUtils.getResource("jar:file://" + userDir + "/src/test/resources/test.jar!/META-INF/");
+//        System.err.println(resource);
 
         if (resource instanceof JarEntryResource) {
-
-            JarEntryResource jarEntryResource = (JarEntryResource) resource.createRelative(
-                                                                                           "/maven/cn.taketoday/today-expression/pom.properties");
+            JarEntryResource jarEntryResource = (JarEntryResource) resource.createRelative("/maven/cn.taketoday/today-expression/pom.properties");
             if (jarEntryResource.exists()) {
                 System.out.println(StringUtils.readAsText(jarEntryResource.getInputStream()));
             }
-
             System.err.println(jarEntryResource);
         }
         // location is empty
@@ -98,7 +89,6 @@ public class ResourceUtilsTest {
         // start with '/'
         assert ResourceUtils.getResource("info.properties").exists();
         assert ResourceUtils.getResource("classpath:info.properties").exists();
-
         try {
             ResourceUtils.getResource("today://info");
         }
