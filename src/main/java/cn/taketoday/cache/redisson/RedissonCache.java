@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,18 +13,18 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.cache.redisson;
 
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
 import org.redisson.api.RLock;
 import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
+
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.cache.AbstractCache;
 import cn.taketoday.cache.Cache;
@@ -52,9 +52,9 @@ public class RedissonCache extends AbstractCache implements Cache {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected final static void doPut(final RMap<Object, Object> cache, //
-                                      final CacheConfig cacheConfig,
-                                      final Object key, final Object value)//
+    protected static void doPut(final RMap<Object, Object> cache, //
+                                final CacheConfig cacheConfig,
+                                final Object key, final Object value)//
     {
         if (cacheConfig != null && cache instanceof RMapCache) {
             final TimeUnit timeUnit = cacheConfig.timeUnit();

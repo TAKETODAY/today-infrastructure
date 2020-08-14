@@ -19,6 +19,7 @@
  */
 package cn.taketoday.cache;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.ConcurrentCache;
 
 /**
@@ -28,6 +29,10 @@ import cn.taketoday.context.utils.ConcurrentCache;
 public class ConcurrentMapCache extends AbstractCache {
 
     private final ConcurrentCache<Object, Object> store;
+
+    public ConcurrentMapCache() {
+        this(Constant.DEFAULT);
+    }
 
     public ConcurrentMapCache(String name) {
         this(name, new ConcurrentCache<>(256));
