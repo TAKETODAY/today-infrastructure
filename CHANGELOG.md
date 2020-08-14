@@ -13,7 +13,7 @@
 <dependency>
     <groupId>cn.taketoday</groupId>
     <artifactId>today-context</artifactId>
-    <version>2.1.7.RELEASE</version>
+    <version>3.0.0.RELEASE</version>
 </dependency>
 ```
 
@@ -21,7 +21,8 @@
 
 # 当前版本
 
-## v2.1.7
+## v3.0.0（v2.1.7）
+
 - :bug: fix: loadBeanDefinition can't be catch exception
 - :bug: fix: ContextUtils#loadProps() only support String
 - :bug: fix: #11 JarEntryResource#getJarFilePath(String) jar file not found 
@@ -78,6 +79,10 @@
 - :sparkles: 新增BeanClassLoaderAware
 - :hammer: 重构Condition
 - :sparkles: 新增BeanFactoryPostProcessor
+
+- :fire: 除去MessageFactory
+- :sparkles: 新的反射API
+
 
 - :bug: 修复ResourceUtils#getResource文件路径带有转义字符时的错误
 - :zap: 优化AutoProxyCreator, CandidateComponentScanner, AbstractApplicationContext, PropertyValueResolver, ExecutableParameterResolver, StandardBeanFactory, AbstractCacheInterceptor, AspectsDestroyListener
