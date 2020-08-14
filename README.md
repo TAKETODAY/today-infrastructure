@@ -8,6 +8,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://www.codacy.com/app/TAKETODAY/today-context?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TAKETODAY/today-context&amp;utm_campaign=Badge_Grade)
 ![GitHub CI](https://github.com/TAKETODAY/today-context/workflows/GitHub%20CI/badge.svg)
 [![Travis CI](https://travis-ci.org/TAKETODAY/today-context.svg?branch=master)](https://travis-ci.org/TAKETODAY/today-context)
+[![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-context/badge.svg)](https://coveralls.io/github/TAKETODAY/today-context)
 
 ## 🛠️ 安装
 
