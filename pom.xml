@@ -156,7 +156,7 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>4.3.0</version>
                 <configuration>
-                    <repoToken>QZ1zzxOqOt1mtjyqmvzFJU5YW0kdIuExV</repoToken>
+                    <repoToken>QnCQitLt7wun8tpjDfVy7ZuAfEb8tDnlC</repoToken>
                 </configuration>
             </plugin>
 
@@ -236,6 +236,11 @@
     <profiles>
         <profile>
             <id>ci</id>
+            <properties>
+                <maven.compiler.source>1.8</maven.compiler.source>
+                <maven.compiler.target>1.8</maven.compiler.target>
+                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+            </properties>
         </profile>
 
         <profile>
