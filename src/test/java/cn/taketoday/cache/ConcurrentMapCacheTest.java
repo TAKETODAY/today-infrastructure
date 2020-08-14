@@ -17,21 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+package cn.taketoday.cache;
 
-package cn.taketoday.cache.redisson;
+/**
+ * 
+ * @author TODAY <br>
+ *         2020-08-14 22:24
+ */
+public class ConcurrentMapCacheTest extends AbstractCacheTest {
 
-import org.junit.Ignore;
-
-import cn.taketoday.cache.AbstractCache;
-import cn.taketoday.cache.AbstractCacheTest;
-
-import static org.junit.Assert.*;
-
-@Ignore
-public class RedissonCacheTest extends AbstractCacheTest {
-
-    public RedissonCacheTest() {
-//        super(new RedissonCache(null));
-        super(null);
+    public ConcurrentMapCacheTest() {
+        super(new ConcurrentMapCache());
     }
 }
