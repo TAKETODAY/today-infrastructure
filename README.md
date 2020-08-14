@@ -474,11 +474,6 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
         }
     }
 
-    /**
-     * Use {@link afterPropertiesSet}
-     * 
-     * @since 2.3.3
-     */
     @Override
     public void afterPropertiesSet() throws ConfigurationException {
 
@@ -519,13 +514,6 @@ public class FreeMarkerViewResolver extends AbstractViewResolver implements Init
 
     }
 
-    /**
-     * Create Model Attributes.
-     * 
-     * @param requestContext
-     *            Current request context
-     * @return {@link TemplateHashModel}
-     */
     protected TemplateHashModel createModel(RequestContext requestContext) {
         final ObjectWrapper wrapper = this.wrapper;
 
