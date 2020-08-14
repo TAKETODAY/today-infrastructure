@@ -27,9 +27,7 @@ import cn.taketoday.context.EmptyObject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AbstractCacheTest extends TestCase {
-
-
+public abstract class AbstractCacheTest extends TestCase {
 
     protected AbstractCache cache;
 
