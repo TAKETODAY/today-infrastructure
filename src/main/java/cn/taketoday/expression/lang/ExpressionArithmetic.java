@@ -64,7 +64,7 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
       BIGDECIMAL, DOUBLE, BIGINTEGER
   };
 
-  public final static class BigDecimalDelegate extends ExpressionArithmetic {
+  public static final class BigDecimalDelegate extends ExpressionArithmetic {
     @Override
     protected Number add(Number num0, Number num1) {
       return ((BigDecimal) num0).add((BigDecimal) num1);

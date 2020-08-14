@@ -61,9 +61,9 @@ import static cn.taketoday.context.Constant.BLANK;
  */
 public abstract class ExpressionUtils {
 
-  protected final static Long ZERO = Long.valueOf(0L);
+  protected static Long ZERO = 0L;
 
-  public final static void throwUnhandled(Object base, Object property) throws ExpressionException {
+  public static void throwUnhandled(Object base, Object property) throws ExpressionException {
     if (base == null) {
       throw new PropertyNotFoundException("ELResolver cannot handle a null base Object with identifier ''" + property + "''");
     }
@@ -81,7 +81,7 @@ public abstract class ExpressionUtils {
    * @throws ExpressionException
    */
   @SuppressWarnings("unchecked")
-  public final static int compare(final Object obj0, final Object obj1) throws ExpressionException {
+  public static int compare(final Object obj0, final Object obj1) throws ExpressionException {
     if (equals(obj0, obj1)) {
       return 0;
     }
@@ -128,7 +128,7 @@ public abstract class ExpressionUtils {
    *
    * @throws ExpressionException
    */
-  public final static boolean equals(final Object obj0, final Object obj1) throws ExpressionException {
+  public static boolean equals(final Object obj0, final Object obj1) throws ExpressionException {
     if (obj0 == obj1) {
       return true;
     }
@@ -170,7 +170,7 @@ public abstract class ExpressionUtils {
    *
    * @return The result of coercion
    */
-  public final static Boolean coerceToBoolean(final Object obj) throws IllegalArgumentException {
+  public static Boolean coerceToBoolean(final Object obj) throws IllegalArgumentException {
 
     if (obj == null || BLANK.equals(obj)) {
       return Boolean.FALSE;
@@ -189,7 +189,7 @@ public abstract class ExpressionUtils {
   // <T extends Enum<T>> T coerceToEnum(Object, Class<T> type)
   // but this makes it harder to get the calls right.
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public final static Enum coerceToEnum(final Object obj, Class type) {
+  public static Enum coerceToEnum(final Object obj, Class type) {
 
     if (obj == null || BLANK.equals(obj)) {
       return null;
@@ -200,7 +200,7 @@ public abstract class ExpressionUtils {
     return Enum.valueOf(type, obj.toString());
   }
 
-  public final static Character coerceToCharacter(final Object obj) throws IllegalArgumentException {
+  public static Character coerceToCharacter(final Object obj) throws IllegalArgumentException {
 
     if (obj == null || BLANK.equals(obj)) {
       return Character.valueOf((char) 0);
@@ -217,7 +217,7 @@ public abstract class ExpressionUtils {
     throw new IllegalArgumentException("Cannot convert " + obj + " of type " + obj.getClass() + " to Character");
   }
 
-  public final static Number coerceToNumber(final Object obj) {
+  public static Number coerceToNumber(final Object obj) {
     if (obj == null) {
       return ZERO;
     }
@@ -231,7 +231,7 @@ public abstract class ExpressionUtils {
     return toNumber(str);
   }
 
-  protected final static Number coerceToNumber(final Number number, final Class<?> type) throws IllegalArgumentException {
+  protected static Number coerceToNumber(final Number number, final Class<?> type) throws IllegalArgumentException {
 
     if (Long.TYPE == type || Long.class == type) {
       return Long.valueOf(number.longValue());
@@ -298,7 +298,7 @@ public abstract class ExpressionUtils {
     throw new IllegalArgumentException("Cannot convert " + obj + " of type " + obj.getClass() + " to " + type);
   }
 
-  protected final static Number coerceToNumber(final String val, final Class<?> type) throws IllegalArgumentException {
+  protected static Number coerceToNumber(final String val, final Class<?> type) throws IllegalArgumentException {
     if (StringUtils.isEmpty(val)) {
       return coerceToNumber(ZERO, type);
     }
@@ -336,7 +336,7 @@ public abstract class ExpressionUtils {
    *
    * @return The result of coercion
    */
-  public final static String coerceToString(final Object obj) {
+  public static String coerceToString(final Object obj) {
     if (obj == null) {
       return BLANK;
     }
@@ -349,7 +349,7 @@ public abstract class ExpressionUtils {
     return obj.toString();
   }
 
-  public final static Object coerceToType(final Object obj, final Class<?> type) throws IllegalArgumentException {
+  public static Object coerceToType(final Object obj, final Class<?> type) throws IllegalArgumentException {
 
     if (type == null || type.isInstance(obj)) {
       return obj;
@@ -393,7 +393,7 @@ public abstract class ExpressionUtils {
   //     *            An array of objects
   //     * @return true if the array contains a null, false otherwise
   //     */
-  //    public final static boolean containsNulls(final Object[] obj) {
+  //    public static boolean containsNulls(final Object[] obj) {
   //        for (int i = 0; i < obj.length; i++) {
   //            if (obj[0] == null) {
   //                return true;
@@ -402,32 +402,32 @@ public abstract class ExpressionUtils {
   //        return false;
   //    }
 
-  public final static boolean isBigDecimalOp(final Object obj0, final Object obj1) {
+  public static boolean isBigDecimalOp(final Object obj0, final Object obj1) {
     return (obj0 instanceof BigDecimal || obj1 instanceof BigDecimal);
   }
 
-  public final static boolean isBigIntegerOp(final Object obj0, final Object obj1) {
+  public static boolean isBigIntegerOp(final Object obj0, final Object obj1) {
     return (obj0 instanceof BigInteger || obj1 instanceof BigInteger);
   }
 
-  public final static boolean isDoubleOp(final Object obj0, final Object obj1) {
+  public static boolean isDoubleOp(final Object obj0, final Object obj1) {
     return (obj0 instanceof Double || obj1 instanceof Double || obj0 instanceof Float || obj1 instanceof Float);
   }
 
-  public final static boolean isDoubleStringOp(final Object obj0, final Object obj1) {
+  public static boolean isDoubleStringOp(final Object obj0, final Object obj1) {
     return (isDoubleOp(obj0, obj1) //
         || (obj0 instanceof String && isStringFloat((String) obj0)) //
         || (obj1 instanceof String && isStringFloat((String) obj1))//
     );
   }
 
-  public final static boolean isLongOp(final Object obj0, final Object obj1) {
+  public static boolean isLongOp(final Object obj0, final Object obj1) {
     return (obj0 instanceof Long || obj1 instanceof Long || obj0 instanceof Integer || obj1 instanceof Integer
         || obj0 instanceof Character || obj1 instanceof Character || obj0 instanceof Short || obj1 instanceof Short
         || obj0 instanceof Byte || obj1 instanceof Byte);
   }
 
-  public final static boolean isStringFloat(final String str) {
+  public static boolean isStringFloat(final String str) {
     final int len = str.length();
     if (len > 1) {
       for (int i = 0; i < len; i++) {
@@ -442,7 +442,7 @@ public abstract class ExpressionUtils {
     return false;
   }
 
-  public final static Number toFloat(final String value) {
+  public static Number toFloat(final String value) {
     try {
 
       final double parseDouble = Double.parseDouble(value);
@@ -456,7 +456,7 @@ public abstract class ExpressionUtils {
     }
   }
 
-  public final static Number toNumber(final String value) {
+  public static Number toNumber(final String value) {
     try {
       return Integer.valueOf(value);
     }
