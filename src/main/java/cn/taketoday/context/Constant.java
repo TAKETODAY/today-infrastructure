@@ -42,6 +42,9 @@ public interface Constant extends Opcodes, Serializable {
 
     String CONTEXT_VERSION = "2.1.7";
 
+    String KEY_ROOT = "root";
+    String KEY_RESULT = "result";
+
     Type[] TYPES_EMPTY = {};
     Method[] EMPTY_METHOD = {};
     Object[] EMPTY_OBJECT_ARRAY = {};

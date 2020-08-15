@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,18 +29,27 @@ import cn.taketoday.cache.annotation.CacheConfig;
  */
 public interface CacheManager {
 
+    /**
+     * Use default CacheConfig#EMPTY_CACHE_CONFIG
+     *
+     * @param name
+     *            the cache identifier (must not be {@code null})
+     *
+     * @return Target {@link Cache}
+     * @see CacheConfig#EMPTY_CACHE_CONFIG
+     */
     default Cache getCache(String name) {
         return getCache(name, CacheConfig.EMPTY_CACHE_CONFIG);
     }
 
     /**
-     * 
      * Return the cache associated with the given name.
-     * 
+     *
      * @param name
      *            the cache identifier (must not be {@code null})
      * @param cacheConfig
      *            {@link CacheConfig}
+     *
      * @return Target {@link Cache}
      */
     Cache getCache(String name, CacheConfig cacheConfig);

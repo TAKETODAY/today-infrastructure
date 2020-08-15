@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -27,10 +27,10 @@ import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY <br>
- *         2019-03-01 13:17
+ * 2019-03-01 13:17
  */
 @SuppressWarnings("all")
-public final class CacheConfiguration implements Cacheable, CacheEvict, CachePut, CacheConfig, Annotation {
+public class CacheConfiguration implements Cacheable, CacheEvict, CachePut, CacheConfig, Annotation {
 
     private boolean sync = false;
     private boolean allEntries = false;
@@ -49,7 +49,20 @@ public final class CacheConfiguration implements Cacheable, CacheEvict, CachePut
 
     private final Class<? extends Annotation> annotationType;
 
+    public CacheConfiguration() {
+        this(CacheConfig.class);
+    }
+
+    public CacheConfiguration(String name) {
+        this(name, CacheConfig.class);
+    }
+
     public CacheConfiguration(Class<? extends Annotation> annotationType) {
+        this(null, annotationType);
+    }
+
+    public CacheConfiguration(String name, Class<? extends Annotation> annotationType) {
+        this.cacheName = name;
         this.annotationType = annotationType;
     }
 
@@ -105,7 +118,7 @@ public final class CacheConfiguration implements Cacheable, CacheEvict, CachePut
 
     /**
      * Merge {@link CacheConfig} {@link Annotation}
-     * 
+     *
      * @param annotationAttributes
      */
     public void mergeCacheConfigAttributes(CacheConfig cacheConfig) {
@@ -138,6 +151,52 @@ public final class CacheConfiguration implements Cacheable, CacheEvict, CachePut
     @Override
     public long maxIdleTime() {
         return maxIdleTime;
+    }
+
+    // setter
+
+    public void setSync(boolean sync) {
+        this.sync = sync;
+    }
+
+    public void setAllEntries(boolean allEntries) {
+        this.allEntries = allEntries;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setUnless(String unless) {
+        this.unless = unless;
+    }
+
+    public void setBeforeInvocation(boolean beforeInvocation) {
+        this.beforeInvocation = beforeInvocation;
+    }
+
+    public void setCacheName(String cacheName) {
+        this.cacheName = cacheName;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
+
+    public void setMaxSize(int maxSize) {
+        this.maxSize = maxSize;
+    }
+
+    public void setExpire(long expire) {
+        this.expire = expire;
+    }
+
+    public void setMaxIdleTime(long maxIdleTime) {
+        this.maxIdleTime = maxIdleTime;
+    }
+
+    public void setTimeUnit(TimeUnit timeUnit) {
+        this.timeUnit = timeUnit;
     }
 
 }

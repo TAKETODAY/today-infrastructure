@@ -38,7 +38,6 @@ import cn.taketoday.cache.CacheValueRetrievalException;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Order;
 
 /**
  * @author TODAY <br>
@@ -46,14 +45,14 @@ import cn.taketoday.context.annotation.Order;
  */
 @Aspect
 @Advice(Cacheable.class)
-@Order(Ordered.HIGHEST_PRECEDENCE * 2)
 public class CacheableInterceptor extends AbstractCacheInterceptor {
 
     public CacheableInterceptor() {
-        
+        setOrder(Ordered.HIGHEST_PRECEDENCE * 2);
     }
 
     public CacheableInterceptor(CacheManager cacheManager) {
+        this();
         setCacheManager(cacheManager);
     }
 

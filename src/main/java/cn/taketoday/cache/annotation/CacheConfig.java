@@ -19,7 +19,6 @@
  */
 package cn.taketoday.cache.annotation;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -67,37 +66,6 @@ public @interface CacheConfig {
      */
     TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
 
-    CacheConfig EMPTY_CACHE_CONFIG = new CacheConfig() {
-
-        @Override
-        public Class<? extends Annotation> annotationType() {
-            return CacheConfig.class;
-        }
-
-        @Override
-        public TimeUnit timeUnit() {
-            return TimeUnit.MILLISECONDS;
-        }
-
-        @Override
-        public int maxSize() {
-            return 0;
-        }
-
-        @Override
-        public long expire() {
-            return 0;
-        }
-
-        @Override
-        public long maxIdleTime() {
-            return 0;
-        }
-
-        @Override
-        public String cacheName() {
-            return Constant.BLANK;
-        }
-    };
+    CacheConfig EMPTY_CACHE_CONFIG = new CacheConfiguration();
 
 }

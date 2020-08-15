@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,13 +13,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.cache.interceptor;
 
-import java.io.IOException;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -28,9 +30,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
-
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheExpressionContext;
@@ -41,6 +40,9 @@ import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.Ordered;
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConcurrentCache;
@@ -51,15 +53,15 @@ import cn.taketoday.expression.StandardExpressionContext;
 
 /**
  * @author TODAY <br>
- *         2019-02-27 19:03
+ * 2019-02-27 19:03
  */
-public abstract class AbstractCacheInterceptor extends CacheOperations implements MethodInterceptor {
+public abstract class AbstractCacheInterceptor
+    extends CacheOperations implements MethodInterceptor, Ordered {
 
     private CacheManager cacheManager;
+    private final OrderedSupport ordered = new OrderedSupport(){};
 
-    public AbstractCacheInterceptor() {
-
-    }
+    public AbstractCacheInterceptor() {}
 
     public AbstractCacheInterceptor(CacheManager cacheManager) {
         setCacheManager(cacheManager);
@@ -73,13 +75,23 @@ public abstract class AbstractCacheInterceptor extends CacheOperations implement
         return cacheManager;
     }
 
+    @Override
+    public int getOrder() {
+        return ordered.getOrder();
+    }
+
+    public void setOrder(final int order) {
+        ordered.setOrder(order);
+    }
+
     /**
      * Prepare {@link Cache} name
-     * 
+     *
      * @param method
-     *            Target method
+     *     Target method
      * @param cacheName
-     *            {@link CacheConfig#cacheName()}
+     *     {@link CacheConfig#cacheName()}
+     *
      * @return A not empty cache name
      */
     protected String prepareCacheName(final Method method, final String cacheName) {
@@ -96,16 +108,19 @@ public abstract class AbstractCacheInterceptor extends CacheOperations implement
 
     /**
      * Obtain a Target method's {@link Cache} object
-     * 
+     *
      * @param method
-     *            Target method
+     *     Target method
      * @param cacheConfig
-     *            {@link CacheConfig}
+     *     {@link CacheConfig}
+     *
      * @return {@link Cache}
+     *
      * @throws NoSuchCacheException
-     *             If there isn't a {@link Cache}
+     *     If there isn't a {@link Cache}
      */
-    protected final Cache obtainCache(final Method method, final CacheConfig cacheConfig) throws NoSuchCacheException {
+    protected final Cache obtainCache(final Method method,
+                                      final CacheConfig cacheConfig) throws NoSuchCacheException {
         final String name = prepareCacheName(method, cacheConfig.cacheName());
         final Cache cache = getCache(name, cacheConfig);
         if (cache == null) {
@@ -115,7 +130,7 @@ public abstract class AbstractCacheInterceptor extends CacheOperations implement
     }
 
     /**
-     * @see <code>ProxyCachingConfiguration</code>
+     * @see ProxyCachingConfiguration
      */
     @PostConstruct
     protected void initCacheInterceptor(ApplicationContext context) {
@@ -134,20 +149,17 @@ public abstract class AbstractCacheInterceptor extends CacheOperations implement
 
     interface Operations {
 
-        String KEY_ROOT = "root";
-        String KEY_RESULT = "result";
-
         StandardExpressionContext SHARED_EL_CONTEXT = //
-                ContextUtils.getLastStartupContext()
-                        .getEnvironment()
-                        .getExpressionProcessor()
-                        .getManager()
-                        .getContext();
+            ContextUtils.getLastStartupContext()
+                .getEnvironment()
+                .getExpressionProcessor()
+                .getManager()
+                .getContext();
 
         ExpressionFactory EXPRESSION_FACTORY = ExpressionFactory.getSharedInstance();
         ConcurrentCache<MethodKey, String[]> ARGS_NAMES_CACHE = new ConcurrentCache<>(512);
         ConcurrentCache<MethodKey, CacheConfiguration> CACHE_OPERATION = new ConcurrentCache<>(512);
-        Function<MethodKey, String[]> ARGS_NAMES_FUNCTION = (target) -> ClassUtils.getMethodArgsNames(target.targetMethod);
+        Function<MethodKey, String[]> ARGS_NAMES_FUNCTION = target -> ClassUtils.getMethodArgsNames(target.targetMethod);
 
         Function<MethodKey, CacheConfiguration> CACHE_OPERATION_FUNCTION = target -> {
 
@@ -165,7 +177,7 @@ public abstract class AbstractCacheInterceptor extends CacheOperations implement
             }
 
             final CacheConfiguration configuration = //
-                    ClassUtils.injectAttributes(attributes, annClass, new CacheConfiguration(annClass));
+                ClassUtils.injectAttributes(attributes, annClass, new CacheConfiguration(annClass));
 
             final CacheConfig cacheConfig = ClassUtils.getAnnotation(CacheConfig.class, declaringClass);
             if (cacheConfig != null) {
@@ -179,61 +191,64 @@ public abstract class AbstractCacheInterceptor extends CacheOperations implement
 
         /**
          * Resolve {@link Annotation} from given {@link Annotation} {@link Class}
+         *
          * @return {@link Annotation} instance
          */
-        static <A extends Annotation> CacheConfiguration prepareAnnotation(final MethodKey methodKey) {
+        static CacheConfiguration prepareAnnotation(final MethodKey methodKey) {
             return CACHE_OPERATION.get(methodKey, CACHE_OPERATION_FUNCTION);
         }
 
         /**
          * Create a key for the target method
-         * 
+         *
          * @param key
-         *            Key expression
-         * @param context
-         *            Cache el context
+         *     Key expression
+         * @param ctx
+         *     Cache el ctx
          * @param invocation
-         *            Target Method Invocation
+         *     Target Method Invocation
+         *
          * @return Cache key
          */
-        static Object createKey(final String key, final CacheExpressionContext context, final MethodInvocation invocation) {
+        static Object createKey(final String key,
+                                final CacheExpressionContext ctx,
+                                final MethodInvocation invocation) {
 
             return key.isEmpty()
-                    ? new DefaultCacheKey(invocation.getArguments())
-                    : EXPRESSION_FACTORY.createValueExpression(context, key, Object.class).getValue(context);
+                ? new DefaultCacheKey(invocation.getArguments())
+                : EXPRESSION_FACTORY.createValueExpression(ctx, key, Object.class).getValue(ctx);
         }
 
         /**
          * Test condition Expression
-         * 
+         *
          * @param condition
-         *            condition expression
+         *     condition expression
          * @param context
-         *            Cache EL Context
+         *     Cache EL Context
+         *
          * @return returns If pass the condition
          */
         static boolean isConditionPassing(final String condition, final CacheExpressionContext context) {
-
-            if (StringUtils.isEmpty(condition)) { //if its empty returns true
-                return true;
-            }
-            return (Boolean) EXPRESSION_FACTORY.createValueExpression(context, condition, Boolean.class).getValue(context);
+            return StringUtils.isEmpty(condition) || //if its empty returns true
+                (Boolean) EXPRESSION_FACTORY.createValueExpression(context, condition, Boolean.class)
+                    .getValue(context);
         }
 
         /**
          * Test unless Expression
-         * 
+         *
          * @param unless
-         *            unless express
+         *     unless express
          * @param result
-         *            method return value
+         *     method return value
          * @param context
-         *            Cache el context
+         *     Cache el context
          */
         static boolean allowPutCache(final String unless, final Object result, final CacheExpressionContext context) {
 
             if (StringUtils.isNotEmpty(unless)) {
-                context.putBean(KEY_RESULT, result);
+                context.putBean(Constant.KEY_RESULT, result);
                 return !(Boolean) EXPRESSION_FACTORY.createValueExpression(context, unless, Boolean.class).getValue(context);
             }
             return true;
@@ -241,13 +256,11 @@ public abstract class AbstractCacheInterceptor extends CacheOperations implement
 
         /**
          * Prepare parameter names
-         * 
+         *
          * @param beans
-         *            The mapping
+         *     The mapping
          * @param arguments
-         *            Target {@link Method} parameters
-         * @throws IOException
-         *             When asm tool can't access to the class file
+         *     Target {@link Method} parameters
          */
         static void prepareParameterNames(final MethodKey methodKey,
                                           final Object[] arguments,
@@ -259,10 +272,11 @@ public abstract class AbstractCacheInterceptor extends CacheOperations implement
             }
         }
 
-        static CacheExpressionContext prepareELContext(final MethodKey methodKey, final MethodInvocation invocation) {
-            final Map<String, Object> beans = new HashMap<>();
+        static CacheExpressionContext prepareELContext(final MethodKey methodKey,
+                                                       final MethodInvocation invocation) {
+            final HashMap<String, Object> beans = new HashMap<>();
             prepareParameterNames(methodKey, invocation.getArguments(), beans);
-            beans.put(KEY_ROOT, invocation);// ${root.target} for target instance ${root.method}
+            beans.put(Constant.KEY_ROOT, invocation);// ${root.target} for target instance ${root.method}
             return new CacheExpressionContext(SHARED_EL_CONTEXT, beans);
         }
 
@@ -276,7 +290,7 @@ public abstract class AbstractCacheInterceptor extends CacheOperations implement
         private static final long serialVersionUID = 1L;
 
         private final int hash;
-        private final Method targetMethod;
+        private final transient Method targetMethod;
         private final Class<? extends Annotation> annotationClass;
 
         public MethodKey(Method targetMethod, Class<? extends Annotation> annotationClass) {

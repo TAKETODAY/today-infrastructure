@@ -67,6 +67,17 @@ public abstract class AbstractCache implements Cache {
         return (T) toRealValue(getInternal(key, valueLoader));
     }
 
+    /**
+     * Get value If there isn't a key, use valueLoader create one
+     * 
+     * @param <T>
+     * @param key
+     *            Cache key
+     * @param valueLoader
+     *            Value Loader
+     * @return Cache value
+     * @throws CacheValueRetrievalException
+     */
     protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
         Object ret = lookupValue(key);
         if (ret == null) {

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,8 +34,8 @@ import cn.taketoday.cache.CacheExpressionContext;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CachePut;
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Order;
 
 /**
  * @author TODAY <br>
@@ -43,14 +43,14 @@ import cn.taketoday.context.annotation.Order;
  */
 @Aspect
 @Advice(CachePut.class)
-@Order(Ordered.HIGHEST_PRECEDENCE * 2)
 public class CachePutInterceptor extends AbstractCacheInterceptor {
 
     public CachePutInterceptor() {
-
+        setOrder(Ordered.HIGHEST_PRECEDENCE * 2);
     }
 
     public CachePutInterceptor(CacheManager cacheManager) {
+        this();
         setCacheManager(cacheManager);
     }
 
@@ -64,7 +64,7 @@ public class CachePutInterceptor extends AbstractCacheInterceptor {
         final CacheConfiguration cachePut = prepareAnnotation(methodKey);
         final CacheExpressionContext context = prepareELContext(methodKey, invocation);
 
-        context.putBean(Operations.KEY_RESULT, result);
+        context.putBean(Constant.KEY_RESULT, result);
 
         if (isConditionPassing(cachePut.condition(), context)) {
             final Object key = createKey(cachePut.key(), context, invocation);

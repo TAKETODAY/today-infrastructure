@@ -1,4 +1,4 @@
-/**
+/*
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
@@ -17,24 +17,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.cache.redisson;
+package cn.taketoday.cache;
 
 import org.redisson.api.RLock;
 import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
 
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.cache.AbstractCache;
-import cn.taketoday.cache.Cache;
-import cn.taketoday.cache.CacheCallback;
-import cn.taketoday.cache.CacheValueRetrievalException;
 import cn.taketoday.cache.annotation.CacheConfig;
+import cn.taketoday.context.Constant;
+import cn.taketoday.context.utils.Assert;
 
 /**
  * @author TODAY <br>
- *         2019-02-28 18:30
+ * 2019-02-28 18:30
  */
 public class RedissonCache extends AbstractCache implements Cache {
 
@@ -42,13 +39,23 @@ public class RedissonCache extends AbstractCache implements Cache {
     private final RMap<Object, Object> cache;
 
     public RedissonCache(RMap<Object, Object> cache) {
-        this(cache, null);
+        this(cache, Constant.DEFAULT, null);
+    }
+
+    public RedissonCache(RMap<Object, Object> cache, String name) {
+        this(cache, name, null);
     }
 
     public RedissonCache(RMap<Object, Object> cache, CacheConfig cacheConfig) {
-        this.cache = Objects.requireNonNull(cache, "cache must not be null");
+        this(cache, cacheConfig.cacheName(), cacheConfig);
+    }
+
+    public RedissonCache(RMap<Object, Object> cache, String name, CacheConfig cacheConfig) {
+        Assert.notNull(name, "name must not be null");
+        Assert.notNull(cache, "cache must not be null");
+        this.cache = cache;
         this.cacheConfig = cacheConfig;
-        setName(cache.getName());
+        setName(name);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -58,7 +65,12 @@ public class RedissonCache extends AbstractCache implements Cache {
     {
         if (cacheConfig != null && cache instanceof RMapCache) {
             final TimeUnit timeUnit = cacheConfig.timeUnit();
-            ((RMapCache) cache).fastPut(key, value, cacheConfig.expire(), timeUnit, cacheConfig.maxIdleTime(), timeUnit);
+            ((RMapCache) cache).fastPut(key,
+                                        value,
+                                        cacheConfig.expire(),
+                                        timeUnit,
+                                        cacheConfig.maxIdleTime(),
+                                        timeUnit);
         }
         else {
             cache.fastPut(key, value);
