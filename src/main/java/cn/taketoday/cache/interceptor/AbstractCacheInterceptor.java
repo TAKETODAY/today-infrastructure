@@ -114,17 +114,19 @@ public abstract class AbstractCacheInterceptor extends CacheOperations implement
         return cache;
     }
 
+    /**
+     * @see <code>ProxyCachingConfiguration</code>
+     */
     @PostConstruct
     protected void initCacheInterceptor(ApplicationContext context) {
         if (getCacheManager() == null) {
             setCacheManager(context.getBean(CacheManager.class));
         }
-
         ConfigurationException.nonNull(getCacheManager(), "You must provide a 'CacheManager'");
-
         if (getExceptionResolver() == null) {
             setExceptionResolver(context.getBean(CacheExceptionResolver.class));
         }
+        ConfigurationException.nonNull(getExceptionResolver(), "You must provide a 'CacheExceptionResolver'");
     }
 
     // ExpressionOperations
@@ -177,11 +179,6 @@ public abstract class AbstractCacheInterceptor extends CacheOperations implement
 
         /**
          * Resolve {@link Annotation} from given {@link Annotation} {@link Class}
-         * 
-         * @param method
-         *            target method
-         * @param a
-         *            {@link Annotation} {@link Class}
          * @return {@link Annotation} instance
          */
         static <A extends Annotation> CacheConfiguration prepareAnnotation(final MethodKey methodKey) {
