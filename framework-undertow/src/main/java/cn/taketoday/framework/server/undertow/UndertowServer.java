@@ -40,6 +40,8 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.io.JarResource;
+import cn.taketoday.context.logger.Logger;
+import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.Constant;
@@ -47,6 +49,7 @@ import cn.taketoday.framework.ServletWebServerApplicationContext;
 import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.config.CompressionConfiguration;
+import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.framework.server.AbstractServletWebServer;
 import cn.taketoday.framework.server.ServletWebServerApplicationLoader;
 import cn.taketoday.framework.server.WebServer;
@@ -80,6 +83,8 @@ import lombok.Setter;
 @MissingBean(type = WebServer.class)
 @Props(prefix = { "server.", "server.undertow." })
 public class UndertowServer extends AbstractServletWebServer implements WebServer {
+
+    private static final Logger log = LoggerFactory.getLogger(UndertowServer.class);
 
     private String serverHeader;
     private boolean useForwardHeaders;
@@ -121,7 +126,9 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
 
     @Override
     public synchronized void start() {
+        log.info("Start Undertow web server");
         try {
+
             if (getStarted().get()) {
                 return;
             }
@@ -159,6 +166,7 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
         if (compression != null) {
             getWebApplicationConfiguration().configureCompression(compression);
             if (compression.isEnable()) {
+                log.info("Compression enabled");
                 contextHandler = UndertowCompressionUtils.configureCompression(compression, httpHandler);
             }
         }
@@ -175,10 +183,9 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
         if (!getStarted().get()) {
             return;
         }
+        log.info("Stop Undertow web server");
         manager.undeploy();
-
         try {
-
             manager.stop();
         }
         catch (ServletException e) {
@@ -201,6 +208,7 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
     @Override
     protected void initializeContext() {
         super.initializeContext();
+        log.info("Initialize Undertow Web Server Context");
 
         manager = createDeploymentManager();
         builder = createBuilder(getPort());
@@ -233,7 +241,10 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
 
         deployment.setServletStackTraces(stackTraces);
 
-        deployment.setResourceManager(getDocumentRootResourceManager());
+        final ResourceManager documentRootResourceManager = getDocumentRootResourceManager();
+        if (documentRootResourceManager != null) {
+            deployment.setResourceManager(documentRootResourceManager);
+        }
         deployment.setEagerFilterInit(this.eagerInitFilters);
 
         configureErrorPages(deployment);
@@ -329,8 +340,9 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
     }
 
     protected ResourceManager getDocumentRootResourceManager() {
+        final WebDocumentConfiguration webDocumentConfiguration = getWebDocumentConfiguration();
         try {
-            return getRootResource(getWebDocumentConfiguration().getValidDocumentDirectory());
+            return getRootResource(webDocumentConfiguration == null ? null : webDocumentConfiguration.getValidDocumentDirectory());
         }
         catch (IOException e) {
             throw new ConfigurationException(e);

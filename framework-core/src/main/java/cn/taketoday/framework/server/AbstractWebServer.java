@@ -21,13 +21,10 @@ package cn.taketoday.framework.server;
 
 import java.io.File;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.context.ApplicationContext;
@@ -69,26 +66,16 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
 
     private String deployName = "deploy-web-app";
 
-    @Autowired
+    @Autowired(required = false)
     private CompressionConfiguration compression;
-
-    private Set<ErrorPage> errorPages = new LinkedHashSet<>();
-
-    private Set<String> welcomePages = new LinkedHashSet<>();
-
-    private List<WebApplicationInitializer> contextInitializers = new ArrayList<>();
+    private LinkedHashSet<ErrorPage> errorPages = new LinkedHashSet<>();
+    private LinkedHashSet<String> welcomePages = new LinkedHashSet<>();
+    private LinkedList<WebApplicationInitializer> contextInitializers = new LinkedList<>();
     private final MimeMappings mimeMappings = new MimeMappings(MimeMappings.DEFAULT);
 
-    @Autowired
+    @Autowired(required = false)
     private WebDocumentConfiguration webDocumentConfiguration;
-
-    /**
-     * Context init parameters
-     */
-    private final Map<String, String> contextInitParameters = new HashMap<>();
-
     private AtomicBoolean started = new AtomicBoolean(false);
-
     private WebApplicationConfiguration webApplicationConfiguration;
 
     @Override
@@ -163,7 +150,6 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
     public WebApplicationConfiguration getWebApplicationConfiguration() {
 
         if (webApplicationConfiguration == null) {
-
             final List<WebApplicationConfiguration> configurations = //
                     getApplicationContext().getBeans(WebApplicationConfiguration.class);
 

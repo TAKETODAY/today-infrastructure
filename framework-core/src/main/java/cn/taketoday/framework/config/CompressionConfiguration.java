@@ -19,7 +19,6 @@
  */
 package cn.taketoday.framework.config;
 
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.utils.DataSize;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +30,6 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-@MissingBean
 public class CompressionConfiguration {
 
     private String level = "on";
