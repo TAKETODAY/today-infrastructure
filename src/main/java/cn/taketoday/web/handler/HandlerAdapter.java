@@ -56,11 +56,11 @@ import cn.taketoday.web.RequestContext;
  * {@link cn.taketoday.web.handler.HandlerAdapterCapable HandlerAdapterCapable}
  * to specific a HandlerAdapter at startup time
  * 
- * @see cn.taketoday.web.handler.HandlerAdapterCapable
+ * @see HandlerAdapterCapable
+ * @see RequestHandlerAdapter
+ * @see NotFoundRequestAdapter
+ * @see ViewControllerHandlerAdapter
  * @see cn.taketoday.web.servlet.ServletHandlerAdapter
- * @see cn.taketoday.web.handler.RequestHandlerAdapter
- * @see cn.taketoday.web.handler.NotFoundRequestAdapter
- * @see cn.taketoday.web.handler.ViewControllerHandlerAdapter
  * 
  * @author TODAY <br>
  *         2019-12-08 20:23

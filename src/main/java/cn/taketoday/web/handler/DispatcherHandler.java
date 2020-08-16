@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -37,6 +37,8 @@ import cn.taketoday.web.view.ResultHandlerCapable;
 import cn.taketoday.web.view.RuntimeResultHandler;
 
 /**
+ * Central dispatcher for HTTP request handlers/controllers
+ *
  * @author TODAY <br>
  *         2019-11-16 19:05
  */
@@ -60,7 +62,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     /**
      * Find a suitable handler to handle this HTTP request
-     * 
+     *
      * @param context
      *            Current HTTP request context
      * @return Target handler, if returns {@code null} indicates that there isn't a
@@ -72,7 +74,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     /**
      * Find a {@link HandlerAdapter} for input handler
-     * 
+     *
      * @param handler
      *            Target handler
      * @return A {@link HandlerAdapter}
@@ -96,7 +98,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     /**
      * Find {@link ResultHandler} for handler and handler execution result
-     * 
+     *
      * @param handler
      *            Target handler
      * @param result
@@ -123,7 +125,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     /**
      * Check if this request is not modified
-     * 
+     *
      * @param handler
      *            Target handler
      * @param context
@@ -147,7 +149,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     /**
      * Handle HTTP request
-     * 
+     *
      * @param context
      *            Current HTTP request context
      * @throws Throwable
@@ -158,7 +160,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     /**
      * Handle HTTP request
-     * 
+     *
      * @param handler
      * @param context
      *            Current HTTP request context
@@ -170,7 +172,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     /**
      * Handle HTTP request not modify
-     * 
+     *
      * @param handler
      *            Target handler
      * @param context
@@ -179,9 +181,9 @@ public class DispatcherHandler extends WebApplicationContextSupport {
      *            {@link HandlerAdapter}
      * @throws Throwable
      */
-    public void handleNotModifiy(final Object handler,
-                                 final RequestContext context,
-                                 final HandlerAdapter adapter) throws Throwable {
+    public void handleNotModify(final Object handler,
+                                final RequestContext context,
+                                final HandlerAdapter adapter) throws Throwable {
         if (!notModified(handler, context, adapter)) {
             handle(handler, context, adapter);
         }
@@ -189,7 +191,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     /**
      * Handle HTTP request
-     * 
+     *
      * @param handler
      *            Target handler
      * @param context
@@ -214,7 +216,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     /**
      * Handle {@link Exception} occurred in target handler
-     * 
+     *
      * @param handler
      *            Target handler
      * @param exception
@@ -257,7 +259,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
     /**
      * Log internal
-     * 
+     *
      * @param msg
      *            Log message
      */

@@ -48,6 +48,7 @@ public interface ResultHandler {
     }
 
     /**
+     * Handle result of the handler
      * 
      * @param context
      *            Current HTTP request context

@@ -27,6 +27,24 @@ import java.lang.annotation.Target;
 import cn.taketoday.context.Constant;
 
 /**
+ * Marks a method or exception class with the status {@link #code} and
+ * {@link #reason} that should be returned.
+ *
+ * <p>
+ * The status code is applied to the HTTP response when the handler method is
+ * invoked and overrides status information set by other means, like
+ * {@code ResponseEntity} or {@code "redirect:"}.
+ *
+ * <p>
+ * <strong>Warning</strong>: when using this annotation on an exception class,
+ * or when setting the {@code reason} attribute of this annotation, the
+ * {@code HttpServletResponse.sendError} method will be used.
+ *
+ * <p>
+ * Note that a controller class may also be annotated with
+ * {@code @ResponseStatus} and is then inherited by all {@code @RequestMapping}
+ * methods.
+ *
  * @author TODAY <br>
  *         2018-12-08 15:10
  */
@@ -35,7 +53,7 @@ import cn.taketoday.context.Constant;
 public @interface ResponseStatus {
 
     /** Status code */
-    int value() default 0;
+    int value() default 200;
 
     /** The descriptive message */
     String msg() default Constant.BLANK;

@@ -34,6 +34,7 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.exception.ExceptionUnhandledException;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.TemplateResultHandler;
@@ -67,6 +68,9 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
             if (log.isDebugEnabled()) {
                 log.debug("Catch Throwable: [{}]", ex.toString(), ex);
             }
+        }
+        catch (ExceptionUnhandledException unhandled) {
+            throw unhandled;
         }
         catch (Throwable handlerException) {
             log.error("Handling of [{}] resulted in Exception: [{}]", //

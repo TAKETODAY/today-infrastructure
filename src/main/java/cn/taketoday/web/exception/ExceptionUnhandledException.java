@@ -44,4 +44,12 @@ public class ExceptionUnhandledException extends WebRuntimeException {
     public ExceptionUnhandledException() {
         super("Exception Unhandled");
     }
+
+    /**
+     * Get unhandled Throwable
+     */
+    public final Throwable getUnhandledException() {
+        return super.getCause();
+    }
+
 }

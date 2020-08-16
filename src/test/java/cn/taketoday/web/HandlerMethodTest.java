@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,14 +13,11 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.web;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -34,6 +31,8 @@ import cn.taketoday.web.config.WebMvcConfiguration;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
 import cn.taketoday.web.utils.HttpUtils;
+
+import static org.junit.Assert.*;
 
 /**
  * @author TODAY <br>
@@ -65,11 +64,13 @@ public class HandlerMethodTest extends Base implements WebMvcConfiguration {
         final Object defaultHandler = registry.getDefaultHandler();
         assertNull(defaultHandler);
         final ViewController viewController = registry.getViewController("/view/controller/null");
+        assertNotNull(viewController);
         assertNull(viewController.getStatus());
         assertNull(viewController.getResource());
         assertNull(viewController.getContentType());
         assertNull(viewController.getHandlerMethod());
 
+        assertNotNull(registry.getViewController("/view/controller/text"));
         assertEquals(registry.getViewController("/view/controller/text").getResource(), "body:text");
         assertNull(registry.getViewController("/view/controller/text/123"));
     }
