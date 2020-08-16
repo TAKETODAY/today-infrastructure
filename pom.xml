@@ -7,8 +7,9 @@
     <artifactId>today-web</artifactId>
 
 <!-- 
-	<version>2.3.7.RELEASE</version>
+	<version>3.0.0.RELEASE</version>
  -->
+ 
     <version>latest</version>
 
     <name>Today Web Framework</name>
@@ -69,13 +70,6 @@
             <artifactId>jsp-api</artifactId>
             <version>2.2</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -148,6 +142,13 @@
    
 		<!-- test -->
 
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+            <scope>test</scope>
+        </dependency>
+        
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
