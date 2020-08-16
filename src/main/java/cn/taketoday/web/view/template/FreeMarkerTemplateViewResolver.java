@@ -86,6 +86,7 @@ public class FreeMarkerTemplateViewResolver
             @Autowired(required = true) WebServletApplicationContext context)//
     {
         setObjectWrapper(wrapper);
+        setTaglibFactory(taglibFactory);
         setConfiguration(configuration);
         setServletContext(context.getServletContext());
     }
@@ -203,7 +204,8 @@ public class FreeMarkerTemplateViewResolver
         if (classpathTlds != null) {
             taglibFactory.setClasspathTlds(classpathTlds);
         }
-        return this.taglibFactory = taglibFactory;
+        setTaglibFactory(taglibFactory);
+        return taglibFactory;
     }
 
     public ServletContext getServletContext() {
@@ -221,6 +223,10 @@ public class FreeMarkerTemplateViewResolver
         this.servletContext = servletContext;
         // Create hash model wrapper for servlet context (the application)
         this.applicationModel = new ServletContextHashModel(servletContext, getObjectWrapper());
+    }
+
+    public void setTaglibFactory(TaglibFactory taglibFactory) {
+        this.taglibFactory = taglibFactory;
     }
 
 }
