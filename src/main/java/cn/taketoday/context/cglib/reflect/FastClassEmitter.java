@@ -55,7 +55,7 @@ class FastClassEmitter extends ClassEmitter {
     private static final Signature METHOD_GET_INDEX = TypeUtils.parseSignature("int getIndex(String, Class[])");
     private static final Signature SIGNATURE_GET_INDEX = new Signature("getIndex", Type.INT_TYPE, new Type[] { Constant.TYPE_SIGNATURE });
     private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
-    private static final Signature CONSTRUCTOR_GET_INDEX = TypeUtils.parseSignature("int getIndex(Cla   ss[])");
+    private static final Signature CONSTRUCTOR_GET_INDEX = TypeUtils.parseSignature("int getIndex(Class[])");
     private static final Signature INVOKE = TypeUtils.parseSignature("Object invoke(int, Object, Object[])");
     private static final Signature NEW_INSTANCE = TypeUtils.parseSignature("Object newInstance(int, Object[])");
     private static final Signature GET_MAX_INDEX = TypeUtils.parseSignature("int getMaxIndex()");
