@@ -107,15 +107,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     @Override
     public Object getBean(final BeanDefinition def) {
-
         if (def.isFactoryBean()) {
             return getFactoryBean(def).getBean();
         }
-
         if (def.isInitialized()) { // fix #7
             return getSingleton(def.getName());
         }
-
         try {
             final BeanDefinition child = def.getChild();
             if (child == null) {
@@ -125,8 +122,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            throw new ContextException("An Exception Occurred When Getting A Bean Named: ["
-                    + def.getName() + "], With Msg: [" + ex + "]", ex);
+            throw new ContextException("An Exception Occurred When Getting A Bean: ["
+                    + def + "], With Msg: [" + ex + "]", ex);
         }
     }
 

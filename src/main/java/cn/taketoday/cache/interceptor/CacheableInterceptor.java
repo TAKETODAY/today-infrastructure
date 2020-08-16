@@ -61,15 +61,12 @@ public class CacheableInterceptor extends AbstractCacheInterceptor {
 
         final Method method = invocation.getMethod();
         final MethodKey methodKey = new MethodKey(method, Cacheable.class);
-
         final CacheConfiguration cacheable = prepareAnnotation(methodKey);
-
         final CacheExpressionContext context = prepareELContext(methodKey, invocation);
 
         if (isConditionPassing(cacheable.condition(), context)) {// pass the condition
             final Cache cache = obtainCache(method, cacheable);
             final Object key = createKey(cacheable.key(), context, invocation);
-
             if (cacheable.sync()) { // for sync
                 try {
                     return cache.get(key, invocation::proceed);

@@ -220,14 +220,14 @@ public abstract class ContextUtils {
     @SuppressWarnings("unchecked")
     public static <T> T resolveValue(final Env value, final Class<T> expectedType) throws ConfigurationException {
 
-        final Object resolveValue = resolveValue(new StringBuilder()
+        final T resolveValue = resolveValue(new StringBuilder()
                 .append(Constant.PLACE_HOLDER_PREFIX)
                 .append(value.value())
                 .append(Constant.PLACE_HOLDER_SUFFIX).toString(), expectedType //
         );
 
         if (resolveValue != null) {
-            return (T) resolveValue;
+            return resolveValue;
         }
         if (value.required()) {
             throw new ConfigurationException("Can't resolve property: [" + value.value() + "]");
@@ -255,9 +255,9 @@ public abstract class ContextUtils {
     @SuppressWarnings("unchecked")
     public static <T> T resolveValue(final Value value, final Class<T> expectedType) throws ConfigurationException {
 
-        final Object resolveValue = resolveValue(value.value(), expectedType);
+        final T resolveValue = resolveValue(value.value(), expectedType);
         if (resolveValue != null) {
-            return (T) resolveValue;
+            return resolveValue;
         }
         if (value.required()) {
             throw new ConfigurationException("Can't resolve expression: [" + value.value() + "]");
@@ -328,7 +328,7 @@ public abstract class ContextUtils {
      * @throws IOException
      *             If any IO {@link Exception} occurred
      */
-    public static final InputStream getResourceAsStream(final String resource) throws IOException {
+    public static InputStream getResourceAsStream(final String resource) throws IOException {
 
         InputStream in = getResource(resource).getInputStream();
         if (in == null) {
@@ -337,7 +337,7 @@ public abstract class ContextUtils {
         return in;
     }
 
-    public static final Properties getResourceAsProperties(final String resource) throws IOException {
+    public static Properties getResourceAsProperties(final String resource) throws IOException {
         ConcurrentProperties props = new ConcurrentProperties();
 
         try (InputStream in = getResource(StringUtils.checkPropertiesName(resource)).getInputStream()) {
@@ -358,7 +358,7 @@ public abstract class ContextUtils {
      * @throws IOException
      *             If can't get the stream
      */
-    public static final InputStream getUrlAsStream(final String urlString) throws IOException {
+    public static InputStream getUrlAsStream(final String urlString) throws IOException {
         return new URL(urlString).openConnection().getInputStream();
     }
 
@@ -373,7 +373,7 @@ public abstract class ContextUtils {
      * @throws IOException
      *             If any IO {@link Exception} occurred
      */
-    public static final Properties getUrlAsProperties(final String urlString) throws IOException {
+    public static Properties getUrlAsProperties(final String urlString) throws IOException {
         ConcurrentProperties props = new ConcurrentProperties();
         try (InputStream in = getUrlAsStream(StringUtils.checkPropertiesName(urlString))) {
             props.load(in);
@@ -762,32 +762,32 @@ public abstract class ContextUtils {
      *
      * @param props
      *            {@link Props}
-     * @param aplicationProps
+     * @param applicationProps
      *            Application's {@link Properties}
      *
      * @since 2.1.5
      */
-    public static Properties loadProps(final Props props, final Properties aplicationProps) {
+    public static Properties loadProps(final Props props, final Properties applicationProps) {
 
         final Properties ret = new ConcurrentProperties();
         final String[] fileNames = props.value();
 
         final Properties propertiesToUse;
         if (fileNames.length == 0) {
-            propertiesToUse = requireNonNull(aplicationProps);
+            propertiesToUse = requireNonNull(applicationProps);
         }
         else {
             propertiesToUse = new ConcurrentProperties();
             for (String fileName : fileNames) {
                 if (StringUtils.isEmpty(fileName)) {
-                    propertiesToUse.putAll(aplicationProps);
+                    propertiesToUse.putAll(applicationProps);
                     break;
                 }
                 try (InputStream inputStream = getResourceAsStream(StringUtils.checkPropertiesName(fileName))) {
                     propertiesToUse.load(inputStream);
                 }
                 catch (IOException e) {
-                    throw new ContextException(e);
+                    throw new ContextException("IO exception occurred", e);
                 }
             }
         }

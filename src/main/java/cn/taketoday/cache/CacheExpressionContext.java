@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -39,30 +39,33 @@ public class CacheExpressionContext extends ExpressionContext {
 
     private ExpressionResolver elResolver;
     private final Map<String, Object> beans;
-    private final StandardExpressionContext delegate;
+    private final StandardExpressionContext parent;
 
-    public CacheExpressionContext(StandardExpressionContext delegate) {
-        this(delegate, new HashMap<>(8, 1.0f));
+    public CacheExpressionContext(StandardExpressionContext parent) {
+        this(parent, new HashMap<>(4));
     }
 
-    public CacheExpressionContext(StandardExpressionContext delegate, Map<String, Object> beans) {
+    public CacheExpressionContext(StandardExpressionContext parent, Map<String, Object> beans) {
         this.beans = beans;
-        this.delegate = delegate;
+        this.parent = parent;
     }
 
     @Override
     public ExpressionResolver getResolver() {
         final ExpressionResolver ret = this.elResolver;
-        if (ret == null) {
-            return this.elResolver = new CompositeExpressionResolver(new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)),
-                                                                     delegate.getResolver());
+        if (ret == null) { //@off
+            return this.elResolver = new CompositeExpressionResolver(
+                new BeanNameExpressionResolver(
+                    new LocalBeanNameResolver(beans)),
+                parent.getResolver()//
+            );//@on
         }
         return ret;
     }
 
     /**
      * Add a bean to this context
-     * 
+     *
      * @param name
      *            bean name
      * @param bean
@@ -74,12 +77,12 @@ public class CacheExpressionContext extends ExpressionContext {
 
     @Override
     public FunctionMapper getFunctionMapper() {
-        return this.delegate.getFunctionMapper();
+        return this.parent.getFunctionMapper();
     }
 
     @Override
     public VariableMapper getVariableMapper() {
-        return this.delegate.getVariableMapper();
+        return this.parent.getVariableMapper();
     }
 
     @Override
