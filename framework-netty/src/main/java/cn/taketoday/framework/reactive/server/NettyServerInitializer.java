@@ -23,6 +23,7 @@ import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.framework.reactive.ReactiveDispatcher;
+import cn.taketoday.framework.reactive.websocket.WebSocketHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
@@ -53,7 +54,8 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> im
                     .addLast("HttpServerCodec", new HttpServerCodec())
                     .addLast("HttpObjectAggregator", new HttpObjectAggregator(1024 * 1024 * 64))
 //                    .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
-                    .addLast("ReactiveDispatcher", reactiveDispatcher);
+                    .addLast("ReactiveDispatcher", reactiveDispatcher)
+                    .addLast("WebSocketHandler",new WebSocketHandler());
         }
         catch (Exception e) {
             log.error("Add channel pipeline error", e);
