@@ -27,7 +27,7 @@
 - [Maven Central](https://search.maven.org/artifact/cn.taketoday/today-web/2.3.6.RELEASE/jar)
 
 
-## v2.3.7
+## v3.0.0(v2.3.7)
 - :sparkles: feat: allow rebuild Controllers
 - :sparkles: :zap: add WebUtils api
 - :sparkles: feat: status feature
@@ -84,6 +84,8 @@
 	14. :sparkles: 使用PatternMapping映射
 - :zap: 取消自动使用DispatcherServletInitializer注册DispatcherServlet
 - :hammer: 重构ExceptionResolver 修改ExceptionResolver为HandlerExceptionHandler更正设计错误
+
+
 ## v2.3.6
 - add new today-context version
 - :sparkles: feat: auto register `Servlet`,`Filter`,`Listener`
