@@ -35,9 +35,9 @@ import cn.taketoday.jdbc.utils.DataSourceUtils;
  * @author TODAY <br>
  *         2019-08-18 20:39
  */
-public abstract class Executer implements BasicOperation {
+public abstract class Executor implements BasicOperation {
 
-    protected static final Logger log = LoggerFactory.getLogger("cn.taketoday.jdbc.Executer");
+    protected static final Logger log = LoggerFactory.getLogger("cn.taketoday.jdbc.Executor");
 
     protected static final boolean DEBUG_ENABLED = log.isDebugEnabled();
 
@@ -48,7 +48,7 @@ public abstract class Executer implements BasicOperation {
     private Integer queryTimeout;
 
     /**
-     * Get {@link DataSource} from this {@link Executer}
+     * Get {@link DataSource} from this {@link Executor}
      * 
      * @return {@link DataSource} object
      */
@@ -65,13 +65,13 @@ public abstract class Executer implements BasicOperation {
     }
 
     /**
-     * Setting {@link DataSource} to this {@link Executer}
+     * Setting {@link DataSource} to this {@link Executor}
      * 
      * @param dataSource
      *            Target {@link DataSource}
-     * @return This {@link Executer}
+     * @return This {@link Executor}
      */
-    public Executer setDataSource(DataSource dataSource) {
+    public Executor setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         return this;
     }
@@ -86,7 +86,7 @@ public abstract class Executer implements BasicOperation {
      *            the number of rows to fetch
      * @see java.sql.Statement#setFetchSize
      */
-    public Executer setFetchSize(final Integer fetchSize) {
+    public Executor setFetchSize(final Integer fetchSize) {
         this.fetchSize = fetchSize;
         return this;
     }
@@ -114,7 +114,7 @@ public abstract class Executer implements BasicOperation {
      * 
      * @see java.sql.Statement#setMaxRows
      */
-    public Executer setMaxRows(final Integer maxRows) {
+    public Executor setMaxRows(final Integer maxRows) {
         this.maxRows = maxRows;
         return this;
     }
@@ -156,7 +156,7 @@ public abstract class Executer implements BasicOperation {
      *            limit
      * @see java.sql.Statement#setQueryTimeout
      */
-    public Executer setQueryTimeout(final Integer queryTimeout) {
+    public Executor setQueryTimeout(final Integer queryTimeout) {
         this.queryTimeout = queryTimeout;
         return this;
     }

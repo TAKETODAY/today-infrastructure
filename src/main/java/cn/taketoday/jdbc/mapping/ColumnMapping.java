@@ -19,31 +19,53 @@
  */
 package cn.taketoday.jdbc.mapping;
 
+import static cn.taketoday.jdbc.mapping.result.DelegatingResultResolver.delegate;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.InputStream;
+import java.io.Reader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.jdbc.FieldColumnConverter;
 import cn.taketoday.jdbc.annotation.Column;
+import cn.taketoday.jdbc.annotation.EnumValue;
 import cn.taketoday.jdbc.mapping.result.ResultResolver;
 
 /**
@@ -181,6 +203,119 @@ public class ColumnMapping implements PropertyAccessor {
 
     public static void addResolver(List<ResultResolver> resolvers) {
         getResultResolvers().addAll(resolvers);
+    }
+
+    public static void setDefaultResolvers() {
+        ArrayList<ResultResolver> resolvers = new ArrayList<>();
+        addDefaultResolvers(resolvers);
+        getResultResolvers().addAll(resolvers);
+    }
+
+    public static void addDefaultResolvers(List<ResultResolver> resolvers) {
+
+        // Byte[] byte[] int long float double short byte boolean BigDecimal, BigInteger
+        // ------------------------------------------------------------------------------
+
+        resolvers.add(delegate(p -> p.is(byte[].class), (rs, i) -> rs.getBytes(i)));
+        resolvers.add(delegate(p -> p.is(BigDecimal.class), (rs, i) -> rs.getBigDecimal(i)));
+        resolvers.add(delegate(p -> p.is(int.class) || p.is(Integer.class), (rs, i) -> rs.getInt(i)));
+        resolvers.add(delegate(p -> p.is(byte.class) || p.is(Byte.class), (rs, i) -> rs.getByte(i)));
+        resolvers.add(delegate(p -> p.is(long.class) || p.is(Long.class), (rs, i) -> rs.getLong(i)));
+        resolvers.add(delegate(p -> p.is(short.class) || p.is(Short.class), (rs, i) -> rs.getShort(i)));
+        resolvers.add(delegate(p -> p.is(float.class) || p.is(Float.class), (rs, i) -> rs.getFloat(i)));
+        resolvers.add(delegate(p -> p.is(double.class) || p.is(Double.class), (rs, i) -> rs.getDouble(i)));
+        resolvers.add(delegate(p -> p.is(boolean.class) || p.is(Boolean.class), (rs, i) -> rs.getBoolean(i)));
+        resolvers.add(delegate(p -> p.is(char.class) || p.is(Character.class), (rs, i) -> {
+            final String v = rs.getString(i);
+            return v == null ? null : Character.valueOf(v.charAt(0));
+        }));
+        resolvers.add(delegate(p -> p.is(BigInteger.class), (rs, i) -> {
+            final BigDecimal b = rs.getBigDecimal(i);
+            return b == null ? null : b.toBigInteger();
+        }));
+        resolvers.add(delegate(p -> p.is(Byte[].class), (rs, i) -> {
+            final byte[] bytes = rs.getBytes(i);
+            if (bytes == null) {
+                return null;
+            }
+            final Byte[] ret = new Byte[bytes.length];
+            for (int j = 0; j < bytes.length; j++) {
+                ret[j] = bytes[j];
+            }
+            return ret;
+        }));
+        // String
+        // -------------------------------------
+
+        resolvers.add(delegate(p -> p.is(Clob.class), (rs, i) -> rs.getClob(i)));
+        resolvers.add(delegate(p -> p.is(String.class), (rs, i) -> rs.getString(i)));
+        resolvers.add(delegate(p -> p.is(StringBuffer.class), (rs, i) -> new StringBuffer(rs.getString(i))));
+        resolvers.add(delegate(p -> p.is(StringBuilder.class), (rs, i) -> new StringBuilder(rs.getString(i))));
+
+        // SQL API
+        // -------------------------------------
+        resolvers.add(delegate(p -> p.is(Blob.class), (rs, i) -> rs.getBlob(i)));
+        resolvers.add(delegate(p -> p.is(Time.class), (rs, i) -> rs.getTime(i)));
+        resolvers.add(delegate(p -> p.is(Timestamp.class), (rs, i) -> rs.getTimestamp(i)));
+        resolvers.add(delegate(p -> p.is(Date.class) || p.is(java.sql.Date.class), (rs, i) -> rs.getDate(i)));
+
+        resolvers.add(delegate(p -> p.is(InputStream.class), (rs, i) -> {
+            final Blob b = rs.getBlob(i);
+            return b == null ? null : b.getBinaryStream();
+        }));
+        resolvers.add(delegate(p -> p.is(Reader.class), (rs, i) -> {
+            final Clob c = rs.getClob(i);
+            return c == null ? null : c.getCharacterStream();
+        }));
+
+        // jdk 1.8 Date and time API
+        // -------------------------------------
+        resolvers.add(delegate(p -> p.is(Instant.class), (rs, i) -> {
+            final Timestamp tp = rs.getTimestamp(i);
+            return tp == null ? null : tp.toInstant();
+        }));
+        resolvers.add(delegate(p -> p.is(LocalDateTime.class), (rs, i) -> {
+            final Timestamp tp = rs.getTimestamp(i);
+            return tp == null ? null : tp.toLocalDateTime();
+        }));
+        resolvers.add(delegate(p -> p.is(LocalDate.class), (rs, i) -> {
+            final java.sql.Date d = rs.getDate(i);
+            return d == null ? null : d.toLocalDate();
+        }));
+        resolvers.add(delegate(p -> p.is(LocalTime.class), (rs, i) -> {
+            final Time t = rs.getTime(i);
+            return t == null ? null : t.toLocalTime();
+        }));
+        resolvers.add(delegate(p -> p.is(OffsetDateTime.class), (rs, i) -> {
+            final Timestamp tp = rs.getTimestamp(i);
+            return tp == null ? null : OffsetDateTime.ofInstant(tp.toInstant(), ZoneId.systemDefault());
+        }));
+        resolvers.add(delegate(p -> p.is(OffsetTime.class), (rs, i) -> {
+            final Time t = rs.getTime(i);
+            return t == null ? null : t.toLocalTime().atOffset(OffsetTime.now().getOffset());
+        }));
+        resolvers.add(delegate(p -> p.is(ZonedDateTime.class), (rs, i) -> {
+            final Timestamp tp = rs.getTimestamp(i);
+            return tp == null ? null : ZonedDateTime.ofInstant(tp.toInstant(), ZoneId.systemDefault());
+        }));
+        resolvers.add(delegate(p -> p.is(Year.class), (rs, i) -> {
+            final int year = rs.getInt(i);
+            return year == 0 ? null : Year.of(year);
+        }));
+        resolvers.add(delegate(p -> p.is(Month.class), (rs, i) -> {
+            final int month = rs.getInt(i);
+            return month == 0 ? null : Month.of(month);
+        }));
+        resolvers.add(delegate(p -> p.is(YearMonth.class), (rs, i) -> {
+            final String value = rs.getString(i);
+            return value == null ? null : YearMonth.parse(value);
+        }));
+
+        // TODO Enums
+        resolvers.add(delegate(p -> p.getType().isEnum() && p.isPresent(EnumValue.class), (rs, i) -> {
+            final String value = rs.getString(i);
+            return value == null ? null : YearMonth.parse(value);
+        }));
     }
 
     public static List<ResultResolver> getResultResolvers() {

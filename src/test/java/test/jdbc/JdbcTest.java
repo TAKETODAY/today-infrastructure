@@ -31,7 +31,7 @@ import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.jdbc.JdbcExecuter;
+import cn.taketoday.jdbc.JdbcExecutor;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 import test.jdbc.model.User;
 
@@ -43,7 +43,7 @@ public class JdbcTest {
 
     private static ApplicationContext applicationContext = new StandardApplicationContext("info.properties", "test.jdbc");
 
-    private static JdbcExecuter executer = applicationContext.getBean("h2Executer", JdbcExecuter.class);
+    private static JdbcExecutor executer = applicationContext.getBean("h2Executor", JdbcExecutor.class);
 
     @AfterClass
     public static void destory() {

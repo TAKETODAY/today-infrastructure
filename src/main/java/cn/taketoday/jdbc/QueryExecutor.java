@@ -40,13 +40,13 @@ import cn.taketoday.jdbc.utils.JdbcUtils;
  * @author TODAY <br>
  *         2019-08-18 20:12
  */
-public class QueryExecuter extends Executer implements QueryOperation, QueryOptionalOperation {
+public class QueryExecutor extends Executor implements QueryOperation, QueryOptionalOperation {
 
-    public QueryExecuter() {
+    public QueryExecutor() {
 
     }
 
-    public QueryExecuter(final DataSource dataSource) {
+    public QueryExecutor(final DataSource dataSource) {
         setDataSource(dataSource);
     }
 
@@ -55,7 +55,7 @@ public class QueryExecuter extends Executer implements QueryOperation, QueryOpti
 
         return query(sql, args, (ResultSet result) -> {
 
-            final List<T> ret = new ArrayList<>();
+            final ArrayList<T> ret = new ArrayList<>();
             int i = 1;
             while (result.next()) {
                 ret.add(rowMapper.mapRow(result, i++));
@@ -105,23 +105,22 @@ public class QueryExecuter extends Executer implements QueryOperation, QueryOpti
             @Override
             public T extractData(ResultSet rs) throws SQLException {
 
-                if (!rs.next()) {
-                    return null;
-                }
+                if (rs.next()) {
+                    final T ret = ClassUtils.newInstance(requiredType);
+                    final ResultSetMetaData metaData = rs.getMetaData();
+                    final int columnCount = metaData.getColumnCount() + 1;
 
-                final T ret = ClassUtils.newInstance(requiredType);
-                final ResultSetMetaData metaData = rs.getMetaData();
-                final int columnCount = metaData.getColumnCount() + 1;
+                    final TableMapping table = TABLE_MAPPINGS.computeIfAbsent(requiredType, TableMapping::new);
 
-                final TableMapping table = TABLE_MAPPINGS.computeIfAbsent(requiredType, TableMapping::new);
-
-                for (int i = 1; i < columnCount; i++) {
-                    final ColumnMapping propertyMapping = table.get(JdbcUtils.getColumnName(metaData, i));
-                    if (propertyMapping != null) {
-                        propertyMapping.resolveResult(ret, rs);
+                    for (int i = 1; i < columnCount; i++) {
+                        final ColumnMapping propertyMapping = table.get(JdbcUtils.getColumnName(metaData, i));
+                        if (propertyMapping != null) {
+                            propertyMapping.resolveResult(ret, rs);
+                        }
                     }
+                    return ret;
                 }
-                return ret;
+                return null;
             }
         }
 
@@ -130,10 +129,8 @@ public class QueryExecuter extends Executer implements QueryOperation, QueryOpti
 
     @Override
     public <T> List<T> queryList(final String sql, final Object[] args, final Class<T> elementType) throws SQLException {
-
         return query(sql, args, (ResultSet result) -> {
-
-            final List<T> ret = new ArrayList<>();
+            final ArrayList<T> ret = new ArrayList<>();
 
             final ResultSetMetaData metaData = result.getMetaData();
             final int columnCount = metaData.getColumnCount() + 1;

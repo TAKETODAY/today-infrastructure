@@ -29,13 +29,13 @@ import javax.sql.DataSource;
  * @author TODAY <br>
  *         2019-08-18 20:21
  */
-public class UpdateExecuter extends Executer implements UpdateOperation {
+public class UpdateExecutor extends Executor implements UpdateOperation {
 
-    public UpdateExecuter() {
+    public UpdateExecutor() {
 
     }
 
-    public UpdateExecuter(final DataSource dataSource) {
+    public UpdateExecutor(final DataSource dataSource) {
         setDataSource(dataSource);
     }
 

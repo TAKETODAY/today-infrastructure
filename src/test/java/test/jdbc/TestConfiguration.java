@@ -29,7 +29,8 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.jdbc.JdbcExecuter;
+import cn.taketoday.jdbc.JdbcExecutor;
+import cn.taketoday.jdbc.annotation.EnableJdbcDataAccess;
 import cn.taketoday.transaction.DataSourceTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionManager;
@@ -40,6 +41,7 @@ import cn.taketoday.transaction.TransactionTemplate;
  *         2019-08-19 22:20
  */
 @Configuration
+@EnableJdbcDataAccess
 public class TestConfiguration {
 
     @Primary
@@ -75,13 +77,13 @@ public class TestConfiguration {
     }
 
     @Singleton
-    public JdbcExecuter h2Executer(@Autowired("h2DataSource") DataSource dataSource) {
-        return new JdbcExecuter(dataSource);
+    public JdbcExecutor h2Executor(@Autowired("h2DataSource") DataSource dataSource) {
+        return new JdbcExecutor(dataSource);
     }
 
     @Singleton
-    public JdbcExecuter mySQLExecuter(@Autowired("mySQLDataSource") DataSource dataSource) {
-        return new JdbcExecuter(dataSource);
+    public JdbcExecutor mySQLExecutor(@Autowired("mySQLDataSource") DataSource dataSource) {
+        return new JdbcExecutor(dataSource);
     }
 
 }

@@ -30,7 +30,7 @@ import org.junit.Test;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
-import cn.taketoday.jdbc.JdbcExecuter;
+import cn.taketoday.jdbc.JdbcExecutor;
 import cn.taketoday.jdbc.utils.JdbcUtils;
 import test.jdbc.model.Article;
 import test.jdbc.model.User;
@@ -41,11 +41,11 @@ import test.jdbc.model.User;
  */
 public class JdbcMySQLTest {
 
-    private static JdbcExecuter executer;
+    private static JdbcExecutor executer;
     private static ApplicationContext applicationContext = new StandardApplicationContext("info.properties", "test.jdbc");
 
     static {
-        executer = applicationContext.getBean("mySQLExecuter", JdbcExecuter.class);
+        executer = applicationContext.getBean("mySQLExecutor", JdbcExecutor.class);
     }
 
     @AfterClass

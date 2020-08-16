@@ -29,22 +29,22 @@ import javax.sql.DataSource;
  * @author TODAY <br>
  *         2019-08-18 19:20
  */
-public class JdbcExecuter implements JdbcOperations {
+public class JdbcExecutor implements JdbcOperations {
 
     private final BasicOperation basicOperation;
     private final UpdateOperation updateOperation;
     private final QueryOptionalOperation queryOperation;
 
-    public JdbcExecuter(DataSource dataSource) {
-        final QueryExecuter queryExecuter = new QueryExecuter(dataSource);
+    public JdbcExecutor(DataSource dataSource) {
+        final QueryExecutor queryExecutor = new QueryExecutor(dataSource);
 
-        this.queryOperation = queryExecuter;
-        this.basicOperation = queryExecuter;
+        this.queryOperation = queryExecutor;
+        this.basicOperation = queryExecutor;
 
-        this.updateOperation = new UpdateExecuter(dataSource);
+        this.updateOperation = new UpdateExecutor(dataSource);
     }
 
-    public JdbcExecuter(BasicOperation basicOperation, 
+    public JdbcExecutor(BasicOperation basicOperation, 
                         UpdateOperation updateOperation, 
                         QueryOptionalOperation queryOperation) {
         
