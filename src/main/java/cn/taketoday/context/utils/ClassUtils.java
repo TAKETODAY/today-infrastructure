@@ -1240,7 +1240,7 @@ public abstract class ClassUtils {
         return PARAMETER_NAMES_CACHE.computeIfAbsent(method.getDeclaringClass(), PARAMETER_NAMES_FUNCTION).get(method);
     }
 
-    private static boolean enableParamNameTypeChecking = false;
+    private static boolean enableParamNameTypeChecking;
 
     public static void setEnableParamNameTypeChecking(final boolean enableParamNameTypeChecking) {
         ClassUtils.enableParamNameTypeChecking = enableParamNameTypeChecking;

@@ -19,8 +19,6 @@
  */
 package cn.taketoday.context;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -73,6 +71,8 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
 import cn.taketoday.expression.ExpressionProcessor;
+
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
@@ -209,7 +209,10 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
      *            {@link Environment}
      */
     protected void postProcessLoadProperties(ConfigurableEnvironment environment) {
-
+        // @since 3.0 enable check params types
+        ClassUtils.setEnableParamNameTypeChecking(
+            environment.getFlag("ClassUtils.enableParamNameTypeChecking", false)
+        );
     }
 
     /**
