@@ -1242,6 +1242,10 @@ public abstract class ClassUtils {
 
     private static boolean enableParamNameTypeChecking = false;
 
+    public static void setEnableParamNameTypeChecking(final boolean enableParamNameTypeChecking) {
+        ClassUtils.enableParamNameTypeChecking = enableParamNameTypeChecking;
+    }
+
     static final class ParameterFunction implements Function<Class<?>, Map<Method, String[]>> {
 
         @Override
