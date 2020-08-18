@@ -1246,6 +1246,10 @@ public abstract class ClassUtils {
         ClassUtils.enableParamNameTypeChecking = enableParamNameTypeChecking;
     }
 
+    static {
+        enableParamNameTypeChecking = Boolean.parseBoolean(System.getProperty("ClassUtils.enableParamNameTypeChecking", "false"));
+    }
+
     static final class ParameterFunction implements Function<Class<?>, Map<Method, String[]>> {
 
         @Override
@@ -1254,10 +1258,9 @@ public abstract class ClassUtils {
             final Map<Method, String[]> map = new ConcurrentHashMap<>(32);
 
             try (InputStream resourceAsStream = getClassLoader()
-                    .getResourceAsStream(declaringClass.getName()
-                            .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)
-                                .concat(Constant.CLASS_FILE_SUFFIX)))
-            {
+                .getResourceAsStream(declaringClass.getName()
+                                         .replace(Constant.PACKAGE_SEPARATOR, Constant.PATH_SEPARATOR)
+                                         .concat(Constant.CLASS_FILE_SUFFIX))) {
 
                 final ClassNode classVisitor = new ClassNode();
                 new ClassReader(resourceAsStream).accept(classVisitor, 0);
@@ -1287,16 +1290,8 @@ public abstract class ClassUtils {
                     final String[] paramNames = new String[parameterCount];
                     final LinkedList<LocalVariable> localVariables = methodNode.localVariables;
                     if (localVariables.size() >= parameterCount) {
-                        if(ClassUtils.enableParamNameTypeChecking) { // enable check params types
-                            int offset = 0;
-                            if (!Modifier.isStatic(method.getModifiers())) {
-                                for (LocalVariable localVariable : localVariables) {
-                                    offset++;
-                                    if ("this".equals(localVariable.name)) {
-                                        break;
-                                    }
-                                }
-                            }
+                        int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
+                        if (ClassUtils.enableParamNameTypeChecking) { // enable check params types
                             // check params types
                             int idx = offset; // localVariable index
                             for (int start = 0; start < argumentTypes.length; start++) {
@@ -1311,7 +1306,6 @@ public abstract class ClassUtils {
                             }
                         }
                         else {
-                            int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
                             for (i = 0; i < parameterCount; i++) {
                                 paramNames[i] = localVariables.get(i + offset).name;
                             }
