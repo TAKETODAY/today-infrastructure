@@ -1240,7 +1240,9 @@ public abstract class ClassUtils {
         return PARAMETER_NAMES_CACHE.computeIfAbsent(method.getDeclaringClass(), PARAMETER_NAMES_FUNCTION).get(method);
     }
 
-    final static class ParameterFunction implements Function<Class<?>, Map<Method, String[]>> {
+    private static boolean enableParamNameTypeChecking = false;
+
+    static final class ParameterFunction implements Function<Class<?>, Map<Method, String[]>> {
 
         @Override
         public Map<Method, String[]> apply(final Class<?> declaringClass) {
@@ -1279,11 +1281,36 @@ public abstract class ClassUtils {
                     }
 
                     final String[] paramNames = new String[parameterCount];
-                    final ArrayList<String> localVariables = methodNode.localVariables;
+                    final LinkedList<LocalVariable> localVariables = methodNode.localVariables;
                     if (localVariables.size() >= parameterCount) {
-                        final int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
-                        for (i = 0; i < parameterCount; i++) {
-                            paramNames[i] = localVariables.get(i + offset);
+                        if(ClassUtils.enableParamNameTypeChecking) { // enable check params types
+                            int offset = 0;
+                            if (!Modifier.isStatic(method.getModifiers())) {
+                                for (LocalVariable localVariable : localVariables) {
+                                    offset++;
+                                    if ("this".equals(localVariable.name)) {
+                                        break;
+                                    }
+                                }
+                            }
+                            // check params types
+                            int idx = offset; // localVariable index
+                            for (int start = 0; start < argumentTypes.length; start++) {
+                                final Type argument = argumentTypes[start];
+                                if (!argument.equals(Type.getType(localVariables.get(idx++).descriptor))) {
+                                    idx = ++offset;
+                                    start = 0;
+                                }
+                                else {
+                                    paramNames[start] = localVariables.get(start + offset).name;
+                                }
+                            }
+                        }
+                        else {
+                            int offset = Modifier.isStatic(method.getModifiers()) ? 0 : 1;
+                            for (i = 0; i < parameterCount; i++) {
+                                paramNames[i] = localVariables.get(i + offset).name;
+                            }
                         }
                     }
                     map.put(method, paramNames);
@@ -1299,7 +1326,7 @@ public abstract class ClassUtils {
 
     static final class ClassNode extends ClassVisitor {
 
-        private final ArrayList<MethodNode> methodNodes = new ArrayList<>();
+        private final LinkedList<MethodNode> methodNodes = new LinkedList<>();
 
         @Override
         public MethodVisitor visitMethod(int access,
@@ -1323,10 +1350,10 @@ public abstract class ClassUtils {
         }
     }
 
-    final static class MethodNode extends MethodVisitor {
+    static final class MethodNode extends MethodVisitor {
         private final String name;
         private final String desc;
-        private final ArrayList<String> localVariables = new ArrayList<>();
+        private final LinkedList<LocalVariable> localVariables = new LinkedList<>();
 
         MethodNode(final String name, final String desc) {
             this.name = name;
@@ -1338,7 +1365,17 @@ public abstract class ClassUtils {
                                        String descriptor,
                                        String signature,
                                        Label start, Label end, int index) {
-            localVariables.add(name);
+
+            localVariables.add(new LocalVariable(name, descriptor));
+        }
+    }
+
+    static class LocalVariable {
+        String name;
+        String descriptor;
+        LocalVariable(String name, String descriptor) {
+            this.name = name;
+            this.descriptor = descriptor;
         }
     }
 
