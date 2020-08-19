@@ -99,7 +99,7 @@
 - :zap: 优化cglib
 - :zap: 优化Environment初始化顺序
 - :sparkles: 新的反射API
-
+- :sparkles: ClassUtils#ParameterFunction可开启参数检查
 
 ## v2.1.6
 - :sparkles: feat: add `Environment` new api to get property
