@@ -98,7 +98,7 @@ public abstract class ClassUtils {
 
     static final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
     static final WeakHashMap<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
-    static final HashMap<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = new HashMap<>(256);
+    static final ConcurrentCache<Class<?>, ConcurrentCache<Method, String[]>> PARAMETER_NAMES_CACHE = ConcurrentCache.create(64);
     static final WeakHashMap<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
 
     static {
@@ -144,6 +144,7 @@ public abstract class ClassUtils {
     public static void clearCache() {
         ANNOTATIONS.clear();
         ANNOTATION_ATTRIBUTES.clear();
+        PARAMETER_NAMES_CACHE.clear();
     }
 
     public static void setClassLoader(ClassLoader classLoader) {
@@ -1237,7 +1238,7 @@ public abstract class ClassUtils {
      * @since 2.1.6
      */
     public static String[] getMethodArgsNames(Method method) throws ContextException {
-        return PARAMETER_NAMES_CACHE.computeIfAbsent(method.getDeclaringClass(), PARAMETER_NAMES_FUNCTION).get(method);
+        return PARAMETER_NAMES_CACHE.get(method.getDeclaringClass(), PARAMETER_NAMES_FUNCTION).get(method);
     }
 
     private static boolean enableParamNameTypeChecking;
@@ -1250,12 +1251,13 @@ public abstract class ClassUtils {
         enableParamNameTypeChecking = Boolean.parseBoolean(System.getProperty("ClassUtils.enableParamNameTypeChecking", "false"));
     }
 
-    static final class ParameterFunction implements Function<Class<?>, Map<Method, String[]>> {
+    static final class ParameterFunction implements Function<Class<?>, ConcurrentCache<Method, String[]>> {
 
         @Override
-        public Map<Method, String[]> apply(final Class<?> declaringClass) {
+        public ConcurrentCache<Method, String[]> apply(final Class<?> declaringClass) {
 
-            final Map<Method, String[]> map = new ConcurrentHashMap<>(32);
+//            final Map<Method, String[]> map = new ConcurrentHashMap<>(32);
+            final ConcurrentCache<Method, String[]> map = new ConcurrentCache<>(4);
 
             try (InputStream resourceAsStream = getClassLoader()
                 .getResourceAsStream(declaringClass.getName()

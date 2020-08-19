@@ -31,8 +31,8 @@ import java.util.function.Function;
 public final class ConcurrentCache<K, V> {
 
     private final int size;
-    private final Map<K, V> eden;
-    private final Map<K, V> longterm;
+    private final ConcurrentHashMap<K, V> eden;
+    private final WeakHashMap<K, V> longterm;
 
     public ConcurrentCache(int size) {
         this.size = size;
@@ -41,7 +41,7 @@ public final class ConcurrentCache<K, V> {
     }
 
     public static <K, V> ConcurrentCache<K, V> create() {
-        return create(1024);
+        return create(512);
     }
 
     public static <K, V> ConcurrentCache<K, V> create(int size) {
