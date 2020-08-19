@@ -1294,14 +1294,16 @@ public abstract class ClassUtils {
                         if (ClassUtils.enableParamNameTypeChecking) { // enable check params types
                             // check params types
                             int idx = offset; // localVariable index
-                            for (int start = 0; start < argumentTypes.length; start++) {
+                            int start = 0; // loop control
+                            while (start < parameterCount) {
                                 final Type argument = argumentTypes[start];
                                 if (!argument.equals(Type.getType(localVariables.get(idx++).descriptor))) {
                                     idx = ++offset;
-                                    start = 0;
+                                    start = 0; //reset
                                 }
                                 else {
                                     paramNames[start] = localVariables.get(start + offset).name;
+                                    start++;
                                 }
                             }
                         }
