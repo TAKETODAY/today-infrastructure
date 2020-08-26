@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,28 +19,28 @@
  */
 package cn.taketoday.context;
 
-import static java.lang.String.format;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import cn.taketoday.context.utils.OrderUtils;
+
+import static java.lang.String.format;
 
 /**
  * @author Chris Beams
  * @author Sam Brannen
  * @author Juergen Hoeller
  * @author TODAY <br>
- *         2018-12-14 13:45
+ * 2018-12-14 13:45
  * @since 2.1.1
  */
 @SuppressWarnings("serial")
-public class AnnotationAttributes extends HashMap<String, Object> implements Ordered {
+public class AnnotationAttributes extends LinkedHashMap<String, Object> implements Ordered {
 
     private static final String UNKNOWN = "unknown";
 
@@ -88,7 +88,7 @@ public class AnnotationAttributes extends HashMap<String, Object> implements Ord
         return this.annotationType;
     }
 
-    // 
+    //
     // ---------------------------------------
 
     public String getString(String attributeName) {
@@ -130,17 +130,16 @@ public class AnnotationAttributes extends HashMap<String, Object> implements Ord
 
     /**
      * Get the value of attribute name and cast to target type
-     * 
+     *
      * @param attributeName
-     *            The attribute name
+     *     The attribute name
      * @param expectedType
-     *            target type
-     * @return
+     *     target type
+     *
+     * @return T
      */
     public <T> T getAttribute(String attributeName, Class<T> expectedType) {
-
         Objects.requireNonNull(attributeName, "'attributeName' must not be null or empty");
-
         Object value = get(attributeName); // get value
         assertAttributePresence(attributeName, value);
 
@@ -155,29 +154,24 @@ public class AnnotationAttributes extends HashMap<String, Object> implements Ord
 
     private void assertAttributePresence(String attributeName, Object attributeValue) {
         if (attributeValue == null) {
-            throw new NullPointerException(format("Attribute '%s' not found in attributes for annotation [%s]",
-                                                  attributeName,
-                                                  this.displayName));
+            throw new NullPointerException(
+                format("Attribute '%s' not found in attributes for annotation [%s]",
+                       attributeName,
+                       this.displayName)
+            );
         }
     }
 
     private void assertAttributeType(String attributeName, Object attributeValue, Class<?> expectedType) {
         if (!expectedType.isInstance(attributeValue)) {
-            throw new IllegalArgumentException(format("Attribute '%s' is of type [%s], but [%s] was expected in attributes for annotation [%s]",
-                                                      attributeName,
-                                                      attributeValue.getClass().getName(),
-                                                      expectedType.getName(),
-                                                      this.displayName));
+            throw new IllegalArgumentException(
+                format("Attribute '%s' is of type [%s], but [%s] was expected in attributes for annotation [%s]",
+                       attributeName,
+                       attributeValue.getClass().getName(),
+                       expectedType.getName(),
+                       this.displayName)
+            );
         }
-    }
-
-    @Override
-    public Object putIfAbsent(String key, Object value) {
-        Object obj = get(key);
-        if (obj == null) {
-            obj = put(key, value);
-        }
-        return obj;
     }
 
     @Override
@@ -217,19 +211,14 @@ public class AnnotationAttributes extends HashMap<String, Object> implements Ord
 
     @Override
     public boolean equals(Object object) {
-
         if (object == this) {
             return true;
         }
         if (object instanceof AnnotationAttributes) {
             final AnnotationAttributes other = (AnnotationAttributes) object;
-
-            if (!Objects.equals(annotationType, other.annotationType) //
-                || !Objects.equals(displayName, other.displayName)) {
-
-                return false;
-            }
-            return super.equals(object);
+            return Objects.equals(annotationType, other.annotationType)
+                && Objects.equals(displayName, other.displayName)
+                && super.equals(object);
         }
         return false;
     }
