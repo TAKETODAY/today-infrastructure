@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,12 +13,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.framework.reactive.server;
 
+import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -29,6 +30,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 
 /**
  * @author TODAY <br>
@@ -38,6 +40,9 @@ import io.netty.handler.codec.http.HttpServerCodec;
 public class NettyServerInitializer extends ChannelInitializer<SocketChannel> implements ChannelHandler {
 
     private static final Logger log = LoggerFactory.getLogger(NettyServerInitializer.class);
+
+    @Autowired
+    private WebSocketHandler webSocketHandler;
 
     private final ReactiveDispatcher reactiveDispatcher;
 
@@ -53,9 +58,9 @@ public class NettyServerInitializer extends ChannelInitializer<SocketChannel> im
             ch.pipeline()
                     .addLast("HttpServerCodec", new HttpServerCodec())
                     .addLast("HttpObjectAggregator", new HttpObjectAggregator(1024 * 1024 * 64))
-//                    .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
-                    .addLast("ReactiveDispatcher", reactiveDispatcher)
-                    .addLast("WebSocketHandler",new WebSocketHandler());
+                    .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
+                    .addLast("WebSocketHandler", webSocketHandler)
+                    .addLast("ReactiveDispatcher", reactiveDispatcher);
         }
         catch (Exception e) {
             log.error("Add channel pipeline error", e);
