@@ -137,9 +137,6 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
 
     /**
      * Prepare {@link ApplicationContext}
-     * 
-     * @param contextInitializers
-     *            {@link ApplicationContextInitializer}s
      */
     protected void initializeContext() {}
 

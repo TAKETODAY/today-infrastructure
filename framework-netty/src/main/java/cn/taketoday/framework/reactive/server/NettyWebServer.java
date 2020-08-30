@@ -83,7 +83,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
         try {
             Object obj = Class.forName("io.netty.channel.epoll.Epoll").getMethod("isAvailable").invoke(null);
             return obj != null
-                   && Boolean.valueOf(obj.toString())
+                   && Boolean.parseBoolean(obj.toString())
                    && System.getProperty("os.name").toLowerCase().contains("linux");
         }
         catch (Exception e) {
@@ -146,7 +146,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
                     .channel();
         }
         catch (InterruptedException e) {
-            new WebServerException(e);
+            throw new WebServerException(e);
         }
     }
 
