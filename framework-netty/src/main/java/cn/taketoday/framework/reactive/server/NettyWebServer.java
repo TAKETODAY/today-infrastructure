@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -34,6 +34,7 @@ import cn.taketoday.framework.StandardWebServerApplicationContext;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
 import cn.taketoday.framework.reactive.NettyWebServerApplicationLoader;
+import cn.taketoday.framework.reactive.ReactiveDispatcher;
 import cn.taketoday.framework.server.AbstractWebServer;
 import cn.taketoday.framework.server.WebServer;
 import io.netty.bootstrap.ServerBootstrap;
@@ -69,9 +70,6 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
     private EventLoopGroup parentGroup;
     private Class<? extends ServerSocketChannel> socketChannel;
     private final StandardWebServerApplicationContext applicationContext;
-
-    @Autowired
-    private NettyServerInitializer nettyServerInitializer;
 
     @Autowired
     public NettyWebServer(StandardWebServerApplicationContext applicationContext) {
@@ -137,7 +135,7 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
 
         bootstrap.handler(new LoggingHandler(LogLevel.INFO));
 
-        bootstrap.childHandler(nettyServerInitializer);
+        bootstrap.childHandler(obtainNettyServerInitializer());
         bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
         try {
@@ -148,6 +146,16 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
         catch (InterruptedException e) {
             throw new WebServerException(e);
         }
+    }
+
+    protected NettyServerInitializer obtainNettyServerInitializer() {
+        final WebServerApplicationContext context = getApplicationContext();
+        NettyServerInitializer ret = context.getBean(NettyServerInitializer.class);
+        if (ret == null) {
+            final ReactiveDispatcher reactiveDispatcher = context.getBean(ReactiveDispatcher.class);
+            ret = new NettyServerInitializer(reactiveDispatcher);
+        }
+        return ret;
     }
 
     @PreDestroy

@@ -19,12 +19,9 @@
  */
 package cn.taketoday.framework.reactive;
 
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static java.util.concurrent.CompletableFuture.completedFuture;
-
 import java.util.concurrent.Executor;
 
-import cn.taketoday.context.annotation.Singleton;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.exception.ExceptionUnhandledException;
 import cn.taketoday.web.handler.DispatcherHandler;
 import io.netty.channel.ChannelFutureListener;
@@ -35,12 +32,20 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static java.util.concurrent.CompletableFuture.completedFuture;
+
 /**
  * @author TODAY <br>
  *         2019-07-04 21:50
  */
-@Singleton
 public class ReactiveDispatcher extends DispatcherHandler implements ChannelInboundHandler {
+
+    public ReactiveDispatcher() {}
+
+    public ReactiveDispatcher(WebApplicationContext context) {
+        super(context);
+    }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
