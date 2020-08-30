@@ -217,9 +217,8 @@ public class MethodParameter implements Serializable {
         return handlerMethod;
     }
 
-    MethodParameter setHandlerMethod(HandlerMethod handlerMethod) {
+    void setHandlerMethod(HandlerMethod handlerMethod) {
         this.handlerMethod = handlerMethod;
-        return this;
     }
 
     // static

@@ -50,7 +50,7 @@ public class HandlerMethod
     /** action **/
     private final Method method;
     /** @since 2.3.7 */
-    private final Class<?> reutrnType;
+    private final Class<?> returnType;
     private ResultHandler resultHandler;
     private final ResponseStatus status;
     /** @since 2.3.7 */
@@ -64,7 +64,7 @@ public class HandlerMethod
         this.status = handler.status;
         setOrder(handler.getOrder());
         this.method = handler.method;
-        this.reutrnType = handler.reutrnType;
+        this.returnType = handler.returnType;
         setInterceptors(handler.getInterceptors());
         this.resultHandler = handler.resultHandler;
         this.handlerInvoker = handler.handlerInvoker;
@@ -93,9 +93,9 @@ public class HandlerMethod
         this.bean = bean;
         this.method = method;
         setInterceptors(interceptors);
-        this.reutrnType = method != null ? method.getReturnType() : null;
+        this.returnType = method != null ? method.getReturnType() : null;
         this.parameters = MethodParameter.ofMethod(method);
-        this.genericityClass = ClassUtils.getGenericityClass(reutrnType);
+        this.genericityClass = ClassUtils.getGenericityClass(returnType);
         this.handlerInvoker = method != null ? MethodInvoker.create(method) : null;
 
         if (method != null) {
@@ -128,25 +128,25 @@ public class HandlerMethod
         return parameters;
     }
 
-    public final Class<?> getReutrnType() {
-        return reutrnType;
+    public final Class<?> getReturnType() {
+        return returnType;
     }
 
     // ---- useful methods
     public boolean isInterface() {
-        return reutrnType.isInterface();
+        return returnType.isInterface();
     }
 
     public boolean isArray() {
-        return reutrnType.isArray();
+        return returnType.isArray();
     }
 
     public boolean isAssignableFrom(final Class<?> superClass) {
-        return superClass.isAssignableFrom(reutrnType);
+        return superClass.isAssignableFrom(returnType);
     }
 
     public boolean is(final Class<?> reutrnType) {
-        return reutrnType == this.reutrnType;
+        return reutrnType == this.returnType;
     }
 
     public Type getGenericityClass(final int index) {
