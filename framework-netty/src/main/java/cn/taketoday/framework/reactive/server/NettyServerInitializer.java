@@ -19,8 +19,10 @@
  */
 package cn.taketoday.framework.reactive.server;
 
+
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Singleton;
+
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.framework.reactive.ReactiveDispatcher;
@@ -36,7 +38,6 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
  * @author TODAY <br>
  *         2019-07-02 21:34
  */
-@Singleton
 public class NettyServerInitializer extends ChannelInitializer<SocketChannel> implements ChannelHandler {
 
     private static final Logger log = LoggerFactory.getLogger(NettyServerInitializer.class);

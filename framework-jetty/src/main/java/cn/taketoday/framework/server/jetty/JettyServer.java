@@ -75,6 +75,7 @@ import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.SessionConfiguration;
+import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.framework.server.AbstractServletWebServer;
 import cn.taketoday.framework.server.ServletWebServerApplicationLoader;
 import cn.taketoday.framework.server.WebServer;
@@ -138,11 +139,9 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
 
     @Override
     protected synchronized void contextInitialized() {
-
         super.contextInitialized();
 
         try {
-
             // Cache the connectors and then remove them to prevent requests being
             // handled before the application context is ready.
             this.connectors = this.server.getConnectors();
@@ -160,6 +159,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
             // Start the server so that the ServletContext is available
             this.server.start();
             this.server.setStopAtShutdown(false);
+            log.info("Jetty initialized on port: '{}' with context path: '{}'", getPort(), getContextPath());
         }
         catch (Throwable ex) {
             // Ensure process isn't left running
@@ -246,9 +246,9 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
     @Override
     @PreDestroy
     public synchronized void stop() {
-
         getStarted().set(false);
-
+        log.info("Jetty stopping on port(s) '{}' with context path '{}'", //
+                 getActualPortsDescription(), getContextPath());
         try {
             this.server.stop();
         }
@@ -266,7 +266,6 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
 
     @Override
     protected void initializeContext() {
-
         super.initializeContext();
 
         log.info("Jetty Server initializing with port: {}", getPort());
@@ -327,14 +326,13 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
 
         final CompressionConfiguration compression = getCompression();
         if (compression != null) {
-
             getWebApplicationConfiguration().configureCompression(compression);
-
             if (compression.isEnable()) {
+                log.info("Compression enabled");
                 handler = applyHandler(handler, configureCompression(compression));
             }
         }
-        //        if (StringUtils.isNotEmpty(getServerHeader())) { // TODO server header }
+        // if (StringUtils.isNotEmpty(getServerHeader())) { // TODO server header }
         return handler;
     }
 
@@ -534,8 +532,9 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
      * @throws Throwable
      */
     protected void configureDocumentRoot(final WebAppContext webAppContext) {
+        final WebDocumentConfiguration webDocument = getWebDocumentConfiguration();
         try {
-            webAppContext.setBaseResource(getRootResource(getWebDocumentConfiguration().getValidDocumentDirectory()));
+            webAppContext.setBaseResource(getRootResource(webDocument == null ? null : webDocument.getValidDocumentDirectory()));
         }
         catch (IOException e) {
             throw new ConfigurationException(e);

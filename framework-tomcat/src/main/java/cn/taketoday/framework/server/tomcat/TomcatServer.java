@@ -81,6 +81,7 @@ import cn.taketoday.framework.bean.ErrorPage;
 import cn.taketoday.framework.bean.MimeMappings;
 import cn.taketoday.framework.config.CompressionConfiguration;
 import cn.taketoday.framework.config.JspServletConfiguration;
+import cn.taketoday.framework.config.WebDocumentConfiguration;
 import cn.taketoday.framework.server.AbstractServletWebServer;
 import cn.taketoday.framework.server.ServletWebServerApplicationLoader;
 import cn.taketoday.framework.server.WebServer;
@@ -269,6 +270,9 @@ public class TomcatServer extends AbstractServletWebServer {
 
     @Override
     protected void initializeContext() {
+        super.initializeContext();
+
+        log.info("Initialize Tomcat Web Server Context");
 
         Tomcat tomcat = new Tomcat();
         this.tomcat = tomcat;
@@ -292,13 +296,8 @@ public class TomcatServer extends AbstractServletWebServer {
     @Override
     protected void contextInitialized() {
         super.contextInitialized();
-
-        log.info("Tomcat initialize on port: '{}' with context path: '{}'", getPort(), getContextPath());
-
         try {
-
-            Context context = findContext();
-
+            final Context context = findContext();
             context.addLifecycleListener((event) -> {
                 if (context.equals(event.getSource()) && Lifecycle.START_EVENT.equals(event.getType())) {
                     // Remove service connectors so that protocol binding doesn't
@@ -306,7 +305,6 @@ public class TomcatServer extends AbstractServletWebServer {
                     removeServiceConnectors();
                 }
             });
-
             // Start the server to trigger initialization listeners
             this.tomcat.start();
             try {
@@ -316,9 +314,7 @@ public class TomcatServer extends AbstractServletWebServer {
             catch (NamingException ex) {
                 // Naming is not enabled. Continue
             }
-
-            // Unlike Jetty, all Tomcat threads are daemon threads. We create a
-            // blocking non-daemon to stop immediate shutdown
+            // Unlike Jetty, all Tomcat threads are daemon threads. We create a blocking non-daemon to stop immediate shutdown
             startDaemonAwaitThread();
         }
         catch (Exception ex) {
@@ -340,25 +336,24 @@ public class TomcatServer extends AbstractServletWebServer {
      * @param connector
      */
     protected void configureConnector(final Connector connector) {
-
         connector.setPort(getPort());
-
         if (StringUtils.isNotEmpty(getServerHeader())) {
-            connector.setAttribute("server", getServerHeader());
+            connector.setProperty("server", getServerHeader());
         }
-
         final CompressionConfiguration compression = getCompression();
-
         // config compression
-        getWebApplicationConfiguration().configureCompression(compression);
-
-        if (compression != null && compression.isEnable()) {
-            final ProtocolHandler handler = connector.getProtocolHandler();
-            if (handler instanceof AbstractHttp11Protocol) {
-                configureCompressionProtocol(compression, (AbstractHttp11Protocol<?>) handler);
+        if (compression != null) {
+            getWebApplicationConfiguration().configureCompression(compression);
+            if (compression.isEnable()) {
+                final ProtocolHandler handler = connector.getProtocolHandler();
+                if (handler instanceof AbstractHttp11Protocol) {
+                    configureCompressionProtocol(compression, (AbstractHttp11Protocol<?>) handler);
+                }
+                else {
+                    log.warn("ProtocolHandler must be AbstractHttp11Protocol can support compression", handler);
+                }
             }
         }
-
         connector.setURIEncoding(uriEncoding);
         connector.setProperty("bindOnInit", "false");
     }
@@ -368,13 +363,10 @@ public class TomcatServer extends AbstractServletWebServer {
      * @param protocol
      */
     private void configureCompressionProtocol(CompressionConfiguration compression, AbstractHttp11Protocol<?> protocol) {
-
         if (isEnableHttp2()) {
             protocol.addUpgradeProtocol(new Http2Protocol());
         }
-
         protocol.setCompression(compression.getLevel());
-
         protocol.setCompressionMinSize((int) compression.getMinResponseSize().toBytes());
         protocol.setCompressibleMimeType(StringUtils.arrayToString(compression.getMimeTypes()));
 
@@ -384,9 +376,7 @@ public class TomcatServer extends AbstractServletWebServer {
     }
 
     protected void doPrepareContext(Host host) {
-
         try {
-
             final ServletWebServerApplicationLoader starter = //
                     new ServletWebServerApplicationLoader(() -> getMergedInitializers());
 
@@ -398,10 +388,13 @@ public class TomcatServer extends AbstractServletWebServer {
             context.setName(getContextPath());
             context.setDisplayName(getDisplayName());
             context.setPath(getContextPath());
-            
-            final Resource validDocBase = getWebDocumentConfiguration().getValidDocumentDirectory();
-            if (validDocBase != null && validDocBase.exists() && validDocBase.isDirectory()) {
-                context.setDocBase(validDocBase.getFile().getAbsolutePath());
+
+            final WebDocumentConfiguration webDocumentConfiguration = getWebDocumentConfiguration();
+            if (webDocumentConfiguration != null) {
+                final Resource validDocBase = webDocumentConfiguration.getValidDocumentDirectory();
+                if (validDocBase != null && validDocBase.exists() && validDocBase.isDirectory()) {
+                    context.setDocBase(validDocBase.getFile().getAbsolutePath());
+                }
             }
 
             context.addLifecycleListener(new FixContextListener());
@@ -412,10 +405,9 @@ public class TomcatServer extends AbstractServletWebServer {
 
             context.setUseRelativeRedirects(useRelativeRedirects);
 
-            WebappLoader loader = new WebappLoader(context.getParentClassLoader());
-
+            final ClassLoader parentClassLoader = context.getParentClassLoader();
+            WebappLoader loader = new WebappLoader(parentClassLoader);
             loader.setLoaderClass(WebappClassLoader.class.getName());
-
             loader.setDelegate(true);
             context.setLoader(loader);
 

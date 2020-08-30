@@ -27,7 +27,6 @@ import java.security.CodeSource;
 import java.util.Locale;
 
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.logger.Logger;
@@ -40,7 +39,6 @@ import cn.taketoday.framework.WebServerApplicationContext;
  * @author TODAY <br>
  *         2019-02-05 13:09
  */
-@MissingBean
 @Props(prefix = "server.docs.")
 public class WebDocumentConfiguration {
 

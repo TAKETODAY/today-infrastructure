@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -31,12 +31,18 @@ import cn.taketoday.web.handler.DispatcherHandler;
  * @author TODAY <br>
  * 		   2020-03-30 17:13
  */
-public class NettyWebServerApplicationLoader extends WebServerApplicationLoader{
+public class NettyWebServerApplicationLoader extends WebServerApplicationLoader {
 
     private static final long serialVersionUID = 1L;
 
     public NettyWebServerApplicationLoader(Supplier<List<WebApplicationInitializer>> initializersSupplier) {
         super(initializersSupplier);
+    }
+
+    @Override
+    public void onStartup(WebApplicationContext context) throws Throwable {
+        setApplicationContext(context);
+        super.onStartup(context);
     }
 
     @Override

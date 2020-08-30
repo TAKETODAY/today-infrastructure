@@ -21,7 +21,6 @@ package cn.taketoday.framework.config;
 
 import java.time.Duration;
 
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +33,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@MissingBean
 @Props(prefix = "server.session.cookie.")
 public class SessionCookieConfiguration {
 

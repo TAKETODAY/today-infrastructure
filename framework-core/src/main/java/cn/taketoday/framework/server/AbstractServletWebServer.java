@@ -64,12 +64,10 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
 
     private static final Logger log = LoggerFactory.getLogger(AbstractServletWebServer.class);
 
-    @Autowired
+    @Autowired(required = false)
     private SessionConfiguration sessionConfiguration;
-
     @Autowired(required = false)
     private JspServletConfiguration jspServletConfiguration;
-
     @Autowired(required = false)
     private DefaultServletConfiguration defaultServletConfiguration;
 
@@ -166,39 +164,40 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
             }
         });
 
-        contextInitializers.add(new OrderedServletContextInitializer() {
+        final SessionConfiguration sessionConfiguration = getSessionConfiguration();
+        if (sessionConfiguration != null && sessionConfiguration.isEnable()) {
+            contextInitializers.add(new OrderedServletContextInitializer() {
 
-            @Override
-            public void onStartup(ServletContext servletContext) throws Throwable {
+                @Override
+                public void onStartup(ServletContext servletContext) throws Throwable {
 
-                final SessionConfiguration sessionConfiguration = getSessionConfiguration();
-                getWebApplicationConfiguration().configureSession(sessionConfiguration);
+                    getWebApplicationConfiguration().configureSession(sessionConfiguration);
 
-                final SessionCookieConfiguration cookie = sessionConfiguration.getCookieConfiguration();
-                final SessionCookieConfig config = servletContext.getSessionCookieConfig();
+                    final SessionCookieConfiguration cookie = sessionConfiguration.getCookieConfiguration();
+                    final SessionCookieConfig config = servletContext.getSessionCookieConfig();
 
-                config.setName(cookie.getName());
-                config.setPath(cookie.getPath());
-                config.setSecure(cookie.isSecure());
-                config.setDomain(cookie.getDomain());
-                config.setComment(cookie.getComment());
-                config.setHttpOnly(cookie.isHttpOnly());
+                    config.setName(cookie.getName());
+                    config.setPath(cookie.getPath());
+                    config.setSecure(cookie.isSecure());
+                    config.setDomain(cookie.getDomain());
+                    config.setComment(cookie.getComment());
+                    config.setHttpOnly(cookie.isHttpOnly());
 
-                config.setMaxAge((int) cookie.getMaxAge().getSeconds());
+                    config.setMaxAge((int) cookie.getMaxAge().getSeconds());
 
-                if (sessionConfiguration.getTrackingModes() != null) {
+                    if (sessionConfiguration.getTrackingModes() != null) {
 
-                    final Set<SessionTrackingMode> collect = Arrays.asList(sessionConfiguration.getTrackingModes())
-                            .stream()
-                            .map(t -> t.name())
-                            .map(SessionTrackingMode::valueOf)
-                            .collect(Collectors.toSet());
+                        final Set<SessionTrackingMode> collect = Arrays.asList(sessionConfiguration.getTrackingModes())
+                                .stream()
+                                .map(t -> t.name())
+                                .map(SessionTrackingMode::valueOf)
+                                .collect(Collectors.toSet());
 
-                    servletContext.setSessionTrackingModes(collect);
+                        servletContext.setSessionTrackingModes(collect);
+                    }
                 }
-            }
-        });
-
+            });
+        }
         return contextInitializers;
     }
 
@@ -230,7 +229,7 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
                 context.registerBean("servletSecurityElement", ServletSecurityElement.class);
             }
         }
-        
+
         addDefaultServlet();
 
         addJspServlet();
