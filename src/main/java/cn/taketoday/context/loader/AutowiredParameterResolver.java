@@ -65,7 +65,8 @@ public class AutowiredParameterResolver
         if (bean == null && (autowired == null || autowired.required())) { // if it is required
 
             LoggerFactory.getLogger(AutowiredParameterResolver.class)//
-                .error("[{}] is required and there isn't a [{}] bean", parameter, parameter.getType());
+                .error("[{}] on executable: [{}] is required and there isn't a [{}] bean",
+                       parameter, parameter.getDeclaringExecutable(), parameter.getType());
 
             throw new NoSuchBeanDefinitionException(parameter.getType());
         }
