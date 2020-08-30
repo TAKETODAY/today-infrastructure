@@ -23,15 +23,16 @@
  */
 package cn.taketoday.framework.reactive.websocket;
 
-import java.lang.annotation.*;
-
 /**
  * @author WangYi
  * @since 2020/7/11
  */
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface WebSocket {
-    String value() default "";
+public interface WebSocketChannel {
+    void onConnect(WebSocketContext webSocketContext);
+
+    void onMessage(WebSocketContext webSocketContext);
+
+    void onClose(WebSocketContext webSocketContext);
+
+    void onError(WebSocketContext webSocketContext);
 }
