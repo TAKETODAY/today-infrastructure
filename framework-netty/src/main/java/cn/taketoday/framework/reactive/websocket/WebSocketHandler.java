@@ -1,33 +1,44 @@
 package cn.taketoday.framework.reactive.websocket;
 
-import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.annotation.Singleton;
-import cn.taketoday.context.aware.ApplicationContextAware;
-import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.context.utils.StringUtils;
-import cn.taketoday.expression.util.ReflectionUtil;
-import cn.taketoday.framework.reactive.NettyRequestContext;
-import io.netty.channel.*;
-import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.websocketx.*;
-import io.netty.util.ReferenceCountUtil;
-import lombok.SneakyThrows;
-
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.aware.ApplicationContextAware;
+import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.StringUtils;
+import cn.taketoday.framework.reactive.NettyRequestContext;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandler;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
+import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.util.ReferenceCountUtil;
+import lombok.SneakyThrows;
 
 /**
  * Processing WebSocket Request
  * @author WangYi
  * @since 2020/8/13
  */
-@Singleton
-@ChannelHandler.Sharable
-public class WebSocketHandler extends SimpleChannelInboundHandler<Object> implements ApplicationContextAware {
+public class WebSocketHandler
+  extends SimpleChannelInboundHandler<Object> implements ApplicationContextAware {
+
     private final Map<String, WebSocketChannel> webSocketChannelMap = new ConcurrentHashMap<>(16);
     private WebSocketServerHandshaker handShaker;
     private WebSocketChannel webSocketChannel;

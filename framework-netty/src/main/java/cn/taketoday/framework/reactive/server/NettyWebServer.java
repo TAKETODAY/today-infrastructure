@@ -30,6 +30,7 @@ import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.framework.StandardWebServerApplicationContext;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
@@ -148,7 +149,13 @@ public class NettyWebServer extends AbstractWebServer implements WebServer {
         }
     }
 
-    protected NettyServerInitializer obtainNettyServerInitializer() {
+    protected final NettyServerInitializer obtainNettyServerInitializer() {
+        NettyServerInitializer ret = getNettyServerInitializer();
+        Assert.notNull(ret, "No NettyServerInitializer");
+        return ret;
+    }
+
+    protected NettyServerInitializer getNettyServerInitializer() {
         final WebServerApplicationContext context = getApplicationContext();
         NettyServerInitializer ret = context.getBean(NettyServerInitializer.class);
         if (ret == null) {

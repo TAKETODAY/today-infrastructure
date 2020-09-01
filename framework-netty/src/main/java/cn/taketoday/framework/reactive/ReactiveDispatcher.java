@@ -53,16 +53,19 @@ public class ReactiveDispatcher extends DispatcherHandler implements ChannelInbo
     }
 
     @Override
-    public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+    public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         if (msg instanceof FullHttpRequest) { // sync(ctx, msg);
             async(ctx, (FullHttpRequest) msg);
         }
+//        else if(msg instanceof WebSocketFrame) {
+//
+//        }
         else {
             ctx.fireChannelRead(msg);
         }
     }
 
-    protected void sync(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
+    protected void sync(ChannelHandlerContext ctx, FullHttpRequest msg) {
         // Lookup handler mapping
         final NettyRequestContext context = new NettyRequestContext(getContextPath(), ctx, msg);
         try {
@@ -107,38 +110,38 @@ public class ReactiveDispatcher extends DispatcherHandler implements ChannelInbo
     }
 
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {}
+    public void handlerAdded(ChannelHandlerContext ctx) {}
 
     @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {}
+    public void handlerRemoved(ChannelHandlerContext ctx) {}
 
     @Override
-    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+    public void channelRegistered(ChannelHandlerContext ctx) {
         ctx.fireChannelRegistered();
     }
 
     @Override
-    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+    public void channelUnregistered(ChannelHandlerContext ctx) {
         ctx.fireChannelUnregistered();
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         ctx.fireChannelActive();
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         ctx.fireChannelInactive();
     }
 
     @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) {
         ctx.fireUserEventTriggered(evt);
     }
 
     @Override
-    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
+    public void channelWritabilityChanged(ChannelHandlerContext ctx) {
         ctx.fireChannelWritabilityChanged();
     }
 
