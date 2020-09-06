@@ -79,13 +79,6 @@ public class DefaultMultipartFile implements MultipartFile {
         return part.getSubmittedFileName();
     }
 
-    /**
-     * Save file to given file destination
-     * 
-     * @param dest
-     *            File Destination
-     * @throws IOException
-     */
     @Override
     public void save(File dest) throws IOException {
 
@@ -112,7 +105,7 @@ public class DefaultMultipartFile implements MultipartFile {
             }
             final ByteArrayOutputStream out = new ByteArrayOutputStream(BUFFER_SIZE);
             byte[] buffer = new byte[BUFFER_SIZE];
-            int bytesRead = -1;
+            int bytesRead;
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
             }

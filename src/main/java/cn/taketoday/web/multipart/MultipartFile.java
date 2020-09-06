@@ -59,8 +59,9 @@ public interface MultipartFile extends Serializable, cn.taketoday.context.io.Rea
      * Save upload file to server.
      * 
      * @param dest
-     *            the file path
-     * @return
+     *            the destination file path
+     * @throws IOException
+     *  if an error occurs when write to dest.
      */
     void save(File dest) throws IOException;
 
