@@ -139,11 +139,12 @@ public class ServletParameterResolver {
         }
     }
 
-    public static class ServletCookieCollectionParameterResolver extends CollectionParameterResolver implements ParameterResolver {
+    public static class ServletCookieCollectionParameterResolver
+            extends CollectionParameterResolver implements ParameterResolver {
 
         @Override
         protected boolean supportsInternal(MethodParameter parameter) {
-            return parameter.isAssignableFrom(Cookie.class);
+            return parameter.isGenericPresent(Cookie.class, 0);
         }
 
         @Override

@@ -92,7 +92,7 @@ public class DefaultMultipartResolver extends AbstractMultipartResolver {
             if (parameter.getParameterClass() == Set.class) {
                 return new HashSet<>(multipartFiles);
             }
-
+            //for Collection List
             return multipartFiles;
         }
     }

@@ -568,10 +568,7 @@ public class ServletRequestContext extends AbstractRequestContext implements Req
         try {
             for (final Part part : request.getParts()) {
                 final String name = part.getName();
-                List<MultipartFile> parts = multipartFiles.get(name);
-                if (parts == null) {
-                    multipartFiles.put(name, parts = new ArrayList<>(4));
-                }
+                List<MultipartFile> parts = multipartFiles.computeIfAbsent(name, k -> new ArrayList<>(4));
                 parts.add(new DefaultMultipartFile(part));
             }
             return multipartFiles;

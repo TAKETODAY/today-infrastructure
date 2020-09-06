@@ -23,8 +23,8 @@ import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-import cn.taketoday.context.Ordered;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.CookieValue;
 import cn.taketoday.web.handler.MethodParameter;
@@ -58,7 +58,7 @@ public class CookieParameterResolver implements ParameterResolver {
         return null;
     }
 
-    public static class CookieAnnotationParameterResolver extends TypeConverterParameterResolver implements Ordered {
+    public static class CookieAnnotationParameterResolver extends TypeConverterParameterResolver {
 
         @Override
         public boolean supports(MethodParameter parameter) {
@@ -72,22 +72,13 @@ public class CookieParameterResolver implements ParameterResolver {
 
         @Override
         protected Object resolveSource(final RequestContext context, final MethodParameter parameter) {
-
             final String name = parameter.getName();
-            final HttpCookie[] cookies = context.cookies();
-            if (cookies != null) {
-                for (final HttpCookie cookie : cookies) {
-                    if (name.equals(cookie.getName())) {
-                        return cookie.getValue();
-                    }
+            for (final HttpCookie cookie : context.cookies() /*never be null*/) {
+                if (Objects.equals(name, cookie.getName())) {
+                    return cookie.getValue();
                 }
             }
             return null;
-        }
-
-        @Override
-        public int getOrder() {
-            return HIGHEST_PRECEDENCE;
         }
     }
 
@@ -104,11 +95,12 @@ public class CookieParameterResolver implements ParameterResolver {
         }
     }
 
-    public static class CookieCollectionParameterResolver extends CollectionParameterResolver implements ParameterResolver {
+    public static class CookieCollectionParameterResolver
+            extends CollectionParameterResolver implements ParameterResolver {
 
         @Override
         protected boolean supportsInternal(MethodParameter parameter) {
-            return parameter.getParameterClass() == HttpCookie.class;
+            return parameter.isGenericPresent(HttpCookie.class, 0);
         }
 
         @Override

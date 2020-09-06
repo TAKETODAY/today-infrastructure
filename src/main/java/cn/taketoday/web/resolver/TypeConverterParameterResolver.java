@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.ConvertUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
@@ -28,7 +29,11 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-07-13 11:21
  */
-public abstract class TypeConverterParameterResolver implements ParameterResolver {
+public abstract class TypeConverterParameterResolver extends OrderedSupport implements ParameterResolver {
+
+    protected TypeConverterParameterResolver() {
+        super(HIGHEST_PRECEDENCE);
+    }
 
     @Override
     public abstract boolean supports(MethodParameter parameter);

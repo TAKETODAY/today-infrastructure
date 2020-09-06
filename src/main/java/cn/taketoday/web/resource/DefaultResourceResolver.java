@@ -90,7 +90,7 @@ public class DefaultResourceResolver implements WebResourceResolver {
                     }
                 }
             }
-            catch (IOException e) {}
+            catch (IOException ignored) {}
         }
         return null;
     }
