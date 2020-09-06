@@ -94,12 +94,12 @@ public class ActionMappingImpl implements ActionMapping {
             return false;
         }
         for (int i = 0; i < method.length; i++) {
-            if (!otherMethods[i].equals(method[i])) {
+            if (!Objects.equals(otherMethods[i], method[i])) {
                 return false;
             }
         }
         for (int i = 0; i < value.length; i++) {
-            if (!otherValues[i].equals(value[i])) {
+            if (!Objects.equals(otherValues[i], value[i])) {
                 return false;
             }
         }
