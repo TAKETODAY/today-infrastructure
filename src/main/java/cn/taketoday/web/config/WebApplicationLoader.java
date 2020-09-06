@@ -19,12 +19,6 @@
  */
 package cn.taketoday.web.config;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.context.utils.ContextUtils.resolveProps;
-import static cn.taketoday.context.utils.ContextUtils.resolveValue;
-import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
-import static cn.taketoday.web.resolver.DelegatingParameterResolver.delegate;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -90,6 +84,12 @@ import cn.taketoday.web.view.VoidResultHandler;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
+
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.context.utils.ContextUtils.resolveProps;
+import static cn.taketoday.context.utils.ContextUtils.resolveValue;
+import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
+import static cn.taketoday.web.resolver.DelegatingParameterResolver.delegate;
 
 /**
  * @author TODAY <br>
@@ -508,6 +508,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
             if (dispatcherHandler == null) {
                 dispatcherHandler = createDispatcher(context);
                 nonNull(dispatcherHandler, "DispatcherHandler must not be null, sub class must create its intsance");
+                context.registerBean(dispatcherHandler);
             }
             this.dispatcher = dispatcherHandler;
         }
