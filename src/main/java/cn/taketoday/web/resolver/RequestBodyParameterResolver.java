@@ -36,11 +36,10 @@ public class RequestBodyParameterResolver extends OrderedSupport implements Para
 
     public RequestBodyParameterResolver() {
         this(null);
+        setOrder(HIGHEST_PRECEDENCE);
     }
 
-    @Autowired
     public RequestBodyParameterResolver(MessageConverter messageConverter) {
-        super(HIGHEST_PRECEDENCE);
         setMessageConverter(messageConverter);
     }
 
