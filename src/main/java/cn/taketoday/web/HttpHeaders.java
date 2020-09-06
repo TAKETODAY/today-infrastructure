@@ -192,7 +192,6 @@ public interface HttpHeaders {
      *            the header value If it contains octet string, it should be encoded
      *            according to RFC 2047 (http://www.ietf.org/rfc/rfc2047.txt)
      *
-     * @see #containsHeader
      * @see #addResponseHeader(String, String)
      */
     HttpHeaders responseHeader(String name, String value);
@@ -252,7 +251,6 @@ public interface HttpHeaders {
      * @param value
      *            the assigned integer value
      *
-     * @see #containsHeader
      * @see #addResponseIntHeader
      */
     HttpHeaders responseIntHeader(String name, int value);
@@ -291,9 +289,6 @@ public interface HttpHeaders {
      *
      * @param contentType
      *            a <code>String</code> specifying the MIME type of the content
-     *
-     * @see #getOutputStream
-     * @see #getWriter
      */
     HttpHeaders contentType(String contentType);
 }

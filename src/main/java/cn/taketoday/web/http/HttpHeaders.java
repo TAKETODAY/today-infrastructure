@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -40,7 +40,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
@@ -48,6 +47,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.MediaType;
 import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.StringUtils;
@@ -64,7 +64,7 @@ public interface HttpHeaders extends Constant {
     /**
      * Pattern matching ETag multiple field values in headers such as "If-Match",
      * "If-None-Match".
-     * 
+     *
      * @see <a href="https://tools.ietf.org/html/rfc7232#section-2.3">Section 2.3 of
      *      RFC 7232</a>
      */
@@ -77,7 +77,7 @@ public interface HttpHeaders extends Constant {
     /**
      * Date formats with time zone as specified in the HTTP RFC to use for
      * formatting.
-     * 
+     *
      * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section
      *      7.1.1.1 of RFC 7231</a>
      */
@@ -85,7 +85,7 @@ public interface HttpHeaders extends Constant {
 
     /**
      * Date formats with time zone as specified in the HTTP RFC to use for parsing.
-     * 
+     *
      * @see <a href="https://tools.ietf.org/html/rfc7231#section-7.1.1.1">Section
      *      7.1.1.1 of RFC 7231</a>
      */
@@ -97,7 +97,7 @@ public interface HttpHeaders extends Constant {
 
     /**
      * Get the list of header values for the given header name, if any.
-     * 
+     *
      * @param headerName
      *            the header name
      * @return the list of header values, or an empty list
@@ -130,10 +130,9 @@ public interface HttpHeaders extends Constant {
      * {@literal Accept-Language} header.
      */
     default void setAcceptLanguage(List<Locale.LanguageRange> languages) {
-        Objects.requireNonNull(languages, "LanguageRange List must not be null");
+        Assert.notNull(languages, "LanguageRange List must not be null");
 
         DecimalFormat decimal = new DecimalFormat("0.0", DECIMAL_FORMAT_SYMBOLS);
-
         List<String> values = languages.stream()
                 .map(range -> range.getWeight() == Locale.LanguageRange.MAX_WEIGHT ? range.getRange() : range.getRange() + ";q=" + decimal
                         .format(range.getWeight()))
@@ -148,7 +147,7 @@ public interface HttpHeaders extends Constant {
      * {@link #getAcceptLanguageAsLocales()} or if you need to filter based on a
      * list of supported locales you can pass the returned list to
      * {@link Locale#filter(List, Collection)}.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the value cannot be converted to a language range
      */
@@ -169,7 +168,7 @@ public interface HttpHeaders extends Constant {
     /**
      * A variant of {@link #getAcceptLanguage()} that converts each
      * {@link java.util.Locale.LanguageRange} to a {@link Locale}.
-     * 
+     *
      * @return the locales or an empty list
      * @throws IllegalArgumentException
      *             if the value cannot be converted to a locale
@@ -233,10 +232,7 @@ public interface HttpHeaders extends Constant {
         if (value != null) {
             String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
             for (String token : tokens) {
-                RequestMethod resolved = RequestMethod.valueOf(token);
-                if (resolved != null) {
-                    result.add(resolved);
-                }
+                result.add(RequestMethod.valueOf(token));
             }
         }
         return result;
@@ -370,8 +366,8 @@ public interface HttpHeaders extends Constant {
     }
 
     /**
-     * Set the set of allowed {@link RequestMethod HTTP methods}, as specified by the
-     * {@code Allow} header.
+     * Set the set of allowed {@link RequestMethod HTTP methods}, as specified by
+     * the {@code Allow} header.
      */
     default void setAllow(Set<RequestMethod> allowedMethods) {
         set(ALLOW, StringUtils.collectionToString(allowedMethods));
@@ -389,10 +385,7 @@ public interface HttpHeaders extends Constant {
             String[] tokens = StringUtils.tokenizeToStringArray(value, ",");
             List<RequestMethod> result = new ArrayList<>(tokens.length);
             for (String token : tokens) {
-                RequestMethod resolved = RequestMethod.valueOf(token);
-                if (resolved != null) {
-                    result.add(resolved);
-                }
+                result.add(RequestMethod.valueOf(token));
             }
             return EnumSet.copyOf(result);
         }
@@ -403,13 +396,8 @@ public interface HttpHeaders extends Constant {
 
     /**
      * Set the value of the {@linkplain #AUTHORIZATION Authorization} header to
-     * Basic Authentication based on the given {@linkplain #encodeBasicAuth encoded
-     * credentials}.
-     * <p>
-     * Favor this method over {@link #setBasicAuth(String, String)} and
-     * {@link #setBasicAuth(String, String, Charset)} if you wish to cache the
-     * encoded credentials.
-     * 
+     * Basic Authentication
+     *
      * @param encodedCredentials
      *            the encoded credentials
      * @throws IllegalArgumentException
@@ -426,13 +414,14 @@ public interface HttpHeaders extends Constant {
     /**
      * Set the value of the {@linkplain #AUTHORIZATION Authorization} header to the
      * given Bearer token.
-     * 
+     *
      * @param token
      *            the Base64 encoded token
      * @see <a href="https://tools.ietf.org/html/rfc6750">RFC 6750</a>
      */
     default void setBearerAuth(String token) {
-        set(AUTHORIZATION, "Bearer ".concat(Objects.requireNonNull(token)));
+        Assert.notNull(token, "The base64 encoded token must not be null");
+        set(AUTHORIZATION, "Bearer ".concat(token));
     }
 
     /**
@@ -486,7 +475,7 @@ public interface HttpHeaders extends Constant {
      * a {@code MultiValueMap<String, Object>}, containing an Object or a
      * {@link Resource} for each part, and then pass that to the
      * {@code RestTemplate} or {@code WebClient}.
-     * 
+     *
      * @param name
      *            the control name
      * @param filename
@@ -494,7 +483,7 @@ public interface HttpHeaders extends Constant {
      * @see #getContentDisposition()
      */
     default void setContentDispositionFormData(String name, String filename) {
-        Objects.requireNonNull(name, "Name must not be null");
+        Assert.notNull(name, "Name must not be null");
         ContentDisposition.Builder disposition = ContentDisposition.builder("form-data").name(name);
         if (filename != null) {
             disposition.filename(filename);
@@ -510,7 +499,7 @@ public interface HttpHeaders extends Constant {
      * <p>
      * It can also be used for a {@code "multipart/form-data"} request. For more
      * details see notes on {@link #setContentDispositionFormData}.
-     * 
+     *
      * @see #getContentDisposition()
      */
     default void setContentDisposition(ContentDisposition contentDisposition) {
@@ -523,7 +512,7 @@ public interface HttpHeaders extends Constant {
 
     /**
      * Return a parsed representation of the {@literal Content-Disposition} header.
-     * 
+     *
      * @see #setContentDisposition(ContentDisposition)
      */
     default ContentDisposition getContentDisposition() {
@@ -645,7 +634,7 @@ public interface HttpHeaders extends Constant {
      * <p>
      * The date is returned as the number of milliseconds since January 1, 1970 GMT.
      * Returns -1 when the date is unknown.
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the value cannot be converted to a date
      */
@@ -712,7 +701,7 @@ public interface HttpHeaders extends Constant {
      * <p>
      * The date is returned as the number of milliseconds since January 1, 1970 GMT.
      * Returns -1 when the date is unknown.
-     * 
+     *
      * @see #getFirstZonedDateTime(String)
      */
     default long getExpires() {
@@ -731,7 +720,7 @@ public interface HttpHeaders extends Constant {
             String value = host.getHostString();
             int port = host.getPort();
             if (port != 0) {
-                value = value + ":" + port;
+                value = value + ':' + port;
             }
             set(HOST, value);
         }
@@ -825,7 +814,7 @@ public interface HttpHeaders extends Constant {
      * <p>
      * The date is returned as the number of milliseconds since January 1, 1970 GMT.
      * Returns -1 when the date is unknown.
-     * 
+     *
      * @see #getFirstZonedDateTime(String)
      */
     default long getIfModifiedSince() {
@@ -884,7 +873,7 @@ public interface HttpHeaders extends Constant {
      * <p>
      * The date is returned as the number of milliseconds since January 1, 1970 GMT.
      * Returns -1 when the date is unknown.
-     * 
+     *
      * @see #getFirstZonedDateTime(String)
      */
     default long getIfUnmodifiedSince() {
@@ -924,7 +913,7 @@ public interface HttpHeaders extends Constant {
      * <p>
      * The date is returned as the number of milliseconds since January 1, 1970 GMT.
      * Returns -1 when the date is unknown.
-     * 
+     *
      * @see #getFirstZonedDateTime(String)
      */
     default long getLastModified() {
@@ -996,7 +985,7 @@ public interface HttpHeaders extends Constant {
      * Set the request header names (e.g. "Accept-Language") for which the response
      * is subject to content negotiation and variances based on the value of those
      * request headers.
-     * 
+     *
      * @param requestHeaders
      *            the request header names
      */
@@ -1033,7 +1022,7 @@ public interface HttpHeaders extends Constant {
      * Set the given date under the given header name after formatting it as a
      * string using the RFC-1123 date-time formatter. The equivalent of
      * {@link #set(String, String)} but for date headers.
-     * 
+     *
      * @see #setZonedDateTime(String, ZonedDateTime)
      */
     default void setDate(String headerName, long date) {
@@ -1044,7 +1033,7 @@ public interface HttpHeaders extends Constant {
      * Parse the first header value for the given header name as a date, return -1
      * if there is no value, or raise {@link IllegalArgumentException} if the value
      * cannot be parsed as a date.
-     * 
+     *
      * @param headerName
      *            the header name
      * @return the parsed date header, or -1 if none
@@ -1059,7 +1048,7 @@ public interface HttpHeaders extends Constant {
      * if there is no value or also in case of an invalid value (if
      * {@code rejectInvalid=false}), or raise {@link IllegalArgumentException} if
      * the value cannot be parsed as a date.
-     * 
+     *
      * @param headerName
      *            the header name
      * @param rejectInvalid
@@ -1078,7 +1067,7 @@ public interface HttpHeaders extends Constant {
      * Parse the first header value for the given header name as a date, return
      * {@code null} if there is no value, or raise {@link IllegalArgumentException}
      * if the value cannot be parsed as a date.
-     * 
+     *
      * @param headerName
      *            the header name
      * @return the parsed date header, or {@code null} if none
@@ -1092,7 +1081,7 @@ public interface HttpHeaders extends Constant {
      * {@code null} if there is no value or also in case of an invalid value (if
      * {@code rejectInvalid=false}), or raise {@link IllegalArgumentException} if
      * the value cannot be parsed as a date.
-     * 
+     *
      * @param headerName
      *            the header name
      * @param rejectInvalid
@@ -1136,7 +1125,7 @@ public interface HttpHeaders extends Constant {
     /**
      * Return all values of a given header name, even if this header is set multiple
      * times.
-     * 
+     *
      * @param headerName
      *            the header name
      * @return all associated values
@@ -1162,18 +1151,18 @@ public interface HttpHeaders extends Constant {
      * be written due to errors.
      */
     default void clearContentHeaders() {
-        remove(HttpHeaders.CONTENT_TYPE);
-        remove(HttpHeaders.CONTENT_RANGE);
-        remove(HttpHeaders.CONTENT_LENGTH);
-        remove(HttpHeaders.CONTENT_LANGUAGE);
-        remove(HttpHeaders.CONTENT_LOCATION);
-        remove(HttpHeaders.CONTENT_ENCODING);
-        remove(HttpHeaders.CONTENT_DISPOSITION);
+        remove(CONTENT_TYPE);
+        remove(CONTENT_RANGE);
+        remove(CONTENT_LENGTH);
+        remove(CONTENT_LANGUAGE);
+        remove(CONTENT_LOCATION);
+        remove(CONTENT_ENCODING);
+        remove(CONTENT_DISPOSITION);
     }
 
     /**
      * Retrieve a combined result from the field values of the ETag header.
-     * 
+     *
      * @param headerName
      *            the header name
      * @return the combined result
@@ -1206,7 +1195,7 @@ public interface HttpHeaders extends Constant {
 
     /**
      * Retrieve a combined result from the field values of multi-valued headers.
-     * 
+     *
      * @param headerName
      *            the header name
      * @return the combined result
@@ -1218,7 +1207,7 @@ public interface HttpHeaders extends Constant {
 
     /**
      * Turn the given list of header values into a comma-delimited result.
-     * 
+     *
      * @param headerValues
      *            the list of header values
      * @return a combined result with comma delimitation
@@ -1235,7 +1224,7 @@ public interface HttpHeaders extends Constant {
 
     /**
      * Set the given header value, or remove the header if {@code null}.
-     * 
+     *
      * @param headerName
      *            the header name
      * @param headerValue
@@ -1252,7 +1241,7 @@ public interface HttpHeaders extends Constant {
 
     /**
      * Return the first header value for the given header name, if any.
-     * 
+     *
      * @param headerName
      *            the header name
      * @return the first header value, or {@code null} if none
@@ -1261,14 +1250,14 @@ public interface HttpHeaders extends Constant {
 
     /**
      * Add the given, single header value under the given name.
-     * 
+     *
      * @param headerName
      *            the header name
      * @param headerValue
      *            the header value
      * @throws UnsupportedOperationException
      *             if adding headers is not supported
-     * @see #put(String, List)
+     * @see #addAll(String, List)
      * @see #set(String, String)
      */
     void add(String headerName, String headerValue);

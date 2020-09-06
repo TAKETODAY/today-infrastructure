@@ -190,9 +190,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
             final String requestHeader = context.requestHeader(Constant.ACCESS_CONTROL_REQUEST_HEADERS);
             if (StringUtils.isNotEmpty(requestHeader)) {
                 ArrayList<String> result = new ArrayList<>();
-                if (requestHeader != null) {
-                    Collections.addAll(result, StringUtils.tokenizeToStringArray(requestHeader, ","));
-                }
+                Collections.addAll(result, StringUtils.tokenizeToStringArray(requestHeader, ","));
                 return result;
             }
         }

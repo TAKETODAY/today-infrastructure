@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.interceptor;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.session.WebSessionManager;
 
 /**
@@ -30,6 +31,7 @@ public abstract class WebSessionHandlerInterceptor implements HandlerInterceptor
     private final WebSessionManager sessionManager;
 
     public WebSessionHandlerInterceptor(WebSessionManager sessionManager) {
+      Assert.notNull(sessionManager, "sessionManager must not be null");
         this.sessionManager = sessionManager;
     }
 

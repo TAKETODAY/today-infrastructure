@@ -264,9 +264,8 @@ public final class ContentDisposition {
      * @see <a href="https://tools.ietf.org/html/rfc5987">RFC 5987</a>
      */
     private static String decodeFilename(String filename, Charset charset) {
-
-        Objects.requireNonNull(filename, "'input' String` should not be null");
-        Objects.requireNonNull(charset, "'charset' should not be null");
+        Assert.notNull(charset, "'charset' should not be null");
+        Assert.notNull(filename, "'filename' String should not be null");
 
         byte[] value = filename.getBytes(charset);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -329,8 +328,8 @@ public final class ContentDisposition {
      * @see <a href="https://tools.ietf.org/html/rfc5987">RFC 5987</a>
      */
     private static String encodeFilename(String input, Charset charset) {
-        Objects.requireNonNull(input, "`input` is required");
-        Objects.requireNonNull(charset, "`charset` is required");
+        Assert.notNull(charset, "'charset' should not be null");
+        Assert.notNull(input, "'input' String should not be null");
 
         Assert.isTrue(!StandardCharsets.US_ASCII.equals(charset), "ASCII does not require encoding");
         Assert.isTrue(UTF_8.equals(charset) || ISO_8859_1.equals(charset), "Only UTF-8 and ISO-8859-1 supported.");
@@ -392,7 +391,7 @@ public final class ContentDisposition {
 
     private static class BuilderImpl implements Builder {
 
-        private String type;
+        private final String type;
 
         private String name;
 

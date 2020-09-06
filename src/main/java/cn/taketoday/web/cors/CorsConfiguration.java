@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import cn.taketoday.context.utils.ContextUtils;
@@ -449,7 +450,7 @@ public class CorsConfiguration {
             return null;
         }
         if (allowedOrigins.contains(ALL)) {
-            if (this.allowCredentials != Boolean.TRUE) {
+            if (Objects.equals(this.allowCredentials, Boolean.TRUE)) {
                 return ALL;
             }
             return requestOrigin;
