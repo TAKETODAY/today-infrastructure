@@ -149,7 +149,7 @@ public class MethodParameter implements Serializable {
         return false;
     }
 
-    public boolean isAnnotationPresent(final Class<? extends Annotation> annotationClass) {
+  public boolean isAnnotationPresent(final Class<? extends Annotation> annotationClass) {
         return ClassUtils.isAnnotationPresent(parameter, annotationClass);
     }
 

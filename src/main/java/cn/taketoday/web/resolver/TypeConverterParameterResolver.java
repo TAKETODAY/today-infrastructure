@@ -32,7 +32,11 @@ import cn.taketoday.web.utils.WebUtils;
 public abstract class TypeConverterParameterResolver extends OrderedSupport implements ParameterResolver {
 
     protected TypeConverterParameterResolver() {
-        super(HIGHEST_PRECEDENCE);
+        this(HIGHEST_PRECEDENCE);
+    }
+
+    protected TypeConverterParameterResolver(int order) {
+        super(order);
     }
 
     @Override

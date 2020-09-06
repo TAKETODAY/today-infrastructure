@@ -22,6 +22,7 @@ package cn.taketoday.web.resolver;
 import static cn.taketoday.context.utils.ConvertUtils.convert;
 
 import cn.taketoday.context.AntPathMatcher;
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -33,12 +34,13 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-07-09 22:49
  */
-public class PathVariableParameterResolver implements OrderedParameterResolver {
+public class PathVariableParameterResolver extends OrderedSupport implements OrderedParameterResolver {
 
     private PathMatcher pathMatcher;
 
     public PathVariableParameterResolver() {
         this(new AntPathMatcher());
+        setOrder(HIGHEST_PRECEDENCE);
     }
 
     public PathVariableParameterResolver(PathMatcher pathMatcher) {
@@ -70,11 +72,6 @@ public class PathVariableParameterResolver implements OrderedParameterResolver {
         catch (Throwable e) {
             throw WebUtils.newBadRequest("Path variable", p.getName(), e);
         }
-    }
-
-    @Override
-    public int getOrder() {
-        return HIGHEST_PRECEDENCE;
     }
 
     public PathMatcher getPathMatcher() {
