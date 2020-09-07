@@ -22,8 +22,6 @@ package cn.taketoday.web;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.context.ConfigurableApplicationContext;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.factory.StandardBeanFactory;
@@ -34,16 +32,12 @@ import cn.taketoday.context.factory.StandardBeanFactory;
  */
 public class StandardWebBeanFactory extends StandardBeanFactory {
 
-    public StandardWebBeanFactory(ConfigurableApplicationContext applicationContext) {
-        super(applicationContext);
-        if (applicationContext instanceof ConfigurableWebApplicationContext == false) {
-            throw new ConfigurationException("application context must be 'ConfigurableWebApplicationContext'");
-        }
+    public StandardWebBeanFactory(ConfigurableWebApplicationContext context) {
+        super(context);
     }
 
     @Override
     protected void awareInternal(final Object bean, final BeanDefinition def) {
-
         super.awareInternal(bean, def);
 
         if (bean instanceof WebApplicationContextAware) {
@@ -53,11 +47,8 @@ public class StandardWebBeanFactory extends StandardBeanFactory {
 
     @Override
     protected Map<Class<?>, Object> createObjectFactories() {
-
         final Map<Class<?>, Object> env = new HashMap<>();
-
         env.put(RequestContext.class, factory(RequestContextHolder::currentContext));
-
         return env;
     }
 

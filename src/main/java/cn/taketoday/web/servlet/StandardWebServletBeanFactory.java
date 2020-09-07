@@ -26,8 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import cn.taketoday.context.AbstractApplicationContext;
-import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.ServletContextAware;
@@ -39,11 +37,8 @@ import cn.taketoday.web.StandardWebBeanFactory;
  */
 public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
 
-    public StandardWebServletBeanFactory(AbstractApplicationContext applicationContext) {
-        super(applicationContext);
-        if (applicationContext instanceof WebServletApplicationContext == false) {
-            throw new ConfigurationException("application context must be 'WebServletApplicationContext'");
-        }
+    public StandardWebServletBeanFactory(ConfigurableWebServletApplicationContext context) {
+        super(context);
     }
 
     @Override

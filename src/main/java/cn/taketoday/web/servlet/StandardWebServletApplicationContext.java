@@ -83,7 +83,7 @@ public class StandardWebServletApplicationContext extends StandardApplicationCon
     /**
      * @param servletContext
      *            {@link ServletContext}
-     * @param properties
+     * @param propertiesLocation
      *            properties location
      * @param locations
      *            package locations
