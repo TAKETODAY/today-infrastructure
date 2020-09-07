@@ -72,13 +72,10 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry implements We
 
     @SafeVarargs
     public final <T extends HandlerInterceptor> ResourceMapping addResourceMapping(Class<T>... handlerInterceptors) {
-
         final HandlerMethodRegistry registry = obtainApplicationContext().getBean(HandlerMethodRegistry.class);
 
         final HandlerInterceptor[] interceptors = registry.getInterceptors(handlerInterceptors);
-
         ResourceMapping resourceMapping = new ResourceMapping(ObjectUtils.isEmpty(interceptors) ? null : interceptors);
-
         getResourceMappings().add(resourceMapping);
         return resourceMapping;
     }
@@ -109,7 +106,9 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry implements We
                                new ResourceMatchResult(handlerKey,
                                                        handlerKey,
                                                        getPathMatcher(),
-                                                       ((ResourceRequestHandler) handler)));
+                                                       ((ResourceRequestHandler) handler)
+                               )
+                    );
         }
         return handler;
     }
@@ -126,7 +125,8 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry implements We
                 ret = new ResourceMatchResult(handlerKey,
                                               matched.getPattern(),
                                               getPathMatcher(),
-                                              (ResourceRequestHandler) matched.getHandler());
+                                              (ResourceRequestHandler) matched.getHandler()
+                );
                 patternMatchingCache.put(handlerKey, ret);
             }
         }
@@ -160,13 +160,9 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry implements We
     @Override
     public void onStartup(WebApplicationContext context) throws Throwable {
         this.contextPathLength = context.getContextPath().length();
-
-        final List<ResourceMapping> resourceMappings = getResourceMappings();
-
-        OrderUtils.reversedSort(resourceMappings);
-
         final WebResourceResolver resourceResolver = getResourceResolver();
-        for (final ResourceMapping resourceMapping : resourceMappings) {
+
+        for (final ResourceMapping resourceMapping : OrderUtils.reversedSort(getResourceMappings())) {
             final String[] pathPatterns = resourceMapping.getPathPatterns();
             registerHandler(new ResourceRequestHandler(resourceMapping, resourceResolver), pathPatterns);
         }
