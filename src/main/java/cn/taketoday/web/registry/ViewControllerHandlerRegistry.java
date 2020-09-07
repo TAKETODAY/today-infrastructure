@@ -22,23 +22,21 @@ package cn.taketoday.web.registry;
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+
+import cn.taketoday.context.utils.Assert;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import cn.taketoday.context.AntPathMatcher;
 import cn.taketoday.context.ApplicationContext;
@@ -159,11 +157,8 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
     }
 
     /**
-     * 
      * @param webMvcConfigLocation
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws SAXException
+     *          Configuration File location
      */
     public void configure(final String webMvcConfigLocation) throws Exception {
 
@@ -179,7 +174,7 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
 
         for (final String file : StringUtils.split(webMvcConfigLocation)) {
             final Resource resource = ResourceUtils.getResource(file);
-            if (resource == null || !resource.exists()) {
+            if (!resource.exists()) {
                 throw new ConfigurationException("Your Provided Configuration File: [" + file + "], Does Not Exist");
             }
             try (final InputStream inputStream = resource.getInputStream()) {
@@ -195,11 +190,6 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
 
     /**
      * configure with xml file
-     * 
-     * @param doc
-     *            xml file
-     * @param viewConfiguration
-     * @throws Throwable
      */
     protected void registerFromXml(final Element root) {
 
@@ -229,13 +219,10 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
      * 
      * @param controller
      *            the controller element
-     * @throws Exception
-     *             if any {@link Exception} occurred
      * @since 2.3.7
      */
     protected void configController(final Element controller) {
-
-        Objects.requireNonNull(controller, "'controller' element can't be null");
+        Assert.notNull(controller, "'controller' element can't be null");
 
         // <controller/> element
         final String name = controller.getAttribute(Constant.ATTR_NAME); // controller name
@@ -289,7 +276,11 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
         return controllerBean;
     }
 
-    protected ViewController processAction(final String prefix, final String suffix, final Element action, final Object controller) {
+    protected ViewController processAction(final String prefix,
+                                           final String suffix,
+                                           final Element action,
+                                           final Object controller) //
+    {
 
         String name = action.getAttribute(Constant.ATTR_NAME); // action name
         String order = action.getAttribute(Constant.ATTR_ORDER); // order
