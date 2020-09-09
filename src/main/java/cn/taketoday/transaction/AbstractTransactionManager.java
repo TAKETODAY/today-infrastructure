@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,8 +19,6 @@
  */
 package cn.taketoday.transaction;
 
-import static cn.taketoday.transaction.TransactionDefinition.ISOLATION_DEFAULT;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -29,6 +27,8 @@ import java.util.List;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
+
+import static cn.taketoday.transaction.TransactionDefinition.ISOLATION_DEFAULT;
 
 /**
  * @author TODAY <br>
@@ -44,7 +44,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     /**
      * Always activate transaction synchronization, even for "empty" transactions
      * that result from PROPAGATION_SUPPORTS with no existing backend transaction.
-     * 
+     *
      * @see TransactionDefinition#PROPAGATION_SUPPORTS
      * @see TransactionDefinition#PROPAGATION_NOT_SUPPORTED
      * @see TransactionDefinition#PROPAGATION_NEVER
@@ -55,7 +55,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * Activate transaction synchronization only for actual transactions, that is,
      * not for empty ones that result from PROPAGATION_SUPPORTS with no existing
      * backend transaction.
-     * 
+     *
      * @see TransactionDefinition#PROPAGATION_REQUIRED
      * @see TransactionDefinition#PROPAGATION_MANDATORY
      * @see TransactionDefinition#PROPAGATION_REQUIRES_NEW
@@ -83,7 +83,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * Note that transaction synchronization isn't supported for multiple concurrent
      * transactions by different transaction managers. Only one transaction manager
      * is allowed to activate it at any time.
-     * 
+     *
      * @see #SYNCHRONIZATION_ALWAYS
      * @see #SYNCHRONIZATION_ON_ACTUAL_TRANSACTION
      * @see #SYNCHRONIZATION_NEVER
@@ -109,7 +109,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * Default is the underlying transaction infrastructure's default timeout, e.g.
      * typically 30 seconds in case of a JTA provider, indicated by the
      * {@code TransactionDefinition.TIMEOUT_DEFAULT} value.
-     * 
+     *
      * @see TransactionDefinition#TIMEOUT_DEFAULT
      */
     public void setDefaultTimeout(int defaultTimeout) {
@@ -210,7 +210,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * provides exactly those semantics; however, it will only work when nested
      * transaction support is available. This is the case with
      * DataSourceTransactionManager, but not with JtaTransactionManager.
-     * 
+     *
      * @see #setNestedTransactionAllowed
      */
     public void setGlobalRollbackOnParticipationFailure(boolean globalRollbackOnParticipationFailure) {
@@ -233,7 +233,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * outermost transaction boundary. Switch this flag on to cause an
      * UnexpectedRollbackException as early as the global rollback-only marker has
      * been first detected, even from within an inner transaction boundary.
-     * 
+     *
      * @see UnexpectedRollbackException
      */
     public void setFailEarlyOnGlobalRollbackOnly(boolean failEarlyOnGlobalRollbackOnly) {
@@ -255,7 +255,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * exception.
      * <p>
      * Default is "false".
-     * 
+     *
      * @see #doCommit
      * @see #doRollback
      */
@@ -274,7 +274,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     /**
      * This implementation handles propagation behavior. Delegates to
      * {@code doGetTransaction}, {@code isExistingTransaction} and {@code doBegin}.
-     * 
+     *
      * @see #doGetTransaction
      * @see #isExistingTransaction
      * @see #doBegin
@@ -302,7 +302,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                     log.debug("Creating new transaction with name [{}]: {}", def.getName(), def);
                 }
                 try {
-                    boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+                    boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER) && !metaData.isActive();
                     final DefaultTransactionStatus status = newTransactionStatus(def, transaction, true, newSynchronization, res);
                     doBegin(metaData, transaction, def);
                     prepareSynchronization(metaData, status, def);
@@ -321,7 +321,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                      def);
         }
         boolean newSynchronization = (getTransactionSynchronization() == SYNCHRONIZATION_ALWAYS);
-        return prepareTransactionStatus(SynchronizationManager.getMetaData(), def, null, newSynchronization, null);
+        return prepareTransactionStatus(SynchronizationManager.getMetaData(), def, null, true, newSynchronization, null);
     }
 
     /**
@@ -352,7 +352,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                 final SuspendedResourcesHolder res = suspend(metaData, transaction);
 
                 try {
-                    boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+                    boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER) && !metaData.isActive();
                     final DefaultTransactionStatus status = //
                             newTransactionStatus(def, transaction, true, newSynchronization, res);
 
@@ -388,7 +388,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                 // Nested transaction through nested begin and commit/rollback calls.
                 // Usually only for JTA: synchronization might get activated here
                 // in case of a pre-existing JTA transaction.
-                boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+                boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER) && !metaData.isActive();
 
                 DefaultTransactionStatus status = //
                         newTransactionStatus(def, transaction, true, newSynchronization, null);
@@ -425,7 +425,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     /**
      * Create a new TransactionStatus for the given arguments, also initializing
      * transaction synchronization as appropriate.
-     * 
+     *
      * @see #newTransactionStatus
      * @see #prepareTransactionStatus
      */
@@ -435,26 +435,14 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                                                                 final boolean newTransaction,
                                                                 final boolean newSynchronization,
                                                                 final Object suspendedResources) {
+
         final DefaultTransactionStatus status = newTransactionStatus(definition,
                                                                      transaction,
                                                                      newTransaction,
-                                                                     newSynchronization,
+                                                                     newSynchronization && !metaData.isActive(),
                                                                      suspendedResources);
         prepareSynchronization(metaData, status, definition);
         return status;
-    }
-
-    protected DefaultTransactionStatus prepareTransactionStatus(final SynchronizationMetaData metaData,
-                                                                final TransactionDefinition definition,
-                                                                final Object transaction,
-                                                                final boolean newTransaction,
-                                                                final Object suspendedResources) {
-        return prepareTransactionStatus(metaData,
-                                        definition,
-                                        transaction,
-                                        newTransaction,
-                                        !metaData.isActive(),
-                                        suspendedResources);
     }
 
     /**
@@ -495,7 +483,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * Determine the actual timeout to use for the given definition. Will fall back
      * to this manager's default timeout if the transaction definition doesn't
      * specify a non-default value.
-     * 
+     *
      * @param definition
      *            the transaction definition
      * @return the actual timeout to use
@@ -512,7 +500,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     /**
      * Suspend the given transaction. Suspends transaction synchronization first,
      * then delegates to the {@code doSuspend} template method.
-     * 
+     *
      * @param transaction
      *            the current transaction object (or {@code null} to just suspend
      *            active synchronizations, if any)
@@ -568,7 +556,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     /**
      * Resume the given transaction. Delegates to the {@code doResume} template
      * method first, then resuming transaction synchronization.
-     * 
+     *
      * @param transaction
      *            the current transaction object
      * @param resourcesHolder
@@ -622,7 +610,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     /**
      * Suspend all current synchronizations and deactivate transaction
      * synchronization for the current thread.
-     * 
+     *
      * @return the List of suspended TransactionSynchronization objects
      */
     private List<TransactionSynchronization> doSuspendSynchronization(final SynchronizationMetaData metaData) {
@@ -638,7 +626,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     /**
      * Reactivate transaction synchronization for the current thread and resume all
      * given synchronizations.
-     * 
+     *
      * @param suspendedSynchronizations
      *            List of TransactionSynchronization objects
      */
@@ -681,7 +669,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     /**
      * Process an actual commit. Rollback-only flags have already been checked and
      * applied.
-     * 
+     *
      * @param status
      *            object representing the transaction
      * @throws TransactionException
@@ -761,7 +749,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     /**
      * This implementation of rollback handles participating in existing
      * transactions. Delegates to {@code doRollback} and {@code doSetRollbackOnly}.
-     * 
+     *
      * @see #doRollback
      * @see #doSetRollbackOnly
      */
@@ -775,7 +763,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
 
     /**
      * Process an actual rollback. The completed flag has already been checked.
-     * 
+     *
      * @param status
      *            object representing the transaction
      * @throws TransactionException
@@ -840,7 +828,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
 
     /**
      * Invoke {@code doRollback}, handling rollback exceptions properly.
-     * 
+     *
      * @param status
      *            object representing the transaction
      * @param ex
@@ -877,7 +865,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
 
     /**
      * Trigger {@code beforeCommit} callbacks.
-     * 
+     *
      * @param status
      *            object representing the transaction
      */
@@ -892,7 +880,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
 
     /**
      * Trigger {@code beforeCompletion} callbacks.
-     * 
+     *
      * @param status
      *            object representing the transaction
      */
@@ -907,7 +895,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
 
     /**
      * Trigger {@code afterCommit} callbacks.
-     * 
+     *
      * @param status
      *            object representing the transaction
      */
@@ -922,7 +910,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
 
     /**
      * Trigger {@code afterCompletion} callbacks.
-     * 
+     *
      * @param status
      *            object representing the transaction
      * @param completionStatus
@@ -960,7 +948,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * <p>
      * To be called by this abstract manager itself, or by special implementations
      * of the {@code registerAfterCompletionWithExistingTransaction} callback.
-     * 
+     *
      * @param syncs
      *            List of TransactionSynchronization objects
      * @param completionStatus
@@ -979,7 +967,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     /**
      * Clean up after completion, clearing synchronization if necessary, and
      * invoking doCleanupAfterCompletion.
-     * 
+     *
      * @param status
      *            object representing the transaction
      * @see #doCleanupAfterCompletion
@@ -1019,7 +1007,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * current {@code getTransaction} call on the transaction manager. Consequently,
      * a {@code doGetTransaction} implementation will usually look for an existing
      * transaction and store corresponding state in the returned transaction object.
-     * 
+     *
      * @return the current transaction object
      * @throws CannotCreateTransactionException
      *             if transaction support is not available
@@ -1044,7 +1032,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * The default implementation returns {@code false}, assuming that participating
      * in existing transactions is generally not supported. Subclasses are of course
      * encouraged to provide such support.
-     * 
+     *
      * @param transaction
      *            transaction object returned by doGetTransaction
      * @return if there is an existing transaction
@@ -1070,7 +1058,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * to {@code doBegin} - within the context of an already existing transaction.
      * The {@code doBegin} implementation needs to handle this accordingly in such a
      * scenario. This is appropriate for JTA, for example.
-     * 
+     *
      * @see DefaultTransactionStatus#createAndHoldSavepoint
      * @see DefaultTransactionStatus#rollbackToHeldSavepoint
      * @see DefaultTransactionStatus#releaseHeldSavepoint
@@ -1094,7 +1082,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * be called to start a nested transaction when necessary. In such a context,
      * there will be an active transaction: The implementation of this method has to
      * detect this and start an appropriate nested transaction.
-     * 
+     *
      * @param transaction
      *            transaction object returned by {@code doGetTransaction}
      * @param definition
@@ -1114,7 +1102,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * The default implementation throws a
      * TransactionSuspensionNotSupportedException, assuming that transaction
      * suspension is generally not supported.
-     * 
+     *
      * @param transaction
      *            transaction object returned by {@code doGetTransaction}
      * @return an object that holds suspended resources (will be kept unexamined for
@@ -1137,7 +1125,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * The default implementation throws a
      * TransactionSuspensionNotSupportedException, assuming that transaction
      * suspension is generally not supported.
-     * 
+     *
      * @param transaction
      *            transaction object returned by {@code doGetTransaction}
      * @param suspendedResources
@@ -1181,7 +1169,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * UnexpectedRollbackException itself. This should not be the typical case; it
      * is mainly checked to cover misbehaving JTA providers that silently roll back
      * even when the rollback has not been requested by the calling code.
-     * 
+     *
      * @see #doCommit
      * @see DefaultTransactionStatus#isGlobalRollbackOnly()
      * @see DefaultTransactionStatus#isLocalRollbackOnly()
@@ -1200,7 +1188,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * <p>
      * Note that exceptions will get propagated to the commit caller and cause a
      * rollback of the transaction.
-     * 
+     *
      * @param status
      *            the status representation of the transaction
      * @throws RuntimeException
@@ -1216,7 +1204,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * rollback-only flag; this will already have been handled before. Usually, a
      * straight commit will be performed on the transaction object contained in the
      * passed-in status.
-     * 
+     *
      * @param status
      *            the status representation of the transaction
      * @throws TransactionException
@@ -1231,7 +1219,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * An implementation does not need to check the "new transaction" flag; this
      * will already have been handled before. Usually, a straight rollback will be
      * performed on the transaction object contained in the passed-in status.
-     * 
+     *
      * @param status
      *            the status representation of the transaction
      * @throws TransactionException
@@ -1248,7 +1236,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * The default implementation throws an IllegalStateException, assuming that
      * participating in existing transactions is generally not supported. Subclasses
      * are of course encouraged to provide such support.
-     * 
+     *
      * @param status
      *            the status representation of the transaction
      * @throws TransactionException
@@ -1271,7 +1259,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * The default implementation simply invokes the {@code afterCompletion} methods
      * immediately, passing in "STATUS_UNKNOWN". This is the best we can do if
      * there's no chance to determine the actual outcome of the outer transaction.
-     * 
+     *
      * @param transaction
      *            transaction object returned by {@code doGetTransaction}
      * @param syncs
@@ -1296,7 +1284,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
      * outcome. The default implementation does nothing.
      * <p>
      * Should not throw any exceptions but just issue warnings on errors.
-     * 
+     *
      * @param transaction
      *            transaction object returned by {@code doGetTransaction}
      */
