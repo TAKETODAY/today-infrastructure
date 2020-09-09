@@ -39,11 +39,7 @@ public abstract class SynchronizationManager {
 
     private static final Logger log = LoggerFactory.getLogger(SynchronizationManager.class);
 
-    private static final ThreadLocal<SynchronizationMetaData> META_DATA = new ThreadLocal<SynchronizationMetaData>() {
-        protected SynchronizationMetaData initialValue() {
-            return new SynchronizationMetaData();
-        };
-    };
+    private static final ThreadLocal<SynchronizationMetaData> META_DATA = ThreadLocal.withInitial(SynchronizationMetaData::new);
 
     public final static class SynchronizationMetaData implements Serializable {
 

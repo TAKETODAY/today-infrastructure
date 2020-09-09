@@ -41,6 +41,33 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     private static final Logger log = LoggerFactory.getLogger(AbstractTransactionManager.class);
     public static boolean debugEnabled = log.isDebugEnabled();
 
+    /**
+     * Always activate transaction synchronization, even for "empty" transactions
+     * that result from PROPAGATION_SUPPORTS with no existing backend transaction.
+     * 
+     * @see TransactionDefinition#PROPAGATION_SUPPORTS
+     * @see TransactionDefinition#PROPAGATION_NOT_SUPPORTED
+     * @see TransactionDefinition#PROPAGATION_NEVER
+     */
+    public static final int SYNCHRONIZATION_ALWAYS = 0;
+
+    /**
+     * Activate transaction synchronization only for actual transactions, that is,
+     * not for empty ones that result from PROPAGATION_SUPPORTS with no existing
+     * backend transaction.
+     * 
+     * @see TransactionDefinition#PROPAGATION_REQUIRED
+     * @see TransactionDefinition#PROPAGATION_MANDATORY
+     * @see TransactionDefinition#PROPAGATION_REQUIRES_NEW
+     */
+    public static final int SYNCHRONIZATION_ON_ACTUAL_TRANSACTION = 1;
+
+    /**
+     * Never active transaction synchronization, not even for actual transactions.
+     */
+    public static final int SYNCHRONIZATION_NEVER = 2;
+
+    private int transactionSynchronization = SYNCHRONIZATION_ALWAYS;
     private int defaultTimeout = TransactionDefinition.TIMEOUT_DEFAULT;
 
     private boolean nestedTransactionAllowed = false;
@@ -48,6 +75,32 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
     private boolean validateExistingTransaction = false;
     private boolean failEarlyOnGlobalRollbackOnly = false;
     private boolean globalRollbackOnParticipationFailure = true;
+
+    /**
+     * Set when this transaction manager should activate the thread-bound
+     * transaction synchronization support. Default is "always".
+     * <p>
+     * Note that transaction synchronization isn't supported for multiple concurrent
+     * transactions by different transaction managers. Only one transaction manager
+     * is allowed to activate it at any time.
+     * 
+     * @see #SYNCHRONIZATION_ALWAYS
+     * @see #SYNCHRONIZATION_ON_ACTUAL_TRANSACTION
+     * @see #SYNCHRONIZATION_NEVER
+     * @see SynchronizationManager
+     * @see TransactionSynchronization
+     */
+    public final void setTransactionSynchronization(int transactionSynchronization) {
+        this.transactionSynchronization = transactionSynchronization;
+    }
+
+    /**
+     * Return if this transaction manager should activate the thread-bound
+     * transaction synchronization support.
+     */
+    public final int getTransactionSynchronization() {
+        return this.transactionSynchronization;
+    }
 
     /**
      * Specify the default timeout that this transaction manager should apply if
@@ -249,8 +302,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                     log.debug("Creating new transaction with name [{}]: {}", def.getName(), def);
                 }
                 try {
-                    final DefaultTransactionStatus status = newTransactionStatus(def, transaction, true,
-                                                                                 !metaData.isActive(), res);
+                    boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+                    final DefaultTransactionStatus status = newTransactionStatus(def, transaction, true, newSynchronization, res);
                     doBegin(metaData, transaction, def);
                     prepareSynchronization(metaData, status, def);
                     return status;
@@ -267,8 +320,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
             log.warn("Custom isolation level specified but no actual transaction initiated; isolation level will effectively be ignored: {}",
                      def);
         }
-
-        return prepareTransactionStatus(SynchronizationManager.getMetaData(), def, null, true, null);
+        boolean newSynchronization = (getTransactionSynchronization() == SYNCHRONIZATION_ALWAYS);
+        return prepareTransactionStatus(SynchronizationManager.getMetaData(), def, null, newSynchronization, null);
     }
 
     /**
@@ -287,7 +340,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                     log.debug("Suspending current transaction");
                 }
                 final Object suspendedResources = suspend(metaData, transaction);
-                return prepareTransactionStatus(metaData, def, null, false, !metaData.isActive(), suspendedResources);
+                boolean newSynchronization = (getTransactionSynchronization() == SYNCHRONIZATION_ALWAYS);
+                return prepareTransactionStatus(metaData, def, null, false, newSynchronization, suspendedResources);
             }
             case TransactionDefinition.PROPAGATION_REQUIRES_NEW : {
 
@@ -298,8 +352,9 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                 final SuspendedResourcesHolder res = suspend(metaData, transaction);
 
                 try {
+                    boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
                     final DefaultTransactionStatus status = //
-                            newTransactionStatus(def, transaction, true, !metaData.isActive(), res);
+                            newTransactionStatus(def, transaction, true, newSynchronization, res);
 
                     doBegin(metaData, transaction, def);
                     prepareSynchronization(metaData, status, def);
@@ -333,9 +388,10 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                 // Nested transaction through nested begin and commit/rollback calls.
                 // Usually only for JTA: synchronization might get activated here
                 // in case of a pre-existing JTA transaction.
+                boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
 
                 DefaultTransactionStatus status = //
-                        newTransactionStatus(def, transaction, true, !metaData.isActive(), null);
+                        newTransactionStatus(def, transaction, true, newSynchronization, null);
 
                 doBegin(metaData, transaction, def);
                 prepareSynchronization(metaData, status, def);
@@ -362,7 +418,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
                         + "] is not marked as read-only but existing transaction is");
             }
         }
-        return prepareTransactionStatus(metaData, def, transaction, false, true, null);
+        boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+        return prepareTransactionStatus(metaData, def, transaction, false, newSynchronization, null);
     }
 
     /**
