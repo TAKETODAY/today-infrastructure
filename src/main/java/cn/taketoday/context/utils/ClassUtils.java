@@ -98,7 +98,7 @@ public abstract class ClassUtils {
 
     static final ParameterFunction PARAMETER_NAMES_FUNCTION = new ParameterFunction();
     static final WeakHashMap<AnnotationKey<?>, Object> ANNOTATIONS = new WeakHashMap<>(128);
-    static final ConcurrentCache<Class<?>, ConcurrentCache<Method, String[]>> PARAMETER_NAMES_CACHE = ConcurrentCache.create(64);
+    static final ConcurrentCache<Class<?>, Map<Method, String[]>> PARAMETER_NAMES_CACHE = ConcurrentCache.create(64);
     static final WeakHashMap<AnnotationKey<?>, AnnotationAttributes[]> ANNOTATION_ATTRIBUTES = new WeakHashMap<>(128);
 
     static {
@@ -1251,13 +1251,12 @@ public abstract class ClassUtils {
         enableParamNameTypeChecking = Boolean.parseBoolean(System.getProperty("ClassUtils.enableParamNameTypeChecking", "false"));
     }
 
-    static final class ParameterFunction implements Function<Class<?>, ConcurrentCache<Method, String[]>> {
+    static final class ParameterFunction implements Function<Class<?>, Map<Method, String[]>> {
 
         @Override
-        public ConcurrentCache<Method, String[]> apply(final Class<?> declaringClass) {
+        public Map<Method, String[]> apply(final Class<?> declaringClass) {
 
-//            final Map<Method, String[]> map = new ConcurrentHashMap<>(32);
-            final ConcurrentCache<Method, String[]> map = new ConcurrentCache<>(4);
+            final Map<Method, String[]> map = new HashMap<>();
 
             try (InputStream resourceAsStream = getClassLoader()
                 .getResourceAsStream(declaringClass.getName()
