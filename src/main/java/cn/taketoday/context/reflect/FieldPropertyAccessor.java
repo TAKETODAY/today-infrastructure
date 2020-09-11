@@ -41,7 +41,7 @@ public class FieldPropertyAccessor implements PropertyAccessor {
       return field.get(obj);
     }
     catch (IllegalAccessException e) {
-      e.printStackTrace();
+      throw new ReflectionException("Illegal Access: " + field, e);
     }
   }
 
@@ -51,7 +51,7 @@ public class FieldPropertyAccessor implements PropertyAccessor {
       field.set(obj, value);
     }
     catch (IllegalAccessException e) {
-      e.printStackTrace();
+      throw new ReflectionException("Illegal Access: " + field, e);
     }
   }
 }
