@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -53,7 +53,7 @@ public class DefaultProxyFactory implements ProxyFactory {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultProxyFactory.class);
 
-    private static final CglibProxyCreator CGLIB_PROXY_CREATOR = new CglibProxyCreator();;
+    private static final CglibProxyCreator CGLIB_PROXY_CREATOR = new CglibProxyCreator();
 
     private final TargetSource targetSource;
     private final ApplicationContext applicationContext;
@@ -121,7 +121,7 @@ public class DefaultProxyFactory implements ProxyFactory {
         }
         catch (Throwable ex) {
             ex = ExceptionUtils.unwrapThrowable(ex);
-            throw new ConfigurationException("An Exception Occured When Creating A Target Proxy Instance With Msg: ["
+            throw new ConfigurationException("An Exception Occurred When Creating A Target Proxy Instance With Msg: ["
                     + ex + ']', ex//
             );
         }
@@ -129,7 +129,7 @@ public class DefaultProxyFactory implements ProxyFactory {
 
     /**
      * Get all Aspects
-     * 
+     *
      * @return All Aspects
      */
     protected List<Object> getAspects() {
@@ -142,7 +142,7 @@ public class DefaultProxyFactory implements ProxyFactory {
 
     /**
      * Match method
-     * 
+     *
      * @param aspect
      *            aspect instance
      * @param aspectMethod
@@ -248,7 +248,7 @@ public class DefaultProxyFactory implements ProxyFactory {
 
     /**
      * Match target class
-     * 
+     *
      * @param targetClass
      *            target class
      * @param advices
@@ -293,7 +293,7 @@ public class DefaultProxyFactory implements ProxyFactory {
 
     /**
      * Get an advice instance
-     * 
+     *
      * @param aspect
      *            aspect instance
      * @param aspectMethod
@@ -303,7 +303,7 @@ public class DefaultProxyFactory implements ProxyFactory {
      * @throws Throwable
      */
     public static MethodInterceptor getInterceptor(final Object aspect,
-                                                   Method aspectMethod,
+                                                   final Method aspectMethod,
                                                    final Class<? extends MethodInterceptor> interceptor,
                                                    final ApplicationContext beanFactory) throws Throwable //
     {
@@ -328,7 +328,7 @@ public class DefaultProxyFactory implements ProxyFactory {
 
     /**
      * Weaving advice to target method
-     * 
+     *
      * @param advice
      *            advice instance
      * @param targetMethod
@@ -339,10 +339,7 @@ public class DefaultProxyFactory implements ProxyFactory {
     public static void weaving(MethodInterceptor advice, Method targetMethod, //
                                Map<Method, List<MethodInterceptor>> aspectMappings) //
     {
-        List<MethodInterceptor> aspectMapping = aspectMappings.get(targetMethod);
-        if (aspectMapping == null) {
-            aspectMappings.put(targetMethod, aspectMapping = new ArrayList<>());
-        }
+        List<MethodInterceptor> aspectMapping = aspectMappings.computeIfAbsent(targetMethod, k -> new ArrayList<>());
         aspectMapping.add(advice);
     }
 

@@ -35,7 +35,7 @@ import cn.taketoday.aop.annotation.JoinPoint;
 import cn.taketoday.aop.annotation.Returning;
 import cn.taketoday.aop.annotation.Throwing;
 import cn.taketoday.context.Constant;
-import cn.taketoday.context.invoker.MethodInvoker;
+import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.utils.ExceptionUtils;
 
 /**
