@@ -17,13 +17,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-package cn.taketoday.context.invoker;
-
-import java.lang.reflect.Method;
+package cn.taketoday.context.reflect;
 
 import org.junit.Test;
 
-import cn.taketoday.context.invoker.MethodInvoker;
+import java.lang.reflect.Method;
 
 /**
  * @author TODAY <br>
@@ -38,7 +36,7 @@ public class TestHandlerInvoker {
 
     public static void main(String... args) throws Exception {
 
-        System.setProperty("cglib.debugLocation", "D:/debug");
+        System.setProperty("cglib.debugLocation", "D:/dev/temp/debug");
         {
             final Method main = Bean.class.getDeclaredMethod("main");
             final MethodInvoker mainInvoker = MethodInvoker.create(main);
@@ -51,15 +49,28 @@ public class TestHandlerInvoker {
         }
 
         final MethodInvoker create = MethodInvoker.create(Bean.class, "test");
-
         create.invoke(new Bean(), null);
 
         final MethodInvoker itself = MethodInvoker.create(Bean.class, "test", Bean.class);
-
         itself.invoke(new Bean(), new Object[] { new Bean() });
+
+        final MethodInvoker returnString = MethodInvoker.create(Bean.class, "returnString", String.class);
+        final Object invoke1 = returnString.invoke(new Bean(), new Object[] { "TODAY" });
+        System.out.println(invoke1);
+    }
+
+    public static class Bean1 {
+
+        public Bean1(String name) {
+            System.out.println("构造参数: " + name);
+        }
     }
 
     public static class Bean {
+
+        public String returnString(String input) {
+            return "input->" + input;
+        }
 
         public static void test(short i) throws Throwable {
             System.err.println("static main " + i);

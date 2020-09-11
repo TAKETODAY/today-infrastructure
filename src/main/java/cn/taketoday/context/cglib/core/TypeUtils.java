@@ -165,7 +165,7 @@ public abstract class TypeUtils {
         int rparen = s.indexOf(')', lparen);
         String returnType = s.substring(0, space);
         String methodName = s.substring(space + 1, lparen);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append('(');
 
         for (String type : parseTypes(s, lparen + 1, rparen)) {
@@ -234,7 +234,7 @@ public abstract class TypeUtils {
             return map("java.lang." + type);
         }
         else {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             int index = 0;
             while ((index = type.indexOf("[]", index) + 1) > 0) {
                 sb.append('[');

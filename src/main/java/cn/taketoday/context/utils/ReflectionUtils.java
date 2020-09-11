@@ -21,76 +21,30 @@ package cn.taketoday.context.utils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import cn.taketoday.context.reflect.BeanConstructor;
+import cn.taketoday.context.reflect.ConstructorAccessor;
+import cn.taketoday.context.reflect.ConstructorAccessorGenerator;
 import cn.taketoday.context.reflect.GetterMethod;
+import cn.taketoday.context.reflect.GetterSetterPropertyAccessor;
+import cn.taketoday.context.reflect.MethodAccessor;
+import cn.taketoday.context.reflect.MethodAccessorPropertyAccessor;
+import cn.taketoday.context.reflect.MethodInvoker;
+import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.reflect.ReflectionException;
 import cn.taketoday.context.reflect.SetterMethod;
 import sun.misc.Unsafe;
-import sun.reflect.ConstructorAccessor;
-import sun.reflect.FieldAccessor;
-import sun.reflect.MethodAccessor;
 
 /**
  * Fast reflection operation
- * 
+ *
  * @author TODAY <br>
  *         2020-08-13 18:45
  */
 //@SuppressWarnings("restriction")
 public abstract class ReflectionUtils {
-
-    private static final MethodAccessor CONSTRUCTOR;
-    private static final MethodAccessor FIELD_ACCESSOR;
-    private static final MethodAccessor GENERATE_METHOD;
-    private static final MethodAccessor SERIAL_CONSTRUCTOR;
-    private static final ThreadLocal<Object> GENERATOR_OBJECT_HOLDER;
-
-    static {
-        try {
-            Class<?> aClass = Class.forName("sun.reflect.MethodAccessorGenerator");
-            Constructor<?> declaredConstructor = aClass.getDeclaredConstructors()[0];
-            declaredConstructor.setAccessible(true);
-            Object generatorObject = declaredConstructor.newInstance();
-            Method bar = aClass.getMethod("generateMethod", Class.class, String.class, Class[].class, Class.class, Class[].class,
-                                          int.class);
-            bar.setAccessible(true);
-            GENERATE_METHOD = (MethodAccessor) bar.invoke(generatorObject,
-                                                          bar.getDeclaringClass(),
-                                                          bar.getName(),
-                                                          bar.getParameterTypes(),
-                                                          bar.getReturnType(),
-                                                          bar.getExceptionTypes(),
-                                                          bar.getModifiers());
-            bar = aClass.getMethod("generateConstructor", Class.class, Class[].class, Class[].class, Integer.TYPE);
-            CONSTRUCTOR = newMethodAccessor(generatorObject, bar);
-            bar = aClass.getMethod("generateSerializationConstructor",
-                                   Class.class,
-                                   Class[].class,
-                                   Class[].class,
-                                   Integer.TYPE,
-                                   Class.class);
-            final ConstructorAccessor goc = newConstructorAccessor(generatorObject, declaredConstructor);
-            GENERATOR_OBJECT_HOLDER = ThreadLocal.withInitial(() -> {
-                try {
-                    return goc.newInstance(null);
-                }
-                catch (Throwable e) {
-                    throw new ReflectionException(e);
-                }
-            });
-            SERIAL_CONSTRUCTOR = newMethodAccessor(generatorObject, bar);
-            aClass = Class.forName("sun.reflect.UnsafeFieldAccessorFactory");
-            bar = aClass.getDeclaredMethod("newFieldAccessor", Field.class, boolean.class);
-            FIELD_ACCESSOR = newMethodAccessor(generatorObject, bar);
-        }
-        catch (Throwable e) {
-            throw new ReflectionException(e);
-        }
-    }
 
     //
     // ------------------------------
@@ -106,8 +60,6 @@ public abstract class ReflectionUtils {
      *            Parameter types
      *
      * @return Declared method
-     *
-     * @throws ReflectionException
      */
     public static Method getDeclaredMethod(final String methodName,
                                            final Class<?> targetClass,
@@ -122,77 +74,46 @@ public abstract class ReflectionUtils {
                 current = current.getSuperclass();
             }
         }
-        throw new ReflectionException("No such method named: " + methodName + " in class: " + targetClass.getName());
+        return null;
     }
 
-    // MethodAccessor
+    public static Method obtainDeclaredMethod(final String methodName,
+                                              final Class<?> targetClass,
+                                              final Class<?>... parameterTypes) {
+        final Method declaredMethod = getDeclaredMethod(methodName, targetClass, parameterTypes);
+        if (declaredMethod == null) {
+            throw new ReflectionException("No such method named: " + methodName + " in class: " + targetClass.getName());
+        }
+        return declaredMethod;
+    }
+
+    // Accessor
     // --------------------------------
 
-    public static FieldAccessor newFieldAccessor(Field field, boolean overrideFinalCheck) {
-        try {
-            return (FieldAccessor) FIELD_ACCESSOR.invoke(null, new Object[] { field, overrideFinalCheck });
+    public static PropertyAccessor newPropertyAccessor(Field field) {
+        Assert.notNull(field, "field must not be null");
+        final String propertyName = field.getName();
+        final String capitalizeProperty = StringUtils.capitalize(propertyName);
+        final Method setMethod = getDeclaredMethod("set".concat(capitalizeProperty), field.getDeclaringClass(), field.getType());
+        final Method getMethod = getDeclaredMethod("get".concat(capitalizeProperty), field.getDeclaringClass(), field.getType());
+
+        if (setMethod != null && getMethod != null) {
+            MethodAccessor setMethodAccessor = newMethodAccessor(setMethod);
+            MethodAccessor getMethodAccessor = newMethodAccessor(getMethod);
+            return new MethodAccessorPropertyAccessor(setMethodAccessor, getMethodAccessor);
         }
-        catch (InvocationTargetException e) {
-            throw new ReflectionException(e.getCause());
-        }
+
+        final GetterMethod getterMethod = newUnsafeGetterMethod(field);
+        final SetterMethod setterMethod = newUnsafeSetterMethod(field);
+        return new GetterSetterPropertyAccessor(getterMethod, setterMethod);
     }
 
-    public static MethodAccessor newMethodAccessor(Method bar) {
-        try {
-            return newMethodAccessor(getGeneratorObject(), bar);
-        }
-        catch (InvocationTargetException e) {
-            throw new ReflectionException(e.getCause());
-        }
-    }
-
-    private static MethodAccessor newMethodAccessor(Object generatorObject, Method method) throws InvocationTargetException {
-        Assert.notNull(method, "method must not be null");
-        return (MethodAccessor) GENERATE_METHOD.invoke(generatorObject, new Object[] { //
-            method.getDeclaringClass(), //
-            method.getName(), //
-            method.getParameterTypes(), //
-            method.getReturnType(), //
-            method.getExceptionTypes(), //
-            method.getModifiers()//
-        });
+    public static MethodAccessor newMethodAccessor(Method method) {
+        return MethodInvoker.create(method);
     }
 
     public static ConstructorAccessor newConstructorAccessor(Constructor<?> constructor) {
-        Assert.notNull(constructor, "constructor must not be null");
-
-        try {
-            return newConstructorAccessor(getGeneratorObject(), constructor);
-        }
-        catch (InvocationTargetException e) {
-            throw new ReflectionException(e.getCause());
-        }
-    }
-
-    private static ConstructorAccessor newConstructorAccessor(Object generatorObject, Constructor<?> bar) throws InvocationTargetException {
-        Assert.notNull(generatorObject, "generatorObject must not be null");
-        return (ConstructorAccessor) CONSTRUCTOR.invoke(generatorObject, new Object[] { //
-            bar.getDeclaringClass(), //
-            bar.getParameterTypes(), //
-            bar.getExceptionTypes(), //
-            bar.getModifiers()//
-        });
-    }
-
-    public static ConstructorAccessor newSerialConstructorAccessor(Constructor<?> constructor, Class<?> targetClass) {
-        Assert.notNull(constructor, "constructor must not be null");
-        try {
-            return (ConstructorAccessor) SERIAL_CONSTRUCTOR.invoke(getGeneratorObject(), new Object[] { //
-                targetClass, //
-                constructor.getParameterTypes(), //
-                constructor.getExceptionTypes(), //
-                constructor.getModifiers(), //
-                constructor.getDeclaringClass() //
-            });
-        }
-        catch (InvocationTargetException e) {
-            throw new ReflectionException(e.getCause());
-        }
+        return new ConstructorAccessorGenerator(constructor).create();
     }
 
     /**
@@ -217,12 +138,6 @@ public abstract class ReflectionUtils {
             catch (IllegalArgumentException e) {
                 throw new ReflectionException("Illegal Argument in constructor: " + targetClass, e);
             }
-            catch (InstantiationException e) {
-                throw new ReflectionException(targetClass + " is an abstract, interface, array , primitive, or {@code void}", e);
-            }
-            catch (InvocationTargetException e) {
-                throw new ReflectionException("Exception occurred in constructor: " + targetClass, e.getTargetException());
-            }
         };
     }
 
@@ -240,15 +155,7 @@ public abstract class ReflectionUtils {
 
     public static GetterMethod newGetterMethod(final Method method) {
         final MethodAccessor methodAccessor = newMethodAccessor(method);
-        return obj -> {
-            try {
-                return methodAccessor.invoke(obj, null);
-            }
-            catch (InvocationTargetException e) {
-                throw new ReflectionException("error while calling getter method with name " + method.getName() + " on class " + obj
-                        .getClass().toString(), e);
-            }
-        };
+        return obj -> methodAccessor.invoke(obj, null);
     }
 
     public static SetterMethod newSetterMethod(final Field field) {
@@ -267,19 +174,15 @@ public abstract class ReflectionUtils {
     public static SetterMethod newSetterMethod(final Method method, Class<?> type) {
         final MethodAccessor methodAccessor = newMethodAccessor(method);
         return (Object obj, Object value) -> {
-            if (value == null && type.isPrimitive()) return;
-            try {
-                methodAccessor.invoke(obj, new Object[] { value });
+            if (value == null && type.isPrimitive()) {
+                return;
             }
-            catch (InvocationTargetException e) {
-                throw new ReflectionException("error while calling setter method with name " + method.getName() +
-                        " on class " + obj.getClass(), e);
-            }
+            methodAccessor.invoke(obj, new Object[] { value });
         };
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> BeanConstructor<T> getUnsafeConstructor(final Class<?> targetClass) {
+    public static <T> BeanConstructor<T> newUnsafeConstructor(final Class<?> targetClass) {
         final Unsafe theUnsafe = getUnsafe();
         return args -> {
             try {
@@ -289,10 +192,6 @@ public abstract class ReflectionUtils {
                 throw new ReflectionException("Could not create a new instance of class " + targetClass, e);
             }
         };
-    }
-
-    protected static Object getGeneratorObject() {
-        return GENERATOR_OBJECT_HOLDER.get();
     }
 
     // --------------------- Unsafe -----------------------

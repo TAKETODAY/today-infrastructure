@@ -15,6 +15,7 @@
  */
 package cn.taketoday.context.cglib.core;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.asm.Type;
@@ -32,6 +33,10 @@ public class Signature {
         this(method.getName(), Type.getMethodDescriptor(method));
     }
 
+    public Signature(Constructor<?> constructor) {
+        this("<init>", Type.getConstructorDescriptor(constructor));
+    }
+
     public Signature(String name, String desc) {
         // TODO: better error checking
         if (name.indexOf('(') >= 0) {
@@ -44,6 +49,7 @@ public class Signature {
     public Signature(String name, Type returnType, Type[] argumentTypes) {
         this(name, Type.getMethodDescriptor(returnType, argumentTypes));
     }
+
 
     public String getName() {
         return name;
