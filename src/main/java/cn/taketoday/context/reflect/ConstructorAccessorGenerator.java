@@ -56,8 +56,8 @@ public class ConstructorAccessorGenerator extends GeneratorSupport<ConstructorAc
     }
   }
 
-  public ConstructorAccessorGenerator(Constructor<?> executable) {
-    this(executable, executable.getDeclaringClass());
+  public ConstructorAccessorGenerator(Constructor<?> constructor) {
+    this(constructor, constructor.getDeclaringClass());
   }
 
   public ConstructorAccessorGenerator(Constructor<?> constructor, Class<?> targetClass) {

@@ -32,6 +32,7 @@ import cn.taketoday.context.cglib.core.DefaultGeneratorStrategy;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.ReflectUtils;
 import cn.taketoday.context.cglib.core.TypeUtils;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 
 import static cn.taketoday.context.asm.Opcodes.ACC_FINAL;
@@ -52,6 +53,7 @@ abstract class GeneratorSupport<T> {
   protected final Class<?> targetClass;
 
   protected GeneratorSupport(final Class<?> targetClass) {
+    Assert.notNull(targetClass, "targetClass  must not be null");
     this.targetClass = targetClass;
   }
 

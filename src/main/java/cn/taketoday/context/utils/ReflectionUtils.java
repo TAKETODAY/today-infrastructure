@@ -90,12 +90,16 @@ public abstract class ReflectionUtils {
     // Accessor
     // --------------------------------
 
-    public static PropertyAccessor newPropertyAccessor(Field field) {
+    public static PropertyAccessor newPropertyAccessor(final Field field) {
         Assert.notNull(field, "field must not be null");
+
         final String propertyName = field.getName();
         final String capitalizeProperty = StringUtils.capitalize(propertyName);
-        final Method setMethod = getDeclaredMethod("set".concat(capitalizeProperty), field.getDeclaringClass(), field.getType());
-        final Method getMethod = getDeclaredMethod("get".concat(capitalizeProperty), field.getDeclaringClass(), field.getType());
+        final Class<?> type = field.getType();
+        final Class<?> declaringClass = field.getDeclaringClass();
+
+        final Method setMethod = getDeclaredMethod("set".concat(capitalizeProperty), declaringClass, type);
+        final Method getMethod = getDeclaredMethod(type == boolean.class ? "is" : "get".concat(capitalizeProperty), declaringClass, type);
 
         if (setMethod != null && getMethod != null) {
             MethodAccessor setMethodAccessor = newMethodAccessor(setMethod);
@@ -108,11 +112,11 @@ public abstract class ReflectionUtils {
         return new GetterSetterPropertyAccessor(getterMethod, setterMethod);
     }
 
-    public static MethodAccessor newMethodAccessor(Method method) {
+    public static MethodAccessor newMethodAccessor(final Method method) {
         return MethodInvoker.create(method);
     }
 
-    public static ConstructorAccessor newConstructorAccessor(Constructor<?> constructor) {
+    public static ConstructorAccessor newConstructorAccessor(final Constructor<?> constructor) {
         return new ConstructorAccessorGenerator(constructor).create();
     }
 
