@@ -24,10 +24,12 @@ import junit.framework.TestCase;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 import cn.taketoday.context.reflect.GetterMethod;
 import cn.taketoday.context.reflect.PropertyAccessor;
+import cn.taketoday.context.reflect.ReflectionException;
 import cn.taketoday.context.reflect.SetterMethod;
 import lombok.Getter;
 import lombok.Setter;
@@ -72,38 +74,9 @@ public class ReflectionUtilsTest extends TestCase {
     }
 
     public static class SetterMethodTest extends TestCase {
+        @Getter
+        @Setter
         public static class POJO1 {
-            public void set_boolean(boolean _boolean) {
-                this._boolean = _boolean;
-            }
-            public void set_byte(byte _byte) {
-                this._byte = _byte;
-            }
-            public void set_short(short _short) {
-                this._short = _short;
-            }
-            public void set_int(int _int) {
-                this._int = _int;
-            }
-            public void set_long(long _long) {
-                this._long = _long;
-            }
-
-            public void set_float(float _float) {
-                this._float = _float;
-            }
-
-            public void set_double(double _double) {
-                this._double = _double;
-            }
-
-            public void set_char(char _char) {
-                this._char = _char;
-            }
-
-            public void set_obj(Object _obj) {
-                this._obj = _obj;
-            }
 
             boolean _boolean;
             byte _byte;
@@ -114,6 +87,36 @@ public class ReflectionUtilsTest extends TestCase {
             double _double;
             char _char;
             Object _obj;
+
+            volatile boolean _volatileBoolean;
+            volatile byte _volatileByte;
+            volatile short _volatileShort;
+            volatile int _volatileInt;
+            volatile long _volatileLong;
+            volatile float _volatileFloat;
+            volatile double _volatileDouble;
+            volatile char _volatileChar;
+            volatile Object _volatileObj;
+
+            static boolean _staticBoolean;
+            static byte _staticByte;
+            static short _staticShort;
+            static int _staticInt;
+            static long _staticLong;
+            static float _staticFloat;
+            static double _staticDouble;
+            static char _staticChar;
+            static Object _staticObj;
+
+            static volatile boolean _staticVolatileBoolean;
+            static volatile byte _staticVolatileByte;
+            static volatile short _staticVolatileShort;
+            static volatile int _staticVolatileInt;
+            static volatile long _staticVolatileLong;
+            static volatile float _staticVolatileFloat;
+            static volatile double _staticVolatileDouble;
+            static volatile char _staticVolatileChar;
+            static volatile Object _staticVolatileObj;
 
             @Override
             public boolean equals(Object o) {
@@ -147,18 +150,76 @@ public class ReflectionUtilsTest extends TestCase {
             pojo1._float = (float) Math.log(93);
             pojo1._obj = pojo1;
 
+            pojo1._volatileBoolean = true;
+            pojo1._volatileByte = 17;
+            pojo1._volatileShort = 87;
+            pojo1._volatileInt = Integer.MIN_VALUE;
+            pojo1._volatileLong = 1337;
+            pojo1._volatileChar = 'a';
+            pojo1._volatileDouble = Math.PI;
+            pojo1._volatileFloat = (float) Math.log(93);
+            pojo1._volatileObj = pojo1;
+
+            pojo1._staticVolatileBoolean = true;
+            pojo1._staticVolatileByte = 17;
+            pojo1._staticVolatileShort = 87;
+            pojo1._staticVolatileInt = Integer.MIN_VALUE;
+            pojo1._staticVolatileLong = 1337;
+            pojo1._staticVolatileChar = 'a';
+            pojo1._staticVolatileDouble = Math.PI;
+            pojo1._staticVolatileFloat = (float) Math.log(93);
+            pojo1._staticVolatileObj = pojo1;
+
+            pojo1._staticBoolean = true;
+            pojo1._staticByte = 17;
+            pojo1._staticShort = 87;
+            pojo1._staticInt = Integer.MIN_VALUE;
+            pojo1._staticLong = 1337;
+            pojo1._staticChar = 'a';
+            pojo1._staticDouble = Math.PI;
+            pojo1._staticFloat = (float) Math.log(93);
+            pojo1._staticObj = pojo1;
+
             POJO1 pojo2 = new POJO1();
 
             assertNotEquals(pojo1, pojo2);
+
+            final Field[] declaredFields = pojo1.getClass().getDeclaredFields();
+            for (Field field : declaredFields) {
+                final String name = field.getName();
+                if (name.charAt(0) == '_') {
+                    final SetterMethod setter = ReflectionUtils.newUnsafeSetterMethod(field);
+
+                    Object val1 = field.get(pojo1);
+                    Object val2 = field.get(pojo2);
+
+                    if (Modifier.isStatic(field.getModifiers())) {
+                        assertEquals(val1, val2);
+                        setter.set(pojo2, val1);
+                        Object val3 = field.get(pojo2);
+                        assertEquals(val1, val3);
+                        setter.set(pojo2, val2);
+                    }
+                    else {
+                        assertNotEquals(val1, val2);
+                        setter.set(pojo2, val1);
+                        Object val3 = field.get(pojo2);
+                        assertEquals(val1, val3);
+                        setter.set(pojo2, val2);
+                    }
+                }
+            }
 
             Method[] methods = pojo1.getClass().getDeclaredMethods();
             for (Method method : methods) {
                 if (!method.getName().startsWith("set_")) continue;
                 Field field = pojo1.getClass()
                         .getDeclaredField(method.getName().substring(3));
+
                 SetterMethod setter = ReflectionUtils.newSetterMethod(method);
                 Object val1 = field.get(pojo1);
                 Object val2 = field.get(pojo2);
+
                 assertNotEquals(val1, val2);
                 setter.set(pojo2, val1);
                 Object val3 = field.get(pojo2);
@@ -196,43 +257,9 @@ public class ReflectionUtilsTest extends TestCase {
     // --------------
 
     public static class GetterMethodTest extends TestCase {
+        @Getter
+        @Setter
         public static class POJO1 {
-            public boolean get_boolean() {
-                return this._boolean;
-            }
-
-            public byte set_byte() {
-                return this._byte;
-            }
-
-            public short set_short() {
-                return this._short;
-            }
-
-            public int set_int() {
-                return this._int;
-            }
-
-            public long set_long() {
-                return this._long;
-            }
-
-            public float set_float() {
-                return this._float;
-            }
-
-            public double set_double() {
-                return this._double;
-            }
-
-            public char set_char() {
-                return this._char;
-            }
-
-            public Object set_obj() {
-                return this._obj;
-            }
-
             boolean _boolean;
             byte _byte;
             short _short;
@@ -242,6 +269,36 @@ public class ReflectionUtilsTest extends TestCase {
             double _double;
             char _char;
             Object _obj;
+
+            volatile boolean _volatileBoolean;
+            volatile byte _volatileByte;
+            volatile short _volatileShort;
+            volatile int _volatileInt;
+            volatile long _volatileLong;
+            volatile float _volatileFloat;
+            volatile double _volatileDouble;
+            volatile char _volatileChar;
+            volatile Object _volatileObj;
+
+            static boolean _staticBoolean;
+            static byte _staticByte;
+            static short _staticShort;
+            static int _staticInt;
+            static long _staticLong;
+            static float _staticFloat;
+            static double _staticDouble;
+            static char _staticChar;
+            static Object _staticObj;
+
+            static volatile boolean _staticVolatileBoolean;
+            static volatile byte _staticVolatileByte;
+            static volatile short _staticVolatileShort;
+            static volatile int _staticVolatileInt;
+            static volatile long _staticVolatileLong;
+            static volatile float _staticVolatileFloat;
+            static volatile double _staticVolatileDouble;
+            static volatile char _staticVolatileChar;
+            static volatile Object _staticVolatileObj;
 
             @Override
             public boolean equals(Object o) {
@@ -275,6 +332,47 @@ public class ReflectionUtilsTest extends TestCase {
             pojo._float = (float) Math.log(93);
             pojo._obj = pojo;
 
+            pojo._volatileBoolean = true;
+            pojo._volatileByte = 17;
+            pojo._volatileShort = 87;
+            pojo._volatileInt = Integer.MIN_VALUE;
+            pojo._volatileLong = 1337;
+            pojo._volatileChar = 'a';
+            pojo._volatileDouble = Math.PI;
+            pojo._volatileFloat = (float) Math.log(93);
+            pojo._volatileObj = pojo;
+
+            pojo._staticVolatileBoolean = true;
+            pojo._staticVolatileByte = 17;
+            pojo._staticVolatileShort = 87;
+            pojo._staticVolatileInt = Integer.MIN_VALUE;
+            pojo._staticVolatileLong = 1337;
+            pojo._staticVolatileChar = 'a';
+            pojo._staticVolatileDouble = Math.PI;
+            pojo._staticVolatileFloat = (float) Math.log(93);
+            pojo._staticVolatileObj = pojo;
+
+            pojo._staticBoolean = true;
+            pojo._staticByte = 17;
+            pojo._staticShort = 87;
+            pojo._staticInt = Integer.MIN_VALUE;
+            pojo._staticLong = 1337;
+            pojo._staticChar = 'a';
+            pojo._staticDouble = Math.PI;
+            pojo._staticFloat = (float) Math.log(93);
+            pojo._staticObj = pojo;
+
+            final Field[] declaredFields = pojo.getClass().getDeclaredFields();
+            for (Field field : declaredFields) {
+                final String name = field.getName();
+                if (name.charAt(0) == '_') {
+                    final GetterMethod getter = ReflectionUtils.newUnsafeGetterMethod(field);
+
+                    Object val1 = field.get(pojo);
+                    assertEquals(val1, getter.get(pojo));
+                }
+            }
+
             Method[] methods = pojo.getClass().getDeclaredMethods();
             for (Method method : methods) {
                 if (!method.getName().startsWith("get_")) continue;
@@ -297,10 +395,13 @@ public class ReflectionUtilsTest extends TestCase {
     public static class PropertyBean {
         static int static_pro = 0;
         boolean bool = false;
+        final long finalPro = 10L;
+        static final short staticFinalPro = 100;
     }
 
     public void testNewPropertyAccessor() throws NoSuchFieldException {
         final PropertyBean propertyBean = new PropertyBean();
+
         final Field declaredField = PropertyBean.class.getDeclaredField("static_pro");
         final PropertyAccessor staticProAccessor = ReflectionUtils.newPropertyAccessor(declaredField);
 
@@ -315,10 +416,27 @@ public class ReflectionUtilsTest extends TestCase {
         boolAccessor.set(propertyBean, true);
         assertEquals(boolAccessor.get(propertyBean), true);
 
+        final Field finalProField = PropertyBean.class.getDeclaredField("finalPro");
+        final PropertyAccessor finalProAccessor = ReflectionUtils.newPropertyAccessor(finalProField);
+        assertEquals(finalProAccessor.get(propertyBean), 10L);
+
+        try {
+            finalProAccessor.set(null, 101);
+        }
+        catch (ReflectionException e) {
+            assertEquals(finalProAccessor.get(propertyBean), 10L);
+        }
+        final Field staticFinalProField = PropertyBean.class.getDeclaredField("staticFinalPro");
+        final PropertyAccessor staticFinalProAccessor = ReflectionUtils.newPropertyAccessor(staticFinalProField);
+        assertEquals(staticFinalProAccessor.get(propertyBean), (short) 100);
+
+        try {
+            staticFinalProAccessor.set(null, 101);
+        }
+        catch (ReflectionException e) {
+            assertEquals(staticFinalProAccessor.get(propertyBean), (short) 100);
+        }
 
     }
 
-
 }
-
-
