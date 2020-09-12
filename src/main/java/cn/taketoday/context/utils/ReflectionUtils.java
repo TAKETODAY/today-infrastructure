@@ -100,7 +100,7 @@ public abstract class ReflectionUtils {
         final Class<?> type = field.getType();
         final Class<?> declaringClass = field.getDeclaringClass();
 
-        final Method getMethod = getDeclaredMethod(getterPropertyName(capitalizeProperty, type), declaringClass, type);
+        final Method getMethod = getDeclaredMethod(getterPropertyName(capitalizeProperty, type), declaringClass);
 
         final boolean isReadOnly = Modifier.isFinal(field.getModifiers());
         if (isReadOnly && getMethod != null) {

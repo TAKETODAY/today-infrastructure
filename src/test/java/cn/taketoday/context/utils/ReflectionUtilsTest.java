@@ -29,6 +29,8 @@ import java.util.Objects;
 import cn.taketoday.context.reflect.GetterMethod;
 import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.reflect.SetterMethod;
+import lombok.Getter;
+import lombok.Setter;
 
 import static org.junit.Assert.assertNotEquals;
 
@@ -290,18 +292,29 @@ public class ReflectionUtilsTest extends TestCase {
 
     // -----------------------
 
-   public static class PropertyBean {
-        static int pro = 0;
+    @Getter
+    @Setter
+    public static class PropertyBean {
+        static int static_pro = 0;
+        boolean bool = false;
     }
 
     public void testNewPropertyAccessor() throws NoSuchFieldException {
         final PropertyBean propertyBean = new PropertyBean();
-        final Field declaredField = PropertyBean.class.getDeclaredField("pro");
-        final PropertyAccessor propertyAccessor = ReflectionUtils.newPropertyAccessor(declaredField);
+        final Field declaredField = PropertyBean.class.getDeclaredField("static_pro");
+        final PropertyAccessor staticProAccessor = ReflectionUtils.newPropertyAccessor(declaredField);
 
-        final Object obj = propertyAccessor.get(propertyBean);
+        assertEquals(staticProAccessor.get(null), 0);
+        staticProAccessor.set(null, 2);
+        assertEquals(staticProAccessor.get(null), 2);
 
-        System.out.println(obj);
+        final Field boolField = PropertyBean.class.getDeclaredField("bool");
+        final PropertyAccessor boolAccessor = ReflectionUtils.newPropertyAccessor(boolField);
+
+        assertEquals(boolAccessor.get(propertyBean), false);
+        boolAccessor.set(propertyBean, true);
+        assertEquals(boolAccessor.get(propertyBean), true);
+
 
     }
 
