@@ -126,7 +126,7 @@ public abstract class ReflectionUtils {
      * Create a new {@link MethodAccessor}
      *
      * @param method
-     *   Target method
+     *            Target method
      *
      * @return MethodAccessor to access Method
      */
@@ -202,9 +202,10 @@ public abstract class ReflectionUtils {
 
     public static SetterMethod newSetterMethod(final Method method, Class<?> type) {
         final MethodAccessor methodAccessor = newMethodAccessor(method);
+        final boolean primitive = type.isPrimitive();
         return (Object obj, Object value) -> {
-            if (value == null && type.isPrimitive()) {
-                return;
+            if (primitive) {
+                Assert.notNull(value, "primitive type value must not be null");
             }
             methodAccessor.invoke(obj, new Object[] { value });
         };

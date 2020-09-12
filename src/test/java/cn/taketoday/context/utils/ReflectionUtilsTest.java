@@ -238,7 +238,9 @@ public class ReflectionUtilsTest extends TestCase {
                 Object val1 = field.get(pojo1);
                 assertNotNull(val1);
 
-                setter.set(pojo1, null);
+                if (!field.getType().isPrimitive()) {
+                    setter.set(pojo1, null);
+                }
 
                 Object val2 = field.get(pojo1);
                 if (!field.getType().isPrimitive()) {
