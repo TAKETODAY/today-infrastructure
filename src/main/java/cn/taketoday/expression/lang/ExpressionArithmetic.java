@@ -227,7 +227,7 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
   public final static class LongDelegate extends ExpressionArithmetic {
     @Override
     protected Number add(Number num0, Number num1) {
-      return Long.valueOf(num0.longValue() + num1.longValue());
+      return num0.longValue() + num1.longValue();
     }
 
     @Override

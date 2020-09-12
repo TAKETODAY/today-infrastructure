@@ -38,4 +38,38 @@ public interface MethodMatcher {
      */
     boolean matches(Method method, Class<?> targetClass);
 
+    /**
+     * Is this MethodMatcher dynamic, that is, must a final call be made on the
+     * {@link #matches(java.lang.reflect.Method, Class, Object[])} method at runtime
+     * even if the 2-arg matches method returns {@code true}?
+     * <p>
+     * Can be invoked when an AOP proxy is created, and need not be invoked again
+     * before each method invocation,
+     * 
+     * @return whether or not a runtime match via the 3-arg
+     *         {@link #matches(java.lang.reflect.Method, Class, Object[])} method is
+     *         required if static matching passed
+     */
+    boolean isRuntime();
+
+    /**
+     * Check whether there a runtime (dynamic) match for this method, which must
+     * have matched statically.
+     * <p>
+     * This method is invoked only if the 2-arg matches method returns {@code true}
+     * for the given method and target class, and if the {@link #isRuntime()} method
+     * returns {@code true}. Invoked immediately before potential running of the
+     * advice, after any advice earlier in the advice chain has run.
+     * 
+     * @param method
+     *            the candidate method
+     * @param targetClass
+     *            the target class
+     * @param args
+     *            arguments to the method
+     * @return whether there's a runtime match
+     * @see MethodMatcher#matches(Method, Class)
+     */
+    boolean matches(Method method, Class<?> targetClass, Object[] args);
+
 }
