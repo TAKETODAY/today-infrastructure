@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.util.Objects;
 
 import cn.taketoday.context.reflect.GetterMethod;
+import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.reflect.SetterMethod;
 
 import static org.junit.Assert.assertNotEquals;
@@ -287,4 +288,24 @@ public class ReflectionUtilsTest extends TestCase {
 
     }
 
+    // -----------------------
+
+   public static class PropertyBean {
+        static int pro = 0;
+    }
+
+    public void testNewPropertyAccessor() throws NoSuchFieldException {
+        final PropertyBean propertyBean = new PropertyBean();
+        final Field declaredField = PropertyBean.class.getDeclaredField("pro");
+        final PropertyAccessor propertyAccessor = ReflectionUtils.newPropertyAccessor(declaredField);
+
+        final Object obj = propertyAccessor.get(propertyBean);
+
+        System.out.println(obj);
+
+    }
+
+
 }
+
+

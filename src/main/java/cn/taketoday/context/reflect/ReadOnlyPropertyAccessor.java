@@ -22,19 +22,12 @@ package cn.taketoday.context.reflect;
 
 /**
  * @author TODAY
- * @date 2020/9/12 13:56
+ * @date 2020/9/12 15:22
  */
-public class ReadOnlyMethodAccessorPropertyAccessor
-    extends ReadOnlyPropertyAccessor implements PropertyAccessor {
-
-  private final MethodAccessor getMethodAccessor;
-
-  public ReadOnlyMethodAccessorPropertyAccessor(MethodAccessor getMethodAccessor) {
-    this.getMethodAccessor = getMethodAccessor;
-  }
+public abstract class ReadOnlyPropertyAccessor implements PropertyAccessor {
 
   @Override
-  public Object get(final Object obj) {
-    return getMethodAccessor.invoke(obj, null);
+  public final void set(final Object obj, final Object value) {
+    throw new ReflectionException("Can't set value to read only property");
   }
 }

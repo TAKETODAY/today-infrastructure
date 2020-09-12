@@ -22,19 +22,20 @@ package cn.taketoday.context.reflect;
 
 /**
  * @author TODAY
- * @date 2020/9/12 13:56
+ * @date 2020/9/12 15:20
  */
-public class ReadOnlyMethodAccessorPropertyAccessor
+public class ReadOnlyGetterMethodPropertyAccessor
     extends ReadOnlyPropertyAccessor implements PropertyAccessor {
 
-  private final MethodAccessor getMethodAccessor;
+  private final GetterMethod getterMethod;
 
-  public ReadOnlyMethodAccessorPropertyAccessor(MethodAccessor getMethodAccessor) {
-    this.getMethodAccessor = getMethodAccessor;
+  public ReadOnlyGetterMethodPropertyAccessor(final GetterMethod getterMethod) {
+    this.getterMethod = getterMethod;
   }
 
   @Override
   public Object get(final Object obj) {
-    return getMethodAccessor.invoke(obj, null);
+    return getterMethod.get(obj);
   }
+
 }
