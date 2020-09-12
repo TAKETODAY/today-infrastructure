@@ -33,6 +33,7 @@ import cn.taketoday.context.reflect.MethodAccessor;
 import cn.taketoday.context.reflect.MethodAccessorPropertyAccessor;
 import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.reflect.PropertyAccessor;
+import cn.taketoday.context.reflect.ReadOnlyMethodAccessorPropertyAccessor;
 import cn.taketoday.context.reflect.ReflectionException;
 import cn.taketoday.context.reflect.SetterMethod;
 import sun.misc.Unsafe;
@@ -98,9 +99,13 @@ public abstract class ReflectionUtils {
         final Class<?> type = field.getType();
         final Class<?> declaringClass = field.getDeclaringClass();
 
-        final Method setMethod = getDeclaredMethod("set".concat(capitalizeProperty), declaringClass, type);
-        final Method getMethod = getDeclaredMethod(type == boolean.class ? "is" : "get".concat(capitalizeProperty), declaringClass, type);
+        final Method getMethod = getDeclaredMethod(getterPropertyName(capitalizeProperty, type), declaringClass, type);
 
+        if (Modifier.isFinal(field.getModifiers()) && getMethod != null) {
+            return new ReadOnlyMethodAccessorPropertyAccessor(newMethodAccessor(getMethod));
+        }
+
+        Method setMethod = getDeclaredMethod("set".concat(capitalizeProperty), declaringClass, type);
         if (setMethod != null && getMethod != null) {
             MethodAccessor setMethodAccessor = newMethodAccessor(setMethod);
             MethodAccessor getMethodAccessor = newMethodAccessor(getMethod);
@@ -146,15 +151,19 @@ public abstract class ReflectionUtils {
     }
 
     // GetterMethod
-    // ------------------------------
+    // ---------------------
 
     public static GetterMethod newGetterMethod(final Field field) {
         Assert.notNull(field, "field must not be null");
-        return newGetterMethod(field.getName(), field.getDeclaringClass());
+        return newGetterMethod(field.getName(), field.getType(), field.getDeclaringClass());
     }
 
-    public static GetterMethod newGetterMethod(final String name, final Class<?> declaringClass) {
-        return newGetterMethod(getDeclaredMethod("get".concat(StringUtils.capitalize(name)), declaringClass));
+    public static GetterMethod newGetterMethod(final String name, final Class<?> type, final Class<?> declaringClass) {
+        return newGetterMethod(obtainDeclaredMethod(getterPropertyName(name, type), declaringClass, type));
+    }
+
+    private static String getterPropertyName(final String name, final Class<?> type) {
+        return (type == boolean.class ? "is" : "get").concat(name);
     }
 
     public static GetterMethod newGetterMethod(final Method method) {
@@ -162,12 +171,15 @@ public abstract class ReflectionUtils {
         return obj -> methodAccessor.invoke(obj, null);
     }
 
+    // SetterMethod
+    // ----------------------
+
     public static SetterMethod newSetterMethod(final Field field) {
         return newSetterMethod(field.getName(), field.getType(), field.getDeclaringClass());
     }
 
     public static SetterMethod newSetterMethod(final String name, final Class<?> type, final Class<?> declaringClass) {
-        final Method setMethod = getDeclaredMethod("set".concat(StringUtils.capitalize(name)), declaringClass, type);
+        final Method setMethod = obtainDeclaredMethod("set".concat(StringUtils.capitalize(name)), declaringClass, type);
         return newSetterMethod(setMethod, type);
     }
 
