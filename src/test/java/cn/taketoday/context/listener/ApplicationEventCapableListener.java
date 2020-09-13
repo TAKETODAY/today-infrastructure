@@ -41,7 +41,7 @@ public class ApplicationEventCapableListener implements ApplicationListener<Even
 
     @Override
     public Class<?>[] getApplicationEvent() {
-        return new Class<?>[] { BeanDefinitionLoadingEvent.class, BeanDefinitionLoadedEvent.class };
+        return factory(BeanDefinitionLoadingEvent.class, BeanDefinitionLoadedEvent.class);
     }
 
 }
