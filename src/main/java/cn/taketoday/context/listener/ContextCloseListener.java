@@ -19,36 +19,40 @@
  */
 package cn.taketoday.context.listener;
 
-import static cn.taketoday.context.utils.ContextUtils.destroyBean;
-import static cn.taketoday.context.utils.ExceptionUtils.unwrapThrowable;
-
 import java.text.SimpleDateFormat;
 
 import cn.taketoday.context.AbstractApplicationContext;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.annotation.Order;
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.event.ContextCloseEvent;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 
+import static cn.taketoday.context.utils.ContextUtils.destroyBean;
+import static cn.taketoday.context.utils.ExceptionUtils.unwrapThrowable;
+
 /**
  * @author TODAY <br>
  *         2018-09-09 23:20
  */
-@Order(Ordered.LOWEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE)
-public class ContextCloseListener implements ApplicationListener<ContextCloseEvent> {
+public class ContextCloseListener extends OrderedSupport implements ApplicationListener<ContextCloseEvent> {
+
+    public ContextCloseListener() {
+        this(Ordered.LOWEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE);
+    }
+
+    public ContextCloseListener(int order) {
+        super(order);
+    }
 
     @Override
     public void onApplicationEvent(ContextCloseEvent event) {
-
         final ApplicationContext context = event.getApplicationContext();
-
         final Logger log = LoggerFactory.getLogger(getClass());
-
         log.info("Closing: [{}] at [{}]", context,
                  new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT).format(event.getTimestamp()));
 
