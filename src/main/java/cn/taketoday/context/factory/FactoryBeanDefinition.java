@@ -210,8 +210,7 @@ public class FactoryBeanDefinition<T> implements BeanDefinition {
 
     @Override
     public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
-        factoryDef.isAnnotationPresent(annotation);
-        return false;
+        return factoryDef.isAnnotationPresent(annotation);
     }
 
     @Override
