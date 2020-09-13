@@ -64,11 +64,11 @@ public class DelegatingStringTypeConverter<T> extends StringTypeConverter implem
 
     public static <T> DelegatingStringTypeConverter<T> delegate(Function<Class<?>, Boolean> supports, //
                                                                 Converter<String, T> converter) {
-        return new DelegatingStringTypeConverter<T>(supports, converter);
+        return new DelegatingStringTypeConverter<>(supports, converter);
     }
 
     public static <T> DelegatingStringTypeConverter<T> delegate(Function<Class<?>, Boolean> supports, //
                                                                 Converter<String, T> converter, int order) {
-        return new DelegatingStringTypeConverter<T>(supports, converter, order);
+        return new DelegatingStringTypeConverter<>(supports, converter, order);
     }
 }
