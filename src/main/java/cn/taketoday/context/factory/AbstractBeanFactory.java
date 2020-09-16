@@ -135,7 +135,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         if (bean != null && requiredType.isInstance(bean)) {
             return (T) bean;
         }
-        return (T) doGetBeanforType(requiredType);
+        return (T) doGetBeanForType(requiredType);
     }
 
     /**
@@ -145,7 +145,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *            Bean type
      * @since 2.1.2
      */
-    protected <T> Object doGetBeanforType(final Class<T> requiredType) {
+    protected <T> Object doGetBeanForType(final Class<T> requiredType) {
         Object bean = null;
         for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
             if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
@@ -322,7 +322,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             return Prototypes.newProxyInstance(type, getBeanDefinition(name), this);
         }
         final Object bean = getBean(name, type);
-        return bean != null ? bean : doGetBeanforType(type);
+        return bean != null ? bean : doGetBeanForType(type);
     }
 
     /**
