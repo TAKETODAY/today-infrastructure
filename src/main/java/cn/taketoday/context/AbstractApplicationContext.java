@@ -45,7 +45,6 @@ import cn.taketoday.context.event.ContextRefreshEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.DependenciesHandledEvent;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
@@ -98,7 +97,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
 
     /**
      * Construct with a {@link ConfigurableEnvironment}
-     * 
+     *
      * @param env
      *            {@link ConfigurableEnvironment} instance
      * @since 2.1.7
@@ -135,7 +134,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     public void loadContext(Collection<Class<?>> candidates) {
         final Set<Class<?>> candidateSet = candidates instanceof Set ? (Set<Class<?>>) candidates : new HashSet<>(candidates);
         getCandidateComponentScanner().setCandidates(candidateSet);
-        
+
         loadContext((String[]) null);
     }
 
@@ -584,37 +583,37 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     // ---------------------ConfigurableBeanFactory
 
     @Override
-    public void registerBean(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
+    public void registerBean(String name, BeanDefinition beanDefinition) {
         getBeanFactory().registerBean(name, beanDefinition);
     }
 
     @Override
-    public void removeBean(String name) throws BeanDefinitionStoreException {
+    public void removeBean(String name) {
         getBeanFactory().removeBean(name);
     }
 
     @Override
-    public void registerBean(String name, Class<?> clazz) throws BeanDefinitionStoreException {
+    public void registerBean(String name, Class<?> clazz) {
         getBeanFactory().registerBean(name, clazz);
     }
 
     @Override
-    public void registerBean(Class<?> clazz) throws BeanDefinitionStoreException, ConfigurationException {
+    public void registerBean(Class<?> clazz) {
         getBeanFactory().registerBean(clazz);
     }
 
     @Override
-    public void registerBean(Set<Class<?>> clazz) throws BeanDefinitionStoreException {
+    public void registerBean(Set<Class<?>> clazz) {
         getBeanFactory().registerBean(clazz);
     }
 
     @Override
-    public void registerBean(Object obj) throws BeanDefinitionStoreException {
+    public void registerBean(Object obj) {
         getBeanFactory().registerBean(obj);
     }
 
     @Override
-    public void registerBean(String name, Object obj) throws BeanDefinitionStoreException {
+    public void registerBean(String name, Object obj) {
         getBeanFactory().registerBean(name, obj);
     }
 
@@ -832,7 +831,45 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         getBeanFactory().enableFullLifecycle();
     }
 
-    // ----------------------
+    // AutowireCapableBeanFactory
+    // ----------------------------
+
+    @Override
+    public <T> T createBean(final Class<T> beanClass, final boolean cacheBeanDef) {
+        return getBeanFactory().createBean(beanClass, cacheBeanDef);
+    }
+
+    @Override
+    public void autowireBean(final Object existingBean) {
+        getBeanFactory().autowireBean(existingBean);
+    }
+
+    @Override
+    public void autowireBeanProperties(final Object existingBean) {
+        getBeanFactory().autowireBeanProperties(existingBean);
+    }
+
+    @Override
+    public Object initializeBean(final Object existingBean, final String beanName) {
+        return getBeanFactory().initializeBean(existingBean, beanName);
+    }
+
+    @Override
+    public Object applyBeanPostProcessorsAfterInitialization(final Object existingBean, final String beanName) {
+        return getBeanFactory().applyBeanPostProcessorsAfterInitialization(existingBean, beanName);
+    }
+
+    @Override
+    public Object applyBeanPostProcessorsBeforeInitialization(final Object existingBean, final String beanName) {
+        return getBeanFactory().applyBeanPostProcessorsBeforeInitialization(existingBean, beanName);
+    }
+
+    @Override
+    public void destroyBean(final Object existingBean) {
+        getBeanFactory().destroyBean(existingBean);
+    }
+
+    // ----------------------------
 
     public void setPropertiesLocation(String propertiesLocation) {
         if (StringUtils.isNotEmpty(propertiesLocation)) {

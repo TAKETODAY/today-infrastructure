@@ -515,7 +515,7 @@ public class StandardBeanFactory
                 else {
                     nameToUse = beanClass.getName();
                     def.setName(nameToUse);
-                    log.warn("Current bean class: [{}]. You are supposed to change your bean name creater or bean name.", beanClass);
+                    log.warn("Current bean class: [{}]. You are supposed to change your bean name creator or bean name.", beanClass);
                     log.warn("Current bean definition: [{}] will be registed as: [{}].", def, nameToUse);
                 }
                 log.info("======================|END|======================");

@@ -37,7 +37,7 @@ import cn.taketoday.context.exception.NoSuchPropertyException;
  */
 public interface BeanDefinition extends AnnotatedElement {
 
-    Method[] EMPTY_METHOD = Constant.EMPTY_METHOD;
+    Method[] EMPTY_METHOD = Constant.EMPTY_METHOD_ARRAY;
 
     PropertyValue[] EMPTY_PROPERTY_VALUE = Constant.EMPTY_PROPERTY_VALUE;
 
@@ -140,7 +140,7 @@ public interface BeanDefinition extends AnnotatedElement {
     /**
      * Add PropertyValue to list.
      * 
-     * @param propertyValue
+     * @param propertyValues
      *            {@link PropertyValue} object
      */
     void addPropertyValue(PropertyValue... propertyValues);
@@ -226,6 +226,7 @@ public interface BeanDefinition extends AnnotatedElement {
      * @return If An {@link Annotation} present on this bean
      * @since 2.1.7
      */
+    @Override
     boolean isAnnotationPresent(Class<? extends Annotation> annotation);
 
     /**

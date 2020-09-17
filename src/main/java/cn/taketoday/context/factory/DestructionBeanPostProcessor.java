@@ -46,13 +46,13 @@ public interface DestructionBeanPostProcessor extends BeanPostProcessor {
      * 
      * @param bean
      *            the bean instance to be destroyed
-     * @param beanName
-     *            the name of the bean
+     * @param def
+     *            the BeanDefinition of the bean , BeanDefinition may be null
      * @throws ContextException
      *             in case of errors
      * @see DisposableBean#destroy()
      */
-    void postProcessBeforeDestruction(Object bean, String beanName) throws ContextException;
+    void postProcessBeforeDestruction(Object bean, BeanDefinition def) throws ContextException;
 
     /**
      * Determine whether the given bean instance requires destruction by this

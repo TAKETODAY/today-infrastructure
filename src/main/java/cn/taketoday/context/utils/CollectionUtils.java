@@ -59,7 +59,7 @@ public abstract class CollectionUtils {
         return (map == null || map.isEmpty());
     }
 
-    public static final boolean isCollection(Class<?> cls) {
+    public static boolean isCollection(Class<?> cls) {
         return Collection.class.isAssignableFrom(cls);
     }
 
@@ -71,7 +71,7 @@ public abstract class CollectionUtils {
      */
     @SafeVarargs
     public static <E> Set<E> newHashSet(E... elements) {
-        return new HashSet<E>(Arrays.asList(elements));
+        return new HashSet<>(Arrays.asList(elements));
     }
 
     public static <T> List<T> enumerationToList(final Enumeration<T> objs) {

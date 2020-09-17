@@ -23,6 +23,7 @@ import java.io.Closeable;
 import java.util.Collection;
 
 import cn.taketoday.context.env.Environment;
+import cn.taketoday.context.factory.AutowireCapableBeanFactory;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.listener.ApplicationEventPublisher;
@@ -33,7 +34,7 @@ import cn.taketoday.context.loader.CandidateComponentScannerCapable;
  *         2018-06-23 16:39:36
  */
 public interface ApplicationContext
-        extends ConfigurableBeanFactory, ApplicationEventPublisher, Closeable, CandidateComponentScannerCapable {
+        extends ConfigurableBeanFactory, AutowireCapableBeanFactory, ApplicationEventPublisher, Closeable, CandidateComponentScannerCapable {
 
     /**
      * Get {@link Environment}
@@ -111,7 +112,7 @@ public interface ApplicationContext
      */
     State getState();
 
-    public enum State {
+    enum State {
 
         /** context instantiated */
         NONE,

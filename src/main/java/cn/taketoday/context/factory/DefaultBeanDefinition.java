@@ -65,7 +65,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     /**
      * Invoke after when publish
-     * {@link ApplicationContext#publishEvent(cn.taketoday.context.event.ContextCloseEvent)}
+     * {@link ApplicationContext#publishEvent(Object)}
      * 
      * @since 2.3.3
      */
@@ -284,7 +284,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     /**
      * Apply the child bean name
      * 
-     * @param childName
+     * @param childDef
      *            Child BeanDefinition
      * @return {@link DefaultBeanDefinition}
      */

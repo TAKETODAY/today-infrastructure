@@ -1,4 +1,4 @@
-/*
+/**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
@@ -23,7 +23,6 @@ import static cn.taketoday.context.Constant.VALUE;
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
-import static cn.taketoday.context.utils.ClassUtils.getUserClass;
 import static cn.taketoday.context.utils.ClassUtils.makeAccessible;
 import static cn.taketoday.context.utils.OrderUtils.reversedSort;
 import static cn.taketoday.context.utils.ResourceUtils.getResource;
@@ -75,8 +74,10 @@ import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
+import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
 import cn.taketoday.context.factory.DefaultBeanDefinition;
+import cn.taketoday.context.factory.DestructionBeanPostProcessor;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.factory.StandardBeanDefinition;
@@ -217,7 +218,6 @@ public abstract class ContextUtils {
      *
      * @since 2.1.6
      */
-    @SuppressWarnings("unchecked")
     public static <T> T resolveValue(final Env value, final Class<T> expectedType) throws ConfigurationException {
 
         final T resolveValue = resolveValue(new StringBuilder()
@@ -252,7 +252,6 @@ public abstract class ContextUtils {
      *
      * @since 2.1.6
      */
-    @SuppressWarnings("unchecked")
     public static <T> T resolveValue(final Value value, final Class<T> expectedType) throws ConfigurationException {
 
         final T resolveValue = resolveValue(value.value(), expectedType);
@@ -908,24 +907,69 @@ public abstract class ContextUtils {
     /**
      * Destroy bean instance
      *
-     * @param bean
+     * @param obj
      *            Bean instance
      *
      * @throws Exception
      *             When destroy a bean
      */
-    public static void destroyBean(final Object bean) throws Exception {
+    public static void destroyBean(final Object obj) throws Exception {
+        destroyBean(obj, null, null);
+    }
 
-        final Method[] methods = getUserClass(bean).getDeclaredMethods();
-        // PreDestroy
-        for (final Method method : methods) {
-            if (method.isAnnotationPresent(PreDestroy.class)) {
-                // fix: can not access a member @since 2.1.6
-                makeAccessible(method).invoke(bean);
+    /**
+     * Destroy bean instance
+     *
+     * @param obj
+     *            Bean instance
+     *
+     * @throws Exception
+     *             When destroy a bean
+     */
+    public static void destroyBean(final Object obj, final BeanDefinition def) throws Exception {
+        destroyBean(obj, def, null);
+    }
+
+    /**
+     * Destroy bean instance
+     *
+     * @param obj
+     *            Bean instance
+     *
+     * @throws Exception
+     *             When destroy a bean
+     */
+    public static void destroyBean(final Object obj,
+                                   final BeanDefinition def,
+                                   final List<BeanPostProcessor> postProcessors) throws Exception {
+
+        Assert.notNull(obj, "bean instance must not be null");
+
+        if (!CollectionUtils.isEmpty(postProcessors)) {
+            for (final BeanPostProcessor postProcessor : postProcessors) {
+                if (postProcessor instanceof DestructionBeanPostProcessor) {
+                    final DestructionBeanPostProcessor destruction = (DestructionBeanPostProcessor) postProcessor;
+                    if (destruction.requiresDestruction(obj)) {
+                        destruction.postProcessBeforeDestruction(obj, def);
+                    }
+                }
             }
         }
-        if (bean instanceof DisposableBean) {
-            ((DisposableBean) bean).destroy();
+
+        // use real class
+        final Class<?> beanClass = ClassUtils.getUserClass(obj);
+        final List<String> destroyMethods = def != null ? Arrays.asList(def.getDestroyMethods()) : null;
+
+        for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
+            if ((destroyMethods != null && destroyMethods.contains(method.getName()))
+                || method.isAnnotationPresent(PreDestroy.class)) {// PreDestroy
+                // fix: can not access a member @since 2.1.6
+                makeAccessible(method).invoke(obj);
+            }
+        }
+
+        if (obj instanceof DisposableBean) {
+            ((DisposableBean) obj).destroy();
         }
     }
 

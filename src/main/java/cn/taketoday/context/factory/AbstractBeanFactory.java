@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -75,7 +75,7 @@ import cn.taketoday.context.utils.StringUtils;
  * @author TODAY <br>
  *         2018-06-23 11:20:58
  */
-public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
+public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, AutowireCapableBeanFactory {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractBeanFactory.class);
 
@@ -140,16 +140,15 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Get bean for required type
-     * 
+     *
      * @param requiredType
      *            Bean type
      * @since 2.1.2
      */
     protected <T> Object doGetBeanForType(final Class<T> requiredType) {
-        Object bean = null;
         for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
             if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
-                bean = getBean(entry.getValue());
+                final Object bean = getBean(entry.getValue());
                 if (bean != null) {
                     return bean;
                 }
@@ -161,7 +160,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 return entry;
             }
         }
-        return bean;
+        return null;
     }
 
     @Override
@@ -172,15 +171,15 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> List<T> getBeans(final Class<T> requiredType) {
         final HashSet<T> beans = new HashSet<>();
 
         for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
             if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
-                @SuppressWarnings("unchecked") //
-                final T bean = (T) getBean(entry.getValue());
+                final Object bean = getBean(entry.getValue());
                 if (bean != null) {
-                    beans.add(bean);
+                    beans.add((T) bean);
                 }
             }
         }
@@ -194,9 +193,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
         for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
             if (entry.getValue().isAnnotationPresent(annotationType)) {
-                final T bean = (T) getBean(entry.getValue());
+                final Object bean = getBean(entry.getValue());
                 if (bean != null) {
-                    beans.add(bean);
+                    beans.add((T) bean);
                 }
             }
         }
@@ -204,15 +203,15 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> Map<String, T> getBeansOfType(final Class<T> requiredType) {
         final HashMap<String, T> beans = new HashMap<>();
 
         for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
             if (requiredType.isAssignableFrom(entry.getValue().getBeanClass())) {
-                @SuppressWarnings("unchecked") //
-                final T bean = (T) getBean(entry.getValue());
+                final Object bean = getBean(entry.getValue());
                 if (bean != null) {
-                    beans.put(entry.getKey(), bean);
+                    beans.put(entry.getKey(), (T) bean);
                 }
             }
         }
@@ -235,7 +234,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * <b> Note </b> If target bean is {@link Scope#SINGLETON} will be register is
      * to the singletons pool
      * </p>
-     * 
+     *
      * @param def
      *            Bean definition
      * @return Target bean instance
@@ -258,7 +257,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Create new bean instance
-     * 
+     *
      * @param def
      *            Target {@link BeanDefinition} descriptor
      * @return A new bean object
@@ -308,7 +307,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Resolve reference {@link PropertyValue}
-     * 
+     *
      * @param ref
      *            {@link BeanReference} record a reference of bean
      * @return A {@link PropertyValue} bean or a proxy
@@ -327,15 +326,15 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Invoke initialize methods
-     * 
+     *
      * @param bean
      *            Bean instance
      * @param methods
      *            Initialize methods
-     * @throws Exception
-     *             If any {@link Exception} occurred when invoke init methods
+     * @throws BeanInitializingException
+     *             when invoke init methods
      */
-    protected void invokeInitMethods(final Object bean, final Method... methods) {
+    protected void invokeInitMethods(final Object bean, final Method[] methods) {
 
         for (final Method method : methods) {
             try {
@@ -364,8 +363,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *
      * @param def
      *            Bean definition
-     * @param name
-     *            Bean name
      * @return A initialized Prototype bean instance
      * @throws BeanInstantiationException
      *             If any {@link Exception} occurred when create prototype
@@ -376,7 +373,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Get initialized {@link FactoryBean}
-     * 
+     *
      * @param def
      *            Target {@link BeanDefinition}
      * @return Initialized {@link FactoryBean} never be null
@@ -410,7 +407,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Get {@link FactoryBean} object
-     * 
+     *
      * @param <T>
      *            Target bean {@link Type}
      * @param def
@@ -436,7 +433,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Get {@link FactoryBean} bean name
-     * 
+     *
      * @param def
      *            Target {@link FactoryBean} {@link BeanDefinition}
      * @return The name of target factory in this {@link BeanFactory}
@@ -449,7 +446,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Get current {@link BeanDefinition} implementation invoke this method requires
      * that input {@link BeanDefinition} is not initialized, Otherwise the bean will
      * be initialized multiple times
-     * 
+     *
      * @param childName
      *            Child bean name
      * @param currentDef
@@ -466,7 +463,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * Get current {@link BeanDefinition} implementation invoke this method requires
      * that input {@link BeanDefinition} is not initialized, Otherwise the bean will
      * be initialized multiple times
-     * 
+     *
      * @param childDef
      *            Child bean definition
      * @param currentDef
@@ -476,7 +473,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      *             When instantiation of a bean failed
      */
     protected Object getImplementation(final BeanDefinition childDef, final BeanDefinition currentDef)
-            throws BeanInstantiationException // 
+            throws BeanInstantiationException //
     {
         if (currentDef.isPrototype()) {
             return createPrototype(childDef);
@@ -493,7 +490,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Initialize a bean with given name and it's definition.
-     * 
+     *
      * @param def
      *            Target {@link BeanDefinition}
      * @return A initialized bean, should not be null
@@ -521,7 +518,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Initializing bean, with given bean instance and bean definition
-     * 
+     *
      * @param bean
      *            Bean instance
      * @param def
@@ -550,7 +547,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Initialize with {@link BeanPostProcessor}s
-     * 
+     *
      * @param bean
      *            Bean instance
      * @param def
@@ -609,7 +606,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Do Inject FrameWork {@link Component}s to target bean
-     * 
+     *
      * @param bean
      *            Target bean
      * @param def
@@ -638,7 +635,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * <p>
      * If the input bean is {@code null} then use
      * {@link #initializeSingleton(BeanDefinition)} To initialize singleton
-     * 
+     *
      * @param bean
      *            Input old bean
      * @param def
@@ -672,7 +669,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
      * </p>
      * this method will apply {@link BeanDefinition}'s 'initialized' property and
      * register is bean instance to the singleton pool
-     * 
+     *
      * @param def
      *            Bean definition
      * @return A initialized singleton bean
@@ -762,7 +759,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Get {@link Primary} {@link BeanDefinition}
-     * 
+     *
      * @param childDefs
      *            All suitable {@link BeanDefinition}s
      * @return A {@link Primary} {@link BeanDefinition}
@@ -786,7 +783,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Get child {@link BeanDefinition}s
-     * 
+     *
      * @param beanName
      *            Bean name
      * @param beanClass
@@ -820,7 +817,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Handle dependency {@link BeanDefinition}
-     * 
+     *
      * @param beanName
      *            bean name
      * @param beanClass
@@ -839,7 +836,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Create dependency object
-     * 
+     *
      * @param type
      *            dependency type
      * @return Dependency object
@@ -855,7 +852,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Create dependency object
-     * 
+     *
      * @param type
      *            dependency type
      * @param objectFactory
@@ -879,7 +876,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Get {@link ObjectFactory}s
-     * 
+     *
      * @since 2.3.7
      * @return {@link ObjectFactory}s
      */
@@ -952,7 +949,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
                 .entrySet()
                 .stream()
                 .filter(entry -> type.isAssignableFrom(entry.getValue().getBeanClass()))
-                .map(entry -> entry.getKey())
+                .map(Entry::getKey)
                 .collect(Collectors.toSet());
     }
 
@@ -991,7 +988,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
         Assert.notNull(obj, "bean instance must not be null");
 
         String nameToUse = name;
-        final Class<? extends Object> beanClass = obj.getClass();
+        final Class<?> beanClass = obj.getClass();
         if (StringUtils.isEmpty(nameToUse)) {
             nameToUse = getBeanNameCreator().create(beanClass);
         }
@@ -1054,7 +1051,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Get target singleton
-     * 
+     *
      * @param name
      *            Bean name
      * @param targetClass
@@ -1105,7 +1102,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Destroy a bean with bean instance and bean definition
-     * 
+     *
      * @param beanInstance
      *            Bean instance
      * @param def
@@ -1116,20 +1113,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             return;
         }
         try {
-            // use real class
-            final Class<?> beanClass = ClassUtils.getUserClass(beanInstance);
-            for (final String destroyMethod : def.getDestroyMethods()) {
-                beanClass.getMethod(destroyMethod).invoke(beanInstance);
-            }
-            for (final BeanPostProcessor postProcessor : getPostProcessors()) {
-                if (postProcessor instanceof DestructionBeanPostProcessor) {
-                    final DestructionBeanPostProcessor destruction = (DestructionBeanPostProcessor) postProcessor;
-                    if (destruction.requiresDestruction(beanInstance)) {
-                        destruction.postProcessBeforeDestruction(beanInstance, def.getName());
-                    }
-                }
-            }
-            ContextUtils.destroyBean(beanInstance);
+            ContextUtils.destroyBean(beanInstance, def, getPostProcessors());
         }
         catch (Throwable e) {
             e = unwrapThrowable(e);
@@ -1137,6 +1121,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
             throw new ContextException("An Exception Occurred When Destroy a bean: [" + def.getName() + "], With Msg: [" + e + "]", e);
         }
     }
+
 
     @Override
     public void destroyBean(String name) {
@@ -1318,7 +1303,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * Get a bean name creator
-     * 
+     *
      * @return {@link BeanNameCreator}
      */
     public BeanNameCreator getBeanNameCreator() {
@@ -1328,7 +1313,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     /**
      * create {@link BeanNameCreator}
-     * 
+     *
      * @return a default {@link BeanNameCreator}
      */
     protected BeanNameCreator createBeanNameCreator() {
@@ -1367,5 +1352,104 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory {
 
     public void setBeanNameCreator(BeanNameCreator beanNameCreator) {
         this.beanNameCreator = beanNameCreator;
+    }
+
+    // AutowireCapableBeanFactory
+    // ---------------------------------
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T createBean(final Class<T> beanClass, final boolean cacheBeanDef) {
+        BeanDefinition defToUse;
+        if (cacheBeanDef) {
+            if ((defToUse = getBeanDefinition(beanClass)) == null) {
+                defToUse = getPrototypeBeanDefinition(beanClass);
+                registerBean(defToUse);
+            }
+        }
+        else {
+            defToUse = getPrototypeBeanDefinition(beanClass);
+        }
+        return (T) getBean(defToUse);
+    }
+
+    @Override
+    public void autowireBean(final Object existingBean) {
+        final Class<Object> userClass = ClassUtils.getUserClass(existingBean);
+        final BeanDefinition prototypeDef = getPrototypeBeanDefinition(userClass);
+        if (log.isDebugEnabled()) {
+            log.debug("Autowiring bean named: [{}].", prototypeDef.getName());
+        }
+        aware(existingBean, prototypeDef);
+        // apply properties
+        applyPropertyValues(existingBean, prototypeDef.getPropertyValues());
+        // invoke initialize methods
+        invokeInitMethods(existingBean, prototypeDef.getInitMethods());
+    }
+
+    @Override
+    public void autowireBeanProperties(final Object existingBean) {
+        final Class<Object> userClass = ClassUtils.getUserClass(existingBean);
+        final BeanDefinition prototypeDef = getPrototypeBeanDefinition(userClass);
+        if (log.isDebugEnabled()) {
+            log.debug("Autowiring bean properties named: [{}].", prototypeDef.getName());
+        }
+        // apply properties
+        applyPropertyValues(existingBean, prototypeDef.getPropertyValues());
+    }
+
+    @Override
+    public Object initializeBean(final Object existingBean, final String beanName) {
+        final BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
+        return initializeBean(existingBean, prototypeDef);
+    }
+
+    @Override
+    public Object applyBeanPostProcessorsBeforeInitialization(final Object existingBean, final String beanName) {
+        Object ret = existingBean;
+        final BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
+        // before properties
+        for (final BeanPostProcessor processor : getPostProcessors()) {
+            try {
+                ret = processor.postProcessBeforeInitialization(ret, prototypeDef);
+            }
+            catch (Exception e) {
+                throw new BeanInitializingException("An Exception Occurred When [" +
+                        existingBean + "] before properties set, With Msg: [" + e + "]", e);
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public Object applyBeanPostProcessorsAfterInitialization(final Object existingBean, final String beanName) {
+        Object ret = existingBean;
+        final BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
+        // after properties
+        for (final BeanPostProcessor processor : getPostProcessors()) {
+            try {
+                ret = processor.postProcessAfterInitialization(ret, prototypeDef);
+            }
+            catch (Exception e) {
+                throw new BeanInitializingException("An Exception Occurred When [" +
+                        existingBean + "] after properties set, With Msg: [" + e + "]", e);
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public void destroyBean(Object existingBean) {
+        destroyBean(existingBean, getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)));
+    }
+
+    private BeanDefinition getPrototypeBeanDefinition(Class<?> beanClass) {
+        return getBeanDefinitionLoader()
+                .createBeanDefinition(beanClass)
+                .setScope(Scope.PROTOTYPE);
+    }
+
+    private BeanDefinition getPrototypeBeanDefinition(final Object existingBean, final String beanName) {
+        return getPrototypeBeanDefinition(ClassUtils.getUserClass(existingBean)).setName(beanName);
     }
 }
