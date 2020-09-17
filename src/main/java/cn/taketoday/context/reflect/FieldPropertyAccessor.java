@@ -22,6 +22,8 @@ package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Field;
 
+import cn.taketoday.context.utils.ReflectionUtils;
+
 /**
  * @author TODAY
  * @date 2020/9/11 17:56
@@ -37,21 +39,11 @@ public class FieldPropertyAccessor implements PropertyAccessor {
 
   @Override
   public Object get(final Object obj) {
-    try {
-      return field.get(obj);
-    }
-    catch (IllegalAccessException e) {
-      throw new ReflectionException("Illegal Access: " + field, e);
-    }
+    return ReflectionUtils.getField(field, obj);
   }
 
   @Override
   public void set(final Object obj, final Object value) {
-    try {
-      field.set(obj, value);
-    }
-    catch (IllegalAccessException e) {
-      throw new ReflectionException("Illegal Access: " + field, e);
-    }
+    ReflectionUtils.setField(field, obj, value);
   }
 }
