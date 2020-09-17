@@ -927,7 +927,7 @@ public abstract class EmitUtils {
     public static void addProperty(ClassEmitter ce, String name, Type type, String fieldName) {
         String property = TypeUtils.upperFirst(name);
         CodeEmitter e;
-        e = ce.beginMethod(Constant.ACC_PUBLIC, new Signature("get" + property, type, Constant.TYPES_EMPTY));
+        e = ce.beginMethod(Constant.ACC_PUBLIC, new Signature("get" + property, type, Constant.TYPES_EMPTY_ARRAY));
         e.load_this();
         e.getfield(fieldName);
         e.return_value();

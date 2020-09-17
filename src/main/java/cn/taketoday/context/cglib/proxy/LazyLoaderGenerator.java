@@ -92,7 +92,7 @@ class LazyLoaderGenerator implements CallbackGenerator {
     }
 
     private Signature loadMethod(int index) {
-        return new Signature("TODAY$LOAD_PRIVATE_" + index, Constant.TYPE_OBJECT, Constant.TYPES_EMPTY);
+        return new Signature("TODAY$LOAD_PRIVATE_" + index, Constant.TYPE_OBJECT, Constant.TYPES_EMPTY_ARRAY);
     }
 
     public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) {}
