@@ -20,6 +20,7 @@
 package cn.taketoday.context;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -45,8 +46,9 @@ public interface Constant extends Opcodes, Serializable {
     String KEY_ROOT = "root";
     String KEY_RESULT = "result";
 
-    Type[] TYPES_EMPTY = {};
-    Method[] EMPTY_METHOD = {};
+    Type[] TYPES_EMPTY_ARRAY = {};
+    Field[] EMPTY_FIELD_ARRAY = {};
+    Method[] EMPTY_METHOD_ARRAY = {};
     Object[] EMPTY_OBJECT_ARRAY = {};
     Class<?>[] EMPTY_CLASS_ARRAY = {};
     Resource[] EMPTY_RESOURCE_ARRAY = {};
