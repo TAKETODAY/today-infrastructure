@@ -895,7 +895,7 @@ public abstract class ClassUtils {
     {
         for (final Annotation current : source.getAnnotations()) {
             final Class<? extends Annotation> candidateType = current.annotationType();
-            if (ignoreAnnotation.contains(candidateType)) {
+            if (candidateType == source || ignoreAnnotation.contains(candidateType)) {
                 continue;
             }
             if (candidateType == targetType) {
