@@ -30,15 +30,20 @@ import java.lang.reflect.Modifier;
 import java.rmi.ConnectException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
+import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.objects.TestObject;
 import cn.taketoday.context.reflect.GetterMethod;
 import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.reflect.ReflectionException;
 import cn.taketoday.context.reflect.SetterMethod;
 import junit.framework.TestCase;
+
+import org.junit.Test;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -770,4 +775,14 @@ public class ReflectionUtilsTest extends TestCase {
         }
     }
 
+    // --------------------
+
+    public void testGetFields() {
+
+        Collection<Field> fields = ReflectionUtils.getFields(StandardApplicationContext.class);
+
+        final Field[] fieldArray = ReflectionUtils.getFieldArray(StandardApplicationContext.class);
+        assert fields.size() == fieldArray.length;
+
+    }
 }

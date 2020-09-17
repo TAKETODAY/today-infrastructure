@@ -214,28 +214,6 @@ public class ClassUtilsTest {
 
     }
 
-    @Test
-    public void tset_GetFields() {
-        setProcess("getFields");
-
-        Collection<Field> fields = ClassUtils.getFields(StandardApplicationContext.class);
-
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < 100; i++) {
-            ClassUtils.getFields(StandardApplicationContext.class);
-        }
-
-        System.err.println(System.currentTimeMillis() - start);
-
-//        for (Field field : fields) {
-//            System.err.println(field);
-//        }
-
-        final Field[] fieldArray = ClassUtils.getFieldArray(StandardApplicationContext.class);
-
-        assert fields.size() == fieldArray.length;
-
-    }
 
 //    public static void main(String[] args) {
 //        long start = System.currentTimeMillis();
@@ -325,7 +303,7 @@ public class ClassUtilsTest {
         setProcess("invokeMethod");
 
         final Method method = AutowiredOnConstructor.class.getDeclaredMethod("test");
-        ClassUtils.accessInvokeMethod(method, new AutowiredOnConstructor(null));
+        ReflectionUtils.accessInvokeMethod(method, new AutowiredOnConstructor(null));
 
         assert ClassUtils.newInstance(ClassUtilsTest.class.getName()) != null;
 
@@ -339,7 +317,7 @@ public class ClassUtilsTest {
         try {
 
             final Method throwing = AutowiredOnConstructor.class.getDeclaredMethod("throwing");
-            ClassUtils.accessInvokeMethod(throwing, new AutowiredOnConstructor(null));
+            ReflectionUtils.accessInvokeMethod(throwing, new AutowiredOnConstructor(null));
 
             assert false;
         }

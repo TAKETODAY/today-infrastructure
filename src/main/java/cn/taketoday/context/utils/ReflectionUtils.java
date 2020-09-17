@@ -27,6 +27,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import cn.taketoday.context.Constant;
@@ -44,6 +45,8 @@ import cn.taketoday.context.reflect.ReadOnlyMethodAccessorPropertyAccessor;
 import cn.taketoday.context.reflect.ReflectionException;
 import cn.taketoday.context.reflect.SetterMethod;
 import sun.misc.Unsafe;
+
+import static cn.taketoday.context.utils.Assert.notNull;
 
 /**
  * Fast reflection operation
@@ -289,6 +292,10 @@ public abstract class ReflectionUtils {
             handleReflectionException(ex);
         }
         throw new IllegalStateException("Should never get here");
+    }
+
+    public static Object accessInvokeMethod(Method method, Object target, Object... args){
+        return invokeMethod(makeAccessible(method), target, args);
     }
 
     /**
@@ -863,12 +870,13 @@ public abstract class ReflectionUtils {
      * @see java.lang.reflect.Field#setAccessible
      */
     @SuppressWarnings("deprecation") // on JDK 9
-    public static void makeAccessible(Field field) {
+    public static Field makeAccessible(Field field) {
         if ((!Modifier.isPublic(field.getModifiers()) ||
              !Modifier.isPublic(field.getDeclaringClass().getModifiers()) ||
              Modifier.isFinal(field.getModifiers())) && !field.isAccessible()) {
             field.setAccessible(true);
         }
+        return field;
     }
 
     /**
@@ -881,6 +889,71 @@ public abstract class ReflectionUtils {
         int modifiers = field.getModifiers();
         return (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers));
     }
+
+
+    /**
+     * Get bean instance's {@link Field}
+     *
+     * @param target
+     *            target instance
+     * @return all {@link Field}
+     * @since 2.1.5
+     */
+    public static Collection<Field> getFields(Object target) {
+        return getFields(target.getClass());
+    }
+
+    /**
+     * Get all {@link Field} list, including superclass's Field
+     *
+     * @param targetClass
+     *            target class
+     * @return get all the {@link Field}
+     * @since 2.1.2
+     */
+    public static Collection<Field> getFields(Class<?> targetClass) {
+
+        final List<Field> list = new ArrayList<>(64);
+        do {
+            for (final Field field : targetClass.getDeclaredFields()) {
+                list.add(field);
+            }
+        } while ((targetClass = targetClass.getSuperclass()) != Object.class && targetClass != null);
+
+        return list;
+    }
+
+    /**
+     * Get all {@link Field} array
+     *
+     * @param targetClass
+     *            target class
+     * @return get all the {@link Field} array
+     * @since 2.1.2
+     */
+    public static Field[] getFieldArray(Class<?> targetClass) {
+        final Collection<Field> fields = getFields(targetClass);
+        return fields.toArray(new Field[fields.size()]);
+    }
+
+    public static <T> Constructor<T> accessibleConstructor(final Class<T> targetClass, final Class<?>... parameterTypes)
+      throws NoSuchMethodException //
+    {
+        notNull(targetClass, "targetClass must not be null");
+        return makeAccessible(targetClass.getDeclaredConstructor(parameterTypes));
+    }
+
+    public static <T> Constructor<T> makeAccessible(Constructor<T> constructor) {
+        notNull(constructor, "constructor must not be null");
+
+        if ((!Modifier.isPublic(constructor.getModifiers()) //
+          || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) && !constructor.isAccessible()) {
+
+            constructor.setAccessible(true);
+        }
+        return constructor;
+    }
+
 
     // Cache handling
 

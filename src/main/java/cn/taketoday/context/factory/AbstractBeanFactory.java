@@ -19,7 +19,7 @@
  */
 package cn.taketoday.context.factory;
 
-import static cn.taketoday.context.utils.ClassUtils.makeAccessible;
+import static cn.taketoday.context.utils.ReflectionUtils.makeAccessible;
 import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
 import static cn.taketoday.context.utils.ExceptionUtils.unwrapThrowable;
 import static java.util.Objects.requireNonNull;

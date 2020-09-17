@@ -43,6 +43,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Attribute;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
  * @version $Id: ReflectUtils.java,v 1.30 2009/01/11 19:47:49 herbyderby Exp $
@@ -310,7 +311,7 @@ public abstract class ReflectUtils {
 
     public static <T> Constructor<T> getConstructor(Class<T> type, Class[] parameterTypes) {
         try {
-            return ClassUtils.accessibleConstructor(type, parameterTypes);
+            return ReflectionUtils.accessibleConstructor(type, parameterTypes);
         }
         catch (NoSuchMethodException e) {
             throw new CodeGenerationException(e);

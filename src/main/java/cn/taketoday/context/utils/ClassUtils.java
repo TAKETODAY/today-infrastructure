@@ -463,7 +463,7 @@ public abstract class ClassUtils {
             for (final Method method : annotationClass.getDeclaredMethods()) {
                 // method name must == field name
                 name = method.getName();
-                makeAccessible(implClass.getDeclaredField(name)).set(instance, source.get(name));
+                ReflectionUtils.makeAccessible(implClass.getDeclaredField(name)).set(instance, source.get(name));
             }
             return instance;
         }
@@ -826,7 +826,7 @@ public abstract class ClassUtils {
             for (final Method method : getDeclaredMethods()) {
                 final Object value = target.get(method.getName());
                 if (value == null || eq(method.getReturnType(), value.getClass())) {
-                    target.put(method.getName(), invokeMethod(method, annotation)); // override
+                    target.put(method.getName(), ReflectionUtils.invokeMethod(method, annotation)); // override
                 }
             }
         }
@@ -845,7 +845,7 @@ public abstract class ClassUtils {
             // In general there isn't lots of Annotation Attributes
             for (final Method method : getDeclaredMethods()) {
                 if (method.getName().equals(name) && eq(method.getReturnType(), targetMethod.getReturnType())) {
-                    return invokeMethod(method, annotation);
+                    return ReflectionUtils.invokeMethod(method, annotation);
                 }
             }
             return null;
@@ -916,7 +916,7 @@ public abstract class ClassUtils {
         for (final Method method : declaredMethods) {
             Object value = transformer.get(method);
             if (value == null) {
-                value = invokeMethod(method, current);
+                value = ReflectionUtils.invokeMethod(method, current);
             }
             target.put(method.getName(), value);
         }
@@ -995,7 +995,7 @@ public abstract class ClassUtils {
     {
         if (def instanceof StandardBeanDefinition) {
             final StandardBeanDefinition stdDef = (StandardBeanDefinition) def;
-            final Method factoryMethod = makeAccessible(stdDef.getFactoryMethod());
+            final Method factoryMethod = ReflectionUtils.makeAccessible(stdDef.getFactoryMethod());
             final Object config = Modifier.isStatic(factoryMethod.getModifiers()) ? null : beanFactory.getBean(stdDef.getDeclaringName());
             try {
                 return factoryMethod.invoke(config, resolveParameter(factoryMethod, beanFactory));
@@ -1094,17 +1094,17 @@ public abstract class ClassUtils {
      */
     public static <T> Constructor<T> getSuitableConstructor(Class<T> beanClass) {
         try {
-            return accessibleConstructor(beanClass);
+            return ReflectionUtils.accessibleConstructor(beanClass);
         }
         catch (final NoSuchMethodException e) {
             @SuppressWarnings("unchecked") //
             final Constructor<T>[] constructors = (Constructor<T>[]) beanClass.getDeclaredConstructors();
             if (constructors.length == 1) {
-                return makeAccessible(constructors[0]);
+                return ReflectionUtils.makeAccessible(constructors[0]);
             }
             for (final Constructor<T> constructor : constructors) {
                 if (constructor.isAnnotationPresent(Autowired.class)) {
-                    return makeAccessible(constructor);
+                    return ReflectionUtils.makeAccessible(constructor);
                 }
             }
         }
@@ -1169,8 +1169,9 @@ public abstract class ClassUtils {
      * @return all {@link Field}
      * @since 2.1.5
      */
+    @Deprecated
     public static Collection<Field> getFields(Object target) {
-        return getFields(target.getClass());
+        return ReflectionUtils.getFields(target);
     }
 
     /**
@@ -1181,16 +1182,9 @@ public abstract class ClassUtils {
      * @return get all the {@link Field}
      * @since 2.1.2
      */
+    @Deprecated
     public static Collection<Field> getFields(Class<?> targetClass) {
-
-        final List<Field> list = new ArrayList<>(64);
-        do {
-            for (final Field field : targetClass.getDeclaredFields()) {
-                list.add(field);
-            }
-        } while ((targetClass = targetClass.getSuperclass()) != Object.class && targetClass != null);
-
-        return list;
+        return ReflectionUtils.getFields(targetClass);
     }
 
     /**
@@ -1201,9 +1195,9 @@ public abstract class ClassUtils {
      * @return get all the {@link Field} array
      * @since 2.1.2
      */
+    @Deprecated
     public static Field[] getFieldArray(Class<?> targetClass) {
-        final Collection<Field> fields = getFields(targetClass);
-        return fields.toArray(new Field[fields.size()]);
+        return ReflectionUtils.getFieldArray(targetClass);
     }
 
     /**
@@ -1377,163 +1371,6 @@ public abstract class ClassUtils {
             this.name = name;
             this.descriptor = descriptor;
         }
-    }
-
-    // --------------------------------access
-
-    /**
-     * Make the given field accessible, explicitly setting it accessible if
-     * necessary.
-     */
-    public static Field makeAccessible(final Field field) {
-        notNull(field, "field must not be null");
-
-        if ((!Modifier.isPublic(field.getModifiers()) //
-                || !Modifier.isPublic(field.getDeclaringClass().getModifiers())) && !field.isAccessible()) {
-
-            field.setAccessible(true);
-        }
-        return field;
-    }
-
-    public static Object accessInvokeMethod(final Method method, final Object target, final Object... args) {
-        return invokeMethod(makeAccessible(method), target, args);
-    }
-
-    public static Object invokeMethod(final Method method, final Object target, final Object... args) {
-        notNull(method, "method must not be null");
-        try {
-            return method.invoke(target, args);
-        }
-        catch (Exception ex) {
-            handleReflectionException(ex);
-        }
-        throw new IllegalStateException("Should never get here");
-    }
-
-    public static Method makeAccessible(final Method method) {
-        notNull(method, "method must not be null");
-
-        if ((!Modifier.isPublic(method.getModifiers()) //
-                || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) && !method.isAccessible()) {
-            method.setAccessible(true);
-        }
-
-        return method;
-    }
-
-    public static <T> Constructor<T> accessibleConstructor(final Class<T> targetClass, final Class<?>... parameterTypes)
-            throws NoSuchMethodException //
-    {
-        notNull(targetClass, "targetClass must not be null");
-        return makeAccessible(targetClass.getDeclaredConstructor(parameterTypes));
-    }
-
-    public static <T> Constructor<T> makeAccessible(Constructor<T> constructor) {
-        notNull(constructor, "constructor must not be null");
-
-        if ((!Modifier.isPublic(constructor.getModifiers()) //
-                || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) && !constructor.isAccessible()) {
-
-            constructor.setAccessible(true);
-        }
-        return constructor;
-    }
-
-    // Exception handling
-
-    /**
-     * Handle the given reflection exception.
-     * <p>
-     * Should only be called if no checked exception is expected to be thrown by a
-     * target method, or if an error occurs while accessing a method or field.
-     * <p>
-     * Throws the underlying RuntimeException or Error in case of an
-     * InvocationTargetException with such a root cause. Throws an
-     * IllegalStateException with an appropriate message or
-     * UndeclaredThrowableException otherwise.
-     *
-     * @param ex
-     *            the reflection exception to handle
-     */
-    public static void handleReflectionException(Exception ex) {
-        if (ex instanceof NoSuchMethodException) {
-            throw new IllegalStateException("Method not found: " + ex.getMessage());
-        }
-        if (ex instanceof IllegalAccessException) {
-            throw new IllegalStateException("Could not access method or field: " + ex.getMessage());
-        }
-        if (ex instanceof InvocationTargetException) {
-            handleInvocationTargetException((InvocationTargetException) ex);
-        }
-        if (ex instanceof RuntimeException) {
-            throw (RuntimeException) ex;
-        }
-        throw new UndeclaredThrowableException(ex);
-    }
-
-    /**
-     * Handle the given invocation target exception. Should only be called if no
-     * checked exception is expected to be thrown by the target method.
-     * <p>
-     * Throws the underlying RuntimeException or Error in case of such a root cause.
-     * Throws an UndeclaredThrowableException otherwise.
-     *
-     * @param ex
-     *            the invocation target exception to handle
-     */
-    public static void handleInvocationTargetException(InvocationTargetException ex) {
-        rethrowRuntimeException(ex.getTargetException());
-    }
-
-    /**
-     * Rethrow the given {@link Throwable exception}, which is presumably the
-     * <em>target exception</em> of an {@link InvocationTargetException}. Should
-     * only be called if no checked exception is expected to be thrown by the target
-     * method.
-     * <p>
-     * Rethrows the underlying exception cast to a {@link RuntimeException} or
-     * {@link Error} if appropriate; otherwise, throws an
-     * {@link UndeclaredThrowableException}.
-     *
-     * @param ex
-     *            the exception to rethrow
-     * @throws RuntimeException
-     *             the rethrown exception
-     */
-    public static void rethrowRuntimeException(Throwable ex) {
-        if (ex instanceof RuntimeException) {
-            throw (RuntimeException) ex;
-        }
-        if (ex instanceof Error) {
-            throw (Error) ex;
-        }
-        throw new UndeclaredThrowableException(ex);
-    }
-
-    /**
-     * Rethrow the given {@link Throwable exception}, which is presumably the
-     * <em>target exception</em> of an {@link InvocationTargetException}. Should
-     * only be called if no checked exception is expected to be thrown by the target
-     * method.
-     * <p>
-     * Rethrows the underlying exception cast to an {@link Exception} or
-     * {@link Error} if appropriate; otherwise, throws an
-     * {@link UndeclaredThrowableException}.
-     *
-     * @param ex
-     *            the exception to rethrow
-     * @throws Exception
-     *             the rethrown exception (in case of a checked exception)
-     */
-    public static void rethrowException(Throwable ex) throws Exception {
-        if (ex instanceof Exception) {
-            throw (Exception) ex;
-        }
-        if (ex instanceof Error) {
-            throw (Error) ex;
-        }
-        throw new UndeclaredThrowableException(ex);
     }
 
     //

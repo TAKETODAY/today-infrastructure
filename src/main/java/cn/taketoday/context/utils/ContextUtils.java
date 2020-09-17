@@ -23,7 +23,7 @@ import static cn.taketoday.context.Constant.VALUE;
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
-import static cn.taketoday.context.utils.ClassUtils.makeAccessible;
+import static cn.taketoday.context.utils.ReflectionUtils.makeAccessible;
 import static cn.taketoday.context.utils.OrderUtils.reversedSort;
 import static cn.taketoday.context.utils.ResourceUtils.getResource;
 import static java.util.Objects.requireNonNull;
@@ -551,7 +551,7 @@ public abstract class ContextUtils {
     public static PropertyValue[] resolvePropertyValue(final Class<?> beanClass) {
 
         final HashSet<PropertyValue> propertyValues = new HashSet<>(32);
-        for (final Field field : ClassUtils.getFields(beanClass)) {
+        for (final Field field : ReflectionUtils.getFields(beanClass)) {
             final PropertyValue created = createPropertyValue(field);
             // not required
             if (created != null) {
@@ -625,7 +625,7 @@ public abstract class ContextUtils {
         final String[] prefixs = props.prefix();
         final List<Class<?>> nested = Arrays.asList(props.nested());
 
-        for (final Field declaredField : ClassUtils.getFields(type)) {
+        for (final Field declaredField : ReflectionUtils.getFields(type)) {
             final Object converted = resolveProps(declaredField, nested, prefixs, properties);
             if (converted != null) {
                 makeAccessible(declaredField);
@@ -743,7 +743,7 @@ public abstract class ContextUtils {
         final List<Class<?>> nested = Arrays.asList(props.nested());
         try {
 
-            for (final Field declaredField : ClassUtils.getFields(bean)) {
+            for (final Field declaredField : ReflectionUtils.getFields(bean)) {
                 final Object converted = resolveProps(declaredField, nested, prefixs, properties);
                 if (converted != null) {
                     makeAccessible(declaredField).set(bean, converted);
@@ -914,7 +914,7 @@ public abstract class ContextUtils {
      *             When destroy a bean
      */
     public static void destroyBean(final Object obj) throws Exception {
-        destroyBean(obj, null, null);
+        destroyBean(obj, null);
     }
 
     /**

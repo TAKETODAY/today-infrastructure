@@ -28,6 +28,7 @@ import java.util.HashMap;
 
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConcurrentCache;
+import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
  * Defines property resolution behavior on objects using the JavaBeans component
@@ -448,9 +449,9 @@ public class BeanExpressionResolver extends ExpressionResolver {
         private final HashMap<String, Field> propertyMap = new HashMap<>();
 
         public BeanProperties(Class<?> baseClass) {
-            for (final Field field : ClassUtils.getFields(baseClass)) {
+            for (final Field field : ReflectionUtils.getFields(baseClass)) {
                 // parent class will replace same field
-                propertyMap.put(ClassUtils.makeAccessible(field).getName(), field);
+                propertyMap.put(ReflectionUtils.makeAccessible(field).getName(), field);
             }
         }
 
