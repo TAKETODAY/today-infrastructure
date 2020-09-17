@@ -19,6 +19,9 @@
  */
 package cn.taketoday.context.listener;
 
+import static cn.taketoday.context.utils.ContextUtils.destroyBean;
+import static cn.taketoday.context.utils.ExceptionUtils.unwrapThrowable;
+
 import java.text.SimpleDateFormat;
 
 import cn.taketoday.context.AbstractApplicationContext;
@@ -31,9 +34,6 @@ import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
-
-import static cn.taketoday.context.utils.ContextUtils.destroyBean;
-import static cn.taketoday.context.utils.ExceptionUtils.unwrapThrowable;
 
 /**
  * @author TODAY <br>
@@ -73,7 +73,7 @@ public class ContextCloseListener extends OrderedSupport implements ApplicationL
                 log.error(e.getMessage(), e);
             }
         }
-        
+
         if (context instanceof AbstractApplicationContext) {
             AbstractBeanFactory beanFactory = ((AbstractApplicationContext) context).getBeanFactory();
             beanFactory.getDependencies().clear();
