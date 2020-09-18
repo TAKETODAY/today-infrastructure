@@ -6,14 +6,20 @@ import org.junit.Test;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.reflect.BeanConstructor;
 import cn.taketoday.context.reflect.MethodAccessor;
 import cn.taketoday.context.reflect.MethodInvoker;
+import cn.taketoday.context.reflect.PropertyAccessor;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
+import lombok.Getter;
+import lombok.Setter;
 import test.demo.config.Config;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * A simple benchmark test
@@ -142,6 +148,53 @@ public class BenchmarkTest {
         System.out.println("MethodHandles used: " + (System.currentTimeMillis() - start) + "ms");
     }
 
+    @Setter
+    @Getter
+    static class PropertyTestBean {
+        String value;
+    }
+
+    @Test
+    public void testProperty() throws IllegalAccessException {
+        Field field = ReflectionUtils.findField(PropertyTestBean.class, "value");
+        PropertyAccessor propertyAccessor = ReflectionUtils.newPropertyAccessor(field);
+
+        PropertyTestBean propertyTestBean = new PropertyTestBean();
+        propertyAccessor.set(propertyTestBean, "TODAY");
+
+        Object value = propertyAccessor.get(propertyTestBean);
+        assertThat(value).isEqualTo(propertyTestBean.value).isEqualTo("TODAY");
+
+        // set
+        long start = System.currentTimeMillis();
+        int times = 1_0000_0000_0;
+        for (int i = 0; i < times; i++) {
+            field.set(propertyTestBean, "reflect");
+        }
+
+        System.out.println("reflect set used: " + (System.currentTimeMillis() - start) + "ms");
+
+        start = System.currentTimeMillis();
+        for (int i = 0; i < times; i++) {
+            propertyAccessor.get(propertyTestBean);
+        }
+        System.out.println("Accessor set used: " + (System.currentTimeMillis() - start) + "ms");
+
+        // get
+        start = System.currentTimeMillis();
+        for (int i = 0; i < times; i++) {
+            field.get(propertyTestBean);
+        }
+        System.out.println("reflect get used: " + (System.currentTimeMillis() - start) + "ms");
+
+        start = System.currentTimeMillis();
+        for (int i = 0; i < times; i++) {
+            propertyAccessor.get(propertyTestBean);
+        }
+        System.out.println("Accessor get used: " + (System.currentTimeMillis() - start) + "ms");
+    }
+
+    // ----------------------------------
 
     static class Bench1 {
         long v;
@@ -149,8 +202,11 @@ public class BenchmarkTest {
         Bench1() {}
 
         public void func0() { v++; }
+
         public void func1() { v--; }
+
         public void func2() { v++; }
+
         public void func3() { v--; }
 
         public void testInterface() {

@@ -34,12 +34,14 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.reflect.BeanConstructor;
 import cn.taketoday.context.reflect.ConstructorAccessor;
 import cn.taketoday.context.reflect.ConstructorAccessorGenerator;
+import cn.taketoday.context.reflect.FieldPropertyAccessor;
 import cn.taketoday.context.reflect.GetterMethod;
 import cn.taketoday.context.reflect.GetterSetterPropertyAccessor;
 import cn.taketoday.context.reflect.MethodAccessor;
 import cn.taketoday.context.reflect.MethodAccessorPropertyAccessor;
 import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.reflect.PropertyAccessor;
+import cn.taketoday.context.reflect.ReadOnlyFieldPropertyAccessor;
 import cn.taketoday.context.reflect.ReadOnlyGetterMethodPropertyAccessor;
 import cn.taketoday.context.reflect.ReadOnlyMethodAccessorPropertyAccessor;
 import cn.taketoday.context.reflect.ReflectionException;
@@ -72,14 +74,13 @@ public abstract class ReflectionUtils {
 
     /**
      * Naming prefix for CGLIB-renamed methods.
-     * 
+     *
      * @see #isCglibRenamedMethod
      */
     private static final String CGLIB_RENAMED_METHOD_PREFIX = "TODAY$";
     private static final Field[] EMPTY_FIELD_ARRAY = Constant.EMPTY_FIELD_ARRAY;
     private static final Method[] EMPTY_METHOD_ARRAY = Constant.EMPTY_METHOD_ARRAY;
     private static final Object[] EMPTY_OBJECT_ARRAY = Constant.EMPTY_OBJECT_ARRAY;
-    private static final Class<?>[] EMPTY_CLASS_ARRAY = Constant.EMPTY_CLASS_ARRAY;
 
     /**
      * Cache for {@link Class#getDeclaredFields()}, allowing for fast iteration.
@@ -90,6 +91,16 @@ public abstract class ReflectionUtils {
      * from Java 8 based interfaces, allowing for fast iteration.
      */
     private static final ConcurrentCache<Class<?>, Method[]> DECLARED_METHODS_CACHE = ConcurrentCache.create(256);
+
+    private static boolean unsafeEnabled;
+
+    public static boolean isUnsafeEnabled() {
+        return unsafeEnabled;
+    }
+
+    public static void setUnsafeEnabled(boolean unsafeEnabled) {
+        ReflectionUtils.unsafeEnabled = unsafeEnabled;
+    }
 
     // Exception handling
 
@@ -205,7 +216,7 @@ public abstract class ReflectionUtils {
      * @return the Method object, or {@code null} if none found
      */
     public static Method findMethod(Class<?> clazz, String name) {
-        return findMethod(clazz, name, EMPTY_CLASS_ARRAY);
+        return findMethod(clazz, name, null);
     }
 
     /**
@@ -294,7 +305,7 @@ public abstract class ReflectionUtils {
         throw new IllegalStateException("Should never get here");
     }
 
-    public static Object accessInvokeMethod(Method method, Object target, Object... args){
+    public static Object accessInvokeMethod(Method method, Object target, Object... args) {
         return invokeMethod(makeAccessible(method), target, args);
     }
 
@@ -595,7 +606,7 @@ public abstract class ReflectionUtils {
     /**
      * Determine whether the given method is a CGLIB 'renamed' method, following the
      * pattern "CGLIB$methodName$0".
-     * 
+     *
      * @param renamedMethod
      *            the method to check
      */
@@ -616,9 +627,10 @@ public abstract class ReflectionUtils {
      * necessary. The {@code setAccessible(true)} method is only called when
      * actually necessary, to avoid unnecessary conflicts with a JVM SecurityManager
      * (if active).
-     * 
+     *
      * @param method
      *            the method to make accessible
+     *
      * @see java.lang.reflect.Method#setAccessible
      */
     @SuppressWarnings("deprecation") // on JDK 9
@@ -890,13 +902,14 @@ public abstract class ReflectionUtils {
         return (Modifier.isPublic(modifiers) && Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers));
     }
 
-
     /**
      * Get bean instance's {@link Field}
      *
      * @param target
      *            target instance
+     *
      * @return all {@link Field}
+     *
      * @since 2.1.5
      */
     public static Collection<Field> getFields(Object target) {
@@ -908,7 +921,9 @@ public abstract class ReflectionUtils {
      *
      * @param targetClass
      *            target class
+     *
      * @return get all the {@link Field}
+     *
      * @since 2.1.2
      */
     public static Collection<Field> getFields(Class<?> targetClass) {
@@ -928,7 +943,9 @@ public abstract class ReflectionUtils {
      *
      * @param targetClass
      *            target class
+     *
      * @return get all the {@link Field} array
+     *
      * @since 2.1.2
      */
     public static Field[] getFieldArray(Class<?> targetClass) {
@@ -937,7 +954,7 @@ public abstract class ReflectionUtils {
     }
 
     public static <T> Constructor<T> accessibleConstructor(final Class<T> targetClass, final Class<?>... parameterTypes)
-      throws NoSuchMethodException //
+            throws NoSuchMethodException //
     {
         notNull(targetClass, "targetClass must not be null");
         return makeAccessible(targetClass.getDeclaredConstructor(parameterTypes));
@@ -947,13 +964,12 @@ public abstract class ReflectionUtils {
         notNull(constructor, "constructor must not be null");
 
         if ((!Modifier.isPublic(constructor.getModifiers()) //
-          || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) && !constructor.isAccessible()) {
+             || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) && !constructor.isAccessible()) {
 
             constructor.setAccessible(true);
         }
         return constructor;
     }
-
 
     // Cache handling
 
@@ -965,38 +981,18 @@ public abstract class ReflectionUtils {
         DECLARED_METHODS_CACHE.clear();
     }
 
-    /**
-     * Get declared method
-     *
-     * @param methodName
-     *            Method name
-     * @param targetClass
-     *            Target class
-     * @param parameterTypes
-     *            Parameter types
-     *
-     * @return Declared method
-     */
-    public static Method getDeclaredMethod(final String methodName,
-                                           final Class<?> targetClass,
-                                           final Class<?>... parameterTypes) {
-        Assert.notNull(targetClass, "targetClass must not be null");
-        Class<?> current = targetClass;
-        while (current != null) {
-            try {
-                return current.getDeclaredMethod(methodName, parameterTypes);
-            }
-            catch (NoSuchMethodException e) {
-                current = current.getSuperclass();
-            }
+    public static Field obtainField(Class<?> clazz, String name) {
+        final Field field = findField(clazz, name);
+        if (field == null) {
+            throw new ReflectionException("No such field named: " + name + " in class: " + clazz.getName());
         }
-        return null;
+        return field;
     }
 
-    public static Method obtainDeclaredMethod(final String methodName,
-                                              final Class<?> targetClass,
-                                              final Class<?>... parameterTypes) {
-        final Method declaredMethod = getDeclaredMethod(methodName, targetClass, parameterTypes);
+    public static Method obtainMethod(final String methodName,
+                                      final Class<?> targetClass,
+                                      final Class<?>... parameterTypes) {
+        final Method declaredMethod = findMethod(targetClass, methodName, parameterTypes);
         if (declaredMethod == null) {
             throw new ReflectionException("No such method named: " + methodName + " in class: " + targetClass.getName());
         }
@@ -1014,26 +1010,26 @@ public abstract class ReflectionUtils {
         final Class<?> type = field.getType();
         final Class<?> declaringClass = field.getDeclaringClass();
 
-        final Method getMethod = getDeclaredMethod(getterPropertyName(capitalizeProperty, type), declaringClass);
+        final Method getMethod = findMethod(declaringClass, getterPropertyName(capitalizeProperty, type));
 
         final boolean isReadOnly = Modifier.isFinal(field.getModifiers());
         if (isReadOnly && getMethod != null) {
             return new ReadOnlyMethodAccessorPropertyAccessor(newMethodAccessor(getMethod));
         }
 
-        Method setMethod = getDeclaredMethod("set".concat(capitalizeProperty), declaringClass, type);
+        Method setMethod = findMethod(declaringClass, "set".concat(capitalizeProperty), type);
         if (setMethod != null && getMethod != null) {
             MethodAccessor setMethodAccessor = newMethodAccessor(setMethod);
             MethodAccessor getMethodAccessor = newMethodAccessor(getMethod);
             return new MethodAccessorPropertyAccessor(setMethodAccessor, getMethodAccessor);
         }
 
-        final GetterMethod getterMethod = newUnsafeGetterMethod(field);
-        if (isReadOnly) {
-            return new ReadOnlyGetterMethodPropertyAccessor(getterMethod);
+        if (isUnsafeEnabled()) {
+            return isReadOnly
+                    ? new ReadOnlyGetterMethodPropertyAccessor(newUnsafeGetterMethod(field))
+                    : new GetterSetterPropertyAccessor(newUnsafeGetterMethod(field), newUnsafeSetterMethod(field));
         }
-        final SetterMethod setterMethod = newUnsafeSetterMethod(field);
-        return new GetterSetterPropertyAccessor(getterMethod, setterMethod);
+        return isReadOnly ? new ReadOnlyFieldPropertyAccessor(field) : new FieldPropertyAccessor(field);
     }
 
     /**
@@ -1086,7 +1082,7 @@ public abstract class ReflectionUtils {
     }
 
     public static GetterMethod newGetterMethod(final String name, final Class<?> type, final Class<?> declaringClass) {
-        return newGetterMethod(obtainDeclaredMethod(getterPropertyName(name, type), declaringClass, type));
+        return newGetterMethod(obtainMethod(getterPropertyName(name, type), declaringClass, type));
     }
 
     private static String getterPropertyName(final String name, final Class<?> type) {
@@ -1106,7 +1102,7 @@ public abstract class ReflectionUtils {
     }
 
     public static SetterMethod newSetterMethod(final String name, final Class<?> type, final Class<?> declaringClass) {
-        final Method setMethod = obtainDeclaredMethod("set".concat(StringUtils.capitalize(name)), declaringClass, type);
+        final Method setMethod = obtainMethod("set".concat(StringUtils.capitalize(name)), declaringClass, type);
         return newSetterMethod(setMethod, type);
     }
 
