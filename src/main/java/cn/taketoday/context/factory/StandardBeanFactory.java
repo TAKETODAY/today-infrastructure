@@ -646,18 +646,6 @@ public class StandardBeanFactory
     // PropertyValue    @since 3.0
 
     /**
-     * Set {@link PropertyValue} to the target {@link BeanDefinition}
-     *
-     * @param def
-     *            target bean definition
-     *
-     * @since 3.0
-     */
-    public void resolvePropertyValue(final BeanDefinition def) {
-        def.setPropertyValues(resolvePropertyValue(def.getBeanClass()));
-    }
-
-    /**
      * Process bean's property (field)
      *
      * @param beanClass
