@@ -44,9 +44,9 @@ public class PropsPropertyResolverTest {
 
     @Test
     public void test_() throws Throwable {
-        PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
 
         try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext()) {
+            PropsPropertyResolver propertyResolver = new PropsPropertyResolver(applicationContext);
 
             PropertyValue resolveProperty = //
                     propertyResolver.resolveProperty(PropsPropertyResolverTest.class.getDeclaredField("properties"));
@@ -61,9 +61,9 @@ public class PropsPropertyResolverTest {
 
     @Test
     public void test_Error() throws Throwable {
-        PropsPropertyResolver propertyResolver = new PropsPropertyResolver();
 
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+            PropsPropertyResolver propertyResolver = new PropsPropertyResolver(applicationContext);
 
             propertyResolver.resolveProperty(PropsPropertyResolverTest.class.getDeclaredField("name"));
         }

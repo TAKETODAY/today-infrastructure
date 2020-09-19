@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,12 +19,12 @@
  */
 package cn.taketoday.context.loader;
 
+import org.junit.Test;
+
 import java.util.HashSet;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-
-import org.junit.Test;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
@@ -33,7 +33,7 @@ import cn.taketoday.context.factory.PropertyValue;
 
 /**
  * @author Today <br>
- * 
+ *
  *         2018-08-04 15:56
  */
 public class AutowiredPropertyResolverTest {
@@ -51,14 +51,13 @@ public class AutowiredPropertyResolverTest {
     @Test
     public void test_() throws Throwable {
 
-        PropertyValueResolver autowiredPropertyResolver = new AutowiredPropertyResolver();
         try (ConfigurableApplicationContext applicationContext = new StandardApplicationContext(new HashSet<>())) {
+            PropertyValueResolver autowiredPropertyResolver = new AutowiredPropertyResolver(applicationContext);
 
             applicationContext.getEnvironment().getBeanDefinitionLoader();
 
-            PropertyValue resolveProperty = autowiredPropertyResolver.resolveProperty(//
-                                                                                      AutowiredPropertyResolverTest.class.getDeclaredField(
-                                                                                                                                           "name")//
+            PropertyValue resolveProperty = autowiredPropertyResolver.resolveProperty(
+              AutowiredPropertyResolverTest.class.getDeclaredField("name")//
             );
 
             System.err.println(resolveProperty);

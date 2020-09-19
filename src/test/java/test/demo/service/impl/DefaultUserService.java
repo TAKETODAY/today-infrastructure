@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@ import test.demo.repository.UserRepository;
 import test.demo.service.UserService;
 
 /**
- * 
+ *
  * @author Today <br>
  *         2018-11-15 16:52
  */
@@ -71,10 +71,14 @@ public class DefaultUserService implements UserService {
         return userRepository1;
     }
 
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @Autowired
 //  @Autowired
 //  @Inject
-    public void setUserRepository(UserRepository userRepository1) {
+    public void setUserRepository1(UserRepository userRepository1) {
         this.userRepository1 = userRepository1;
     }
 

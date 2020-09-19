@@ -48,9 +48,9 @@ public class ValuePropertyResolveTest {
     @Test
     public void testResolveProperty() throws Exception {
 
-        ValuePropertyResolver propertyResolver = new ValuePropertyResolver();
 
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
+            ValuePropertyResolver propertyResolver = new ValuePropertyResolver(applicationContext);
 
             // host
             // ----------------------------
