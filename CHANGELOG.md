@@ -100,6 +100,12 @@
 - :zap: 优化Environment初始化顺序
 - :sparkles: 新的反射API
 - :sparkles: ClassUtils#ParameterFunction可开启参数检查
+- :zap: 重构PropertyValueResolver
+- :bug: 修复findTargetAttributes死循环
+- :sparkles: 新的AutowireCapableBeanFactory接口
+-:zap: 新ReflectionUtils反射API
+
+
 
 ## v2.1.6
 - :sparkles: feat: add `Environment` new api to get property
