@@ -464,11 +464,11 @@ public class StandardBeanFactory
         final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(beanClass, Component.class);
 
         if (ObjectUtils.isEmpty(annotationAttributes)) {
-            register(name, build(name, beanClass, null));
+            register(name, createBeanDefinition(name, beanClass, null));
         }
         else {
             for (final AnnotationAttributes attributes : annotationAttributes) {
-                register(name, build(name, beanClass, attributes));
+                register(name, createBeanDefinition(name, beanClass, attributes));
             }
         }
     }
@@ -485,28 +485,10 @@ public class StandardBeanFactory
             final String defaultBeanName = getBeanNameCreator().create(candidate);
             for (final AnnotationAttributes attributes : annotationAttributes) {
                 for (final String name : findNames(defaultBeanName, attributes.getStringArray(VALUE))) {
-                    register(name, build(name, candidate, attributes));
+                    register(name, createBeanDefinition(name, candidate, attributes));
                 }
             }
         }
-    }
-
-    /**
-     * Build a bean definition
-     *
-     * @param beanClass
-     *            Given bean class
-     * @param attributes
-     *            {@link AnnotationAttributes}
-     * @param beanName
-     *            Bean name
-     *
-     * @return A default {@link BeanDefinition}
-     */
-    protected BeanDefinition build(final String beanName, final Class<?> beanClass, final AnnotationAttributes attributes) {
-        BeanDefinition ret = createBeanDefinition(beanName, beanClass, attributes);
-        ret.setPropertyValues(resolvePropertyValue(beanClass));
-        return ret;
     }
 
     /**
@@ -628,8 +610,9 @@ public class StandardBeanFactory
 
     @Override
     public BeanDefinition createBeanDefinition(final Class<?> beanClass) {
-        return build(getBeanNameCreator().create(beanClass), beanClass,
-                     getAnnotationAttributes(Component.class, beanClass));
+        return createBeanDefinition(getBeanNameCreator().create(beanClass),
+                                    beanClass,
+                                    getAnnotationAttributes(Component.class, beanClass));
     }
 
     @Override
@@ -652,7 +635,6 @@ public class StandardBeanFactory
         ret.setPropertyValues(resolvePropertyValue(beanClass));
         // fix missing @Props injection
         resolveProps(ret, getApplicationContext().getEnvironment());
-
         return ret;
     }
 
