@@ -23,8 +23,10 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Properties;
 
-import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Props;
+import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
@@ -33,10 +35,15 @@ import cn.taketoday.context.utils.ContextUtils;
  * @author TODAY <br>
  *         2018-08-04 16:01
  */
-public class PropsPropertyResolver extends OrderedSupport implements PropertyValueResolver {
+public class PropsPropertyResolver extends OrderedApplicationContextSupport implements PropertyValueResolver {
 
-    public PropsPropertyResolver() {
-        super(HIGHEST_PRECEDENCE - 2);
+    public PropsPropertyResolver(ApplicationContext context) {
+        this(context, Ordered.HIGHEST_PRECEDENCE - 2);
+    }
+
+    public PropsPropertyResolver(ApplicationContext context, int order) {
+        super(order);
+        setApplicationContext(context);
     }
 
     @Override
@@ -53,7 +60,7 @@ public class PropsPropertyResolver extends OrderedSupport implements PropertyVal
         Props props = ClassUtils.getAnnotation(Props.class, field);
 
         Properties properties = //
-                ContextUtils.loadProps(props, ContextUtils.getLastStartupContext().getEnvironment().getProperties());
+                ContextUtils.loadProps(props, obtainApplicationContext().getEnvironment().getProperties());
 
         // feat: Enhance `Props`
         final Class<?> propertyClass = field.getType();

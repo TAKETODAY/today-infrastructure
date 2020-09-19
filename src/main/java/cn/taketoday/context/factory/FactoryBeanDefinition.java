@@ -60,7 +60,7 @@ public class FactoryBeanDefinition<T> implements BeanDefinition {
     }
 
     public FactoryBeanDefinition(String name, Class<T> factoryClass, AbstractBeanFactory beanFactory) {
-        this.factoryDef = createBeanDefinition(name, factoryClass);
+        this.factoryDef = beanFactory.getBeanDefinitionLoader().createBeanDefinition(name, factoryClass);
         this.factorySupplier = new FactoryBeanSupplier<>(factoryDef, beanFactory);
     }
 

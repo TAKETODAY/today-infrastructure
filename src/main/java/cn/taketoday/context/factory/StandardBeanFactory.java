@@ -19,18 +19,12 @@
  */
 package cn.taketoday.context.factory;
 
-import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
-import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
-import static cn.taketoday.context.utils.ContextUtils.conditional;
-import static cn.taketoday.context.utils.ContextUtils.findNames;
-import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
-import static cn.taketoday.context.utils.ContextUtils.resolveProps;
-import static java.util.Objects.requireNonNull;
-
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,17 +50,35 @@ import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.BeanInitializingException;
 import cn.taketoday.context.listener.ApplicationListener;
+import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.CandidateComponentScanner;
 import cn.taketoday.context.loader.ImportSelector;
+import cn.taketoday.context.loader.PropertyValueResolver;
+import cn.taketoday.context.loader.PropsPropertyResolver;
+import cn.taketoday.context.loader.ValuePropertyResolver;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
+
+import static cn.taketoday.context.Constant.VALUE;
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
+import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
+import static cn.taketoday.context.utils.ContextUtils.conditional;
+import static cn.taketoday.context.utils.ContextUtils.findNames;
+import static cn.taketoday.context.utils.ContextUtils.resolveInitMethod;
+import static cn.taketoday.context.utils.ContextUtils.resolveProps;
+import static cn.taketoday.context.utils.OrderUtils.reversedSort;
+import static cn.taketoday.context.utils.ReflectionUtils.makeAccessible;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Standard {@link BeanFactory} implementation
@@ -84,12 +96,18 @@ public class StandardBeanFactory
     private final LinkedList<AnnotatedElement> componentScanned = new LinkedList<>();
 
     /**
+     * @since 3.0 Resolve {@link PropertyValue}
+     */
+    private PropertyValueResolver[] propertyValueResolvers;
+
+    /**
      * @since 2.1.7 Preventing repeated initialization of beans(Prevent duplicate
      *        initialization) , Prevent Cycle Dependency
      */
     private final HashSet<String> currentInitializingBeanName = new HashSet<>();
 
     public StandardBeanFactory(ConfigurableApplicationContext applicationContext) {
+        Assert.notNull(applicationContext, "applicationContext must not be null");
         this.applicationContext = applicationContext;
     }
 
@@ -140,6 +158,7 @@ public class StandardBeanFactory
      *
      * @param def
      *            current {@link Configuration} bean
+     *
      * @since 2.1.7
      */
     protected void loadConfigurationBeans(final BeanDefinition def) {
@@ -184,7 +203,7 @@ public class StandardBeanFactory
             final String[] initMethods = component.getStringArray(Constant.INIT_METHODS);
             final String[] destroyMethods = component.getStringArray(Constant.DESTROY_METHODS);
 
-            for (final String name : findNames(defaultBeanName, component.getStringArray(Constant.VALUE))) {
+            for (final String name : findNames(defaultBeanName, component.getStringArray(VALUE))) {
 
                 // register
                 final StandardBeanDefinition stdDef = new StandardBeanDefinition(name, returnType);
@@ -264,7 +283,7 @@ public class StandardBeanFactory
         beanDefinition.setScope(missingBean.scope())
                 .setDestroyMethods(missingBean.destroyMethods())
                 .setInitMethods(resolveInitMethod(missingBean.initMethods(), beanClass))
-                .setPropertyValues(ContextUtils.resolvePropertyValue(beanClass));
+                .setPropertyValues(resolvePropertyValue(beanClass));
 
         resolveProps(beanDefinition, getApplicationContext().getEnvironment());
 
@@ -279,6 +298,7 @@ public class StandardBeanFactory
      *            {@link MissingBean}
      * @param beanClass
      *            Bean class
+     *
      * @return Bean name
      */
     protected String getBeanName(final MissingBean missingBean, final Class<?> beanClass) {
@@ -320,6 +340,7 @@ public class StandardBeanFactory
      *
      * @param beans
      *            Input bean classes
+     *
      * @since 2.1.7
      */
     public void importBeans(Class<?>... beans) {
@@ -333,6 +354,7 @@ public class StandardBeanFactory
      *
      * @param defs
      *            Input {@link BeanDefinition}s
+     *
      * @since 2.1.7
      */
     public void importBeans(final Set<BeanDefinition> defs) {
@@ -347,12 +369,13 @@ public class StandardBeanFactory
      *
      * @param def
      *            Input {@link BeanDefinition}
+     *
      * @since 2.1.7
      */
     public void importBeans(final BeanDefinition def) {
 
         for (final AnnotationAttributes attr : getAnnotationAttributesArray(def, Import.class)) {
-            for (final Class<?> importClass : attr.getAttribute(Constant.VALUE, Class[].class)) {
+            for (final Class<?> importClass : attr.getAttribute(VALUE, Class[].class)) {
                 if (!containsBeanDefinition(importClass, true)) {
                     selectImport(def, importClass);
                 }
@@ -390,6 +413,7 @@ public class StandardBeanFactory
      *
      * @param target
      *            Must be {@link ImportSelector} ,or {@link BeanDefinitionImporter}
+     *
      * @return {@link ImportSelector} object
      */
     protected <T> T createImporter(BeanDefinition importDef, Class<T> target) {
@@ -460,7 +484,7 @@ public class StandardBeanFactory
         if (ObjectUtils.isNotEmpty(annotationAttributes)) {
             final String defaultBeanName = getBeanNameCreator().create(candidate);
             for (final AnnotationAttributes attributes : annotationAttributes) {
-                for (final String name : findNames(defaultBeanName, attributes.getStringArray(Constant.VALUE))) {
+                for (final String name : findNames(defaultBeanName, attributes.getStringArray(VALUE))) {
                     register(name, build(name, candidate, attributes));
                 }
             }
@@ -476,12 +500,13 @@ public class StandardBeanFactory
      *            {@link AnnotationAttributes}
      * @param beanName
      *            Bean name
+     *
      * @return A default {@link BeanDefinition}
      */
-    protected BeanDefinition build(final String beanName,
-                                   final Class<?> beanClass,
-                                   final AnnotationAttributes attributes) {
-        return ContextUtils.createBeanDefinition(beanName, beanClass, attributes, applicationContext);
+    protected BeanDefinition build(final String beanName, final Class<?> beanClass, final AnnotationAttributes attributes) {
+        BeanDefinition ret = createBeanDefinition(beanName, beanClass, attributes);
+        ret.setPropertyValues(resolvePropertyValue(beanClass));
+        return ret;
     }
 
     /**
@@ -491,6 +516,7 @@ public class StandardBeanFactory
      *            Bean name
      * @param def
      *            Bean definition
+     *
      * @throws BeanDefinitionStoreException
      *             If can't store bean
      */
@@ -569,7 +595,7 @@ public class StandardBeanFactory
         if (!componentScanned.contains(source)) {
             componentScanned.add(source);
             for (final AnnotationAttributes attribute : getAnnotationAttributesArray(source, ComponentScan.class)) {
-                loadBeanDefinition(attribute.getStringArray(Constant.VALUE));
+                loadBeanDefinition(attribute.getStringArray(VALUE));
             }
         }
     }
@@ -581,6 +607,7 @@ public class StandardBeanFactory
      *            Target old bean name
      * @param factoryDef
      *            {@link FactoryBean} Bean definition
+     *
      * @throws Throwable
      *             If any {@link Throwable} occurred
      */
@@ -605,8 +632,131 @@ public class StandardBeanFactory
                      getAnnotationAttributes(Component.class, beanClass));
     }
 
+    @Override
+    public BeanDefinition createBeanDefinition(final String beanName,
+                                               final Class<?> beanClass,
+                                               final AnnotationAttributes attributes) {
+
+        final DefaultBeanDefinition ret = new DefaultBeanDefinition(beanName, beanClass);
+
+        if (attributes == null) {
+            ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)
+                    .setInitMethods(resolveInitMethod(null, beanClass));
+        }
+        else {
+            ret.setScope(attributes.getString(Constant.SCOPE))
+                    .setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))
+                    .setInitMethods(resolveInitMethod(attributes.getStringArray(Constant.INIT_METHODS), beanClass));
+        }
+
+        ret.setPropertyValues(resolvePropertyValue(beanClass));
+        // fix missing @Props injection
+        resolveProps(ret, getApplicationContext().getEnvironment());
+
+        return ret;
+    }
+
+    @Override
     public ConfigurableApplicationContext getApplicationContext() {
         return applicationContext;
+    }
+
+    // PropertyValue    @since 3.0
+
+    /**
+     * Set {@link PropertyValue} to the target {@link BeanDefinition}
+     *
+     * @param def
+     *            target bean definition
+     *
+     * @since 3.0
+     */
+    public void resolvePropertyValue(final BeanDefinition def) {
+        def.setPropertyValues(resolvePropertyValue(def.getBeanClass()));
+    }
+
+    /**
+     * Process bean's property (field)
+     *
+     * @param beanClass
+     *            Bean class
+     *
+     * @since 3.0
+     */
+    public PropertyValue[] resolvePropertyValue(final Class<?> beanClass) {
+
+        final HashSet<PropertyValue> propertyValues = new HashSet<>(32);
+        for (final Field field : ReflectionUtils.getFields(beanClass)) {
+            final PropertyValue created = createPropertyValue(field);
+            // not required
+            if (created != null) {
+                makeAccessible(field);
+                propertyValues.add(created);
+            }
+        }
+
+        return propertyValues.isEmpty()
+                ? BeanDefinition.EMPTY_PROPERTY_VALUE
+                : propertyValues.toArray(new PropertyValue[propertyValues.size()]);
+    }
+
+    /**
+     * Create property value
+     *
+     * @param field
+     *            Property
+     *
+     * @return A new {@link PropertyValue}
+     */
+    public PropertyValue createPropertyValue(final Field field) {
+
+        for (final PropertyValueResolver propertyValueResolver : getPropertyValueResolvers()) {
+            if (propertyValueResolver.supports(field)) {
+                return propertyValueResolver.resolveProperty(field);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @since 3.0
+     */
+    public PropertyValueResolver[] getPropertyValueResolvers() {
+        if (propertyValueResolvers == null) {
+            final ConfigurableApplicationContext context = getApplicationContext();
+            setPropertyValueResolvers(new ValuePropertyResolver(context),
+                                      new PropsPropertyResolver(context),
+                                      new AutowiredPropertyResolver(context));
+        }
+        return propertyValueResolvers;
+    }
+
+    /**
+     * @since 3.0
+     */
+    public void setPropertyValueResolvers(PropertyValueResolver... resolvers) {
+        propertyValueResolvers = reversedSort(nonNull(resolvers, "PropertyValueResolver must not be null"));
+    }
+
+    /**
+     * Add {@link PropertyValueResolver} to {@link #propertyValueResolvers}
+     *
+     * @param resolvers
+     *            {@link PropertyValueResolver} object
+     *
+     * @since 3.0
+     */
+    public void addPropertyValueResolvers(final PropertyValueResolver... resolvers) {
+        if (ObjectUtils.isNotEmpty(resolvers)) {
+            final List<PropertyValueResolver> valueResolvers = new LinkedList<>();
+
+            if (propertyValueResolvers != null) {
+                Collections.addAll(valueResolvers, propertyValueResolvers);
+            }
+
+            Collections.addAll(valueResolvers, resolvers);
+            setPropertyValueResolvers(valueResolvers.toArray(new PropertyValueResolver[valueResolvers.size()]));
+        }
     }
 
 }

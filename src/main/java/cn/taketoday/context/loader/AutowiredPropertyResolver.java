@@ -28,14 +28,14 @@ import java.util.Map.Entry;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
-import cn.taketoday.context.OrderedSupport;
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.annotation.Autowired;
+import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanReference;
 import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -46,14 +46,19 @@ import cn.taketoday.context.utils.StringUtils;
  * @author TODAY <br>
  *         2018-08-04 15:56
  */
-public class AutowiredPropertyResolver extends OrderedSupport implements PropertyValueResolver {
+public class AutowiredPropertyResolver extends OrderedApplicationContextSupport implements PropertyValueResolver {
 
     private static final Class<? extends Annotation> NAMED_CLASS = ClassUtils.loadClass("javax.inject.Named");
     private static final Class<? extends Annotation> INJECT_CLASS = ClassUtils.loadClass("javax.inject.Inject");
     private static final Class<? extends Annotation> RESOURCE_CLASS = ClassUtils.loadClass("javax.annotation.Resource");
 
-    public AutowiredPropertyResolver() {
-        super(HIGHEST_PRECEDENCE);
+    public AutowiredPropertyResolver(ApplicationContext context) {
+        this(context, Ordered.HIGHEST_PRECEDENCE);
+    }
+
+    public AutowiredPropertyResolver(ApplicationContext context, int order) {
+        super(order);
+        setApplicationContext(context);
     }
 
     @Override
@@ -104,7 +109,7 @@ public class AutowiredPropertyResolver extends OrderedSupport implements Propert
      */
     protected String byType(final Class<?> targetClass) {
 
-        final ApplicationContext applicationContext = ContextUtils.getLastStartupContext();
+        final ApplicationContext applicationContext = obtainApplicationContext();
 
         if (applicationContext.hasStarted()) {
             final String name = findName(applicationContext, targetClass);

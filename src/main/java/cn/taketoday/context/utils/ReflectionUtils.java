@@ -19,6 +19,8 @@
  */
 package cn.taketoday.context.utils;
 
+import static cn.taketoday.context.utils.Assert.notNull;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -34,7 +36,9 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.reflect.BeanConstructor;
 import cn.taketoday.context.reflect.ConstructorAccessor;
 import cn.taketoday.context.reflect.ConstructorAccessorGenerator;
+import cn.taketoday.context.reflect.FieldGetterMethod;
 import cn.taketoday.context.reflect.FieldPropertyAccessor;
+import cn.taketoday.context.reflect.FieldSetterMethod;
 import cn.taketoday.context.reflect.GetterMethod;
 import cn.taketoday.context.reflect.GetterSetterPropertyAccessor;
 import cn.taketoday.context.reflect.MethodAccessor;
@@ -47,8 +51,6 @@ import cn.taketoday.context.reflect.ReadOnlyMethodAccessorPropertyAccessor;
 import cn.taketoday.context.reflect.ReflectionException;
 import cn.taketoday.context.reflect.SetterMethod;
 import sun.misc.Unsafe;
-
-import static cn.taketoday.context.utils.Assert.notNull;
 
 /**
  * Fast reflection operation
@@ -1078,7 +1080,12 @@ public abstract class ReflectionUtils {
 
     public static GetterMethod newGetterMethod(final Field field) {
         Assert.notNull(field, "field must not be null");
-        return newGetterMethod(field.getName(), field.getType(), field.getDeclaringClass());
+        try {
+            return newGetterMethod(field.getName(), field.getType(), field.getDeclaringClass());
+        }
+        catch (ReflectionException e) {
+            return new FieldGetterMethod(field);
+        }
     }
 
     public static GetterMethod newGetterMethod(final String name, final Class<?> type, final Class<?> declaringClass) {
@@ -1090,15 +1097,20 @@ public abstract class ReflectionUtils {
     }
 
     public static GetterMethod newGetterMethod(final Method method) {
-        final MethodAccessor methodAccessor = newMethodAccessor(method);
-        return obj -> methodAccessor.invoke(obj, null);
+        final MethodInvoker accessor = MethodInvoker.create(method);
+        return obj -> accessor.invoke(obj, null);
     }
 
     // SetterMethod
     // ----------------------
 
     public static SetterMethod newSetterMethod(final Field field) {
-        return newSetterMethod(field.getName(), field.getType(), field.getDeclaringClass());
+        try {
+            return newSetterMethod(field.getName(), field.getType(), field.getDeclaringClass());
+        }
+        catch (ReflectionException e) {
+            return new FieldSetterMethod(field);
+        }
     }
 
     public static SetterMethod newSetterMethod(final String name, final Class<?> type, final Class<?> declaringClass) {
@@ -1111,13 +1123,13 @@ public abstract class ReflectionUtils {
     }
 
     public static SetterMethod newSetterMethod(final Method method, Class<?> type) {
-        final MethodAccessor methodAccessor = newMethodAccessor(method);
+        final MethodInvoker accessor = MethodInvoker.create(method);
         final boolean primitive = type.isPrimitive();
         return (Object obj, Object value) -> {
             if (primitive) {
                 Assert.notNull(value, "primitive type value must not be null");
             }
-            methodAccessor.invoke(obj, new Object[] { value });
+            accessor.invoke(obj, new Object[] { value });
         };
     }
 

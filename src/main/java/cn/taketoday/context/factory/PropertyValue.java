@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,11 +22,13 @@ package cn.taketoday.context.factory;
 import java.lang.reflect.Field;
 import java.util.Objects;
 
-import cn.taketoday.context.exception.PropertyValueException;
+import cn.taketoday.context.reflect.SetterMethod;
+import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
  * Bean property
- * 
+ *
  * @author TODAY <br>
  *         2018-06-23 11:28:01
  */
@@ -36,10 +38,14 @@ public class PropertyValue {
     private final Field field;
     /** property value */
     private final Object value;
+    /** @since 3.0 */
+    private final SetterMethod accessor;
 
     public PropertyValue(Object value, Field field) {
+        Assert.notNull(field, "field must not be null");
         this.value = value;
-        this.field = Objects.requireNonNull(field, "field must not be null");
+        this.field = field;
+        this.accessor = ReflectionUtils.newSetterMethod(field);
     }
 
     public Field getField() {
@@ -50,17 +56,8 @@ public class PropertyValue {
         return value;
     }
 
-    public void set(Object bean, Object value) throws PropertyValueException { //TODO
-        try {
-            field.set(bean, value);
-        }
-        catch (IllegalAccessException e) {
-            throw new PropertyValueException("Illegal access to the property :[" + this + "]", e);
-        }
-//        catch (IllegalArgumentException e) {
-//            throw new PropertyValueException("Specified object :[" +
-//                    value + "] is not an instance of the class :[" + field.getType() + "]", e);
-//        }
+    public final void set(Object bean, Object value) {
+        accessor.set(bean, value);
     }
 
     @Override
@@ -74,8 +71,8 @@ public class PropertyValue {
             return true;
         }
         if (obj instanceof PropertyValue) {
-            final PropertyValue other = ((PropertyValue) obj);
-            return Objects.deepEquals(other.getValue(), getValue()) && Objects.equals(other.field, field);
+            final PropertyValue other = (PropertyValue) obj;
+            return Objects.equals(other.value, value) && Objects.equals(other.field, field);
         }
         return false;
     }

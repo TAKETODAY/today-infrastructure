@@ -23,8 +23,8 @@ import static cn.taketoday.context.Constant.VALUE;
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.loader.DelegatingParameterResolver.delegate;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
-import static cn.taketoday.context.utils.ReflectionUtils.makeAccessible;
 import static cn.taketoday.context.utils.OrderUtils.reversedSort;
+import static cn.taketoday.context.utils.ReflectionUtils.makeAccessible;
 import static cn.taketoday.context.utils.ResourceUtils.getResource;
 import static java.util.Objects.requireNonNull;
 
@@ -67,7 +67,6 @@ import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.annotation.Value;
-import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
@@ -76,18 +75,15 @@ import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.BeanPostProcessor;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
-import cn.taketoday.context.factory.DefaultBeanDefinition;
 import cn.taketoday.context.factory.DestructionBeanPostProcessor;
 import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.factory.StandardBeanDefinition;
 import cn.taketoday.context.loader.AutowiredParameterResolver;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
+import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.loader.ExecutableParameterResolver;
 import cn.taketoday.context.loader.MapParameterResolver;
-import cn.taketoday.context.loader.PropertyValueResolver;
-import cn.taketoday.context.loader.PropsPropertyResolver;
-import cn.taketoday.context.loader.ValuePropertyResolver;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.expression.ExpressionException;
@@ -107,14 +103,9 @@ public abstract class ContextUtils {
     // @since 2.1.6 shared applicationContext
     private static ApplicationContext lastStartupContext;
 
-    private static PropertyValueResolver[] propertyValueResolvers;
-
     private static ExecutableParameterResolver[] parameterResolvers;
 
     static {
-        setPropertyValueResolvers(new ValuePropertyResolver(),
-                                  new PropsPropertyResolver(),
-                                  new AutowiredPropertyResolver());
 
         setParameterResolvers(new MapParameterResolver(),
                               new AutowiredParameterResolver(),
@@ -151,43 +142,6 @@ public abstract class ContextUtils {
 
     // PropertyValueResolver
     // -----------------------------------------
-
-    /**
-     * @since 2.1.6
-     */
-    public static PropertyValueResolver[] getPropertyValueResolvers() {
-        return propertyValueResolvers;
-    }
-
-    /**
-     * @since 2.1.6
-     */
-    public static void setPropertyValueResolvers(PropertyValueResolver... resolvers) {
-        synchronized (ContextUtils.class) {
-            propertyValueResolvers = reversedSort(nonNull(resolvers, "PropertyValueResolver must not be null"));
-        }
-    }
-
-    /**
-     * Add {@link PropertyValueResolver} to {@link #propertyValueResolvers}
-     *
-     * @param resolvers
-     *            {@link TypeConverter} object
-     *
-     * @since 2.1.7
-     */
-    public static void addPropertyValueResolvers(final PropertyValueResolver... resolvers) {
-        if (ObjectUtils.isNotEmpty(resolvers)) {
-            final List<PropertyValueResolver> valueResolvers = new ArrayList<>();
-
-            if (getPropertyValueResolvers() != null) {
-                Collections.addAll(valueResolvers, getPropertyValueResolvers());
-            }
-
-            Collections.addAll(valueResolvers, resolvers);
-            setPropertyValueResolvers(valueResolvers.toArray(new PropertyValueResolver[valueResolvers.size()]));
-        }
-    }
 
     /**
      * Find bean names
@@ -529,61 +483,6 @@ public abstract class ContextUtils {
     }
 
     /**
-     * Set {@link PropertyValue} to the target {@link BeanDefinition}
-     *
-     * @param def
-     *            target bean definition
-     *
-     * @since 2.1.3
-     */
-    public static void resolvePropertyValue(final BeanDefinition def) {
-        def.setPropertyValues(resolvePropertyValue(def.getBeanClass()));
-    }
-
-    /**
-     * Process bean's property (field)
-     *
-     * @param beanClass
-     *            Bean class
-     *
-     * @since 2.1.2
-     */
-    public static PropertyValue[] resolvePropertyValue(final Class<?> beanClass) {
-
-        final HashSet<PropertyValue> propertyValues = new HashSet<>(32);
-        for (final Field field : ReflectionUtils.getFields(beanClass)) {
-            final PropertyValue created = createPropertyValue(field);
-            // not required
-            if (created != null) {
-                makeAccessible(field);
-                propertyValues.add(created);
-            }
-        }
-
-        return propertyValues.isEmpty()
-                ? BeanDefinition.EMPTY_PROPERTY_VALUE
-                : propertyValues.toArray(new PropertyValue[propertyValues.size()]);
-    }
-
-    /**
-     * Create property value
-     *
-     * @param field
-     *            Property
-     *
-     * @return A new {@link PropertyValue}
-     */
-    public static PropertyValue createPropertyValue(final Field field) {
-
-        for (final PropertyValueResolver propertyValueResolver : getPropertyValueResolvers()) {
-            if (propertyValueResolver.supports(field)) {
-                return propertyValueResolver.resolveProperty(field);
-            }
-        }
-        return null;
-    }
-
-    /**
      * Properties injection
      *
      * @param def
@@ -899,9 +798,6 @@ public abstract class ContextUtils {
         if (def.getInitMethods() == null) {
             def.setInitMethods(resolveInitMethod(null, def.getBeanClass()));
         }
-        if (def.getPropertyValues() == null) {
-            def.setPropertyValues(resolvePropertyValue(def.getBeanClass()));
-        }
     }
 
     /**
@@ -1024,14 +920,16 @@ public abstract class ContextUtils {
     public static List<BeanDefinition> createBeanDefinitions(final String defaultName,
                                                              final Class<?> beanClass,
                                                              final ApplicationContext context) {
+
+        final BeanDefinitionLoader beanDefinitionLoader = context.getEnvironment().getBeanDefinitionLoader();
         final AnnotationAttributes[] componentAttributes = getAnnotationAttributesArray(beanClass, Component.class);
         if (ObjectUtils.isEmpty(componentAttributes)) {
-            return Collections.singletonList(createBeanDefinition(defaultName, beanClass));
+            return Collections.singletonList(beanDefinitionLoader.createBeanDefinition(defaultName, beanClass));
         }
         final ArrayList<BeanDefinition> ret = new ArrayList<>(componentAttributes.length);
         for (final AnnotationAttributes attributes : componentAttributes) {
             for (final String name : findNames(defaultName, attributes.getStringArray(VALUE))) {
-                ret.add(createBeanDefinition(name, beanClass, attributes, context));
+                ret.add(beanDefinitionLoader.createBeanDefinition(name, beanClass, attributes));
             }
         }
         return ret;
@@ -1053,25 +951,8 @@ public abstract class ContextUtils {
                                                       final Class<?> beanClass,
                                                       final AnnotationAttributes attributes,
                                                       final ApplicationContext applicationContext) {
-
         Assert.notNull(applicationContext, "ApplicationContext must not be null");
-
-        final DefaultBeanDefinition ret = new DefaultBeanDefinition(beanName, beanClass);
-
-        if (attributes == null) {
-            ret.setDestroyMethods(Constant.EMPTY_STRING_ARRAY)
-                    .setInitMethods(resolveInitMethod(null, beanClass));
-        }
-        else {
-            ret.setScope(attributes.getString(Constant.SCOPE))
-                    .setDestroyMethods(attributes.getStringArray(Constant.DESTROY_METHODS))
-                    .setInitMethods(resolveInitMethod(attributes.getStringArray(Constant.INIT_METHODS), beanClass));
-        }
-
-        ret.setPropertyValues(resolvePropertyValue(beanClass));
-        // fix missing @Props injection
-        resolveProps(ret, applicationContext.getEnvironment());
-        return ret;
+        return applicationContext.getEnvironment().getBeanDefinitionLoader().createBeanDefinition(beanName, beanClass, attributes);
     }
 
     // META-INF

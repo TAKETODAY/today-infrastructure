@@ -23,11 +23,12 @@ import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
 
 import java.lang.reflect.Field;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Value;
+import cn.taketoday.context.aware.OrderedApplicationContextSupport;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.utils.ClassUtils;
@@ -38,10 +39,15 @@ import cn.taketoday.context.utils.StringUtils;
  * @author TODAY <br>
  *         2018-08-04 15:58
  */
-public class ValuePropertyResolver extends OrderedSupport implements PropertyValueResolver {
+public class ValuePropertyResolver extends OrderedApplicationContextSupport implements PropertyValueResolver {
 
-    public ValuePropertyResolver() {
-        super(Ordered.HIGHEST_PRECEDENCE - 1);
+    public ValuePropertyResolver(ApplicationContext context) {
+        this(context, Ordered.HIGHEST_PRECEDENCE - 1);
+    }
+
+    public ValuePropertyResolver(ApplicationContext context, int order) {
+        super(order);
+        setApplicationContext(context);
     }
 
     @Override
@@ -70,7 +76,7 @@ public class ValuePropertyResolver extends OrderedSupport implements PropertyVal
             expression = env.value();
 
             if (StringUtils.isNotEmpty(expression)) {
-                expression = new StringBuilder()//
+                expression = new StringBuilder(expression.length() + 3)//
                         .append(Constant.PLACE_HOLDER_PREFIX)//
                         .append(expression)//
                         .append(Constant.PLACE_HOLDER_SUFFIX).toString();
@@ -85,20 +91,20 @@ public class ValuePropertyResolver extends OrderedSupport implements PropertyVal
                     .append(field.getName())//
                     .append(Constant.PLACE_HOLDER_SUFFIX).toString();
         }
+        Object resolved;
         try {
-
-            final Object resolved = ContextUtils.resolveValue(expression, field.getType());
-            if (resolved == null) {
-                return required(field, required, expression);
-            }
-            return new PropertyValue(resolved, field);
+             resolved = ContextUtils.resolveValue(expression, field.getType(), obtainApplicationContext().getEnvironment().getProperties());
         }
         catch (ConfigurationException e) {
             return required(field, required, expression);
         }
+        if (resolved == null) {
+            return required(field, required, expression);
+        }
+        return new PropertyValue(resolved, field);
     }
 
-    private final PropertyValue required(final Field field, final boolean required, final String expression) {
+    private PropertyValue required(final Field field, final boolean required, final String expression) {
         if (required) {
             throw new ConfigurationException("Can't resolve field: [" + field + "] -> [" + expression + "].");
         }

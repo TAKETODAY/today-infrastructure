@@ -43,8 +43,6 @@ public interface PropertyValueResolver {
     /**
      * Resolve {@link PropertyValue}.
      * 
-     * @param applicationContext
-     *            Bean definition registry
      * @param field
      *            bean's field
      * @return property value
