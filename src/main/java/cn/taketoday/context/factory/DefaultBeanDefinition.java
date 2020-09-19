@@ -52,7 +52,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     /** bean name. */
     private String name;
     /** bean class. */
-    private final Class<? extends Object> beanClass;
+    private final Class<?> beanClass;
     /** bean scope. */
     private String scope;
 
@@ -95,7 +95,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     /** Child implementation */
     private BeanDefinition childDef;
 
-    public DefaultBeanDefinition(String name, Class<? extends Object> beanClass) {
+    public DefaultBeanDefinition(String name, Class<?> beanClass) {
         this.name = name;
         this.beanClass = beanClass;
     }

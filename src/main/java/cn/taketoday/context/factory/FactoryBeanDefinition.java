@@ -75,7 +75,7 @@ public class FactoryBeanDefinition<T> implements BeanDefinition {
     }
 
     @Override
-    public boolean isFactoryBean() {
+    public final boolean isFactoryBean() {
         return true;
     }
 

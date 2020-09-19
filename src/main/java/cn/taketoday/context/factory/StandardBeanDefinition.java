@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -101,6 +102,24 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
                 .toString();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (obj instanceof StandardBeanDefinition) {
+            final boolean equals = super.equals(obj);
+            if (!equals) {
+                return false;
+            }
+            final StandardBeanDefinition other = (StandardBeanDefinition) obj;
+            return Objects.equals(declaringName, other.declaringName)
+              && Objects.equals(factoryMethod, other.factoryMethod);
+        }
+        return false;
+    }
+
     // AnnotatedElement
     // -----------------------------
 
@@ -137,7 +156,7 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
         if (ObjectUtils.isNotEmpty(classAnns)) {
             final Set<Annotation> rets = new HashSet<>(); //@off
             final Set<Class<?>> clazz = Stream.of(methodAnns)
-                                                .map(a -> a.annotationType())
+                                                .map(Annotation::annotationType)
                                                 .collect(Collectors.toSet()); //@on
 
             Collections.addAll(rets, methodAnns);
