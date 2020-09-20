@@ -30,7 +30,7 @@ import cn.taketoday.context.exception.ConversionException;
  */
 public abstract class NumberUtils {
 
-    public static final Object parseDigit(String text, Class<?> targetClass) throws ConversionException {
+    public static Object parseDigit(String text, Class<?> targetClass) throws ConversionException {
 
         if (StringUtils.isEmpty(text)) {
             return 0;
@@ -69,7 +69,7 @@ public abstract class NumberUtils {
      *            the target class
      * @return
      */
-    public static final boolean isNumber(Class<?> targetClass) {
+    public static boolean isNumber(Class<?> targetClass) {
         return Number.class.isAssignableFrom(targetClass) //
                 || targetClass == int.class//
                 || targetClass == long.class//

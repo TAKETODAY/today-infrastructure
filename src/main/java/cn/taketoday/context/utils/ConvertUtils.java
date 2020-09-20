@@ -161,22 +161,22 @@ public abstract class ConvertUtils {
     public static Duration parseDuration(String value) {
 
         if (requireNonNull(value, "Input string must not be null").endsWith("ns")) {
-            return Duration.ofNanos(Long.valueOf(value.substring(0, value.length() - 2)));
+            return Duration.ofNanos(Long.parseLong(value.substring(0, value.length() - 2)));
         }
         if (value.endsWith("ms")) {
-            return Duration.ofMillis(Long.valueOf(value.substring(0, value.length() - 2)));
+            return Duration.ofMillis(Long.parseLong(value.substring(0, value.length() - 2)));
         }
         if (value.endsWith("min")) {
-            return Duration.ofMinutes(Long.valueOf(value.substring(0, value.length() - 3)));
+            return Duration.ofMinutes(Long.parseLong(value.substring(0, value.length() - 3)));
         }
         if (value.endsWith("s")) {
-            return Duration.ofSeconds(Long.valueOf(value.substring(0, value.length() - 1)));
+            return Duration.ofSeconds(Long.parseLong(value.substring(0, value.length() - 1)));
         }
         if (value.endsWith("h")) {
-            return Duration.ofHours(Long.valueOf(value.substring(0, value.length() - 1)));
+            return Duration.ofHours(Long.parseLong(value.substring(0, value.length() - 1)));
         }
         if (value.endsWith("d")) {
-            return Duration.ofDays(Long.valueOf(value.substring(0, value.length() - 1)));
+            return Duration.ofDays(Long.parseLong(value.substring(0, value.length() - 1)));
         }
 
         return Duration.parse(value);

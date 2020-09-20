@@ -86,7 +86,7 @@ public abstract class ObjectUtils {
      * @throws ConversionException
      *             If can't convert source to target type object
      */
-    public final static Object toArrayObject(String source[], Class<?> targetClass) throws ConversionException {
+    public static Object toArrayObject(String source[], Class<?> targetClass) throws ConversionException {
 
         // @since 2.1.6 fix: String[].class can't be resolve
         if (String[].class == targetClass) {
@@ -177,7 +177,7 @@ public abstract class ObjectUtils {
         }
     }
 
-    public final static <T> T parseArray(String source[], Class<T> targetClass) throws ConversionException {
+    public static <T> T parseArray(String source[], Class<T> targetClass) throws ConversionException {
         return targetClass.cast(toArrayObject(source, targetClass));
     }
 
