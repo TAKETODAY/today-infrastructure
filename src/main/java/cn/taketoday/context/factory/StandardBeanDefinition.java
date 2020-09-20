@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright ©  TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,9 @@
 package cn.taketoday.context.factory;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,13 +31,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import cn.taketoday.context.reflect.BeanConstructor;
+import cn.taketoday.context.reflect.MethodAccessorBeanConstructor;
+import cn.taketoday.context.reflect.MethodInvoker;
+import cn.taketoday.context.reflect.StaticMethodAccessorBeanConstructor;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 
 /**
  * Standard implementation of {@link BeanDefinition}
- * 
+ *
  * @author TODAY <br>
  *         2019-02-01 12:29
  */
@@ -83,6 +90,31 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
         this.factoryMethod = factoryMethod;
         return this;
     }
+
+    @Override
+    public Executable getExecutableTarget() {
+        return obtainFactoryMethod();
+    }
+
+    @Override
+    protected BeanConstructor<?> createConstructor(BeanFactory factory) {
+        final Method factoryMethod = obtainFactoryMethod();
+
+        final MethodInvoker methodInvoker = MethodInvoker.create(factoryMethod);
+        if (Modifier.isStatic(factoryMethod.getModifiers())) {
+            return new StaticMethodAccessorBeanConstructor<>(methodInvoker);
+        }
+        final Object bean = factory.getBean(getDeclaringName());
+        return new MethodAccessorBeanConstructor<>(methodInvoker, bean);
+    }
+
+    private Method obtainFactoryMethod() {
+        final Method factoryMethod = getFactoryMethod();
+        Assert.notNull(factoryMethod, "StandardBeanDefinition is not ready");
+        return factoryMethod;
+    }
+
+    // Object
 
     @Override
     public String toString() {

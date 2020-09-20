@@ -167,7 +167,7 @@ public class StandardBeanFactory
         final Collection<Method> missingMethods = this.missingMethods;
         final ConfigurableApplicationContext context = getApplicationContext();
 
-        for (final Method method : def.getBeanClass().getDeclaredMethods()) {
+        for (final Method method : ReflectionUtils.getDeclaredMethods(def.getBeanClass())) {
             final AnnotationAttributes[] components = getAnnotationAttributesArray(method, Component.class);
             if (ObjectUtils.isEmpty(components)) {
                 if (method.isAnnotationPresent(MissingBean.class) && conditional(method, context)) {

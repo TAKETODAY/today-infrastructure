@@ -19,8 +19,6 @@
  */
 package cn.taketoday.context.utils;
 
-import static cn.taketoday.context.utils.Assert.notNull;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -35,6 +33,7 @@ import java.util.List;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.reflect.BeanConstructor;
 import cn.taketoday.context.reflect.ConstructorAccessor;
+import cn.taketoday.context.reflect.ConstructorAccessorBeanConstructor;
 import cn.taketoday.context.reflect.ConstructorAccessorGenerator;
 import cn.taketoday.context.reflect.FieldGetterMethod;
 import cn.taketoday.context.reflect.FieldPropertyAccessor;
@@ -51,6 +50,8 @@ import cn.taketoday.context.reflect.ReadOnlyMethodAccessorPropertyAccessor;
 import cn.taketoday.context.reflect.ReflectionException;
 import cn.taketoday.context.reflect.SetterMethod;
 import sun.misc.Unsafe;
+
+import static cn.taketoday.context.utils.Assert.notNull;
 
 /**
  * Fast reflection operation
@@ -309,6 +310,16 @@ public abstract class ReflectionUtils {
 
     public static Object accessInvokeMethod(Method method, Object target, Object... args) {
         return invokeMethod(makeAccessible(method), target, args);
+    }
+
+    public static Object invokeConstructor(Constructor<?> constructor, Object[] args) {
+        try {
+            return constructor.newInstance(args);
+        }
+        catch (Exception ex) {
+            handleReflectionException(ex);
+        }
+        throw new IllegalStateException("Should never get here");
     }
 
     /**
@@ -1042,7 +1053,7 @@ public abstract class ReflectionUtils {
      *
      * @return MethodAccessor to access Method
      */
-    public static MethodAccessor newMethodAccessor(final Method method) {
+    public static MethodInvoker newMethodAccessor(final Method method) {
         return MethodInvoker.create(method);
     }
 
@@ -1058,21 +1069,12 @@ public abstract class ReflectionUtils {
      *
      * @return {@link BeanConstructor}
      */
-    @SuppressWarnings("unchecked")
     public static <T> BeanConstructor<T> newConstructor(final Class<T> targetClass) {
         final Constructor<T> suitableConstructor = ClassUtils.getSuitableConstructor(targetClass);
         if (suitableConstructor == null) {
             throw new ReflectionException("No suitable constructor in class: " + targetClass);
         }
-        final ConstructorAccessor constructorAccessor = newConstructorAccessor(suitableConstructor);
-        return args -> {
-            try {
-                return (T) constructorAccessor.newInstance(args);
-            }
-            catch (IllegalArgumentException e) {
-                throw new ReflectionException("Illegal Argument in constructor: " + targetClass, e);
-            }
-        };
+        return new ConstructorAccessorBeanConstructor<>(suitableConstructor);
     }
 
     // GetterMethod

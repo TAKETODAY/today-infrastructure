@@ -23,11 +23,13 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 import static cn.taketoday.context.utils.ContextUtils.createBeanDefinition;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.function.Supplier;
 
 import cn.taketoday.context.exception.NoSuchPropertyException;
+import cn.taketoday.context.reflect.BeanConstructor;
 import cn.taketoday.context.utils.Assert;
 
 /**
@@ -222,6 +224,16 @@ public class FactoryBeanDefinition<T> implements BeanDefinition {
     public FactoryBeanDefinition<T> setInitMethods(String... initMethods) {
         factoryDef.setInitMethods(initMethods);
         return this;
+    }
+
+    @Override
+    public Executable getExecutableTarget() {
+        return factoryDef.getExecutableTarget();
+    }
+
+    @Override
+    public BeanConstructor<?> getConstructor(BeanFactory factory) {
+        return factoryDef.getConstructor(factory);
     }
 
     public Supplier<FactoryBean<T>> getFactorySupplier() {

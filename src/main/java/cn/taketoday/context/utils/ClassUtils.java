@@ -31,6 +31,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -70,6 +71,7 @@ import cn.taketoday.context.factory.BeanFactory;
 import cn.taketoday.context.factory.StandardBeanDefinition;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.loader.CandidateComponentScanner;
+import cn.taketoday.context.reflect.BeanConstructor;
 
 import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
 import static cn.taketoday.context.utils.Assert.notNull;
@@ -980,27 +982,16 @@ public abstract class ClassUtils {
      *             if any reflective operation exception occurred
      * @since 2.1.5
      */
-    public static Object newInstance(final BeanDefinition def, final BeanFactory beanFactory)
-            throws BeanInstantiationException //
-    {
-        if (def instanceof StandardBeanDefinition) {
-            final StandardBeanDefinition stdDef = (StandardBeanDefinition) def;
-            final Method factoryMethod = ReflectionUtils.makeAccessible(stdDef.getFactoryMethod());
-            final Object config = Modifier.isStatic(factoryMethod.getModifiers()) ? null : beanFactory.getBean(stdDef.getDeclaringName());
-            try {
-                return factoryMethod.invoke(config, resolveParameter(factoryMethod, beanFactory));
-            }
-            catch (IllegalAccessException e) {
-                throw new BeanInstantiationException(factoryMethod, "Is the factory method accessible?", e);
-            }
-            catch (IllegalArgumentException e) {
-                throw new BeanInstantiationException(factoryMethod, "Illegal arguments for factory method", e);
-            }
-            catch (InvocationTargetException e) {
-                throw new BeanInstantiationException(factoryMethod, "Factory method threw exception", e.getTargetException());
-            }
+    public static Object newInstance(final BeanDefinition def, final BeanFactory beanFactory)  {
+        final Executable executable = def.getExecutableTarget();
+        if (executable == null) {
+            throw new BeanInstantiationException(def, "No suitable bean definition Executable target found");
         }
-        return newInstance(def.getBeanClass(), beanFactory);
+        final BeanConstructor<?> target = def.getConstructor(beanFactory);
+        if (target == null) {
+            throw new BeanInstantiationException(def, "No suitable bean definition BeanConstructor found");
+        }
+        return target.newInstance(resolveParameter(executable, beanFactory));
     }
 
     /**

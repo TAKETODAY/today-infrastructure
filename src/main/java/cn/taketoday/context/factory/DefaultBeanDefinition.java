@@ -20,6 +20,7 @@
 package cn.taketoday.context.factory;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,14 +33,19 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 import cn.taketoday.context.Scope;
+import cn.taketoday.context.exception.BeanInstantiationException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.NoSuchPropertyException;
+import cn.taketoday.context.reflect.BeanConstructor;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
+
+import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
 
 /**
  * Default implementation of {@link BeanDefinition}
@@ -94,6 +100,8 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
     /** Child implementation */
     private BeanDefinition childDef;
+    /** @since 3.0 */
+    private BeanConstructor constructor;
 
     public DefaultBeanDefinition(String name, Class<?> beanClass) {
         this.name = name;
@@ -293,46 +301,6 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
         return this;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj instanceof DefaultBeanDefinition) {
-            final DefaultBeanDefinition other = (DefaultBeanDefinition) obj;
-            return Objects.equals(name, other.name)
-                   && Objects.equals(scope, other.scope)
-                   && beanClass == other.beanClass
-                   && Objects.equals(childDef, other.childDef)
-                   && Objects.deepEquals(initMethods, other.initMethods)
-                   && Objects.deepEquals(destroyMethods, other.destroyMethods)
-                   && Objects.deepEquals(propertyValues, other.propertyValues);
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, beanClass);
-    }
-
-    @Override
-    public String toString() {
-
-        return new StringBuilder()//
-                .append("{\n\t\"name\":\"").append(name)//
-                .append("\",\n\t\"scope\":\"").append(scope)//
-                .append("\",\n\t\"beanClass\":\"").append(beanClass)//
-                .append("\",\n\t\"initMethods\":\"").append(Arrays.toString(initMethods))//
-                .append("\",\n\t\"destroyMethods\":\"").append(Arrays.toString(destroyMethods))//
-                .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(propertyValues))//
-                .append("\",\n\t\"initialized\":\"").append(initialized)//
-                .append("\",\n\t\"factoryBean\":\"").append(factoryBean)//
-                .append("\",\n\t\"child\":\"").append(childDef)//
-                .append("\"\n}")//
-                .toString();
-    }
-
     // AnnotatedElement
     // -----------------------------
 
@@ -356,4 +324,62 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
         return getBeanClass().getDeclaredAnnotations();
     }
 
+    @Override
+    public Executable getExecutableTarget() {
+        return ClassUtils.getSuitableConstructor(getBeanClass());
+    }
+
+    @Override
+    public BeanConstructor<?> getConstructor(BeanFactory factory) {
+        if (constructor == null) {
+            constructor = createConstructor(factory);
+        }
+        return constructor;
+    }
+
+    protected BeanConstructor<?> createConstructor(BeanFactory factory) {
+        return ReflectionUtils.newConstructor(getBeanClass());
+    }
+
+    // Object
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof DefaultBeanDefinition) {
+            final DefaultBeanDefinition other = (DefaultBeanDefinition) obj;
+            return Objects.equals(name, other.name)
+              && Objects.equals(scope, other.scope)
+              && beanClass == other.beanClass
+              && Objects.equals(childDef, other.childDef)
+              && Objects.deepEquals(initMethods, other.initMethods)
+              && Objects.deepEquals(destroyMethods, other.destroyMethods)
+              && Objects.deepEquals(propertyValues, other.propertyValues);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, beanClass);
+    }
+
+    @Override
+    public String toString() {
+
+        return new StringBuilder()//
+          .append("{\n\t\"name\":\"").append(name)//
+          .append("\",\n\t\"scope\":\"").append(scope)//
+          .append("\",\n\t\"beanClass\":\"").append(beanClass)//
+          .append("\",\n\t\"initMethods\":\"").append(Arrays.toString(initMethods))//
+          .append("\",\n\t\"destroyMethods\":\"").append(Arrays.toString(destroyMethods))//
+          .append("\",\n\t\"propertyValues\":\"").append(Arrays.toString(propertyValues))//
+          .append("\",\n\t\"initialized\":\"").append(initialized)//
+          .append("\",\n\t\"factoryBean\":\"").append(factoryBean)//
+          .append("\",\n\t\"child\":\"").append(childDef)//
+          .append("\"\n}")//
+          .toString();
+    }
 }
