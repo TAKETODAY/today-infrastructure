@@ -38,8 +38,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -76,6 +74,8 @@ import cn.taketoday.context.loader.CandidateComponentScanner;
 import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
 import static cn.taketoday.context.utils.Assert.notNull;
 import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
+import static cn.taketoday.context.utils.ReflectionUtils.findMethod;
+import static cn.taketoday.context.utils.ReflectionUtils.getDeclaredMethods;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -345,7 +345,7 @@ public abstract class ClassUtils {
         return getClassName(new ClassReader(inputStream));
     }
 
-    // -------------------------------------------------Annotation
+    // Annotation
 
     /**
      * Get the array of {@link Annotation} instance
@@ -362,7 +362,7 @@ public abstract class ClassUtils {
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> T[] getAnnotationArray(final AnnotatedElement element,
                                                                 final Class<T> annotationClass,
-                                                                final Class<? extends T> implClass) throws ContextException
+                                                                final Class<? extends T> implClass)
     {
         if (annotationClass == null) {
             return null;
@@ -435,7 +435,7 @@ public abstract class ClassUtils {
      * @since 2.0.x
      */
     public static <A extends Annotation> List<A> getAnnotation(final AnnotatedElement element,
-            final Class<A> annotationClass, final Class<? extends A> implClass) throws ContextException //
+            final Class<A> annotationClass, final Class<? extends A> implClass)
     {
         return Arrays.asList(getAnnotationArray(element, annotationClass, implClass));
     }
@@ -455,24 +455,20 @@ public abstract class ClassUtils {
      * @since 2.1.5
      */
     public static <A> A injectAttributes(final AnnotationAttributes source,
-                                         final Class<?> annotationClass, final A instance) throws ContextException//
+                                         final Class<?> annotationClass, final A instance)
     {
         final Class<?> implClass = instance.getClass();
-        String name = null;
-        try {
-            for (final Method method : annotationClass.getDeclaredMethods()) {
-                // method name must == field name
-                name = method.getName();
-                ReflectionUtils.makeAccessible(implClass.getDeclaredField(name)).set(instance, source.get(name));
+        for (final Method method : getDeclaredMethods(annotationClass)) {
+            // method name must == field name
+            final String name = method.getName();
+            final Field field = ReflectionUtils.findField(implClass, name);
+            if (field == null) {
+                throw new ContextException("You Must Specify A Field: ["
+                                             + name + "] In Class: [" + implClass.getName() + "]");
             }
-            return instance;
+            ReflectionUtils.setField(ReflectionUtils.makeAccessible(field), instance, source.get(name));
         }
-        catch (NoSuchFieldException e) {
-            throw new ContextException("You Must Specify A Field: [" + name + "] In Class: [" + implClass.getName() + "]", e);
-        }
-        catch (IllegalAccessException e) {
-            throw new ContextException("Illegal Access When Inject Attributes", e);
-        }
+        return instance;
     }
 
     /**
@@ -483,7 +479,7 @@ public abstract class ClassUtils {
      * @return {@link AnnotationAttributes}
      * @since 2.1.1
      */
-    public static AnnotationAttributes getAnnotationAttributes(final Annotation annotation) throws ContextException {
+    public static AnnotationAttributes getAnnotationAttributes(final Annotation annotation) {
         return getAnnotationAttributes(annotation.annotationType(), annotation);
     }
 
@@ -498,9 +494,9 @@ public abstract class ClassUtils {
      * @since 2.1.7
      */
     public static AnnotationAttributes getAnnotationAttributes(final Class<? extends Annotation> annotationType,
-                                                               final Object annotation) throws ContextException {
+                                                               final Object annotation) {
         try {
-            final Method[] declaredMethods = annotationType.getDeclaredMethods();
+            final Method[] declaredMethods = getDeclaredMethods(annotationType);
             final AnnotationAttributes attributes = new AnnotationAttributes(annotationType, declaredMethods.length);
             for (final Method method : declaredMethods) {
                 attributes.put(method.getName(), method.invoke(annotation));
@@ -524,7 +520,7 @@ public abstract class ClassUtils {
      * @since 2.1.1
      */
     public static <T extends Annotation> List<T> getAnnotation(//
-            final AnnotatedElement annotatedElement, final Class<T> annotationClass) throws ContextException//
+            final AnnotatedElement annotatedElement, final Class<T> annotationClass)//
     {
         return Arrays.asList(getAnnotationArray(annotatedElement, annotationClass));
     }
@@ -542,7 +538,8 @@ public abstract class ClassUtils {
      * @since 2.1.7
      */
     public static <T extends Annotation> T getAnnotation(final Class<T> annotationClass,
-                                                         final Class<? extends T> implClass, final AnnotatedElement element)
+                                                         final Class<? extends T> implClass,
+                                                         final AnnotatedElement element)
     {
         final T[] array = getAnnotationArray(element, annotationClass, implClass);
         return ObjectUtils.isEmpty(array) ? null : array[0];
@@ -595,8 +592,8 @@ public abstract class ClassUtils {
 				(Object proxy, Method method, Object[] args) -> {
 					// The switch statement compares the String object in its expression with the expressions
 					// associated with each case label as if it were using the String.equals method;
-					// consequently, the comparison of String objects in switch statements is case sensitive. 
-					// The Java compiler generates generally more efficient bytecode from switch statements 
+					// consequently, the comparison of String objects in switch statements is case sensitive.
+					// The Java compiler generates generally more efficient bytecode from switch statements
 					// that use String objects than from chained if-then-else statements.
 					switch (method.getName())
 					{
@@ -624,23 +621,16 @@ public abstract class ClassUtils {
         if (proxy == object) {
             return true;
         }
-
         final Class<?> targetClass = proxy.getClass();
         if (targetClass.isInstance(object)) {
-
             for (Entry<String, Object> entry : attributes.entrySet()) {
                 final String key = entry.getKey(); // method name
-
-                try {
-                    final Method method = targetClass.getDeclaredMethod(key);
-
-                    if (method.getReturnType() == void.class //
-                            || !Objects.deepEquals(method.invoke(object), entry.getValue())) {
-
-                        return false;
-                    }
+                final Method method = findMethod(targetClass, key);
+                if (method == null) {
+                    return false;
                 }
-                catch (NoSuchMethodException e) {
+                if (method.getReturnType() == void.class //
+                        || !Objects.deepEquals(method.invoke(object), entry.getValue())) {
                     return false;
                 }
             }
@@ -660,7 +650,7 @@ public abstract class ClassUtils {
      * @since 2.1.1
      */
     public static <T extends Annotation> List<AnnotationAttributes> //
-            getAnnotationAttributes(final AnnotatedElement element, final Class<T> annotationClass) throws ContextException//
+            getAnnotationAttributes(final AnnotatedElement element, final Class<T> annotationClass)
     {
         return Arrays.asList(getAnnotationAttributesArray(element, annotationClass));
     }
@@ -676,7 +666,7 @@ public abstract class ClassUtils {
      * @since 2.1.7
      */
     public static <T extends Annotation> AnnotationAttributes //
-            getAnnotationAttributes(final Class<T> annotationClass, final AnnotatedElement element) throws ContextException //
+            getAnnotationAttributes(final Class<T> annotationClass, final AnnotatedElement element)//
     {
         final AnnotationAttributes[] array = getAnnotationAttributesArray(element, annotationClass);
         return ObjectUtils.isEmpty(array) ? null : array[0];
@@ -693,8 +683,7 @@ public abstract class ClassUtils {
      * @since 2.1.1
      */
     public static <T extends Annotation> AnnotationAttributes[]
-            getAnnotationAttributesArray(final AnnotatedElement element,
-                                         final Class<T> targetClass) throws ContextException {
+            getAnnotationAttributesArray(final AnnotatedElement element, final Class<T> targetClass) {
         if (targetClass == null) {
             return EMPTY_ANNOTATION_ATTRIBUTES;
         }
@@ -708,7 +697,7 @@ public abstract class ClassUtils {
      * @since 2.1.7
      */
     public static <T extends Annotation> AnnotationAttributes[]
-            getAnnotationAttributesArray(final AnnotationKey<T> key) throws ContextException //
+            getAnnotationAttributesArray(final AnnotationKey<T> key) //
     {
         AnnotationAttributes[] ret = ANNOTATION_ATTRIBUTES.get(key);
         if (ret == null) {
@@ -834,7 +823,7 @@ public abstract class ClassUtils {
         protected final Method[] getDeclaredMethods() {
             final Method[] ret = this.declaredMethods;
             if (ret == null) {
-                return this.declaredMethods = annotationType.getDeclaredMethods();
+                return this.declaredMethods = ReflectionUtils.getDeclaredMethods(annotationType);
             }
             return ret;
         }
@@ -844,7 +833,8 @@ public abstract class ClassUtils {
             final String name = targetMethod.getName();
             // In general there isn't lots of Annotation Attributes
             for (final Method method : getDeclaredMethods()) {
-                if (method.getName().equals(name) && eq(method.getReturnType(), targetMethod.getReturnType())) {
+                if (method.getName().equals(name)
+                        && eq(method.getReturnType(), targetMethod.getReturnType())) {
                     return ReflectionUtils.invokeMethod(method, annotation);
                 }
             }
@@ -911,7 +901,7 @@ public abstract class ClassUtils {
                                                                final Class<? extends Annotation> candidateType,
                                                                final AnnotationAttributesTransformer transformer)
     {
-        final Method[] declaredMethods = candidateType.getDeclaredMethods();
+        final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(candidateType);
         final AnnotationAttributes target = new AnnotationAttributes(candidateType, declaredMethods.length);
         for (final Method method : declaredMethods) {
             Object value = transformer.get(method);
@@ -1230,7 +1220,7 @@ public abstract class ClassUtils {
      *             when could not access to the class file
      * @since 2.1.6
      */
-    public static String[] getMethodArgsNames(Method method) throws ContextException {
+    public static String[] getMethodArgsNames(Method method) {
         return PARAMETER_NAMES_CACHE.get(method.getDeclaringClass(), PARAMETER_NAMES_FUNCTION).get(method);
     }
 
@@ -1268,7 +1258,11 @@ public abstract class ClassUtils {
                         argTypes[i++] = forName(argumentType.getClassName());
                     }
 
-                    final Method method = declaringClass.getDeclaredMethod(methodNode.name, argTypes);
+                    final Method method = findMethod(declaringClass, methodNode.name, argTypes);
+                    if (method == null) {
+                        throw new NoSuchMethodException("No such method named: " + methodNode.name+ "argTypes: "
+                                                          + Arrays.toString(argTypes) + "in: " + declaringClass);
+                    }
 
                     final int parameterCount = method.getParameterCount();
                     if (parameterCount == 0) {
