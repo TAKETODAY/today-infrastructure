@@ -55,13 +55,7 @@ public abstract class CollectionUtils {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static Collection<Object> filter(Collection c, Predicate p) {
-
-        final Iterator it = c.iterator();
-        while (it.hasNext()) {
-            if (!p.test(it.next())) {
-                it.remove();
-            }
-        }
+        c.removeIf(o -> !p.test(o));
         return c;
     }
 
@@ -78,7 +72,7 @@ public abstract class CollectionUtils {
         final Map<T, Integer> indexes = new HashMap<>();
         int index = 0;
         for (final T obj : list) {
-            indexes.put(obj, Integer.valueOf(index++));
+            indexes.put(obj, index++);
         }
         return indexes;
     }
