@@ -143,6 +143,17 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
         }
 
         @Override
+        protected MethodInvoker privateInstance() {
+            return new MethodMethodAccessor(targetMethod);
+        }
+
+        @Override
+        protected boolean isPrivate() {
+            return Modifier.isPrivate(targetClass.getModifiers())
+              || Modifier.isPrivate(targetMethod.getModifiers());
+        }
+
+        @Override
         protected ClassGenerator getClassGenerator() {
             return this;
         }

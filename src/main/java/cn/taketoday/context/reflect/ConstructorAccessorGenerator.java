@@ -21,6 +21,7 @@
 package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
@@ -67,6 +68,11 @@ public class ConstructorAccessorGenerator extends GeneratorSupport<ConstructorAc
   }
 
   @Override
+  protected int getArgsIndex() {
+    return 1;
+  }
+
+  @Override
   public void generateClass(ClassVisitor v) {
     final ClassEmitter classEmitter = beginClass(v);
 
@@ -83,6 +89,17 @@ public class ConstructorAccessorGenerator extends GeneratorSupport<ConstructorAc
     codeEmitter.return_value();
     codeEmitter.end_method();
     classEmitter.endClass();
+  }
+
+  @Override
+  protected ConstructorAccessor privateInstance() {
+    return new ConstructorConstructorAccessor(targetConstructor);
+  }
+
+  @Override
+  protected boolean isPrivate() {
+    return Modifier.isPrivate(targetClass.getModifiers())
+      || Modifier.isPrivate(targetConstructor.getModifiers());
   }
 
   @Override

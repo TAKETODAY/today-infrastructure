@@ -58,6 +58,11 @@ abstract class GeneratorSupport<T> {
   }
 
   public T create() {
+
+    if(isPrivate()) {
+      return privateInstance();
+    }
+
     final ClassLoader classLoader = getClassLoader();
     try {
       return (T) ClassUtils.newInstance(classLoader.loadClass(getClassName()));
@@ -66,6 +71,10 @@ abstract class GeneratorSupport<T> {
       return ClassUtils.newInstance(generateClass(classLoader));
     }
   }
+
+  protected abstract T privateInstance();
+
+  protected abstract boolean isPrivate();
 
   protected Class<T> generateClass(final ClassLoader classLoader) {
     try {
@@ -111,6 +120,10 @@ abstract class GeneratorSupport<T> {
     }
   }
 
+  protected int getArgsIndex() {
+    return 2;
+  }
+
   protected void prepareParameters(final CodeEmitter codeEmitter, Executable targetExecutable) {
 
     if (targetExecutable.getParameterCount() == 0) {
@@ -118,10 +131,10 @@ abstract class GeneratorSupport<T> {
     }
 
     final Class<?>[] parameterTypes = targetExecutable.getParameterTypes();
-
+    final int argsIndex = getArgsIndex();
     final int a_load = ALOAD;
     for (int i = 0; i < parameterTypes.length; i++) {
-      codeEmitter.visitVarInsn(a_load, 2);
+      codeEmitter.visitVarInsn(a_load, argsIndex);
       codeEmitter.aaload(i);
 
       Class<?> parameterClass = parameterTypes[i];
