@@ -624,7 +624,8 @@ public class ReflectionUtilsTest extends TestCase {
             }
         }
         int toStringMethodCount = 0;
-        for (Method method : ReflectionUtils.getAllDeclaredMethods(Foo.class)) {
+        final Method[] allDeclaredMethods = ReflectionUtils.getAllDeclaredMethods(Foo.class);
+        for (Method method : allDeclaredMethods) {
             if (method.getName().equals("toString")) {
                 toStringMethodCount++;
             }

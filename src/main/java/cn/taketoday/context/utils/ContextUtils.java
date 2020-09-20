@@ -379,7 +379,7 @@ public abstract class ContextUtils {
         while ((prefixIndex = input.indexOf(Constant.PLACE_HOLDER_PREFIX)) > -1 //
                && (suffixIndex = input.indexOf(Constant.PLACE_HOLDER_SUFFIX)) > -1) {
 
-            builder.append(input.substring(0, prefixIndex));
+            builder.append(input, 0, prefixIndex);
 
             final String key = input.substring(prefixIndex + 2, suffixIndex);
 
@@ -465,9 +465,9 @@ public abstract class ContextUtils {
      */
     private static void addInitMethod(final List<Method> methods, final Class<?> beanClass, final String[] initMethods) {
         final boolean initMethodsNotEmpty = StringUtils.isArrayNotEmpty(initMethods);
-        for (final Method method : beanClass.getDeclaredMethods()) {
+        for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
             if (ClassUtils.isAnnotationPresent(method, PostConstruct.class)
-                || AutowiredPropertyResolver.isInjectable(method)) {
+                || AutowiredPropertyResolver.isInjectable(method)) { // method Injection
                 methods.add(method);
                 continue;
             }
@@ -527,8 +527,7 @@ public abstract class ContextUtils {
         for (final Field declaredField : ReflectionUtils.getFields(type)) {
             final Object converted = resolveProps(declaredField, nested, prefixs, properties);
             if (converted != null) {
-                makeAccessible(declaredField);
-                propertyValues.add(new PropertyValue(converted, declaredField));
+                propertyValues.add(new PropertyValue(converted, makeAccessible(declaredField)));
             }
         }
         return propertyValues;
