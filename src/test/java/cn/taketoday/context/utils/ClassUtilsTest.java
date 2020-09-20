@@ -331,7 +331,7 @@ public class ClassUtilsTest {
     private static class AutowiredOnConstructor {
 
         @Autowired
-        public AutowiredOnConstructor(ApplicationContext applicationContext) {
+        private AutowiredOnConstructor(ApplicationContext applicationContext) {
             System.err.println("init");
         }
 

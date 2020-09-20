@@ -59,7 +59,7 @@ public class TestHandlerInvoker {
         System.out.println(invoke1);
     }
 
-    public static class Bean1 {
+    private static class Bean1 {
 
         public Bean1(String name) {
             System.out.println("构造参数: " + name);
