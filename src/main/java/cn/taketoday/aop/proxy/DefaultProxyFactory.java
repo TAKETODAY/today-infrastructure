@@ -43,6 +43,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -158,7 +159,7 @@ public class DefaultProxyFactory implements ProxyFactory {
                                   final Class<?> targetClass, final Advice[] advices) throws Throwable //
     {
         boolean weaved = false;
-        Method[] targetDeclaredMethods = targetClass.getDeclaredMethods();
+        Method[] targetDeclaredMethods = ReflectionUtils.getDeclaredMethods(targetClass);
         boolean traceEnabled = log.isTraceEnabled();
 
         for (final Advice advice : advices) {
@@ -256,6 +257,7 @@ public class DefaultProxyFactory implements ProxyFactory {
      * @return if class matched
      */
     public static boolean matchClass(final Class<?> targetClass, final Advice[] advices) {
+        Method[] targetDeclaredMethods = ReflectionUtils.getDeclaredMethods(targetClass); // target class's methods
 
         for (final Advice advice : advices) {
             // target class match start
@@ -264,7 +266,7 @@ public class DefaultProxyFactory implements ProxyFactory {
                     return true;
                 }
             }
-            Method[] targetDeclaredMethods = targetClass.getDeclaredMethods(); // target class's methods
+
             // annotation match start
             for (Class<? extends Annotation> annotation : advice.value()) {
                 if (targetClass.isAnnotationPresent(annotation)) {
