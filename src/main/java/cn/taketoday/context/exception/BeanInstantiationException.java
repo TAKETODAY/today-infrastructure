@@ -22,6 +22,8 @@ package cn.taketoday.context.exception;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import cn.taketoday.context.factory.BeanDefinition;
+
 /**
  * Exception thrown when instantiation of a bean failed. Carries the offending
  * bean class.
@@ -39,6 +41,9 @@ public class BeanInstantiationException extends ContextException {
     private final Method constructingMethod;
     private final Constructor<?> constructor;
 
+    public BeanInstantiationException(BeanDefinition def, String msg) {
+        this(def.getBeanClass(), msg, null);
+    }
     public BeanInstantiationException(Class<?> beanClass, String msg) {
         this(beanClass, msg, null);
     }
