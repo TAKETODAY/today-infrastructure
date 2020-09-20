@@ -26,6 +26,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -655,12 +656,12 @@ public class StandardBeanFactory
      */
     public PropertyValue[] resolvePropertyValue(final Class<?> beanClass) {
 
-        final HashSet<PropertyValue> propertyValues = new HashSet<>(32);
+        final LinkedHashSet<PropertyValue> propertyValues = new LinkedHashSet<>(32);
         for (final Field field : ReflectionUtils.getFields(beanClass)) {
-            final PropertyValue created = createPropertyValue(field);
+            // if property is required and PropertyValue is null will throw ex in PropertyValueResolver
+            final PropertyValue created = createPropertyValue(makeAccessible(field));
             // not required
             if (created != null) {
-                makeAccessible(field);
                 propertyValues.add(created);
             }
         }
