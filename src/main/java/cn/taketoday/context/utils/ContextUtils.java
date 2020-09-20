@@ -640,19 +640,14 @@ public abstract class ContextUtils {
 
         final String[] prefixs = props.prefix();
         final List<Class<?>> nested = Arrays.asList(props.nested());
-        try {
 
-            for (final Field declaredField : ReflectionUtils.getFields(bean)) {
-                final Object converted = resolveProps(declaredField, nested, prefixs, properties);
-                if (converted != null) {
-                    makeAccessible(declaredField).set(bean, converted);
-                }
+        for (final Field declaredField : ReflectionUtils.getFields(bean)) {
+            final Object converted = resolveProps(declaredField, nested, prefixs, properties);
+            if (converted != null) {
+                ReflectionUtils.setField(makeAccessible(declaredField), bean, converted);
             }
-            return bean;
         }
-        catch (IllegalAccessException e) {
-            throw new ContextException(e);
-        }
+        return bean;
     }
 
     /**
@@ -781,12 +776,12 @@ public abstract class ContextUtils {
     public static void validateBeanDefinition(BeanDefinition def) {
 
         if (def instanceof StandardBeanDefinition) {
-            final StandardBeanDefinition standardBeanDefinition = ((StandardBeanDefinition) def);
+            final StandardBeanDefinition standardDef = ((StandardBeanDefinition) def);
 
-            if (StringUtils.isEmpty(standardBeanDefinition.getDeclaringName())) {
-                throw new ConfigurationException("Declaring name can't be null");
+            if (StringUtils.isEmpty(standardDef.getDeclaringName())) {
+                throw new ConfigurationException("Declaring name can't be null in: " + standardDef);
             }
-            nonNull(standardBeanDefinition.getFactoryMethod(), "Factory Method can't be null");
+            nonNull(standardDef.getFactoryMethod(), "Factory Method can't be null");
         }
 
         nonNull(def.getName(), "Definition's bean name can't be null");
