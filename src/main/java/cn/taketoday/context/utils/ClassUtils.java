@@ -901,7 +901,7 @@ public abstract class ClassUtils {
                                                                final Class<? extends Annotation> candidateType,
                                                                final AnnotationAttributesTransformer transformer)
     {
-        final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(candidateType);
+        final Method[] declaredMethods = getDeclaredMethods(candidateType);
         final AnnotationAttributes target = new AnnotationAttributes(candidateType, declaredMethods.length);
         for (final Method method : declaredMethods) {
             Object value = transformer.get(method);
