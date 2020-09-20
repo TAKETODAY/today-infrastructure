@@ -1,4 +1,4 @@
-/*
+/**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
-
 package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Executable;
@@ -57,9 +56,10 @@ abstract class GeneratorSupport<T> {
     this.targetClass = targetClass;
   }
 
+  @SuppressWarnings("unchecked")
   public T create() {
 
-    if(isPrivate()) {
+    if (isPrivate()) {
       return privateInstance();
     }
 

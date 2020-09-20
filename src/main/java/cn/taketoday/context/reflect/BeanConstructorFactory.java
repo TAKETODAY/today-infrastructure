@@ -27,5 +27,5 @@ package cn.taketoday.context.reflect;
 @FunctionalInterface
 public interface BeanConstructorFactory {
 
-    BeanConstructor newConstructor(Class<?> cls);
+    BeanConstructor<?> newConstructor(Class<?> cls);
 }
