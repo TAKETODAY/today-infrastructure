@@ -56,7 +56,11 @@ public class PropertyValue {
         return value;
     }
 
-    public final void set(Object bean, Object value) {
+    public void set(Object bean) {
+        accessor.set(bean, value);
+    }
+
+    public void set(Object bean, Object value) {
         accessor.set(bean, value);
     }
 
