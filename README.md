@@ -3,10 +3,10 @@
 🍎 A Java library for building web applications
 
 ![Java8](https://img.shields.io/badge/JDK-8+-success.svg)
-![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)
+[![GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)](./LICENSE)
 [![Author](https://img.shields.io/badge/Author-TODAY-blue.svg)](https://github.com/TAKETODAY)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/811723d275dc409ba6a823c9e08a5b3b)](https://app.codacy.com/app/TAKETODAY/today-web?utm_source=github.com&utm_medium=referral&utm_content=TAKETODAY/today-web&utm_campaign=Badge_Grade_Dashboard)
-![Java CI](https://github.com/TAKETODAY/today-web/workflows/Java%20CI/badge.svg)
+[![Java CI](https://github.com/TAKETODAY/today-web/workflows/Java%20CI/badge.svg)](https://github.com/TAKETODAY/today-web/actions)
 
 
 ## 背景
