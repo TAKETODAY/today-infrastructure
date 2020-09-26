@@ -254,27 +254,22 @@ public class HandlerMethod
     resultHandler.handleResult(context, result);
   }
 
-  public Object[] resolveParameters(final RequestContext context) throws Throwable {
-    // log.debug("set parameter start");
-    final MethodParameter[] parameters = getParameters();
-    if (ObjectUtils.isEmpty(parameters)) {
-      return null;
-    }
-    final Object[] args = new Object[parameters.length];
-    int i = 0;
-    for (final MethodParameter parameter : parameters) {
-      args[i++] = parameter.resolveParameter(context);
-    }
-    return args;
-  }
-
   public Object invokeHandler(final RequestContext request) throws Throwable {
     return handleInternal(request);
   }
 
   @Override
   protected Object handleInternal(final RequestContext context) throws Throwable {
-    return handlerInvoker.invoke(getBean(), resolveParameters(context));
+    final MethodParameter[] parameters = getParameters();
+    if (ObjectUtils.isEmpty(parameters)) {
+      return handlerInvoker.invoke(getBean(), null);
+    }
+    final Object[] args = new Object[parameters.length];
+    int i = 0;
+    for (final MethodParameter parameter : parameters) {
+      args[i++] = parameter.resolveParameter(context);
+    }
+    return handlerInvoker.invoke(getBean(), args);
   }
 
   @Override
