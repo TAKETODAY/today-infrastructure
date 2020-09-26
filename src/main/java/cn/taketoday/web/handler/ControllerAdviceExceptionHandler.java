@@ -54,7 +54,7 @@ public class ControllerAdviceExceptionHandler
         final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandler(ex);
         if (exceptionHandler != null) {
             context.attribute(Constant.KEY_THROWABLE, ex);
-            if (handlerMethod.getObject() != null) { // apply status
+            if (handlerMethod.getBean() != null) { // apply status
                 context.status(buildStatus(ex, exceptionHandler, handlerMethod).value());
             }
             try {
@@ -136,7 +136,6 @@ public class ControllerAdviceExceptionHandler
         }
     }
 
-    @SuppressWarnings("serial")
     protected static class ThrowableHandlerMethod extends HandlerMethod {
 
         public ThrowableHandlerMethod(Object handler, Method method) {

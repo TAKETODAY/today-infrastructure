@@ -34,7 +34,8 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-07-09 22:49
  */
-public class PathVariableParameterResolver extends OrderedSupport implements OrderedParameterResolver {
+@Deprecated
+public class PathVariableParameterResolver extends OrderedSupport implements ParameterResolver {
 
     private PathMatcher pathMatcher;
 

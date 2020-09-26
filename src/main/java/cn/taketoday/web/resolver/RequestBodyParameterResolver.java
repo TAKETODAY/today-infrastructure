@@ -20,7 +20,6 @@
 package cn.taketoday.web.resolver;
 
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;

@@ -22,6 +22,7 @@ package cn.taketoday.web;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import cn.taketoday.web.annotation.EnableViewController;
@@ -38,6 +39,7 @@ import static org.junit.Assert.*;
  * @author TODAY <br>
  *         2020-04-28 15:39
  */
+@Ignore
 @RestController
 @EnableViewController
 public class HandlerMethodTest extends Base implements WebMvcConfiguration {

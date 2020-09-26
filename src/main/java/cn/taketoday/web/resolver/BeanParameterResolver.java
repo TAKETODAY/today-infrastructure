@@ -30,9 +30,10 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.PropertyValue;
+import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
@@ -74,13 +75,13 @@ public class BeanParameterResolver implements OrderedParameterResolver {
 
         final Class<?> type = field.getType();
         if (type.isArray()) {
-            ClassUtils.makeAccessible(field)
+            ReflectionUtils.makeAccessible(field)
                     .set(bean, toArrayObject(request.parameters(parameterName), type));
         }
         else {
             final String parameter = request.parameter(parameterName);
             if (parameter != null) {
-                ClassUtils.makeAccessible(field)
+                ReflectionUtils.makeAccessible(field)
                         .set(bean, ConvertUtils.convert(parameter, type));
             }
         }
@@ -88,7 +89,9 @@ public class BeanParameterResolver implements OrderedParameterResolver {
 
     Scope scope;
     ApplicationContext ctx;
+    BeanDefinitionLoader beanDefinitionLoader;
     Map<MethodParameter, BeanDefinition> defs;
+    
 
     public Object resolve(final RequestContext context, final MethodParameter parameter) {
         return ctx.getScopeBean(getBeanDefinition(parameter), scope);
@@ -105,7 +108,7 @@ public class BeanParameterResolver implements OrderedParameterResolver {
 
     protected BeanDefinition createBeanDefinition(final MethodParameter parameter) {
         final Class<?> parameterClass = parameter.getParameterClass();
-        final BeanDefinition ret = ContextUtils.createBeanDefinition(parameter.getName(), parameterClass, ctx);
+        final BeanDefinition ret = beanDefinitionLoader.createBeanDefinition(parameter.getName(), parameterClass);
         final Collection<Field> fields = ClassUtils.getFields(parameterClass);
         for (Field field : fields) {
             

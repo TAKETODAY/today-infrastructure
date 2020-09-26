@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -27,50 +27,58 @@ import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.handler.MethodParameter;
 
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+
 /**
  * @author TODAY <br>
- *         2019-07-07 23:24
+ * 2019-07-07 23:24
  */
 public abstract class ParameterResolvers {
 
-    private static final LinkedList<ParameterResolver> PARAMETER_RESOLVERS = new LinkedList<>();
+  private static final LinkedList<ParameterResolver> PARAMETER_RESOLVERS = new LinkedList<>();
 
-    /**
-     * Get correspond parameter resolver, If there isn't a suitable resolver will be
-     * throw {@link ConfigurationException}
-     * 
-     * @return A suitable {@link ParameterResolver}
-     */
-    public static ParameterResolver obtainResolver(final MethodParameter parameter) throws ConfigurationException {
-        for (final ParameterResolver resolver : getResolvers()) {
-            if (resolver.supports(parameter)) {
-                return resolver;
-            }
-        }
-        throw new ConfigurationException("There isn't have a parameter resolver to resolve parameter: [" //
-                + parameter.getParameterClass() + "] called: [" + parameter.getName() + "] ");
+  public static void addResolver(ParameterResolver... resolver) {
+
+    Collections.addAll(PARAMETER_RESOLVERS, resolver);
+    OrderUtils.reversedSort(PARAMETER_RESOLVERS);
+  }
+
+  public static void addResolver(List<ParameterResolver> resolvers) {
+
+    PARAMETER_RESOLVERS.addAll(resolvers);
+    OrderUtils.reversedSort(PARAMETER_RESOLVERS);
+  }
+
+  public static void setResolver(List<ParameterResolver> resolver) {
+    PARAMETER_RESOLVERS.clear();
+    PARAMETER_RESOLVERS.addAll(resolver);
+    OrderUtils.reversedSort(PARAMETER_RESOLVERS);
+  }
+
+  public static List<ParameterResolver> getResolvers() {
+    return PARAMETER_RESOLVERS;
+  }
+
+  public static ParameterResolver getResolver(final MethodParameter parameter) {
+    for (final ParameterResolver resolver : getResolvers()) {
+      if (resolver.supports(parameter)) {
+        return resolver;
+      }
     }
+    return null;
+  }
 
-    public static void addResolver(ParameterResolver... resolver) {
+  /**
+   * Get correspond parameter resolver, If there isn't a suitable resolver will be
+   * throw {@link ConfigurationException}
+   *
+   * @return A suitable {@link ParameterResolver}
+   */
+  public static ParameterResolver obtainResolver(final MethodParameter parameter) throws ConfigurationException {
+    return nonNull(getResolver(parameter),
+                   () -> "There isn't have a parameter resolver to resolve parameter: [" //
+                     + parameter.getParameterClass() + "] called: [" + parameter.getName() + "]");
 
-        Collections.addAll(PARAMETER_RESOLVERS, resolver);
-        OrderUtils.reversedSort(PARAMETER_RESOLVERS);
-    }
-
-    public static void addResolver(List<ParameterResolver> resolvers) {
-
-        PARAMETER_RESOLVERS.addAll(resolvers);
-        OrderUtils.reversedSort(PARAMETER_RESOLVERS);
-    }
-
-    public static void setResolver(List<ParameterResolver> resolver) {
-        PARAMETER_RESOLVERS.clear();
-        PARAMETER_RESOLVERS.addAll(resolver);
-        OrderUtils.reversedSort(PARAMETER_RESOLVERS);
-    }
-
-    public static List<ParameterResolver> getResolvers() {
-        return PARAMETER_RESOLVERS;
-    }
+  }
 
 }

@@ -42,7 +42,6 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  *         2019-12-25 16:12
  */
-@SuppressWarnings("serial")
 public class ResourceRequestHandler extends InterceptableRequestHandler {
 
     private final ResourceMapping mapping;

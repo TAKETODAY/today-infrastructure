@@ -41,11 +41,11 @@ import java.util.Set;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.EmptyObject;
+import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.Prototypes;
@@ -53,6 +53,7 @@ import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConcurrentCache;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
@@ -64,7 +65,6 @@ import cn.taketoday.web.annotation.RootController;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.handler.PathVariableHandlerMethod;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
@@ -135,7 +135,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
     }
 
     @Override
-    protected void initApplicationContext(ApplicationContext context) throws ContextException {
+    protected void initApplicationContext(ApplicationContext context) {
         this.beanFactory = nonNull(context.getBean(AbstractBeanFactory.class));
 
         final Environment environment = context.getEnvironment();
@@ -201,7 +201,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
             addAll(methodsOnClass, controllerMapping.getAttribute("method", RequestMethod[].class));
         }
 
-        for (final Method method : beanClass.getDeclaredMethods()) {
+        for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
             buildHandlerMethod(beanClass, method, namespaces, methodsOnClass);
         }
     }
@@ -295,9 +295,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
      */
     protected HandlerMethod transformHandlerMethod(final String path, final HandlerMethod handlerMethod) {
         if (containsPathVariable(path)) {
-            final PathVariableHandlerMethod handler = new PathVariableHandlerMethod(path, handlerMethod);
-            mappingPathVariable(path, handler);
-            return handler;
+            mappingPathVariable(path, handlerMethod);
         }
         return handlerMethod;
     }
@@ -345,14 +343,15 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
         }
 
         int i = 0;
-        for (final String variable : getPathMatcher().extractVariableNames(pathPattern)) {
+        final PathMatcher pathMatcher = getPathMatcher();
+        for (final String variable : pathMatcher.extractVariableNames(pathPattern)) {
             final MethodParameter parameter = parameterMapping.get(variable);
             if (parameter == null) {
                 throw new ConfigurationException("There isn't a variable named: ["
                         + variable + "] in the parameter list at method: [" + handler.getMethod() + "]");
             }
             methodParameters[parameters.indexOf(parameter)] = //
-                    new PathVariableMethodParameter(i++, pathPattern, handler, parameter);
+                    new PathVariableMethodParameter(i++, pathPattern, handler, parameter, pathMatcher);
         }
     }
 

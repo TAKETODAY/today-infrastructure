@@ -24,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.handler.HandlerMethod;
@@ -62,7 +63,7 @@ public class TemplateResultHandler extends AbstractResultHandler implements Runt
     public static boolean supportsLambda(final Object handler) {
         if (handler != null) {
             try {
-                final Method m = ClassUtils.makeAccessible(handler.getClass().getDeclaredMethod("writeReplace"));
+                final Method m = ReflectionUtils.makeAccessible(handler.getClass().getDeclaredMethod("writeReplace"));
 
                 final SerializedLambda lambda = (SerializedLambda) m.invoke(handler);
                 final Class<?> implClass = ClassUtils.loadClass(lambda.getImplClass().replace('/', '.'));

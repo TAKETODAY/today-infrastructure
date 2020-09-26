@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,11 +13,17 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.web.config;
+
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.context.utils.ContextUtils.resolveProps;
+import static cn.taketoday.context.utils.ContextUtils.resolveValue;
+import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
+import static cn.taketoday.web.resolver.DelegatingParameterResolver.delegate;
 
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +31,6 @@ import java.util.Properties;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.Ordered;
-import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.Env;
 import cn.taketoday.context.annotation.Props;
@@ -55,7 +60,6 @@ import cn.taketoday.web.handler.ViewControllerHandlerAdapter;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.CompositeHandlerRegistry;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
-import cn.taketoday.web.registry.HandlerMethodRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
 import cn.taketoday.web.registry.ResourceHandlerRegistry;
 import cn.taketoday.web.registry.ViewControllerHandlerRegistry;
@@ -68,7 +72,6 @@ import cn.taketoday.web.resolver.MapParameterResolver;
 import cn.taketoday.web.resolver.ModelParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
-import cn.taketoday.web.resolver.PathVariableParameterResolver;
 import cn.taketoday.web.resolver.RequestBodyParameterResolver;
 import cn.taketoday.web.resolver.StreamParameterResolver;
 import cn.taketoday.web.resolver.ThrowableHandlerParameterResolver;
@@ -84,12 +87,6 @@ import cn.taketoday.web.view.VoidResultHandler;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.template.DefaultTemplateViewResolver;
 import cn.taketoday.web.view.template.TemplateViewResolver;
-
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.context.utils.ContextUtils.resolveProps;
-import static cn.taketoday.context.utils.ContextUtils.resolveValue;
-import static cn.taketoday.web.resolver.ConverterParameterResolver.convert;
-import static cn.taketoday.web.resolver.DelegatingParameterResolver.delegate;
 
 /**
  * @author TODAY <br>
@@ -131,7 +128,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
     }
 
     protected void logStartup(WebApplicationContext context) {
-        if (context.getEnvironment().getProperty(ENABLE_WEB_STARTED_LOG, Boolean::parseBoolean, true)) {
+        if (context.getEnvironment().getFlag(ENABLE_WEB_STARTED_LOG, true)) {
             log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
                      System.currentTimeMillis() - context.getStartupDate()//
             );
@@ -153,7 +150,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     /**
      * Configure {@link HandlerAdapter}
-     * 
+     *
      * @param adapters
      *            {@link HandlerAdapter}s
      * @param mvcConfiguration
@@ -164,7 +161,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE << 1));
         adapters.add(new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE - 1));
         adapters.add(new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE - 2));
-        adapters.add(new NotFoundRequestAdapter(Ordered.HIGHEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE - 100));
+        adapters.add(new NotFoundRequestAdapter(-100));
 
         mvcConfiguration.configureHandlerAdapter(adapters);
 
@@ -172,7 +169,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
         final DispatcherHandler obtainDispatcher = obtainDispatcher();
         if (obtainDispatcher.getHandlerAdapters() == null) {
-            obtainDispatcher.setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));// apply request handler 
+            obtainDispatcher.setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));// apply request handler
         }
     }
 
@@ -181,7 +178,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         ViewControllerHandlerRegistry registry = context.getBean(ViewControllerHandlerRegistry.class);
 
         final Environment environment = context.getEnvironment();
-        if (environment.getProperty(ENABLE_WEB_MVC_XML, Boolean::parseBoolean, true)) {
+        if (environment.getFlag(ENABLE_WEB_MVC_XML, true)) {
             registry = configViewControllerHandlerRegistry(registry);
         }
         if (registry != null) {
@@ -211,9 +208,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     /**
      * Configure Freemarker's TemplateLoader s
-     * 
-     * @param loaders
-     *            TemplateLoaders
+     *
      * @since 2.3.7
      */
     protected void configureTemplateLoader(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
@@ -226,7 +221,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     /**
      * Configure {@link TypeConverter} to resolve convert request parameters
-     * 
+     *
      * @param typeConverters
      *            Type converters
      * @param mvcConfiguration
@@ -241,7 +236,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     /**
      * Configure {@link ResultHandler} to resolve handler method result
-     * 
+     *
      * @param handlers
      *            {@link ResultHandler} registry
      * @param mvcConfiguration
@@ -303,7 +298,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     /**
      * Configure {@link ParameterResolver}s to resolve handler method arguments
-     * 
+     *
      * @param resolvers
      *            Resolvers registry
      * @param mvcConfiguration
@@ -385,10 +380,6 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
         resolvers.add(new ArrayParameterResolver());
         resolvers.add(new StreamParameterResolver());
 
-        final PathMatcher pathMatcher = context.getBean(HandlerMethodRegistry.class).getPathMatcher();
-
-        resolvers.add(new PathVariableParameterResolver(pathMatcher));
-
         final MessageConverter messageConverter = context.getBean(MessageConverter.class);
         resolvers.add(new RequestBodyParameterResolver(messageConverter));
         resolvers.add(new ThrowableHandlerParameterResolver());
@@ -413,9 +404,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     /**
      * Configure {@link ResourceHandlerRegistry}
-     * 
-     * @param registry
-     *            {@link ResourceHandlerRegistry}
+     *
      * @param mvcConfiguration
      *            All {@link WebMvcConfiguration} object
      */
@@ -428,7 +417,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     /**
      * Invoke all {@link WebApplicationInitializer}s
-     * 
+     *
      * @param context
      *            {@link ApplicationContext} object
      * @throws Throwable
@@ -448,7 +437,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     /**
      * Configure {@link WebApplicationInitializer}
-     * 
+     *
      * @param initializers
      *            {@link WebApplicationInitializer}s
      * @param config
@@ -461,7 +450,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     /**
      * Get {@link WebMvcConfiguration}
-     * 
+     *
      * @param applicationContext
      *            {@link ApplicationContext} object
      */
@@ -471,7 +460,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     /**
      * Initialize framework.
-     * 
+     *
      * @throws Throwable
      *             if any Throwable occurred
      */

@@ -55,7 +55,7 @@ public abstract class WebUtils {
      * 
      * @return WebApplicationContext
      */
-    public final static WebApplicationContext getLastStartupWebContext() {
+    public static WebApplicationContext getLastStartupWebContext() {
         return lastStartupContext;
     }
 
@@ -66,10 +66,8 @@ public abstract class WebUtils {
     /**
      * @param type
      *            type
-     * @param methodParameterName
-     *            parameter name
      */
-    public final static BadRequestException newBadRequest(String type, MethodParameter parameter, Throwable ex) {
+    public static BadRequestException newBadRequest(String type, MethodParameter parameter, Throwable ex) {
         return newBadRequest(type, parameter.getName(), ex);
     }
 
@@ -79,7 +77,7 @@ public abstract class WebUtils {
      * @param methodParameterName
      *            parameter name
      */
-    public final static BadRequestException newBadRequest(String type, String methodParameterName, Throwable ex) {
+    public static BadRequestException newBadRequest(String type, String methodParameterName, Throwable ex) {
         StringBuilder msg = new StringBuilder(64);
 
         if (StringUtils.isNotEmpty(type)) {
@@ -169,7 +167,7 @@ public abstract class WebUtils {
     /**
      * Download file to client.
      *
-     * @param request
+     * @param context
      *            Current request context
      * @param download
      *            {@link Resource} to download
