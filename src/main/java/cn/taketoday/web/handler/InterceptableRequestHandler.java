@@ -32,10 +32,10 @@ import static cn.taketoday.context.utils.ObjectUtils.isEmpty;
 
 /**
  * @author TODAY <br>
- * 2019-12-25 16:19
+ *         2019-12-25 16:19
  */
 public abstract class InterceptableRequestHandler
-  extends OrderedSupport implements RequestHandler, HandlerInterceptorsCapable {
+        extends OrderedSupport implements RequestHandler, HandlerInterceptorsCapable {
 
   private static final Logger log = LoggerFactory.getLogger(InterceptableRequestHandler.class);
 
