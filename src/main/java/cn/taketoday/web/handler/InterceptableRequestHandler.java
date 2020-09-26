@@ -48,62 +48,26 @@ public abstract class InterceptableRequestHandler
     setInterceptors(interceptors);
   }
 
-  /**
-   * Before Handler process.
-   *
-   * @param context
-   *   Current request Context
-   * @param interceptors
-   *   Target handler's {@link HandlerInterceptor}s
-   *
-   * @return If is it possible to execute the target handler
-   *
-   * @throws Throwable
-   *   If any exception occurred in a {@link HandlerInterceptor}
-   */
-  protected boolean beforeProcess(final RequestContext context, final HandlerInterceptor[] interceptors) throws Throwable {
-    for (final HandlerInterceptor intercepter : interceptors) {
-      if (!intercepter.beforeProcess(context, this)) {
-        if (log.isDebugEnabled()) {
-          log.debug("Interceptor: [{}] return false", intercepter);
-        }
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * After Handler processed.
-   *
-   * @param result
-   *   Handler executed result
-   * @param context
-   *   Current request context
-   * @param interceptors
-   *   Target handler's {@link HandlerInterceptor}s
-   *
-   * @throws Throwable
-   *   If any exception occurred in a {@link HandlerInterceptor}
-   */
-  protected void afterProcess(final Object result,
-                              final RequestContext context,
-                              final HandlerInterceptor[] interceptors) throws Throwable {
-    for (final HandlerInterceptor intercepter : interceptors) {
-      intercepter.afterProcess(context, this, result);
-    }
-  }
-
   @Override
   public Object handleRequest(final RequestContext context) throws Throwable {
 
     final HandlerInterceptor[] interceptors = getInterceptors();
     if (interceptors != null) {
-      if (!beforeProcess(context, interceptors)) { // before process
-        return HandlerAdapter.NONE_RETURN_VALUE;
+      // before
+      for (final HandlerInterceptor intercepter : interceptors) {
+        if (!intercepter.beforeProcess(context, this)) {
+          if (log.isDebugEnabled()) {
+            log.debug("Interceptor: [{}] return false", intercepter);
+          }
+          return HandlerAdapter.NONE_RETURN_VALUE;
+        }
       }
+      // handle
       final Object result = handleInternal(context);
-      afterProcess(result, context, interceptors);
+      // after
+      for (final HandlerInterceptor intercepter : interceptors) {
+        intercepter.afterProcess(context, this, result);
+      }
       return result;
     }
     return handleInternal(context);
