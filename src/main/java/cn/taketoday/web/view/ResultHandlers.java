@@ -84,9 +84,8 @@ public abstract class ResultHandlers {
    * @return A suitable {@link ResultHandler}
    */
   public static ResultHandler obtainHandler(final Object handler) {
-    final ResultHandler resultHandler = getHandler(handler);
-    nonNull(resultHandler, () -> "There isn't have a result resolver to resolve : [" + handler + "]");
-    return resultHandler;
+    return nonNull(getHandler(handler),
+                   () -> "There isn't have a result resolver to resolve : [" + handler + "]");
   }
 
 }
