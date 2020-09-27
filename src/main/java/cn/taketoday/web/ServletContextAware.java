@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,14 +25,14 @@ import cn.taketoday.context.aware.Aware;
 
 /**
  * @author Today <br>
- * 
+ *
  *         2018-08-03 15:45
  */
 public interface ServletContextAware extends Aware {
 
-    /**
-     * 
-     * @param servletContext
-     */
-    void setServletContext(ServletContext servletContext);
+  /**
+   *
+   * @param servletContext
+   */
+  void setServletContext(ServletContext servletContext);
 }

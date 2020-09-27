@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -38,29 +38,29 @@ import lombok.Setter;
 @Props(prefix = "multipart.")
 public class MultipartConfiguration implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /*** file upload location */
-    private String location = System.getProperty("java.io.tmpdir");
+  /*** file upload location */
+  private String location = System.getProperty("java.io.tmpdir");
 
-    private String encoding = Constant.DEFAULT_ENCODING;
+  private String encoding = Constant.DEFAULT_ENCODING;
 
-    /**
-     * Maximum size of a single uploaded file.
-     */
-    private DataSize maxFileSize = DataSize.ofMegabytes(512); // every single file
-    private DataSize maxRequestSize = DataSize.ofGigabytes(1); // total size in every single request
-    private DataSize fileSizeThreshold = DataSize.ofGigabytes(1); // cache
+  /**
+   * Maximum size of a single uploaded file.
+   */
+  private DataSize maxFileSize = DataSize.ofMegabytes(512); // every single file
+  private DataSize maxRequestSize = DataSize.ofGigabytes(1); // total size in every single request
+  private DataSize fileSizeThreshold = DataSize.ofGigabytes(1); // cache
 
-    @Override
-    public String toString() {
-        return new StringBuilder()
-                .append("MultipartConfiguration [location=").append(location)
-                .append(", encoding=").append(encoding)
-                .append(", maxFileSize=").append(maxFileSize)
-                .append(", maxRequestSize=").append(maxRequestSize)
-                .append(", fileSizeThreshold=").append(fileSizeThreshold)
-                .append("]").toString();
-    }
+  @Override
+  public String toString() {
+    return new StringBuilder()
+            .append("MultipartConfiguration [location=").append(location)
+            .append(", encoding=").append(encoding)
+            .append(", maxFileSize=").append(maxFileSize)
+            .append(", maxRequestSize=").append(maxRequestSize)
+            .append(", fileSizeThreshold=").append(fileSizeThreshold)
+            .append("]").toString();
+  }
 
 }

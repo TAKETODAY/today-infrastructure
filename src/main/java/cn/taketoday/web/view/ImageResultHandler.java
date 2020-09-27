@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -34,20 +34,20 @@ import cn.taketoday.web.handler.HandlerMethod;
  */
 public class ImageResultHandler extends HandlerMethodResultHandler implements RuntimeResultHandler {
 
-    @Override
-    public boolean supports(HandlerMethod handlerMethod) {
-        return handlerMethod.isAssignableFrom(RenderedImage.class);
-    }
+  @Override
+  public boolean supports(HandlerMethod handlerMethod) {
+    return handlerMethod.isAssignableFrom(RenderedImage.class);
+  }
 
-    @Override
-    public boolean supportsResult(Object result) {
-        return result instanceof RenderedImage;
-    }
+  @Override
+  public boolean supportsResult(Object result) {
+    return result instanceof RenderedImage;
+  }
 
-    @Override
-    public void handleResult(final RequestContext context, final Object result) throws IOException {
-        context.contentType("image/png"); // sub classes can override this method to apply content type
-        ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, context.getOutputStream());
-    }
+  @Override
+  public void handleResult(final RequestContext context, final Object result) throws IOException {
+    context.contentType("image/png"); // sub classes can override this method to apply content type
+    ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, context.getOutputStream());
+  }
 
 }

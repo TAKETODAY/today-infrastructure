@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,14 +18,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.web.registry;
-
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
-import static cn.taketoday.context.utils.CollectionUtils.newHashSet;
-import static cn.taketoday.context.utils.ContextUtils.resolveValue;
-import static cn.taketoday.context.utils.StringUtils.checkUrl;
-import static java.util.Collections.addAll;
-import static java.util.Objects.requireNonNull;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -68,407 +60,415 @@ import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.handler.PathVariableMethodParameter;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
+import static cn.taketoday.context.utils.CollectionUtils.newHashSet;
+import static cn.taketoday.context.utils.ContextUtils.resolveValue;
+import static cn.taketoday.context.utils.StringUtils.checkUrl;
+import static java.util.Collections.addAll;
+import static java.util.Objects.requireNonNull;
+
 /**
  * Store {@link HandlerMethod}
- * 
+ *
  * @author TODAY <br>
  *         2018-07-1 20:47:06
  */
 @MissingBean
 public class HandlerMethodRegistry extends MappedHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
 
-    private Properties variables;
-    private AbstractBeanFactory beanFactory;
-    private BeanDefinitionLoader beanDefinitionLoader;
-    private final ConcurrentCache<String, Object> patternMatchingCache;
+  private Properties variables;
+  private AbstractBeanFactory beanFactory;
+  private BeanDefinitionLoader beanDefinitionLoader;
+  private final ConcurrentCache<String, Object> patternMatchingCache;
 
-    public HandlerMethodRegistry() {
-        this(512);
+  public HandlerMethodRegistry() {
+    this(512);
+  }
+
+  public HandlerMethodRegistry(int initialCapacity) {
+    this(new HashMap<>(initialCapacity));
+  }
+
+  public HandlerMethodRegistry(Map<String, Object> handlers) {
+    this(handlers, HIGHEST_PRECEDENCE);
+  }
+
+  public HandlerMethodRegistry(Map<String, Object> handlers, int order) {
+    super(handlers, order);
+    this.patternMatchingCache = new ConcurrentCache<>(128);
+  }
+
+  // MappedHandlerRegistry
+  // --------------------------
+
+  @Override
+  protected String computeKey(final RequestContext context) {
+    return context.method().concat(context.requestURI());
+  }
+
+  @Override
+  protected Object lookupPatternHandler(String handlerKey) {
+    Object hander = patternMatchingCache.get(handlerKey);
+    if (hander == null) {
+      hander = super.lookupPatternHandler(handlerKey);
+      patternMatchingCache.put(handlerKey, hander == null ? EmptyObject.INSTANCE : hander);
+    }
+    else if (hander == EmptyObject.INSTANCE) {
+      return null;
+    }
+    return hander;
+  }
+
+  public void registerHandler(RequestMethod method, String patternPath, Object handler) {
+    super.registerHandler(method.name().concat(patternPath), handler);
+  }
+
+  /**
+   * Initialize All Action or Handler
+   */
+  @Override
+  public void onStartup(WebApplicationContext applicationContext) throws Throwable {
+
+    log.info("Initializing Controllers");
+    startConfiguration();
+  }
+
+  @Override
+  protected void initApplicationContext(ApplicationContext context) {
+    this.beanFactory = nonNull(context.getBean(AbstractBeanFactory.class));
+
+    final Environment environment = context.getEnvironment();
+    this.variables = environment.getProperties();
+    this.beanDefinitionLoader = environment.getBeanDefinitionLoader();
+
+    super.initApplicationContext(context);
+  }
+
+  /**
+   * Start config
+   *
+   * @throws Exception
+   *             If any {@link Exception} occurred
+   */
+  protected void startConfiguration() throws Exception {
+    final ApplicationContext beanFactory = obtainApplicationContext();
+
+    // @since 2.3.3
+    for (final Entry<String, BeanDefinition> entry : beanFactory.getBeanDefinitions().entrySet()) {
+
+      final BeanDefinition def = entry.getValue();
+
+      if (!def.isAbstract() && isController(def)) { // ActionMapping on the class is ok
+        buildHandlerMethod(def.getBeanClass());
+      }
+    }
+  }
+
+  /**
+   * Whether the given type is a handler with handler methods.
+   *
+   * @param def
+   *            the definition of the bean being checked
+   * @return "true" if this a handler type, "false" otherwise.
+   */
+  protected boolean isController(final BeanDefinition def) {
+    return def.isAnnotationPresent(RootController.class)
+            || def.isAnnotationPresent(ActionMapping.class);
+  }
+
+  /**
+   * Build {@link HandlerMethod}
+   *
+   * @param beanClass
+   *            Bean class
+   * @throws Exception
+   *             If any {@link Exception} occurred
+   * @since 2.3.7
+   */
+  public void buildHandlerMethod(final Class<?> beanClass) throws Exception {
+
+    final Set<String> namespaces = new HashSet<>(4, 1.0f); // name space
+    final Set<RequestMethod> methodsOnClass = new HashSet<>(8, 1.0f); // method
+
+    // find mapping on class
+    final AnnotationAttributes controllerMapping = getAnnotationAttributes(ActionMapping.class, beanClass);
+
+    if (ObjectUtils.isNotEmpty(controllerMapping)) {
+      for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {
+        namespaces.add(checkUrl(value));
+      }
+      addAll(methodsOnClass, controllerMapping.getAttribute("method", RequestMethod[].class));
     }
 
-    public HandlerMethodRegistry(int initialCapacity) {
-        this(new HashMap<>(initialCapacity));
+    for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
+      buildHandlerMethod(beanClass, method, namespaces, methodsOnClass);
     }
+  }
 
-    public HandlerMethodRegistry(Map<String, Object> handlers) {
-        this(handlers, HIGHEST_PRECEDENCE);
+  /**
+   * Set Action Mapping
+   *
+   * @param beanClass
+   *            Controller
+   * @param method
+   *            Action or Handler
+   * @param namespaces
+   *            Name space is that path mapping on the class level
+   * @param methodsOnClass
+   *            request method on class
+   * @throws Exception
+   *             If any {@link Exception} occurred
+   */
+  protected void buildHandlerMethod(final Class<?> beanClass,
+                                    final Method method,
+                                    final Set<String> namespaces,
+                                    final Set<RequestMethod> methodsOnClass) throws Exception //
+  {
+    final AnnotationAttributes[] annotationAttributes = // find mapping on method
+            ClassUtils.getAnnotationAttributesArray(method, ActionMapping.class);
+
+    if (ObjectUtils.isNotEmpty(annotationAttributes)) {
+      // do mapping url
+      mappingHandlerMethod(createHandlerMethod(beanClass, method), // create HandlerMethod
+                           namespaces,
+                           methodsOnClass,
+                           annotationAttributes);
     }
+  }
 
-    public HandlerMethodRegistry(Map<String, Object> handlers, int order) {
-        super(handlers, order);
-        this.patternMatchingCache = new ConcurrentCache<>(128);
-    }
-
-    // MappedHandlerRegistry
-    // --------------------------
-
-    @Override
-    protected String computeKey(final RequestContext context) {
-        return context.method().concat(context.requestURI());
-    }
-
-    @Override
-    protected Object lookupPatternHandler(String handlerKey) {
-        Object hander = patternMatchingCache.get(handlerKey);
-        if (hander == null) {
-            hander = super.lookupPatternHandler(handlerKey);
-            patternMatchingCache.put(handlerKey, hander == null ? EmptyObject.INSTANCE : hander);
-        }
-        else if (hander == EmptyObject.INSTANCE) {
-            return null;
-        }
-        return hander;
-    }
-
-    public void registerHandler(RequestMethod method, String patternPath, Object handler) {
-        super.registerHandler(method.name().concat(patternPath), handler);
-    }
-
-    /**
-     * Initialize All Action or Handler
-     */
-    @Override
-    public void onStartup(WebApplicationContext applicationContext) throws Throwable {
-
-        log.info("Initializing Controllers");
-        startConfiguration();
-    }
-
-    @Override
-    protected void initApplicationContext(ApplicationContext context) {
-        this.beanFactory = nonNull(context.getBean(AbstractBeanFactory.class));
-
-        final Environment environment = context.getEnvironment();
-        this.variables = environment.getProperties();
-        this.beanDefinitionLoader = environment.getBeanDefinitionLoader();
-
-        super.initApplicationContext(context);
-    }
-
-    /**
-     * Start config
-     * 
-     * @throws Exception
-     *             If any {@link Exception} occurred
-     */
-    protected void startConfiguration() throws Exception {
-        final ApplicationContext beanFactory = obtainApplicationContext();
-
-        // @since 2.3.3
-        for (final Entry<String, BeanDefinition> entry : beanFactory.getBeanDefinitions().entrySet()) {
-
-            final BeanDefinition def = entry.getValue();
-
-            if (!def.isAbstract() && isController(def)) { // ActionMapping on the class is ok
-                buildHandlerMethod(def.getBeanClass());
-            }
-        }
-    }
-
-    /**
-     * Whether the given type is a handler with handler methods.
-     * 
-     * @param def
-     *            the definition of the bean being checked
-     * @return "true" if this a handler type, "false" otherwise.
-     */
-    protected boolean isController(final BeanDefinition def) {
-        return def.isAnnotationPresent(RootController.class)
-               || def.isAnnotationPresent(ActionMapping.class);
-    }
-
-    /**
-     * Build {@link HandlerMethod}
-     * 
-     * @param beanClass
-     *            Bean class
-     * @throws Exception
-     *             If any {@link Exception} occurred
-     * @since 2.3.7
-     */
-    public void buildHandlerMethod(final Class<?> beanClass) throws Exception {
-
-        final Set<String> namespaces = new HashSet<>(4, 1.0f); // name space
-        final Set<RequestMethod> methodsOnClass = new HashSet<>(8, 1.0f); // method
-
-        // find mapping on class
-        final AnnotationAttributes controllerMapping = getAnnotationAttributes(ActionMapping.class, beanClass);
-
-        if (ObjectUtils.isNotEmpty(controllerMapping)) {
-            for (final String value : controllerMapping.getStringArray(Constant.VALUE)) {
-                namespaces.add(checkUrl(value));
-            }
-            addAll(methodsOnClass, controllerMapping.getAttribute("method", RequestMethod[].class));
-        }
-
-        for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
-            buildHandlerMethod(beanClass, method, namespaces, methodsOnClass);
-        }
-    }
-
-    /**
-     * Set Action Mapping
-     * 
-     * @param beanClass
-     *            Controller
-     * @param method
-     *            Action or Handler
-     * @param namespaces
-     *            Name space is that path mapping on the class level
-     * @param methodsOnClass
-     *            request method on class
-     * @throws Exception
-     *             If any {@link Exception} occurred
-     */
-    protected void buildHandlerMethod(final Class<?> beanClass,
-                                      final Method method,
+  /**
+   * Mapping given HandlerMapping to {@link HandlerMethodRegistry}
+   *
+   * @param handler
+   *            current {@link HandlerMethod}
+   * @param namespaces
+   *            path on class
+   * @param classRequestMethods
+   *            methods on class
+   * @param annotationAttributes
+   *            {@link ActionMapping} Attributes
+   */
+  protected void mappingHandlerMethod(final HandlerMethod handler,
                                       final Set<String> namespaces,
-                                      final Set<RequestMethod> methodsOnClass) throws Exception //
-    {
-        final AnnotationAttributes[] annotationAttributes = // find mapping on method
-                ClassUtils.getAnnotationAttributesArray(method, ActionMapping.class);
+                                      final Set<RequestMethod> classRequestMethods,
+                                      final AnnotationAttributes[] annotationAttributes) // TODO
+  {
+    final boolean emptyNamespaces = namespaces.isEmpty();
+    final boolean addClassRequestMethods = !classRequestMethods.isEmpty();
 
-        if (ObjectUtils.isNotEmpty(annotationAttributes)) {
-            // do mapping url
-            mappingHandlerMethod(createHandlerMethod(beanClass, method), // create HandlerMethod
-                                 namespaces,
-                                 methodsOnClass,
-                                 annotationAttributes);
-        }
-    }
+    for (final AnnotationAttributes handlerMethodMapping : annotationAttributes) {
 
-    /**
-     * Mapping given HandlerMapping to {@link HandlerMethodRegistry}
-     * 
-     * @param handler
-     *            current {@link HandlerMethod}
-     * @param namespaces
-     *            path on class
-     * @param classRequestMethods
-     *            methods on class
-     * @param annotationAttributes
-     *            {@link ActionMapping} Attributes
-     */
-    protected void mappingHandlerMethod(final HandlerMethod handler,
-                                        final Set<String> namespaces,
-                                        final Set<RequestMethod> classRequestMethods,
-                                        final AnnotationAttributes[] annotationAttributes) // TODO 
-    {
-        final boolean emptyNamespaces = namespaces.isEmpty();
-        final boolean addClassRequestMethods = !classRequestMethods.isEmpty();
+      final boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
+      final Set<RequestMethod> requestMethods = // http request method on method(action/handler)
+              newHashSet(handlerMethodMapping.getAttribute("method", RequestMethod[].class));
 
-        for (final AnnotationAttributes handlerMethodMapping : annotationAttributes) {
+      if (addClassRequestMethods) requestMethods.addAll(classRequestMethods);
 
-            final boolean exclude = handlerMethodMapping.getBoolean("exclude"); // exclude name space on class ?
-            final Set<RequestMethod> requestMethods = // http request method on method(action/handler)
-                    newHashSet(handlerMethodMapping.getAttribute("method", RequestMethod[].class));
+      for (final String urlOnMethod : handlerMethodMapping.getStringArray("value")) { // url on method
+        // splice urls and request methods
+        // ---------------------------------
+        for (final RequestMethod requestMethod : requestMethods) {
 
-            if (addClassRequestMethods) requestMethods.addAll(classRequestMethods);
-
-            for (final String urlOnMethod : handlerMethodMapping.getStringArray("value")) { // url on method
-                // splice urls and request methods
-                // ---------------------------------
-                for (final RequestMethod requestMethod : requestMethods) {
-
-                    final String checkedUrl = checkUrl(urlOnMethod);
-                    if (exclude || emptyNamespaces) {
-                        mappingHandlerMethod(checkedUrl, requestMethod, handler);
-                    }
-                    else {
-                        for (final String namespace : namespaces) {
-                            mappingHandlerMethod(namespace.concat(checkedUrl), requestMethod, handler);
-                        }
-                    }
-                }
+          final String checkedUrl = checkUrl(urlOnMethod);
+          if (exclude || emptyNamespaces) {
+            mappingHandlerMethod(checkedUrl, requestMethod, handler);
+          }
+          else {
+            for (final String namespace : namespaces) {
+              mappingHandlerMethod(namespace.concat(checkedUrl), requestMethod, handler);
             }
+          }
         }
+      }
+    }
+  }
+
+  /**
+   * Transform {@link HandlerMethod} if path contains {@link PathVariable}
+   *
+   * @param path
+   *            handler key
+   * @param handlerMethod
+   *            Target {@link HandlerMethod}
+   * @return Transformed {@link HandlerMethod}
+   */
+  protected HandlerMethod transformHandlerMethod(final String path, final HandlerMethod handlerMethod) {
+    if (containsPathVariable(path)) {
+      mappingPathVariable(path, handlerMethod);
+    }
+    return handlerMethod;
+  }
+
+  /**
+   * contains {@link PathVariable} char: '{' and '}'
+   *
+   * @param path
+   *            handler key
+   * @return If contains '{' and '}'
+   */
+  protected boolean containsPathVariable(final String path) {
+    return path.indexOf('{') > -1 && path.indexOf('}') > -1;
+  }
+
+  /**
+   * Mapping to {@link HandlerMethodRegistry}
+   *
+   * @param handlerMethod
+   *            {@link HandlerMethod}
+   * @param urlOnMethod
+   *            Method url mapping
+   * @param requestMethod
+   *            HTTP request method
+   * @see RequestMethod
+   */
+  protected void mappingHandlerMethod(String urlOnMethod, RequestMethod requestMethod, HandlerMethod handlerMethod) {
+    // GET/blog/users/1 GET/blog/#{key}/1
+    final String key = getContextPath().concat(resolveValue(urlOnMethod, String.class, variables));
+    registerHandler(requestMethod, key, transformHandlerMethod(key, handlerMethod));
+  }
+
+  /**
+   * Mapping path variable.
+   */
+  protected void mappingPathVariable(final String pathPattern, final HandlerMethod handler) {
+
+    final List<MethodParameter> parameters = new LinkedList<>();
+    final Map<String, MethodParameter> parameterMapping = new HashMap<>();
+
+    final MethodParameter[] methodParameters = handler.getParameters();
+    for (MethodParameter methodParameter : methodParameters) {
+      parameterMapping.put(methodParameter.getName(), methodParameter);
+      parameters.add(methodParameter);
     }
 
-    /**
-     * Transform {@link HandlerMethod} if path contains {@link PathVariable}
-     * 
-     * @param path
-     *            handler key
-     * @param handlerMethod
-     *            Target {@link HandlerMethod}
-     * @return Transformed {@link HandlerMethod}
-     */
-    protected HandlerMethod transformHandlerMethod(final String path, final HandlerMethod handlerMethod) {
-        if (containsPathVariable(path)) {
-            mappingPathVariable(path, handlerMethod);
-        }
-        return handlerMethod;
+    int i = 0;
+    final PathMatcher pathMatcher = getPathMatcher();
+    for (final String variable : pathMatcher.extractVariableNames(pathPattern)) {
+      final MethodParameter parameter = parameterMapping.get(variable);
+      if (parameter == null) {
+        throw new ConfigurationException("There isn't a variable named: ["
+                                                 + variable + "] in the parameter list at method: [" + handler.getMethod() + "]");
+      }
+      methodParameters[parameters.indexOf(parameter)] = //
+              new PathVariableMethodParameter(i++, pathPattern, handler, parameter, pathMatcher);
     }
+  }
 
-    /**
-     * contains {@link PathVariable} char: '{' and '}'
-     * 
-     * @param path
-     *            handler key
-     * @return If contains '{' and '}'
-     */
-    protected boolean containsPathVariable(final String path) {
-        return path.indexOf('{') > -1 && path.indexOf('}') > -1;
+  /**
+   * Create {@link HandlerMethod}.
+   *
+   * @param beanClass
+   *            Controller class
+   * @param method
+   *            Action or Handler
+   * @return A new {@link HandlerMethod}
+   * @throws Exception
+   *             If any {@link Throwable} occurred
+   */
+  protected HandlerMethod createHandlerMethod(final Class<?> beanClass, final Method method) throws Exception {
+    final Object handlerBean = createHandler(beanClass, this.beanFactory);
+    if (handlerBean == null) {
+      throw new ConfigurationException("An unexpected exception occurred: [Can't get bean with given type: ["
+                                               + beanClass.getName() + "]]"//
+      );
     }
+    return new HandlerMethod(handlerBean, method, getInterceptors(beanClass, method));
+  }
 
-    /**
-     * Mapping to {@link HandlerMethodRegistry}
-     * 
-     * @param handlerMethod
-     *            {@link HandlerMethod}
-     * @param urlOnMethod
-     *            Method url mapping
-     * @param requestMethod
-     *            HTTP request method
-     * @see RequestMethod
-     */
-    protected void mappingHandlerMethod(String urlOnMethod, RequestMethod requestMethod, HandlerMethod handlerMethod) {
-        // GET/blog/users/1 GET/blog/#{key}/1
-        final String key = getContextPath().concat(resolveValue(urlOnMethod, String.class, variables));
-        registerHandler(requestMethod, key, transformHandlerMethod(key, handlerMethod));
+  /**
+   * Create a handler bean instance
+   *
+   * @param beanClass
+   *            Target bean class
+   * @param beanFactory
+   *            {@link AbstractBeanFactory}
+   * @return Returns a handler bean of target beanClass
+   */
+  protected Object createHandler(final Class<?> beanClass, final AbstractBeanFactory beanFactory) {
+    final BeanDefinition def = beanFactory.getBeanDefinition(beanClass);
+    return def.isSingleton()
+           ? beanFactory.getBean(def)
+           : Prototypes.newProxyInstance(beanClass, def, beanFactory);
+  }
+
+  /**
+   * Get list of intercepters.
+   *
+   * @param controllerClass
+   *            controller class
+   * @param action
+   *            method
+   * @return List of {@link HandlerInterceptor} objects
+   */
+  protected List<HandlerInterceptor> getInterceptors(final Class<?> controllerClass, final Method action) {
+
+    final List<HandlerInterceptor> ret = new ArrayList<>();
+
+    // 设置类拦截器
+    final Interceptor[] controllerInterceptors = ClassUtils.getAnnotationArray(controllerClass, Interceptor.class);
+    if (controllerInterceptors != null) {
+      for (final Interceptor controllerInterceptor : controllerInterceptors) {
+        addAll(ret, getInterceptors(controllerInterceptor.value()));
+      }
     }
-
-    /**
-     * Mapping path variable.
-     */
-    protected void mappingPathVariable(final String pathPattern, final HandlerMethod handler) {
-
-        final List<MethodParameter> parameters = new LinkedList<>();
-        final Map<String, MethodParameter> parameterMapping = new HashMap<>();
-
-        final MethodParameter[] methodParameters = handler.getParameters();
-        for (MethodParameter methodParameter : methodParameters) {
-            parameterMapping.put(methodParameter.getName(), methodParameter);
-            parameters.add(methodParameter);
-        }
-
-        int i = 0;
-        final PathMatcher pathMatcher = getPathMatcher();
-        for (final String variable : pathMatcher.extractVariableNames(pathPattern)) {
-            final MethodParameter parameter = parameterMapping.get(variable);
-            if (parameter == null) {
-                throw new ConfigurationException("There isn't a variable named: ["
-                        + variable + "] in the parameter list at method: [" + handler.getMethod() + "]");
-            }
-            methodParameters[parameters.indexOf(parameter)] = //
-                    new PathVariableMethodParameter(i++, pathPattern, handler, parameter, pathMatcher);
-        }
-    }
-
-    /**
-     * Create {@link HandlerMethod}.
-     * 
-     * @param beanClass
-     *            Controller class
-     * @param method
-     *            Action or Handler
-     * @return A new {@link HandlerMethod}
-     * @throws Exception
-     *             If any {@link Throwable} occurred
-     */
-    protected HandlerMethod createHandlerMethod(final Class<?> beanClass, final Method method) throws Exception {
-        final Object handlerBean = createHandler(beanClass, this.beanFactory);
-        if (handlerBean == null) {
-            throw new ConfigurationException("An unexpected exception occurred: [Can't get bean with given type: ["
-                    + beanClass.getName() + "]]"//
-            );
-        }
-        return new HandlerMethod(handlerBean, method, getInterceptors(beanClass, method));
-    }
-
-    /**
-     * Create a handler bean instance
-     * 
-     * @param beanClass
-     *            Target bean class
-     * @param beanFactory
-     *            {@link AbstractBeanFactory}
-     * @return Returns a handler bean of target beanClass
-     */
-    protected Object createHandler(final Class<?> beanClass, final AbstractBeanFactory beanFactory) {
-        final BeanDefinition def = beanFactory.getBeanDefinition(beanClass);
-        return def.isSingleton()
-                ? beanFactory.getBean(def)
-                : Prototypes.newProxyInstance(beanClass, def, beanFactory);
-    }
-
-    /**
-     * Get list of intercepters.
-     * 
-     * @param controllerClass
-     *            controller class
-     * @param action
-     *            method
-     * @return List of {@link HandlerInterceptor} objects
-     */
-    protected List<HandlerInterceptor> getInterceptors(final Class<?> controllerClass, final Method action) {
-
-        final List<HandlerInterceptor> ret = new ArrayList<>();
-
-        // 设置类拦截器
-        final Interceptor[] controllerInterceptors = ClassUtils.getAnnotationArray(controllerClass, Interceptor.class);
-        if (controllerInterceptors != null) {
-            for (final Interceptor controllerInterceptor : controllerInterceptors) {
-                addAll(ret, getInterceptors(controllerInterceptor.value()));
-            }
-        }
-        // HandlerInterceptor on a method
-        final Interceptor[] actionInterceptors = ClassUtils.getAnnotationArray(action, Interceptor.class);
-        if (actionInterceptors != null) {
-            for (final Interceptor actionInterceptor : actionInterceptors) {
-                addAll(ret, getInterceptors(actionInterceptor.value()));
-                // exclude interceptors
-                final ApplicationContext beanFactory = obtainApplicationContext();
-                for (Class<? extends HandlerInterceptor> interceptor : actionInterceptor.exclude()) {
-                    ret.remove(beanFactory.getBean(interceptor));
-                }
-            }
-        }
-        return ret;
-    }
-
-    /***
-     * Get {@link HandlerInterceptor} objects
-     * 
-     * @param interceptors
-     *            {@link HandlerInterceptor} class
-     * @return Array of {@link HandlerInterceptor} objects
-     */
-    public HandlerInterceptor[] getInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
-
-        if (ObjectUtils.isEmpty(interceptors)) {
-            return Constant.EMPTY_HANDLER_INTERCEPTOR;
-        }
+    // HandlerInterceptor on a method
+    final Interceptor[] actionInterceptors = ClassUtils.getAnnotationArray(action, Interceptor.class);
+    if (actionInterceptors != null) {
+      for (final Interceptor actionInterceptor : actionInterceptors) {
+        addAll(ret, getInterceptors(actionInterceptor.value()));
+        // exclude interceptors
         final ApplicationContext beanFactory = obtainApplicationContext();
-
-        int i = 0;
-        final HandlerInterceptor[] ret = new HandlerInterceptor[interceptors.length];
-        for (Class<? extends HandlerInterceptor> interceptor : interceptors) {
-
-            if (!beanFactory.containsBeanDefinition(interceptor, true)) {
-                try {
-                    beanFactory.registerBean(beanDefinitionLoader.createBeanDefinition(interceptor));
-                }
-                catch (BeanDefinitionStoreException e) {
-                    throw new ConfigurationException("Interceptor: [" + interceptor.getName() + "] register error", e);
-                }
-            }
-            final HandlerInterceptor instance = beanFactory.getBean(interceptor);
-            ret[i++] = requireNonNull(instance, "Can't get target interceptor bean");
+        for (Class<? extends HandlerInterceptor> interceptor : actionInterceptor.exclude()) {
+          ret.remove(beanFactory.getBean(interceptor));
         }
-        return ret;
+      }
     }
+    return ret;
+  }
 
-    /**
-     * Rebuild Controllers
-     * 
-     * @throws Throwable
-     *             If any {@link Throwable} occurred
-     */
-    public void reBuiltControllers() throws Throwable {
+  /***
+   * Get {@link HandlerInterceptor} objects
+   *
+   * @param interceptors
+   *            {@link HandlerInterceptor} class
+   * @return Array of {@link HandlerInterceptor} objects
+   */
+  public HandlerInterceptor[] getInterceptors(Class<? extends HandlerInterceptor>[] interceptors) {
 
-        log.info("Rebuilding Controllers");
-        clearHandlers();
-        startConfiguration();
+    if (ObjectUtils.isEmpty(interceptors)) {
+      return Constant.EMPTY_HANDLER_INTERCEPTOR;
     }
+    final ApplicationContext beanFactory = obtainApplicationContext();
+
+    int i = 0;
+    final HandlerInterceptor[] ret = new HandlerInterceptor[interceptors.length];
+    for (Class<? extends HandlerInterceptor> interceptor : interceptors) {
+
+      if (!beanFactory.containsBeanDefinition(interceptor, true)) {
+        try {
+          beanFactory.registerBean(beanDefinitionLoader.createBeanDefinition(interceptor));
+        }
+        catch (BeanDefinitionStoreException e) {
+          throw new ConfigurationException("Interceptor: [" + interceptor.getName() + "] register error", e);
+        }
+      }
+      final HandlerInterceptor instance = beanFactory.getBean(interceptor);
+      ret[i++] = requireNonNull(instance, "Can't get target interceptor bean");
+    }
+    return ret;
+  }
+
+  /**
+   * Rebuild Controllers
+   *
+   * @throws Throwable
+   *             If any {@link Throwable} occurred
+   */
+  public void reBuiltControllers() throws Throwable {
+
+    log.info("Rebuilding Controllers");
+    clearHandlers();
+    startConfiguration();
+  }
 }

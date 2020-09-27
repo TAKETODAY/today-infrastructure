@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -38,100 +38,100 @@ import cn.taketoday.context.utils.StringUtils;
 
 /**
  * Initialize {@link Filter}, {@link Servlet},Listener
- * 
+ *
  * @author TODAY <br>
  *         2019-02-03 12:22
  */
 public abstract class WebComponentInitializer<D extends Registration.Dynamic>
         extends OrderedSupport implements ServletContextInitializer {
 
-    private String name;
+  private String name;
 
-    private boolean asyncSupported = false;
+  private boolean asyncSupported = false;
 
-    private Set<String> urlMappings = new LinkedHashSet<>();
+  private Set<String> urlMappings = new LinkedHashSet<>();
 
-    private Map<String, String> initParameters = new LinkedHashMap<>();
+  private Map<String, String> initParameters = new LinkedHashMap<>();
 
-    private ServletContext servletContext;
+  private ServletContext servletContext;
 
-    @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
+  @Override
+  public void onStartup(ServletContext servletContext) throws ServletException {
 
-        setServletContext(servletContext);
+    setServletContext(servletContext);
 
-        D registration = addRegistration(servletContext);
-        if (registration != null) {
-            configureRegistration(registration);
-        }
+    D registration = addRegistration(servletContext);
+    if (registration != null) {
+      configureRegistration(registration);
     }
+  }
 
-    protected abstract D addRegistration(ServletContext servletContext);
+  protected abstract D addRegistration(ServletContext servletContext);
 
-    protected void configureRegistration(D registration) {
-        registration.setAsyncSupported(this.asyncSupported);
-        if (!this.initParameters.isEmpty()) {
-            registration.setInitParameters(this.initParameters);
-        }
+  protected void configureRegistration(D registration) {
+    registration.setAsyncSupported(this.asyncSupported);
+    if (!this.initParameters.isEmpty()) {
+      registration.setInitParameters(this.initParameters);
     }
+  }
 
-    public void setInitParameters(Map<String, String> initParameters) {
-        this.initParameters = new LinkedHashMap<>(initParameters);
+  public void setInitParameters(Map<String, String> initParameters) {
+    this.initParameters = new LinkedHashMap<>(initParameters);
+  }
+
+  public void addInitParameter(String name, String value) {
+    this.initParameters.put(name, value);
+  }
+
+  public Map<String, String> getInitParameters() {
+    return this.initParameters;
+  }
+
+  public void setUrlMappings(Collection<String> urlMappings) {
+    Objects.requireNonNull(urlMappings, "UrlMappings must not be null");
+    this.urlMappings = new LinkedHashSet<>(urlMappings);
+  }
+
+  public Collection<String> getUrlMappings() {
+    return this.urlMappings;
+  }
+
+  public void addUrlMappings(String... urlMappings) {
+    Objects.requireNonNull(urlMappings, "UrlMappings must not be null");
+    this.urlMappings.addAll(Arrays.asList(urlMappings));
+  }
+
+  public String getName() {
+    if (StringUtils.isEmpty(name)) {
+      return getDefaultName();
     }
+    return name;
+  }
 
-    public void addInitParameter(String name, String value) {
-        this.initParameters.put(name, value);
-    }
+  protected String getDefaultName() {
+    return null;
+  }
 
-    public Map<String, String> getInitParameters() {
-        return this.initParameters;
-    }
+  // -----------
 
-    public void setUrlMappings(Collection<String> urlMappings) {
-        Objects.requireNonNull(urlMappings, "UrlMappings must not be null");
-        this.urlMappings = new LinkedHashSet<>(urlMappings);
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public Collection<String> getUrlMappings() {
-        return this.urlMappings;
-    }
+  public boolean isAsyncSupported() {
+    return asyncSupported;
+  }
 
-    public void addUrlMappings(String... urlMappings) {
-        Objects.requireNonNull(urlMappings, "UrlMappings must not be null");
-        this.urlMappings.addAll(Arrays.asList(urlMappings));
-    }
+  public void setAsyncSupported(boolean asyncSupported) {
+    this.asyncSupported = asyncSupported;
+  }
 
-    public String getName() {
-        if (StringUtils.isEmpty(name)) {
-            return getDefaultName();
-        }
-        return name;
-    }
+  public ServletContext getServletContext() {
+    return servletContext;
+  }
 
-    protected String getDefaultName() {
-        return null;
-    }
-
-    // -----------
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isAsyncSupported() {
-        return asyncSupported;
-    }
-
-    public void setAsyncSupported(boolean asyncSupported) {
-        this.asyncSupported = asyncSupported;
-    }
-
-    public ServletContext getServletContext() {
-        return servletContext;
-    }
-
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
-    }
+  public void setServletContext(ServletContext servletContext) {
+    this.servletContext = servletContext;
+  }
 
 }

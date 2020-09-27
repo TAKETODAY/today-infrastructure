@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -28,17 +28,17 @@ import cn.taketoday.web.RequestContext;
  */
 public abstract class AbstractHandlerAdapter extends OrderedSupport implements HandlerAdapter {
 
-    public AbstractHandlerAdapter() {}
+  public AbstractHandlerAdapter() {}
 
-    public AbstractHandlerAdapter(int order) {
-        super(order);
-    }
+  public AbstractHandlerAdapter(int order) {
+    super(order);
+  }
 
-    @Override
-    public long getLastModified(final RequestContext context, final Object handler) {
-        if (handler instanceof LastModified) {
-            return ((LastModified) handler).getLastModified(context);
-        }
-        return -1;
+  @Override
+  public long getLastModified(final RequestContext context, final Object handler) {
+    if (handler instanceof LastModified) {
+      return ((LastModified) handler).getLastModified(context);
     }
+    return -1;
+  }
 }

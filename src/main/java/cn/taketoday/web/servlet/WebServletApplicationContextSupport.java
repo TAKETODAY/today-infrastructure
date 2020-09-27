@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -31,64 +31,64 @@ import cn.taketoday.web.WebApplicationContextSupport;
  */
 public class WebServletApplicationContextSupport extends WebApplicationContextSupport implements ServletContextAware {
 
-    private ServletContext servletContext;
+  private ServletContext servletContext;
 
-    @Override
-    public final void setServletContext(ServletContext servletContext) {
-        if (servletContext != this.servletContext) {
-            initServletContext(this.servletContext = servletContext);
-        }
+  @Override
+  public final void setServletContext(ServletContext servletContext) {
+    if (servletContext != this.servletContext) {
+      initServletContext(this.servletContext = servletContext);
     }
+  }
 
-    /**
-     * Subclasses may override this for custom initialization based on the
-     * ServletContext that this application object runs in.
-     * <p>
-     * The default implementation is empty. Called by
-     * {@link #initApplicationContext(ApplicationContext)} as well as
-     * {@link #setServletContext(javax.servlet.ServletContext)}.
-     * 
-     * @param servletContext
-     *            the ServletContext that this application object runs in (never
-     *            {@code null})
-     */
-    protected void initServletContext(ServletContext servletContext) {}
+  /**
+   * Subclasses may override this for custom initialization based on the
+   * ServletContext that this application object runs in.
+   * <p>
+   * The default implementation is empty. Called by
+   * {@link #initApplicationContext(ApplicationContext)} as well as
+   * {@link #setServletContext(javax.servlet.ServletContext)}.
+   *
+   * @param servletContext
+   *            the ServletContext that this application object runs in (never
+   *            {@code null})
+   */
+  protected void initServletContext(ServletContext servletContext) {}
 
-    /**
-     * Return the current application context as
-     * {@link WebServletApplicationContext}.
-     * 
-     * @throws IllegalStateException
-     *             if not running in a WebApplicationContext
-     * @see #getApplicationContext()
-     */
-    public final WebServletApplicationContext getWebServletApplicationContext() throws IllegalStateException {
-        ApplicationContext ctx = getApplicationContext();
-        if (ctx instanceof WebServletApplicationContext) {
-            return (WebServletApplicationContext) ctx;
-        }
-        throw new IllegalStateException("ApplicationContext must be a WebServletApplicationContext");
+  /**
+   * Return the current application context as
+   * {@link WebServletApplicationContext}.
+   *
+   * @throws IllegalStateException
+   *             if not running in a WebApplicationContext
+   * @see #getApplicationContext()
+   */
+  public final WebServletApplicationContext getWebServletApplicationContext() throws IllegalStateException {
+    ApplicationContext ctx = getApplicationContext();
+    if (ctx instanceof WebServletApplicationContext) {
+      return (WebServletApplicationContext) ctx;
     }
+    throw new IllegalStateException("ApplicationContext must be a WebServletApplicationContext");
+  }
 
-    /**
-     * Return the current ServletContext.
-     * 
-     * @throws IllegalStateException
-     *             if not running within a required ServletContext
-     */
-    public final ServletContext getServletContext() throws IllegalStateException {
-        if (this.servletContext != null) {
-            return this.servletContext;
-        }
-        final WebServletApplicationContext context = getWebServletApplicationContext();
-        ServletContext servletContext = null;
-        if (context != null) {
-            servletContext = context.getServletContext();
-        }
-        if (servletContext == null) {
-            throw new IllegalStateException("WebServletApplicationContextSupport instance [" + this +
-                    "] does not run within a ServletContext. Make sure the object is fully configured!");
-        }
-        return servletContext;
+  /**
+   * Return the current ServletContext.
+   *
+   * @throws IllegalStateException
+   *             if not running within a required ServletContext
+   */
+  public final ServletContext getServletContext() throws IllegalStateException {
+    if (this.servletContext != null) {
+      return this.servletContext;
     }
+    final WebServletApplicationContext context = getWebServletApplicationContext();
+    ServletContext servletContext = null;
+    if (context != null) {
+      servletContext = context.getServletContext();
+    }
+    if (servletContext == null) {
+      throw new IllegalStateException("WebServletApplicationContextSupport instance [" + this +
+                                              "] does not run within a ServletContext. Make sure the object is fully configured!");
+    }
+    return servletContext;
+  }
 }

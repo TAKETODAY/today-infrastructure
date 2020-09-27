@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,130 +37,130 @@ import cn.taketoday.web.Constant;
  */
 public class WebServletInitializer<T extends Servlet> extends WebComponentInitializer<ServletRegistration.Dynamic> {
 
-    private T servlet;
-    private int loadOnStartup = -1;
-    private MultipartConfigElement multipartConfig;
-    private ServletSecurityElement servletSecurity;
+  private T servlet;
+  private int loadOnStartup = -1;
+  private MultipartConfigElement multipartConfig;
+  private ServletSecurityElement servletSecurity;
 
-    public WebServletInitializer() {}
+  public WebServletInitializer() {}
 
-    public WebServletInitializer(T servlet) {
-        this.servlet = servlet;
+  public WebServletInitializer(T servlet) {
+    this.servlet = servlet;
+  }
+
+  @Override
+  protected Dynamic addRegistration(ServletContext servletContext) {
+
+    final T servlet = getServlet();
+    if (servlet != null) {
+      return servletContext.addServlet(getName(), servlet);
     }
+    throw new ConfigurationException("servlet can't be null");
+  }
 
-    @Override
-    protected Dynamic addRegistration(ServletContext servletContext) {
+  /**
+   * Configure registration settings. Subclasses can override this method to
+   * perform additional configuration if required.
+   *
+   * @param registration
+   *            the registration
+   */
+  @Override
+  protected void configureRegistration(Dynamic registration) {
 
-        final T servlet = getServlet();
-        if (servlet != null) {
-            return servletContext.addServlet(getName(), servlet);
-        }
-        throw new ConfigurationException("servlet can't be null");
+    LoggerFactory.getLogger(WebServletInitializer.class).debug("Configure servlet registration: [{}]", this);
+    registration.setLoadOnStartup(this.loadOnStartup);
+
+    super.configureRegistration(registration);
+    configureMultipart(registration);
+    configureUrlMappings(registration);
+    configureServletSecurity(registration);
+  }
+
+  protected void configureUrlMappings(Dynamic registration) {
+
+    final String[] urlMappings = getUrlMappings().isEmpty()
+            ? Constant.DEFAULT_MAPPINGS
+            : StringUtils.toStringArray(getUrlMappings());
+
+    registration.addMapping(urlMappings);
+  }
+
+  protected void configureServletSecurity(Dynamic registration) {
+    if (this.servletSecurity != null) {
+      registration.setServletSecurity(servletSecurity);
     }
+  }
 
-    /**
-     * Configure registration settings. Subclasses can override this method to
-     * perform additional configuration if required.
-     * 
-     * @param registration
-     *            the registration
-     */
-    @Override
-    protected void configureRegistration(Dynamic registration) {
-
-        LoggerFactory.getLogger(WebServletInitializer.class).debug("Configure servlet registration: [{}]", this);
-        registration.setLoadOnStartup(this.loadOnStartup);
-
-        super.configureRegistration(registration);
-        configureMultipart(registration);
-        configureUrlMappings(registration);
-        configureServletSecurity(registration);
+  protected void configureMultipart(Dynamic registration) {
+    if (this.multipartConfig != null) {
+      registration.setMultipartConfig(this.multipartConfig);
     }
+  }
 
-    protected void configureUrlMappings(Dynamic registration) {
+  public void setServlet(T servlet) {
+    this.servlet = servlet;
+  }
 
-        final String[] urlMappings = getUrlMappings().isEmpty()
-                ? Constant.DEFAULT_MAPPINGS
-                : StringUtils.toStringArray(getUrlMappings());
+  public T getServlet() {
+    return servlet;
+  }
 
-        registration.addMapping(urlMappings);
+  @Override
+  protected String getDefaultName() {
+
+    final T servlet = getServlet();
+    if (servlet != null) {
+      return servlet.getClass().getName();
     }
+    return null;
+  }
 
-    protected void configureServletSecurity(Dynamic registration) {
-        if (this.servletSecurity != null) {
-            registration.setServletSecurity(servletSecurity);
-        }
-    }
+  // ---------------
 
-    protected void configureMultipart(Dynamic registration) {
-        if (this.multipartConfig != null) {
-            registration.setMultipartConfig(this.multipartConfig);
-        }
-    }
+  public int getLoadOnStartup() {
+    return loadOnStartup;
+  }
 
-    public void setServlet(T servlet) {
-        this.servlet = servlet;
-    }
+  public void setLoadOnStartup(int loadOnStartup) {
+    this.loadOnStartup = loadOnStartup;
+  }
 
-    public T getServlet() {
-        return servlet;
-    }
+  /**
+   * Returns the {@link MultipartConfigElement multi-part configuration} to be
+   * applied or {@code null}.
+   *
+   * @return the multipart config
+   */
+  public MultipartConfigElement getMultipartConfig() {
+    return this.multipartConfig;
+  }
 
-    @Override
-    protected String getDefaultName() {
+  public void setMultipartConfig(MultipartConfigElement multipartConfig) {
+    this.multipartConfig = multipartConfig;
+  }
 
-        final T servlet = getServlet();
-        if (servlet != null) {
-            return servlet.getClass().getName();
-        }
-        return null;
-    }
+  public ServletSecurityElement getServletSecurity() {
+    return servletSecurity;
+  }
 
-    // ---------------
+  public void setServletSecurity(ServletSecurityElement servletSecurity) {
+    this.servletSecurity = servletSecurity;
+  }
 
-    public int getLoadOnStartup() {
-        return loadOnStartup;
-    }
-
-    public void setLoadOnStartup(int loadOnStartup) {
-        this.loadOnStartup = loadOnStartup;
-    }
-
-    /**
-     * Returns the {@link MultipartConfigElement multi-part configuration} to be
-     * applied or {@code null}.
-     * 
-     * @return the multipart config
-     */
-    public MultipartConfigElement getMultipartConfig() {
-        return this.multipartConfig;
-    }
-
-    public void setMultipartConfig(MultipartConfigElement multipartConfig) {
-        this.multipartConfig = multipartConfig;
-    }
-
-    public ServletSecurityElement getServletSecurity() {
-        return servletSecurity;
-    }
-
-    public void setServletSecurity(ServletSecurityElement servletSecurity) {
-        this.servletSecurity = servletSecurity;
-    }
-
-    @Override
-    public String toString() {
-        return new StringBuilder()//
-                .append("{\n\t\"servlet\":\"").append(servlet)//
-                .append("\",\n\t\"name\":\"").append(getName())//
-                .append("\",\n\t\"loadOnStartup\":\"").append(loadOnStartup)//
-                .append("\",\n\t\"multipartConfig\":\"").append(multipartConfig)//
-                .append("\",\n\t\"servletSecurity\":\"").append(servletSecurity)//
-                .append("\",\n\t\"initParameters\":\"").append(getInitParameters())//
-                .append("\",\n\t\"order\":\"").append(getOrder())//
-                .append("\",\n\t\"urlMappings\":\"").append(getUrlMappings())//
-                .append("\",\n\t\"asyncSupported\":\"").append(isAsyncSupported())//
-                .append("\"\n}").toString();
-    }
+  @Override
+  public String toString() {
+    return new StringBuilder()//
+            .append("{\n\t\"servlet\":\"").append(servlet)//
+            .append("\",\n\t\"name\":\"").append(getName())//
+            .append("\",\n\t\"loadOnStartup\":\"").append(loadOnStartup)//
+            .append("\",\n\t\"multipartConfig\":\"").append(multipartConfig)//
+            .append("\",\n\t\"servletSecurity\":\"").append(servletSecurity)//
+            .append("\",\n\t\"initParameters\":\"").append(getInitParameters())//
+            .append("\",\n\t\"order\":\"").append(getOrder())//
+            .append("\",\n\t\"urlMappings\":\"").append(getUrlMappings())//
+            .append("\",\n\t\"asyncSupported\":\"").append(isAsyncSupported())//
+            .append("\"\n}").toString();
+  }
 
 }

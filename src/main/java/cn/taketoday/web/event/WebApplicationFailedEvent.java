@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,29 +23,29 @@ import cn.taketoday.context.event.ApplicationEvent;
 import cn.taketoday.web.WebApplicationContext;
 
 /**
- * 
+ *
  * @author TODAY <br>
  *         2019-05-17 10:14
  */
 @SuppressWarnings("serial")
 public class WebApplicationFailedEvent extends ApplicationEvent {
 
-    private final WebApplicationContext applicationContext;
+  private final WebApplicationContext applicationContext;
 
-    private final Throwable cause;
+  private final Throwable cause;
 
-    public WebApplicationFailedEvent(WebApplicationContext applicationContext, Throwable cause) {
-        super(applicationContext);
-        this.cause = cause;
-        this.applicationContext = applicationContext;
-    }
+  public WebApplicationFailedEvent(WebApplicationContext applicationContext, Throwable cause) {
+    super(applicationContext);
+    this.cause = cause;
+    this.applicationContext = applicationContext;
+  }
 
-    public WebApplicationContext getApplicationContext() {
-        return applicationContext;
-    }
+  public WebApplicationContext getApplicationContext() {
+    return applicationContext;
+  }
 
-    public final Throwable getCause() {
-        return cause;
-    }
+  public final Throwable getCause() {
+    return cause;
+  }
 
 }

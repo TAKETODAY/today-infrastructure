@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,71 +29,71 @@ import java.io.Serializable;
  */
 public interface MultipartFile extends Serializable, cn.taketoday.context.io.Readable {
 
-    /**
-     * Get upload file content type.
-     * 
-     * @return upload file content type
-     */
-    String getContentType();
+  /**
+   * Get upload file content type.
+   *
+   * @return upload file content type
+   */
+  String getContentType();
 
-    /**
-     * Return the size of the file in bytes.
-     * 
-     * @return the size of the file, or 0 if empty
-     */
-    long getSize();
+  /**
+   * Return the size of the file in bytes.
+   *
+   * @return the size of the file, or 0 if empty
+   */
+  long getSize();
 
-    /**
-     * Gets the name of this part.
-     *
-     * @return The name of this part as a <tt>String</tt>
-     */
-    String getName();
+  /**
+   * Gets the name of this part.
+   *
+   * @return The name of this part as a <tt>String</tt>
+   */
+  String getName();
 
-    /**
-     * Return the original filename in the client's file system.
-     */
-    String getFileName();
+  /**
+   * Return the original filename in the client's file system.
+   */
+  String getFileName();
 
-    /**
-     * Save upload file to server.
-     * 
-     * @param dest
-     *            the destination file path
-     * @throws IOException
-     *  if an error occurs when write to dest.
-     */
-    void save(File dest) throws IOException;
+  /**
+   * Save upload file to server.
+   *
+   * @param dest
+   *            the destination file path
+   * @throws IOException
+   *  if an error occurs when write to dest.
+   */
+  void save(File dest) throws IOException;
 
-    /**
-     * @return
-     */
-    boolean isEmpty();
+  /**
+   * @return
+   */
+  boolean isEmpty();
 
-    /**
-     * Returns the contents of the file item as an array of bytes.
-     * 
-     * @since 2.3.3
-     * @throws IOException
-     */
-    byte[] getBytes() throws IOException;
+  /**
+   * Returns the contents of the file item as an array of bytes.
+   *
+   * @since 2.3.3
+   * @throws IOException
+   */
+  byte[] getBytes() throws IOException;
 
-    /**
-     * Get original resource
-     * 
-     * @since 2.3.3
-     * @return Original resource
-     */
-    Object getOriginalResource();
+  /**
+   * Get original resource
+   *
+   * @since 2.3.3
+   * @return Original resource
+   */
+  Object getOriginalResource();
 
-    /**
-     * Deletes the underlying storage for a file item, including deleting any
-     * associated temporary disk file.
-     * 
-     * @since 2.3.3
-     * @throws IOException
-     *             if an error occurs.
-     */
-    void delete() throws IOException;
+  /**
+   * Deletes the underlying storage for a file item, including deleting any
+   * associated temporary disk file.
+   *
+   * @since 2.3.3
+   * @throws IOException
+   *             if an error occurs.
+   */
+  void delete() throws IOException;
 
 }

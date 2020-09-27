@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -29,45 +29,45 @@ import cn.taketoday.web.WebApplicationContextSupport;
  */
 public abstract class AbstractHandlerRegistry extends WebApplicationContextSupport implements HandlerRegistry, Ordered {
 
-    private Object defaultHandler;
+  private Object defaultHandler;
 
-    private int order = Ordered.LOWEST_PRECEDENCE;
+  private int order = Ordered.LOWEST_PRECEDENCE;
 
-    @Override
-    public final Object lookup(final RequestContext context) {
-        final Object handler = lookupInternal(context);
-        if (handler == null) {
-            return getDefaultHandler();
-        }
-        return handler;
+  @Override
+  public final Object lookup(final RequestContext context) {
+    final Object handler = lookupInternal(context);
+    if (handler == null) {
+      return getDefaultHandler();
     }
+    return handler;
+  }
 
-    protected abstract Object lookupInternal(RequestContext context);
+  protected abstract Object lookupInternal(RequestContext context);
 
-    /**
-     * Set the default handler for this handler registry. This handler will be
-     * returned if no specific mapping was found.
-     * <p>
-     * Default is {@code null}, indicating no default handler.
-     */
-    public void setDefaultHandler(Object defaultHandler) {
-        this.defaultHandler = defaultHandler;
-    }
+  /**
+   * Set the default handler for this handler registry. This handler will be
+   * returned if no specific mapping was found.
+   * <p>
+   * Default is {@code null}, indicating no default handler.
+   */
+  public void setDefaultHandler(Object defaultHandler) {
+    this.defaultHandler = defaultHandler;
+  }
 
-    /**
-     * Return the default handler for this handler mapping, or {@code null} if none.
-     */
-    public Object getDefaultHandler() {
-        return this.defaultHandler;
-    }
+  /**
+   * Return the default handler for this handler mapping, or {@code null} if none.
+   */
+  public Object getDefaultHandler() {
+    return this.defaultHandler;
+  }
 
-    public void setOrder(int order) {
-        this.order = order;
-    }
+  public void setOrder(int order) {
+    this.order = order;
+  }
 
-    @Override
-    public int getOrder() {
-        return order;
-    }
+  @Override
+  public int getOrder() {
+    return order;
+  }
 
 }

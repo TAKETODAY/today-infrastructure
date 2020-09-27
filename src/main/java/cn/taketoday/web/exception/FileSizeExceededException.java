@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,29 +29,29 @@ import cn.taketoday.web.annotation.ResponseStatus;
 @ResponseStatus(400)
 public class FileSizeExceededException extends WebRuntimeException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /** The actual size of the request. */
-    private DataSize actual;
-    /** The maximum permitted size of the request. */
-    private final DataSize permitted;
+  /** The actual size of the request. */
+  private DataSize actual;
+  /** The maximum permitted size of the request. */
+  private final DataSize permitted;
 
-    public FileSizeExceededException(DataSize permitted, Throwable cause) {
-        super("The upload file exceeds its maximum permitted size: [" + permitted + "]", cause);
-        this.permitted = permitted;
-    }
+  public FileSizeExceededException(DataSize permitted, Throwable cause) {
+    super("The upload file exceeds its maximum permitted size: [" + permitted + "]", cause);
+    this.permitted = permitted;
+  }
 
-    public DataSize getActual() {
-        return actual;
-    }
+  public DataSize getActual() {
+    return actual;
+  }
 
-    public DataSize getPermitted() {
-        return permitted;
-    }
+  public DataSize getPermitted() {
+    return permitted;
+  }
 
-    public FileSizeExceededException setActual(DataSize actual) {
-        this.actual = actual;
-        return this;
-    }
+  public FileSizeExceededException setActual(DataSize actual) {
+    this.actual = actual;
+    return this;
+  }
 
 }

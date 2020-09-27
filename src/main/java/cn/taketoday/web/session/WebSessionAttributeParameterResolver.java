@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -30,24 +30,24 @@ import cn.taketoday.web.resolver.OrderedParameterResolver;
  */
 public class WebSessionAttributeParameterResolver implements OrderedParameterResolver {
 
-    private final WebSessionManager sessionManager;
+  private final WebSessionManager sessionManager;
 
-    public WebSessionAttributeParameterResolver(WebSessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
+  public WebSessionAttributeParameterResolver(WebSessionManager sessionManager) {
+    this.sessionManager = sessionManager;
+  }
 
-    @Override
-    public boolean supports(MethodParameter parameter) {
-        return parameter.isAnnotationPresent(SessionAttribute.class);
-    }
+  @Override
+  public boolean supports(MethodParameter parameter) {
+    return parameter.isAnnotationPresent(SessionAttribute.class);
+  }
 
-    @Override
-    public Object resolveParameter(RequestContext requestContext, MethodParameter parameter) throws Throwable {
-        return sessionManager.getSession(requestContext).getAttribute(parameter.getName());
-    }
+  @Override
+  public Object resolveParameter(RequestContext requestContext, MethodParameter parameter) throws Throwable {
+    return sessionManager.getSession(requestContext).getAttribute(parameter.getName());
+  }
 
-    @Override
-    public int getOrder() {
-        return HIGHEST_PRECEDENCE;
-    }
+  @Override
+  public int getOrder() {
+    return HIGHEST_PRECEDENCE;
+  }
 }

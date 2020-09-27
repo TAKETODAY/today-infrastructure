@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,47 +34,47 @@ import cn.taketoday.context.utils.ConvertUtils;
 @SuppressWarnings("serial")
 public class RedirectModelAttributes extends HashMap<String, Object> implements RedirectModel {
 
-    public RedirectModelAttributes() {
-        super(8, 1.0f);
-    }
+  public RedirectModelAttributes() {
+    super(8, 1.0f);
+  }
 
-    @Override
-    public Object attribute(String name) {
-        return get(name);
-    }
+  @Override
+  public Object attribute(String name) {
+    return get(name);
+  }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T attribute(String name, Class<T> targetClass) {
-        return (T) ConvertUtils.convert(get(name), targetClass);
-    }
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T attribute(String name, Class<T> targetClass) {
+    return (T) ConvertUtils.convert(get(name), targetClass);
+  }
 
-    @Override
-    public RedirectModel attribute(String attributeName, Object attributeValue) {
-        put(attributeName, attributeValue);
-        return this;
-    }
+  @Override
+  public RedirectModel attribute(String attributeName, Object attributeValue) {
+    put(attributeName, attributeValue);
+    return this;
+  }
 
-    @Override
-    public Map<String, Object> asMap() {
-        return this;
-    }
+  @Override
+  public Map<String, Object> asMap() {
+    return this;
+  }
 
-    @Override
-    public Model removeAttribute(String name) {
-        remove(name);
-        return this;
-    }
+  @Override
+  public Model removeAttribute(String name) {
+    remove(name);
+    return this;
+  }
 
-    @Override
-    public RedirectModel attributes(Map<String, Object> attributes) {
-        putAll(attributes);
-        return this;
-    }
+  @Override
+  public RedirectModel attributes(Map<String, Object> attributes) {
+    putAll(attributes);
+    return this;
+  }
 
-    @Override
-    public Enumeration<String> attributes() {
-        return Collections.enumeration(keySet());
-    }
+  @Override
+  public Enumeration<String> attributes() {
+    return Collections.enumeration(keySet());
+  }
 
 }

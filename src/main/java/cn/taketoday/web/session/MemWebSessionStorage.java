@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -28,33 +28,33 @@ import java.util.Map;
  */
 public class MemWebSessionStorage extends AbstractWebSessionStorage implements WebSessionStorage {
 
-    private final Map<String, WebSession> sessions;
+  private final Map<String, WebSession> sessions;
 
-    public MemWebSessionStorage() {
-        this(3600_000);
-    }
+  public MemWebSessionStorage() {
+    this(3600_000);
+  }
 
-    public MemWebSessionStorage(long expire) {
-        this(expire, new HashMap<>(1024));
-    }
+  public MemWebSessionStorage(long expire) {
+    this(expire, new HashMap<>(1024));
+  }
 
-    public MemWebSessionStorage(long expire, Map<String, WebSession> sessions) {
-        super(expire);
-        this.sessions = sessions;
-    }
+  public MemWebSessionStorage(long expire, Map<String, WebSession> sessions) {
+    super(expire);
+    this.sessions = sessions;
+  }
 
-    @Override
-    protected WebSession getInternal(String id) {
-        return sessions.get(id);
-    }
+  @Override
+  protected WebSession getInternal(String id) {
+    return sessions.get(id);
+  }
 
-    @Override
-    public WebSession removeInternal(String id) {
-        return sessions.remove(id);
-    }
+  @Override
+  public WebSession removeInternal(String id) {
+    return sessions.remove(id);
+  }
 
-    @Override
-    protected void storeInternal(String id, WebSession session) {
-        sessions.put(id, session);
-    }
+  @Override
+  protected void storeInternal(String id, WebSession session) {
+    sessions.put(id, session);
+  }
 }

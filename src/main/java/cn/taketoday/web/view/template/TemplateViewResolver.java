@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,16 +28,16 @@ import cn.taketoday.web.RequestContext;
 @FunctionalInterface
 public interface TemplateViewResolver {
 
-    /**
-     * Resolve template view.
-     * 
-     * @param templateName
-     *            template name
-     * @param context
-     *            current request context
-     * @throws Throwable
-     *             If any {@link Exception} occurred
-     */
-    void resolveView(String templateName, RequestContext context) throws Throwable;
+  /**
+   * Resolve template view.
+   *
+   * @param templateName
+   *            template name
+   * @param context
+   *            current request context
+   * @throws Throwable
+   *             If any {@link Exception} occurred
+   */
+  void resolveView(String templateName, RequestContext context) throws Throwable;
 
 }

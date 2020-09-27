@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -35,30 +35,30 @@ import lombok.Setter;
 @Getter
 public abstract class AbstractTemplateViewResolver extends OrderedSupport implements TemplateViewResolver {
 
-    protected Locale locale = Locale.CHINA;
-    protected String suffix = Constant.BLANK;
-    protected String prefix = Constant.DEFAULT_TEMPLATE_PATH;
-    protected String encoding = Constant.DEFAULT_ENCODING;
+  protected Locale locale = Locale.CHINA;
+  protected String suffix = Constant.BLANK;
+  protected String prefix = Constant.DEFAULT_TEMPLATE_PATH;
+  protected String encoding = Constant.DEFAULT_ENCODING;
 
-    public AbstractTemplateViewResolver() {}
+  public AbstractTemplateViewResolver() {}
 
-    public AbstractTemplateViewResolver(int order) {
-        super(order);
-    }
+  public AbstractTemplateViewResolver(int order) {
+    super(order);
+  }
 
-    /**
-     * Prepare a template
-     * 
-     * @param name
-     *            Template name
-     * @return Returns full path of the template.
-     */
-    protected String prepareTemplate(String name) {
-        return new StringBuilder(64)
-                .append(prefix)
-                .append(StringUtils.checkUrl(name))
-                .append(suffix)
-                .toString();
-    }
+  /**
+   * Prepare a template
+   *
+   * @param name
+   *            Template name
+   * @return Returns full path of the template.
+   */
+  protected String prepareTemplate(String name) {
+    return new StringBuilder(64)
+            .append(prefix)
+            .append(StringUtils.checkUrl(name))
+            .append(suffix)
+            .toString();
+  }
 
 }

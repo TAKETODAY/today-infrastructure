@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -51,32 +51,32 @@ public @interface EnableServletContainerInitializer {
 class WebApplicationServletContainerInitializer
         extends WebApplicationContextSupport implements ServletContextInitializer {
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void onStartup(final ServletContext servletContext) throws Throwable {
+  @Override
+  @SuppressWarnings("unchecked")
+  public void onStartup(final ServletContext servletContext) throws Throwable {
 
-        final ApplicationContext context = getApplicationContext();
+    final ApplicationContext context = getApplicationContext();
 
-        for (final ServletContainerInitializer initializer : context.getBeans(ServletContainerInitializer.class)) {
-            final HandlesTypes handles = ClassUtils.getAnnotation(initializer, HandlesTypes.class);
+    for (final ServletContainerInitializer initializer : context.getBeans(ServletContainerInitializer.class)) {
+      final HandlesTypes handles = ClassUtils.getAnnotation(initializer, HandlesTypes.class);
 
-            Set<Class<?>> c = null;
-            if (handles != null) {
-                c = new HashSet<>();
-                for (final Class<?> handlesType : handles.value()) {
-                    if (handlesType.isAnnotation()) {
-                        c.addAll(context.getCandidateComponentScanner().getAnnotatedClasses((Class<? extends Annotation>) handlesType));
-                    }
-                    else if (handlesType.isInterface()) {
-                        c.addAll(context.getCandidateComponentScanner().getImplementationClasses(handlesType));
-                    }
-                    else {
-                        c.add(handlesType);
-                    }
-                }
-            }
-            initializer.onStartup(c, servletContext);
+      Set<Class<?>> c = null;
+      if (handles != null) {
+        c = new HashSet<>();
+        for (final Class<?> handlesType : handles.value()) {
+          if (handlesType.isAnnotation()) {
+            c.addAll(context.getCandidateComponentScanner().getAnnotatedClasses((Class<? extends Annotation>) handlesType));
+          }
+          else if (handlesType.isInterface()) {
+            c.addAll(context.getCandidateComponentScanner().getImplementationClasses(handlesType));
+          }
+          else {
+            c.add(handlesType);
+          }
         }
+      }
+      initializer.onStartup(c, servletContext);
     }
+  }
 
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,81 +26,81 @@ import cn.taketoday.context.OrderedSupport;
 
 /**
  * Views request mapping
- * 
+ *
  * @author TODAY <br>
  *         2018-06-25 19:58:07
  */
 @SuppressWarnings("serial")
 public class ViewController extends OrderedSupport implements Serializable {
 
-    /** 资源路径 */
-    private Object resource;
-    /** The resource's content type @since 2.3.3 */
-    private String contentType = null;
+  /** 资源路径 */
+  private Object resource;
+  /** The resource's content type @since 2.3.3 */
+  private String contentType = null;
 
-    /** The request status @since 2.3.7 */
-    private Integer status;
+  /** The request status @since 2.3.7 */
+  private Integer status;
 
-    private final HandlerMethod handlerMethod;
+  private final HandlerMethod handlerMethod;
 
-    public ViewController() {
-        this(null, null);
-    }
+  public ViewController() {
+    this(null, null);
+  }
 
-    public ViewController(int order) {
-        super(order);
-        this.handlerMethod = null;
-    }
+  public ViewController(int order) {
+    super(order);
+    this.handlerMethod = null;
+  }
 
-    public ViewController(Object bean, Method method) {
-        this.handlerMethod = (method == null) ? null : new HandlerMethod(bean, method);
-    }
+  public ViewController(Object bean, Method method) {
+    this.handlerMethod = (method == null) ? null : new HandlerMethod(bean, method);
+  }
 
-    public boolean hasAction() {
-        return getHandlerMethod() != null;
-    }
+  public boolean hasAction() {
+    return getHandlerMethod() != null;
+  }
 
-    public Integer getStatus() {
-        return status;
-    }
+  public Integer getStatus() {
+    return status;
+  }
 
-    public String getContentType() {
-        return contentType;
-    }
+  public String getContentType() {
+    return contentType;
+  }
 
-    public Object getResource() {
-        return resource;
-    }
+  public Object getResource() {
+    return resource;
+  }
 
-    public ViewController setStatus(Integer status) {
-        this.status = status;
-        return this;
-    }
+  public ViewController setStatus(Integer status) {
+    this.status = status;
+    return this;
+  }
 
-    public ViewController setResource(Object resource) {
-        this.resource = resource;
-        return this;
-    }
+  public ViewController setResource(Object resource) {
+    this.resource = resource;
+    return this;
+  }
 
-    public ViewController setContentType(String contentType) {
-        this.contentType = contentType;
-        return this;
-    }
+  public ViewController setContentType(String contentType) {
+    this.contentType = contentType;
+    return this;
+  }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("ViewController [resource=");
-        builder.append(resource);
-        builder.append(", contentType=");
-        builder.append(contentType);
-        builder.append(", status=");
-        builder.append(status);
-        builder.append("]");
-        return builder.toString();
-    }
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("ViewController [resource=");
+    builder.append(resource);
+    builder.append(", contentType=");
+    builder.append(contentType);
+    builder.append(", status=");
+    builder.append(status);
+    builder.append("]");
+    return builder.toString();
+  }
 
-    public HandlerMethod getHandlerMethod() {
-        return handlerMethod;
-    }
+  public HandlerMethod getHandlerMethod() {
+    return handlerMethod;
+  }
 }

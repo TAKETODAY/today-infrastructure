@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -26,42 +26,42 @@ import cn.taketoday.web.RequestContext;
 
 /**
  * Process Handler not found
- * 
+ *
  * @author TODAY <br>
  *         2019-12-20 19:15
  */
 @MissingBean(type = NotFoundRequestAdapter.class)
 public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(NotFoundRequestAdapter.class);
+  private static final Logger log = LoggerFactory.getLogger(NotFoundRequestAdapter.class);
 
-    public NotFoundRequestAdapter() {}
+  public NotFoundRequestAdapter() {}
 
-    public NotFoundRequestAdapter(int order) {
-        super(order);
+  public NotFoundRequestAdapter(int order) {
+    super(order);
+  }
+
+  @Override
+  public boolean supports(Object handler) {
+    return handler == null;
+  }
+
+  @Override
+  public Object handle(RequestContext context, Object handler) throws Throwable {
+    context.sendError(404);
+    logNotFound(context);
+    return NONE_RETURN_VALUE;
+  }
+
+  protected void logNotFound(RequestContext context) {
+    if (log.isDebugEnabled()) {
+      log.debug("NOT FOUND -> [{} {}]", context.method(), context.requestURI());
     }
+  }
 
-    @Override
-    public boolean supports(Object handler) {
-        return handler == null;
-    }
-
-    @Override
-    public Object handle(RequestContext context, Object handler) throws Throwable {
-        context.sendError(404);
-        logNotFound(context);
-        return NONE_RETURN_VALUE;
-    }
-
-    protected void logNotFound(RequestContext context) {
-        if (log.isDebugEnabled()) {
-            log.debug("NOT FOUND -> [{} {}]", context.method(), context.requestURI());
-        }
-    }
-
-    @Override
-    public long getLastModified(RequestContext context, Object handler) {
-        return -1;
-    }
+  @Override
+  public long getLastModified(RequestContext context, Object handler) {
+    return -1;
+  }
 
 }

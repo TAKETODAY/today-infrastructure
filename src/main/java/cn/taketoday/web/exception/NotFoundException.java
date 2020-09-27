@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,19 +30,19 @@ import cn.taketoday.web.annotation.ResponseStatus;
 @SuppressWarnings("serial")
 public class NotFoundException extends WebRuntimeException {
 
-    public NotFoundException(Throwable cause) {
-        super(cause);
-    }
+  public NotFoundException(Throwable cause) {
+    super(cause);
+  }
 
-    public NotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public NotFoundException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public NotFoundException(String message) {
-        super(message);
-    }
+  public NotFoundException(String message) {
+    super(message);
+  }
 
-    public NotFoundException() {
-        super(Constant.NOT_FOUND);
-    }
+  public NotFoundException() {
+    super(Constant.NOT_FOUND);
+  }
 }

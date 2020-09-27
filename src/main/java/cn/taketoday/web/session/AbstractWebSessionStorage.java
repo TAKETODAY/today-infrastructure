@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -25,53 +25,53 @@ package cn.taketoday.web.session;
  */
 public abstract class AbstractWebSessionStorage implements WebSessionStorage {
 
-    private final long expire;
+  private final long expire;
 
-    public AbstractWebSessionStorage(long expire) {
-        this.expire = expire;
+  public AbstractWebSessionStorage(long expire) {
+    this.expire = expire;
+  }
+
+  @Override
+  public WebSession get(String id) {
+    final String computeId = computeId(id);
+    final WebSession ret = getInternal(computeId);
+    if (ret != null && System.currentTimeMillis() - ret.getCreationTime() > expire) {
+      removeInternal(computeId);
+      return null;
     }
+    return ret;
+  }
 
-    @Override
-    public WebSession get(String id) {
-        final String computeId = computeId(id);
-        final WebSession ret = getInternal(computeId);
-        if (ret != null && System.currentTimeMillis() - ret.getCreationTime() > expire) {
-            removeInternal(computeId);
-            return null;
-        }
-        return ret;
-    }
+  protected String computeId(String id) {
+    return id;
+  }
 
-    protected String computeId(String id) {
-        return id;
-    }
+  protected WebSession getInternal(String id) {
+    return null;
+  }
 
-    protected WebSession getInternal(String id) {
-        return null;
-    }
+  @Override
+  public final WebSession remove(String id) {
+    return removeInternal(computeId(id));
+  }
 
-    @Override
-    public final WebSession remove(String id) {
-        return removeInternal(computeId(id));
-    }
+  protected WebSession removeInternal(String id) {
+    return null;
+  }
 
-    protected WebSession removeInternal(String id) {
-        return null;
-    }
+  @Override
+  public boolean contains(String id) {
+    return getInternal(computeId(id)) != null;
+  }
 
-    @Override
-    public boolean contains(String id) {
-        return getInternal(computeId(id)) != null;
-    }
+  @Override
+  public final void store(String id, WebSession session) {
+    storeInternal(computeId(id), session);
+  }
 
-    @Override
-    public final void store(String id, WebSession session) {
-        storeInternal(computeId(id), session);
-    }
+  protected abstract void storeInternal(String id, WebSession session);
 
-    protected abstract void storeInternal(String id, WebSession session);
-
-    public long getExpire() {
-        return expire;
-    }
+  public long getExpire() {
+    return expire;
+  }
 }

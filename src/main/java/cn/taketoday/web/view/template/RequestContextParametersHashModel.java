@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -37,60 +37,60 @@ import freemarker.template.TemplateModel;
  */
 public class RequestContextParametersHashModel implements TemplateHashModelEx {
 
-    private List<String> keys;
-    private final RequestContext request;
+  private List<String> keys;
+  private final RequestContext request;
 
-    public RequestContextParametersHashModel(RequestContext request) {
-        this.request = request;
+  public RequestContextParametersHashModel(RequestContext request) {
+    this.request = request;
+  }
+
+  @Override
+  public TemplateModel get(String key) {
+    return SimpleScalar.newInstanceOrNull(request.parameter(key));
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return !request.parameterNames().hasMoreElements();
+  }
+
+  @Override
+  public int size() {
+    return getKeys().size();
+  }
+
+  @Override
+  public TemplateCollectionModel keys() {
+    return new SimpleCollection(getKeys().iterator());
+  }
+
+  @Override
+  public TemplateCollectionModel values() {
+
+    final Iterator<String> iter = getKeys().iterator();
+    return new SimpleCollection(new Iterator<Object>() {
+      public boolean hasNext() {
+        return iter.hasNext();
+      }
+
+      public Object next() {
+        return request.parameter(iter.next());
+      }
+
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    });
+  }
+
+  private synchronized List<String> getKeys() {
+    List<String> keys = this.keys;
+    if (keys == null) {
+      keys = new ArrayList<>();
+      for (final Enumeration<String> enumeration = request.parameterNames(); enumeration.hasMoreElements(); ) {
+        keys.add(enumeration.nextElement());
+      }
     }
-
-    @Override
-    public TemplateModel get(String key) {
-        return SimpleScalar.newInstanceOrNull(request.parameter(key));
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return !request.parameterNames().hasMoreElements();
-    }
-
-    @Override
-    public int size() {
-        return getKeys().size();
-    }
-
-    @Override
-    public TemplateCollectionModel keys() {
-        return new SimpleCollection(getKeys().iterator());
-    }
-
-    @Override
-    public TemplateCollectionModel values() {
-
-        final Iterator<String> iter = getKeys().iterator();
-        return new SimpleCollection(new Iterator<Object>() {
-            public boolean hasNext() {
-                return iter.hasNext();
-            }
-
-            public Object next() {
-                return request.parameter(iter.next());
-            }
-
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        });
-    }
-
-    private synchronized List<String> getKeys() {
-        List<String> keys = this.keys;
-        if (keys == null) {
-            keys = new ArrayList<>();
-            for (final Enumeration<String> enumeration = request.parameterNames(); enumeration.hasMoreElements();) {
-                keys.add(enumeration.nextElement());
-            }
-        }
-        return keys;
-    }
+    return keys;
+  }
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -32,22 +32,22 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
 @FunctionalInterface
 public interface ServletContextInitializer extends WebApplicationInitializer {
 
-    @Override
-    default void onStartup(WebApplicationContext applicationContext) throws Throwable {
+  @Override
+  default void onStartup(WebApplicationContext applicationContext) throws Throwable {
 
-        if (applicationContext instanceof WebServletApplicationContext) {
-            onStartup(((WebServletApplicationContext) applicationContext).getServletContext());
-        }
+    if (applicationContext instanceof WebServletApplicationContext) {
+      onStartup(((WebServletApplicationContext) applicationContext).getServletContext());
     }
+  }
 
-    /**
-     * Configure the given {@link ServletContext} with any servlets, filters,
-     * listeners context-params and attributes necessary for initialization.
-     * 
-     * @param servletContext
-     *            the {@code ServletContext} to initialize
-     * @throws Throwable
-     *             if any call {@link Throwable} occurred
-     */
-    void onStartup(ServletContext servletContext) throws Throwable;
+  /**
+   * Configure the given {@link ServletContext} with any servlets, filters,
+   * listeners context-params and attributes necessary for initialization.
+   *
+   * @param servletContext
+   *            the {@code ServletContext} to initialize
+   * @throws Throwable
+   *             if any call {@link Throwable} occurred
+   */
+  void onStartup(ServletContext servletContext) throws Throwable;
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,90 +37,90 @@ import cn.taketoday.web.utils.WebUtils;
 public class StandardWebServletApplicationContext extends StandardApplicationContext
         implements WebServletApplicationContext, ConfigurableWebServletApplicationContext {
 
-    /** Servlet context */
-    private ServletContext servletContext;
+  /** Servlet context */
+  private ServletContext servletContext;
 
-    /**
-     * Default Constructor
-     */
-    public StandardWebServletApplicationContext() {
-        this(new StandardEnvironment());
-    }
+  /**
+   * Default Constructor
+   */
+  public StandardWebServletApplicationContext() {
+    this(new StandardEnvironment());
+  }
 
-    /**
-     * Construct with given {@link ConfigurableEnvironment}
-     * 
-     * @param env
-     *            {@link ConfigurableEnvironment} instance
-     */
-    public StandardWebServletApplicationContext(ConfigurableEnvironment env) {
-        super(env);
-        WebUtils.setLastStartupWebContext(this);
-    }
+  /**
+   * Construct with given {@link ConfigurableEnvironment}
+   *
+   * @param env
+   *            {@link ConfigurableEnvironment} instance
+   */
+  public StandardWebServletApplicationContext(ConfigurableEnvironment env) {
+    super(env);
+    WebUtils.setLastStartupWebContext(this);
+  }
 
-    public StandardWebServletApplicationContext(StandardBeanFactory beanFactory) {
-        super(beanFactory);
-        WebUtils.setLastStartupWebContext(this);
-    }
+  public StandardWebServletApplicationContext(StandardBeanFactory beanFactory) {
+    super(beanFactory);
+    WebUtils.setLastStartupWebContext(this);
+  }
 
-    public StandardWebServletApplicationContext(ServletContext servletContext) {
-        this();
-        this.servletContext = servletContext;
-    }
+  public StandardWebServletApplicationContext(ServletContext servletContext) {
+    this();
+    this.servletContext = servletContext;
+  }
 
-    /**
-     * @param classes
-     *            class set
-     * @param servletContext
-     *            {@link ServletContext}
-     * @since 2.3.3
-     */
-    public StandardWebServletApplicationContext(Set<Class<?>> classes, ServletContext servletContext) {
-        this(servletContext);
-        loadContext(classes);
-    }
+  /**
+   * @param classes
+   *            class set
+   * @param servletContext
+   *            {@link ServletContext}
+   * @since 2.3.3
+   */
+  public StandardWebServletApplicationContext(Set<Class<?>> classes, ServletContext servletContext) {
+    this(servletContext);
+    loadContext(classes);
+  }
 
-    /**
-     * @param servletContext
-     *            {@link ServletContext}
-     * @param propertiesLocation
-     *            properties location
-     * @param locations
-     *            package locations
-     * @since 2.3.3
-     */
-    public StandardWebServletApplicationContext(ServletContext servletContext, String propertiesLocation, String... locations) {
-        this(servletContext);
-        setPropertiesLocation(propertiesLocation);
-        loadContext(locations);
-    }
+  /**
+   * @param servletContext
+   *            {@link ServletContext}
+   * @param propertiesLocation
+   *            properties location
+   * @param locations
+   *            package locations
+   * @since 2.3.3
+   */
+  public StandardWebServletApplicationContext(ServletContext servletContext, String propertiesLocation, String... locations) {
+    this(servletContext);
+    setPropertiesLocation(propertiesLocation);
+    loadContext(locations);
+  }
 
-    @Override
-    protected StandardBeanFactory createBeanFactory() {
-        return new StandardWebServletBeanFactory(this);
-    }
+  @Override
+  protected StandardBeanFactory createBeanFactory() {
+    return new StandardWebServletBeanFactory(this);
+  }
 
-    @Override
-    protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
-        // register WebApplicationContext
-        registerSingleton(this);
+  @Override
+  protected void postProcessBeanFactory(AbstractBeanFactory beanFactory) {
+    // register WebApplicationContext
+    registerSingleton(this);
 
-        super.postProcessBeanFactory(beanFactory);
-    }
+    super.postProcessBeanFactory(beanFactory);
+  }
 
-    @Override
-    public String getContextPath() {
-        return servletContext.getContextPath();
-    }
+  @Override
+  public String getContextPath() {
+    return servletContext.getContextPath();
+  }
 
-    @Override
-    public ServletContext getServletContext() {
-        return servletContext;
-    }
+  @Override
+  public ServletContext getServletContext() {
+    return servletContext;
+  }
 
-    @Override
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
-    }
+  @Override
+  public void setServletContext(ServletContext servletContext) {
+    this.servletContext = servletContext;
+  }
 
 }

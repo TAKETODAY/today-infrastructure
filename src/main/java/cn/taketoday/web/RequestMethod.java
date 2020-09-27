@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,23 +21,23 @@ package cn.taketoday.web;
 
 /**
  * HTTP Request Methods
- * 
+ *
  * @author TODAY <br>
  *         2018-06-27 19:01:04
  * @version 2.0.0
  */
 public enum RequestMethod {
 
-    GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS;
+  GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS;
 
-    /**
-     * Determine whether this {@code RequestMethod} matches the given method value.
-     * 
-     * @param method
-     *            the method value as a String. <b>Must Upper Case</b>
-     * @return {@code true} if it matches, {@code false} otherwise
-     */
-    public boolean matches(String method) {
-        return this == valueOf(method);
-    }
+  /**
+   * Determine whether this {@code RequestMethod} matches the given method value.
+   *
+   * @param method
+   *            the method value as a String. <b>Must Upper Case</b>
+   * @return {@code true} if it matches, {@code false} otherwise
+   */
+  public boolean matches(String method) {
+    return this == valueOf(method);
+  }
 }

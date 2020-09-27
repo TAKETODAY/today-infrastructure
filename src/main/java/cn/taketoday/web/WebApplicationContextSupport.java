@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -28,28 +28,28 @@ import cn.taketoday.context.aware.ApplicationContextSupport;
  */
 public class WebApplicationContextSupport extends ApplicationContextSupport {
 
-    public final String getContextPath() {
-        return obtainApplicationContext().getContextPath();
-    }
+  public final String getContextPath() {
+    return obtainApplicationContext().getContextPath();
+  }
 
-    /**
-     * Return the current application context as {@link WebApplicationContext}.
-     * 
-     * @throws IllegalStateException
-     *             if not running in a WebApplicationContext
-     * @see #getApplicationContext()
-     */
-    public final WebApplicationContext getWebApplicationContext() throws IllegalStateException {
-        final ApplicationContext ctx = getApplicationContext();
-        if (ctx instanceof WebApplicationContext) {
-            return (WebApplicationContext) ctx;
-        }
-        throw new IllegalStateException("ApplicationContext must be a WebApplicationContext");
+  /**
+   * Return the current application context as {@link WebApplicationContext}.
+   *
+   * @throws IllegalStateException
+   *             if not running in a WebApplicationContext
+   * @see #getApplicationContext()
+   */
+  public final WebApplicationContext getWebApplicationContext() throws IllegalStateException {
+    final ApplicationContext ctx = getApplicationContext();
+    if (ctx instanceof WebApplicationContext) {
+      return (WebApplicationContext) ctx;
     }
+    throw new IllegalStateException("ApplicationContext must be a WebApplicationContext");
+  }
 
-    @Override
-    public WebApplicationContext obtainApplicationContext() {
-        return (WebApplicationContext) super.obtainApplicationContext();
-    }
+  @Override
+  public WebApplicationContext obtainApplicationContext() {
+    return (WebApplicationContext) super.obtainApplicationContext();
+  }
 
 }

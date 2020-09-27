@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -31,26 +31,26 @@ import cn.taketoday.web.RequestContext;
  */
 public class ResponseBodyResultHandler extends OrderedSupport implements RuntimeResultHandler {
 
-    private final MessageConverter messageConverter;
+  private final MessageConverter messageConverter;
 
-    public ResponseBodyResultHandler(MessageConverter messageConverter) {
-        this.messageConverter = messageConverter;
-        setOrder(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
-    }
+  public ResponseBodyResultHandler(MessageConverter messageConverter) {
+    this.messageConverter = messageConverter;
+    setOrder(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
+  }
 
-    @Override
-    public boolean supportsHandler(Object handler) {
-        return true;
-    }
+  @Override
+  public boolean supportsHandler(Object handler) {
+    return true;
+  }
 
-    @Override
-    public boolean supportsResult(Object result) {
-        return true;
-    }
+  @Override
+  public boolean supportsResult(Object result) {
+    return true;
+  }
 
-    @Override
-    public void handleResult(RequestContext requestContext, Object result) throws IOException {
-        messageConverter.write(requestContext, result);
-    }
+  @Override
+  public void handleResult(RequestContext requestContext, Object result) throws IOException {
+    messageConverter.write(requestContext, result);
+  }
 
 }

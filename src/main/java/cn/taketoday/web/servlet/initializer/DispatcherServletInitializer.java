@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -36,84 +36,84 @@ import cn.taketoday.web.servlet.WebServletApplicationContext;
  */
 public class DispatcherServletInitializer extends WebServletInitializer<DispatcherServlet> {
 
-    private static final Logger log = LoggerFactory.getLogger(DispatcherServletInitializer.class);
+  private static final Logger log = LoggerFactory.getLogger(DispatcherServletInitializer.class);
 
-    private boolean autoCreateDispatcher;
-    private final WebServletApplicationContext applicationContext;
+  private boolean autoCreateDispatcher;
+  private final WebServletApplicationContext applicationContext;
 
-    public DispatcherServletInitializer(WebServletApplicationContext context) {
-        this(context, null);
+  public DispatcherServletInitializer(WebServletApplicationContext context) {
+    this(context, null);
+  }
+
+  public DispatcherServletInitializer(WebServletApplicationContext context, DispatcherServlet dispatcherServlet) {
+    super(dispatcherServlet);
+    this.applicationContext = context;
+    setOrder(HIGHEST_PRECEDENCE - 100);
+    setName(Constant.DISPATCHER_SERVLET);
+    addUrlMappings(Constant.DISPATCHER_SERVLET_MAPPING);
+  }
+
+  @Override
+  public DispatcherServlet getServlet() {
+    DispatcherServlet dispatcherServlet = super.getServlet();
+    if (dispatcherServlet == null && isAutoCreateDispatcher()) {
+      final WebServletApplicationContext context = getApplicationContext();
+      if (!context.containsBeanDefinition(DispatcherServlet.class)) {
+        context.registerBean(Constant.DISPATCHER_SERVLET, DispatcherServlet.class);
+      }
+      dispatcherServlet = context.getBean(DispatcherServlet.class);
+      setServlet(dispatcherServlet);
+    }
+    return dispatcherServlet;
+  }
+
+  @Override
+  protected void configureRegistration(Dynamic registration) {
+    super.configureRegistration(registration);
+    if (log.isInfoEnabled()) {
+      log.info("Register Dispatcher Servlet: [{}] With Url Mappings: {}", getServlet(), getUrlMappings());
+    }
+  }
+
+  @Override
+  protected void configureMultipart(Dynamic registration) {
+    MultipartConfigElement multipartConfig = getMultipartConfig();
+    if (multipartConfig == null) {
+
+      final MultipartConfiguration configuration = getApplicationContext().getBean(MultipartConfiguration.class);
+      multipartConfig = new MultipartConfigElement(configuration.getLocation(),
+                                                   configuration.getMaxFileSize().toBytes(),
+                                                   configuration.getMaxRequestSize().toBytes(),
+                                                   (int) configuration.getFileSizeThreshold().toBytes());
+      log.info("DispatcherServlet use: {}", configuration);
     }
 
-    public DispatcherServletInitializer(WebServletApplicationContext context, DispatcherServlet dispatcherServlet) {
-        super(dispatcherServlet);
-        this.applicationContext = context;
-        setOrder(HIGHEST_PRECEDENCE - 100);
-        setName(Constant.DISPATCHER_SERVLET);
-        addUrlMappings(Constant.DISPATCHER_SERVLET_MAPPING);
+    setMultipartConfig(multipartConfig);
+    super.configureMultipart(registration);
+  }
+
+  @Override
+  protected void configureServletSecurity(Dynamic registration) {
+    ServletSecurityElement servletSecurity = getServletSecurity();
+    if (servletSecurity == null) {
+      servletSecurity = getApplicationContext().getBean(ServletSecurityElement.class);
     }
-
-    @Override
-    public DispatcherServlet getServlet() {
-        DispatcherServlet dispatcherServlet = super.getServlet();
-        if (dispatcherServlet == null && isAutoCreateDispatcher()) {
-            final WebServletApplicationContext context = getApplicationContext();
-            if (!context.containsBeanDefinition(DispatcherServlet.class)) {
-                context.registerBean(Constant.DISPATCHER_SERVLET, DispatcherServlet.class);
-            }
-            dispatcherServlet = context.getBean(DispatcherServlet.class);
-            setServlet(dispatcherServlet);
-        }
-        return dispatcherServlet;
+    if (servletSecurity != null) {
+      setServletSecurity(servletSecurity);
+      super.configureServletSecurity(registration);
     }
+  }
 
-    @Override
-    protected void configureRegistration(Dynamic registration) {
-        super.configureRegistration(registration);
-        if (log.isInfoEnabled()) {
-            log.info("Register Dispatcher Servlet: [{}] With Url Mappings: {}", getServlet(), getUrlMappings());
-        }
-    }
+  public boolean isAutoCreateDispatcher() {
+    return autoCreateDispatcher;
+  }
 
-    @Override
-    protected void configureMultipart(Dynamic registration) {
-        MultipartConfigElement multipartConfig = getMultipartConfig();
-        if (multipartConfig == null) {
+  public WebServletApplicationContext getApplicationContext() {
+    return applicationContext;
+  }
 
-            final MultipartConfiguration configuration = getApplicationContext().getBean(MultipartConfiguration.class);
-            multipartConfig = new MultipartConfigElement(configuration.getLocation(),
-                                                         configuration.getMaxFileSize().toBytes(),
-                                                         configuration.getMaxRequestSize().toBytes(),
-                                                         (int) configuration.getFileSizeThreshold().toBytes());
-            log.info("DispatcherServlet use: {}", configuration);
-        }
-
-        setMultipartConfig(multipartConfig);
-        super.configureMultipart(registration);
-    }
-
-    @Override
-    protected void configureServletSecurity(Dynamic registration) {
-        ServletSecurityElement servletSecurity = getServletSecurity();
-        if (servletSecurity == null) {
-            servletSecurity = getApplicationContext().getBean(ServletSecurityElement.class);
-        }
-        if (servletSecurity != null) {
-            setServletSecurity(servletSecurity);
-            super.configureServletSecurity(registration);
-        }
-    }
-
-    public boolean isAutoCreateDispatcher() {
-        return autoCreateDispatcher;
-    }
-
-    public WebServletApplicationContext getApplicationContext() {
-        return applicationContext;
-    }
-
-    public void setAutoCreateDispatcher(boolean autoCreateDispatcher) {
-        this.autoCreateDispatcher = autoCreateDispatcher;
-    }
+  public void setAutoCreateDispatcher(boolean autoCreateDispatcher) {
+    this.autoCreateDispatcher = autoCreateDispatcher;
+  }
 
 }

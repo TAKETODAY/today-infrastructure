@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -25,31 +25,31 @@ package cn.taketoday.web.validation;
  */
 public class ObjectError {
 
-    private final String field;
-    private final String message;
+  private final String field;
+  private final String message;
 
-    public ObjectError(String message, String field) {
-        this.message = message;
-        this.field = field;
-    }
+  public ObjectError(String message, String field) {
+    this.message = message;
+    this.field = field;
+  }
 
-    public String getMessage() {
-        return message;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public String getField() {
-        return field;
-    }
+  public String getField() {
+    return field;
+  }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{\n\t\"field\":\"");
-        builder.append(field);
-        builder.append("\",\n\t\"message\":\"");
-        builder.append(message);
-        builder.append("\"\n}");
-        return builder.toString();
-    }
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("{\n\t\"field\":\"");
+    builder.append(field);
+    builder.append("\",\n\t\"message\":\"");
+    builder.append(message);
+    builder.append("\"\n}");
+    return builder.toString();
+  }
 
 }

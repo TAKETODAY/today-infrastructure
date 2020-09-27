@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -43,206 +43,206 @@ import lombok.Getter;
 @Getter
 public class ResourceMapping implements Serializable, Ordered, HandlerInterceptorsCapable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private static final int DEFAULT_BUFFER_SIZE = 8192;
+  private static final int DEFAULT_BUFFER_SIZE = 8192;
 
-    private HandlerInterceptor[] interceptors;
+  private HandlerInterceptor[] interceptors;
 
-    private String[] pathPatterns;
+  private String[] pathPatterns;
 
-    private CacheControl cacheControl;
+  private CacheControl cacheControl;
 
-    private boolean gzip = false;
+  private boolean gzip = false;
 
-    private long gzipMinLength = -1;
+  private long gzipMinLength = -1;
 
-    private int bufferSize = DEFAULT_BUFFER_SIZE;
+  private int bufferSize = DEFAULT_BUFFER_SIZE;
 
-    private long expires = -1;
+  private long expires = -1;
 
-    private int order;
+  private int order;
 
-    private final ArrayList<String> locations = new ArrayList<>();
+  private final ArrayList<String> locations = new ArrayList<>();
 
-    public ResourceMapping(HandlerInterceptor[] interceptors, String... pathPatterns) {
-        setInterceptors(interceptors);
-        setPathPatterns(pathPatterns);
+  public ResourceMapping(HandlerInterceptor[] interceptors, String... pathPatterns) {
+    setInterceptors(interceptors);
+    setPathPatterns(pathPatterns);
+  }
+
+  public ResourceMapping addLocations(String... locations) {
+    this.locations.addAll(Arrays.asList(locations));
+    return this;
+  }
+
+  /**
+   * Return the URL path patterns for the resource handler.
+   */
+  public String[] getPathPatterns() {
+    return this.pathPatterns;
+  }
+
+  @Override
+  public final HandlerInterceptor[] getInterceptors() {
+    return interceptors;
+  }
+
+  public CacheControl getCacheControl() {
+    return cacheControl;
+  }
+
+  public ResourceMapping setInterceptors(HandlerInterceptor... interceptors) {
+    this.interceptors = interceptors;
+    return this;
+  }
+
+  @Override
+  public final boolean hasInterceptor() {
+    return interceptors != null;
+  }
+
+  /**
+   * Enables gZip compression.
+   *
+   * @return {@code this}
+   */
+  public ResourceMapping enableGzip() {
+    gzip = true;
+    return this;
+  }
+
+  /**
+   * Sets the size of used buffers.
+   *
+   * @param bufferSize
+   *            size of buffer
+   *
+   * @return {@code this}
+   */
+  public ResourceMapping bufferSize(int bufferSize) {
+    if (bufferSize <= 0) {
+      throw new IllegalArgumentException("buffer size must be greater than zero");
+    }
+    this.bufferSize = bufferSize;
+    return this;
+  }
+
+  /**
+   * Sets the default expiration date for the resources.
+   *
+   * @param count
+   *            count
+   * @param unit
+   *            time unit
+   *
+   * @return {@code this}
+   */
+  public ResourceMapping expires(long count, TimeUnit unit) {
+    if (count <= 0) {
+      throw new IllegalArgumentException("count must be greater than zero");
     }
 
-    public ResourceMapping addLocations(String... locations) {
-        this.locations.addAll(Arrays.asList(locations));
-        return this;
+    if (unit == null) {
+      throw new IllegalArgumentException("time unit is required");
     }
+    this.expires = unit.toMillis(count);
+    return this;
+  }
 
-    /**
-     * Return the URL path patterns for the resource handler.
-     */
-    public String[] getPathPatterns() {
-        return this.pathPatterns;
+  /**
+   * Sets the minimum required content length for gzip compression. Requires
+   * enabled gzip compression with {@code #gZip}.
+   *
+   * @param minLength
+   *            required minimum content length
+   *
+   * @return {@code this}
+   */
+  public ResourceMapping gzipMinLength(long minLength) {
+    enableGzip();
+    this.gzipMinLength = minLength;
+    return this;
+  }
+
+  /**
+   * Applies the given cache control as header to the response. If the
+   * CacheControl is empty, no Cache-Control header is applied to the response.
+   *
+   * @param cacheControl
+   *            cache control
+   *
+   * @return {@code this}
+   */
+  public ResourceMapping cacheControl(CacheControl cacheControl) {
+    ConfigurationException.nonNull(cacheControl, "cache control is required");
+    if (cacheControl.isEmpty()) {
+      throw new ConfigurationException("cache control is must not be empty");
     }
-
-    @Override
-    public final HandlerInterceptor[] getInterceptors() {
-        return interceptors;
+    else {
+      this.cacheControl = cacheControl;
     }
+    return this;
+  }
 
-    public CacheControl getCacheControl() {
-        return cacheControl;
-    }
+  /**
+   * Add pathPatterns to this mapping
+   *
+   * @param pathPatterns
+   *            Path patterns
+   * @return {@link ResourceMapping}
+   * @see ResourceMapping#setPathPatterns(String...)
+   */
+  public ResourceMapping addPathPatterns(String... pathPatterns) {
 
-    public ResourceMapping setInterceptors(HandlerInterceptor... interceptors) {
-        this.interceptors = interceptors;
-        return this;
-    }
+    final List<String> pathPatternsList = new ArrayList<>();
 
-    @Override
-    public final boolean hasInterceptor() {
-        return interceptors != null;
-    }
+    Collections.addAll(pathPatternsList, Objects.requireNonNull(pathPatterns));
+    Collections.addAll(pathPatternsList, this.pathPatterns);
 
-    /**
-     * Enables gZip compression.
-     *
-     * @return {@code this}
-     */
-    public ResourceMapping enableGzip() {
-        gzip = true;
-        return this;
-    }
+    this.pathPatterns = pathPatternsList.toArray(new String[pathPatternsList.size()]);
 
-    /**
-     * Sets the size of used buffers.
-     *
-     * @param bufferSize
-     *            size of buffer
-     *
-     * @return {@code this}
-     */
-    public ResourceMapping bufferSize(int bufferSize) {
-        if (bufferSize <= 0) {
-            throw new IllegalArgumentException("buffer size must be greater than zero");
-        }
-        this.bufferSize = bufferSize;
-        return this;
-    }
+    return this;
+  }
 
-    /**
-     * Sets the default expiration date for the resources.
-     *
-     * @param count
-     *            count
-     * @param unit
-     *            time unit
-     *
-     * @return {@code this}
-     */
-    public ResourceMapping expires(long count, TimeUnit unit) {
-        if (count <= 0) {
-            throw new IllegalArgumentException("count must be greater than zero");
-        }
+  /**
+   * Set pathPatterns to this mapping
+   *
+   * @param pathPatterns
+   *            Path patterns
+   * @return {@link ResourceMapping}
+   * @see ResourceMapping#addPathPatterns(String...)
+   */
+  public ResourceMapping setPathPatterns(String... pathPatterns) {
+    this.pathPatterns = pathPatterns == null
+                        ? this.pathPatterns = Constant.EMPTY_STRING_ARRAY
+                        : pathPatterns;
 
-        if (unit == null) {
-            throw new IllegalArgumentException("time unit is required");
-        }
-        this.expires = unit.toMillis(count);
-        return this;
-    }
+    return this;
+  }
 
-    /**
-     * Sets the minimum required content length for gzip compression. Requires
-     * enabled gzip compression with {@code #gZip}.
-     *
-     * @param minLength
-     *            required minimum content length
-     *
-     * @return {@code this}
-     */
-    public ResourceMapping gzipMinLength(long minLength) {
-        enableGzip();
-        this.gzipMinLength = minLength;
-        return this;
-    }
+  @Override
+  public int getOrder() {
+    return order;
+  }
 
-    /**
-     * Applies the given cache control as header to the response. If the
-     * CacheControl is empty, no Cache-Control header is applied to the response.
-     *
-     * @param cacheControl
-     *            cache control
-     *
-     * @return {@code this}
-     */
-    public ResourceMapping cacheControl(CacheControl cacheControl) {
-        ConfigurationException.nonNull(cacheControl, "cache control is required");
-        if (cacheControl.isEmpty()) {
-            throw new ConfigurationException("cache control is must not be empty");
-        }
-        else {
-            this.cacheControl = cacheControl;
-        }
-        return this;
-    }
+  public ResourceMapping setOrder(int order) {
+    this.order = order;
+    return this;
+  }
 
-    /**
-     * Add pathPatterns to this mapping
-     * 
-     * @param pathPatterns
-     *            Path patterns
-     * @return {@link ResourceMapping}
-     * @see ResourceMapping#setPathPatterns(String...)
-     */
-    public ResourceMapping addPathPatterns(String... pathPatterns) {
-
-        final List<String> pathPatternsList = new ArrayList<>();
-
-        Collections.addAll(pathPatternsList, Objects.requireNonNull(pathPatterns));
-        Collections.addAll(pathPatternsList, this.pathPatterns);
-
-        this.pathPatterns = pathPatternsList.toArray(new String[pathPatternsList.size()]);
-
-        return this;
-    }
-
-    /**
-     * Set pathPatterns to this mapping
-     * 
-     * @param pathPatterns
-     *            Path patterns
-     * @return {@link ResourceMapping}
-     * @see ResourceMapping#addPathPatterns(String...)
-     */
-    public ResourceMapping setPathPatterns(String... pathPatterns) {
-        this.pathPatterns = pathPatterns == null
-                ? this.pathPatterns = Constant.EMPTY_STRING_ARRAY
-                : pathPatterns;
-
-        return this;
-    }
-
-    @Override
-    public int getOrder() {
-        return order;
-    }
-
-    public ResourceMapping setOrder(int order) {
-        this.order = order;
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("[locations=")
-                .append(locations)
-                .append(", cacheControl=").append(cacheControl)
-                .append(", gzip=").append(gzip)
-                .append(", gzipMinLength=").append(gzipMinLength)
-                .append(", bufferSize=").append(bufferSize)
-                .append(", expires=").append(expires)
-                .append(", interceptors=").append(Arrays.toString(interceptors))
-                .append("]");
-        return builder.toString();
-    }
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("[locations=")
+            .append(locations)
+            .append(", cacheControl=").append(cacheControl)
+            .append(", gzip=").append(gzip)
+            .append(", gzipMinLength=").append(gzipMinLength)
+            .append(", bufferSize=").append(bufferSize)
+            .append(", expires=").append(expires)
+            .append(", interceptors=").append(Arrays.toString(interceptors))
+            .append("]");
+    return builder.toString();
+  }
 
 }

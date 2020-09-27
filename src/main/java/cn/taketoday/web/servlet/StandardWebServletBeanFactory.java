@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -37,41 +37,41 @@ import cn.taketoday.web.StandardWebBeanFactory;
  */
 public class StandardWebServletBeanFactory extends StandardWebBeanFactory {
 
-    public StandardWebServletBeanFactory(ConfigurableWebServletApplicationContext context) {
-        super(context);
+  public StandardWebServletBeanFactory(ConfigurableWebServletApplicationContext context) {
+    super(context);
+  }
+
+  @Override
+  protected void awareInternal(final Object bean, final BeanDefinition def) {
+
+    super.awareInternal(bean, def);
+
+    if (bean instanceof ServletContextAware) {
+      ((ServletContextAware) bean).setServletContext(getApplicationContext().getServletContext());
     }
-
-    @Override
-    protected void awareInternal(final Object bean, final BeanDefinition def) {
-
-        super.awareInternal(bean, def);
-
-        if (bean instanceof ServletContextAware) {
-            ((ServletContextAware) bean).setServletContext(getApplicationContext().getServletContext());
-        }
-        if (bean instanceof WebServletApplicationContextAware) {
-            ((WebServletApplicationContextAware) bean).setWebServletApplicationContext(getApplicationContext());
-        }
+    if (bean instanceof WebServletApplicationContextAware) {
+      ((WebServletApplicationContextAware) bean).setWebServletApplicationContext(getApplicationContext());
     }
+  }
 
-    @Override
-    protected Map<Class<?>, Object> createObjectFactories() {
+  @Override
+  protected Map<Class<?>, Object> createObjectFactories() {
 
-        final Map<Class<?>, Object> servletEnv = super.createObjectFactories();
+    final Map<Class<?>, Object> servletEnv = super.createObjectFactories();
 
-        servletEnv.put(HttpSession.class, factory(RequestContextHolder::currentSession));
-        servletEnv.put(HttpServletRequest.class, factory(RequestContextHolder::currentRequest));
-        servletEnv.put(HttpServletResponse.class, factory(RequestContextHolder::currentResponse));
+    servletEnv.put(HttpSession.class, factory(RequestContextHolder::currentSession));
+    servletEnv.put(HttpServletRequest.class, factory(RequestContextHolder::currentRequest));
+    servletEnv.put(HttpServletResponse.class, factory(RequestContextHolder::currentResponse));
 
-        final WebServletApplicationContext context = getApplicationContext();
-        servletEnv.put(ServletContext.class, factory(context::getServletContext));
+    final WebServletApplicationContext context = getApplicationContext();
+    servletEnv.put(ServletContext.class, factory(context::getServletContext));
 
-        return servletEnv;
-    }
+    return servletEnv;
+  }
 
-    @Override
-    public ConfigurableWebServletApplicationContext getApplicationContext() {
-        return (ConfigurableWebServletApplicationContext) super.getApplicationContext();
-    }
+  @Override
+  public ConfigurableWebServletApplicationContext getApplicationContext() {
+    return (ConfigurableWebServletApplicationContext) super.getApplicationContext();
+  }
 
 }

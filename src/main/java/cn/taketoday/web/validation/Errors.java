@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -27,21 +27,21 @@ import java.util.Set;
  */
 public interface Errors {
 
-    /**
-     * Return if there were any errors.
-     */
-    boolean hasErrors();
+  /**
+   * Return if there were any errors.
+   */
+  boolean hasErrors();
 
-    /**
-     * Return the total number of errors.
-     */
-    int getErrorCount();
+  /**
+   * Return the total number of errors.
+   */
+  int getErrorCount();
 
-    /**
-     * Get all errors
-     * 
-     * @return a list of {@link ObjectError} instances
-     */
-    Set<ObjectError> getAllErrors();
+  /**
+   * Get all errors
+   *
+   * @return a list of {@link ObjectError} instances
+   */
+  Set<ObjectError> getAllErrors();
 
 }

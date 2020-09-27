@@ -62,9 +62,9 @@ public abstract class ResultHandlers {
 
   public static RuntimeResultHandler[] getRuntimeHandlers() {
     return resultHandlers
-      .stream()
-      .filter(res -> res instanceof RuntimeResultHandler)
-      .toArray(RuntimeResultHandler[]::new);
+            .stream()
+            .filter(res -> res instanceof RuntimeResultHandler)
+            .toArray(RuntimeResultHandler[]::new);
   }
 
   public static ResultHandler getHandler(final Object handler) {
