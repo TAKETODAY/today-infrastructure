@@ -88,10 +88,8 @@ public class DispatcherServletInitializer extends WebServletInitializer<Dispatch
             log.info("DispatcherServlet use: {}", configuration);
         }
 
-        if (multipartConfig != null) {
-            setMultipartConfig(multipartConfig);
-            super.configureMultipart(registration);
-        }
+        setMultipartConfig(multipartConfig);
+        super.configureMultipart(registration);
     }
 
     @Override
