@@ -19,9 +19,6 @@
  */
 package cn.taketoday.web.servlet;
 
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.web.RequestContextHolder.prepareContext;
-
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -37,67 +34,72 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
 
+import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.web.RequestContextHolder.prepareContext;
+
 /**
  * @author TODAY <br>
- *         2018-06-25 19:47:14
+ * 2018-06-25 19:47:14
  * @version 2.3.7
  */
 public class DispatcherServlet extends DispatcherHandler implements Servlet, Serializable {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private ServletConfig servletConfig;
+  private ServletConfig servletConfig;
 
-    public DispatcherServlet() {}
+  public DispatcherServlet() {}
 
-    public DispatcherServlet(WebServletApplicationContext context) {
-        setApplicationContext(context);
+  public DispatcherServlet(WebServletApplicationContext context) {
+    setApplicationContext(context);
+  }
+
+  @Override
+  public void service(final ServletRequest request,
+                      final ServletResponse response) throws ServletException {
+
+    final RequestContext context =
+      prepareContext(new ServletRequestContext((HttpServletRequest) request,
+                                               (HttpServletResponse) response));
+    // Lookup handler
+    final Object handler = lookupHandler(context);
+    final HandlerAdapter adapter = lookupHandlerAdapter(handler);
+    try {
+      handle(handler, context, adapter);
     }
-    
-    @Override
-    public void service(final ServletRequest request, final ServletResponse response) throws ServletException, IOException {
-
-        final RequestContext context = prepareContext(new ServletRequestContext((HttpServletRequest) request,
-                                                                                (HttpServletResponse) response));
-        // Lookup handler
-        final Object handler = lookupHandler(context);
-        final HandlerAdapter adapter = lookupHandlerAdapter(handler);
-        try {
-            handle(handler, context, adapter);
-        }
-        catch (final Throwable e) {
-            throw new ServletException(e);
-        }
+    catch (final Throwable e) {
+      throw new ServletException(e);
     }
+  }
 
-    @Override
-    public void init(ServletConfig servletConfig) throws ServletException {
-        this.servletConfig = servletConfig;
-    }
+  @Override
+  public void init(ServletConfig servletConfig) throws ServletException {
+    this.servletConfig = servletConfig;
+  }
 
-    @Override
-    public ServletConfig getServletConfig() {
-        return nonNull(servletConfig, "DispatcherServlet has not been initialized");
-    }
+  @Override
+  public ServletConfig getServletConfig() {
+    return nonNull(servletConfig, "DispatcherServlet has not been initialized");
+  }
 
-    public String getServletName() {
-        return "DispatcherServlet";
-    }
+  public String getServletName() {
+    return "DispatcherServlet";
+  }
 
-    @Override
-    public final String getServletInfo() {
-        return "DispatcherServlet, Copyright © TODAY & 2017 - 2020 All Rights Reserved";
-    }
+  @Override
+  public final String getServletInfo() {
+    return "DispatcherServlet, Copyright © TODAY & 2017 - 2020 All Rights Reserved";
+  }
 
-    @Override
-    public void destroy() {
-        super.destroy();
-    }
+  @Override
+  public void destroy() {
+    super.destroy();
+  }
 
-    @Override
-    protected void log(String msg) {
-        super.log(msg);
-        getServletConfig().getServletContext().log(msg);
-    }
+  @Override
+  protected void log(String msg) {
+    super.log(msg);
+    getServletConfig().getServletContext().log(msg);
+  }
 
 }
