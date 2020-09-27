@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -42,150 +42,150 @@ import cn.taketoday.web.utils.WebUtils;
  */
 public class ServletParameterResolver {
 
-    public static class ServletRequestParameterResolver implements ParameterResolver {
+  public static class ServletRequestParameterResolver implements ParameterResolver {
 
-        @Override
-        public boolean supports(final MethodParameter parameter) {
-            return parameter.isInterface() && parameter.isAssignableFrom(ServletRequest.class);
-        }
-
-        @Override
-        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-            return context.nativeRequest();
-        }
+    @Override
+    public boolean supports(final MethodParameter parameter) {
+      return parameter.isInterface() && parameter.isAssignableFrom(ServletRequest.class);
     }
 
-    public static class ServletResponseParameterResolver implements ParameterResolver {
+    @Override
+    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+      return context.nativeRequest();
+    }
+  }
 
-        @Override
-        public boolean supports(final MethodParameter parameter) {
-            return parameter.isInterface() && parameter.isAssignableFrom(ServletResponse.class);
-        }
+  public static class ServletResponseParameterResolver implements ParameterResolver {
 
-        @Override
-        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-            return context.nativeResponse();
-        }
+    @Override
+    public boolean supports(final MethodParameter parameter) {
+      return parameter.isInterface() && parameter.isAssignableFrom(ServletResponse.class);
     }
 
-    public static class HttpSessionParameterResolver implements ParameterResolver {
+    @Override
+    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+      return context.nativeResponse();
+    }
+  }
 
-        @Override
-        public boolean supports(final MethodParameter parameter) {
-            return parameter.isAssignableFrom(HttpSession.class);
-        }
+  public static class HttpSessionParameterResolver implements ParameterResolver {
 
-        @Override
-        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-            return context.nativeSession();
-        }
+    @Override
+    public boolean supports(final MethodParameter parameter) {
+      return parameter.isAssignableFrom(HttpSession.class);
     }
 
-    public static class HttpSessionAttributeParameterResolver implements ParameterResolver {
+    @Override
+    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+      return context.nativeSession();
+    }
+  }
 
-        @Override
-        public boolean supports(MethodParameter parameter) {
-            return parameter.isAnnotationPresent(SessionAttribute.class);
-        }
+  public static class HttpSessionAttributeParameterResolver implements ParameterResolver {
 
-        @Override
-        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-            return context.nativeSession(HttpSession.class).getAttribute(parameter.getName());
-        }
+    @Override
+    public boolean supports(MethodParameter parameter) {
+      return parameter.isAnnotationPresent(SessionAttribute.class);
     }
 
-    public static class ServletContextParameterResolver implements ParameterResolver {
+    @Override
+    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+      return context.nativeSession(HttpSession.class).getAttribute(parameter.getName());
+    }
+  }
 
-        private final ServletContext servletContext;
+  public static class ServletContextParameterResolver implements ParameterResolver {
 
-        public ServletContextParameterResolver(ServletContext servletContext) {
-            this.servletContext = servletContext;
-        }
+    private final ServletContext servletContext;
 
-        @Override
-        public boolean supports(final MethodParameter parameter) {
-            return parameter.is(ServletContext.class);
-        }
-
-        @Override
-        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-            return servletContext;
-        }
+    public ServletContextParameterResolver(ServletContext servletContext) {
+      this.servletContext = servletContext;
     }
 
-    // ------------- cookie
-
-    public static class ServletCookieParameterResolver implements ParameterResolver {
-
-        @Override
-        public boolean supports(final MethodParameter parameter) {
-            return parameter.is(Cookie.class);
-        }
-
-        @Override
-        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-
-            final String name = parameter.getName();
-            for (final Cookie cookie : context.nativeRequest(HttpServletRequest.class).getCookies()) {
-                if (name.equals(cookie.getName())) {
-                    return cookie;
-                }
-            }
-            // no cookie
-            if (parameter.isRequired()) {
-                throw WebUtils.newBadRequest("Cookie", name, null);
-            }
-            return null;
-        }
+    @Override
+    public boolean supports(final MethodParameter parameter) {
+      return parameter.is(ServletContext.class);
     }
 
-    public static class ServletCookieCollectionParameterResolver
-            extends CollectionParameterResolver implements ParameterResolver {
+    @Override
+    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+      return servletContext;
+    }
+  }
 
-        @Override
-        protected boolean supportsInternal(MethodParameter parameter) {
-            return parameter.isGenericPresent(Cookie.class, 0);
-        }
+  // ------------- cookie
 
-        @Override
-        protected List<?> resolveList(RequestContext context, MethodParameter parameter) throws Throwable {
+  public static class ServletCookieParameterResolver implements ParameterResolver {
 
-            final Cookie[] cookies = context.nativeRequest(HttpServletRequest.class).getCookies();
-            final List<Cookie> ret = new ArrayList<>(cookies.length);
-            Collections.addAll(ret, cookies);
-            return ret;
-        }
+    @Override
+    public boolean supports(final MethodParameter parameter) {
+      return parameter.is(Cookie.class);
     }
 
-    public static class ServletCookieArrayParameterResolver implements ParameterResolver {
+    @Override
+    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
-        @Override
-        public boolean supports(MethodParameter parameter) {
-            return parameter.isArray() && parameter.getParameterClass().getComponentType() == Cookie.class;
+      final String name = parameter.getName();
+      for (final Cookie cookie : context.nativeRequest(HttpServletRequest.class).getCookies()) {
+        if (name.equals(cookie.getName())) {
+          return cookie;
         }
+      }
+      // no cookie
+      if (parameter.isRequired()) {
+        throw WebUtils.newBadRequest("Cookie", name, null);
+      }
+      return null;
+    }
+  }
 
-        @Override
-        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-            return context.nativeRequest(HttpServletRequest.class).getCookies();
-        }
+  public static class ServletCookieCollectionParameterResolver
+          extends CollectionParameterResolver implements ParameterResolver {
+
+    @Override
+    protected boolean supportsInternal(MethodParameter parameter) {
+      return parameter.isGenericPresent(Cookie.class, 0);
     }
 
-    public static class ServletContextAttributeParameterResolver implements ParameterResolver {
+    @Override
+    protected List<?> resolveList(RequestContext context, MethodParameter parameter) throws Throwable {
 
-        private final ServletContext servletContext;
-
-        public ServletContextAttributeParameterResolver(ServletContext servletContext) {
-            this.servletContext = servletContext;
-        }
-
-        @Override
-        public boolean supports(MethodParameter parameter) {
-            return parameter.isAnnotationPresent(Application.class);
-        }
-
-        @Override
-        public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-            return servletContext.getAttribute(parameter.getName());
-        }
+      final Cookie[] cookies = context.nativeRequest(HttpServletRequest.class).getCookies();
+      final List<Cookie> ret = new ArrayList<>(cookies.length);
+      Collections.addAll(ret, cookies);
+      return ret;
     }
+  }
+
+  public static class ServletCookieArrayParameterResolver implements ParameterResolver {
+
+    @Override
+    public boolean supports(MethodParameter parameter) {
+      return parameter.isArray() && parameter.getParameterClass().getComponentType() == Cookie.class;
+    }
+
+    @Override
+    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+      return context.nativeRequest(HttpServletRequest.class).getCookies();
+    }
+  }
+
+  public static class ServletContextAttributeParameterResolver implements ParameterResolver {
+
+    private final ServletContext servletContext;
+
+    public ServletContextAttributeParameterResolver(ServletContext servletContext) {
+      this.servletContext = servletContext;
+    }
+
+    @Override
+    public boolean supports(MethodParameter parameter) {
+      return parameter.isAnnotationPresent(Application.class);
+    }
+
+    @Override
+    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+      return servletContext.getAttribute(parameter.getName());
+    }
+  }
 }

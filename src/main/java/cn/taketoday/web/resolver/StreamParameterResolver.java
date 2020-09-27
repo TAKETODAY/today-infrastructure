@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -36,42 +36,42 @@ import cn.taketoday.web.ui.Model;
  */
 public class StreamParameterResolver implements ParameterResolver {
 
-    @Override
-    public boolean supports(final MethodParameter parameter) {
+  @Override
+  public boolean supports(final MethodParameter parameter) {
 
-        final Class<?> parameterClass = parameter.getParameterClass();
-        return parameterClass == Readable.class//
-               || parameterClass == Writable.class//
-               || parameterClass == Reader.class//
-               || parameterClass == Writer.class//
-               || parameterClass == InputStream.class//
-               || parameterClass == OutputStream.class;
+    final Class<?> parameterClass = parameter.getParameterClass();
+    return parameterClass == Readable.class//
+            || parameterClass == Writable.class//
+            || parameterClass == Reader.class//
+            || parameterClass == Writer.class//
+            || parameterClass == InputStream.class//
+            || parameterClass == OutputStream.class;
+  }
+
+  /**
+   * Resolve {@link Model} parameter.
+   */
+  @Override
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+
+    final Class<?> parameterClass = parameter.getParameterClass();
+
+    if (parameterClass == Readable.class || parameterClass == Writable.class) {
+      return context;
     }
 
-    /**
-     * Resolve {@link Model} parameter.
-     */
-    @Override
-    public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-
-        final Class<?> parameterClass = parameter.getParameterClass();
-
-        if (parameterClass == Readable.class || parameterClass == Writable.class) {
-            return context;
-        }
-
-        if (parameterClass == Reader.class) {
-            return context.getReader();
-        }
-        if (parameterClass == Writer.class) {
-            return context.getWriter();
-        }
-
-        if (parameterClass == InputStream.class) {
-            return context.getInputStream();
-        }
-
-        return context.getOutputStream();
+    if (parameterClass == Reader.class) {
+      return context.getReader();
     }
+    if (parameterClass == Writer.class) {
+      return context.getWriter();
+    }
+
+    if (parameterClass == InputStream.class) {
+      return context.getInputStream();
+    }
+
+    return context.getOutputStream();
+  }
 
 }

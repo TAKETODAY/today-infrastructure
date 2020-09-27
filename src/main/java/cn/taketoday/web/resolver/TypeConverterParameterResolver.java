@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -31,41 +31,41 @@ import cn.taketoday.web.utils.WebUtils;
  */
 public abstract class TypeConverterParameterResolver extends OrderedSupport implements ParameterResolver {
 
-    protected TypeConverterParameterResolver() {
-        this(HIGHEST_PRECEDENCE);
-    }
+  protected TypeConverterParameterResolver() {
+    this(HIGHEST_PRECEDENCE);
+  }
 
-    protected TypeConverterParameterResolver(int order) {
-        super(order);
-    }
+  protected TypeConverterParameterResolver(int order) {
+    super(order);
+  }
 
-    @Override
-    public abstract boolean supports(MethodParameter parameter);
+  @Override
+  public abstract boolean supports(MethodParameter parameter);
 
-    @Override
-    public final Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-        Object source = resolveSource(context, parameter);
-        if (source == null) {
-            if (parameter.isRequired()) {
-                parameterCanNotResolve(parameter);
-            }
-            else {
-                source = parameter.getDefaultValue();
-            }
-        }
-        return ConvertUtils.convert(source, resolveTargetClass(parameter));
+  @Override
+  public final Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    Object source = resolveSource(context, parameter);
+    if (source == null) {
+      if (parameter.isRequired()) {
+        parameterCanNotResolve(parameter);
+      }
+      else {
+        source = parameter.getDefaultValue();
+      }
     }
+    return ConvertUtils.convert(source, resolveTargetClass(parameter));
+  }
 
-    protected void parameterCanNotResolve(final MethodParameter parameter) {
-        throw WebUtils.newBadRequest("Parameter", parameter, null);
-    }
+  protected void parameterCanNotResolve(final MethodParameter parameter) {
+    throw WebUtils.newBadRequest("Parameter", parameter, null);
+  }
 
-    protected Object resolveSource(final RequestContext requestContext, final MethodParameter parameter) {
-        return requestContext.parameter(parameter.getName());
-    }
+  protected Object resolveSource(final RequestContext requestContext, final MethodParameter parameter) {
+    return requestContext.parameter(parameter.getName());
+  }
 
-    protected Class<?> resolveTargetClass(final MethodParameter parameter) {
-        return parameter.getParameterClass();
-    }
+  protected Class<?> resolveTargetClass(final MethodParameter parameter) {
+    return parameter.getParameterClass();
+  }
 
 }

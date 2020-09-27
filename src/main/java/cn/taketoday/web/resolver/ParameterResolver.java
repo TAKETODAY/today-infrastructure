@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -29,30 +29,30 @@ import cn.taketoday.web.handler.MethodParameter;
 @FunctionalInterface
 public interface ParameterResolver {
 
-    /**
-     * Whether the given parameter is supported by this resolver.
-     */
-    default boolean supports(MethodParameter parameter) {
-        return true;
-    }
+  /**
+   * Whether the given parameter is supported by this resolver.
+   */
+  default boolean supports(MethodParameter parameter) {
+    return true;
+  }
 
-    /**
-     * Resolve parameter
-     * 
-     * @param context
-     *            Current request Context
-     * @param parameter
-     *            parameter
-     * @throws Throwable
-     *             if any {@link Exception} occurred
-     * @return method parameter instances
-     */
-    Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable;
+  /**
+   * Resolve parameter
+   *
+   * @param context
+   *            Current request Context
+   * @param parameter
+   *            parameter
+   * @throws Throwable
+   *             if any {@link Exception} occurred
+   * @return method parameter instances
+   */
+  Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable;
 
-    @FunctionalInterface
-    public interface SupportsFunction {
+  @FunctionalInterface
+  public interface SupportsFunction {
 
-        boolean supports(MethodParameter parameter);
-    }
+    boolean supports(MethodParameter parameter);
+  }
 
 }
