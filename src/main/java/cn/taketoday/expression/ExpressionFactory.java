@@ -130,11 +130,12 @@ public class ExpressionFactory implements NodeVisitor {
   private static final ConcurrentCache<String, Node> EXPRESSION_CACHE;
 
   static {
-    String cacheSizeStr = System.getSecurityManager() == null
-        ? System.getProperty(CACHE_SIZE_PROP, "2048")
-        : AccessController.doPrivileged((PrivilegedAction<String>) () -> {
-      return System.getProperty(CACHE_SIZE_PROP, "2048");
-    });
+    String cacheSizeStr =
+            System.getSecurityManager() == null
+            ? System.getProperty(CACHE_SIZE_PROP, "2048")
+            : AccessController.doPrivileged((PrivilegedAction<String>) () -> {
+              return System.getProperty(CACHE_SIZE_PROP, "2048");
+            });
 
     EXPRESSION_CACHE = new ConcurrentCache<>(Integer.parseInt(cacheSizeStr));
     sharedExpressionFactory = new ExpressionFactory();
@@ -159,12 +160,12 @@ public class ExpressionFactory implements NodeVisitor {
    * </p>
    *
    * @param obj
-   *     The object to coerce.
+   *         The object to coerce.
    * @param type
-   *     The target type for the coercion.
+   *         The target type for the coercion.
    *
    * @throws ExpressionException
-   *     thrown if an error results from applying the conversion rules.
+   *         thrown if an error results from applying the conversion rules.
    */
   public Object coerceToType(Object obj, Class<?> type) {
     try {
@@ -175,7 +176,7 @@ public class ExpressionFactory implements NodeVisitor {
     }
   }
 
-  protected Node build(final String expression, ExpressionContext context) throws ExpressionException {
+  protected Node build(final String expression, ExpressionContext context) {
     final Node n = createNode(expression);
     this.prepare(n, context);
     return n;
@@ -198,49 +199,48 @@ public class ExpressionFactory implements NodeVisitor {
    * </p>
    *
    * @param context
-   *     The EL context used to parse the expression. The
-   *     <code>FunctionMapper</code> and <code>VariableMapper</code> stored
-   *     in the ELContext are used to resolve functions and variables found
-   *     in the expression. They can be <code>null</code>, in which case
-   *     functions or variables are not supported for this expression. The
-   *     object returned must invoke the same functions and access the same
-   *     variable mappings regardless of whether the mappings in the
-   *     provided <code>FunctionMapper</code> and
-   *     <code>VariableMapper</code> instances change between calling
-   *     <code>ExpressionFactory.createMethodExpression()</code> and any
-   *     method on <code>MethodExpression</code>.
-   *     <p>
-   *     Note that within the EL, the ${} and #{} syntaxes are treated
-   *     identically. This includes the use of VariableMapper and
-   *     FunctionMapper at expression creation time. Each is invoked if not
-   *     null, independent of whether the #{} or ${} syntax is used for the
-   *     expression.
-   *     </p>
+   *         The EL context used to parse the expression. The
+   *         <code>FunctionMapper</code> and <code>VariableMapper</code> stored
+   *         in the ELContext are used to resolve functions and variables found
+   *         in the expression. They can be <code>null</code>, in which case
+   *         functions or variables are not supported for this expression. The
+   *         object returned must invoke the same functions and access the same
+   *         variable mappings regardless of whether the mappings in the
+   *         provided <code>FunctionMapper</code> and
+   *         <code>VariableMapper</code> instances change between calling
+   *         <code>ExpressionFactory.createMethodExpression()</code> and any
+   *         method on <code>MethodExpression</code>.
+   *         <p>
+   *         Note that within the EL, the ${} and #{} syntaxes are treated
+   *         identically. This includes the use of VariableMapper and
+   *         FunctionMapper at expression creation time. Each is invoked if not
+   *         null, independent of whether the #{} or ${} syntax is used for the
+   *         expression.
+   *         </p>
    * @param expression
-   *     The expression to parse
+   *         The expression to parse
    * @param expectedReturnType
-   *     The expected return type for the method to be found. After
-   *     evaluating the expression, the <code>MethodExpression</code> must
-   *     check that the return type of the actual method matches this type.
-   *     Passing in a value of <code>null</code> indicates the caller does
-   *     not care what the return type is, and the check is disabled.
+   *         The expected return type for the method to be found. After
+   *         evaluating the expression, the <code>MethodExpression</code> must
+   *         check that the return type of the actual method matches this type.
+   *         Passing in a value of <code>null</code> indicates the caller does
+   *         not care what the return type is, and the check is disabled.
    * @param expectedParamTypes
-   *     The expected parameter types for the method to be found. Must be
-   *     an array with no elements if there are no parameters expected. It
-   *     is illegal to pass <code>null</code>, unless the method is
-   *     specified with arugments in the EL expression, in which case these
-   *     arguments are used for method selection, and this parameter is
-   *     ignored.
+   *         The expected parameter types for the method to be found. Must be
+   *         an array with no elements if there are no parameters expected. It
+   *         is illegal to pass <code>null</code>, unless the method is
+   *         specified with arugments in the EL expression, in which case these
+   *         arguments are used for method selection, and this parameter is
+   *         ignored.
    *
    * @return The parsed expression
    *
    * @throws ExpressionException
-   *     Thrown if there are syntactical errors in the provided
-   *     expression.
+   *         Thrown if there are syntactical errors in the provided
+   *         expression.
    * @throws NullPointerException
-   *     if paramTypes is <code>null</code>.
+   *         if paramTypes is <code>null</code>.
    */
-
   public MethodExpression createMethodExpression(ExpressionContext context, String expression, Class<?> expectedReturnType, //
                                                  Class<?>[] expectedParamTypes)//
   {
@@ -274,39 +274,38 @@ public class ExpressionFactory implements NodeVisitor {
    * </p>
    *
    * @param context
-   *     The EL context used to parse the expression. The
-   *     <code>FunctionMapper</code> and <code>VariableMapper</code> stored
-   *     in the ELContext are used to resolve functions and variables found
-   *     in the expression. They can be <code>null</code>, in which case
-   *     functions or variables are not supported for this expression. The
-   *     object returned must invoke the same functions and access the same
-   *     variable mappings regardless of whether the mappings in the
-   *     provided <code>FunctionMapper</code> and
-   *     <code>VariableMapper</code> instances change between calling
-   *     <code>ExpressionFactory.createValueExpression()</code> and any
-   *     method on <code>ValueExpression</code>.
-   *     <p>
-   *     Note that within the EL, the ${} and #{} syntaxes are treated
-   *     identically. This includes the use of VariableMapper and
-   *     FunctionMapper at expression creation time. Each is invoked if not
-   *     null, independent of whether the #{} or ${} syntax is used for the
-   *     expression.
-   *     </p>
+   *         The EL context used to parse the expression. The
+   *         <code>FunctionMapper</code> and <code>VariableMapper</code> stored
+   *         in the ELContext are used to resolve functions and variables found
+   *         in the expression. They can be <code>null</code>, in which case
+   *         functions or variables are not supported for this expression. The
+   *         object returned must invoke the same functions and access the same
+   *         variable mappings regardless of whether the mappings in the
+   *         provided <code>FunctionMapper</code> and
+   *         <code>VariableMapper</code> instances change between calling
+   *         <code>ExpressionFactory.createValueExpression()</code> and any
+   *         method on <code>ValueExpression</code>.
+   *         <p>
+   *         Note that within the EL, the ${} and #{} syntaxes are treated
+   *         identically. This includes the use of VariableMapper and
+   *         FunctionMapper at expression creation time. Each is invoked if not
+   *         null, independent of whether the #{} or ${} syntax is used for the
+   *         expression.
+   *         </p>
    * @param expression
-   *     The expression to parse
+   *         The expression to parse
    * @param expectedType
-   *     The type the result of the expression will be coerced to after
-   *     evaluation.
+   *         The type the result of the expression will be coerced to after
+   *         evaluation.
    *
    * @return The parsed expression
    *
    * @throws NullPointerException
-   *     Thrown if expectedType is null.
+   *         Thrown if expectedType is null.
    * @throws ExpressionException
-   *     Thrown if there are syntactical errors in the provided
-   *     expression.
+   *         Thrown if there are syntactical errors in the provided
+   *         expression.
    */
-
   public ValueExpression createValueExpression(ExpressionContext context, String expression, Class<?> expectedType) {
     // if expectedType == null will not convert object
     return new ValueExpressionImpl(expression, build(expression, context), expectedType);
@@ -319,13 +318,13 @@ public class ExpressionFactory implements NodeVisitor {
    * method, optionally coerced.
    *
    * @param instance
-   *     The object instance to be wrapped.
+   *         The object instance to be wrapped.
    * @param expectedType
-   *     The type the result of the expression will be coerced to after
-   *     evaluation. There will be no coercion if it is Object.class,
+   *         The type the result of the expression will be coerced to after
+   *         evaluation. There will be no coercion if it is Object.class,
    *
    * @throws NullPointerException
-   *     Thrown if expectedType is null.
+   *         Thrown if expectedType is null.
    */
 
   public ValueExpression createValueExpression(Object instance, Class<?> expectedType) {
@@ -425,14 +424,14 @@ public class ExpressionFactory implements NodeVisitor {
    * expression, as the functions and variables are bound and resolved at parse
    * time, as specified in the spec.
    */
-  protected void prepare(Node node, ExpressionContext context) throws ExpressionException {
+  protected void prepare(Node node, ExpressionContext context) {
     node.accept(this, context);
   }
 
   // ------------------------NodeVisitor
 
   @Override
-  public void visit(Node node, ExpressionContext context) throws ExpressionException {
+  public void visit(Node node, ExpressionContext context) {
 
     if (node instanceof AstFunction) {
 
@@ -441,7 +440,7 @@ public class ExpressionFactory implements NodeVisitor {
 
       AstFunction funcNode = (AstFunction) node;
       if ((funcNode.getPrefix().length() == 0) && //
-          (fnMapper == null || fnMapper.resolveFunction(funcNode.getPrefix(), funcNode.getLocalName()) == null)) //
+              (fnMapper == null || fnMapper.resolveFunction(funcNode.getPrefix(), funcNode.getLocalName()) == null)) //
       {
         // This can be a call to a LambdaExpression. The target
         // of the call is a bean or an EL variable. Capture
@@ -465,7 +464,7 @@ public class ExpressionFactory implements NodeVisitor {
       int acnt = ((AstMethodArguments) node.jjtGetChild(0)).getParameterCount();
       if (acnt != pcnt) {
         throw new ExpressionException(
-            "Function ''" + funcNode.getOutputName() + "'' specifies " + pcnt + " params, but " + acnt + " were supplied");
+                "Function ''" + funcNode.getOutputName() + "'' specifies " + pcnt + " params, but " + acnt + " were supplied");
       }
     }
     else if (node instanceof AstIdentifier) {
@@ -473,7 +472,7 @@ public class ExpressionFactory implements NodeVisitor {
       final VariableMapper varMapper = context.getVariableMapper();
       if (varMapper != null) {
         // simply capture it
-        varMapper.resolveVariable(((AstIdentifier) node).getImage());
+        varMapper.resolveVariable(node.getImage());
       }
     }
   }
