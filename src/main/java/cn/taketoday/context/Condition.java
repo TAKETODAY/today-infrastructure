@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,14 +28,14 @@ import java.lang.reflect.AnnotatedElement;
 @FunctionalInterface
 public interface Condition {
 
-    /**
-     * Determine if the condition matches.
-     * 
-     * @param annotated
-     *            Annotated element being checked
-     * @return Return {@code false} to indicate that the bean should not be
-     *         registered
-     */
-    boolean matches(ApplicationContext context, AnnotatedElement annotated);
+  /**
+   * Determine if the condition matches.
+   *
+   * @param annotated
+   *            Annotated element being checked
+   * @return Return {@code false} to indicate that the bean should not be
+   *         registered
+   */
+  boolean matches(ApplicationContext context, AnnotatedElement annotated);
 
 }

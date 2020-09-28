@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -30,83 +30,83 @@ import java.util.function.Function;
  */
 public final class ConcurrentCache<K, V> {
 
-    private final int size;
-    private final ConcurrentHashMap<K, V> eden;
-    private final WeakHashMap<K, V> longterm;
+  private final int size;
+  private final ConcurrentHashMap<K, V> eden;
+  private final WeakHashMap<K, V> longterm;
 
-    public ConcurrentCache(int size) {
-        this.size = size;
-        this.longterm = new WeakHashMap<>(size);
-        this.eden = new ConcurrentHashMap<>(size);
-    }
+  public ConcurrentCache(int size) {
+    this.size = size;
+    this.longterm = new WeakHashMap<>(size);
+    this.eden = new ConcurrentHashMap<>(size);
+  }
 
-    public static <K, V> ConcurrentCache<K, V> create() {
-        return create(512);
-    }
+  public static <K, V> ConcurrentCache<K, V> create() {
+    return create(512);
+  }
 
-    public static <K, V> ConcurrentCache<K, V> create(int size) {
-        return new ConcurrentCache<>(size);
-    }
+  public static <K, V> ConcurrentCache<K, V> create(int size) {
+    return new ConcurrentCache<>(size);
+  }
 
-    public V get(K k) {
-        V v = this.eden.get(k);
-        if (v == null) {
-            synchronized (longterm) {
-                v = this.longterm.get(k);
-            }
-            if (v != null) {
-                this.eden.put(k, v);
-            }
-        }
-        return v;
+  public V get(K k) {
+    V v = this.eden.get(k);
+    if (v == null) {
+      synchronized (longterm) {
+        v = this.longterm.get(k);
+      }
+      if (v != null) {
+        this.eden.put(k, v);
+      }
     }
+    return v;
+  }
 
-    public V get(K k, Function<? super K, ? extends V> function) {
-        V v;
-        if ((v = get(k)) == null) {
-            V newValue;
-            if ((newValue = function.apply(k)) != null) {
-                put(k, newValue);
-                return newValue;
-            }
-        }
-        return v;
+  public V get(K k, Function<? super K, ? extends V> function) {
+    V v;
+    if ((v = get(k)) == null) {
+      V newValue;
+      if ((newValue = function.apply(k)) != null) {
+        put(k, newValue);
+        return newValue;
+      }
     }
+    return v;
+  }
 
-    public void remove(K k) {
-        this.eden.remove(k);
-        synchronized (longterm) {
-            this.longterm.remove(k);
-        }
+  public void remove(K k) {
+    this.eden.remove(k);
+    synchronized (longterm) {
+      this.longterm.remove(k);
     }
+  }
 
-    public void clear() {
-        this.eden.clear();
-        synchronized (longterm) {
-            this.longterm.clear();
-        }
+  public void clear() {
+    this.eden.clear();
+    synchronized (longterm) {
+      this.longterm.clear();
     }
+  }
 
-    public void put(K k, V v) {
-        final Map<K, V> eden = this.eden;
-        if (eden.size() >= size) {
-            synchronized (longterm) {
-                this.longterm.putAll(eden);
-            }
-            eden.clear();
-        }
-        eden.put(k, v);
+  public void put(K k, V v) {
+    final Map<K, V> eden = this.eden;
+    if (eden.size() >= size) {
+      synchronized (longterm) {
+        this.longterm.putAll(eden);
+      }
+      eden.clear();
     }
+    eden.put(k, v);
+  }
 
-    public void putAll(Map<? extends K, ? extends V> m) {
-        final Map<K, V> eden = this.eden;
-        if (eden.size() >= size) {
-            synchronized (longterm) {
-                this.longterm.putAll(eden);
-            }
-            eden.clear();
-        }
-        eden.putAll(m);
+  public void putAll(Map<? extends K, ? extends V> m) {
+    final Map<K, V> eden = this.eden;
+    if (eden.size() >= size) {
+      synchronized (longterm) {
+        this.longterm.putAll(eden);
+      }
+      eden.clear();
     }
+    eden.putAll(m);
+  }
 
 }

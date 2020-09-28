@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,68 +30,68 @@ import cn.taketoday.context.BeanNameCreator;
  */
 public interface SingletonBeanRegistry {
 
-    /**
-     * Register a singleton to context
-     * 
-     * @param name
-     *            bean name
-     * @param bean
-     *            bean instance
-     */
-    void registerSingleton(String name, Object bean);
+  /**
+   * Register a singleton to context
+   *
+   * @param name
+   *            bean name
+   * @param bean
+   *            bean instance
+   */
+  void registerSingleton(String name, Object bean);
 
-    /**
-     * Register a singleton to context user {@link BeanNameCreator} to create a name
-     * 
-     * @param bean
-     *            bean instance
-     * @since 2.1.2
-     */
-    void registerSingleton(Object bean);
+  /**
+   * Register a singleton to context user {@link BeanNameCreator} to create a name
+   *
+   * @param bean
+   *            bean instance
+   * @since 2.1.2
+   */
+  void registerSingleton(Object bean);
 
-    /**
-     * Get all instances Map
-     * 
-     * @return the map of singletons
-     */
-    Map<String, Object> getSingletons();
+  /**
+   * Get all instances Map
+   *
+   * @return the map of singletons
+   */
+  Map<String, Object> getSingletons();
 
-    /**
-     * Get instances Map
-     * 
-     * @return the map of singletons
-     * @deprecated since 2.1.6 use {@link SingletonBeanRegistry#getSingletons()}
-     *             instead
-     * @see SingletonBeanRegistry#getSingletons()
-     */
-    @Deprecated
-    Map<String, Object> getSingletonsMap();
+  /**
+   * Get instances Map
+   *
+   * @return the map of singletons
+   * @deprecated since 2.1.6 use {@link SingletonBeanRegistry#getSingletons()}
+   *             instead
+   * @see SingletonBeanRegistry#getSingletons()
+   */
+  @Deprecated
+  Map<String, Object> getSingletonsMap();
 
-    /**
-     * get bean instance, one {@link BeanDefinition} can have a lot of names, so
-     * can't put instances in BeanDefinition.
-     * 
-     * @param name
-     *            bean name
-     * @return bean instance
-     */
-    Object getSingleton(String name);
+  /**
+   * get bean instance, one {@link BeanDefinition} can have a lot of names, so
+   * can't put instances in BeanDefinition.
+   *
+   * @param name
+   *            bean name
+   * @return bean instance
+   */
+  Object getSingleton(String name);
 
-    /**
-     * remove a singleton with given name
-     * 
-     * @param name
-     *            bean name
-     */
-    void removeSingleton(String name);
+  /**
+   * remove a singleton with given name
+   *
+   * @param name
+   *            bean name
+   */
+  void removeSingleton(String name);
 
-    /**
-     * contains instance with given name?
-     * 
-     * @param name
-     *            bean name
-     * @return if contains singleton
-     */
-    boolean containsSingleton(String name);
+  /**
+   * contains instance with given name?
+   *
+   * @param name
+   *            bean name
+   * @return if contains singleton
+   */
+  boolean containsSingleton(String name);
 
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,53 +30,53 @@ import cn.taketoday.context.exception.ConversionException;
  */
 public abstract class NumberUtils {
 
-    public static Object parseDigit(String text, Class<?> targetClass) throws ConversionException {
+  public static Object parseDigit(String text, Class<?> targetClass) throws ConversionException {
 
-        if (StringUtils.isEmpty(text)) {
-            return 0;
-        }
-        if (Byte.class == targetClass || byte.class == targetClass) {
-            return Byte.valueOf(text);
-        }
-        else if (Short.class == targetClass || short.class == targetClass) {
-            return Short.valueOf(text);
-        }
-        else if (Integer.class == targetClass || int.class == targetClass) {
-            return Integer.valueOf(text);
-        }
-        else if (Long.class == targetClass || long.class == targetClass) {
-            return Long.valueOf(text);
-        }
-        else if (BigInteger.class == targetClass) {
-            return new BigInteger(text);
-        }
-        else if (Float.class == targetClass || float.class == targetClass) {
-            return Float.valueOf(text);
-        }
-        else if (Double.class == targetClass || double.class == targetClass) {
-            return Double.valueOf(text);
-        }
-        else if (BigDecimal.class == targetClass || Number.class == targetClass) {
-            return new BigDecimal(text);
-        }
-        throw new ConversionException("can't convert[" + text + "] to [" + targetClass.getName() + "]");
+    if (StringUtils.isEmpty(text)) {
+      return 0;
     }
+    if (Byte.class == targetClass || byte.class == targetClass) {
+      return Byte.valueOf(text);
+    }
+    else if (Short.class == targetClass || short.class == targetClass) {
+      return Short.valueOf(text);
+    }
+    else if (Integer.class == targetClass || int.class == targetClass) {
+      return Integer.valueOf(text);
+    }
+    else if (Long.class == targetClass || long.class == targetClass) {
+      return Long.valueOf(text);
+    }
+    else if (BigInteger.class == targetClass) {
+      return new BigInteger(text);
+    }
+    else if (Float.class == targetClass || float.class == targetClass) {
+      return Float.valueOf(text);
+    }
+    else if (Double.class == targetClass || double.class == targetClass) {
+      return Double.valueOf(text);
+    }
+    else if (BigDecimal.class == targetClass || Number.class == targetClass) {
+      return new BigDecimal(text);
+    }
+    throw new ConversionException("can't convert[" + text + "] to [" + targetClass.getName() + "]");
+  }
 
-    /**
-     * Is a number?
-     * 
-     * @param targetClass
-     *            the target class
-     * @return
-     */
-    public static boolean isNumber(Class<?> targetClass) {
-        return Number.class.isAssignableFrom(targetClass) //
-                || targetClass == int.class//
-                || targetClass == long.class//
-                || targetClass == float.class//
-                || targetClass == double.class//
-                || targetClass == short.class//
-                || targetClass == byte.class;
-    }
+  /**
+   * Is a number?
+   *
+   * @param targetClass
+   *            the target class
+   * @return
+   */
+  public static boolean isNumber(Class<?> targetClass) {
+    return Number.class.isAssignableFrom(targetClass) //
+            || targetClass == int.class//
+            || targetClass == long.class//
+            || targetClass == float.class//
+            || targetClass == double.class//
+            || targetClass == short.class//
+            || targetClass == byte.class;
+  }
 
 }

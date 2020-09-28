@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,33 +27,33 @@ import cn.taketoday.context.factory.BeanDefinition;
  */
 public interface Scope {
 
-    String SINGLETON = Constant.SINGLETON;
+  String SINGLETON = Constant.SINGLETON;
 
-    String PROTOTYPE = Constant.PROTOTYPE;
+  String PROTOTYPE = Constant.PROTOTYPE;
 
-    /**
-     * Return the object with the given {@link BeanDefinition} from the underlying
-     * scope, {@link ScopeObjectFactory#getObject(BeanDefinition)) creating it} if
-     * not found in the underlying storage mechanism.
-     * <p>
-     * This is the central operation of a Scope, and the only operation that is
-     * absolutely required.
-     * 
-     * @param def
-     *            the name of the object to retrieve
-     * @param objectFactory
-     *            the {@link ScopeObjectFactory} to use to create the scoped object
-     *            if it is not present in the underlying storage mechanism
-     * @return the desired object (never {@code null})
-     * @throws IllegalStateException
-     *             if the underlying scope is not currently active
-     */
-    Object get(BeanDefinition def, ScopeObjectFactory objectFactory);
+  /**
+   * Return the object with the given {@link BeanDefinition} from the underlying
+   * scope, {@link ScopeObjectFactory#getObject(BeanDefinition)) creating it} if
+   * not found in the underlying storage mechanism.
+   * <p>
+   * This is the central operation of a Scope, and the only operation that is
+   * absolutely required.
+   *
+   * @param def
+   *            the name of the object to retrieve
+   * @param objectFactory
+   *            the {@link ScopeObjectFactory} to use to create the scoped object
+   *            if it is not present in the underlying storage mechanism
+   * @return the desired object (never {@code null})
+   * @throws IllegalStateException
+   *             if the underlying scope is not currently active
+   */
+  Object get(BeanDefinition def, ScopeObjectFactory objectFactory);
 
-    Object remove(String name);
+  Object remove(String name);
 
-    interface ScopeObjectFactory {
+  interface ScopeObjectFactory {
 
-        Object getObject(BeanDefinition def);
-    }
+    Object getObject(BeanDefinition def);
+  }
 }

@@ -42,190 +42,190 @@ import static java.lang.String.format;
 @SuppressWarnings("serial")
 public class AnnotationAttributes extends LinkedHashMap<String, Object> implements Ordered {
 
-    private static final String UNKNOWN = "unknown";
+  private static final String UNKNOWN = "unknown";
 
-    private final String displayName;
-    private final Class<? extends Annotation> annotationType;
+  private final String displayName;
+  private final Class<? extends Annotation> annotationType;
 
-    public AnnotationAttributes() {
-        this.annotationType = null;
-        this.displayName = UNKNOWN;
+  public AnnotationAttributes() {
+    this.annotationType = null;
+    this.displayName = UNKNOWN;
+  }
+
+  public AnnotationAttributes(int initialCapacity) {
+    super(initialCapacity, 0.75f);
+    this.annotationType = null;
+    this.displayName = UNKNOWN;
+  }
+
+  public AnnotationAttributes(Class<? extends Annotation> annotationType, int initialCapacity) {
+    super(initialCapacity, 0.75f);
+    Objects.requireNonNull(annotationType, "'annotationType' must not be null");
+    this.annotationType = annotationType;
+    this.displayName = annotationType.getName();
+  }
+
+  public AnnotationAttributes(Map<String, Object> map) {
+    super(map);
+    this.annotationType = null;
+    this.displayName = UNKNOWN;
+  }
+
+  public AnnotationAttributes(AnnotationAttributes other) {
+    super(other);
+    this.annotationType = other.annotationType;
+    this.displayName = other.displayName;
+  }
+
+  public AnnotationAttributes(Class<? extends Annotation> annotationType) {
+    Objects.requireNonNull(annotationType, "'annotationType' must not be null");
+
+    this.annotationType = annotationType;
+    this.displayName = annotationType.getName();
+  }
+
+  public Class<? extends Annotation> annotationType() {
+    return this.annotationType;
+  }
+
+  //
+  // ---------------------------------------
+
+  public String getString(String attributeName) {
+    return getAttribute(attributeName, String.class);
+  }
+
+  public String[] getStringArray(String attributeName) {
+    return getAttribute(attributeName, String[].class);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> Class<? extends T>[] getClassArray(String attributeName) {
+    return getAttribute(attributeName, Class[].class);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> Class<? extends T> getClass(String attributeName) {
+    return getAttribute(attributeName, Class.class);
+  }
+
+  public boolean getBoolean(String attributeName) {
+    return getAttribute(attributeName, Boolean.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <N extends Number> N getNumber(String attributeName) {
+    return (N) getAttribute(attributeName, Number.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <E extends Enum<?>> E getEnum(String attributeName) {
+    return (E) getAttribute(attributeName, Enum.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  public <A extends Annotation> A[] getAnnotationArray(String attributeName, Class<A> annotationType) {
+    return (A[]) getAttribute(attributeName, Array.newInstance(annotationType, 0).getClass());
+  }
+
+  /**
+   * Get the value of attribute name and cast to target type
+   *
+   * @param attributeName
+   *         The attribute name
+   * @param expectedType
+   *         target type
+   *
+   * @return T
+   */
+  public <T> T getAttribute(String attributeName, Class<T> expectedType) {
+    Objects.requireNonNull(attributeName, "'attributeName' must not be null or empty");
+    Object value = get(attributeName); // get value
+    assertAttributePresence(attributeName, value);
+
+    if (!expectedType.isInstance(value) && expectedType.isArray() && expectedType.getComponentType().isInstance(value)) {
+      Object array = Array.newInstance(expectedType.getComponentType(), 1);
+      Array.set(array, 0, value);
+      value = array;
     }
+    assertAttributeType(attributeName, value, expectedType);
+    return expectedType.cast(value);
+  }
 
-    public AnnotationAttributes(int initialCapacity) {
-        super(initialCapacity, 0.75f);
-        this.annotationType = null;
-        this.displayName = UNKNOWN;
+  private void assertAttributePresence(String attributeName, Object attributeValue) {
+    if (attributeValue == null) {
+      throw new NullPointerException(
+              format("Attribute '%s' not found in attributes for annotation [%s]",
+                     attributeName,
+                     this.displayName)
+      );
     }
+  }
 
-    public AnnotationAttributes(Class<? extends Annotation> annotationType, int initialCapacity) {
-        super(initialCapacity, 0.75f);
-        Objects.requireNonNull(annotationType, "'annotationType' must not be null");
-        this.annotationType = annotationType;
-        this.displayName = annotationType.getName();
+  private void assertAttributeType(String attributeName, Object attributeValue, Class<?> expectedType) {
+    if (!expectedType.isInstance(attributeValue)) {
+      throw new IllegalArgumentException(
+              format("Attribute '%s' is of type [%s], but [%s] was expected in attributes for annotation [%s]",
+                     attributeName,
+                     attributeValue.getClass().getName(),
+                     expectedType.getName(),
+                     this.displayName)
+      );
     }
+  }
 
-    public AnnotationAttributes(Map<String, Object> map) {
-        super(map);
-        this.annotationType = null;
-        this.displayName = UNKNOWN;
+  @Override
+  public String toString() {
+    final Iterator<Map.Entry<String, Object>> entries = entrySet().iterator();
+    final StringBuilder sb = new StringBuilder("{");
+    while (entries.hasNext()) {
+      Map.Entry<String, Object> entry = entries.next();
+      sb.append(entry.getKey());
+      sb.append('=');
+      sb.append(valueToString(entry.getValue()));
+      sb.append(entries.hasNext() ? ", " : "");
     }
+    sb.append("}");
+    return sb.toString();
+  }
 
-    public AnnotationAttributes(AnnotationAttributes other) {
-        super(other);
-        this.annotationType = other.annotationType;
-        this.displayName = other.displayName;
+  private String valueToString(Object value) {
+    if (value == this) {
+      return "(this Map)";
     }
-
-    public AnnotationAttributes(Class<? extends Annotation> annotationType) {
-        Objects.requireNonNull(annotationType, "'annotationType' must not be null");
-
-        this.annotationType = annotationType;
-        this.displayName = annotationType.getName();
+    if (value instanceof Object[]) {
+      return Arrays.toString((Object[]) value);
     }
+    return String.valueOf(value);
+  }
 
-    public Class<? extends Annotation> annotationType() {
-        return this.annotationType;
+  public static AnnotationAttributes fromMap(Map<String, Object> map) {
+    if (map == null) {
+      return null;
     }
-
-    //
-    // ---------------------------------------
-
-    public String getString(String attributeName) {
-        return getAttribute(attributeName, String.class);
+    if (map instanceof AnnotationAttributes) {
+      return (AnnotationAttributes) map;
     }
+    return new AnnotationAttributes(map);
+  }
 
-    public String[] getStringArray(String attributeName) {
-        return getAttribute(attributeName, String[].class);
+  @Override
+  public boolean equals(Object object) {
+    if (object == this) {
+      return true;
     }
-
-    @SuppressWarnings("unchecked")
-    public <T> Class<? extends T>[] getClassArray(String attributeName) {
-        return getAttribute(attributeName, Class[].class);
+    if (object instanceof AnnotationAttributes) {
+      final AnnotationAttributes other = (AnnotationAttributes) object;
+      return Objects.equals(annotationType, other.annotationType)
+              && Objects.equals(displayName, other.displayName)
+              && super.equals(object);
     }
+    return false;
+  }
 
-    @SuppressWarnings("unchecked")
-    public <T> Class<? extends T> getClass(String attributeName) {
-        return getAttribute(attributeName, Class.class);
-    }
-
-    public boolean getBoolean(String attributeName) {
-        return getAttribute(attributeName, Boolean.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <N extends Number> N getNumber(String attributeName) {
-        return (N) getAttribute(attributeName, Number.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <E extends Enum<?>> E getEnum(String attributeName) {
-        return (E) getAttribute(attributeName, Enum.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <A extends Annotation> A[] getAnnotationArray(String attributeName, Class<A> annotationType) {
-        return (A[]) getAttribute(attributeName, Array.newInstance(annotationType, 0).getClass());
-    }
-
-    /**
-     * Get the value of attribute name and cast to target type
-     *
-     * @param attributeName
-     *     The attribute name
-     * @param expectedType
-     *     target type
-     *
-     * @return T
-     */
-    public <T> T getAttribute(String attributeName, Class<T> expectedType) {
-        Objects.requireNonNull(attributeName, "'attributeName' must not be null or empty");
-        Object value = get(attributeName); // get value
-        assertAttributePresence(attributeName, value);
-
-        if (!expectedType.isInstance(value) && expectedType.isArray() && expectedType.getComponentType().isInstance(value)) {
-            Object array = Array.newInstance(expectedType.getComponentType(), 1);
-            Array.set(array, 0, value);
-            value = array;
-        }
-        assertAttributeType(attributeName, value, expectedType);
-        return expectedType.cast(value);
-    }
-
-    private void assertAttributePresence(String attributeName, Object attributeValue) {
-        if (attributeValue == null) {
-            throw new NullPointerException(
-                format("Attribute '%s' not found in attributes for annotation [%s]",
-                       attributeName,
-                       this.displayName)
-            );
-        }
-    }
-
-    private void assertAttributeType(String attributeName, Object attributeValue, Class<?> expectedType) {
-        if (!expectedType.isInstance(attributeValue)) {
-            throw new IllegalArgumentException(
-                format("Attribute '%s' is of type [%s], but [%s] was expected in attributes for annotation [%s]",
-                       attributeName,
-                       attributeValue.getClass().getName(),
-                       expectedType.getName(),
-                       this.displayName)
-            );
-        }
-    }
-
-    @Override
-    public String toString() {
-        final Iterator<Map.Entry<String, Object>> entries = entrySet().iterator();
-        final StringBuilder sb = new StringBuilder("{");
-        while (entries.hasNext()) {
-            Map.Entry<String, Object> entry = entries.next();
-            sb.append(entry.getKey());
-            sb.append('=');
-            sb.append(valueToString(entry.getValue()));
-            sb.append(entries.hasNext() ? ", " : "");
-        }
-        sb.append("}");
-        return sb.toString();
-    }
-
-    private String valueToString(Object value) {
-        if (value == this) {
-            return "(this Map)";
-        }
-        if (value instanceof Object[]) {
-            return Arrays.toString((Object[]) value);
-        }
-        return String.valueOf(value);
-    }
-
-    public static AnnotationAttributes fromMap(Map<String, Object> map) {
-        if (map == null) {
-            return null;
-        }
-        if (map instanceof AnnotationAttributes) {
-            return (AnnotationAttributes) map;
-        }
-        return new AnnotationAttributes(map);
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (object == this) {
-            return true;
-        }
-        if (object instanceof AnnotationAttributes) {
-            final AnnotationAttributes other = (AnnotationAttributes) object;
-            return Objects.equals(annotationType, other.annotationType)
-                && Objects.equals(displayName, other.displayName)
-                && super.equals(object);
-        }
-        return false;
-    }
-
-    @Override
-    public int getOrder() {
-        return OrderUtils.getOrder(annotationType);
-    }
+  @Override
+  public int getOrder() {
+    return OrderUtils.getOrder(annotationType);
+  }
 
 }

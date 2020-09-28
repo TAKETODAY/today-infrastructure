@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,32 +23,32 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 
 /**
- * 
+ *
  * @author TODAY <br>
  *         2018-11-13 21:25
  */
 public abstract class ExceptionUtils {
 
-    /**
-     * Unwrap
-     * 
-     * @param ex
-     *            target {@link Throwable}
-     * @return unwrapped {@link Throwable}
-     */
-    public static Throwable unwrapThrowable(Throwable ex) {
-        Throwable unwrapped = ex;
-        while (true) {
-            if (unwrapped instanceof InvocationTargetException) {
-                unwrapped = ((InvocationTargetException) unwrapped).getTargetException();
-            }
-            else if (unwrapped instanceof UndeclaredThrowableException) {
-                unwrapped = ((UndeclaredThrowableException) unwrapped).getUndeclaredThrowable();
-            }
-            else {
-                return unwrapped;
-            }
-        }
+  /**
+   * Unwrap
+   *
+   * @param ex
+   *            target {@link Throwable}
+   * @return unwrapped {@link Throwable}
+   */
+  public static Throwable unwrapThrowable(Throwable ex) {
+    Throwable unwrapped = ex;
+    while (true) {
+      if (unwrapped instanceof InvocationTargetException) {
+        unwrapped = ((InvocationTargetException) unwrapped).getTargetException();
+      }
+      else if (unwrapped instanceof UndeclaredThrowableException) {
+        unwrapped = ((UndeclaredThrowableException) unwrapped).getUndeclaredThrowable();
+      }
+      else {
+        return unwrapped;
+      }
     }
+  }
 
 }
