@@ -36,7 +36,7 @@ package cn.taketoday.context.factory;
  * {@link BeanFactory} as a singleton bean.
  *
  * @author TODAY <br>
- *         2018-08-03 17:38
+ * 2018-08-03 17:38
  */
 public interface FactoryBean<T> {
 
@@ -51,6 +51,7 @@ public interface FactoryBean<T> {
    * Get the bean class
    *
    * @return bean class
+   *
    * @since 2.1.2
    */
   Class<T> getBeanClass();

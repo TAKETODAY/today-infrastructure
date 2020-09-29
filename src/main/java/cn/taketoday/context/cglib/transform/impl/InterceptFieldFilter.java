@@ -18,7 +18,7 @@ package cn.taketoday.context.cglib.transform.impl;
 import cn.taketoday.context.asm.Type;
 
 public interface InterceptFieldFilter {
-    boolean acceptRead(Type owner, String name);
+  boolean acceptRead(Type owner, String name);
 
-    boolean acceptWrite(Type owner, String name);
+  boolean acceptWrite(Type owner, String name);
 }

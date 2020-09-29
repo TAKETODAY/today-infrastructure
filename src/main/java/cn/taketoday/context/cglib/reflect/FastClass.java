@@ -29,199 +29,205 @@ import cn.taketoday.context.cglib.core.Signature;
 
 /**
  * @author TODAY <br>
- *         2018-11-08 15:08
+ * 2018-11-08 15:08
  */
 @SuppressWarnings("all")
 public abstract class FastClass {
 
-    private final Class type;
+  private final Class type;
 
-    protected FastClass(Class type) {
-        this.type = type;
+  protected FastClass(Class type) {
+    this.type = type;
+  }
+
+  public static FastClass create(Class type) {
+    return create(type.getClassLoader(), type);
+  }
+
+  public static FastClass create(ClassLoader loader, Class type) {
+    Generator gen = new Generator(type);
+    gen.setClassLoader(loader);
+    return gen.create();
+  }
+
+  public static class Generator extends AbstractClassGenerator {
+    private static final Source SOURCE = new Source(FastClass.class.getSimpleName());
+
+    private final Class<?> type;
+
+    public Generator(Class<?> type) {
+      super(SOURCE);
+      this.type = type;
     }
 
-    public static FastClass create(Class type) {
-        return create(type.getClassLoader(), type);
+    public FastClass create() {
+      setNamePrefix(type.getName());
+      return (FastClass) super.create(type.getName());
     }
 
-    public static FastClass create(ClassLoader loader, Class type) {
-        Generator gen = new Generator(type);
-        gen.setClassLoader(loader);
-        return gen.create();
+    protected ClassLoader getDefaultClassLoader() {
+      return type.getClassLoader();
     }
 
-    public static class Generator extends AbstractClassGenerator {
-        private static final Source SOURCE = new Source(FastClass.class.getSimpleName());
-
-        private final Class<?> type;
-
-        public Generator(Class<?> type) {
-            super(SOURCE);
-            this.type = type;
-        }
-
-        public FastClass create() {
-            setNamePrefix(type.getName());
-            return (FastClass) super.create(type.getName());
-        }
-
-        protected ClassLoader getDefaultClassLoader() {
-            return type.getClassLoader();
-        }
-
-        protected ProtectionDomain getProtectionDomain() {
-            return ReflectUtils.getProtectionDomain(type);
-        }
-
-        public void generateClass(ClassVisitor v) throws Exception {
-            new FastClassEmitter(v, getClassName(), type);
-        }
-
-        protected Object firstInstance(Class type) {
-            return ReflectUtils.newInstance(type, new Class[] { Class.class }, new Object[] { this.type });
-        }
-
-        protected Object nextInstance(Object instance) {
-            return instance;
-        }
+    protected ProtectionDomain getProtectionDomain() {
+      return ReflectUtils.getProtectionDomain(type);
     }
 
-    public Object invoke(String name, Class[] parameterTypes, Object obj, Object[] args) throws InvocationTargetException {
-        return invoke(getIndex(name, parameterTypes), obj, args);
+    public void generateClass(ClassVisitor v) throws Exception {
+      new FastClassEmitter(v, getClassName(), type);
     }
 
-    public Object newInstance() throws InvocationTargetException {
-        return newInstance(getIndex(Constant.EMPTY_CLASS_ARRAY), null);
+    protected Object firstInstance(Class type) {
+      return ReflectUtils.newInstance(type, new Class[] { Class.class }, new Object[] { this.type });
     }
 
-    public Object newInstance(Class[] parameterTypes, Object[] args) throws InvocationTargetException {
-        return newInstance(getIndex(parameterTypes), args);
+    protected Object nextInstance(Object instance) {
+      return instance;
     }
+  }
 
-    public FastMethod getMethod(Method method) {
-        return new FastMethod(this, method);
+  public Object invoke(String name, Class[] parameterTypes, Object obj, Object[] args) throws InvocationTargetException {
+    return invoke(getIndex(name, parameterTypes), obj, args);
+  }
+
+  public Object newInstance() throws InvocationTargetException {
+    return newInstance(getIndex(Constant.EMPTY_CLASS_ARRAY), null);
+  }
+
+  public Object newInstance(Class[] parameterTypes, Object[] args) throws InvocationTargetException {
+    return newInstance(getIndex(parameterTypes), args);
+  }
+
+  public FastMethod getMethod(Method method) {
+    return new FastMethod(this, method);
+  }
+
+  public FastConstructor getConstructor(Constructor constructor) {
+    return new FastConstructor(this, constructor);
+  }
+
+  public FastMethod getMethod(String name, Class[] parameterTypes) {
+    try {
+      return getMethod(type.getMethod(name, parameterTypes));
     }
-
-    public FastConstructor getConstructor(Constructor constructor) {
-        return new FastConstructor(this, constructor);
+    catch (NoSuchMethodException e) {
+      throw new NoSuchMethodError(e.getMessage());
     }
+  }
 
-    public FastMethod getMethod(String name, Class[] parameterTypes) {
-        try {
-            return getMethod(type.getMethod(name, parameterTypes));
-        }
-        catch (NoSuchMethodException e) {
-            throw new NoSuchMethodError(e.getMessage());
-        }
+  public FastConstructor getConstructor(Class[] parameterTypes) {
+    try {
+      return getConstructor(type.getConstructor(parameterTypes));
     }
-
-    public FastConstructor getConstructor(Class[] parameterTypes) {
-        try {
-            return getConstructor(type.getConstructor(parameterTypes));
-        }
-        catch (NoSuchMethodException e) {
-            throw new NoSuchMethodError(e.getMessage());
-        }
+    catch (NoSuchMethodException e) {
+      throw new NoSuchMethodError(e.getMessage());
     }
+  }
 
-    public String getName() {
-        return type.getName();
+  public String getName() {
+    return type.getName();
+  }
+
+  public Class getJavaClass() {
+    return type;
+  }
+
+  @Override
+  public String toString() {
+    return type.toString();
+  }
+
+  @Override
+  public int hashCode() {
+    return type.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null || !(o instanceof FastClass)) {
+      return false;
     }
+    return type.equals(((FastClass) o).type);
+  }
 
-    public Class getJavaClass() {
-        return type;
+  /**
+   * Return the index of the matching method. The index may be used later to
+   * invoke the method with less overhead. If more than one method matches (i.e.
+   * they differ by return type only), one is chosen arbitrarily.
+   *
+   * @param name
+   *         the method name
+   * @param parameterTypes
+   *         the parameter array
+   *
+   * @return the index, or <code>-1</code> if none is found.
+   *
+   * @see #invoke(int, Object, Object[])
+   */
+  abstract public int getIndex(String name, Class[] parameterTypes);
+
+  /**
+   * Return the index of the matching constructor. The index may be used later to
+   * create a new instance with less overhead.
+   *
+   * @param parameterTypes
+   *         the parameter array
+   *
+   * @return the constructor index, or <code>-1</code> if none is found.
+   *
+   * @see #newInstance(int, Object[])
+   */
+  abstract public int getIndex(Class[] parameterTypes);
+
+  /**
+   * Invoke the method with the specified index.
+   *
+   * @param index
+   *         the method index
+   * @param obj
+   *         the object the underlying method is invoked from
+   * @param args
+   *         the arguments used for the method call
+   *
+   * @throws java.lang.reflect.InvocationTargetException
+   *         if the underlying method throws an exception
+   * @see getIndex(name, Class[])
+   */
+  abstract public Object invoke(int index, Object obj, Object[] args) throws InvocationTargetException;
+
+  /**
+   * Create a new instance using the specified constructor index and arguments.
+   *
+   * @param index
+   *         the constructor index
+   * @param args
+   *         the arguments passed to the constructor
+   *
+   * @throws java.lang.reflect.InvocationTargetException
+   *         if the constructor throws an exception
+   * @see getIndex(Class[])
+   */
+  abstract public Object newInstance(int index, Object[] args) throws InvocationTargetException;
+
+  abstract public int getIndex(Signature sig);
+
+  public int getIndex(Method method) {
+    return getIndex(new Signature(method.getName(), Type.getMethodDescriptor(method)));
+  }
+
+  /**
+   * Returns the maximum method index for this class.
+   */
+  abstract public int getMaxIndex();
+
+  protected static String getSignatureWithoutReturnType(String name, Class[] parameterTypes) {
+    StringBuffer sb = new StringBuffer();
+    sb.append(name);
+    sb.append('(');
+    for (int i = 0; i < parameterTypes.length; i++) {
+      sb.append(Type.getDescriptor(parameterTypes[i]));
     }
-
-    @Override
-    public String toString() {
-        return type.toString();
-    }
-
-    @Override
-    public int hashCode() {
-        return type.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || !(o instanceof FastClass)) {
-            return false;
-        }
-        return type.equals(((FastClass) o).type);
-    }
-
-    /**
-     * Return the index of the matching method. The index may be used later to
-     * invoke the method with less overhead. If more than one method matches (i.e.
-     * they differ by return type only), one is chosen arbitrarily.
-     * 
-     * @see #invoke(int, Object, Object[])
-     * @param name
-     *            the method name
-     * @param parameterTypes
-     *            the parameter array
-     * @return the index, or <code>-1</code> if none is found.
-     */
-    abstract public int getIndex(String name, Class[] parameterTypes);
-
-    /**
-     * Return the index of the matching constructor. The index may be used later to
-     * create a new instance with less overhead.
-     * 
-     * @see #newInstance(int, Object[])
-     * @param parameterTypes
-     *            the parameter array
-     * @return the constructor index, or <code>-1</code> if none is found.
-     */
-    abstract public int getIndex(Class[] parameterTypes);
-
-    /**
-     * Invoke the method with the specified index.
-     * 
-     * @see getIndex(name, Class[])
-     * @param index
-     *            the method index
-     * @param obj
-     *            the object the underlying method is invoked from
-     * @param args
-     *            the arguments used for the method call
-     * @throws java.lang.reflect.InvocationTargetException
-     *             if the underlying method throws an exception
-     */
-    abstract public Object invoke(int index, Object obj, Object[] args) throws InvocationTargetException;
-
-    /**
-     * Create a new instance using the specified constructor index and arguments.
-     * 
-     * @see getIndex(Class[])
-     * @param index
-     *            the constructor index
-     * @param args
-     *            the arguments passed to the constructor
-     * @throws java.lang.reflect.InvocationTargetException
-     *             if the constructor throws an exception
-     */
-    abstract public Object newInstance(int index, Object[] args) throws InvocationTargetException;
-
-    abstract public int getIndex(Signature sig);
-
-    public int getIndex(Method method) {
-        return getIndex(new Signature(method.getName(), Type.getMethodDescriptor(method)));
-    }
-
-    /**
-     * Returns the maximum method index for this class.
-     */
-    abstract public int getMaxIndex();
-
-    protected static String getSignatureWithoutReturnType(String name, Class[] parameterTypes) {
-        StringBuffer sb = new StringBuffer();
-        sb.append(name);
-        sb.append('(');
-        for (int i = 0; i < parameterTypes.length; i++) {
-            sb.append(Type.getDescriptor(parameterTypes[i]));
-        }
-        sb.append(')');
-        return sb.toString();
-    }
+    sb.append(')');
+    return sb.toString();
+  }
 }

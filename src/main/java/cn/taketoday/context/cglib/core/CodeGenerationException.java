@@ -19,13 +19,13 @@ import cn.taketoday.context.utils.ExceptionUtils;
 
 /**
  * @version $Id: CodeGenerationException.java,v 1.3 2004/06/24 21:15:21
- *          herbyderby Exp $
+ * herbyderby Exp $
  */
 @SuppressWarnings("all")
 public class CodeGenerationException extends RuntimeException {
 
-    public CodeGenerationException(Throwable cause) {
-        super(ExceptionUtils.unwrapThrowable(cause).toString(), cause);
-    }
+  public CodeGenerationException(Throwable cause) {
+    super(ExceptionUtils.unwrapThrowable(cause).toString(), cause);
+  }
 
 }

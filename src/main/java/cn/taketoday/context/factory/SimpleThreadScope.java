@@ -35,9 +35,9 @@ import cn.taketoday.context.Scope;
  *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
- * @since 2.1.7
  * @author TODAY <br>
- *         2020-04-02 21:09
+ * 2020-04-02 21:09
+ * @since 2.1.7
  */
 public class SimpleThreadScope implements Scope {
 

@@ -19,11 +19,11 @@ import cn.taketoday.context.asm.ClassVisitor;
 
 /**
  * @author TODAY <br>
- *         2019-09-02 17:20
+ * 2019-09-02 17:20
  */
 @FunctionalInterface
 public interface ClassGenerator {
 
-    void generateClass(ClassVisitor v) throws Exception;
+  void generateClass(ClassVisitor v) throws Exception;
 
 }

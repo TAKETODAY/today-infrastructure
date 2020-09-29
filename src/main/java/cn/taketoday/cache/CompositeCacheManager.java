@@ -32,7 +32,7 @@ import cn.taketoday.context.utils.ObjectUtils;
 
 /**
  * @author TODAY <br>
- *         2019-02-28 16:38
+ * 2019-02-28 16:38
  */
 public class CompositeCacheManager implements CacheManager {
 

@@ -28,7 +28,7 @@ import cn.taketoday.context.factory.PropertyValue;
  * Resolve field property
  *
  * @author TODAY <br>
- *         2018-08-04 15:04
+ * 2018-08-04 15:04
  */
 @FunctionalInterface
 public interface PropertyValueResolver {
@@ -44,8 +44,10 @@ public interface PropertyValueResolver {
    * Resolve {@link PropertyValue}.
    *
    * @param field
-   *            bean's field
+   *         bean's field
+   *
    * @return property value
+   *
    * @throws ContextException
    */
   PropertyValue resolveProperty(Field field) throws ContextException;

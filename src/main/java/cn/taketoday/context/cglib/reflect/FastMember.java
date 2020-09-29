@@ -21,48 +21,48 @@ import java.util.Objects;
 @SuppressWarnings("all")
 abstract public class FastMember {
 
-    protected final int index;
-    protected final FastClass fc;
-    protected final Member member;
+  protected final int index;
+  protected final FastClass fc;
+  protected final Member member;
 
-    protected FastMember(FastClass fc, Member member, int index) {
-        this.index = index;
-        this.fc = Objects.requireNonNull(fc);
-        this.member = Objects.requireNonNull(member);
-    }
+  protected FastMember(FastClass fc, Member member, int index) {
+    this.index = index;
+    this.fc = Objects.requireNonNull(fc);
+    this.member = Objects.requireNonNull(member);
+  }
 
-    abstract public Class[] getParameterTypes();
+  abstract public Class[] getParameterTypes();
 
-    abstract public Class[] getExceptionTypes();
+  abstract public Class[] getExceptionTypes();
 
-    public int getIndex() {
-        return index;
-    }
+  public int getIndex() {
+    return index;
+  }
 
-    public String getName() {
-        return member.getName();
-    }
+  public String getName() {
+    return member.getName();
+  }
 
-    public Class getDeclaringClass() {
-        return fc.getJavaClass();
-    }
+  public Class getDeclaringClass() {
+    return fc.getJavaClass();
+  }
 
-    public int getModifiers() {
-        return member.getModifiers();
-    }
+  public int getModifiers() {
+    return member.getModifiers();
+  }
 
-    @Override
-    public String toString() {
-        return member.toString();
-    }
+  @Override
+  public String toString() {
+    return member.toString();
+  }
 
-    @Override
-    public int hashCode() {
-        return member.hashCode();
-    }
+  @Override
+  public int hashCode() {
+    return member.hashCode();
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        return o == this || (o instanceof FastMember && member.equals(((FastMember) o).member));
-    }
+  @Override
+  public boolean equals(Object o) {
+    return o == this || (o instanceof FastMember && member.equals(((FastMember) o).member));
+  }
 }

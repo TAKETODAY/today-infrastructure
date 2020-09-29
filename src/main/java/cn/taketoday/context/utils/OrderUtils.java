@@ -31,7 +31,7 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * @author TODAY <br>
- *         2018-11-08 19:02
+ * 2018-11-08 19:02
  */
 public abstract class OrderUtils {
 
@@ -39,7 +39,8 @@ public abstract class OrderUtils {
    * Get the order of the {@link AnnotatedElement}
    *
    * @param annotated
-   *            {@link AnnotatedElement}
+   *         {@link AnnotatedElement}
+   *
    * @return The order
    */
   public static int getOrder(final AnnotatedElement annotated) {
@@ -54,7 +55,8 @@ public abstract class OrderUtils {
    * Get the order of the object
    *
    * @param obj
-   *            object
+   *         object
+   *
    * @return The order
    */
   public static int getOrder(final Object obj) {
@@ -80,6 +82,7 @@ public abstract class OrderUtils {
    * Get Comparator
    *
    * @return Comparator
+   *
    * @since 2.1.7
    */
   public static Comparator<Object> getComparator() {
@@ -90,7 +93,7 @@ public abstract class OrderUtils {
    * Reversed sort list
    *
    * @param list
-   *            Input list
+   *         Input list
    */
   public static <T> List<T> reversedSort(List<T> list) {
     requireNonNull(list).sort(getReversedComparator());
@@ -101,7 +104,8 @@ public abstract class OrderUtils {
    * Sort list
    *
    * @param list
-   *            Input list
+   *         Input list
+   *
    * @since 2.1.7
    */
   public static <T> List<T> sort(List<T> list) {
@@ -113,7 +117,8 @@ public abstract class OrderUtils {
    * Sort array
    *
    * @param array
-   *            Input array
+   *         Input array
+   *
    * @since 2.1.7
    */
   public static <T> T[] sort(T[] array) {
@@ -125,7 +130,7 @@ public abstract class OrderUtils {
    * Reversed sort array
    *
    * @param array
-   *            Input list
+   *         Input list
    */
   public static <T> T[] reversedSort(T[] array) {
     Arrays.sort(array, getReversedComparator());

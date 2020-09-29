@@ -23,7 +23,7 @@ package cn.taketoday.context.aware;
  * Bean name Injection
  *
  * @author TODAY <br>
- *         2018-07-17 21:35:14
+ * 2018-07-17 21:35:14
  */
 public interface BeanNameAware extends Aware {
 

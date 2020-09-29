@@ -17,11 +17,10 @@
 package cn.taketoday.context.cglib.transform;
 
 /**
- *
  * @author baliuka
  */
 @FunctionalInterface
 public interface ClassFilter {
 
-    boolean accept(String className);
+  boolean accept(String className);
 }

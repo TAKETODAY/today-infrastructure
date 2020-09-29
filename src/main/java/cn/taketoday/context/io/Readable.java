@@ -30,7 +30,7 @@ import cn.taketoday.context.Constant;
 
 /**
  * @author TODAY <br>
- *         2019-07-08 00:12
+ * 2019-07-08 00:12
  * @since 2.1.6
  */
 @FunctionalInterface
@@ -42,7 +42,7 @@ public interface Readable {
    * @return input stream of {@link Resource} content
    *
    * @throws IOException
-   *             If an input exception occurs
+   *         If an input exception occurs
    */
   InputStream getInputStream() throws IOException;
 
@@ -50,7 +50,7 @@ public interface Readable {
    * Get {@link Reader}
    *
    * @throws IOException
-   *             If an input exception occurs
+   *         If an input exception occurs
    */
   default Reader getReader() throws IOException {
     return getReader(Constant.DEFAULT_ENCODING);
@@ -60,9 +60,10 @@ public interface Readable {
    * Get {@link Reader}
    *
    * @param encoding
-   *            Charset string
+   *         Charset string
+   *
    * @throws IOException
-   *             If an input exception occurs
+   *         If an input exception occurs
    */
   default Reader getReader(String encoding) throws IOException {
     return new InputStreamReader(getInputStream(), encoding);
@@ -77,11 +78,12 @@ public interface Readable {
    * with the result of {@link #getInputStream()}.
    *
    * @return the byte channel for the underlying resource (must not be
-   *         {@code null})
+   * {@code null})
+   *
    * @throws java.io.FileNotFoundException
-   *             if the underlying resource doesn't exist
+   *         if the underlying resource doesn't exist
    * @throws IOException
-   *             if the content channel could not be opened
+   *         if the content channel could not be opened
    * @see #getInputStream()
    */
   default ReadableByteChannel readableChannel() throws IOException {

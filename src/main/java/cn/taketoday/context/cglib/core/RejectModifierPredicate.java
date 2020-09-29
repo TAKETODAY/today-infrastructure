@@ -19,20 +19,19 @@ import java.lang.reflect.Method;
 import java.util.function.Predicate;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-02 19:24
+ * 2019-09-02 19:24
  */
 public class RejectModifierPredicate implements Predicate<Method> {
 
-    private final int rejectMask;
+  private final int rejectMask;
 
-    public RejectModifierPredicate(int rejectMask) {
-        this.rejectMask = rejectMask;
-    }
+  public RejectModifierPredicate(int rejectMask) {
+    this.rejectMask = rejectMask;
+  }
 
-    @Override
-    public boolean test(Method arg) {
-        return (arg.getModifiers() & rejectMask) == 0;
-    }
+  @Override
+  public boolean test(Method arg) {
+    return (arg.getModifiers() & rejectMask) == 0;
+  }
 }

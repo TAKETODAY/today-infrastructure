@@ -36,7 +36,7 @@ import cn.taketoday.context.Constant;
  * default settings for any cache operation defined in that class.
  *
  * @author TODAY <br>
- *         2019-02-28 18:00
+ * 2019-02-28 18:00
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

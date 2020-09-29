@@ -26,7 +26,7 @@ import cn.taketoday.context.exception.ConversionException;
 
 /**
  * @author TODAY <br>
- *         2018-07-06 13:36:29
+ * 2018-07-06 13:36:29
  */
 public abstract class NumberUtils {
 
@@ -66,7 +66,8 @@ public abstract class NumberUtils {
    * Is a number?
    *
    * @param targetClass
-   *            the target class
+   *         the target class
+   *
    * @return
    */
   public static boolean isNumber(Class<?> targetClass) {

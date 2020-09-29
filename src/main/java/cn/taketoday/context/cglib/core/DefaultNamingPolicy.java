@@ -31,51 +31,51 @@ import java.util.function.Predicate;
  */
 public class DefaultNamingPolicy implements NamingPolicy {
 
-    public static final DefaultNamingPolicy INSTANCE = new DefaultNamingPolicy();
+  public static final DefaultNamingPolicy INSTANCE = new DefaultNamingPolicy();
 
-    /**
-     * This allows to test collisions of {@code key.hashCode()}.
-     */
-    private final static boolean STRESS_HASH_CODE = Boolean.getBoolean("cn.taketoday.context.cglib.test.stressHashCodes");
+  /**
+   * This allows to test collisions of {@code key.hashCode()}.
+   */
+  private final static boolean STRESS_HASH_CODE = Boolean.getBoolean("cn.taketoday.context.cglib.test.stressHashCodes");
 
-    @Override
-    public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
+  @Override
+  public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
 
-        if (prefix == null) {
-            prefix = "cn.taketoday.context.cglib.Object";
-        }
-        else if (prefix.startsWith("java")) {
-            prefix = "$" + prefix;
-        }
-
-        final String base = new StringBuilder()//
-                .append(prefix)//
-                .append("$$")//
-                .append(source)//
-                .append(getTag())//
-                .append("$$")//
-                .append(Integer.toHexString(STRESS_HASH_CODE ? 0 : key.hashCode())).toString();
-
-        String attempt = base;
-        int index = 2;
-        while (names.test(attempt))
-            attempt = base + "_" + index++;
-        return attempt;
+    if (prefix == null) {
+      prefix = "cn.taketoday.context.cglib.Object";
+    }
+    else if (prefix.startsWith("java")) {
+      prefix = "$" + prefix;
     }
 
-    /**
-     * Returns a string which is incorporated into every generated class name. By
-     * default returns "ByTODAY"
-     */
-    protected String getTag() {
-        return "ByTODAY";
-    }
+    final String base = new StringBuilder()//
+            .append(prefix)//
+            .append("$$")//
+            .append(source)//
+            .append(getTag())//
+            .append("$$")//
+            .append(Integer.toHexString(STRESS_HASH_CODE ? 0 : key.hashCode())).toString();
 
-    public int hashCode() {
-        return getTag().hashCode();
-    }
+    String attempt = base;
+    int index = 2;
+    while (names.test(attempt))
+      attempt = base + "_" + index++;
+    return attempt;
+  }
 
-    public boolean equals(Object o) {
-        return (o instanceof DefaultNamingPolicy) && ((DefaultNamingPolicy) o).getTag().equals(getTag());
-    }
+  /**
+   * Returns a string which is incorporated into every generated class name. By
+   * default returns "ByTODAY"
+   */
+  protected String getTag() {
+    return "ByTODAY";
+  }
+
+  public int hashCode() {
+    return getTag().hashCode();
+  }
+
+  public boolean equals(Object o) {
+    return (o instanceof DefaultNamingPolicy) && ((DefaultNamingPolicy) o).getTag().equals(getTag());
+  }
 }

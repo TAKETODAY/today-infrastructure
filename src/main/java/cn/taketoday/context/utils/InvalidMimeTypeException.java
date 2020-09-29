@@ -26,7 +26,7 @@ package cn.taketoday.context.utils;
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
  * @author TODAY <br>
- *         2019-12-08 19:28
+ * 2019-12-08 19:28
  */
 @SuppressWarnings("serial")
 public class InvalidMimeTypeException extends IllegalArgumentException {
@@ -37,9 +37,9 @@ public class InvalidMimeTypeException extends IllegalArgumentException {
    * Create a new InvalidContentTypeException for the given content type.
    *
    * @param mimeType
-   *            the offending media type
+   *         the offending media type
    * @param message
-   *            a detail message indicating the invalid part
+   *         a detail message indicating the invalid part
    */
   public InvalidMimeTypeException(String mimeType, String message) {
     super("Invalid mime type \"" + mimeType + "\": " + message);

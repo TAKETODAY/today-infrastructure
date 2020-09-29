@@ -31,24 +31,24 @@ import cn.taketoday.context.cglib.transform.ClassEmitterTransformer;
  */
 public class AddStaticInitTransformer extends ClassEmitterTransformer {
 
-    private final MethodInfo info;
+  private final MethodInfo info;
 
-    public AddStaticInitTransformer(Method classInit) {
-        info = ReflectUtils.getMethodInfo(classInit);
-        if (!Modifier.isStatic(info.getModifiers())) {
-            throw new IllegalArgumentException(classInit + " is not static");
-        }
-        Type[] types = info.getSignature().getArgumentTypes();
-        if (types.length != 1 || !types[0].equals(Constant.TYPE_CLASS) || !info.getSignature().getReturnType().equals(Type.VOID_TYPE)) {
-            throw new IllegalArgumentException(classInit + " illegal signature");
-        }
+  public AddStaticInitTransformer(Method classInit) {
+    info = ReflectUtils.getMethodInfo(classInit);
+    if (!Modifier.isStatic(info.getModifiers())) {
+      throw new IllegalArgumentException(classInit + " is not static");
     }
+    Type[] types = info.getSignature().getArgumentTypes();
+    if (types.length != 1 || !types[0].equals(Constant.TYPE_CLASS) || !info.getSignature().getReturnType().equals(Type.VOID_TYPE)) {
+      throw new IllegalArgumentException(classInit + " illegal signature");
+    }
+  }
 
-    protected void init() {
-        if (!Modifier.isInterface(getAccess())) {
-            CodeEmitter e = getStaticHook();
-            EmitUtils.loadClassThis(e);
-            e.invoke(info);
-        }
+  protected void init() {
+    if (!Modifier.isInterface(getAccess())) {
+      CodeEmitter e = getStaticHook();
+      EmitUtils.loadClassThis(e);
+      e.invoke(info);
     }
+  }
 }

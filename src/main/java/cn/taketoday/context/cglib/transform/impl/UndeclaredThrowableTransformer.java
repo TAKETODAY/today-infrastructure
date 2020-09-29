@@ -27,46 +27,45 @@ import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.transform.ClassEmitterTransformer;
 
 /**
- * 
  * @author Today <br>
- *         2018-11-08 15:07
+ * 2018-11-08 15:07
  */
 @SuppressWarnings("all")
 public class UndeclaredThrowableTransformer extends ClassEmitterTransformer {
 
-    private final Type wrapper;
+  private final Type wrapper;
 
-    public UndeclaredThrowableTransformer(Class wrapper) {
-        this.wrapper = Type.getType(wrapper);
-        boolean found = false;
-        Constructor[] cstructs = wrapper.getConstructors();
-        for (int i = 0; i < cstructs.length; i++) {
-            Class[] types = cstructs[i].getParameterTypes();
-            if (types.length == 1 && types[0].equals(Throwable.class)) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) throw new IllegalArgumentException(wrapper + " does not have a single-arg constructor that takes a Throwable");
+  public UndeclaredThrowableTransformer(Class wrapper) {
+    this.wrapper = Type.getType(wrapper);
+    boolean found = false;
+    Constructor[] cstructs = wrapper.getConstructors();
+    for (int i = 0; i < cstructs.length; i++) {
+      Class[] types = cstructs[i].getParameterTypes();
+      if (types.length == 1 && types[0].equals(Throwable.class)) {
+        found = true;
+        break;
+      }
     }
+    if (!found) throw new IllegalArgumentException(wrapper + " does not have a single-arg constructor that takes a Throwable");
+  }
 
-    @Override
-    public CodeEmitter beginMethod(int access, final Signature sig, final Type... exceptions) {
+  @Override
+  public CodeEmitter beginMethod(int access, final Signature sig, final Type... exceptions) {
 
-        final CodeEmitter e = super.beginMethod(access, sig, exceptions);
-        if (Modifier.isAbstract(access) || sig.equals(Constant.SIG_STATIC)) {
-            return e;
-        }
-        return new CodeEmitter(e) {
-
-            private final Block handler = begin_block();
-
-            @Override
-            public void visitMaxs(int maxStack, int maxLocals) {
-                handler.end();
-                EmitUtils.wrapUndeclaredThrowable(this, handler, exceptions, wrapper);
-                super.visitMaxs(maxStack, maxLocals);
-            }
-        };
+    final CodeEmitter e = super.beginMethod(access, sig, exceptions);
+    if (Modifier.isAbstract(access) || sig.equals(Constant.SIG_STATIC)) {
+      return e;
     }
+    return new CodeEmitter(e) {
+
+      private final Block handler = begin_block();
+
+      @Override
+      public void visitMaxs(int maxStack, int maxLocals) {
+        handler.end();
+        EmitUtils.wrapUndeclaredThrowable(this, handler, exceptions, wrapper);
+        super.visitMaxs(maxStack, maxLocals);
+      }
+    };
+  }
 }

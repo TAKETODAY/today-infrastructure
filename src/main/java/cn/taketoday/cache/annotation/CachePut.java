@@ -29,7 +29,7 @@ import cn.taketoday.context.Constant;
 
 /**
  * @author TODAY <br>
- *         2019-02-17 17:47
+ * 2019-02-17 17:47
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE })

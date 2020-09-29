@@ -37,93 +37,93 @@ import cn.taketoday.context.cglib.core.TypeUtils;
 @SuppressWarnings("all")
 public abstract class ImmutableBean {
 
-    private static final Type ILLEGAL_STATE_EXCEPTION = TypeUtils.parseType("IllegalStateException");
-    private static final Signature CSTRUCT_OBJECT = TypeUtils.parseConstructor("Object");
-    private static final Class[] OBJECT_CLASSES = { Object.class };
-    private static final String FIELD_NAME = "TODAY$RWBean";
+  private static final Type ILLEGAL_STATE_EXCEPTION = TypeUtils.parseType("IllegalStateException");
+  private static final Signature CSTRUCT_OBJECT = TypeUtils.parseConstructor("Object");
+  private static final Class[] OBJECT_CLASSES = { Object.class };
+  private static final String FIELD_NAME = "TODAY$RWBean";
 
-    public static Object create(Object bean) {
-        Generator gen = new Generator();
-        gen.setBean(bean);
-        return gen.create();
+  public static Object create(Object bean) {
+    Generator gen = new Generator();
+    gen.setBean(bean);
+    return gen.create();
+  }
+
+  public static class Generator extends AbstractClassGenerator {
+    private static final Source SOURCE = new Source(ImmutableBean.class.getSimpleName());
+    private Object bean;
+    private Class target;
+
+    public Generator() {
+      super(SOURCE);
     }
 
-    public static class Generator extends AbstractClassGenerator {
-        private static final Source SOURCE = new Source(ImmutableBean.class.getSimpleName());
-        private Object bean;
-        private Class target;
-
-        public Generator() {
-            super(SOURCE);
-        }
-
-        public void setBean(Object bean) {
-            this.bean = bean;
-            target = bean.getClass();
-        }
-
-        protected ClassLoader getDefaultClassLoader() {
-            return target.getClassLoader();
-        }
-
-        protected ProtectionDomain getProtectionDomain() {
-            return ReflectUtils.getProtectionDomain(target);
-        }
-
-        public Object create() {
-            String name = target.getName();
-            setNamePrefix(name);
-            return super.create(name);
-        }
-
-        public void generateClass(ClassVisitor v) {
-            Type targetType = Type.getType(target);
-            ClassEmitter ce = new ClassEmitter(v);
-            ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), targetType, null, Constant.SOURCE_FILE);
-
-            ce.declare_field(Constant.ACC_FINAL | Constant.ACC_PRIVATE, FIELD_NAME, targetType, null);
-
-            CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, CSTRUCT_OBJECT);
-            e.load_this();
-            e.super_invoke_constructor();
-            e.load_this();
-            e.load_arg(0);
-            e.checkcast(targetType);
-            e.putfield(FIELD_NAME);
-            e.return_value();
-            e.end_method();
-
-            PropertyDescriptor[] descriptors = ReflectUtils.getBeanProperties(target);
-            Method[] getters = ReflectUtils.getPropertyMethods(descriptors, true, false);
-            Method[] setters = ReflectUtils.getPropertyMethods(descriptors, false, true);
-
-            for (int i = 0; i < getters.length; i++) {
-                MethodInfo getter = ReflectUtils.getMethodInfo(getters[i]);
-                e = EmitUtils.beginMethod(ce, getter, Constant.ACC_PUBLIC);
-                e.load_this();
-                e.getfield(FIELD_NAME);
-                e.invoke(getter);
-                e.return_value();
-                e.end_method();
-            }
-
-            for (int i = 0; i < setters.length; i++) {
-                MethodInfo setter = ReflectUtils.getMethodInfo(setters[i]);
-                e = EmitUtils.beginMethod(ce, setter, Constant.ACC_PUBLIC);
-                e.throw_exception(ILLEGAL_STATE_EXCEPTION, "Bean is immutable");
-                e.end_method();
-            }
-
-            ce.endClass();
-        }
-
-        protected Object firstInstance(Class type) {
-            return ReflectUtils.newInstance(type, OBJECT_CLASSES, new Object[] { bean });
-        }
-
-        // TODO: optimize
-        protected Object nextInstance(Object instance) {
-            return firstInstance(instance.getClass());
-        }
+    public void setBean(Object bean) {
+      this.bean = bean;
+      target = bean.getClass();
     }
+
+    protected ClassLoader getDefaultClassLoader() {
+      return target.getClassLoader();
+    }
+
+    protected ProtectionDomain getProtectionDomain() {
+      return ReflectUtils.getProtectionDomain(target);
+    }
+
+    public Object create() {
+      String name = target.getName();
+      setNamePrefix(name);
+      return super.create(name);
+    }
+
+    public void generateClass(ClassVisitor v) {
+      Type targetType = Type.getType(target);
+      ClassEmitter ce = new ClassEmitter(v);
+      ce.beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, getClassName(), targetType, null, Constant.SOURCE_FILE);
+
+      ce.declare_field(Constant.ACC_FINAL | Constant.ACC_PRIVATE, FIELD_NAME, targetType, null);
+
+      CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, CSTRUCT_OBJECT);
+      e.load_this();
+      e.super_invoke_constructor();
+      e.load_this();
+      e.load_arg(0);
+      e.checkcast(targetType);
+      e.putfield(FIELD_NAME);
+      e.return_value();
+      e.end_method();
+
+      PropertyDescriptor[] descriptors = ReflectUtils.getBeanProperties(target);
+      Method[] getters = ReflectUtils.getPropertyMethods(descriptors, true, false);
+      Method[] setters = ReflectUtils.getPropertyMethods(descriptors, false, true);
+
+      for (int i = 0; i < getters.length; i++) {
+        MethodInfo getter = ReflectUtils.getMethodInfo(getters[i]);
+        e = EmitUtils.beginMethod(ce, getter, Constant.ACC_PUBLIC);
+        e.load_this();
+        e.getfield(FIELD_NAME);
+        e.invoke(getter);
+        e.return_value();
+        e.end_method();
+      }
+
+      for (int i = 0; i < setters.length; i++) {
+        MethodInfo setter = ReflectUtils.getMethodInfo(setters[i]);
+        e = EmitUtils.beginMethod(ce, setter, Constant.ACC_PUBLIC);
+        e.throw_exception(ILLEGAL_STATE_EXCEPTION, "Bean is immutable");
+        e.end_method();
+      }
+
+      ce.endClass();
+    }
+
+    protected Object firstInstance(Class type) {
+      return ReflectUtils.newInstance(type, OBJECT_CLASSES, new Object[] { bean });
+    }
+
+    // TODO: optimize
+    protected Object nextInstance(Object instance) {
+      return firstInstance(instance.getClass());
+    }
+  }
 }

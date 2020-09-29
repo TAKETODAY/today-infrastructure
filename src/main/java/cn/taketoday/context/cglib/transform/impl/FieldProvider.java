@@ -16,23 +16,22 @@
 package cn.taketoday.context.cglib.transform.impl;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-01 21:59
+ * 2019-09-01 21:59
  */
 @SuppressWarnings("all")
 public interface FieldProvider {
 
-    String[] getFieldNames();
+  String[] getFieldNames();
 
-    Class[] getFieldTypes();
+  Class[] getFieldTypes();
 
-    void setField(int index, Object value);
+  void setField(int index, Object value);
 
-    Object getField(int index);
+  Object getField(int index);
 
-    void setField(String name, Object value);
+  void setField(String name, Object value);
 
-    Object getField(String name);
+  Object getField(String name);
 
 }

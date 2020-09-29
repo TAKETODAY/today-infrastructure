@@ -52,7 +52,7 @@ package cn.taketoday.context.factory;
  * into account for {@code BeanPostProcessor} beans.
  *
  * @author TODAY <br>
- *         2018-07-18 1:01:19
+ * 2018-07-18 1:01:19
  */
 public interface BeanPostProcessor {
 
@@ -66,13 +66,15 @@ public interface BeanPostProcessor {
    * The default implementation returns the given {@code bean} as-is.
    *
    * @param bean
-   *            The new bean instance
+   *         The new bean instance
    * @param def
-   *            The definition of the bean
+   *         The definition of the bean
+   *
    * @return the bean instance to use, either the original or a wrapped one; if
-   *         {@code null}, no subsequent BeanPostProcessors will be invoked
+   * {@code null}, no subsequent BeanPostProcessors will be invoked
+   *
    * @throws Exception
-   *             in case of errors
+   *         in case of errors
    * @see cn.taketoday.context.factory.InitializingBean#afterPropertiesSet
    */
   default Object postProcessBeforeInitialization(Object bean, BeanDefinition def) throws Exception {
@@ -90,13 +92,15 @@ public interface BeanPostProcessor {
    * The default implementation returns the given {@code bean} as-is.
    *
    * @param bean
-   *            the new bean instance
+   *         the new bean instance
    * @param def
-   *            the definition of the bean
+   *         the definition of the bean
+   *
    * @return the bean instance to use, either the original or a wrapped one; if
-   *         {@code null}, no subsequent BeanPostProcessors will be invoked
+   * {@code null}, no subsequent BeanPostProcessors will be invoked
+   *
    * @throws Exception
-   *             in case of errors
+   *         in case of errors
    * @see cn.taketoday.context.factory.InitializingBean#afterPropertiesSet
    * @see cn.taketoday.context.factory.FactoryBean
    */

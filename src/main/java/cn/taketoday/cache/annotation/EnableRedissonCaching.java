@@ -29,7 +29,7 @@ import cn.taketoday.context.annotation.Import;
 
 /**
  * @author TODAY <br>
- *         2019-10-07 22:54
+ * 2019-10-07 22:54
  */
 @EnableCaching
 @Import(RedissonCacheManager.class)

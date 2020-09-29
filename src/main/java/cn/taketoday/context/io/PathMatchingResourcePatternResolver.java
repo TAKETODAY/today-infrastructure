@@ -179,11 +179,11 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
  * @author Marius Bogoevici
  * @author Costin Leau
  * @author Phillip Webb
- * @since 2.1.7
+ * @author TODAY <br>
+ * 2019-12-05 12:51
  * @see AntPathMatcher
  * @see ClassLoader#getResources(String)
- * @author TODAY <br>
- *         2019-12-05 12:51
+ * @since 2.1.7
  */
 public class PathMatchingResourcePatternResolver implements ResourceResolver {
 
@@ -269,10 +269,12 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
    * ClassLoader. Delegates to {@link #doFindAllClassPathResources(String)}.
    *
    * @param location
-   *            the absolute path within the classpath
+   *         the absolute path within the classpath
+   *
    * @return the result as Resource array
+   *
    * @throws IOException
-   *             in case of I/O errors
+   *         in case of I/O errors
    * @see java.lang.ClassLoader#getResources
    * @see #convertClassLoaderURL
    */
@@ -296,7 +298,8 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
    * Called by {@link #findAllClassPathResources(String)}.
    *
    * @param path
-   *            the absolute path within the classpath (never a leading slash)
+   *         the absolute path within the classpath (never a leading slash)
+   *
    * @return a mutable Set of matching Resource instances
    */
   protected Set<Resource> doFindAllClassPathResources(String path) throws IOException {
@@ -321,8 +324,10 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
    * The default implementation simply creates a {@link UrlResource} instance.
    *
    * @param url
-   *            a URL as returned from the ClassLoader
+   *         a URL as returned from the ClassLoader
+   *
    * @return the corresponding Resource object
+   *
    * @see java.lang.ClassLoader#getResources
    * @see Resource
    */
@@ -336,9 +341,9 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
    * file content.
    *
    * @param classLoader
-   *            the ClassLoader to search (including its ancestors)
+   *         the ClassLoader to search (including its ancestors)
    * @param result
-   *            the set of resources to add jar roots to
+   *         the set of resources to add jar roots to
    */
   protected void addAllClassLoaderJarRoots(ClassLoader classLoader, Set<Resource> result) {
     if (classLoader instanceof URLClassLoader) {
@@ -388,7 +393,7 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
    * root of the jar file content.
    *
    * @param result
-   *            the set of resources to add jar roots to
+   *         the set of resources to add jar roots to
    */
   protected void addClassPathManifestEntries(Set<Resource> result) {
 
@@ -437,12 +442,13 @@ public class PathMatchingResourcePatternResolver implements ResourceResolver {
    * entry in the existing result, i.e. with or without a leading slash.
    *
    * @param filePath
-   *            the file path (with or without a leading slash)
+   *         the file path (with or without a leading slash)
    * @param result
-   *            the current result
+   *         the current result
+   *
    * @return {@code true} if there is a duplicate (i.e. to ignore the given file
-   *         path), {@code false} to proceed with adding a corresponding resource
-   *         to the current result
+   * path), {@code false} to proceed with adding a corresponding resource
+   * to the current result
    */
   private boolean hasDuplicate(final String filePath, final Set<Resource> result) {
     if (result.isEmpty()) {

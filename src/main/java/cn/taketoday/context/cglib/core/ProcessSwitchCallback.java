@@ -18,7 +18,7 @@ package cn.taketoday.context.cglib.core;
 import cn.taketoday.context.asm.Label;
 
 public interface ProcessSwitchCallback {
-    void processCase(int key, Label end) throws Exception;
+  void processCase(int key, Label end) throws Exception;
 
-    void processDefault() throws Exception;
+  void processDefault() throws Exception;
 }

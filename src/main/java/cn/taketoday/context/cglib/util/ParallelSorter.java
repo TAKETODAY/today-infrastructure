@@ -49,331 +49,331 @@ import cn.taketoday.context.cglib.core.ReflectUtils;
 @SuppressWarnings("all")
 abstract public class ParallelSorter extends SorterTemplate {
 
-    protected Object[] a;
-    private Comparer comparer;
+  protected Object[] a;
+  private Comparer comparer;
 
-    protected ParallelSorter() {}
+  protected ParallelSorter() {}
 
-    abstract public ParallelSorter newInstance(Object[] arrays);
+  abstract public ParallelSorter newInstance(Object[] arrays);
 
-    /**
-     * Create a new ParallelSorter object for a set of arrays. You may sort the
-     * arrays multiple times via the same ParallelSorter object.
-     * 
-     * @param arrays
-     *            An array of arrays to sort. The arrays may be a mix of primitive
-     *            and non-primitive types, but should all be the same length.
-     * @param loader
-     *            ClassLoader for generated class, uses "current" if null
-     */
-    public static ParallelSorter create(Object[] arrays) {
-        Generator gen = new Generator();
-        gen.setArrays(arrays);
-        return gen.create();
+  /**
+   * Create a new ParallelSorter object for a set of arrays. You may sort the
+   * arrays multiple times via the same ParallelSorter object.
+   *
+   * @param arrays
+   *         An array of arrays to sort. The arrays may be a mix of primitive
+   *         and non-primitive types, but should all be the same length.
+   * @param loader
+   *         ClassLoader for generated class, uses "current" if null
+   */
+  public static ParallelSorter create(Object[] arrays) {
+    Generator gen = new Generator();
+    gen.setArrays(arrays);
+    return gen.create();
+  }
+
+  private int len() {
+    return ((Object[]) a[0]).length;
+  }
+
+  /**
+   * Sort the arrays using the quicksort algorithm.
+   *
+   * @param index
+   *         array (column) to sort by
+   */
+  public void quickSort(int index) {
+    quickSort(index, 0, len(), null);
+  }
+
+  /**
+   * Sort the arrays using the quicksort algorithm.
+   *
+   * @param index
+   *         array (column) to sort by
+   * @param lo
+   *         starting array index (row), inclusive
+   * @param hi
+   *         ending array index (row), exclusive
+   */
+  public void quickSort(int index, int lo, int hi) {
+    quickSort(index, lo, hi, null);
+  }
+
+  /**
+   * Sort the arrays using the quicksort algorithm.
+   *
+   * @param index
+   *         array (column) to sort by
+   * @param cmp
+   *         Comparator to use if the specified column is non-primitive
+   */
+  public void quickSort(int index, Comparator cmp) {
+    quickSort(index, 0, len(), cmp);
+  }
+
+  /**
+   * Sort the arrays using the quicksort algorithm.
+   *
+   * @param index
+   *         array (column) to sort by
+   * @param lo
+   *         starting array index (row), inclusive
+   * @param hi
+   *         ending array index (row), exclusive
+   * @param cmp
+   *         Comparator to use if the specified column is non-primitive
+   */
+  public void quickSort(int index, int lo, int hi, Comparator cmp) {
+    chooseComparer(index, cmp);
+    super.quickSort(lo, hi - 1);
+  }
+
+  /**
+   * @param index
+   *         array (column) to sort by
+   */
+  public void mergeSort(int index) {
+    mergeSort(index, 0, len(), null);
+  }
+
+  /**
+   * Sort the arrays using an in-place merge sort.
+   *
+   * @param index
+   *         array (column) to sort by
+   * @param lo
+   *         starting array index (row), inclusive
+   * @param hi
+   *         ending array index (row), exclusive
+   */
+  public void mergeSort(int index, int lo, int hi) {
+    mergeSort(index, lo, hi, null);
+  }
+
+  /**
+   * Sort the arrays using an in-place merge sort.
+   *
+   * @param index
+   *         array (column) to sort by
+   * @param lo
+   *         starting array index (row), inclusive
+   * @param hi
+   *         ending array index (row), exclusive
+   */
+  public void mergeSort(int index, Comparator cmp) {
+    mergeSort(index, 0, len(), cmp);
+  }
+
+  /**
+   * Sort the arrays using an in-place merge sort.
+   *
+   * @param index
+   *         array (column) to sort by
+   * @param lo
+   *         starting array index (row), inclusive
+   * @param hi
+   *         ending array index (row), exclusive
+   * @param cmp
+   *         Comparator to use if the specified column is non-primitive
+   */
+  public void mergeSort(int index, int lo, int hi, Comparator cmp) {
+    chooseComparer(index, cmp);
+    super.mergeSort(lo, hi - 1);
+  }
+
+  private void chooseComparer(int index, Comparator cmp) {
+    final Object array = a[index];
+    final Class<?> type = array.getClass();
+    if (type == int[].class) {
+      comparer = new IntComparer((int[]) array);
     }
-
-    private int len() {
-        return ((Object[]) a[0]).length;
+    else if (type == long[].class) {
+      comparer = new LongComparer((long[]) array);
     }
-
-    /**
-     * Sort the arrays using the quicksort algorithm.
-     * 
-     * @param index
-     *            array (column) to sort by
-     */
-    public void quickSort(int index) {
-        quickSort(index, 0, len(), null);
+    else if (type == double[].class) {
+      comparer = new DoubleComparer((double[]) array);
     }
-
-    /**
-     * Sort the arrays using the quicksort algorithm.
-     * 
-     * @param index
-     *            array (column) to sort by
-     * @param lo
-     *            starting array index (row), inclusive
-     * @param hi
-     *            ending array index (row), exclusive
-     */
-    public void quickSort(int index, int lo, int hi) {
-        quickSort(index, lo, hi, null);
+    else if (type == float[].class) {
+      comparer = new FloatComparer((float[]) array);
     }
-
-    /**
-     * Sort the arrays using the quicksort algorithm.
-     * 
-     * @param index
-     *            array (column) to sort by
-     * @param cmp
-     *            Comparator to use if the specified column is non-primitive
-     */
-    public void quickSort(int index, Comparator cmp) {
-        quickSort(index, 0, len(), cmp);
+    else if (type == short[].class) {
+      comparer = new ShortComparer((short[]) array);
     }
-
-    /**
-     * Sort the arrays using the quicksort algorithm.
-     * 
-     * @param index
-     *            array (column) to sort by
-     * @param lo
-     *            starting array index (row), inclusive
-     * @param hi
-     *            ending array index (row), exclusive
-     * @param cmp
-     *            Comparator to use if the specified column is non-primitive
-     */
-    public void quickSort(int index, int lo, int hi, Comparator cmp) {
-        chooseComparer(index, cmp);
-        super.quickSort(lo, hi - 1);
+    else if (type == byte[].class) {
+      comparer = new ByteComparer((byte[]) array);
     }
-
-    /**
-     * @param index
-     *            array (column) to sort by
-     */
-    public void mergeSort(int index) {
-        mergeSort(index, 0, len(), null);
+    else if (cmp != null) {
+      comparer = new ComparatorComparer((Object[]) array, cmp);
     }
-
-    /**
-     * Sort the arrays using an in-place merge sort.
-     * 
-     * @param index
-     *            array (column) to sort by
-     * @param lo
-     *            starting array index (row), inclusive
-     * @param hi
-     *            ending array index (row), exclusive
-     */
-    public void mergeSort(int index, int lo, int hi) {
-        mergeSort(index, lo, hi, null);
+    else {
+      comparer = new ObjectComparer((Object[]) array);
     }
+  }
 
-    /**
-     * Sort the arrays using an in-place merge sort.
-     * 
-     * @param index
-     *            array (column) to sort by
-     * @param lo
-     *            starting array index (row), inclusive
-     * @param hi
-     *            ending array index (row), exclusive
-     */
-    public void mergeSort(int index, Comparator cmp) {
-        mergeSort(index, 0, len(), cmp);
-    }
+  @Override
+  protected int compare(int i, int j) {
+    return comparer.compare(i, j);
+  }
 
-    /**
-     * Sort the arrays using an in-place merge sort.
-     * 
-     * @param index
-     *            array (column) to sort by
-     * @param lo
-     *            starting array index (row), inclusive
-     * @param hi
-     *            ending array index (row), exclusive
-     * @param cmp
-     *            Comparator to use if the specified column is non-primitive
-     */
-    public void mergeSort(int index, int lo, int hi, Comparator cmp) {
-        chooseComparer(index, cmp);
-        super.mergeSort(lo, hi - 1);
-    }
+  interface Comparer {
+    int compare(int i, int j);
+  }
 
-    private void chooseComparer(int index, Comparator cmp) {
-        final Object array = a[index];
-        final Class<?> type = array.getClass();
-        if (type == int[].class) {
-            comparer = new IntComparer((int[]) array);
-        }
-        else if (type == long[].class) {
-            comparer = new LongComparer((long[]) array);
-        }
-        else if (type == double[].class) {
-            comparer = new DoubleComparer((double[]) array);
-        }
-        else if (type == float[].class) {
-            comparer = new FloatComparer((float[]) array);
-        }
-        else if (type == short[].class) {
-            comparer = new ShortComparer((short[]) array);
-        }
-        else if (type == byte[].class) {
-            comparer = new ByteComparer((byte[]) array);
-        }
-        else if (cmp != null) {
-            comparer = new ComparatorComparer((Object[]) array, cmp);
-        }
-        else {
-            comparer = new ObjectComparer((Object[]) array);
-        }
+  static class ComparatorComparer implements Comparer {
+    private final Object[] a;
+    private final Comparator cmp;
+
+    public ComparatorComparer(Object[] a, Comparator cmp) {
+      this.a = a;
+      this.cmp = cmp;
     }
 
     @Override
-    protected int compare(int i, int j) {
-        return comparer.compare(i, j);
+    public int compare(int i, int j) {
+      return cmp.compare(a[i], a[j]);
+    }
+  }
+
+  static class ObjectComparer implements Comparer {
+    private final Object[] a;
+
+    public ObjectComparer(Object[] a) {
+      this.a = a;
     }
 
-    interface Comparer {
-        int compare(int i, int j);
+    @Override
+    public int compare(int i, int j) {
+      return ((Comparable) a[i]).compareTo(a[j]);
+    }
+  }
+
+  static class IntComparer implements Comparer {
+    private final int[] a;
+
+    public IntComparer(int[] a) {
+      this.a = a;
     }
 
-    static class ComparatorComparer implements Comparer {
-        private final Object[] a;
-        private final Comparator cmp;
+    @Override
+    public int compare(int i, int j) {
+      return a[i] - a[j];
+    }
+  }
 
-        public ComparatorComparer(Object[] a, Comparator cmp) {
-            this.a = a;
-            this.cmp = cmp;
-        }
+  static class LongComparer implements Comparer {
+    private final long[] a;
 
-        @Override
-        public int compare(int i, int j) {
-            return cmp.compare(a[i], a[j]);
-        }
+    public LongComparer(long[] a) {
+      this.a = a;
     }
 
-    static class ObjectComparer implements Comparer {
-        private final Object[] a;
+    @Override
+    public int compare(int i, int j) {
+      long vi = a[i];
+      long vj = a[j];
+      return (vi == vj) ? 0 : (vi > vj) ? 1 : -1;
+    }
+  }
 
-        public ObjectComparer(Object[] a) {
-            this.a = a;
-        }
+  static class FloatComparer implements Comparer {
+    private final float[] a;
 
-        @Override
-        public int compare(int i, int j) {
-            return ((Comparable) a[i]).compareTo(a[j]);
-        }
+    public FloatComparer(float[] a) {
+      this.a = a;
     }
 
-    static class IntComparer implements Comparer {
-        private final int[] a;
+    @Override
+    public int compare(int i, int j) {
+      float vi = a[i];
+      float vj = a[j];
+      return (vi == vj) ? 0 : (vi > vj) ? 1 : -1;
+    }
+  }
 
-        public IntComparer(int[] a) {
-            this.a = a;
-        }
+  static class DoubleComparer implements Comparer {
+    private final double[] a;
 
-        @Override
-        public int compare(int i, int j) {
-            return a[i] - a[j];
-        }
+    public DoubleComparer(double[] a) {
+      this.a = a;
     }
 
-    static class LongComparer implements Comparer {
-        private final long[] a;
+    @Override
+    public int compare(int i, int j) {
+      double vi = a[i];
+      double vj = a[j];
+      return (vi == vj) ? 0 : (vi > vj) ? 1 : -1;
+    }
+  }
 
-        public LongComparer(long[] a) {
-            this.a = a;
-        }
+  static class ShortComparer implements Comparer {
+    private final short[] a;
 
-        @Override
-        public int compare(int i, int j) {
-            long vi = a[i];
-            long vj = a[j];
-            return (vi == vj) ? 0 : (vi > vj) ? 1 : -1;
-        }
+    public ShortComparer(short[] a) {
+      this.a = a;
     }
 
-    static class FloatComparer implements Comparer {
-        private final float[] a;
+    @Override
+    public int compare(int i, int j) {
+      return a[i] - a[j];
+    }
+  }
 
-        public FloatComparer(float[] a) {
-            this.a = a;
-        }
+  static class ByteComparer implements Comparer {
+    private final byte[] a;
 
-        @Override
-        public int compare(int i, int j) {
-            float vi = a[i];
-            float vj = a[j];
-            return (vi == vj) ? 0 : (vi > vj) ? 1 : -1;
-        }
+    public ByteComparer(byte[] a) {
+      this.a = a;
     }
 
-    static class DoubleComparer implements Comparer {
-        private final double[] a;
+    @Override
+    public int compare(int i, int j) {
+      return a[i] - a[j];
+    }
+  }
 
-        public DoubleComparer(double[] a) {
-            this.a = a;
-        }
+  public static class Generator extends AbstractClassGenerator {
+    private static final Source SOURCE = new Source(ParallelSorter.class.getSimpleName());
 
-        @Override
-        public int compare(int i, int j) {
-            double vi = a[i];
-            double vj = a[j];
-            return (vi == vj) ? 0 : (vi > vj) ? 1 : -1;
-        }
+    private Object[] arrays;
+
+    public Generator() {
+      super(SOURCE);
     }
 
-    static class ShortComparer implements Comparer {
-        private final short[] a;
-
-        public ShortComparer(short[] a) {
-            this.a = a;
-        }
-
-        @Override
-        public int compare(int i, int j) {
-            return a[i] - a[j];
-        }
+    protected ClassLoader getDefaultClassLoader() {
+      return null; // TODO
     }
 
-    static class ByteComparer implements Comparer {
-        private final byte[] a;
-
-        public ByteComparer(byte[] a) {
-            this.a = a;
-        }
-
-        @Override
-        public int compare(int i, int j) {
-            return a[i] - a[j];
-        }
+    public void setArrays(Object[] arrays) {
+      this.arrays = arrays;
     }
 
-    public static class Generator extends AbstractClassGenerator {
-        private static final Source SOURCE = new Source(ParallelSorter.class.getSimpleName());
-
-        private Object[] arrays;
-
-        public Generator() {
-            super(SOURCE);
-        }
-
-        protected ClassLoader getDefaultClassLoader() {
-            return null; // TODO
-        }
-
-        public void setArrays(Object[] arrays) {
-            this.arrays = arrays;
-        }
-
-        public ParallelSorter create() {
-            return (ParallelSorter) super.create(ClassesKey.create(arrays));
-        }
-
-        @Override
-        public void generateClass(ClassVisitor v) throws Exception {
-            if (arrays.length == 0) {
-                throw new IllegalArgumentException("No arrays specified to sort");
-            }
-            for (int i = 0; i < arrays.length; i++) {
-                if (!arrays[i].getClass().isArray()) {
-                    throw new IllegalArgumentException(arrays[i].getClass() + " is not an array");
-                }
-            }
-            new ParallelSorterEmitter(v, getClassName(), arrays);
-        }
-
-        @Override
-        protected Object firstInstance(Class type) {
-            return ((ParallelSorter) ReflectUtils.newInstance(type)).newInstance(arrays);
-        }
-
-        @Override
-        protected Object nextInstance(Object instance) {
-            return ((ParallelSorter) instance).newInstance(arrays);
-        }
+    public ParallelSorter create() {
+      return (ParallelSorter) super.create(ClassesKey.create(arrays));
     }
+
+    @Override
+    public void generateClass(ClassVisitor v) throws Exception {
+      if (arrays.length == 0) {
+        throw new IllegalArgumentException("No arrays specified to sort");
+      }
+      for (int i = 0; i < arrays.length; i++) {
+        if (!arrays[i].getClass().isArray()) {
+          throw new IllegalArgumentException(arrays[i].getClass() + " is not an array");
+        }
+      }
+      new ParallelSorterEmitter(v, getClassName(), arrays);
+    }
+
+    @Override
+    protected Object firstInstance(Class type) {
+      return ((ParallelSorter) ReflectUtils.newInstance(type)).newInstance(arrays);
+    }
+
+    @Override
+    protected Object nextInstance(Object instance) {
+      return ((ParallelSorter) instance).newInstance(arrays);
+    }
+  }
 }

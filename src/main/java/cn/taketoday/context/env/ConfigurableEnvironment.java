@@ -30,7 +30,7 @@ import cn.taketoday.expression.ExpressionProcessor;
  * Configurable {@link Environment}
  *
  * @author TODAY <br>
- *         2018-11-14 19:35
+ * 2018-11-14 19:35
  */
 public interface ConfigurableEnvironment extends Environment {
 
@@ -38,7 +38,7 @@ public interface ConfigurableEnvironment extends Environment {
    * Specify the set of profiles active for this {@code Environment}
    *
    * @param profiles
-   *            Setting active profiles
+   *         Setting active profiles
    */
   void setActiveProfiles(String... profiles);
 
@@ -46,7 +46,7 @@ public interface ConfigurableEnvironment extends Environment {
    * Add a profile to the current set of active profiles.
    *
    * @param profile
-   *            Add a active profile
+   *         Add a active profile
    */
   void addActiveProfile(String profile);
 
@@ -54,9 +54,10 @@ public interface ConfigurableEnvironment extends Environment {
    * Load properties configuration file. No specific name required.
    *
    * @param propertiesLocation
-   *            The properties file location
+   *         The properties file location
+   *
    * @throws IOException
-   *             When could not access to a properties file
+   *         When could not access to a properties file
    */
   void loadProperties(String propertiesLocation) throws IOException;
 
@@ -64,7 +65,7 @@ public interface ConfigurableEnvironment extends Environment {
    * Load properties configuration file, and set active profiles.
    *
    * @throws IOException
-   *             When could not access to a properties file
+   *         When could not access to a properties file
    * @since 2.1.6
    */
   void loadProperties() throws IOException;
@@ -73,9 +74,9 @@ public interface ConfigurableEnvironment extends Environment {
    * Set {@link Environment} property
    *
    * @param key
-   *            Key
+   *         Key
    * @param value
-   *            Value
+   *         Value
    */
   void setProperty(String key, String value);
 
@@ -83,7 +84,8 @@ public interface ConfigurableEnvironment extends Environment {
    * Configure the bean definition registry
    *
    * @param beanDefinitionRegistry
-   *            {@link BeanDefinitionRegistry} instance
+   *         {@link BeanDefinitionRegistry} instance
+   *
    * @return {@link ConfigurableEnvironment}
    */
   ConfigurableEnvironment setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry);
@@ -92,7 +94,8 @@ public interface ConfigurableEnvironment extends Environment {
    * Configure bean definition loader
    *
    * @param beanDefinitionLoader
-   *            {@link BeanDefinitionLoader} instance
+   *         {@link BeanDefinitionLoader} instance
+   *
    * @return {@link ConfigurableEnvironment}
    */
   ConfigurableEnvironment setBeanDefinitionLoader(BeanDefinitionLoader beanDefinitionLoader);
@@ -101,8 +104,10 @@ public interface ConfigurableEnvironment extends Environment {
    * Configure {@link BeanNameCreator}
    *
    * @param beanNameCreator
-   *            {@link BeanNameCreator} instance
+   *         {@link BeanNameCreator} instance
+   *
    * @return {@link ConfigurableEnvironment}
+   *
    * @since 2.1.1
    */
   ConfigurableEnvironment setBeanNameCreator(BeanNameCreator beanNameCreator);
@@ -111,7 +116,8 @@ public interface ConfigurableEnvironment extends Environment {
    * Configure properties location
    *
    * @param propertiesLocation
-   *            The location of properties file
+   *         The location of properties file
+   *
    * @return {@link ConfigurableEnvironment}
    */
   ConfigurableEnvironment setPropertiesLocation(String propertiesLocation);
@@ -120,9 +126,11 @@ public interface ConfigurableEnvironment extends Environment {
    * Configure expression processor
    *
    * @param expressionProcessor
-   *            {@link ExpressionProcessor} object
-   * @since 2.1.7
+   *         {@link ExpressionProcessor} object
+   *
    * @return {@link ConfigurableEnvironment}
+   *
+   * @since 2.1.7
    */
   ConfigurableEnvironment setExpressionProcessor(ExpressionProcessor expressionProcessor);
 

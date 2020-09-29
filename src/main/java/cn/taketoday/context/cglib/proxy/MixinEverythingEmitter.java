@@ -29,30 +29,30 @@ import cn.taketoday.context.cglib.core.RejectModifierPredicate;
 /**
  * @author Chris Nokleberg
  * @version $Id: MixinEverythingEmitter.java,v 1.3 2004/06/24 21:15:19
- *          herbyderby Exp $
+ * herbyderby Exp $
  */
 class MixinEverythingEmitter extends MixinEmitter {
 
-    public MixinEverythingEmitter(ClassVisitor v, String className, Class<?>[] classes) {
-        super(v, className, classes, null);
+  public MixinEverythingEmitter(ClassVisitor v, String className, Class<?>[] classes) {
+    super(v, className, classes, null);
+  }
+
+  @Override
+  protected Class<?>[] getInterfaces(Class<?>[] classes) {
+    List<Class<?>> list = new ArrayList<>();
+    for (Class<?> class1 : classes) {
+      ReflectUtils.addAllInterfaces(class1, list);
     }
+    return list.toArray(new Class[list.size()]);
+  }
 
-    @Override
-    protected Class<?>[] getInterfaces(Class<?>[] classes) {
-        List<Class<?>> list = new ArrayList<>();
-        for (Class<?> class1 : classes) {
-            ReflectUtils.addAllInterfaces(class1, list);
-        }
-        return list.toArray(new Class[list.size()]);
-    }
+  @Override
+  protected Method[] getMethods(Class<?> type) {
+    List<Method> methods = new ArrayList<>();
 
-    @Override
-    protected Method[] getMethods(Class<?> type) {
-        List<Method> methods = new ArrayList<>();
+    Collections.addAll(methods, type.getMethods());
 
-        Collections.addAll(methods, type.getMethods());
-
-        CollectionUtils.filter(methods, new RejectModifierPredicate(Modifier.FINAL | Modifier.STATIC));
-        return methods.toArray(new Method[methods.size()]);
-    }
+    CollectionUtils.filter(methods, new RejectModifierPredicate(Modifier.FINAL | Modifier.STATIC));
+    return methods.toArray(new Method[methods.size()]);
+  }
 }

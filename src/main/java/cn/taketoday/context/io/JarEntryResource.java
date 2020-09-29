@@ -39,7 +39,7 @@ import cn.taketoday.context.utils.ResourceUtils;
 
 /**
  * @author TODAY <br>
- *         2019-05-15 10:20
+ * 2019-05-15 10:20
  * @since 2.1.6
  */
 public class JarEntryResource extends UrlBasedResource implements JarResource {

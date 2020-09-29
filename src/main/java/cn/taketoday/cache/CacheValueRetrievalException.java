@@ -21,7 +21,7 @@ package cn.taketoday.cache;
 
 /**
  * @author TODAY <br>
- *         2019-11-03 18:55
+ * 2019-11-03 18:55
  */
 public class CacheValueRetrievalException extends CacheException {
 

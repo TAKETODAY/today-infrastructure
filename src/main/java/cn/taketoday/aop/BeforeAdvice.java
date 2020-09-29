@@ -24,7 +24,7 @@ import org.aopalliance.aop.Advice;
 /**
  * @author TODAY <br>
  *
- *         2018-10-13 11:26
+ * 2018-10-13 11:26
  */
 public interface BeforeAdvice extends Advice {
 

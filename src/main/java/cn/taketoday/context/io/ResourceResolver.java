@@ -40,10 +40,9 @@ import cn.taketoday.context.Constant;
  * JAR files or classes directories can contain multiple files of the same name.
  *
  * @author Juergen Hoeller
- * @since 2.1.7
- *
  * @author TODAY <br>
- *         2019-12-05 12:52
+ * 2019-12-05 12:52
+ * @since 2.1.7
  */
 public interface ResourceResolver {
 
@@ -76,8 +75,10 @@ public interface ResourceResolver {
    * invoke {@link Resource#exists} to check for existence.
    *
    * @param location
-   *            the resource location
+   *         the resource location
+   *
    * @return a corresponding Resource handle (never {@code null})
+   *
    * @see #CLASSPATH_URL_PREFIX
    * @see Resource#exists()
    * @see Resource#getInputStream()
@@ -92,7 +93,7 @@ public interface ResourceResolver {
    * ClassLoader.
    *
    * @return the ClassLoader (only {@code null} if even the system ClassLoader
-   *         isn't accessible)
+   * isn't accessible)
    */
   ClassLoader getClassLoader();
 
@@ -103,10 +104,12 @@ public interface ResourceResolver {
    * be avoided, as far as possible. The result should have set semantics.
    *
    * @param locationPattern
-   *            the location pattern to resolve
+   *         the location pattern to resolve
+   *
    * @return the corresponding Resource objects
+   *
    * @throws IOException
-   *             in case of I/O errors
+   *         in case of I/O errors
    */
   Resource[] getResources(String locationPattern) throws IOException;
 

@@ -18,32 +18,31 @@ package cn.taketoday.context.cglib.core;
 import cn.taketoday.context.asm.Type;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-03 19:33
+ * 2019-09-03 19:33
  */
 public abstract class ClassInfo {
 
-    protected ClassInfo() {}
+  protected ClassInfo() {}
 
-    public abstract Type getType();
+  public abstract Type getType();
 
-    public abstract Type getSuperType();
+  public abstract Type getSuperType();
 
-    public abstract Type[] getInterfaces();
+  public abstract Type[] getInterfaces();
 
-    public abstract int getModifiers();
+  public abstract int getModifiers();
 
-    public boolean equals(Object o) {
-        return (o == this) || ((o instanceof ClassInfo) && getType().equals(((ClassInfo) o).getType()));
-    }
+  public boolean equals(Object o) {
+    return (o == this) || ((o instanceof ClassInfo) && getType().equals(((ClassInfo) o).getType()));
+  }
 
-    public int hashCode() {
-        return getType().hashCode();
-    }
+  public int hashCode() {
+    return getType().hashCode();
+  }
 
-    public String toString() {
-        // TODO: include modifiers, superType, interfaces
-        return getType().getClassName();
-    }
+  public String toString() {
+    // TODO: include modifiers, superType, interfaces
+    return getType().getClassName();
+  }
 }

@@ -37,7 +37,7 @@ import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
 
 /**
  * @author TODAY <br>
- *         2018-08-04 15:58
+ * 2018-08-04 15:58
  */
 public class ValuePropertyResolver extends OrderedApplicationContextSupport implements PropertyValueResolver {
 

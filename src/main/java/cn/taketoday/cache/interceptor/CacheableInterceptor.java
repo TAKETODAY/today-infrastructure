@@ -41,7 +41,7 @@ import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations
 
 /**
  * @author TODAY <br>
- *         2019-02-27 19:50
+ * 2019-02-27 19:50
  */
 @Aspect
 @Advice(Cacheable.class)

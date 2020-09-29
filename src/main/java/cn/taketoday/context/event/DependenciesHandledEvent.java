@@ -25,12 +25,11 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.factory.PropertyValue;
 
 /**
- *
  * Handled all dependencies
  *
  * @author TODAY <br>
  *
- *         2018-11-10 13:23
+ * 2018-11-10 13:23
  */
 @SuppressWarnings("serial")
 public class DependenciesHandledEvent extends ApplicationContextEvent {

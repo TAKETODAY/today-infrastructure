@@ -31,15 +31,14 @@ import cn.taketoday.context.factory.InitializingBean;
  * pick up application classes by name despite themselves potentially being
  * loaded from a shared class loader.
  *
- *
  * @author Juergen Hoeller
  * @author Chris Beams
- * @since 2.1.7
+ * @author TODAY <br>
+ * 2020-02-21 11:45
  * @see BeanNameAware
  * @see BeanFactoryAware
  * @see InitializingBean
- * @author TODAY <br>
- *         2020-02-21 11:45
+ * @since 2.1.7
  */
 public interface BeanClassLoaderAware extends Aware {
 
@@ -50,7 +49,7 @@ public interface BeanClassLoaderAware extends Aware {
    * Invoked <i>before</i> apply properties
    *
    * @param classLoader
-   *            The owning class loader
+   *         The owning class loader
    */
   void setBeanClassLoader(ClassLoader classLoader);
 

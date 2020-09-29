@@ -24,7 +24,7 @@ import java.util.EventObject;
 /**
  * @author TODAY<br>
  *
- *         2018-09-09 21:23
+ * 2018-09-09 21:23
  */
 @SuppressWarnings("serial")
 public abstract class ApplicationEvent extends EventObject {

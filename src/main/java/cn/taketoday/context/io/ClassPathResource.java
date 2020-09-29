@@ -35,7 +35,7 @@ import cn.taketoday.context.utils.ResourceUtils;
 
 /**
  * @author TODAY <br>
- *         2019-05-14 21:47
+ * 2019-05-14 21:47
  */
 public class ClassPathResource implements Resource, WritableResource {
 

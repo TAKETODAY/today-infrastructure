@@ -30,7 +30,7 @@ import cn.taketoday.context.reflect.MethodInvoker;
 
 /**
  * @author TODAY <br>
- *         2018-11-10 13:14
+ * 2018-11-10 13:14
  */
 public class StandardMethodInvocation implements MethodInvocation {
 

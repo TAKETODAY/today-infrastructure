@@ -35,7 +35,7 @@ import cn.taketoday.context.annotation.MissingBean;
 
 /**
  * @author TODAY <br>
- *         2019-10-07 22:54
+ * 2019-10-07 22:54
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

@@ -30,7 +30,7 @@ import cn.taketoday.context.factory.BeanDefinition;
  * {@link BeanDefinition}s
  *
  * @author TODAY <br>
- *         2019-02-02 11:05
+ * 2019-02-02 11:05
  */
 @SuppressWarnings("serial")
 public class LoadingMissingBeanEvent extends ApplicationContextEvent {

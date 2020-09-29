@@ -30,11 +30,10 @@ import cn.taketoday.context.annotation.Profile;
 import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributesArray;
 
 /**
- *
  * Resolve {@link Profile} {@link Condition}
  *
  * @author TODAY <br>
- *         2018-11-14 18:52
+ * 2018-11-14 18:52
  */
 public class ProfileCondition implements Condition {
 

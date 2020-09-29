@@ -44,7 +44,7 @@ import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
  * {@link javax.inject.Inject Inject} or {@link javax.inject.Named Named}
  *
  * @author TODAY <br>
- *         2018-08-04 15:56
+ * 2018-08-04 15:56
  */
 public class AutowiredPropertyResolver
         extends OrderedApplicationContextSupport implements PropertyValueResolver {
@@ -105,7 +105,8 @@ public class AutowiredPropertyResolver
    * Create bean name by type
    *
    * @param targetClass
-   *            target property class
+   *         target property class
+   *
    * @return a bean name none null
    */
   protected String byType(final Class<?> targetClass) {
@@ -126,9 +127,10 @@ public class AutowiredPropertyResolver
    * Find bean name in the {@link BeanFactory}
    *
    * @param applicationContext
-   *            factory
+   *         factory
    * @param propertyClass
-   *            property class
+   *         property class
+   *
    * @return a name found in {@link BeanFactory} if not found will returns null
    */
   protected String findName(ApplicationContext applicationContext, Class<?> propertyClass) {

@@ -23,7 +23,7 @@ package cn.taketoday.context.io;
  * Extended interface for a resource that supports writing to it.
  *
  * @author TODAY <br>
- *         2019-05-14 20:56
+ * 2019-05-14 20:56
  * @since 2.1.6
  */
 public interface WritableResource extends Resource, Writable {

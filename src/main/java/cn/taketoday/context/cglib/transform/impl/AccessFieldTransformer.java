@@ -23,40 +23,39 @@ import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.cglib.transform.ClassEmitterTransformer;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-04 19:57
+ * 2019-09-04 19:57
  */
 public class AccessFieldTransformer extends ClassEmitterTransformer {
 
-    private final Callback callback;
+  private final Callback callback;
 
-    public AccessFieldTransformer(Callback callback) {
-        this.callback = callback;
+  public AccessFieldTransformer(Callback callback) {
+    this.callback = callback;
+  }
+
+  public interface Callback {
+    String getPropertyName(Type owner, String fieldName);
+  }
+
+  public void declare_field(int access, final String name, Type type, Object value) {
+    super.declare_field(access, name, type, value);
+
+    String property = TypeUtils.upperFirst(callback.getPropertyName(getClassType(), name));
+    if (property != null) {
+      CodeEmitter e;
+      e = beginMethod(Constant.ACC_PUBLIC, new Signature("get" + property, type, Constant.TYPES_EMPTY_ARRAY));
+      e.load_this();
+      e.getfield(name);
+      e.return_value();
+      e.end_method();
+
+      e = beginMethod(Constant.ACC_PUBLIC, new Signature("set" + property, Type.VOID_TYPE, Type.array(type)));
+      e.load_this();
+      e.load_arg(0);
+      e.putfield(name);
+      e.return_value();
+      e.end_method();
     }
-
-    public interface Callback {
-        String getPropertyName(Type owner, String fieldName);
-    }
-
-    public void declare_field(int access, final String name, Type type, Object value) {
-        super.declare_field(access, name, type, value);
-
-        String property = TypeUtils.upperFirst(callback.getPropertyName(getClassType(), name));
-        if (property != null) {
-            CodeEmitter e;
-            e = beginMethod(Constant.ACC_PUBLIC, new Signature("get" + property, type, Constant.TYPES_EMPTY_ARRAY));
-            e.load_this();
-            e.getfield(name);
-            e.return_value();
-            e.end_method();
-
-            e = beginMethod(Constant.ACC_PUBLIC, new Signature("set" + property, Type.VOID_TYPE, Type.array(type)));
-            e.load_this();
-            e.load_arg(0);
-            e.putfield(name);
-            e.return_value();
-            e.end_method();
-        }
-    }
+  }
 }

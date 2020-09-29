@@ -22,37 +22,36 @@ import java.util.function.Predicate;
 import cn.taketoday.context.asm.Type;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-03 15:41
+ * 2019-09-03 15:41
  */
 public class VisibilityPredicate implements Predicate<Executable> {
 
-    private String pkg;
-    private boolean protectedOk;
-    private boolean samePackageOk;
+  private String pkg;
+  private boolean protectedOk;
+  private boolean samePackageOk;
 
-    public VisibilityPredicate(Class<?> source, boolean protectedOk) {
-        this.protectedOk = protectedOk;
-        // same package is not ok for the bootstrap loaded classes. In all other cases
-        // we are
-        // generating classes in the same classloader
-        this.samePackageOk = source.getClassLoader() != null;
-        pkg = TypeUtils.getPackageName(Type.getType(source));
-    }
+  public VisibilityPredicate(Class<?> source, boolean protectedOk) {
+    this.protectedOk = protectedOk;
+    // same package is not ok for the bootstrap loaded classes. In all other cases
+    // we are
+    // generating classes in the same classloader
+    this.samePackageOk = source.getClassLoader() != null;
+    pkg = TypeUtils.getPackageName(Type.getType(source));
+  }
 
-    public boolean test(Executable member) {
-        int mod = member.getModifiers();
-        if (Modifier.isPrivate(mod)) {
-            return false;
-        }
-        if (Modifier.isPublic(mod) || (Modifier.isProtected(mod) && protectedOk)) {
-            // protected is fine if 'protectedOk' is true (for subclasses)
-            return true;
-        }
-        // protected/package private if the member is in the same package as the source
-        // class
-        // and we are generating into the same classloader.
-        return samePackageOk && pkg.equals(TypeUtils.getPackageName(Type.getType(member.getDeclaringClass())));
+  public boolean test(Executable member) {
+    int mod = member.getModifiers();
+    if (Modifier.isPrivate(mod)) {
+      return false;
     }
+    if (Modifier.isPublic(mod) || (Modifier.isProtected(mod) && protectedOk)) {
+      // protected is fine if 'protectedOk' is true (for subclasses)
+      return true;
+    }
+    // protected/package private if the member is in the same package as the source
+    // class
+    // and we are generating into the same classloader.
+    return samePackageOk && pkg.equals(TypeUtils.getPackageName(Type.getType(member.getDeclaringClass())));
+  }
 }

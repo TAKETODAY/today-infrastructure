@@ -28,7 +28,7 @@ import static java.util.Objects.requireNonNull;
  * Bean Initialized event
  *
  * @author TODAY <br>
- *         2018-09-20 16:48
+ * 2018-09-20 16:48
  */
 @SuppressWarnings("serial")
 public class ObjectRefreshedEvent extends ApplicationContextEvent {

@@ -21,7 +21,7 @@ package cn.taketoday.context.loader;
 
 /**
  * @author TODAY <br>
- *         2019-12-30 17:22
+ * 2019-12-30 17:22
  */
 public interface CandidateComponentScannerCapable {
 

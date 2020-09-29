@@ -21,35 +21,34 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-03 12:58
+ * 2019-09-03 12:58
  */
 public class MethodWrapper {
 
-    private static final MethodWrapperKey KEY_FACTORY = KeyFactory.create(MethodWrapperKey.class);
+  private static final MethodWrapperKey KEY_FACTORY = KeyFactory.create(MethodWrapperKey.class);
 
-    /** Internal interface, only public due to ClassLoader issues. */
-    public interface MethodWrapperKey {
-        
-        Object newInstance(String name, String[] parameterTypes, String returnType);
+  /** Internal interface, only public due to ClassLoader issues. */
+  public interface MethodWrapperKey {
+
+    Object newInstance(String name, String[] parameterTypes, String returnType);
+  }
+
+  private MethodWrapper() {}
+
+  public static Object create(Method method) {
+
+    return KEY_FACTORY.newInstance(method.getName(),
+                                   ReflectUtils.getNames(method.getParameterTypes()),
+                                   method.getReturnType().getName());
+  }
+
+  public static Set<Object> createSet(Collection<Method> methods) {
+    final HashSet<Object> ret = new HashSet<>();
+
+    for (final Method method : methods) {
+      ret.add(create(method));
     }
-
-    private MethodWrapper() {}
-
-    public static Object create(Method method) {
-        
-        return KEY_FACTORY.newInstance(method.getName(), 
-                                       ReflectUtils.getNames(method.getParameterTypes()),
-                                       method.getReturnType().getName());
-    }
-
-    public static Set<Object> createSet(Collection<Method> methods) {
-        final HashSet<Object> ret = new HashSet<>();
-
-        for (final Method method : methods) {
-            ret.add(create(method));
-        }
-        return ret;
-    }
+    return ret;
+  }
 }

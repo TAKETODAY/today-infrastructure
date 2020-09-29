@@ -46,10 +46,10 @@ import cn.taketoday.context.utils.ClassUtils;
  *
  * @author Juergen Hoeller
  * @author Rick Evans
- * @since 2.1.7
- * @see ConfigurableBeanFactory#registerScope
  * @author TODAY <br>
- *         2020-04-02 20:58
+ * 2020-04-02 20:58
+ * @see ConfigurableBeanFactory#registerScope
+ * @since 2.1.7
  */
 public class CustomScopeConfigurer extends OrderedSupport implements BeanFactoryPostProcessor, BeanClassLoaderAware, Ordered {
 
@@ -71,9 +71,9 @@ public class CustomScopeConfigurer extends OrderedSupport implements BeanFactory
    * Add the given scope to this configurer's map of scopes.
    *
    * @param scopeName
-   *            the name of the scope
+   *         the name of the scope
    * @param scope
-   *            the scope implementation
+   *         the scope implementation
    */
   public void addScope(String scopeName, Scope scope) {
     if (this.scopes == null) {

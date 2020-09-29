@@ -33,7 +33,7 @@ import cn.taketoday.context.utils.ContextUtils;
 
 /**
  * @author TODAY <br>
- *         2018-08-04 16:01
+ * 2018-08-04 16:01
  */
 public class PropsPropertyResolver extends OrderedApplicationContextSupport implements PropertyValueResolver {
 

@@ -23,7 +23,7 @@ import java.io.IOException;
 
 /**
  * @author TODAY <br>
- *         2019-05-25 22:21
+ * 2019-05-25 22:21
  */
 @FunctionalInterface
 public interface ResourceFilter {
@@ -33,9 +33,11 @@ public interface ResourceFilter {
    * included in a name list.
    *
    * @param name
-   *            The abstract name to be tested
+   *         The abstract name to be tested
+   *
    * @return <code>true</code> if and only if <code>pathname</code> should be
-   *         included
+   * included
+   *
    * @throws IOException
    */
   boolean accept(Resource resource) throws IOException;

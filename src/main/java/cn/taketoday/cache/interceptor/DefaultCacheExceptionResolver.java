@@ -25,7 +25,7 @@ import cn.taketoday.cache.Cache;
  * Default implementation of {@link CacheExceptionResolver}
  *
  * @author TODAY <br>
- *         2019-02-27 17:13
+ * 2019-02-27 17:13
  */
 public class DefaultCacheExceptionResolver implements CacheExceptionResolver {
 

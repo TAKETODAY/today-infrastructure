@@ -18,35 +18,34 @@ package cn.taketoday.context.cglib.core;
 import cn.taketoday.context.asm.Type;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-03 19:01
+ * 2019-09-03 19:01
  */
 public abstract class MethodInfo {
 
-    protected MethodInfo() {}
+  protected MethodInfo() {}
 
-    abstract public ClassInfo getClassInfo();
+  abstract public ClassInfo getClassInfo();
 
-    abstract public int getModifiers();
+  abstract public int getModifiers();
 
-    abstract public Signature getSignature();
+  abstract public Signature getSignature();
 
-    abstract public Type[] getExceptionTypes();
+  abstract public Type[] getExceptionTypes();
 
-    @Override
-    public boolean equals(Object o) {
-        return (o == this) || ((o instanceof MethodInfo) && getSignature().equals(((MethodInfo) o).getSignature()));
-    }
+  @Override
+  public boolean equals(Object o) {
+    return (o == this) || ((o instanceof MethodInfo) && getSignature().equals(((MethodInfo) o).getSignature()));
+  }
 
-    @Override
-    public int hashCode() {
-        return getSignature().hashCode();
-    }
+  @Override
+  public int hashCode() {
+    return getSignature().hashCode();
+  }
 
-    @Override
-    public String toString() {
-        // TODO: include modifiers, exceptions
-        return getSignature().toString();
-    }
+  @Override
+  public String toString() {
+    // TODO: include modifiers, exceptions
+    return getSignature().toString();
+  }
 }

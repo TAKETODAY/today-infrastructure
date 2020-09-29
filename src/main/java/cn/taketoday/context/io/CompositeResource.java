@@ -24,7 +24,7 @@ import java.io.InputStream;
 
 /**
  * @author TODAY <br>
- *         2019-11-26 20:47
+ * 2019-11-26 20:47
  */
 public class CompositeResource extends AbstractResource {
 

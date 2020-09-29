@@ -28,7 +28,7 @@ import cn.taketoday.context.factory.BeanDefinition;
  * {@link BeanDefinition} Loading event
  *
  * @author TODAY <br>
- *         2018-09-10 10:46
+ * 2018-09-10 10:46
  */
 @SuppressWarnings("serial")
 public class BeanDefinitionLoadingEvent extends ApplicationContextEvent {

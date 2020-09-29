@@ -25,7 +25,7 @@ import cn.taketoday.context.factory.BeanFactory;
 /**
  * @author TODAY <br>
  *
- *         2018-11-11 15:09
+ * 2018-11-11 15:09
  */
 public interface ProxyCreator {
 

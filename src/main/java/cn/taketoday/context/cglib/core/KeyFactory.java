@@ -16,8 +16,6 @@
 
 package cn.taketoday.context.cglib.core;
 
-import static cn.taketoday.context.asm.Type.array;
-
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 import java.util.Collections;
@@ -28,6 +26,8 @@ import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Label;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.internal.CustomizerRegistry;
+
+import static cn.taketoday.context.asm.Type.array;
 
 /**
  * Generates classes to handle multi-valued keys, for use in things such as Maps
@@ -40,7 +40,7 @@ import cn.taketoday.context.cglib.core.internal.CustomizerRegistry;
  * arguments array can be <i>anything</i>--Objects, primitive values, or single
  * or multi-dimension arrays of either. For example:
  * <p>
- * 
+ *
  * <pre>
  * private interface IntStringKey {
  *     public Object newInstance(int i, String s);
@@ -50,7 +50,7 @@ import cn.taketoday.context.cglib.core.internal.CustomizerRegistry;
  * Once you have made a <code>KeyFactory</code>, you generate a new key by
  * calling the <code>newInstance</code> method defined by your interface.
  * <p>
- * 
+ *
  * <pre>
  * IntStringKey factory = (IntStringKey) KeyFactory.create(IntStringKey.class);
  * Object key1 = factory.newInstance(4, "Hello");
@@ -67,274 +67,274 @@ import cn.taketoday.context.cglib.core.internal.CustomizerRegistry;
 @SuppressWarnings("all")
 abstract public class KeyFactory {
 
-    private static final Type KEY_FACTORY = TypeUtils.parseType(KeyFactory.class);
-    private static final Signature GET_SORT = TypeUtils.parseSignature("int getSort()");
-    private static final Signature HASH_CODE = TypeUtils.parseSignature("int hashCode()");
-    private static final Signature GET_NAME = TypeUtils.parseSignature("String getName()");
-    private static final Signature GET_CLASS = TypeUtils.parseSignature("Class getClass()");
-    private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
-    private static final Signature EQUALS = TypeUtils.parseSignature("boolean equals(Object)");
-    private static final Signature APPEND_STRING = TypeUtils.parseSignature("StringBuffer append(String)");
+  private static final Type KEY_FACTORY = TypeUtils.parseType(KeyFactory.class);
+  private static final Signature GET_SORT = TypeUtils.parseSignature("int getSort()");
+  private static final Signature HASH_CODE = TypeUtils.parseSignature("int hashCode()");
+  private static final Signature GET_NAME = TypeUtils.parseSignature("String getName()");
+  private static final Signature GET_CLASS = TypeUtils.parseSignature("Class getClass()");
+  private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
+  private static final Signature EQUALS = TypeUtils.parseSignature("boolean equals(Object)");
+  private static final Signature APPEND_STRING = TypeUtils.parseSignature("StringBuffer append(String)");
 
-    // generated numbers:
-    private final static int PRIMES[] = { //
-        11, 73, 179, 331, 521, 787, 1213, 1823, //
-        2609, 3691, 5189, 7247, 10037, 13931, 19289, //
-        26627, 36683, 50441, 69403, 95401, 131129, //
-        180179, 247501, 340057, 467063, 641371, //
-        880603, 1209107, 1660097, 2279161, 3129011, //
-        4295723, 5897291, 8095873, 11114263, 15257791, //
-        20946017, 28754629, 39474179, 54189869, 74391461, //
-        102123817, 140194277, 192456917, 264202273, 362693231, //
-        497900099, 683510293, 938313161, 1288102441, 1768288259 //
-    };
+  // generated numbers:
+  private final static int PRIMES[] = { //
+          11, 73, 179, 331, 521, 787, 1213, 1823, //
+          2609, 3691, 5189, 7247, 10037, 13931, 19289, //
+          26627, 36683, 50441, 69403, 95401, 131129, //
+          180179, 247501, 340057, 467063, 641371, //
+          880603, 1209107, 1660097, 2279161, 3129011, //
+          4295723, 5897291, 8095873, 11114263, 15257791, //
+          20946017, 28754629, 39474179, 54189869, 74391461, //
+          102123817, 140194277, 192456917, 264202273, 362693231, //
+          497900099, 683510293, 938313161, 1288102441, 1768288259 //
+  };
 
-    public static final Customizer CLASS_BY_NAME = (CodeEmitter e, Type type) -> {
-        if (type.equals(Constant.TYPE_CLASS)) {
-            e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
-        }
-    };
+  public static final Customizer CLASS_BY_NAME = (CodeEmitter e, Type type) -> {
+    if (type.equals(Constant.TYPE_CLASS)) {
+      e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
+    }
+  };
 
-    public static final FieldTypeCustomizer STORE_CLASS_AS_STRING = new FieldTypeCustomizer() {
-        public void customize(CodeEmitter e, int index, Type type) {
-            if (type.equals(Constant.TYPE_CLASS)) {
-                e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
-            }
-        }
+  public static final FieldTypeCustomizer STORE_CLASS_AS_STRING = new FieldTypeCustomizer() {
+    public void customize(CodeEmitter e, int index, Type type) {
+      if (type.equals(Constant.TYPE_CLASS)) {
+        e.invoke_virtual(Constant.TYPE_CLASS, GET_NAME);
+      }
+    }
 
-        public Type getOutType(int index, Type type) {
-            if (type.equals(Constant.TYPE_CLASS)) {
-                return Constant.TYPE_STRING;
-            }
-            return type;
-        }
-    };
+    public Type getOutType(int index, Type type) {
+      if (type.equals(Constant.TYPE_CLASS)) {
+        return Constant.TYPE_STRING;
+      }
+      return type;
+    }
+  };
+
+  /**
+   * {@link Type#hashCode()} is very expensive as it traverses full descriptor to
+   * calculate hash code. This customizer uses {@link Type#getSort()} as a hash
+   * code.
+   */
+  public static final HashCodeCustomizer HASH_ASM_TYPE = (CodeEmitter e, Type type) -> {
+    if (Constant.TYPE_TYPE.equals(type)) {
+      e.invoke_virtual(type, GET_SORT);
+      return true;
+    }
+    return false;
+  };
+
+  /**
+   * @deprecated this customizer might result in unexpected class leak since key
+   * object still holds a strong reference to the Object and class. It
+   * is recommended to have pre-processing method that would strip
+   * Objects and represent Classes as Strings
+   */
+  @Deprecated
+  public static final Customizer OBJECT_BY_CLASS = (CodeEmitter e, Type type) -> {
+    e.invoke_virtual(Constant.TYPE_OBJECT, GET_CLASS);
+  };
+
+  protected KeyFactory() {}
+
+  public static <T> T create(Class<T> keyInterface) {
+    return create(keyInterface, null);
+  }
+
+  public static <T> T create(Class<T> keyInterface, Customizer customizer) {
+    return create(keyInterface.getClassLoader(), keyInterface, customizer);
+  }
+
+  public static <T> T create(Class<T> keyInterface, KeyFactoryCustomizer first, List<KeyFactoryCustomizer> next) {
+    return create(keyInterface.getClassLoader(), keyInterface, first, next);
+  }
+
+  public static <T> T create(ClassLoader loader, Class<T> keyInterface, Customizer customizer) {
+    return create(loader, keyInterface, customizer, Collections.emptyList());
+  }
+
+  public static <T> T create(ClassLoader loader, Class<T> keyInterface, //
+                             KeyFactoryCustomizer customizer, List<KeyFactoryCustomizer> next) //
+  {
+    Generator gen = new Generator();
+    gen.setInterface(keyInterface);
+
+    if (customizer != null) {
+      gen.addCustomizer(customizer);
+    }
+    if (next != null && !next.isEmpty()) {
+      for (KeyFactoryCustomizer keyFactoryCustomizer : next) {
+        gen.addCustomizer(keyFactoryCustomizer);
+      }
+    }
+    gen.setClassLoader(loader);
+    return (T) gen.create();
+  }
+
+  public static class Generator extends AbstractClassGenerator {
+
+    private static final Source SOURCE = new Source(KeyFactory.class.getSimpleName());
+    private static final Class[] KNOWN_CUSTOMIZER_TYPES = new Class[] { Customizer.class, FieldTypeCustomizer.class };
+
+    private Class keyInterface;
+    // TODO: Make me final when deprecated methods are removed
+    private CustomizerRegistry customizers = new CustomizerRegistry(KNOWN_CUSTOMIZER_TYPES);
+    private int constant;
+    private int multiplier;
+
+    public Generator() {
+      super(SOURCE);
+    }
+
+    protected ClassLoader getDefaultClassLoader() {
+      return keyInterface.getClassLoader();
+    }
+
+    protected ProtectionDomain getProtectionDomain() {
+      return ReflectUtils.getProtectionDomain(keyInterface);
+    }
 
     /**
-     * {@link Type#hashCode()} is very expensive as it traverses full descriptor to
-     * calculate hash code. This customizer uses {@link Type#getSort()} as a hash
-     * code.
-     */
-    public static final HashCodeCustomizer HASH_ASM_TYPE = (CodeEmitter e, Type type) -> {
-        if (Constant.TYPE_TYPE.equals(type)) {
-            e.invoke_virtual(type, GET_SORT);
-            return true;
-        }
-        return false;
-    };
-
-    /**
-     * @deprecated this customizer might result in unexpected class leak since key
-     *             object still holds a strong reference to the Object and class. It
-     *             is recommended to have pre-processing method that would strip
-     *             Objects and represent Classes as Strings
+     * @deprecated Use {@link #addCustomizer(KeyFactoryCustomizer)} instead.
      */
     @Deprecated
-    public static final Customizer OBJECT_BY_CLASS = (CodeEmitter e, Type type) -> {
-        e.invoke_virtual(Constant.TYPE_OBJECT, GET_CLASS);
-    };
-
-    protected KeyFactory() {}
-
-    public static <T> T create(Class<T> keyInterface) {
-        return create(keyInterface, null);
+    public void setCustomizer(Customizer customizer) {
+      customizers = CustomizerRegistry.singleton(customizer);
     }
 
-    public static <T> T create(Class<T> keyInterface, Customizer customizer) {
-        return create(keyInterface.getClassLoader(), keyInterface, customizer);
+    public void addCustomizer(KeyFactoryCustomizer customizer) {
+      customizers.add(customizer);
     }
 
-    public static <T> T create(Class<T> keyInterface, KeyFactoryCustomizer first, List<KeyFactoryCustomizer> next) {
-        return create(keyInterface.getClassLoader(), keyInterface, first, next);
+    public <T> List<T> getCustomizers(Class<T> klass) {
+      return customizers.get(klass);
     }
 
-    public static <T> T create(ClassLoader loader, Class<T> keyInterface, Customizer customizer) {
-        return create(loader, keyInterface, customizer, Collections.emptyList());
+    public void setInterface(Class keyInterface) {
+      this.keyInterface = keyInterface;
     }
 
-    public static <T> T create(ClassLoader loader, Class<T> keyInterface, //
-                               KeyFactoryCustomizer customizer, List<KeyFactoryCustomizer> next) //
-    {
-        Generator gen = new Generator();
-        gen.setInterface(keyInterface);
-
-        if (customizer != null) {
-            gen.addCustomizer(customizer);
-        }
-        if (next != null && !next.isEmpty()) {
-            for (KeyFactoryCustomizer keyFactoryCustomizer : next) {
-                gen.addCustomizer(keyFactoryCustomizer);
-            }
-        }
-        gen.setClassLoader(loader);
-        return (T) gen.create();
+    public KeyFactory create() {
+      setNamePrefix(keyInterface.getName());
+      return (KeyFactory) super.create(keyInterface.getName());
     }
 
-    public static class Generator extends AbstractClassGenerator {
-
-        private static final Source SOURCE = new Source(KeyFactory.class.getSimpleName());
-        private static final Class[] KNOWN_CUSTOMIZER_TYPES = new Class[] { Customizer.class, FieldTypeCustomizer.class };
-
-        private Class keyInterface;
-        // TODO: Make me final when deprecated methods are removed
-        private CustomizerRegistry customizers = new CustomizerRegistry(KNOWN_CUSTOMIZER_TYPES);
-        private int constant;
-        private int multiplier;
-
-        public Generator() {
-            super(SOURCE);
-        }
-
-        protected ClassLoader getDefaultClassLoader() {
-            return keyInterface.getClassLoader();
-        }
-
-        protected ProtectionDomain getProtectionDomain() {
-            return ReflectUtils.getProtectionDomain(keyInterface);
-        }
-
-        /**
-         * @deprecated Use {@link #addCustomizer(KeyFactoryCustomizer)} instead.
-         */
-        @Deprecated
-        public void setCustomizer(Customizer customizer) {
-            customizers = CustomizerRegistry.singleton(customizer);
-        }
-
-        public void addCustomizer(KeyFactoryCustomizer customizer) {
-            customizers.add(customizer);
-        }
-
-        public <T> List<T> getCustomizers(Class<T> klass) {
-            return customizers.get(klass);
-        }
-
-        public void setInterface(Class keyInterface) {
-            this.keyInterface = keyInterface;
-        }
-
-        public KeyFactory create() {
-            setNamePrefix(keyInterface.getName());
-            return (KeyFactory) super.create(keyInterface.getName());
-        }
-
-        public void setHashConstant(int constant) {
-            this.constant = constant;
-        }
-
-        public void setHashMultiplier(int multiplier) {
-            this.multiplier = multiplier;
-        }
-
-        protected Object firstInstance(Class type) {
-            return ReflectUtils.newInstance(type);
-        }
-
-        protected Object nextInstance(Object instance) {
-            return instance;
-        }
-
-        public void generateClass(ClassVisitor v) {
-            ClassEmitter ce = new ClassEmitter(v);
-
-            Method newInstance = ReflectUtils.findNewInstance(keyInterface);
-            if (!newInstance.getReturnType().equals(Object.class)) {
-                throw new IllegalArgumentException("newInstance method must return Object");
-            }
-
-            Type[] parameterTypes = TypeUtils.getTypes(newInstance.getParameterTypes());
-            ce.beginClass(Constant.JAVA_VERSION, //
-                          Constant.ACC_PUBLIC, //
-                          getClassName(), //
-                          KEY_FACTORY, //
-                          array(Type.getType(keyInterface)), //
-                          Constant.SOURCE_FILE//
-            );
-
-            EmitUtils.nullConstructor(ce);
-            EmitUtils.factoryMethod(ce, ReflectUtils.getSignature(newInstance));
-
-            int seed = 0;
-            CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, TypeUtils.parseConstructor(parameterTypes));
-            e.load_this();
-            e.super_invoke_constructor();
-            e.load_this();
-            List<FieldTypeCustomizer> fieldTypeCustomizers = getCustomizers(FieldTypeCustomizer.class);
-            for (int i = 0; i < parameterTypes.length; i++) {
-                Type parameterType = parameterTypes[i];
-                Type fieldType = parameterType;
-                for (FieldTypeCustomizer customizer : fieldTypeCustomizers) {
-                    fieldType = customizer.getOutType(i, fieldType);
-                }
-                seed += fieldType.hashCode();
-                ce.declare_field(Constant.ACC_PRIVATE | Constant.ACC_FINAL, getFieldName(i), fieldType, null);
-                e.dup();
-                e.load_arg(i);
-                for (FieldTypeCustomizer customizer : fieldTypeCustomizers) {
-                    customizer.customize(e, i, parameterType);
-                }
-                e.putfield(getFieldName(i));
-            }
-            e.return_value();
-            e.end_method();
-
-            // hash code
-            e = ce.beginMethod(Constant.ACC_PUBLIC, HASH_CODE);
-            int hc = (constant != 0) ? constant : PRIMES[(int) (Math.abs(seed) % PRIMES.length)];
-            int hm = (multiplier != 0) ? multiplier : PRIMES[(int) (Math.abs(seed * 13) % PRIMES.length)];
-            e.push(hc);
-            for (int i = 0; i < parameterTypes.length; i++) {
-                e.load_this();
-                e.getfield(getFieldName(i));
-                EmitUtils.hashCode(e, parameterTypes[i], hm, customizers);
-            }
-            e.return_value();
-            e.end_method();
-
-            // equals
-            e = ce.beginMethod(Constant.ACC_PUBLIC, EQUALS);
-            Label fail = e.make_label();
-            e.load_arg(0);
-            e.instance_of_this();
-            e.if_jump(e.EQ, fail);
-            for (int i = 0; i < parameterTypes.length; i++) {
-                e.load_this();
-                e.getfield(getFieldName(i));
-                e.load_arg(0);
-                e.checkcast_this();
-                e.getfield(getFieldName(i));
-                EmitUtils.notEquals(e, parameterTypes[i], fail, customizers);
-            }
-            e.push(1);
-            e.return_value();
-            e.mark(fail);
-            e.push(0);
-            e.return_value();
-            e.end_method();
-
-            // toString
-            e = ce.beginMethod(Constant.ACC_PUBLIC, TO_STRING);
-            e.new_instance(Constant.TYPE_STRING_BUFFER);
-            e.dup();
-            e.invoke_constructor(Constant.TYPE_STRING_BUFFER);
-            for (int i = 0; i < parameterTypes.length; i++) {
-                if (i > 0) {
-                    e.push(", ");
-                    e.invoke_virtual(Constant.TYPE_STRING_BUFFER, APPEND_STRING);
-                }
-                e.load_this();
-                e.getfield(getFieldName(i));
-                EmitUtils.appendString(e, parameterTypes[i], EmitUtils.DEFAULT_DELIMITERS, customizers);
-            }
-            e.invoke_virtual(Constant.TYPE_STRING_BUFFER, TO_STRING);
-            e.return_value();
-            e.end_method();
-
-            ce.endClass();
-        }
-
-        private String getFieldName(int arg) {
-            return "FIELD_" + arg;
-        }
+    public void setHashConstant(int constant) {
+      this.constant = constant;
     }
+
+    public void setHashMultiplier(int multiplier) {
+      this.multiplier = multiplier;
+    }
+
+    protected Object firstInstance(Class type) {
+      return ReflectUtils.newInstance(type);
+    }
+
+    protected Object nextInstance(Object instance) {
+      return instance;
+    }
+
+    public void generateClass(ClassVisitor v) {
+      ClassEmitter ce = new ClassEmitter(v);
+
+      Method newInstance = ReflectUtils.findNewInstance(keyInterface);
+      if (!newInstance.getReturnType().equals(Object.class)) {
+        throw new IllegalArgumentException("newInstance method must return Object");
+      }
+
+      Type[] parameterTypes = TypeUtils.getTypes(newInstance.getParameterTypes());
+      ce.beginClass(Constant.JAVA_VERSION, //
+                    Constant.ACC_PUBLIC, //
+                    getClassName(), //
+                    KEY_FACTORY, //
+                    array(Type.getType(keyInterface)), //
+                    Constant.SOURCE_FILE//
+      );
+
+      EmitUtils.nullConstructor(ce);
+      EmitUtils.factoryMethod(ce, ReflectUtils.getSignature(newInstance));
+
+      int seed = 0;
+      CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, TypeUtils.parseConstructor(parameterTypes));
+      e.load_this();
+      e.super_invoke_constructor();
+      e.load_this();
+      List<FieldTypeCustomizer> fieldTypeCustomizers = getCustomizers(FieldTypeCustomizer.class);
+      for (int i = 0; i < parameterTypes.length; i++) {
+        Type parameterType = parameterTypes[i];
+        Type fieldType = parameterType;
+        for (FieldTypeCustomizer customizer : fieldTypeCustomizers) {
+          fieldType = customizer.getOutType(i, fieldType);
+        }
+        seed += fieldType.hashCode();
+        ce.declare_field(Constant.ACC_PRIVATE | Constant.ACC_FINAL, getFieldName(i), fieldType, null);
+        e.dup();
+        e.load_arg(i);
+        for (FieldTypeCustomizer customizer : fieldTypeCustomizers) {
+          customizer.customize(e, i, parameterType);
+        }
+        e.putfield(getFieldName(i));
+      }
+      e.return_value();
+      e.end_method();
+
+      // hash code
+      e = ce.beginMethod(Constant.ACC_PUBLIC, HASH_CODE);
+      int hc = (constant != 0) ? constant : PRIMES[(int) (Math.abs(seed) % PRIMES.length)];
+      int hm = (multiplier != 0) ? multiplier : PRIMES[(int) (Math.abs(seed * 13) % PRIMES.length)];
+      e.push(hc);
+      for (int i = 0; i < parameterTypes.length; i++) {
+        e.load_this();
+        e.getfield(getFieldName(i));
+        EmitUtils.hashCode(e, parameterTypes[i], hm, customizers);
+      }
+      e.return_value();
+      e.end_method();
+
+      // equals
+      e = ce.beginMethod(Constant.ACC_PUBLIC, EQUALS);
+      Label fail = e.make_label();
+      e.load_arg(0);
+      e.instance_of_this();
+      e.if_jump(e.EQ, fail);
+      for (int i = 0; i < parameterTypes.length; i++) {
+        e.load_this();
+        e.getfield(getFieldName(i));
+        e.load_arg(0);
+        e.checkcast_this();
+        e.getfield(getFieldName(i));
+        EmitUtils.notEquals(e, parameterTypes[i], fail, customizers);
+      }
+      e.push(1);
+      e.return_value();
+      e.mark(fail);
+      e.push(0);
+      e.return_value();
+      e.end_method();
+
+      // toString
+      e = ce.beginMethod(Constant.ACC_PUBLIC, TO_STRING);
+      e.new_instance(Constant.TYPE_STRING_BUFFER);
+      e.dup();
+      e.invoke_constructor(Constant.TYPE_STRING_BUFFER);
+      for (int i = 0; i < parameterTypes.length; i++) {
+        if (i > 0) {
+          e.push(", ");
+          e.invoke_virtual(Constant.TYPE_STRING_BUFFER, APPEND_STRING);
+        }
+        e.load_this();
+        e.getfield(getFieldName(i));
+        EmitUtils.appendString(e, parameterTypes[i], EmitUtils.DEFAULT_DELIMITERS, customizers);
+      }
+      e.invoke_virtual(Constant.TYPE_STRING_BUFFER, TO_STRING);
+      e.return_value();
+      e.end_method();
+
+      ce.endClass();
+    }
+
+    private String getFieldName(int arg) {
+      return "FIELD_" + arg;
+    }
+  }
 }

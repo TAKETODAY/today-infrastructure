@@ -17,5 +17,5 @@ package cn.taketoday.context.cglib.core;
 
 @SuppressWarnings("all")
 public interface Converter {
-    Object convert(Object value, Class target, Object context);
+  Object convert(Object value, Class target, Object context);
 }

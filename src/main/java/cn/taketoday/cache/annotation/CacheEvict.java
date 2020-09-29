@@ -31,7 +31,7 @@ import cn.taketoday.context.Constant;
  * {@link Cache} eviction
  *
  * @author TODAY <br>
- *         2019-02-17 17:46
+ * 2019-02-17 17:46
  * @see Cache#evict(Object)
  */
 @Retention(RetentionPolicy.RUNTIME)

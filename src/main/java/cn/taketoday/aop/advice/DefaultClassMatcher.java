@@ -28,7 +28,7 @@ import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY <br>
- *         2019-10-22 21:39
+ * 2019-10-22 21:39
  */
 public class DefaultClassMatcher implements ClassMatcher {
 

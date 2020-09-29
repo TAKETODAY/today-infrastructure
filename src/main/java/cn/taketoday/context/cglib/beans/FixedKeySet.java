@@ -23,21 +23,21 @@ import java.util.Set;
 
 public /* need it for class loading */ class FixedKeySet extends AbstractSet<String> {
 
-    private final int size;
-    private final Set<String> set;
+  private final int size;
+  private final Set<String> set;
 
-    public FixedKeySet(String[] keys) {
-        this.size = keys.length;
-        HashSet<String> hashSet = new HashSet<>();
-        Collections.addAll(hashSet, keys);
-        this.set = Collections.unmodifiableSet(hashSet);
-    }
+  public FixedKeySet(String[] keys) {
+    this.size = keys.length;
+    HashSet<String> hashSet = new HashSet<>();
+    Collections.addAll(hashSet, keys);
+    this.set = Collections.unmodifiableSet(hashSet);
+  }
 
-    public Iterator<String> iterator() {
-        return set.iterator();
-    }
+  public Iterator<String> iterator() {
+    return set.iterator();
+  }
 
-    public int size() {
-        return size;
-    }
+  public int size() {
+    return size;
+  }
 }

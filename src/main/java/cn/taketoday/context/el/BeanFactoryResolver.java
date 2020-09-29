@@ -25,7 +25,7 @@ import cn.taketoday.expression.BeanNameResolver;
 
 /**
  * @author TODAY <br>
- *         2019-02-23 10:36
+ * 2019-02-23 10:36
  */
 public class BeanFactoryResolver extends BeanNameResolver {
 

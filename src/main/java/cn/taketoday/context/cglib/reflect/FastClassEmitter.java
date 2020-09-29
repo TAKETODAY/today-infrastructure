@@ -15,8 +15,6 @@
  */
 package cn.taketoday.context.cglib.reflect;
 
-import static cn.taketoday.context.Constant.SWITCH_STYLE_HASH;
-
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -44,208 +42,210 @@ import cn.taketoday.context.cglib.core.Transformer;
 import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.cglib.core.VisibilityPredicate;
 
+import static cn.taketoday.context.Constant.SWITCH_STYLE_HASH;
+
 /**
  * @author TODAY <br>
- *         2018-11-08 15:08
+ * 2018-11-08 15:08
  */
 @SuppressWarnings("all")
 class FastClassEmitter extends ClassEmitter {
 
-    private static final Signature CSTRUCT_CLASS = TypeUtils.parseConstructor("Class");
-    private static final Signature METHOD_GET_INDEX = TypeUtils.parseSignature("int getIndex(String, Class[])");
-    private static final Signature SIGNATURE_GET_INDEX = new Signature("getIndex", Type.INT_TYPE, new Type[] { Constant.TYPE_SIGNATURE });
-    private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
-    private static final Signature CONSTRUCTOR_GET_INDEX = TypeUtils.parseSignature("int getIndex(Class[])");
-    private static final Signature INVOKE = TypeUtils.parseSignature("Object invoke(int, Object, Object[])");
-    private static final Signature NEW_INSTANCE = TypeUtils.parseSignature("Object newInstance(int, Object[])");
-    private static final Signature GET_MAX_INDEX = TypeUtils.parseSignature("int getMaxIndex()");
+  private static final Signature CSTRUCT_CLASS = TypeUtils.parseConstructor("Class");
+  private static final Signature METHOD_GET_INDEX = TypeUtils.parseSignature("int getIndex(String, Class[])");
+  private static final Signature SIGNATURE_GET_INDEX = new Signature("getIndex", Type.INT_TYPE, new Type[] { Constant.TYPE_SIGNATURE });
+  private static final Signature TO_STRING = TypeUtils.parseSignature("String toString()");
+  private static final Signature CONSTRUCTOR_GET_INDEX = TypeUtils.parseSignature("int getIndex(Class[])");
+  private static final Signature INVOKE = TypeUtils.parseSignature("Object invoke(int, Object, Object[])");
+  private static final Signature NEW_INSTANCE = TypeUtils.parseSignature("Object newInstance(int, Object[])");
+  private static final Signature GET_MAX_INDEX = TypeUtils.parseSignature("int getMaxIndex()");
 
-    private static final Signature GET_SIGNATURE_WITHOUT_RETURN_TYPE = //
-            TypeUtils.parseSignature("String getSignatureWithoutReturnType(String, Class[])");
+  private static final Signature GET_SIGNATURE_WITHOUT_RETURN_TYPE = //
+          TypeUtils.parseSignature("String getSignatureWithoutReturnType(String, Class[])");
 
-    private static final Type FAST_CLASS = TypeUtils.parseType(FastClass.class);
-    private static final Type ILLEGAL_ARGUMENT_EXCEPTION = TypeUtils.parseType("IllegalArgumentException");
+  private static final Type FAST_CLASS = TypeUtils.parseType(FastClass.class);
+  private static final Type ILLEGAL_ARGUMENT_EXCEPTION = TypeUtils.parseType("IllegalArgumentException");
 
-    private static final Type INVOCATION_TARGET_EXCEPTION = //
-            TypeUtils.parseType("java.lang.reflect.InvocationTargetException");
+  private static final Type INVOCATION_TARGET_EXCEPTION = //
+          TypeUtils.parseType("java.lang.reflect.InvocationTargetException");
 
-    private static final Type[] INVOCATION_TARGET_EXCEPTION_ARRAY = { INVOCATION_TARGET_EXCEPTION };
+  private static final Type[] INVOCATION_TARGET_EXCEPTION_ARRAY = { INVOCATION_TARGET_EXCEPTION };
 
-    public FastClassEmitter(ClassVisitor v, String className, Class type) {
-        super(v);
+  public FastClassEmitter(ClassVisitor v, String className, Class type) {
+    super(v);
 
-        Type base = Type.getType(type);
-        beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, className, FAST_CLASS, null, Constant.SOURCE_FILE);
+    Type base = Type.getType(type);
+    beginClass(Constant.JAVA_VERSION, Constant.ACC_PUBLIC, className, FAST_CLASS, null, Constant.SOURCE_FILE);
 
-        // constructor
-        CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, CSTRUCT_CLASS);
-        e.load_this();
-        e.load_args();
-        e.super_invoke_constructor(CSTRUCT_CLASS);
+    // constructor
+    CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, CSTRUCT_CLASS);
+    e.load_this();
+    e.load_args();
+    e.super_invoke_constructor(CSTRUCT_CLASS);
+    e.return_value();
+    e.end_method();
+
+    VisibilityPredicate vp = new VisibilityPredicate(type, false);
+    List<Method> methods = ReflectUtils.addAllMethods(type, new ArrayList<>());
+    CollectionUtils.filter(methods, vp);
+    CollectionUtils.filter(methods, new DuplicatesPredicate());
+
+    ArrayList<Member> constructors = new ArrayList<>();
+    Collections.addAll(constructors, type.getDeclaredConstructors());
+    CollectionUtils.filter(constructors, vp);
+
+    // getIndex(String)
+    emitIndexBySignature(methods);
+
+    // getIndex(String, Class[])
+    emitIndexByClassArray(methods);
+
+    // getIndex(Class[])
+    e = beginMethod(Constant.ACC_PUBLIC, CONSTRUCTOR_GET_INDEX);
+    e.load_args();
+    List<MethodInfo> info = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
+    EmitUtils.constructorSwitch(e, info, new GetIndexCallback(e, info));
+    e.end_method();
+
+    // invoke(int, Object, Object[])
+    e = beginMethod(Constant.ACC_PUBLIC, INVOKE, INVOCATION_TARGET_EXCEPTION_ARRAY);
+    e.load_arg(1);
+    e.checkcast(base);
+    e.load_arg(0);
+    invokeSwitchHelper(e, methods, 2, base);
+    e.end_method();
+
+    // newInstance(int, Object[])
+    e = beginMethod(Constant.ACC_PUBLIC, NEW_INSTANCE, INVOCATION_TARGET_EXCEPTION_ARRAY);
+    e.new_instance(base);
+    e.dup();
+    e.load_arg(0);
+    invokeSwitchHelper(e, constructors, 1, base);
+    e.end_method();
+
+    // getMaxIndex()
+    e = beginMethod(Constant.ACC_PUBLIC, GET_MAX_INDEX);
+    e.push(methods.size() - 1);
+    e.return_value();
+    e.end_method();
+
+    endClass();
+  }
+
+  // TODO: support constructor indices ("<init>")
+  private void emitIndexBySignature(List<Method> methods) {
+    CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, SIGNATURE_GET_INDEX);
+    List<String> signatures = CollectionUtils.transform(methods, new Transformer<Method, String>() {
+      public String transform(Method obj) {
+        return ReflectUtils.getSignature(obj).toString();
+      }
+    });
+    e.load_arg(0);
+    e.invoke_virtual(Constant.TYPE_OBJECT, TO_STRING);
+    signatureSwitchHelper(e, signatures);
+    e.end_method();
+  }
+
+  private static final int TOO_MANY_METHODS = 100; // TODO
+
+  private void emitIndexByClassArray(List methods) {
+    CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, METHOD_GET_INDEX);
+    if (methods.size() > TOO_MANY_METHODS) {
+      // hack for big classes
+      List<String> signatures = CollectionUtils.transform(methods, new Transformer<Method, String>() {
+        public String transform(Method obj) {
+          final String s = ReflectUtils.getSignature(obj).toString();
+          return s.substring(0, s.lastIndexOf(')') + 1);
+        }
+      });
+      e.load_args();
+      e.invoke_static(FAST_CLASS, GET_SIGNATURE_WITHOUT_RETURN_TYPE);
+      signatureSwitchHelper(e, signatures);
+    }
+    else {
+      e.load_args();
+      List<MethodInfo> info = CollectionUtils.transform(methods, MethodInfoTransformer.getInstance());
+      EmitUtils.methodSwitch(e, info, new GetIndexCallback(e, info));
+    }
+    e.end_method();
+  }
+
+  private void signatureSwitchHelper(final CodeEmitter e, final List<String> signatures) {
+    ObjectSwitchCallback callback = new ObjectSwitchCallback() {
+      public void processCase(Object key, Label end) {
+        // TODO: remove linear indexOf
+        e.push(signatures.indexOf(key));
         e.return_value();
-        e.end_method();
+      }
 
-        VisibilityPredicate vp = new VisibilityPredicate(type, false);
-        List<Method> methods = ReflectUtils.addAllMethods(type, new ArrayList<>());
-        CollectionUtils.filter(methods, vp);
-        CollectionUtils.filter(methods, new DuplicatesPredicate());
-
-        ArrayList<Member> constructors = new ArrayList<>();
-        Collections.addAll(constructors, type.getDeclaredConstructors());
-        CollectionUtils.filter(constructors, vp);
-
-        // getIndex(String)
-        emitIndexBySignature(methods);
-
-        // getIndex(String, Class[])
-        emitIndexByClassArray(methods);
-
-        // getIndex(Class[])
-        e = beginMethod(Constant.ACC_PUBLIC, CONSTRUCTOR_GET_INDEX);
-        e.load_args();
-        List<MethodInfo> info = CollectionUtils.transform(constructors, MethodInfoTransformer.getInstance());
-        EmitUtils.constructorSwitch(e, info, new GetIndexCallback(e, info));
-        e.end_method();
-
-        // invoke(int, Object, Object[])
-        e = beginMethod(Constant.ACC_PUBLIC, INVOKE, INVOCATION_TARGET_EXCEPTION_ARRAY);
-        e.load_arg(1);
-        e.checkcast(base);
-        e.load_arg(0);
-        invokeSwitchHelper(e, methods, 2, base);
-        e.end_method();
-
-        // newInstance(int, Object[])
-        e = beginMethod(Constant.ACC_PUBLIC, NEW_INSTANCE, INVOCATION_TARGET_EXCEPTION_ARRAY);
-        e.new_instance(base);
-        e.dup();
-        e.load_arg(0);
-        invokeSwitchHelper(e, constructors, 1, base);
-        e.end_method();
-
-        // getMaxIndex()
-        e = beginMethod(Constant.ACC_PUBLIC, GET_MAX_INDEX);
-        e.push(methods.size() - 1);
+      public void processDefault() {
+        e.push(-1);
         e.return_value();
-        e.end_method();
+      }
+    };
+    EmitUtils.stringSwitch(e, signatures.toArray(new String[signatures.size()]), SWITCH_STYLE_HASH, callback);
+  }
 
-        endClass();
-    }
-
-    // TODO: support constructor indices ("<init>")
-    private void emitIndexBySignature(List<Method> methods) {
-        CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, SIGNATURE_GET_INDEX);
-        List<String> signatures = CollectionUtils.transform(methods, new Transformer<Method, String>() {
-            public String transform(Method obj) {
-                return ReflectUtils.getSignature(obj).toString();
-            }
-        });
-        e.load_arg(0);
-        e.invoke_virtual(Constant.TYPE_OBJECT, TO_STRING);
-        signatureSwitchHelper(e, signatures);
-        e.end_method();
-    }
-
-    private static final int TOO_MANY_METHODS = 100; // TODO
-
-    private void emitIndexByClassArray(List methods) {
-        CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, METHOD_GET_INDEX);
-        if (methods.size() > TOO_MANY_METHODS) {
-            // hack for big classes
-            List<String> signatures = CollectionUtils.transform(methods, new Transformer<Method, String>() {
-                public String transform(Method obj) {
-                    final String s = ReflectUtils.getSignature(obj).toString();
-                    return s.substring(0, s.lastIndexOf(')') + 1);
-                }
-            });
-            e.load_args();
-            e.invoke_static(FAST_CLASS, GET_SIGNATURE_WITHOUT_RETURN_TYPE);
-            signatureSwitchHelper(e, signatures);
+  private static void invokeSwitchHelper(final CodeEmitter e, List members, final int arg, final Type base) {
+    final List<MethodInfo> info = CollectionUtils.transform(members, MethodInfoTransformer.getInstance());
+    final Label illegalArg = e.make_label();
+    final Block block = e.begin_block();
+    e.process_switch(getIntRange(info.size()), new ProcessSwitchCallback() {
+      public void processCase(int key, Label end) {
+        MethodInfo method = info.get(key);
+        Type[] types = method.getSignature().getArgumentTypes();
+        for (int i = 0; i < types.length; i++) {
+          e.load_arg(arg);
+          e.aaload(i);
+          e.unbox(types[i]);
         }
-        else {
-            e.load_args();
-            List<MethodInfo> info = CollectionUtils.transform(methods, MethodInfoTransformer.getInstance());
-            EmitUtils.methodSwitch(e, info, new GetIndexCallback(e, info));
+        // TODO: change method lookup process so MethodInfo will already reference base
+        // instead of superclass when superclass method is inaccessible
+        e.invoke(method, base);
+        if (!TypeUtils.isConstructor(method)) {
+          e.box(method.getSignature().getReturnType());
         }
-        e.end_method();
+        e.return_value();
+      }
+
+      public void processDefault() {
+        e.goTo(illegalArg);
+      }
+    });
+    block.end();
+    EmitUtils.wrapThrowable(block, INVOCATION_TARGET_EXCEPTION);
+    e.mark(illegalArg);
+    e.throw_exception(ILLEGAL_ARGUMENT_EXCEPTION, "Cannot find matching method/constructor");
+  }
+
+  private static class GetIndexCallback implements ObjectSwitchCallback {
+    private CodeEmitter e;
+    private HashMap<Object, Integer> indexes = new HashMap<>();
+
+    public GetIndexCallback(CodeEmitter e, List methods) {
+      this.e = e;
+      int index = 0;
+      for (Object object : methods) {
+        indexes.put(object, Integer.valueOf(index++));
+      }
     }
 
-    private void signatureSwitchHelper(final CodeEmitter e, final List<String> signatures) {
-        ObjectSwitchCallback callback = new ObjectSwitchCallback() {
-            public void processCase(Object key, Label end) {
-                // TODO: remove linear indexOf
-                e.push(signatures.indexOf(key));
-                e.return_value();
-            }
-
-            public void processDefault() {
-                e.push(-1);
-                e.return_value();
-            }
-        };
-        EmitUtils.stringSwitch(e, signatures.toArray(new String[signatures.size()]), SWITCH_STYLE_HASH, callback);
+    public void processCase(Object key, Label end) {
+      e.push(indexes.get(key).intValue());
+      e.return_value();
     }
 
-    private static void invokeSwitchHelper(final CodeEmitter e, List members, final int arg, final Type base) {
-        final List<MethodInfo> info = CollectionUtils.transform(members, MethodInfoTransformer.getInstance());
-        final Label illegalArg = e.make_label();
-        final Block block = e.begin_block();
-        e.process_switch(getIntRange(info.size()), new ProcessSwitchCallback() {
-            public void processCase(int key, Label end) {
-                MethodInfo method = info.get(key);
-                Type[] types = method.getSignature().getArgumentTypes();
-                for (int i = 0; i < types.length; i++) {
-                    e.load_arg(arg);
-                    e.aaload(i);
-                    e.unbox(types[i]);
-                }
-                // TODO: change method lookup process so MethodInfo will already reference base
-                // instead of superclass when superclass method is inaccessible
-                e.invoke(method, base);
-                if (!TypeUtils.isConstructor(method)) {
-                    e.box(method.getSignature().getReturnType());
-                }
-                e.return_value();
-            }
-
-            public void processDefault() {
-                e.goTo(illegalArg);
-            }
-        });
-        block.end();
-        EmitUtils.wrapThrowable(block, INVOCATION_TARGET_EXCEPTION);
-        e.mark(illegalArg);
-        e.throw_exception(ILLEGAL_ARGUMENT_EXCEPTION, "Cannot find matching method/constructor");
+    public void processDefault() {
+      e.push(-1);
+      e.return_value();
     }
+  }
 
-    private static class GetIndexCallback implements ObjectSwitchCallback {
-        private CodeEmitter e;
-        private HashMap<Object, Integer> indexes = new HashMap<>();
-
-        public GetIndexCallback(CodeEmitter e, List methods) {
-            this.e = e;
-            int index = 0;
-            for (Object object : methods) {
-                indexes.put(object, Integer.valueOf(index++));
-            }
-        }
-
-        public void processCase(Object key, Label end) {
-            e.push(indexes.get(key).intValue());
-            e.return_value();
-        }
-
-        public void processDefault() {
-            e.push(-1);
-            e.return_value();
-        }
+  private static int[] getIntRange(int length) {
+    int[] range = new int[length];
+    for (int i = 0; i < length; i++) {
+      range[i] = i;
     }
-
-    private static int[] getIntRange(int length) {
-        int[] range = new int[length];
-        for (int i = 0; i < length; i++) {
-            range[i] = i;
-        }
-        return range;
-    }
+    return range;
+  }
 }

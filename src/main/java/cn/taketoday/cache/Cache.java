@@ -21,7 +21,7 @@ package cn.taketoday.cache;
 
 /**
  * @author TODAY <br>
- *         2019-02-27 17:11
+ * 2019-02-27 17:11
  */
 public interface Cache {
 
@@ -36,10 +36,12 @@ public interface Cache {
    * Returns {@code null} if the cache contains no mapping for this key;
    *
    * @param key
-   *            the key whose associated value is to be returned
+   *         the key whose associated value is to be returned
+   *
    * @return the value to which this cache maps the specified key, A straight
-   *         {@code null} being returned means that the cache contains no mapping
-   *         for this key.
+   * {@code null} being returned means that the cache contains no mapping
+   * for this key.
+   *
    * @see #get(Object, Class)
    */
   Object get(Object key);
@@ -53,17 +55,19 @@ public interface Cache {
    * {@link #get(Object)} variant for that purpose instead.
    *
    * @param key
-   *            the key whose associated value is to be returned
+   *         the key whose associated value is to be returned
    * @param targetType
-   *            the required type of the returned value (may be {@code null} to
-   *            bypass a type check; in case of a {@code null} value found in the
-   *            cache, the specified type is irrelevant)
+   *         the required type of the returned value (may be {@code null} to
+   *         bypass a type check; in case of a {@code null} value found in the
+   *         cache, the specified type is irrelevant)
+   *
    * @return the value to which this cache maps the specified key (which may be
-   *         {@code null} itself), or also {@code null} if the cache contains no
-   *         mapping for this key
+   * {@code null} itself), or also {@code null} if the cache contains no
+   * mapping for this key
+   *
    * @throws IllegalStateException
-   *             if a cache entry has been found but failed to match the specified
-   *             type
+   *         if a cache entry has been found but failed to match the specified
+   *         type
    * @see #get(Object)
    */
   <T> T get(Object key, Class<T> targetType);
@@ -80,12 +84,14 @@ public interface Cache {
    * <p>
    *
    * @param key
-   *            the key whose associated value is to be returned
+   *         the key whose associated value is to be returned
    * @param valueLoader
-   *            Value Loader
+   *         Value Loader
+   *
    * @return the value to which this cache maps the specified key
+   *
    * @throws CacheValueRetrievalException
-   *             If cache value failed to load
+   *         If cache value failed to load
    */
   <T> T get(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException;
 
@@ -96,9 +102,9 @@ public interface Cache {
    * replaced by the specified value.
    *
    * @param key
-   *            the key with which the specified value is to be associated
+   *         the key with which the specified value is to be associated
    * @param value
-   *            the value to be associated with the specified key
+   *         the value to be associated with the specified key
    */
   void put(Object key, Object value);
 
@@ -106,7 +112,7 @@ public interface Cache {
    * Evict the mapping for this key from this cache if it is present.
    *
    * @param key
-   *            the key whose mapping is to be removed from the cache
+   *         the key whose mapping is to be removed from the cache
    */
   void evict(Object key);
 

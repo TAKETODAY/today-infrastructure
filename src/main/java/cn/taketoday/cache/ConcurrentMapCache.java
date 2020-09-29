@@ -24,7 +24,7 @@ import cn.taketoday.context.utils.ConcurrentCache;
 
 /**
  * @author TODAY <br>
- *         2019-12-17 12:29
+ * 2019-12-17 12:29
  */
 public class ConcurrentMapCache extends AbstractCache {
 

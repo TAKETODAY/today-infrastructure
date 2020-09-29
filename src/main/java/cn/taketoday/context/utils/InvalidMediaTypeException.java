@@ -25,7 +25,7 @@ package cn.taketoday.context.utils;
  *
  * @author Juergen Hoeller
  * @author TODAY <br>
- *         2019-12-08 20:03
+ * 2019-12-08 20:03
  */
 @SuppressWarnings("serial")
 public class InvalidMediaTypeException extends IllegalArgumentException {
@@ -36,9 +36,9 @@ public class InvalidMediaTypeException extends IllegalArgumentException {
    * Create a new InvalidMediaTypeException for the given media type.
    *
    * @param mediaType
-   *            the offending media type
+   *         the offending media type
    * @param message
-   *            a detail message indicating the invalid part
+   *         a detail message indicating the invalid part
    */
   public InvalidMediaTypeException(String mediaType, String message) {
     super("Invalid media type \"" + mediaType + "\": " + message);

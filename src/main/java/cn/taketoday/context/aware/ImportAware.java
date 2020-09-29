@@ -31,7 +31,7 @@ import cn.taketoday.context.factory.BeanDefinition;
  *
  * @author Chris Beams
  * @author TODAY <br>
- *         2020-02-06 21:36
+ * 2020-02-06 21:36
  * @since 2.1.7
  */
 public interface ImportAware {

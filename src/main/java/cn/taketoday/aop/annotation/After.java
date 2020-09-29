@@ -29,7 +29,7 @@ import cn.taketoday.aop.advice.MethodAfterAdvice;
 
 /**
  * @author TODAY <br>
- *         2018-08-09 18:56
+ * 2018-08-09 18:56
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Advice(interceptor = MethodAfterAdvice.class)

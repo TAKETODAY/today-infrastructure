@@ -25,7 +25,7 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
 
 /**
  * @author TODAY <br>
- *         2019-10-01 19:08
+ * 2019-10-01 19:08
  */
 @FunctionalInterface
 public interface BeanDefinitionImporter {
@@ -34,9 +34,9 @@ public interface BeanDefinitionImporter {
    * Register bean definitions
    *
    * @param importingDef
-   *            The BeanDefinition that annotated {@link Import}
+   *         The BeanDefinition that annotated {@link Import}
    * @param registry
-   *            Bean definition registry
+   *         Bean definition registry
    */
   void registerBeanDefinitions(BeanDefinition importingDef, BeanDefinitionRegistry registry);
 

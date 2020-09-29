@@ -25,9 +25,8 @@ import java.util.Arrays;
 import cn.taketoday.context.EmptyObject;
 
 /**
- *
  * @author TODAY <br>
- *         2019-02-27 18:12
+ * 2019-02-27 18:12
  */
 public class DefaultCacheKey implements Serializable {
 
@@ -42,7 +41,7 @@ public class DefaultCacheKey implements Serializable {
    * Create a new {@link DefaultCacheKey} instance.
    *
    * @param params
-   *            the method parameters
+   *         the method parameters
    */
   public DefaultCacheKey(Object... params) {
     if (params == null) {

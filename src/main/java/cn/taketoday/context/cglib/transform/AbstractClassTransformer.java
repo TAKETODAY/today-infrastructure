@@ -19,11 +19,11 @@ import cn.taketoday.context.asm.ClassVisitor;
 
 abstract public class AbstractClassTransformer extends ClassTransformer {
 
-    protected AbstractClassTransformer() {
+  protected AbstractClassTransformer() {
 //		super(Constant.ASM_API);1
-    }
+  }
 
-    public void setTarget(ClassVisitor target) {
-        cv = target;
-    }
+  public void setTarget(ClassVisitor target) {
+    cv = target;
+  }
 }

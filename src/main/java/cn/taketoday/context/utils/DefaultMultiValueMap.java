@@ -36,15 +36,16 @@ import java.util.Set;
  * designed for data structures exposed from request objects, for use in a
  * single thread only.
  *
+ * @param <K>
+ *         the key type
+ * @param <V>
+ *         the value element type
+ *
  * @author Arjen Poutsma
  * @author Juergen Hoeller
- * @since 2.1.7
- * @param <K>
- *            the key type
- * @param <V>
- *            the value element type
  * @author TODAY <br>
- *         2020-01-27 13:15
+ * 2020-01-27 13:15
+ * @since 2.1.7
  */
 public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializable, Cloneable {
 
@@ -191,11 +192,12 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
    * Create a deep copy of this Map.
    *
    * @return a copy of this Map, including a copy of each value-holding List entry
-   *         (consistently using an independent modifiable {@link LinkedList} for
-   *         each entry) along the lines of {@code MultiValueMap.addAll} semantics
-   * @since 2.1.7
+   * (consistently using an independent modifiable {@link LinkedList} for
+   * each entry) along the lines of {@code MultiValueMap.addAll} semantics
+   *
    * @see #addAll(MultiValueMap)
    * @see #clone()
+   * @since 2.1.7
    */
   public DefaultMultiValueMap<K, V> deepCopy() {
     DefaultMultiValueMap<K, V> ret = new DefaultMultiValueMap<>(this.map.size());
@@ -207,13 +209,14 @@ public class DefaultMultiValueMap<K, V> implements MultiValueMap<K, V>, Serializ
    * Create a regular copy of this Map.
    *
    * @return a shallow copy of this Map, reusing this Map's value-holding List
-   *         entries (even if some entries are shared or unmodifiable) along the
-   *         lines of standard {@code Map.put} semantics
-   * @since 2.1.7
+   * entries (even if some entries are shared or unmodifiable) along the
+   * lines of standard {@code Map.put} semantics
+   *
    * @see #put(Object, List)
    * @see #putAll(Map)
    * @see DefaultMultiValueMap#DefaultMultiValueMap(Map)
    * @see #deepCopy()
+   * @since 2.1.7
    */
   @Override
   public DefaultMultiValueMap<K, V> clone() {

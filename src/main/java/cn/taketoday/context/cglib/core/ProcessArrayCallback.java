@@ -18,13 +18,12 @@ package cn.taketoday.context.cglib.core;
 import cn.taketoday.context.asm.Type;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-10-17 20:45
+ * 2019-10-17 20:45
  */
 @FunctionalInterface
 public interface ProcessArrayCallback {
 
-    void processElement(Type type);
+  void processElement(Type type);
 
 }

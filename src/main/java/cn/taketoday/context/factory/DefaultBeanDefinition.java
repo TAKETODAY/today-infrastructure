@@ -48,7 +48,7 @@ import cn.taketoday.context.utils.StringUtils;
  * Default implementation of {@link BeanDefinition}
  *
  * @author TODAY <br>
- *         2019-02-01 12:23
+ * 2019-02-01 12:23
  */
 public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
@@ -109,9 +109,9 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
    * Build a {@link BeanDefinition} with given child {@link BeanDefinition}
    *
    * @param beanName
-   *            Bean name
+   *         Bean name
    * @param childDef
-   *            Child {@link BeanDefinition}
+   *         Child {@link BeanDefinition}
    */
   public DefaultBeanDefinition(String beanName, BeanDefinition childDef) {
     this(beanName, childDef.getBeanClass());
@@ -290,7 +290,8 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
    * Apply the child bean name
    *
    * @param childDef
-   *            Child BeanDefinition
+   *         Child BeanDefinition
+   *
    * @return {@link DefaultBeanDefinition}
    */
   public DefaultBeanDefinition setChild(BeanDefinition childDef) {

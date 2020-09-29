@@ -43,7 +43,7 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * @author TODAY <br>
- *         2018-07-12 20:43:53
+ * 2018-07-12 20:43:53
  */
 public abstract class ConvertUtils {
 
@@ -83,6 +83,7 @@ public abstract class ConvertUtils {
    *
    * @param source
    * @param targetClass
+   *
    * @return
    */
   public static TypeConverter getConverter(Object source, Class<?> targetClass) {
@@ -106,9 +107,10 @@ public abstract class ConvertUtils {
    * Convert source to target type
    *
    * @param source
-   *            value
+   *         value
    * @param targetClass
-   *            targetClass
+   *         targetClass
+   *
    * @return converted object
    */
   public static Object convert(final Object source, final Class<?> targetClass) {
@@ -129,12 +131,14 @@ public abstract class ConvertUtils {
 
   /**
    * @param <T>
-   *            Target type
+   *         Target type
    * @param targetClass
-   *            Target type
+   *         Target type
    * @param source
-   *            Source object
+   *         Source object
+   *
    * @return converted object
+   *
    * @since 2.1.7
    */
   @SuppressWarnings("unchecked")
@@ -156,7 +160,7 @@ public abstract class ConvertUtils {
    * Convert a string to {@link Duration}
    *
    * @param value
-   *            Input string
+   *         Input string
    */
   public static Duration parseDuration(String value) {
 
@@ -186,7 +190,8 @@ public abstract class ConvertUtils {
    * Add {@link TypeConverter} to {@link #converters}
    *
    * @param converters
-   *            {@link TypeConverter} object
+   *         {@link TypeConverter} object
+   *
    * @since 2.1.6
    */
   public static void addConverter(TypeConverter... converters) {
@@ -201,7 +206,8 @@ public abstract class ConvertUtils {
    * Add a list of {@link TypeConverter} to {@link #converters}
    *
    * @param converters
-   *            {@link TypeConverter} object
+   *         {@link TypeConverter} object
+   *
    * @since 2.1.6
    */
   public static void addConverter(List<TypeConverter> converters) {
@@ -215,7 +221,7 @@ public abstract class ConvertUtils {
 
   /**
    * @author TODAY <br>
-   *         2019-06-06 15:51
+   * 2019-06-06 15:51
    * @since 2.1.6
    */
   @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -234,7 +240,7 @@ public abstract class ConvertUtils {
 
   /**
    * @author TODAY <br>
-   *         2019-06-06 15:50
+   * 2019-06-06 15:50
    * @since 2.1.6
    */
   @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -276,7 +282,7 @@ public abstract class ConvertUtils {
 
   /**
    * @author TODAY <br>
-   *         2019-06-06 15:50
+   * 2019-06-06 15:50
    * @since 2.1.6
    */
   @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -296,7 +302,7 @@ public abstract class ConvertUtils {
 
   /**
    * @author TODAY <br>
-   *         2019-06-06 15:50
+   * 2019-06-06 15:50
    * @since 2.1.6
    */
   @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -323,7 +329,7 @@ public abstract class ConvertUtils {
 
   /**
    * @author TODAY <br>
-   *         2019-07-20 00:54
+   * 2019-07-20 00:54
    * @since 2.1.6
    */
   @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -349,7 +355,7 @@ public abstract class ConvertUtils {
 
   /**
    * @author TODAY <br>
-   *         2019-06-06 16:12
+   * 2019-06-06 16:12
    */
   @Order(Ordered.LOWEST_PRECEDENCE)
   public static class StringConstructorConverter extends StringTypeConverter {
@@ -378,7 +384,7 @@ public abstract class ConvertUtils {
 
   /**
    * @author TODAY <br>
-   *         2019-06-19 12:28
+   * 2019-06-19 12:28
    */
   @Order(Ordered.LOWEST_PRECEDENCE)
   public static class PrimitiveClassConverter implements TypeConverter {

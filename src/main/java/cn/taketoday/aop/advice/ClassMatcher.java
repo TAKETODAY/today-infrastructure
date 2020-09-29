@@ -21,7 +21,7 @@ package cn.taketoday.aop.advice;
 
 /**
  * @author TODAY <br>
- *         2019-10-20 22:45
+ * 2019-10-20 22:45
  */
 public interface ClassMatcher {
 
@@ -29,7 +29,8 @@ public interface ClassMatcher {
    * Checking whether the given Class matches.
    *
    * @param targetClass
-   *            the target class
+   *         the target class
+   *
    * @return whether or not this method matches on application startup.
    */
   boolean matches(Object aspect, Class<?> targetClass);

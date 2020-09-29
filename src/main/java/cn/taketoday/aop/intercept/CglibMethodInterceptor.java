@@ -35,7 +35,7 @@ import cn.taketoday.context.utils.OrderUtils;
 /**
  * @author TODAY <br>
  *
- *         2018-11-06 19:14
+ * 2018-11-06 19:14
  */
 //@Slf4j
 public class CglibMethodInterceptor implements cn.taketoday.context.cglib.proxy.MethodInterceptor {

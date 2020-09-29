@@ -19,13 +19,13 @@ import java.lang.reflect.Member;
 
 public class MethodInfoTransformer implements Transformer<Member, MethodInfo> {
 
-    private static final MethodInfoTransformer INSTANCE = new MethodInfoTransformer();
+  private static final MethodInfoTransformer INSTANCE = new MethodInfoTransformer();
 
-    public static MethodInfoTransformer getInstance() {
-        return INSTANCE;
-    }
+  public static MethodInfoTransformer getInstance() {
+    return INSTANCE;
+  }
 
-    public MethodInfo transform(Member value) {
-        return ReflectUtils.getMethodInfo(value);
-    }
+  public MethodInfo transform(Member value) {
+    return ReflectUtils.getMethodInfo(value);
+  }
 }

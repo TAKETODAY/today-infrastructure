@@ -35,7 +35,7 @@ import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY <br>
- *         2019-05-14 22:26
+ * 2019-05-14 22:26
  * @since 2.1.6
  */
 public class UrlBasedResource extends AbstractResource {

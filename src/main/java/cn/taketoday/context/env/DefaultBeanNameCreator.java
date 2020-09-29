@@ -30,7 +30,7 @@ import static cn.taketoday.context.Constant.KEY_USE_SIMPLE_NAME;
  * Default implementation of {@link BeanNameCreator}
  *
  * @author TODAY <br>
- *         2019-01-13 13:39
+ * 2019-01-13 13:39
  */
 public class DefaultBeanNameCreator implements BeanNameCreator {
 

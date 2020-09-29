@@ -53,11 +53,11 @@ import static java.util.Objects.requireNonNull;
  * @author Sebastien Deleuze
  * @author Kazuki Shimizu
  * @author Sam Brannen
- * @see <a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.1"> HTTP 1.1:
- *      Semantics and Content, section 3.1.1.1</a>
- * @since 2.1.7
  * @author TODAY <br>
- *         2019-12-08 20:02
+ * 2019-12-08 20:02
+ * @see <a href="https://tools.ietf.org/html/rfc7231#section-3.1.1.1"> HTTP 1.1:
+ * Semantics and Content, section 3.1.1.1</a>
+ * @since 2.1.7
  */
 public class MediaType extends MimeType implements Serializable {
 
@@ -104,11 +104,11 @@ public class MediaType extends MimeType implements Serializable {
    * Public constant media type for {@code application/json;charset=UTF-8}.
    *
    * @deprecated as of 5.2 in favor of {@link #APPLICATION_JSON} since major
-   *             browsers like Chrome <a href=
-   *             "https://bugs.chromium.org/p/chromium/issues/detail?id=438464">
-   *             now comply with the specification</a> and interpret correctly
-   *             UTF-8 special characters without requiring a
-   *             {@code charset=UTF-8} parameter.
+   * browsers like Chrome <a href=
+   * "https://bugs.chromium.org/p/chromium/issues/detail?id=438464">
+   * now comply with the specification</a> and interpret correctly
+   * UTF-8 special characters without requiring a
+   * {@code charset=UTF-8} parameter.
    */
   @Deprecated
   public static final MediaType APPLICATION_JSON_UTF8;
@@ -117,11 +117,11 @@ public class MediaType extends MimeType implements Serializable {
    * A String equivalent of {@link MediaType#APPLICATION_JSON_UTF8}.
    *
    * @deprecated as of 5.2 in favor of {@link #APPLICATION_JSON_VALUE} since major
-   *             browsers like Chrome <a href=
-   *             "https://bugs.chromium.org/p/chromium/issues/detail?id=438464">
-   *             now comply with the specification</a> and interpret correctly
-   *             UTF-8 special characters without requiring a
-   *             {@code charset=UTF-8} parameter.
+   * browsers like Chrome <a href=
+   * "https://bugs.chromium.org/p/chromium/issues/detail?id=438464">
+   * now comply with the specification</a> and interpret correctly
+   * UTF-8 special characters without requiring a
+   * {@code charset=UTF-8} parameter.
    */
   @Deprecated
   public static final String APPLICATION_JSON_UTF8_VALUE = "application/json;charset=UTF-8";
@@ -142,7 +142,7 @@ public class MediaType extends MimeType implements Serializable {
    * Public constant media type for {@code application/problem+json}.*
    *
    * @see <a href="https://tools.ietf.org/html/rfc7807#section-6.1"> Problem
-   *      Details for HTTP APIs, 6.1. application/problem+json</a>
+   * Details for HTTP APIs, 6.1. application/problem+json</a>
    */
   public static final MediaType APPLICATION_PROBLEM_JSON;
 
@@ -153,13 +153,13 @@ public class MediaType extends MimeType implements Serializable {
    * Public constant media type for {@code application/problem+json}.
    *
    * @see <a href="https://tools.ietf.org/html/rfc7807#section-6.1"> Problem
-   *      Details for HTTP APIs, 6.1. application/problem+json</a>
+   * Details for HTTP APIs, 6.1. application/problem+json</a>
    * @deprecated as of 5.2 in favor of {@link #APPLICATION_PROBLEM_JSON} since
-   *             major browsers like Chrome <a href=
-   *             "https://bugs.chromium.org/p/chromium/issues/detail?id=438464">
-   *             now comply with the specification</a> and interpret correctly
-   *             UTF-8 special characters without requiring a
-   *             {@code charset=UTF-8} parameter.
+   * major browsers like Chrome <a href=
+   * "https://bugs.chromium.org/p/chromium/issues/detail?id=438464">
+   * now comply with the specification</a> and interpret correctly
+   * UTF-8 special characters without requiring a
+   * {@code charset=UTF-8} parameter.
    */
   @Deprecated
   public static final MediaType APPLICATION_PROBLEM_JSON_UTF8;
@@ -168,11 +168,11 @@ public class MediaType extends MimeType implements Serializable {
    * A String equivalent of {@link MediaType#APPLICATION_PROBLEM_JSON_UTF8}.
    *
    * @deprecated as of 5.2 in favor of {@link #APPLICATION_PROBLEM_JSON_VALUE}
-   *             since major browsers like Chrome <a href=
-   *             "https://bugs.chromium.org/p/chromium/issues/detail?id=438464">
-   *             now comply with the specification</a> and interpret correctly
-   *             UTF-8 special characters without requiring a
-   *             {@code charset=UTF-8} parameter.
+   * since major browsers like Chrome <a href=
+   * "https://bugs.chromium.org/p/chromium/issues/detail?id=438464">
+   * now comply with the specification</a> and interpret correctly
+   * UTF-8 special characters without requiring a
+   * {@code charset=UTF-8} parameter.
    */
   @Deprecated
   public static final String APPLICATION_PROBLEM_JSON_UTF8_VALUE = "application/problem+json;charset=UTF-8";
@@ -181,7 +181,7 @@ public class MediaType extends MimeType implements Serializable {
    * Public constant media type for {@code application/problem+xml}.
    *
    * @see <a href="https://tools.ietf.org/html/rfc7807#section-6.2"> Problem
-   *      Details for HTTP APIs, 6.2. application/problem+xml</a>
+   * Details for HTTP APIs, 6.2. application/problem+xml</a>
    */
   public static final MediaType APPLICATION_PROBLEM_XML;
 
@@ -246,7 +246,7 @@ public class MediaType extends MimeType implements Serializable {
    * Public constant media type for {@code text/event-stream}.
    *
    * @see <a href="https://www.w3.org/TR/eventsource/">Server-Sent Events W3C
-   *      recommendation</a>
+   * recommendation</a>
    */
   public static final MediaType TEXT_EVENT_STREAM;
 
@@ -314,9 +314,10 @@ public class MediaType extends MimeType implements Serializable {
    * The {@linkplain #getSubtype() subtype} is set to "&#42;", parameters empty.
    *
    * @param type
-   *            the primary type
+   *         the primary type
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contain illegal characters
+   *         if any of the parameters contain illegal characters
    */
   public MediaType(String type) {
     super(type);
@@ -328,11 +329,12 @@ public class MediaType extends MimeType implements Serializable {
    * The parameters are empty.
    *
    * @param type
-   *            the primary type
+   *         the primary type
    * @param subtype
-   *            the subtype
+   *         the subtype
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contain illegal characters
+   *         if any of the parameters contain illegal characters
    */
   public MediaType(String type, String subtype) {
     super(type, subtype, Collections.emptyMap());
@@ -343,13 +345,14 @@ public class MediaType extends MimeType implements Serializable {
    * set.
    *
    * @param type
-   *            the primary type
+   *         the primary type
    * @param subtype
-   *            the subtype
+   *         the subtype
    * @param charset
-   *            the character set
+   *         the character set
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contain illegal characters
+   *         if any of the parameters contain illegal characters
    */
   public MediaType(String type, String subtype, Charset charset) {
     super(type, subtype, charset);
@@ -360,13 +363,14 @@ public class MediaType extends MimeType implements Serializable {
    * value.
    *
    * @param type
-   *            the primary type
+   *         the primary type
    * @param subtype
-   *            the subtype
+   *         the subtype
    * @param qualityValue
-   *            the quality value
+   *         the quality value
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contain illegal characters
+   *         if any of the parameters contain illegal characters
    */
   public MediaType(String type, String subtype, double qualityValue) {
     this(type, subtype, singletonMap(PARAM_QUALITY_FACTOR, Double.toString(qualityValue)));
@@ -377,11 +381,12 @@ public class MediaType extends MimeType implements Serializable {
    * {@code MediaType}, and allows to set the specified character set.
    *
    * @param other
-   *            the other media type
+   *         the other media type
    * @param charset
-   *            the character set
+   *         the character set
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contain illegal characters
+   *         if any of the parameters contain illegal characters
    */
   public MediaType(MediaType other, Charset charset) {
     super(other, charset);
@@ -392,11 +397,12 @@ public class MediaType extends MimeType implements Serializable {
    * {@code MediaType}, and allows for different parameters.
    *
    * @param other
-   *            the other media type
+   *         the other media type
    * @param parameters
-   *            the parameters, may be {@code null}
+   *         the parameters, may be {@code null}
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contain illegal characters
+   *         if any of the parameters contain illegal characters
    */
   public MediaType(MediaType other, Map<String, String> parameters) {
     super(other.getType(), other.getSubtype(), parameters);
@@ -406,13 +412,14 @@ public class MediaType extends MimeType implements Serializable {
    * Create a new {@code MediaType} for the given type, subtype, and parameters.
    *
    * @param type
-   *            the primary type
+   *         the primary type
    * @param subtype
-   *            the subtype
+   *         the subtype
    * @param parameters
-   *            the parameters, may be {@code null}
+   *         the parameters, may be {@code null}
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contain illegal characters
+   *         if any of the parameters contain illegal characters
    */
   public MediaType(String type, String subtype, Map<String, String> parameters) {
     super(type, subtype, parameters);
@@ -452,9 +459,10 @@ public class MediaType extends MimeType implements Serializable {
    * {@code MediaType} parameter for binary backwards compatibility.
    *
    * @param other
-   *            the reference media type with which to compare
+   *         the reference media type with which to compare
+   *
    * @return {@code true} if this media type includes the given media type;
-   *         {@code false} otherwise
+   * {@code false} otherwise
    */
   public boolean includes(MediaType other) {
     return super.includes(other);
@@ -472,9 +480,10 @@ public class MediaType extends MimeType implements Serializable {
    * {@code MediaType} parameter for binary backwards compatibility.
    *
    * @param other
-   *            the reference media type with which to compare
+   *         the reference media type with which to compare
+   *
    * @return {@code true} if this media type is compatible with the given media
-   *         type; {@code false} otherwise
+   * type; {@code false} otherwise
    */
   public boolean isCompatibleWith(MediaType other) {
     return super.isCompatibleWith(other);
@@ -485,7 +494,7 @@ public class MediaType extends MimeType implements Serializable {
    * {@code MediaType}.
    *
    * @return the same instance if the given MediaType doesn't have a quality
-   *         value, or a new one otherwise
+   * value, or a new one otherwise
    */
   public MediaType copyQualityValue(MediaType mediaType) {
     if (!mediaType.getParameters().containsKey(PARAM_QUALITY_FACTOR)) {
@@ -500,7 +509,7 @@ public class MediaType extends MimeType implements Serializable {
    * Return a replica of this instance with its quality value removed.
    *
    * @return the same instance if the media type doesn't contain a quality value,
-   *         or a new one otherwise
+   * or a new one otherwise
    */
   public MediaType removeQualityValue() {
     if (!getParameters().containsKey(PARAM_QUALITY_FACTOR)) {
@@ -515,9 +524,10 @@ public class MediaType extends MimeType implements Serializable {
    * Parse the given String value into a {@code MediaType} object
    *
    * @param value
-   *            the string to parse
+   *         the string to parse
+   *
    * @throws InvalidMediaTypeException
-   *             if the media type value cannot be parsed
+   *         if the media type value cannot be parsed
    * @see #parseMediaType(String)
    */
   public static MediaType valueOf(String value) {
@@ -528,10 +538,12 @@ public class MediaType extends MimeType implements Serializable {
    * Parse the given String into a single {@code MediaType}.
    *
    * @param mediaType
-   *            the string to parse
+   *         the string to parse
+   *
    * @return the media type
+   *
    * @throws InvalidMediaTypeException
-   *             if the media type value cannot be parsed
+   *         if the media type value cannot be parsed
    */
   public static MediaType parseMediaType(String mediaType) {
     MimeType type;
@@ -555,10 +567,12 @@ public class MediaType extends MimeType implements Serializable {
    * This method can be used to parse an Accept or Content-Type header.
    *
    * @param mediaTypes
-   *            the string to parse
+   *         the string to parse
+   *
    * @return the list of media types
+   *
    * @throws InvalidMediaTypeException
-   *             if the media type value cannot be parsed
+   *         if the media type value cannot be parsed
    */
   public static List<MediaType> parseMediaTypes(String mediaTypes) {
     if (StringUtils.isEmpty(mediaTypes)) {
@@ -582,10 +596,12 @@ public class MediaType extends MimeType implements Serializable {
    * This method can be used to parse an Accept or Content-Type header.
    *
    * @param mediaTypes
-   *            the string to parse
+   *         the string to parse
+   *
    * @return the list of media types
+   *
    * @throws InvalidMediaTypeException
-   *             if the media type value cannot be parsed
+   *         if the media type value cannot be parsed
    */
   public static List<MediaType> parseMediaTypes(List<String> mediaTypes) {
     if (ObjectUtils.isEmpty(mediaTypes)) {
@@ -631,7 +647,8 @@ public class MediaType extends MimeType implements Serializable {
    * header.
    *
    * @param mediaTypes
-   *            the media types to create a string representation for
+   *         the media types to create a string representation for
+   *
    * @return the string representation
    */
   public static String toString(Collection<MediaType> mediaTypes) {
@@ -668,9 +685,10 @@ public class MediaType extends MimeType implements Serializable {
    * audio/wave</blockquote>
    *
    * @param mediaTypes
-   *            the list of media types to be sorted
+   *         the list of media types to be sorted
+   *
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">HTTP 1.1:
-   *      Semantics and Content, section 5.3.2</a>
+   * Semantics and Content, section 5.3.2</a>
    */
   public static void sortBySpecificity(List<MediaType> mediaTypes) {
     if (requireNonNull(mediaTypes, "'mediaTypes' must not be null").size() > 1) {
@@ -702,7 +720,8 @@ public class MediaType extends MimeType implements Serializable {
    * </ol>
    *
    * @param mediaTypes
-   *            the list of media types to be sorted
+   *         the list of media types to be sorted
+   *
    * @see #getQualityValue()
    */
   public static void sortByQualityValue(List<MediaType> mediaTypes) {
@@ -827,7 +846,8 @@ public class MediaType extends MimeType implements Serializable {
    * Determine a media type for the given resource, if possible.
    *
    * @param resource
-   *            the resource to introspect
+   *         the resource to introspect
+   *
    * @return the corresponding media type, or {@code null} if none found
    */
   public static MediaType of(Resource resource) {
@@ -838,7 +858,8 @@ public class MediaType extends MimeType implements Serializable {
    * Determine a media type for the given file name, if possible.
    *
    * @param filename
-   *            the file name plus extension
+   *         the file name plus extension
+   *
    * @return the corresponding media type, or {@code null} if none found
    */
   public static MediaType of(String filename) {

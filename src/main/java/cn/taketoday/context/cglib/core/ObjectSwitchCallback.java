@@ -18,13 +18,12 @@ package cn.taketoday.context.cglib.core;
 import cn.taketoday.context.asm.Label;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-03 19:26
+ * 2019-09-03 19:26
  */
 public interface ObjectSwitchCallback {
 
-    void processCase(Object key, Label end) throws Exception;
+  void processCase(Object key, Label end) throws Exception;
 
-    void processDefault() throws Exception;
+  void processDefault() throws Exception;
 }

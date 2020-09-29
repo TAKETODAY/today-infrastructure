@@ -18,7 +18,6 @@ package cn.taketoday.context.cglib.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,55 +25,55 @@ import java.util.function.Predicate;
 
 /**
  * @author Chris Nokleberg
- * @version $Id: CollectionUtils.java,v 1.7 2004/06/24 21:15:21 herbyderby Exp $
  * @author TODAY
+ * @version $Id: CollectionUtils.java,v 1.7 2004/06/24 21:15:21 herbyderby Exp $
  */
 public abstract class CollectionUtils {
 
-    public static <K, T> Map<K, List<T>> bucket(Collection<T> c, Transformer<T, K> t) {
+  public static <K, T> Map<K, List<T>> bucket(Collection<T> c, Transformer<T, K> t) {
 
-        final Map<K, List<T>> buckets = new HashMap<>();
+    final Map<K, List<T>> buckets = new HashMap<>();
 
-        for (final T value : c) {
-            K key = t.transform(value);
-            List<T> bucket = buckets.get(key);
-            if (bucket == null) {
-                buckets.put(key, bucket = new ArrayList<>());
-            }
-            bucket.add(value);
-        }
-        return buckets;
+    for (final T value : c) {
+      K key = t.transform(value);
+      List<T> bucket = buckets.get(key);
+      if (bucket == null) {
+        buckets.put(key, bucket = new ArrayList<>());
+      }
+      bucket.add(value);
     }
+    return buckets;
+  }
 
-    public static <T extends Object> void reverse(Map<T, T> source, Map<T, T> target) {
+  public static <T extends Object> void reverse(Map<T, T> source, Map<T, T> target) {
 
-        for (Entry<T, T> entry : source.entrySet()) {
-            target.put(entry.getValue(), entry.getKey());
-        }
+    for (Entry<T, T> entry : source.entrySet()) {
+      target.put(entry.getValue(), entry.getKey());
     }
+  }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static Collection<Object> filter(Collection c, Predicate p) {
-        c.removeIf(o -> !p.test(o));
-        return c;
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  public static Collection<Object> filter(Collection c, Predicate p) {
+    c.removeIf(o -> !p.test(o));
+    return c;
+  }
+
+  public static <T, R> List<R> transform(final Collection<T> c, final Transformer<T, R> t) {
+    final ArrayList<R> result = new ArrayList<>(c.size());
+
+    for (final T obj : c) {
+      result.add(t.transform(obj));
     }
+    return result;
+  }
 
-    public static <T, R> List<R> transform(final Collection<T> c, final Transformer<T, R> t) {
-        final ArrayList<R> result = new ArrayList<>(c.size());
-
-        for (final T obj : c) {
-            result.add(t.transform(obj));
-        }
-        return result;
+  public static <T> Map<T, Integer> getIndexMap(List<T> list) {
+    final Map<T, Integer> indexes = new HashMap<>();
+    int index = 0;
+    for (final T obj : list) {
+      indexes.put(obj, index++);
     }
-
-    public static <T> Map<T, Integer> getIndexMap(List<T> list) {
-        final Map<T, Integer> indexes = new HashMap<>();
-        int index = 0;
-        for (final T obj : list) {
-            indexes.put(obj, index++);
-        }
-        return indexes;
-    }
+    return indexes;
+  }
 
 }

@@ -22,62 +22,61 @@ import cn.taketoday.context.asm.FieldVisitor;
 import cn.taketoday.context.asm.MethodVisitor;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-01 21:46
+ * 2019-09-01 21:46
  */
 abstract public class AbstractClassFilterTransformer extends AbstractClassTransformer {
 
-    private final ClassTransformer pass;
-    private ClassVisitor target;
+  private final ClassTransformer pass;
+  private ClassVisitor target;
 
-    public void setTarget(ClassVisitor target) {
-        super.setTarget(target);
-        pass.setTarget(target);
-    }
+  public void setTarget(ClassVisitor target) {
+    super.setTarget(target);
+    pass.setTarget(target);
+  }
 
-    protected AbstractClassFilterTransformer(ClassTransformer pass) {
-        this.pass = pass;
-    }
+  protected AbstractClassFilterTransformer(ClassTransformer pass) {
+    this.pass = pass;
+  }
 
-    abstract protected boolean accept(int version, int access, //
-                                      String name, String signature, String superName, String[] interfaces);
+  abstract protected boolean accept(int version, int access, //
+                                    String name, String signature, String superName, String[] interfaces);
 
-    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        target = accept(version, access, name, signature, superName, interfaces) ? pass : cv;
-        target.visit(version, access, name, signature, superName, interfaces);
-    }
+  public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+    target = accept(version, access, name, signature, superName, interfaces) ? pass : cv;
+    target.visit(version, access, name, signature, superName, interfaces);
+  }
 
-    public void visitSource(String source, String debug) {
-        target.visitSource(source, debug);
-    }
+  public void visitSource(String source, String debug) {
+    target.visitSource(source, debug);
+  }
 
-    public void visitOuterClass(String owner, String name, String desc) {
-        target.visitOuterClass(owner, name, desc);
-    }
+  public void visitOuterClass(String owner, String name, String desc) {
+    target.visitOuterClass(owner, name, desc);
+  }
 
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-        return target.visitAnnotation(desc, visible);
-    }
+  public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+    return target.visitAnnotation(desc, visible);
+  }
 
-    public void visitAttribute(Attribute attr) {
-        target.visitAttribute(attr);
-    }
+  public void visitAttribute(Attribute attr) {
+    target.visitAttribute(attr);
+  }
 
-    public void visitInnerClass(String name, String outerName, String innerName, int access) {
-        target.visitInnerClass(name, outerName, innerName, access);
-    }
+  public void visitInnerClass(String name, String outerName, String innerName, int access) {
+    target.visitInnerClass(name, outerName, innerName, access);
+  }
 
-    public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-        return target.visitField(access, name, desc, signature, value);
-    }
+  public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
+    return target.visitField(access, name, desc, signature, value);
+  }
 
-    public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        return target.visitMethod(access, name, desc, signature, exceptions);
-    }
+  public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+    return target.visitMethod(access, name, desc, signature, exceptions);
+  }
 
-    public void visitEnd() {
-        target.visitEnd();
-        target = null; // just to be safe
-    }
+  public void visitEnd() {
+    target.visitEnd();
+    target = null; // just to be safe
+  }
 }

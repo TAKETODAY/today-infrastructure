@@ -22,12 +22,12 @@ import cn.taketoday.context.asm.Type;
  * and toString. For customization of field types, use
  * {@link FieldTypeCustomizer}
  *
- * @see KeyFactory#CLASS_BY_NAME
  * @author TODAY <br>
- *         2019-09-03 13:03
+ * 2019-09-03 13:03
+ * @see KeyFactory#CLASS_BY_NAME
  */
 @FunctionalInterface
 public interface Customizer extends KeyFactoryCustomizer {
 
-    void customize(CodeEmitter e, Type type);
+  void customize(CodeEmitter e, Type type);
 }

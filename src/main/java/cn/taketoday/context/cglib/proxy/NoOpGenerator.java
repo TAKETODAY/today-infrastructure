@@ -26,29 +26,29 @@ import cn.taketoday.context.cglib.core.TypeUtils;
 
 /**
  * @author TODAY <br>
- *         2019-09-03 18:57
+ * 2019-09-03 18:57
  */
 @SuppressWarnings("all")
 class NoOpGenerator implements CallbackGenerator {
 
-    public static final NoOpGenerator INSTANCE = new NoOpGenerator();
+  public static final NoOpGenerator INSTANCE = new NoOpGenerator();
 
-    public void generate(ClassEmitter ce, Context context, List methods) {
+  public void generate(ClassEmitter ce, Context context, List methods) {
 
-        for (Object object : methods) {
-            MethodInfo method = (MethodInfo) object;
-            if (TypeUtils.isBridge(method.getModifiers()) //
-                || (Modifier.isProtected(context.getOriginalModifiers(method)) && Modifier.isPublic(method.getModifiers()))) {
+    for (Object object : methods) {
+      MethodInfo method = (MethodInfo) object;
+      if (TypeUtils.isBridge(method.getModifiers()) //
+              || (Modifier.isProtected(context.getOriginalModifiers(method)) && Modifier.isPublic(method.getModifiers()))) {
 
-                CodeEmitter e = EmitUtils.beginMethod(ce, method);
-                e.load_this();
-                context.emitLoadArgsAndInvoke(e, method);
-                e.return_value();
-                e.end_method();
-            }
-        }
-
+        CodeEmitter e = EmitUtils.beginMethod(ce, method);
+        e.load_this();
+        context.emitLoadArgsAndInvoke(e, method);
+        e.return_value();
+        e.end_method();
+      }
     }
 
-    public void generateStatic(CodeEmitter e, Context context, List methods) {}
+  }
+
+  public void generateStatic(CodeEmitter e, Context context, List methods) {}
 }

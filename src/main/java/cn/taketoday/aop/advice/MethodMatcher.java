@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
 
 /**
  * @author TODAY <br>
- *         2019-10-20 22:43
+ * 2019-10-20 22:43
  */
 public interface MethodMatcher {
 
@@ -31,9 +31,10 @@ public interface MethodMatcher {
    * Checking whether the given method matches.
    *
    * @param method
-   *            the candidate method
+   *         the candidate method
    * @param targetClass
-   *            the target class
+   *         the target class
+   *
    * @return whether or not this method matches on application startup.
    */
   boolean matches(Method method, Class<?> targetClass);
@@ -47,8 +48,8 @@ public interface MethodMatcher {
    * before each method invocation,
    *
    * @return whether or not a runtime match via the 3-arg
-   *         {@link #matches(java.lang.reflect.Method, Class, Object[])} method is
-   *         required if static matching passed
+   * {@link #matches(java.lang.reflect.Method, Class, Object[])} method is
+   * required if static matching passed
    */
   boolean isRuntime();
 
@@ -62,12 +63,14 @@ public interface MethodMatcher {
    * advice, after any advice earlier in the advice chain has run.
    *
    * @param method
-   *            the candidate method
+   *         the candidate method
    * @param targetClass
-   *            the target class
+   *         the target class
    * @param args
-   *            arguments to the method
+   *         arguments to the method
+   *
    * @return whether there's a runtime match
+   *
    * @see MethodMatcher#matches(Method, Class)
    */
   boolean matches(Method method, Class<?> targetClass, Object[] args);

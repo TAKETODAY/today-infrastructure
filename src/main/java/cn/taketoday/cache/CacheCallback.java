@@ -21,7 +21,7 @@ package cn.taketoday.cache;
 
 /**
  * @author TODAY <br>
- *         2019-03-03 20:38
+ * 2019-03-03 20:38
  */
 @FunctionalInterface
 public interface CacheCallback<T> {

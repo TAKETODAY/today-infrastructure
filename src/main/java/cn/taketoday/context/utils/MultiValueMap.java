@@ -29,13 +29,14 @@ import java.util.Map;
  * From Spring
  *
  * @param <K>
- *            the key type
+ *         the key type
  * @param <V>
- *            the value element type
- * @since 2.1.7
+ *         the value element type
+ *
  * @author Arjen Poutsma
  * @author TODAY <br>
- *         2020-01-27 13:06
+ * 2020-01-27 13:06
+ * @since 2.1.7
  */
 public interface MultiValueMap<K, V> extends Map<K, List<V>> {
 
@@ -43,7 +44,8 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * Return the first value for the given key.
    *
    * @param key
-   *            the key
+   *         the key
+   *
    * @return the first value for the specified key, or {@code null} if none
    */
   V getFirst(K key);
@@ -52,9 +54,9 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * Add the given single value to the current list of values for the given key.
    *
    * @param key
-   *            the key
+   *         the key
    * @param value
-   *            the value to be added
+   *         the value to be added
    */
   void add(K key, V value);
 
@@ -63,9 +65,9 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * given key.
    *
    * @param key
-   *            they key
+   *         they key
    * @param values
-   *            the values to be added
+   *         the values to be added
    */
   void addAll(K key, List<? extends V> values);
 
@@ -73,7 +75,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * Add all the values of the given {@code MultiValueMap} to the current values.
    *
    * @param values
-   *            the values to be added
+   *         the values to be added
    */
   void addAll(MultiValueMap<K, V> values);
 
@@ -82,9 +84,9 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * {@link #containsKey(Object) contain} the given key.
    *
    * @param key
-   *            the key
+   *         the key
    * @param value
-   *            the value to be added
+   *         the value to be added
    */
   default void addIfAbsent(K key, V value) {
     if (!containsKey(key)) {
@@ -96,9 +98,9 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * Set the given single value under the given key.
    *
    * @param key
-   *            the key
+   *         the key
    * @param value
-   *            the value to set
+   *         the value to set
    */
   void set(K key, V value);
 
@@ -106,7 +108,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * Set the given values under.
    *
    * @param values
-   *            the values.
+   *         the values.
    */
   void setAll(Map<K, V> values);
 

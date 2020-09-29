@@ -26,7 +26,7 @@ import cn.taketoday.context.ApplicationContext;
  *
  * @author TODAY <br>
  *
- *         2018-09-10 07:55
+ * 2018-09-10 07:55
  */
 @SuppressWarnings("serial")
 public class ContextCloseEvent extends ApplicationContextEvent {

@@ -34,7 +34,7 @@ import cn.taketoday.context.annotation.MissingBean;
  * Enable Aspect Oriented Programming
  *
  * @author TODAY <br>
- *         2020-02-06 20:02
+ * 2020-02-06 20:02
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

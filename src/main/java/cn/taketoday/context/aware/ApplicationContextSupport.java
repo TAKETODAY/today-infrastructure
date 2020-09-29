@@ -26,7 +26,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
- *         2019-12-21 15:45
+ * 2019-12-21 15:45
  */
 public abstract class ApplicationContextSupport implements ApplicationContextAware {
 
@@ -58,9 +58,10 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    * reference.
    *
    * @param context
-   *            the containing ApplicationContext
+   *         the containing ApplicationContext
+   *
    * @throws ContextException
-   *             if thrown by ApplicationContext methods
+   *         if thrown by ApplicationContext methods
    * @see #setApplicationContext
    */
   protected void initApplicationContext(ApplicationContext context) throws ContextException {
@@ -74,7 +75,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    * {@link #initApplicationContext(ApplicationContext)}.
    *
    * @throws ContextException
-   *             if thrown by ApplicationContext methods
+   *         if thrown by ApplicationContext methods
    * @see #setApplicationContext
    */
   protected void initApplicationContext() throws ContextException {}
@@ -83,7 +84,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    * Return the ApplicationContext that this object is associated with.
    *
    * @throws IllegalStateException
-   *             if not running in an ApplicationContext
+   *         if not running in an ApplicationContext
    */
   public final ApplicationContext getApplicationContext() {
     return applicationContext;

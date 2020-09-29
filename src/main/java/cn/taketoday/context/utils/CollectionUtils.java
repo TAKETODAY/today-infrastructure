@@ -31,7 +31,7 @@ import java.util.Set;
 
 /**
  * @author TODAY <br>
- *         2019-12-29 23:39
+ * 2019-12-29 23:39
  */
 public abstract class CollectionUtils {
 
@@ -40,7 +40,8 @@ public abstract class CollectionUtils {
    * Otherwise, return {@code false}.
    *
    * @param collection
-   *            the Collection to check
+   *         the Collection to check
+   *
    * @return whether the given Collection is empty
    */
   public static boolean isEmpty(Collection<?> collection) {
@@ -52,7 +53,8 @@ public abstract class CollectionUtils {
    * return {@code false}.
    *
    * @param map
-   *            the Map to check
+   *         the Map to check
+   *
    * @return whether the given Map is empty
    */
   public static boolean isEmpty(Map<?, ?> map) {
@@ -67,7 +69,7 @@ public abstract class CollectionUtils {
    * Create a hash set
    *
    * @param elements
-   *            Elements instance
+   *         Elements instance
    */
   @SafeVarargs
   public static <E> Set<E> newHashSet(E... elements) {

@@ -20,39 +20,39 @@ package cn.taketoday.context.cglib.transform.impl;
  */
 public interface InterceptFieldCallback {
 
-    int writeInt(Object obj, String name, int oldValue, int newValue);
+  int writeInt(Object obj, String name, int oldValue, int newValue);
 
-    char writeChar(Object obj, String name, char oldValue, char newValue);
+  char writeChar(Object obj, String name, char oldValue, char newValue);
 
-    byte writeByte(Object obj, String name, byte oldValue, byte newValue);
+  byte writeByte(Object obj, String name, byte oldValue, byte newValue);
 
-    boolean writeBoolean(Object obj, String name, boolean oldValue, boolean newValue);
+  boolean writeBoolean(Object obj, String name, boolean oldValue, boolean newValue);
 
-    short writeShort(Object obj, String name, short oldValue, short newValue);
+  short writeShort(Object obj, String name, short oldValue, short newValue);
 
-    float writeFloat(Object obj, String name, float oldValue, float newValue);
+  float writeFloat(Object obj, String name, float oldValue, float newValue);
 
-    double writeDouble(Object obj, String name, double oldValue, double newValue);
+  double writeDouble(Object obj, String name, double oldValue, double newValue);
 
-    long writeLong(Object obj, String name, long oldValue, long newValue);
+  long writeLong(Object obj, String name, long oldValue, long newValue);
 
-    Object writeObject(Object obj, String name, Object oldValue, Object newValue);
+  Object writeObject(Object obj, String name, Object oldValue, Object newValue);
 
-    int readInt(Object obj, String name, int oldValue);
+  int readInt(Object obj, String name, int oldValue);
 
-    char readChar(Object obj, String name, char oldValue);
+  char readChar(Object obj, String name, char oldValue);
 
-    byte readByte(Object obj, String name, byte oldValue);
+  byte readByte(Object obj, String name, byte oldValue);
 
-    boolean readBoolean(Object obj, String name, boolean oldValue);
+  boolean readBoolean(Object obj, String name, boolean oldValue);
 
-    short readShort(Object obj, String name, short oldValue);
+  short readShort(Object obj, String name, short oldValue);
 
-    float readFloat(Object obj, String name, float oldValue);
+  float readFloat(Object obj, String name, float oldValue);
 
-    double readDouble(Object obj, String name, double oldValue);
+  double readDouble(Object obj, String name, double oldValue);
 
-    long readLong(Object obj, String name, long oldValue);
+  long readLong(Object obj, String name, long oldValue);
 
-    Object readObject(Object obj, String name, Object oldValue);
+  Object readObject(Object obj, String name, Object oldValue);
 }

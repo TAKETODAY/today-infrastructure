@@ -27,7 +27,7 @@ import cn.taketoday.context.factory.BeanDefinition;
  * Import classes according to user's Configuration
  *
  * @author TODAY <br>
- *         2019-10-01 20:20
+ * 2019-10-01 20:20
  */
 @FunctionalInterface
 public interface ImportSelector {
@@ -39,7 +39,8 @@ public interface ImportSelector {
    * on the importing @{@link Configuration} BeanDefinition.
    *
    * @param importingDef
-   *            Target {@link BeanDefinition}
+   *         Target {@link BeanDefinition}
+   *
    * @return import classes Never be null
    */
   String[] selectImports(BeanDefinition importingDef);

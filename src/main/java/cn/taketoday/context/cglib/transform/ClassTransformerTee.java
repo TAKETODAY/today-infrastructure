@@ -19,14 +19,14 @@ import cn.taketoday.context.asm.ClassVisitor;
 
 public class ClassTransformerTee extends ClassTransformer {
 
-    private ClassVisitor branch;
+  private ClassVisitor branch;
 
-    public ClassTransformerTee(ClassVisitor branch) {
+  public ClassTransformerTee(ClassVisitor branch) {
 //		super(Constant.ASM_API);
-        this.branch = branch;
-    }
+    this.branch = branch;
+  }
 
-    public void setTarget(ClassVisitor target) {
-        cv = new ClassVisitorTee(branch, target);
-    }
+  public void setTarget(ClassVisitor target) {
+    cv = new ClassVisitorTee(branch, target);
+  }
 }

@@ -24,28 +24,28 @@ import cn.taketoday.context.cglib.core.Signature;
 
 /**
  * @author TODAY <br>
- *         2018-11-08 15:09
+ * 2018-11-08 15:09
  */
 interface CallbackGenerator {
 
-    void generate(ClassEmitter ce, Context context, List<MethodInfo> methods) throws Exception;
+  void generate(ClassEmitter ce, Context context, List<MethodInfo> methods) throws Exception;
 
-    void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) throws Exception;
+  void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) throws Exception;
 
-    interface Context {
+  interface Context {
 
-        ClassLoader getClassLoader();
+    ClassLoader getClassLoader();
 
-        CodeEmitter beginMethod(ClassEmitter ce, MethodInfo method);
+    CodeEmitter beginMethod(ClassEmitter ce, MethodInfo method);
 
-        int getOriginalModifiers(MethodInfo method);
+    int getOriginalModifiers(MethodInfo method);
 
-        int getIndex(MethodInfo method);
+    int getIndex(MethodInfo method);
 
-        void emitCallback(CodeEmitter ce, int index);
+    void emitCallback(CodeEmitter ce, int index);
 
-        Signature getImplSignature(MethodInfo method);
+    Signature getImplSignature(MethodInfo method);
 
-        void emitLoadArgsAndInvoke(CodeEmitter e, MethodInfo method);
-    }
+    void emitLoadArgsAndInvoke(CodeEmitter e, MethodInfo method);
+  }
 }

@@ -16,12 +16,11 @@
 package cn.taketoday.context.cglib.core;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-03 01:12
+ * 2019-09-03 01:12
  */
 @FunctionalInterface
 public interface Transformer<T, R> {
 
-    R transform(T value);
+  R transform(T value);
 }

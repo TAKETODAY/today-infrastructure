@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  * @author Brian Clozel
  * @author Sam Brannen
  * @author TODAY <br>
- *         2019-12-08 19:24
+ * 2019-12-08 19:24
  */
 public abstract class MimeTypeUtils {
 
@@ -151,10 +151,12 @@ public abstract class MimeTypeUtils {
    * {@code MimeType} are cached for further retrieval.
    *
    * @param mimeType
-   *            the string to parse
+   *         the string to parse
+   *
    * @return the mime type
+   *
    * @throws InvalidMimeTypeException
-   *             if the string cannot be parsed
+   *         if the string cannot be parsed
    */
   public static MimeType parseMimeType(String mimeType) {
     if (StringUtils.isEmpty(mimeType)) {
@@ -234,10 +236,12 @@ public abstract class MimeTypeUtils {
    * Parse the comma-separated string into a list of {@code MimeType} objects.
    *
    * @param mimeTypes
-   *            the string to parse
+   *         the string to parse
+   *
    * @return the list of mime types
+   *
    * @throws InvalidMimeTypeException
-   *             if the string cannot be parsed
+   *         if the string cannot be parsed
    */
   public static List<MimeType> parseMimeTypes(String mimeTypes) {
     if (StringUtils.isEmpty(mimeTypes)) {
@@ -255,7 +259,8 @@ public abstract class MimeTypeUtils {
    * into account quoted parameters.
    *
    * @param mimeTypes
-   *            the string to tokenize
+   *         the string to tokenize
+   *
    * @return the list of tokens
    */
   public static List<String> tokenize(String mimeTypes) {
@@ -292,10 +297,12 @@ public abstract class MimeTypeUtils {
    * Return a string representation of the given list of {@code MimeType} objects.
    *
    * @param mimeTypes
-   *            the string to parse
+   *         the string to parse
+   *
    * @return the list of mime types
+   *
    * @throws IllegalArgumentException
-   *             if the String cannot be parsed
+   *         if the String cannot be parsed
    */
   public static String toString(Collection<? extends MimeType> mimeTypes) {
     StringBuilder builder = new StringBuilder();
@@ -336,9 +343,10 @@ public abstract class MimeTypeUtils {
    * audio/wave</blockquote>
    *
    * @param mimeTypes
-   *            the list of mime types to be sorted
+   *         the list of mime types to be sorted
+   *
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-5.3.2">HTTP 1.1:
-   *      Semantics and Content, section 5.3.2</a>
+   * Semantics and Content, section 5.3.2</a>
    */
   public static void sortBySpecificity(List<MimeType> mimeTypes) {
     Objects.requireNonNull(mimeTypes, "'mimeTypes' must not be null");
@@ -394,9 +402,9 @@ public abstract class MimeTypeUtils {
    * choosing the least recently used key when the cache is at full capacity.
    *
    * @param <K>
-   *            the type of the key used for caching
+   *         the type of the key used for caching
    * @param <V>
-   *            the type of the cached values
+   *         the type of the cached values
    */
   private static class ConcurrentLruCache<K, V> {
 

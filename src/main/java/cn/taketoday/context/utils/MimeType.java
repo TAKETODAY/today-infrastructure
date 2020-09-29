@@ -54,10 +54,10 @@ import cn.taketoday.context.Constant;
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
  * @author Sam Brannen
+ * @author TODAY <br>
+ * 2019-12-08 19:08
  * @see MimeTypeUtils
  * @since 2.1.7
- * @author TODAY <br>
- *         2019-12-08 19:08
  */
 public class MimeType implements Comparable<MimeType>, Serializable {
 
@@ -116,9 +116,10 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * the parameters are empty.
    *
    * @param type
-   *            the primary type
+   *         the primary type
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contains illegal characters
+   *         if any of the parameters contains illegal characters
    */
   public MimeType(String type) {
     this(type, WILDCARD_TYPE);
@@ -130,11 +131,12 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * The parameters are empty.
    *
    * @param type
-   *            the primary type
+   *         the primary type
    * @param subtype
-   *            the subtype
+   *         the subtype
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contains illegal characters
+   *         if any of the parameters contains illegal characters
    */
   public MimeType(String type, String subtype) {
     this(type, subtype, Collections.emptyMap());
@@ -144,13 +146,14 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * Create a new {@code MimeType} for the given type, subtype, and character set.
    *
    * @param type
-   *            the primary type
+   *         the primary type
    * @param subtype
-   *            the subtype
+   *         the subtype
    * @param charset
-   *            the character set
+   *         the character set
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contains illegal characters
+   *         if any of the parameters contains illegal characters
    */
   public MimeType(String type, String subtype, Charset charset) {
     this(type, subtype, Collections.singletonMap(PARAM_CHARSET, charset.name()));
@@ -161,11 +164,12 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * {@code MimeType}, and allows to set the specified character set.
    *
    * @param other
-   *            the other MimeType
+   *         the other MimeType
    * @param charset
-   *            the character set
+   *         the character set
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contains illegal characters
+   *         if any of the parameters contains illegal characters
    */
   public MimeType(MimeType other, Charset charset) {
     this(other.getType(), other.getSubtype(), addCharsetParameter(charset, other.getParameters()));
@@ -176,11 +180,12 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * {@code MimeType}, and allows for different parameter.
    *
    * @param other
-   *            the other MimeType
+   *         the other MimeType
    * @param parameters
-   *            the parameters (may be {@code null})
+   *         the parameters (may be {@code null})
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contains illegal characters
+   *         if any of the parameters contains illegal characters
    */
   public MimeType(MimeType other, Map<String, String> parameters) {
     this(other.getType(), other.getSubtype(), parameters);
@@ -190,13 +195,14 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * Create a new {@code MimeType} for the given type, subtype, and parameters.
    *
    * @param type
-   *            the primary type
+   *         the primary type
    * @param subtype
-   *            the subtype
+   *         the subtype
    * @param parameters
-   *            the parameters (may be {@code null})
+   *         the parameters (may be {@code null})
+   *
    * @throws IllegalArgumentException
-   *             if any of the parameters contains illegal characters
+   *         if any of the parameters contains illegal characters
    */
   public MimeType(String type, String subtype, Map<String, String> parameters) {
     hasLength(type, "'type' must not be empty");
@@ -224,9 +230,9 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * section 2.2.
    *
    * @throws IllegalArgumentException
-   *             in case of illegal characters
+   *         in case of illegal characters
    * @see <a href="https://tools.ietf.org/html/rfc2616#section-2.2">HTTP 1.1,
-   *      section 2.2</a>
+   * section 2.2</a>
    */
   private static void checkToken(String token) {
     for (int i = 0; i < token.length(); i++) {
@@ -327,7 +333,8 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * Return a generic parameter value, given a parameter name.
    *
    * @param name
-   *            the parameter name
+   *         the parameter name
+   *
    * @return the parameter value, or {@code null} if not present
    */
   public String getParameter(String name) {
@@ -351,9 +358,10 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * {@code application/soap+xml}, etc. This method is <b>not</b> symmetric.
    *
    * @param other
-   *            the reference MIME Type with which to compare
+   *         the reference MIME Type with which to compare
+   *
    * @return {@code true} if this MIME Type includes the given MIME Type;
-   *         {@code false} otherwise
+   * {@code false} otherwise
    */
   public boolean includes(MimeType other) {
     if (other == null) {
@@ -398,9 +406,10 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * {@link #includes}, except that it <b>is</b> symmetric.
    *
    * @param other
-   *            the reference MIME Type with which to compare
+   *         the reference MIME Type with which to compare
+   *
    * @return {@code true} if this MIME Type is compatible with the given MIME
-   *         Type; {@code false} otherwise
+   * Type; {@code false} otherwise
    */
   public boolean isCompatibleWith(MimeType other) {
     if (other == null) {
@@ -440,7 +449,8 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * i.e. ignoring parameters.
    *
    * @param other
-   *            the other mime type to compare to
+   *         the other mime type to compare to
+   *
    * @return whether the two mime types have the same type and subtype
    */
   public boolean equalsTypeAndSubtype(MimeType other) {
@@ -456,7 +466,8 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * subtype, but otherwise ignores parameters.
    *
    * @param mimeTypes
-   *            the list of mime types to perform the check against
+   *         the list of mime types to perform the check against
+   *
    * @return whether the list contains the given mime type
    */
   public boolean isPresentIn(Collection<? extends MimeType> mimeTypes) {
@@ -550,7 +561,8 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * Compares this MIME Type to another alphabetically.
    *
    * @param other
-   *            the MIME Type to compare to
+   *         the MIME Type to compare to
+   *
    * @see MimeTypeUtils#sortBySpecificity(List)
    */
   @Override
@@ -630,7 +642,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * Comparator to sort {@link MimeType MimeTypes} in order of specificity.
    *
    * @param <T>
-   *            the type of mime types that may be compared by this comparator
+   *         the type of mime types that may be compared by this comparator
    */
   public static class SpecificityComparator<T extends MimeType> implements Comparator<T> {
 

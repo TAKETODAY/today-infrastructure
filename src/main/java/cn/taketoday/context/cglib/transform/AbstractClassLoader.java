@@ -29,91 +29,91 @@ import cn.taketoday.context.cglib.core.CodeGenerationException;
 import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 
 /**
- * 
  * @author Today <br>
- *         2018-11-08 15:07
+ * 2018-11-08 15:07
  */
 @SuppressWarnings("all")
 abstract public class AbstractClassLoader extends ClassLoader {
 
-    private ClassFilter filter;
-    private ClassLoader classPath;
-    private static ProtectionDomain DOMAIN;
+  private ClassFilter filter;
+  private ClassLoader classPath;
+  private static ProtectionDomain DOMAIN;
 
-    static {
+  static {
 
-        DOMAIN = (ProtectionDomain) AccessController.doPrivileged(new PrivilegedAction() {
-            public Object run() {
-                return AbstractClassLoader.class.getProtectionDomain();
-            }
-        });
+    DOMAIN = (ProtectionDomain) AccessController.doPrivileged(new PrivilegedAction() {
+      public Object run() {
+        return AbstractClassLoader.class.getProtectionDomain();
+      }
+    });
+  }
+
+  protected AbstractClassLoader(ClassLoader parent, ClassLoader classPath, ClassFilter filter) {
+    super(parent);
+    this.filter = filter;
+    this.classPath = classPath;
+  }
+
+  public Class loadClass(String name) throws ClassNotFoundException {
+
+    Class loaded = findLoadedClass(name);
+
+    if (loaded != null) {
+      if (loaded.getClassLoader() == this) {
+        return loaded;
+      } // else reload with this class loader
     }
 
-    protected AbstractClassLoader(ClassLoader parent, ClassLoader classPath, ClassFilter filter) {
-        super(parent);
-        this.filter = filter;
-        this.classPath = classPath;
+    if (!filter.accept(name)) {
+      return super.loadClass(name);
+    }
+    ClassReader r;
+    try {
+      InputStream is = classPath.getResourceAsStream(name.replace('.', '/').concat(".class"));
+      if (is == null) {
+        throw new ClassNotFoundException(name);
+      }
+      try {
+        r = new ClassReader(is);
+      }
+      finally {
+        is.close();
+      }
+    }
+    catch (IOException e) {
+      throw new ClassNotFoundException(name + ':' + e.getMessage());
     }
 
-    public Class loadClass(String name) throws ClassNotFoundException {
-
-        Class loaded = findLoadedClass(name);
-
-        if (loaded != null) {
-            if (loaded.getClassLoader() == this) {
-                return loaded;
-            } // else reload with this class loader
-        }
-
-        if (!filter.accept(name)) {
-            return super.loadClass(name);
-        }
-        ClassReader r;
-        try {
-            InputStream is = classPath.getResourceAsStream(name.replace('.', '/').concat(".class"));
-            if (is == null) {
-                throw new ClassNotFoundException(name);
-            }
-            try {
-                r = new ClassReader(is);
-            } finally {
-                is.close();
-            }
-        }
-        catch (IOException e) {
-            throw new ClassNotFoundException(name + ':' + e.getMessage());
-        }
-
-        try {
-            DebuggingClassWriter w = new DebuggingClassWriter(ClassWriter.COMPUTE_FRAMES);
-            getGenerator(r).generateClass(w);
-            byte[] b = w.toByteArray();
-            Class c = super.defineClass(name, b, 0, b.length, DOMAIN);
-            postProcess(c);
-            return c;
-        }
-        catch (RuntimeException e) {
-            throw e;
-        }
-        catch (Error e) {
-            throw e;
-        }
-        catch (Exception e) {
-            throw new CodeGenerationException(e);
-        }
+    try {
+      DebuggingClassWriter w = new DebuggingClassWriter(ClassWriter.COMPUTE_FRAMES);
+      getGenerator(r).generateClass(w);
+      byte[] b = w.toByteArray();
+      Class c = super.defineClass(name, b, 0, b.length, DOMAIN);
+      postProcess(c);
+      return c;
     }
-
-    protected ClassGenerator getGenerator(ClassReader r) {
-        return new ClassReaderGenerator(r, attributes(), getFlags());
+    catch (RuntimeException e) {
+      throw e;
     }
-
-    protected int getFlags() {
-        return 0;
+    catch (Error e) {
+      throw e;
     }
-
-    protected Attribute[] attributes() {
-        return null;
+    catch (Exception e) {
+      throw new CodeGenerationException(e);
     }
+  }
 
-    protected void postProcess(Class c) {}
+  protected ClassGenerator getGenerator(ClassReader r) {
+    return new ClassReaderGenerator(r, attributes(), getFlags());
+  }
+
+  protected int getFlags() {
+    return 0;
+  }
+
+  protected Attribute[] attributes() {
+    return null;
+  }
+
+  protected void postProcess(Class c) {}
 }

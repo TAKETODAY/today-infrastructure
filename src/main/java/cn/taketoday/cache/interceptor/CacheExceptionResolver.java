@@ -33,7 +33,7 @@ import cn.taketoday.cache.Cache;
  *
  * @author Stephane Nicoll
  * @author TODAY <br>
- *         2019-02-27 17:13
+ * 2019-02-27 17:13
  */
 public interface CacheExceptionResolver {
 
@@ -43,13 +43,15 @@ public interface CacheExceptionResolver {
    * a fatal exception.
    *
    * @param exception
-   *            the exception thrown by the cache provider
+   *         the exception thrown by the cache provider
    * @param cache
-   *            the cache
+   *         the cache
    * @param key
-   *            the key used to get the item
-   * @see Cache#get(Object)
+   *         the key used to get the item
+   *
    * @return cache value
+   *
+   * @see Cache#get(Object)
    */
   Object resolveGetException(RuntimeException exception, Cache cache, Object key);
 
@@ -59,13 +61,14 @@ public interface CacheExceptionResolver {
    * it as a fatal exception.
    *
    * @param exception
-   *            the exception thrown by the cache provider
+   *         the exception thrown by the cache provider
    * @param cache
-   *            the cache
+   *         the cache
    * @param key
-   *            the key used to update the item
+   *         the key used to update the item
    * @param value
-   *            the value to associate with the key
+   *         the value to associate with the key
+   *
    * @see Cache#put(Object, Object)
    */
   void resolvePutException(RuntimeException exception, Cache cache, Object key, Object value);
@@ -76,11 +79,11 @@ public interface CacheExceptionResolver {
    * exception.
    *
    * @param exception
-   *            the exception thrown by the cache provider
+   *         the exception thrown by the cache provider
    * @param cache
-   *            the cache
+   *         the cache
    * @param key
-   *            the key used to clear the item
+   *         the key used to clear the item
    */
   void resolveEvictException(RuntimeException exception, Cache cache, Object key);
 
@@ -89,9 +92,9 @@ public interface CacheExceptionResolver {
    * the specified {@link Cache}, possibly rethrowing it as a fatal exception.
    *
    * @param exception
-   *            the exception thrown by the cache provider
+   *         the exception thrown by the cache provider
    * @param cache
-   *            the cache to clear
+   *         the cache to clear
    */
   void resolveClearException(RuntimeException exception, Cache cache);
 

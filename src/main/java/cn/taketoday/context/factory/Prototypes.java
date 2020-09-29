@@ -30,7 +30,7 @@ import cn.taketoday.context.cglib.proxy.MethodInterceptor;
  * The helper class achieve the effect of the prototype
  *
  * @author TODAY <br>
- *         2019-09-03 21:20
+ * 2019-09-03 21:20
  */
 public final class Prototypes {
 

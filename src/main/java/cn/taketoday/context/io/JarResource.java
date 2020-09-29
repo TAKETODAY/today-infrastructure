@@ -25,7 +25,7 @@ import java.util.jar.JarOutputStream;
 
 /**
  * @author TODAY <br>
- *         2019-05-15 16:58
+ * 2019-05-15 16:58
  * @since 2.1.6
  */
 public interface JarResource extends WritableResource {

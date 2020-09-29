@@ -51,7 +51,7 @@ import static cn.taketoday.context.asm.Type.array;
 
 /**
  * @author TODAY <br>
- *         2019-09-07 10:44
+ * 2019-09-07 10:44
  */
 public class StandardProxyCreator implements ProxyCreator {
 

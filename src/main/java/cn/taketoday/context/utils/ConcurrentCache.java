@@ -26,7 +26,7 @@ import java.util.function.Function;
 
 /**
  * @author TODAY <br>
- *         2019-02-23 15:48
+ * 2019-02-23 15:48
  */
 public final class ConcurrentCache<K, V> {
 

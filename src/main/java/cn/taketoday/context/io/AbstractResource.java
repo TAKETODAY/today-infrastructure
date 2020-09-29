@@ -35,7 +35,7 @@ import cn.taketoday.context.utils.StringUtils;
 
 /**
  * @author TODAY <br>
- *         2019-05-14 22:32
+ * 2019-05-14 22:32
  * @since 2.1.6
  */
 public abstract class AbstractResource implements Resource {

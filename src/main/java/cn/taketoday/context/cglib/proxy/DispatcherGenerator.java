@@ -26,54 +26,53 @@ import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
 /**
- * 
  * @author TODAY <br>
- *         2018-11-08 15:09
+ * 2018-11-08 15:09
  */
 class DispatcherGenerator implements CallbackGenerator {
 
-    public static final DispatcherGenerator INSTANCE = new DispatcherGenerator(false);
-    public static final DispatcherGenerator PROXY_REF_INSTANCE = new DispatcherGenerator(true);
+  public static final DispatcherGenerator INSTANCE = new DispatcherGenerator(false);
+  public static final DispatcherGenerator PROXY_REF_INSTANCE = new DispatcherGenerator(true);
 
-    private static final Type DISPATCHER = TypeUtils.parseType(Dispatcher.class);
-    private static final Type PROXY_REF_DISPATCHER = TypeUtils.parseType(ProxyRefDispatcher.class);
-    private static final Signature LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject()");
-    private static final Signature PROXY_REF_LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject(Object)");
+  private static final Type DISPATCHER = TypeUtils.parseType(Dispatcher.class);
+  private static final Type PROXY_REF_DISPATCHER = TypeUtils.parseType(ProxyRefDispatcher.class);
+  private static final Signature LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject()");
+  private static final Signature PROXY_REF_LOAD_OBJECT = TypeUtils.parseSignature("Object loadObject(Object)");
 
-    private final boolean proxyRef;
+  private final boolean proxyRef;
 
-    private DispatcherGenerator(boolean proxyRef) {
-        this.proxyRef = proxyRef;
-    }
+  private DispatcherGenerator(boolean proxyRef) {
+    this.proxyRef = proxyRef;
+  }
 
-    @Override
-    public void generate(ClassEmitter ce, Context context, List<MethodInfo> methods) {
+  @Override
+  public void generate(ClassEmitter ce, Context context, List<MethodInfo> methods) {
 
-        for (final MethodInfo method : methods) {
+    for (final MethodInfo method : methods) {
 
-            if (!Modifier.isProtected(method.getModifiers())) {
+      if (!Modifier.isProtected(method.getModifiers())) {
 
-                final CodeEmitter e = context.beginMethod(ce, method);
-                context.emitCallback(e, context.getIndex(method));
-                if (proxyRef) {
-                    e.load_this();
-                    e.invoke_interface(PROXY_REF_DISPATCHER, PROXY_REF_LOAD_OBJECT);
-                }
-                else {
-                    e.invoke_interface(DISPATCHER, LOAD_OBJECT);
-                }
-                e.checkcast(method.getClassInfo().getType());
-                e.load_args();
-                e.invoke(method);
-                e.return_value();
-                e.end_method();
-            }
+        final CodeEmitter e = context.beginMethod(ce, method);
+        context.emitCallback(e, context.getIndex(method));
+        if (proxyRef) {
+          e.load_this();
+          e.invoke_interface(PROXY_REF_DISPATCHER, PROXY_REF_LOAD_OBJECT);
         }
+        else {
+          e.invoke_interface(DISPATCHER, LOAD_OBJECT);
+        }
+        e.checkcast(method.getClassInfo().getType());
+        e.load_args();
+        e.invoke(method);
+        e.return_value();
+        e.end_method();
+      }
     }
+  }
 
-    @Override
-    public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) throws Exception {
+  @Override
+  public void generateStatic(CodeEmitter e, Context context, List<MethodInfo> methods) throws Exception {
 
-    }
+  }
 
 }

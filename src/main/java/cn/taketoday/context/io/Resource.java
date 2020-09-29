@@ -34,7 +34,7 @@ import java.net.URL;
  * The actual behavior is implementation-specific.
  *
  * @author TODAY <br>
- *         2019-05-14 19:55
+ * 2019-05-14 19:55
  * @since 2.1.6
  */
 public interface Resource extends Readable {
@@ -64,7 +64,7 @@ public interface Resource extends Readable {
    * Get location of this resource.
    *
    * @throws IOException
-   *             if the resource is not available
+   *         if the resource is not available
    */
   URL getLocation() throws IOException;
 
@@ -72,8 +72,8 @@ public interface Resource extends Readable {
    * Return a URI handle for this resource.
    *
    * @throws IOException
-   *             if the resource cannot be resolved as URI, i.e. if the resource
-   *             is not available as descriptor
+   *         if the resource cannot be resolved as URI, i.e. if the resource
+   *         is not available as descriptor
    * @since 2.1.7
    */
   URI getURI() throws IOException;
@@ -82,7 +82,7 @@ public interface Resource extends Readable {
    * Return a File handle for this resource.
    *
    * @throws IOException
-   *             in case of general resolution/reading failures
+   *         in case of general resolution/reading failures
    */
   File getFile() throws IOException;
 
@@ -107,7 +107,7 @@ public interface Resource extends Readable {
    * @return {@link Resource} names
    *
    * @throws IOException
-   *     if the resource is not available
+   *         if the resource is not available
    */
   String[] list() throws IOException;
 
@@ -115,12 +115,12 @@ public interface Resource extends Readable {
    * list {@link Resource} under the directory
    *
    * @param filter
-   *     filter {@link Resource}
+   *         filter {@link Resource}
    *
    * @return {@link Resource} names
    *
    * @throws IOException
-   *     if the resource is not available
+   *         if the resource is not available
    */
   Resource[] list(ResourceFilter filter) throws IOException;
 
@@ -128,10 +128,12 @@ public interface Resource extends Readable {
    * Create a resource relative to this resource.
    *
    * @param relativePath
-   *            the relative path (relative to this resource)
+   *         the relative path (relative to this resource)
+   *
    * @return the resource handle for the relative resource
+   *
    * @throws IOException
-   *             if the relative resource cannot be determined
+   *         if the relative resource cannot be determined
    */
   Resource createRelative(String relativePath) throws IOException;
 

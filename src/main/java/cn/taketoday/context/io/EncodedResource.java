@@ -36,12 +36,12 @@ import java.util.Objects;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 1.2.6
+ * @author TODAY <br>
+ * 2019-12-05 23:17
  * @see Resource#getInputStream()
  * @see java.io.Reader
  * @see java.nio.charset.Charset
- * @author TODAY <br>
- *         2019-12-05 23:17
+ * @since 1.2.6
  */
 public class EncodedResource implements Readable {
 
@@ -56,7 +56,7 @@ public class EncodedResource implements Readable {
    * specifying an explicit encoding or {@code Charset}.
    *
    * @param resource
-   *            the {@code Resource} to hold (never {@code null})
+   *         the {@code Resource} to hold (never {@code null})
    */
   public EncodedResource(Resource resource) {
     this(resource, null, null);
@@ -67,9 +67,9 @@ public class EncodedResource implements Readable {
    * the specified {@code encoding}.
    *
    * @param resource
-   *            the {@code Resource} to hold (never {@code null})
+   *         the {@code Resource} to hold (never {@code null})
    * @param encoding
-   *            the encoding to use for reading from the resource
+   *         the encoding to use for reading from the resource
    */
   public EncodedResource(Resource resource, String encoding) {
     this(resource, encoding, null);
@@ -80,9 +80,9 @@ public class EncodedResource implements Readable {
    * the specified {@code Charset}.
    *
    * @param resource
-   *            the {@code Resource} to hold (never {@code null})
+   *         the {@code Resource} to hold (never {@code null})
    * @param charset
-   *            the {@code Charset} to use for reading from the resource
+   *         the {@code Charset} to use for reading from the resource
    */
   public EncodedResource(Resource resource, Charset charset) {
     this(resource, null, charset);
@@ -138,7 +138,7 @@ public class EncodedResource implements Readable {
    * any).
    *
    * @throws IOException
-   *             if opening the Reader failed
+   *         if opening the Reader failed
    * @see #requiresReader()
    * @see #getInputStream()
    */
@@ -160,7 +160,7 @@ public class EncodedResource implements Readable {
    * encoding}.
    *
    * @throws IOException
-   *             if opening the InputStream failed
+   *         if opening the InputStream failed
    * @see #requiresReader()
    * @see #getReader()
    */

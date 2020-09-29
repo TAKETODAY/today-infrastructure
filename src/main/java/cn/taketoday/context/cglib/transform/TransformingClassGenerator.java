@@ -20,16 +20,16 @@ import cn.taketoday.context.cglib.core.ClassGenerator;
 
 public class TransformingClassGenerator implements ClassGenerator {
 
-    private final ClassGenerator gen;
-    private final ClassTransformer t;
+  private final ClassGenerator gen;
+  private final ClassTransformer t;
 
-    public TransformingClassGenerator(ClassGenerator gen, ClassTransformer t) {
-        this.gen = gen;
-        this.t = t;
-    }
+  public TransformingClassGenerator(ClassGenerator gen, ClassTransformer t) {
+    this.gen = gen;
+    this.t = t;
+  }
 
-    public void generateClass(ClassVisitor v) throws Exception {
-        t.setTarget(v);
-        gen.generateClass(t);
-    }
+  public void generateClass(ClassVisitor v) throws Exception {
+    t.setTarget(v);
+    gen.generateClass(t);
+  }
 }

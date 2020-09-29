@@ -23,7 +23,7 @@ import cn.taketoday.context.ApplicationContext;
 
 /**
  * @author TODAY <br>
- *         2019-02-26 14:52
+ * 2019-02-26 14:52
  */
 @SuppressWarnings("serial")
 public class ContextPreRefreshEvent extends ApplicationContextEvent {

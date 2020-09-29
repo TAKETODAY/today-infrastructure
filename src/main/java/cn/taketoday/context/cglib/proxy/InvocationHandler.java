@@ -19,10 +19,10 @@ package cn.taketoday.context.cglib.proxy;
  * {@link java.lang.reflect.InvocationHandler} replacement (unavailable under
  * JDK 1.2). This callback type is primarily for use by the {@link Proxy} class
  * but may be used with {@link Enhancer} as well.
- * 
+ *
  * @author Neeme Praks <a href="mailto:neeme@apache.org">neeme@apache.org</a>
  * @version $Id: InvocationHandler.java,v 1.3 2004/06/24 21:15:20 herbyderby Exp
- *          $
+ * $
  */
 @FunctionalInterface
 public interface InvocationHandler extends Callback, java.lang.reflect.InvocationHandler {

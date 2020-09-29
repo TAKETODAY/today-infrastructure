@@ -801,7 +801,7 @@ public abstract class ClassUtils {
    * @since 2.1.7
    */
   public static <T extends Annotation> List<AnnotationAttributes>
-        getAnnotationAttributes(final Annotation annotation, final Class<T> target) throws ContextException//
+  getAnnotationAttributes(final Annotation annotation, final Class<T> target) throws ContextException//
   {
     if (annotation == null) {
       return Collections.emptyList();

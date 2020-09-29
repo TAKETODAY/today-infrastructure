@@ -27,7 +27,7 @@ import cn.taketoday.context.exception.ConversionException;
 
 /**
  * @author TODAY <br>
- *         2019-08-23 00:16
+ * 2019-08-23 00:16
  */
 public abstract class ObjectUtils {
 
@@ -35,7 +35,8 @@ public abstract class ObjectUtils {
    * Test if a array is a null or empty object
    *
    * @param array
-   *            An array to test if its a null or empty object
+   *         An array to test if its a null or empty object
+   *
    * @return If a object is a null or empty object
    */
   public static boolean isEmpty(Object[] array) {
@@ -46,7 +47,8 @@ public abstract class ObjectUtils {
    * Test if a object is a null or empty object
    *
    * @param obj
-   *            A instance to test if its a null or empty object
+   *         A instance to test if its a null or empty object
+   *
    * @return If a object is a null or empty object
    */
   public static boolean isEmpty(Object obj) {
@@ -79,12 +81,14 @@ public abstract class ObjectUtils {
    * To array object
    *
    * @param source
-   *            String array
+   *         String array
    * @param targetClass
-   *            Target class
+   *         Target class
+   *
    * @return An array object
+   *
    * @throws ConversionException
-   *             If can't convert source to target type object
+   *         If can't convert source to target type object
    */
   public static Object toArrayObject(String source[], Class<?> targetClass) throws ConversionException {
 

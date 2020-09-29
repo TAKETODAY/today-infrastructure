@@ -27,7 +27,7 @@ import cn.taketoday.context.utils.Assert;
  * {@link FactoryBean} {@link Supplier}
  *
  * @author TODAY <br>
- *         2019-12-11 22:32
+ * 2019-12-11 22:32
  */
 public class FactoryBeanSupplier<T> implements Supplier<FactoryBean<T>> {
 

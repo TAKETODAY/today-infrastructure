@@ -22,11 +22,10 @@ package cn.taketoday.context.aware;
 import cn.taketoday.context.factory.BeanFactory;
 
 /**
- *
  * {@link BeanFactory} Injection
  *
  * @author TODAY <br>
- *         2018-08-03 15:54
+ * 2018-08-03 15:54
  */
 public interface BeanFactoryAware extends Aware {
 

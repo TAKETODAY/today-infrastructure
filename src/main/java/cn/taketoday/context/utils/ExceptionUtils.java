@@ -23,9 +23,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 
 /**
- *
  * @author TODAY <br>
- *         2018-11-13 21:25
+ * 2018-11-13 21:25
  */
 public abstract class ExceptionUtils {
 
@@ -33,7 +32,8 @@ public abstract class ExceptionUtils {
    * Unwrap
    *
    * @param ex
-   *            target {@link Throwable}
+   *         target {@link Throwable}
+   *
    * @return unwrapped {@link Throwable}
    */
   public static Throwable unwrapThrowable(Throwable ex) {

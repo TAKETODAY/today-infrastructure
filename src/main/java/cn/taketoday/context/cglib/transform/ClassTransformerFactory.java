@@ -16,12 +16,11 @@
 package cn.taketoday.context.cglib.transform;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-01 21:48
+ * 2019-09-01 21:48
  */
 @FunctionalInterface
 public interface ClassTransformerFactory {
 
-    ClassTransformer newInstance();
+  ClassTransformer newInstance();
 }

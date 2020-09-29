@@ -18,31 +18,31 @@ package cn.taketoday.context.cglib.core;
 import cn.taketoday.context.asm.Label;
 
 public class Block {
-    private Label end;
-    private final Label start;
-    private final CodeEmitter e;
+  private Label end;
+  private final Label start;
+  private final CodeEmitter e;
 
-    public Block(CodeEmitter e) {
-        this.e = e;
-        start = e.mark();
-    }
+  public Block(CodeEmitter e) {
+    this.e = e;
+    start = e.mark();
+  }
 
-    public CodeEmitter getCodeEmitter() {
-        return e;
-    }
+  public CodeEmitter getCodeEmitter() {
+    return e;
+  }
 
-    public void end() {
-        if (end != null) {
-            throw new IllegalStateException("end of label already set");
-        }
-        end = e.mark();
+  public void end() {
+    if (end != null) {
+      throw new IllegalStateException("end of label already set");
     }
+    end = e.mark();
+  }
 
-    public Label getStart() {
-        return start;
-    }
+  public Label getStart() {
+    return start;
+  }
 
-    public Label getEnd() {
-        return end;
-    }
+  public Label getEnd() {
+    return end;
+  }
 }

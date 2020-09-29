@@ -24,7 +24,7 @@ package cn.taketoday.context.factory;
  * independent) when invoked.
  *
  * @author TODAY <br>
- *         2018-09-11 11:01
+ * 2018-09-11 11:01
  */
 @FunctionalInterface
 public interface ObjectFactory<T> {

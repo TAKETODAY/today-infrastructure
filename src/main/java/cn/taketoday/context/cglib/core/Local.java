@@ -18,19 +18,19 @@ package cn.taketoday.context.cglib.core;
 import cn.taketoday.context.asm.Type;
 
 public class Local {
-    private Type type;
-    private int index;
+  private Type type;
+  private int index;
 
-    public Local(int index, Type type) {
-        this.type = type;
-        this.index = index;
-    }
+  public Local(int index, Type type) {
+    this.type = type;
+    this.index = index;
+  }
 
-    public int getIndex() {
-        return index;
-    }
+  public int getIndex() {
+    return index;
+  }
 
-    public Type getType() {
-        return type;
-    }
+  public Type getType() {
+    return type;
+  }
 }

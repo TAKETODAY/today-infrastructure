@@ -32,9 +32,8 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 
 /**
- *
  * @author TODAY <br>
- *         2018-11-10 13:03
+ * 2018-11-10 13:03
  */
 public class CglibProxyCreator implements ProxyCreator {
 

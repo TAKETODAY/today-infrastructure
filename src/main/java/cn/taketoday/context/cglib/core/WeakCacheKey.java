@@ -11,35 +11,35 @@ import java.lang.ref.WeakReference;
  * This an internal class, thus it might disappear in future cglib releases.
  *
  * @param <T>
- *            type of the reference
+ *         type of the reference
  */
 @SuppressWarnings("all")
 public class WeakCacheKey<T> extends WeakReference<T> {
-    private final int hash;
+  private final int hash;
 
-    public WeakCacheKey(T referent) {
-        super(referent);
-        this.hash = referent.hashCode();
-    }
+  public WeakCacheKey(T referent) {
+    super(referent);
+    this.hash = referent.hashCode();
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof WeakCacheKey)) {
-            return false;
-        }
-        Object ours = get();
-        Object theirs = ((WeakCacheKey) obj).get();
-        return ours != null && theirs != null && ours.equals(theirs);
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof WeakCacheKey)) {
+      return false;
     }
+    Object ours = get();
+    Object theirs = ((WeakCacheKey) obj).get();
+    return ours != null && theirs != null && ours.equals(theirs);
+  }
 
-    @Override
-    public int hashCode() {
-        return hash;
-    }
+  @Override
+  public int hashCode() {
+    return hash;
+  }
 
-    @Override
-    public String toString() {
-        T t = get();
-        return t == null ? "Clean WeakIdentityKey, hash: " + hash : t.toString();
-    }
+  @Override
+  public String toString() {
+    T t = get();
+    return t == null ? "Clean WeakIdentityKey, hash: " + hash : t.toString();
+  }
 }

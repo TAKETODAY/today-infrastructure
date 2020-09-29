@@ -16,12 +16,11 @@
 package cn.taketoday.context.cglib.transform;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-01 21:49
+ * 2019-09-01 21:49
  */
 @FunctionalInterface
 public interface MethodFilter {
-    // TODO: pass class name too?
-    boolean accept(int access, String name, String desc, String signature, String[] exceptions);
+  // TODO: pass class name too?
+  boolean accept(int access, String name, String desc, String signature, String[] exceptions);
 }

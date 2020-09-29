@@ -36,7 +36,7 @@ import static cn.taketoday.context.utils.ContextUtils.createBeanDefinition;
  * FactoryBean's BeanDefinition
  *
  * @author TODAY <br>
- *         2019-02-01 12:29
+ * 2019-02-01 12:29
  * @since 2.1.7
  */
 public class FactoryBeanDefinition<T> implements BeanDefinition {

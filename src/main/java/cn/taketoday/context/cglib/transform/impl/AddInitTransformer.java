@@ -30,33 +30,33 @@ import cn.taketoday.context.cglib.transform.ClassEmitterTransformer;
  */
 public class AddInitTransformer extends ClassEmitterTransformer {
 
-    private final MethodInfo info;
+  private final MethodInfo info;
 
-    public AddInitTransformer(Method method) {
-        info = ReflectUtils.getMethodInfo(method);
+  public AddInitTransformer(Method method) {
+    info = ReflectUtils.getMethodInfo(method);
 
-        Type[] types = info.getSignature().getArgumentTypes();
-        if (types.length != 1 || !types[0].equals(Constant.TYPE_OBJECT) || !info.getSignature().getReturnType().equals(Type.VOID_TYPE)) {
-            throw new IllegalArgumentException(method + " illegal signature");
-        }
+    Type[] types = info.getSignature().getArgumentTypes();
+    if (types.length != 1 || !types[0].equals(Constant.TYPE_OBJECT) || !info.getSignature().getReturnType().equals(Type.VOID_TYPE)) {
+      throw new IllegalArgumentException(method + " illegal signature");
     }
+  }
 
-    @Override
-    public CodeEmitter beginMethod(int access, Signature sig, Type... exceptions) {
+  @Override
+  public CodeEmitter beginMethod(int access, Signature sig, Type... exceptions) {
 
-        final CodeEmitter emitter = super.beginMethod(access, sig, exceptions);
-        if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)) {
-            return new CodeEmitter(emitter) {
-                @Override
-                public void visitInsn(int opcode) {
-                    if (opcode == Constant.RETURN) {
-                        load_this();
-                        invoke(info);
-                    }
-                    super.visitInsn(opcode);
-                }
-            };
+    final CodeEmitter emitter = super.beginMethod(access, sig, exceptions);
+    if (sig.getName().equals(Constant.CONSTRUCTOR_NAME)) {
+      return new CodeEmitter(emitter) {
+        @Override
+        public void visitInsn(int opcode) {
+          if (opcode == Constant.RETURN) {
+            load_this();
+            invoke(info);
+          }
+          super.visitInsn(opcode);
         }
-        return emitter;
+      };
     }
+    return emitter;
+  }
 }

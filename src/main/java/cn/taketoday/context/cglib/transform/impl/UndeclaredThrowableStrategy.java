@@ -34,31 +34,31 @@ import cn.taketoday.context.cglib.transform.TransformingClassGenerator;
 @SuppressWarnings("all")
 public class UndeclaredThrowableStrategy extends DefaultGeneratorStrategy {
 
-    private final Class wrapper;
+  private final Class wrapper;
 
-    /**
-     * Create a new instance of this strategy.
-     * 
-     * @param wrapper
-     *            a class which extends either directly or indirectly from
-     *            <code>Throwable</code> and which has at least one constructor that
-     *            takes a single argument of type <code>Throwable</code>, for
-     *            example
-     *            <code>java.lang.reflect.UndeclaredThrowableException.class</code>
-     */
-    public UndeclaredThrowableStrategy(Class wrapper) {
-        this.wrapper = wrapper;
+  /**
+   * Create a new instance of this strategy.
+   *
+   * @param wrapper
+   *         a class which extends either directly or indirectly from
+   *         <code>Throwable</code> and which has at least one constructor that
+   *         takes a single argument of type <code>Throwable</code>, for
+   *         example
+   *         <code>java.lang.reflect.UndeclaredThrowableException.class</code>
+   */
+  public UndeclaredThrowableStrategy(Class wrapper) {
+    this.wrapper = wrapper;
+  }
+
+  private static final MethodFilter TRANSFORM_FILTER = new MethodFilter() {
+    public boolean accept(int access, String name, String desc, String signature, String[] exceptions) {
+      return !Modifier.isPrivate(access) && name.indexOf('$') < 0;
     }
+  };
 
-    private static final MethodFilter TRANSFORM_FILTER = new MethodFilter() {
-        public boolean accept(int access, String name, String desc, String signature, String[] exceptions) {
-            return !Modifier.isPrivate(access) && name.indexOf('$') < 0;
-        }
-    };
-
-    protected ClassGenerator transform(ClassGenerator cg) throws Exception {
-        ClassTransformer tr = new UndeclaredThrowableTransformer(wrapper);
-        tr = new MethodFilterTransformer(TRANSFORM_FILTER, tr);
-        return new TransformingClassGenerator(cg, tr);
-    }
+  protected ClassGenerator transform(ClassGenerator cg) throws Exception {
+    ClassTransformer tr = new UndeclaredThrowableTransformer(wrapper);
+    tr = new MethodFilterTransformer(TRANSFORM_FILTER, tr);
+    return new TransformingClassGenerator(cg, tr);
+  }
 }

@@ -20,14 +20,14 @@ import cn.taketoday.context.cglib.core.ClassGenerator;
 
 public class TransformingClassLoader extends AbstractClassLoader {
 
-    private final ClassTransformerFactory t;
+  private final ClassTransformerFactory t;
 
-    public TransformingClassLoader(ClassLoader parent, ClassFilter filter, ClassTransformerFactory t) {
-        super(parent, parent, filter);
-        this.t = t;
-    }
+  public TransformingClassLoader(ClassLoader parent, ClassFilter filter, ClassTransformerFactory t) {
+    super(parent, parent, filter);
+    this.t = t;
+  }
 
-    protected ClassGenerator getGenerator(ClassReader r) {
-        return new TransformingClassGenerator(super.getGenerator(r), t.newInstance());
-    }
+  protected ClassGenerator getGenerator(ClassReader r) {
+    return new TransformingClassGenerator(super.getGenerator(r), t.newInstance());
+  }
 }

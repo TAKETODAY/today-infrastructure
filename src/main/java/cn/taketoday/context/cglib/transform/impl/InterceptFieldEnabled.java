@@ -16,12 +16,11 @@
 package cn.taketoday.context.cglib.transform.impl;
 
 /**
- * 
  * @author TODAY <br>
- *         2019-09-01 21:59
+ * 2019-09-01 21:59
  */
 public interface InterceptFieldEnabled {
-    void setInterceptFieldCallback(InterceptFieldCallback callback);
+  void setInterceptFieldCallback(InterceptFieldCallback callback);
 
-    InterceptFieldCallback getInterceptFieldCallback();
+  InterceptFieldCallback getInterceptFieldCallback();
 }

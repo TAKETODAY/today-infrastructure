@@ -22,13 +22,14 @@ package cn.taketoday.context.cglib.proxy;
  */
 @FunctionalInterface
 public interface ProxyRefDispatcher extends Callback {
-    /**
-     * Return the object which the original method invocation should be dispatched.
-     * This method is called for <b>every</b> method invocation.
-     * 
-     * @param proxy
-     *            a reference to the proxy (generated) object
-     * @return an object that can invoke the method
-     */
-    Object loadObject(Object proxy) throws Exception;
+  /**
+   * Return the object which the original method invocation should be dispatched.
+   * This method is called for <b>every</b> method invocation.
+   *
+   * @param proxy
+   *         a reference to the proxy (generated) object
+   *
+   * @return an object that can invoke the method
+   */
+  Object loadObject(Object proxy) throws Exception;
 }

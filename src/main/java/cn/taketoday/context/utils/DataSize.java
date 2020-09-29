@@ -50,7 +50,8 @@ public final class DataSize implements Comparable<DataSize> {
    * Obtain a {@link DataSize} representing the specified number of bytes.
    *
    * @param bytes
-   *            the number of bytes, positive or negative
+   *         the number of bytes, positive or negative
+   *
    * @return a {@link DataSize}
    */
   public static DataSize ofBytes(long bytes) {
@@ -61,7 +62,8 @@ public final class DataSize implements Comparable<DataSize> {
    * Obtain a {@link DataSize} representing the specified number of kilobytes.
    *
    * @param kilobytes
-   *            the number of kilobytes, positive or negative
+   *         the number of kilobytes, positive or negative
+   *
    * @return a {@link DataSize}
    */
   public static DataSize ofKilobytes(long kilobytes) {
@@ -72,7 +74,8 @@ public final class DataSize implements Comparable<DataSize> {
    * Obtain a {@link DataSize} representing the specified number of megabytes.
    *
    * @param megabytes
-   *            the number of megabytes, positive or negative
+   *         the number of megabytes, positive or negative
+   *
    * @return a {@link DataSize}
    */
   public static DataSize ofMegabytes(long megabytes) {
@@ -83,7 +86,8 @@ public final class DataSize implements Comparable<DataSize> {
    * Obtain a {@link DataSize} representing the specified number of gigabytes.
    *
    * @param gigabytes
-   *            the number of gigabytes, positive or negative
+   *         the number of gigabytes, positive or negative
+   *
    * @return a {@link DataSize}
    */
   public static DataSize ofGigabytes(long gigabytes) {
@@ -94,7 +98,8 @@ public final class DataSize implements Comparable<DataSize> {
    * Obtain a {@link DataSize} representing the specified number of terabytes.
    *
    * @param terabytes
-   *            the number of terabytes, positive or negative
+   *         the number of terabytes, positive or negative
+   *
    * @return a {@link DataSize}
    */
   public static DataSize ofTerabytes(long terabytes) {
@@ -106,9 +111,11 @@ public final class DataSize implements Comparable<DataSize> {
    * {@link DataUnit}.
    *
    * @param amount
-   *            the amount of the size, measured in terms of the unit, positive or
-   *            negative
+   *         the amount of the size, measured in terms of the unit, positive or
+   *         negative
+   *
    * @return a corresponding {@link DataSize}
+   *
    * @since 2.1.6
    */
   public static DataSize of(long amount) {
@@ -120,8 +127,9 @@ public final class DataSize implements Comparable<DataSize> {
    * {@link DataUnit}.
    *
    * @param amount
-   *            the amount of the size, measured in terms of the unit, positive or
-   *            negative
+   *         the amount of the size, measured in terms of the unit, positive or
+   *         negative
+   *
    * @return a corresponding {@link DataSize}
    */
   public static DataSize of(long amount, DataUnit unit) {
@@ -141,8 +149,10 @@ public final class DataSize implements Comparable<DataSize> {
    * </pre>
    *
    * @param text
-   *            the text to parse
+   *         the text to parse
+   *
    * @return the parsed {@link DataSize}
+   *
    * @see #parse(CharSequence, DataUnit)
    */
   public static DataSize parse(CharSequence text) {
@@ -165,7 +175,8 @@ public final class DataSize implements Comparable<DataSize> {
    * </pre>
    *
    * @param text
-   *            the text to parse
+   *         the text to parse
+   *
    * @return the parsed {@link DataSize}
    */
   public static DataSize parse(CharSequence text, DataUnit defaultUnit) {
