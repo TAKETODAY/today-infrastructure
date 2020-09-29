@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -33,80 +33,80 @@ import cn.taketoday.context.Scope;
 @SuppressWarnings("all")
 public final class DefaultComponent implements Component {
 
-    private String scope = Scope.SINGLETON;
-    private String[] value = Constant.EMPTY_STRING_ARRAY;
-    private String[] initMethods = Constant.EMPTY_STRING_ARRAY;
-    private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
+  private String scope = Scope.SINGLETON;
+  private String[] value = Constant.EMPTY_STRING_ARRAY;
+  private String[] initMethods = Constant.EMPTY_STRING_ARRAY;
+  private String[] destroyMethods = Constant.EMPTY_STRING_ARRAY;
 
-    @Override
-    public Class<? extends Annotation> annotationType() {
-        return Component.class;
-    }
+  @Override
+  public Class<? extends Annotation> annotationType() {
+    return Component.class;
+  }
 
-    @Override
-    public String[] value() {
-        return value;
-    }
+  @Override
+  public String[] value() {
+    return value;
+  }
 
-    @Override
-    public String scope() {
-        return scope;
-    }
+  @Override
+  public String scope() {
+    return scope;
+  }
 
-    @Override
-    public String[] initMethods() {
-        return initMethods;
-    }
+  @Override
+  public String[] initMethods() {
+    return initMethods;
+  }
 
-    @Override
-    public String[] destroyMethods() {
-        return destroyMethods;
-    }
+  @Override
+  public String[] destroyMethods() {
+    return destroyMethods;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(scope, value, initMethods, destroyMethods);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(scope, value, initMethods, destroyMethods);
+  }
 
-    @Override
-    public boolean equals(Object obj) {
+  @Override
+  public boolean equals(Object obj) {
 
-        if (obj != this) {
-            if (!(obj instanceof Component)) {
-                return false;
-            }
-            Component component = (Component) obj;
-            if (component.value().length != value.length) {
-                return false;
-            }
-            if (!component.scope().equals(scope)) {
-                return false;
-            }
+    if (obj != this) {
+      if (!(obj instanceof Component)) {
+        return false;
+      }
+      Component component = (Component) obj;
+      if (component.value().length != value.length) {
+        return false;
+      }
+      if (!component.scope().equals(scope)) {
+        return false;
+      }
 
-            for (int i = 0; i < value.length; i++) {
-                if (!component.value()[i].equals(value[i])) {
-                    return false;
-                }
-            }
+      for (int i = 0; i < value.length; i++) {
+        if (!component.value()[i].equals(value[i])) {
+          return false;
         }
-        return true;
+      }
     }
+    return true;
+  }
 
-    @Override
-    public String toString() {
-        return new StringBuilder()//
-                .append("@")//
-                .append(Component.class.getName())//
-                .append("(value=")//
-                .append(Arrays.toString(value))//
-                .append(", scope=")//
-                .append(scope)//
-                .append(", initMethods=")//
-                .append(Arrays.toString(initMethods))//
-                .append(", destroyMethods=")//
-                .append(Arrays.toString(destroyMethods))//
-                .append(")")//
-                .toString();
-    }
+  @Override
+  public String toString() {
+    return new StringBuilder()//
+            .append("@")//
+            .append(Component.class.getName())//
+            .append("(value=")//
+            .append(Arrays.toString(value))//
+            .append(", scope=")//
+            .append(scope)//
+            .append(", initMethods=")//
+            .append(Arrays.toString(initMethods))//
+            .append(", destroyMethods=")//
+            .append(Arrays.toString(destroyMethods))//
+            .append(")")//
+            .toString();
+  }
 
 }

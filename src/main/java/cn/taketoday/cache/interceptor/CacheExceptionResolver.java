@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -37,62 +37,62 @@ import cn.taketoday.cache.Cache;
  */
 public interface CacheExceptionResolver {
 
-    /**
-     * Handle the given runtime exception thrown by the cache provider when
-     * retrieving an item with the specified {@code key}, possibly rethrowing it as
-     * a fatal exception.
-     * 
-     * @param exception
-     *            the exception thrown by the cache provider
-     * @param cache
-     *            the cache
-     * @param key
-     *            the key used to get the item
-     * @see Cache#get(Object)
-     * @return cache value
-     */
-    Object resolveGetException(RuntimeException exception, Cache cache, Object key);
+  /**
+   * Handle the given runtime exception thrown by the cache provider when
+   * retrieving an item with the specified {@code key}, possibly rethrowing it as
+   * a fatal exception.
+   *
+   * @param exception
+   *            the exception thrown by the cache provider
+   * @param cache
+   *            the cache
+   * @param key
+   *            the key used to get the item
+   * @see Cache#get(Object)
+   * @return cache value
+   */
+  Object resolveGetException(RuntimeException exception, Cache cache, Object key);
 
-    /**
-     * Handle the given runtime exception thrown by the cache provider when updating
-     * an item with the specified {@code key} and {@code value}, possibly rethrowing
-     * it as a fatal exception.
-     * 
-     * @param exception
-     *            the exception thrown by the cache provider
-     * @param cache
-     *            the cache
-     * @param key
-     *            the key used to update the item
-     * @param value
-     *            the value to associate with the key
-     * @see Cache#put(Object, Object)
-     */
-    void resolvePutException(RuntimeException exception, Cache cache, Object key, Object value);
+  /**
+   * Handle the given runtime exception thrown by the cache provider when updating
+   * an item with the specified {@code key} and {@code value}, possibly rethrowing
+   * it as a fatal exception.
+   *
+   * @param exception
+   *            the exception thrown by the cache provider
+   * @param cache
+   *            the cache
+   * @param key
+   *            the key used to update the item
+   * @param value
+   *            the value to associate with the key
+   * @see Cache#put(Object, Object)
+   */
+  void resolvePutException(RuntimeException exception, Cache cache, Object key, Object value);
 
-    /**
-     * Handle the given runtime exception thrown by the cache provider when clearing
-     * an item with the specified {@code key}, possibly rethrowing it as a fatal
-     * exception.
-     * 
-     * @param exception
-     *            the exception thrown by the cache provider
-     * @param cache
-     *            the cache
-     * @param key
-     *            the key used to clear the item
-     */
-    void resolveEvictException(RuntimeException exception, Cache cache, Object key);
+  /**
+   * Handle the given runtime exception thrown by the cache provider when clearing
+   * an item with the specified {@code key}, possibly rethrowing it as a fatal
+   * exception.
+   *
+   * @param exception
+   *            the exception thrown by the cache provider
+   * @param cache
+   *            the cache
+   * @param key
+   *            the key used to clear the item
+   */
+  void resolveEvictException(RuntimeException exception, Cache cache, Object key);
 
-    /**
-     * Handle the given runtime exception thrown by the cache provider when clearing
-     * the specified {@link Cache}, possibly rethrowing it as a fatal exception.
-     * 
-     * @param exception
-     *            the exception thrown by the cache provider
-     * @param cache
-     *            the cache to clear
-     */
-    void resolveClearException(RuntimeException exception, Cache cache);
+  /**
+   * Handle the given runtime exception thrown by the cache provider when clearing
+   * the specified {@link Cache}, possibly rethrowing it as a fatal exception.
+   *
+   * @param exception
+   *            the exception thrown by the cache provider
+   * @param cache
+   *            the cache to clear
+   */
+  void resolveClearException(RuntimeException exception, Cache cache);
 
 }

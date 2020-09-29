@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,21 +26,21 @@ import cn.taketoday.context.factory.BeanDefinition;
 
 /**
  * {@link BeanDefinition} Loading event
- * 
+ *
  * @author TODAY <br>
  *         2018-09-10 10:46
  */
 @SuppressWarnings("serial")
 public class BeanDefinitionLoadingEvent extends ApplicationContextEvent {
 
-    private final Collection<Class<?>> candidates;
+  private final Collection<Class<?>> candidates;
 
-    public BeanDefinitionLoadingEvent(ApplicationContext source, Collection<Class<?>> candidates) {
-        super(source);
-        this.candidates = candidates;
-    }
+  public BeanDefinitionLoadingEvent(ApplicationContext source, Collection<Class<?>> candidates) {
+    super(source);
+    this.candidates = candidates;
+  }
 
-    public final Collection<Class<?>> getCandidates() {
-        return candidates;
-    }
+  public final Collection<Class<?>> getCandidates() {
+    return candidates;
+  }
 }

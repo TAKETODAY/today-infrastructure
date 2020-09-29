@@ -27,19 +27,19 @@ import java.util.function.Supplier;
  */
 public class MethodAccessorBeanConstructor<T> extends StaticMethodAccessorBeanConstructor<T> {
 
-    private final Supplier<Object> obj;
+  private final Supplier<Object> obj;
 
-    public MethodAccessorBeanConstructor(MethodAccessor accessor, Object obj) {
-        this(accessor, () -> obj);
-    }
+  public MethodAccessorBeanConstructor(MethodAccessor accessor, Object obj) {
+    this(accessor, () -> obj);
+  }
 
-    public MethodAccessorBeanConstructor(MethodAccessor accessor, Supplier<Object> obj) {
-        super(accessor);
-        this.obj = obj;
-    }
+  public MethodAccessorBeanConstructor(MethodAccessor accessor, Supplier<Object> obj) {
+    super(accessor);
+    this.obj = obj;
+  }
 
-    @Override
-    protected final Object getObject() {
-        return obj.get();
-    }
+  @Override
+  protected final Object getObject() {
+    return obj.get();
+  }
 }

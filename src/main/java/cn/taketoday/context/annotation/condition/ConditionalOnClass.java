@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -33,7 +33,7 @@ import cn.taketoday.context.utils.ClassUtils;
 /**
  * {@link Conditional} that only matches when the specified classes are on the
  * classpath.
- * 
+ *
  * @author TODAY <br>
  *         2019-06-18 15:00
  */
@@ -42,38 +42,38 @@ import cn.taketoday.context.utils.ClassUtils;
 @Conditional(OnClassCondition.class)
 public @interface ConditionalOnClass {
 
-    /**
-     * The classes that must be present
-     * 
-     * @return the classes that must be present
-     */
-    String[] value() default {};
+  /**
+   * The classes that must be present
+   *
+   * @return the classes that must be present
+   */
+  String[] value() default {};
 
 }
 
 class OnClassCondition implements Condition {
 
-    @Override
-    public boolean matches(final ApplicationContext context, final AnnotatedElement annotatedElement) {
+  @Override
+  public boolean matches(final ApplicationContext context, final AnnotatedElement annotatedElement) {
 
-        final ConditionalOnClass conditionalOnClass = annotatedElement.getAnnotation(ConditionalOnClass.class);
-        if (conditionalOnClass != null) {
-            for (String name : conditionalOnClass.value()) {
-                if (!ClassUtils.isPresent(name)) {
-                    return false;
-                }
-            }
+    final ConditionalOnClass conditionalOnClass = annotatedElement.getAnnotation(ConditionalOnClass.class);
+    if (conditionalOnClass != null) {
+      for (String name : conditionalOnClass.value()) {
+        if (!ClassUtils.isPresent(name)) {
+          return false;
         }
-        final ConditionalOnMissingClass onMissingClass = annotatedElement.getAnnotation(ConditionalOnMissingClass.class);
-        if (onMissingClass != null) {
-            for (String name : onMissingClass.value()) {
-                if (ClassUtils.isPresent(name)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+      }
     }
+    final ConditionalOnMissingClass onMissingClass = annotatedElement.getAnnotation(ConditionalOnMissingClass.class);
+    if (onMissingClass != null) {
+      for (String name : onMissingClass.value()) {
+        if (ClassUtils.isPresent(name)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
 
 }

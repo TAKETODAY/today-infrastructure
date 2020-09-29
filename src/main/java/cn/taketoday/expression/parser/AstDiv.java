@@ -47,12 +47,12 @@ import cn.taketoday.expression.lang.ExpressionArithmetic;
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstDiv extends ArithmeticNode {
-    public AstDiv(int id) {
-        super(id);
-    }
+  public AstDiv(int id) {
+    super(id);
+  }
 
-    @Override
-    protected Object getValueInternal(Object obj0, Object obj1) {
-        return ExpressionArithmetic.divide(obj0, obj1);
-    }
+  @Override
+  protected Object getValueInternal(Object obj0, Object obj1) {
+    return ExpressionArithmetic.divide(obj0, obj1);
+  }
 }

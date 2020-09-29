@@ -26,5 +26,5 @@ package cn.taketoday.context.reflect;
 @FunctionalInterface
 public interface Invoker {
 
-    Object invoke(Object obj, Object[] args);
+  Object invoke(Object obj, Object[] args);
 }

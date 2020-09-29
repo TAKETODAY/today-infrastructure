@@ -27,41 +27,41 @@ import cn.taketoday.context.factory.BeanFactory;
 
 /**
  * @author TODAY <br>
- *         2019-10-28 20:27
+ * 2019-10-28 20:27
  */
 public final class DelegatingParameterResolver
-    extends OrderedSupport implements ExecutableParameterResolver, Ordered {
+        extends OrderedSupport implements ExecutableParameterResolver, Ordered {
 
-    private final SupportsFunction supports;
-    private final ExecutableParameterResolver resolver;
+  private final SupportsFunction supports;
+  private final ExecutableParameterResolver resolver;
 
-    public DelegatingParameterResolver(SupportsFunction supports, ExecutableParameterResolver resolver) {
-        this(supports, resolver, Ordered.HIGHEST_PRECEDENCE);
-    }
+  public DelegatingParameterResolver(SupportsFunction supports, ExecutableParameterResolver resolver) {
+    this(supports, resolver, Ordered.HIGHEST_PRECEDENCE);
+  }
 
-    public DelegatingParameterResolver(SupportsFunction supports, ExecutableParameterResolver resolver, int order) {
-        super(order);
-        this.resolver = resolver;
-        this.supports = supports;
-    }
+  public DelegatingParameterResolver(SupportsFunction supports, ExecutableParameterResolver resolver, int order) {
+    super(order);
+    this.resolver = resolver;
+    this.supports = supports;
+  }
 
-    @Override
-    public boolean supports(Parameter parameter) {
-        return supports.supports(parameter);
-    }
+  @Override
+  public boolean supports(Parameter parameter) {
+    return supports.supports(parameter);
+  }
 
-    @Override
-    public Object resolve(Parameter parameter, BeanFactory beanFactory) {
-        return resolver.resolve(parameter, beanFactory);
-    }
+  @Override
+  public Object resolve(Parameter parameter, BeanFactory beanFactory) {
+    return resolver.resolve(parameter, beanFactory);
+  }
 
-    public static DelegatingParameterResolver delegate(SupportsFunction supports, ExecutableParameterResolver resolver) {
-        return new DelegatingParameterResolver(supports, resolver);
-    }
+  public static DelegatingParameterResolver delegate(SupportsFunction supports, ExecutableParameterResolver resolver) {
+    return new DelegatingParameterResolver(supports, resolver);
+  }
 
-    public static DelegatingParameterResolver delegate(SupportsFunction supports,
-                                                       ExecutableParameterResolver resolver, int order) {
-        return new DelegatingParameterResolver(supports, resolver, order);
-    }
+  public static DelegatingParameterResolver delegate(SupportsFunction supports,
+                                                     ExecutableParameterResolver resolver, int order) {
+    return new DelegatingParameterResolver(supports, resolver, order);
+  }
 
 }

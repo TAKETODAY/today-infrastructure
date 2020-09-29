@@ -26,52 +26,52 @@ import cn.taketoday.context.Constant;
 
 /**
  * @author TODAY <br>
- *         2019-02-28 18:10
+ * 2019-02-28 18:10
  */
 public class DefaultMapCache extends AbstractCache {
 
-    private final Map<Object, Object> store;
+  private final Map<Object, Object> store;
 
-    public DefaultMapCache() {
-        this(Constant.DEFAULT);
-    }
+  public DefaultMapCache() {
+    this(Constant.DEFAULT);
+  }
 
-    public DefaultMapCache(String name) {
-        this(name, 256);
-    }
+  public DefaultMapCache(String name) {
+    this(name, 256);
+  }
 
-    public DefaultMapCache(String name, int size) {
-        this(name, new HashMap<>(size));
-    }
+  public DefaultMapCache(String name, int size) {
+    this(name, new HashMap<>(size));
+  }
 
-    protected DefaultMapCache(String name, Map<Object, Object> store) {
-        this.setName(name);
-        this.store = store;
-    }
+  protected DefaultMapCache(String name, Map<Object, Object> store) {
+    this.setName(name);
+    this.store = store;
+  }
 
-    @Override
-    protected Object lookupValue(Object key) {
-        return this.store.get(key);
-    }
+  @Override
+  protected Object lookupValue(Object key) {
+    return this.store.get(key);
+  }
 
-    @Override
-    public void evict(Object key) {
-        this.store.remove(key);
-    }
+  @Override
+  public void evict(Object key) {
+    this.store.remove(key);
+  }
 
-    @Override
-    public void clear() {
-        this.store.clear();
-    }
+  @Override
+  public void clear() {
+    this.store.clear();
+  }
 
-    @Override
-    protected void putInternal(Object key, Object value) {
-        this.store.put(key, value);
-    }
+  @Override
+  protected void putInternal(Object key, Object value) {
+    this.store.put(key, value);
+  }
 
-    @Override
-    protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) {
-        return this.store.computeIfAbsent(key, k -> lookupValue(k, valueLoader));
-    }
+  @Override
+  protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) {
+    return this.store.computeIfAbsent(key, k -> lookupValue(k, valueLoader));
+  }
 
 }

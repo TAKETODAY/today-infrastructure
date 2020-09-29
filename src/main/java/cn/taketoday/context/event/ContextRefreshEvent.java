@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,18 +22,18 @@ package cn.taketoday.context.event;
 import cn.taketoday.context.ApplicationContext;
 
 /**
- * 
+ *
  * Context singletons initialize event
- * 
+ *
  * @author TODAY <br>
- * 
+ *
  *         2018-10-09 20:24
  */
 @SuppressWarnings("serial")
 public class ContextRefreshEvent extends ApplicationContextEvent {
 
-    public ContextRefreshEvent(ApplicationContext source) {
-        super(source);
-    }
+  public ContextRefreshEvent(ApplicationContext source) {
+    super(source);
+  }
 
 }

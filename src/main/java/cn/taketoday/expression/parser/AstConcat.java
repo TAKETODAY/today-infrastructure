@@ -48,11 +48,11 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public final class AstConcat extends SimpleNode {
 
-    public AstConcat(int id) {
-        super(id);
-    }
+  public AstConcat(int id) {
+    super(id);
+  }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        return children[0].getValue(ctx).toString().concat(children[1].getValue(ctx).toString());
-    }
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    return children[0].getValue(ctx).toString().concat(children[1].getValue(ctx).toString());
+  }
 }

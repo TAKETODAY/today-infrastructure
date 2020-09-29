@@ -30,15 +30,15 @@ import cn.taketoday.context.utils.ReflectionUtils;
  */
 public class MethodMethodAccessor extends MethodInvoker implements MethodAccessor {
 
-    private final Method method;
+  private final Method method;
 
-    public MethodMethodAccessor(final Method method) {
-        Assert.notNull(method, "method must not be null");
-        this.method = method;
-    }
+  public MethodMethodAccessor(final Method method) {
+    Assert.notNull(method, "method must not be null");
+    this.method = method;
+  }
 
-    @Override
-    public Object invoke(final Object obj, final Object[] args) {
-        return ReflectionUtils.invokeMethod(method, obj, args);
-    }
+  @Override
+  public Object invoke(final Object obj, final Object[] args) {
+    return ReflectionUtils.invokeMethod(method, obj, args);
+  }
 }

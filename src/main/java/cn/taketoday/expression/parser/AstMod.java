@@ -47,14 +47,14 @@ import cn.taketoday.expression.lang.ExpressionArithmetic;
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstMod extends ArithmeticNode {
-   
-    public AstMod(int id) {
-        super(id);
-    }
 
-    @Override
-    protected Object getValueInternal(final Object obj0, final Object obj1) {
-        return ExpressionArithmetic.mod(obj0, obj1);
-    }
+  public AstMod(int id) {
+    super(id);
+  }
+
+  @Override
+  protected Object getValueInternal(final Object obj0, final Object obj1) {
+    return ExpressionArithmetic.mod(obj0, obj1);
+  }
 
 }

@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -28,44 +28,44 @@ import cn.taketoday.context.utils.ConcurrentCache;
  */
 public class ConcurrentMapCache extends AbstractCache {
 
-    private final ConcurrentCache<Object, Object> store;
+  private final ConcurrentCache<Object, Object> store;
 
-    public ConcurrentMapCache() {
-        this(Constant.DEFAULT);
-    }
+  public ConcurrentMapCache() {
+    this(Constant.DEFAULT);
+  }
 
-    public ConcurrentMapCache(String name) {
-        this(name, new ConcurrentCache<>(256));
-    }
+  public ConcurrentMapCache(String name) {
+    this(name, new ConcurrentCache<>(256));
+  }
 
-    protected ConcurrentMapCache(String name, ConcurrentCache<Object, Object> store) {
-        this.setName(name);
-        this.store = store;
-    }
+  protected ConcurrentMapCache(String name, ConcurrentCache<Object, Object> store) {
+    this.setName(name);
+    this.store = store;
+  }
 
-    @Override
-    protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
-        return store.get(key, k -> lookupValue(k, valueLoader));
-    }
+  @Override
+  protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
+    return store.get(key, k -> lookupValue(k, valueLoader));
+  }
 
-    @Override
-    public void evict(Object key) {
-        store.remove(key);
-    }
+  @Override
+  public void evict(Object key) {
+    store.remove(key);
+  }
 
-    @Override
-    public void clear() {
-        store.clear();
-    }
+  @Override
+  public void clear() {
+    store.clear();
+  }
 
-    @Override
-    protected Object lookupValue(Object key) {
-        return store.get(key);
-    }
+  @Override
+  protected Object lookupValue(Object key) {
+    return store.get(key);
+  }
 
-    @Override
-    protected void putInternal(Object key, Object value) {
-        store.put(key, value);
-    }
+  @Override
+  protected void putInternal(Object key, Object value) {
+    store.put(key, value);
+  }
 
 }

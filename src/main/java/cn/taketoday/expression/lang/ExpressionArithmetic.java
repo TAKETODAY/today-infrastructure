@@ -61,7 +61,7 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
   public final static BigIntegerDelegate BIGINTEGER = new BigIntegerDelegate();
 
   private static final ExpressionArithmetic[] EXPRESSION_ARITHMETICS = new ExpressionArithmetic[] { //
-      BIGDECIMAL, DOUBLE, BIGINTEGER
+          BIGDECIMAL, DOUBLE, BIGINTEGER
   };
 
   public static final class BigDecimalDelegate extends ExpressionArithmetic {
@@ -213,13 +213,13 @@ public abstract class ExpressionArithmetic extends ExpressionUtils {
     @Override
     public boolean matches(Object obj0, Object obj1) {
       return (obj0 instanceof Double
-          || obj1 instanceof Double
-          || obj0 instanceof Float
-          || obj1 instanceof Float
-          || (obj0 != null && (Double.TYPE == obj0.getClass() || Float.TYPE == obj0.getClass()))
-          || (obj1 != null && (Double.TYPE == obj1.getClass() || Float.TYPE == obj1.getClass()))
-          || (obj0 instanceof String && ExpressionUtils.isStringFloat((String) obj0))
-          || (obj1 instanceof String && ExpressionUtils.isStringFloat((String) obj1))//
+              || obj1 instanceof Double
+              || obj0 instanceof Float
+              || obj1 instanceof Float
+              || (obj0 != null && (Double.TYPE == obj0.getClass() || Float.TYPE == obj0.getClass()))
+              || (obj1 != null && (Double.TYPE == obj1.getClass() || Float.TYPE == obj1.getClass()))
+              || (obj0 instanceof String && ExpressionUtils.isStringFloat((String) obj0))
+              || (obj1 instanceof String && ExpressionUtils.isStringFloat((String) obj1))//
       );
     }
   }

@@ -19,12 +19,12 @@
  */
 package cn.taketoday.cache;
 
-import java.util.Collection;
-
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.CaffeineSpec;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+
+import java.util.Collection;
 
 import cn.taketoday.cache.annotation.CacheConfig;
 import cn.taketoday.context.utils.Assert;
@@ -47,133 +47,140 @@ import cn.taketoday.context.utils.Assert;
  * <p>
  * Requires Caffeine 2.1 or higher.
  *
+ * @author TODAY <br>
+ * 2020-08-15 20:05
  * @see CaffeineCache
  * @see 3.0
- * @author TODAY <br>
- *         2020-08-15 20:05
  */
 public class CaffeineCacheManager extends AbstractCacheManager {
 
-    private CacheLoader<Object, Object> cacheLoader;
-    private Caffeine<Object, Object> caffeine = Caffeine.newBuilder();
+  private CacheLoader<Object, Object> cacheLoader;
+  private Caffeine<Object, Object> caffeine = Caffeine.newBuilder();
 
-    /**
-     * Build a common {@link CaffeineCache} instance for the specified cache name,
-     * using the common Caffeine configuration specified on this cache manager.
-     * <p>
-     * Delegates to {@link #adaptCaffeineCache} as the adaptation method to Spring's
-     * cache abstraction (allowing for centralized decoration etc), passing in a
-     * freshly built native Caffeine Cache instance.
-     *
-     * @param name
-     *            the name of the cache
-     * @return the {@link CaffeineCache} adapter (or a decorator thereof)
-     * @see #adaptCaffeineCache
-     * @see #createNativeCaffeineCache
-     */
-    @Override
-    protected Cache doCreate(String name, CacheConfig cacheConfig) {
-        return adaptCaffeineCache(name, createNativeCaffeineCache(name));
-    }
+  /**
+   * Build a common {@link CaffeineCache} instance for the specified cache name,
+   * using the common Caffeine configuration specified on this cache manager.
+   * <p>
+   * Delegates to {@link #adaptCaffeineCache} as the adaptation method to Spring's
+   * cache abstraction (allowing for centralized decoration etc), passing in a
+   * freshly built native Caffeine Cache instance.
+   *
+   * @param name
+   *         the name of the cache
+   *
+   * @return the {@link CaffeineCache} adapter (or a decorator thereof)
+   *
+   * @see #adaptCaffeineCache
+   * @see #createNativeCaffeineCache
+   */
+  @Override
+  protected Cache doCreate(String name, CacheConfig cacheConfig) {
+    return adaptCaffeineCache(name, createNativeCaffeineCache(name));
+  }
 
-    /**
-     * Register the given native Caffeine Cache instance with this cache manager,
-     * adapting it to Spring's cache API for exposure through {@link #getCache}. Any
-     * number of such custom caches may be registered side by side.
-     * <p>
-     * This allows for custom settings per cache (as opposed to all caches sharing
-     * the common settings in the cache manager's configuration) and is typically
-     * used with the Caffeine builder API:
-     * {@code registerCustomCache("myCache", Caffeine.newBuilder().maximumSize(10).build())}
-     * <p>
-     * Note that any other caches, whether statically specified through
-     * {@link #setCacheNames} or dynamically built on demand, still operate with the
-     * common settings in the cache manager's configuration.
-     *
-     * @param name
-     *            the name of the cache
-     * @param cache
-     *            the custom Caffeine Cache instance to register
-     * @see #adaptCaffeineCache
-     */
-    public void registerCustomCache(String name, com.github.benmanes.caffeine.cache.Cache<Object, Object> cache) {
-        registerCustomCache(name, adaptCaffeineCache(name, cache));
-    }
+  /**
+   * Register the given native Caffeine Cache instance with this cache manager,
+   * adapting it to Spring's cache API for exposure through {@link #getCache}. Any
+   * number of such custom caches may be registered side by side.
+   * <p>
+   * This allows for custom settings per cache (as opposed to all caches sharing
+   * the common settings in the cache manager's configuration) and is typically
+   * used with the Caffeine builder API:
+   * {@code registerCustomCache("myCache", Caffeine.newBuilder().maximumSize(10).build())}
+   * <p>
+   * Note that any other caches, whether statically specified through
+   * {@link #setCacheNames} or dynamically built on demand, still operate with the
+   * common settings in the cache manager's configuration.
+   *
+   * @param name
+   *         the name of the cache
+   * @param cache
+   *         the custom Caffeine Cache instance to register
+   *
+   * @see #adaptCaffeineCache
+   */
+  public void registerCustomCache(String name, com.github.benmanes.caffeine.cache.Cache<Object, Object> cache) {
+    registerCustomCache(name, adaptCaffeineCache(name, cache));
+  }
 
-    /**
-     * Set the Caffeine to use for building each individual {@link CaffeineCache}
-     * instance.
-     *
-     * @see #createNativeCaffeineCache
-     * @see com.github.benmanes.caffeine.cache.Caffeine#build()
-     */
-    public void setCaffeine(Caffeine<Object, Object> caffeine) {
-        Assert.notNull(caffeine, "Caffeine must not be null");
-        this.caffeine = caffeine;
-    }
+  /**
+   * Set the Caffeine to use for building each individual {@link CaffeineCache}
+   * instance.
+   *
+   * @see #createNativeCaffeineCache
+   * @see com.github.benmanes.caffeine.cache.Caffeine#build()
+   */
+  public void setCaffeine(Caffeine<Object, Object> caffeine) {
+    Assert.notNull(caffeine, "Caffeine must not be null");
+    this.caffeine = caffeine;
+  }
 
-    /**
-     * Set the {@link CaffeineSpec} to use for building each individual
-     * {@link CaffeineCache} instance.
-     *
-     * @see #createNativeCaffeineCache
-     * @see com.github.benmanes.caffeine.cache.Caffeine#from(CaffeineSpec)
-     */
-    public void setCaffeineSpec(CaffeineSpec caffeineSpec) {
-        setCaffeine(Caffeine.from(caffeineSpec));
-    }
+  /**
+   * Set the {@link CaffeineSpec} to use for building each individual
+   * {@link CaffeineCache} instance.
+   *
+   * @see #createNativeCaffeineCache
+   * @see com.github.benmanes.caffeine.cache.Caffeine#from(CaffeineSpec)
+   */
+  public void setCaffeineSpec(CaffeineSpec caffeineSpec) {
+    setCaffeine(Caffeine.from(caffeineSpec));
+  }
 
-    /**
-     * Set the Caffeine cache specification String to use for building each
-     * individual {@link CaffeineCache} instance. The given value needs to comply
-     * with Caffeine's {@link CaffeineSpec} (see its javadoc).
-     *
-     * @see #createNativeCaffeineCache
-     * @see com.github.benmanes.caffeine.cache.Caffeine#from(String)
-     */
-    public void setCacheSpecification(String cacheSpecification) {
-        setCaffeine(Caffeine.from(cacheSpecification));
-    }
+  /**
+   * Set the Caffeine cache specification String to use for building each
+   * individual {@link CaffeineCache} instance. The given value needs to comply
+   * with Caffeine's {@link CaffeineSpec} (see its javadoc).
+   *
+   * @see #createNativeCaffeineCache
+   * @see com.github.benmanes.caffeine.cache.Caffeine#from(String)
+   */
+  public void setCacheSpecification(String cacheSpecification) {
+    setCaffeine(Caffeine.from(cacheSpecification));
+  }
 
-    /**
-     * Set the Caffeine CacheLoader to use for building each individual
-     * {@link CaffeineCache} instance, turning it into a LoadingCache.
-     *
-     * @see #createNativeCaffeineCache
-     * @see Caffeine#build(CacheLoader)
-     * @see LoadingCache
-     */
-    public void setCacheLoader(CacheLoader<Object, Object> cacheLoader) {
-        this.cacheLoader = cacheLoader;
-        refreshCaches();
-    }
+  /**
+   * Set the Caffeine CacheLoader to use for building each individual
+   * {@link CaffeineCache} instance, turning it into a LoadingCache.
+   *
+   * @see #createNativeCaffeineCache
+   * @see Caffeine#build(CacheLoader)
+   * @see LoadingCache
+   */
+  public void setCacheLoader(CacheLoader<Object, Object> cacheLoader) {
+    this.cacheLoader = cacheLoader;
+    refreshCaches();
+  }
 
-    /**
-     * Adapt the given new native Caffeine Cache instance to {@link Cache}
-     * abstraction for the specified cache name.
-     *
-     * @param name
-     *            the name of the cache
-     * @param cache
-     *            the native Caffeine Cache instance
-     * @return the CaffeineCache adapter (or a decorator thereof)
-     * @see CaffeineCache
-     */
-    protected Cache adaptCaffeineCache(String name, com.github.benmanes.caffeine.cache.Cache<Object, Object> cache) {
-        return new CaffeineCache(name, cache);
-    }
+  /**
+   * Adapt the given new native Caffeine Cache instance to {@link Cache}
+   * abstraction for the specified cache name.
+   *
+   * @param name
+   *         the name of the cache
+   * @param cache
+   *         the native Caffeine Cache instance
+   *
+   * @return the CaffeineCache adapter (or a decorator thereof)
+   *
+   * @see CaffeineCache
+   */
+  protected Cache adaptCaffeineCache(String name, com.github.benmanes.caffeine.cache.Cache<Object, Object> cache) {
+    return new CaffeineCache(name, cache);
+  }
 
-    /**
-     * Build a common Caffeine Cache instance for the specified cache name, using
-     * the common Caffeine configuration specified on this cache manager.
-     *
-     * @param name
-     *            the name of the cache
-     * @return the native Caffeine Cache instance
-     * @see #adaptCaffeineCache
-     */
-    protected com.github.benmanes.caffeine.cache.Cache<Object, Object> createNativeCaffeineCache(String name) {
-        return (this.cacheLoader != null ? this.caffeine.build(this.cacheLoader) : this.caffeine.build());
-    }
+  /**
+   * Build a common Caffeine Cache instance for the specified cache name, using
+   * the common Caffeine configuration specified on this cache manager.
+   *
+   * @param name
+   *         the name of the cache
+   *
+   * @return the native Caffeine Cache instance
+   *
+   * @see #adaptCaffeineCache
+   */
+  protected com.github.benmanes.caffeine.cache.Cache<Object, Object> createNativeCaffeineCache(String name) {
+    return (this.cacheLoader != null ? this.caffeine.build(this.cacheLoader) : this.caffeine.build());
+  }
 
 }

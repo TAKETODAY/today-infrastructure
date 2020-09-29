@@ -52,52 +52,52 @@ import cn.taketoday.expression.lang.ExpressionUtils;
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstNegative extends SimpleNode {
-    public AstNegative(int id) {
-        super(id);
-    }
+  public AstNegative(int id) {
+    super(id);
+  }
 
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        return Number.class;
-    }
+  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+    return Number.class;
+  }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        Object obj = this.children[0].getValue(ctx);
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    Object obj = this.children[0].getValue(ctx);
 
-        if (obj == null) {
-            return Long.valueOf(0);
-        }
-        if (obj instanceof BigDecimal) {
-            return ((BigDecimal) obj).negate();
-        }
-        if (obj instanceof BigInteger) {
-            return ((BigInteger) obj).negate();
-        }
-        if (obj instanceof String) {
-            if (ExpressionUtils.isStringFloat((String) obj)) {
-                return Double.valueOf(-Double.parseDouble((String) obj));
-            }
-            return Long.valueOf(-Long.parseLong((String) obj));
-        }
-        Class<?> type = obj.getClass();
-        if (obj instanceof Long || Long.TYPE == type) {
-            return Long.valueOf(-((Long) obj).longValue());
-        }
-        if (obj instanceof Double || Double.TYPE == type) {
-            return Double.valueOf(-((Double) obj).doubleValue());
-        }
-        if (obj instanceof Integer || Integer.TYPE == type) {
-            return Integer.valueOf(-((Integer) obj).intValue());
-        }
-        if (obj instanceof Float || Float.TYPE == type) {
-            return Float.valueOf(-((Float) obj).floatValue());
-        }
-        if (obj instanceof Short || Short.TYPE == type) {
-            return Short.valueOf((short) -((Short) obj).shortValue());
-        }
-        if (obj instanceof Byte || Byte.TYPE == type) {
-            return Byte.valueOf((byte) -((Byte) obj).byteValue());
-        }
-        Long num = (Long) ExpressionUtils.coerceToNumber(obj, Long.class);
-        return Long.valueOf(-num.longValue());
+    if (obj == null) {
+      return Long.valueOf(0);
     }
+    if (obj instanceof BigDecimal) {
+      return ((BigDecimal) obj).negate();
+    }
+    if (obj instanceof BigInteger) {
+      return ((BigInteger) obj).negate();
+    }
+    if (obj instanceof String) {
+      if (ExpressionUtils.isStringFloat((String) obj)) {
+        return Double.valueOf(-Double.parseDouble((String) obj));
+      }
+      return Long.valueOf(-Long.parseLong((String) obj));
+    }
+    Class<?> type = obj.getClass();
+    if (obj instanceof Long || Long.TYPE == type) {
+      return Long.valueOf(-((Long) obj).longValue());
+    }
+    if (obj instanceof Double || Double.TYPE == type) {
+      return Double.valueOf(-((Double) obj).doubleValue());
+    }
+    if (obj instanceof Integer || Integer.TYPE == type) {
+      return Integer.valueOf(-((Integer) obj).intValue());
+    }
+    if (obj instanceof Float || Float.TYPE == type) {
+      return Float.valueOf(-((Float) obj).floatValue());
+    }
+    if (obj instanceof Short || Short.TYPE == type) {
+      return Short.valueOf((short) -((Short) obj).shortValue());
+    }
+    if (obj instanceof Byte || Byte.TYPE == type) {
+      return Byte.valueOf((byte) -((Byte) obj).byteValue());
+    }
+    Long num = (Long) ExpressionUtils.coerceToNumber(obj, Long.class);
+    return Long.valueOf(-num.longValue());
+  }
 }

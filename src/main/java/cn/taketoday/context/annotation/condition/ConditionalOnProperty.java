@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -44,46 +44,46 @@ import cn.taketoday.context.utils.StringUtils;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface ConditionalOnProperty {
 
-    /**
-     * property names
-     * 
-     * @return the names
-     */
-    String[] value() default {};
+  /**
+   * property names
+   *
+   * @return the names
+   */
+  String[] value() default {};
 
-    /**
-     * A prefix that should be applied to each property. The prefix automatically
-     * ends with a dot if not specified. A valid prefix is defined by one or more
-     * words separated with dots (e.g. {@code "acme.system.feature"}).
-     * 
-     * @return the prefix
-     */
-    String prefix() default Constant.BLANK;
+  /**
+   * A prefix that should be applied to each property. The prefix automatically
+   * ends with a dot if not specified. A valid prefix is defined by one or more
+   * words separated with dots (e.g. {@code "acme.system.feature"}).
+   *
+   * @return the prefix
+   */
+  String prefix() default Constant.BLANK;
 
 }
 
 class OnPropertyCondition implements Condition {
 
-    @Override
-    public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
+  @Override
+  public boolean matches(final ApplicationContext context, final AnnotatedElement annotated) {
 
-        final ConditionalOnProperty conditionalOnProperty = annotated.getAnnotation(ConditionalOnProperty.class);
-        final String prefix = conditionalOnProperty.prefix();
+    final ConditionalOnProperty conditionalOnProperty = annotated.getAnnotation(ConditionalOnProperty.class);
+    final String prefix = conditionalOnProperty.prefix();
 
-        final Environment environment = context.getEnvironment();
-        if (StringUtils.isEmpty(prefix)) for (final String key : conditionalOnProperty.value()) {
-            if (environment.getProperty(key) == null) {
-                return false;
-            }
-        }
-        else {
-            for (final String key : conditionalOnProperty.value()) {
-                if (environment.getProperty(prefix + key) == null) {
-                    return false;
-                }
-            }
-        }
-        return true;
+    final Environment environment = context.getEnvironment();
+    if (StringUtils.isEmpty(prefix)) for (final String key : conditionalOnProperty.value()) {
+      if (environment.getProperty(key) == null) {
+        return false;
+      }
     }
+    else {
+      for (final String key : conditionalOnProperty.value()) {
+        if (environment.getProperty(prefix + key) == null) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 
 }

@@ -23,95 +23,97 @@ import cn.taketoday.context.EmptyObject;
 
 /**
  * @author TODAY <br>
- *         2019-11-02 00:23
+ * 2019-11-02 00:23
  */
 public abstract class AbstractCache implements Cache {
 
-    private String name;
+  private String name;
 
-    @Override
-    public String getName() {
-        return name;
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public final Object get(final Object key) {
+    return toRealValue(lookupValue(key));
+  }
+
+  protected static Object toStoreValue(final Object userValue) {
+    return userValue == null ? EmptyObject.INSTANCE : userValue;
+  }
+
+  protected static Object toRealValue(final Object cachedValue) {
+    return cachedValue == EmptyObject.INSTANCE ? null : cachedValue;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T get(final Object key, final Class<T> type) {
+    final Object value = get(key);
+    if (value != null && type != null && !type.isInstance(value)) {
+      throw new IllegalStateException("Cached value is not of required type [" + type.getName() + "]: " + value);
     }
+    return (T) value;
+  }
 
-    public void setName(String name) {
-        this.name = name;
+  @Override
+  @SuppressWarnings("unchecked")
+  public final <T> T get(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
+    return (T) toRealValue(getInternal(key, valueLoader));
+  }
+
+  /**
+   * Get value If there isn't a key, use valueLoader create one
+   *
+   * @param <T>
+   * @param key
+   *         Cache key
+   * @param valueLoader
+   *         Value Loader
+   *
+   * @return Cache value
+   *
+   * @throws CacheValueRetrievalException
+   */
+  protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
+    Object ret = lookupValue(key);
+    if (ret == null) {
+      ret = lookupValue(key, valueLoader);
     }
+    return ret;
+  }
 
-    @Override
-    public final Object get(final Object key) {
-        return toRealValue(lookupValue(key));
+  protected abstract Object lookupValue(Object key);
+
+  protected <T> Object lookupValue(final Object key, final CacheCallback<T> valueLoader)
+          throws CacheValueRetrievalException //
+  {
+    try {
+      return valueLoader.call();
     }
-
-    protected static Object toStoreValue(final Object userValue) {
-        return userValue == null ? EmptyObject.INSTANCE : userValue;
+    catch (Throwable e) {
+      throw new CacheValueRetrievalException(key, valueLoader, e);
     }
+  }
 
-    protected static Object toRealValue(final Object cachedValue) {
-        return cachedValue == EmptyObject.INSTANCE ? null : cachedValue;
-    }
+  @Override
+  public final void put(final Object key, final Object value) {
+    putInternal(key, toStoreValue(value));
+  }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T get(final Object key, final Class<T> type) {
-        final Object value = get(key);
-        if (value != null && type != null && !type.isInstance(value)) {
-            throw new IllegalStateException("Cached value is not of required type [" + type.getName() + "]: " + value);
-        }
-        return (T) value;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public final <T> T get(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
-        return (T) toRealValue(getInternal(key, valueLoader));
-    }
-
-    /**
-     * Get value If there isn't a key, use valueLoader create one
-     * 
-     * @param <T>
-     * @param key
-     *            Cache key
-     * @param valueLoader
-     *            Value Loader
-     * @return Cache value
-     * @throws CacheValueRetrievalException
-     */
-    protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
-        Object ret = lookupValue(key);
-        if (ret == null) {
-            ret = lookupValue(key, valueLoader);
-        }
-        return ret;
-    }
-
-    protected abstract Object lookupValue(Object key);
-
-    protected <T> Object lookupValue(final Object key, final CacheCallback<T> valueLoader)
-            throws CacheValueRetrievalException //
-    {
-        try {
-            return valueLoader.call();
-        }
-        catch (Throwable e) {
-            throw new CacheValueRetrievalException(key, valueLoader, e);
-        }
-    }
-
-    @Override
-    public final void put(final Object key, final Object value) {
-        putInternal(key, toStoreValue(value));
-    }
-
-    /**
-     * Put to this cache internal
-     *
-     * @param key
-     *            Target key
-     * @param value
-     *            Target value
-     */
-    protected abstract void putInternal(Object key, Object value);
+  /**
+   * Put to this cache internal
+   *
+   * @param key
+   *         Target key
+   * @param value
+   *         Target value
+   */
+  protected abstract void putInternal(Object key, Object value);
 
 }

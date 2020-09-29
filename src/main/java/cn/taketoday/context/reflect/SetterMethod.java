@@ -22,24 +22,24 @@ package cn.taketoday.context.reflect;
 
 /**
  * Fast call bean's setter Method {@link java.lang.reflect.Method Method}
- * 
+ *
  * @author TODAY <br>
- *         2020-08-14 00:29
+ * 2020-08-14 00:29
  */
 @FunctionalInterface
 public interface SetterMethod {
 
-    /**
-     * set property
-     * <p>
-     * If value is null and target property type is primitive this method will do
-     * nothing.
-     * 
-     * @param obj
-     *            Target obj
-     * @param value
-     *            property value
-     */
-    void set(Object obj, Object value);
+  /**
+   * set property
+   * <p>
+   * If value is null and target property type is primitive this method will do
+   * nothing.
+   *
+   * @param obj
+   *         Target obj
+   * @param value
+   *         property value
+   */
+  void set(Object obj, Object value);
 
 }

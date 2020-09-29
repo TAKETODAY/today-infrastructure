@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,18 +23,18 @@ import cn.taketoday.context.ApplicationContext;
 
 /**
  * {@link ApplicationContext} Injection
- * 
+ *
  * @author TODAY <br>
  *         2018-07-17 21:35:52
  */
 public interface ApplicationContextAware extends Aware {
 
-    /**
-     * Set the ApplicationContext that this object runs in.Normally this call will
-     * be used to initialize the object.
-     * 
-     * @param context
-     */
-    void setApplicationContext(ApplicationContext context);
+  /**
+   * Set the ApplicationContext that this object runs in.Normally this call will
+   * be used to initialize the object.
+   *
+   * @param context
+   */
+  void setApplicationContext(ApplicationContext context);
 
 }

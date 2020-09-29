@@ -49,17 +49,17 @@ import cn.taketoday.expression.lang.ExpressionUtils;
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstLessThan extends BooleanNode {
-   
-    public AstLessThan(int id) {
-        super(id);
-    }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        Object obj0 = this.children[0].getValue(ctx);
-        if (obj0 == null) {
-            return Boolean.FALSE;
-        }
-        Object obj1 = this.children[1].getValue(ctx);
-        return obj1 != null && ExpressionUtils.compare(obj0, obj1) < 0;
+  public AstLessThan(int id) {
+    super(id);
+  }
+
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    Object obj0 = this.children[0].getValue(ctx);
+    if (obj0 == null) {
+      return Boolean.FALSE;
     }
+    Object obj1 = this.children[1].getValue(ctx);
+    return obj1 != null && ExpressionUtils.compare(obj0, obj1) < 0;
+  }
 }

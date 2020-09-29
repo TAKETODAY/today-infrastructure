@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,13 +22,13 @@ package cn.taketoday.context.aware;
 import cn.taketoday.context.factory.BeanFactory;
 
 /**
- * 
+ *
  * {@link BeanFactory} Injection
- * 
+ *
  * @author TODAY <br>
  *         2018-08-03 15:54
  */
 public interface BeanFactoryAware extends Aware {
 
-    void setBeanFactory(BeanFactory beanFactory);
+  void setBeanFactory(BeanFactory beanFactory);
 }

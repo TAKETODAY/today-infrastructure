@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,64 +37,64 @@ import cn.taketoday.context.utils.OrderUtils;
  */
 public enum AspectsRegistry {
 
-    ASPECTS_REGISTRY;
+  ASPECTS_REGISTRY;
 
-    private final List<Object> aspects = new ArrayList<>();
+  private final List<Object> aspects = new ArrayList<>();
 
-    private boolean aspectsLoaded;
+  private boolean aspectsLoaded;
 
-    public void addAspect(Object aspect) {
-        getAspects().add(aspect);
-    }
+  public void addAspect(Object aspect) {
+    getAspects().add(aspect);
+  }
 
-    public static AspectsRegistry getInstance() {
-        return ASPECTS_REGISTRY;
-    }
+  public static AspectsRegistry getInstance() {
+    return ASPECTS_REGISTRY;
+  }
 
-    public void sortAspects() {
-        OrderUtils.reversedSort(getAspects());
-    }
+  public void sortAspects() {
+    OrderUtils.reversedSort(getAspects());
+  }
 
-    public boolean isAspectsLoaded() {
-        return aspectsLoaded;
-    }
+  public boolean isAspectsLoaded() {
+    return aspectsLoaded;
+  }
 
-    public void setAspectsLoaded(boolean aspectsLoaded) {
-        this.aspectsLoaded = aspectsLoaded;
-    }
+  public void setAspectsLoaded(boolean aspectsLoaded) {
+    this.aspectsLoaded = aspectsLoaded;
+  }
 
-    public void loadAspects(final ConfigurableBeanFactory applicationContext) {
-        final Logger log = LoggerFactory.getLogger(getClass());
+  public void loadAspects(final ConfigurableBeanFactory applicationContext) {
+    final Logger log = LoggerFactory.getLogger(getClass());
 
-        log.debug("Loading Aspect Objects");
+    log.debug("Loading Aspect Objects");
 
-        setAspectsLoaded(true);
-        try {
+    setAspectsLoaded(true);
+    try {
 
-            for (final BeanDefinition beanDefinition : applicationContext.getBeanDefinitions().values()) {
+      for (final BeanDefinition beanDefinition : applicationContext.getBeanDefinitions().values()) {
 
-                if (beanDefinition.isAnnotationPresent(Aspect.class)) {
-                    // fix use beanDefinition.getName()
-                    final String aspectName = beanDefinition.getName();
-                    log.debug("Found Aspect: [{}]", aspectName);
+        if (beanDefinition.isAnnotationPresent(Aspect.class)) {
+          // fix use beanDefinition.getName()
+          final String aspectName = beanDefinition.getName();
+          log.debug("Found Aspect: [{}]", aspectName);
 
-                    Object aspectInstance = applicationContext.getSingleton(aspectName);
-                    if (aspectInstance == null) {
-                        aspectInstance = ClassUtils.newInstance(beanDefinition, applicationContext);
-                        applicationContext.registerSingleton(aspectName, aspectInstance);
-                    }
-                    addAspect(aspectInstance);
-                }
-            }
-            sortAspects();
+          Object aspectInstance = applicationContext.getSingleton(aspectName);
+          if (aspectInstance == null) {
+            aspectInstance = ClassUtils.newInstance(beanDefinition, applicationContext);
+            applicationContext.registerSingleton(aspectName, aspectInstance);
+          }
+          addAspect(aspectInstance);
         }
-        catch (Throwable e) {
-            throw new ConfigurationException(e);
-        }
+      }
+      sortAspects();
     }
+    catch (Throwable e) {
+      throw new ConfigurationException(e);
+    }
+  }
 
-    public List<Object> getAspects() {
-        return aspects;
-    }
+  public List<Object> getAspects() {
+    return aspects;
+  }
 
 }

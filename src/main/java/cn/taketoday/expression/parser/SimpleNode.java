@@ -44,7 +44,6 @@ import java.util.Objects;
 
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.expression.ExpressionContext;
-import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.MethodInfo;
 import cn.taketoday.expression.PropertyNotWritableException;
 import cn.taketoday.expression.ValueReference;
@@ -56,194 +55,194 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public abstract class SimpleNode /*extends ExpressionSupport*/ implements Node {
 
-    protected Node parent;
+  protected Node parent;
 
-    protected Node[] children;
+  protected Node[] children;
 
-    protected final int id;
+  protected final int id;
 
-    protected String image;
+  protected String image;
 
-    public SimpleNode(int i) {
-        id = i;
+  public SimpleNode(int i) {
+    id = i;
+  }
+
+  public void jjtOpen() {}
+
+  public void jjtClose() {}
+
+  public void jjtSetParent(Node n) {
+    parent = n;
+  }
+
+  public Node jjtGetParent() {
+    return parent;
+  }
+
+  public void jjtAddChild(Node n, int i) {
+    if (children == null) {
+      children = new Node[i + 1];
     }
-
-    public void jjtOpen() {}
-
-    public void jjtClose() {}
-
-    public void jjtSetParent(Node n) {
-        parent = n;
+    else if (i >= children.length) {
+      Node c[] = new Node[i + 1];
+      System.arraycopy(children, 0, c, 0, children.length);
+      children = c;
     }
+    children[i] = n;
+  }
 
-    public Node jjtGetParent() {
-        return parent;
-    }
+  public Node jjtGetChild(int i) {
+    return children[i];
+  }
 
-    public void jjtAddChild(Node n, int i) {
-        if (children == null) {
-            children = new Node[i + 1];
+  public int jjtGetNumChildren() {
+    return (children == null) ? 0 : children.length;
+  }
+
+  /**
+   * You can override these two methods in subclasses of SimpleNode to customize
+   * the way the node appears when the tree is dumped. If your output uses more
+   * than one line you should override toString(String), otherwise overriding
+   * toString() is probably all you need to do.
+   */
+  @Override
+  public String toString() {
+    return this.image != null
+           ? ELParserTreeConstants.NODE_NAME[id] + "[" + this.image + "]"
+           : ELParserTreeConstants.NODE_NAME[id];
+  }
+
+  public String toString(String prefix) {
+    return Objects.requireNonNull(prefix).concat(toString());
+  }
+
+  /**
+   * Override this method if you want to customize how the node dumps out its
+   * children.
+   */
+  public void dump(String prefix) {
+    System.out.println(toString(prefix));
+    if (children != null) {
+      for (final Node child : children) {
+        SimpleNode n = (SimpleNode) child;
+        if (n != null) {
+          n.dump(prefix + " ");
         }
-        else if (i >= children.length) {
-            Node c[] = new Node[i + 1];
-            System.arraycopy(children, 0, c, 0, children.length);
-            children = c;
-        }
-        children[i] = n;
+      }
     }
+  }
 
-    public Node jjtGetChild(int i) {
-        return children[i];
+  public String getImage() {
+    return image;
+  }
+
+  public void setImage(String image) {
+    this.image = image;
+  }
+
+  @Override
+  public Class<?> getType(EvaluationContext ctx) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Object getValue(EvaluationContext ctx) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ValueReference getValueReference(EvaluationContext ctx) {
+    return null;
+  }
+
+  @Override
+  public boolean isReadOnly(EvaluationContext ctx) {
+    return true;
+  }
+
+  @Override
+  public void setValue(EvaluationContext ctx, Object value) {
+    throw new PropertyNotWritableException("Illegal Syntax for Set Operation");
+  }
+
+  @Override
+  public void accept(NodeVisitor visitor, ExpressionContext context) {
+    visitor.visit(this, context);
+    final Node[] children = this.children;
+    if (ObjectUtils.isNotEmpty(children)) {
+      for (final Node node : children) {
+        node.accept(visitor, context);
+      }
     }
+  }
 
-    public int jjtGetNumChildren() {
-        return (children == null) ? 0 : children.length;
+  @Override
+  public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean equals(Object node) {
+
+    if (!(node instanceof SimpleNode)) {
+      return false;
     }
-
-    /**
-     * You can override these two methods in subclasses of SimpleNode to customize
-     * the way the node appears when the tree is dumped. If your output uses more
-     * than one line you should override toString(String), otherwise overriding
-     * toString() is probably all you need to do.
-     */
-    @Override
-    public String toString() {
-        return this.image != null
-                ? ELParserTreeConstants.NODE_NAME[id] + "[" + this.image + "]"
-                : ELParserTreeConstants.NODE_NAME[id];
+    SimpleNode n = (SimpleNode) node;
+    if (id != n.id) {
+      return false;
     }
-
-    public String toString(String prefix) {
-        return Objects.requireNonNull(prefix).concat(toString());
+    final Node[] children = this.children;
+    if (children == null && n.children == null) {
+      if (image == null) {
+        return n.image == null;
+      }
+      return image.equals(n.image);
     }
-
-    /**
-     * Override this method if you want to customize how the node dumps out its
-     * children.
-     */
-    public void dump(String prefix) {
-        System.out.println(toString(prefix));
-        if (children != null) {
-            for (int i = 0; i < children.length; ++i) {
-                SimpleNode n = (SimpleNode) children[i];
-                if (n != null) {
-                    n.dump(prefix + " ");
-                }
-            }
-        }
+    if (children == null || n.children == null) {
+      // One is null and the other is non-null
+      return false;
     }
-
-    public String getImage() {
-        return image;
+    if (children.length != n.children.length) {
+      return false;
     }
-
-    public void setImage(String image) {
-        this.image = image;
+    if (children.length == 0) {
+      if (image == null) {
+        return n.image == null;
+      }
+      return image.equals(n.image);
     }
-
-    @Override
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ValueReference getValueReference(EvaluationContext ctx) throws ExpressionException {
-        return null;
-    }
-
-    @Override
-    public boolean isReadOnly(EvaluationContext ctx) throws ExpressionException {
-        return true;
-    }
-
-    @Override
-    public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
-        throw new PropertyNotWritableException("Illegal Syntax for Set Operation");
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor, ExpressionContext context) throws ExpressionException {
-        visitor.visit(this, context);
-        final Node[] children = this.children;
-        if (ObjectUtils.isNotEmpty(children)) {
-            for (final Node node : children) {
-                node.accept(visitor, context);
-            }
-        }
-    }
-
-    @Override
-    public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ExpressionException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public MethodInfo getMethodInfo(EvaluationContext ctx, Class<?>[] paramTypes) throws ExpressionException {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean equals(Object node) {
-
-        if (!(node instanceof SimpleNode)) {
-            return false;
-        }
-        SimpleNode n = (SimpleNode) node;
-        if (id != n.id) {
-            return false;
-        }
-        final Node[] children = this.children;
-        if (children == null && n.children == null) {
-            if (image == null) {
-                return n.image == null;
-            }
-            return image.equals(n.image);
-        }
-        if (children == null || n.children == null) {
-            // One is null and the other is non-null
-            return false;
-        }
-        if (children.length != n.children.length) {
-            return false;
-        }
-        if (children.length == 0) {
-            if (image == null) {
-                return n.image == null;
-            }
-            return image.equals(n.image);
-        }
-        for (int i = 0; i < children.length; i++) {
-            if (!children[i].equals(n.children[i])) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean isParametersProvided() {
+    for (int i = 0; i < children.length; i++) {
+      if (!children[i].equals(n.children[i])) {
         return false;
+      }
     }
+    return true;
+  }
 
-    @Override
-    public int hashCode() {
-        final Node[] children = this.children;
-        if (children == null || children.length == 0) {
-            if (image != null) {
-                return image.hashCode();
-            }
-            return id;
-        }
-        int h = 0;
-        for (int i = children.length - 1; i >= 0; i--) {
-            h = h + h + h + children[i].hashCode();
-        }
-        h = h + h + h + id;
-        return h;
+  @Override
+  public boolean isParametersProvided() {
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    final Node[] children = this.children;
+    if (children == null || children.length == 0) {
+      if (image != null) {
+        return image.hashCode();
+      }
+      return id;
     }
+    int h = 0;
+    for (int i = children.length - 1; i >= 0; i--) {
+      h = h + h + h + children[i].hashCode();
+    }
+    h = h + h + h + id;
+    return h;
+  }
 }

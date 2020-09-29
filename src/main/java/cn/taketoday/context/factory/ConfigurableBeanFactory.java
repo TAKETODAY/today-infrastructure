@@ -27,7 +27,7 @@ import cn.taketoday.context.exception.BeanDefinitionStoreException;
 
 /**
  * @author TODAY <br>
- *         2018-11-14 19:40
+ * 2018-11-14 19:40
  */
 public interface ConfigurableBeanFactory
         extends BeanFactory, SingletonBeanRegistry, BeanDefinitionRegistry {
@@ -36,9 +36,10 @@ public interface ConfigurableBeanFactory
    * Register a bean with the given name and bean definition
    *
    * @param beanDefinition
-   *            Bean definition
+   *         Bean definition
+   *
    * @throws BeanDefinitionStoreException
-   *             If can't store a bean
+   *         If can't store a bean
    * @since 1.2.0
    */
   void registerBean(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
@@ -47,9 +48,10 @@ public interface ConfigurableBeanFactory
    * Register a bean with the given bean definition
    *
    * @param beanDefinition
-   *            Bean definition
+   *         Bean definition
+   *
    * @throws BeanDefinitionStoreException
-   *             If can't store a bean
+   *         If can't store a bean
    * @since 2.1.7
    */
   default void registerBean(BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
@@ -60,7 +62,7 @@ public interface ConfigurableBeanFactory
    * Remove bean with the given name
    *
    * @param name
-   *            bean name
+   *         bean name
    */
   void removeBean(String name);
 
@@ -68,11 +70,12 @@ public interface ConfigurableBeanFactory
    * Register a bean with the given name and type
    *
    * @param name
-   *            bean name
+   *         bean name
    * @param clazz
-   *            bean class
+   *         bean class
+   *
    * @throws BeanDefinitionStoreException
-   *             If can't store a bean
+   *         If can't store a bean
    */
   void registerBean(String name, Class<?> clazz) throws BeanDefinitionStoreException;
 
@@ -80,11 +83,12 @@ public interface ConfigurableBeanFactory
    * Register a bean with the given name and bean instance
    *
    * @param name
-   *            bean name
+   *         bean name
    * @param obj
-   *            bean instance
+   *         bean instance
+   *
    * @throws BeanDefinitionStoreException
-   *             If can't store a bean
+   *         If can't store a bean
    */
   void registerBean(String name, Object obj) throws BeanDefinitionStoreException;
 
@@ -94,9 +98,10 @@ public interface ConfigurableBeanFactory
    * Use the {@link BeanNameCreator} to create a bean name
    *
    * @param obj
-   *            bean instance
+   *         bean instance
+   *
    * @throws BeanDefinitionStoreException
-   *             If can't store a bean
+   *         If can't store a bean
    */
   void registerBean(Object obj) throws BeanDefinitionStoreException;
 
@@ -107,9 +112,10 @@ public interface ConfigurableBeanFactory
    * it
    *
    * @param clazz
-   *            bean class
+   *         bean class
+   *
    * @throws BeanDefinitionStoreException
-   *             If can't store a bean
+   *         If can't store a bean
    */
   void registerBean(Class<?> clazz) throws BeanDefinitionStoreException;
 
@@ -117,9 +123,10 @@ public interface ConfigurableBeanFactory
    * Register a bean with the given types
    *
    * @param classes
-   *            bean classes
+   *         bean classes
+   *
    * @throws BeanDefinitionStoreException
-   *             If can't store a bean
+   *         If can't store a bean
    */
   void registerBean(Set<Class<?>> classes) throws BeanDefinitionStoreException;
 
@@ -127,7 +134,8 @@ public interface ConfigurableBeanFactory
    * Destroy bean with given name
    *
    * @param name
-   *            the bean name
+   *         the bean name
+   *
    * @since 2.1.0
    */
   void destroyBean(String name);
@@ -137,7 +145,8 @@ public interface ConfigurableBeanFactory
    * {@link cn.taketoday.context.event.ObjectRefreshedEvent ObjectRefreshedEvent}.
    *
    * @param name
-   *            bean name
+   *         bean name
+   *
    * @since 1.2.0
    */
   void refresh(String name);
@@ -147,9 +156,11 @@ public interface ConfigurableBeanFactory
    * {@link cn.taketoday.context.event.ObjectRefreshedEvent ObjectRefreshedEvent}.
    *
    * @param beanDefinition
-   *            bean definition
-   * @since 2.0.0
+   *         bean definition
+   *
    * @return initialized object
+   *
+   * @since 2.0.0
    */
   Object refresh(BeanDefinition beanDefinition);
 
@@ -157,7 +168,7 @@ public interface ConfigurableBeanFactory
    * Initialize singletons
    *
    * @throws Throwable
-   *             when could not initialize singletons
+   *         when could not initialize singletons
    * @since 2.1.2
    */
   void initializeSingletons() throws Throwable;
@@ -166,7 +177,8 @@ public interface ConfigurableBeanFactory
    * Add a {@link BeanPostProcessor}
    *
    * @param beanPostProcessor
-   *            bean post processor instance
+   *         bean post processor instance
+   *
    * @since 2.1.2
    */
   void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
@@ -175,7 +187,8 @@ public interface ConfigurableBeanFactory
    * Remove a {@link BeanPostProcessor}
    *
    * @param beanPostProcessor
-   *            bean post processor instance
+   *         bean post processor instance
+   *
    * @since 2.1.2
    */
   void removeBeanPostProcessor(BeanPostProcessor beanPostProcessor);
@@ -200,9 +213,10 @@ public interface ConfigurableBeanFactory
    * Register the given scope, backed by the given Scope implementation.
    *
    * @param name
-   *            scope name
+   *         scope name
    * @param scope
-   *            The backing Scope implementation
+   *         The backing Scope implementation
+   *
    * @since 2.1.7
    */
   void registerScope(String name, Scope scope);
@@ -214,7 +228,8 @@ public interface ConfigurableBeanFactory
    * instead of propagated to the caller of this method.
    *
    * @param beanName
-   *            the name of the scoped bean
+   *         the name of the scoped bean
+   *
    * @since 2.1.7
    */
   void destroyScopedBean(String beanName);

@@ -25,40 +25,41 @@ import cn.taketoday.cache.annotation.CacheConfig;
 
 /**
  * @author TODAY <br>
- *         2019-01-02 22:44
+ * 2019-01-02 22:44
  */
 public interface CacheManager {
 
-    /**
-     * Use default CacheConfig#EMPTY_CACHE_CONFIG
-     *
-     * @param name
-     *            the cache identifier (must not be {@code null})
-     *
-     * @return Target {@link Cache}
-     * @see CacheConfig#EMPTY_CACHE_CONFIG
-     */
-    default Cache getCache(String name) {
-        return getCache(name, CacheConfig.EMPTY_CACHE_CONFIG);
-    }
+  /**
+   * Use default CacheConfig#EMPTY_CACHE_CONFIG
+   *
+   * @param name
+   *         the cache identifier (must not be {@code null})
+   *
+   * @return Target {@link Cache}
+   *
+   * @see CacheConfig#EMPTY_CACHE_CONFIG
+   */
+  default Cache getCache(String name) {
+    return getCache(name, CacheConfig.EMPTY_CACHE_CONFIG);
+  }
 
-    /**
-     * Return the cache associated with the given name.
-     *
-     * @param name
-     *            the cache identifier (must not be {@code null})
-     * @param cacheConfig
-     *            {@link CacheConfig}
-     *
-     * @return Target {@link Cache}
-     */
-    Cache getCache(String name, CacheConfig cacheConfig);
+  /**
+   * Return the cache associated with the given name.
+   *
+   * @param name
+   *         the cache identifier (must not be {@code null})
+   * @param cacheConfig
+   *         {@link CacheConfig}
+   *
+   * @return Target {@link Cache}
+   */
+  Cache getCache(String name, CacheConfig cacheConfig);
 
-    /**
-     * Return a collection of the cache names known by this manager.
-     * 
-     * @return the names of all caches known by the cache manager
-     */
-    Collection<String> getCacheNames();
+  /**
+   * Return a collection of the cache names known by this manager.
+   *
+   * @return the names of all caches known by the cache manager
+   */
+  Collection<String> getCacheNames();
 
 }

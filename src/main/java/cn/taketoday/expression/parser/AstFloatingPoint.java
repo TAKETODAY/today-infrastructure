@@ -51,30 +51,30 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public final class AstFloatingPoint extends SimpleNode {
 
-    public AstFloatingPoint(int id) {
-        super(id);
+  public AstFloatingPoint(int id) {
+    super(id);
+  }
+
+  private Number number;
+
+  public Number getFloatingPoint() {
+    if (this.number == null) {
+      try {
+
+        this.number = Double.parseDouble(this.image);
+      }
+      catch (ArithmeticException e0) {
+        this.number = new BigDecimal(this.image);
+      }
     }
+    return this.number;
+  }
 
-    private Number number;
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    return getFloatingPoint();
+  }
 
-    public Number getFloatingPoint() {
-        if (this.number == null) {
-            try {
-
-                this.number = Double.parseDouble(this.image);
-            }
-            catch (ArithmeticException e0) {
-                this.number = new BigDecimal(this.image);
-            }
-        }
-        return this.number;
-    }
-
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        return getFloatingPoint();
-    }
-
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        return getFloatingPoint().getClass();
-    }
+  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+    return getFloatingPoint().getClass();
+  }
 }

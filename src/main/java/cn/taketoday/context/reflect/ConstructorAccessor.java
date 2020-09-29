@@ -25,5 +25,5 @@ package cn.taketoday.context.reflect;
  */
 public interface ConstructorAccessor {
 
-    Object newInstance(Object[] args);
+  Object newInstance(Object[] args);
 }

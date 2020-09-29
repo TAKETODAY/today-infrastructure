@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,18 +23,18 @@ import cn.taketoday.context.ApplicationContext;
 
 /**
  * @author TODAY <br>
- * 
- *         2018-09-09 23:05
+ *
+ * 2018-09-09 23:05
  */
 @SuppressWarnings("serial")
 public abstract class ApplicationContextEvent extends ApplicationEvent {
 
-    public ApplicationContextEvent(ApplicationContext source) {
-        super(source);
-    }
+  public ApplicationContextEvent(ApplicationContext source) {
+    super(source);
+  }
 
-    public final ApplicationContext getApplicationContext() {
-        return (ApplicationContext) getSource();
-    }
+  public final ApplicationContext getApplicationContext() {
+    return (ApplicationContext) getSource();
+  }
 
 }

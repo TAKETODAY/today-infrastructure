@@ -21,15 +21,15 @@ package cn.taketoday.context.event;
 
 /**
  * @author TODAY <br>
- *         2019-11-05 23:03
+ * 2019-11-05 23:03
  * @since 2.1.7
  */
 @FunctionalInterface
 public interface ApplicationEventCapable {
 
-    Class<?>[] getApplicationEvent();
+  Class<?>[] getApplicationEvent();
 
-    default Class<?>[] factory(Class<?>... array) {
-        return array;
-    }
+  default Class<?>[] factory(Class<?>... array) {
+    return array;
+  }
 }

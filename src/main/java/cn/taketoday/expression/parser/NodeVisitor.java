@@ -49,5 +49,5 @@ import cn.taketoday.expression.ExpressionException;
  */
 public interface NodeVisitor {
 
-    void visit(Node node, ExpressionContext context) throws ExpressionException;
+  void visit(Node node, ExpressionContext context) throws ExpressionException;
 }

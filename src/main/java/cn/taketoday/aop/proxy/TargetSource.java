@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,66 +19,66 @@
  */
 package cn.taketoday.aop.proxy;
 
+import org.aopalliance.intercept.MethodInterceptor;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.aopalliance.intercept.MethodInterceptor;
-
 /**
- * 
+ *
  * @author TODAY <br>
  *         2018-11-10 11:47
  */
 public class TargetSource {
 
-    private Object target;
-    private Class<?> targetClass;
-    private Class<?>[] interfaces;
-    private Map<Method, List<MethodInterceptor>> aspectMappings;
+  private Object target;
+  private Class<?> targetClass;
+  private Class<?>[] interfaces;
+  private Map<Method, List<MethodInterceptor>> aspectMappings;
 
-    public TargetSource(Object target, Class<?> targetClass) {
-        this.target = target;
-        this.targetClass = targetClass;
-        this.interfaces = targetClass.getInterfaces();
-    }
+  public TargetSource(Object target, Class<?> targetClass) {
+    this.target = target;
+    this.targetClass = targetClass;
+    this.interfaces = targetClass.getInterfaces();
+  }
 
-    public Object getTarget() {
-        return target;
-    }
+  public Object getTarget() {
+    return target;
+  }
 
-    public void setTarget(Object target) {
-        this.target = target;
-    }
+  public void setTarget(Object target) {
+    this.target = target;
+  }
 
-    public Class<?> getTargetClass() {
-        return targetClass;
-    }
+  public Class<?> getTargetClass() {
+    return targetClass;
+  }
 
-    public void setTargetClass(Class<?> targetClass) {
-        this.targetClass = targetClass;
-    }
+  public void setTargetClass(Class<?> targetClass) {
+    this.targetClass = targetClass;
+  }
 
-    public Class<?>[] getInterfaces() {
-        return interfaces;
-    }
+  public Class<?>[] getInterfaces() {
+    return interfaces;
+  }
 
-    public void setInterfaces(Class<?>[] interfaces) {
-        this.interfaces = interfaces;
-    }
+  public void setInterfaces(Class<?>[] interfaces) {
+    this.interfaces = interfaces;
+  }
 
-    public Map<Method, List<MethodInterceptor>> getAspectMappings() {
-        return aspectMappings;
-    }
+  public Map<Method, List<MethodInterceptor>> getAspectMappings() {
+    return aspectMappings;
+  }
 
-    public void setAspectMappings(Map<Method, List<MethodInterceptor>> aspectMappings) {
-        this.aspectMappings = aspectMappings;
-    }
+  public void setAspectMappings(Map<Method, List<MethodInterceptor>> aspectMappings) {
+    this.aspectMappings = aspectMappings;
+  }
 
-    @Override
-    public String toString() {
-        return String.format("{\"target\":\"%s\",\"targetClass\":\"%s\",\"interfaces\":\"%s\",\"aspectMappings\":\"%s\"}", //
-                             target, targetClass, Arrays.toString(interfaces), aspectMappings);
-    }
+  @Override
+  public String toString() {
+    return String.format("{\"target\":\"%s\",\"targetClass\":\"%s\",\"interfaces\":\"%s\",\"aspectMappings\":\"%s\"}", //
+                         target, targetClass, Arrays.toString(interfaces), aspectMappings);
+  }
 }

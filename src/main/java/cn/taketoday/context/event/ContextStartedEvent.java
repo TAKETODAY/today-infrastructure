@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,18 +22,18 @@ package cn.taketoday.context.event;
 import cn.taketoday.context.ApplicationContext;
 
 /**
- * 
+ *
  * Context started and all the singletons are initialized
- * 
+ *
  * @author TODAY <br>
- * 
+ *
  *         2018-09-10 10:52
  */
 @SuppressWarnings("serial")
 public class ContextStartedEvent extends ApplicationContextEvent {
 
-    public ContextStartedEvent(ApplicationContext applicationContext) {
-        super(applicationContext);
-    }
+  public ContextStartedEvent(ApplicationContext applicationContext) {
+    super(applicationContext);
+  }
 
 }

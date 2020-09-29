@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,11 +26,11 @@ package cn.taketoday.context.listener;
 @FunctionalInterface
 public interface ApplicationEventPublisher {
 
-    /**
-     * Publish event
-     * 
-     * @param event
-     *            Any Event object
-     */
-    void publishEvent(Object event);
+  /**
+   * Publish event
+   *
+   * @param event
+   *            Any Event object
+   */
+  void publishEvent(Object event);
 }

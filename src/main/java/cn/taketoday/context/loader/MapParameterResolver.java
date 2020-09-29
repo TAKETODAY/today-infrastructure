@@ -38,40 +38,40 @@ import cn.taketoday.context.utils.ContextUtils;
  * 2019-10-28 20:27
  */
 public class MapParameterResolver
-    extends OrderedSupport implements ExecutableParameterResolver, Ordered {
+        extends OrderedSupport implements ExecutableParameterResolver, Ordered {
 
-    public MapParameterResolver() {
-        this(Integer.MAX_VALUE);
+  public MapParameterResolver() {
+    this(Integer.MAX_VALUE);
+  }
+
+  public MapParameterResolver(int order) {
+    super(order);
+  }
+
+  @Override
+  public boolean supports(Parameter parameter) {
+    return Map.class.isAssignableFrom(parameter.getType());
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Object resolve(Parameter parameter, BeanFactory beanFactory) {
+    Props props = parameter.getAnnotation(Props.class);
+
+    if (props == null) {
+      props = new DefaultProps();
     }
 
-    public MapParameterResolver(int order) {
-        super(order);
+    final Properties loadProps = ContextUtils.loadProps(props, System.getProperties());
+    final Class<?> type = parameter.getType();
+
+    if (type.isInterface()) { // extends or implements Map
+      return loadProps;
     }
 
-    @Override
-    public boolean supports(Parameter parameter) {
-        return Map.class.isAssignableFrom(parameter.getType());
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Object resolve(Parameter parameter, BeanFactory beanFactory) {
-        Props props = parameter.getAnnotation(Props.class);
-
-        if (props == null) {
-            props = new DefaultProps();
-        }
-
-        final Properties loadProps = ContextUtils.loadProps(props, System.getProperties());
-        final Class<?> type = parameter.getType();
-
-        if (type.isInterface()) { // extends or implements Map
-            return loadProps;
-        }
-
-        final Map<Object, Object> ret = (Map<Object, Object>) ClassUtils.newInstance(type);
-        ret.putAll(loadProps);
-        return ret;
-    }
+    final Map<Object, Object> ret = (Map<Object, Object>) ClassUtils.newInstance(type);
+    ret.putAll(loadProps);
+    return ret;
+  }
 
 }

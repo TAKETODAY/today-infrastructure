@@ -26,47 +26,51 @@ package cn.taketoday.expression;
 @SuppressWarnings("serial")
 public class ExpressionException extends RuntimeException {
 
-    // -------------------------------------
-    /**
-     * Creates an <code>ELException</code> with no detail message.
-     */
-    public ExpressionException() {
-        super();
-    }
+  // -------------------------------------
 
-    // -------------------------------------
-    /**
-     * Creates an <code>ELException</code> with the provided detail message.
-     *
-     * @param pMessage
-     *            the detail message
-     */
-    public ExpressionException(String pMessage) {
-        super(pMessage);
-    }
+  /**
+   * Creates an <code>ELException</code> with no detail message.
+   */
+  public ExpressionException() {
+    super();
+  }
 
-    // -------------------------------------
-    /**
-     * Creates an <code>ELException</code> with the given cause.
-     *
-     * @param pRootCause
-     *            the originating cause of this exception
-     */
-    public ExpressionException(Throwable pRootCause) {
-        super(pRootCause);
-    }
+  // -------------------------------------
 
-    // -------------------------------------
-    /**
-     * Creates an ELException with the given detail message and root cause.
-     *
-     * @param pMessage
-     *            the detail message
-     * @param pRootCause
-     *            the originating cause of this exception
-     */
-    public ExpressionException(String pMessage, Throwable pRootCause) {
-        super(pMessage, pRootCause);
-    }
+  /**
+   * Creates an <code>ELException</code> with the provided detail message.
+   *
+   * @param pMessage
+   *         the detail message
+   */
+  public ExpressionException(String pMessage) {
+    super(pMessage);
+  }
+
+  // -------------------------------------
+
+  /**
+   * Creates an <code>ELException</code> with the given cause.
+   *
+   * @param pRootCause
+   *         the originating cause of this exception
+   */
+  public ExpressionException(Throwable pRootCause) {
+    super(pRootCause);
+  }
+
+  // -------------------------------------
+
+  /**
+   * Creates an ELException with the given detail message and root cause.
+   *
+   * @param pMessage
+   *         the detail message
+   * @param pRootCause
+   *         the originating cause of this exception
+   */
+  public ExpressionException(String pMessage, Throwable pRootCause) {
+    super(pMessage, pRootCause);
+  }
 
 }

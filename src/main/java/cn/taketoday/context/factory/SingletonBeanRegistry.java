@@ -25,7 +25,7 @@ import cn.taketoday.context.BeanNameCreator;
 
 /**
  * @author TODAY <br>
- *         2018-11-14 19:47
+ * 2018-11-14 19:47
  * @since 2.0.1
  */
 public interface SingletonBeanRegistry {
@@ -34,9 +34,9 @@ public interface SingletonBeanRegistry {
    * Register a singleton to context
    *
    * @param name
-   *            bean name
+   *         bean name
    * @param bean
-   *            bean instance
+   *         bean instance
    */
   void registerSingleton(String name, Object bean);
 
@@ -44,7 +44,8 @@ public interface SingletonBeanRegistry {
    * Register a singleton to context user {@link BeanNameCreator} to create a name
    *
    * @param bean
-   *            bean instance
+   *         bean instance
+   *
    * @since 2.1.2
    */
   void registerSingleton(Object bean);
@@ -60,9 +61,10 @@ public interface SingletonBeanRegistry {
    * Get instances Map
    *
    * @return the map of singletons
-   * @deprecated since 2.1.6 use {@link SingletonBeanRegistry#getSingletons()}
-   *             instead
+   *
    * @see SingletonBeanRegistry#getSingletons()
+   * @deprecated since 2.1.6 use {@link SingletonBeanRegistry#getSingletons()}
+   * instead
    */
   @Deprecated
   Map<String, Object> getSingletonsMap();
@@ -72,7 +74,8 @@ public interface SingletonBeanRegistry {
    * can't put instances in BeanDefinition.
    *
    * @param name
-   *            bean name
+   *         bean name
+   *
    * @return bean instance
    */
   Object getSingleton(String name);
@@ -81,7 +84,7 @@ public interface SingletonBeanRegistry {
    * remove a singleton with given name
    *
    * @param name
-   *            bean name
+   *         bean name
    */
   void removeSingleton(String name);
 
@@ -89,7 +92,8 @@ public interface SingletonBeanRegistry {
    * contains instance with given name?
    *
    * @param name
-   *            bean name
+   *         bean name
+   *
    * @return if contains singleton
    */
   boolean containsSingleton(String name);

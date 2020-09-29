@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,16 +23,16 @@ import cn.taketoday.context.ApplicationContext;
 
 /**
  * When close {@link ApplicationContext} will publish this event
- * 
+ *
  * @author TODAY <br>
- * 
+ *
  *         2018-09-10 07:55
  */
 @SuppressWarnings("serial")
 public class ContextCloseEvent extends ApplicationContextEvent {
 
-    public ContextCloseEvent(ApplicationContext applicationContext) {
-        super(applicationContext);
-    }
+  public ContextCloseEvent(ApplicationContext applicationContext) {
+    super(applicationContext);
+  }
 
 }

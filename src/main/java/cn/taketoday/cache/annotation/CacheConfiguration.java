@@ -32,171 +32,171 @@ import cn.taketoday.context.utils.StringUtils;
 @SuppressWarnings("all")
 public class CacheConfiguration implements Cacheable, CacheEvict, CachePut, CacheConfig, Annotation {
 
-    private boolean sync = false;
-    private boolean allEntries = false;
-    private String key = Constant.BLANK;
-    /** cache unless expression */
-    private String unless = Constant.BLANK;
-    private boolean beforeInvocation = false;
-    /** cache name */
-    private String cacheName = Constant.BLANK;
-    private String condition = Constant.BLANK;
+  private boolean sync = false;
+  private boolean allEntries = false;
+  private String key = Constant.BLANK;
+  /** cache unless expression */
+  private String unless = Constant.BLANK;
+  private boolean beforeInvocation = false;
+  /** cache name */
+  private String cacheName = Constant.BLANK;
+  private String condition = Constant.BLANK;
 
-    private int maxSize = 0;
-    private long expire = 0;
-    private long maxIdleTime = 0;
-    private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+  private int maxSize = 0;
+  private long expire = 0;
+  private long maxIdleTime = 0;
+  private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
 
-    private final Class<? extends Annotation> annotationType;
+  private final Class<? extends Annotation> annotationType;
 
-    public CacheConfiguration() {
-        this(CacheConfig.class);
+  public CacheConfiguration() {
+    this(CacheConfig.class);
+  }
+
+  public CacheConfiguration(String name) {
+    this(name, CacheConfig.class);
+  }
+
+  public CacheConfiguration(Class<? extends Annotation> annotationType) {
+    this(null, annotationType);
+  }
+
+  public CacheConfiguration(String name, Class<? extends Annotation> annotationType) {
+    this.cacheName = name;
+    this.annotationType = annotationType;
+  }
+
+  @Override
+  public Class<? extends Annotation> annotationType() {
+    return annotationType;
+  }
+
+  @Override
+  public String cacheName() {
+    return cacheName;
+  }
+
+  @Override
+  public long expire() {
+    return expire;
+  }
+
+  @Override
+  public TimeUnit timeUnit() {
+    return timeUnit;
+  }
+
+  @Override
+  public String key() {
+    return key;
+  }
+
+  @Override
+  public String condition() {
+    return condition;
+  }
+
+  @Override
+  public String unless() {
+    return unless;
+  }
+
+  @Override
+  public boolean sync() {
+    return sync;
+  }
+
+  @Override
+  public boolean allEntries() {
+    return allEntries;
+  }
+
+  @Override
+  public boolean beforeInvocation() {
+    return beforeInvocation;
+  }
+
+  /**
+   * Merge {@link CacheConfig} {@link Annotation}
+   *
+   * @param annotationAttributes
+   */
+  public void mergeCacheConfigAttributes(CacheConfig cacheConfig) {
+
+    if (StringUtils.isEmpty(this.cacheName)) {
+      this.cacheName = cacheConfig.cacheName();
     }
-
-    public CacheConfiguration(String name) {
-        this(name, CacheConfig.class);
+    if (this.expire == 0) {
+      this.expire = cacheConfig.expire();
     }
-
-    public CacheConfiguration(Class<? extends Annotation> annotationType) {
-        this(null, annotationType);
+    if (this.maxSize == 0) {
+      this.maxSize = cacheConfig.maxSize();
     }
-
-    public CacheConfiguration(String name, Class<? extends Annotation> annotationType) {
-        this.cacheName = name;
-        this.annotationType = annotationType;
+    if (this.maxIdleTime == 0) {
+      this.maxIdleTime = cacheConfig.maxIdleTime();
     }
-
-    @Override
-    public Class<? extends Annotation> annotationType() {
-        return annotationType;
-    }
-
-    @Override
-    public String cacheName() {
-        return cacheName;
-    }
-
-    @Override
-    public long expire() {
-        return expire;
-    }
-
-    @Override
-    public TimeUnit timeUnit() {
-        return timeUnit;
-    }
-
-    @Override
-    public String key() {
-        return key;
-    }
-
-    @Override
-    public String condition() {
-        return condition;
-    }
-
-    @Override
-    public String unless() {
-        return unless;
-    }
-
-    @Override
-    public boolean sync() {
-        return sync;
-    }
-
-    @Override
-    public boolean allEntries() {
-        return allEntries;
-    }
-
-    @Override
-    public boolean beforeInvocation() {
-        return beforeInvocation;
-    }
-
-    /**
-     * Merge {@link CacheConfig} {@link Annotation}
-     *
-     * @param annotationAttributes
-     */
-    public void mergeCacheConfigAttributes(CacheConfig cacheConfig) {
-
-        if (StringUtils.isEmpty(this.cacheName)) {
-            this.cacheName = cacheConfig.cacheName();
-        }
-        if (this.expire == 0) {
-            this.expire = cacheConfig.expire();
-        }
-        if (this.maxSize == 0) {
-            this.maxSize = cacheConfig.maxSize();
-        }
-        if (this.maxIdleTime == 0) {
-            this.maxIdleTime = cacheConfig.maxIdleTime();
-        }
-        if (this.timeUnit == TimeUnit.MILLISECONDS) {
-            TimeUnit timeUnit = cacheConfig.timeUnit();
-            if (timeUnit != TimeUnit.MILLISECONDS) {
-                this.timeUnit = timeUnit;
-            }
-        }
-    }
-
-    @Override
-    public int maxSize() {
-        return maxSize;
-    }
-
-    @Override
-    public long maxIdleTime() {
-        return maxIdleTime;
-    }
-
-    // setter
-
-    public void setSync(boolean sync) {
-        this.sync = sync;
-    }
-
-    public void setAllEntries(boolean allEntries) {
-        this.allEntries = allEntries;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public void setUnless(String unless) {
-        this.unless = unless;
-    }
-
-    public void setBeforeInvocation(boolean beforeInvocation) {
-        this.beforeInvocation = beforeInvocation;
-    }
-
-    public void setCacheName(String cacheName) {
-        this.cacheName = cacheName;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
-    }
-
-    public void setMaxSize(int maxSize) {
-        this.maxSize = maxSize;
-    }
-
-    public void setExpire(long expire) {
-        this.expire = expire;
-    }
-
-    public void setMaxIdleTime(long maxIdleTime) {
-        this.maxIdleTime = maxIdleTime;
-    }
-
-    public void setTimeUnit(TimeUnit timeUnit) {
+    if (this.timeUnit == TimeUnit.MILLISECONDS) {
+      TimeUnit timeUnit = cacheConfig.timeUnit();
+      if (timeUnit != TimeUnit.MILLISECONDS) {
         this.timeUnit = timeUnit;
+      }
     }
+  }
+
+  @Override
+  public int maxSize() {
+    return maxSize;
+  }
+
+  @Override
+  public long maxIdleTime() {
+    return maxIdleTime;
+  }
+
+  // setter
+
+  public void setSync(boolean sync) {
+    this.sync = sync;
+  }
+
+  public void setAllEntries(boolean allEntries) {
+    this.allEntries = allEntries;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public void setUnless(String unless) {
+    this.unless = unless;
+  }
+
+  public void setBeforeInvocation(boolean beforeInvocation) {
+    this.beforeInvocation = beforeInvocation;
+  }
+
+  public void setCacheName(String cacheName) {
+    this.cacheName = cacheName;
+  }
+
+  public void setCondition(String condition) {
+    this.condition = condition;
+  }
+
+  public void setMaxSize(int maxSize) {
+    this.maxSize = maxSize;
+  }
+
+  public void setExpire(long expire) {
+    this.expire = expire;
+  }
+
+  public void setMaxIdleTime(long maxIdleTime) {
+    this.maxIdleTime = maxIdleTime;
+  }
+
+  public void setTimeUnit(TimeUnit timeUnit) {
+    this.timeUnit = timeUnit;
+  }
 
 }

@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -36,49 +36,47 @@ import cn.taketoday.context.utils.ObjectUtils;
  */
 public class CompositeCacheManager implements CacheManager {
 
-    private final List<CacheManager> cacheManagers = new ArrayList<>();
+  private final List<CacheManager> cacheManagers = new ArrayList<>();
 
-    public CompositeCacheManager() {}
+  public CompositeCacheManager() {}
 
-    public CompositeCacheManager(CacheManager... cacheManagers) {
-        Objects.requireNonNull(cacheManagers, "cacheManager s can't be null");
-        Collections.addAll(this.cacheManagers, cacheManagers);
-    }
+  public CompositeCacheManager(CacheManager... cacheManagers) {
+    Objects.requireNonNull(cacheManagers, "cacheManager s can't be null");
+    Collections.addAll(this.cacheManagers, cacheManagers);
+  }
 
-    public void addCacheManagers(Collection<CacheManager> cacheManagers) {
-        Objects.requireNonNull(cacheManagers, "cacheManager s can't be null");
-        this.cacheManagers.addAll(cacheManagers);
-    }
-    
-    
-    public void setCacheManagers(Collection<CacheManager> cacheManagers) {
-        Objects.requireNonNull(cacheManagers, "cacheManager s can't be null");
-        this.cacheManagers.clear();
-        this.cacheManagers.addAll(cacheManagers);
-    }
-    
+  public void addCacheManagers(Collection<CacheManager> cacheManagers) {
+    Objects.requireNonNull(cacheManagers, "cacheManager s can't be null");
+    this.cacheManagers.addAll(cacheManagers);
+  }
 
-    @Override
-    public Cache getCache(String name, CacheConfig cacheConfig) {
-        for (final CacheManager cacheManager : this.cacheManagers) {
-            final Cache cache = cacheManager.getCache(name, cacheConfig);
-            if (cache != null) {
-                return cache;
-            }
-        }
-        return null;
-    }
+  public void setCacheManagers(Collection<CacheManager> cacheManagers) {
+    Objects.requireNonNull(cacheManagers, "cacheManager s can't be null");
+    this.cacheManagers.clear();
+    this.cacheManagers.addAll(cacheManagers);
+  }
 
-    @Override
-    public Collection<String> getCacheNames() {
-        if (ObjectUtils.isEmpty(cacheManagers)) {
-            return Collections.emptySet();
-        }
-        final Set<String> names = new LinkedHashSet<>();
-        for (CacheManager manager : this.cacheManagers) {
-            names.addAll(manager.getCacheNames());
-        }
-        return names;
+  @Override
+  public Cache getCache(String name, CacheConfig cacheConfig) {
+    for (final CacheManager cacheManager : this.cacheManagers) {
+      final Cache cache = cacheManager.getCache(name, cacheConfig);
+      if (cache != null) {
+        return cache;
+      }
     }
+    return null;
+  }
+
+  @Override
+  public Collection<String> getCacheNames() {
+    if (ObjectUtils.isEmpty(cacheManagers)) {
+      return Collections.emptySet();
+    }
+    final Set<String> names = new LinkedHashSet<>();
+    for (CacheManager manager : this.cacheManagers) {
+      names.addAll(manager.getCacheNames());
+    }
+    return names;
+  }
 
 }

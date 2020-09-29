@@ -49,23 +49,23 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public final class AstDynamicExpression extends SimpleNode {
 
-    public AstDynamicExpression(int id) {
-        super(id);
-    }
+  public AstDynamicExpression(int id) {
+    super(id);
+  }
 
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        return this.children[0].getType(ctx);
-    }
+  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+    return this.children[0].getType(ctx);
+  }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        return this.children[0].getValue(ctx);
-    }
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    return this.children[0].getValue(ctx);
+  }
 
-    public boolean isReadOnly(EvaluationContext ctx) throws ExpressionException {
-        return this.children[0].isReadOnly(ctx);
-    }
+  public boolean isReadOnly(EvaluationContext ctx) throws ExpressionException {
+    return this.children[0].isReadOnly(ctx);
+  }
 
-    public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
-        this.children[0].setValue(ctx, value);
-    }
+  public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
+    this.children[0].setValue(ctx, value);
+  }
 }

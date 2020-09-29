@@ -25,7 +25,7 @@ package cn.taketoday.context.reflect;
  * @date 2020/9/12 15:20
  */
 public class ReadOnlyGetterMethodPropertyAccessor
-    extends ReadOnlyPropertyAccessor implements PropertyAccessor {
+        extends ReadOnlyPropertyAccessor implements PropertyAccessor {
 
   private final GetterMethod getterMethod;
 

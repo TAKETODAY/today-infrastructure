@@ -49,12 +49,12 @@ import cn.taketoday.expression.lang.ExpressionUtils;
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstNotEqual extends BooleanNode {
-    
-    public AstNotEqual(int id) {
-        super(id);
-    }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        return Boolean.valueOf(!ExpressionUtils.equals(this.children[0].getValue(ctx), this.children[1].getValue(ctx)));
-    }
+  public AstNotEqual(int id) {
+    super(id);
+  }
+
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    return Boolean.valueOf(!ExpressionUtils.equals(this.children[0].getValue(ctx), this.children[1].getValue(ctx)));
+  }
 }

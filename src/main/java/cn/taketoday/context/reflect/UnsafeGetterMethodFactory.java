@@ -24,15 +24,14 @@ import java.lang.reflect.Field;
 import cn.taketoday.context.utils.ReflectionUtils;
 
 /**
- * 
  * @author TODAY <br>
- *         2020-08-13 20:24
+ * 2020-08-13 20:24
  */
 public class UnsafeGetterMethodFactory implements GetterMethodFactory {
 
-    @Override
-    public GetterMethod newGetterMethod(Field field) {
-        return ReflectionUtils.newUnsafeGetterMethod(field);
-    }
+  @Override
+  public GetterMethod newGetterMethod(Field field) {
+    return ReflectionUtils.newUnsafeGetterMethod(field);
+  }
 
 }

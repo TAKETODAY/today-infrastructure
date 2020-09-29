@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,17 +21,17 @@ package cn.taketoday.context.factory;
 
 /**
  * Release resources
- * 
+ *
  * @author TODAY <br>
  *         2018-7-18 1:07:15
  */
 public interface DisposableBean {
 
-    /**
-     * Invoked by a ApplicationContext on destruction of a singleton.
-     * 
-     * @throws Exception
-     *             in case of errors
-     */
-    void destroy() throws Exception;
+  /**
+   * Invoked by a ApplicationContext on destruction of a singleton.
+   *
+   * @throws Exception
+   *             in case of errors
+   */
+  void destroy() throws Exception;
 }

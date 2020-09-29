@@ -42,8 +42,6 @@
 
 package cn.taketoday.expression.stream;
 
-import static java.util.Objects.requireNonNull;
-
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -52,25 +50,27 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.expression.ExpressionContext;
 import cn.taketoday.expression.ExpressionResolver;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * This ELResolver intercepts method calls to a Collections, to provide support
  * for collection operations.
- * 
+ *
  * @author TODAY <br>
- *         2019-02-20 17:21
+ * 2019-02-20 17:21
  */
 public class StreamExpressionResolver extends ExpressionResolver {
 
-    private static final StreamExpressionResolver INSTANCE = new StreamExpressionResolver();
+  private static final StreamExpressionResolver INSTANCE = new StreamExpressionResolver();
 
-    public final static StreamExpressionResolver getInstance() {
-        return INSTANCE;
-    }
+  public final static StreamExpressionResolver getInstance() {
+    return INSTANCE;
+  }
 
-    @SuppressWarnings("unchecked")
-    public Object invoke(final ExpressionContext context, final Object base, final Object method, //
-                         final Class<?>[] paramTypes, final Object[] params) //
-    {
+  @SuppressWarnings("unchecked")
+  public Object invoke(final ExpressionContext context, final Object base, final Object method, //
+                       final Class<?>[] paramTypes, final Object[] params) //
+  {
 //        if (base instanceof Collection
 //            && "stream".equals(method)
 //            && ObjectUtils.isEmpty(params)) {
@@ -83,66 +83,66 @@ public class StreamExpressionResolver extends ExpressionResolver {
 //            requireNonNull(context).setPropertyResolved(true);
 //            return new Stream(arrayIterator(base));
 //        }
-        if ("stream".equals(method) && ObjectUtils.isEmpty(params)) {
-            requireNonNull(context).setPropertyResolved(true);
-            if (base.getClass().isArray()) {
-                return new Stream(arrayIterator(base));
-            }
-            if (base instanceof Collection) {
-                return new Stream(((Collection<Object>) base).iterator());
-            }
+    if ("stream".equals(method) && ObjectUtils.isEmpty(params)) {
+      requireNonNull(context).setPropertyResolved(true);
+      if (base.getClass().isArray()) {
+        return new Stream(arrayIterator(base));
+      }
+      if (base instanceof Collection) {
+        return new Stream(((Collection<Object>) base).iterator());
+      }
+    }
+    return null;
+  }
+
+  private static Iterator<Object> arrayIterator(final Object base) {
+    final int size = Array.getLength(base);
+    return new Iterator<Object>() {
+
+      private int index = 0;
+      private boolean yielded;
+      private Object current;
+
+      @Override
+      public boolean hasNext() {
+        if ((!yielded) && index < size) {
+          current = Array.get(base, index++);
+          yielded = true;
         }
-        return null;
-    }
+        return yielded;
+      }
 
-    private static Iterator<Object> arrayIterator(final Object base) {
-        final int size = Array.getLength(base);
-        return new Iterator<Object>() {
+      @Override
+      public Object next() {
+        yielded = false;
+        return current;
+      }
 
-            private int index = 0;
-            private boolean yielded;
-            private Object current;
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    };
+  }
 
-            @Override
-            public boolean hasNext() {
-                if ((!yielded) && index < size) {
-                    current = Array.get(base, index++);
-                    yielded = true;
-                }
-                return yielded;
-            }
+  /*
+   * private LambdaExpression getLambda(Object obj, String method) { if (obj ==
+   * null || ! (obj instanceof LambdaExpression)) { throw new ELException
+   * ("When calling " + method + ", expecting an " +
+   * "EL lambda expression, but found " + obj); } return (LambdaExpression) obj; }
+   */
+  public Object getValue(ExpressionContext context, Object base, Object property) {
+    return null;
+  }
 
-            @Override
-            public Object next() {
-                yielded = false;
-                return current;
-            }
+  public Class<?> getType(ExpressionContext context, Object base, Object property) {
+    return null;
+  }
 
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        };
-    }
+  public void setValue(ExpressionContext context, Object base, Object property, Object value) {}
 
-    /*
-     * private LambdaExpression getLambda(Object obj, String method) { if (obj ==
-     * null || ! (obj instanceof LambdaExpression)) { throw new ELException
-     * ("When calling " + method + ", expecting an " +
-     * "EL lambda expression, but found " + obj); } return (LambdaExpression) obj; }
-     */
-    public Object getValue(ExpressionContext context, Object base, Object property) {
-        return null;
-    }
-
-    public Class<?> getType(ExpressionContext context, Object base, Object property) {
-        return null;
-    }
-
-    public void setValue(ExpressionContext context, Object base, Object property, Object value) {}
-
-    public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-        return false;
-    }
+  public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
+    return false;
+  }
 
 }

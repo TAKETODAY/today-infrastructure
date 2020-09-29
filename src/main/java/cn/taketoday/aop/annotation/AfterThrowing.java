@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -36,16 +36,16 @@ import cn.taketoday.aop.advice.MethodAfterThrowingAdvice;
 @Advice(interceptor = MethodAfterThrowingAdvice.class)
 public @interface AfterThrowing {
 
-    /** Annotated with */
-    Class<? extends Annotation>[] value() default {};
+  /** Annotated with */
+  Class<? extends Annotation>[] value() default {};
 
-    /** Package name */
-    String[] pointcut() default {};
+  /** Package name */
+  String[] pointcut() default {};
 
-    /** Target classes */
-    Class<?>[] target() default {};
+  /** Target classes */
+  Class<?>[] target() default {};
 
-    /** Method in class */
-    String[] method() default {};
+  /** Method in class */
+  String[] method() default {};
 
 }

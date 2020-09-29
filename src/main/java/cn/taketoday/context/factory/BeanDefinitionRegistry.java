@@ -27,7 +27,7 @@ import java.util.Set;
  *
  * @author TODAY <br>
  *
- *         2018-07-08 19:56:53 2018-08-06 11:07
+ * 2018-07-08 19:56:53 2018-08-06 11:07
  */
 public interface BeanDefinitionRegistry {
 
@@ -39,9 +39,9 @@ public interface BeanDefinitionRegistry {
   /**
    * Get {@link BeanDefinition}s map
    *
-   * @deprecated since 2.1.6 use
-   *             {@link BeanDefinitionRegistry#getBeanDefinitions()} instead
    * @see BeanDefinitionRegistry#getBeanDefinitions()
+   * @deprecated since 2.1.6 use
+   * {@link BeanDefinitionRegistry#getBeanDefinitions()} instead
    */
   @Deprecated
   Map<String, BeanDefinition> getBeanDefinitionsMap();
@@ -50,7 +50,8 @@ public interface BeanDefinitionRegistry {
    * register a bean with the given name and type
    *
    * @param def
-   *            Bean definition
+   *         Bean definition
+   *
    * @since 1.2.0
    */
   void registerBeanDefinition(String name, BeanDefinition def);
@@ -59,7 +60,7 @@ public interface BeanDefinitionRegistry {
    * Remove the BeanDefinition for the given name.
    *
    * @param beanName
-   *            The name of the bean instance to register
+   *         The name of the bean instance to register
    */
   void removeBeanDefinition(String beanName);
 
@@ -68,7 +69,8 @@ public interface BeanDefinitionRegistry {
    * for the given bean name.
    *
    * @param beanName
-   *            Name of the bean to find a definition for
+   *         Name of the bean to find a definition for
+   *
    * @return the BeanDefinition for the given name (never {@code null})
    */
   BeanDefinition getBeanDefinition(String beanName);
@@ -77,7 +79,7 @@ public interface BeanDefinitionRegistry {
    * Return the BeanDefinition for the given bean class.
    *
    * @param beanClass
-   *            Bean definition bean class
+   *         Bean definition bean class
    */
   BeanDefinition getBeanDefinition(Class<?> beanClass);
 
@@ -85,7 +87,8 @@ public interface BeanDefinitionRegistry {
    * Check if this registry contains a bean definition with the given name.
    *
    * @param beanName
-   *            The name of the bean to look for
+   *         The name of the bean to look for
+   *
    * @return If this registry contains a bean definition with the given name
    */
   boolean containsBeanDefinition(String beanName);
@@ -94,10 +97,12 @@ public interface BeanDefinitionRegistry {
    * Whether there is a bean with the given name and type.
    *
    * @param beanName
-   *            The name of the bean to look for
+   *         The name of the bean to look for
    * @param type
-   *            Bean type
+   *         Bean type
+   *
    * @return If exist a bean with given name and type
+   *
    * @since 2.1.7
    */
   default boolean containsBeanDefinition(String beanName, Class<?> type) {
@@ -108,7 +113,8 @@ public interface BeanDefinitionRegistry {
    * Whether there is a bean with the given type.
    *
    * @param type
-   *            The bean class of the bean to look for
+   *         The bean class of the bean to look for
+   *
    * @return If exist a bean with given type
    */
   boolean containsBeanDefinition(Class<?> type);
@@ -117,9 +123,10 @@ public interface BeanDefinitionRegistry {
    * Whether there is a bean with the given type.
    *
    * @param type
-   *            Target type
+   *         Target type
    * @param equals
-   *            Must equals type
+   *         Must equals type
+   *
    * @return If exist a bean with given type
    */
   boolean containsBeanDefinition(Class<?> type, boolean equals);
@@ -128,7 +135,7 @@ public interface BeanDefinitionRegistry {
    * Return the names of all beans defined in this registry.
    *
    * @return the names of all beans defined in this registry, or an empty set if
-   *         none defined
+   * none defined
    */
   Set<String> getBeanDefinitionNames();
 
@@ -143,7 +150,8 @@ public interface BeanDefinitionRegistry {
    * Register {@link BeanDefinition} with {@link BeanDefinition#getName()}
    *
    * @param def
-   *            Target {@link BeanDefinition}
+   *         Target {@link BeanDefinition}
+   *
    * @since 2.1.6
    */
   default void registerBeanDefinition(BeanDefinition def) {

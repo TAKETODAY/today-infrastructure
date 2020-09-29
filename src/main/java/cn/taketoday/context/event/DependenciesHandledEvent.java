@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,25 +25,25 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.factory.PropertyValue;
 
 /**
- * 
+ *
  * Handled all dependencies
- * 
+ *
  * @author TODAY <br>
- * 
+ *
  *         2018-11-10 13:23
  */
 @SuppressWarnings("serial")
 public class DependenciesHandledEvent extends ApplicationContextEvent {
 
-    private final Set<PropertyValue> dependencies;
+  private final Set<PropertyValue> dependencies;
 
-    public DependenciesHandledEvent(ApplicationContext source, Set<PropertyValue> dependencies) {
-        super(source);
-        this.dependencies = dependencies;
-    }
+  public DependenciesHandledEvent(ApplicationContext source, Set<PropertyValue> dependencies) {
+    super(source);
+    this.dependencies = dependencies;
+  }
 
-    public final Set<PropertyValue> getDependencies() {
-        return dependencies;
-    }
+  public final Set<PropertyValue> getDependencies() {
+    return dependencies;
+  }
 
 }

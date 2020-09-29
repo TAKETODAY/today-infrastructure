@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -32,107 +32,107 @@ import java.net.URL;
  * An InputStream can be opened for every resource if it exists in physical
  * form, but a URL or File handle can just be returned for certain resources.
  * The actual behavior is implementation-specific.
- * 
+ *
  * @author TODAY <br>
  *         2019-05-14 19:55
  * @since 2.1.6
  */
 public interface Resource extends Readable {
 
-    /**
-     * Get the name of the resource.
-     *
-     * @return name
-     */
-    String getName();
+  /**
+   * Get the name of the resource.
+   *
+   * @return name
+   */
+  String getName();
 
-    /**
-     * Get content length
-     *
-     * @return content length
-     */
-    long contentLength() throws IOException;
+  /**
+   * Get content length
+   *
+   * @return content length
+   */
+  long contentLength() throws IOException;
 
-    /**
-     * Get last modified
-     *
-     * @return last modified
-     */
-    long lastModified() throws IOException;
+  /**
+   * Get last modified
+   *
+   * @return last modified
+   */
+  long lastModified() throws IOException;
 
-    /**
-     * Get location of this resource.
-     * 
-     * @throws IOException
-     *             if the resource is not available
-     */
-    URL getLocation() throws IOException;
+  /**
+   * Get location of this resource.
+   *
+   * @throws IOException
+   *             if the resource is not available
+   */
+  URL getLocation() throws IOException;
 
-    /**
-     * Return a URI handle for this resource.
-     * 
-     * @throws IOException
-     *             if the resource cannot be resolved as URI, i.e. if the resource
-     *             is not available as descriptor
-     * @since 2.1.7
-     */
-    URI getURI() throws IOException;
+  /**
+   * Return a URI handle for this resource.
+   *
+   * @throws IOException
+   *             if the resource cannot be resolved as URI, i.e. if the resource
+   *             is not available as descriptor
+   * @since 2.1.7
+   */
+  URI getURI() throws IOException;
 
-    /**
-     * Return a File handle for this resource.
-     * 
-     * @throws IOException
-     *             in case of general resolution/reading failures
-     */
-    File getFile() throws IOException;
+  /**
+   * Return a File handle for this resource.
+   *
+   * @throws IOException
+   *             in case of general resolution/reading failures
+   */
+  File getFile() throws IOException;
 
-    /**
-     * Determine whether this resource actually exists in physical form.
-     * <p>
-     * This method performs a definitive existence check, whereas the existence of a
-     * {@code Resource} handle only guarantees a valid descriptor handle.
-     */
-    boolean exists();
+  /**
+   * Determine whether this resource actually exists in physical form.
+   * <p>
+   * This method performs a definitive existence check, whereas the existence of a
+   * {@code Resource} handle only guarantees a valid descriptor handle.
+   */
+  boolean exists();
 
-    /**
-     * Is a directory?
-     * 
-     * @throws IOException
-     */
-    boolean isDirectory() throws IOException;
+  /**
+   * Is a directory?
+   *
+   * @throws IOException
+   */
+  boolean isDirectory() throws IOException;
 
-    /**
-     * list {@link Resource} under the directory
-     *
-     * @return {@link Resource} names
-     *
-     * @throws IOException
-     *     if the resource is not available
-     */
-    String[] list() throws IOException;
+  /**
+   * list {@link Resource} under the directory
+   *
+   * @return {@link Resource} names
+   *
+   * @throws IOException
+   *     if the resource is not available
+   */
+  String[] list() throws IOException;
 
-    /**
-     * list {@link Resource} under the directory
-     *
-     * @param filter
-     *     filter {@link Resource}
-     *
-     * @return {@link Resource} names
-     *
-     * @throws IOException
-     *     if the resource is not available
-     */
-    Resource[] list(ResourceFilter filter) throws IOException;
+  /**
+   * list {@link Resource} under the directory
+   *
+   * @param filter
+   *     filter {@link Resource}
+   *
+   * @return {@link Resource} names
+   *
+   * @throws IOException
+   *     if the resource is not available
+   */
+  Resource[] list(ResourceFilter filter) throws IOException;
 
-    /**
-     * Create a resource relative to this resource.
-     * 
-     * @param relativePath
-     *            the relative path (relative to this resource)
-     * @return the resource handle for the relative resource
-     * @throws IOException
-     *             if the relative resource cannot be determined
-     */
-    Resource createRelative(String relativePath) throws IOException;
+  /**
+   * Create a resource relative to this resource.
+   *
+   * @param relativePath
+   *            the relative path (relative to this resource)
+   * @return the resource handle for the relative resource
+   * @throws IOException
+   *             if the relative resource cannot be determined
+   */
+  Resource createRelative(String relativePath) throws IOException;
 
 }

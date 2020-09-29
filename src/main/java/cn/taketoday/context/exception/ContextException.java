@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,23 +24,23 @@ package cn.taketoday.context.exception;
  *         2018-10-05 21:33
  */
 public class ContextException extends RuntimeException {
-    
-    private static final long serialVersionUID = 1L;
 
-    public ContextException() {
+  private static final long serialVersionUID = 1L;
 
-    }
+  public ContextException() {
 
-    public ContextException(String message) {
-        super(message);
-    }
+  }
 
-    public ContextException(Throwable cause) {
-        super(cause);
-    }
+  public ContextException(String message) {
+    super(message);
+  }
 
-    public ContextException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public ContextException(Throwable cause) {
+    super(cause);
+  }
+
+  public ContextException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
 }

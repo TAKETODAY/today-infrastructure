@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,30 +19,29 @@
  */
 package cn.taketoday.context.exception;
 
-
 /**
  * @author TODAY <br>
  *         2018-07-08 19:54:46
  */
 public class BeanDefinitionStoreException extends ConfigurationException {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public BeanDefinitionStoreException() {}
+  public BeanDefinitionStoreException() {}
 
-    public BeanDefinitionStoreException(Class<?> beanClass, Throwable cause) {
-        super("Can't store: [" + beanClass.getName() + "]", cause);
-    }
+  public BeanDefinitionStoreException(Class<?> beanClass, Throwable cause) {
+    super("Can't store: [" + beanClass.getName() + "]", cause);
+  }
 
-    public BeanDefinitionStoreException(Throwable cause) {
-        super(cause);
-    }
+  public BeanDefinitionStoreException(Throwable cause) {
+    super(cause);
+  }
 
-    public BeanDefinitionStoreException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public BeanDefinitionStoreException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public BeanDefinitionStoreException(String message) {
-        super(message);
-    }
+  public BeanDefinitionStoreException(String message) {
+    super(message);
+  }
 
 }

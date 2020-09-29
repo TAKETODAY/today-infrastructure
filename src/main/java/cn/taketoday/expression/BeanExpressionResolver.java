@@ -17,18 +17,17 @@
 
 package cn.taketoday.expression;
 
-import static cn.taketoday.expression.util.ReflectionUtil.findMethod;
-import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
-import static java.security.AccessController.doPrivileged;
-import static java.util.Objects.requireNonNull;
-
 import java.lang.reflect.Field;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 
-import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConcurrentCache;
 import cn.taketoday.context.utils.ReflectionUtils;
+
+import static cn.taketoday.expression.util.ReflectionUtil.findMethod;
+import static cn.taketoday.expression.util.ReflectionUtil.invokeMethod;
+import static java.security.AccessController.doPrivileged;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Defines property resolution behavior on objects using the JavaBeans component
@@ -51,7 +50,7 @@ import cn.taketoday.context.utils.ReflectionUtils;
  * If the parameter types are not specified, the parameter objects are used in
  * the method resolution.
  * </p>
- * 
+ *
  * <p>
  * This resolver can be constructed in read-only mode, which means that
  * {@link #isReadOnly} will always return <code>true</code> and
@@ -78,399 +77,408 @@ import cn.taketoday.context.utils.ReflectionUtils;
  */
 public class BeanExpressionResolver extends ExpressionResolver {
 
-    private final boolean isReadOnly;
+  private final boolean isReadOnly;
 
-    /**
-     * Creates a new read/write <code>BeanELResolver</code>.
-     */
-    public BeanExpressionResolver() {
-        this(false);
+  /**
+   * Creates a new read/write <code>BeanELResolver</code>.
+   */
+  public BeanExpressionResolver() {
+    this(false);
+  }
+
+  /**
+   * Creates a new <code>BeanELResolver</code> whose read-only status is
+   * determined by the given parameter.
+   *
+   * @param isReadOnly
+   *         <code>true</code> if this resolver cannot modify beans;
+   *         <code>false</code> otherwise.
+   */
+  public BeanExpressionResolver(boolean isReadOnly) {
+    this.isReadOnly = isReadOnly;
+  }
+
+  /**
+   * If the base object is not <code>null</code>, returns the most general
+   * acceptable type that can be set on this bean property.
+   *
+   * <p>
+   * If the base is not <code>null</code>, the <code>propertyResolved</code>
+   * property of the <code>ELContext</code> object must be set to
+   * <code>true</code> by this resolver, before returning. If this property is not
+   * <code>true</code> after this method is called, the caller should ignore the
+   * return value.
+   * </p>
+   *
+   * <p>
+   * The provided property will first be coerced to a <code>String</code>. If
+   * there is a <code>BeanInfoProperty</code> for this property and there were no
+   * errors retrieving it, the <code>propertyType</code> of the
+   * <code>propertyDescriptor</code> is returned. Otherwise, a
+   * <code>PropertyNotFoundException</code> is thrown.
+   * </p>
+   *
+   * @param context
+   *         The context of this evaluation.
+   * @param base
+   *         The bean to analyze.
+   * @param property
+   *         The name of the property to analyze. Will be coerced to a
+   *         <code>String</code>.
+   *
+   * @return If the <code>propertyResolved</code> property of
+   * <code>ELContext</code> was set to <code>true</code>, then the most
+   * general acceptable type; otherwise undefined.
+   *
+   * @throws NullPointerException
+   *         if context is <code>null</code>
+   * @throws PropertyNotFoundException
+   *         if <code>base</code> is not <code>null</code> and the specified
+   *         property does not exist or is not readable.
+   * @throws ExpressionException
+   *         if an exception was thrown while performing the property or
+   *         variable resolution. The thrown exception must be included as the
+   *         cause property of this exception, if available.
+   */
+  public Class<?> getType(ExpressionContext context, Object base, Object property) {
+
+    if (base == null || property == null) {
+      return null;
+    }
+    final Field field = getBeanProperty(base, property);
+    requireNonNull(context).setPropertyResolved(true);
+    return field.getType();
+  }
+
+  /**
+   * If the base object is not <code>null</code>, returns the current value of the
+   * given property on this bean.
+   *
+   * <p>
+   * If the base is not <code>null</code>, the <code>propertyResolved</code>
+   * property of the <code>ELContext</code> object must be set to
+   * <code>true</code> by this resolver, before returning. If this property is not
+   * <code>true</code> after this method is called, the caller should ignore the
+   * return value.
+   * </p>
+   *
+   * <p>
+   * The provided property name will first be coerced to a <code>String</code>. If
+   * the property is a readable property of the base object, as per the JavaBeans
+   * specification, then return the result of the getter call. If the getter
+   * throws an exception, it is propagated to the caller. If the property is not
+   * found or is not readable, a <code>PropertyNotFoundException</code> is thrown.
+   * </p>
+   *
+   * @param context
+   *         The context of this evaluation.
+   * @param base
+   *         The bean on which to get the property.
+   * @param property
+   *         The name of the property to get. Will be coerced to a
+   *         <code>String</code>.
+   *
+   * @return If the <code>propertyResolved</code> property of
+   * <code>ELContext</code> was set to <code>true</code>, then the value
+   * of the given property. Otherwise, undefined.
+   *
+   * @throws NullPointerException
+   *         if context is <code>null</code>.
+   * @throws PropertyNotFoundException
+   *         if <code>base</code> is not <code>null</code> and the specified
+   *         property does not exist or is not readable.
+   * @throws ExpressionException
+   *         if an exception was thrown while performing the property or
+   *         variable resolution. The thrown exception must be included as the
+   *         cause property of this exception, if available.
+   */
+  public Object getValue(ExpressionContext context, Object base, Object property) {
+
+    if (base == null || property == null) {
+      return null;
     }
 
-    /**
-     * Creates a new <code>BeanELResolver</code> whose read-only status is
-     * determined by the given parameter.
-     *
-     * @param isReadOnly
-     *            <code>true</code> if this resolver cannot modify beans;
-     *            <code>false</code> otherwise.
-     */
-    public BeanExpressionResolver(boolean isReadOnly) {
-        this.isReadOnly = isReadOnly;
+    try {
+      final Field field = getBeanProperty(base, property);
+      final Object value = field.get(base);
+      requireNonNull(context).setPropertyResolved(base, property);
+      return value;
+    }
+    catch (ExpressionException e) {
+      throw e;
+    }
+    catch (Exception ex) {
+      throw new ExpressionException(ex);
+    }
+  }
+
+  /**
+   * If the base object is not <code>null</code>, attempts to set the value of the
+   * given property on this bean.
+   *
+   * <p>
+   * If the base is not <code>null</code>, the <code>propertyResolved</code>
+   * property of the <code>ELContext</code> object must be set to
+   * <code>true</code> by this resolver, before returning. If this property is not
+   * <code>true</code> after this method is called, the caller can safely assume
+   * no value was set.
+   * </p>
+   *
+   * <p>
+   * If this resolver was constructed in read-only mode, this method will always
+   * throw <code>PropertyNotWritableException</code>.
+   * </p>
+   *
+   * <p>
+   * The provided property name will first be coerced to a <code>String</code>. If
+   * property is a writable property of <code>base</code> (as per the JavaBeans
+   * Specification), the setter method is called (passing <code>value</code>). If
+   * the property exists but does not have a setter, then a
+   * <code>PropertyNotFoundException</code> is thrown. If the property does not
+   * exist, a <code>PropertyNotFoundException</code> is thrown.
+   * </p>
+   *
+   * @param context
+   *         The context of this evaluation.
+   * @param base
+   *         The bean on which to set the property.
+   * @param property
+   *         The name of the property to set. Will be coerced to a
+   *         <code>String</code>.
+   * @param val
+   *         The value to be associated with the specified key.
+   *
+   * @throws NullPointerException
+   *         if context is <code>null</code>.
+   * @throws PropertyNotFoundException
+   *         if <code>base</code> is not <code>null</code> and the specified
+   *         property does not exist.
+   * @throws PropertyNotWritableException
+   *         if this resolver was constructed in read-only mode, or if there
+   *         is no setter for the property.
+   * @throws ExpressionException
+   *         if an exception was thrown while performing the property or
+   *         variable resolution. The thrown exception must be included as the
+   *         cause property of this exception, if available.
+   */
+  public void setValue(ExpressionContext context, Object base, Object property, Object val) {
+
+    if (base == null || property == null) {
+      return;
     }
 
-    /**
-     * If the base object is not <code>null</code>, returns the most general
-     * acceptable type that can be set on this bean property.
-     *
-     * <p>
-     * If the base is not <code>null</code>, the <code>propertyResolved</code>
-     * property of the <code>ELContext</code> object must be set to
-     * <code>true</code> by this resolver, before returning. If this property is not
-     * <code>true</code> after this method is called, the caller should ignore the
-     * return value.
-     * </p>
-     *
-     * <p>
-     * The provided property will first be coerced to a <code>String</code>. If
-     * there is a <code>BeanInfoProperty</code> for this property and there were no
-     * errors retrieving it, the <code>propertyType</code> of the
-     * <code>propertyDescriptor</code> is returned. Otherwise, a
-     * <code>PropertyNotFoundException</code> is thrown.
-     * </p>
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The bean to analyze.
-     * @param property
-     *            The name of the property to analyze. Will be coerced to a
-     *            <code>String</code>.
-     * @return If the <code>propertyResolved</code> property of
-     *         <code>ELContext</code> was set to <code>true</code>, then the most
-     *         general acceptable type; otherwise undefined.
-     * @throws NullPointerException
-     *             if context is <code>null</code>
-     * @throws PropertyNotFoundException
-     *             if <code>base</code> is not <code>null</code> and the specified
-     *             property does not exist or is not readable.
-     * @throws ExpressionException
-     *             if an exception was thrown while performing the property or
-     *             variable resolution. The thrown exception must be included as the
-     *             cause property of this exception, if available.
-     */
-    public Class<?> getType(ExpressionContext context, Object base, Object property) {
-
-        if (base == null || property == null) {
-            return null;
-        }
-        final Field field = getBeanProperty(base, property);
-        requireNonNull(context).setPropertyResolved(true);
-        return field.getType();
+    if (isReadOnly) {
+      throw new PropertyNotWritableException("The ELResolver for the class '" + base.getClass().getName() + "' is not writable.");
     }
 
-    /**
-     * If the base object is not <code>null</code>, returns the current value of the
-     * given property on this bean.
-     *
-     * <p>
-     * If the base is not <code>null</code>, the <code>propertyResolved</code>
-     * property of the <code>ELContext</code> object must be set to
-     * <code>true</code> by this resolver, before returning. If this property is not
-     * <code>true</code> after this method is called, the caller should ignore the
-     * return value.
-     * </p>
-     *
-     * <p>
-     * The provided property name will first be coerced to a <code>String</code>. If
-     * the property is a readable property of the base object, as per the JavaBeans
-     * specification, then return the result of the getter call. If the getter
-     * throws an exception, it is propagated to the caller. If the property is not
-     * found or is not readable, a <code>PropertyNotFoundException</code> is thrown.
-     * </p>
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The bean on which to get the property.
-     * @param property
-     *            The name of the property to get. Will be coerced to a
-     *            <code>String</code>.
-     * @return If the <code>propertyResolved</code> property of
-     *         <code>ELContext</code> was set to <code>true</code>, then the value
-     *         of the given property. Otherwise, undefined.
-     * @throws NullPointerException
-     *             if context is <code>null</code>.
-     * @throws PropertyNotFoundException
-     *             if <code>base</code> is not <code>null</code> and the specified
-     *             property does not exist or is not readable.
-     * @throws ExpressionException
-     *             if an exception was thrown while performing the property or
-     *             variable resolution. The thrown exception must be included as the
-     *             cause property of this exception, if available.
-     */
-    public Object getValue(ExpressionContext context, Object base, Object property) {
+    try {
 
-        if (base == null || property == null) {
-            return null;
-        }
+      final Field field = getBeanProperty(base, property);
+      field.set(base, val);
+      requireNonNull(context).setPropertyResolved(base, property);
+    }
+    catch (ExpressionException e) {
+      throw e;
+    }
+    catch (Exception ex) {
+      final StringBuilder message = new StringBuilder("Can't set property '")//
+              .append(property.toString())//
+              .append("' on class '")//
+              .append(base.getClass().getName())//
+              .append("' to value '")//
+              .append(val)//
+              .append("'.");
 
-        try {
-            final Field field = getBeanProperty(base, property);
-            final Object value = field.get(base);
-            requireNonNull(context).setPropertyResolved(base, property);
-            return value;
-        }
-        catch (ExpressionException e) {
-            throw e;
-        }
-        catch (Exception ex) {
-            throw new ExpressionException(ex);
-        }
+      throw new ExpressionException(message.toString(), ex);
+    }
+  }
+
+  /**
+   * If the base object is not <code>null</code>, invoke the method, with the
+   * given parameters on this bean. The return value from the method is returned.
+   *
+   * <p>
+   * If the base is not <code>null</code>, the <code>propertyResolved</code>
+   * property of the <code>ELContext</code> object must be set to
+   * <code>true</code> by this resolver, before returning. If this property is not
+   * <code>true</code> after this method is called, the caller should ignore the
+   * return value.
+   * </p>
+   *
+   * <p>
+   * The provided method object will first be coerced to a <code>String</code>.
+   * The methods in the bean is then examined and an attempt will be made to
+   * select one for invocation. If no suitable can be found, a
+   * <code>MethodNotFoundException</code> is thrown.
+   *
+   * If the given paramTypes is not <code>null</code>, select the method with the
+   * given name and parameter types.
+   *
+   * Else select the method with the given name that has the same number of
+   * parameters. If there are more than one such method, the method selection
+   * process is undefined.
+   *
+   * Else select the method with the given name that takes a variable number of
+   * arguments.
+   *
+   * Note the resolution for overloaded methods will likely be clarified in a
+   * future version of the spec.
+   *
+   * The provide parameters are coerced to the corresponding parameter types of
+   * the method, and the method is then invoked.
+   *
+   * @param context
+   *         The context of this evaluation.
+   * @param base
+   *         The bean on which to invoke the method
+   * @param method
+   *         The simple name of the method to invoke. Will be coerced to a
+   *         <code>String</code>. If method is "&lt;init&gt;"or
+   *         "&lt;clinit&gt;" a MethodNotFoundException is thrown.
+   * @param paramTypes
+   *         An array of Class objects identifying the method's formal
+   *         parameter types, in declared order. Use an empty array if the
+   *         method has no parameters. Can be <code>null</code>, in which case
+   *         the method's formal parameter types are assumed to be unknown.
+   * @param params
+   *         The parameters to pass to the method, or <code>null</code> if no
+   *         parameters.
+   *
+   * @return The result of the method invocation (<code>null</code> if the method
+   * has a <code>void</code> return type).
+   *
+   * @throws MethodNotFoundException
+   *         if no suitable method can be found.
+   * @throws ExpressionException
+   *         if an exception was thrown while performing (base, method)
+   *         resolution. The thrown exception must be included as the cause
+   *         property of this exception, if available. If the exception thrown
+   *         is an <code>InvocationTargetException</code>, extract its
+   *         <code>cause</code> and pass it to the <code>ELException</code>
+   *         constructor.
+   * @since EL 2.2
+   */
+  public Object invoke(ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
+
+    if (base == null || method == null) {
+      return null;
     }
 
-    /**
-     * If the base object is not <code>null</code>, attempts to set the value of the
-     * given property on this bean.
-     *
-     * <p>
-     * If the base is not <code>null</code>, the <code>propertyResolved</code>
-     * property of the <code>ELContext</code> object must be set to
-     * <code>true</code> by this resolver, before returning. If this property is not
-     * <code>true</code> after this method is called, the caller can safely assume
-     * no value was set.
-     * </p>
-     *
-     * <p>
-     * If this resolver was constructed in read-only mode, this method will always
-     * throw <code>PropertyNotWritableException</code>.
-     * </p>
-     *
-     * <p>
-     * The provided property name will first be coerced to a <code>String</code>. If
-     * property is a writable property of <code>base</code> (as per the JavaBeans
-     * Specification), the setter method is called (passing <code>value</code>). If
-     * the property exists but does not have a setter, then a
-     * <code>PropertyNotFoundException</code> is thrown. If the property does not
-     * exist, a <code>PropertyNotFoundException</code> is thrown.
-     * </p>
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The bean on which to set the property.
-     * @param property
-     *            The name of the property to set. Will be coerced to a
-     *            <code>String</code>.
-     * @param val
-     *            The value to be associated with the specified key.
-     * @throws NullPointerException
-     *             if context is <code>null</code>.
-     * @throws PropertyNotFoundException
-     *             if <code>base</code> is not <code>null</code> and the specified
-     *             property does not exist.
-     * @throws PropertyNotWritableException
-     *             if this resolver was constructed in read-only mode, or if there
-     *             is no setter for the property.
-     * @throws ExpressionException
-     *             if an exception was thrown while performing the property or
-     *             variable resolution. The thrown exception must be included as the
-     *             cause property of this exception, if available.
-     */
-    public void setValue(ExpressionContext context, Object base, Object property, Object val) {
+    final Object ret = invokeMethod(requireNonNull(context),
+                                    findMethod(base.getClass(), method.toString(), paramTypes, params, false),
+                                    base,
+                                    params);
 
-        if (base == null || property == null) {
-            return;
-        }
+    context.setPropertyResolved(base, method);
+    return ret;
+  }
 
-        if (isReadOnly) {
-            throw new PropertyNotWritableException("The ELResolver for the class '" + base.getClass().getName() + "' is not writable.");
-        }
+  /**
+   * If the base object is not <code>null</code>, returns whether a call to
+   * {@link #setValue} will always fail.
+   *
+   * <p>
+   * If the base is not <code>null</code>, the <code>propertyResolved</code>
+   * property of the <code>ELContext</code> object must be set to
+   * <code>true</code> by this resolver, before returning. If this property is not
+   * <code>true</code> after this method is called, the caller can safely assume
+   * no value was set.
+   * </p>
+   *
+   * <p>
+   * If this resolver was constructed in read-only mode, this method will always
+   * return <code>true</code>.
+   * </p>
+   *
+   * <p>
+   * The provided property name will first be coerced to a <code>String</code>. If
+   * property is a writable property of <code>base</code>, <code>false</code> is
+   * returned. If the property is found but is not writable, <code>true</code> is
+   * returned. If the property is not found, a
+   * <code>PropertyNotFoundException</code> is thrown.
+   * </p>
+   *
+   * @param context
+   *         The context of this evaluation.
+   * @param base
+   *         The bean to analyze.
+   * @param property
+   *         The name of the property to analyzed. Will be coerced to a
+   *         <code>String</code>.
+   *
+   * @return If the <code>propertyResolved</code> property of
+   * <code>ELContext</code> was set to <code>true</code>, then
+   * <code>true</code> if calling the <code>setValue</code> method will
+   * always fail or <code>false</code> if it is possible that such a call
+   * may succeed; otherwise undefined.
+   *
+   * @throws NullPointerException
+   *         if context is <code>null</code>
+   * @throws PropertyNotFoundException
+   *         if <code>base</code> is not <code>null</code> and the specified
+   *         property does not exist.
+   * @throws ExpressionException
+   *         if an exception was thrown while performing the property or
+   *         variable resolution. The thrown exception must be included as the
+   *         cause property of this exception, if available.
+   */
+  public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
 
-        try {
-
-            final Field field = getBeanProperty(base, property);
-            field.set(base, val);
-            requireNonNull(context).setPropertyResolved(base, property);
-        }
-        catch (ExpressionException e) {
-            throw e;
-        }
-        catch (Exception ex) {
-            final StringBuilder message = new StringBuilder("Can't set property '")//
-                    .append(property.toString())//
-                    .append("' on class '")//
-                    .append(base.getClass().getName())//
-                    .append("' to value '")//
-                    .append(val)//
-                    .append("'.");
-
-            throw new ExpressionException(message.toString(), ex);
-        }
+    if (base == null || property == null) {
+      return false;
     }
 
-    /**
-     * If the base object is not <code>null</code>, invoke the method, with the
-     * given parameters on this bean. The return value from the method is returned.
-     *
-     * <p>
-     * If the base is not <code>null</code>, the <code>propertyResolved</code>
-     * property of the <code>ELContext</code> object must be set to
-     * <code>true</code> by this resolver, before returning. If this property is not
-     * <code>true</code> after this method is called, the caller should ignore the
-     * return value.
-     * </p>
-     *
-     * <p>
-     * The provided method object will first be coerced to a <code>String</code>.
-     * The methods in the bean is then examined and an attempt will be made to
-     * select one for invocation. If no suitable can be found, a
-     * <code>MethodNotFoundException</code> is thrown.
-     *
-     * If the given paramTypes is not <code>null</code>, select the method with the
-     * given name and parameter types.
-     *
-     * Else select the method with the given name that has the same number of
-     * parameters. If there are more than one such method, the method selection
-     * process is undefined.
-     *
-     * Else select the method with the given name that takes a variable number of
-     * arguments.
-     *
-     * Note the resolution for overloaded methods will likely be clarified in a
-     * future version of the spec.
-     *
-     * The provide parameters are coerced to the corresponding parameter types of
-     * the method, and the method is then invoked.
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The bean on which to invoke the method
-     * @param method
-     *            The simple name of the method to invoke. Will be coerced to a
-     *            <code>String</code>. If method is "&lt;init&gt;"or
-     *            "&lt;clinit&gt;" a MethodNotFoundException is thrown.
-     * @param paramTypes
-     *            An array of Class objects identifying the method's formal
-     *            parameter types, in declared order. Use an empty array if the
-     *            method has no parameters. Can be <code>null</code>, in which case
-     *            the method's formal parameter types are assumed to be unknown.
-     * @param params
-     *            The parameters to pass to the method, or <code>null</code> if no
-     *            parameters.
-     * @return The result of the method invocation (<code>null</code> if the method
-     *         has a <code>void</code> return type).
-     * @throws MethodNotFoundException
-     *             if no suitable method can be found.
-     * @throws ExpressionException
-     *             if an exception was thrown while performing (base, method)
-     *             resolution. The thrown exception must be included as the cause
-     *             property of this exception, if available. If the exception thrown
-     *             is an <code>InvocationTargetException</code>, extract its
-     *             <code>cause</code> and pass it to the <code>ELException</code>
-     *             constructor.
-     * @since EL 2.2
-     */
-    public Object invoke(ExpressionContext context, Object base, Object method, Class<?>[] paramTypes, Object[] params) {
+    requireNonNull(context).setPropertyResolved(true);
+    return isReadOnly;
+  }
 
-        if (base == null || method == null) {
-            return null;
-        }
+  private Field getBeanProperty(Object base, Object prop) throws PropertyNotFoundException {
 
-        final Object ret = invokeMethod(requireNonNull(context),
-                                        findMethod(base.getClass(), method.toString(), paramTypes, params, false),
-                                        base,
-                                        params);
+    final Class<?> baseClass = base.getClass();
+    BeanProperties bps = cache.get(baseClass);
 
-        context.setPropertyResolved(base, method);
-        return ret;
+    if (bps == null) {
+      cache.put(baseClass, bps = new BeanProperties(baseClass));
     }
 
-    /**
-     * If the base object is not <code>null</code>, returns whether a call to
-     * {@link #setValue} will always fail.
-     *
-     * <p>
-     * If the base is not <code>null</code>, the <code>propertyResolved</code>
-     * property of the <code>ELContext</code> object must be set to
-     * <code>true</code> by this resolver, before returning. If this property is not
-     * <code>true</code> after this method is called, the caller can safely assume
-     * no value was set.
-     * </p>
-     *
-     * <p>
-     * If this resolver was constructed in read-only mode, this method will always
-     * return <code>true</code>.
-     * </p>
-     *
-     * <p>
-     * The provided property name will first be coerced to a <code>String</code>. If
-     * property is a writable property of <code>base</code>, <code>false</code> is
-     * returned. If the property is found but is not writable, <code>true</code> is
-     * returned. If the property is not found, a
-     * <code>PropertyNotFoundException</code> is thrown.
-     * </p>
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param base
-     *            The bean to analyze.
-     * @param property
-     *            The name of the property to analyzed. Will be coerced to a
-     *            <code>String</code>.
-     * @return If the <code>propertyResolved</code> property of
-     *         <code>ELContext</code> was set to <code>true</code>, then
-     *         <code>true</code> if calling the <code>setValue</code> method will
-     *         always fail or <code>false</code> if it is possible that such a call
-     *         may succeed; otherwise undefined.
-     * @throws NullPointerException
-     *             if context is <code>null</code>
-     * @throws PropertyNotFoundException
-     *             if <code>base</code> is not <code>null</code> and the specified
-     *             property does not exist.
-     * @throws ExpressionException
-     *             if an exception was thrown while performing the property or
-     *             variable resolution. The thrown exception must be included as the
-     *             cause property of this exception, if available.
-     */
-    public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
+    final Field field = bps.getBeanProperty(prop.toString());
+    if (field == null) {
+      throw new PropertyNotFoundException("The class '" + baseClass.getName() //
+                                                  + "' does not have the property '" + prop + "'.");
+    }
+    return field;
+  }
 
-        if (base == null || property == null) {
-            return false;
-        }
+  /**
+   * Defines the properties for a bean.
+   */
+  private final static class BeanProperties {
 
-        requireNonNull(context).setPropertyResolved(true);
-        return isReadOnly;
+    private final HashMap<String, Field> propertyMap = new HashMap<>();
+
+    public BeanProperties(Class<?> baseClass) {
+      for (final Field field : ReflectionUtils.getFields(baseClass)) {
+        // parent class will replace same field
+        propertyMap.put(ReflectionUtils.makeAccessible(field).getName(), field);
+      }
     }
 
-    private Field getBeanProperty(Object base, Object prop) throws PropertyNotFoundException {
-
-        final Class<?> baseClass = base.getClass();
-        BeanProperties bps = cache.get(baseClass);
-
-        if (bps == null) {
-            cache.put(baseClass, bps = new BeanProperties(baseClass));
-        }
-
-        final Field field = bps.getBeanProperty(prop.toString());
-        if (field == null) {
-            throw new PropertyNotFoundException("The class '" + baseClass.getName() //
-                    + "' does not have the property '" + prop + "'.");
-        }
-        return field;
+    public final Field getBeanProperty(final String property) {
+      return propertyMap.get(property);
     }
+  }
 
-    /**
-     * Defines the properties for a bean.
-     */
-    private final static class BeanProperties {
+  private static final ConcurrentCache<Class<?>, BeanProperties> cache;
+  private static final String CACHE_SIZE_PROP = "expression.cache.size";
 
-        private final HashMap<String, Field> propertyMap = new HashMap<>();
+  static {
 
-        public BeanProperties(Class<?> baseClass) {
-            for (final Field field : ReflectionUtils.getFields(baseClass)) {
-                // parent class will replace same field
-                propertyMap.put(ReflectionUtils.makeAccessible(field).getName(), field);
-            }
-        }
+    String cacheSizeStr = //
+            System.getSecurityManager() == null
+            ? System.getProperty(CACHE_SIZE_PROP, "1024")
+            : doPrivileged((PrivilegedAction<String>) () -> System.getProperty(CACHE_SIZE_PROP, "1024"));
 
-        public final Field getBeanProperty(final String property) {
-            return propertyMap.get(property);
-        }
-    }
-
-    private static final ConcurrentCache<Class<?>, BeanProperties> cache;
-    private static final String CACHE_SIZE_PROP = "expression.cache.size";
-
-    static {
-
-        String cacheSizeStr = //
-                System.getSecurityManager() == null
-                        ? System.getProperty(CACHE_SIZE_PROP, "1024")
-                        : doPrivileged((PrivilegedAction<String>) () -> System.getProperty(CACHE_SIZE_PROP, "1024"));
-
-        cache = new ConcurrentCache<>(Integer.parseInt(cacheSizeStr));
-    }
+    cache = new ConcurrentCache<>(Integer.parseInt(cacheSizeStr));
+  }
 
 }

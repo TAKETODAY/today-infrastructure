@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,9 +19,9 @@
  */
 package cn.taketoday.aop.advice;
 
-import java.lang.reflect.Method;
-
 import org.aopalliance.intercept.MethodInvocation;
+
+import java.lang.reflect.Method;
 
 import cn.taketoday.aop.BeforeAdvice;
 import cn.taketoday.context.annotation.Order;
@@ -33,14 +33,14 @@ import cn.taketoday.context.annotation.Order;
 @Order(2)
 public class MethodBeforeAdvice extends AbstractAdvice implements BeforeAdvice {
 
-    public MethodBeforeAdvice(Method method, Object aspect) {
-        super(method, aspect);
-    }
+  public MethodBeforeAdvice(Method method, Object aspect) {
+    super(method, aspect);
+  }
 
-    @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
-        invokeAdviceMethod(invocation, null, null);
-        return invocation.proceed();
-    }
+  @Override
+  public Object invoke(MethodInvocation invocation) throws Throwable {
+    invokeAdviceMethod(invocation, null, null);
+    return invocation.proceed();
+  }
 
 }

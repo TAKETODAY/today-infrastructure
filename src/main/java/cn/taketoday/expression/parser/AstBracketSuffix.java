@@ -49,11 +49,11 @@ import cn.taketoday.expression.lang.EvaluationContext;
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstBracketSuffix extends SimpleNode {
-    public AstBracketSuffix(int id) {
-        super(id);
-    }
+  public AstBracketSuffix(int id) {
+    super(id);
+  }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        return this.children[0].getValue(ctx);
-    }
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    return this.children[0].getValue(ctx);
+  }
 }

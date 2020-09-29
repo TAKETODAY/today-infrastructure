@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -25,22 +25,22 @@ import cn.taketoday.context.factory.BeanDefinition;
 
 /**
  * Import classes according to user's Configuration
- * 
+ *
  * @author TODAY <br>
  *         2019-10-01 20:20
  */
 @FunctionalInterface
 public interface ImportSelector {
 
-    String[] NO_IMPORTS = Constant.EMPTY_STRING_ARRAY;
+  String[] NO_IMPORTS = Constant.EMPTY_STRING_ARRAY;
 
-    /**
-     * Select and return the full names of which class(es) should be imported based
-     * on the importing @{@link Configuration} BeanDefinition.
-     * 
-     * @param importingDef
-     *            Target {@link BeanDefinition}
-     * @return import classes Never be null
-     */
-    String[] selectImports(BeanDefinition importingDef);
+  /**
+   * Select and return the full names of which class(es) should be imported based
+   * on the importing @{@link Configuration} BeanDefinition.
+   *
+   * @param importingDef
+   *            Target {@link BeanDefinition}
+   * @return import classes Never be null
+   */
+  String[] selectImports(BeanDefinition importingDef);
 }

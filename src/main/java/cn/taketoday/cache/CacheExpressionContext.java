@@ -33,61 +33,61 @@ import cn.taketoday.expression.lang.LocalBeanNameResolver;
 
 /**
  * @author TODAY <br>
- *         2019-02-17 20:40
+ * 2019-02-17 20:40
  */
 public class CacheExpressionContext extends ExpressionContext {
 
-    private ExpressionResolver elResolver;
-    private final Map<String, Object> beans;
-    private final StandardExpressionContext parent;
+  private ExpressionResolver elResolver;
+  private final Map<String, Object> beans;
+  private final StandardExpressionContext parent;
 
-    public CacheExpressionContext(StandardExpressionContext parent) {
-        this(parent, new HashMap<>(4));
-    }
+  public CacheExpressionContext(StandardExpressionContext parent) {
+    this(parent, new HashMap<>(4));
+  }
 
-    public CacheExpressionContext(StandardExpressionContext parent, Map<String, Object> beans) {
-        this.beans = beans;
-        this.parent = parent;
-    }
+  public CacheExpressionContext(StandardExpressionContext parent, Map<String, Object> beans) {
+    this.beans = beans;
+    this.parent = parent;
+  }
 
-    @Override
-    public ExpressionResolver getResolver() {
-        final ExpressionResolver ret = this.elResolver;
-        if (ret == null) { //@off
+  @Override
+  public ExpressionResolver getResolver() {
+    final ExpressionResolver ret = this.elResolver;
+    if (ret == null) { //@off
             return this.elResolver = new CompositeExpressionResolver(
                 new BeanNameExpressionResolver(
                     new LocalBeanNameResolver(beans)),
                 parent.getResolver()//
             );//@on
-        }
-        return ret;
     }
+    return ret;
+  }
 
-    /**
-     * Add a bean to this context
-     *
-     * @param name
-     *            bean name
-     * @param bean
-     *            bean instance
-     */
-    public void putBean(final String name, final Object bean) {
-        beans.put(name, bean);
-    }
+  /**
+   * Add a bean to this context
+   *
+   * @param name
+   *         bean name
+   * @param bean
+   *         bean instance
+   */
+  public void putBean(final String name, final Object bean) {
+    beans.put(name, bean);
+  }
 
-    @Override
-    public FunctionMapper getFunctionMapper() {
-        return this.parent.getFunctionMapper();
-    }
+  @Override
+  public FunctionMapper getFunctionMapper() {
+    return this.parent.getFunctionMapper();
+  }
 
-    @Override
-    public VariableMapper getVariableMapper() {
-        return this.parent.getVariableMapper();
-    }
+  @Override
+  public VariableMapper getVariableMapper() {
+    return this.parent.getVariableMapper();
+  }
 
-    @Override
-    public void setPropertyResolved(Object base, Object property) {
-        setPropertyResolved(true);
-    }
+  @Override
+  public void setPropertyResolved(Object base, Object property) {
+    setPropertyResolved(true);
+  }
 
 }

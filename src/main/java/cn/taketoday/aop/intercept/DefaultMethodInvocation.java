@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,37 +19,37 @@
  */
 package cn.taketoday.aop.intercept;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-
 import cn.taketoday.context.cglib.proxy.MethodProxy;
 
 /**
- * 
+ *
  * @author TODAY <br>
  *         2018-11-10 13:14
  */
 public class DefaultMethodInvocation implements MethodInvocation {
 
-    private final Object target;
-    private final Object[] args;
-    private final Method method;
-    private final MethodProxy proxy;
-    private final MethodInterceptor[] advices;
+  private final Object target;
+  private final Object[] args;
+  private final Method method;
+  private final MethodProxy proxy;
+  private final MethodInterceptor[] advices;
 
-    /**
-     * a flag show that current index of advice
-     */
-    private int currentAdviceIndex = 0;
+  /**
+   * a flag show that current index of advice
+   */
+  private int currentAdviceIndex = 0;
 
-    private final int adviceLength;
+  private final int adviceLength;
 
-    public DefaultMethodInvocation(Object target, //@off
+  public DefaultMethodInvocation(Object target, //@off
                                    Method method, 
                                    MethodProxy proxy, 
                                    Object[] arguments, 
@@ -62,50 +62,50 @@ public class DefaultMethodInvocation implements MethodInvocation {
         this.adviceLength = advices.length;
     } //@on
 
-    @Override
-    public Method getMethod() {
-        return method;
-    }
+  @Override
+  public Method getMethod() {
+    return method;
+  }
 
-    @Override
-    public Object[] getArguments() {
-        return args;
-    }
+  @Override
+  public Object[] getArguments() {
+    return args;
+  }
 
-    @Override
-    public Object proceed() throws Throwable {
+  @Override
+  public Object proceed() throws Throwable {
 
-        if (currentAdviceIndex == adviceLength) {
-            try {
-                return proxy.invoke(target, args);
-            }
-            catch (InvocationTargetException e) {
-                throw e.getTargetException();
-            }
-        }
-        return advices[currentAdviceIndex++].invoke(this);
+    if (currentAdviceIndex == adviceLength) {
+      try {
+        return proxy.invoke(target, args);
+      }
+      catch (InvocationTargetException e) {
+        throw e.getTargetException();
+      }
     }
+    return advices[currentAdviceIndex++].invoke(this);
+  }
 
-    @Override
-    public Object getThis() {
-        return target;
-    }
+  @Override
+  public Object getThis() {
+    return target;
+  }
 
-    @Override
-    public AccessibleObject getStaticPart() {
-        return method;
-    }
+  @Override
+  public AccessibleObject getStaticPart() {
+    return method;
+  }
 
-    @Override
-    public String toString() {
-        return new StringBuilder()//
-                .append("{\n\t\"target\":\"").append(target)//
-                .append("\",\n\t\"method\":\"").append(method)//
-                .append("\",\n\t\"arguments\":\"").append(Arrays.toString(args))//
-                .append("\",\n\t\"advices\":\"").append(Arrays.toString(advices))//
-                .append("\",\n\t\"currentAdviceIndex\":\"").append(currentAdviceIndex)//
-                .append("\"\n}")//
-                .toString();
-    }
+  @Override
+  public String toString() {
+    return new StringBuilder()//
+            .append("{\n\t\"target\":\"").append(target)//
+            .append("\",\n\t\"method\":\"").append(method)//
+            .append("\",\n\t\"arguments\":\"").append(Arrays.toString(args))//
+            .append("\",\n\t\"advices\":\"").append(Arrays.toString(advices))//
+            .append("\",\n\t\"currentAdviceIndex\":\"").append(currentAdviceIndex)//
+            .append("\"\n}")//
+            .toString();
+  }
 
 }

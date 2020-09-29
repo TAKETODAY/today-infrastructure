@@ -31,23 +31,23 @@ import cn.taketoday.context.utils.Assert;
  */
 public class DefaultCacheManager extends AbstractCacheManager implements CacheManager {
 
-    public DefaultCacheManager() {}
+  public DefaultCacheManager() {}
 
-    public DefaultCacheManager(String... cacheNames) {
-        Objects.requireNonNull(cacheNames, "cacheNames s can't be null");
-        setCacheNames(Arrays.asList(cacheNames));
-    }
+  public DefaultCacheManager(String... cacheNames) {
+    Objects.requireNonNull(cacheNames, "cacheNames s can't be null");
+    setCacheNames(Arrays.asList(cacheNames));
+  }
 
-    /**
-     * @since 3.0
-     */
-    public DefaultCacheManager(CacheConfig... config) {
-        Assert.notNull(config, "cache config can't be null");
-        setCacheConfig(Arrays.asList(config));
-    }
+  /**
+   * @since 3.0
+   */
+  public DefaultCacheManager(CacheConfig... config) {
+    Assert.notNull(config, "cache config can't be null");
+    setCacheConfig(Arrays.asList(config));
+  }
 
-    @Override
-    protected Cache doCreate(final String name, final CacheConfig cacheConfig) {
-        return new ConcurrentMapCache(name);
-    }
+  @Override
+  protected Cache doCreate(final String name, final CacheConfig cacheConfig) {
+    return new ConcurrentMapCache(name);
+  }
 }

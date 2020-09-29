@@ -19,14 +19,9 @@
  */
 package cn.taketoday.cache.interceptor;
 
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.createKey;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.isConditionPassing;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareELContext;
+import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
-
-import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.aop.annotation.Advice;
 import cn.taketoday.aop.annotation.Aspect;
@@ -37,40 +32,45 @@ import cn.taketoday.cache.annotation.CachePut;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.Ordered;
 
+import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.createKey;
+import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.isConditionPassing;
+import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
+import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareELContext;
+
 /**
  * @author TODAY <br>
- *         2018-12-23 22:11
+ * 2018-12-23 22:11
  */
 @Aspect
 @Advice(CachePut.class)
 public class CachePutInterceptor extends AbstractCacheInterceptor {
 
-    public CachePutInterceptor() {
-        setOrder(Ordered.HIGHEST_PRECEDENCE * 2);
+  public CachePutInterceptor() {
+    setOrder(Ordered.HIGHEST_PRECEDENCE * 2);
+  }
+
+  public CachePutInterceptor(CacheManager cacheManager) {
+    this();
+    setCacheManager(cacheManager);
+  }
+
+  @Override
+  public Object invoke(MethodInvocation invocation) throws Throwable {
+
+    final Object result = invocation.proceed();
+
+    final Method method = invocation.getMethod();
+    final MethodKey methodKey = new MethodKey(method, CachePut.class);
+    final CacheConfiguration cachePut = prepareAnnotation(methodKey);
+    final CacheExpressionContext context = prepareELContext(methodKey, invocation);
+
+    context.putBean(Constant.KEY_RESULT, result);
+
+    if (isConditionPassing(cachePut.condition(), context)) {
+      final Object key = createKey(cachePut.key(), context, invocation);
+      put(obtainCache(method, cachePut), key, result);
     }
-
-    public CachePutInterceptor(CacheManager cacheManager) {
-        this();
-        setCacheManager(cacheManager);
-    }
-
-    @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
-
-        final Object result = invocation.proceed();
-
-        final Method method = invocation.getMethod();
-        final MethodKey methodKey = new MethodKey(method, CachePut.class);
-        final CacheConfiguration cachePut = prepareAnnotation(methodKey);
-        final CacheExpressionContext context = prepareELContext(methodKey, invocation);
-
-        context.putBean(Constant.KEY_RESULT, result);
-
-        if (isConditionPassing(cachePut.condition(), context)) {
-            final Object key = createKey(cachePut.key(), context, invocation);
-            put(obtainCache(method, cachePut), key, result);
-        }
-        return result;
-    }
+    return result;
+  }
 
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,38 +37,38 @@ import cn.taketoday.context.utils.ContextUtils;
  */
 public class PropsPropertyResolver extends OrderedApplicationContextSupport implements PropertyValueResolver {
 
-    public PropsPropertyResolver(ApplicationContext context) {
-        this(context, Ordered.HIGHEST_PRECEDENCE - 2);
+  public PropsPropertyResolver(ApplicationContext context) {
+    this(context, Ordered.HIGHEST_PRECEDENCE - 2);
+  }
+
+  public PropsPropertyResolver(ApplicationContext context, int order) {
+    super(order);
+    setApplicationContext(context);
+  }
+
+  @Override
+  public boolean supportsProperty(Field field) {
+    return ClassUtils.isAnnotationPresent(field, Props.class);
+  }
+
+  /**
+   * Resolve {@link Props} annotation property.
+   */
+  @Override
+  public PropertyValue resolveProperty(Field field) {
+
+    Props props = ClassUtils.getAnnotation(Props.class, field);
+
+    Properties properties = //
+            ContextUtils.loadProps(props, obtainApplicationContext().getEnvironment().getProperties());
+
+    // feat: Enhance `Props`
+    final Class<?> propertyClass = field.getType();
+    if (!Map.class.isAssignableFrom(propertyClass)) {
+
+      return new PropertyValue(ContextUtils.resolveProps(props, propertyClass, properties), field);
     }
-
-    public PropsPropertyResolver(ApplicationContext context, int order) {
-        super(order);
-        setApplicationContext(context);
-    }
-
-    @Override
-    public boolean supports(Field field) {
-        return ClassUtils.isAnnotationPresent(field, Props.class);
-    }
-
-    /**
-     * Resolve {@link Props} annotation property.
-     */
-    @Override
-    public PropertyValue resolveProperty(Field field) {
-
-        Props props = ClassUtils.getAnnotation(Props.class, field);
-
-        Properties properties = //
-                ContextUtils.loadProps(props, obtainApplicationContext().getEnvironment().getProperties());
-
-        // feat: Enhance `Props`
-        final Class<?> propertyClass = field.getType();
-        if (!Map.class.isAssignableFrom(propertyClass)) {
-
-            return new PropertyValue(ContextUtils.resolveProps(props, propertyClass, properties), field);
-        }
-        return new PropertyValue(properties, field);
-    }
+    return new PropertyValue(properties, field);
+  }
 
 }

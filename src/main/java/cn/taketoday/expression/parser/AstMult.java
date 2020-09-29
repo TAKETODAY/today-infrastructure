@@ -48,12 +48,12 @@ import cn.taketoday.expression.lang.ExpressionArithmetic;
  */
 public final class AstMult extends ArithmeticNode {
 
-    public AstMult(int id) {
-        super(id);
-    }
+  public AstMult(int id) {
+    super(id);
+  }
 
-    @Override
-    protected Object getValueInternal(Object value, Object value2) {
-        return ExpressionArithmetic.multiply(value, value2);
-    }
+  @Override
+  protected Object getValueInternal(Object value, Object value2) {
+    return ExpressionArithmetic.multiply(value, value2);
+  }
 }

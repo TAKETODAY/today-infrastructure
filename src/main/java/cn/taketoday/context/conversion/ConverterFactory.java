@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,12 +21,12 @@ package cn.taketoday.context.conversion;
 
 /**
  * {@link Converter} factory
- * 
+ *
  * @author Today <br>
  *         2018-08-08 07:19
  */
 @FunctionalInterface
 public interface ConverterFactory<S, R> {
 
-    <T extends R> Converter<S, T> getConverter(Class<T> targetType);
+  <T extends R> Converter<S, T> getConverter(Class<T> targetType);
 }

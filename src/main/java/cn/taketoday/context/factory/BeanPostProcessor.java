@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -50,57 +50,57 @@ package cn.taketoday.context.factory;
  * post-processors. Furthermore, the
  * {@link cn.taketoday.context.annotation.Order @Order} annotation is not taken
  * into account for {@code BeanPostProcessor} beans.
- * 
+ *
  * @author TODAY <br>
  *         2018-07-18 1:01:19
  */
 public interface BeanPostProcessor {
 
-    /**
-     * Apply this {@code BeanPostProcessor} to the given new bean instance
-     * <i>before</i> any bean initialization callbacks (like InitializingBean's
-     * {@code afterPropertiesSet} or a custom init-method). The bean will already be
-     * populated with property values. The returned bean instance may be a wrapper
-     * around the original.
-     * <p>
-     * The default implementation returns the given {@code bean} as-is.
-     * 
-     * @param bean
-     *            The new bean instance
-     * @param def
-     *            The definition of the bean
-     * @return the bean instance to use, either the original or a wrapped one; if
-     *         {@code null}, no subsequent BeanPostProcessors will be invoked
-     * @throws Exception
-     *             in case of errors
-     * @see cn.taketoday.context.factory.InitializingBean#afterPropertiesSet
-     */
-    default Object postProcessBeforeInitialization(Object bean, BeanDefinition def) throws Exception {
-        return bean;
-    }
+  /**
+   * Apply this {@code BeanPostProcessor} to the given new bean instance
+   * <i>before</i> any bean initialization callbacks (like InitializingBean's
+   * {@code afterPropertiesSet} or a custom init-method). The bean will already be
+   * populated with property values. The returned bean instance may be a wrapper
+   * around the original.
+   * <p>
+   * The default implementation returns the given {@code bean} as-is.
+   *
+   * @param bean
+   *            The new bean instance
+   * @param def
+   *            The definition of the bean
+   * @return the bean instance to use, either the original or a wrapped one; if
+   *         {@code null}, no subsequent BeanPostProcessors will be invoked
+   * @throws Exception
+   *             in case of errors
+   * @see cn.taketoday.context.factory.InitializingBean#afterPropertiesSet
+   */
+  default Object postProcessBeforeInitialization(Object bean, BeanDefinition def) throws Exception {
+    return bean;
+  }
 
-    /**
-     * Apply this {@code BeanPostProcessor} to the given new bean instance
-     * <i>after</i> any bean initialization callbacks (like InitializingBean's
-     * {@code afterPropertiesSet} or a custom init-method). The bean will already be
-     * populated with property values. The returned bean instance may be a wrapper
-     * around the original.
-     * 
-     * <p>
-     * The default implementation returns the given {@code bean} as-is.
-     * 
-     * @param bean
-     *            the new bean instance
-     * @param def
-     *            the definition of the bean
-     * @return the bean instance to use, either the original or a wrapped one; if
-     *         {@code null}, no subsequent BeanPostProcessors will be invoked
-     * @throws Exception
-     *             in case of errors
-     * @see cn.taketoday.context.factory.InitializingBean#afterPropertiesSet
-     * @see cn.taketoday.context.factory.FactoryBean
-     */
-    default Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
-        return bean;
-    }
+  /**
+   * Apply this {@code BeanPostProcessor} to the given new bean instance
+   * <i>after</i> any bean initialization callbacks (like InitializingBean's
+   * {@code afterPropertiesSet} or a custom init-method). The bean will already be
+   * populated with property values. The returned bean instance may be a wrapper
+   * around the original.
+   *
+   * <p>
+   * The default implementation returns the given {@code bean} as-is.
+   *
+   * @param bean
+   *            the new bean instance
+   * @param def
+   *            the definition of the bean
+   * @return the bean instance to use, either the original or a wrapped one; if
+   *         {@code null}, no subsequent BeanPostProcessors will be invoked
+   * @throws Exception
+   *             in case of errors
+   * @see cn.taketoday.context.factory.InitializingBean#afterPropertiesSet
+   * @see cn.taketoday.context.factory.FactoryBean
+   */
+  default Object postProcessAfterInitialization(Object bean, BeanDefinition def) throws Exception {
+    return bean;
+  }
 }

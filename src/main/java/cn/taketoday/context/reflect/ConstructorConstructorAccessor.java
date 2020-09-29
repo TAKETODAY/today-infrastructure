@@ -30,14 +30,14 @@ import cn.taketoday.context.utils.ReflectionUtils;
  */
 public class ConstructorConstructorAccessor implements ConstructorAccessor {
 
-    private final Constructor<?> constructor;
+  private final Constructor<?> constructor;
 
-    public ConstructorConstructorAccessor(Constructor<?> constructor) {
-        this.constructor = constructor;
-    }
+  public ConstructorConstructorAccessor(Constructor<?> constructor) {
+    this.constructor = constructor;
+  }
 
-    @Override
-    public Object newInstance(final Object[] args) {
-        return ReflectionUtils.invokeConstructor(constructor, args);
-    }
+  @Override
+  public Object newInstance(final Object[] args) {
+    return ReflectionUtils.invokeConstructor(constructor, args);
+  }
 }

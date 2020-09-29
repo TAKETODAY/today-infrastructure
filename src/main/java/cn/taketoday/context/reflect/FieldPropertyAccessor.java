@@ -33,8 +33,7 @@ public class FieldPropertyAccessor implements PropertyAccessor {
   private final Field field;
 
   public FieldPropertyAccessor(Field field) {
-    field.setAccessible(true);
-    this.field = field;
+    this.field = ReflectionUtils.makeAccessible(field);
   }
 
   @Override

@@ -43,53 +43,53 @@ package cn.taketoday.expression;
 @SuppressWarnings("serial")
 public class MethodExpressionLiteral extends MethodExpression {
 
-    private final String expr;
-    private final Class<?> expectedType;
-    private final Class<?>[] paramTypes;
+  private final String expr;
+  private final Class<?> expectedType;
+  private final Class<?>[] paramTypes;
 
-    public MethodExpressionLiteral() {
-        this(null, null, null);
+  public MethodExpressionLiteral() {
+    this(null, null, null);
+  }
+
+  public MethodExpressionLiteral(String expr, Class<?> expectedType, Class<?>[] paramTypes) {
+    this.expr = expr;
+    this.expectedType = expectedType;
+    this.paramTypes = paramTypes;
+  }
+
+  public MethodInfo getMethodInfo(ExpressionContext context) throws ExpressionException {
+    return new MethodInfo(this.expr, this.expectedType, this.paramTypes);
+  }
+
+  public Object invoke(ExpressionContext context, Object[] params) throws ExpressionException {
+
+    if (this.expectedType == null) {
+      return this.expr;
     }
 
-    public MethodExpressionLiteral(String expr, Class<?> expectedType, Class<?>[] paramTypes) {
-        this.expr = expr;
-        this.expectedType = expectedType;
-        this.paramTypes = paramTypes;
+    try {
+
+      return context.convertToType(this.expr, this.expectedType);
     }
-
-    public MethodInfo getMethodInfo(ExpressionContext context) throws ExpressionException {
-        return new MethodInfo(this.expr, this.expectedType, this.paramTypes);
+    catch (Exception ex) {
+      throw new ExpressionException(ex);
     }
+  }
 
-    public Object invoke(ExpressionContext context, Object[] params) throws ExpressionException {
+  public String getExpressionString() {
+    return this.expr;
+  }
 
-        if (this.expectedType == null) {
-            return this.expr;
-        }
+  public boolean equals(Object obj) {
+    return (obj instanceof MethodExpressionLiteral && this.hashCode() == obj.hashCode());
+  }
 
-        try {
+  public int hashCode() {
+    return this.expr.hashCode();
+  }
 
-            return context.convertToType(this.expr, this.expectedType);
-        }
-        catch (Exception ex) {
-            throw new ExpressionException(ex);
-        }
-    }
-
-    public String getExpressionString() {
-        return this.expr;
-    }
-
-    public boolean equals(Object obj) {
-        return (obj instanceof MethodExpressionLiteral && this.hashCode() == obj.hashCode());
-    }
-
-    public int hashCode() {
-        return this.expr.hashCode();
-    }
-
-    public boolean isLiteralText() {
-        return true;
-    }
+  public boolean isLiteralText() {
+    return true;
+  }
 
 }

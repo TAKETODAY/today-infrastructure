@@ -49,15 +49,15 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public final class AstNull extends SimpleNode {
 
-    public AstNull(int id) {
-        super(id);
-    }
+  public AstNull(int id) {
+    super(id);
+  }
 
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        return null;
-    }
+  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+    return null;
+  }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        return null;
-    }
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    return null;
+  }
 }

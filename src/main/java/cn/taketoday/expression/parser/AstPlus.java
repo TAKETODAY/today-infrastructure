@@ -49,13 +49,13 @@ import cn.taketoday.expression.lang.ExpressionArithmetic;
  */
 public final class AstPlus extends ArithmeticNode {
 
-    public AstPlus(int id) {
-        super(id);
-    }
+  public AstPlus(int id) {
+    super(id);
+  }
 
-    @Override
-    protected Object getValueInternal(Object obj0, Object obj1) {
-        return ExpressionArithmetic.add(obj0, obj1);
-    }
+  @Override
+  protected Object getValueInternal(Object obj0, Object obj1) {
+    return ExpressionArithmetic.add(obj0, obj1);
+  }
 
 }

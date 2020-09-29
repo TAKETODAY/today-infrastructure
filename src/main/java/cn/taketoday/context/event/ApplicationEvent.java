@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,20 +23,20 @@ import java.util.EventObject;
 
 /**
  * @author TODAY<br>
- * 
+ *
  *         2018-09-09 21:23
  */
 @SuppressWarnings("serial")
 public abstract class ApplicationEvent extends EventObject {
 
-    private final long timestamp;
+  private final long timestamp;
 
-    public ApplicationEvent(Object source) {
-        super(source);
-        this.timestamp = System.currentTimeMillis();
-    }
+  public ApplicationEvent(Object source) {
+    super(source);
+    this.timestamp = System.currentTimeMillis();
+  }
 
-    public final long getTimestamp() {
-        return this.timestamp;
-    }
+  public final long getTimestamp() {
+    return this.timestamp;
+  }
 }

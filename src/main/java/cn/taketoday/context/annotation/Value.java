@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -35,13 +35,13 @@ import cn.taketoday.context.Constant;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 public @interface Value {
 
-    /** {@link Properties} key or el */
-    String value() default Constant.BLANK;
+  /** {@link Properties} key or el */
+  String value() default Constant.BLANK;
 
-    /** Is required ? */
-    boolean required() default true;
+  /** Is required ? */
+  boolean required() default true;
 
-    /** Default value */
-    String defaultValue() default Constant.BLANK;
+  /** Default value */
+  String defaultValue() default Constant.BLANK;
 
 }

@@ -51,29 +51,29 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public final class AstInteger extends SimpleNode {
 
-    public AstInteger(int id) {
-        super(id);
-    }
+  public AstInteger(int id) {
+    super(id);
+  }
 
-    private Number number;
+  private Number number;
 
-    protected Number getInteger() {
-        if (number == null) {
-            try {
-                number = Long.valueOf(image);
-            }
-            catch (ArithmeticException e1) {
-                number = new BigInteger(image);
-            }
-        }
-        return number;
+  protected Number getInteger() {
+    if (number == null) {
+      try {
+        number = Long.valueOf(image);
+      }
+      catch (ArithmeticException e1) {
+        number = new BigInteger(image);
+      }
     }
+    return number;
+  }
 
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        return getInteger().getClass();
-    }
+  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+    return getInteger().getClass();
+  }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        return getInteger();
-    }
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    return getInteger();
+  }
 }

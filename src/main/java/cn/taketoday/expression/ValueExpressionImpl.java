@@ -46,7 +46,7 @@ import cn.taketoday.expression.parser.Node;
 
 /**
  * An <code>Expression</code> that can get or set a value.
- * 
+ *
  * <p>
  * In previous incarnations of this API, expressions could only be read.
  * <code>ValueExpression</code> objects can now be used both to retrieve a value
@@ -58,7 +58,7 @@ import cn.taketoday.expression.parser.Node;
  * details. Expressions that cannot be used as l-values must always return
  * <code>true</code> from <code>isReadOnly()</code>.
  * </p>
- * 
+ *
  * <p>
  * <code>The {@link ExpressionFactory#createValueExpression} method
  * can be used to parse an expression string and return a concrete instance
@@ -86,122 +86,122 @@ import cn.taketoday.expression.parser.Node;
  * See the notes about comparison, serialization and immutability in the
  * {@link Expression} javadocs.
  *
+ * @author Jacob Hookom [jacob@hookom.net]
+ * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dochez $
  * @see cn.taketoday.expression.ExpressionResolver
  * @see cn.taketoday.expression.Expression
  * @see cn.taketoday.expression.ExpressionFactory
  * @see cn.taketoday.expression.ValueExpression
- * 
- * @author Jacob Hookom [jacob@hookom.net]
- * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: dochez $
  */
 @SuppressWarnings("serial")
 public final class ValueExpressionImpl extends ValueExpression {
 
-    private final String expr;
-    private transient Node node;
-    private final Class<?> expectedType;
+  private final String expr;
+  private transient Node node;
+  private final Class<?> expectedType;
 
-    public ValueExpressionImpl(String expr, Node node, Class<?> expectedType) {
-        this.expr = expr;
-        this.node = node;
-        this.expectedType = expectedType;
+  public ValueExpressionImpl(String expr, Node node, Class<?> expectedType) {
+    this.expr = expr;
+    this.node = node;
+    this.expectedType = expectedType;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof ValueExpressionImpl) {
+      return getNode().equals(((ValueExpressionImpl) obj).getNode());
     }
+    return false;
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof ValueExpressionImpl) {
-            return getNode().equals(((ValueExpressionImpl) obj).getNode());
+  @Override
+  public Class<?> getExpectedType() {
+    return this.expectedType;
+  }
+
+  /**
+   * Returns the type the result of the expression will be coerced to after
+   * evaluation.
+   *
+   * @return the <code>expectedType</code> passed to the
+   * <code>ExpressionFactory.createValueExpression</code> method that
+   * created this <code>ValueExpression</code>.
+   *
+   * @see cn.taketoday.expression.Expression#getExpressionString()
+   */
+  @Override
+  public String getExpressionString() {
+    return this.expr;
+  }
+
+  /**
+   * @return The Node for the expression
+   *
+   * @throws ExpressionException
+   */
+  private Node getNode() throws ExpressionException {
+    if (this.node == null) {
+      this.node = ExpressionFactory.createNode(this.expr);
+    }
+    return this.node;
+  }
+
+  @Override
+  public Class<?> getType(ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
+    return getNode().getType(new EvaluationContext(context));
+  }
+
+  @Override
+  public ValueReference getValueReference(ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
+    return getNode().getValueReference(new EvaluationContext(context));
+  }
+
+  @Override
+  public Object getValue(final ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
+
+    Object value = this.getNode().getValue(new EvaluationContext(context));
+
+    if (value != null && expectedType != null) {
+      try {
+        if (!expectedType.isInstance(value)) {
+          value = context.convertToType(value, expectedType);
         }
-        return false;
+      }
+      catch (IllegalArgumentException ex) {
+        throw new ExpressionException(ex);
+      }
     }
+    return value;
+  }
 
-    @Override
-    public Class<?> getExpectedType() {
-        return this.expectedType;
+  @Override
+  public int hashCode() {
+    return getNode().hashCode();
+  }
+
+  @Override
+  public boolean isLiteralText() {
+    try {
+      return this.getNode() instanceof AstLiteralExpression;
     }
-
-    /**
-     * Returns the type the result of the expression will be coerced to after
-     * evaluation.
-     * 
-     * @return the <code>expectedType</code> passed to the
-     *         <code>ExpressionFactory.createValueExpression</code> method that
-     *         created this <code>ValueExpression</code>.
-     * 
-     * @see cn.taketoday.expression.Expression#getExpressionString()
-     */
-    @Override
-    public String getExpressionString() {
-        return this.expr;
+    catch (ExpressionException ele) {
+      return false;
     }
+  }
 
-    /**
-     * @return The Node for the expression
-     * @throws ExpressionException
-     */
-    private Node getNode() throws ExpressionException {
-        if (this.node == null) {
-            this.node = ExpressionFactory.createNode(this.expr);
-        }
-        return this.node;
-    }
+  @Override
+  public boolean isReadOnly(ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
+    return getNode().isReadOnly(new EvaluationContext(context));
+  }
 
-    @Override
-    public Class<?> getType(ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
-        return getNode().getType(new EvaluationContext(context));
-    }
+  @Override
+  public void setValue(ExpressionContext context, Object value)
+          throws PropertyNotFoundException, PropertyNotWritableException, ExpressionException //
+  {
+    getNode().setValue(new EvaluationContext(context), value);
+  }
 
-    @Override
-    public ValueReference getValueReference(ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
-        return getNode().getValueReference(new EvaluationContext(context));
-    }
-
-    @Override
-    public Object getValue(final ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
-
-        Object value = this.getNode().getValue(new EvaluationContext(context));
-
-        if (value != null && expectedType != null) {
-            try {
-                if (!expectedType.isInstance(value)) {
-                    value = context.convertToType(value, expectedType);
-                }
-            }
-            catch (IllegalArgumentException ex) {
-                throw new ExpressionException(ex);
-            }
-        }
-        return value;
-    }
-
-    @Override
-    public int hashCode() {
-        return getNode().hashCode();
-    }
-
-    @Override
-    public boolean isLiteralText() {
-        try {
-            return this.getNode() instanceof AstLiteralExpression;
-        }
-        catch (ExpressionException ele) {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean isReadOnly(ExpressionContext context) throws PropertyNotFoundException, ExpressionException {
-        return getNode().isReadOnly(new EvaluationContext(context));
-    }
-
-    @Override
-    public void setValue(ExpressionContext context, Object value)
-            throws PropertyNotFoundException, PropertyNotWritableException, ExpressionException //
-    {
-        getNode().setValue(new EvaluationContext(context), value);
-    }
-
-    public String toString() {
-        return "ValueExpression[" + this.expr + "]";
-    }
+  public String toString() {
+    return "ValueExpression[" + this.expr + "]";
+  }
 }

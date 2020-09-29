@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,29 +30,29 @@ package cn.taketoday.context.factory;
  * bean.</b> A FactoryBean is defined in a bean style, but the object exposed
  * for bean references ({@link #getBean()}) is always the object that it creates
  * ,and initialization by this factory.
- * 
+ *
  * <p>
  * The implementation of FactoryBean is a factory; its instance will cached in
  * {@link BeanFactory} as a singleton bean.
- * 
+ *
  * @author TODAY <br>
  *         2018-08-03 17:38
  */
 public interface FactoryBean<T> {
 
-    /**
-     * Get the bean instance
-     * 
-     * @return bean instance
-     */
-    T getBean();
+  /**
+   * Get the bean instance
+   *
+   * @return bean instance
+   */
+  T getBean();
 
-    /**
-     * Get the bean class
-     * 
-     * @return bean class
-     * @since 2.1.2
-     */
-    Class<T> getBeanClass();
+  /**
+   * Get the bean class
+   *
+   * @return bean class
+   * @since 2.1.2
+   */
+  Class<T> getBeanClass();
 
 }

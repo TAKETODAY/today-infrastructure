@@ -46,5 +46,5 @@ import java.util.Iterator;
 
 interface Operator {
 
-    Iterator<Object> iterator(Iterator<Object> upstream);
+  Iterator<Object> iterator(Iterator<Object> upstream);
 }

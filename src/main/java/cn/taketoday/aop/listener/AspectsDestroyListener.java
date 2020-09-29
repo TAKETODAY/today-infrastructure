@@ -28,23 +28,23 @@ import cn.taketoday.context.logger.LoggerFactory;
 
 /**
  * @author TODAY <br>
- *         2019-02-14 20:48
+ * 2019-02-14 20:48
  */
 public class AspectsDestroyListener
         extends OrderedSupport implements ApplicationListener<ContextCloseEvent> {
 
-    public AspectsDestroyListener() {
-        super(Ordered.LOWEST_PRECEDENCE);
-    }
+  public AspectsDestroyListener() {
+    super(Ordered.LOWEST_PRECEDENCE);
+  }
 
-    @Override
-    public void onApplicationEvent(ContextCloseEvent event) {
+  @Override
+  public void onApplicationEvent(ContextCloseEvent event) {
 
-        LoggerFactory.getLogger(getClass()).info("Destroying Aspects Objects");
+    LoggerFactory.getLogger(getClass()).info("Destroying Aspects Objects");
 
-        final AspectsRegistry aspectsRegistry = AspectsRegistry.getInstance();
-        aspectsRegistry.getAspects().clear();
-        aspectsRegistry.setAspectsLoaded(false);
-    }
+    final AspectsRegistry aspectsRegistry = AspectsRegistry.getInstance();
+    aspectsRegistry.getAspects().clear();
+    aspectsRegistry.setAspectsLoaded(false);
+  }
 
 }

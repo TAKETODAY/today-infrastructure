@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,13 +19,13 @@
  */
 package cn.taketoday.aop.annotation;
 
+import org.aopalliance.intercept.MethodInterceptor;
+
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import org.aopalliance.intercept.MethodInterceptor;
 
 import cn.taketoday.aop.advice.AbstractAdvice;
 import cn.taketoday.aop.advice.ClassMatcher;
@@ -39,22 +39,22 @@ import cn.taketoday.aop.advice.MethodMatcher;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface Advice {
 
-    /** Annotated with */
-    Class<? extends Annotation>[] value() default {};
+  /** Annotated with */
+  Class<? extends Annotation>[] value() default {};
 
-    /** Package name */
-    String[] pointcut() default {};
+  /** Package name */
+  String[] pointcut() default {};
 
-    /** Target classes */
-    Class<?>[] target() default {};
+  /** Target classes */
+  Class<?>[] target() default {};
 
-    /** Method in class */
-    String[] method() default {};
+  /** Method in class */
+  String[] method() default {};
 
-    Class<? extends ClassMatcher> classMatcher() default ClassMatcher.class;
+  Class<? extends ClassMatcher> classMatcher() default ClassMatcher.class;
 
-    Class<? extends MethodMatcher> methodMatcher() default MethodMatcher.class;
+  Class<? extends MethodMatcher> methodMatcher() default MethodMatcher.class;
 
-    Class<? extends MethodInterceptor> interceptor() default AbstractAdvice.class;
+  Class<? extends MethodInterceptor> interceptor() default AbstractAdvice.class;
 
 }

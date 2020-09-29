@@ -108,9 +108,9 @@ public abstract class ReflectionUtil {
 
   /**
    * @param base
-   *     The base object
+   *         The base object
    * @param property
-   *     The property
+   *         The property
    *
    * @return The PropertyDescriptor for the base with the given property
    *
@@ -167,7 +167,7 @@ public abstract class ReflectionUtil {
 
     if (klass == null) {
       throw new MethodNotFoundException("Method not found: " + klass
-                                            + '.' + Constant.CONSTRUCTOR_NAME + '(' + paramString(paramTypes) + ')');
+                                                + '.' + Constant.CONSTRUCTOR_NAME + '(' + paramString(paramTypes) + ')');
     }
 
     if (paramTypes == null) {
@@ -272,7 +272,7 @@ public abstract class ReflectionUtil {
           Class<?> varType = mParamTypes[i].getComponentType();
           for (int j = i; j < paramCount; j++) {
             if (!isAssignableFrom(paramTypes[j], varType)
-                && !(paramValues != null && j < paramValues.length && isCoercibleFrom(paramValues[j], varType))) {
+                    && !(paramValues != null && j < paramValues.length && isCoercibleFrom(paramValues[j], varType))) {
               noMatch = true;
               break;
             }

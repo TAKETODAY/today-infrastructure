@@ -72,9 +72,9 @@ public abstract class ExpressionUtils {
 
   /**
    * @param obj0
-   *     First object to be compared
+   *         First object to be compared
    * @param obj1
-   *     Second object to be compared
+   *         Second object to be compared
    *
    * @return The result (an int with values -1, 0, or 1) of the comparison
    *
@@ -120,9 +120,9 @@ public abstract class ExpressionUtils {
 
   /**
    * @param obj0
-   *     Fisrt object to be compared
+   *         Fisrt object to be compared
    * @param obj1
-   *     Second object to be compared
+   *         Second object to be compared
    *
    * @return true if the objects compared equal
    *
@@ -166,7 +166,7 @@ public abstract class ExpressionUtils {
 
   /**
    * @param obj
-   *     Object to be coerced
+   *         Object to be coerced
    *
    * @return The result of coercion
    */
@@ -293,7 +293,7 @@ public abstract class ExpressionUtils {
       return coerceToNumber((Number) obj, type);
     }
     if (obj instanceof Character) {
-      return coerceToNumber(Short.valueOf((short) ((Character) obj).charValue()), type);
+      return coerceToNumber((short) ((Character) obj).charValue(), type);
     }
     throw new IllegalArgumentException("Cannot convert " + obj + " of type " + obj.getClass() + " to " + type);
   }
@@ -332,7 +332,7 @@ public abstract class ExpressionUtils {
 
   /**
    * @param obj
-   *     Object to be coerced
+   *         Object to be coerced
    *
    * @return The result of coercion
    */
@@ -416,15 +416,15 @@ public abstract class ExpressionUtils {
 
   public static boolean isDoubleStringOp(final Object obj0, final Object obj1) {
     return (isDoubleOp(obj0, obj1) //
-        || (obj0 instanceof String && isStringFloat((String) obj0)) //
-        || (obj1 instanceof String && isStringFloat((String) obj1))//
+            || (obj0 instanceof String && isStringFloat((String) obj0)) //
+            || (obj1 instanceof String && isStringFloat((String) obj1))//
     );
   }
 
   public static boolean isLongOp(final Object obj0, final Object obj1) {
     return (obj0 instanceof Long || obj1 instanceof Long || obj0 instanceof Integer || obj1 instanceof Integer
-        || obj0 instanceof Character || obj1 instanceof Character || obj0 instanceof Short || obj1 instanceof Short
-        || obj0 instanceof Byte || obj1 instanceof Byte);
+            || obj0 instanceof Character || obj1 instanceof Character || obj0 instanceof Short || obj1 instanceof Short
+            || obj0 instanceof Byte || obj1 instanceof Byte);
   }
 
   public static boolean isStringFloat(final String str) {
@@ -449,7 +449,7 @@ public abstract class ExpressionUtils {
       if (parseDouble > Double.MAX_VALUE) {
         return new BigDecimal(value);
       }
-      return Double.valueOf(parseDouble);
+      return parseDouble;
     }
     catch (NumberFormatException e0) {
       return new BigDecimal(value);

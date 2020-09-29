@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,19 +22,18 @@ package cn.taketoday.context.listener;
 import java.util.EventListener;
 
 /**
- * @author Today <br>
- * 
+ * @author TODAY <br>
  *         2018-09-09 21:23
  */
 @FunctionalInterface
-public interface ApplicationListener<E extends Object> extends EventListener {
+public interface ApplicationListener<E> extends EventListener {
 
-    /**
-     * On event
-     * 
-     * @param event
-     *            event instance
-     */
-    void onApplicationEvent(E event);
+  /**
+   * On event
+   *
+   * @param event
+   *            event instance
+   */
+  void onApplicationEvent(E event);
 
 }

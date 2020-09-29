@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -36,40 +36,40 @@ import cn.taketoday.context.exception.ContextException;
  */
 public interface DestructionBeanPostProcessor extends BeanPostProcessor {
 
-    /**
-     * Apply this BeanPostProcessor to the given bean instance before its
-     * destruction, e.g. invoking custom destruction callbacks.
-     * <p>
-     * Like DisposableBean's {@code destroy} and a custom destroy method, this
-     * callback will only apply to beans which the container fully manages the
-     * lifecycle for. This is usually the case for singletons and scoped beans.
-     * 
-     * @param bean
-     *            the bean instance to be destroyed
-     * @param def
-     *            the BeanDefinition of the bean , BeanDefinition may be null
-     * @throws ContextException
-     *             in case of errors
-     * @see DisposableBean#destroy()
-     */
-    void postProcessBeforeDestruction(Object bean, BeanDefinition def) throws ContextException;
+  /**
+   * Apply this BeanPostProcessor to the given bean instance before its
+   * destruction, e.g. invoking custom destruction callbacks.
+   * <p>
+   * Like DisposableBean's {@code destroy} and a custom destroy method, this
+   * callback will only apply to beans which the container fully manages the
+   * lifecycle for. This is usually the case for singletons and scoped beans.
+   *
+   * @param bean
+   *            the bean instance to be destroyed
+   * @param def
+   *            the BeanDefinition of the bean , BeanDefinition may be null
+   * @throws ContextException
+   *             in case of errors
+   * @see DisposableBean#destroy()
+   */
+  void postProcessBeforeDestruction(Object bean, BeanDefinition def) throws ContextException;
 
-    /**
-     * Determine whether the given bean instance requires destruction by this
-     * post-processor.
-     * <p>
-     * The default implementation returns {@code true}. If a pre-5 implementation of
-     * {@code DestructionAwareBeanPostProcessor} does not provide a concrete
-     * implementation of this method, Spring silently assumes {@code true} as well.
-     * 
-     * @param bean
-     *            the bean instance to check
-     * @return {@code true} if {@link #postProcessBeforeDestruction} is supposed to
-     *         be called for this bean instance eventually, or {@code false} if not
-     *         needed
-     */
-    default boolean requiresDestruction(Object bean) {
-        return true;
-    }
+  /**
+   * Determine whether the given bean instance requires destruction by this
+   * post-processor.
+   * <p>
+   * The default implementation returns {@code true}. If a pre-5 implementation of
+   * {@code DestructionAwareBeanPostProcessor} does not provide a concrete
+   * implementation of this method, Spring silently assumes {@code true} as well.
+   *
+   * @param bean
+   *            the bean instance to check
+   * @return {@code true} if {@link #postProcessBeforeDestruction} is supposed to
+   *         be called for this bean instance eventually, or {@code false} if not
+   *         needed
+   */
+  default boolean requiresDestruction(Object bean) {
+    return true;
+  }
 
 }

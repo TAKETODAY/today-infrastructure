@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -23,21 +23,21 @@ import cn.taketoday.context.exception.ConversionException;
 
 /**
  * A {@link Converter}
- * 
+ *
  * @author Today <br>
  *         2018-07-07 21:33:52
  */
 @FunctionalInterface
 public interface Converter<S, T> {
 
-    /**
-     * Convert source object to target class {@link T}
-     * 
-     * @param source
-     *            source instance
-     * @return A converted instance
-     * @throws ConversionException
-     */
-    T convert(S source) throws ConversionException;
+  /**
+   * Convert source object to target class {@link T}
+   *
+   * @param source
+   *            source instance
+   * @return A converted instance
+   * @throws ConversionException
+   */
+  T convert(S source) throws ConversionException;
 
 }

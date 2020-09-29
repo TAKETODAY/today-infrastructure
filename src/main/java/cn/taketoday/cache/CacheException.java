@@ -21,22 +21,22 @@ package cn.taketoday.cache;
 
 /**
  * @author TODAY <br>
- *         2019-02-27 13:50
+ * 2019-02-27 13:50
  */
 public class CacheException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public CacheException(String message) {
-        super(message);
-    }
+  public CacheException(String message) {
+    super(message);
+  }
 
-    public CacheException(Throwable cause) {
-        super(cause);
-    }
+  public CacheException(Throwable cause) {
+    super(cause);
+  }
 
-    public CacheException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public CacheException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
 }

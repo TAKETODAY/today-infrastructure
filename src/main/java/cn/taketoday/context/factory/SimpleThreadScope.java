@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -41,24 +41,24 @@ import cn.taketoday.context.Scope;
  */
 public class SimpleThreadScope implements Scope {
 
-    private final ThreadLocal<Map<String, Object>> threadScope = ThreadLocal.withInitial(HashMap::new);
+  private final ThreadLocal<Map<String, Object>> threadScope = ThreadLocal.withInitial(HashMap::new);
 
-    @Override
-    public Object remove(String name) {
-        Map<String, Object> scope = this.threadScope.get();
-        return scope.remove(name);
-    }
+  @Override
+  public Object remove(String name) {
+    Map<String, Object> scope = this.threadScope.get();
+    return scope.remove(name);
+  }
 
-    @Override
-    public Object get(final BeanDefinition def, final ScopeObjectFactory objectFactory) {
-        Map<String, Object> scope = this.threadScope.get();
-        final String name = def.getName();
-        Object scopedObject = scope.get(name);
-        if (scopedObject == null) {
-            scopedObject = objectFactory.getObject(def);
-            scope.put(name, scopedObject);
-        }
-        return scopedObject;
+  @Override
+  public Object get(final BeanDefinition def, final ScopeObjectFactory objectFactory) {
+    Map<String, Object> scope = this.threadScope.get();
+    final String name = def.getName();
+    Object scopedObject = scope.get(name);
+    if (scopedObject == null) {
+      scopedObject = objectFactory.getObject(def);
+      scope.put(name, scopedObject);
     }
+    return scopedObject;
+  }
 
 }

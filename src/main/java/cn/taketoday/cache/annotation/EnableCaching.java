@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -44,32 +44,31 @@ public @interface EnableCaching {
 
 }
 
-
 class ProxyCachingConfiguration {
 
-    @MissingBean
-    DefaultCacheManager cacheManager() {
-        return new DefaultCacheManager();
-    }
+  @MissingBean
+  DefaultCacheManager cacheManager() {
+    return new DefaultCacheManager();
+  }
 
-    @MissingBean
-    CachePutInterceptor cachePutInterceptor(CacheManager cacheManager) {
-        return new CachePutInterceptor(cacheManager);
-    }
+  @MissingBean
+  CachePutInterceptor cachePutInterceptor(CacheManager cacheManager) {
+    return new CachePutInterceptor(cacheManager);
+  }
 
-    @MissingBean
-    CacheableInterceptor cacheableInterceptor(CacheManager cacheManager) {
-        return new CacheableInterceptor(cacheManager);
-    }
+  @MissingBean
+  CacheableInterceptor cacheableInterceptor(CacheManager cacheManager) {
+    return new CacheableInterceptor(cacheManager);
+  }
 
-    @MissingBean
-    CacheEvictInterceptor cacheEvictInterceptor(CacheManager cacheManager) {
-        return new CacheEvictInterceptor(cacheManager);
-    }
+  @MissingBean
+  CacheEvictInterceptor cacheEvictInterceptor(CacheManager cacheManager) {
+    return new CacheEvictInterceptor(cacheManager);
+  }
 
-    @MissingBean
-    DefaultCacheExceptionResolver cacheExceptionResolver() {
-        return new DefaultCacheExceptionResolver();
-    }
+  @MissingBean
+  DefaultCacheExceptionResolver cacheExceptionResolver() {
+    return new DefaultCacheExceptionResolver();
+  }
 
 }

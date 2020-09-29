@@ -48,17 +48,17 @@ import java.util.List;
  */
 
 public class AstLambdaParameters extends SimpleNode {
-    public AstLambdaParameters(int id) {
-        super(id);
-    }
+  public AstLambdaParameters(int id) {
+    super(id);
+  }
 
-    List<String> getParameters() {
-        List<String> parameters = new ArrayList<String>();
-        if (children != null) {
-            for (Node child : children) {
-                parameters.add(child.getImage());
-            }
-        }
-        return parameters;
+  List<String> getParameters() {
+    List<String> parameters = new ArrayList<String>();
+    if (children != null) {
+      for (Node child : children) {
+        parameters.add(child.getImage());
+      }
     }
+    return parameters;
+  }
 }

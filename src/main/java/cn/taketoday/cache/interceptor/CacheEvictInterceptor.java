@@ -19,13 +19,9 @@
  */
 package cn.taketoday.cache.interceptor;
 
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.createKey;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
-import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareELContext;
+import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Method;
-
-import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.aop.annotation.Advice;
 import cn.taketoday.aop.annotation.Aspect;
@@ -34,55 +30,59 @@ import cn.taketoday.cache.annotation.CacheConfiguration;
 import cn.taketoday.cache.annotation.CacheEvict;
 import cn.taketoday.context.Ordered;
 
+import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.createKey;
+import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareAnnotation;
+import static cn.taketoday.cache.interceptor.AbstractCacheInterceptor.Operations.prepareELContext;
+
 /**
  * @author TODAY <br>
- *         2019-02-27 20:54
+ * 2019-02-27 20:54
  */
 @Aspect
 @Advice(CacheEvict.class)
 public class CacheEvictInterceptor extends AbstractCacheInterceptor {
 
-    public CacheEvictInterceptor() {
-        setOrder(Ordered.HIGHEST_PRECEDENCE * 2);
+  public CacheEvictInterceptor() {
+    setOrder(Ordered.HIGHEST_PRECEDENCE * 2);
+  }
+
+  public CacheEvictInterceptor(CacheManager cacheManager) {
+    this();
+    setCacheManager(cacheManager);
+  }
+
+  @Override
+  public Object invoke(final MethodInvocation invocation) throws Throwable {
+
+    final Method method = invocation.getMethod();
+    final MethodKey methodKey = new MethodKey(method, CacheEvict.class);
+
+    final CacheConfiguration cacheEvict = prepareAnnotation(methodKey);
+
+    // before
+    if (cacheEvict.beforeInvocation()) {
+      if (cacheEvict.allEntries()) {
+        clear(obtainCache(method, cacheEvict));
+      }
+      else {
+        evict(obtainCache(method, cacheEvict), createKey(cacheEvict.key(), prepareELContext(methodKey, invocation), invocation));
+      }
+      return invocation.proceed();
     }
 
-    public CacheEvictInterceptor(CacheManager cacheManager) {
-        this();
-        setCacheManager(cacheManager);
+    // after
+    // if any exception occurred in this operation will not do evict or clear
+    final Object proceed = invocation.proceed();
+
+    if (cacheEvict.allEntries()) {
+      clear(obtainCache(method, cacheEvict));
     }
-
-    @Override
-    public Object invoke(final MethodInvocation invocation) throws Throwable {
-
-        final Method method = invocation.getMethod();
-        final MethodKey methodKey = new MethodKey(method, CacheEvict.class);
-
-        final CacheConfiguration cacheEvict = prepareAnnotation(methodKey);
-
-        // before
-        if (cacheEvict.beforeInvocation()) {
-            if (cacheEvict.allEntries()) {
-                clear(obtainCache(method, cacheEvict));
-            }
-            else {
-                evict(obtainCache(method, cacheEvict), createKey(cacheEvict.key(), prepareELContext(methodKey, invocation), invocation));
-            }
-            return invocation.proceed();
-        }
-
-        // after
-        // if any exception occurred in this operation will not do evict or clear
-        final Object proceed = invocation.proceed();
-
-        if (cacheEvict.allEntries()) {
-            clear(obtainCache(method, cacheEvict));
-        }
-        else {
-            evict(obtainCache(method, cacheEvict), createKey(cacheEvict.key(),
-                                                             prepareELContext(methodKey, invocation),
-                                                             invocation));
-        }
-        return proceed;
+    else {
+      evict(obtainCache(method, cacheEvict), createKey(cacheEvict.key(),
+                                                       prepareELContext(methodKey, invocation),
+                                                       invocation));
     }
+    return proceed;
+  }
 
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,18 +21,18 @@ package cn.taketoday.context.factory;
 
 /**
  * Invoke after all the properties has been set
- * 
+ *
  * @author TODAY <br>
  *         2018-7-17 22:24:03
  */
 public interface InitializingBean {
 
-    /**
-     * After bean instance properties set.
-     * 
-     * @throws Exception
-     *             in case of errors
-     */
-    void afterPropertiesSet() throws Exception;
+  /**
+   * After bean instance properties set.
+   *
+   * @throws Exception
+   *             in case of errors
+   */
+  void afterPropertiesSet() throws Exception;
 
 }

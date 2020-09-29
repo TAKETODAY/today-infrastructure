@@ -30,21 +30,21 @@ import cn.taketoday.context.factory.BeanPostProcessor;
  * Auto create proxy
  *
  * @author TODAY <br>
- *         2018-11-10 13:13
+ * 2018-11-10 13:13
  */
 public class AutoProxyCreator extends OrderedSupport implements BeanPostProcessor {
 
-    private final ApplicationContext context;
+  private final ApplicationContext context;
 
-    @Autowired
-    public AutoProxyCreator(ApplicationContext context) {
-        super(Ordered.LOWEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE);
-        this.context = context;
-    }
+  @Autowired
+  public AutoProxyCreator(ApplicationContext context) {
+    super(Ordered.LOWEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE);
+    this.context = context;
+  }
 
-    @Override
-    public Object postProcessAfterInitialization(Object bean, BeanDefinition beanDefinition) throws Exception {
-        return new DefaultProxyFactory(new TargetSource(bean, bean.getClass()), context).getProxy();
-    }
+  @Override
+  public Object postProcessAfterInitialization(Object bean, BeanDefinition beanDefinition) throws Exception {
+    return new DefaultProxyFactory(new TargetSource(bean, bean.getClass()), context).getProxy();
+  }
 
 }

@@ -48,12 +48,12 @@ import cn.taketoday.expression.lang.ExpressionArithmetic;
  */
 public final class AstMinus extends ArithmeticNode {
 
-    public AstMinus(int id) {
-        super(id);
-    }
+  public AstMinus(int id) {
+    super(id);
+  }
 
-    @Override
-    protected Object getValueInternal(Object value, Object value2) {
-        return ExpressionArithmetic.subtract(value, value2);
-    }
+  @Override
+  protected Object getValueInternal(Object value, Object value2) {
+    return ExpressionArithmetic.subtract(value, value2);
+  }
 }

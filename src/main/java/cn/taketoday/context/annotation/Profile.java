@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ import cn.taketoday.context.env.ProfileCondition;
 
 /**
  * @author Today <br>
- * 
+ *
  *         2018-11-14 22:55
  */
 @Inherited
@@ -38,11 +38,11 @@ import cn.taketoday.context.env.ProfileCondition;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Profile {
 
-    /**
-     * Accept profiles, using '!' to exclude profiles
-     * 
-     * @return
-     */
-    String[] value();
+  /**
+   * Accept profiles, using '!' to exclude profiles
+   *
+   * @return
+   */
+  String[] value();
 
 }

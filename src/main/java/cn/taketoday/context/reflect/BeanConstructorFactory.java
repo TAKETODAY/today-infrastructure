@@ -20,12 +20,11 @@
 package cn.taketoday.context.reflect;
 
 /**
- * 
  * @author TODAY <br>
- *         2020-08-13 20:23
+ * 2020-08-13 20:23
  */
 @FunctionalInterface
 public interface BeanConstructorFactory {
 
-    BeanConstructor<?> newConstructor(Class<?> cls);
+  BeanConstructor<?> newConstructor(Class<?> cls);
 }

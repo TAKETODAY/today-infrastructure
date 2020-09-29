@@ -40,10 +40,10 @@
 
 package cn.taketoday.expression.parser;
 
-import static cn.taketoday.expression.lang.ExpressionUtils.coerceToBoolean;
-
 import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
+
+import static cn.taketoday.expression.lang.ExpressionUtils.coerceToBoolean;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
@@ -51,12 +51,12 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public final class AstOr extends BooleanNode {
 
-    public AstOr(int id) {
-        super(id);
-    }
+  public AstOr(int id) {
+    super(id);
+  }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        return coerceToBoolean(this.children[0].getValue(ctx))
-               || coerceToBoolean(this.children[1].getValue(ctx));
-    }
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    return coerceToBoolean(this.children[0].getValue(ctx))
+            || coerceToBoolean(this.children[1].getValue(ctx));
+  }
 }

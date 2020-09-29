@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -39,125 +39,125 @@ import cn.taketoday.context.utils.ResourceUtils;
  */
 public class ClassPathResource implements Resource, WritableResource {
 
-    private final Resource resource;
+  private final Resource resource;
 
-    public ClassPathResource(URL location) {
-        this.resource = ResourceUtils.getResource(location);
-    }
+  public ClassPathResource(URL location) {
+    this.resource = ResourceUtils.getResource(location);
+  }
 
-    public ClassPathResource(String location) {
-        this(location, ClassUtils.getClassLoader());
-    }
+  public ClassPathResource(String location) {
+    this(location, ClassUtils.getClassLoader());
+  }
 
-    public ClassPathResource(String location, Class<?> resourceClass) {
-        this(location, resourceClass.getClassLoader());
-    }
+  public ClassPathResource(String location, Class<?> resourceClass) {
+    this(location, resourceClass.getClassLoader());
+  }
 
-    public ClassPathResource(String location, ClassLoader classLoader) {
-        Assert.notNull(location, "Location must not be null");
-        final URL resource = (classLoader != null ? classLoader : ClassUtils.getClassLoader()).getResource(location);
-        // linux path start with '/'
-        this.resource = resource == null ? new FileBasedResource(location) : ResourceUtils.getResource(resource);
-    }
+  public ClassPathResource(String location, ClassLoader classLoader) {
+    Assert.notNull(location, "Location must not be null");
+    final URL resource = (classLoader != null ? classLoader : ClassUtils.getClassLoader()).getResource(location);
+    // linux path start with '/'
+    this.resource = resource == null ? new FileBasedResource(location) : ResourceUtils.getResource(resource);
+  }
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return resource.getInputStream();
-    }
+  @Override
+  public InputStream getInputStream() throws IOException {
+    return resource.getInputStream();
+  }
 
-    @Override
-    public long contentLength() throws IOException {
-        return resource.contentLength();
-    }
+  @Override
+  public long contentLength() throws IOException {
+    return resource.contentLength();
+  }
 
-    @Override
-    public String getName() {
-        return resource.getName();
-    }
+  @Override
+  public String getName() {
+    return resource.getName();
+  }
 
-    @Override
-    public long lastModified() throws IOException {
-        return resource.lastModified();
-    }
+  @Override
+  public long lastModified() throws IOException {
+    return resource.lastModified();
+  }
 
-    @Override
-    public URL getLocation() throws IOException {
-        return resource.getLocation();
-    }
+  @Override
+  public URL getLocation() throws IOException {
+    return resource.getLocation();
+  }
 
-    @Override
-    public File getFile() throws IOException {
-        return resource.getFile();
-    }
+  @Override
+  public File getFile() throws IOException {
+    return resource.getFile();
+  }
 
-    @Override
-    public boolean exists() {
-        return resource.exists();
-    }
+  @Override
+  public boolean exists() {
+    return resource.exists();
+  }
 
-    @Override
-    public boolean isDirectory() throws IOException {
-        return resource.isDirectory();
-    }
+  @Override
+  public boolean isDirectory() throws IOException {
+    return resource.isDirectory();
+  }
 
-    @Override
-    public String[] list() throws IOException {
-        return resource.list();
-    }
+  @Override
+  public String[] list() throws IOException {
+    return resource.list();
+  }
 
-    @Override
-    public Resource createRelative(String relativePath) throws IOException {
-        return resource.createRelative(relativePath);
-    }
+  @Override
+  public Resource createRelative(String relativePath) throws IOException {
+    return resource.createRelative(relativePath);
+  }
 
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-        final Resource resource = this.resource;
-        if (resource instanceof Writable) {
-            return ((Writable) resource).getOutputStream();
-        }
-        throw new IOException("Writable operation is not supported");
+  @Override
+  public OutputStream getOutputStream() throws IOException {
+    final Resource resource = this.resource;
+    if (resource instanceof Writable) {
+      return ((Writable) resource).getOutputStream();
     }
+    throw new IOException("Writable operation is not supported");
+  }
 
-    @Override
-    public ReadableByteChannel readableChannel() throws IOException {
-        return resource.readableChannel();
-    }
+  @Override
+  public ReadableByteChannel readableChannel() throws IOException {
+    return resource.readableChannel();
+  }
 
-    @Override
-    public WritableByteChannel writableChannel() throws IOException {
-        final Resource resource = this.resource;
-        if (resource instanceof Writable) {
-            return ((Writable) resource).writableChannel();
-        }
-        throw new ConfigurationException("Writable operation is not supported");
+  @Override
+  public WritableByteChannel writableChannel() throws IOException {
+    final Resource resource = this.resource;
+    if (resource instanceof Writable) {
+      return ((Writable) resource).writableChannel();
     }
+    throw new ConfigurationException("Writable operation is not supported");
+  }
 
-    @Override
-    public Resource[] list(ResourceFilter filter) throws IOException {
-        return resource.list(filter);
-    }
+  @Override
+  public Resource[] list(ResourceFilter filter) throws IOException {
+    return resource.list(filter);
+  }
 
-    @Override
-    public String toString() {
-        return resource.toString();
-    }
+  @Override
+  public String toString() {
+    return resource.toString();
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        return obj == this || (obj instanceof ClassPathResource && resource.equals(((ClassPathResource) obj).getOriginalResource()));
-    }
+  @Override
+  public boolean equals(Object obj) {
+    return obj == this || (obj instanceof ClassPathResource && resource.equals(((ClassPathResource) obj).getOriginalResource()));
+  }
 
-    /**
-     * Get Original {@link Resource}
-     * 
-     * @return Original {@link Resource}
-     */
-    public final Resource getOriginalResource() {
-        return resource;
-    }
+  /**
+   * Get Original {@link Resource}
+   *
+   * @return Original {@link Resource}
+   */
+  public final Resource getOriginalResource() {
+    return resource;
+  }
 
-    public URI getURI() throws IOException {
-        return resource.getURI();
-    }
+  public URI getURI() throws IOException {
+    return resource.getURI();
+  }
 }

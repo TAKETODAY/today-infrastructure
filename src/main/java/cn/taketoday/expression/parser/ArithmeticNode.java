@@ -49,19 +49,19 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public abstract class ArithmeticNode extends SimpleNode {
 
-    public ArithmeticNode(int i) {
-        super(i);
-    }
+  public ArithmeticNode(int i) {
+    super(i);
+  }
 
-    @Override
-    public Object getValue(final EvaluationContext ctx) throws ExpressionException {
-        return getValueInternal(this.children[0].getValue(ctx), this.children[1].getValue(ctx));
-    }
+  @Override
+  public Object getValue(final EvaluationContext ctx) throws ExpressionException {
+    return getValueInternal(this.children[0].getValue(ctx), this.children[1].getValue(ctx));
+  }
 
-    protected abstract Object getValueInternal(final Object obj0, final Object obj1);
+  protected abstract Object getValueInternal(final Object obj0, final Object obj1);
 
-    @Override
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        return Number.class;
-    }
+  @Override
+  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+    return Number.class;
+  }
 }

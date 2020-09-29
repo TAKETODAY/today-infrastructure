@@ -40,54 +40,54 @@ import static cn.taketoday.context.utils.ContextUtils.resolveProps;
  * 2019-10-28 20:27
  */
 public class AutowiredParameterResolver
-    extends OrderedSupport implements ExecutableParameterResolver, Ordered {
+        extends OrderedSupport implements ExecutableParameterResolver, Ordered {
 
-    public AutowiredParameterResolver() {
-        this(LOWEST_PRECEDENCE);
+  public AutowiredParameterResolver() {
+    this(LOWEST_PRECEDENCE);
+  }
+
+  public AutowiredParameterResolver(int order) {
+    super(order);
+  }
+
+  @Override
+  public final Object resolve(Parameter parameter, BeanFactory beanFactory) {
+
+    final Autowired autowired = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
+
+    Object bean = resolveBean(autowired != null ? autowired.value() : null, parameter.getType(), beanFactory);
+
+    // @Props on a bean (pojo) which has already annotated @Autowired or not
+    if (parameter.isAnnotationPresent(Props.class)) {
+      bean = resolvePropsInternal(parameter, parameter.getAnnotation(Props.class), bean);
     }
 
-    public AutowiredParameterResolver(int order) {
-        super(order);
+    if (bean == null && (autowired == null || autowired.required())) { // if it is required
+
+      LoggerFactory.getLogger(AutowiredParameterResolver.class)//
+              .error("[{}] on executable: [{}] is required and there isn't a [{}] bean",
+                     parameter, parameter.getDeclaringExecutable(), parameter.getType());
+
+      throw new NoSuchBeanDefinitionException(parameter.getType());
     }
 
-    @Override
-    public final Object resolve(Parameter parameter, BeanFactory beanFactory) {
+    return bean;
+  }
 
-        final Autowired autowired = parameter.getAnnotation(Autowired.class); // @Autowired on parameter
+  protected Object resolveBean(final String name, final Class<?> type, final BeanFactory beanFactory) {
 
-        Object bean = resolveBean(autowired != null ? autowired.value() : null, parameter.getType(), beanFactory);
-
-        // @Props on a bean (pojo) which has already annotated @Autowired or not
-        if (parameter.isAnnotationPresent(Props.class)) {
-            bean = resolvePropsInternal(parameter, parameter.getAnnotation(Props.class), bean);
-        }
-
-        if (bean == null && (autowired == null || autowired.required())) { // if it is required
-
-            LoggerFactory.getLogger(AutowiredParameterResolver.class)//
-                .error("[{}] on executable: [{}] is required and there isn't a [{}] bean",
-                       parameter, parameter.getDeclaringExecutable(), parameter.getType());
-
-            throw new NoSuchBeanDefinitionException(parameter.getType());
-        }
-
-        return bean;
+    if (StringUtils.isNotEmpty(name)) {
+      // use name and bean type to get bean
+      return beanFactory.getBean(name, type);
     }
+    return beanFactory.getBean(type);
+  }
 
-    protected Object resolveBean(final String name, final Class<?> type, final BeanFactory beanFactory) {
-
-        if (StringUtils.isNotEmpty(name)) {
-            // use name and bean type to get bean
-            return beanFactory.getBean(name, type);
-        }
-        return beanFactory.getBean(type);
+  protected Object resolvePropsInternal(final Parameter parameter, final Props props, final Object bean) {
+    if (bean != null) {
+      return resolveProps(props, bean, loadProps(props, System.getProperties()));
     }
-
-    protected Object resolvePropsInternal(final Parameter parameter, final Props props, final Object bean) {
-        if (bean != null) {
-            return resolveProps(props, bean, loadProps(props, System.getProperties()));
-        }
-        return resolveProps(props, parameter.getType(), loadProps(props, System.getProperties()));
-    }
+    return resolveProps(props, parameter.getType(), loadProps(props, System.getProperties()));
+  }
 
 }

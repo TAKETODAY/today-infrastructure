@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -31,9 +31,9 @@ import cn.taketoday.context.annotation.Conditional;
 import cn.taketoday.context.utils.ResourceUtils;
 
 /**
- * 
+ *
  * {@link Conditional} that only matches when the specified resources are exits
- * 
+ *
  * @author TODAY <br>
  *         2019-06-18 15:07
  */
@@ -42,26 +42,26 @@ import cn.taketoday.context.utils.ResourceUtils;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface ConditionalOnResource {
 
-    /**
-     * The resources that must be present.
-     * 
-     * @return the resource paths that must be present.
-     */
-    String[] value() default {};
+  /**
+   * The resources that must be present.
+   *
+   * @return the resource paths that must be present.
+   */
+  String[] value() default {};
 
 }
 
 class OnResourceCondition implements Condition {
 
-    @Override
-    public boolean matches(final ApplicationContext context, final AnnotatedElement annotatedElement) {
+  @Override
+  public boolean matches(final ApplicationContext context, final AnnotatedElement annotatedElement) {
 
-        for (final String resource : annotatedElement.getAnnotation(ConditionalOnResource.class).value()) {
-            if (!ResourceUtils.getResource(resource).exists()) {
-                return false;
-            }
-        }
-        return true;
+    for (final String resource : annotatedElement.getAnnotation(ConditionalOnResource.class).value()) {
+      if (!ResourceUtils.getResource(resource).exists()) {
+        return false;
+      }
     }
+    return true;
+  }
 
 }

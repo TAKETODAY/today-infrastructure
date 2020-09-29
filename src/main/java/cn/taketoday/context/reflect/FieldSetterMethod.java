@@ -29,14 +29,14 @@ import cn.taketoday.context.utils.ReflectionUtils;
  */
 public class FieldSetterMethod implements SetterMethod {
 
-    private final Field field;
+  private final Field field;
 
-    public FieldSetterMethod(final Field field) {
-        this.field = field;
-    }
+  public FieldSetterMethod(final Field field) {
+    this.field = field;
+  }
 
-    @Override
-    public void set(final Object obj, final Object value) {
-        ReflectionUtils.setField(field, obj, value);
-    }
+  @Override
+  public void set(final Object obj, final Object value) {
+    ReflectionUtils.setField(field, obj, value);
+  }
 }

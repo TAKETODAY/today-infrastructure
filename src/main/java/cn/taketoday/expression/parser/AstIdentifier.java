@@ -204,6 +204,6 @@ public final class AstIdentifier extends SimpleNode {
       throw new MethodNotFoundException("Identity '" + image + "' was null and was unable to invoke");
     }
     throw new ExpressionException("Identity '" + image + "' does not reference a MethodExpression instance, returned type: " + obj
-        .getClass().getName());
+            .getClass().getName());
   }
 }

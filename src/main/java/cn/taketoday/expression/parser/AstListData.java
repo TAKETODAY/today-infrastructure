@@ -49,16 +49,16 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public class AstListData extends SimpleNode {
 
-    public AstListData(int id) {
-        super(id);
-    }
+  public AstListData(int id) {
+    super(id);
+  }
 
-    @Override
-    public Object getValue(final EvaluationContext ctx) {
-        final ArrayList<Object> list = new ArrayList<>();
-        if (children != null) for (final Node child : children) {
-            list.add(child.getValue(ctx));
-        }
-        return list;
+  @Override
+  public Object getValue(final EvaluationContext ctx) {
+    final ArrayList<Object> list = new ArrayList<>();
+    if (children != null) for (final Node child : children) {
+      list.add(child.getValue(ctx));
     }
+    return list;
+  }
 }

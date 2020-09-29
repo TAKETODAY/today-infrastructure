@@ -27,37 +27,39 @@ import cn.taketoday.context.factory.BeanFactory;
  * Resolve method parameter object
  *
  * @author TODAY <br>
- *         2019-10-14 14:11
+ * 2019-10-14 14:11
  */
 @FunctionalInterface
 public interface ExecutableParameterResolver {
 
-    /**
-     * If this {@link ExecutableParameterResolver} supports target {@link Parameter}
-     *
-     * @param parameter
-     *            Target method {@link Parameter}
-     * @return If supports target {@link Parameter}
-     */
-    default boolean supports(Parameter parameter) {
-        return true;
-    }
+  /**
+   * If this {@link ExecutableParameterResolver} supports target {@link Parameter}
+   *
+   * @param parameter
+   *         Target method {@link Parameter}
+   *
+   * @return If supports target {@link Parameter}
+   */
+  default boolean supports(Parameter parameter) {
+    return true;
+  }
 
-    /**
-     * Resolve method parameter object
-     *
-     * @param parameter
-     *            Target method {@link Parameter}
-     * @param beanFactory
-     *            {@link BeanFactory}
-     * @return parameter object
-     */
-    Object resolve(Parameter parameter, BeanFactory beanFactory);
+  /**
+   * Resolve method parameter object
+   *
+   * @param parameter
+   *         Target method {@link Parameter}
+   * @param beanFactory
+   *         {@link BeanFactory}
+   *
+   * @return parameter object
+   */
+  Object resolve(Parameter parameter, BeanFactory beanFactory);
 
-    @FunctionalInterface
-    interface SupportsFunction {
+  @FunctionalInterface
+  interface SupportsFunction {
 
-        boolean supports(Parameter parameter);
-    }
+    boolean supports(Parameter parameter);
+  }
 
 }

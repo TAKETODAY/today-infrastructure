@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -31,44 +31,44 @@ import cn.taketoday.context.exception.ConversionException;
  */
 public class DelegatingStringTypeConverter<T> extends StringTypeConverter implements Ordered {
 
-    private final int order;
-    private final Converter<String, T> converter;
-    private final Function<Class<?>, Boolean> supportsFunction;
+  private final int order;
+  private final Converter<String, T> converter;
+  private final Function<Class<?>, Boolean> supportsFunction;
 
-    public DelegatingStringTypeConverter(Function<Class<?>, Boolean> supports, Converter<String, T> converter) {
-        this(supports, converter, Ordered.HIGHEST_PRECEDENCE);
-    }
+  public DelegatingStringTypeConverter(Function<Class<?>, Boolean> supports, Converter<String, T> converter) {
+    this(supports, converter, Ordered.HIGHEST_PRECEDENCE);
+  }
 
-    public DelegatingStringTypeConverter(Function<Class<?>, Boolean> supports,
-            Converter<String, T> converter, int order) //
-    {
-        this.order = order;
-        this.converter = converter;
-        this.supportsFunction = supports;
-    }
+  public DelegatingStringTypeConverter(Function<Class<?>, Boolean> supports,
+                                       Converter<String, T> converter, int order) //
+  {
+    this.order = order;
+    this.converter = converter;
+    this.supportsFunction = supports;
+  }
 
-    @Override
-    public int getOrder() {
-        return order;
-    }
+  @Override
+  public int getOrder() {
+    return order;
+  }
 
-    @Override
-    public boolean supports(Class<?> targetClass) {
-        return supportsFunction.apply(targetClass);
-    }
+  @Override
+  public boolean supports(Class<?> targetClass) {
+    return supportsFunction.apply(targetClass);
+  }
 
-    @Override
-    protected Object convertInternal(Class<?> targetClass, String source) throws ConversionException {
-        return converter.convert(source);
-    }
+  @Override
+  protected Object convertInternal(Class<?> targetClass, String source) throws ConversionException {
+    return converter.convert(source);
+  }
 
-    public static <T> DelegatingStringTypeConverter<T> delegate(Function<Class<?>, Boolean> supports, //
-                                                                Converter<String, T> converter) {
-        return new DelegatingStringTypeConverter<>(supports, converter);
-    }
+  public static <T> DelegatingStringTypeConverter<T> delegate(Function<Class<?>, Boolean> supports, //
+                                                              Converter<String, T> converter) {
+    return new DelegatingStringTypeConverter<>(supports, converter);
+  }
 
-    public static <T> DelegatingStringTypeConverter<T> delegate(Function<Class<?>, Boolean> supports, //
-                                                                Converter<String, T> converter, int order) {
-        return new DelegatingStringTypeConverter<>(supports, converter, order);
-    }
+  public static <T> DelegatingStringTypeConverter<T> delegate(Function<Class<?>, Boolean> supports, //
+                                                              Converter<String, T> converter, int order) {
+    return new DelegatingStringTypeConverter<>(supports, converter, order);
+  }
 }

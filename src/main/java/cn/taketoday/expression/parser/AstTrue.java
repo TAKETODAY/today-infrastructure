@@ -48,11 +48,11 @@ import cn.taketoday.expression.lang.EvaluationContext;
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
 public final class AstTrue extends BooleanNode {
-    public AstTrue(int id) {
-        super(id);
-    }
+  public AstTrue(int id) {
+    super(id);
+  }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        return Boolean.TRUE;
-    }
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    return Boolean.TRUE;
+  }
 }

@@ -49,11 +49,11 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public final class AstDotSuffix extends SimpleNode {
 
-    public AstDotSuffix(int id) {
-        super(id);
-    }
+  public AstDotSuffix(int id) {
+    super(id);
+  }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        return this.image;
-    }
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    return this.image;
+  }
 }

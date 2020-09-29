@@ -29,19 +29,19 @@ import cn.taketoday.context.utils.ReflectionUtils;
  */
 public class ConstructorAccessorBeanConstructor<T> implements BeanConstructor<T> {
 
-    private final ConstructorAccessor accessor;
+  private final ConstructorAccessor accessor;
 
-    public ConstructorAccessorBeanConstructor(Constructor<T> constructor) {
-        this(ReflectionUtils.newConstructorAccessor(constructor));
-    }
+  public ConstructorAccessorBeanConstructor(Constructor<T> constructor) {
+    this(ReflectionUtils.newConstructorAccessor(constructor));
+  }
 
-    public ConstructorAccessorBeanConstructor(ConstructorAccessor accessor) {
-        this.accessor = accessor;
-    }
+  public ConstructorAccessorBeanConstructor(ConstructorAccessor accessor) {
+    this.accessor = accessor;
+  }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public T newInstance(final Object[] args) {
-        return (T) accessor.newInstance(args);
-    }
+  @Override
+  @SuppressWarnings("unchecked")
+  public T newInstance(final Object[] args) {
+    return (T) accessor.newInstance(args);
+  }
 }

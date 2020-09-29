@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,28 +26,28 @@ import cn.taketoday.context.factory.PropertyValue;
 
 /**
  * Resolve field property
- * 
+ *
  * @author TODAY <br>
  *         2018-08-04 15:04
  */
 @FunctionalInterface
 public interface PropertyValueResolver {
 
-    /**
-     * Whether the given field is supported by this resolver.
-     */
-    default boolean supports(Field field) {
-        return false;
-    }
+  /**
+   * Whether the given field is supported by this resolver.
+   */
+  default boolean supportsProperty(Field field) {
+    return false;
+  }
 
-    /**
-     * Resolve {@link PropertyValue}.
-     * 
-     * @param field
-     *            bean's field
-     * @return property value
-     * @throws ContextException
-     */
-    PropertyValue resolveProperty(Field field) throws ContextException;
+  /**
+   * Resolve {@link PropertyValue}.
+   *
+   * @param field
+   *            bean's field
+   * @return property value
+   * @throws ContextException
+   */
+  PropertyValue resolveProperty(Field field) throws ContextException;
 
 }

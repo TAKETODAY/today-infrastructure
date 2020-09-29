@@ -25,19 +25,19 @@ package cn.taketoday.context.reflect;
  */
 public class StaticMethodAccessorBeanConstructor<T> implements BeanConstructor<T> {
 
-    private final MethodAccessor accessor;
+  private final MethodAccessor accessor;
 
-    public StaticMethodAccessorBeanConstructor(final MethodAccessor accessor) {
-        this.accessor = accessor;
-    }
+  public StaticMethodAccessorBeanConstructor(final MethodAccessor accessor) {
+    this.accessor = accessor;
+  }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public final T newInstance(final Object[] args) {
-        return (T) accessor.invoke(getObject(), args);
-    }
+  @Override
+  @SuppressWarnings("unchecked")
+  public final T newInstance(final Object[] args) {
+    return (T) accessor.invoke(getObject(), args);
+  }
 
-    protected Object getObject() {
-        return null;
-    }
+  protected Object getObject() {
+    return null;
+  }
 }

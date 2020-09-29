@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,16 +30,16 @@ import cn.taketoday.context.Condition;
 @SuppressWarnings("all")
 public class ConditionalImpl implements Conditional {
 
-    private Class<? extends Condition>[] value = null;
+  private Class<? extends Condition>[] value = null;
 
-    @Override
-    public Class<? extends Annotation> annotationType() {
-        return Conditional.class;
-    }
+  @Override
+  public Class<? extends Annotation> annotationType() {
+    return Conditional.class;
+  }
 
-    @Override
-    public Class<? extends Condition>[] value() {
-        return value == null ? new Class[0] : value;
-    }
+  @Override
+  public Class<? extends Condition>[] value() {
+    return value == null ? new Class[0] : value;
+  }
 
 }

@@ -29,15 +29,15 @@ import cn.taketoday.context.utils.ReflectionUtils;
  */
 public class ReadOnlyFieldPropertyAccessor extends ReadOnlyPropertyAccessor {
 
-    private final Field field;
+  private final Field field;
 
-    public ReadOnlyFieldPropertyAccessor(Field field) {
-        field.setAccessible(true);
-        this.field = field;
-    }
+  public ReadOnlyFieldPropertyAccessor(Field field) {
+    field.setAccessible(true);
+    this.field = field;
+  }
 
-    @Override
-    public Object get(final Object obj) {
-        return ReflectionUtils.getField(field, obj);
-    }
+  @Override
+  public Object get(final Object obj) {
+    return ReflectionUtils.getField(field, obj);
+  }
 }

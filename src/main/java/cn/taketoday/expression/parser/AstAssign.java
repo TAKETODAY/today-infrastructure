@@ -40,19 +40,18 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 public class AstAssign extends SimpleNode {
 
-    public AstAssign(int id) {
-        super(id);
-    }
+  public AstAssign(int id) {
+    super(id);
+  }
 
-    @Override
-    public Object getValue(final EvaluationContext ctx) throws ExpressionException {
-        final Object value = children[1].getValue(ctx);
-        children[0].setValue(ctx, value);
-        return value;
-    }
+  @Override
+  public Object getValue(final EvaluationContext ctx) {
+    final Object value = children[1].getValue(ctx);
+    children[0].setValue(ctx, value);
+    return value;
+  }
 }

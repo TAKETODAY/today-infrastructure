@@ -49,14 +49,14 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public class BooleanNode extends SimpleNode {
 
-    /**
-     * @param i
-     */
-    public BooleanNode(int i) {
-        super(i);
-    }
+  /**
+   * @param i
+   */
+  public BooleanNode(int i) {
+    super(i);
+  }
 
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        return Boolean.class;
-    }
+  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+    return Boolean.class;
+  }
 }

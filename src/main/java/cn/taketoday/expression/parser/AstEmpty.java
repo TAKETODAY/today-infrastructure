@@ -50,15 +50,15 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public final class AstEmpty extends SimpleNode {
 
-    public AstEmpty(int id) {
-        super(id);
-    }
+  public AstEmpty(int id) {
+    super(id);
+  }
 
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        return Boolean.class;
-    }
+  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+    return Boolean.class;
+  }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
 
 //        final Object obj = children[0].getValue(ctx);
 //        if (obj == null) {
@@ -77,6 +77,6 @@ public final class AstEmpty extends SimpleNode {
 //            return Boolean.valueOf(((Map<?, ?>) obj).isEmpty());
 //        }
 //        return Boolean.FALSE;
-        return ObjectUtils.isEmpty(children[0].getValue(ctx));
-    }
+    return ObjectUtils.isEmpty(children[0].getValue(ctx));
+  }
 }

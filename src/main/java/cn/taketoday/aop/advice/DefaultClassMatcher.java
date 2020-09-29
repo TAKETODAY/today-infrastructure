@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -32,48 +32,48 @@ import cn.taketoday.context.utils.StringUtils;
  */
 public class DefaultClassMatcher implements ClassMatcher {
 
-    @Override
-    public boolean matches(Object aspect, Class<?> targetClass) {
+  @Override
+  public boolean matches(Object aspect, Class<?> targetClass) {
 //        final Class<?> aspectClass = aspect.getClass(); // aspect class
 
 //        final Advice[] advices = ClassUtils.getAnnotationArray(aspectClass, Advice.class, AdviceImpl.class);
 
-        return false;
-    }
+    return false;
+  }
 
-    public static boolean matchClass(final Class<?> targetClass, final Advice[] advices) {
+  public static boolean matchClass(final Class<?> targetClass, final Advice[] advices) {
 
-        for (final Advice advice : advices) {
-            // target class match start
-            for (final Class<?> target : advice.target()) {
-                if (target == targetClass) {
-                    return true;
-                }
-            }
-            Method[] targetDeclaredMethods = targetClass.getDeclaredMethods(); // target class's methods
-            // annotation match start
-            for (Class<? extends Annotation> annotation : advice.value()) {
-                if (targetClass.isAnnotationPresent(annotation)) {
-                    return true;
-                }
-                for (Method targetMethod : targetDeclaredMethods) {// target class's methods
-                    if (targetMethod.isAnnotationPresent(annotation)) {
-                        return true;
-                    }
-                }
-            }
-            String targetClassName = targetClass.getName();
-            for (String regex : advice.pointcut()) { // regex match start
-                if (StringUtils.isEmpty(regex)) {
-                    continue;
-                }
-
-                if (Pattern.matches(regex, targetClassName)) {
-                    // class matched
-                    return true;
-                }
-            }
+    for (final Advice advice : advices) {
+      // target class match start
+      for (final Class<?> target : advice.target()) {
+        if (target == targetClass) {
+          return true;
         }
-        return false;
+      }
+      Method[] targetDeclaredMethods = targetClass.getDeclaredMethods(); // target class's methods
+      // annotation match start
+      for (Class<? extends Annotation> annotation : advice.value()) {
+        if (targetClass.isAnnotationPresent(annotation)) {
+          return true;
+        }
+        for (Method targetMethod : targetDeclaredMethods) {// target class's methods
+          if (targetMethod.isAnnotationPresent(annotation)) {
+            return true;
+          }
+        }
+      }
+      String targetClassName = targetClass.getName();
+      for (String regex : advice.pointcut()) { // regex match start
+        if (StringUtils.isEmpty(regex)) {
+          continue;
+        }
+
+        if (Pattern.matches(regex, targetClassName)) {
+          // class matched
+          return true;
+        }
+      }
     }
+    return false;
+  }
 }

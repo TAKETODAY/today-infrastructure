@@ -46,7 +46,7 @@ package cn.taketoday.expression;
  * <p>
  * For example, to convert a String to an instance of MyDate, one can write
  * <blockquote>
- * 
+ *
  * <pre>
  *     ELProcessor elp = new ELProcessor();
  *     elp.getELManager().addELResolver(new TypeConverter() {
@@ -59,7 +59,7 @@ package cn.taketoday.expression;
  *         }
  *      };
  * </pre>
- * 
+ *
  * </blockquote>
  *
  * @since EL 3.0
@@ -67,41 +67,42 @@ package cn.taketoday.expression;
 
 public abstract class TypeConverter extends ExpressionResolver {
 
-    @Override
-    public Object getValue(ExpressionContext context, Object base, Object property) {
-        return null;
-    }
+  @Override
+  public Object getValue(ExpressionContext context, Object base, Object property) {
+    return null;
+  }
 
-    @Override
-    public Class<?> getType(ExpressionContext context, Object base, Object property) {
-        return null;
-    }
+  @Override
+  public Class<?> getType(ExpressionContext context, Object base, Object property) {
+    return null;
+  }
 
-    @Override
-    public void setValue(ExpressionContext context, Object base, Object property, Object value) {}
+  @Override
+  public void setValue(ExpressionContext context, Object base, Object property, Object value) {}
 
-    @Override
-    public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
-        return false;
-    }
+  @Override
+  public boolean isReadOnly(ExpressionContext context, Object base, Object property) {
+    return false;
+  }
 
-    /**
-     * Converts an object to a specific type.
-     *
-     * <p>
-     * An <code>ELException</code> is thrown if an error occurs during the
-     * conversion.
-     * </p>
-     *
-     * @param context
-     *            The context of this evaluation.
-     * @param obj
-     *            The object to convert.
-     * @param targetType
-     *            The target type for the conversion.
-     * @throws ExpressionException
-     *             thrown if errors occur.
-     */
-    @Override
-    abstract public Object convertToType(ExpressionContext context, Object obj, Class<?> targetType);
+  /**
+   * Converts an object to a specific type.
+   *
+   * <p>
+   * An <code>ELException</code> is thrown if an error occurs during the
+   * conversion.
+   * </p>
+   *
+   * @param context
+   *         The context of this evaluation.
+   * @param obj
+   *         The object to convert.
+   * @param targetType
+   *         The target type for the conversion.
+   *
+   * @throws ExpressionException
+   *         thrown if errors occur.
+   */
+  @Override
+  abstract public Object convertToType(ExpressionContext context, Object obj, Class<?> targetType);
 }

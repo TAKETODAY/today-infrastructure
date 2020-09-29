@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2019 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -53,65 +53,65 @@ import cn.taketoday.context.utils.ClassUtils;
  */
 public class CustomScopeConfigurer extends OrderedSupport implements BeanFactoryPostProcessor, BeanClassLoaderAware, Ordered {
 
-    private Map<String, Object> scopes;
+  private Map<String, Object> scopes;
 
-    private ClassLoader beanClassLoader = ClassUtils.getClassLoader();
+  private ClassLoader beanClassLoader = ClassUtils.getClassLoader();
 
-    /**
-     * Specify the custom scopes that are to be registered.
-     * <p>
-     * The keys indicate the scope names (of type String); each value is expected to
-     * be the corresponding custom {@link Scope} instance or class name.
-     */
-    public void setScopes(Map<String, Object> scopes) {
-        this.scopes = scopes;
+  /**
+   * Specify the custom scopes that are to be registered.
+   * <p>
+   * The keys indicate the scope names (of type String); each value is expected to
+   * be the corresponding custom {@link Scope} instance or class name.
+   */
+  public void setScopes(Map<String, Object> scopes) {
+    this.scopes = scopes;
+  }
+
+  /**
+   * Add the given scope to this configurer's map of scopes.
+   *
+   * @param scopeName
+   *            the name of the scope
+   * @param scope
+   *            the scope implementation
+   */
+  public void addScope(String scopeName, Scope scope) {
+    if (this.scopes == null) {
+      this.scopes = new LinkedHashMap<>(1);
     }
+    this.scopes.put(scopeName, scope);
+  }
 
-    /**
-     * Add the given scope to this configurer's map of scopes.
-     * 
-     * @param scopeName
-     *            the name of the scope
-     * @param scope
-     *            the scope implementation
-     */
-    public void addScope(String scopeName, Scope scope) {
-        if (this.scopes == null) {
-            this.scopes = new LinkedHashMap<>(1);
+  @Override
+  public void setBeanClassLoader(ClassLoader beanClassLoader) {
+    this.beanClassLoader = beanClassLoader;
+  }
+
+  @Override
+  public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
+    if (this.scopes != null) {
+      this.scopes.forEach((name, scope) -> {
+        if (scope instanceof Scope) {
+          beanFactory.registerScope(name, (Scope) scope);
         }
-        this.scopes.put(scopeName, scope);
-    }
-
-    @Override
-    public void setBeanClassLoader(ClassLoader beanClassLoader) {
-        this.beanClassLoader = beanClassLoader;
-    }
-
-    @Override
-    public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
-        if (this.scopes != null) {
-            this.scopes.forEach((name, scope) -> {
-                if (scope instanceof Scope) {
-                    beanFactory.registerScope(name, (Scope) scope);
-                }
-                else if (scope instanceof Class) {
-                    @SuppressWarnings("unchecked")
-                    Class<Scope> scopeClass = (Class<Scope>) scope;
-                    Assert.isAssignable(Scope.class, scopeClass, "Invalid scope class");
-                    beanFactory.registerScope(name, ClassUtils.newInstance(scopeClass));
-                }
-                else if (scope instanceof String) {
-                    Class<Scope> scopeClass = ClassUtils.loadClass((String) scope, this.beanClassLoader);
-                    Assert.isAssignable(Scope.class, scopeClass, "Invalid scope class");
-                    beanFactory.registerScope(name, ClassUtils.newInstance(scopeClass));
-                }
-                else {
-                    throw new IllegalArgumentException("Mapped value [" + scope + "] for scope key [" +
-                            name + "] is not an instance of required type [" + Scope.class.getName() +
-                            "] or a corresponding Class or String value indicating a Scope implementation");
-                }
-            });
+        else if (scope instanceof Class) {
+          @SuppressWarnings("unchecked")
+          Class<Scope> scopeClass = (Class<Scope>) scope;
+          Assert.isAssignable(Scope.class, scopeClass, "Invalid scope class");
+          beanFactory.registerScope(name, ClassUtils.newInstance(scopeClass));
         }
+        else if (scope instanceof String) {
+          Class<Scope> scopeClass = ClassUtils.loadClass((String) scope, this.beanClassLoader);
+          Assert.isAssignable(Scope.class, scopeClass, "Invalid scope class");
+          beanFactory.registerScope(name, ClassUtils.newInstance(scopeClass));
+        }
+        else {
+          throw new IllegalArgumentException("Mapped value [" + scope + "] for scope key [" +
+                                                     name + "] is not an instance of required type [" + Scope.class.getName() +
+                                                     "] or a corresponding Class or String value indicating a Scope implementation");
+        }
+      });
     }
+  }
 
 }

@@ -34,147 +34,157 @@ import cn.taketoday.context.factory.BeanDefinitionRegistry;
  * Create bean definition
  *
  * @author TODAY <br>
- *         2018-06-23 11:18:22
+ * 2018-06-23 11:18:22
  */
 public interface BeanDefinitionLoader {
 
-    /**
-     * Create a bean definition with given class type
-     *
-     * @param beanClass
-     *            The bean type
-     * @return A new {@link BeanDefinition}
-     */
-    BeanDefinition createBeanDefinition(Class<?> beanClass);
+  /**
+   * Create a bean definition with given class type
+   *
+   * @param beanClass
+   *         The bean type
+   *
+   * @return A new {@link BeanDefinition}
+   */
+  BeanDefinition createBeanDefinition(Class<?> beanClass);
 
-    default BeanDefinition createBeanDefinition(String beanName, Class<?> beanClass) {
-        return createBeanDefinition(beanName, beanClass, null);
-    }
+  default BeanDefinition createBeanDefinition(String beanName, Class<?> beanClass) {
+    return createBeanDefinition(beanName, beanClass, null);
+  }
 
+  /**
+   * @param beanName
+   * @param beanClass
+   * @param attributes
+   *
+   * @return
+   *
+   * @since 3.0
+   */
+  BeanDefinition createBeanDefinition(String beanName,
+                                      Class<?> beanClass,
+                                      AnnotationAttributes attributes);
 
-    /**
-     * @param beanName
-     * @param beanClass
-     * @param attributes
-     * @return
-     * @since 3.0
-     */
-    BeanDefinition createBeanDefinition(String beanName,
-                                        Class<?> beanClass,
-                                        AnnotationAttributes attributes);
+  /**
+   * Get registered bean definition registry
+   *
+   * @return registry
+   */
+  BeanDefinitionRegistry getRegistry();
 
-    /**
-     * Get registered bean definition registry
-     *
-     * @return registry
-     */
-    BeanDefinitionRegistry getRegistry();
+  /**
+   * Load bean definitions with given bean collection.
+   *
+   * @param beans
+   *         Beans collection
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   */
+  void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException;
 
-    /**
-     * Load bean definitions with given bean collection.
-     *
-     * @param beans
-     *            Beans collection
-     * @throws BeanDefinitionStoreException
-     *             If BeanDefinition could not be store
-     */
-    void loadBeanDefinitions(Collection<Class<?>> beans) throws BeanDefinitionStoreException;
+  /**
+   * Load bean definition with given bean class.
+   * <p>
+   * The candidate bean class can't be abstract and must pass the condition which
+   * {@link Conditional} is annotated.
+   *
+   * @param candidate
+   *         Candidate bean class the class will be load
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   * @see{@link #register(Class)}
+   */
+  void loadBeanDefinition(Class<?> candidate) throws BeanDefinitionStoreException;
 
-    /**
-     * Load bean definition with given bean class.
-     * <p>
-     * The candidate bean class can't be abstract and must pass the condition which
-     * {@link Conditional} is annotated.
-     *
-     * @param candidate
-     *            Candidate bean class the class will be load
-     * @throws BeanDefinitionStoreException
-     *             If BeanDefinition could not be store
-     * @see{@link #register(Class)}
-     */
-    void loadBeanDefinition(Class<?> candidate) throws BeanDefinitionStoreException;
+  /**
+   * Load bean definition with given bean class and bean name.
+   * <p>
+   * If the provided bean class annotated {@link Component} annotation will
+   * register beans with given {@link Component} metadata.
+   * <p>
+   * Otherwise register a bean will given default metadata: use the default bean
+   * name creator create the default bean name, use default bean scope
+   * {@link Scope#SINGLETON} , empty initialize method ,empty property value and
+   * empty destroy method.
+   *
+   * @param name
+   *         Bean name
+   * @param beanClass
+   *         Bean class
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   */
+  void loadBeanDefinition(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
 
-    /**
-     * Load bean definition with given bean class and bean name.
-     * <p>
-     * If the provided bean class annotated {@link Component} annotation will
-     * register beans with given {@link Component} metadata.
-     * <p>
-     * Otherwise register a bean will given default metadata: use the default bean
-     * name creator create the default bean name, use default bean scope
-     * {@link Scope#SINGLETON} , empty initialize method ,empty property value and
-     * empty destroy method.
-     *
-     * @param name
-     *            Bean name
-     * @param beanClass
-     *            Bean class
-     * @throws BeanDefinitionStoreException
-     *             If BeanDefinition could not be store
-     */
-    void loadBeanDefinition(String name, Class<?> beanClass) throws BeanDefinitionStoreException;
+  /**
+   * Load {@link BeanDefinition}s from input package locations
+   *
+   * <p>
+   * {@link CandidateComponentScanner} will scan the classes from given package
+   * locations. And register the {@link BeanDefinition}s using
+   * loadBeanDefinition(Class)
+   *
+   * @param locations
+   *         package locations
+   *
+   * @throws BeanDefinitionStoreException
+   * @see {@link #loadBeanDefinition(Class)}
+   * @since 2.1.7
+   */
+  void loadBeanDefinition(String... locations) throws BeanDefinitionStoreException;
 
-    /**
-     * Load {@link BeanDefinition}s from input package locations
-     *
-     * <p>
-     * {@link CandidateComponentScanner} will scan the classes from given package
-     * locations. And register the {@link BeanDefinition}s using
-     * loadBeanDefinition(Class)
-     *
-     * @param locations
-     *            package locations
-     * @throws BeanDefinitionStoreException
-     * @see {@link #loadBeanDefinition(Class)}
-     * @since 2.1.7
-     */
-    void loadBeanDefinition(String... locations) throws BeanDefinitionStoreException;
+  /**
+   * Register bean definition with given class.
+   * <p>
+   * If candidate bean class isn't present {@link Component} will not register the
+   * {@link BeanDefinition}
+   * <p>
+   * Otherwise will register a bean with given candidate bean class and indicate a
+   * bean name from {@link BeanDefinition} metadata.
+   *
+   * @param candidate
+   *         Candidate bean class
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   * @see #register(String, BeanDefinition)
+   */
+  void register(Class<?> candidate) throws BeanDefinitionStoreException;
 
-    /**
-     * Register bean definition with given class.
-     * <p>
-     * If candidate bean class isn't present {@link Component} will not register the
-     * {@link BeanDefinition}
-     * <p>
-     * Otherwise will register a bean with given candidate bean class and indicate a
-     * bean name from {@link BeanDefinition} metadata.
-     *
-     * @param candidate
-     *            Candidate bean class
-     * @throws BeanDefinitionStoreException
-     *             If BeanDefinition could not be store
-     * @see #register(String, BeanDefinition)
-     */
-    void register(Class<?> candidate) throws BeanDefinitionStoreException;
+  /**
+   * Register bean definition with given name and {@link BeanDefinition}
+   *
+   * @param name
+   *         Bean name
+   * @param beanDefinition
+   *         Bean definition instance
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   */
+  void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
 
-    /**
-     * Register bean definition with given name and {@link BeanDefinition}
-     *
-     * @param name
-     *            Bean name
-     * @param beanDefinition
-     *            Bean definition instance
-     * @throws BeanDefinitionStoreException
-     *             If BeanDefinition could not be store
-     */
-    void register(String name, BeanDefinition beanDefinition) throws BeanDefinitionStoreException;
+  /**
+   * Register bean definition with {@link BeanDefinition#getName()}
+   *
+   * @param beanDefinition
+   *         Target {@link BeanDefinition}
+   *
+   * @throws BeanDefinitionStoreException
+   *         If BeanDefinition could not be store
+   * @since 2.1.6
+   */
+  default void register(BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
+    register(beanDefinition.getName(), beanDefinition);
+  }
 
-    /**
-     * Register bean definition with {@link BeanDefinition#getName()}
-     *
-     * @param beanDefinition
-     *            Target {@link BeanDefinition}
-     * @throws BeanDefinitionStoreException
-     *             If BeanDefinition could not be store
-     * @since 2.1.6
-     */
-    default void register(BeanDefinition beanDefinition) throws BeanDefinitionStoreException {
-        register(beanDefinition.getName(), beanDefinition);
-    }
-
-    /**
-     * @return ApplicationContext
-     * @since 3.0
-     */
-    ApplicationContext getApplicationContext();
+  /**
+   * @return ApplicationContext
+   *
+   * @since 3.0
+   */
+  ApplicationContext getApplicationContext();
 }

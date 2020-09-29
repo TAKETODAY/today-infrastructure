@@ -35,67 +35,67 @@ import cn.taketoday.context.annotation.Autowired;
  */
 public class RedissonCacheManager extends AbstractCacheManager implements CacheManager {
 
-    private Codec codec;
-    private final RedissonClient redisson;
+  private Codec codec;
+  private final RedissonClient redisson;
 
-    public RedissonCacheManager(RedissonClient redisson) {
-        this(null, redisson);
-    }
+  public RedissonCacheManager(RedissonClient redisson) {
+    this(null, redisson);
+  }
 
-    @Autowired
-    public RedissonCacheManager(@Autowired(required = false) Codec codec,
-                                @Autowired RedissonClient redisson) {
-        this.codec = codec;
-        this.redisson = redisson;
-    }
+  @Autowired
+  public RedissonCacheManager(@Autowired(required = false) Codec codec,
+                              @Autowired RedissonClient redisson) {
+    this.codec = codec;
+    this.redisson = redisson;
+  }
 
-    @Override
-    protected Cache doCreate(final String name, final CacheConfig cacheConfig) {
-        return isDefault(cacheConfig) ? createMap(name) : createMapCache(name, cacheConfig);
-    }
+  @Override
+  protected Cache doCreate(final String name, final CacheConfig cacheConfig) {
+    return isDefault(cacheConfig) ? createMap(name) : createMapCache(name, cacheConfig);
+  }
 
-    /**
-     * Set Codec instance shared between all Cache instances
-     *
-     * @param codec
-     *     object
-     */
-    public void setCodec(Codec codec) {
-        this.codec = codec;
-    }
+  /**
+   * Set Codec instance shared between all Cache instances
+   *
+   * @param codec
+   *         object
+   */
+  public void setCodec(Codec codec) {
+    this.codec = codec;
+  }
 
-    private static boolean isDefault(CacheConfig cacheConfig) {
-        if (cacheConfig == null || cacheConfig == CacheConfig.EMPTY_CACHE_CONFIG) {
-            return true;
-        }
-        return cacheConfig.maxIdleTime() == 0 && cacheConfig.expire() == 0 && cacheConfig.maxSize() == 0;
+  private static boolean isDefault(CacheConfig cacheConfig) {
+    if (cacheConfig == null || cacheConfig == CacheConfig.EMPTY_CACHE_CONFIG) {
+      return true;
     }
+    return cacheConfig.maxIdleTime() == 0 && cacheConfig.expire() == 0 && cacheConfig.maxSize() == 0;
+  }
 
-    protected Cache createMap(String name) {
-        return new RedissonCache(getMap(name), name);
-    }
+  protected Cache createMap(String name) {
+    return new RedissonCache(getMap(name), name);
+  }
 
-    protected RMap<Object, Object> getMap(String name) {
-        return codec != null ? redisson.getMap(name, codec) : redisson.getMap(name);
-    }
+  protected RMap<Object, Object> getMap(String name) {
+    return codec != null ? redisson.getMap(name, codec) : redisson.getMap(name);
+  }
 
-    /**
-     * Not a default config
-     *
-     * @param name
-     *     the name of cache
-     * @param config
-     *     config instance
-     */
-    private Cache createMapCache(String name, CacheConfig config) {
-        RMapCache<Object, Object> map = getMapCache(name);
-        Cache cache = new RedissonCache(map, name, config);
-        map.setMaxSize(config.maxSize());
-        return cache;
-    }
+  /**
+   * Not a default config
+   *
+   * @param name
+   *         the name of cache
+   * @param config
+   *         config instance
+   */
+  private Cache createMapCache(String name, CacheConfig config) {
+    RMapCache<Object, Object> map = getMapCache(name);
+    Cache cache = new RedissonCache(map, name, config);
+    map.setMaxSize(config.maxSize());
+    return cache;
+  }
 
-    protected RMapCache<Object, Object> getMapCache(String name) {
-        return codec != null ? redisson.getMapCache(name, codec) : redisson.getMapCache(name);
-    }
+  protected RMapCache<Object, Object> getMapCache(String name) {
+    return codec != null ? redisson.getMapCache(name, codec) : redisson.getMapCache(name);
+  }
 
 }

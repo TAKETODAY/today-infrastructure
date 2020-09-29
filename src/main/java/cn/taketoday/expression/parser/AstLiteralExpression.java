@@ -49,36 +49,36 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public final class AstLiteralExpression extends SimpleNode {
 
-    public AstLiteralExpression(int id) {
-        super(id);
-    }
+  public AstLiteralExpression(int id) {
+    super(id);
+  }
 
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        return String.class;
-    }
+  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+    return String.class;
+  }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        return this.image;
-    }
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    return this.image;
+  }
 
-    public void setImage(String image) {
-        if (image.indexOf('\\') == -1) {
-            this.image = image;
-            return;
+  public void setImage(String image) {
+    if (image.indexOf('\\') == -1) {
+      this.image = image;
+      return;
+    }
+    int size = image.length();
+    StringBuffer buf = new StringBuffer(size);
+    for (int i = 0; i < size; i++) {
+      char c = image.charAt(i);
+      if (c == '\\' && i + 1 < size) {
+        char c1 = image.charAt(i + 1);
+        if (c1 == '\\' || c1 == '"' || c1 == '\'' || c1 == '#' || c1 == '$') {
+          c = c1;
+          i++;
         }
-        int size = image.length();
-        StringBuffer buf = new StringBuffer(size);
-        for (int i = 0; i < size; i++) {
-            char c = image.charAt(i);
-            if (c == '\\' && i + 1 < size) {
-                char c1 = image.charAt(i + 1);
-                if (c1 == '\\' || c1 == '"' || c1 == '\'' || c1 == '#' || c1 == '$') {
-                    c = c1;
-                    i++;
-                }
-            }
-            buf.append(c);
-        }
-        this.image = buf.toString();
+      }
+      buf.append(c);
     }
+    this.image = buf.toString();
+  }
 }

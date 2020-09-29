@@ -22,12 +22,11 @@ package cn.taketoday.context.reflect;
 import java.lang.reflect.Field;
 
 /**
- * 
  * @author TODAY <br>
- *         2020-08-13 19:46
+ * 2020-08-13 19:46
  */
 @FunctionalInterface
 public interface SetterMethodFactory {
 
-    SetterMethod newSetterMethod(Field field);
+  SetterMethod newSetterMethod(Field field);
 }

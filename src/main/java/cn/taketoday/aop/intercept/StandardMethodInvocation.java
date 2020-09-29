@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,12 +19,12 @@
  */
 package cn.taketoday.aop.intercept;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 
 import cn.taketoday.context.reflect.MethodInvoker;
 
@@ -34,62 +34,62 @@ import cn.taketoday.context.reflect.MethodInvoker;
  */
 public class StandardMethodInvocation implements MethodInvocation {
 
-    private final Object[] args;
-    private final TargetMethodInvocation target;
+  private final Object[] args;
+  private final TargetMethodInvocation target;
 
-    /**
-     * a flag show that current index of advice
-     */
-    private int currentAdviceIndex = 0;
+  /**
+   * a flag show that current index of advice
+   */
+  private int currentAdviceIndex = 0;
 
-    public StandardMethodInvocation(TargetMethodInvocation target, Object[] arguments) {
-        this.target = target;
-        this.args = arguments;
+  public StandardMethodInvocation(TargetMethodInvocation target, Object[] arguments) {
+    this.target = target;
+    this.args = arguments;
+  }
+
+  @Override
+  public Method getMethod() {
+    return target.getMethod();
+  }
+
+  @Override
+  public Object[] getArguments() {
+    return args;
+  }
+
+  @Override
+  public Object proceed() throws Throwable {
+    final TargetMethodInvocation target = this.target;
+    if (currentAdviceIndex == target.adviceLength) {
+      return target.proceed(args);
     }
+    return target.invokeAdvice(this, currentAdviceIndex++);
+  }
 
-    @Override
-    public Method getMethod() {
-        return target.getMethod();
-    }
+  @Override
+  public Object getThis() {
+    return target.getThis();
+  }
 
-    @Override
-    public Object[] getArguments() {
-        return args;
-    }
+  @Override
+  public AccessibleObject getStaticPart() {
+    return target.getStaticPart();
+  }
 
-    @Override
-    public Object proceed() throws Throwable {
-        final TargetMethodInvocation target = this.target;
-        if (currentAdviceIndex == target.adviceLength) {
-            return target.proceed(args);
-        }
-        return target.invokeAdvice(this, currentAdviceIndex++);
-    }
+  @Override
+  public String toString() {
+    return target.toString();
+  }
 
-    @Override
-    public Object getThis() {
-        return target.getThis();
-    }
+  public static class TargetMethodInvocation implements MethodInvocation {
 
-    @Override
-    public AccessibleObject getStaticPart() {
-        return target.getStaticPart();
-    }
+    private final Object target;
+    private final Method method;
+    private final int adviceLength;
+    private final MethodInvoker invoker;
+    private final MethodInterceptor[] advices;
 
-    @Override
-    public String toString() {
-        return target.toString();
-    }
-
-    public static class TargetMethodInvocation implements MethodInvocation {
-
-        private final Object target;
-        private final Method method;
-        private final int adviceLength;
-        private final MethodInvoker invoker;
-        private final MethodInterceptor[] advices;
-
-        public TargetMethodInvocation(Object target, //@off
+    public TargetMethodInvocation(Object target, //@off
                                       Method method, 
                                       MethodInterceptor[] advices) {
             
@@ -100,49 +100,49 @@ public class StandardMethodInvocation implements MethodInvocation {
             this.invoker = MethodInvoker.create(method);
         } //@on
 
-        @Override
-        public Method getMethod() {
-            return method;
-        }
-
-        @Override
-        public Object[] getArguments() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Object proceed() throws Throwable {
-            return invoker.invoke(target, advices);
-        }
-
-        public final Object proceed(Object[] args) throws Throwable {
-            return invoker.invoke(target, args);
-        }
-        
-        public Object invokeAdvice(final MethodInvocation invocation, final int index) throws Throwable {
-            return advices[index].invoke(invocation);
-        }
-
-        @Override
-        public Object getThis() {
-            return target;
-        }
-
-        @Override
-        public AccessibleObject getStaticPart() {
-            return method;
-        }
-
-        @Override
-        public String toString() {
-            return new StringBuilder()//
-                    .append("{\n\t\"target\":\"").append(target)//
-                    .append("\",\n\t\"method\":\"").append(method)//
-                    .append("\",\n\t\"advices\":\"").append(Arrays.toString(advices))//
-                    .append("\"\n}")//
-                    .toString();
-        }
-
+    @Override
+    public Method getMethod() {
+      return method;
     }
+
+    @Override
+    public Object[] getArguments() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object proceed() throws Throwable {
+      return invoker.invoke(target, advices);
+    }
+
+    public final Object proceed(Object[] args) throws Throwable {
+      return invoker.invoke(target, args);
+    }
+
+    public Object invokeAdvice(final MethodInvocation invocation, final int index) throws Throwable {
+      return advices[index].invoke(invocation);
+    }
+
+    @Override
+    public Object getThis() {
+      return target;
+    }
+
+    @Override
+    public AccessibleObject getStaticPart() {
+      return method;
+    }
+
+    @Override
+    public String toString() {
+      return new StringBuilder()//
+              .append("{\n\t\"target\":\"").append(target)//
+              .append("\",\n\t\"method\":\"").append(method)//
+              .append("\",\n\t\"advices\":\"").append(Arrays.toString(advices))//
+              .append("\"\n}")//
+              .toString();
+    }
+
+  }
 
 }

@@ -49,45 +49,45 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public final class AstString extends SimpleNode {
 
-    public AstString(int id) {
-        super(id);
+  public AstString(int id) {
+    super(id);
+  }
+
+  private String string;
+
+  public String getString() {
+    if (string == null) {
+      string = image.substring(1, image.length() - 1);
     }
+    return string;
+  }
 
-    private String string;
+  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+    return String.class;
+  }
 
-    public String getString() {
-        if (string == null) {
-            string = image.substring(1, image.length() - 1);
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    return getString();
+  }
+
+  public void setImage(String image) {
+    if (image.indexOf('\\') == -1) {
+      this.image = image;
+      return;
+    }
+    int size = image.length();
+    StringBuffer buf = new StringBuffer(size);
+    for (int i = 0; i < size; i++) {
+      char c = image.charAt(i);
+      if (c == '\\' && i + 1 < size) {
+        char c1 = image.charAt(i + 1);
+        if (c1 == '\\' || c1 == '"' || c1 == '\'' || c1 == '#' || c1 == '$') {
+          c = c1;
+          i++;
         }
-        return string;
+      }
+      buf.append(c);
     }
-
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        return String.class;
-    }
-
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        return getString();
-    }
-
-    public void setImage(String image) {
-        if (image.indexOf('\\') == -1) {
-            this.image = image;
-            return;
-        }
-        int size = image.length();
-        StringBuffer buf = new StringBuffer(size);
-        for (int i = 0; i < size; i++) {
-            char c = image.charAt(i);
-            if (c == '\\' && i + 1 < size) {
-                char c1 = image.charAt(i + 1);
-                if (c1 == '\\' || c1 == '"' || c1 == '\'' || c1 == '#' || c1 == '$') {
-                    c = c1;
-                    i++;
-                }
-            }
-            buf.append(c);
-        }
-        this.image = buf.toString();
-    }
+    this.image = buf.toString();
+  }
 }

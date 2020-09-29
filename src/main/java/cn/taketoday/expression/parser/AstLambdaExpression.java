@@ -51,33 +51,33 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public class AstLambdaExpression extends SimpleNode {
 
-    public AstLambdaExpression(int id) {
-        super(id);
+  public AstLambdaExpression(int id) {
+    super(id);
+  }
+
+  @Override
+  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+    final Node[] children = this.children;
+    // Create a lambda expression
+    final ValueExpression expr = new ValueExpressionImpl("#{Lambda Expression}", children[1], null);
+
+    LambdaExpression lambda = new LambdaExpression(((AstLambdaParameters) children[0]).getParameters(), expr, ctx);
+
+    if (children.length <= 2) {
+      return lambda;
     }
 
-    @Override
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        final Node[] children = this.children;
-        // Create a lambda expression
-        final ValueExpression expr = new ValueExpressionImpl("#{Lambda Expression}", children[1], null);
-
-        LambdaExpression lambda = new LambdaExpression(((AstLambdaParameters) children[0]).getParameters(), expr, ctx);
-
-        if (children.length <= 2) {
-            return lambda;
+    // There are arguments following the lambda exprn, invoke it now.
+    Object ret = null;
+    for (int i = 2; i < children.length; i++) {
+      if (ret != null) {
+        if (!(ret instanceof LambdaExpression)) {
+          throw new ExpressionException("A Lambda expression must return another Lambda expression in this syntax");
         }
-
-        // There are arguments following the lambda exprn, invoke it now.
-        Object ret = null;
-        for (int i = 2; i < children.length; i++) {
-            if (ret != null) {
-                if (!(ret instanceof LambdaExpression)) {
-                    throw new ExpressionException("A Lambda expression must return another Lambda expression in this syntax");
-                }
-                lambda = (LambdaExpression) ret;
-            }
-            ret = lambda.invoke(ctx, ((AstMethodArguments) children[i]).getParameters(ctx));
-        }
-        return ret;
+        lambda = (LambdaExpression) ret;
+      }
+      ret = lambda.invoke(ctx, ((AstMethodArguments) children[i]).getParameters(ctx));
     }
+    return ret;
+  }
 }

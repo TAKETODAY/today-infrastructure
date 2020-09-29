@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,20 +34,20 @@ import cn.taketoday.context.Constant;
 @Target({ ElementType.FIELD, ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER })
 public @interface Props {
 
-    /**
-     * @return Properties file name
-     */
-    String[] value() default {};
+  /**
+   * @return Properties file name
+   */
+  String[] value() default {};
 
-    /**
-     * Prefix of the key <br>
-     * * default ""
-     */
-    String[] prefix() default Constant.BLANK;
+  /**
+   * Prefix of the key <br>
+   * * default ""
+   */
+  String[] prefix() default Constant.BLANK;
 
-    /** Replace prefix. */
-    boolean replace() default false;
+  /** Replace prefix. */
+  boolean replace() default false;
 
-    Class<?>[] nested() default {};
+  Class<?>[] nested() default {};
 
 }

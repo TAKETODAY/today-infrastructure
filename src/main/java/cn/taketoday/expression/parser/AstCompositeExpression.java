@@ -42,7 +42,6 @@ package cn.taketoday.expression.parser;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.utils.ObjectUtils;
-import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
@@ -51,26 +50,26 @@ import cn.taketoday.expression.lang.EvaluationContext;
  */
 public final class AstCompositeExpression extends SimpleNode {
 
-    public AstCompositeExpression(int id) {
-        super(id);
-    }
+  public AstCompositeExpression(int id) {
+    super(id);
+  }
 
-    public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-        return String.class;
-    }
+  public Class<?> getType(EvaluationContext ctx) {
+    return String.class;
+  }
 
-    public Object getValue(EvaluationContext ctx) throws ExpressionException {
-        final Node[] children = this.children;
-        if (ObjectUtils.isNotEmpty(children)) {
-            StringBuilder sb = new StringBuilder();
-            for (final Node node : children) {
-                final Object obj = node.getValue(ctx);
-                if (obj != null) {
-                    sb.append(obj);
-                }
-            }
-            return sb.toString();
+  public Object getValue(EvaluationContext ctx) {
+    final Node[] children = this.children;
+    if (ObjectUtils.isNotEmpty(children)) {
+      StringBuilder sb = new StringBuilder();
+      for (final Node node : children) {
+        final Object obj = node.getValue(ctx);
+        if (obj != null) {
+          sb.append(obj);
         }
-        return Constant.BLANK;
+      }
+      return sb.toString();
     }
+    return Constant.BLANK;
+  }
 }

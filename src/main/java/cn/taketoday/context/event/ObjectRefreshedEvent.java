@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,41 +19,41 @@
  */
 package cn.taketoday.context.event;
 
-import static java.util.Objects.requireNonNull;
-
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.factory.BeanDefinition;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Bean Initialized event
- * 
+ *
  * @author TODAY <br>
  *         2018-09-20 16:48
  */
 @SuppressWarnings("serial")
 public class ObjectRefreshedEvent extends ApplicationContextEvent {
 
-    /** which bean definition refreshed **/
-    private final String name;
-    private BeanDefinition def;
+  /** which bean definition refreshed **/
+  private final String name;
+  private BeanDefinition def;
 
-    public ObjectRefreshedEvent(String name, ApplicationContext context) {
-        super(context);
-        this.name = requireNonNull(name);
-    }
+  public ObjectRefreshedEvent(String name, ApplicationContext context) {
+    super(context);
+    this.name = requireNonNull(name);
+  }
 
-    public ObjectRefreshedEvent(BeanDefinition def, ApplicationContext context) {
-        super(context);
-        this.name = null;
-        this.def = requireNonNull(def);
-    }
+  public ObjectRefreshedEvent(BeanDefinition def, ApplicationContext context) {
+    super(context);
+    this.name = null;
+    this.def = requireNonNull(def);
+  }
 
-    public final BeanDefinition getBeanDefinition() {
-        final BeanDefinition def = this.def;
-        if (def == null) {
-            return this.def = getApplicationContext().getBeanDefinition(name);
-        }
-        return def;
+  public final BeanDefinition getBeanDefinition() {
+    final BeanDefinition def = this.def;
+    if (def == null) {
+      return this.def = getApplicationContext().getBeanDefinition(name);
     }
+    return def;
+  }
 
 }

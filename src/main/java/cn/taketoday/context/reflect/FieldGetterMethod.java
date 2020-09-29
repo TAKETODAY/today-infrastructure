@@ -29,14 +29,14 @@ import cn.taketoday.context.utils.ReflectionUtils;
  */
 public class FieldGetterMethod implements GetterMethod {
 
-    private final Field field;
+  private final Field field;
 
-    public FieldGetterMethod(final Field field) {
-        this.field = field;
-    }
+  public FieldGetterMethod(final Field field) {
+    this.field = field;
+  }
 
-    @Override
-    public Object get(final Object obj) {
-        return ReflectionUtils.getField(field, obj);
-    }
+  @Override
+  public Object get(final Object obj) {
+    return ReflectionUtils.getField(field, obj);
+  }
 }

@@ -26,54 +26,54 @@ import cn.taketoday.context.utils.Assert;
 
 /**
  * @author TODAY <br>
- *         2020-08-15 19:50
+ * 2020-08-15 19:50
  */
 public class CaffeineCache extends AbstractCache {
 
-    private final Cache<Object, Object> caffeine;
+  private final Cache<Object, Object> caffeine;
 
-    /**
-     * Create a {@link CaffeineCache} instance with the specified name and the given
-     * internal {@link Cache} to use.
-     *
-     * @param name
-     *            the name of the cache
-     * @param caffeine
-     *            Caffeine Cache instance
-     */
-    public CaffeineCache(String name, Cache<Object, Object> caffeine) {
-        Assert.notNull(name, "Name must not be null");
-        Assert.notNull(caffeine, "com.github.benmanes.caffeine.cache.Cache must not be null");
-        this.caffeine = caffeine;
-        setName(name);
-    }
+  /**
+   * Create a {@link CaffeineCache} instance with the specified name and the given
+   * internal {@link Cache} to use.
+   *
+   * @param name
+   *         the name of the cache
+   * @param caffeine
+   *         Caffeine Cache instance
+   */
+  public CaffeineCache(String name, Cache<Object, Object> caffeine) {
+    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(caffeine, "com.github.benmanes.caffeine.cache.Cache must not be null");
+    this.caffeine = caffeine;
+    setName(name);
+  }
 
-    @Override
-    public void evict(Object key) {
-        this.caffeine.invalidate(key);
-    }
+  @Override
+  public void evict(Object key) {
+    this.caffeine.invalidate(key);
+  }
 
-    @Override
-    public void clear() {
-        this.caffeine.invalidateAll();
-    }
+  @Override
+  public void clear() {
+    this.caffeine.invalidateAll();
+  }
 
-    @Override
-    protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
-        return this.caffeine.get(key, k -> lookupValue(k, valueLoader));
-    }
+  @Override
+  protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
+    return this.caffeine.get(key, k -> lookupValue(k, valueLoader));
+  }
 
-    @Override
-    protected Object lookupValue(Object key) {
-        if (this.caffeine instanceof LoadingCache) {
-            return ((LoadingCache<Object, Object>) this.caffeine).get(key);
-        }
-        return this.caffeine.getIfPresent(key);
+  @Override
+  protected Object lookupValue(Object key) {
+    if (this.caffeine instanceof LoadingCache) {
+      return ((LoadingCache<Object, Object>) this.caffeine).get(key);
     }
+    return this.caffeine.getIfPresent(key);
+  }
 
-    @Override
-    protected void putInternal(Object key, Object value) {
-        this.caffeine.put(key, value);
-    }
+  @Override
+  protected void putInternal(Object key, Object value) {
+    this.caffeine.put(key, value);
+  }
 
 }

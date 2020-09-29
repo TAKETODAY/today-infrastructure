@@ -43,91 +43,91 @@ package cn.taketoday.expression.parser;
 
 public interface ELParserTreeConstants {
 
-    int JJTCOMPOSITEEXPRESSION = 0;
-    int JJTLITERALEXPRESSION = 1;
-    int JJTDEFERREDEXPRESSION = 2;
-    int JJTDYNAMICEXPRESSION = 3;
-    int JJTVOID = 4;
-    int JJTSEMICOLON = 5;
-    int JJTASSIGN = 6;
-    int JJTLAMBDAEXPRESSION = 7;
-    int JJTLAMBDAPARAMETERS = 8;
-    int JJTCHOICE = 9;
-    int JJTOR = 10;
-    int JJTAND = 11;
-    int JJTEQUAL = 12;
-    int JJTNOTEQUAL = 13;
-    int JJTLESSTHAN = 14;
-    int JJTGREATERTHAN = 15;
-    int JJTLESSTHANEQUAL = 16;
-    int JJTGREATERTHANEQUAL = 17;
-    int JJTCONCAT = 18;
-    int JJTPLUS = 19;
-    int JJTMINUS = 20;
-    int JJTMULT = 21;
-    int JJTDIV = 22;
-    int JJTMOD = 23;
-    int JJTNEGATIVE = 24;
-    int JJTNOT = 25;
-    int JJTEMPTY = 26;
-    int JJTVALUE = 27;
-    int JJTDOTSUFFIX = 28;
-    int JJTBRACKETSUFFIX = 29;
-    int JJTMETHODARGUMENTS = 30;
-    int JJTMAPDATA = 31;
-    int JJTMAPENTRY = 32;
-    int JJTLISTDATA = 33;
-    int JJTIDENTIFIER = 34;
-    int FUNCTION = 35;
-    int JJTTRUE = 36;
-    int JJTFALSE = 37;
-    int JJTFLOATINGPOINT = 38;
-    int JJTINTEGER = 39;
-    int JJTSTRING = 40;
-    int JJTNULL = 41;
+  int JJTCOMPOSITEEXPRESSION = 0;
+  int JJTLITERALEXPRESSION = 1;
+  int JJTDEFERREDEXPRESSION = 2;
+  int JJTDYNAMICEXPRESSION = 3;
+  int JJTVOID = 4;
+  int JJTSEMICOLON = 5;
+  int JJTASSIGN = 6;
+  int JJTLAMBDAEXPRESSION = 7;
+  int JJTLAMBDAPARAMETERS = 8;
+  int JJTCHOICE = 9;
+  int JJTOR = 10;
+  int JJTAND = 11;
+  int JJTEQUAL = 12;
+  int JJTNOTEQUAL = 13;
+  int JJTLESSTHAN = 14;
+  int JJTGREATERTHAN = 15;
+  int JJTLESSTHANEQUAL = 16;
+  int JJTGREATERTHANEQUAL = 17;
+  int JJTCONCAT = 18;
+  int JJTPLUS = 19;
+  int JJTMINUS = 20;
+  int JJTMULT = 21;
+  int JJTDIV = 22;
+  int JJTMOD = 23;
+  int JJTNEGATIVE = 24;
+  int JJTNOT = 25;
+  int JJTEMPTY = 26;
+  int JJTVALUE = 27;
+  int JJTDOTSUFFIX = 28;
+  int JJTBRACKETSUFFIX = 29;
+  int JJTMETHODARGUMENTS = 30;
+  int JJTMAPDATA = 31;
+  int JJTMAPENTRY = 32;
+  int JJTLISTDATA = 33;
+  int JJTIDENTIFIER = 34;
+  int FUNCTION = 35;
+  int JJTTRUE = 36;
+  int JJTFALSE = 37;
+  int JJTFLOATINGPOINT = 38;
+  int JJTINTEGER = 39;
+  int JJTSTRING = 40;
+  int JJTNULL = 41;
 
-    String[] NODE_NAME = { //
-        "CompositeExpression", //
-        "LiteralExpression", //
-        "DeferredExpression", //
-        "DynamicExpression", //
-        "void", //
-        "SemiColon", //
-        "Assign", //
-        "LambdaExpression", //
-        "LambdaParameters", //
-        "Choice", //
-        "Or", //
-        "And", //
-        "Equal", //
-        "NotEqual", //
-        "LessThan", //
-        "GreaterThan", //
-        "LessThanEqual", //
-        "GreaterThanEqual", //
-        "Concat", //
-        "Plus", //
-        "Minus", //
-        "Mult", //
-        "Div", //
-        "Mod", //
-        "Negative", //
-        "Not", //
-        "Empty", //
-        "Value", //
-        "DotSuffix", //
-        "BracketSuffix", //
-        "MethodArguments", //
-        "MapData", //
-        "MapEntry", //
-        "ListData", //
-        "Identifier", //
-        "Function", //
-        "True", //
-        "False", //
-        "FloatingPoint", //
-        "Integer", //
-        "String", //
-        "Null",//
-    };
+  String[] NODE_NAME = { //
+          "CompositeExpression", //
+          "LiteralExpression", //
+          "DeferredExpression", //
+          "DynamicExpression", //
+          "void", //
+          "SemiColon", //
+          "Assign", //
+          "LambdaExpression", //
+          "LambdaParameters", //
+          "Choice", //
+          "Or", //
+          "And", //
+          "Equal", //
+          "NotEqual", //
+          "LessThan", //
+          "GreaterThan", //
+          "LessThanEqual", //
+          "GreaterThanEqual", //
+          "Concat", //
+          "Plus", //
+          "Minus", //
+          "Mult", //
+          "Div", //
+          "Mod", //
+          "Negative", //
+          "Not", //
+          "Empty", //
+          "Value", //
+          "DotSuffix", //
+          "BracketSuffix", //
+          "MethodArguments", //
+          "MapData", //
+          "MapEntry", //
+          "ListData", //
+          "Identifier", //
+          "Function", //
+          "True", //
+          "False", //
+          "FloatingPoint", //
+          "Integer", //
+          "String", //
+          "Null",//
+  };
 }

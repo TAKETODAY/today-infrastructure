@@ -35,13 +35,13 @@ public class MethodAccessorPropertyAccessor implements PropertyAccessor {
   private final MethodAccessor getMethodAccessor;
 
   public MethodAccessorPropertyAccessor(Method setMethod, Method getMethod) {
-      Assert.notNull(setMethod, "setMethod must not be null");
-      Assert.notNull(getMethod, "getMethod must not be null");
-      
-      this.setMethodAccessor = ReflectionUtils.newMethodAccessor(setMethod);
-      this.getMethodAccessor = ReflectionUtils.newMethodAccessor(getMethod);
+    Assert.notNull(setMethod, "setMethod must not be null");
+    Assert.notNull(getMethod, "getMethod must not be null");
+
+    this.setMethodAccessor = ReflectionUtils.newMethodAccessor(setMethod);
+    this.getMethodAccessor = ReflectionUtils.newMethodAccessor(getMethod);
   }
-  
+
   public MethodAccessorPropertyAccessor(MethodAccessor setMethodAccessor,
                                         MethodAccessor getMethodAccessor) {
     Assert.notNull(setMethodAccessor, "setMethodAccessor must not be null");
@@ -50,7 +50,6 @@ public class MethodAccessorPropertyAccessor implements PropertyAccessor {
     this.setMethodAccessor = setMethodAccessor;
     this.getMethodAccessor = getMethodAccessor;
   }
-
 
   @Override
   public Object get(final Object obj) {

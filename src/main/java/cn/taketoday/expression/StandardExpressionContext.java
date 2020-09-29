@@ -56,195 +56,195 @@ import cn.taketoday.expression.lang.LocalBeanNameResolver;
  */
 public class StandardExpressionContext extends ExpressionContext {
 
-    private final ExpressionResolver elResolver;
-    private final CompositeExpressionResolver customResolvers;
+  private final ExpressionResolver elResolver;
+  private final CompositeExpressionResolver customResolvers;
 
-    private final FunctionMapper functionMapper;
-    private final VariableMapper variableMapper;
+  private final FunctionMapper functionMapper;
+  private final VariableMapper variableMapper;
 
-    private final Map<String, Object> beans = new HashMap<>(8);
+  private final Map<String, Object> beans = new HashMap<>(8);
 
-    private final ExpressionContext delegate;
+  private final ExpressionContext delegate;
 
-    /**
-     * Construct a default ELContext for a stand-alone environment.
-     * <p>
-     * Retrieves the <code>ELResolver</code> associated with this context. This is a
-     * <code>CompositeELResover</code> consists of an ordered list of
-     * <code>ELResolver</code>s.
-     * <ol>
-     * <li>A {@link BeanNameExpressionResolver} for beans defined locally</li>
-     * <li>Any custom <code>ELResolver</code>s</li>
-     * <li>An <code>ELResolver</code> supporting the collection operations</li>
-     * <li>A {@link StaticFieldExpressionResolver} for resolving static fields</li>
-     * <li>A {@link MapExpressionResolver} for resolving Map properties</li>
-     * <li>A {@link ResourceBundleExpressionResolver} for resolving ResourceBundle
-     * properties</li>
-     * <li>A {@link ListExpressionResolver} for resolving List properties</li>
-     * <li>An {@link ArrayExpressionResolver} for resolving array properties</li>
-     * <li>A {@link BeanExpressionResolver} for resolving bean properties</li>
-     * </ol>
-     * </p>
-     * 
-     * @param factory
-     *            The ExpressionFactory
-     */
-    public StandardExpressionContext(ExpressionFactory factory) {
+  /**
+   * Construct a default ELContext for a stand-alone environment.
+   * <p>
+   * Retrieves the <code>ELResolver</code> associated with this context. This is a
+   * <code>CompositeELResover</code> consists of an ordered list of
+   * <code>ELResolver</code>s.
+   * <ol>
+   * <li>A {@link BeanNameExpressionResolver} for beans defined locally</li>
+   * <li>Any custom <code>ELResolver</code>s</li>
+   * <li>An <code>ELResolver</code> supporting the collection operations</li>
+   * <li>A {@link StaticFieldExpressionResolver} for resolving static fields</li>
+   * <li>A {@link MapExpressionResolver} for resolving Map properties</li>
+   * <li>A {@link ResourceBundleExpressionResolver} for resolving ResourceBundle
+   * properties</li>
+   * <li>A {@link ListExpressionResolver} for resolving List properties</li>
+   * <li>An {@link ArrayExpressionResolver} for resolving array properties</li>
+   * <li>A {@link BeanExpressionResolver} for resolving bean properties</li>
+   * </ol>
+   * </p>
+   *
+   * @param factory
+   *         The ExpressionFactory
+   */
+  public StandardExpressionContext(ExpressionFactory factory) {
 
-        delegate = null;
-        variableMapper = new DefaultVariableMapper();
-        functionMapper = new DefaultFunctionMapper(factory.getInitFunctionMap());
+    delegate = null;
+    variableMapper = new DefaultVariableMapper();
+    functionMapper = new DefaultFunctionMapper(factory.getInitFunctionMap());
 
-        customResolvers = new CompositeExpressionResolver(2);
+    customResolvers = new CompositeExpressionResolver(2);
 
-        CompositeExpressionResolver resolver = new CompositeExpressionResolver();
+    CompositeExpressionResolver resolver = new CompositeExpressionResolver();
 
-        resolver.add(customResolvers);
-        resolver.add(new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)));
+    resolver.add(customResolvers);
+    resolver.add(new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)));
 
-        resolver.add(new StaticFieldExpressionResolver());
-        resolver.add(new MapExpressionResolver());
-        resolver.add(new ResourceBundleExpressionResolver());
-        resolver.add(new ListExpressionResolver());
-        resolver.add(new ArrayExpressionResolver());
+    resolver.add(new StaticFieldExpressionResolver());
+    resolver.add(new MapExpressionResolver());
+    resolver.add(new ResourceBundleExpressionResolver());
+    resolver.add(new ListExpressionResolver());
+    resolver.add(new ArrayExpressionResolver());
 
-        ExpressionResolver streamELResolver = factory.getStreamELResolver();
-        if (streamELResolver != null) {
-            resolver.add(streamELResolver);
-        }
-        resolver.add(new BeanExpressionResolver());
-
-        this.elResolver = resolver;
+    ExpressionResolver streamELResolver = factory.getStreamELResolver();
+    if (streamELResolver != null) {
+      resolver.add(streamELResolver);
     }
+    resolver.add(new BeanExpressionResolver());
 
-    /**
-     * Construct a StandardELContext from another ELContext.
-     * 
-     * @param context
-     *            The ELContext that acts as a delegate in most cases
-     */
-    public StandardExpressionContext(ExpressionContext context) {
-        this.delegate = context;
-        // Copy all attributes except map and resolved
-        CompositeExpressionResolver elr = new CompositeExpressionResolver();
-        customResolvers = new CompositeExpressionResolver();
+    this.elResolver = resolver;
+  }
 
-        elr.add(customResolvers);
-        elr.add(new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)));
-        elr.add(context.getResolver());
+  /**
+   * Construct a StandardELContext from another ELContext.
+   *
+   * @param context
+   *         The ELContext that acts as a delegate in most cases
+   */
+  public StandardExpressionContext(ExpressionContext context) {
+    this.delegate = context;
+    // Copy all attributes except map and resolved
+    CompositeExpressionResolver elr = new CompositeExpressionResolver();
+    customResolvers = new CompositeExpressionResolver();
 
-        elResolver = elr;
+    elr.add(customResolvers);
+    elr.add(new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)));
+    elr.add(context.getResolver());
 
-        functionMapper = context.getFunctionMapper();
-        variableMapper = context.getVariableMapper();
-        setLocale(context.getLocale());
+    elResolver = elr;
+
+    functionMapper = context.getFunctionMapper();
+    variableMapper = context.getVariableMapper();
+    setLocale(context.getLocale());
+  }
+
+  @Override
+  public void putContext(Class<?> key, Object contextObject) {
+    if (delegate != null) {
+      delegate.putContext(key, contextObject);
+    }
+    else {
+      super.putContext(key, contextObject);
+    }
+  }
+
+  @Override
+  public Object getContext(Class<?> key) {
+    if (delegate == null) {
+      return super.getContext(key);
+    }
+    return delegate.getContext(key);
+  }
+
+  /**
+   * @return The ELResolver for this context.
+   */
+  @Override
+  public ExpressionResolver getResolver() {
+    return elResolver;
+  }
+
+  /**
+   * Add a custom ELResolver to the context. The list of the custom ELResolvers
+   * will be accessed in the order they are added. A custom ELResolver added to
+   * the context cannot be removed.
+   *
+   * @param cELResolver
+   *         The new ELResolver to be added to the context
+   */
+  public void addResolver(ExpressionResolver cELResolver) {
+    customResolvers.add(cELResolver);
+  }
+
+  /**
+   * Get the local bean repository
+   *
+   * @return the bean repository
+   */
+  public Map<String, Object> getBeans() {
+    return beans;
+  }
+
+  /**
+   * Define a bean in the local bean repository
+   *
+   * @param name
+   *         The name of the bean
+   * @param bean
+   *         The bean instance to be defined. If null, the definition of the
+   *         bean is removed.
+   */
+  public Object defineBean(String name, Object bean) {
+    return beans.put(name, bean);
+  }
+
+  @Override
+  public FunctionMapper getFunctionMapper() {
+    return functionMapper;
+  }
+
+  @Override
+  public VariableMapper getVariableMapper() {
+    return variableMapper;
+  }
+
+  private final static class DefaultFunctionMapper extends FunctionMapper {
+
+    private final Map<String, Method> functions;
+
+    DefaultFunctionMapper(Map<String, Method> initMap) {
+      functions = (initMap == null) ? new HashMap<String, Method>(16, 1.0f) : initMap;
     }
 
     @Override
-    public void putContext(Class<?> key, Object contextObject) {
-        if (delegate != null) {
-            delegate.putContext(key, contextObject);
-        }
-        else {
-            super.putContext(key, contextObject);
-        }
+    public Method resolveFunction(String prefix, String localName) {
+      return functions.get(prefix + ":" + localName);
     }
 
     @Override
-    public Object getContext(Class<?> key) {
-        if (delegate == null) {
-            return super.getContext(key);
-        }
-        return delegate.getContext(key);
+    public void mapFunction(String prefix, String localName, Method meth) {
+      functions.put(prefix + ":" + localName, meth);
     }
+  }
 
-    /**
-     * @return The ELResolver for this context.
-     */
+  private final static class DefaultVariableMapper extends VariableMapper {
+
+    private final Map<String, ValueExpression> variables = new HashMap<>();
+
     @Override
-    public ExpressionResolver getResolver() {
-        return elResolver;
-    }
-
-    /**
-     * Add a custom ELResolver to the context. The list of the custom ELResolvers
-     * will be accessed in the order they are added. A custom ELResolver added to
-     * the context cannot be removed.
-     * 
-     * @param cELResolver
-     *            The new ELResolver to be added to the context
-     */
-    public void addResolver(ExpressionResolver cELResolver) {
-        customResolvers.add(cELResolver);
-    }
-
-    /**
-     * Get the local bean repository
-     * 
-     * @return the bean repository
-     */
-    public Map<String, Object> getBeans() {
-        return beans;
-    }
-
-    /**
-     * Define a bean in the local bean repository
-     * 
-     * @param name
-     *            The name of the bean
-     * @param bean
-     *            The bean instance to be defined. If null, the definition of the
-     *            bean is removed.
-     */
-    public Object defineBean(String name, Object bean) {
-        return beans.put(name, bean);
+    public ValueExpression resolveVariable(String variable) {
+      return variables.get(variable);
     }
 
     @Override
-    public FunctionMapper getFunctionMapper() {
-        return functionMapper;
+    public ValueExpression setVariable(String variable, ValueExpression expression) {
+      if (expression == null) {
+        return variables.remove(variable);
+      }
+      return variables.put(variable, expression);
     }
-
-    @Override
-    public VariableMapper getVariableMapper() {
-        return variableMapper;
-    }
-
-    private final static class DefaultFunctionMapper extends FunctionMapper {
-
-        private final Map<String, Method> functions;
-
-        DefaultFunctionMapper(Map<String, Method> initMap) {
-            functions = (initMap == null) ? new HashMap<String, Method>(16, 1.0f) : initMap;
-        }
-
-        @Override
-        public Method resolveFunction(String prefix, String localName) {
-            return functions.get(prefix + ":" + localName);
-        }
-
-        @Override
-        public void mapFunction(String prefix, String localName, Method meth) {
-            functions.put(prefix + ":" + localName, meth);
-        }
-    }
-
-    private final static class DefaultVariableMapper extends VariableMapper {
-
-        private final Map<String, ValueExpression> variables = new HashMap<>();
-
-        @Override
-        public ValueExpression resolveVariable(String variable) {
-            return variables.get(variable);
-        }
-
-        @Override
-        public ValueExpression setVariable(String variable, ValueExpression expression) {
-            if (expression == null) {
-                return variables.remove(variable);
-            }
-            return variables.put(variable, expression);
-        }
-    }
+  }
 
 }
