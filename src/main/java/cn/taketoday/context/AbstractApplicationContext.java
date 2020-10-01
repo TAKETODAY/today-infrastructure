@@ -508,7 +508,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public void refresh() throws ContextException {
+  public void refresh() {
     try {
       // refresh object instance
       publishEvent(new ContextRefreshEvent(this));
@@ -903,11 +903,11 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   public final List<BeanFactoryPostProcessor> getFactoryPostProcessors() {
-    final ArrayList<BeanFactoryPostProcessor> factoryPostProcessors = this.factoryPostProcessors;
-    if (factoryPostProcessors == null) {
+    final ArrayList<BeanFactoryPostProcessor> processors = this.factoryPostProcessors;
+    if (processors == null) {
       return this.factoryPostProcessors = new ArrayList<>();
     }
-    return factoryPostProcessors;
+    return processors;
   }
 
   @Override

@@ -199,7 +199,7 @@ public class JarEntryResource extends UrlBasedResource implements JarResource {
 
     private final JarFile jarFile;
 
-    protected JarEntryInputStream(InputStream in, JarFile jarFile) throws IOException {
+    protected JarEntryInputStream(InputStream in, JarFile jarFile) {
       super(in);
       this.jarFile = jarFile;
     }

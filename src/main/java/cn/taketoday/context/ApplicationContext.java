@@ -23,6 +23,7 @@ import java.io.Closeable;
 import java.util.Collection;
 
 import cn.taketoday.context.env.Environment;
+import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.AutowireCapableBeanFactory;
 import cn.taketoday.context.factory.BeanDefinitionRegistry;
 import cn.taketoday.context.factory.ConfigurableBeanFactory;
@@ -49,7 +50,7 @@ public interface ApplicationContext
    *
    * @since 2.0.1
    */
-  void refresh();
+  void refresh() throws ContextException;
 
   /**
    * Load Application Context.
