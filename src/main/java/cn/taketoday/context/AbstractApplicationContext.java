@@ -66,6 +66,7 @@ import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.expression.ExpressionFactory;
 import cn.taketoday.expression.ExpressionManager;
@@ -430,21 +431,21 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public void addApplicationListener(final ApplicationListener<?> applicationListener) {
-    nonNull(applicationListener, "applicationListener can't be null");
+  public void addApplicationListener(final ApplicationListener<?> listener) {
+    nonNull(listener, "listener can't be null");
 
-    final HashMap<Class<?>, List<ApplicationListener<Object>>> applicationListeners = this.applicationListeners;
-    if (applicationListener instanceof ApplicationEventCapable) { // @since 2.1.7
-      for (final Class<?> type : ((ApplicationEventCapable) applicationListener).getApplicationEvent()) {
-        addApplicationListener(applicationListener, type, applicationListeners);
+    final HashMap<Class<?>, List<ApplicationListener<Object>>> listeners = this.applicationListeners;
+    if (listener instanceof ApplicationEventCapable) { // @since 2.1.7
+      for (final Class<?> type : ((ApplicationEventCapable) listener).getApplicationEvent()) {
+        addApplicationListener(listener, type, listeners);
       }
     }
     else {
-      for (final Method method : applicationListener.getClass().getDeclaredMethods()) {
+      for (final Method method : ReflectionUtils.getDeclaredMethods(listener.getClass())) {
         // onApplicationEvent
         if (!method.isBridge() && method.getName().equals(Constant.ON_APPLICATION_EVENT)) {
           // register listener
-          addApplicationListener(applicationListener, method.getParameterTypes()[0], applicationListeners);
+          addApplicationListener(listener, method.getParameterTypes()[0], listeners);
           break;
         }
       }
