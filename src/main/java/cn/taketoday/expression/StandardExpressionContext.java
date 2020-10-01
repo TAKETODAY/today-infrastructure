@@ -97,16 +97,16 @@ public class StandardExpressionContext extends ExpressionContext {
 
     customResolvers = new CompositeExpressionResolver(2);
 
-    CompositeExpressionResolver resolver = new CompositeExpressionResolver();
+    CompositeExpressionResolver resolver = new CompositeExpressionResolver(
+            customResolvers,
+            new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)),
 
-    resolver.add(customResolvers);
-    resolver.add(new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)));
-
-    resolver.add(new StaticFieldExpressionResolver());
-    resolver.add(new MapExpressionResolver());
-    resolver.add(new ResourceBundleExpressionResolver());
-    resolver.add(new ListExpressionResolver());
-    resolver.add(new ArrayExpressionResolver());
+            new StaticFieldExpressionResolver(),
+            new MapExpressionResolver(),
+            new ResourceBundleExpressionResolver(),
+            new ListExpressionResolver(),
+            new ArrayExpressionResolver()
+    );
 
     ExpressionResolver streamELResolver = factory.getStreamELResolver();
     if (streamELResolver != null) {
@@ -125,18 +125,16 @@ public class StandardExpressionContext extends ExpressionContext {
    */
   public StandardExpressionContext(ExpressionContext context) {
     this.delegate = context;
+    this.customResolvers = new CompositeExpressionResolver();
     // Copy all attributes except map and resolved
-    CompositeExpressionResolver elr = new CompositeExpressionResolver();
-    customResolvers = new CompositeExpressionResolver();
+    this.elResolver = new CompositeExpressionResolver(
+            customResolvers,
+            new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)),
+            context.getResolver()
+    );
 
-    elr.add(customResolvers);
-    elr.add(new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)));
-    elr.add(context.getResolver());
-
-    elResolver = elr;
-
-    functionMapper = context.getFunctionMapper();
-    variableMapper = context.getVariableMapper();
+    this.functionMapper = context.getFunctionMapper();
+    this.variableMapper = context.getVariableMapper();
     setLocale(context.getLocale());
   }
 
