@@ -115,11 +115,14 @@ public abstract class StringUtils {
    * @param source
    *         source string
    *
-   * @return if source is empty this will returns {@link Constant#EMPTY_STRING_ARRAY}
+   * @return if source is null this will returns {@link Constant#EMPTY_STRING_ARRAY}
    */
   public static String[] split(String source) {
-    if (isEmpty(source)) {
+    if (source == null) {
       return Constant.EMPTY_STRING_ARRAY;
+    }
+    if (source.isEmpty()) {
+      return new String[] { source };
     }
     final LinkedList<String> list = new LinkedList<>();
 
