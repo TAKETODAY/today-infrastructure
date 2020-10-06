@@ -121,7 +121,6 @@ public abstract class StringUtils {
     if (isEmpty(source)) {
       return Constant.EMPTY_STRING_ARRAY;
     }
-    final int length = source.length();
     final LinkedList<String> list = new LinkedList<>();
 
     int idx = 0;
@@ -134,7 +133,7 @@ public abstract class StringUtils {
       }
       idx++;
     }
-    if (idx != start && idx == length) { // 最后一次分割
+    if (idx != start && idx == source.length()) { // 最后一次分割
       list.add(new String(chars, start, idx - start));
     }
     if (list.isEmpty()) {
