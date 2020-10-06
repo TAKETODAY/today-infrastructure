@@ -70,11 +70,11 @@ public class StringUtilsTest {
         assert split[1].equals("yhj");
         assert split[2].equals("take");
 
-        String split_[] = StringUtils.split("todayyhjtake");
+        String split_[] = StringUtils.split("todayyhjtake;");
         assert split_.length == 1;
         assert split_[0].equals("todayyhjtake");
 
-        assert StringUtils.split(null) == null;
+        assert StringUtils.split(null) == Constant.EMPTY_STRING_ARRAY;
 
         assert !StringUtils.isArrayEmpty(split_);
         assert StringUtils.isArrayNotEmpty(split_);

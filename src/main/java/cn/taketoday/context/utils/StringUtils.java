@@ -115,10 +115,65 @@ public abstract class StringUtils {
    * @param source
    *         source string
    *
-   * @return if source is null this will returns null
+   * @return if source is empty this will returns {@link Constant#EMPTY_STRING_ARRAY}
    */
   public static String[] split(String source) {
-    return source == null ? null : source.split(Constant.SPLIT_REGEXP);
+    if (isEmpty(source)) {
+      return Constant.EMPTY_STRING_ARRAY;
+    }
+    final int length = source.length();
+    final LinkedList<String> list = new LinkedList<>();
+
+    int idx = 0;
+    int start = 0;
+    final char[] chars = source.toCharArray();
+    for (final char c : chars) {
+      if (isSplitable(c)) {
+        list.add(new String(chars, start, idx - start));
+        start = idx + 1;
+      }
+      idx++;
+    }
+    if (idx != start && idx == length) { // 最后一次分割
+      list.add(new String(chars, start, idx - start));
+    }
+    if (list.isEmpty()) {
+      return new String[] { source };
+    }
+    return list.toArray(new String[list.size()]);
+  }
+
+//  public static String[] split(String source) {
+//    if (isEmpty(source)) {
+//      return Constant.EMPTY_STRING_ARRAY;
+//    }
+//    final int length = source.length();
+//    final LinkedList<String> list = new LinkedList<>();
+//
+//    int count = 0;
+//    final char[] buffer = new char[length];
+//
+//    for (int i = 0; i < length; i++) {
+//      final char c = source.charAt(i);
+//      if (isSplitable(c)) {
+//        list.add(new String(buffer, 0, count));
+//        count = 0;
+//      }
+//      else {
+//        buffer[count++] = c;
+//      }
+//    }
+//    if (count != 0) { // 最后一次分割
+//      list.add(new String(buffer, 0, count));
+//    }
+//    if (list.isEmpty()) {
+//      return new String[] { source };
+//    }
+//    return list.toArray(new String[list.size()]);
+//  }
+
+  static boolean isSplitable(final char c) {
+    return c == ',' || c == ';';
   }
 
   public static String decodeUrl(String s) {

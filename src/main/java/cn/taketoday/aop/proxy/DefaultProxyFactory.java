@@ -35,7 +35,6 @@ import cn.taketoday.aop.advice.AspectsRegistry;
 import cn.taketoday.aop.annotation.Advice;
 import cn.taketoday.aop.annotation.AdviceImpl;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.logger.Logger;
@@ -230,8 +229,8 @@ public class DefaultProxyFactory implements ProxyFactory {
     String[] methodsStr = advice.method();
     boolean weaved = false;
     for (String methodStr : methodsStr) {
-      String[] methodRegexs = methodStr.split(Constant.SPLIT_REGEXP);
-      if (methodRegexs == null || methodRegexs.length == 0) {
+      String[] methodRegexs = StringUtils.split(methodStr);
+      if (StringUtils.isArrayEmpty(methodRegexs)) {
         methodRegexs = new String[] { methodStr };
       }
       // start match method
