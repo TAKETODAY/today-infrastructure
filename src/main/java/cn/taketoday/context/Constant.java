@@ -41,7 +41,7 @@ import static cn.taketoday.context.cglib.core.TypeUtils.parseType;
  */
 public interface Constant extends Opcodes, Serializable {
 
-    String CONTEXT_VERSION = "2.1.7";
+    String CONTEXT_VERSION = "3.0";
 
     String KEY_ROOT = "root";
     String KEY_RESULT = "result";
