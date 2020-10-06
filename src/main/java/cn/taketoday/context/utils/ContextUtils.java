@@ -467,7 +467,9 @@ public abstract class ContextUtils {
    *
    * @since 2.1.2
    */
-  private static void addInitMethod(final List<Method> methods, final Class<?> beanClass, final String[] initMethods) {
+  private static void addInitMethod(
+          final List<Method> methods, final Class<?> beanClass, final String[] initMethods
+  ) {
     final boolean initMethodsNotEmpty = StringUtils.isArrayNotEmpty(initMethods);
     for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
       if (ClassUtils.isAnnotationPresent(method, PostConstruct.class)
@@ -563,10 +565,12 @@ public abstract class ContextUtils {
    *
    * @return Resolved field object
    */
-  public static Object resolveProps(final Field declaredField,
-                                    final List<Class<?>> nested,
-                                    final String[] prefixs, final Properties properties) //
-  {
+  public static Object resolveProps(
+          final Field declaredField,
+          final List<Class<?>> nested,
+          final String[] prefixs,
+          final Properties properties
+  ) {
     final Class<?> fieldType = declaredField.getType();
     final boolean debugEnabled = log.isDebugEnabled();
     for (final String prefix : prefixs) {// maybe a default value: ""
@@ -755,10 +759,11 @@ public abstract class ContextUtils {
     return true;
   }
 
-  public static boolean conditional(final AnnotatedElement annotated,
-                                    final ApplicationContext context,
-                                    final Class<? extends Condition>[] condition) //
-  {
+  public static boolean conditional(
+          final AnnotatedElement annotated,
+          final ApplicationContext context,
+          final Class<? extends Condition>[] condition
+  ) {
     Assert.notNull(condition, "Condition Class must not be null");
 
     for (final Class<? extends Condition> conditionClass : condition) {
@@ -880,10 +885,11 @@ public abstract class ContextUtils {
    *
    * @since 2.1.6
    */
-  public static boolean isMissedBean(final MissingBean missingBean,
-                                     final AnnotatedElement annotated,
-                                     final ConfigurableBeanFactory beanFactory) //
-  {
+  public static boolean isMissedBean(
+          final MissingBean missingBean,
+          final AnnotatedElement annotated,
+          final ConfigurableBeanFactory beanFactory
+  ) {
     if (missingBean == null || !conditional(annotated)) { // fix @Conditional not
       return false;
     }
@@ -910,13 +916,17 @@ public abstract class ContextUtils {
    *
    * @return List of {@link BeanDefinition}s
    */
-  public static List<BeanDefinition> createBeanDefinitions(final String defaultName, final Class<?> beanClass) {
+  public static List<BeanDefinition> createBeanDefinitions(
+          final String defaultName, final Class<?> beanClass
+  ) {
     return createBeanDefinitions(defaultName, beanClass, getLastStartupContext());
   }
 
-  public static List<BeanDefinition> createBeanDefinitions(final String defaultName,
-                                                           final Class<?> beanClass,
-                                                           final ApplicationContext context) {
+  public static List<BeanDefinition> createBeanDefinitions(
+          final String defaultName,
+          final Class<?> beanClass,
+          final ApplicationContext context
+  ) {
 
     final BeanDefinitionLoader beanDefinitionLoader = context.getEnvironment().getBeanDefinitionLoader();
     final AnnotationAttributes[] componentAttributes = getAnnotationAttributesArray(beanClass, Component.class);
@@ -936,20 +946,29 @@ public abstract class ContextUtils {
     return createBeanDefinition(beanName, beanClass, getLastStartupContext());
   }
 
-  public static BeanDefinition createBeanDefinition(String beanName, Class<?> beanClass, ApplicationContext ctx) {
+  public static BeanDefinition createBeanDefinition(
+          final String beanName, final Class<?> beanClass, final ApplicationContext ctx
+  ) {
     return createBeanDefinition(beanName, beanClass, null, ctx);
   }
 
-  public static BeanDefinition createBeanDefinition(String name, Class<?> bean, AnnotationAttributes attributes) {
+  public static BeanDefinition createBeanDefinition(
+          final String name, final Class<?> bean, final AnnotationAttributes attributes
+  ) {
     return createBeanDefinition(name, bean, attributes, getLastStartupContext());
   }
 
-  public static BeanDefinition createBeanDefinition(final String beanName,
-                                                    final Class<?> beanClass,
-                                                    final AnnotationAttributes attributes,
-                                                    final ApplicationContext applicationContext) {
+  public static BeanDefinition createBeanDefinition(
+          final String beanName,
+          final Class<?> beanClass,
+          final AnnotationAttributes attributes,
+          final ApplicationContext applicationContext
+  ) {
     Assert.notNull(applicationContext, "ApplicationContext must not be null");
-    return applicationContext.getEnvironment().getBeanDefinitionLoader().createBeanDefinition(beanName, beanClass, attributes);
+    return applicationContext
+            .getEnvironment()
+            .getBeanDefinitionLoader()
+            .createBeanDefinition(beanName, beanClass, attributes);
   }
 
   // META-INF
