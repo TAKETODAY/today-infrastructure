@@ -373,9 +373,11 @@ public abstract class ClassUtils {
    * @since 2.1.1
    */
   @SuppressWarnings("unchecked")
-  public static <T extends Annotation> T[] getAnnotationArray(final AnnotatedElement element,
-                                                              final Class<T> annotationClass,
-                                                              final Class<? extends T> implClass) {
+  public static <T extends Annotation> T[] getAnnotationArray(
+          final AnnotatedElement element,
+          final Class<T> annotationClass,
+          final Class<? extends T> implClass
+  ) {
     if (annotationClass == null) {
       return null;
     }
@@ -413,7 +415,9 @@ public abstract class ClassUtils {
    * @since 2.1.1
    */
   @SuppressWarnings("unchecked")
-  public static <T extends Annotation> T[] getAnnotationArray(AnnotatedElement element, Class<T> targetClass) {
+  public static <T extends Annotation> T[] getAnnotationArray(
+          final AnnotatedElement element, final Class<T> targetClass
+  ) {
     if (targetClass == null) {
       return null;
     }
@@ -450,8 +454,11 @@ public abstract class ClassUtils {
    *
    * @since 2.0.x
    */
-  public static <A extends Annotation> List<A> getAnnotation(final AnnotatedElement element,
-                                                             final Class<A> annotationClass, final Class<? extends A> implClass) {
+  public static <A extends Annotation> List<A> getAnnotation(
+          final AnnotatedElement element,
+          final Class<A> annotationClass,
+          final Class<? extends A> implClass
+  ) {
     return Arrays.asList(getAnnotationArray(element, annotationClass, implClass));
   }
 
@@ -513,8 +520,9 @@ public abstract class ClassUtils {
    *
    * @since 2.1.7
    */
-  public static AnnotationAttributes getAnnotationAttributes(final Class<? extends Annotation> annotationType,
-                                                             final Object annotation) {
+  public static AnnotationAttributes getAnnotationAttributes(
+          final Class<? extends Annotation> annotationType, final Object annotation
+  ) {
     try {
       final Method[] declaredMethods = getDeclaredMethods(annotationType);
       final AnnotationAttributes attributes = new AnnotationAttributes(annotationType, declaredMethods.length);
@@ -541,9 +549,10 @@ public abstract class ClassUtils {
    *
    * @since 2.1.1
    */
-  public static <T extends Annotation> List<T> getAnnotation(//
-                                                             final AnnotatedElement annotatedElement, final Class<T> annotationClass)//
-  {
+  public static <T extends Annotation> List<T> getAnnotation(
+          final AnnotatedElement annotatedElement,
+          final Class<T> annotationClass
+  ) {
     return Arrays.asList(getAnnotationArray(annotatedElement, annotationClass));
   }
 
@@ -561,9 +570,11 @@ public abstract class ClassUtils {
    *
    * @since 2.1.7
    */
-  public static <T extends Annotation> T getAnnotation(final Class<T> annotationClass,
-                                                       final Class<? extends T> implClass,
-                                                       final AnnotatedElement element) {
+  public static <T extends Annotation> T getAnnotation(
+          final Class<T> annotationClass,
+          final Class<? extends T> implClass,
+          final AnnotatedElement element
+  ) {
     final T[] array = getAnnotationArray(element, annotationClass, implClass);
     return ObjectUtils.isEmpty(array) ? null : array[0];
   }
@@ -580,7 +591,9 @@ public abstract class ClassUtils {
    *
    * @since 2.1.7
    */
-  public static <T extends Annotation> T getAnnotation(final Object annotated, final Class<T> annotationClass) {
+  public static <T extends Annotation> T getAnnotation(
+          final Object annotated, final Class<T> annotationClass
+  ) {
     return annotated == null ? null : getAnnotation(annotationClass, annotated.getClass());
   }
 
@@ -607,15 +620,18 @@ public abstract class ClassUtils {
    * Get Annotation by proxy
    *
    * @param annotationClass
-   *            The annotation class
+   *         The annotation class
    * @param attributes
-   *            The annotation attributes key-value
+   *         The annotation attributes key-value
+   *
    * @return the target {@link Annotation} instance
-   * @since 2.1.1
    * @off
-	 */
-	public static <T extends Annotation> T getAnnotationProxy(Class<T> annotationClass, AnnotationAttributes attributes) {
-		return annotationClass.cast(Proxy.newProxyInstance(classLoader, new Class[] { annotationClass, Annotation.class },
+   * @since 2.1.1
+   */
+  public static <T extends Annotation> T getAnnotationProxy(
+          final Class<T> annotationClass, final AnnotationAttributes attributes
+  ) {
+    return annotationClass.cast(Proxy.newProxyInstance(classLoader, new Class[] { annotationClass, Annotation.class },
 				(Object proxy, Method method, Object[] args) -> {
 					// The switch statement compares the String object in its expression with the expressions
 					// associated with each case label as if it were using the String.equals method;
@@ -679,8 +695,9 @@ public abstract class ClassUtils {
    *
    * @since 2.1.1
    */
-  public static <T extends Annotation> List<AnnotationAttributes> //
-  getAnnotationAttributes(final AnnotatedElement element, final Class<T> annotationClass) {
+  public static <T extends Annotation> List<AnnotationAttributes> getAnnotationAttributes(
+          final AnnotatedElement element, final Class<T> annotationClass
+  ) {
     return Arrays.asList(getAnnotationAttributesArray(element, annotationClass));
   }
 
@@ -696,9 +713,9 @@ public abstract class ClassUtils {
    *
    * @since 2.1.7
    */
-  public static <T extends Annotation> AnnotationAttributes //
-  getAnnotationAttributes(final Class<T> annotationClass, final AnnotatedElement element)//
-  {
+  public static <T extends Annotation> AnnotationAttributes getAnnotationAttributes(
+          final Class<T> annotationClass, final AnnotatedElement element
+  ) {
     final AnnotationAttributes[] array = getAnnotationAttributesArray(element, annotationClass);
     return ObjectUtils.isEmpty(array) ? null : array[0];
   }
@@ -715,8 +732,9 @@ public abstract class ClassUtils {
    *
    * @since 2.1.1
    */
-  public static <T extends Annotation> AnnotationAttributes[]
-  getAnnotationAttributesArray(final AnnotatedElement element, final Class<T> targetClass) {
+  public static <T extends Annotation> AnnotationAttributes[] getAnnotationAttributesArray(
+          final AnnotatedElement element, final Class<T> targetClass
+  ) {
     if (targetClass == null) {
       return EMPTY_ANNOTATION_ATTRIBUTES;
     }
@@ -730,9 +748,9 @@ public abstract class ClassUtils {
    *
    * @since 2.1.7
    */
-  public static <T extends Annotation> AnnotationAttributes[]
-  getAnnotationAttributesArray(final AnnotationKey<T> key) //
-  {
+  public static <T extends Annotation> AnnotationAttributes[] getAnnotationAttributesArray(
+          final AnnotationKey<T> key
+  ) {
     AnnotationAttributes[] ret = ANNOTATION_ATTRIBUTES.get(key);
     if (ret == null) {
       final Annotation[] annotations = key.element.getAnnotations();
@@ -800,9 +818,9 @@ public abstract class ClassUtils {
    *
    * @since 2.1.7
    */
-  public static <T extends Annotation> List<AnnotationAttributes>
-  getAnnotationAttributes(final Annotation annotation, final Class<T> target) throws ContextException//
-  {
+  public static <T extends Annotation> List<AnnotationAttributes> getAnnotationAttributes(
+          final Annotation annotation, final Class<T> target
+  ) {
     if (annotation == null) {
       return Collections.emptyList();
     }
@@ -911,11 +929,13 @@ public abstract class ClassUtils {
    *
    * @since 2.1.7
    */
-  static <T extends Annotation> void findTargetAttributes(final Class<?> source,
-                                                          final Class<T> targetType,
-                                                          final List<AnnotationAttributes> attributes,
-                                                          final AnnotationAttributesTransformer transformer,
-                                                          final Set<Class<? extends Annotation>> ignoreAnnotation) {
+  static <T extends Annotation> void findTargetAttributes(
+          final Class<?> source,
+          final Class<T> targetType,
+          final List<AnnotationAttributes> attributes,
+          final AnnotationAttributesTransformer transformer,
+          final Set<Class<? extends Annotation>> ignoreAnnotation
+  ) {
     for (final Annotation current : source.getAnnotations()) {
       final Class<? extends Annotation> candidateType = current.annotationType();
       if (candidateType == source || ignoreAnnotation.contains(candidateType)) {
@@ -930,9 +950,11 @@ public abstract class ClassUtils {
     }
   }
 
-  public static AnnotationAttributes getAnnotationAttributes(final Annotation current,
-                                                             final Class<? extends Annotation> candidateType,
-                                                             final AnnotationAttributesTransformer transformer) {
+  public static AnnotationAttributes getAnnotationAttributes(
+          final Annotation current,
+          final Class<? extends Annotation> candidateType,
+          final AnnotationAttributesTransformer transformer
+  ) {
     final Method[] declaredMethods = getDeclaredMethods(candidateType);
     final AnnotationAttributes target = new AnnotationAttributes(candidateType, declaredMethods.length);
     for (final Method method : declaredMethods) {
