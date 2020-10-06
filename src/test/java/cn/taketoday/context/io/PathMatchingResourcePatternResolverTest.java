@@ -41,7 +41,6 @@ public class PathMatchingResourcePatternResolverTest {
     private static final String[] CLASSES_IN_IO = new String[] { // 
         "AbstractResource.class", //
         "ClassPathResource.class", //
-        "CompositeResource.class", //
         "EncodedResource.class", //
         "FileBasedResource.class", //
         "JarEntryResource.class", //
