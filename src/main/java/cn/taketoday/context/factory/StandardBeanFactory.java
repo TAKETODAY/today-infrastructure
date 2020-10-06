@@ -49,7 +49,6 @@ import cn.taketoday.context.aware.ImportAware;
 import cn.taketoday.context.env.ConfigurableEnvironment;
 import cn.taketoday.context.event.LoadingMissingBeanEvent;
 import cn.taketoday.context.exception.BeanDefinitionStoreException;
-import cn.taketoday.context.exception.BeanInitializingException;
 import cn.taketoday.context.listener.ApplicationListener;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.BeanDefinitionImporter;
@@ -126,7 +125,7 @@ public class StandardBeanFactory
   }
 
   @Override
-  protected Object initializeBean(final Object bean, final BeanDefinition def) throws BeanInitializingException {
+  protected Object initializeBean(final Object bean, final BeanDefinition def) {
     final String name = def.getName();
     if (currentInitializingBeanName.contains(name)) {
       return bean;
@@ -188,9 +187,9 @@ public class StandardBeanFactory
    * @param components
    *         {@link AnnotationAttributes}
    */
-  protected void registerConfigurationBean(final BeanDefinition def, final Method method, final AnnotationAttributes[] components)
-          throws BeanDefinitionStoreException //
-  {
+  protected void registerConfigurationBean(
+          final BeanDefinition def, final Method method, final AnnotationAttributes[] components
+  ) {
     final Class<?> returnType = method.getReturnType();
 
     final ConfigurableEnvironment environment = getApplicationContext().getEnvironment();
@@ -444,7 +443,7 @@ public class StandardBeanFactory
   // ---------------------------------------------
 
   @Override
-  public void loadBeanDefinition(final Class<?> candidate) throws BeanDefinitionStoreException {
+  public void loadBeanDefinition(final Class<?> candidate) {
 
     // don't load abstract class
     if (!Modifier.isAbstract(candidate.getModifiers()) && conditional(candidate, applicationContext)) {
@@ -453,14 +452,14 @@ public class StandardBeanFactory
   }
 
   @Override
-  public void loadBeanDefinitions(final Collection<Class<?>> beans) throws BeanDefinitionStoreException {
+  public void loadBeanDefinitions(final Collection<Class<?>> beans) {
     for (Class<?> clazz : beans) {
       loadBeanDefinition(clazz);
     }
   }
 
   @Override
-  public void loadBeanDefinition(final String name, final Class<?> beanClass) throws BeanDefinitionStoreException {
+  public void loadBeanDefinition(final String name, final Class<?> beanClass) {
 
     final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(beanClass, Component.class);
 
@@ -475,12 +474,12 @@ public class StandardBeanFactory
   }
 
   @Override
-  public void loadBeanDefinition(final String... locations) throws BeanDefinitionStoreException {
+  public void loadBeanDefinition(final String... locations) {
     loadBeanDefinitions(new CandidateComponentScanner().scan(locations));
   }
 
   @Override
-  public void register(final Class<?> candidate) throws BeanDefinitionStoreException {
+  public void register(final Class<?> candidate) {
     final AnnotationAttributes[] annotationAttributes = getAnnotationAttributesArray(candidate, Component.class);
     if (ObjectUtils.isNotEmpty(annotationAttributes)) {
       final String defaultBeanName = getBeanNameCreator().create(candidate);
@@ -504,7 +503,7 @@ public class StandardBeanFactory
    *         If can't store bean
    */
   @Override
-  public void register(final String name, final BeanDefinition def) throws BeanDefinitionStoreException {
+  public void register(final String name, final BeanDefinition def) {
 
     ContextUtils.validateBeanDefinition(def);
 
@@ -551,7 +550,7 @@ public class StandardBeanFactory
    * @param targetDef
    *         Target {@link BeanDefinition}
    */
-  protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) throws Throwable {
+  protected void postProcessRegisterBeanDefinition(final BeanDefinition targetDef) {
     if (targetDef.isAnnotationPresent(Import.class)) { // @since 2.1.7
       importBeans(targetDef);
     }
@@ -590,11 +589,8 @@ public class StandardBeanFactory
    *         Target old bean name
    * @param factoryDef
    *         {@link FactoryBean} Bean definition
-   *
-   * @throws Throwable
-   *         If any {@link Throwable} occurred
    */
-  protected void registerFactoryBean(final String oldBeanName, final BeanDefinition factoryDef) throws Throwable {
+  protected void registerFactoryBean(final String oldBeanName, final BeanDefinition factoryDef) {
 
     final FactoryBeanDefinition<?> def = //
             factoryDef instanceof FactoryBeanDefinition
@@ -617,9 +613,9 @@ public class StandardBeanFactory
   }
 
   @Override
-  public BeanDefinition createBeanDefinition(final String beanName,
-                                             final Class<?> beanClass,
-                                             final AnnotationAttributes attributes) {
+  public BeanDefinition createBeanDefinition(
+          final String beanName, final Class<?> beanClass, final AnnotationAttributes attributes
+  ) {
 
     final DefaultBeanDefinition ret = new DefaultBeanDefinition(beanName, beanClass);
 
