@@ -99,7 +99,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   private boolean fullLifecycle = false;
 
   @Override
-  public Object getBean(final String name) throws ContextException {
+  public Object getBean(final String name) {
     final BeanDefinition def = getBeanDefinition(name);
     // if not exits a bean definition return a bean may exits in singletons cache
     return def != null ? getBean(def) : getSingleton(name);
@@ -244,7 +244,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
    */
-  protected Object createBeanIfNecessary(final BeanDefinition def) throws BeanInstantiationException {
+  protected Object createBeanIfNecessary(final BeanDefinition def) {
     if (def.isSingleton()) {
       final String name = def.getName();
       Object bean = getSingleton(name);
@@ -269,7 +269,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
    */
-  protected Object createBeanInstance(final BeanDefinition def) throws BeanInstantiationException {
+  protected Object createBeanInstance(final BeanDefinition def) {
     return ClassUtils.newInstance(def, this);
   }
 
@@ -288,9 +288,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    *         If {@link BeanReference} is required and there isn't a bean in
    *         this {@link BeanFactory}
    */
-  protected void applyPropertyValues(final Object bean, final PropertyValue[] propertyValues)
-          throws PropertyValueException, NoSuchBeanDefinitionException//
-  {
+  protected void applyPropertyValues(final Object bean, final PropertyValue[] propertyValues) {
     for (final PropertyValue propertyValue : propertyValues) {
       Object value = propertyValue.getValue();
       // reference bean
@@ -377,7 +375,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    * @throws BeanInstantiationException
    *         If any {@link Exception} occurred when create prototype
    */
-  protected Object createPrototype(final BeanDefinition def) throws BeanInstantiationException {
+  protected Object createPrototype(final BeanDefinition def) {
     return initializeBean(createBeanInstance(def), def); // initialize
   }
 
@@ -388,9 +386,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    *         Target {@link BeanDefinition}
    *
    * @return Initialized {@link FactoryBean} never be null
+   *
+   * @throws BeanInstantiationException
+   *         If any {@link Exception} occurred when get FactoryBean
    */
   @SuppressWarnings("unchecked")
-  protected <T> FactoryBean<T> getFactoryBean(final BeanDefinition def) throws BeanInitializingException {
+  protected <T> FactoryBean<T> getFactoryBean(final BeanDefinition def) {
 
     final FactoryBean<T> factoryBean = getFactoryBeanInstance(def);
 
@@ -470,7 +471,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
    */
-  protected Object getImplementation(final String childName, final BeanDefinition currentDef) throws BeanInstantiationException {
+  protected Object getImplementation(final String childName, final BeanDefinition currentDef) {
     return getImplementation(getBeanDefinition(childName), currentDef);
   }
 
@@ -489,9 +490,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
    */
-  protected Object getImplementation(final BeanDefinition childDef, final BeanDefinition currentDef)
-          throws BeanInstantiationException //
-  {
+  protected Object getImplementation(final BeanDefinition childDef, final BeanDefinition currentDef) {
     if (currentDef.isPrototype()) {
       return createPrototype(childDef);
     }
@@ -547,7 +546,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    * @throws BeanInitializingException
    *         If any {@link Exception} occurred when initialize bean
    */
-  protected Object initializeBean(final Object bean, final BeanDefinition def) throws BeanInitializingException {
+  protected Object initializeBean(final Object bean, final BeanDefinition def) {
 
     if (log.isDebugEnabled()) {
       log.debug("Initializing bean named: [{}].", def.getName());
@@ -580,10 +579,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    * @throws BeanInitializingException
    *         If any {@link Exception} occurred when initialize with processors
    */
-  protected Object initWithPostProcessors(final Object bean,
-                                          final BeanDefinition def,
-                                          final List<BeanPostProcessor> processors) throws BeanInitializingException //
-  {
+  protected Object initWithPostProcessors(
+          final Object bean, final BeanDefinition def, final List<BeanPostProcessor> processors
+  ) {
     Object ret = bean;
     // before properties
     for (final BeanPostProcessor processor : processors) {
@@ -702,7 +700,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
    */
-  protected Object initializeSingleton(final BeanDefinition def) throws BeanInstantiationException {
+  protected Object initializeSingleton(final BeanDefinition def) {
     Assert.isTrue(def.isSingleton(), "Bean definition must be a singleton");
 
     if (def.isFactoryBean()) {
@@ -953,7 +951,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   // ---------------------------------------
 
   @Override
-  public boolean isSingleton(String name) throws NoSuchBeanDefinitionException {
+  public boolean isSingleton(String name) {
     final BeanDefinition def = getBeanDefinition(name);
     if (def == null) {
       throw new NoSuchBeanDefinitionException(name);
@@ -962,12 +960,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   }
 
   @Override
-  public boolean isPrototype(String name) throws NoSuchBeanDefinitionException {
+  public boolean isPrototype(String name) {
     return !isSingleton(name);
   }
 
   @Override
-  public Class<?> getType(String name) throws NoSuchBeanDefinitionException {
+  public Class<?> getType(String name) {
     final BeanDefinition def = getBeanDefinition(name);
     if (def == null) {
       throw new NoSuchBeanDefinitionException(name);
@@ -986,12 +984,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   }
 
   @Override
-  public void registerBean(Class<?> clazz) throws BeanDefinitionStoreException {
+  public void registerBean(Class<?> clazz) {
     registerBean(getBeanNameCreator().create(clazz), clazz);
   }
 
   @Override
-  public void registerBean(Set<Class<?>> candidates) throws BeanDefinitionStoreException {
+  public void registerBean(Set<Class<?>> candidates) {
     final BeanNameCreator nameCreator = getBeanNameCreator();
     for (final Class<?> candidate : candidates) {
       registerBean(nameCreator.create(candidate), candidate);
@@ -999,24 +997,22 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   }
 
   @Override
-  public void registerBean(String name, Class<?> clazz) throws BeanDefinitionStoreException {
+  public void registerBean(String name, Class<?> clazz) {
     getBeanDefinitionLoader().loadBeanDefinition(name, clazz);
   }
 
   @Override
-  public void registerBean(String name, BeanDefinition beanDefinition) //
-          throws BeanDefinitionStoreException, ConfigurationException //
-  {
+  public void registerBean(String name, BeanDefinition beanDefinition) {
     getBeanDefinitionLoader().register(name, beanDefinition);
   }
 
   @Override
-  public void registerBean(Object obj) throws BeanDefinitionStoreException {
+  public void registerBean(Object obj) {
     registerBean(getBeanNameCreator().create(obj.getClass()), obj);
   }
 
   @Override
-  public void registerBean(final String name, final Object obj) throws BeanDefinitionStoreException {
+  public void registerBean(final String name, final Object obj) {
     Assert.notNull(obj, "bean instance must not be null");
 
     String nameToUse = name;
@@ -1192,7 +1188,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   }
 
   @Override
-  public String getBeanName(Class<?> targetClass) throws NoSuchBeanDefinitionException {
+  public String getBeanName(Class<?> targetClass) {
 
     for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       if (entry.getValue().getBeanClass() == targetClass) {
@@ -1437,7 +1433,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   }
 
   @Override
-  public Object applyBeanPostProcessorsBeforeInitialization(final Object existingBean, final String beanName) {
+  public Object applyBeanPostProcessorsBeforeInitialization(
+          final Object existingBean, final String beanName
+  ) {
     Object ret = existingBean;
     final BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
     // before properties
@@ -1454,7 +1452,9 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   }
 
   @Override
-  public Object applyBeanPostProcessorsAfterInitialization(final Object existingBean, final String beanName) {
+  public Object applyBeanPostProcessorsAfterInitialization(
+          final Object existingBean, final String beanName
+  ) {
     Object ret = existingBean;
     final BeanDefinition prototypeDef = getPrototypeBeanDefinition(existingBean, beanName);
     // after properties
