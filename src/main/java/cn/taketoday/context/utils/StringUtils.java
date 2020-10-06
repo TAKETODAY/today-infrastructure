@@ -115,7 +115,8 @@ public abstract class StringUtils {
    * @param source
    *         source string
    *
-   * @return if source is null this will returns {@link Constant#EMPTY_STRING_ARRAY}
+   * @return if source is null this will returns
+   * {@link Constant#EMPTY_STRING_ARRAY}
    */
   public static String[] split(String source) {
     if (source == null) {
@@ -139,7 +140,7 @@ public abstract class StringUtils {
     if (idx != start && idx == source.length()) { // 最后一次分割
       list.add(new String(chars, start, idx - start));
     }
-    if (list.isEmpty()) {
+    else if (list.isEmpty()) {
       return new String[] { source };
     }
     return list.toArray(new String[list.size()]);
