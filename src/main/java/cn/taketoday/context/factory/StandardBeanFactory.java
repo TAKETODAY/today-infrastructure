@@ -322,13 +322,12 @@ public class StandardBeanFactory
     // ---------------------------------------------------
 
     final Set<Class<?>> beans = ContextUtils.loadFromMetaInfo("META-INF/beans");
-
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
     for (final Class<?> beanClass : beans) {
 
       if (conditional(beanClass) && !beanClass.isAnnotationPresent(MissingBean.class)) {
         // can't be a missed bean. MissingBean load after normal loading beans
-        ContextUtils.createBeanDefinitions(beanNameCreator.create(beanClass), beanClass)
+        ContextUtils.createBeanDefinitions(beanNameCreator.create(beanClass), beanClass, this)
                 .forEach(this::register);
       }
     }

@@ -927,8 +927,15 @@ public abstract class ContextUtils {
           final Class<?> beanClass,
           final ApplicationContext context
   ) {
+    return createBeanDefinitions(defaultName,beanClass, context.getEnvironment().getBeanDefinitionLoader());
+  }
 
-    final BeanDefinitionLoader beanDefinitionLoader = context.getEnvironment().getBeanDefinitionLoader();
+  public static List<BeanDefinition> createBeanDefinitions(
+          final String defaultName,
+          final Class<?> beanClass,
+          final BeanDefinitionLoader beanDefinitionLoader
+  ) {
+
     final AnnotationAttributes[] componentAttributes = getAnnotationAttributesArray(beanClass, Component.class);
     if (ObjectUtils.isEmpty(componentAttributes)) {
       return Collections.singletonList(beanDefinitionLoader.createBeanDefinition(defaultName, beanClass));
