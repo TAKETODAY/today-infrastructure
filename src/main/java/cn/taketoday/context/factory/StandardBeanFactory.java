@@ -325,7 +325,8 @@ public class StandardBeanFactory
     final BeanNameCreator beanNameCreator = getBeanNameCreator();
     for (final Class<?> beanClass : beans) {
 
-      if (conditional(beanClass) && !beanClass.isAnnotationPresent(MissingBean.class)) {
+      if (conditional(beanClass)
+              && !ClassUtils.isAnnotationPresent(beanClass, MissingBean.class)) {
         // can't be a missed bean. MissingBean load after normal loading beans
         ContextUtils.createBeanDefinitions(beanNameCreator.create(beanClass), beanClass, this)
                 .forEach(this::register);
