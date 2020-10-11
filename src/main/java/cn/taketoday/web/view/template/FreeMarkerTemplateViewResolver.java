@@ -55,7 +55,7 @@ import freemarker.template.TemplateHashModel;
 
 /**
  * @author TODAY <br>
- *         2018-06-26 19:16:46
+ * 2018-06-26 19:16:46
  */
 @Props(prefix = "web.mvc.view.")
 @MissingBean(type = TemplateViewResolver.class)
@@ -76,15 +76,13 @@ public class FreeMarkerTemplateViewResolver
   public FreeMarkerTemplateViewResolver() {}
 
   public FreeMarkerTemplateViewResolver(WebServletApplicationContext context) {
-    this(null, null, null, context);
+    this(context, null, null, null);
   }
 
-  public FreeMarkerTemplateViewResolver(
-          @Autowired(required = false) ObjectWrapper wrapper,
-          @Autowired(required = false) Configuration configuration,
-          @Autowired(required = false) TaglibFactory taglibFactory,
-          @Autowired(required = true) WebServletApplicationContext context)//
-  {
+  public FreeMarkerTemplateViewResolver(WebServletApplicationContext context,
+                                        @Autowired(required = false) ObjectWrapper wrapper,
+                                        @Autowired(required = false) Configuration configuration,
+                                        @Autowired(required = false) TaglibFactory taglibFactory) {
     setObjectWrapper(wrapper);
     setTaglibFactory(taglibFactory);
     setConfiguration(configuration);
@@ -108,7 +106,8 @@ public class FreeMarkerTemplateViewResolver
    * Create Model Attributes.
    *
    * @param context
-   *            Current request context
+   *         Current request context
+   *
    * @return {@link TemplateHashModel}
    */
   @Override
@@ -156,11 +155,6 @@ public class FreeMarkerTemplateViewResolver
   }
 
   /**
-   * Creates the default of the {@value #INIT_PARAM_META_INF_TLD_LOCATIONS}
-   * init-param; if this init-param is specified, it will completelly
-   * <em>replace</em> the default value.
-   *
-   * <p>
    * The implementation in {@link FreemarkerServlet} returns
    * {@link TaglibFactory#DEFAULT_META_INF_TLD_SOURCES}.
    *
@@ -174,11 +168,6 @@ public class FreeMarkerTemplateViewResolver
   }
 
   /**
-   * Creates the default of the {@value #INIT_PARAM_CLASSPATH_TLDS} init-param; if
-   * this init-param is specified, it will be appended <em>after</em> the default,
-   * not replace it.
-   *
-   * <p>
    * The implementation in {@link FreemarkerServlet} returns
    * {@link TaglibFactory#DEFAULT_CLASSPATH_TLDS}.
    *

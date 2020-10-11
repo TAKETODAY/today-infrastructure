@@ -24,7 +24,7 @@ import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY <br>
- *         2019-07-07 23:24
+ * 2019-07-07 23:24
  */
 @FunctionalInterface
 public interface ParameterResolver {
@@ -40,17 +40,19 @@ public interface ParameterResolver {
    * Resolve parameter
    *
    * @param context
-   *            Current request Context
+   *         Current request Context
    * @param parameter
-   *            parameter
-   * @throws Throwable
-   *             if any {@link Exception} occurred
+   *         parameter
+   *
    * @return method parameter instances
+   *
+   * @throws Throwable
+   *         if any {@link Exception} occurred
    */
   Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable;
 
   @FunctionalInterface
-  public interface SupportsFunction {
+  interface SupportsFunction {
 
     boolean supports(MethodParameter parameter);
   }

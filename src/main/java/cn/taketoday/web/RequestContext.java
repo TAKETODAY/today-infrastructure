@@ -180,7 +180,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * @return an array of <code>String</code> objects containing the parameter's
    *         values
    *
-   * @see #parameter()
+   * @see #parameters()
    */
   String[] parameters(String name);
 

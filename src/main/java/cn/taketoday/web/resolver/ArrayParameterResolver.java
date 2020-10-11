@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -26,10 +27,23 @@ import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.utils.WebUtils;
 
 /**
+ * 数组参数解析器
+ * <P>
+ * 支持多个参数，也支持一个参数分割成数组
+ * </p>
+ *
  * @author TODAY <br>
- *         2019-07-07 23:24
+ * 2019-07-07 23:24
  */
-public class ArrayParameterResolver implements OrderedParameterResolver {
+public class ArrayParameterResolver extends OrderedSupport implements OrderedParameterResolver {
+
+  public ArrayParameterResolver() {
+    this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 70);
+  }
+
+  public ArrayParameterResolver(int order) {
+    super(order);
+  }
 
   @Override
   public boolean supports(final MethodParameter parameter) {
@@ -37,14 +51,14 @@ public class ArrayParameterResolver implements OrderedParameterResolver {
   }
 
   @Override
-  public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
 
     final String name = parameter.getName();
     // parameter value[]
-    String[] values = requestContext.parameters(name);
+    String[] values = context.parameters(name);
 
     if (ObjectUtils.isEmpty(values)) {
-      values = StringUtils.split(requestContext.parameter(name));
+      values = StringUtils.split(context.parameter(name));
       if (ObjectUtils.isEmpty(values)) {
         if (parameter.isRequired()) {
           throw WebUtils.newBadRequest("Array", name, null);
@@ -55,8 +69,4 @@ public class ArrayParameterResolver implements OrderedParameterResolver {
     return ObjectUtils.toArrayObject(values, parameter.getParameterClass());
   }
 
-  @Override
-  public int getOrder() {
-    return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 70;
-  }
 }
