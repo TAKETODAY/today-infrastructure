@@ -73,6 +73,7 @@ import cn.taketoday.context.factory.StandardBeanDefinition;
 import cn.taketoday.context.loader.AutowiredParameterResolver;
 import cn.taketoday.context.loader.AutowiredPropertyResolver;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
+import cn.taketoday.context.loader.CollectionParameterResolver;
 import cn.taketoday.context.loader.ExecutableParameterResolver;
 import cn.taketoday.context.loader.MapParameterResolver;
 import cn.taketoday.context.logger.Logger;
@@ -109,6 +110,7 @@ public abstract class ContextUtils {
 
     setParameterResolvers(new MapParameterResolver(),
                           new AutowiredParameterResolver(),
+                          new CollectionParameterResolver(),
                           delegate(p -> p.isAnnotationPresent(Env.class),
                                    (p, b) -> resolveValue(p.getAnnotation(Env.class), p.getType())),
                           delegate(p -> p.isAnnotationPresent(Value.class),
