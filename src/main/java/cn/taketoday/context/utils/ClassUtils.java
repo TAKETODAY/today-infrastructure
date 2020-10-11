@@ -31,7 +31,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -68,10 +67,8 @@ import cn.taketoday.context.exception.BeanInstantiationException;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
-import cn.taketoday.context.factory.StandardBeanDefinition;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.loader.CandidateComponentScanner;
-import cn.taketoday.context.reflect.BeanConstructor;
 
 import static cn.taketoday.context.Constant.EMPTY_ANNOTATION_ATTRIBUTES;
 import static cn.taketoday.context.utils.Assert.notNull;
@@ -1022,12 +1019,8 @@ public abstract class ClassUtils {
   }
 
   /**
-   * Use default {@link Constructor} or Annotated {@link Autowired}
-   * {@link Constructor} to create bean instance.
-   *
-   * <p>
-   * If {@link BeanDefinition} is {@link StandardBeanDefinition} will create bean
-   * from {@link StandardBeanDefinition#getFactoryMethod()}
+   * Use default {@link BeanDefinition#newInstance(BeanFactory)}
+   * to create bean instance.
    *
    * @param def
    *         Target bean's definition
@@ -1041,15 +1034,7 @@ public abstract class ClassUtils {
    * @since 2.1.5
    */
   public static Object newInstance(final BeanDefinition def, final BeanFactory beanFactory) {
-    final Executable executable = def.getExecutableTarget();
-    if (executable == null) {
-      throw new BeanInstantiationException(def, "No suitable bean definition Executable target found");
-    }
-    final BeanConstructor<?> target = def.getConstructor(beanFactory);
-    if (target == null) {
-      throw new BeanInstantiationException(def, "No suitable bean definition BeanConstructor found");
-    }
-    return target.newInstance(resolveParameter(executable, beanFactory));
+    return def.newInstance(beanFactory);
   }
 
   /**
@@ -1264,11 +1249,20 @@ public abstract class ClassUtils {
    * @since 2.1.7
    */
   public static java.lang.reflect.Type[] getGenericityClass(final Class<?> type) {
-    if (type != null) {
-      final java.lang.reflect.Type pType = type.getGenericSuperclass();
-      if (pType instanceof ParameterizedType) {
-        return ((ParameterizedType) pType).getActualTypeArguments();
-      }
+    return getActualTypeArguments(type != null ? type.getGenericSuperclass() : null);
+  }
+
+  public static java.lang.reflect.Type[] getGenericityClass(final Field property) {
+    return getActualTypeArguments(property != null ? property.getGenericType() : null);
+  }
+
+  public static java.lang.reflect.Type[] getGenericityClass(final Parameter parameter) {
+    return getActualTypeArguments(parameter != null ? parameter.getParameterizedType() : null);
+  }
+
+  static java.lang.reflect.Type[] getActualTypeArguments(final java.lang.reflect.Type pType) {
+    if (pType instanceof ParameterizedType) {
+      return ((ParameterizedType) pType).getActualTypeArguments();
     }
     return null;
   }
