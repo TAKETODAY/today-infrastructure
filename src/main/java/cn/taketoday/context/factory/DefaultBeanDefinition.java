@@ -44,6 +44,8 @@ import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
+import static cn.taketoday.context.utils.ContextUtils.resolveParameter;
+
 /**
  * Default implementation of {@link BeanDefinition}
  *
@@ -97,8 +99,11 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
   /** Child implementation */
   private BeanDefinition childDef;
+
   /** @since 3.0 */
-  private BeanConstructor constructor;
+  private Executable executable;
+  /** @since 3.0 */
+  private BeanConstructor<?> constructor;
 
   public DefaultBeanDefinition(String name, Class<?> beanClass) {
     this.name = name;
@@ -123,7 +128,7 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
   }
 
   @Override
-  public PropertyValue getPropertyValue(String name) throws NoSuchPropertyException {
+  public PropertyValue getPropertyValue(String name) {
     for (PropertyValue propertyValue : propertyValues) {
       if (propertyValue.getField().getName().equals(name)) {
         return propertyValue;
@@ -322,12 +327,6 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
     return getBeanClass().getDeclaredAnnotations();
   }
 
-  @Override
-  public Executable getExecutableTarget() {
-    return ClassUtils.getSuitableConstructor(getBeanClass());
-  }
-
-  @Override
   public BeanConstructor<?> getConstructor(BeanFactory factory) {
     if (constructor == null) {
       constructor = createConstructor(factory);
@@ -337,6 +336,19 @@ public class DefaultBeanDefinition implements BeanDefinition, Ordered {
 
   protected BeanConstructor<?> createConstructor(BeanFactory factory) {
     return ReflectionUtils.newConstructor(getBeanClass());
+  }
+
+  public Executable getExecutable() {
+    if (executable == null) {
+      executable = ClassUtils.getSuitableConstructor(getBeanClass());
+    }
+    return executable;
+  }
+
+  @Override
+  public Object newInstance(final BeanFactory factory) {
+    final BeanConstructor<?> target = getConstructor(factory);
+    return target.newInstance(resolveParameter(getExecutable(), factory));
   }
 
   // Object

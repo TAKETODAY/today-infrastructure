@@ -21,7 +21,6 @@ package cn.taketoday.context.factory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.Collection;
 
@@ -29,7 +28,6 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Singleton;
 import cn.taketoday.context.exception.NoSuchPropertyException;
-import cn.taketoday.context.reflect.BeanConstructor;
 
 /**
  * Bean definition
@@ -267,19 +265,13 @@ public interface BeanDefinition extends AnnotatedElement {
   BeanDefinition setInitMethods(String... initMethods);
 
   /**
-   * Get bean class constructor or a method
-   */
-  Executable getExecutableTarget();
-
-  /**
-   * Get BeanConstructor
+   * new bean instance
    *
    * @param factory
    *         this bean factory
    *
-   * @return Bean Constructor
-   *
-   * @since 3.0
+   * @return new bean instance
    */
-  BeanConstructor<?> getConstructor(BeanFactory factory);
+  Object newInstance(BeanFactory factory);
+
 }

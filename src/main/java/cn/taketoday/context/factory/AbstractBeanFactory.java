@@ -21,13 +21,14 @@ package cn.taketoday.context.factory;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +40,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import cn.taketoday.context.BeanNameCreator;
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Primary;
@@ -48,7 +50,6 @@ import cn.taketoday.context.aware.BeanClassLoaderAware;
 import cn.taketoday.context.aware.BeanFactoryAware;
 import cn.taketoday.context.aware.BeanNameAware;
 import cn.taketoday.context.env.DefaultBeanNameCreator;
-import cn.taketoday.context.exception.BeanDefinitionStoreException;
 import cn.taketoday.context.exception.BeanInitializingException;
 import cn.taketoday.context.exception.BeanInstantiationException;
 import cn.taketoday.context.exception.ConfigurationException;
@@ -60,6 +61,7 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.ObjectUtils;
@@ -230,10 +232,13 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   }
 
   /**
-   * Create bean instance
+   * Create bean instance if necessary
    * <p>
    * <b> Note </b> If target bean is {@link Scope#SINGLETON} will be register is
    * to the singletons pool
+   * </p>
+   * <p>
+   *   Other scope will create directly
    * </p>
    *
    * @param def
@@ -270,7 +275,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    *         When instantiation of a bean failed
    */
   protected Object createBeanInstance(final BeanDefinition def) {
-    return ClassUtils.newInstance(def, this);
+    return def.newInstance(this);
   }
 
   /**
@@ -760,23 +765,32 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
         continue;
       }
 
+      // handle dependency which is special bean like List<?> or Set<?>...
+      // ----------------------------------------------------------------
+
+      final BeanDefinition handleDef = handleDependency(ref);
+      if (handleDef != null) {
+        registerBeanDefinition(beanName, handleDef);
+        continue;
+      }
+
       // handle dependency which is interface and parent object
       // --------------------------------------------------------
 
       // find child beans
       final List<BeanDefinition> childDefs = doGetChildDefinition(beanName, propertyType);
 
-      if (childDefs.isEmpty()) {
-        if (ref.isRequired()) {
-          throw new ConfigurationException("Context does not exist for this type:[" + propertyType + "] of bean");
-        }
-      }
-      else {
+      if (!CollectionUtils.isEmpty(childDefs)) {
         final BeanDefinition childDef = getPrimaryBeanDefinition(childDefs);
         if (log.isDebugEnabled()) {
           log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
         }
         registerBeanDefinition(beanName, new DefaultBeanDefinition(beanName, childDef));
+        continue;
+      }
+
+      if (ref.isRequired()) {
+        throw new ConfigurationException("Context does not exist for this type:[" + propertyType + "] of bean");
       }
     }
   }
@@ -784,26 +798,26 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   /**
    * Get {@link Primary} {@link BeanDefinition}
    *
-   * @param childDefs
+   * @param defs
    *         All suitable {@link BeanDefinition}s
    *
    * @return A {@link Primary} {@link BeanDefinition}
    */
-  protected BeanDefinition getPrimaryBeanDefinition(final List<BeanDefinition> childDefs) {
-    BeanDefinition childDef = null;
-    if (childDefs.size() > 1) {
-      OrderUtils.reversedSort(childDefs); // size > 1 sort
-      for (final BeanDefinition def : childDefs) {
+  protected BeanDefinition getPrimaryBeanDefinition(final List<BeanDefinition> defs) {
+    BeanDefinition target = null;
+    if (defs.size() > 1) {
+      OrderUtils.reversedSort(defs); // size > 1 sort
+      for (final BeanDefinition def : defs) {
         if (def.isAnnotationPresent(Primary.class)) {
-          childDef = def;
+          target = def;
           break;
         }
       }
     }
-    if (childDef == null) {
-      childDef = childDefs.get(0); // first one
+    if (target == null) {
+      target = defs.get(0); // first one
     }
-    return childDef;
+    return target;
   }
 
   /**
@@ -818,7 +832,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    */
   protected List<BeanDefinition> doGetChildDefinition(final String beanName, final Class<?> beanClass) {
 
-    final Set<BeanDefinition> ret = new HashSet<>();
+    final HashSet<BeanDefinition> ret = new HashSet<>();
 
     for (final Entry<String, BeanDefinition> entry : getBeanDefinitions().entrySet()) {
       final BeanDefinition childDef = entry.getValue();
@@ -832,50 +846,80 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
       }
     }
 
-    if (ret.isEmpty()) { // If user registered BeanDefinition
-      final BeanDefinition handleBeanDef = handleDependency(beanName, beanClass);
-      if (handleBeanDef != null) {
-        ret.add(handleBeanDef);
-      }
-    }
-    return ret.isEmpty() ? Collections.emptyList() : new ArrayList<>(ret);
+    return ret.isEmpty() ? null : new ArrayList<>(ret);
   }
 
   /**
    * Handle dependency {@link BeanDefinition}
    *
-   * @param beanName
-   *         bean name
-   * @param beanClass
-   *         bean class
+   * @param ref
+   *         BeanReference
    *
    * @return Dependency {@link BeanDefinition}
    */
-  protected BeanDefinition handleDependency(final String beanName, final Class<?> beanClass) {
+  protected BeanDefinition handleDependency(final BeanReference ref) {
+    // from objectFactories
 
-    final Object obj = createDependencyInstance(beanClass);
-    if (obj != null) {
-      registerSingleton(beanName, obj);
-      return new DefaultBeanDefinition(beanName, beanClass);
+    final Map<Class<?>, Object> objectFactories = getObjectFactories();
+    if (!CollectionUtils.isEmpty(objectFactories)) {
+      final Object objectFactory = objectFactories.get(ref.getReferenceClass());
+      if (objectFactory != null) {
+        return new DefaultBeanDefinition(ref.getName(), ref.getReferenceClass()) {
+          @Override
+          public Object newInstance(final BeanFactory factory) {
+            return createDependencyInstance(getBeanClass(), objectFactory);
+          }
+        };
+      }
     }
+
     return null;
   }
 
-  /**
-   * Create dependency object
-   *
-   * @param type
-   *         dependency type
-   *
-   * @return Dependency object
-   */
-  protected Object createDependencyInstance(final Class<?> type) {
+  interface DependencyResolver {
 
-    final Map<Class<?>, Object> objectFactories = getObjectFactories();
-    if (objectFactories != null) {
-      return createDependencyInstance(type, objectFactories.get(type));
+    boolean supports(BeanReference ref);
+
+    BeanDefinition resolve(BeanReference ref, BeanFactory factory);
+
+  }
+
+  class ListDependencyResolver implements DependencyResolver {
+
+    @Override
+    public boolean supports(final BeanReference ref) {
+      return List.class.isAssignableFrom(ref.getReferenceClass());
     }
-    return null;
+
+    @Override
+    public BeanDefinition resolve(final BeanReference ref, final BeanFactory factory) {
+      final Class<?> referenceClass = ref.getReferenceClass();
+      if (List.class == referenceClass) {
+
+      }
+      List<?> beans = new ArrayList<>();
+
+      final Field property = ref.getProperty();
+      final java.lang.reflect.Type aClass = ClassUtils.getGenericityClass(property)[0];
+      if (aClass instanceof WildcardType) {
+
+      }
+
+      final List objects = getBeans((Class) aClass);
+      beans.addAll(objects);
+
+      return null;
+    }
+  }
+
+
+  class RefBeanDefinition extends DefaultBeanDefinition {
+
+    public RefBeanDefinition(String name, Class<?> beanClass) {
+      super(name, beanClass);
+      setScope(Constant.REFERENCE);
+    }
+
   }
 
   /**
@@ -1109,9 +1153,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
 
   @Override
   public void registerBeanDefinition(final String beanName, final BeanDefinition beanDefinition) {
-
     this.beanDefinitionMap.put(beanName, beanDefinition);
 
+    postRegisterBeanDefinition(beanDefinition);
+  }
+
+  protected void postRegisterBeanDefinition(final BeanDefinition beanDefinition) {
     final PropertyValue[] propertyValues = beanDefinition.getPropertyValues();
     if (ObjectUtils.isNotEmpty(propertyValues)) {
       for (final PropertyValue propertyValue : propertyValues) {

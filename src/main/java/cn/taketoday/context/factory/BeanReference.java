@@ -19,6 +19,7 @@
  */
 package cn.taketoday.context.factory;
 
+import java.lang.reflect.Field;
 import java.util.Objects;
 
 import cn.taketoday.context.exception.ContextException;
@@ -40,14 +41,17 @@ public final class BeanReference {
   private final Class<?> referenceClass;
   /** record if property is prototype @since v2.1.6 */
   private boolean prototype = false;
+  /** @since 3.0 */
+  private final Field field;
 
-  public BeanReference(String name, boolean required, Class<?> referenceClass) {
+  public BeanReference(String name, boolean required, Field field) {
     if (StringUtils.isEmpty(name)) {
       throw new ContextException("Bean name can't be empty");
     }
     this.name = name;
+    this.field = field;
     this.required = required;
-    this.referenceClass = referenceClass;
+    this.referenceClass = field.getType();
   }
 
   public String getName() {
@@ -73,6 +77,11 @@ public final class BeanReference {
   public BeanReference setPrototype(boolean prototype) {
     this.prototype = prototype;
     return this;
+  }
+
+  /** @since 3.0 */
+  public Field getProperty() {
+    return field;
   }
 
   @Override

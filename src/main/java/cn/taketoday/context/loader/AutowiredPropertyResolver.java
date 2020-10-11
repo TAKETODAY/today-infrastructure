@@ -98,7 +98,7 @@ public class AutowiredPropertyResolver
       name = byType(propertyClass);
     }
 
-    return new PropertyValue(new BeanReference(name, required, propertyClass), field);
+    return new PropertyValue(new BeanReference(name, required, field), field);
   }
 
   /**

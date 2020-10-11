@@ -186,6 +186,10 @@ public interface Constant extends Opcodes, Serializable {
      * @since 2.1.7
      */
     String PROTOTYPE = "prototype";
+    /**
+     * @since 3.0
+     */
+    String REFERENCE = "reference";
 
     /** URL prefix for loading from the file system: "file:". */
     String FILE_URL_PREFIX = "file:";

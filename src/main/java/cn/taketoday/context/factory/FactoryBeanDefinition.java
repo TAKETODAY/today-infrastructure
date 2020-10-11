@@ -227,13 +227,8 @@ public class FactoryBeanDefinition<T> implements BeanDefinition {
   }
 
   @Override
-  public Executable getExecutableTarget() {
-    return factoryDef.getExecutableTarget();
-  }
-
-  @Override
-  public BeanConstructor<?> getConstructor(BeanFactory factory) {
-    return factoryDef.getConstructor(factory);
+  public Object newInstance(final BeanFactory factory) {
+    return factoryDef.newInstance(factory);
   }
 
   public Supplier<FactoryBean<T>> getFactorySupplier() {

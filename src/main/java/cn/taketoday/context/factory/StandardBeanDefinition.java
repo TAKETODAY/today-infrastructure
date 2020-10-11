@@ -91,8 +91,7 @@ public class StandardBeanDefinition extends DefaultBeanDefinition implements Bea
     return this;
   }
 
-  @Override
-  public Executable getExecutableTarget() {
+  public Executable getExecutable() {
     return obtainFactoryMethod();
   }
 

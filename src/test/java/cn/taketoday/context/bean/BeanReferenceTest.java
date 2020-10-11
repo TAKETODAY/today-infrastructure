@@ -21,6 +21,8 @@ package cn.taketoday.context.bean;
 
 import org.junit.Test;
 
+import java.lang.reflect.Field;
+
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Autowired;
@@ -39,10 +41,12 @@ public class BeanReferenceTest {
     TEST test;
 
     @Test
-    public void testBeanReference() {
+    public void testBeanReference() throws NoSuchFieldException {
 
+        final Class<BeanReferenceTest> beanReferenceTestClass = BeanReferenceTest.class;
+        final Field declaredField = beanReferenceTestClass.getDeclaredField("test");
         try (ApplicationContext applicationContext = new StandardApplicationContext()) {
-            BeanReference beanReference = new BeanReference("tEST", true, TEST.class);
+            BeanReference beanReference = new BeanReference("tEST", true, declaredField);
 
             applicationContext.registerBean("beanReferenceTest", getClass());
 
@@ -54,8 +58,8 @@ public class BeanReferenceTest {
             System.err.println(value);
             assert value.equals(beanReference);
 
-            final BeanReference beanReference2 = new BeanReference("test", true, TEST.class);
-            final BeanReference beanReference3 = new BeanReference("test", true, TEST.class);
+            final BeanReference beanReference2 = new BeanReference("test", true, declaredField);
+            final BeanReference beanReference3 = new BeanReference("test", true, declaredField);
 
             assert beanReference2.equals(beanReference2);
             assert beanReference2.equals(beanReference3);
@@ -70,7 +74,7 @@ public class BeanReferenceTest {
             assert beanReference2.getReferenceClass().equals(TEST.class);
 
             try {
-                new BeanReference(null, true, TEST.class);
+                new BeanReference(null, true, null);
             }
             catch (ContextException e) {
                 assert e.getMessage().equals("Bean name can't be empty");
