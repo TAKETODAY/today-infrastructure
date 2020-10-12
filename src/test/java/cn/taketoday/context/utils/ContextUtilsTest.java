@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,21 +19,26 @@
  */
 package cn.taketoday.context.utils;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import java.util.Set;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.StandardApplicationContext;
@@ -51,240 +56,277 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * 
  * @author Today <br>
- *         2018-07-12 20:46:41
+ * 2018-07-12 20:46:41
  */
 public class ContextUtilsTest {
 
-    private long start;
+  private long start;
 
-    @Before
-    public void start() {
-        start = System.currentTimeMillis();
+  @Before
+  public void start() {
+    start = System.currentTimeMillis();
+  }
+
+  @After
+  public void end() {
+    System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
+  }
+
+  @Test
+  public void test_FindInProperties() throws ConfigurationException {
+
+    try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
+
+      Properties properties = applicationContext.getEnvironment().getProperties();
+
+      properties.setProperty("Name", "#{siteName}");
+      properties.setProperty("siteName", "#{site.name}");
+
+      String name = ContextUtils.resolvePlaceholder(properties, "/#{Name}\\");
+      String findInProperties = ContextUtils.resolvePlaceholder(properties, "/#{site.name}\\");
+      String findInProperties_ = ContextUtils.resolvePlaceholder(properties, "/TODAY BLOG\\");
+
+      assert findInProperties.equals(findInProperties_);
+      assert findInProperties.equals(name);
+      assert name.equals(findInProperties_);
+
+      System.err.println(name);
+      System.out.println(findInProperties);
+      System.out.println(findInProperties_);
     }
+  }
 
-    @After
-    public void end() {
-        System.out.println("process takes " + (System.currentTimeMillis() - start) + "ms.");
-    }
+  @Test
+  public void test_GetResourceAsStream() throws IOException {
+    InputStream resourceAsStream = ContextUtils.getResourceAsStream("info.properties");
 
-    @Test
-    public void test_FindInProperties() throws ConfigurationException {
+    assert resourceAsStream != null;
+  }
 
-        try (ApplicationContext applicationContext = new StandardApplicationContext("", "")) {
+  @Test
+  public void test_GetResourceAsProperties() throws IOException {
+    Properties resourceAsProperties = ContextUtils.getResourceAsProperties("info.properties");
+    assert "TODAY BLOG".equals(resourceAsProperties.getProperty("site.name"));
+  }
 
-            Properties properties = applicationContext.getEnvironment().getProperties();
+  @Test
+  public void test_GetUrlAsStream() throws IOException {
+    URL resource = ClassUtils.getClassLoader().getResource("info.properties");
 
-            properties.setProperty("Name", "#{siteName}");
-            properties.setProperty("siteName", "#{site.name}");
+    InputStream urlAsStream = ContextUtils.getUrlAsStream(resource.getProtocol() + ":" + resource.getPath());
 
-            String name = ContextUtils.resolvePlaceholder(properties, "/#{Name}\\");
-            String findInProperties = ContextUtils.resolvePlaceholder(properties, "/#{site.name}\\");
-            String findInProperties_ = ContextUtils.resolvePlaceholder(properties, "/TODAY BLOG\\");
+    assert resource.getProtocol().equals("file");
+    assert urlAsStream != null;
+  }
 
-            assert findInProperties.equals(findInProperties_);
-            assert findInProperties.equals(name);
-            assert name.equals(findInProperties_);
+  @Test
+  public void test_GetUrlAsProperties() throws IOException {
+    URL resource = ClassUtils.getClassLoader().getResource("info.properties");
+    Properties properties = ContextUtils.getUrlAsProperties(resource.getProtocol() + ":" + resource.getPath());
 
-            System.err.println(name);
-            System.out.println(findInProperties);
-            System.out.println(findInProperties_);
-        }
-    }
+    assert resource.getProtocol().equals("file");
+    assert "TODAY BLOG".equals(properties.getProperty("site.name"));
+  }
 
-    @Test
-    public void test_GetResourceAsStream() throws IOException {
-        InputStream resourceAsStream = ContextUtils.getResourceAsStream("info.properties");
+  @Props(prefix = "site.")
+  Config test;
 
-        assert resourceAsStream != null;
-    }
+  Config none;
 
-    @Test
-    public void test_GetResourceAsProperties() throws IOException {
-        Properties resourceAsProperties = ContextUtils.getResourceAsProperties("info.properties");
-        assert "TODAY BLOG".equals(resourceAsProperties.getProperty("site.name"));
-    }
+  @Test
+  @Props
+  public void testResolveProps() throws NoSuchFieldException, SecurityException, IOException, NoSuchMethodException {
 
-    @Test
-    public void test_GetUrlAsStream() throws IOException {
-        URL resource = ClassUtils.getClassLoader().getResource("info.properties");
+    Field declaredField = ContextUtilsTest.class.getDeclaredField("test");
+    Props declaredAnnotation = declaredField.getDeclaredAnnotation(Props.class);
 
-        InputStream urlAsStream = ContextUtils.getUrlAsStream(resource.getProtocol() + ":" + resource.getPath());
+    URL resource = ClassUtils.getClassLoader().getResource("info.properties");
+    Properties properties = ContextUtils.getUrlAsProperties(resource.getProtocol() + ":" + resource.getPath());
+    properties.list(System.err);
+    Config resolveProps = ContextUtils.resolveProps(declaredAnnotation, Config.class, properties);
 
-        assert resource.getProtocol().equals("file");
-        assert urlAsStream != null;
-    }
+    System.err.println(resolveProps);
 
-    @Test
-    public void test_GetUrlAsProperties() throws IOException {
-        URL resource = ClassUtils.getClassLoader().getResource("info.properties");
-        Properties properties = ContextUtils.getUrlAsProperties(resource.getProtocol() + ":" + resource.getPath());
+    assert "TODAY BLOG".equals(resolveProps.getDescription());
+    assert "https://cdn.taketoday.cn".equals(resolveProps.getCdn());
 
-        assert resource.getProtocol().equals("file");
-        assert "TODAY BLOG".equals(properties.getProperty("site.name"));
-    }
+    assert 21 == resolveProps.getAdmin().getAge();
+    assert "666".equals(resolveProps.getAdmin().getUserId());
+    assert "TODAY".equals(resolveProps.getAdmin().getUserName());
 
-    @Props(prefix = "site.")
-    Config test;
+    assert ContextUtils.resolveProps(ContextUtilsTest.class.getDeclaredField("none"), properties).equals(Collections.emptyList());
 
-    Config none;
+    ContextUtils.resolveProps(ContextUtilsTest.class.getMethod("testResolveProps"), properties);
+  }
 
-    @Test
-    @Props
-    public void testResolveProps() throws NoSuchFieldException, SecurityException, IOException, NoSuchMethodException {
+  @Test
+  public void testResolveParameter() throws Exception {
 
-        Field declaredField = ContextUtilsTest.class.getDeclaredField("test");
-        Props declaredAnnotation = declaredField.getDeclaredAnnotation(Props.class);
+    ClassUtils.clearCache();
+    try (ApplicationContext applicationContext = new StandardApplicationContext("", "cn.taketoday.context.utils")) {
 
-        URL resource = ClassUtils.getClassLoader().getResource("info.properties");
-        Properties properties = ContextUtils.getUrlAsProperties(resource.getProtocol() + ":" + resource.getPath());
-        properties.list(System.err);
-        Config resolveProps = ContextUtils.resolveProps(declaredAnnotation, Config.class, properties);
+      final Environment environment = applicationContext.getEnvironment();
+      // placeHolder
+      final Properties properties = environment.getProperties();
+      properties.setProperty("placeHolder", "12345");
 
-        System.err.println(resolveProps);
+      final Constructor<?>[] declaredConstructors = Config.class.getDeclaredConstructors();
+      Constructor<Config> constructor = (Constructor<Config>) declaredConstructors[0];
 
-        assert "TODAY BLOG".equals(resolveProps.getDescription());
-        assert "https://cdn.taketoday.cn".equals(resolveProps.getCdn());
+//      properties.list(System.err);
+//      System.err.println(properties.get("placeHolder"));
+      ContextUtils.setLastStartupContext(applicationContext);
 
-        assert 21 == resolveProps.getAdmin().getAge();
-        assert "666".equals(resolveProps.getAdmin().getUserId());
-        assert "TODAY".equals(resolveProps.getAdmin().getUserName());
+      Object[] parameters = ContextUtils.resolveParameter(constructor, applicationContext);
 
-        assert ContextUtils.resolveProps(ContextUtilsTest.class.getDeclaredField("none"), properties).equals(Collections.emptyList());
+      Config newInstance = constructor.newInstance(parameters);
 
-        ContextUtils.resolveProps(ContextUtilsTest.class.getMethod("testResolveProps"), properties);
-    }
+      assert parameters.length == 12;
 
-    @Test
-    public void testResolveParameter() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException {
+      assert parameters[0] instanceof UserModel;
 
-        ClassUtils.clearCache();
-        try (ApplicationContext applicationContext = new StandardApplicationContext("", "cn.taketoday.context.utils")) {
+      UserModel userModel = (UserModel) parameters[0];
+      assert userModel.getAge() == 21;
+      assert userModel.getUserId().equals("666");
+      assert userModel.getUserName().equals("TODAY");
 
-            final Environment environment = applicationContext.getEnvironment();
-            // placeHolder
-            final Properties properties = environment.getProperties();
-            properties.setProperty("placeHolder", "12345");
+      assert parameters[1] instanceof Properties;
 
-            Constructor<Config> constructor = //
-                    Config.class.getConstructor(UserModel.class, Properties.class, //
-                                                Properties.class, int.class, int.class);
+      // collection > 5
+      final List<Object> objectList = applicationContext.getBeans(Object.class);
+      final int allSize = objectList.size();
 
-            properties.list(System.err);
-            
-            System.err.println(properties.get("placeHolder"));
-            ContextUtils.setLastStartupContext(applicationContext);
+      final Object collectionParameter = parameters[5];
+      assert collectionParameter instanceof Collection;
+      final int size = ((Collection<?>) collectionParameter).size();
+      assert size == allSize;
 
-            Object[] resolveParameter = ContextUtils.resolveParameter(constructor, applicationContext);
+      final Object setParameter = parameters[6];
+      assert setParameter instanceof Set;
+      assert ((Set<?>) setParameter).size() == allSize;
 
-            Config newInstance = constructor.newInstance(resolveParameter);
-            System.err.println(newInstance);
+      final Object hashSetParameter = parameters[7];
+      assert hashSetParameter instanceof HashSet;
+      assert ((Set<?>) hashSetParameter).size() == allSize;
 
-            assert resolveParameter.length == 5;
+      final Object listParameter = parameters[8];
+      assert listParameter instanceof List;
+      assert ((List<?>) listParameter).size() == allSize;
 
-            assert resolveParameter[0] instanceof UserModel;
+      final Object arrayListParameter = parameters[9];
+      assert arrayListParameter instanceof ArrayList;
+      assert ((ArrayList<?>) arrayListParameter).size() == allSize;
 
-            UserModel userModel = (UserModel) resolveParameter[0];
-            assert userModel.getAge() == 21;
-            assert userModel.getUserId().equals("666");
-            assert userModel.getUserName().equals("TODAY");
+      final Object mapParameter = parameters[10];
+      assert mapParameter instanceof Map;
+      assert ((Map) mapParameter).size() == allSize;
 
-            assert resolveParameter[1] instanceof Properties;
-
-        }
-    }
-
-    @Getter
-    @Setter
-    @ToString
-    @NoArgsConstructor
-    public static class Config {
-
-        private String cdn;
-        private String icp;
-        private String host;
-        private File index;
-        private File upload;
-        private String keywords;
-        private String siteName;
-        private String copyright;
-        private File serverPath;
-        private String description;
-
-        @Props
-        UserModel admin;
-
-        public Config(@Props(prefix = "site.admin.") UserModel model, //
-                @Props(prefix = "site.") Properties properties, //
-                Properties emptyProperties, //
-                @Env("placeHolder") int placeHolderEnv,
-                @Value("#{placeHolder}") int placeHolder) //
-        {
-            assert placeHolder == 12345;
-            assert placeHolderEnv == 12345;
-            System.err.println("model -> " + model);
-            System.err.println(properties.getClass());
-        }
-    }
-
-    @Getter
-    @Setter
-    @ToString
-    @NoArgsConstructor
-    public static class UserModel {
-
-        private String userId;
-        private String userName;
-        private Integer age;
-    }
-
-    // -------------------------
-
-    @Singleton
-    public static class TestBean {
+      final Object hashMapParameter = parameters[11];
+      assert hashMapParameter instanceof HashMap;
+      assert ((HashMap) hashMapParameter).size() == allSize;
 
     }
+  }
 
-    @Test
-    public void testBuildBeanDefinitions() throws NoSuchFieldException, SecurityException, IOException {
-        try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.utils")) {
+  @Getter
+  @Setter
+  @ToString
+  public static class Config {
 
-            List<BeanDefinition> beanDefinitions = ContextUtils.createBeanDefinitions(null, getClass());
-            assert beanDefinitions.size() == 1;
+    public Config(
+            @Props(prefix = "site.admin.") UserModel model, //
+            @Props(prefix = "site.") Properties properties, //
+            Properties emptyProperties, //
+            @Env("placeHolder") int placeHolderEnv,
+            @Value("#{placeHolder}") int placeHolder,
 
-            beanDefinitions = ContextUtils.createBeanDefinitions(null, TestBean.class);
-            assert beanDefinitions.size() == 1;
-
-            final BeanDefinition beanDefinition = beanDefinitions.get(0);
-            beanDefinition.setDestroyMethods(null);
-            beanDefinition.setInitMethods((Method[]) null);
-            beanDefinition.setScope(null);
-            beanDefinition.setPropertyValues(null);
-
-            try {
-                ContextUtils.validateBeanDefinition(beanDefinition);
-            }
-            catch (ConfigurationException e) {
-                assert true;
-            }
-
-            StandardBeanDefinition standardBeanDefinition = new StandardBeanDefinition("", (Class<?>) null);
-            try {
-                ContextUtils.validateBeanDefinition(standardBeanDefinition);
-            }
-            catch (ConfigurationException e) {
-                assert true;
-            }
-            try {
-                ContextUtils.validateBeanDefinition(standardBeanDefinition.setDeclaringName("test"));
-            }
-            catch (ConfigurationException e) {
-                assert true;
-            }
-        }
-
+            Collection<Object> objects,
+            Set<Object> setObjects,
+            HashSet<Object> hashSetObjects,
+            List<Object> listObjects,
+            ArrayList<Object> arrayListObjects,
+            Map<String, Object> mapObjects,
+            HashMap<String, Object> hashMapObjects
+    ) {
+      assert placeHolder == 12345;
+      assert placeHolderEnv == 12345;
+      System.err.println("model -> " + model);
+      System.err.println(properties.getClass());
     }
+
+    public Config() {}
+
+    @Props UserModel admin;
+
+    private String cdn;
+    private String icp;
+    private String host;
+    private File index;
+    private File upload;
+    private String keywords;
+    private String siteName;
+    private String copyright;
+    private File serverPath;
+    private String description;
+  }
+
+  @Getter
+  @Setter
+  @ToString
+  @NoArgsConstructor
+  public static class UserModel {
+
+    private String userId;
+    private String userName;
+    private Integer age;
+  }
+
+  // -------------------------
+
+  @Singleton
+  public static class TestBean {
+
+  }
+
+  @Test
+  public void testBuildBeanDefinitions() throws NoSuchFieldException, SecurityException, IOException {
+    try (ApplicationContext applicationContext = new StandardApplicationContext("", "test.context.utils")) {
+
+      List<BeanDefinition> beanDefinitions = ContextUtils.createBeanDefinitions(null, getClass());
+      assert beanDefinitions.size() == 1;
+
+      beanDefinitions = ContextUtils.createBeanDefinitions(null, TestBean.class);
+      assert beanDefinitions.size() == 1;
+
+      final BeanDefinition beanDefinition = beanDefinitions.get(0);
+      beanDefinition.setDestroyMethods(null);
+      beanDefinition.setInitMethods((Method[]) null);
+      beanDefinition.setScope(null);
+      beanDefinition.setPropertyValues(null);
+
+      try {
+        ContextUtils.validateBeanDefinition(beanDefinition);
+      }
+      catch (ConfigurationException e) {
+        assert true;
+      }
+
+      StandardBeanDefinition standardBeanDefinition = new StandardBeanDefinition("", (Class<?>) null);
+      try {
+        ContextUtils.validateBeanDefinition(standardBeanDefinition);
+      }
+      catch (ConfigurationException e) {
+        assert true;
+      }
+      try {
+        ContextUtils.validateBeanDefinition(standardBeanDefinition.setDeclaringName("test"));
+      }
+      catch (ConfigurationException e) {
+        assert true;
+      }
+    }
+
+  }
 
 }

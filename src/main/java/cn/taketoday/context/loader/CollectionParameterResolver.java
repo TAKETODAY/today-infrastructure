@@ -71,7 +71,7 @@ public class CollectionParameterResolver
       if (Set.class == parameterType) {
         return new HashSet<>(beans);
       }
-      Set ret = (Set<?>) ClassUtils.newInstance(parameterType, beanFactory);
+      Collection ret = (Collection) ClassUtils.newInstance(parameterType, beanFactory);
       ret.addAll(beans);
       return ret;
     }
