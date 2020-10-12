@@ -172,8 +172,9 @@ public class ContextUtilsTest {
       properties.setProperty("placeHolder", "12345");
 
       final Constructor<?>[] declaredConstructors = Config.class.getDeclaredConstructors();
-      Constructor<Config> constructor = (Constructor<Config>) declaredConstructors[0];
-
+      Constructor<Config> constructor = (Constructor<Config>)
+              (declaredConstructors[0].getParameterCount() == 0 ? declaredConstructors[1]
+                                                                : declaredConstructors[0]);
 //      properties.list(System.err);
 //      System.err.println(properties.get("placeHolder"));
       ContextUtils.setLastStartupContext(applicationContext);
