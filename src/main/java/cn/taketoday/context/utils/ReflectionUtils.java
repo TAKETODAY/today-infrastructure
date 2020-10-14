@@ -28,6 +28,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.Constant;
@@ -942,11 +943,9 @@ public abstract class ReflectionUtils {
    */
   public static Collection<Field> getFields(Class<?> targetClass) {
 
-    final List<Field> list = new ArrayList<>(64);
+    final ArrayList<Field> list = new ArrayList<>(64);
     do {
-      for (final Field field : targetClass.getDeclaredFields()) {
-        list.add(field);
-      }
+      Collections.addAll(list, getDeclaredFields(targetClass));
     }
     while ((targetClass = targetClass.getSuperclass()) != Object.class && targetClass != null);
 
