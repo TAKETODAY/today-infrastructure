@@ -117,7 +117,7 @@ public class MapParameterResolver
     if (props == null && Properties.class.isAssignableFrom(parameter.getType())) {
       return new DefaultProps();
     }
-    return null;
+    return props;
   }
 
 }

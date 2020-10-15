@@ -47,6 +47,7 @@ import cn.taketoday.context.event.DependenciesHandledEvent;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
+import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.factory.AbstractBeanFactory;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.BeanFactory;
@@ -411,7 +412,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   protected void registerListener(Class<?> listenerClass) {
 
     if (!ApplicationListener.class.isAssignableFrom(listenerClass)) {
-      throw new ConfigurationException("ContextListener must be a 'ApplicationListener'");
+      throw new ConfigurationException("@ContextListener must be a 'ApplicationListener'");
     }
     try {
       final String name = getEnvironment().getBeanNameCreator().create(listenerClass);
@@ -423,6 +424,9 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
         registerSingleton(name, applicationListener);
       }
       addApplicationListener((ApplicationListener<?>) applicationListener);
+    }
+    catch (NoSuchBeanDefinitionException e) {
+      throw new ConfigurationException("It is best not to use constructor-injection when instantiating the listener", e);
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
