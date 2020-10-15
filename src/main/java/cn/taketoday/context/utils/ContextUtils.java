@@ -861,8 +861,9 @@ public abstract class ContextUtils {
     final List<String> destroyMethods = def != null ? Arrays.asList(def.getDestroyMethods()) : null;
 
     for (final Method method : ReflectionUtils.getDeclaredMethods(beanClass)) {
-      if ((destroyMethods != null && destroyMethods.contains(method.getName()))
-              || method.isAnnotationPresent(PreDestroy.class)) {// PreDestroy
+      if (((destroyMethods != null && destroyMethods.contains(method.getName()))
+              || method.isAnnotationPresent(PreDestroy.class)) // PreDestroy
+              && method.getParameterCount() == 0) { // 一个参数
         // fix: can not access a member @since 2.1.6
         makeAccessible(method).invoke(obj);
       }
@@ -929,7 +930,7 @@ public abstract class ContextUtils {
           final Class<?> beanClass,
           final ApplicationContext context
   ) {
-    return createBeanDefinitions(defaultName,beanClass, context.getEnvironment().getBeanDefinitionLoader());
+    return createBeanDefinitions(defaultName, beanClass, context.getEnvironment().getBeanDefinitionLoader());
   }
 
   public static List<BeanDefinition> createBeanDefinitions(
