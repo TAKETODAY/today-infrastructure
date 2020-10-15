@@ -43,6 +43,8 @@ public final class BeanReference {
   private boolean prototype = false;
   /** @since 3.0 */
   private final Field field;
+  /** @since 3.0 */
+  private BeanDefinition reference;
 
   public BeanReference(String name, boolean required, Field field) {
     if (StringUtils.isEmpty(name)) {
@@ -82,6 +84,16 @@ public final class BeanReference {
   /** @since 3.0 */
   public Field getProperty() {
     return field;
+  }
+
+  /** @since 3.0 */
+  public BeanDefinition getReference() {
+    return reference;
+  }
+
+  /** @since 3.0 */
+  public void setReference(BeanDefinition reference) {
+    this.reference = reference;
   }
 
   @Override

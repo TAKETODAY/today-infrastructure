@@ -238,7 +238,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    * to the singletons pool
    * </p>
    * <p>
-   *   Other scope will create directly
+   * Other scope will create directly
    * </p>
    *
    * @param def
@@ -329,6 +329,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
 
     if (fullPrototype && ref.isPrototype() && containsBeanDefinition(name)) {
       return Prototypes.newProxyInstance(type, getBeanDefinition(name), this);
+    }
+    final BeanDefinition reference = ref.getReference();
+    if (reference != null) {
+      return getBean(reference);
     }
     final Object bean = getBean(name, type);
     return bean != null ? bean : doGetBeanForType(type);
@@ -750,18 +754,12 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
 
     for (final PropertyValue propertyValue : getDependencies()) {
 
-      final Class<?> propertyType = propertyValue.getField().getType();
-
-      // Abstract
-      if (!Modifier.isAbstract(propertyType.getModifiers())) {
-        continue;
-      }
-
       final BeanReference ref = (BeanReference) propertyValue.getValue();
       final String beanName = ref.getName();
 
       // fix: #2 when handle dependency some bean definition has already exist
       if (containsBeanDefinition(beanName)) {
+        ref.setReference(getBeanDefinition(beanName));
         continue;
       }
 
@@ -771,11 +769,14 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
       final BeanDefinition handleDef = handleDependency(ref);
       if (handleDef != null) {
         registerBeanDefinition(beanName, handleDef);
+        ref.setReference(handleDef);
         continue;
       }
 
       // handle dependency which is interface and parent object
       // --------------------------------------------------------
+
+      final Class<?> propertyType = ref.getReferenceClass();
 
       // find child beans
       final List<BeanDefinition> childDefs = doGetChildDefinition(beanName, propertyType);
@@ -785,7 +786,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
         if (log.isDebugEnabled()) {
           log.debug("Found The Implementation Of [{}] Bean: [{}].", beanName, childDef.getName());
         }
-        registerBeanDefinition(beanName, new DefaultBeanDefinition(beanName, childDef));
+
+        DefaultBeanDefinition def = new DefaultBeanDefinition(beanName, childDef);
+        registerBeanDefinition(beanName, def);
+        ref.setReference(def);
         continue;
       }
 
@@ -874,52 +878,6 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
     }
 
     return null;
-  }
-
-  interface DependencyResolver {
-
-    boolean supports(BeanReference ref);
-
-    BeanDefinition resolve(BeanReference ref, BeanFactory factory);
-
-  }
-
-  class ListDependencyResolver implements DependencyResolver {
-
-    @Override
-    public boolean supports(final BeanReference ref) {
-      return List.class.isAssignableFrom(ref.getReferenceClass());
-    }
-
-    @Override
-    public BeanDefinition resolve(final BeanReference ref, final BeanFactory factory) {
-      final Class<?> referenceClass = ref.getReferenceClass();
-      if (List.class == referenceClass) {
-
-      }
-      List<?> beans = new ArrayList<>();
-
-      final Field property = ref.getProperty();
-      final java.lang.reflect.Type aClass = ClassUtils.getGenericityClass(property)[0];
-      if (aClass instanceof WildcardType) {
-
-      }
-
-      final List objects = getBeans((Class) aClass);
-      beans.addAll(objects);
-
-      return null;
-    }
-  }
-
-
-  class RefBeanDefinition extends DefaultBeanDefinition {
-
-    public RefBeanDefinition(String name, Class<?> beanClass) {
-      super(name, beanClass);
-      setScope(Constant.REFERENCE);
-    }
-
   }
 
   /**
