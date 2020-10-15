@@ -129,6 +129,8 @@ public final class BeanReference {
     builder.append(required);
     builder.append("\",\n\t\"referenceClass\":\"");
     builder.append(referenceClass);
+    builder.append("\",\n\t\"field\":\"");
+    builder.append(field);
     builder.append("\",\n\t\"prototype\":\"");
     builder.append(isPrototype());
     builder.append("\"\n}");

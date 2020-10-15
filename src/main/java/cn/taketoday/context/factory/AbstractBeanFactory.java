@@ -794,7 +794,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
       }
 
       if (ref.isRequired()) {
-        throw new ConfigurationException("Context does not exist for this type:[" + propertyType + "] of bean");
+        throw new ConfigurationException("Context does not exist for this reference:[" + ref + "] of bean");
       }
     }
   }
