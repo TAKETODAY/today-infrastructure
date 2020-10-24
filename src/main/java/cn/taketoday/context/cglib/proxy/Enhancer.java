@@ -42,6 +42,7 @@ import cn.taketoday.context.asm.Label;
 import cn.taketoday.context.asm.MethodVisitor;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.CodeGenerationException;
@@ -57,7 +58,6 @@ import cn.taketoday.context.cglib.core.MethodWrapper;
 import cn.taketoday.context.cglib.core.NamingPolicy;
 import cn.taketoday.context.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.context.cglib.core.ProcessSwitchCallback;
-import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.RejectModifierPredicate;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
@@ -630,7 +630,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     if (superclass != null) {
       return superclass.getClassLoader();
     }
-    if (interfaces != null) {
+    if (ObjectUtils.isNotEmpty(interfaces)) {
       return interfaces[0].getClassLoader();
     }
     return null;
@@ -641,7 +641,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     if (superclass != null) {
       return CglibReflectUtils.getProtectionDomain(superclass);
     }
-    if (interfaces != null) {
+    if (ObjectUtils.isNotEmpty(interfaces)) {
       return CglibReflectUtils.getProtectionDomain(interfaces[0]);
     }
     return null;
@@ -670,9 +670,13 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     getMethods(superclass, interfaces, methods, null, null);
   }
 
-  private static void getMethods(Class<?> superclass, //
-                                 Class<?>[] interfaces, List<Method> methods, List<Method> interfaceMethods, Set<Object> forcePublic)//
-  {
+  private static void getMethods(
+          Class<?> superclass,
+          Class<?>[] interfaces,
+          List<Method> methods,
+          List<Method> interfaceMethods,
+          Set<Object> forcePublic
+  ) {
 
     CglibReflectUtils.addAllMethods(superclass, methods);
 

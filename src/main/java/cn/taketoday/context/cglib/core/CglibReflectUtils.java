@@ -392,23 +392,6 @@ public abstract class CglibReflectUtils {
     }
   }
 
-  public static Method findDeclaredMethod(final Class<?> type,
-                                          final String methodName,
-                                          final Class<?>[] parameterTypes) throws NoSuchMethodException {
-
-    Class<?> cl = type;
-    while (cl != null) {
-      try {
-        return cl.getDeclaredMethod(methodName, parameterTypes);
-      }
-      catch (NoSuchMethodException e) {
-        cl = cl.getSuperclass();
-      }
-    }
-    throw new NoSuchMethodException(methodName);
-
-  }
-
   public static List<Method> addAllMethods(final Class<?> type, final List<Method> list) {
 
     if (type == Object.class) {

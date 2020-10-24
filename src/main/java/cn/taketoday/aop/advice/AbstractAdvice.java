@@ -53,8 +53,8 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
   private final Class<?>[] adviceParameterTypes;
 
   public AbstractAdvice(Method adviceMethod, Object aspect) {
-    Assert.notNull(aspect, "");
-    Assert.notNull(adviceMethod, "");
+    Assert.notNull(aspect, "aspect must not be null");
+    Assert.notNull(adviceMethod, "adviceMethod must not be null");
 
     this.aspect = aspect;
     this.invoker = MethodInvoker.create(adviceMethod);

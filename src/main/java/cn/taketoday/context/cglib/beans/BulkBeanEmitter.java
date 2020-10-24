@@ -22,14 +22,15 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.Block;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.Local;
 import cn.taketoday.context.cglib.core.MethodInfo;
-import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 
 @SuppressWarnings("all")
 class BulkBeanEmitter extends ClassEmitter {
@@ -41,14 +42,13 @@ class BulkBeanEmitter extends ClassEmitter {
   private static final Type BULK_BEAN = TypeUtils.parseType(BulkBean.class);
   private static final Type BULK_BEAN_EXCEPTION = TypeUtils.parseType(BulkBeanException.class);
 
-  public BulkBeanEmitter(//
-                         ClassVisitor v, //
-                         String className, //
-                         Class target, //
-                         String[] getterNames, //
+  public BulkBeanEmitter(ClassVisitor v,
+                         String className,
+                         Class target,
+                         String[] getterNames,
                          String[] setterNames,
-                         Class[] types) //
-  {
+                         Class[] types
+  ) {
     super(v);
 
     Method[] getters = new Method[getterNames.length];
@@ -140,36 +140,46 @@ class BulkBeanEmitter extends ClassEmitter {
     e.end_method();
   }
 
-  private static void validate(Class target, String[] getters, String[] setters, Class[] types, Method[] getters_out,
-                               Method[] setters_out) {
+  private static void validate(Class target,
+                               String[] getters,
+                               String[] setters,
+                               Class[] types,
+                               Method[] getters_out,
+                               Method[] setters_out
+  ) {
     int i = -1;
     if (setters.length != types.length || getters.length != types.length) {
       throw new BulkBeanException("accessor array length must be equal type array length", i);
     }
-    try {
-      for (i = 0; i < types.length; i++) {
-        if (getters[i] != null) {
-          Method method = CglibReflectUtils.findDeclaredMethod(target, getters[i], null);
-          if (method.getReturnType() != types[i]) {
-            throw new BulkBeanException("Specified type " + types[i] + " does not match declared type " + method
-                    .getReturnType(), i);
-          }
-          if (Modifier.isPrivate(method.getModifiers())) {
-            throw new BulkBeanException("Property is private", i);
-          }
-          getters_out[i] = method;
+    for (i = 0; i < types.length; i++) {
+      if (getters[i] != null) {
+        Method method = getMethod(target, getters[i], null, i);
+        if (method.getReturnType() != types[i]) {
+          throw new BulkBeanException("Specified type " + types[i] + " does not match declared type " + method
+                  .getReturnType(), i);
         }
-        if (setters[i] != null) {
-          Method method = CglibReflectUtils.findDeclaredMethod(target, setters[i], new Class[] { types[i] });
-          if (Modifier.isPrivate(method.getModifiers())) {
-            throw new BulkBeanException("Property is private", i);
-          }
-          setters_out[i] = method;
+        if (Modifier.isPrivate(method.getModifiers())) {
+          throw new BulkBeanException("Property is private", i);
         }
+        getters_out[i] = method;
+      }
+      if (setters[i] != null) {
+        Method method = getMethod(target, setters[i], new Class[] { types[i] }, i);
+        if (Modifier.isPrivate(method.getModifiers())) {
+          throw new BulkBeanException("Property is private", i);
+        }
+        setters_out[i] = method;
       }
     }
-    catch (NoSuchMethodException e) {
-      throw new BulkBeanException("Cannot find specified property", i);
+  }
+
+  private static Method getMethod(
+          final Class<?> type, final String methodName, final Class<?>[] parameterTypes, int index
+  ) {
+    final Method method = ReflectionUtils.findMethod(type, methodName, parameterTypes);
+    if (method == null) {
+      throw new BulkBeanException("Cannot find specified property", index);
     }
+    return method;
   }
 }
