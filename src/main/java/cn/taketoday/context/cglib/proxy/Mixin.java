@@ -23,9 +23,9 @@ import java.util.Map;
 
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassesKey;
 import cn.taketoday.context.cglib.core.KeyFactory;
-import cn.taketoday.context.cglib.core.CglibReflectUtils;
 
 /**
  * <code>Mixin</code> allows multiple objects to be combined into a single
@@ -36,20 +36,20 @@ import cn.taketoday.context.cglib.core.CglibReflectUtils;
  * @version $Id: Mixin.java,v 1.7 2005/09/27 11:42:27 baliuka Exp $
  */
 //@SuppressWarnings("all")
-abstract public class Mixin {
+public abstract class Mixin {
 
   private static final MixinKey KEY_FACTORY = KeyFactory.create(MixinKey.class, KeyFactory.CLASS_BY_NAME);
-  private static final Map ROUTE_CACHE = Collections.synchronizedMap(new HashMap());
+  private static final Map<Object, Route> ROUTE_CACHE = Collections.synchronizedMap(new HashMap<>());
 
   public static final int STYLE_INTERFACES = 0;
   public static final int STYLE_BEANS = 1;
   public static final int STYLE_EVERYTHING = 2;
 
   interface MixinKey {
-    public Object newInstance(int style, String[] classes, int[] route);
+    Object newInstance(int style, String[] classes, int[] route);
   }
 
-  abstract public Mixin newInstance(Object[] delegates);
+  public abstract Mixin newInstance(Object[] delegates);
 
   /**
    * Helper method to create an interface mixin. For finer control over the
@@ -195,7 +195,7 @@ abstract public class Mixin {
   }
 
   public static Class[] getClasses(Object[] delegates) {
-    return (Class[]) route(delegates).classes.clone();
+    return route(delegates).classes.clone();
   }
 
 //     public static int[] getRoute(Object[] delegates) {
@@ -204,7 +204,7 @@ abstract public class Mixin {
 
   private static Route route(Object[] delegates) {
     Object key = ClassesKey.create(delegates);
-    Route route = (Route) ROUTE_CACHE.get(key);
+    Route route = ROUTE_CACHE.get(key);
     if (route == null) {
       ROUTE_CACHE.put(key, route = new Route(delegates));
     }
