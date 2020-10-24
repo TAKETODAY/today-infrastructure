@@ -341,7 +341,7 @@ public abstract class ConvertUtils {
     }
 
     @Override
-    public Object convert(Class<?> targetClass, Object source) throws ConversionException {
+    public Object convert(Class<?> targetClass, Object source) {
 
       final Object[] sources = (Object[]) source;
 
@@ -407,7 +407,7 @@ public abstract class ConvertUtils {
     }
 
     @Override
-    public Object convert(Class<?> targetClass, Object source) throws ConversionException {
+    public Object convert(Class<?> targetClass, Object source) {
       return source; // auto convert
     }
   }
