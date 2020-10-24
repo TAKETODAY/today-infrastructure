@@ -26,7 +26,7 @@ import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.KeyFactory;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
 import static cn.taketoday.context.Constant.SOURCE_FILE;
@@ -88,13 +88,13 @@ abstract public class ConstructorDelegate {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return ReflectUtils.getProtectionDomain(targetClass);
+      return CglibReflectUtils.getProtectionDomain(targetClass);
     }
 
     public void generateClass(ClassVisitor v) {
       setNamePrefix(targetClass.getName());
 
-      final Method newInstance = ReflectUtils.findNewInstance(iface);
+      final Method newInstance = CglibReflectUtils.findNewInstance(iface);
       if (!newInstance.getReturnType().isAssignableFrom(targetClass)) {
         throw new IllegalArgumentException("incompatible return type");
       }
@@ -111,19 +111,19 @@ abstract public class ConstructorDelegate {
 
       Type declaring = getType(constructor.getDeclaringClass());
       EmitUtils.nullConstructor(ce);
-      CodeEmitter e = ce.beginMethod(ACC_PUBLIC, ReflectUtils.getSignature(newInstance),
-                                     ReflectUtils.getExceptionTypes(newInstance));
+      CodeEmitter e = ce.beginMethod(ACC_PUBLIC, CglibReflectUtils.getSignature(newInstance),
+                                     CglibReflectUtils.getExceptionTypes(newInstance));
       e.new_instance(declaring);
       e.dup();
       e.load_args();
-      e.invoke_constructor(declaring, ReflectUtils.getSignature(constructor));
+      e.invoke_constructor(declaring, CglibReflectUtils.getSignature(constructor));
       e.return_value();
       e.end_method();
       ce.endClass();
     }
 
     protected Object firstInstance(Class type) {
-      return ReflectUtils.newInstance(type);
+      return CglibReflectUtils.newInstance(type);
     }
 
     protected Object nextInstance(Object instance) {

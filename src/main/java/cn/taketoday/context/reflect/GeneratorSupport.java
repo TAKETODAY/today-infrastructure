@@ -29,7 +29,7 @@ import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.CodeGenerationException;
 import cn.taketoday.context.cglib.core.DefaultGeneratorStrategy;
 import cn.taketoday.context.cglib.core.EmitUtils;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
@@ -79,7 +79,7 @@ abstract class GeneratorSupport<T> {
   protected Class<T> generateClass(final ClassLoader classLoader) {
     try {
       final byte[] b = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
-      return ReflectUtils.defineClass(getClassName(), b, classLoader, ReflectUtils.getProtectionDomain(targetClass));
+      return CglibReflectUtils.defineClass(getClassName(), b, classLoader, CglibReflectUtils.getProtectionDomain(targetClass));
     }
     catch (Exception e) {
       throw new CodeGenerationException(e);

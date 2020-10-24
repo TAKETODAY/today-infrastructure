@@ -22,7 +22,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.CodeGenerationException;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.cglib.transform.ClassEmitterTransformer;
@@ -122,7 +122,7 @@ public class AddDelegateTransformer extends ClassEmitterTransformer {
       throw new CodeGenerationException(e);
     }
 
-    final Signature sig = ReflectUtils.getSignature(m);
+    final Signature sig = CglibReflectUtils.getSignature(m);
     Type[] exceptions = TypeUtils.getTypes(m.getExceptionTypes());
     CodeEmitter e = super.beginMethod(Constant.ACC_PUBLIC, sig, exceptions);
     e.load_this();

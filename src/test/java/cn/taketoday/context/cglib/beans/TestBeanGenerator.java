@@ -17,7 +17,7 @@ package cn.taketoday.context.cglib.beans;
 
 import java.beans.PropertyDescriptor;
 
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -32,7 +32,7 @@ public class TestBeanGenerator extends TestCase {
         bg.addProperty("sin", Double.TYPE);
         Object bean = bg.create();
 
-        PropertyDescriptor[] pds = ReflectUtils.getBeanProperties(bean.getClass());
+        PropertyDescriptor[] pds = CglibReflectUtils.getBeanProperties(bean.getClass());
         assertTrue(pds.length == 1);
         assertTrue(pds[0].getName().equals("sin"));
         assertTrue(pds[0].getPropertyType().equals(Double.TYPE));

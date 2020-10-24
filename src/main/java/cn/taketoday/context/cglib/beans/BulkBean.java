@@ -20,7 +20,7 @@ import java.security.ProtectionDomain;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.KeyFactory;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 
 /**
  * @author Juozas Baliuka
@@ -103,14 +103,14 @@ abstract public class BulkBean {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return ReflectUtils.getProtectionDomain(target);
+      return CglibReflectUtils.getProtectionDomain(target);
     }
 
     public BulkBean create() {
 
       setNamePrefix(target.getName());
       String targetClassName = target.getName();
-      String[] typeClassNames = ReflectUtils.getNames(types);
+      String[] typeClassNames = CglibReflectUtils.getNames(types);
       Object key = KEY_FACTORY.newInstance(targetClassName, getters, setters, typeClassNames);
       return (BulkBean) super.create(key);
     }
@@ -120,7 +120,7 @@ abstract public class BulkBean {
     }
 
     protected Object firstInstance(Class type) {
-      BulkBean instance = (BulkBean) ReflectUtils.newInstance(type);
+      BulkBean instance = (BulkBean) CglibReflectUtils.newInstance(type);
       instance.target = target;
 
       int length = getters.length;

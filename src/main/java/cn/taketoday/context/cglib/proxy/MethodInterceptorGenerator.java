@@ -33,7 +33,7 @@ import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.Local;
 import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.ObjectSwitchCallback;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.Transformer;
 import cn.taketoday.context.cglib.core.TypeUtils;
@@ -58,7 +58,7 @@ class MethodInterceptorGenerator implements CallbackGenerator {
   private static final Type METHOD = TypeUtils.parseType(Method.class);
   private static final Type ABSTRACT_METHOD_ERROR = TypeUtils.parseType(AbstractMethodError.class);
 
-  private static final Type REFLECT_UTILS = TypeUtils.parseType(ReflectUtils.class);
+  private static final Type REFLECT_UTILS = TypeUtils.parseType(CglibReflectUtils.class);
   private static final Type METHOD_PROXY = TypeUtils.parseType(MethodProxy.class);
   private static final Type METHOD_INTERCEPTOR = TypeUtils.parseType(MethodInterceptor.class);
 

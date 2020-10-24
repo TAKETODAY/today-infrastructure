@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Type;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.transform.ClassFilter;
 import cn.taketoday.context.cglib.transform.ClassTransformer;
 import cn.taketoday.context.cglib.transform.ClassTransformerChain;
@@ -65,7 +65,7 @@ public class TestTransformingLoader extends cn.taketoday.context.cglib.CodeGenTe
     }
 
     public void testAddStatic() throws Exception {
-        Method m = ReflectUtils.findMethod("cn.taketoday.context.cglib.transform.impl.TestTransformingLoader.initStatic(Class)");
+        Method m = CglibReflectUtils.findMethod("cn.taketoday.context.cglib.transform.impl.TestTransformingLoader.initStatic(Class)");
         ClassTransformer t = new AddStaticInitTransformer(m);
         // t = new ClassTransformerChain(new ClassTransformer[]{ t, new
         // ClassTransformerTee(new org.objectweb.asm.util.TraceClassVisitor(null, new

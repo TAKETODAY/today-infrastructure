@@ -20,7 +20,7 @@ import java.util.Comparator;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.ClassesKey;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 
 /**
  * For the efficient sorting of multiple arrays in parallel.
@@ -368,7 +368,7 @@ abstract public class ParallelSorter extends SorterTemplate {
 
     @Override
     protected Object firstInstance(Class type) {
-      return ((ParallelSorter) ReflectUtils.newInstance(type)).newInstance(arrays);
+      return ((ParallelSorter) CglibReflectUtils.newInstance(type)).newInstance(arrays);
     }
 
     @Override

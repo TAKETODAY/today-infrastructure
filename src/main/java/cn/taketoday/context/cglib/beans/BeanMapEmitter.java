@@ -29,7 +29,7 @@ import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.ObjectSwitchCallback;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
@@ -58,8 +58,8 @@ class BeanMapEmitter extends ClassEmitter {
     EmitUtils.factoryMethod(this, NEW_INSTANCE);
     generateConstructor();
 
-    final Map getters = makePropertyMap(ReflectUtils.getBeanGetters(type));
-    final Map setters = makePropertyMap(ReflectUtils.getBeanSetters(type));
+    final Map getters = makePropertyMap(CglibReflectUtils.getBeanGetters(type));
+    final Map setters = makePropertyMap(CglibReflectUtils.getBeanSetters(type));
     final Map allProps = new HashMap();
     allProps.putAll(getters);
     allProps.putAll(setters);
@@ -115,7 +115,7 @@ class BeanMapEmitter extends ClassEmitter {
     EmitUtils.stringSwitch(e, getNames(getters), Constant.SWITCH_STYLE_HASH, new ObjectSwitchCallback() {
       public void processCase(Object key, Label end) {
         PropertyDescriptor pd = (PropertyDescriptor) getters.get(key);
-        MethodInfo method = ReflectUtils.getMethodInfo(pd.getReadMethod());
+        MethodInfo method = CglibReflectUtils.getMethodInfo(pd.getReadMethod());
         e.invoke(method);
         e.box(method.getSignature().getReturnType());
         e.return_value();
@@ -142,14 +142,14 @@ class BeanMapEmitter extends ClassEmitter {
           e.aconst_null();
         }
         else {
-          MethodInfo read = ReflectUtils.getMethodInfo(pd.getReadMethod());
+          MethodInfo read = CglibReflectUtils.getMethodInfo(pd.getReadMethod());
           e.dup();
           e.invoke(read);
           e.box(read.getSignature().getReturnType());
         }
         e.swap(); // move old value behind bean
         e.load_arg(2); // new value
-        MethodInfo write = ReflectUtils.getMethodInfo(pd.getWriteMethod());
+        MethodInfo write = CglibReflectUtils.getMethodInfo(pd.getWriteMethod());
         e.unbox(write.getSignature().getArgumentTypes()[0]);
         e.invoke(write);
         e.return_value();

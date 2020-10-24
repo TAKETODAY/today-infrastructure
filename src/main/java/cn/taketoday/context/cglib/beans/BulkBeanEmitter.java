@@ -27,7 +27,7 @@ import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.Local;
 import cn.taketoday.context.cglib.core.MethodInfo;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
@@ -71,7 +71,7 @@ class BulkBeanEmitter extends ClassEmitter {
       e.store_local(bean);
       for (int i = 0; i < getters.length; i++) {
         if (getters[i] != null) {
-          MethodInfo getter = ReflectUtils.getMethodInfo(getters[i]);
+          MethodInfo getter = CglibReflectUtils.getMethodInfo(getters[i]);
           e.load_arg(1);
           e.push(i);
           e.load_local(bean);
@@ -99,7 +99,7 @@ class BulkBeanEmitter extends ClassEmitter {
       int lastIndex = 0;
       for (int i = 0; i < setters.length; i++) {
         if (setters[i] != null) {
-          MethodInfo setter = ReflectUtils.getMethodInfo(setters[i]);
+          MethodInfo setter = CglibReflectUtils.getMethodInfo(setters[i]);
           int diff = i - lastIndex;
           if (diff > 0) {
             e.iinc(index, diff);
@@ -149,7 +149,7 @@ class BulkBeanEmitter extends ClassEmitter {
     try {
       for (i = 0; i < types.length; i++) {
         if (getters[i] != null) {
-          Method method = ReflectUtils.findDeclaredMethod(target, getters[i], null);
+          Method method = CglibReflectUtils.findDeclaredMethod(target, getters[i], null);
           if (method.getReturnType() != types[i]) {
             throw new BulkBeanException("Specified type " + types[i] + " does not match declared type " + method
                     .getReturnType(), i);
@@ -160,7 +160,7 @@ class BulkBeanEmitter extends ClassEmitter {
           getters_out[i] = method;
         }
         if (setters[i] != null) {
-          Method method = ReflectUtils.findDeclaredMethod(target, setters[i], new Class[] { types[i] });
+          Method method = CglibReflectUtils.findDeclaredMethod(target, setters[i], new Class[] { types[i] });
           if (Modifier.isPrivate(method.getModifiers())) {
             throw new BulkBeanException("Property is private", i);
           }

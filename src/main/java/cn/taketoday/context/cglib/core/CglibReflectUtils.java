@@ -48,12 +48,12 @@ import static java.security.AccessController.doPrivileged;
  * @version $Id: ReflectUtils.java,v 1.30 2009/01/11 19:47:49 herbyderby Exp $
  */
 @SuppressWarnings("all")
-public abstract class ReflectUtils {
+public abstract class CglibReflectUtils {
 
   private static final HashMap<String, Class> primitives = new HashMap<>();
   private static final HashMap<String, String> transforms = new HashMap<>();
 
-  private static final ClassLoader defaultLoader = ReflectUtils.class.getClassLoader();
+  private static final ClassLoader defaultLoader = CglibReflectUtils.class.getClassLoader();
   private static Method DEFINE_CLASS, DEFINE_CLASS_UNSAFE;
   private static final ProtectionDomain PROTECTION_DOMAIN;
   private static final Object UNSAFE;
@@ -68,7 +68,7 @@ public abstract class ReflectUtils {
     Object unsafe;
     Throwable throwable = null;
     try {
-      protectionDomain = getProtectionDomain(ReflectUtils.class);
+      protectionDomain = getProtectionDomain(CglibReflectUtils.class);
       try {
         defineClass = doPrivileged((PrivilegedExceptionAction<Method>) () -> {
           final Class loader = Class.forName("java.lang.ClassLoader"); // JVM crash w/o this
@@ -485,7 +485,7 @@ public abstract class ReflectUtils {
       private ClassInfo ci;
 
       public ClassInfo getClassInfo() {
-        if (ci == null) ci = ReflectUtils.getClassInfo(member.getDeclaringClass());
+        if (ci == null) ci = CglibReflectUtils.getClassInfo(member.getDeclaringClass());
         return ci;
       }
 
@@ -498,7 +498,7 @@ public abstract class ReflectUtils {
       }
 
       public Type[] getExceptionTypes() {
-        return ReflectUtils.getExceptionTypes(member);
+        return CglibReflectUtils.getExceptionTypes(member);
       }
 
       public Attribute getAttribute() {

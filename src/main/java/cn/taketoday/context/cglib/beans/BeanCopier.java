@@ -31,7 +31,7 @@ import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.KeyFactory;
 import cn.taketoday.context.cglib.core.Local;
 import cn.taketoday.context.cglib.core.MethodInfo;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
@@ -97,7 +97,7 @@ abstract public class BeanCopier {
 
     @Override
     protected ProtectionDomain getProtectionDomain() {
-      return ReflectUtils.getProtectionDomain(source);
+      return CglibReflectUtils.getProtectionDomain(source);
     }
 
     public BeanCopier create() {
@@ -114,8 +114,8 @@ abstract public class BeanCopier {
 
       EmitUtils.nullConstructor(ce);
       CodeEmitter e = ce.beginMethod(ACC_PUBLIC, COPY);
-      PropertyDescriptor[] getters = ReflectUtils.getBeanGetters(source);
-      PropertyDescriptor[] setters = ReflectUtils.getBeanSetters(target);
+      PropertyDescriptor[] getters = CglibReflectUtils.getBeanGetters(source);
+      PropertyDescriptor[] setters = CglibReflectUtils.getBeanSetters(target);
 
       Map names = new HashMap();
       for (int i = 0; i < getters.length; i++) {
@@ -141,8 +141,8 @@ abstract public class BeanCopier {
         PropertyDescriptor setter = setters[i];
         PropertyDescriptor getter = (PropertyDescriptor) names.get(setter.getName());
         if (getter != null) {
-          MethodInfo read = ReflectUtils.getMethodInfo(getter.getReadMethod());
-          MethodInfo write = ReflectUtils.getMethodInfo(setter.getWriteMethod());
+          MethodInfo read = CglibReflectUtils.getMethodInfo(getter.getReadMethod());
+          MethodInfo write = CglibReflectUtils.getMethodInfo(setter.getWriteMethod());
           if (useConverter) {
             Type setterType = write.getSignature().getArgumentTypes()[0];
             e.load_local(targetLocal);
@@ -175,7 +175,7 @@ abstract public class BeanCopier {
 
     @Override
     protected Object firstInstance(Class type) {
-      return ReflectUtils.newInstance(type);
+      return CglibReflectUtils.newInstance(type);
     }
 
     @Override

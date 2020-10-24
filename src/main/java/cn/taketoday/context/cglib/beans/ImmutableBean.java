@@ -27,7 +27,7 @@ import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.MethodInfo;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
@@ -67,7 +67,7 @@ public abstract class ImmutableBean {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return ReflectUtils.getProtectionDomain(target);
+      return CglibReflectUtils.getProtectionDomain(target);
     }
 
     public Object create() {
@@ -93,12 +93,12 @@ public abstract class ImmutableBean {
       e.return_value();
       e.end_method();
 
-      PropertyDescriptor[] descriptors = ReflectUtils.getBeanProperties(target);
-      Method[] getters = ReflectUtils.getPropertyMethods(descriptors, true, false);
-      Method[] setters = ReflectUtils.getPropertyMethods(descriptors, false, true);
+      PropertyDescriptor[] descriptors = CglibReflectUtils.getBeanProperties(target);
+      Method[] getters = CglibReflectUtils.getPropertyMethods(descriptors, true, false);
+      Method[] setters = CglibReflectUtils.getPropertyMethods(descriptors, false, true);
 
       for (int i = 0; i < getters.length; i++) {
-        MethodInfo getter = ReflectUtils.getMethodInfo(getters[i]);
+        MethodInfo getter = CglibReflectUtils.getMethodInfo(getters[i]);
         e = EmitUtils.beginMethod(ce, getter, Constant.ACC_PUBLIC);
         e.load_this();
         e.getfield(FIELD_NAME);
@@ -108,7 +108,7 @@ public abstract class ImmutableBean {
       }
 
       for (int i = 0; i < setters.length; i++) {
-        MethodInfo setter = ReflectUtils.getMethodInfo(setters[i]);
+        MethodInfo setter = CglibReflectUtils.getMethodInfo(setters[i]);
         e = EmitUtils.beginMethod(ce, setter, Constant.ACC_PUBLIC);
         e.throw_exception(ILLEGAL_STATE_EXCEPTION, "Bean is immutable");
         e.end_method();
@@ -118,7 +118,7 @@ public abstract class ImmutableBean {
     }
 
     protected Object firstInstance(Class type) {
-      return ReflectUtils.newInstance(type, OBJECT_CLASSES, new Object[] { bean });
+      return CglibReflectUtils.newInstance(type, OBJECT_CLASSES, new Object[] { bean });
     }
 
     // TODO: optimize

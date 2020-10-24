@@ -16,7 +16,7 @@
 package cn.taketoday.context.cglib;
 
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 
 abstract public class TestGenerator extends AbstractClassGenerator {
     private static int counter;
@@ -30,7 +30,7 @@ abstract public class TestGenerator extends AbstractClassGenerator {
     }
 
     protected Object firstInstance(Class type) throws Exception {
-        return ReflectUtils.newInstance(type);
+        return CglibReflectUtils.newInstance(type);
     }
 
     protected Object nextInstance(Object instance) throws Exception {

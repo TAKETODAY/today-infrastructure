@@ -28,7 +28,7 @@ import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.KeyFactory;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 
 import static cn.taketoday.context.Constant.TYPE_OBJECT;
 import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
@@ -85,7 +85,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
 
   @Override
   protected ProtectionDomain getProtectionDomain() {
-    return ReflectUtils.getProtectionDomain(superclass);
+    return CglibReflectUtils.getProtectionDomain(superclass);
   }
 
   public Object create() {
@@ -137,7 +137,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
     if (classOnly) {
       return type;
     }
-    return ReflectUtils.newInstance(type);
+    return CglibReflectUtils.newInstance(type);
   }
 
   @Override
@@ -146,7 +146,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
     if (classOnly) {
       return protoclass;
     }
-    return ReflectUtils.newInstance(protoclass);
+    return CglibReflectUtils.newInstance(protoclass);
   }
 
   public static void addProperties(BeanGenerator gen, Map<String, Class<?>> props) {
@@ -154,7 +154,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
   }
 
   public static void addProperties(BeanGenerator gen, Class<?> type) {
-    addProperties(gen, ReflectUtils.getBeanProperties(type));
+    addProperties(gen, CglibReflectUtils.getBeanProperties(type));
   }
 
   public static void addProperties(BeanGenerator gen, PropertyDescriptor[] descriptors) {

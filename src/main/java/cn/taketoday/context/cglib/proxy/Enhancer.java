@@ -57,7 +57,7 @@ import cn.taketoday.context.cglib.core.MethodWrapper;
 import cn.taketoday.context.cglib.core.NamingPolicy;
 import cn.taketoday.context.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.context.cglib.core.ProcessSwitchCallback;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.RejectModifierPredicate;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
@@ -518,7 +518,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   /**
    * The idea of the class is to cache relevant java.lang.reflect instances so
    * proxy-class can be instantiated faster that when using
-   * {@link ReflectUtils#newInstance(Class, Class[], Object[])} and
+   * {@link CglibReflectUtils#newInstance(Class, Class[], Object[])} and
    * {@link Enhancer#setThreadCallbacks(Class, Callback[])}
    */
   static class EnhancerFactoryData {
@@ -538,7 +538,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         }
         else {
           this.primaryConstructorArgTypes = primaryConstructorArgTypes;
-          this.primaryConstructor = ReflectUtils.getConstructor(generatedClass, primaryConstructorArgTypes);
+          this.primaryConstructor = CglibReflectUtils.getConstructor(generatedClass, primaryConstructorArgTypes);
         }
       }
       catch (NoSuchMethodException e) {
@@ -572,10 +572,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
         if (primaryConstructorArgTypes == argumentTypes || Arrays.equals(primaryConstructorArgTypes, argumentTypes)) {
           // If we have relevant Constructor instance at hand, just call it
           // This skips "get constructors" machinery
-          return ReflectUtils.newInstance(primaryConstructor, arguments);
+          return CglibReflectUtils.newInstance(primaryConstructor, arguments);
         }
         // Take a slow path if observing unexpected argument types
-        return ReflectUtils.newInstance(generatedClass, argumentTypes, arguments);
+        return CglibReflectUtils.newInstance(generatedClass, argumentTypes, arguments);
       }
       finally {
         // clear thread callbacks to allow them to be gc'd
@@ -599,13 +599,14 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private Object createHelper() {
     preValidate();
-    Object key = KEY_FACTORY.newInstance((superclass != null) ? superclass.getName() : null, //
-                                         ReflectUtils.getNames(interfaces), //
-                                         filter == ALL_ZERO ? null : new WeakCacheKey<CallbackFilter>(filter), //
-                                         callbackTypes, //
-                                         useFactory, //
-                                         interceptDuringConstruction, //
-                                         serialVersionUID//
+    Object key = KEY_FACTORY.newInstance(
+            (superclass != null) ? superclass.getName() : null, //
+            CglibReflectUtils.getNames(interfaces), //
+            filter == ALL_ZERO ? null : new WeakCacheKey<>(filter), //
+            callbackTypes, //
+            useFactory, //
+            interceptDuringConstruction, //
+            serialVersionUID//
     );
 
     this.currentKey = key;
@@ -619,7 +620,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       setNamePrefix(superclass.getName());
     }
     else if (interfaces != null) {
-      setNamePrefix(interfaces[ReflectUtils.findPackageProtected(interfaces)].getName());
+      setNamePrefix(interfaces[CglibReflectUtils.findPackageProtected(interfaces)].getName());
     }
     return super.generate(data);
   }
@@ -638,10 +639,10 @@ public class Enhancer extends AbstractClassGenerator<Object> {
   @Override
   protected ProtectionDomain getProtectionDomain() {
     if (superclass != null) {
-      return ReflectUtils.getProtectionDomain(superclass);
+      return CglibReflectUtils.getProtectionDomain(superclass);
     }
     if (interfaces != null) {
-      return ReflectUtils.getProtectionDomain(interfaces[0]);
+      return CglibReflectUtils.getProtectionDomain(interfaces[0]);
     }
     return null;
   }
@@ -673,13 +674,13 @@ public class Enhancer extends AbstractClassGenerator<Object> {
                                  Class<?>[] interfaces, List<Method> methods, List<Method> interfaceMethods, Set<Object> forcePublic)//
   {
 
-    ReflectUtils.addAllMethods(superclass, methods);
+    CglibReflectUtils.addAllMethods(superclass, methods);
 
     List<Method> target = (interfaceMethods != null) ? interfaceMethods : methods;
     if (interfaces != null) {
       for (int i = 0; i < interfaces.length; i++) {
         if (interfaces[i] != Factory.class) {
-          ReflectUtils.addAllMethods(interfaces[i], target);
+          CglibReflectUtils.addAllMethods(interfaces[i], target);
         }
       }
     }
@@ -727,7 +728,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
       if (forcePublic.contains(MethodWrapper.create(method))) {
         modifiers = (modifiers & ~Constant.ACC_PROTECTED) | ACC_PUBLIC;
       }
-      return ReflectUtils.getMethodInfo(method, modifiers);
+      return CglibReflectUtils.getMethodInfo(method, modifiers);
     });
 
     final ClassEmitter e = new ClassEmitter(v);
@@ -989,9 +990,9 @@ public class Enhancer extends AbstractClassGenerator<Object> {
     try {
 
       if (argumentTypes != null) {
-        return ReflectUtils.newInstance(type, argumentTypes, arguments);
+        return CglibReflectUtils.newInstance(type, argumentTypes, arguments);
       }
-      return ReflectUtils.newInstance(type);
+      return CglibReflectUtils.newInstance(type);
     }
     finally {
       // clear thread callbacks to allow them to be gc'd

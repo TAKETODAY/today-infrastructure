@@ -190,7 +190,7 @@ abstract public class KeyFactory {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return ReflectUtils.getProtectionDomain(keyInterface);
+      return CglibReflectUtils.getProtectionDomain(keyInterface);
     }
 
     /**
@@ -227,7 +227,7 @@ abstract public class KeyFactory {
     }
 
     protected Object firstInstance(Class type) {
-      return ReflectUtils.newInstance(type);
+      return CglibReflectUtils.newInstance(type);
     }
 
     protected Object nextInstance(Object instance) {
@@ -237,7 +237,7 @@ abstract public class KeyFactory {
     public void generateClass(ClassVisitor v) {
       ClassEmitter ce = new ClassEmitter(v);
 
-      Method newInstance = ReflectUtils.findNewInstance(keyInterface);
+      Method newInstance = CglibReflectUtils.findNewInstance(keyInterface);
       if (!newInstance.getReturnType().equals(Object.class)) {
         throw new IllegalArgumentException("newInstance method must return Object");
       }
@@ -252,7 +252,7 @@ abstract public class KeyFactory {
       );
 
       EmitUtils.nullConstructor(ce);
-      EmitUtils.factoryMethod(ce, ReflectUtils.getSignature(newInstance));
+      EmitUtils.factoryMethod(ce, CglibReflectUtils.getSignature(newInstance));
 
       int seed = 0;
       CodeEmitter e = ce.beginMethod(Constant.ACC_PUBLIC, TypeUtils.parseConstructor(parameterTypes));

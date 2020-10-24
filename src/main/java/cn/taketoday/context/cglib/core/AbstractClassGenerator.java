@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 import cn.taketoday.context.cglib.core.internal.LoadingCache;
 import cn.taketoday.context.utils.ClassUtils;
 
-import static cn.taketoday.context.cglib.core.ReflectUtils.defineClass;
+import static cn.taketoday.context.cglib.core.CglibReflectUtils.defineClass;
 
 /**
  * Abstract class for all code-generating CGLIB utilities. In addition to

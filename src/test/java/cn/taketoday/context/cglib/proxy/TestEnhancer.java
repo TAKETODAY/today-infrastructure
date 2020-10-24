@@ -38,7 +38,7 @@ import cn.taketoday.context.asm.Opcodes;
 import cn.taketoday.context.cglib.CodeGenTestCase;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.NamingPolicy;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.reflect.FastClass;
 import cn.taketoday.context.utils.ResourceUtils;
 import junit.framework.Test;
@@ -586,10 +586,10 @@ public class TestEnhancer extends CodeGenTestCase {
         e.setSuperclass(ArgInit.class);
         e.setCallbackType(MethodInterceptor.class);
         Class<?> f = e.createClass();
-        ArgInit a = (ArgInit) ReflectUtils.newInstance(f,
-                                                       new Class[]
+        ArgInit a = (ArgInit) CglibReflectUtils.newInstance(f,
+                                                            new Class[]
                                                        { String.class },
-                                                       new Object[]
+                                                            new Object[]
                                                        { "test" });
         assertEquals("test", a.toString());
         ((Factory) a).setCallback(0, TEST_INTERCEPTOR);
@@ -835,7 +835,7 @@ public class TestEnhancer extends CodeGenTestCase {
     }
 
     public static class EqualsInterceptor implements MethodInterceptor {
-        final static Method EQUALS_METHOD = ReflectUtils.findMethod("Object.equals(Object)");
+        final static Method EQUALS_METHOD = CglibReflectUtils.findMethod("Object.equals(Object)");
         boolean called;
 
         public Object intercept(Object obj,
@@ -988,10 +988,10 @@ public class TestEnhancer extends CodeGenTestCase {
     }
 
     private static ArgInit newArgInit(Class<?> clazz, String value) {
-        return (ArgInit) ReflectUtils.newInstance(clazz,
-                                                  new Class[]
+        return (ArgInit) CglibReflectUtils.newInstance(clazz,
+                                                       new Class[]
                                                   { String.class },
-                                                  new Object[]
+                                                       new Object[]
                                                   { value });
     }
 

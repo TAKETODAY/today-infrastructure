@@ -39,7 +39,7 @@ public class MethodWrapper {
   public static Object create(Method method) {
 
     return KEY_FACTORY.newInstance(method.getName(),
-                                   ReflectUtils.getNames(method.getParameterTypes()),
+                                   CglibReflectUtils.getNames(method.getParameterTypes()),
                                    method.getReturnType().getName());
   }
 

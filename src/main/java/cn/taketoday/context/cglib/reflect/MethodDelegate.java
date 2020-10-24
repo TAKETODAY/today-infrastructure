@@ -28,7 +28,7 @@ import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.KeyFactory;
 import cn.taketoday.context.cglib.core.MethodInfo;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
@@ -200,7 +200,7 @@ abstract public class MethodDelegate {
 
     @Override
     protected ProtectionDomain getProtectionDomain() {
-      return ReflectUtils.getProtectionDomain(targetClass);
+      return CglibReflectUtils.getProtectionDomain(targetClass);
     }
 
     public MethodDelegate create() {
@@ -211,7 +211,7 @@ abstract public class MethodDelegate {
 
     @Override
     protected Object firstInstance(Class type) {
-      return ((MethodDelegate) ReflectUtils.newInstance(type)).newInstance(target);
+      return ((MethodDelegate) CglibReflectUtils.newInstance(type)).newInstance(target);
     }
 
     @Override
@@ -222,14 +222,14 @@ abstract public class MethodDelegate {
     @Override
     public void generateClass(ClassVisitor v) throws NoSuchMethodException {
 
-      final Method proxy = ReflectUtils.findInterfaceMethod(iface);
+      final Method proxy = CglibReflectUtils.findInterfaceMethod(iface);
       final Method method = targetClass.getMethod(methodName, proxy.getParameterTypes());
 
       if (!proxy.getReturnType().isAssignableFrom(method.getReturnType())) {
         throw new IllegalArgumentException("incompatible return types");
       }
 
-      final MethodInfo methodInfo = ReflectUtils.getMethodInfo(method);
+      final MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
 
       boolean isStatic = Modifier.isStatic(methodInfo.getModifiers());
       if ((target == null) ^ isStatic) {
@@ -246,7 +246,7 @@ abstract public class MethodDelegate {
       EmitUtils.nullConstructor(ce);
 
       // generate proxied method
-      MethodInfo proxied = ReflectUtils.getMethodInfo(iface.getDeclaredMethods()[0]);
+      MethodInfo proxied = CglibReflectUtils.getMethodInfo(iface.getDeclaredMethods()[0]);
       int modifiers = Constant.ACC_PUBLIC;
       if ((proxied.getModifiers() & Constant.ACC_VARARGS) == Constant.ACC_VARARGS) {
         modifiers |= Constant.ACC_VARARGS;

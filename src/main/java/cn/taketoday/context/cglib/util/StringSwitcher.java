@@ -28,7 +28,7 @@ import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.KeyFactory;
 import cn.taketoday.context.cglib.core.ObjectSwitchCallback;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
@@ -182,7 +182,7 @@ abstract public class StringSwitcher {
 
     @Override
     protected Object firstInstance(Class type) {
-      return ReflectUtils.newInstance(type);
+      return CglibReflectUtils.newInstance(type);
     }
 
     @Override

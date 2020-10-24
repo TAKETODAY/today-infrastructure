@@ -18,7 +18,7 @@ package cn.taketoday.context.cglib.proxy;
 import java.lang.reflect.Method;
 
 import cn.taketoday.context.asm.ClassVisitor;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 
 /**
  * @author Chris Nokleberg
@@ -36,6 +36,6 @@ class MixinBeanEmitter extends MixinEmitter {
   }
 
   protected Method[] getMethods(Class type) {
-    return ReflectUtils.getPropertyMethods(ReflectUtils.getBeanProperties(type), true, true);
+    return CglibReflectUtils.getPropertyMethods(CglibReflectUtils.getBeanProperties(type), true, true);
   }
 }

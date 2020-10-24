@@ -26,6 +26,6 @@ public class MethodInfoTransformer implements Transformer<Member, MethodInfo> {
   }
 
   public MethodInfo transform(Member value) {
-    return ReflectUtils.getMethodInfo(value);
+    return CglibReflectUtils.getMethodInfo(value);
   }
 }

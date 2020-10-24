@@ -166,7 +166,7 @@ public class DefaultProxyFactory implements ProxyFactory {
     for (final Advice advice : advices) {
       Class<? extends MethodInterceptor> interceptor = advice.interceptor(); // interceptor class
 
-      MethodInterceptor methodInterceptor = null;
+      MethodInterceptor methodInterceptor;
       if (aspectMethod == null) { // method interceptor
         if (!(aspect instanceof MethodInterceptor)) {
           throw new ConfigurationException('[' + aspect.getClass().getName() +

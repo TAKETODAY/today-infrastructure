@@ -24,7 +24,7 @@ import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.ClassEmitter;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 
 /**
@@ -70,7 +70,7 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
    *         the method to add to the interface
    */
   public void add(Method method) {
-    add(ReflectUtils.getSignature(method), ReflectUtils.getExceptionTypes(method));
+    add(CglibReflectUtils.getSignature(method), CglibReflectUtils.getExceptionTypes(method));
   }
 
   /**

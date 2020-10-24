@@ -34,7 +34,7 @@ import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.KeyFactory;
 import cn.taketoday.context.cglib.core.MethodInfo;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.factory.BeanFactory;
@@ -111,7 +111,7 @@ public class StandardProxyCreator implements ProxyCreator {
 
     @Override
     protected ProtectionDomain getProtectionDomain() {
-      return ReflectUtils.getProtectionDomain(targetClass);
+      return CglibReflectUtils.getProtectionDomain(targetClass);
     }
 
     public Object create() {
@@ -124,7 +124,7 @@ public class StandardProxyCreator implements ProxyCreator {
     protected Object firstInstance(Class<Object> type) {
 
       if (ObjectUtils.isEmpty(parameterTypes)) {
-        return ReflectUtils.newInstance(type, new Class[] { targetClass }, new Object[] { target });
+        return CglibReflectUtils.newInstance(type, new Class[] { targetClass }, new Object[] { target });
       }
       Class<?>[] types = this.parameterTypes;
       final Class<?>[] copy = new Class[types.length + 1];
@@ -136,7 +136,7 @@ public class StandardProxyCreator implements ProxyCreator {
       System.arraycopy(arg, 0, args, 0, arg.length);
       args[types.length] = target;
 
-      return ReflectUtils.newInstance(type, copy, args);
+      return CglibReflectUtils.newInstance(type, copy, args);
     }
 
     @Override
@@ -192,7 +192,7 @@ public class StandardProxyCreator implements ProxyCreator {
           continue;
         }
 
-        final MethodInfo methodInfo = ReflectUtils.getMethodInfo(method);
+        final MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
 
         // TODO static method
 

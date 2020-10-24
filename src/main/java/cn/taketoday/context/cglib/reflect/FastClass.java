@@ -24,7 +24,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 
 /**
@@ -70,7 +70,7 @@ public abstract class FastClass {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return ReflectUtils.getProtectionDomain(type);
+      return CglibReflectUtils.getProtectionDomain(type);
     }
 
     public void generateClass(ClassVisitor v) throws Exception {
@@ -78,7 +78,7 @@ public abstract class FastClass {
     }
 
     protected Object firstInstance(Class type) {
-      return ReflectUtils.newInstance(type, new Class[] { Class.class }, new Object[] { this.type });
+      return CglibReflectUtils.newInstance(type, new Class[] { Class.class }, new Object[] { this.type });
     }
 
     protected Object nextInstance(Object instance) {

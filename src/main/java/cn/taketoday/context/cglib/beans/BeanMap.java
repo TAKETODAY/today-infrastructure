@@ -28,7 +28,7 @@ import java.util.Set;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.KeyFactory;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 
 /**
  * A <code>Map</code>-based view of a JavaBean. The default set of keys is the
@@ -131,7 +131,7 @@ abstract public class BeanMap implements Map {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return ReflectUtils.getProtectionDomain(beanClass);
+      return CglibReflectUtils.getProtectionDomain(beanClass);
     }
 
     /**
@@ -149,7 +149,7 @@ abstract public class BeanMap implements Map {
     }
 
     protected Object firstInstance(Class type) {
-      return ((BeanMap) ReflectUtils.newInstance(type)).newInstance(bean);
+      return ((BeanMap) CglibReflectUtils.newInstance(type)).newInstance(bean);
     }
 
     protected Object nextInstance(Object instance) {

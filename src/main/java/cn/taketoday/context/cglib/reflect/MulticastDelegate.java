@@ -29,7 +29,7 @@ import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.Local;
 import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.ProcessArrayCallback;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
@@ -99,7 +99,7 @@ abstract public class MulticastDelegate implements Cloneable {
 
     @Override
     protected ProtectionDomain getProtectionDomain() {
-      return ReflectUtils.getProtectionDomain(iface);
+      return CglibReflectUtils.getProtectionDomain(iface);
     }
 
     public Generator setInterface(Class<?> iface) {
@@ -114,7 +114,7 @@ abstract public class MulticastDelegate implements Cloneable {
 
     @Override
     public void generateClass(ClassVisitor cv) {
-      final MethodInfo method = ReflectUtils.getMethodInfo(ReflectUtils.findInterfaceMethod(iface));
+      final MethodInfo method = CglibReflectUtils.getMethodInfo(CglibReflectUtils.findInterfaceMethod(iface));
 
       ClassEmitter ce = new ClassEmitter(cv);
 
@@ -183,7 +183,7 @@ abstract public class MulticastDelegate implements Cloneable {
     @Override
     protected Object firstInstance(Class<Object> type) {
       // make a new instance in case first object is used with a long list of targets
-      return ((MulticastDelegate) ReflectUtils.newInstance(type)).newInstance();
+      return ((MulticastDelegate) CglibReflectUtils.newInstance(type)).newInstance();
     }
 
     @Override

@@ -36,7 +36,7 @@ import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.MethodInfoTransformer;
 import cn.taketoday.context.cglib.core.ObjectSwitchCallback;
 import cn.taketoday.context.cglib.core.ProcessSwitchCallback;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.Transformer;
 import cn.taketoday.context.cglib.core.TypeUtils;
@@ -86,7 +86,7 @@ class FastClassEmitter extends ClassEmitter {
     e.end_method();
 
     VisibilityPredicate vp = new VisibilityPredicate(type, false);
-    List<Method> methods = ReflectUtils.addAllMethods(type, new ArrayList<>());
+    List<Method> methods = CglibReflectUtils.addAllMethods(type, new ArrayList<>());
     CollectionUtils.filter(methods, vp);
     CollectionUtils.filter(methods, new DuplicatesPredicate());
 
@@ -137,7 +137,7 @@ class FastClassEmitter extends ClassEmitter {
     CodeEmitter e = beginMethod(Constant.ACC_PUBLIC, SIGNATURE_GET_INDEX);
     List<String> signatures = CollectionUtils.transform(methods, new Transformer<Method, String>() {
       public String transform(Method obj) {
-        return ReflectUtils.getSignature(obj).toString();
+        return CglibReflectUtils.getSignature(obj).toString();
       }
     });
     e.load_arg(0);
@@ -154,7 +154,7 @@ class FastClassEmitter extends ClassEmitter {
       // hack for big classes
       List<String> signatures = CollectionUtils.transform(methods, new Transformer<Method, String>() {
         public String transform(Method obj) {
-          final String s = ReflectUtils.getSignature(obj).toString();
+          final String s = CglibReflectUtils.getSignature(obj).toString();
           return s.substring(0, s.lastIndexOf(')') + 1);
         }
       });

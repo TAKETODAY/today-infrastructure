@@ -21,7 +21,7 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.MethodInfo;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.transform.ClassEmitterTransformer;
 
@@ -33,7 +33,7 @@ public class AddInitTransformer extends ClassEmitterTransformer {
   private final MethodInfo info;
 
   public AddInitTransformer(Method method) {
-    info = ReflectUtils.getMethodInfo(method);
+    info = CglibReflectUtils.getMethodInfo(method);
 
     Type[] types = info.getSignature().getArgumentTypes();
     if (types.length != 1 || !types[0].equals(Constant.TYPE_OBJECT) || !info.getSignature().getReturnType().equals(Type.VOID_TYPE)) {

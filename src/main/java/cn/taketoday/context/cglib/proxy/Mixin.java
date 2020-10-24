@@ -19,14 +19,13 @@ import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.ClassesKey;
 import cn.taketoday.context.cglib.core.KeyFactory;
-import cn.taketoday.context.cglib.core.ReflectUtils;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 
 /**
  * <code>Mixin</code> allows multiple objects to be combined into a single
@@ -36,7 +35,7 @@ import cn.taketoday.context.cglib.core.ReflectUtils;
  * @author Chris Nokleberg
  * @version $Id: Mixin.java,v 1.7 2005/09/27 11:42:27 baliuka Exp $
  */
-@SuppressWarnings("all")
+//@SuppressWarnings("all")
 abstract public class Mixin {
 
   private static final MixinKey KEY_FACTORY = KeyFactory.create(MixinKey.class, KeyFactory.CLASS_BY_NAME);
@@ -111,7 +110,7 @@ abstract public class Mixin {
     }
 
     protected ProtectionDomain getProtectionDomain() {
-      return ReflectUtils.getProtectionDomain(classes[0]);
+      return CglibReflectUtils.getProtectionDomain(classes[0]);
     }
 
     public void setStyle(int style) {
@@ -150,11 +149,11 @@ abstract public class Mixin {
           // fall-through
         case STYLE_EVERYTHING:
           if (classes == null) {
-            classes = ReflectUtils.getClasses(delegates);
+            classes = CglibReflectUtils.getClasses(delegates);
           }
           else {
             if (delegates != null) {
-              Class[] temp = ReflectUtils.getClasses(delegates);
+              Class[] temp = CglibReflectUtils.getClasses(delegates);
               if (classes.length != temp.length) {
                 throw new IllegalStateException("Specified classes are incompatible with delegates");
               }
@@ -167,9 +166,9 @@ abstract public class Mixin {
             }
           }
       }
-      setNamePrefix(classes[ReflectUtils.findPackageProtected(classes)].getName());
+      setNamePrefix(classes[CglibReflectUtils.findPackageProtected(classes)].getName());
 
-      return (Mixin) super.create(KEY_FACTORY.newInstance(style, ReflectUtils.getNames(classes), route));
+      return (Mixin) super.create(KEY_FACTORY.newInstance(style, CglibReflectUtils.getNames(classes), route));
     }
 
     public void generateClass(ClassVisitor v) {
@@ -187,7 +186,7 @@ abstract public class Mixin {
     }
 
     protected Object firstInstance(Class type) {
-      return ((Mixin) ReflectUtils.newInstance(type)).newInstance(delegates);
+      return ((Mixin) CglibReflectUtils.newInstance(type)).newInstance(delegates);
     }
 
     protected Object nextInstance(Object instance) {
@@ -213,31 +212,29 @@ abstract public class Mixin {
   }
 
   private static class Route {
-    private Class[] classes;
-    private int[] route;
+    private final int[] route;
+    private final Class<?>[] classes;
 
     Route(Object[] delegates) {
-      Map map = new HashMap();
-      ArrayList collect = new ArrayList();
+      HashMap<Class<?>, Integer> map = new HashMap<>();
+      ArrayList<Class<?>> collect = new ArrayList<>();
       for (int i = 0; i < delegates.length; i++) {
-        Class delegate = delegates[i].getClass();
+        Class<?> delegate = delegates[i].getClass();
         collect.clear();
-        ReflectUtils.addAllInterfaces(delegate, collect);
-        for (Iterator it = collect.iterator(); it.hasNext(); ) {
-          Class iface = (Class) it.next();
+        CglibReflectUtils.addAllInterfaces(delegate, collect);
+        for (final Class<?> iface : collect) {
           if (!map.containsKey(iface)) {
-            map.put(iface, new Integer(i));
+            map.put(iface, i);
           }
         }
       }
       classes = new Class[map.size()];
       route = new int[map.size()];
       int index = 0;
-      for (Iterator it = map.keySet().iterator(); it.hasNext(); ) {
-        Class key = (Class) it.next();
+      for (final Map.Entry<Class<?>, Integer> entry : map.entrySet()) {
+        final Class<?> key = entry.getKey();
         classes[index] = key;
-        route[index] = ((Integer) map.get(key)).intValue();
-        index++;
+        route[index++] = entry.getValue();
       }
     }
   }

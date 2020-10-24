@@ -35,7 +35,7 @@ import cn.taketoday.context.utils.Assert;
 
 import static cn.taketoday.context.asm.Opcodes.ACC_FINAL;
 import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
-import static cn.taketoday.context.cglib.core.ReflectUtils.getMethodInfo;
+import static cn.taketoday.context.cglib.core.CglibReflectUtils.getMethodInfo;
 
 /**
  * @author TODAY <br>
