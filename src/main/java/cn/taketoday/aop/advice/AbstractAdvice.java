@@ -87,117 +87,95 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
     }
   }
 
-  @Override
   public abstract Object invoke(MethodInvocation invocation) throws Throwable;
 
   /**
    * Invoke advice method
    *
-   * @param i
+   * @param inv
    *         Target method invocation
    * @param returnValue
    *         Target method return value
    * @param throwable
    *         Target method throws {@link Exception}
-   *
-   * @throws Throwable
-   *         If any {@link Exception} occurred
    */
-  protected Object invokeAdviceMethod(final MethodInvocation i,
-                                      final Object returnValue,
-                                      final Throwable throwable) throws Throwable //
-  {
-    return invoker.invoke(aspect,
-                          adviceParameterLength == 0 ? null : resolveParameter(i, returnValue, throwable));
-  }
+  protected Object invokeAdviceMethod(
+          final MethodInvocation inv, final Object returnValue, Throwable throwable
+  ) {
+    if (adviceParameterLength == 0) {
+      return invoker.invoke(aspect, null);
+    }
 
-  /**
-   * Resolve method parameter list
-   *
-   * @param invocation
-   *         The join point
-   * @param returnedValue
-   *         The method returned value
-   * @param ex
-   *         The exception
-   *
-   * @return Method parameter list
-   */
-  @SuppressWarnings("unchecked")
-  protected Object[] resolveParameter(final MethodInvocation invocation,
-                                      final Object returnedValue, final Throwable ex) {
-
-    final byte[] adviceParameters = this.adviceParameters;
+    int idx = 0;
     final Object[] args = new Object[adviceParameterLength];
-    final int adviceParameterLength = this.adviceParameterLength;
     final Class<?>[] adviceParameterTypes = this.adviceParameterTypes;
-
-    for (int i = 0; i < adviceParameterLength; i++) {
-      switch (adviceParameters[i]) {
+    for (final byte adviceParameter : this.adviceParameters) {
+      switch (adviceParameter) {
         case Constant.TYPE_THROWING: {
-          if (ex != null) {
-            final Class<?> parameterType = adviceParameterTypes[i];
-            final Throwable throwable = ExceptionUtils.unwrapThrowable(ex);
+          if (throwable != null) {
+            final Class<?> parameterType = adviceParameterTypes[idx];
+            throwable = ExceptionUtils.unwrapThrowable(throwable);
             if (parameterType == Throwable.class //
                     || parameterType.isAssignableFrom(throwable.getClass())) //
             {
-              args[i] = throwable;
+              args[idx] = throwable;
             }
           }
           break;
         }
         case Constant.TYPE_ARGUMENT: {
           // fix: NullPointerException
-          Object[] arguments = invocation.getArguments();
+          Object[] arguments = inv.getArguments();
           if (arguments.length == 1) {
-            args[i] = arguments[0];
+            args[idx] = arguments[0];
             break;
           }
           // for every argument matching
           for (Object argument : arguments) {
-            if (argument != null && argument.getClass() == adviceParameterTypes[i]) {
-              args[i] = argument;
+            if (argument != null && argument.getClass() == adviceParameterTypes[idx]) {
+              args[idx] = argument;
               break;
             }
           }
           break;
         }
         case Constant.TYPE_ARGUMENTS:
-          args[i] = invocation.getArguments();
+          args[idx] = inv.getArguments();
           break;
         case Constant.TYPE_RETURNING:
-          args[i] = returnedValue;
+          args[idx] = returnValue;
           break;
         case Constant.TYPE_ANNOTATED:
-          args[i] = resolveAnnotation(invocation, (Class<? extends Annotation>) adviceParameterTypes[i]);
+          args[idx] = resolveAnnotation(inv, (Class<? extends Annotation>) adviceParameterTypes[idx]);
           break;
         case Constant.TYPE_JOIN_POINT:
-          args[i] = invocation;
+          args[idx] = inv;
           break;
         default: {
-          Class<?> parameterType = adviceParameterTypes[i];
+          Class<?> parameterType = adviceParameterTypes[idx];
           if (Joinpoint.class.isAssignableFrom(parameterType)) {
-            args[i] = invocation;
+            args[idx] = inv;
           }
           if (Annotation.class.isAssignableFrom(parameterType)) {
-            args[i] = resolveAnnotation(invocation, (Class<? extends Annotation>) parameterType);
+            args[idx] = resolveAnnotation(inv, (Class<? extends Annotation>) parameterType);
           }
-          if (ex != null) {
-            final Throwable throwable = ExceptionUtils.unwrapThrowable(ex);
+          if (throwable != null) {
+            throwable = ExceptionUtils.unwrapThrowable(throwable);
             if (parameterType == Throwable.class //
                     || parameterType.isAssignableFrom(throwable.getClass())) //
             {
-              args[i] = throwable;
+              args[idx] = throwable;
             }
           }
-          if (returnedValue != null && parameterType.isAssignableFrom(returnedValue.getClass())) {
-            args[i] = returnedValue;
+          if (returnValue != null && parameterType.isAssignableFrom(returnValue.getClass())) {
+            args[idx] = returnValue;
           }
           break;
         }
       }
+      idx++;
     }
-    return args;
+    return invoker.invoke(aspect, args);
   }
 
   /**
