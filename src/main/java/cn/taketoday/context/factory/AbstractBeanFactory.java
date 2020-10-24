@@ -930,8 +930,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   /**
    * Reflective InvocationHandler for lazy access to the current target object.
    */
-  @SuppressWarnings("serial")
-  public static class ObjectFactoryDelegatingHandler implements InvocationHandler, Serializable {
+  public static class ObjectFactoryDelegatingHandler implements InvocationHandler {
 
     private final ObjectFactory<?> objectFactory;
 

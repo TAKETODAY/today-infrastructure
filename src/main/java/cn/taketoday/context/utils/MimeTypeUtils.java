@@ -173,7 +173,8 @@ public abstract class MimeTypeUtils {
     }
 
     // java.net.HttpURLConnection returns a *; q=.2 Accept header
-    if (MimeType.WILDCARD_TYPE.equals(fullType)) {
+    final String wildcardType = MimeType.WILDCARD_TYPE;
+    if (wildcardType.equals(fullType)) {
       fullType = "*/*";
     }
     int subIndex = fullType.indexOf('/');
@@ -184,8 +185,8 @@ public abstract class MimeTypeUtils {
       throw new InvalidMimeTypeException(mimeType, "does not contain subtype after '/'");
     }
     String type = fullType.substring(0, subIndex);
-    String subtype = fullType.substring(subIndex + 1, fullType.length());
-    if (MimeType.WILDCARD_TYPE.equals(type) && !MimeType.WILDCARD_TYPE.equals(subtype)) {
+    String subtype = fullType.substring(subIndex + 1);
+    if (wildcardType.equals(type) && !wildcardType.equals(subtype)) {
       throw new InvalidMimeTypeException(mimeType, "wildcard type is legal only in '*/*' (all mime types)");
     }
 
@@ -213,7 +214,7 @@ public abstract class MimeTypeUtils {
         int eqIndex = parameter.indexOf('=');
         if (eqIndex >= 0) {
           String attribute = parameter.substring(0, eqIndex).trim();
-          String value = parameter.substring(eqIndex + 1, parameter.length()).trim();
+          String value = parameter.substring(eqIndex + 1).trim();
           parameters.put(attribute, value);
         }
       }
@@ -377,10 +378,12 @@ public abstract class MimeTypeUtils {
    * Generate a random MIME boundary as bytes, often used in multipart mime types.
    */
   public static byte[] generateMultipartBoundary() {
-    Random randomToUse = initRandom();
-    byte[] boundary = new byte[randomToUse.nextInt(11) + 30];
+    final Random randomToUse = initRandom();
+    final byte[] boundary = new byte[randomToUse.nextInt(11) + 30];
+    final byte[] boundaryChars = BOUNDARY_CHARS;
+    final int length = boundaryChars.length;
     for (int i = 0; i < boundary.length; i++) {
-      boundary[i] = BOUNDARY_CHARS[randomToUse.nextInt(BOUNDARY_CHARS.length)];
+      boundary[i] = boundaryChars[randomToUse.nextInt(length)];
     }
     return boundary;
   }
