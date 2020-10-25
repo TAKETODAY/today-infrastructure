@@ -146,7 +146,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
    * CompositeExpression Allow most flexible parsing, restrict by examining type
    * of returned node
    */
-  final public AstCompositeExpression CompositeExpression() throws ParseException {
+  public final AstCompositeExpression CompositeExpression() throws ParseException {
     /* @bgen(jjtree) CompositeExpression */
     AstCompositeExpression astCompositeExpression = new AstCompositeExpression(JJTCOMPOSITEEXPRESSION);
     boolean jjtc000 = true;
@@ -207,21 +207,24 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
   /**
    * LiteralExpression Non-EL Expression blocks
    */
-  final public void LiteralExpression() throws ParseException {
+  public final void LiteralExpression() throws ParseException {
     /* @bgen(jjtree) LiteralExpression */
     AstLiteralExpression astLiteralExpression = new AstLiteralExpression(JJTLITERALEXPRESSION);
-    boolean jjtc000 = true;
-    state.openNodeScope(astLiteralExpression);
-    Token t = null;
+    processExpression(astLiteralExpression, LITERAL_EXPRESSION);
+  }
+
+  protected void processExpression(final SimpleNode expression, final int kind) throws ParseException {
+    boolean close = true;
+    state.openNodeScope(expression);
     try {
-      t = consumeToken(LITERAL_EXPRESSION);
-      state.closeNodeScope(astLiteralExpression, true);
-      jjtc000 = false;
-      astLiteralExpression.setImage(t.image);
+      Token token = consumeToken(kind);
+      state.closeNodeScope(expression, true);
+      close = false;
+      expression.setImage(token.image);
     }
     finally {
-      if (jjtc000) {
-        state.closeNodeScope(astLiteralExpression, true);
+      if (close) {
+        state.closeNodeScope(expression, true);
       }
     }
   }
@@ -1750,26 +1753,13 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
   final public void Identifier() throws ParseException {
     /* @bgen(jjtree) Identifier */
     AstIdentifier astIdentifier = new AstIdentifier(JJTIDENTIFIER);
-    boolean jjtc000 = true;
-    state.openNodeScope(astIdentifier);
-    Token t = null;
-    try {
-      t = consumeToken(IDENTIFIER);
-      state.closeNodeScope(astIdentifier, true);
-      jjtc000 = false;
-      astIdentifier.setImage(t.image);
-    }
-    finally {
-      if (jjtc000) {
-        state.closeNodeScope(astIdentifier, true);
-      }
-    }
+    processExpression(astIdentifier, IDENTIFIER);
   }
 
   /*
    * Function Namespace:Name(a,b,c)
    */
-  final public void Function() throws ParseException {
+  public final void Function() throws ParseException {
     /* @bgen(jjtree) Function */
     AstFunction astFunction = new AstFunction(FUNCTION);
     boolean jjtc000 = true;
@@ -1820,7 +1810,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
   /**
    * Literal Reserved Keywords
    */
-  final public void Literal() throws ParseException {
+  public final void Literal() throws ParseException {
     switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
       case TRUE:
       case FALSE:
@@ -1848,7 +1838,7 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
   /*
    * Boolean For 'true' 'false'
    */
-  final public void Boolean() throws ParseException {
+  public final void Boolean() throws ParseException {
     switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
       case TRUE:
         AstTrue jjtn001 = new AstTrue(JJTTRUE);
@@ -1880,43 +1870,19 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
   /*
    * FloatinPoint For Decimal and Floating Point Literals
    */
-  final public void FloatingPoint() throws ParseException {
+  public final void FloatingPoint() throws ParseException {
     /* @bgen(jjtree) FloatingPoint */
     AstFloatingPoint jjtn000 = new AstFloatingPoint(JJTFLOATINGPOINT);
-    boolean jjtc000 = true;
-    state.openNodeScope(jjtn000);
-    try {
-      final Token t = consumeToken(FLOATING_POINT_LITERAL);
-      state.closeNodeScope(jjtn000, true);
-      jjtc000 = false;
-      jjtn000.setImage(t.image);
-    }
-    finally {
-      if (jjtc000) {
-        state.closeNodeScope(jjtn000, true);
-      }
-    }
+    processExpression(jjtn000, FLOATING_POINT_LITERAL);
   }
 
   /*
    * Integer For Simple Numeric Literals
    */
-  final public void Integer() throws ParseException {
+  public final void Integer() throws ParseException {
     /* @bgen(jjtree) Integer */
     AstInteger jjtn000 = new AstInteger(JJTINTEGER);
-    boolean jjtc000 = true;
-    state.openNodeScope(jjtn000);
-    try {
-      final Token t = consumeToken(INTEGER_LITERAL);
-      state.closeNodeScope(jjtn000, true);
-      jjtc000 = false;
-      jjtn000.setImage(t.image);
-    }
-    finally {
-      if (jjtc000) {
-        state.closeNodeScope(jjtn000, true);
-      }
-    }
+    processExpression(jjtn000, INTEGER_LITERAL);
   }
 
   /*
@@ -1925,19 +1891,21 @@ public class ExpressionParser implements ELParserTreeConstants, ELParserConstant
   final public void String() throws ParseException {
     /* @bgen(jjtree) String */
     AstString jjtn000 = new AstString(JJTSTRING);
-    boolean jjtc000 = true;
-    state.openNodeScope(jjtn000);
-    try {
-      final Token t = consumeToken(STRING_LITERAL);
-      state.closeNodeScope(jjtn000, true);
-      jjtc000 = false;
-      jjtn000.setImage(t.image);
-    }
-    finally {
-      if (jjtc000) {
-        state.closeNodeScope(jjtn000, true);
-      }
-    }
+    processExpression(jjtn000, STRING_LITERAL);
+//
+//    boolean jjtc000 = true;
+//    state.openNodeScope(jjtn000);
+//    try {
+//      final Token t = consumeToken(STRING_LITERAL);
+//      state.closeNodeScope(jjtn000, true);
+//      jjtc000 = false;
+//      jjtn000.setImage(t.image);
+//    }
+//    finally {
+//      if (jjtc000) {
+//        state.closeNodeScope(jjtn000, true);
+//      }
+//    }
   }
 
   /*

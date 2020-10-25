@@ -53,7 +53,7 @@ public final class AstBracketSuffix extends SimpleNode {
     super(id);
   }
 
-  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+  public Object getValue(EvaluationContext ctx) {
     return this.children[0].getValue(ctx);
   }
 }

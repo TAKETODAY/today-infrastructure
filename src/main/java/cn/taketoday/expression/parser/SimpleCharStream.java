@@ -78,15 +78,15 @@ public class SimpleCharStream {
   protected final int tabSize = 4;
 
   /** Constructor. */
-  public SimpleCharStream(Reader dstream, int startline, int startcolumn, int buffersize) {
-    inputStream = dstream;
-    line = startline;
-    column = startcolumn - 1;
+  public SimpleCharStream(Reader inputStream, int startLine, int startColumn, int bufferSize) {
+    this.inputStream = inputStream;
+    this.line = startLine;
+    this.column = startColumn - 1;
 
-    available = bufsize = buffersize;
-    buffer = new char[buffersize];
-    bufline = new int[buffersize];
-    bufcolumn = new int[buffersize];
+    this.available = bufsize = bufferSize;
+    this.buffer = new char[bufferSize];
+    this.bufline = new int[bufferSize];
+    this.bufcolumn = new int[bufferSize];
   }
 
   public SimpleCharStream(Reader dstream, int startline, int startcolumn) {
@@ -97,8 +97,10 @@ public class SimpleCharStream {
     this(dstream, 1, 1, 512);
   }
 
-  public SimpleCharStream(InputStream dstream, String encoding,
-                          int startline, int startcolumn, int buffersize) throws UnsupportedEncodingException //
+  public SimpleCharStream(InputStream dstream,
+                          String encoding,
+                          int startline, int startcolumn,
+                          int buffersize) throws UnsupportedEncodingException //
   {
     this(encoding == null ? new InputStreamReader(dstream)
                           : new InputStreamReader(dstream, encoding), startline, startcolumn, buffersize);
@@ -194,7 +196,6 @@ public class SimpleCharStream {
       }
       else
         maxNextCharInd += i;
-      return;
     }
     catch (IOException e) {
       --bufpos;

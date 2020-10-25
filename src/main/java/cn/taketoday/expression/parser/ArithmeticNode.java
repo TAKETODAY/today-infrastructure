@@ -40,7 +40,6 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
@@ -54,14 +53,14 @@ public abstract class ArithmeticNode extends SimpleNode {
   }
 
   @Override
-  public Object getValue(final EvaluationContext ctx) throws ExpressionException {
+  public Object getValue(final EvaluationContext ctx) {
     return getValueInternal(this.children[0].getValue(ctx), this.children[1].getValue(ctx));
   }
 
   protected abstract Object getValueInternal(final Object obj0, final Object obj1);
 
   @Override
-  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+  public Class<?> getType(EvaluationContext ctx) {
     return Number.class;
   }
 }

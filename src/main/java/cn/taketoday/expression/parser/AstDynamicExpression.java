@@ -40,7 +40,6 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
@@ -53,19 +52,19 @@ public final class AstDynamicExpression extends SimpleNode {
     super(id);
   }
 
-  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+  public Class<?> getType(EvaluationContext ctx) {
     return this.children[0].getType(ctx);
   }
 
-  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+  public Object getValue(EvaluationContext ctx) {
     return this.children[0].getValue(ctx);
   }
 
-  public boolean isReadOnly(EvaluationContext ctx) throws ExpressionException {
+  public boolean isReadOnly(EvaluationContext ctx) {
     return this.children[0].isReadOnly(ctx);
   }
 
-  public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
+  public void setValue(EvaluationContext ctx, Object value) {
     this.children[0].setValue(ctx, value);
   }
 }

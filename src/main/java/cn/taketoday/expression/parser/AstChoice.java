@@ -40,7 +40,6 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 import cn.taketoday.expression.lang.ExpressionUtils;
 
@@ -55,35 +54,35 @@ public final class AstChoice extends SimpleNode {
   }
 
   @Override
-  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+  public Class<?> getType(EvaluationContext ctx) {
     Object obj0 = this.children[0].getValue(ctx);
     Boolean b0 = ExpressionUtils.coerceToBoolean(obj0);
     return this.children[((b0.booleanValue() ? 1 : 2))].getType(ctx);
   }
 
   @Override
-  public Object getValue(EvaluationContext ctx) throws ExpressionException {
+  public Object getValue(EvaluationContext ctx) {
     Boolean b0 = ExpressionUtils.coerceToBoolean(this.children[0].getValue(ctx));
     return this.children[((b0.booleanValue() ? 1 : 2))].getValue(ctx);
   }
 
   @Override
 
-  public boolean isReadOnly(EvaluationContext ctx) throws ExpressionException {
+  public boolean isReadOnly(EvaluationContext ctx) {
     Object obj0 = this.children[0].getValue(ctx);
     Boolean b0 = ExpressionUtils.coerceToBoolean(obj0);
     return this.children[((b0.booleanValue() ? 1 : 2))].isReadOnly(ctx);
   }
 
   @Override
-  public void setValue(EvaluationContext ctx, Object value) throws ExpressionException {
+  public void setValue(EvaluationContext ctx, Object value) {
     Object obj0 = this.children[0].getValue(ctx);
     Boolean b0 = ExpressionUtils.coerceToBoolean(obj0);
     this.children[((b0.booleanValue() ? 1 : 2))].setValue(ctx, value);
   }
 
   @Override
-  public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) throws ExpressionException {
+  public Object invoke(EvaluationContext ctx, Class<?>[] paramTypes, Object[] paramValues) {
     Boolean b0 = ExpressionUtils.coerceToBoolean(this.children[0].getValue(ctx));
     return this.children[((b0.booleanValue() ? 1 : 2))].invoke(ctx, paramTypes, paramValues);
   }

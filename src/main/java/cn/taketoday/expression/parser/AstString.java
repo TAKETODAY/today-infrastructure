@@ -40,54 +40,24 @@
 
 package cn.taketoday.expression.parser;
 
-import cn.taketoday.expression.ExpressionException;
 import cn.taketoday.expression.lang.EvaluationContext;
 
 /**
  * @author Jacob Hookom [jacob@hookom.net]
  * @version $Change: 181177 $$DateTime: 2001/06/26 08:45:09 $$Author: kchung $
  */
-public final class AstString extends SimpleNode {
+public final class AstString extends AstLiteralExpression {
+  private String string;
 
   public AstString(int id) {
     super(id);
   }
 
-  private String string;
-
-  public String getString() {
+  @Override
+  public Object getValue(EvaluationContext ctx) {
     if (string == null) {
       string = image.substring(1, image.length() - 1);
     }
     return string;
-  }
-
-  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
-    return String.class;
-  }
-
-  public Object getValue(EvaluationContext ctx) throws ExpressionException {
-    return getString();
-  }
-
-  public void setImage(String image) {
-    if (image.indexOf('\\') == -1) {
-      this.image = image;
-      return;
-    }
-    int size = image.length();
-    StringBuffer buf = new StringBuffer(size);
-    for (int i = 0; i < size; i++) {
-      char c = image.charAt(i);
-      if (c == '\\' && i + 1 < size) {
-        char c1 = image.charAt(i + 1);
-        if (c1 == '\\' || c1 == '"' || c1 == '\'' || c1 == '#' || c1 == '$') {
-          c = c1;
-          i++;
-        }
-      }
-      buf.append(c);
-    }
-    this.image = buf.toString();
   }
 }

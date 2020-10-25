@@ -64,7 +64,7 @@ public final class AstIdentifier extends SimpleNode {
   }
 
   @Override
-  public Class<?> getType(EvaluationContext ctx) throws ExpressionException {
+  public Class<?> getType(EvaluationContext ctx) {
     final String image = this.image;
     // First check if this is a lambda argument
     if (ctx.isLambdaArgument(image)) {
@@ -85,7 +85,7 @@ public final class AstIdentifier extends SimpleNode {
     return ret;
   }
 
-  public ValueReference getValueReference(final EvaluationContext ctx) throws ExpressionException {
+  public ValueReference getValueReference(final EvaluationContext ctx) {
     final String image = this.image;
     final VariableMapper varMapper = ctx.getVariableMapper();
     if (varMapper != null) {
@@ -98,7 +98,7 @@ public final class AstIdentifier extends SimpleNode {
   }
 
   @Override
-  public Object getValue(final EvaluationContext ctx) throws ExpressionException {
+  public Object getValue(final EvaluationContext ctx) {
     final String image = this.image;
     // First check if this is a lambda argument
     if (ctx.isLambdaArgument(image)) {
@@ -120,13 +120,13 @@ public final class AstIdentifier extends SimpleNode {
           return ctx.getResolver().getValue(ctx, c, image);
         }
       }
-      //            return ""; //TODO
+      // return ""; //TODO
       ExpressionUtils.throwUnhandled(null, image);
     }
     return ret;
   }
 
-  public boolean isReadOnly(final EvaluationContext ctx) throws ExpressionException {
+  public boolean isReadOnly(final EvaluationContext ctx) {
     final String image = this.image;
     // Lambda arguments are read only.
     if (ctx.isLambdaArgument(image)) {
@@ -147,7 +147,7 @@ public final class AstIdentifier extends SimpleNode {
     return ret;
   }
 
-  public void setValue(final EvaluationContext ctx, final Object value) throws ExpressionException {
+  public void setValue(final EvaluationContext ctx, final Object value) {
     final String image = this.image;
     // First check if this is a lambda argument
     if (ctx.isLambdaArgument(image)) {
@@ -169,15 +169,15 @@ public final class AstIdentifier extends SimpleNode {
   }
 
   public Object invoke(final EvaluationContext ctx,
-                       final Class<?>[] paramTypes, final Object[] paramValues) throws ExpressionException {
+                       final Class<?>[] paramTypes, final Object[] paramValues) {
     return getMethodExpression(ctx).invoke(ctx, paramValues);
   }
 
-  public MethodInfo getMethodInfo(final EvaluationContext ctx, final Class<?>[] paramTypes) throws ExpressionException {
+  public MethodInfo getMethodInfo(final EvaluationContext ctx, final Class<?>[] paramTypes) {
     return getMethodExpression(ctx).getMethodInfo(ctx);
   }
 
-  protected MethodExpression getMethodExpression(final EvaluationContext ctx) throws ExpressionException {
+  protected MethodExpression getMethodExpression(final EvaluationContext ctx) {
     // case A: ValueExpression exists, getValue which must  be a MethodExpression
     Object obj = null;
     final String image = this.image;
