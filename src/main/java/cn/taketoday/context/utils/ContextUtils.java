@@ -173,6 +173,7 @@ public abstract class ContextUtils {
    * @return A resolved value object
    *
    * @throws ConfigurationException
+   *         Can't resolve expression
    * @since 2.1.6
    */
   public static <T> T resolveValue(final Env value, final Class<T> expectedType) {
@@ -209,6 +210,7 @@ public abstract class ContextUtils {
    * @return A resolved value object
    *
    * @throws ConfigurationException
+   *         Can't resolve expression
    * @since 2.1.6
    */
   public static <T> T resolveValue(final Value value, final Class<T> expectedType) {
@@ -238,6 +240,7 @@ public abstract class ContextUtils {
    * @return A resolved value object
    *
    * @throws ConfigurationException
+   *         ExpressionException
    * @since 2.1.6
    */
   public static <T> T resolveValue(final String expression, final Class<T> expectedType) {
