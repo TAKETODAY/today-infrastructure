@@ -50,18 +50,14 @@ public class ExpressionParserState {
 
   private int sp = 0; // number of nodes on stack
   private int mk = 0; // current mark
-  private boolean node_created;
-
-  public ExpressionParserState() {
-
-  }
+  private boolean nodeCreated;
 
   /**
    * Determines whether the current node was actually closed and pushed. This
    * should only be called in the final user action of a node scope.
    */
   public boolean nodeCreated() {
-    return node_created;
+    return nodeCreated;
   }
 
   /**
@@ -138,7 +134,7 @@ public class ExpressionParserState {
     }
     n.jjtClose();
     pushNode(n);
-    node_created = true;
+    nodeCreated = true;
   }
 
   /**
@@ -150,19 +146,11 @@ public class ExpressionParserState {
   public void closeNodeScope(Node n, boolean condition) {
     if (condition) {
       int a = nodeArity();
-      mk = marks.remove(marks.size() - 1);
-      while (a-- > 0) {
-        Node c = popNode();
-        c.jjtSetParent(n);
-        n.jjtAddChild(c, a);
-      }
-      n.jjtClose();
-      pushNode(n);
-      node_created = true;
+      closeNodeScope(n, a);
     }
     else {
       mk = marks.remove(marks.size() - 1);
-      node_created = false;
+      nodeCreated = false;
     }
   }
 }
