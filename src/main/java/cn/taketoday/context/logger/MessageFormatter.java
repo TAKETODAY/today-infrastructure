@@ -159,7 +159,7 @@ public final class MessageFormatter {
             // itself escaped: "abc x:\\{}"
             // we have to consume one backward slash
             sbuf.append(messagePattern, i, j - 1);
-            deeplyAppendParameter(sbuf, argArray[L], new HashMap<Object[], Object>());
+            deeplyAppendParameter(sbuf, argArray[L], new HashMap<>());
             i = j + 2;
           }
           else {
@@ -172,7 +172,7 @@ public final class MessageFormatter {
         else {
           // normal case
           sbuf.append(messagePattern, i, j);
-          deeplyAppendParameter(sbuf, argArray[L], new HashMap<Object[], Object>());
+          deeplyAppendParameter(sbuf, argArray[L], new HashMap<>());
           i = j + 2;
         }
       }
@@ -182,11 +182,11 @@ public final class MessageFormatter {
     return sbuf.toString();
   }
 
-  final static boolean isEscapedDelimeter(final String messagePattern, final int delimeterStartIndex) {
+  static boolean isEscapedDelimeter(final String messagePattern, final int delimeterStartIndex) {
     return delimeterStartIndex != 0 && messagePattern.charAt(delimeterStartIndex - 1) == ESCAPE_CHAR;
   }
 
-  final static boolean isDoubleEscaped(String messagePattern, int delimeterStartIndex) {
+  static boolean isDoubleEscaped(String messagePattern, int delimeterStartIndex) {
     return delimeterStartIndex >= 2 && messagePattern.charAt(delimeterStartIndex - 2) == ESCAPE_CHAR;
   }
 
