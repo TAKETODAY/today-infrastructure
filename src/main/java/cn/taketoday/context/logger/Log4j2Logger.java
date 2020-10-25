@@ -74,7 +74,6 @@ public class Log4j2Logger extends AbstractLogger {
       case WARN:
         return org.apache.logging.log4j.Level.WARN;
       case ERROR:
-        return org.apache.logging.log4j.Level.ERROR;
       case TRACE:
         return org.apache.logging.log4j.Level.ERROR;
       case INFO:

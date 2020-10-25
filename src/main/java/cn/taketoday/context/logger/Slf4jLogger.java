@@ -27,7 +27,7 @@ import org.slf4j.spi.LocationAwareLogger;
  */
 public class Slf4jLogger extends AbstractLogger {
 
-  private final transient org.slf4j.Logger target;
+  private final org.slf4j.Logger target;
 
   public Slf4jLogger(String className) {
     target = org.slf4j.LoggerFactory.getLogger(className);

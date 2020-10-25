@@ -158,13 +158,12 @@ public abstract class AbstractLogger implements Logger {
   public final boolean isLevelEnabled(Level level) {
 
     switch (level) { //@off
-            case TRACE :    return isTraceEnabled();
-            case DEBUG :    return isDebugEnabled();
-            case INFO :     return isInfoEnabled();
-            case WARN :     return isWarnEnabled();
-            case ERROR :    return isErrorEnabled();
-            default:        return isInfoEnabled();
-        } //@on
+      case WARN :     return isWarnEnabled();
+      case TRACE :    return isTraceEnabled();
+      case DEBUG :    return isDebugEnabled();
+      case ERROR :    return isErrorEnabled();
+      default:        return isInfoEnabled();
+    } //@on
   }
 
   protected void logInternal(Level level, String msg) {
