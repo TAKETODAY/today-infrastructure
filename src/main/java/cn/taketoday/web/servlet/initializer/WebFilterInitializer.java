@@ -21,6 +21,7 @@ package cn.taketoday.web.servlet.initializer;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -38,7 +39,7 @@ import cn.taketoday.web.Constant;
 
 /**
  * @author TODAY <br>
- *         2019-02-03 13:22
+ * 2019-02-03 13:22
  */
 public class WebFilterInitializer<T extends Filter> extends WebComponentInitializer<FilterRegistration.Dynamic> {
 
@@ -48,9 +49,7 @@ public class WebFilterInitializer<T extends Filter> extends WebComponentInitiali
 
   private Set<String> servletNames = new LinkedHashSet<>();
 
-  public WebFilterInitializer() {
-
-  }
+  public WebFilterInitializer() { }
 
   public WebFilterInitializer(T filter) {
     this.filter = filter;
@@ -67,13 +66,11 @@ public class WebFilterInitializer<T extends Filter> extends WebComponentInitiali
 
   @Override
   protected void configureRegistration(Dynamic registration) {
-
     LoggerFactory.getLogger(WebFilterInitializer.class).debug("Configure filter registration: [{}]", this);
 
     super.configureRegistration(registration);
 
-    EnumSet<DispatcherType> dispatcherTypes = null;
-
+    EnumSet<DispatcherType> dispatcherTypes;
     if (this.dispatcherTypes == null) {
       dispatcherTypes = EnumSet.of(DispatcherType.REQUEST);
     }
@@ -134,9 +131,7 @@ public class WebFilterInitializer<T extends Filter> extends WebComponentInitiali
   }
 
   public WebFilterInitializer<T> addServletNames(String... servletNames) {
-    for (String name : servletNames) {
-      this.servletNames.add(name);
-    }
+    Collections.addAll(this.servletNames, servletNames);
     return this;
   }
 
