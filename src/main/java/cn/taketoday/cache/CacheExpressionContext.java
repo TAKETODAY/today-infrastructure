@@ -53,12 +53,11 @@ public class CacheExpressionContext extends ExpressionContext {
   @Override
   public ExpressionResolver getResolver() {
     final ExpressionResolver ret = this.elResolver;
-    if (ret == null) { //@off
-            return this.elResolver = new CompositeExpressionResolver(
-                new BeanNameExpressionResolver(
-                    new LocalBeanNameResolver(beans)),
-                parent.getResolver()//
-            );//@on
+    if (ret == null) {
+      return this.elResolver = new CompositeExpressionResolver(
+              new BeanNameExpressionResolver(new LocalBeanNameResolver(beans)),
+              parent.getResolver()
+      );
     }
     return ret;
   }
