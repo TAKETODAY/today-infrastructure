@@ -56,7 +56,7 @@ public abstract class WebComponentInitializer<D extends Registration.Dynamic>
   private ServletContext servletContext;
 
   @Override
-  public void onStartup(ServletContext servletContext) throws ServletException {
+  public void onStartup(ServletContext servletContext) {
 
     setServletContext(servletContext);
 
