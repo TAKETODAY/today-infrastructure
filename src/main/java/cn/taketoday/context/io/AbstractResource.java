@@ -94,7 +94,7 @@ public abstract class AbstractResource implements Resource {
 
   @Override
   public Resource[] list(ResourceFilter filter) throws IOException {
-    final String names[] = list();
+    final String[] names = list();
 
     if (StringUtils.isArrayEmpty(names)) {
       return Constant.EMPTY_RESOURCE_ARRAY;
