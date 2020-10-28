@@ -107,6 +107,9 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   private final String type;
   private final String subtype;
   private volatile String toStringValue;
+
+  private Charset resolvedCharset;
+
   private final Map<String, String> parameters;
 
   /**
@@ -157,6 +160,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    */
   public MimeType(String type, String subtype, Charset charset) {
     this(type, subtype, Collections.singletonMap(PARAM_CHARSET, charset.name()));
+    this.resolvedCharset = charset;
   }
 
   /**
@@ -173,6 +177,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    */
   public MimeType(MimeType other, Charset charset) {
     this(other.getType(), other.getSubtype(), addCharsetParameter(charset, other.getParameters()));
+    this.resolvedCharset = charset;
   }
 
   /**
@@ -226,6 +231,23 @@ public class MimeType implements Comparable<MimeType>, Serializable {
   }
 
   /**
+   * Copy-constructor that copies the type, subtype and parameters of the given {@code MimeType},
+   * skipping checks performed in other constructors.
+   *
+   * @param other
+   *         the other MimeType
+   *
+   * @since 3.0
+   */
+  protected MimeType(MimeType other) {
+    this.type = other.type;
+    this.subtype = other.subtype;
+    this.parameters = other.parameters;
+    this.toStringValue = other.toStringValue;
+    this.resolvedCharset = other.resolvedCharset;
+  }
+
+  /**
    * Checks the given token string for illegal characters, as defined in RFC 2616,
    * section 2.2.
    *
@@ -256,8 +278,9 @@ public class MimeType implements Comparable<MimeType>, Serializable {
 
     checkToken(attribute);
     if (PARAM_CHARSET.equals(attribute)) {
-      value = unquote(value);
-      Charset.forName(value);
+      if (this.resolvedCharset == null) {
+        this.resolvedCharset = Charset.forName(unquote(value));
+      }
     }
     else if (!isQuotedString(value)) {
       checkToken(value);
@@ -325,8 +348,14 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @return the character set, or {@code null} if not available
    */
   public Charset getCharset() {
-    String charset = getParameter(PARAM_CHARSET);
-    return (charset != null ? Charset.forName(unquote(charset)) : null);
+    Charset ret = this.resolvedCharset;
+    if (ret == null) {
+      String charset = getParameter(PARAM_CHARSET);
+      return charset != null
+             ? (this.resolvedCharset = Charset.forName(unquote(charset)))
+             : null;
+    }
+    return ret;
   }
 
   /**
