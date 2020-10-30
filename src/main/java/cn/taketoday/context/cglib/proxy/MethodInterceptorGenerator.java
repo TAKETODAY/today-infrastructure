@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.Label;
 import cn.taketoday.context.asm.Type;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.ClassInfo;
 import cn.taketoday.context.cglib.core.CodeEmitter;
@@ -33,7 +34,6 @@ import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.Local;
 import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.ObjectSwitchCallback;
-import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.Transformer;
 import cn.taketoday.context.cglib.core.TypeUtils;
@@ -128,17 +128,17 @@ class MethodInterceptorGenerator implements CallbackGenerator {
       e.dup();
       e.ifnull(nullInterceptor);
 
-      e.load_this();
-      e.getfield(methodField);
+      e.load_this(); // obj
+      e.getfield(methodField); // method
 
       if (sig.getArgumentTypes().length == 0) {
         e.getfield(EMPTY_ARGS_NAME);
       }
       else {
-        e.create_arg_array();
+        e.create_arg_array(); // args
       }
 
-      e.getfield(methodProxyField);
+      e.getfield(methodProxyField);  // methodProxy
       e.invoke_interface(METHOD_INTERCEPTOR, INTERCEPT);
       e.unbox_or_zero(sig.getReturnType());
       e.return_value();

@@ -35,14 +35,14 @@ import cn.taketoday.context.reflect.MethodInvoker;
 public class StandardMethodInvocation implements MethodInvocation {
 
   private final Object[] args;
-  private final TargetMethodInvocation target;
+  private final Target target;
 
   /**
    * a flag show that current index of advice
    */
   private int currentAdviceIndex = 0;
 
-  public StandardMethodInvocation(TargetMethodInvocation target, Object[] arguments) {
+  public StandardMethodInvocation(Target target, Object[] arguments) {
     this.target = target;
     this.args = arguments;
   }
@@ -59,7 +59,7 @@ public class StandardMethodInvocation implements MethodInvocation {
 
   @Override
   public Object proceed() throws Throwable {
-    final TargetMethodInvocation target = this.target;
+    final Target target = this.target;
     if (currentAdviceIndex == target.adviceLength) {
       return target.proceed(args);
     }
@@ -81,7 +81,7 @@ public class StandardMethodInvocation implements MethodInvocation {
     return target.toString();
   }
 
-  public static class TargetMethodInvocation implements MethodInvocation {
+  public static class Target implements MethodInvocation {
 
     private final Object target;
     private final Method method;
@@ -89,16 +89,15 @@ public class StandardMethodInvocation implements MethodInvocation {
     private final MethodInvoker invoker;
     private final MethodInterceptor[] advices;
 
-    public TargetMethodInvocation(Object target, //@off
-                                      Method method, 
-                                      MethodInterceptor[] advices) {
-            
-            this.target = target;
-            this.method = method;
-            this.advices = advices;
-            this.adviceLength = advices.length;
-            this.invoker = MethodInvoker.create(method);
-        } //@on
+    public Target(Object target, //@off
+                  Method method,
+                  MethodInterceptor[] advices) {
+      this.target = target;
+      this.method = method;
+      this.advices = advices;
+      this.adviceLength = advices.length;
+      this.invoker = MethodInvoker.create(method);
+    } //@on
 
     @Override
     public Method getMethod() {

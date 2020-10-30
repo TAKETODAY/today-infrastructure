@@ -57,8 +57,8 @@ public class DebuggingClassWriter extends ClassVisitor {
   }
 
   public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-    className = name.replace('/', '.');
-    this.superName = superName.replace('/', '.');
+    this.className = name;
+    this.superName = superName;
     super.visit(version, access, name, signature, superName, interfaces);
   }
 
@@ -84,7 +84,15 @@ public class DebuggingClassWriter extends ClassVisitor {
     });
   }
 
+  public static void setDebugLocation(final String debugLocation) {
+    DebuggingClassWriter.debugLocation = debugLocation;
+  }
+
   private void debug(byte[] b) {
+
+    this.className = className.replace('/', '.');
+    this.superName = superName.replace('/', '.');
+
     String dirs = className.replace('.', File.separatorChar);
     try {
       new File(debugLocation + File.separatorChar + dirs).getParentFile().mkdirs();
