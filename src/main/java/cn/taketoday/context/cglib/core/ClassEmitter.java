@@ -224,8 +224,10 @@ public class ClassEmitter extends ClassTransformer {
       begin_static();
     }
     if (staticInit != null) {
-      staticHook.return_value();
-      staticHook.end_method();
+      if (staticHook != null) {
+        staticHook.return_value();
+        staticHook.end_method();
+      }
       rawStaticInit.visitInsn(Constant.RETURN);
       rawStaticInit.visitMaxs(0, 0);
       staticInit = staticHook = null;
@@ -235,46 +237,18 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   public CodeEmitter beginMethod(int access, Signature sig, Type... exceptions) {
+    if (classInfo == null) {
+      throw new IllegalStateException("classInfo is null! " + this);
+    }
 
-    if (classInfo == null) throw new IllegalStateException("classInfo is null! " + this);
-
-    final MethodVisitor visitor = cv.visitMethod(access,
-                                                 sig.getName(),
-                                                 sig.getDescriptor(),
-                                                 null,
-                                                 TypeUtils.toInternalNames(exceptions));
+    final MethodVisitor visitor = cv.visitMethod(access, sig.getName(), sig.getDescriptor(),
+                                                 null, TypeUtils.toInternalNames(exceptions));
 
     if (sig.equals(Constant.SIG_STATIC) && !Modifier.isInterface(getAccess())) {
-
-      rawStaticInit = visitor;
-      final MethodVisitor wrapped = new MethodVisitor(visitor) {
-
-        @Override
-        public void visitMaxs(int maxStack, int maxLocals) {
-          // ignore
-        }
-
-        @Override
-        public void visitInsn(int insn) {
-          if (insn != Constant.RETURN) {
-            super.visitInsn(insn);
-          }
-        }
-      };
-      staticInit = new CodeEmitter(this, wrapped, access, sig, exceptions);
-      if (staticHook == null) {
-        // force static hook creation
-        getStaticHook();
-      }
-      else {
-        staticInit.invoke_static_this(staticHookSig);
-      }
-      return staticInit;
+      return begin_static(true, visitor);
     }
     else if (sig.equals(staticHookSig)) {
-
       return new CodeEmitter(this, visitor, access, sig, exceptions) {
-
         public boolean isStaticHook() {
           return true;
         }
@@ -286,7 +260,37 @@ public class ClassEmitter extends ClassTransformer {
   }
 
   public CodeEmitter begin_static() {
-    return beginMethod(Constant.ACC_STATIC, Constant.SIG_STATIC);
+    return begin_static(true);
+  }
+
+  public CodeEmitter begin_static(boolean hook) {
+    final Signature sigStatic = Constant.SIG_STATIC;
+    return begin_static(hook, cv.visitMethod(Constant.ACC_STATIC,
+                                             sigStatic.getName(),
+                                             sigStatic.getDescriptor(), null, null));
+  }
+
+  public CodeEmitter begin_static(boolean hook, MethodVisitor visitor) {
+    rawStaticInit = visitor;
+    final MethodVisitor wrapped = new MethodVisitor(visitor) {
+      public void visitMaxs(int maxStack, int maxLocals) {}
+
+      public void visitInsn(int insn) {
+        if (insn != Constant.RETURN) {
+          super.visitInsn(insn);
+        }
+      }
+    };
+    staticInit = new CodeEmitter(this, wrapped, Constant.ACC_STATIC, Constant.SIG_STATIC, null);
+    if (hook) {
+      if (staticHook == null) {
+        getStaticHook(); // force static hook creation
+      }
+      else {
+        staticInit.invoke_static_this(staticHookSig);
+      }
+    }
+    return staticInit;
   }
 
   public void declare_field(int access, String name, Type type, Object value) {

@@ -21,11 +21,22 @@ import cn.taketoday.context.utils.ExceptionUtils;
  * @version $Id: CodeGenerationException.java,v 1.3 2004/06/24 21:15:21
  * herbyderby Exp $
  */
-@SuppressWarnings("all")
 public class CodeGenerationException extends RuntimeException {
+
+  private static final long serialVersionUID = 1L;
+
+  public CodeGenerationException() { }
 
   public CodeGenerationException(Throwable cause) {
     super(ExceptionUtils.unwrapThrowable(cause).toString(), cause);
+  }
+
+  public CodeGenerationException(String message) {
+    super(message);
+  }
+
+  public CodeGenerationException(String message, Throwable cause) {
+    super(message, cause);
   }
 
 }

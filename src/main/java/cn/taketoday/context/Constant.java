@@ -115,7 +115,7 @@ public interface Constant extends Opcodes, Serializable {
     String	ENABLE_FULL_LIFECYCLE	= "enable.full.lifecycle";
     String[]  EMPTY_STRING_ARRAY	= new String[0];
     String  CONSTRUCTOR_NAME 		= "<init>";
-    String  STATIC_CLASS_INIT 		= "<clinit>";
+    String  STATIC_CLASS_INIT 		= STATIC_NAME;
     /** Suffix for array class names: {@code "[]"}. */
     String  ARRAY_SUFFIX 			= "[]";
     /** Prefix for internal array class names: {@code "["}. */
@@ -186,10 +186,6 @@ public interface Constant extends Opcodes, Serializable {
      * @since 2.1.7
      */
     String PROTOTYPE = "prototype";
-    /**
-     * @since 3.0
-     */
-    String REFERENCE = "reference";
 
     /** URL prefix for loading from the file system: "file:". */
     String FILE_URL_PREFIX = "file:";
