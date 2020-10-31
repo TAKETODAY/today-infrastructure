@@ -36,7 +36,8 @@ public class DefaultNamingPolicy implements NamingPolicy {
   /**
    * This allows to test collisions of {@code key.hashCode()}.
    */
-  private final static boolean STRESS_HASH_CODE = Boolean.getBoolean("cn.taketoday.context.cglib.test.stressHashCodes");
+  private static final boolean STRESS_HASH_CODE =
+          Boolean.getBoolean("cn.taketoday.context.cglib.test.stressHashCodes");
 
   @Override
   public String getClassName(String prefix, String source, Object key, Predicate<String> names) {
@@ -45,11 +46,10 @@ public class DefaultNamingPolicy implements NamingPolicy {
       prefix = "cn.taketoday.context.cglib.Object";
     }
     else if (prefix.startsWith("java")) {
-      prefix = "$" + prefix;
+      prefix = '$' + prefix;
     }
 
-    final String base = new StringBuilder()//
-            .append(prefix)//
+    final String base = new StringBuilder(prefix)//
             .append("$$")//
             .append(source)//
             .append(getTag())//
@@ -59,7 +59,7 @@ public class DefaultNamingPolicy implements NamingPolicy {
     String attempt = base;
     int index = 2;
     while (names.test(attempt))
-      attempt = base + "_" + index++;
+      attempt = base + '_' + index++;
     return attempt;
   }
 
