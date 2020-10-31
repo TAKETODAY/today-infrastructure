@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
@@ -46,6 +47,7 @@ public abstract class StringUtils {
 
   private static final int caseDiff = ('a' - 'A');
   private static BitSet dontNeedEncoding;
+  private static final Random random = new Random();
 
   static {
 
@@ -1059,4 +1061,31 @@ else */
     return false;
   }
 
+  public static String getRandomString(int length) {
+    final char[] ret = new char[length];
+    final Random random = StringUtils.random;
+    for (int i = 0; i < length; i++) {
+      ret[i] = generateRandomCharacter(random.nextInt(3));
+    }
+    return String.valueOf(ret);
+  }
+
+  private static char generateRandomCharacter(int type) {
+    int rand;
+    switch (type) {
+      case 0://随机小写字母
+        rand = random.nextInt(26);
+        rand += 97;
+        return (char) rand;
+      case 1://随机大写字母
+        rand = random.nextInt(26);
+        rand += 65;
+        return (char) rand;
+      case 2://随机数字
+      default:
+        rand = random.nextInt(10);
+        rand += 48;
+        return (char) rand;
+    }
+  }
 }
