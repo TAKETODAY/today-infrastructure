@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,76 +19,141 @@
  */
 package cn.taketoday.aop;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
+import org.aopalliance.intercept.MethodInterceptor;
 import org.junit.Test;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.aop.listener.AspectsDestroyListener;
 import cn.taketoday.aop.proxy.AutoProxyCreator;
+import cn.taketoday.aop.proxy.StandardProxyCreator.StandardProxyGenerator;
+import cn.taketoday.aop.proxy.TargetSource;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.factory.StandardBeanFactory;
 import lombok.extern.slf4j.Slf4j;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
 /**
  * @author TODAY <br>
- *         2018-08-10 21:29
+ * 2018-08-10 21:29
  */
 @Slf4j
 public class AopTest {
 
-    static {
-//        System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY, "D:/debug");
+  @Import({ //
+          AspectsDestroyListener.class, //
+          DefaultUserService.class, //
+          LogAspect.class, //
+          MemUserDao.class, //
+          TestInterceptor.class, //
+          TimeAspect.class//
+  })
+  static class AopConfig {
+
+  }
+
+  @Test
+  public void testAop() throws Throwable {
+
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+
+      final StandardBeanFactory beanFactory = context.getBeanFactory();
+
+      beanFactory.importBeans(AopConfig.class);
+      context.addBeanPostProcessor(new AutoProxyCreator(context));
+
+      UserService userService = context.getBean(UserService.class);
+
+      final Class<? extends UserService> userServiceClass = userService.getClass();
+      assertNotEquals(DefaultUserService.class, userServiceClass);
+      assertEquals(DefaultUserService.class, userServiceClass.getSuperclass());
+
+      User user = new User();
+      user.setPassword("666");
+      user.setEmail("666");
+      long start = System.currentTimeMillis();
+      User login = userService.login(user);
+
+//    for (int i = 0; i < 1000; i++) {
+//      login = bean.login(user);
+//    }
+
+      log.debug("{}ms", System.currentTimeMillis() - start);
+      log.debug("Result:[{}]", login);
+      log.debug("{}ms", System.currentTimeMillis() - start);
+
+      TestInterceptor bean2 = context.getBean(TestInterceptor.class);
+
+      System.err.println(bean2);
+    }
+  }
+
+  static class Bean {
+
+    static void testStatic() {
+      System.out.println("testStatic");
     }
 
-    @Import({ //
-        AspectsDestroyListener.class, //
-        DefaultUserService.class, //
-        LogAspect.class, //
-        MemUserDao.class, //
-        TestInterceptor.class, //
-        TimeAspect.class//
-    })
-    static class AopConfig {
-
+    void test() {
+      System.out.println("test");
     }
 
-    @Test
-    public void testAop() throws Throwable {
-
-        try (StandardApplicationContext context = new StandardApplicationContext()) {
-
-            final StandardBeanFactory beanFactory = context.getBeanFactory();
-
-            beanFactory.importBeans(AopConfig.class);
-            context.addBeanPostProcessor(new AutoProxyCreator(context));
-            
-            UserService userService = context.getBean(UserService.class);
-            
-            final Class<? extends UserService> userServiceClass = userService.getClass();
-            assertNotEquals(DefaultUserService.class, userServiceClass);
-            assertEquals(DefaultUserService.class, userServiceClass.getSuperclass());
-            
-            
-            User user = new User();
-            user.setPassword("666");
-            user.setEmail("666");
-            long start = System.currentTimeMillis();
-            User login = userService.login(user);
-
-//            for (int i = 0; i < 1000; i++) {
-//                login = bean.login(user);
-//            }
-
-            log.debug("{}ms", System.currentTimeMillis() - start);
-            log.debug("Result:[{}]", login);
-            log.debug("{}ms", System.currentTimeMillis() - start);
-
-            TestInterceptor bean2 = context.getBean(TestInterceptor.class);
-
-            System.err.println(bean2);
-        }
+    void test1() {
+      System.out.println("test1");
     }
+
+    int testReturn() {
+      return 100;
+    }
+  }
+
+  @Test
+  public void testStandardProxyCreator() throws Throwable {
+
+    DebuggingClassWriter.setDebugLocation("C:\\Users\\TODAY\\Desktop\\temp\\");
+
+    try (StandardApplicationContext context = new StandardApplicationContext("", "cn.taketoday.aop.proxy")) {
+
+      final StandardProxyGenerator proxyGenerator = new StandardProxyGenerator(context);
+      final Bean target = new Bean();
+      proxyGenerator.setTarget(target);
+      proxyGenerator.setTargetClass(Bean.class);
+
+      final TargetSource targetSource = new TargetSource(target, Bean.class);
+      proxyGenerator.setTargetSource(targetSource);
+
+      final Map<Method, List<MethodInterceptor>> mapping = new LinkedHashMap<>();
+      final List<MethodInterceptor> advices = new ArrayList<>();
+
+      advices.add(invocation -> {
+        System.out.println("=========before========");
+        final Object proceed = invocation.proceed();
+        System.out.println("=========after========");
+        return proceed;
+      });
+
+      mapping.put(Bean.class.getDeclaredMethod("test"), advices);
+      mapping.put(Bean.class.getDeclaredMethod("test1"), advices);
+      mapping.put(Bean.class.getDeclaredMethod("testReturn"), advices);
+      targetSource.setAspectMappings(mapping);
+
+      final Bean created = (Bean) proxyGenerator.create();
+
+      System.out.println(created);
+
+      Bean.testStatic();
+      created.test();
+      created.test1();
+      System.out.println(created.testReturn());
+    }
+  }
 
 }

@@ -194,8 +194,7 @@ public class StandardProxyCreator implements ProxyCreator {
     }
 
     @Override
-    public void generateClass(ClassVisitor v) throws NoSuchMethodException {
-      setDebugLocation();
+    public void generateClass(ClassVisitor v) {
 
       final ClassEmitter ce = new ClassEmitter(v);
       final Type targetType = TypeUtils.parseType(targetClass);
@@ -204,9 +203,9 @@ public class StandardProxyCreator implements ProxyCreator {
                     array(TypeUtils.getTypes(targetClass.getInterfaces())), SOURCE_FILE);
 
       ce.declare_field(Constant.ACC_PRIVATE | Constant.ACC_FINAL, "target", targetType, null);
-
       // 父类构造器参数
       constructor(ce, targetType);
+
       List<String> fields = new ArrayList<>();
       for (Method method : ReflectionUtils.getDeclaredMethods(targetClass)) {
 
@@ -334,26 +333,7 @@ public class StandardProxyCreator implements ProxyCreator {
       code.end_method();
     }
 
-    public static void print() {
-      System.out.println("hook");
-    }
-
-    private static final Signature print;
-    private static final Type printType = Type.getType(StandardProxyGenerator.class);
-
-    static {
-      try {
-        final Method getTarget1 = StandardProxyGenerator.class.getDeclaredMethod("print");
-        print = new Signature(getTarget1);
-      }
-      catch (NoSuchMethodException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
     protected void invokeTarget(final ClassEmitter ce, final Type targetType, final MethodInfo methodInfo, final CodeEmitter codeEmitter) {
-
-      codeEmitter.invoke_static(printType, print);
 
       codeEmitter.load_this();
 
@@ -372,65 +352,4 @@ public class StandardProxyCreator implements ProxyCreator {
     }
   }
 
-  static class Bean {
-
-    static void testStatic() {
-      System.out.println("testStatic");
-    }
-
-    void test() {
-      System.out.println("test");
-    }
-
-    void test1() {
-      System.out.println("test1");
-    }
-
-    int testReturn() {
-      return 100;
-    }
-  }
-
-  public static void main(String[] args) throws NoSuchMethodException {
-
-    setDebugLocation();
-
-    try (StandardApplicationContext context = new StandardApplicationContext("", "cn.taketoday.aop.proxy")) {
-
-      final StandardProxyGenerator proxyGenerator = new StandardProxyGenerator(context);
-      final Bean target = new Bean();
-      proxyGenerator.setTarget(target);
-      proxyGenerator.setTargetClass(Bean.class);
-
-      final TargetSource targetSource = new TargetSource(target, Bean.class);
-      proxyGenerator.setTargetSource(targetSource);
-
-      final Map<Method, List<MethodInterceptor>> mapping = new LinkedHashMap<>();
-      final List<MethodInterceptor> advices = new ArrayList<>();
-      advices.add(new MethodInterceptor() {
-        @Override
-        public Object invoke(final MethodInvocation invocation) throws Throwable {
-          System.out.println(invocation);
-          return invocation.proceed();
-        }
-      });
-      mapping.put(Bean.class.getDeclaredMethod("test"), advices);
-      mapping.put(Bean.class.getDeclaredMethod("test1"), advices);
-      mapping.put(Bean.class.getDeclaredMethod("testReturn"), advices);
-      targetSource.setAspectMappings(mapping);
-
-      final Bean created = (Bean) proxyGenerator.create();
-
-      System.out.println(created);
-
-      Bean.testStatic();
-      created.test();
-      created.test1();
-      System.out.println(created.testReturn());
-    }
-  }
-
-  protected static void setDebugLocation() {
-    DebuggingClassWriter.setDebugLocation("C:\\Users\\TODAY\\Desktop\\temp\\");
-  }
 }
