@@ -20,21 +20,18 @@
 package cn.taketoday.aop.proxy;
 
 import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.aop.ProxyCreator;
 import cn.taketoday.aop.intercept.StandardMethodInvocation;
 import cn.taketoday.context.Constant;
-import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
@@ -42,7 +39,6 @@ import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.CodeGenerationException;
-import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.KeyFactory;
 import cn.taketoday.context.cglib.core.Local;
