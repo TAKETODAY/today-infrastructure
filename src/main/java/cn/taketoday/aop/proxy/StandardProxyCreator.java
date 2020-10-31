@@ -51,6 +51,7 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
@@ -300,6 +301,7 @@ public class StandardProxyCreator implements ProxyCreator {
     protected StandardMethodInvocation.Target getTargetMethodInvocation(final Method method) {
       Map<Method, List<MethodInterceptor>> aspectMappings = targetSource.getAspectMappings();
       List<MethodInterceptor> interceptors = aspectMappings.get(method);
+      OrderUtils.reversedSort(interceptors);
       MethodInterceptor[] advices = interceptors.toArray(new MethodInterceptor[interceptors.size()]);
       return new StandardMethodInvocation.Target(target, method, advices);
     }
