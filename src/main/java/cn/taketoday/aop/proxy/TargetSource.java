@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.context.utils.CollectionUtils;
+
 /**
  * @author TODAY <br>
  * 2018-11-10 11:47
@@ -41,6 +43,11 @@ public class TargetSource {
     this.target = target;
     this.targetClass = targetClass;
     this.interfaces = targetClass.getInterfaces();
+  }
+
+  public boolean contains(Method method) {
+    final Map<Method, List<MethodInterceptor>> aspectMappings = getAspectMappings();
+    return !CollectionUtils.isEmpty(aspectMappings) && aspectMappings.containsKey(method);
   }
 
   public Object getTarget() {

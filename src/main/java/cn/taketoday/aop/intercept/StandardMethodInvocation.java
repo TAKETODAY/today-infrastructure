@@ -83,16 +83,16 @@ public class StandardMethodInvocation implements MethodInvocation {
 
   public static class Target implements MethodInvocation {
 
-    private final Object target;
+    private final Object bean;
     private final Method method;
     private final int adviceLength;
     private final MethodInvoker invoker;
     private final MethodInterceptor[] advices;
 
-    public Target(Object target, //@off
+    public Target(Object bean, //@off
                   Method method,
                   MethodInterceptor[] advices) {
-      this.target = target;
+      this.bean = bean;
       this.method = method;
       this.advices = advices;
       this.adviceLength = advices.length;
@@ -110,12 +110,12 @@ public class StandardMethodInvocation implements MethodInvocation {
     }
 
     @Override
-    public Object proceed() throws Throwable {
-      return invoker.invoke(target, advices);
+    public Object proceed() {
+      return invoker.invoke(bean, advices);
     }
 
-    public final Object proceed(Object[] args) throws Throwable {
-      return invoker.invoke(target, args);
+    public final Object proceed(Object[] args) {
+      return invoker.invoke(bean, args);
     }
 
     public Object invokeAdvice(final MethodInvocation invocation, final int index) throws Throwable {
@@ -124,7 +124,7 @@ public class StandardMethodInvocation implements MethodInvocation {
 
     @Override
     public Object getThis() {
-      return target;
+      return bean;
     }
 
     @Override
@@ -135,7 +135,7 @@ public class StandardMethodInvocation implements MethodInvocation {
     @Override
     public String toString() {
       return new StringBuilder()//
-              .append("{\n\t\"target\":\"").append(target)//
+              .append("{\n\t\"target\":\"").append(bean)//
               .append("\",\n\t\"method\":\"").append(method)//
               .append("\",\n\t\"advices\":\"").append(Arrays.toString(advices))//
               .append("\"\n}")//

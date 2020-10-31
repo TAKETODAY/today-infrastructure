@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import cn.taketoday.aop.ProxyCreator;
 import cn.taketoday.aop.intercept.StandardMethodInvocation;
@@ -42,6 +41,7 @@ import cn.taketoday.context.cglib.core.AbstractClassGenerator;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
+import cn.taketoday.context.cglib.core.CodeGenerationException;
 import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.KeyFactory;
@@ -55,6 +55,8 @@ import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
+import cn.taketoday.context.utils.StringUtils;
 
 import static cn.taketoday.context.Constant.SOURCE_FILE;
 import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
@@ -134,9 +136,23 @@ public class StandardProxyCreator implements ProxyCreator {
       return super.create(key);
     }
 
+    public Class<?>[] getParameterTypes() {
+      if (parameterTypes == null) {
+        if (targetConstructor == null) {
+          targetConstructor = ClassUtils.getSuitableConstructor(targetClass);
+          if (targetConstructor == null) {
+            throw new CodeGenerationException("No suitable constructor found in class :[" + targetClass + "]");
+          }
+        }
+        this.parameterTypes = targetConstructor.getParameterTypes();
+      }
+      return parameterTypes;
+    }
+
     @Override
     protected Object firstInstance(Class<Object> type) {
 
+      final Class<?>[] parameterTypes = getParameterTypes();
       if (ObjectUtils.isEmpty(parameterTypes)) {
         return CglibReflectUtils.newInstance(type, new Class[] { targetClass }, new Object[] { target });
       }
@@ -163,24 +179,25 @@ public class StandardProxyCreator implements ProxyCreator {
     private static final Signature stdConstructorSignature;
     private static final Type stdType = Type.getType(StandardMethodInvocation.class);
     private static final Type invocationRegistryType = Type.getType(InvocationRegistry.class);
+    private static final Type targetInvocationType = Type.getType(StandardMethodInvocation.Target.class);
 
     static {
       try {
         final Method getTarget1 = InvocationRegistry.class.getDeclaredMethod("getTarget", String.class);
         getTarget = new Signature(getTarget1);
         proceed = new Signature(StandardMethodInvocation.class.getDeclaredMethod("proceed"));
-
         stdConstructorSignature = new Signature(StandardMethodInvocation.class.getDeclaredConstructor(
                 StandardMethodInvocation.Target.class, Object[].class
         ));
       }
       catch (NoSuchMethodException e) {
-        throw new RuntimeException(e);
+        throw new CodeGenerationException(e);
       }
     }
 
     @Override
     public void generateClass(ClassVisitor v) throws NoSuchMethodException {
+      setDebugLocation();
 
       final ClassEmitter ce = new ClassEmitter(v);
       final Type targetType = TypeUtils.parseType(targetClass);
@@ -189,85 +206,102 @@ public class StandardProxyCreator implements ProxyCreator {
                     array(TypeUtils.getTypes(targetClass.getInterfaces())), SOURCE_FILE);
 
       ce.declare_field(Constant.ACC_PRIVATE | Constant.ACC_FINAL, "target", targetType, null);
-      targetConstructor = ClassUtils.obtainConstructor(targetClass);
 
       // 父类构造器参数
-      final Type[] types = TypeUtils.getTypes(parameterTypes = targetConstructor.getParameterTypes());
-      constructor(ce, targetType, types);
-      Map<Method, List<MethodInterceptor>> aspectMappings = targetSource.getAspectMappings();
-
-      for (Method method : targetClass.getDeclaredMethods()) {
+      constructor(ce, targetType);
+      List<String> fields = new ArrayList<>();
+      for (Method method : ReflectionUtils.getDeclaredMethods(targetClass)) {
 
         final int modifiers = method.getModifiers();
         if (Modifier.isStatic(modifiers)
                 || Modifier.isFinal(modifiers)
                 || Modifier.isPrivate(modifiers)
-                || !aspectMappings.containsKey(method)) {
+                || !targetSource.contains(method)) {
           continue;
         }
 
-        StandardMethodInvocation.Target targetInvocation = getTargetMethodInvocation(method);
-        final String randomTarget = getRandomTarget(method);
-        InvocationRegistry.putTarget(randomTarget, targetInvocation);
+        final String targetField = putTarget(method, fields);
+        fields.add(targetField);
 
-        ce.declare_field(getStaticAccess(), randomTarget,
-                         TypeUtils.parseType(StandardMethodInvocation.Target.class), null);
-
-        final CodeEmitter staticHook = ce.getStaticHook();
-        // 静态
-        staticHook.visitLdcInsn(randomTarget);
-        staticHook.invoke_static(invocationRegistryType, getTarget);
-        staticHook.putfield(randomTarget);
+        ce.declare_field(getStaticAccess(), targetField, targetInvocationType, null);
 
         MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
         final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, methodInfo, modifiers);
 
-        final Local stdTypeLocal = codeEmitter.make_local(stdType);
+        final Local stdInvocationLocal = codeEmitter.make_local(stdType);
 
         codeEmitter.new_instance(stdType);
         codeEmitter.dup();
 
-        codeEmitter.getfield(randomTarget);
+        codeEmitter.getfield(targetField);
         // 准备new StandardMethodInvocation()参数
         if (method.getParameterCount() == 0) {
-          codeEmitter.getstatic(Type.getType(Constant.class),
-                                "EMPTY_OBJECT_ARRAY", Constant.TYPE_OBJECT_ARRAY);
+          codeEmitter.getstatic(Type.getType(Constant.class), "EMPTY_OBJECT_ARRAY", Constant.TYPE_OBJECT_ARRAY);
         }
         else {
           codeEmitter.create_arg_array(); // args
         }
 
         codeEmitter.invoke_constructor(stdType, stdConstructorSignature);
-        codeEmitter.store_local(stdTypeLocal);
+        codeEmitter.store_local(stdInvocationLocal);
 
         // 调用之前先加载变量
-        codeEmitter.load_local(stdTypeLocal);
-
+        codeEmitter.load_local(stdInvocationLocal);
         codeEmitter.invoke_virtual(stdType, proceed);
-        final Class<?> returnType1 = method.getReturnType();
-        if (returnType1 != void.class) {
-          Type type = Type.getType(returnType1);
-          Local returnType = codeEmitter.make_local(type);
-          codeEmitter.checkcast(Type.getType(returnType1));
-          codeEmitter.store_local(returnType);
-          codeEmitter.load_local(returnType);
+
+        Local returnLocal = null;
+        if (method.getReturnType() != void.class) {
+          returnLocal = codeEmitter.make_local();
+          codeEmitter.store_local(returnLocal);
         }
+        // 清理
         codeEmitter.aconst_null();
-        codeEmitter.store_local(stdTypeLocal);
+        codeEmitter.store_local(stdInvocationLocal);
+
+        if (returnLocal != null) {
+          codeEmitter.load_local(returnLocal);
+          codeEmitter.unbox_or_zero(Type.getType(method.getReturnType()));
+        }
 
         codeEmitter.return_value();
         codeEmitter.end_method();
       }
 
+      if (!fields.isEmpty()) {
+        final CodeEmitter staticBlock = ce.begin_static(false); // 静态代码块
+        for (final String target : fields) {
+          staticBlock.visitLdcInsn(target);
+          staticBlock.invoke_static(invocationRegistryType, getTarget);
+          staticBlock.putfield(target);
+        }
+      }
+
       ce.endClass();
     }
 
-    protected String getRandomTarget(final Method method) {
-      return method.getName() + getRandomHashString(5);
+    /**
+     * @param method
+     *         current method
+     * @param fields
+     *         Target keys in {@link #targetClass}
+     *
+     * @return Target key
+     */
+    protected String putTarget(final Method method, final List<String> fields) {
+      final String field = method.getName() + StringUtils.getRandomString(4);
+      if (fields.contains(field)) {
+        return putTarget(method, fields);
+      }
+      final StandardMethodInvocation.Target target = InvocationRegistry.getTarget(field);
+      if (target != null) {
+        return putTarget(method, fields);
+      }
+      InvocationRegistry.putTarget(field, getTargetMethodInvocation(method));
+      return field;
     }
 
     protected int getStaticAccess() {
-      return Constant.ACC_PRIVATE | Constant.ACC_FINAL | Constant.ACC_STATIC;
+      return Constant.PRIVATE_FINAL_STATIC;
     }
 
     protected StandardMethodInvocation.Target getTargetMethodInvocation(final Method method) {
@@ -277,8 +311,9 @@ public class StandardProxyCreator implements ProxyCreator {
       return new StandardMethodInvocation.Target(target, method, advices);
     }
 
-    protected void constructor(final ClassEmitter ce, final Type targetType, final Type[] types) {
+    protected void constructor(final ClassEmitter ce, final Type targetType) {
       // 构造器
+      final Type[] types = TypeUtils.getTypes(getParameterTypes());
 
       final Type[] add = TypeUtils.add(types, targetType, true); // 子类构造器参数
       final Signature parseConstructor = TypeUtils.parseConstructor(add);
@@ -353,44 +388,14 @@ public class StandardProxyCreator implements ProxyCreator {
       System.out.println("test1");
     }
 
-    String testReturn() {
-      return "testReturn";
-    }
-  }
-
-  private static final Random random = new Random();
-
-  public static String getRandomHashString(int length) {
-    final char[] ret = new char[length];
-    final Random random = StandardProxyCreator.random;
-    for (int i = 0; i < length; i++) {
-      ret[i] = generateRandomCharacter(random.nextInt(3));
-    }
-    return String.valueOf(ret);
-  }
-
-  private static char generateRandomCharacter(int type) {
-    int rand;
-    switch (type) {
-      case 0://随机小写字母
-        rand = random.nextInt(26);
-        rand += 97;
-        return (char) rand;
-      case 1://随机大写字母
-        rand = random.nextInt(26);
-        rand += 65;
-        return (char) rand;
-      case 2://随机数字
-      default:
-        rand = random.nextInt(10);
-        rand += 48;
-        return (char) rand;
+    int testReturn() {
+      return 100;
     }
   }
 
   public static void main(String[] args) throws NoSuchMethodException {
 
-    DebuggingClassWriter.setDebugLocation("C:\\Users\\TODAY\\Desktop\\temp\\");
+    setDebugLocation();
 
     try (StandardApplicationContext context = new StandardApplicationContext("", "cn.taketoday.aop.proxy")) {
 
@@ -425,5 +430,9 @@ public class StandardProxyCreator implements ProxyCreator {
       created.test1();
       System.out.println(created.testReturn());
     }
+  }
+
+  protected static void setDebugLocation() {
+    DebuggingClassWriter.setDebugLocation("C:\\Users\\TODAY\\Desktop\\temp\\");
   }
 }

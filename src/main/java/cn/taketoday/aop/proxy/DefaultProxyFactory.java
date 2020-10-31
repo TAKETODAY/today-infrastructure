@@ -53,7 +53,8 @@ public class DefaultProxyFactory implements ProxyFactory {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultProxyFactory.class);
 
-  private static final CglibProxyCreator CGLIB_PROXY_CREATOR = new CglibProxyCreator();
+//  private static final CglibProxyCreator CGLIB_PROXY_CREATOR = new CglibProxyCreator();
+  private static final StandardProxyCreator CGLIB_PROXY_CREATOR = new StandardProxyCreator();
 
   private final TargetSource targetSource;
   private final ApplicationContext applicationContext;
