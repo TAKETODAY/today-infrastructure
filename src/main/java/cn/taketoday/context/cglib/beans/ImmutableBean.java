@@ -23,11 +23,11 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.MethodInfo;
-import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
@@ -49,12 +49,11 @@ public abstract class ImmutableBean {
   }
 
   public static class Generator extends AbstractClassGenerator {
-    private static final Source SOURCE = new Source(ImmutableBean.class.getSimpleName());
     private Object bean;
     private Class target;
 
     public Generator() {
-      super(SOURCE);
+      super(ImmutableBean.class);
     }
 
     public void setBean(Object bean) {

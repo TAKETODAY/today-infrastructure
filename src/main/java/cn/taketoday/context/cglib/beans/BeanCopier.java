@@ -68,14 +68,12 @@ abstract public class BeanCopier {
 
   public static class Generator extends AbstractClassGenerator {
 
-    private static final Source SOURCE = new Source(BeanCopier.class.getSimpleName());
     private final Class source;
     private final Class target;
     private final boolean useConverter;
 
     public Generator(Class source, Class target, boolean useConverter) {
-
-      super(SOURCE);
+      super(BeanCopier.class);
 
       if (!Modifier.isPublic(source.getModifiers())) {
         setNamePrefix(source.getName());

@@ -25,10 +25,10 @@ import java.util.Set;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.KeyFactory;
-import cn.taketoday.context.cglib.core.CglibReflectUtils;
 
 import static cn.taketoday.context.Constant.TYPE_OBJECT;
 import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
@@ -39,11 +39,10 @@ import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
  */
 public class BeanGenerator extends AbstractClassGenerator<Object> {
 
-  private static final Source SOURCE = new Source(BeanGenerator.class.getSimpleName());
-  private static final BeanGeneratorKey KEY_FACTORY = (BeanGeneratorKey) KeyFactory.create(BeanGeneratorKey.class);
+  private static final BeanGeneratorKey KEY_FACTORY = KeyFactory.create(BeanGeneratorKey.class);
 
   interface BeanGeneratorKey {
-    public Object newInstance(String superclass, Map<String, Type> props);
+    Object newInstance(String superclass, Map<String, Type> props);
   }
 
   private boolean classOnly;
@@ -51,7 +50,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
   private Map<String, Type> props = new HashMap<>();
 
   public BeanGenerator() {
-    super(SOURCE);
+    super(BeanGenerator.class);
   }
 
   /**
@@ -108,7 +107,7 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
   }
 
   @Override
-  public void generateClass(ClassVisitor v) throws Exception {
+  public void generateClass(ClassVisitor v) {
 
     final Map<String, Type> props = this.props;
     int size = props.size();
@@ -158,8 +157,8 @@ public class BeanGenerator extends AbstractClassGenerator<Object> {
   }
 
   public static void addProperties(BeanGenerator gen, PropertyDescriptor[] descriptors) {
-    for (int i = 0; i < descriptors.length; i++) {
-      gen.addProperty(descriptors[i].getName(), descriptors[i].getPropertyType());
+    for (final PropertyDescriptor descriptor : descriptors) {
+      gen.addProperty(descriptor.getName(), descriptor.getPropertyType());
     }
   }
 }

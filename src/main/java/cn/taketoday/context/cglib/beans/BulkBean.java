@@ -19,8 +19,8 @@ import java.security.ProtectionDomain;
 
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
-import cn.taketoday.context.cglib.core.KeyFactory;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
+import cn.taketoday.context.cglib.core.KeyFactory;
 
 /**
  * @author Juozas Baliuka
@@ -72,14 +72,13 @@ abstract public class BulkBean {
 
   public static class Generator extends AbstractClassGenerator {
 
-    private static final Source SOURCE = new Source(BulkBean.class.getSimpleName());
     private Class target;
     private String[] getters;
     private String[] setters;
     private Class[] types;
 
     public Generator() {
-      super(SOURCE);
+      super(BulkBean.class);
     }
 
     public void setTarget(Class target) {

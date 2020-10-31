@@ -163,7 +163,6 @@ abstract public class MethodDelegate {
 
   public static class Generator extends AbstractClassGenerator {
 
-    private static final Source SOURCE = new Source(MethodDelegate.class.getSimpleName());
     private static final Type METHOD_DELEGATE = TypeUtils.parseType(MethodDelegate.class);
     private static final Signature NEW_INSTANCE = new Signature("newInstance", METHOD_DELEGATE, new Type[] { Constant.TYPE_OBJECT });
 
@@ -173,7 +172,7 @@ abstract public class MethodDelegate {
     private Class iface;
 
     public Generator() {
-      super(SOURCE);
+      super(MethodDelegate.class);
     }
 
     public void setTarget(Object target) {

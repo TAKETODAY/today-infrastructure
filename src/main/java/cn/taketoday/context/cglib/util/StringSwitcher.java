@@ -91,14 +91,12 @@ abstract public class StringSwitcher {
 
   public static class Generator extends AbstractClassGenerator {
 
-    private static final Source SOURCE = new Source(StringSwitcher.class.getSimpleName());
-
     private int[] ints;
     private String[] strings;
     private boolean fixedInput;
 
     public Generator() {
-      super(SOURCE);
+      super(StringSwitcher.class);
     }
 
     /**

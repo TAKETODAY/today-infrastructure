@@ -97,8 +97,6 @@ public class StandardProxyCreator implements ProxyCreator {
 
   public static class StandardProxyGenerator extends AbstractClassGenerator<Object> {
 
-    private static final Source SOURCE = new Source("Aop");
-
     private Object target;
     private Class<?> targetClass;
     private TargetSource targetSource;
@@ -107,7 +105,7 @@ public class StandardProxyCreator implements ProxyCreator {
     private final BeanFactory beanFactory;
 
     public StandardProxyGenerator(BeanFactory beanFactory) {
-      super(SOURCE);
+      super("Aop");
       this.beanFactory = beanFactory;
     }
 

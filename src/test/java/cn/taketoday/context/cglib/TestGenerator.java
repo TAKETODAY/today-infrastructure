@@ -21,7 +21,7 @@ import cn.taketoday.context.cglib.core.CglibReflectUtils;
 abstract public class TestGenerator extends AbstractClassGenerator {
     private static int counter;
 
-    public TestGenerator(Source source) {
+    public TestGenerator(String source) {
         super(source);
     }
 
@@ -38,6 +38,6 @@ abstract public class TestGenerator extends AbstractClassGenerator {
     }
 
     public Object create() {
-        return create(new Integer(counter++));
+        return create(counter++);
     }
 }

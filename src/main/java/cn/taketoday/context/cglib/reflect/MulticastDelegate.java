@@ -23,13 +23,13 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.Local;
 import cn.taketoday.context.cglib.core.MethodInfo;
 import cn.taketoday.context.cglib.core.ProcessArrayCallback;
-import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.core.TypeUtils;
 
@@ -72,7 +72,7 @@ abstract public class MulticastDelegate implements Cloneable {
     return this;
   }
 
-  abstract public MulticastDelegate newInstance();
+  public abstract MulticastDelegate newInstance();
 
   public static MulticastDelegate create(Class<?> iface) {
     return new Generator().setInterface(iface).create();
@@ -80,16 +80,15 @@ abstract public class MulticastDelegate implements Cloneable {
 
   public static class Generator extends AbstractClassGenerator<Object> {
 
-    private static final Source SOURCE = new Source(MulticastDelegate.class.getName());
     private static final Type MULTICAST_DELEGATE = TypeUtils.parseType(MulticastDelegate.class);
-    private static final Signature NEW_INSTANCE = new Signature("newInstance", MULTICAST_DELEGATE, new Type[0]);
+    private static final Signature NEW_INSTANCE = new Signature("newInstance", MULTICAST_DELEGATE, Constant.TYPES_EMPTY_ARRAY);
     private static final Signature ADD_DELEGATE = new Signature("add", MULTICAST_DELEGATE, new Type[] { Constant.TYPE_OBJECT });
     private static final Signature ADD_HELPER = new Signature("addHelper", MULTICAST_DELEGATE, new Type[] { Constant.TYPE_OBJECT });
 
     private Class<?> iface;
 
     public Generator() {
-      super(SOURCE);
+      super(MulticastDelegate.class);
     }
 
     @Override

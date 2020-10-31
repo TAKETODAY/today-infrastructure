@@ -123,8 +123,6 @@ public class Enhancer extends AbstractClassGenerator<Object> {
 
   private static final CallbackFilter ALL_ZERO = (m) -> 0;
 
-  private static final Source SOURCE = new Source("Enhance");
-
   private static final EnhancerKey KEY_FACTORY = KeyFactory.create(EnhancerKey.class, KeyFactory.HASH_ASM_TYPE, null);
 
   private static final String BOUND_FIELD = "TODAY$BOUND";
@@ -215,7 +213,7 @@ public class Enhancer extends AbstractClassGenerator<Object> {
    * @see Factory
    */
   public Enhancer() {
-    super(SOURCE);
+    super("Enhance");
   }
 
   /**

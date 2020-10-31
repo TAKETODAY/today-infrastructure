@@ -93,7 +93,6 @@ public abstract class Mixin {
   }
 
   public static class Generator extends AbstractClassGenerator {
-    private static final Source SOURCE = new Source(Mixin.class.getSimpleName());
 
     private Class[] classes;
     private Object[] delegates;
@@ -102,7 +101,7 @@ public abstract class Mixin {
     private int[] route;
 
     public Generator() {
-      super(SOURCE);
+      super(Mixin.class);
     }
 
     protected ClassLoader getDefaultClassLoader() {

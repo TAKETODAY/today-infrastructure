@@ -74,7 +74,6 @@ abstract public class BeanMap implements Map {
   }
 
   public static class Generator extends AbstractClassGenerator {
-    private static final Source SOURCE = new Source(BeanMap.class.getSimpleName());
 
     private static final BeanMapKey KEY_FACTORY = KeyFactory.create(BeanMapKey.class, KeyFactory.CLASS_BY_NAME);
 
@@ -87,7 +86,7 @@ abstract public class BeanMap implements Map {
     private int require;
 
     public Generator() {
-      super(SOURCE);
+      super(BeanMap.class);
     }
 
     /**

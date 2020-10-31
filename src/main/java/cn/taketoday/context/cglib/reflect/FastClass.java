@@ -51,12 +51,11 @@ public abstract class FastClass {
   }
 
   public static class Generator extends AbstractClassGenerator {
-    private static final Source SOURCE = new Source(FastClass.class.getSimpleName());
 
     private final Class<?> type;
 
     public Generator(Class<?> type) {
-      super(SOURCE);
+      super(FastClass.class);
       this.type = type;
     }
 

@@ -23,8 +23,8 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
 import cn.taketoday.context.cglib.core.AbstractClassGenerator;
-import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.CglibReflectUtils;
+import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.Signature;
 
 /**
@@ -37,8 +37,6 @@ import cn.taketoday.context.cglib.core.Signature;
  */
 public class InterfaceMaker extends AbstractClassGenerator<Object> {
 
-  private static final Source SOURCE = new Source(InterfaceMaker.class.getSimpleName());
-
   private final Map<Signature, Type[]> signatures = new HashMap<>();
 
   /**
@@ -47,7 +45,7 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
    * across threads.
    */
   public InterfaceMaker() {
-    super(SOURCE);
+    super(InterfaceMaker.class);
   }
 
   /**
@@ -78,7 +76,7 @@ public class InterfaceMaker extends AbstractClassGenerator<Object> {
    * are included, except for methods declared in the base Object class (e.g.
    * <code>getClass</code>, <code>equals</code>, <code>hashCode</code>).
    *
-   * @param class
+   * @param clazz
    *         the class containing the methods to add to the interface
    */
   public void add(Class<?> clazz) {

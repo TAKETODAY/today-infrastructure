@@ -47,7 +47,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   private GeneratorStrategy strategy = DefaultGeneratorStrategy.INSTANCE;
   private NamingPolicy namingPolicy = DefaultNamingPolicy.INSTANCE;
 
-  private final Source source;
+  private final String source;
   private ClassLoader classLoader;
   private String namePrefix;
   private Object key;
@@ -125,16 +125,12 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     return ((WeakReference) cached).get();
   }
 
-  protected static class Source {
-    final String name;
-
-    public Source(String name) {
-      this.name = name;
-    }
+  protected AbstractClassGenerator(String source) {
+    this.source = source;
   }
 
-  protected AbstractClassGenerator(Source source) {
-    this.source = source;
+  protected AbstractClassGenerator(Class<?> source) {
+    this(source.getSimpleName());
   }
 
   protected AbstractClassGenerator setNamePrefix(String namePrefix) {
@@ -152,7 +148,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
   }
 
   private String generateClassName(Predicate nameTestPredicate) {
-    return namingPolicy.getClassName(namePrefix, source.name, key, nameTestPredicate);
+    return namingPolicy.getClassName(namePrefix, source, key, nameTestPredicate);
   }
 
   /**

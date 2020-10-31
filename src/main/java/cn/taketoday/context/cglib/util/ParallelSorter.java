@@ -333,12 +333,10 @@ abstract public class ParallelSorter extends SorterTemplate {
   }
 
   public static class Generator extends AbstractClassGenerator {
-    private static final Source SOURCE = new Source(ParallelSorter.class.getSimpleName());
-
     private Object[] arrays;
 
     public Generator() {
-      super(SOURCE);
+      super(ParallelSorter.class);
     }
 
     protected ClassLoader getDefaultClassLoader() {
