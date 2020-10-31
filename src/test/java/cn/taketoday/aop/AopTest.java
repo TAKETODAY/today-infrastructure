@@ -117,8 +117,7 @@ public class AopTest {
 
   @Test
   public void testStandardProxyCreator() throws Throwable {
-
-    DebuggingClassWriter.setDebugLocation("C:\\Users\\TODAY\\Desktop\\temp\\");
+//    DebuggingClassWriter.setDebugLocation("C:\\Users\\TODAY\\Desktop\\temp\\");
 
     try (StandardApplicationContext context = new StandardApplicationContext("", "cn.taketoday.aop.proxy")) {
 
