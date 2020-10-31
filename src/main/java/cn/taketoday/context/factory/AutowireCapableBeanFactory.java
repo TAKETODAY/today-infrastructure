@@ -19,6 +19,9 @@
  */
 package cn.taketoday.context.factory;
 
+import java.util.Set;
+
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.exception.BeanInitializingException;
 import cn.taketoday.context.exception.ContextException;
 
@@ -170,5 +173,35 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    *         the bean instance to destroy
    */
   void destroyBean(Object existingBean);
+
+  /**
+   * Load {@link Import} beans from input bean classes
+   *
+   * @param beans
+   *         Input bean classes
+   *
+   * @since 3.0
+   */
+  void importBeans(Class<?>... beans);
+
+  /**
+   * Load {@link Import} beans from input {@link BeanDefinition}
+   *
+   * @param def
+   *         Input {@link BeanDefinition}
+   *
+   * @since 3.0
+   */
+  void importBeans(BeanDefinition def);
+
+  /**
+   * Load {@link Import} beans from input {@link BeanDefinition}s
+   *
+   * @param defs
+   *         Input {@link BeanDefinition}s
+   *
+   * @since 3.0
+   */
+  void importBeans(Set<BeanDefinition> defs);
 
 }

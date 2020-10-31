@@ -877,6 +877,21 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
     getBeanFactory().destroyBean(existingBean);
   }
 
+  @Override
+  public void importBeans(final Class<?>... beans) {
+    getBeanFactory().importBeans(beans);
+  }
+
+  @Override
+  public void importBeans(final BeanDefinition def) {
+    getBeanFactory().importBeans(def);
+  }
+
+  @Override
+  public void importBeans(final Set<BeanDefinition> defs) {
+    getBeanFactory().importBeans(defs);
+  }
+
   // ----------------------------
 
   public void setPropertiesLocation(String propertiesLocation) {

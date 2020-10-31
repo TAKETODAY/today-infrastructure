@@ -343,20 +343,14 @@ public class StandardBeanFactory
    *
    * @since 2.1.7
    */
-  public void importBeans(Class<?>... beans) {
+  @Override
+  public void importBeans(final Class<?>... beans) {
     for (final Class<?> bean : requireNonNull(beans)) {
       importBeans(createBeanDefinition(bean));
     }
   }
 
-  /**
-   * Load {@link Import} beans from input {@link BeanDefinition}s
-   *
-   * @param defs
-   *         Input {@link BeanDefinition}s
-   *
-   * @since 2.1.7
-   */
+  @Override
   public void importBeans(final Set<BeanDefinition> defs) {
 
     for (final BeanDefinition def : defs) {
@@ -364,14 +358,7 @@ public class StandardBeanFactory
     }
   }
 
-  /**
-   * Load {@link Import} beans from input {@link BeanDefinition}
-   *
-   * @param def
-   *         Input {@link BeanDefinition}
-   *
-   * @since 2.1.7
-   */
+  @Override
   public void importBeans(final BeanDefinition def) {
 
     for (final AnnotationAttributes attr : getAnnotationAttributesArray(def, Import.class)) {
