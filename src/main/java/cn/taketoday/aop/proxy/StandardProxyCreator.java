@@ -74,10 +74,7 @@ public class StandardProxyCreator implements ProxyCreator {
       log.debug("Creating Standard Proxy, target source is: [{}]", targetSource);
     }
 
-    final Class<?> targetClass = targetSource.getTargetClass();
     final StandardProxyGenerator proxyGenerator = new StandardProxyGenerator(beanFactory);
-    proxyGenerator.setTarget(targetSource.getTarget());
-    proxyGenerator.setTargetClass(targetClass);
     proxyGenerator.setTargetSource(targetSource);
 
     return proxyGenerator.create();
@@ -94,6 +91,26 @@ public class StandardProxyCreator implements ProxyCreator {
 
   public static class StandardProxyGenerator extends AbstractClassGenerator<Object> {
 
+    private static final Signature proceed;
+    private static final Signature getTarget;
+    private static final Signature stdConstructorSignature;
+    private static final Type stdType = Type.getType(StandardMethodInvocation.class);
+    private static final Type invocationRegistryType = Type.getType(InvocationRegistry.class);
+    private static final Type targetInvocationType = Type.getType(StandardMethodInvocation.Target.class);
+
+    static {
+      try {
+        proceed = new Signature(StandardMethodInvocation.class.getDeclaredMethod("proceed"));
+        getTarget = new Signature(InvocationRegistry.class.getDeclaredMethod("getTarget", String.class));
+        stdConstructorSignature = new Signature(StandardMethodInvocation.class.getDeclaredConstructor(
+                StandardMethodInvocation.Target.class, Object[].class
+        ));
+      }
+      catch (NoSuchMethodException e) {
+        throw new CodeGenerationException(e);
+      }
+    }
+
     private Object target;
     private Class<?> targetClass;
     private TargetSource targetSource;
@@ -108,11 +125,20 @@ public class StandardProxyCreator implements ProxyCreator {
 
     public void setTarget(Object target) {
       this.target = target;
-      setTargetClass(target.getClass());
     }
 
     public void setTargetClass(Class<?> targetClass) {
       this.targetClass = ClassUtils.getUserClass(targetClass);
+    }
+
+    public TargetSource getTargetSource() {
+      return targetSource;
+    }
+
+    public void setTargetSource(final TargetSource targetSource) {
+      this.targetSource = targetSource;
+      setTarget(targetSource.getTarget());
+      setTargetClass(targetSource.getTargetClass());
     }
 
     @Override
@@ -167,27 +193,6 @@ public class StandardProxyCreator implements ProxyCreator {
     @Override
     protected Object nextInstance(Object instance) {
       return instance;
-    }
-
-    private static final Signature proceed;
-    private static final Signature getTarget;
-    private static final Signature stdConstructorSignature;
-    private static final Type stdType = Type.getType(StandardMethodInvocation.class);
-    private static final Type invocationRegistryType = Type.getType(InvocationRegistry.class);
-    private static final Type targetInvocationType = Type.getType(StandardMethodInvocation.Target.class);
-
-    static {
-      try {
-        final Method getTarget1 = InvocationRegistry.class.getDeclaredMethod("getTarget", String.class);
-        getTarget = new Signature(getTarget1);
-        proceed = new Signature(StandardMethodInvocation.class.getDeclaredMethod("proceed"));
-        stdConstructorSignature = new Signature(StandardMethodInvocation.class.getDeclaredConstructor(
-                StandardMethodInvocation.Target.class, Object[].class
-        ));
-      }
-      catch (NoSuchMethodException e) {
-        throw new CodeGenerationException(e);
-      }
     }
 
     @Override
@@ -341,13 +346,6 @@ public class StandardProxyCreator implements ProxyCreator {
       codeEmitter.invoke(methodInfo);
     }
 
-    public TargetSource getTargetSource() {
-      return targetSource;
-    }
-
-    public void setTargetSource(final TargetSource targetSource) {
-      this.targetSource = targetSource;
-    }
   }
 
 }

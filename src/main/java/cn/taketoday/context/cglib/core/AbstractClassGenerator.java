@@ -86,7 +86,7 @@ public abstract class AbstractClassGenerator<T> implements ClassGenerator {
     private final WeakReference<ClassLoader> classLoader;
 
     private static final Function<AbstractClassGenerator, Object> GET_KEY = gen -> gen.key;
-    private final Predicate<Object> uniqueNamePredicate = name -> reservedClassNames.contains(name);
+    private final Predicate<Object> uniqueNamePredicate = reservedClassNames::contains;
 
     public ClassLoaderData(ClassLoader classLoader) {
 
