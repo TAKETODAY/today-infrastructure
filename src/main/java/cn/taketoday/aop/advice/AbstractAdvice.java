@@ -27,14 +27,20 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.HashMap;
+import java.util.Map;
 
 import cn.taketoday.aop.annotation.Annotated;
 import cn.taketoday.aop.annotation.Argument;
 import cn.taketoday.aop.annotation.Arguments;
+import cn.taketoday.aop.annotation.Attribute;
 import cn.taketoday.aop.annotation.JoinPoint;
 import cn.taketoday.aop.annotation.Returning;
 import cn.taketoday.aop.annotation.Throwing;
+import cn.taketoday.aop.intercept.StandardMethodInvocation;
+import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.Constant;
+import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ExceptionUtils;
@@ -83,6 +89,9 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
       }
       if (parameter.isAnnotationPresent(Annotated.class)) {
         adviceParameters[i] = Constant.TYPE_ANNOTATED;
+      }
+      if (parameter.isAnnotationPresent(Attribute.class)) {
+        adviceParameters[i] = Constant.TYPE_ATTRIBUTE;
       }
     }
   }
@@ -139,6 +148,24 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
           }
           break;
         }
+        case Constant.TYPE_ATTRIBUTE:
+          if (inv instanceof AttributeAccessor) {
+            final Class<?> parameterType = adviceParameterTypes[idx];
+            if (AttributeAccessor.class == parameterType
+                    || StandardMethodInvocation.class == parameterType) {
+              args[idx] = inv;
+              break;
+            }
+            else if (Map.class == parameterType
+                    || HashMap.class == parameterType) { // Map
+              args[idx] = ((AttributeAccessor) inv).getAttributes();
+              break;
+            }
+            else {
+              throw new ConfigurationException("Not supported " + parameterType);
+            }
+          }
+          throw new ConfigurationException("Not supported " + inv);
         case Constant.TYPE_ARGUMENTS:
           args[idx] = inv.getArguments();
           break;
@@ -169,6 +196,21 @@ public abstract class AbstractAdvice implements Advice, MethodInterceptor {
           }
           if (returnValue != null && parameterType.isAssignableFrom(returnValue.getClass())) {
             args[idx] = returnValue;
+          }
+          if (inv instanceof AttributeAccessor) {
+            if (AttributeAccessor.class == parameterType
+                    || StandardMethodInvocation.class == parameterType) {
+              args[idx] = inv;
+              break;
+            }
+            else if (Map.class == parameterType
+                    || HashMap.class == parameterType) { // Map
+              args[idx] = ((AttributeAccessor) inv).getAttributes();
+              break;
+            }
+            else {
+              throw new ConfigurationException("Not supported " + parameterType);
+            }
           }
           break;
         }

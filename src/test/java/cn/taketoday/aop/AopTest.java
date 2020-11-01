@@ -19,6 +19,7 @@
  */
 package cn.taketoday.aop;
 
+import org.aopalliance.intercept.Joinpoint;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.junit.Test;
 
@@ -28,13 +29,21 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.aop.annotation.AfterReturning;
+import cn.taketoday.aop.annotation.AfterThrowing;
+import cn.taketoday.aop.annotation.Around;
+import cn.taketoday.aop.annotation.Aspect;
+import cn.taketoday.aop.annotation.Attribute;
+import cn.taketoday.aop.annotation.Before;
+import cn.taketoday.aop.annotation.JoinPoint;
+import cn.taketoday.aop.annotation.Throwing;
 import cn.taketoday.aop.listener.AspectsDestroyListener;
 import cn.taketoday.aop.proxy.AutoProxyCreator;
 import cn.taketoday.aop.proxy.StandardProxyCreator.StandardProxyGenerator;
 import cn.taketoday.aop.proxy.TargetSource;
+import cn.taketoday.context.AttributeAccessor;
 import cn.taketoday.context.StandardApplicationContext;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.context.cglib.core.DebuggingClassWriter;
 import cn.taketoday.context.factory.StandardBeanFactory;
 import lombok.extern.slf4j.Slf4j;
 
@@ -155,4 +164,57 @@ public class AopTest {
     }
   }
 
+  @Aspect
+  static class TimerAspect {
+
+    @AfterReturning(Timer.class)
+    public void afterReturning(@JoinPoint Joinpoint joinpoint, @Attribute AttributeAccessor accessor) {
+      final long start = (long) accessor.getAttribute("Time");
+      log.debug("TimeAspect @AfterReturning Use [{}] ms", System.currentTimeMillis() - start);
+    }
+
+    @AfterThrowing(Timer.class)
+    public void afterThrowing(@Throwing Throwable throwable) {
+      log.error("TimeAspect @AfterThrowing With Msg: [{}]", throwable.getMessage(), throwable);
+    }
+
+    @Before(Timer.class)
+    public void before(AttributeAccessor accessor) {
+      accessor.setAttribute("Time", System.currentTimeMillis());
+      log.debug("TimeAspect @Before method");
+    }
+
+    @Around(Timer.class)
+    public Object around(@JoinPoint Joinpoint joinpoint) throws Throwable {
+      log.debug("TimeAspect @Around Before method");
+      Object proceed = joinpoint.proceed();
+      log.debug("TimeAspect @Around After method");
+      return proceed;
+    }
+
+  }
+
+  @Timer
+  static class AttributeAccessorBean {
+
+    void print() {
+      System.out.println("print");
+    }
+  }
+
+  @Test
+  public void testAttributeAccessor() throws Throwable {
+
+    try (StandardApplicationContext context = new StandardApplicationContext()) {
+
+      final StandardBeanFactory beanFactory = context.getBeanFactory();
+      context.addBeanPostProcessor(new AutoProxyCreator(context));
+
+      beanFactory.importBeans(TimerAspect.class, AttributeAccessorBean.class);
+
+      final AttributeAccessorBean bean = context.getBean(AttributeAccessorBean.class);
+
+      bean.print();
+    }
+  }
 }

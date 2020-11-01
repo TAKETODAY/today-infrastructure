@@ -233,4 +233,5 @@ public interface Constant extends Opcodes, Serializable {
     byte TYPE_RETURNING = 0x04;
     byte TYPE_ANNOTATED = 0x05;
     byte TYPE_JOIN_POINT = 0x06;
+    byte TYPE_ATTRIBUTE = 0x07;
 }

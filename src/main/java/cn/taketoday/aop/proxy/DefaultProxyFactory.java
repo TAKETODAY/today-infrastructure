@@ -65,9 +65,9 @@ public class DefaultProxyFactory implements ProxyFactory {
     this(null, null);
   }
 
-  public DefaultProxyFactory(TargetSource targetSource, ApplicationContext applicationContext) {
+  public DefaultProxyFactory(TargetSource targetSource, ApplicationContext context) {
     this.targetSource = targetSource;
-    this.applicationContext = applicationContext;
+    this.applicationContext = context;
   }
 
   @Override
