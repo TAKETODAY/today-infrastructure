@@ -20,7 +20,7 @@
 package cn.taketoday.context;
 
 import java.io.Serializable;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.context.utils.Assert;
@@ -36,15 +36,14 @@ import cn.taketoday.context.utils.StringUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
- * @since 2.1.7
  * @author TODAY <br>
- *         2020-02-22 12:47
+ * 2020-02-22 12:47
+ * @since 2.1.7
  */
-public abstract class AttributeAccessorSupport implements AttributeAccessor, Serializable {
-  private static final long serialVersionUID = 1L;
+public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   /** Map with String keys and Object values. */
-  private LinkedHashMap<String, Object> attributes;
+  private HashMap<String, Object> attributes;
 
   @Override
   public void setAttribute(String name, Object value) {
@@ -84,7 +83,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor, Ser
    * Copy the attributes from the supplied AttributeAccessor to this accessor.
    *
    * @param source
-   *            the AttributeAccessor to copy from
+   *         the AttributeAccessor to copy from
    */
   protected void copyAttributesFrom(AttributeAccessor source) {
     Assert.notNull(source, "Source must not be null");
@@ -106,10 +105,11 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor, Ser
     return getAttributes().hashCode();
   }
 
+  @Override
   public Map<String, Object> getAttributes() {
-    final LinkedHashMap<String, Object> attributes = this.attributes;
+    final HashMap<String, Object> attributes = this.attributes;
     if (attributes == null) {
-      return this.attributes = new LinkedHashMap<>();
+      return this.attributes = new HashMap<>();
     }
     return attributes;
   }

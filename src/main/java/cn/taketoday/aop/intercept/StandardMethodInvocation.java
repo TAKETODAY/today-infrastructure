@@ -26,13 +26,14 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import cn.taketoday.context.AttributeAccessorSupport;
 import cn.taketoday.context.reflect.MethodInvoker;
 
 /**
  * @author TODAY <br>
  * 2018-11-10 13:14
  */
-public class StandardMethodInvocation implements MethodInvocation {
+public class StandardMethodInvocation extends AttributeAccessorSupport implements MethodInvocation {
 
   private final Object[] args;
   private final Target target;

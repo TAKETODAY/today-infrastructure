@@ -19,13 +19,15 @@
  */
 package cn.taketoday.context;
 
+import java.util.Map;
+
 /**
  * Interface defining a generic contract for attaching and accessing metadata
  * to/from arbitrary objects.
  *
  * @author Rob Harrop
  * @author TODAY <br>
- *         2020-02-22 12:47
+ * 2020-02-22 12:47
  * @since 2.1.7
  */
 public interface AttributeAccessor {
@@ -40,9 +42,9 @@ public interface AttributeAccessor {
    * names as prefix.
    *
    * @param name
-   *            the unique attribute key
+   *         the unique attribute key
    * @param value
-   *            the attribute value to be attached
+   *         the attribute value to be attached
    */
   void setAttribute(String name, Object value);
 
@@ -51,7 +53,8 @@ public interface AttributeAccessor {
    * {@code null} if the attribute doesn't exist.
    *
    * @param name
-   *            the unique attribute key
+   *         the unique attribute key
+   *
    * @return the current value of the attribute, if any
    */
   Object getAttribute(String name);
@@ -61,7 +64,8 @@ public interface AttributeAccessor {
    * {@code null} if no attribute under {@code name} is found.
    *
    * @param name
-   *            the unique attribute key
+   *         the unique attribute key
+   *
    * @return the last value of the attribute, if any
    */
   Object removeAttribute(String name);
@@ -71,7 +75,7 @@ public interface AttributeAccessor {
    * Otherwise return {@code false}.
    *
    * @param name
-   *            the unique attribute key
+   *         the unique attribute key
    */
   boolean hasAttribute(String name);
 
@@ -80,4 +84,12 @@ public interface AttributeAccessor {
    */
   String[] attributeNames();
 
+  /**
+   * Return attributes map
+   *
+   * @return attributes map
+   *
+   * @since 3.0
+   */
+  Map<String, Object> getAttributes();
 }
