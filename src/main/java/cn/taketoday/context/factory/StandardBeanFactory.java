@@ -335,18 +335,12 @@ public class StandardBeanFactory
     return beans;
   }
 
-  /**
-   * Load {@link Import} beans from input bean classes
-   *
-   * @param beans
-   *         Input bean classes
-   *
-   * @since 2.1.7
-   */
   @Override
   public void importBeans(final Class<?>... beans) {
     for (final Class<?> bean : requireNonNull(beans)) {
-      importBeans(createBeanDefinition(bean));
+      final BeanDefinition def = createBeanDefinition(bean);
+      importBeans(def);
+      register(def);
     }
   }
 

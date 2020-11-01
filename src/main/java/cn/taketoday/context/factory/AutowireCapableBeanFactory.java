@@ -176,6 +176,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 
   /**
    * Load {@link Import} beans from input bean classes
+   * <p>
+   * importBeans will register target beans's BeanDefinition
    *
    * @param beans
    *         Input bean classes
