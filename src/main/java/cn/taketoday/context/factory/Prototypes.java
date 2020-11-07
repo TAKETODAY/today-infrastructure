@@ -42,7 +42,7 @@ public final class Prototypes {
     this.def = def;
   }
 
-  private final Object handle(final Method m, final Object[] a) throws Throwable {
+  private Object handle(final Method m, final Object[] a) throws Throwable {
     final Object b = f.getBean(def);
     try {
       return m.invoke(b, a);
@@ -63,13 +63,14 @@ public final class Prototypes {
 
   /**
    * @param refType
-   *            Reference bean class
+   *         Reference bean class
    * @param def
-   *            Target {@link BeanDefinition}
+   *         Target {@link BeanDefinition}
    * @param f
-   *            {@link AbstractBeanFactory}
+   *         {@link AbstractBeanFactory}
    * @param proxyTargetClass
-   *            If true use cglib
+   *         If true use cglib
+   *
    * @return Target prototype object
    */
   public static Object newProxyInstance(Class<?> refType,
@@ -78,12 +79,12 @@ public final class Prototypes {
                                         boolean proxyTargetClass) //
   {
     final Prototypes handler = new Prototypes(f, def);
-    if (!proxyTargetClass && refType.isInterface()) { // Use Jdk Proxy @off
-            return Proxy.newProxyInstance(refType.getClassLoader(),  def.getBeanClass().getInterfaces(), 
-                (final Object p, final Method m, final Object[] a) -> {
-                    return handler.handle(m, a);
-                }
-            ); //@on
+    if (!proxyTargetClass && refType.isInterface()) { // Use Jdk Proxy
+      return Proxy.newProxyInstance(
+              refType.getClassLoader(),
+              def.getBeanClass().getInterfaces(),
+              (final Object p, final Method m, final Object[] a) -> handler.handle(m, a)
+      );
     }
     return new Enhancer()
             .setUseCache(true)

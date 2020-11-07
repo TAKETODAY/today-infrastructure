@@ -237,7 +237,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
    */
   protected void finishRefresh() {
     // clear cache
-    ClassUtils.clearCache();
+    // ClassUtils.clearCache();
     // start success publish started event
     publishEvent(new ContextStartedEvent(this));
     applyState(State.STARTED);
