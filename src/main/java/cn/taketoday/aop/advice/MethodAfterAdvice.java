@@ -39,8 +39,8 @@ public class MethodAfterAdvice extends AbstractAdvice implements AfterAdvice {
   }
 
   @Override
-  public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-    return invokeAdviceMethod(methodInvocation, methodInvocation.proceed(), null);
+  public Object invoke(MethodInvocation inv) throws Throwable {
+    return invokeAdviceMethod(inv, inv.proceed(), null);
   }
 
 }

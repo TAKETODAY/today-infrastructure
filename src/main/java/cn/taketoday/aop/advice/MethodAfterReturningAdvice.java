@@ -37,9 +37,9 @@ public class MethodAfterReturningAdvice extends MethodAfterAdvice {
   }
 
   @Override
-  public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-    final Object returnValue = methodInvocation.proceed();
-    invokeAdviceMethod(methodInvocation, returnValue, null);
+  public Object invoke(MethodInvocation inv) throws Throwable {
+    final Object returnValue = inv.proceed();
+    invokeAdviceMethod(inv, returnValue, null);
     return returnValue;
   }
 

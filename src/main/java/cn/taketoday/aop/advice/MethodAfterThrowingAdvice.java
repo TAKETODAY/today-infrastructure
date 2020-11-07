@@ -37,13 +37,12 @@ public class MethodAfterThrowingAdvice extends MethodAfterAdvice {
   }
 
   @Override
-  public Object invoke(final MethodInvocation methodInvocation) throws Throwable {
-
+  public Object invoke(final MethodInvocation inv) throws Throwable {
     try {
-      return methodInvocation.proceed();
+      return inv.proceed();
     }
     catch (Throwable ex) {
-      return invokeAdviceMethod(methodInvocation, null, ex); // fix Use 
+      return invokeAdviceMethod(inv, null, ex); // fix Use
     }
   }
 

@@ -37,8 +37,8 @@ public class AroundMethodAdvice extends AbstractAdvice {
   }
 
   @Override
-  public Object invoke(MethodInvocation invocation) throws Throwable {
-    return invokeAdviceMethod(invocation, null, null);
+  public Object invoke(MethodInvocation inv) throws Throwable {
+    return invokeAdviceMethod(inv, null, null);
   }
 
 }
