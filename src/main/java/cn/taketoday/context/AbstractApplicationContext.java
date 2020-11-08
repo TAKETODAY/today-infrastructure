@@ -45,6 +45,7 @@ import cn.taketoday.context.event.ContextRefreshEvent;
 import cn.taketoday.context.event.ContextStartedEvent;
 import cn.taketoday.context.event.DependenciesHandledEvent;
 import cn.taketoday.context.event.ObjectRefreshedEvent;
+import cn.taketoday.context.exception.BeanInitializingException;
 import cn.taketoday.context.exception.ConfigurationException;
 import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
@@ -860,6 +861,12 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   @Override
   public Object initializeBean(final Object existingBean, final String beanName) {
     return getBeanFactory().initializeBean(existingBean, beanName);
+  }
+
+  @Override
+  public Object initializeBean(final Object existingBean, final BeanDefinition def)
+          throws BeanInitializingException {
+    return getBeanFactory().initializeBean(existingBean, def);
   }
 
   @Override

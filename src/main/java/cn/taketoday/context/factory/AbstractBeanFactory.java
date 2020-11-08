@@ -555,7 +555,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    * @throws BeanInitializingException
    *         If any {@link Exception} occurred when initialize bean
    */
-  protected Object initializeBean(final Object bean, final BeanDefinition def) {
+  @Override
+  public Object initializeBean(final Object bean, final BeanDefinition def) {
 
     if (log.isDebugEnabled()) {
       log.debug("Initializing bean named: [{}].", def.getName());
@@ -1179,7 +1180,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
     }
     if (def.isSingleton() || def.isPrototype()) {
       throw new IllegalArgumentException("Bean name '"
-                                                 + beanName + "' does not correspond to an object in a mutable scope");
+               + beanName + "' does not correspond to an object in a mutable scope");
     }
     final Scope scope = scopes.get(def.getScope());
     if (scope == null) {
@@ -1254,7 +1255,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
     return false;
   }
 
-  private final Predicate<BeanDefinition> getPredicate(final Class<?> type, final boolean equals) {
+  private Predicate<BeanDefinition> getPredicate(final Class<?> type, final boolean equals) {
     return equals
            ? (beanDef) -> type == beanDef.getBeanClass()
            : (beanDef) -> type.isAssignableFrom(beanDef.getBeanClass());
@@ -1292,6 +1293,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    * Initialization singletons that has already in context
    */
   public void preInitialization() {
+    final boolean debugEnabled = log.isDebugEnabled();
 
     for (final Entry<String, Object> entry : new HashMap<>(getSingletons()).entrySet()) {
 
@@ -1301,7 +1303,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
         continue;
       }
       initializeSingleton(entry.getValue(), def);
-      if (log.isDebugEnabled()) {
+      if (debugEnabled) {
         log.debug("Pre initialize singleton bean is being stored in the name of [{}].", name);
       }
     }

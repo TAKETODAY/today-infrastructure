@@ -125,7 +125,7 @@ public class StandardBeanFactory
   }
 
   @Override
-  protected Object initializeBean(final Object bean, final BeanDefinition def) {
+  public Object initializeBean(final Object bean, final BeanDefinition def) {
     final String name = def.getName();
     if (currentInitializingBeanName.contains(name)) {
       return bean;
