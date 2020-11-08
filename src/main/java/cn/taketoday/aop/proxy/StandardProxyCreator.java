@@ -52,13 +52,11 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
-import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 import static cn.taketoday.context.Constant.SOURCE_FILE;
 import static cn.taketoday.context.asm.Opcodes.ACC_PUBLIC;
 import static cn.taketoday.context.asm.Opcodes.JAVA_VERSION;
-import static cn.taketoday.context.asm.Type.array;
 
 /**
  * @author TODAY <br>
@@ -94,6 +92,7 @@ public class StandardProxyCreator implements ProxyCreator {
     private static final Signature proceed;
     private static final Signature getTarget;
     private static final Signature stdConstructorSignature;
+    private static final Type stdProxy = Type.getType(StandardProxy.class);
     private static final Type stdType = Type.getType(StandardMethodInvocation.class);
     private static final Type invocationRegistryType = Type.getType(InvocationRegistry.class);
     private static final Type targetInvocationType = Type.getType(StandardMethodInvocation.Target.class);
@@ -201,21 +200,25 @@ public class StandardProxyCreator implements ProxyCreator {
       final ClassEmitter ce = new ClassEmitter(v);
       final Type targetType = TypeUtils.parseType(targetClass);
 
-      ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(), targetType,
-                    array(TypeUtils.getTypes(targetClass.getInterfaces())), SOURCE_FILE);
+      final Type[] interfaces = TypeUtils.add(TypeUtils.getTypes(targetClass.getInterfaces()), stdProxy);
+      ce.beginClass(JAVA_VERSION, ACC_PUBLIC, getClassName(), targetType, interfaces, SOURCE_FILE);
 
       ce.declare_field(Constant.ACC_PRIVATE | Constant.ACC_FINAL, "target", targetType, null);
       // 父类构造器参数
       constructor(ce, targetType);
 
       List<String> fields = new ArrayList<>();
-      for (Method method : ReflectionUtils.getDeclaredMethods(targetClass)) {
+      for (Method method : targetClass.getDeclaredMethods()) {
 
         final int modifiers = method.getModifiers();
         if (Modifier.isStatic(modifiers)
                 || Modifier.isFinal(modifiers)
-                || Modifier.isPrivate(modifiers)
-                || !targetSource.contains(method)) {
+                || Modifier.isPrivate(modifiers)) {
+          continue;
+        }
+
+        if (!targetSource.contains(method)) {
+          invokeTarget(ce, targetType, method);
           continue;
         }
 
@@ -336,7 +339,9 @@ public class StandardProxyCreator implements ProxyCreator {
       code.end_method();
     }
 
-    protected void invokeTarget(final ClassEmitter ce, final Type targetType, final MethodInfo methodInfo, final CodeEmitter codeEmitter) {
+    protected void invokeTarget(final ClassEmitter ce, final Type targetType, final Method method) {
+      MethodInfo methodInfo = CglibReflectUtils.getMethodInfo(method);
+      final CodeEmitter codeEmitter = EmitUtils.beginMethod(ce, methodInfo, method.getModifiers());
 
       codeEmitter.load_this();
 
@@ -344,6 +349,10 @@ public class StandardProxyCreator implements ProxyCreator {
 
       codeEmitter.load_args();
       codeEmitter.invoke(methodInfo);
+      codeEmitter.return_value();
+
+      codeEmitter.unbox_or_zero(Type.getType(method.getReturnType()));
+      codeEmitter.end_method();
     }
 
   }
