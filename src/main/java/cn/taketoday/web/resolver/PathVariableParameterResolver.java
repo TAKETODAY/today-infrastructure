@@ -31,8 +31,10 @@ import cn.taketoday.web.utils.WebUtils;
 import static cn.taketoday.context.utils.ConvertUtils.convert;
 
 /**
+ * Use PathVariableMethodParameter
+ *
  * @author TODAY <br>
- *         2019-07-09 22:49
+ * 2019-07-09 22:49
  */
 @Deprecated
 public class PathVariableParameterResolver extends OrderedSupport implements ParameterResolver {

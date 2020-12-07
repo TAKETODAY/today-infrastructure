@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.handler;
 
+import java.util.Objects;
+
 import static cn.taketoday.context.utils.ConvertUtils.convert;
 
 import cn.taketoday.context.PathMatcher;
@@ -71,5 +73,21 @@ public class PathVariableMethodParameter extends MethodParameter {
 
   public String getPathPattern() {
     return pathPattern;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) return true;
+    if (!(o instanceof PathVariableMethodParameter)) return false;
+    if (!super.equals(o)) return false;
+    final PathVariableMethodParameter that = (PathVariableMethodParameter) o;
+    return pathIndex == that.pathIndex &&
+            Objects.equals(pathPattern, that.pathPattern) &&
+            Objects.equals(pathMatcher, that.pathMatcher);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), pathIndex, pathPattern, pathMatcher);
   }
 }
