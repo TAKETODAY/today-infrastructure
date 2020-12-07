@@ -21,14 +21,15 @@ package cn.taketoday.web.exception;
 
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
  *         2018-11-26 20:04
  */
-@ResponseStatus(404)
-@SuppressWarnings("serial")
+@ResponseStatus(HttpStatus.NOT_FOUND)
 public class NotFoundException extends WebRuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public NotFoundException(Throwable cause) {
     super(cause);

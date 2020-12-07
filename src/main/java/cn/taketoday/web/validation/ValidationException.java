@@ -24,14 +24,15 @@ import java.util.Set;
 
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.exception.WebRuntimeException;
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
  *         2019-07-21 14:35
  */
-@ResponseStatus(400)
-@SuppressWarnings("serial")
+@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class ValidationException extends WebRuntimeException implements Errors {
+  private static final long serialVersionUID = 1L;
 
   private final Set<ObjectError> errors;
 

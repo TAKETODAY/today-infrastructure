@@ -66,7 +66,7 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
    * Tests for equality, coping with nulls.
    */
   private static boolean eq(Object o1, Object o2) {
-    return (o1 == null) ? o2 == null : o1.equals(o2);
+    return Objects.equals(o1, o2);
   }
 
   /**
@@ -269,7 +269,7 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
   public boolean remove(Object o) {
     Object[] snapshot = array;
     int index = indexOf(o, snapshot, 0, snapshot.length);
-    return (index < 0) ? false : remove(o, snapshot, index);
+    return index >= 0 && remove(o, snapshot, index);
   }
 
   private boolean remove(Object o, Object[] snapshot, int index) {
@@ -380,9 +380,9 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
     if (array.length != 0) {
       int newlen = 0;
       Object[] temp = new Object[array.length];
-      for (int i = 0; i < array.length; ++i) {
+      for (final Object o : array) {
         @SuppressWarnings("unchecked")
-        E e = (E) array[i];
+        E e = (E) o;
         if (!filter.test(e)) temp[newlen++] = e;
       }
       if (newlen != array.length) {
@@ -447,8 +447,11 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
 
     List<?> list = (List<?>) (o);
     Iterator<?> it = list.iterator();
-    for (int i = 0; i < array.length; ++i)
-      if (!it.hasNext() || !eq(array[i], it.next())) return false;
+    for (final Object value : array) {
+      if (!it.hasNext() || !eq(value, it.next())) {
+        return false;
+      }
+    }
 
     return !it.hasNext();
   }
@@ -463,8 +466,7 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
    */
   public int hashCode() {
     int hashCode = 1;
-    for (int i = 0; i < array.length; ++i) {
-      Object obj = array[i];
+    for (Object obj : array) {
       hashCode = 31 * hashCode + (obj == null ? 0 : obj.hashCode());
     }
     return hashCode;
@@ -481,7 +483,7 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
    * @return an iterator over the elements in this list in proper sequence
    */
   public Iterator<E> iterator() {
-    return new COWIterator<E>(array, 0);
+    return new COWIterator<>(array, 0);
   }
 
   /**
@@ -494,7 +496,7 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
    * {@code set} or {@code add} methods.
    */
   public ListIterator<E> listIterator() {
-    return new COWIterator<E>(array, 0);
+    return new COWIterator<>(array, 0);
   }
 
   /**
@@ -511,7 +513,7 @@ public class ParamList<E> implements List<E>, RandomAccess, Serializable {
    */
   public ListIterator<E> listIterator(int index) {
     if (index < 0 || index > array.length) throw new IndexOutOfBoundsException("Index: " + index);
-    return new COWIterator<E>(array, index);
+    return new COWIterator<>(array, index);
   }
 
   public Spliterator<E> spliterator() {

@@ -21,6 +21,7 @@ package cn.taketoday.web.handler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Objects;
 
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.RequestContext;
@@ -71,4 +72,16 @@ public class ParameterResolverMethodParameter extends MethodParameter {
     return ret;
   }
 
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ParameterResolverMethodParameter)) return false;
+    if (!super.equals(o)) return false;
+    final ParameterResolverMethodParameter that = (ParameterResolverMethodParameter) o;
+    return Objects.equals(resolver, that.resolver);
+  }
+
+  @Override public int hashCode() {
+    return Objects.hash(super.hashCode(), resolver);
+  }
 }

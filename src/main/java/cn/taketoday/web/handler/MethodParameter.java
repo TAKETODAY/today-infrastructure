@@ -40,14 +40,14 @@ import static cn.taketoday.context.utils.ClassUtils.getAnnotationAttributes;
  */
 public class MethodParameter {
 
-  private String name;
-  private boolean required;
   private final int parameterIndex;
   private final Class<?> parameterClass;
+  private final Parameter parameter; // reflect parameter instance
 
+  private String name;
+  private boolean required;
   /** the default value */
   private String defaultValue;
-  private final Parameter parameter; // reflect parameter instance
   private Type[] genericityClass;
   private HandlerMethod handlerMethod;
 

@@ -74,7 +74,7 @@ public abstract class ParameterResolvers {
    *
    * @return A suitable {@link ParameterResolver}
    */
-  public static ParameterResolver obtainResolver(final MethodParameter parameter) throws ConfigurationException {
+  public static ParameterResolver obtainResolver(final MethodParameter parameter) {
     return nonNull(getResolver(parameter),
                    () -> "There isn't have a parameter resolver to resolve parameter: [" //
                            + parameter.getParameterClass() + "] called: [" + parameter.getName() + "]");

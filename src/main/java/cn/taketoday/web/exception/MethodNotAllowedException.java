@@ -21,14 +21,15 @@ package cn.taketoday.web.exception;
 
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
  *         2018-7-1 19:38:39
  */
-@ResponseStatus(405)
-@SuppressWarnings("serial")
+@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
 public class MethodNotAllowedException extends WebRuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public MethodNotAllowedException(Throwable cause) {
     super(cause);

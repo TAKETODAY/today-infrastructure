@@ -23,17 +23,16 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.annotation.Annotation;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
 
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.exception.ExceptionUnhandledException;
 import cn.taketoday.web.ui.ModelAndView;
 import cn.taketoday.web.utils.WebUtils;
@@ -85,14 +84,14 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
    * Resolve {@link ResourceRequestHandler} exception
    *
    * @param ex
-   *   Target {@link Throwable}
+   *         Target {@link Throwable}
    * @param context
-   *   Current request context
+   *         Current request context
    * @param handler
-   *   {@link ResourceRequestHandler}
+   *         {@link ResourceRequestHandler}
    *
    * @throws Throwable
-   *   If any {@link Exception} occurred
+   *         If any {@link Exception} occurred
    */
   protected void handleResourceMappingInternal(final Throwable ex,
                                                final RequestContext context,
@@ -104,14 +103,14 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
    * Resolve {@link ViewController} exception
    *
    * @param ex
-   *   Target {@link Throwable}
+   *         Target {@link Throwable}
    * @param context
-   *   Current request context
+   *         Current request context
    * @param viewController
-   *   {@link ViewController}
+   *         {@link ViewController}
    *
    * @throws Throwable
-   *   If any {@link Exception} occurred
+   *         If any {@link Exception} occurred
    */
   protected void handleViewControllerInternal(final Throwable ex,
                                               final RequestContext context,
@@ -123,152 +122,77 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
    * Resolve {@link HandlerMethod} exception
    *
    * @param ex
-   *   Target {@link Throwable}
+   *         Target {@link Throwable}
    * @param context
-   *   Current request context
+   *         Current request context
    * @param handlerMethod
-   *   {@link HandlerMethod}
+   *         {@link HandlerMethod}
    *
    * @throws Throwable
-   *   If any {@link Exception} occurred
+   *         If any {@link Exception} occurred
    */
   protected void handleHandlerMethodInternal(final Throwable ex,
                                              final RequestContext context,
                                              final HandlerMethod handlerMethod) throws Throwable//
   {
-    final ResponseStatus responseStatus = getStatus(handlerMethod, ex);
-    context.status(responseStatus.value());
+    context.status(getErrorStatusValue(ex));
 
     if (handlerMethod.isAssignableFrom(RenderedImage.class)) {
       handlerMethod.handleResult(context, resolveImageException(ex, context));
     }
     else if (!handlerMethod.is(void.class)
-      && !handlerMethod.is(Object.class)
-      && !handlerMethod.is(ModelAndView.class)
-      && TemplateResultHandler.supportsHandlerMethod(handlerMethod)) {
+            && !handlerMethod.is(Object.class)
+            && !handlerMethod.is(ModelAndView.class)
+            && TemplateResultHandler.supportsHandlerMethod(handlerMethod)) {
 
-      final String redirect = responseStatus.redirect();
-      if (StringUtils.isNotEmpty(redirect)) { // has redirect
-        context.redirect(context.contextPath().concat(redirect));
-      }
-      else {
-        handleExceptionInternal(ex, context);
-      }
+      handleExceptionInternal(ex, context);
     }
     else {
       context.contentType(Constant.CONTENT_TYPE_JSON);
       final PrintWriter writer = context.getWriter();
-      writer.write(buildErrorMessage(responseStatus));
+      writer.write(buildDefaultErrorMessage(ex));
       writer.flush();
     }
   }
 
-  protected String buildErrorMessage(final ResponseStatus responseStatus) {
+  protected String buildDefaultErrorMessage(final Throwable ex) {
     return new StringBuilder()
-      .append("{\"message\":\"")
-      .append(responseStatus.msg())
-      .append("\"}")
-      .toString();
+            .append("{\"message\":\"")
+            .append(ex.getMessage())
+            .append("\"}")
+            .toString();
   }
 
-  public int getStatus(Throwable ex) {
-    return WebUtils.getStatus(ex);
+  public int getErrorStatusValue(Throwable ex) {
+    return WebUtils.getStatusValue(ex);
   }
 
   /**
    * resolve view exception
    *
    * @param ex
-   *   Target {@link Exception}
+   *         Target {@link Exception}
    * @param context
-   *   Current request context
+   *         Current request context
    */
   public void handleExceptionInternal(final Throwable ex, final RequestContext context) throws IOException {
-    context.sendError(getStatus(ex), ex.getMessage());
+    context.sendError(getErrorStatusValue(ex), ex.getMessage());
   }
 
   /**
    * resolve image
    */
   public BufferedImage resolveImageException(final Throwable ex, final RequestContext context) throws IOException {
+    final URL resource = ClassUtils.getClassLoader()
+            .getResource(new StringBuilder()
+                                 .append("/error/")
+                                 .append(getErrorStatusValue(ex))
+                                 .append(".png").toString());
+
+    Assert.state(resource != null, "System Error");
+
     context.contentType(Constant.CONTENT_TYPE_IMAGE);
-    return ImageIO.read(
-      ClassUtils.getClassLoader().getResource(new StringBuilder()
-                                                .append("/error/")
-                                                .append(getStatus(ex))
-                                                .append(".png").toString())//
-    );
+    return ImageIO.read(resource);
   }
 
-  /**
-   * Build a {@link ResponseStatus} from target {@link HandlerMethod}
-   *
-   * @param handlerMethod
-   *   Target handler method
-   * @param ex
-   *   Current {@link Exception}
-   *
-   * @return {@link DefaultResponseStatus}
-   */
-  protected DefaultResponseStatus getStatus(final HandlerMethod handlerMethod, final Throwable ex) {
-
-    ResponseStatus responseStatus = handlerMethod.getStatus();
-    if (responseStatus == null) {
-      responseStatus = ex.getClass().getAnnotation(ResponseStatus.class);
-    }
-    return new DefaultResponseStatus(responseStatus, ex);
-  }
-
-  @SuppressWarnings("all")
-  protected static class DefaultResponseStatus implements ResponseStatus {
-
-    private final Throwable ex;
-    private final ResponseStatus status;
-
-    public DefaultResponseStatus(ResponseStatus status, Throwable ex) {
-      this.ex = ex;
-      this.status = status;
-    }
-
-    @Override
-    public Class<? extends Annotation> annotationType() {
-      return ResponseStatus.class;
-    }
-
-    @Override
-    public int value() {
-
-      if (status == null) {
-        return WebUtils.getStatus(ex);
-      }
-
-      final int value = status.value();
-      return value == 0 ? WebUtils.getStatus(ex) : value;
-    }
-
-    @Override
-    public String msg() {
-      if (status == null) {
-        return ex.getMessage();
-      }
-      final String msg = status.msg();
-      if (StringUtils.isEmpty(msg)) {
-        return ex.getMessage();
-      }
-      return msg;
-    }
-
-    @Override
-    public String redirect() {
-      if (status == null) {
-        return null;
-      }
-      return status.redirect();
-    }
-
-    public final ResponseStatus getOriginalStatus() {
-      return status;
-    }
-
-  }
 }

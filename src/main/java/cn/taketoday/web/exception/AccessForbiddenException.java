@@ -21,13 +21,13 @@ package cn.taketoday.web.exception;
 
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
  *         2018-11-26 20:06
  */
-@ResponseStatus(403)
-@SuppressWarnings("serial")
+@ResponseStatus(HttpStatus.FORBIDDEN)
 public class AccessForbiddenException extends WebRuntimeException {
 
   public AccessForbiddenException(Throwable cause) {

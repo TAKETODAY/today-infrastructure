@@ -59,7 +59,7 @@ import static java.util.Locale.US;
  * @author TODAY <br>
  * 2020-01-28 17:15
  */
-public interface HttpHeaders extends Constant {
+public interface HttpHeaders extends Constant ,MultiValueMap<String, String>{
 
   /**
    * Pattern matching ETag multiple field values in headers such as "If-Match",

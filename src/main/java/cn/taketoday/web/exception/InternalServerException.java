@@ -22,14 +22,15 @@ package cn.taketoday.web.exception;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
  *         2018-12-02 09:14
  */
-@ResponseStatus(500)
-@SuppressWarnings("serial")
+@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class InternalServerException extends WebRuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public InternalServerException(Throwable cause) {
     super(cause);

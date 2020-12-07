@@ -21,14 +21,15 @@ package cn.taketoday.web.exception;
 
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
- *         2019-07-20 15:51
+ * 2019-07-20 15:51
  */
-@ResponseStatus(401)
-@SuppressWarnings("serial")
+@ResponseStatus(HttpStatus.UNAUTHORIZED)
 public class UnauthorizedException extends WebRuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public UnauthorizedException() {
     super(Constant.UNAUTHORIZED);

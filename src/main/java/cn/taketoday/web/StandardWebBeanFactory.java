@@ -25,6 +25,7 @@ import java.util.Map;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.ObjectFactory;
 import cn.taketoday.context.factory.StandardBeanFactory;
+import cn.taketoday.context.utils.CollectionUtils;
 
 /**
  * @author TODAY <br>
@@ -47,6 +48,10 @@ public class StandardWebBeanFactory extends StandardBeanFactory {
 
   @Override
   protected Map<Class<?>, Object> createObjectFactories() {
+    final Map<Class<?>, Object> objectFactories = super.createObjectFactories();
+    if (CollectionUtils.isEmpty(objectFactories)) {
+
+    }
     final Map<Class<?>, Object> env = new HashMap<>();
     env.put(RequestContext.class, factory(RequestContextHolder::currentContext));
     return env;
