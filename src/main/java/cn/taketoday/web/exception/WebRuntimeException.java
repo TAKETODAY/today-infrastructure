@@ -21,10 +21,10 @@ package cn.taketoday.web.exception;
 
 /**
  * @author TODAY <br>
- *         2019-06-03 10:27
+ * 2019-06-03 10:27
  */
-@SuppressWarnings("serial")
 public class WebRuntimeException extends RuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public WebRuntimeException() {
     super();

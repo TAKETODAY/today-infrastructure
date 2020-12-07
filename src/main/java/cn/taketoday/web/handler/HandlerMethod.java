@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -30,9 +31,11 @@ import cn.taketoday.context.reflect.MethodInvoker;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
+import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.Controller;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.utils.WebUtils;
 import cn.taketoday.web.view.ResultHandler;
@@ -40,7 +43,7 @@ import cn.taketoday.web.view.ResultHandlers;
 
 /**
  * @author TODAY <br>
- *         2018-06-25 20:03:11
+ * 2018-06-25 20:03:11
  */
 public class HandlerMethod
         extends InterceptableRequestHandler implements HandlerAdapter, ResultHandler {
@@ -51,12 +54,14 @@ public class HandlerMethod
   /** @since 2.3.7 */
   private Class<?> returnType;
   private ResultHandler resultHandler;
-  private ResponseStatus status;
   /** @since 2.3.7 */
   private Type[] genericityClass;
   private MethodInvoker handlerInvoker;
   /** parameter list **/
   private MethodParameter[] parameters;
+
+  /** @since 3.0 */
+  private ResponseStatus responseStatus;
 
   public HandlerMethod(Object bean, Method method) {
     this(bean, method, null);
@@ -80,7 +85,7 @@ public class HandlerMethod
       }
     }
 
-    this.status = WebUtils.getStatus(this);
+    setResponseStatus(WebUtils.getResponseStatus(this));
     this.resultHandler = ResultHandlers.obtainHandler(this);
   }
 
@@ -107,8 +112,8 @@ public class HandlerMethod
     return superClass.isAssignableFrom(returnType);
   }
 
-  public boolean is(final Class<?> reutrnType) {
-    return reutrnType == this.returnType;
+  public boolean is(final Class<?> returnType) {
+    return returnType == this.returnType;
   }
 
   public Type getGenericityClass(final int index) {
@@ -156,25 +161,24 @@ public class HandlerMethod
     return ClassUtils.getAnnotation(annotation, element);
   }
 
-  @Override
-  public String toString() {
-    return method == null ? super.toString() : method.toString();
+  /**
+   * Set the response status according to the {@link ResponseStatus} annotation.
+   */
+  protected void applyResponseStatus(RequestContext context) throws IOException {
+    applyResponseStatus(context, getResponseStatus());
   }
 
-  @Override
-  public int hashCode() {
-    return method.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
+  protected void applyResponseStatus(RequestContext context, ResponseStatus status) throws IOException {
+    if (status != null) {
+      final String reason = status.reason();
+      final HttpStatus httpStatus = status.value();
+      if (StringUtils.hasText(reason)) {
+        context.sendError(httpStatus.value(), reason);
+      }
+      else {
+        context.status(httpStatus.value());
+      }
     }
-    if (obj instanceof HandlerMethod) {
-      return Objects.equals(method, ((HandlerMethod) obj).method);
-    }
-    return false;
   }
 
   //Getter Setter
@@ -214,12 +218,12 @@ public class HandlerMethod
     this.bean = bean;
   }
 
-  public ResponseStatus getStatus() {
-    return status;
+  public ResponseStatus getResponseStatus() {
+    return responseStatus;
   }
 
-  public void setStatus(ResponseStatus status) {
-    this.status = status;
+  public void setResponseStatus(ResponseStatus responseStatus) {
+    this.responseStatus = responseStatus;
   }
 
   public MethodInvoker getHandlerInvoker() {
@@ -251,6 +255,7 @@ public class HandlerMethod
 
   @Override
   public void handleResult(final RequestContext context, final Object result) throws Throwable {
+    applyResponseStatus(context);
     resultHandler.handleResult(context, result);
   }
 
@@ -292,6 +297,29 @@ public class HandlerMethod
   @Override
   public long getLastModified(RequestContext context, Object handler) {
     return -1;
+  }
+
+  // Object
+
+  @Override
+  public int hashCode() {
+    return method.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj instanceof HandlerMethod) {
+      return Objects.equals(method, ((HandlerMethod) obj).method);
+    }
+    return false;
+  }
+
+  @Override
+  public String toString() {
+    return method == null ? super.toString() : method.toString();
   }
 
 }

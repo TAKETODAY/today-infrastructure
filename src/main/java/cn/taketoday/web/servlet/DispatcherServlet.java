@@ -19,7 +19,6 @@
  */
 package cn.taketoday.web.servlet;
 
-import java.io.IOException;
 import java.io.Serializable;
 
 import javax.servlet.Servlet;

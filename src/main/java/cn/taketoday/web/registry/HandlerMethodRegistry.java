@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -188,8 +189,8 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    */
   public void buildHandlerMethod(final Class<?> beanClass) throws Exception {
 
-    final Set<String> namespaces = new HashSet<>(4, 1.0f); // name space
-    final Set<RequestMethod> methodsOnClass = new HashSet<>(8, 1.0f); // method
+    final Set<String> namespaces = new LinkedHashSet<>(4, 1.0f); // name space
+    final Set<RequestMethod> methodsOnClass = new LinkedHashSet<>(8, 1.0f); // method
 
     // find mapping on class
     final AnnotationAttributes controllerMapping = getAnnotationAttributes(ActionMapping.class, beanClass);
@@ -252,7 +253,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
   protected void mappingHandlerMethod(final HandlerMethod handler,
                                       final Set<String> namespaces,
                                       final Set<RequestMethod> classRequestMethods,
-                                      final AnnotationAttributes[] annotationAttributes) // TODO
+                                      final AnnotationAttributes[] annotationAttributes)
   {
     final boolean emptyNamespaces = namespaces.isEmpty();
     final boolean addClassRequestMethods = !classRequestMethods.isEmpty();
@@ -363,10 +364,8 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * @param method
    *            Action or Handler
    * @return A new {@link HandlerMethod}
-   * @throws Exception
-   *             If any {@link Throwable} occurred
    */
-  protected HandlerMethod createHandlerMethod(final Class<?> beanClass, final Method method) throws Exception {
+  protected HandlerMethod createHandlerMethod(final Class<?> beanClass, final Method method) {
     final Object handlerBean = createHandler(beanClass, this.beanFactory);
     if (handlerBean == null) {
       throw new ConfigurationException("An unexpected exception occurred: [Can't get bean with given type: ["

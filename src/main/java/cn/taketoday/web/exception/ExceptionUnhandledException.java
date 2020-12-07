@@ -25,8 +25,8 @@ import cn.taketoday.context.logger.LoggerFactory;
  * @author TODAY <br>
  *         2019-07-27 09:26
  */
-@SuppressWarnings("serial")
 public class ExceptionUnhandledException extends WebRuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public ExceptionUnhandledException(Throwable cause) {
     super(cause);

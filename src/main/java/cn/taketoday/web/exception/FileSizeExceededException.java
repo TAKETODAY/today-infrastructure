@@ -21,12 +21,13 @@ package cn.taketoday.web.exception;
 
 import cn.taketoday.context.utils.DataSize;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
- *         2018-07-10 21:42:16
+ * 2018-07-10 21:42:16
  */
-@ResponseStatus(400)
+@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class FileSizeExceededException extends WebRuntimeException {
 
   private static final long serialVersionUID = 1L;

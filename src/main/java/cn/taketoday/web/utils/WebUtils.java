@@ -22,11 +22,13 @@ package cn.taketoday.web.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
 import java.net.URLConnection;
-import java.util.Objects;
 
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.io.Resource;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -37,13 +39,15 @@ import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.exception.BadRequestException;
+import cn.taketoday.web.handler.DefaultResponseStatus;
 import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
- *         2019-03-15 19:53
+ * 2019-03-15 19:53
  * @since 2.3.7
  */
 public abstract class WebUtils {
@@ -65,7 +69,7 @@ public abstract class WebUtils {
 
   /**
    * @param type
-   *            type
+   *         type
    */
   public static BadRequestException newBadRequest(String type, MethodParameter parameter, Throwable ex) {
     return newBadRequest(type, parameter.getName(), ex);
@@ -73,9 +77,9 @@ public abstract class WebUtils {
 
   /**
    * @param type
-   *            type
+   *         type
    * @param methodParameterName
-   *            parameter name
+   *         parameter name
    */
   public static BadRequestException newBadRequest(String type, String methodParameterName, Throwable ex) {
     StringBuilder msg = new StringBuilder(64);
@@ -96,13 +100,14 @@ public abstract class WebUtils {
    * Write to {@link OutputStream}
    *
    * @param source
-   *            {@link InputStream}
+   *         {@link InputStream}
    * @param out
-   *            {@link OutputStream}
+   *         {@link OutputStream}
    * @param bufferSize
-   *            buffer size
+   *         buffer size
+   *
    * @throws IOException
-   *             if any IO exception occurred
+   *         if any IO exception occurred
    */
   public static void writeToOutputStream(final InputStream source,
                                          final OutputStream out, final int bufferSize) throws IOException //
@@ -118,8 +123,10 @@ public abstract class WebUtils {
    * Resolves the content type of the file.
    *
    * @param filename
-   *            name of file or path
+   *         name of file or path
+   *
    * @return file content type
+   *
    * @since 2.3.7
    */
   public static String resolveFileContentType(String filename) {
@@ -168,11 +175,12 @@ public abstract class WebUtils {
    * Download file to client.
    *
    * @param context
-   *            Current request context
+   *         Current request context
    * @param download
-   *            {@link Resource} to download
+   *         {@link Resource} to download
    * @param bufferSize
-   *            Download buffer size
+   *         Download buffer size
+   *
    * @since 2.1.x
    */
   public static void downloadFile(final RequestContext context,
@@ -182,35 +190,54 @@ public abstract class WebUtils {
     context.contentType(Constant.APPLICATION_FORCE_DOWNLOAD);
 
     context.responseHeader(Constant.CONTENT_TRANSFER_ENCODING, Constant.BINARY);
-    context.responseHeader(Constant.CONTENT_DISPOSITION, new StringBuilder(Constant.ATTACHMENT_FILE_NAME)//
-            .append(StringUtils.encodeUrl(download.getName()))//
-            .append(Constant.QUOTATION_MARKS)//
-            .toString()//
+    context.responseHeader(Constant.CONTENT_DISPOSITION,
+                           new StringBuilder(Constant.ATTACHMENT_FILE_NAME)//
+                                   .append(StringUtils.encodeUrl(download.getName()))//
+                                   .append(Constant.QUOTATION_MARKS)//
+                                   .toString()//
     );
 
     try (final InputStream in = download.getInputStream()) {
-
       writeToOutputStream(in, context.getOutputStream(), bufferSize);
     }
   }
 
-  public static int getStatus(final Throwable ex) {
-    if (ex instanceof ConversionException) {
-      return 400;
-    }
-    final ResponseStatus status = ClassUtils.getAnnotation(ex, ResponseStatus.class);
-    if (status != null) {
-      return status.value();
-    }
-    return 500;
+  // ResponseStatus
+
+  public static int getStatusValue(final Throwable ex) {
+    return getResponseStatus(ex).value().value();
   }
 
-  public static ResponseStatus getStatus(final HandlerMethod handler) {
+  public static ResponseStatus getResponseStatus(final Throwable ex) {
+    return getResponseStatus(ex.getClass());
+  }
 
-    Objects.requireNonNull(handler, "handler method must not be null");
+  public static ResponseStatus getResponseStatus(Class<? extends Throwable> exceptionClass) {
+    if (ConversionException.class.isAssignableFrom(exceptionClass)) {
+      return new DefaultResponseStatus(HttpStatus.BAD_REQUEST);
+    }
+    final ResponseStatus status = ClassUtils.getAnnotation(ResponseStatus.class, exceptionClass);
+    if (status != null) {
+      return status;
+    }
+    return new DefaultResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  public static ResponseStatus getResponseStatus(final HandlerMethod handler) {
+    Assert.notNull(handler, "handler method must not be null");
     ResponseStatus status = handler.getMethodAnnotation(ResponseStatus.class);
     if (status == null) {
       status = handler.getDeclaringClassAnnotation(ResponseStatus.class);
+    }
+    return status;
+  }
+
+  public static ResponseStatus getResponseStatus(final AnnotatedElement handler) {
+    Assert.notNull(handler, "AnnotatedElement must not be null");
+    ResponseStatus status = handler.getDeclaredAnnotation(ResponseStatus.class);
+    if (status == null && handler instanceof Method) {
+      final Class<?> declaringClass = ((Method) handler).getDeclaringClass();
+      status = declaringClass.getDeclaredAnnotation(ResponseStatus.class);
     }
     return status;
   }

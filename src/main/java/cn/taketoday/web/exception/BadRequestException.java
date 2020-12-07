@@ -21,14 +21,15 @@ package cn.taketoday.web.exception;
 
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.http.HttpStatus;
 
 /**
  * @author TODAY <br>
  *         2018-10-30 16:51
  */
-@ResponseStatus(400)
-@SuppressWarnings("serial")
+@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class BadRequestException extends WebRuntimeException {
+  private static final long serialVersionUID = 1L;
 
   public BadRequestException() {
     this(Constant.BAD_REQUEST, null);

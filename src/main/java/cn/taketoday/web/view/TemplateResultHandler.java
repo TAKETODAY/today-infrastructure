@@ -80,7 +80,10 @@ public class TemplateResultHandler extends AbstractResultHandler implements Runt
           }
         }
       }
-      catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {}
+      catch (NoSuchMethodException
+              | IllegalAccessException
+              | IllegalArgumentException
+              | InvocationTargetException ignored) {}
     }
     return false;
   }

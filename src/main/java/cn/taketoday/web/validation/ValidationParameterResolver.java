@@ -86,7 +86,7 @@ public class ValidationParameterResolver implements OrderedParameterResolver {
     return value;
   }
 
-  protected Throwable buildException(final Errors errors) throws Throwable {
+  protected Throwable buildException(final Errors errors) {
     if (errors instanceof Throwable) {
       return (Throwable) errors;
     }

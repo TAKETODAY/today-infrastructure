@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.handler;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -35,10 +36,11 @@ import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.config.WebApplicationInitializer;
 import cn.taketoday.web.exception.ExceptionUnhandledException;
+import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
- *         2019-06-22 19:17
+ * 2019-06-22 19:17
  * @since 2.3.7
  */
 public class ControllerAdviceExceptionHandler
@@ -55,9 +57,6 @@ public class ControllerAdviceExceptionHandler
     final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandler(ex);
     if (exceptionHandler != null) {
       context.attribute(Constant.KEY_THROWABLE, ex);
-      if (handlerMethod.getBean() != null) { // apply status
-        context.status(buildStatus(ex, exceptionHandler, handlerMethod).value());
-      }
       try {
         exceptionHandler.handleResult(context, exceptionHandler.invokeHandler(context));
       }
@@ -75,40 +74,14 @@ public class ControllerAdviceExceptionHandler
   }
 
   /**
-   * If target handler don't exist {@link ResponseStatus} it will look up at
-   * exception handler
-   *
-   * @param ex
-   *   Target {@link Exception}
-   * @param exceptionHandler
-   *   Target exception handler
-   * @param targetHandler
-   *   Target handler
-   *
-   * @return Current response status
-   */
-  protected ResponseStatus buildStatus(final Throwable ex,
-                                       final ThrowableHandlerMethod exceptionHandler,
-                                       final HandlerMethod targetHandler) //
-  {
-    // ResponseStatus on Target handler
-    final DefaultResponseStatus status = super.getStatus(targetHandler, ex);
-    if (status.getOriginalStatus() == null) {
-      return super.getStatus(exceptionHandler, ex); // get ResponseStatus on exception handler
-    }
-    return status;
-  }
-
-  /**
    * Looking for exception handler mapping
    *
    * @param ex
-   *   Target {@link Exception}
+   *         Target {@link Exception}
    *
    * @return Mapped {@link Exception} handler mapping
    */
   protected ThrowableHandlerMethod lookupExceptionHandler(final Throwable ex) {
-
     final ThrowableHandlerMethod ret = exceptionHandlers.get(ex.getClass());
     if (ret == null) {
       return exceptionHandlers.get(Throwable.class); // Global exception handler
@@ -117,22 +90,21 @@ public class ControllerAdviceExceptionHandler
   }
 
   @Override
-  public void onStartup(WebApplicationContext beanFactory) throws Throwable {
-
+  public void onStartup(WebApplicationContext beanFactory) {
     log.info("Initialize controller advice exception resolver");
-
     // get all error handlers
     final List<Object> errorHandlers = beanFactory.getAnnotatedBeans(ControllerAdvice.class);
-
     for (final Object errorHandler : errorHandlers) {
 
       for (final Method method : ReflectionUtils.getDeclaredMethods(errorHandler.getClass())) {
         if (method.isAnnotationPresent(ExceptionHandler.class)) {
 
-          final ThrowableHandlerMethod mapping = new ThrowableHandlerMethod(errorHandler, method);
-
           for (Class<? extends Throwable> exceptionClass : method.getAnnotation(ExceptionHandler.class).value()) {
-            exceptionHandlers.put(exceptionClass, mapping);
+            final ThrowableHandlerMethod handler = new ThrowableHandlerMethod(errorHandler, method);
+            if (handler.getResponseStatus() == null) {
+              handler.setResponseStatus(WebUtils.getResponseStatus(exceptionClass));
+            }
+            exceptionHandlers.put(exceptionClass, handler);
           }
         }
       }
@@ -143,6 +115,21 @@ public class ControllerAdviceExceptionHandler
 
     public ThrowableHandlerMethod(Object handler, Method method) {
       super(handler, method, null);
+    }
+
+    @Override
+    protected void applyResponseStatus(final RequestContext context) throws IOException {
+      final ResponseStatus status = getResponseStatus();
+      if (status == null) {
+        final Object attribute = context.attribute(Constant.KEY_THROWABLE);
+        if (attribute instanceof Throwable) {
+          final ResponseStatus runtimeErrorStatus = WebUtils.getResponseStatus((Throwable) attribute);
+          applyResponseStatus(context, runtimeErrorStatus);
+        }
+      }
+      else {
+        super.applyResponseStatus(context);
+      }
     }
   }
 
