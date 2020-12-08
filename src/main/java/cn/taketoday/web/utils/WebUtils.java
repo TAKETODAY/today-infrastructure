@@ -113,7 +113,7 @@ public abstract class WebUtils {
                                          final OutputStream out, final int bufferSize) throws IOException //
   {
     final byte[] buff = new byte[bufferSize];
-    int len = 0;
+    int len;
     while ((len = source.read(buff)) != -1) {
       out.write(buff, 0, len);
     }
@@ -191,10 +191,10 @@ public abstract class WebUtils {
 
     context.responseHeader(Constant.CONTENT_TRANSFER_ENCODING, Constant.BINARY);
     context.responseHeader(Constant.CONTENT_DISPOSITION,
-                           new StringBuilder(Constant.ATTACHMENT_FILE_NAME)//
-                                   .append(StringUtils.encodeUrl(download.getName()))//
-                                   .append(Constant.QUOTATION_MARKS)//
-                                   .toString()//
+                           new StringBuilder(Constant.ATTACHMENT_FILE_NAME)
+                                   .append(StringUtils.encodeUrl(download.getName()))
+                                   .append(Constant.QUOTATION_MARKS)
+                                   .toString()
     );
 
     try (final InputStream in = download.getInputStream()) {
@@ -282,7 +282,9 @@ public abstract class WebUtils {
     return checkNotModified(null, lastModifiedTimestamp, context);
   }
 
-  public static boolean checkNotModified(final String eTag, final long lastModified, final RequestContext context) {
+  public static boolean checkNotModified(final String eTag,
+                                         final long lastModified,
+                                         final RequestContext context) {
 
     // Validate request headers for caching
     // ---------------------------------------------------
@@ -291,7 +293,7 @@ public abstract class WebUtils {
     final String ifNoneMatch = context.requestHeader(Constant.IF_NONE_MATCH);
     if (matches(ifNoneMatch, eTag)) {
       context.responseHeader(Constant.ETAG, eTag); // 304.
-      context.status(304);
+      context.status(HttpStatus.NOT_MODIFIED.value());
       return true;
     }
 
@@ -302,7 +304,7 @@ public abstract class WebUtils {
     if (ifNoneMatch == null && (ifModifiedSince > 0 && lastModified != 0 && ifModifiedSince >= lastModified)) {
       // if (ifNoneMatch == null && ge(ifModifiedSince, lastModified)) {
       context.responseDateHeader(Constant.LAST_MODIFIED, lastModified); // 304
-      context.status(304);
+      context.status(HttpStatus.NOT_MODIFIED.value());
       return true;
     }
 
@@ -312,7 +314,8 @@ public abstract class WebUtils {
     // If-Match header should contain "*" or ETag. If not, then return 412
     final String ifMatch = context.requestHeader(Constant.IF_MATCH);
     if (ifMatch != null && !matches(ifMatch, eTag)) {
-      context.status(412);
+//      context.status(412);
+      context.status(HttpStatus.PRECONDITION_FAILED.value());
       return true;
     }
 
@@ -321,7 +324,7 @@ public abstract class WebUtils {
     final long ifUnmodifiedSince = context.requestDateHeader(Constant.IF_UNMODIFIED_SINCE);// "If-Unmodified-Since"
 
     if (ifUnmodifiedSince > 0 && lastModified > 0 && ifUnmodifiedSince <= lastModified) {
-      context.status(412);
+      context.status(HttpStatus.PRECONDITION_FAILED.value());
       return true;
     }
     return false;

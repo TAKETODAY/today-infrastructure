@@ -24,42 +24,35 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
  * @author TODAY <br>
- * 
  * @version 2.3.7
  * @time 2018 1 ? - 2018 3 8 <br>
- *       <b>2.2.2.RELEASE -> 2018-08-23 14:53</b><br>
- *       <b>2.2.4.RELEASE -> 2018-09-09 18:37</b><br>
- *       <b>2.3.1.RELEASE -> 2018-10-18 20:26</b><br>
- *       ...<br>
- *       <b>2.3.3.RELEASE -> 2018-12-07 21:28</b><br>
- *       <b>2.3.4.RELEASE -> 2019-02-10 18:03</b><br>
  */
 public interface Constant extends cn.taketoday.context.Constant {
 
-    String WEB_VERSION = "2.3.7.RELEASE";
+  String WEB_VERSION = "2.3.7.RELEASE";
 
-    String DEFAULT_TEMPLATE_PATH = "classpath:templates";
-    String X_REQUIRED_AUTHORIZATION = "X-Required-Authorization";
+  String DEFAULT_TEMPLATE_PATH = "classpath:templates";
+  String X_REQUIRED_AUTHORIZATION = "X-Required-Authorization";
 
-    String ENV_SERVLET = "javax.servlet.Servlet";
+  String ENV_SERVLET = "javax.servlet.Servlet";
 
-    HandlerInterceptor[] EMPTY_HANDLER_INTERCEPTOR = {};
+  HandlerInterceptor[] EMPTY_HANDLER_INTERCEPTOR = {};
 
-    String NOT_FOUND = "Not Found";
-    String BAD_REQUEST = "Bad Request";
-    String UNAUTHORIZED = "Unauthorized";
-    String ACCESS_FORBIDDEN = "Access Forbidden";
-    String METHOD_NOT_ALLOWED = "Method Not Allowed";
-    String INTERNAL_SERVER_ERROR = "Internal Server Error";
+  String NOT_FOUND = "Not Found";
+  String BAD_REQUEST = "Bad Request";
+  String UNAUTHORIZED = "Unauthorized";
+  String ACCESS_FORBIDDEN = "Access Forbidden";
+  String METHOD_NOT_ALLOWED = "Method Not Allowed";
+  String INTERNAL_SERVER_ERROR = "Internal Server Error";
 
-    String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
-    String DOWNLOAD_BUFF_SIZE = "download.buff.size";
-    String ENABLE_WEB_STARTED_LOG = "enable.started.log";
-    String FAST_JSON_SERIALIZE_FEATURES = "fastjson.serialize.features";
+  String ENABLE_WEB_MVC_XML = "enable.webmvc.xml";
+  String DOWNLOAD_BUFF_SIZE = "download.buff.size";
+  String ENABLE_WEB_STARTED_LOG = "enable.started.log";
+  String FAST_JSON_SERIALIZE_FEATURES = "fastjson.serialize.features";
 
-    String RESOURCE_MATCH_RESULT = ResourceMatchResult.class.getName();
+  String RESOURCE_MATCH_RESULT = ResourceMatchResult.class.getName();
 
-    //@off
+  //@off
 	/**********************************************************
 	 * Framework Attribute Keys
 	 */
@@ -70,24 +63,24 @@ public interface Constant extends cn.taketoday.context.Constant {
 	 **********************************************************/
 
 	String	DISPATCHER_SERVLET_MAPPING			= "/";
-	String	DEFAULT_MAPPINGS[]					= { DISPATCHER_SERVLET_MAPPING };
+	String[]	DEFAULT_MAPPINGS					= { DISPATCHER_SERVLET_MAPPING };
 	String	DISPATCHER_SERVLET					= "dispatcherServlet";
 	// Resolver
-	String	EXCEPTION_HANDLER					= "exceptionHandler";
-	String	TEMPLATE_VIEW_RESOLVER				= "templateViewResolver";
+	String	EXCEPTION_HANDLER						= "exceptionHandler";
+	String	TEMPLATE_VIEW_RESOLVER			= "templateViewResolver";
 	
 	// the dtd
-	String	DTD_NAME							= "web-configuration";
-	String	WEB_MVC_CONFIG_LOCATION				= "WebMvcConfigLocation";
+	String	DTD_NAME										= "web-configuration";
+	String	WEB_MVC_CONFIG_LOCATION			= "WebMvcConfigLocation";
 
-	String 	COLLECTION_PARAM_REGEXP				= "(\\[|\\]|\\.)";
-	String 	MAP_PARAM_REGEXP					= "(\\['|\\']|\\.)";
+	String 	COLLECTION_PARAM_REGEXP			= "(\\[|\\]|\\.)";
+	String 	MAP_PARAM_REGEXP						= "(\\['|\\']|\\.)";
 
 	// config
-	String	ATTR_ID								= "id";
+	String	ATTR_ID									= "id";
 	String	ATTR_CLASS							= "class";
 	String	ATTR_RESOURCE						= "resource";
-	String	ATTR_NAME							= "name";
+	String	ATTR_NAME								= "name";
 	String	ATTR_VALUE							= VALUE;
 	String	ATTR_ORDER							= "order";
 	String	ATTR_METHOD							= "method";
@@ -114,10 +107,10 @@ public interface Constant extends cn.taketoday.context.Constant {
 
 	String	CONTENT_TYPE_IMAGE					= "image/jpeg";
 
-	String	QUOTATION_MARKS						= "\"";
-	String	IMAGE_PNG							= "png";
-	String	HTTP								= "http";
-	String	HTTPS								= "https";
+	String	QUOTATION_MARKS							= "\"";
+	String	IMAGE_PNG										= "png";
+	String	HTTP												= "http";
+	String	HTTPS												= "https";
 	String	RESPONSE_BODY_PREFIX				= "body:";
 	String	REDIRECT_URL_PREFIX					= "redirect:";
 	int		REDIRECT_URL_PREFIX_LENGTH			= REDIRECT_URL_PREFIX.length();
