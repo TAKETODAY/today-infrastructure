@@ -23,7 +23,7 @@ import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- *         2018-06-23 11:59:50
+ * 2018-06-23 11:59:50
  */
 @FunctionalInterface
 public interface TemplateViewResolver {
@@ -32,11 +32,12 @@ public interface TemplateViewResolver {
    * Resolve template view.
    *
    * @param templateName
-   *            template name
+   *         template name
    * @param context
-   *            current request context
+   *         current request context
+   *
    * @throws Throwable
-   *             If any {@link Exception} occurred
+   *         If any {@link Exception} occurred
    */
   void resolveView(String templateName, RequestContext context) throws Throwable;
 

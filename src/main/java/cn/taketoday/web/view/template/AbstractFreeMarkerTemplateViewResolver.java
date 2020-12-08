@@ -55,7 +55,7 @@ import static cn.taketoday.web.resolver.DelegatingParameterResolver.delegate;
 
 /**
  * @author TODAY <br>
- *         2019-11-22 13:25
+ * 2019-11-22 13:25
  */
 public abstract class AbstractFreeMarkerTemplateViewResolver
         extends AbstractTemplateViewResolver implements WebMvcConfiguration {
@@ -155,15 +155,16 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
   protected <T> TemplateLoader createTemplateLoader(List<T> loaders) {
 
     return ObjectUtils.isEmpty(loaders)
-            ? new DefaultResourceTemplateLoader(prefix, suffix, cacheSize)
-            : new CompositeTemplateLoader((Collection<TemplateLoader>) loaders, cacheSize);
+           ? new DefaultResourceTemplateLoader(prefix, suffix, cacheSize)
+           : new CompositeTemplateLoader((Collection<TemplateLoader>) loaders, cacheSize);
   }
 
   /**
    * Create Model Attributes.
    *
    * @param context
-   *            Current request context
+   *         Current request context
+   *
    * @return {@link TemplateHashModel}
    */
   protected abstract TemplateHashModel createModel(RequestContext context);
@@ -196,24 +197,24 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
    * processed.
    *
    * @param context
-   *            The HTTP response. The HTTP headers are already initialized here,
-   *            such as the {@code contentType} and the
-   *            {@code responseCharacterEncoding} are already set, but you can do
-   *            the final adjustments here. The response {@link Writer} isn't
-   *            created yet, so changing HTTP headers and buffering parameters
-   *            works.
+   *         The HTTP response. The HTTP headers are already initialized here,
+   *         such as the {@code contentType} and the
+   *         {@code responseCharacterEncoding} are already set, but you can do
+   *         the final adjustments here. The response {@link Writer} isn't
+   *         created yet, so changing HTTP headers and buffering parameters
+   *         works.
    * @param template
-   *            The template that will get executed
+   *         The template that will get executed
    * @param model
-   *            The data model that will be passed to the template. By default
-   *            this will be an
-   *            {@link freemarker.ext.servlet.AllHttpScopesHashModel} (which is a
-   *            {@link freemarker.template.SimpleHash} subclass). Thus, you can
-   *            add new variables to the data-model with the
-   *            {@link freemarker.template.SimpleHash#put(String, Object)}
-   *            subclass) method. However, to adjust the data-model, overriding
-   *            {@link #createModel(RequestContext)} is probably a more
-   *            appropriate place.
+   *         The data model that will be passed to the template. By default
+   *         this will be an
+   *         {@link freemarker.ext.servlet.AllHttpScopesHashModel} (which is a
+   *         {@link freemarker.template.SimpleHash} subclass). Thus, you can
+   *         add new variables to the data-model with the
+   *         {@link freemarker.template.SimpleHash#put(String, Object)}
+   *         subclass) method. However, to adjust the data-model, overriding
+   *         {@link #createModel(RequestContext)} is probably a more
+   *         appropriate place.
    *
    * @return true to process the template, false to suppress template processing.
    */
@@ -231,9 +232,9 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
    * you to capture exceptions throw by the template.
    *
    * @param env
-   *            The {@link Environment} object already set up to execute the
-   *            template. You only have to call {@link Environment#process()} and
-   *            the output will be produced by the template.
+   *         The {@link Environment} object already set up to execute the
+   *         template. You only have to call {@link Environment#process()} and
+   *         the output will be produced by the template.
    *
    * @since 2.3.7
    */
@@ -250,11 +251,12 @@ public abstract class AbstractFreeMarkerTemplateViewResolver
    * exception. By default does nothing.
    *
    * @param context
-   *            the actual HTTP request context
+   *         the actual HTTP request context
    * @param template
-   *            the template that was executed
+   *         the template that was executed
    * @param data
-   *            the data that was passed to the template
+   *         the data that was passed to the template
+   *
    * @since 2.3.7
    */
   protected void postTemplateProcess(final Template template, final TemplateModel data, final RequestContext context)

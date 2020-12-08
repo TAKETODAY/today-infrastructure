@@ -40,7 +40,7 @@ import freemarker.cache.TemplateLoader;
  * <p>
  *
  * @author TODAY <br>
- *         2019-09-07 23:48
+ * 2019-09-07 23:48
  */
 public class CompositeTemplateLoader implements TemplateLoader {
 
@@ -80,7 +80,7 @@ public class CompositeTemplateLoader implements TemplateLoader {
    * Set {@link TemplateLoader}s
    *
    * @param values
-   *            Input {@link TemplateLoader}s
+   *         Input {@link TemplateLoader}s
    *
    * @return This object
    */
@@ -94,7 +94,7 @@ public class CompositeTemplateLoader implements TemplateLoader {
    * Add array of {@link TemplateLoader}s
    *
    * @param values
-   *            Input {@link TemplateLoader}s
+   *         Input {@link TemplateLoader}s
    *
    * @return This object
    */
@@ -118,7 +118,8 @@ public class CompositeTemplateLoader implements TemplateLoader {
    * Add {@link Collection} of {@link TemplateLoader}
    *
    * @param loaders
-   *            {@link Collection} of {@link TemplateLoader}
+   *         {@link Collection} of {@link TemplateLoader}
+   *
    * @return This object
    */
   public CompositeTemplateLoader addTemplateLoaders(final Collection<TemplateLoader> loaders) {
@@ -152,11 +153,13 @@ public class CompositeTemplateLoader implements TemplateLoader {
    * Get a suitable {@link TemplateLoader} With given name
    *
    * @param name
-   *            Template name
+   *         Template name
+   *
    * @return Suitable {@link TemplateLoader}. May null if there isn't a suitable
-   *         {@link TemplateLoader}
+   * {@link TemplateLoader}
+   *
    * @throws IOException
-   *             If any {@link IOException} coourred
+   *         If any {@link IOException} coourred
    */
   protected TemplateLoader getTemplateLoader(String name) throws IOException {
 

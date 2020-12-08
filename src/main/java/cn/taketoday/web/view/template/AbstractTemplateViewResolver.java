@@ -29,7 +29,7 @@ import lombok.Setter;
 
 /**
  * @author TODAY <br>
- *         2018-06-26 11:58:24
+ * 2018-06-26 11:58:24
  */
 @Setter
 @Getter
@@ -50,7 +50,8 @@ public abstract class AbstractTemplateViewResolver extends OrderedSupport implem
    * Prepare a template
    *
    * @param name
-   *            Template name
+   *         Template name
+   *
    * @return Returns full path of the template.
    */
   protected String prepareTemplate(String name) {

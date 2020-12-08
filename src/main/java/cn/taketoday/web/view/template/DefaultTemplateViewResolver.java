@@ -43,7 +43,7 @@ import cn.taketoday.web.ui.Model;
 
 /**
  * @author TODAY <br>
- *         2019-11-24 22:28
+ * 2019-11-24 22:28
  */
 @Props(prefix = "web.mvc.view.")
 public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
@@ -76,14 +76,15 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
    * Write to client use request context's {@link Writer}
    *
    * @param context
-   *            Current {@link RequestContext}
+   *         Current {@link RequestContext}
    * @param rendered
-   *            Rendered text
+   *         Rendered text
+   *
    * @throws IOException
-   *             If an input or output exception occurred
+   *         If an input or output exception occurred
    * @throws IllegalStateException
-   *             For Servlet Environment if the <code>getOutputStream</code>
-   *             method has already been called for this response object
+   *         For Servlet Environment if the <code>getOutputStream</code>
+   *         method has already been called for this response object
    */
   protected void write(final RequestContext context, final String rendered) throws IOException {
     if (rendered != null) {
@@ -97,9 +98,10 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
    * Use EL or other render the input text.
    *
    * @param text
-   *            input text string
+   *         input text string
    * @param context
-   *            Current {@link RequestContext}
+   *         Current {@link RequestContext}
+   *
    * @return Rendered text string
    */
   protected String renderTemplate(final String text, RequestContext context) {
@@ -116,10 +118,12 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
    * Read template source as text string
    *
    * @param template
-   *            Template location
+   *         Template location
+   *
    * @return template source text string
+   *
    * @throws IOException
-   *             If an input or output exception occurred
+   *         If an input or output exception occurred
    */
   protected String readTemplate(final String template) throws IOException {
     final Resource resource = ResourceUtils.getResource(template);
@@ -167,7 +171,7 @@ public class DefaultTemplateViewResolver extends AbstractTemplateViewResolver {
    * For the {@link Model} attribute
    *
    * @author TODAY <br>
-   *         2019-11-25 19:48
+   * 2019-11-25 19:48
    */
   public static class ModelAttributeELResolver extends ExpressionResolver {
 

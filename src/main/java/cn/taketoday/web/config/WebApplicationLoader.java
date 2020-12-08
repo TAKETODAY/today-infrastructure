@@ -74,6 +74,7 @@ import cn.taketoday.web.view.ModelAndViewResultHandler;
 import cn.taketoday.web.view.ObjectResultHandler;
 import cn.taketoday.web.view.ResourceResultHandler;
 import cn.taketoday.web.view.ResponseBodyResultHandler;
+import cn.taketoday.web.view.ResponseEntityResultHandler;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.ResultHandlers;
 import cn.taketoday.web.view.TemplateResultHandler;
@@ -258,6 +259,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
     handlers.add(new VoidResultHandler(viewResolver, messageConverter, bufferSize));
     handlers.add(new ObjectResultHandler(viewResolver, messageConverter, bufferSize));
     handlers.add(new ModelAndViewResultHandler(viewResolver, messageConverter, bufferSize));
+    handlers.add(new ResponseEntityResultHandler(viewResolver, messageConverter, bufferSize));
 
     handlers.add(new ResponseBodyResultHandler(messageConverter));
 

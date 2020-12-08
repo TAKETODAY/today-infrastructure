@@ -58,7 +58,9 @@ public class ControllerAdviceExceptionHandler
     if (exceptionHandler != null) {
       context.attribute(Constant.KEY_THROWABLE, ex);
       try {
-        exceptionHandler.handleResult(context, exceptionHandler.invokeHandler(context));
+        exceptionHandler.handleResult(context,
+                                      exceptionHandler,
+                                      exceptionHandler.invokeHandler(context));
       }
       catch (final Throwable target) {
         if (!(target instanceof ExceptionUnhandledException)) {

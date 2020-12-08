@@ -36,7 +36,7 @@ import cn.taketoday.web.ServletContextAware;
 
 /**
  * @author TODAY <br>
- *         2018-06-26 11:26:01
+ * 2018-06-26 11:26:01
  */
 public class ThymeleafTemplateViewResolver
         extends AbstractTemplateViewResolver implements InitializingBean, ServletContextAware {
