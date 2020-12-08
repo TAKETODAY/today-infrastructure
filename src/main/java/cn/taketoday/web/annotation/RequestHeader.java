@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ import cn.taketoday.web.Constant;
 /**
  * Annotation which indicates that a method parameter should be bound to a web
  * request header.
- * 
+ *
  * @author TODAY<br>
  *         2018-08-21 19:19 change
  */
@@ -38,14 +38,14 @@ import cn.taketoday.web.Constant;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestHeader {
 
-    boolean required() default false;
+  boolean required() default false;
 
-    /** Header name */
-    String value() default Constant.BLANK;
+  /** Header name */
+  String value() default Constant.BLANK;
 
-    /**
-     * When required == false and parameter == null. use default value.
-     */
-    String defaultValue() default Constant.BLANK;
+  /**
+   * When required == false and parameter == null. use default value.
+   */
+  String defaultValue() default Constant.BLANK;
 
 }

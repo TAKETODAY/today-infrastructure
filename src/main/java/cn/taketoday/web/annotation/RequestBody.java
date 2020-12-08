@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.web.Constant;
 
 /**
- * 
+ *
  * @author TODAY <br>
  *         2018-07-01 14:06:43 <br>
  *         2018-08-21 20:17 change
@@ -37,7 +37,7 @@ import cn.taketoday.web.Constant;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestBody {
 
-    /** Request body name */
-    String value() default Constant.BLANK;
+  /** Request body name */
+  String value() default Constant.BLANK;
 
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,19 +28,18 @@ import cn.taketoday.context.Constant;
 import cn.taketoday.web.RequestMethod;
 
 /**
- * 
  * @author TODAY <br>
- *         2018-07-01 14:08:28
+ * 2018-07-01 14:08:28
  */
 @Retention(RetentionPolicy.RUNTIME)
 @ActionMapping(method = RequestMethod.POST)
 @Target({ ElementType.METHOD, ElementType.TYPE })
 public @interface POST {
 
-    /** urls */
-    String[] value() default Constant.BLANK;
+  /** urls */
+  String[] value() default Constant.BLANK;
 
-    /** Exclude url on class */
-    boolean exclude() default false;
+  /** Exclude url on class */
+  boolean exclude() default false;
 
 }

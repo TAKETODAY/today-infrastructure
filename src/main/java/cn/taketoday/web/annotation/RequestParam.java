@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -33,16 +33,16 @@ import cn.taketoday.web.Constant;
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 public @interface RequestParam {
 
-    /**
-     * If required == true when request parameter is null, will be return bad
-     * request.
-     */
-    boolean required() default false;
+  /**
+   * If required == true when request parameter is null, will be return bad
+   * request.
+   */
+  boolean required() default false;
 
-    /** Parameter name. */
-    String value() default Constant.BLANK;
+  /** Parameter name. */
+  String value() default Constant.BLANK;
 
-    /** When required == false, and parameter == null. use default value. */
-    String defaultValue() default Constant.BLANK;
+  /** When required == false, and parameter == null. use default value. */
+  String defaultValue() default Constant.BLANK;
 
 }

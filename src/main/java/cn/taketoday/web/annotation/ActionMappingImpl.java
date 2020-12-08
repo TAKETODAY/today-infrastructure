@@ -27,7 +27,7 @@ import cn.taketoday.web.RequestMethod;
 
 /**
  * @author TODAY <br>
- *         2018-08-23 10:27
+ * 2018-08-23 10:27
  */
 @SuppressWarnings("all")
 public class ActionMappingImpl implements ActionMapping {

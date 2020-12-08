@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,12 +34,12 @@ import cn.taketoday.web.interceptor.HandlerInterceptor;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Interceptor {
 
-    /** 配置拦截器 执行的先后顺序由拦截器的位置有关 */
-    Class<? extends HandlerInterceptor>[] value() default {};
+  /** 配置拦截器 执行的先后顺序由拦截器的位置有关 */
+  Class<? extends HandlerInterceptor>[] value() default {};
 
-    /**
-     * Exclude {@link HandlerInterceptor}
-     */
-    Class<? extends HandlerInterceptor>[] exclude() default {};
+  /**
+   * Exclude {@link HandlerInterceptor}
+   */
+  Class<? extends HandlerInterceptor>[] exclude() default {};
 
 }

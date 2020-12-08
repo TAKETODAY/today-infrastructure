@@ -78,5 +78,4 @@ public @interface ResponseStatus {
    */
   String reason() default Constant.BLANK;
 
-
 }

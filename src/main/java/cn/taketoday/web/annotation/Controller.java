@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@ import cn.taketoday.context.annotation.Component;
 
 /**
  * Controller indicate that its a 'Controller' bean
- * 
+ *
  * @author TODAY <br>
  *         2018-08-23 11:16
  */
@@ -38,8 +38,8 @@ import cn.taketoday.context.annotation.Component;
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface Controller {
 
-    /**
-     * Controller name or a bean name
-     */
-    String[] value() default {};
+  /**
+   * Controller name or a bean name
+   */
+  String[] value() default {};
 }

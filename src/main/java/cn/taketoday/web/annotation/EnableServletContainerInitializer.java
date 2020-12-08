@@ -39,7 +39,7 @@ import cn.taketoday.web.servlet.initializer.ServletContextInitializer;
 
 /**
  * @author TODAY <br>
- *         2020-03-30 21:38
+ * 2020-03-30 21:38
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })

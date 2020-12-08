@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@ import cn.taketoday.context.annotation.Component;
 /**
  * This annotation indicates that an annotated element is a request parameter
  * converter component in your application
- * 
+ *
  * @author TODAY <br>
  *         2018-10-14 18:30
  */
@@ -40,10 +40,10 @@ import cn.taketoday.context.annotation.Component;
 @Component(scope = Scope.SINGLETON)
 public @interface ParameterConverter {
 
-    /**
-     * source classes
-     * 
-     * @return
-     */
-    Class<?>[] value() default void.class;
+  /**
+   * source classes
+   *
+   * @return
+   */
+  Class<?>[] value() default void.class;
 }
