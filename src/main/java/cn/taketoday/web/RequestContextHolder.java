@@ -43,7 +43,7 @@ import cn.taketoday.web.ui.RedirectModel;
  * to {@code true}.
  *
  * @author TODAY <br>
- *         2019-03-23 10:29
+ * 2019-03-23 10:29
  * @since 2.3.7
  */
 public abstract class RequestContextHolder {
@@ -62,8 +62,12 @@ public abstract class RequestContextHolder {
   }
 
   public static RequestContext currentContext() {
-    final RequestContext ret = CURRENT_REQUEST_CONTEXT.get();
+    final RequestContext ret = getContext();
     return ret == null ? ApplicationNotStartedContext : ret;
+  }
+
+  public static RequestContext getContext() {
+    return CURRENT_REQUEST_CONTEXT.get();
   }
 
   public static <T> T currentRequest() {

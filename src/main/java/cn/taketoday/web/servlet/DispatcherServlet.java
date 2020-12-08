@@ -26,15 +26,14 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.HandlerAdapter;
+import cn.taketoday.web.utils.ServletUtils;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
-import static cn.taketoday.web.RequestContextHolder.prepareContext;
 
 /**
  * @author TODAY <br>
@@ -56,10 +55,8 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   @Override
   public void service(final ServletRequest request,
                       final ServletResponse response) throws ServletException {
+    final RequestContext context = ServletUtils.getRequestContext(request, response);
 
-    final RequestContext context =
-      prepareContext(new ServletRequestContext((HttpServletRequest) request,
-                                               (HttpServletResponse) response));
     // Lookup handler
     final Object handler = lookupHandler(context);
     final HandlerAdapter adapter = lookupHandlerAdapter(handler);
@@ -68,6 +65,9 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     }
     catch (final Throwable e) {
       throw new ServletException(e);
+    }
+    finally {
+      RequestContextHolder.resetContext();
     }
   }
 

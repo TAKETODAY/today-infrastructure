@@ -29,7 +29,7 @@ import cn.taketoday.context.utils.CollectionUtils;
 
 /**
  * @author TODAY <br>
- *         2019-11-20 21:47
+ * 2019-11-20 21:47
  */
 public class StandardWebBeanFactory extends StandardBeanFactory {
 
@@ -50,7 +50,7 @@ public class StandardWebBeanFactory extends StandardBeanFactory {
   protected Map<Class<?>, Object> createObjectFactories() {
     final Map<Class<?>, Object> objectFactories = super.createObjectFactories();
     if (CollectionUtils.isEmpty(objectFactories)) {
-
+//TODO
     }
     final Map<Class<?>, Object> env = new HashMap<>();
     env.put(RequestContext.class, factory(RequestContextHolder::currentContext));

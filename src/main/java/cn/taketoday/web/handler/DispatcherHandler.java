@@ -207,8 +207,6 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *         Current HTTP request context
    * @param adapter
    *         {@link HandlerAdapter}
-   *
-   * @throws Throwable
    */
   public void handle(final Object handler,
                      final RequestContext context,

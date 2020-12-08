@@ -26,6 +26,9 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.net.URLConnection;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.Assert;
@@ -35,6 +38,7 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.HttpHeaders;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ResponseStatus;
@@ -44,6 +48,9 @@ import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.http.HttpStatus;
+import cn.taketoday.web.servlet.ServletRequestContext;
+
+import static cn.taketoday.web.RequestContextHolder.prepareContext;
 
 /**
  * @author TODAY <br>
@@ -201,6 +208,7 @@ public abstract class WebUtils {
       writeToOutputStream(in, context.getOutputStream(), bufferSize);
     }
   }
+
 
   // ResponseStatus
 

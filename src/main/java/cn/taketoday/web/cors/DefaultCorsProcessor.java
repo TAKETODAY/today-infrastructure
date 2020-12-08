@@ -55,7 +55,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
   private static final Logger logger = LoggerFactory.getLogger(DefaultCorsProcessor.class);
 
   @Override
-  public boolean processCorsRequest(CorsConfiguration config, RequestContext context) throws IOException {
+  public boolean process(CorsConfiguration config, RequestContext context) throws IOException {
 
     context.addResponseHeader(Constant.VARY, Constant.ORIGIN);
     context.addResponseHeader(Constant.VARY, Constant.ACCESS_CONTROL_REQUEST_METHOD);
