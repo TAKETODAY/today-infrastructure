@@ -26,7 +26,7 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 17:41
+ * 2019-07-14 17:41
  */
 public class ObjectResultHandler extends HandlerMethodResultHandler {
 
@@ -45,13 +45,15 @@ public class ObjectResultHandler extends HandlerMethodResultHandler {
   }
 
   @Override
-  public boolean supportsResult(Object result) {
-    return true;
+  protected void handleInternal(final RequestContext context,
+                                final HandlerMethod handler,
+                                final Object result) throws Throwable {
+    handleObject(context, result);
   }
 
   @Override
-  public void handleResult(RequestContext requestContext, Object result) throws Throwable {
-    handleObject(requestContext, result);
+  public boolean supportsResult(Object result) {
+    return true;
   }
 
 }

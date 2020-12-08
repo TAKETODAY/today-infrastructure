@@ -41,7 +41,7 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 10:47
+ * 2019-07-14 10:47
  */
 public abstract class AbstractResultHandler extends OrderedSupport implements ResultHandler, RuntimeResultHandler {
 
@@ -51,11 +51,11 @@ public abstract class AbstractResultHandler extends OrderedSupport implements Re
   /** Template view resolver */
   private TemplateViewResolver templateViewResolver;
 
-  public AbstractResultHandler() {
+  public AbstractResultHandler() {}
 
-  }
-
-  public AbstractResultHandler(TemplateViewResolver viewResolver, MessageConverter messageConverter, int downloadFileBuf) {
+  public AbstractResultHandler(TemplateViewResolver viewResolver,
+                               MessageConverter messageConverter,
+                               int downloadFileBuf) {
     setTemplateViewResolver(viewResolver);
     setMessageConverter(messageConverter);
     setDownloadFileBufferSize(downloadFileBuf);
@@ -67,24 +67,25 @@ public abstract class AbstractResultHandler extends OrderedSupport implements Re
   }
 
   public void handleObject(final RequestContext requestContext, final Object view) throws Throwable {
-
-    if (view instanceof String) {
-      handleString((String) view, requestContext);
-    }
-    else if (view instanceof File) {
-      downloadFile(requestContext, ResourceUtils.getResource((File) view));
-    }
-    else if (view instanceof Resource) {
-      downloadFile(requestContext, (Resource) view);
-    }
-    else if (view instanceof ModelAndView) {
-      resolveModelAndView(requestContext, (ModelAndView) view);
-    }
-    else if (view instanceof RenderedImage) {
-      handleImageView((RenderedImage) view, requestContext);
-    }
-    else {
-      obtainMessageConverter().write(requestContext, view);
+    if (view != null) {
+      if (view instanceof String) {
+        handleString((String) view, requestContext);
+      }
+      else if (view instanceof File) {
+        downloadFile(requestContext, ResourceUtils.getResource((File) view));
+      }
+      else if (view instanceof Resource) {
+        downloadFile(requestContext, (Resource) view);
+      }
+      else if (view instanceof ModelAndView) {
+        resolveModelAndView(requestContext, (ModelAndView) view);
+      }
+      else if (view instanceof RenderedImage) {
+        handleImageView((RenderedImage) view, requestContext);
+      }
+      else {
+        obtainMessageConverter().write(requestContext, view);
+      }
     }
   }
 
@@ -102,12 +103,9 @@ public abstract class AbstractResultHandler extends OrderedSupport implements Re
   /**
    * Download file to client.
    *
-   * @param request
-   *            Current request context
    * @param download
-   *            {@link Resource} to download
-   * @param bufferSize
-   *            Download buffer size
+   *         {@link Resource} to download
+   *
    * @since 2.1.x
    */
   public void downloadFile(final RequestContext context, final Resource download) throws IOException {
@@ -124,39 +122,40 @@ public abstract class AbstractResultHandler extends OrderedSupport implements Re
     }
   }
 
-  public void handleString(final String resource, final RequestContext requestContext) throws Throwable {
+  public void handleString(final String resource, final RequestContext context) throws Throwable {
 
     if (resource.startsWith(Constant.REDIRECT_URL_PREFIX)) {
-      handleRedirect(resource.substring(9), requestContext);
+      handleRedirect(resource.substring(9), context);
     }
     else if (resource.startsWith(Constant.RESPONSE_BODY_PREFIX)) {
-      getMessageConverter().write(requestContext, resource.substring(5));
+      getMessageConverter().write(context, resource.substring(5));
     }
     else {
-      final RedirectModel redirectModel = requestContext.redirectModel();
+      final RedirectModel redirectModel = context.redirectModel();
       if (redirectModel != null) {
         for (final Entry<String, Object> entry : redirectModel.asMap().entrySet()) {
-          requestContext.attribute(entry.getKey(), entry.getValue());
+          context.attribute(entry.getKey(), entry.getValue());
         }
-        requestContext.redirectModel(null);
+        context.redirectModel(null);
       }
-      getTemplateViewResolver().resolveView(resource, requestContext);
+      getTemplateViewResolver().resolveView(resource, context);
     }
   }
 
   /**
    * Resolve image
    *
-   * @param requestContext
-   *            Current request context
+   * @param context
+   *         Current request context
    * @param image
-   *            Image instance
+   *         Image instance
+   *
    * @throws IOException
    * @since 2.3.3
    */
-  public void handleImageView(final RenderedImage image, final RequestContext requestContext) throws IOException {
+  public void handleImageView(final RenderedImage image, final RequestContext context) throws IOException {
     // need set content type
-    ImageIO.write(image, Constant.IMAGE_PNG, requestContext.getOutputStream());
+    ImageIO.write(image, Constant.IMAGE_PNG, context.getOutputStream());
   }
 
   public int getDownloadFileBufferSize() {

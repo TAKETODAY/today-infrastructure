@@ -27,7 +27,7 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 00:53
+ * 2019-07-14 00:53
  */
 public class VoidResultHandler extends ModelAndViewResultHandler {
 
@@ -46,7 +46,8 @@ public class VoidResultHandler extends ModelAndViewResultHandler {
   }
 
   @Override
-  public void handleResult(RequestContext context, Object result) throws Throwable {
+  public void handleResult(final RequestContext context,
+                           final Object handler, final Object result) throws Throwable {
 
     final ModelAndView modelAndView = context.modelAndView();
     if (modelAndView != null) {

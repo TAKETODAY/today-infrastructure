@@ -26,7 +26,7 @@ package cn.taketoday.web.view;
  * Handle runtime
  *
  * @author TODAY <br>
- *         2019-12-25 23:09
+ * 2019-12-25 23:09
  */
 public interface RuntimeResultHandler extends ResultHandler {
 
@@ -37,7 +37,8 @@ public interface RuntimeResultHandler extends ResultHandler {
    * in application runtime
    *
    * @param result
-   *            Target handler's result
+   *         Target handler's result
+   *
    * @return If this {@link ResultHandler} supports the target handler's result
    */
   boolean supportsResult(Object result);

@@ -19,15 +19,13 @@
  */
 package cn.taketoday.web.view;
 
-import java.io.IOException;
-
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.web.MessageConverter;
 import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 01:19
+ * 2019-07-14 01:19
  */
 public class ResponseBodyResultHandler extends OrderedSupport implements RuntimeResultHandler {
 
@@ -49,8 +47,9 @@ public class ResponseBodyResultHandler extends OrderedSupport implements Runtime
   }
 
   @Override
-  public void handleResult(RequestContext requestContext, Object result) throws IOException {
-    messageConverter.write(requestContext, result);
+  public void handleResult(final RequestContext context,
+                           final Object handler, final Object result) throws Throwable {
+    messageConverter.write(context, result);
   }
 
 }

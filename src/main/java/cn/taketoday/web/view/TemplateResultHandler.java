@@ -33,7 +33,7 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 11:32
+ * 2019-07-14 11:32
  */
 public class TemplateResultHandler extends AbstractResultHandler implements RuntimeResultHandler {
 
@@ -103,7 +103,8 @@ public class TemplateResultHandler extends AbstractResultHandler implements Runt
   }
 
   @Override
-  public void handleResult(final RequestContext context, final Object result) throws Throwable {
+  public void handleResult(final RequestContext context,
+                           final Object handler, final Object result) throws Throwable {
     handleString((String) result, context);
   }
 

@@ -24,7 +24,7 @@ import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- *         2019-12-08 21:54
+ * 2019-12-08 21:54
  */
 public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
 
@@ -61,7 +61,7 @@ public class ViewControllerHandlerAdapter extends AbstractHandlerAdapter {
     if (result == null || handlerMethod.is(void.class)) {
       return view.getResource();
     }
-    handlerMethod.handleResult(context, result);
+    handlerMethod.handleResult(context, handlerMethod, result);
     return NONE_RETURN_VALUE;
   }
 

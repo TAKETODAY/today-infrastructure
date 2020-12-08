@@ -23,7 +23,7 @@ import cn.taketoday.context.Ordered;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 19:39
+ * 2019-07-14 19:39
  */
 public interface OrderedResultHandler extends ResultHandler, Ordered {
 

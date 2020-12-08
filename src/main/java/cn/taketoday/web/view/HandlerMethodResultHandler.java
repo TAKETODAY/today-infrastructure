@@ -19,11 +19,12 @@
  */
 package cn.taketoday.web.view;
 
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.HandlerMethod;
 
 /**
  * @author TODAY <br>
- *         2019-12-13 13:52
+ * 2019-12-13 13:52
  */
 public abstract class HandlerMethodResultHandler extends AbstractResultHandler {
 
@@ -34,4 +35,14 @@ public abstract class HandlerMethodResultHandler extends AbstractResultHandler {
 
   protected abstract boolean supports(HandlerMethod handler);
 
+  @Override
+  public void handleResult(RequestContext context,
+                           Object handler, Object result) throws Throwable {
+    if (result != null) {
+      handleInternal(context, (HandlerMethod) handler, result);
+    }
+  }
+
+  protected abstract void handleInternal(RequestContext context,
+                                         HandlerMethod handler, Object result) throws Throwable;
 }

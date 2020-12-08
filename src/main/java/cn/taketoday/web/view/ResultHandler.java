@@ -28,7 +28,7 @@ import cn.taketoday.web.RequestContext;
  * Handle handler execution result
  *
  * @author TODAY <br>
- *         2019-07-10 19:22
+ * 2019-07-10 19:22
  */
 @FunctionalInterface
 public interface ResultHandler {
@@ -40,7 +40,8 @@ public interface ResultHandler {
    * in application startup time
    *
    * @param handler
-   *            Target handler
+   *         Target handler
+   *
    * @return If this {@link ResultHandler} supports the target handler
    */
   default boolean supportsHandler(Object handler) {
@@ -51,11 +52,10 @@ public interface ResultHandler {
    * Handle result of the handler
    *
    * @param context
-   *            Current HTTP request context
+   *         Current HTTP request context
    * @param result
-   *            Handler execution result
-   * @throws Throwable
+   *         Handler execution result
    */
-  void handleResult(RequestContext context, Object result) throws Throwable;
+  void handleResult(RequestContext context, Object handler, Object result) throws Throwable;
 
 }

@@ -20,7 +20,6 @@
 package cn.taketoday.web.view;
 
 import java.awt.image.RenderedImage;
-import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
@@ -30,7 +29,7 @@ import cn.taketoday.web.handler.HandlerMethod;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 15:15
+ * 2019-07-14 15:15
  */
 public class ImageResultHandler extends HandlerMethodResultHandler implements RuntimeResultHandler {
 
@@ -45,7 +44,9 @@ public class ImageResultHandler extends HandlerMethodResultHandler implements Ru
   }
 
   @Override
-  public void handleResult(final RequestContext context, final Object result) throws IOException {
+  protected void handleInternal(final RequestContext context,
+                                final HandlerMethod handler,
+                                final Object result) throws Throwable {
     context.contentType("image/png"); // sub classes can override this method to apply content type
     ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, context.getOutputStream());
   }

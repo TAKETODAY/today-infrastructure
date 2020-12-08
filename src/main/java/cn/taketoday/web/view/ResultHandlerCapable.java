@@ -20,9 +20,8 @@
 package cn.taketoday.web.view;
 
 /**
- *
  * @author TODAY <br>
- *         2019-12-28 14:15
+ * 2019-12-28 14:15
  */
 @FunctionalInterface
 public interface ResultHandlerCapable {

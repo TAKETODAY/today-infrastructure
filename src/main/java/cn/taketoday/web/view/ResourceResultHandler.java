@@ -20,7 +20,6 @@
 package cn.taketoday.web.view;
 
 import java.io.File;
-import java.io.IOException;
 
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.ResourceUtils;
@@ -30,7 +29,7 @@ import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
- *         2019-07-14 11:18
+ * 2019-07-14 11:18
  */
 public class ResourceResultHandler extends HandlerMethodResultHandler implements RuntimeResultHandler {
 
@@ -51,7 +50,9 @@ public class ResourceResultHandler extends HandlerMethodResultHandler implements
   }
 
   @Override
-  public void handleResult(RequestContext context, Object result) throws IOException {
+  protected void handleInternal(final RequestContext context,
+                                final HandlerMethod handler,
+                                final Object result) throws Throwable {
     if (result instanceof Resource) {
       WebUtils.downloadFile(context, (Resource) result, getDownloadFileBufferSize());
     }

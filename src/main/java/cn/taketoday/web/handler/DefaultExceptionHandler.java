@@ -138,7 +138,7 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
     context.status(getErrorStatusValue(ex));
 
     if (handlerMethod.isAssignableFrom(RenderedImage.class)) {
-      handlerMethod.handleResult(context, resolveImageException(ex, context));
+      handlerMethod.handleResult(context, handlerMethod, resolveImageException(ex, context));
     }
     else if (!handlerMethod.is(void.class)
             && !handlerMethod.is(Object.class)

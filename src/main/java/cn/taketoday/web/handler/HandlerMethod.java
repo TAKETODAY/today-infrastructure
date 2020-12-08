@@ -254,9 +254,10 @@ public class HandlerMethod
   // -----------------------------------------
 
   @Override
-  public void handleResult(final RequestContext context, final Object result) throws Throwable {
+  public void handleResult(final RequestContext context,
+                           final Object handler, final Object result) throws Throwable {
     applyResponseStatus(context);
-    resultHandler.handleResult(context, result);
+    resultHandler.handleResult(context, handler, result);
   }
 
   public Object invokeHandler(final RequestContext request) throws Throwable {

@@ -64,7 +64,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Find a suitable handler to handle this HTTP request
    *
    * @param context
-   *   Current HTTP request context
+   *         Current HTTP request context
    *
    * @return Target handler, if returns {@code null} indicates that there isn't a
    * handler to handle this request
@@ -77,12 +77,12 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Find a {@link HandlerAdapter} for input handler
    *
    * @param handler
-   *   Target handler
+   *         Target handler
    *
    * @return A {@link HandlerAdapter}
    *
    * @throws IllegalStateException
-   *   If there isn't a {@link HandlerAdapter} for target handler
+   *         If there isn't a {@link HandlerAdapter} for target handler
    */
   public HandlerAdapter lookupHandlerAdapter(final Object handler) {
     if (handler instanceof HandlerAdapter) {
@@ -103,15 +103,15 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Find {@link ResultHandler} for handler and handler execution result
    *
    * @param handler
-   *   Target handler
+   *         Target handler
    * @param result
-   *   Handler execution result
+   *         Handler execution result
    *
    * @return {@link ResultHandler}
    *
    * @throws IllegalStateException
-   *   If there isn't a {@link ResultHandler} for target handler and
-   *   handler execution result
+   *         If there isn't a {@link ResultHandler} for target handler and
+   *         handler execution result
    */
   public ResultHandler lookupResultHandler(final Object handler, final Object result) {
     if (handler instanceof ResultHandler) {
@@ -132,11 +132,11 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Check if this request is not modified
    *
    * @param handler
-   *   Target handler
+   *         Target handler
    * @param context
-   *   Current HTTP request context
+   *         Current HTTP request context
    * @param adapter
-   *   Handler's {@link HandlerAdapter Adapter}
+   *         Handler's {@link HandlerAdapter Adapter}
    *
    * @return If not modified
    */
@@ -157,7 +157,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Handle HTTP request
    *
    * @param context
-   *   Current HTTP request context
+   *         Current HTTP request context
    *
    * @throws Throwable
    */
@@ -170,7 +170,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *
    * @param handler
    * @param context
-   *   Current HTTP request context
+   *         Current HTTP request context
    *
    * @throws Throwable
    */
@@ -182,11 +182,11 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Handle HTTP request not modify
    *
    * @param handler
-   *   Target handler
+   *         Target handler
    * @param context
-   *   Current HTTP request context
+   *         Current HTTP request context
    * @param adapter
-   *   {@link HandlerAdapter}
+   *         {@link HandlerAdapter}
    *
    * @throws Throwable
    */
@@ -202,11 +202,11 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Handle HTTP request
    *
    * @param handler
-   *   Target handler
+   *         Target handler
    * @param context
-   *   Current HTTP request context
+   *         Current HTTP request context
    * @param adapter
-   *   {@link HandlerAdapter}
+   *         {@link HandlerAdapter}
    *
    * @throws Throwable
    */
@@ -216,7 +216,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
     try {
       final Object result = adapter.handle(context, handler);
       if (result != HandlerAdapter.NONE_RETURN_VALUE) {
-        lookupResultHandler(handler, result).handleResult(context, result);
+        lookupResultHandler(handler, result).handleResult(context, handler, result);
       }
     }
     catch (Throwable e) {
@@ -228,14 +228,14 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Handle {@link Exception} occurred in target handler
    *
    * @param handler
-   *   Target handler
+   *         Target handler
    * @param exception
-   *   {@link Throwable} occurred in target handler
+   *         {@link Throwable} occurred in target handler
    * @param context
-   *   Current HTTP request context
+   *         Current HTTP request context
    *
    * @throws Throwable
-   *   If {@link Throwable} occurred in {@link HandlerExceptionHandler}
+   *         If {@link Throwable} occurred in {@link HandlerExceptionHandler}
    */
   public void handleException(final Object handler,
                               final Throwable exception,
@@ -257,11 +257,11 @@ public class DispatcherHandler extends WebApplicationContextSupport {
 
         final DateFormat dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
         final String msg = new StringBuilder("Your application destroyed at: [")
-          .append(dateFormat.format(System.currentTimeMillis()))
-          .append("] on startup date: [")
-          .append(dateFormat.format(context.getStartupDate()))
-          .append(']')
-          .toString();
+                .append(dateFormat.format(System.currentTimeMillis()))
+                .append("] on startup date: [")
+                .append(dateFormat.format(context.getStartupDate()))
+                .append(']')
+                .toString();
 
         log(msg);
       }
@@ -272,7 +272,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Log internal
    *
    * @param msg
-   *   Log message
+   *         Log message
    */
   protected void log(final String msg) {
     log.info(msg);
