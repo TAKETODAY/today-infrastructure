@@ -42,6 +42,7 @@ import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ContextUtils;
+import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -52,7 +53,7 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
- *         2019-12-23 22:10
+ * 2019-12-23 22:10
  */
 public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
 
@@ -100,9 +101,10 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
    * allowed. See {@link AntPathMatcher} for more details on the syntax.
    *
    * @param pathPattern
-   *            Patterns like {@code "/articles/**"} or
-   *            {@code "/articles/{id:\\w+}"} are allowed. See
-   *            {@link AntPathMatcher} for more details on the syntax.
+   *         Patterns like {@code "/articles/**"} or
+   *         {@code "/articles/{id:\\w+}"} are allowed. See
+   *         {@link AntPathMatcher} for more details on the syntax.
+   *
    * @return {@link ViewController}
    */
   public ViewController addViewController(String pathPattern) {
@@ -119,12 +121,13 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
    * allowed. See {@link AntPathMatcher} for more details on the syntax.
    *
    * @param pathPattern
-   *            Patterns like {@code "/articles/**"} or
-   *            {@code "/articles/{id:\\w+}"} are allowed. See
-   *            {@link AntPathMatcher} for more details on the syntax.
+   *         Patterns like {@code "/articles/**"} or
+   *         {@code "/articles/{id:\\w+}"} are allowed. See
+   *         {@link AntPathMatcher} for more details on the syntax.
    * @param resource
-   *            resource location,such as redirect url or view template resource
-   *            <b>Or other type of resource</b>
+   *         resource location,such as redirect url or view template resource
+   *         <b>Or other type of resource</b>
+   *
    * @return {@link ViewController}
    */
   public ViewController addViewController(String pathPattern, Object resource) {
@@ -157,7 +160,7 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
 
   /**
    * @param webMvcConfigLocation
-   *          Configuration File location
+   *         Configuration File location
    */
   public void configure(final String webMvcConfigLocation) throws Exception {
 
@@ -213,11 +216,11 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
   }
 
   /**
-   *
    * Start configuration
    *
    * @param controller
-   *            the controller element
+   *         the controller element
+   *
    * @since 2.3.7
    */
   protected void configController(final Element controller) {
@@ -300,7 +303,7 @@ public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
         throw new ConfigurationException(
                 "You must specify a 'class' attribute like this: [<controller class=\"xxx.XMLController\" name=\"xmlController\" />]");
       }
-      for (final Method targetMethod : controller.getClass().getDeclaredMethods()) {
+      for (final Method targetMethod : ReflectionUtils.getDeclaredMethods(controller.getClass())) {
         if (!targetMethod.isBridge() && method.equals(targetMethod.getName())) {
           handlerMethod = targetMethod;
           break;

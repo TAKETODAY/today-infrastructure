@@ -136,15 +136,15 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
     }
   }
 
-  protected void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries, WebMvcConfiguration mvcConfiguration) {
-    mvcConfiguration.configureHandlerRegistry(handlerRegistries);
+  protected void configureHandlerRegistry(List<HandlerRegistry> registries, WebMvcConfiguration mvcConfiguration) {
+    mvcConfiguration.configureHandlerRegistry(registries);
     final DispatcherHandler obtainDispatcher = obtainDispatcher();
     if (obtainDispatcher.getHandlerRegistry() == null) {
-      if (handlerRegistries.size() == 1) {
-        obtainDispatcher.setHandlerRegistry(handlerRegistries.get(0));
+      if (registries.size() == 1) {
+        obtainDispatcher.setHandlerRegistry(registries.get(0));
       }
       else {
-        obtainDispatcher.setHandlerRegistry(new CompositeHandlerRegistry(handlerRegistries));
+        obtainDispatcher.setHandlerRegistry(new CompositeHandlerRegistry(registries));
       }
     }
   }
