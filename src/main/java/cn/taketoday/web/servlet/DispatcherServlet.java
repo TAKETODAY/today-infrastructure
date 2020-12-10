@@ -38,7 +38,7 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 /**
  * @author TODAY <br>
  * 2018-06-25 19:47:14
- * @version 2.3.7
+ * @since 2.0
  */
 public class DispatcherServlet extends DispatcherHandler implements Servlet, Serializable {
 
