@@ -50,7 +50,7 @@ public class DispatcherServlet
   public DispatcherServlet() {}
 
   public DispatcherServlet(WebServletApplicationContext context) {
-    setApplicationContext(context);
+    super(context);
   }
 
   @Override
