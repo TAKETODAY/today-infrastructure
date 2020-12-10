@@ -41,6 +41,7 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
  *
  * @author TODAY <br>
  * 2019-11-16 19:05
+ * @since 3.0
  */
 public class DispatcherHandler extends WebApplicationContextSupport {
 

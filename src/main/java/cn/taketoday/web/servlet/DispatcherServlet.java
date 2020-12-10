@@ -40,7 +40,8 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
  * 2018-06-25 19:47:14
  * @since 2.0
  */
-public class DispatcherServlet extends DispatcherHandler implements Servlet, Serializable {
+public class DispatcherServlet
+        extends DispatcherHandler implements Servlet, Serializable {
 
   private static final long serialVersionUID = 1L;
 
