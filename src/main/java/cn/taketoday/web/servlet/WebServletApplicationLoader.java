@@ -257,15 +257,15 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
     if (initializer != null) {
       DispatcherServlet ret = initializer.getServlet();
       if (ret == null) {
-        ret = doCreateDispatcher(context);
+        ret = doCreateDispatcherServlet(context);
         initializer.setServlet(ret);
       }
       return ret;
     }
-    return doCreateDispatcher(context);
+    return doCreateDispatcherServlet(context);
   }
 
-  protected DispatcherServlet doCreateDispatcher(WebServletApplicationContext context) {
+  protected DispatcherServlet doCreateDispatcherServlet(WebServletApplicationContext context) {
     return new DispatcherServlet(context);
   }
 
