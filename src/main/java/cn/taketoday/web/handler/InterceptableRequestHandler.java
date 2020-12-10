@@ -26,16 +26,15 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
-import cn.taketoday.web.interceptor.HandlerInterceptorsCapable;
 
 import static cn.taketoday.context.utils.ObjectUtils.isEmpty;
 
 /**
  * @author TODAY <br>
- *         2019-12-25 16:19
+ * 2019-12-25 16:19
  */
 public abstract class InterceptableRequestHandler
-        extends OrderedSupport implements RequestHandler, HandlerInterceptorsCapable {
+        extends OrderedSupport implements RequestHandler {
 
   private static final Logger log = LoggerFactory.getLogger(InterceptableRequestHandler.class);
 
@@ -75,7 +74,6 @@ public abstract class InterceptableRequestHandler
 
   protected abstract Object handleInternal(final RequestContext context) throws Throwable;
 
-  @Override
   public HandlerInterceptor[] getInterceptors() {
     return interceptors;
   }
