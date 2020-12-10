@@ -72,7 +72,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   }
 
   @Override
-  public void init(ServletConfig servletConfig) throws ServletException {
+  public void init(ServletConfig servletConfig) {
     this.servletConfig = servletConfig;
   }
 
