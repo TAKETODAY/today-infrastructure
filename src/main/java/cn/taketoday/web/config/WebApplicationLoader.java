@@ -153,9 +153,9 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
    * Configure {@link HandlerAdapter}
    *
    * @param adapters
-   *            {@link HandlerAdapter}s
+   *         {@link HandlerAdapter}s
    * @param mvcConfiguration
-   *            {@link WebMvcConfiguration}
+   *         {@link WebMvcConfiguration}
    */
   protected void configureHandlerAdapter(final List<HandlerAdapter> adapters, WebMvcConfiguration mvcConfiguration) {
 
@@ -224,9 +224,9 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
    * Configure {@link TypeConverter} to resolve convert request parameters
    *
    * @param typeConverters
-   *            Type converters
+   *         Type converters
    * @param mvcConfiguration
-   *            All {@link WebMvcConfiguration} object
+   *         All {@link WebMvcConfiguration} object
    */
   protected void configureTypeConverter(List<TypeConverter> typeConverters, WebMvcConfiguration mvcConfiguration) {
 
@@ -239,9 +239,9 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
    * Configure {@link ResultHandler} to resolve handler method result
    *
    * @param handlers
-   *            {@link ResultHandler} registry
+   *         {@link ResultHandler} registry
    * @param mvcConfiguration
-   *            All {@link WebMvcConfiguration} object
+   *         All {@link WebMvcConfiguration} object
    */
   protected void configureResultHandler(List<ResultHandler> handlers, WebMvcConfiguration mvcConfiguration) {
 
@@ -288,9 +288,9 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
   /**
    * @param templateResolver
-   *            {@link TemplateViewResolver} object
+   *         {@link TemplateViewResolver} object
    * @param mvcConfiguration
-   *            All {@link WebMvcConfiguration} object
+   *         All {@link WebMvcConfiguration} object
    */
   protected void configureTemplateViewResolver(TemplateViewResolver templateResolver, WebMvcConfiguration mvcConfiguration) {
     if (templateResolver instanceof AbstractTemplateViewResolver) {
@@ -302,9 +302,9 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
    * Configure {@link ParameterResolver}s to resolve handler method arguments
    *
    * @param resolvers
-   *            Resolvers registry
+   *         Resolvers registry
    * @param mvcConfiguration
-   *            All {@link WebMvcConfiguration} object
+   *         All {@link WebMvcConfiguration} object
    */
   protected void configureParameterResolver(List<ParameterResolver> resolvers, WebMvcConfiguration mvcConfiguration) {
 
@@ -320,46 +320,46 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
     resolvers.add(convert((m) -> m.is(Boolean.class) || m.is(boolean.class), Boolean::parseBoolean));
 
     // For some useful context annotations @off
-        // -------------------------------------------- 
+    // --------------------------------------------
 
-        resolvers.add(delegate((m) -> m.isAnnotationPresent(RequestAttribute.class), //
-              (ctx, m) -> ctx.attribute(m.getName())//
-        ));
+    resolvers.add(delegate((m) -> m.isAnnotationPresent(RequestAttribute.class), //
+      (ctx, m) -> ctx.attribute(m.getName())//
+    ));
 
-        resolvers.add(delegate((m) -> m.isAnnotationPresent(Value.class), //
-              (ctx, m) -> resolveValue(m.getAnnotation(Value.class), m.getParameterClass())//
-        ));
-        resolvers.add(delegate((m) -> m.isAnnotationPresent(Env.class), //
-              (ctx, m) -> resolveValue(m.getAnnotation(Env.class), m.getParameterClass())//
-        ));
+    resolvers.add(delegate((m) -> m.isAnnotationPresent(Value.class), //
+      (ctx, m) -> resolveValue(m.getAnnotation(Value.class), m.getParameterClass())//
+    ));
+    resolvers.add(delegate((m) -> m.isAnnotationPresent(Env.class), //
+      (ctx, m) -> resolveValue(m.getAnnotation(Env.class), m.getParameterClass())//
+    ));
 
-        final WebApplicationContext context = obtainApplicationContext();
-        final Properties properties = context.getEnvironment().getProperties();
+    final WebApplicationContext context = obtainApplicationContext();
+    final Properties properties = context.getEnvironment().getProperties();
 
-        resolvers.add(delegate((m) -> m.isAnnotationPresent(Props.class), //
-               (ctx, m) -> resolveProps(m.getAnnotation(Props.class), m.getParameterClass(), properties)//
-        ));
+    resolvers.add(delegate((m) -> m.isAnnotationPresent(Props.class), //
+      (ctx, m) -> resolveProps(m.getAnnotation(Props.class), m.getParameterClass(), properties)//
+    ));
 
-        resolvers.add(delegate((m) -> m.isAnnotationPresent(Autowired.class), //@off
-              (ctx, m) -> {
-                  final Autowired autowired = m.getAnnotation(Autowired.class);
-                  final String name = autowired.value();
+    resolvers.add(delegate((m) -> m.isAnnotationPresent(Autowired.class), //@off
+      (ctx, m) -> {
+        final Autowired autowired = m.getAnnotation(Autowired.class);
+        final String name = autowired.value();
 
-                  final Object bean;
-                  if (StringUtils.isEmpty(name)) {
-                      bean = context.getBean(m.getParameterClass());
-                  }
-                  else {
-                      bean = context.getBean(name, m.getParameterClass());
-                  }
-                  if (bean == null && autowired.required()) {
-                      throw new NoSuchBeanDefinitionException(m.getParameterClass());
-                  }
-                  return bean;
-              }
-        ));
+        final Object bean;
+        if (StringUtils.isEmpty(name)) {
+            bean = context.getBean(m.getParameterClass());
+        }
+        else {
+            bean = context.getBean(name, m.getParameterClass());
+        }
+        if (bean == null && autowired.required()) {
+          throw new NoSuchBeanDefinitionException(m.getParameterClass());
+        }
+        return bean;
+      }
+    ));
 
-        // HandlerMethod @on
+    // HandlerMethod @on
     resolvers.add(delegate((m) -> m.is(HandlerMethod.class), (ctx, m) -> m.getHandlerMethod()));
 
     // For cookies
@@ -393,8 +393,15 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
     // ------------------------------------------
 
     mvcConfiguration.configureParameterResolver(resolvers); // user configure
+    // post
+    postConfigureParameterResolver(resolvers, mvcConfiguration);
 
     ParameterResolvers.addResolver(resolvers);
+  }
+
+  protected void postConfigureParameterResolver(final List<ParameterResolver> resolvers,
+                                                final WebMvcConfiguration mvcConfiguration) {
+
   }
 
   protected void configureMultipart(List<ParameterResolver> resolvers,

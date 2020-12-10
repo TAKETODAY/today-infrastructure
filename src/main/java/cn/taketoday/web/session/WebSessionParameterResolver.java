@@ -19,15 +19,17 @@
  */
 package cn.taketoday.web.session;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.OrderedParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolver;
 
 /**
  * @author TODAY <br>
- *         2019-09-27 22:36
+ * 2019-09-27 22:36
  */
-public class WebSessionParameterResolver implements OrderedParameterResolver {
+public class WebSessionParameterResolver
+        extends OrderedSupport implements ParameterResolver {
 
   private final WebSessionManager sessionManager;
 
@@ -41,8 +43,8 @@ public class WebSessionParameterResolver implements OrderedParameterResolver {
   }
 
   @Override
-  public Object resolveParameter(RequestContext requestContext, MethodParameter parameter) throws Throwable {
-    return sessionManager.getSession(requestContext);
+  public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    return sessionManager.getSession(context);
   }
 
 }

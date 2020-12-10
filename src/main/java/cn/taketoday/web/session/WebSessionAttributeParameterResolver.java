@@ -42,8 +42,8 @@ public class WebSessionAttributeParameterResolver implements OrderedParameterRes
   }
 
   @Override
-  public Object resolveParameter(RequestContext requestContext, MethodParameter parameter) throws Throwable {
-    return sessionManager.getSession(requestContext).getAttribute(parameter.getName());
+  public Object resolveParameter(RequestContext context, MethodParameter parameter) throws Throwable {
+    return sessionManager.getSession(context).getAttribute(parameter.getName());
   }
 
   @Override

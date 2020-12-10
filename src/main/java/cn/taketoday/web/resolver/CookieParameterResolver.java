@@ -104,9 +104,9 @@ public class CookieParameterResolver implements ParameterResolver {
     }
 
     @Override
-    protected List<?> resolveList(RequestContext requestContext, MethodParameter parameter) throws Throwable {
+    protected List<?> resolveList(RequestContext context, MethodParameter parameter) throws Throwable {
 
-      final HttpCookie[] cookies = requestContext.cookies();
+      final HttpCookie[] cookies = context.cookies();
       final List<HttpCookie> ret = new ArrayList<>(cookies.length);
       Collections.addAll(ret, cookies);
       return ret;

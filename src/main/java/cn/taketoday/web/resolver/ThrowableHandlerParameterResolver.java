@@ -19,15 +19,25 @@
  */
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY <br>
- *         2019-07-17 22:41
+ * 2019-07-17 22:41
  */
-public class ThrowableHandlerParameterResolver implements OrderedParameterResolver {
+public class ThrowableHandlerParameterResolver
+        extends OrderedSupport implements ParameterResolver {
+
+  public ThrowableHandlerParameterResolver() {
+    this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 60);
+  }
+
+  public ThrowableHandlerParameterResolver(int order) {
+    super(order);
+  }
 
   @Override
   public boolean supports(MethodParameter parameter) {
@@ -35,13 +45,8 @@ public class ThrowableHandlerParameterResolver implements OrderedParameterResolv
   }
 
   @Override
-  public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-    return requestContext.attribute(Constant.KEY_THROWABLE);
-  }
-
-  @Override
-  public int getOrder() {
-    return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 60;
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    return context.attribute(Constant.KEY_THROWABLE);
   }
 
 }

@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
@@ -30,17 +31,17 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.OrderedParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolver;
 import cn.taketoday.web.resolver.ParameterResolvers;
 
 /**
  * @author TODAY <br>
- *         2019-07-20 17:00
+ * 2019-07-20 17:00
  */
 @ConditionalOnClass("javax.validation.Valid")
 @MissingBean(type = ValidationParameterResolver.class)
-public class ValidationParameterResolver implements OrderedParameterResolver {
+public class ValidationParameterResolver
+        extends OrderedSupport implements ParameterResolver {
 
   private final Validator validator;
   private static final Map<MethodParameter, ParameterResolver> RESOLVERS = new HashMap<>();
@@ -48,6 +49,11 @@ public class ValidationParameterResolver implements OrderedParameterResolver {
 
   @Autowired
   public ValidationParameterResolver(Validator validator) {
+    this(HIGHEST_PRECEDENCE + 100, validator);
+  }
+
+  public ValidationParameterResolver(final int order, final Validator validator) {
+    super(order);
     this.validator = validator;
   }
 
@@ -66,14 +72,14 @@ public class ValidationParameterResolver implements OrderedParameterResolver {
   }
 
   @Override
-  public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-    final Object value = getResolver(parameter).resolveParameter(requestContext, parameter);
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    final Object value = getResolver(parameter).resolveParameter(context, parameter);
     final Errors errors = getValidator().validate(value);
     if (errors != null) {
 
       final MethodParameter[] parameters = parameter.getHandlerMethod().getParameters();
       final int length = parameters.length;
-      requestContext.attribute(Constant.VALIDATION_ERRORS, errors);
+      context.attribute(Constant.VALIDATION_ERRORS, errors);
       if (length == 1) {
         throw buildException(errors);
       }
@@ -99,11 +105,6 @@ public class ValidationParameterResolver implements OrderedParameterResolver {
 
   protected ParameterResolver getResolver(final MethodParameter parameter) {
     return RESOLVERS.get(parameter);
-  }
-
-  @Override
-  public int getOrder() {
-    return HIGHEST_PRECEDENCE + 100;
   }
 
 }

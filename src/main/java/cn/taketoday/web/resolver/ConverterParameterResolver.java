@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.resolver;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.conversion.Converter;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
@@ -27,11 +28,11 @@ import cn.taketoday.web.utils.WebUtils;
 
 /**
  * @author TODAY <br>
- *         2019-07-13 12:58
+ * 2019-07-13 12:58
  */
-public class ConverterParameterResolver implements OrderedParameterResolver {
+public class ConverterParameterResolver
+        extends OrderedSupport implements ParameterResolver {
 
-  private final int order;
   private final SupportsFunction supports;
   private final Converter<String, Object> converter;
 
@@ -40,7 +41,7 @@ public class ConverterParameterResolver implements OrderedParameterResolver {
   }
 
   public ConverterParameterResolver(SupportsFunction supports, Converter<String, Object> converter, int order) {
-    this.order = order;
+    super(order);
     this.supports = supports;
     this.converter = converter;
   }
@@ -61,11 +62,6 @@ public class ConverterParameterResolver implements OrderedParameterResolver {
       return converter.convert(parameter.getDefaultValue());
     }
     return converter.convert(value);
-  }
-
-  @Override
-  public int getOrder() {
-    return order;
   }
 
   public static ConverterParameterResolver convert(SupportsFunction supports,

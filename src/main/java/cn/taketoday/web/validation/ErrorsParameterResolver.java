@@ -22,18 +22,28 @@ package cn.taketoday.web.validation;
 import java.util.Collections;
 import java.util.Set;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
-import cn.taketoday.web.resolver.OrderedParameterResolver;
+import cn.taketoday.web.resolver.ParameterResolver;
 
 /**
  * @author TODAY <br>
- *         2019-07-20 17:00
+ * 2019-07-20 17:00
  */
 @MissingBean(type = ErrorsParameterResolver.class)
-public class ErrorsParameterResolver implements OrderedParameterResolver {
+public class ErrorsParameterResolver
+        extends OrderedSupport implements ParameterResolver {
+
+  public ErrorsParameterResolver() {
+    this(HIGHEST_PRECEDENCE);
+  }
+
+  public ErrorsParameterResolver(final int order) {
+    super(order);
+  }
 
   private static final Errors EMPTY = new Errors() {
 
@@ -59,16 +69,12 @@ public class ErrorsParameterResolver implements OrderedParameterResolver {
   }
 
   @Override
-  public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-    final Object error = requestContext.attribute(Constant.VALIDATION_ERRORS);
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    final Object error = context.attribute(Constant.VALIDATION_ERRORS);
     if (error == null) {
       return EMPTY;
     }
     return error;
   }
 
-  @Override
-  public int getOrder() {
-    return HIGHEST_PRECEDENCE;
-  }
 }

@@ -25,22 +25,27 @@ import cn.taketoday.context.annotation.Singleton;
 
 /**
  * @author TODAY <br>
- *         2019-10-03 00:30
+ * 2019-10-03 00:30
  */
 public class WebSessionConfiguration {
 
   @Singleton
-  @Import({ WebSessionParameterResolver.class, WebSessionAttributeParameterResolver.class })
-  public DefaultWebSessionManager webSessionManager(@Autowired(required = false) TokenResolver tokenResolver,
-                                                    @Autowired(required = false) WebSessionStorage sessionStorage) {
+  @Import({
+          WebSessionParameterResolver.class,
+          WebSessionAttributeParameterResolver.class
+  })
+  public DefaultWebSessionManager webSessionManager(
+          @Autowired(required = false) TokenResolver tokenResolver,
+          @Autowired(required = false) WebSessionStorage sessionStorage
+  ) {
 
     final TokenResolver tokenResolverToUse = tokenResolver == null
-            ? new CookieTokenResolver()
-            : tokenResolver;
+                                             ? new CookieTokenResolver()
+                                             : tokenResolver;
 
     final WebSessionStorage sessionStorageToUse = sessionStorage == null
-            ? new MemWebSessionStorage()
-            : sessionStorage;
+                                                  ? new MemWebSessionStorage()
+                                                  : sessionStorage;
 
     return new DefaultWebSessionManager(tokenResolverToUse, sessionStorageToUse);
   }

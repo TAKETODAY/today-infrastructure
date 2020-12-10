@@ -23,15 +23,25 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY <br>
- *         2019-07-09 22:49
+ * 2019-07-09 22:49
  */
-public class MapParameterResolver implements OrderedParameterResolver {
+public class MapParameterResolver
+        extends OrderedSupport implements ParameterResolver {
+
+  public MapParameterResolver() {
+    this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 90);
+  }
+
+  public MapParameterResolver(final int order) {
+    super(order);
+  }
 
   @Override
   public boolean supports(final MethodParameter parameter) {
@@ -80,8 +90,4 @@ public class MapParameterResolver implements OrderedParameterResolver {
     // throw WebUtils.newBadRequest("Collection variable", parameter.getParameterName(), null);
   }
 
-  @Override
-  public int getOrder() {
-    return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 90;
-  }
 }

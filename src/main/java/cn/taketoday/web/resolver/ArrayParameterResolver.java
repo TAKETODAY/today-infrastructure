@@ -35,7 +35,8 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  * 2019-07-07 23:24
  */
-public class ArrayParameterResolver extends OrderedSupport implements OrderedParameterResolver {
+public class ArrayParameterResolver
+        extends OrderedSupport implements ParameterResolver {
 
   public ArrayParameterResolver() {
     this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 70);
