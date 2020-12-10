@@ -78,7 +78,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Find a {@link HandlerAdapter} for input handler
    *
    * @param handler
-   *         Target handler
+   *         HTTP handler
    *
    * @return A {@link HandlerAdapter}
    *
@@ -104,7 +104,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Find {@link ResultHandler} for handler and handler execution result
    *
    * @param handler
-   *         Target handler
+   *         HTTP handler
    * @param result
    *         Handler execution result
    *
@@ -133,7 +133,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Check if this request is not modified
    *
    * @param handler
-   *         Target handler
+   *         HTTP handler
    * @param context
    *         Current HTTP request context
    * @param adapter
@@ -170,6 +170,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Handle HTTP request
    *
    * @param handler
+   *         HTTP handler
    * @param context
    *         Current HTTP request context
    *
@@ -183,7 +184,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Handle HTTP request not modify
    *
    * @param handler
-   *         Target handler
+   *         HTTP handler
    * @param context
    *         Current HTTP request context
    * @param adapter
@@ -203,7 +204,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Handle HTTP request
    *
    * @param handler
-   *         Target handler
+   *         HTTP handler
    * @param context
    *         Current HTTP request context
    * @param adapter
@@ -227,7 +228,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    * Handle {@link Exception} occurred in target handler
    *
    * @param handler
-   *         Target handler
+   *         HTTP handler
    * @param exception
    *         {@link Throwable} occurred in target handler
    * @param context
