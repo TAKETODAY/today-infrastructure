@@ -63,6 +63,10 @@ public class HandlerMethod
   /** @since 3.0 */
   private ResponseStatus responseStatus;
 
+  public HandlerMethod() {
+    this(null, null, null);
+  }
+
   public HandlerMethod(Object bean, Method method) {
     this(bean, method, null);
   }
