@@ -43,8 +43,27 @@ public interface Cache {
    * for this key.
    *
    * @see #get(Object, Class)
+   * @see #get(Object, boolean)
    */
   Object get(Object key);
+
+  /**
+   * Return the value to which this cache maps the specified key.
+   * <p>
+   * Returns {@code null} if the cache contains no mapping for this key;
+   *
+   * @param key
+   *         the key whose associated value is to be returned
+   * @param unWarp
+   *         unWarp value
+   *
+   * @return the value to which this cache maps the specified key, A straight
+   * {@code null} being returned means that the cache contains no mapping
+   * for this key.
+   *
+   * @see #get(Object, Class)
+   */
+  Object get(Object key, boolean unWarp);
 
   /**
    * Return the value to which this cache maps the specified key, generically

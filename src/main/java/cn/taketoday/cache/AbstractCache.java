@@ -40,7 +40,13 @@ public abstract class AbstractCache implements Cache {
 
   @Override
   public final Object get(final Object key) {
-    return toRealValue(lookupValue(key));
+    return get(key, true);
+  }
+
+  @Override
+  public final Object get(final Object key, final boolean unWarp) {
+    final Object userValue = lookupValue(key);
+    return unWarp ? toRealValue(userValue) : userValue;
   }
 
   protected static Object toStoreValue(final Object userValue) {
@@ -63,7 +69,7 @@ public abstract class AbstractCache implements Cache {
 
   @Override
   @SuppressWarnings("unchecked")
-  public final <T> T get(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
+  public final <T> T get(Object key, CacheCallback<T> valueLoader) {
     return (T) toRealValue(getInternal(key, valueLoader));
   }
 
@@ -71,6 +77,7 @@ public abstract class AbstractCache implements Cache {
    * Get value If there isn't a key, use valueLoader create one
    *
    * @param <T>
+   *         Cache value type
    * @param key
    *         Cache key
    * @param valueLoader
@@ -79,8 +86,9 @@ public abstract class AbstractCache implements Cache {
    * @return Cache value
    *
    * @throws CacheValueRetrievalException
+   *         If CacheCallback#call() throws Exception
    */
-  protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
+  protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) {
     Object ret = lookupValue(key);
     if (ret == null) {
       ret = lookupValue(key, valueLoader);
@@ -90,9 +98,18 @@ public abstract class AbstractCache implements Cache {
 
   protected abstract Object lookupValue(Object key);
 
-  protected <T> Object lookupValue(final Object key, final CacheCallback<T> valueLoader)
-          throws CacheValueRetrievalException //
-  {
+  /**
+   * @param key
+   *         Cache key
+   * @param valueLoader
+   *         Cache value loader
+   * @param <T>
+   *         Value type
+   *
+   * @throws CacheValueRetrievalException
+   *         If CacheCallback#call() throws Exception
+   */
+  protected <T> Object lookupValue(final Object key, final CacheCallback<T> valueLoader) {
     try {
       return valueLoader.call();
     }
