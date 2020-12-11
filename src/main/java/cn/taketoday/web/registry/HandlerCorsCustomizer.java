@@ -19,33 +19,57 @@
  */
 package cn.taketoday.web.registry;
 
-import cn.taketoday.web.handler.InterceptableRequestHandler;
+import cn.taketoday.context.utils.Assert;
+import cn.taketoday.web.annotation.CrossOrigin;
+import cn.taketoday.web.cors.CorsConfiguration;
+import cn.taketoday.web.cors.CorsProcessor;
+import cn.taketoday.web.cors.DefaultCorsProcessor;
+import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.interceptor.CorsHandlerInterceptor;
 
 /**
  * @author TODAY
  * @date 2020/12/10 23:37
  */
-public class HandlerCorsCustomizer implements HandlerCustomizer {
+public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
 
-  private CorsHandlerInterceptor corsInterceptor;
-
-  public HandlerCorsCustomizer() {}
-
-  public HandlerCorsCustomizer(CorsHandlerInterceptor corsInterceptor) {
-    this.corsInterceptor = corsInterceptor;
-  }
-
-  public void setCorsInterceptor(final CorsHandlerInterceptor corsInterceptor) {
-    this.corsInterceptor = corsInterceptor;
-  }
+  private CorsProcessor processor;
 
   @Override
-  public Object customize(final Object handler) {
-    if (handler instanceof InterceptableRequestHandler) {
-      final InterceptableRequestHandler requestHandler = (InterceptableRequestHandler) handler;
-      requestHandler.setInterceptors(corsInterceptor);
+  public HandlerMethod customize(final HandlerMethod handler) {
+    final CrossOrigin methodCrossOrigin = handler.getMethodAnnotation(CrossOrigin.class);
+    final CrossOrigin classCrossOrigin = handler.getDeclaringClassAnnotation(CrossOrigin.class);
+
+    if (classCrossOrigin == null && methodCrossOrigin == null) {
+      // 没有 @CrossOrigin 配置
+      return handler;
     }
+
+    final CorsConfiguration config = new CorsConfiguration();
+    config.applyPermitDefaultValues();
+
+    config.updateCorsConfig(classCrossOrigin);
+    config.updateCorsConfig(methodCrossOrigin);
+
+    final CorsHandlerInterceptor interceptor = new CorsHandlerInterceptor(config);
+    interceptor.setCorsProcessor(processor);
+
+    handler.addInterceptors(interceptor);
+
     return handler;
+  }
+
+  public CorsProcessor getProcessor() {
+    return processor;
+  }
+
+  /**
+   * Configure a custom {@link CorsProcessor} to use to apply the matched
+   * {@link CorsConfiguration} for a request.
+   * <p>By default {@link DefaultCorsProcessor} is used.
+   */
+  public void setCorsProcessor(CorsProcessor processor) {
+    Assert.notNull(processor, "CorsProcessor must not be null");
+    this.processor = processor;
   }
 }
