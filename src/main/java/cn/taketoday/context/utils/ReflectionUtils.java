@@ -1380,7 +1380,7 @@ public abstract class ReflectionUtils {
       try {
         Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
         Field declaredField = unsafeClass.getDeclaredField("theUnsafe");
-        declaredField.setAccessible(true);
+        makeAccessible(declaredField);
         unsafe = (Unsafe) declaredField.get(null);
       }
       catch (ClassNotFoundException e) {

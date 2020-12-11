@@ -84,7 +84,8 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   // MethodInvoker object generator
   // --------------------------------------------------------------
 
-  public static class MethodInvokerGenerator extends GeneratorSupport<MethodInvoker> implements ClassGenerator {
+  public static class MethodInvokerGenerator
+          extends GeneratorSupport<MethodInvoker> implements ClassGenerator {
 
     private final Method targetMethod;
 

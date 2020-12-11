@@ -42,7 +42,8 @@ import static cn.taketoday.context.cglib.core.CglibReflectUtils.getMethodInfo;
  * @author TODAY
  * @date 2020/9/11 16:51
  */
-public class ConstructorAccessorGenerator extends GeneratorSupport<ConstructorAccessor> implements ClassGenerator {
+public class ConstructorAccessorGenerator
+        extends GeneratorSupport<ConstructorAccessor> implements ClassGenerator {
 
   private final Constructor<?> targetConstructor;
   private static final String[] interfaces = { "Lcn/taketoday/context/reflect/ConstructorAccessor;" };
