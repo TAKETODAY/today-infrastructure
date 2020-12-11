@@ -29,7 +29,7 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
- *         2019-12-25 14:51
+ * 2019-12-25 14:51
  */
 public class PatternHandler implements Serializable, Ordered {
 
@@ -54,6 +54,11 @@ public class PatternHandler implements Serializable, Ordered {
   @Override
   public int getOrder() {
     return OrderUtils.getOrder(handler);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(handler, pattern);
   }
 
   @Override
