@@ -19,11 +19,14 @@
  */
 package cn.taketoday.web.handler;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 
@@ -79,11 +82,20 @@ public abstract class InterceptableRequestHandler
   }
 
   public void setInterceptors(List<HandlerInterceptor> interceptors) {
-    setInterceptors(isEmpty(interceptors) ? null : interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
+    setInterceptors(isEmpty(interceptors)
+                    ? null
+                    : interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
   }
 
   public void setInterceptors(HandlerInterceptor... interceptors) {
-    this.interceptors = interceptors;
+    this.interceptors = OrderUtils.reversedSort(interceptors); // 默认没有顺序
+  }
+
+  public void addInterceptors(HandlerInterceptor... interceptors) {
+    final ArrayList<HandlerInterceptor> objects = new ArrayList<>();
+    Collections.addAll(objects, this.interceptors);
+    Collections.addAll(objects, interceptors);
+    setInterceptors(objects);
   }
 
 }
