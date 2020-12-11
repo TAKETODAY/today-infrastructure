@@ -35,7 +35,11 @@ public class ConcurrentMapCache extends AbstractCache {
   }
 
   public ConcurrentMapCache(String name) {
-    this(name, new ConcurrentCache<>(256));
+    this(name, 256);
+  }
+
+  public ConcurrentMapCache(String name, int size) {
+    this(name, new ConcurrentCache<>(size));
   }
 
   protected ConcurrentMapCache(String name, ConcurrentCache<Object, Object> store) {
