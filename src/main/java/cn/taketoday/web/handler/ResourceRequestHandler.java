@@ -76,7 +76,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
   }
 
   @Override
-  protected Object handleInternal(final RequestContext context) throws Throwable {
+  protected Object handleInternal(final RequestContext context) {
     return resourceResolver.resolveResource((ResourceMatchResult) context.attribute(RESOURCE_MATCH_RESULT));
   }
 

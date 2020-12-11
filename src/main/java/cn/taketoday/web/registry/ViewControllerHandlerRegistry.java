@@ -55,7 +55,7 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
  * @author TODAY <br>
  * 2019-12-23 22:10
  */
-public class ViewControllerHandlerRegistry extends MappedHandlerRegistry {
+public class ViewControllerHandlerRegistry extends CacheableMappedHandlerRegistry {
 
   private Properties variables;
 

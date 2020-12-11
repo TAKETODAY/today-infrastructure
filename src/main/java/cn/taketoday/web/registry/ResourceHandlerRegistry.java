@@ -22,9 +22,8 @@ package cn.taketoday.web.registry;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.context.EmptyObject;
+import cn.taketoday.cache.ConcurrentMapCache;
 import cn.taketoday.context.annotation.Autowired;
-import cn.taketoday.context.utils.ConcurrentCache;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
@@ -45,14 +44,14 @@ import static cn.taketoday.web.RequestContextHolder.currentContext;
 
 /**
  * @author TODAY <br>
- *         2019-05-15 21:34
+ * 2019-05-15 21:34
  * @since 2.3.7
  */
-public class ResourceHandlerRegistry extends MappedHandlerRegistry implements WebApplicationInitializer {
+public class ResourceHandlerRegistry
+        extends CacheableMappedHandlerRegistry implements WebApplicationInitializer {
 
   private int contextPathLength;
   private WebResourceResolver resourceResolver;
-  private ConcurrentCache<String, Object> patternMatchingCache;
   private final List<ResourceMapping> resourceMappings = new ArrayList<>();
 
   public ResourceHandlerRegistry() {
@@ -61,7 +60,6 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry implements We
 
   public ResourceHandlerRegistry(@Autowired(required = false) WebResourceResolver resourceResolver) {
     setResourceResolver(nonNull(resourceResolver, "web resource resolver must not be null"));
-    this.patternMatchingCache = new ConcurrentCache<>(64);
   }
 
   public ResourceMapping addResourceMapping(String... pathPatterns) {
@@ -114,35 +112,31 @@ public class ResourceHandlerRegistry extends MappedHandlerRegistry implements We
   }
 
   @Override
-  protected Object lookupPatternHandler(final String handlerKey) {
-    Object ret = patternMatchingCache.get(handlerKey);
-    if (ret == null) {
-      final PatternHandler matched = matchingPatternHandler(handlerKey);
-      if (matched == null) {
-        patternMatchingCache.put(handlerKey, EmptyObject.INSTANCE);
-      }
-      else {
-        ret = new ResourceMatchResult(handlerKey,
-                                      matched.getPattern(),
-                                      getPathMatcher(),
-                                      (ResourceRequestHandler) matched.getHandler()
-        );
-        patternMatchingCache.put(handlerKey, ret);
-      }
+  protected Object lookupCacheValue(final String handlerKey) {
+    final PatternHandler matched = matchingPatternHandler(handlerKey);
+    if (matched != null) {
+      return new ResourceMatchResult(handlerKey,
+                                     matched.getPattern(),
+                                     getPathMatcher(),
+                                     (ResourceRequestHandler) matched.getHandler()
+      );
     }
-    else if (ret == EmptyObject.INSTANCE) {
-      return null;
-    }
-    return ret;
+    return null;
+  }
+
+  @Override
+  protected ConcurrentMapCache createPatternMatchingCache() {
+    return new ConcurrentMapCache(CACHE_NAME, 64);
   }
 
   /**
    * Get request path
    *
    * @param requestURI
-   *            Current requestURI
+   *         Current requestURI
    * @param length
-   *            context path length
+   *         context path length
+   *
    * @return Decoded request path
    */
   protected String requestPath(final String requestURI, final int length) {

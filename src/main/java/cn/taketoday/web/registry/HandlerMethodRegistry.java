@@ -22,7 +22,6 @@ package cn.taketoday.web.registry;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,9 +30,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import cn.taketoday.cache.ConcurrentMapCache;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
-import cn.taketoday.context.EmptyObject;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.env.Environment;
@@ -44,7 +43,6 @@ import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.Prototypes;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
-import cn.taketoday.context.utils.ConcurrentCache;
 import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.web.Constant;
@@ -73,15 +71,15 @@ import static java.util.Objects.requireNonNull;
  * Store {@link HandlerMethod}
  *
  * @author TODAY <br>
- *         2018-07-1 20:47:06
+ * 2018-07-1 20:47:06
  */
 @MissingBean
-public class HandlerMethodRegistry extends MappedHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
+public class HandlerMethodRegistry
+        extends CacheableMappedHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
 
   private Properties variables;
   private AbstractBeanFactory beanFactory;
   private BeanDefinitionLoader beanDefinitionLoader;
-  private final ConcurrentCache<String, Object> patternMatchingCache;
 
   public HandlerMethodRegistry() {
     this(512);
@@ -97,7 +95,6 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
 
   public HandlerMethodRegistry(Map<String, Object> handlers, int order) {
     super(handlers, order);
-    this.patternMatchingCache = new ConcurrentCache<>(128);
   }
 
   // MappedHandlerRegistry
@@ -108,19 +105,6 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
     return context.method().concat(context.requestURI());
   }
 
-  @Override
-  protected Object lookupPatternHandler(String handlerKey) {
-    Object hander = patternMatchingCache.get(handlerKey);
-    if (hander == null) {
-      hander = super.lookupPatternHandler(handlerKey);
-      patternMatchingCache.put(handlerKey, hander == null ? EmptyObject.INSTANCE : hander);
-    }
-    else if (hander == EmptyObject.INSTANCE) {
-      return null;
-    }
-    return hander;
-  }
-
   public void registerHandler(RequestMethod method, String patternPath, Object handler) {
     super.registerHandler(method.name().concat(patternPath), handler);
   }
@@ -129,7 +113,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * Initialize All Action or Handler
    */
   @Override
-  public void onStartup(WebApplicationContext applicationContext) throws Throwable {
+  public void onStartup(WebApplicationContext context) throws Throwable {
 
     log.info("Initializing Controllers");
     startConfiguration();
@@ -150,7 +134,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * Start config
    *
    * @throws Exception
-   *             If any {@link Exception} occurred
+   *         If any {@link Exception} occurred
    */
   protected void startConfiguration() throws Exception {
     final ApplicationContext beanFactory = obtainApplicationContext();
@@ -170,7 +154,8 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * Whether the given type is a handler with handler methods.
    *
    * @param def
-   *            the definition of the bean being checked
+   *         the definition of the bean being checked
+   *
    * @return "true" if this a handler type, "false" otherwise.
    */
   protected boolean isController(final BeanDefinition def) {
@@ -182,9 +167,10 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * Build {@link HandlerMethod}
    *
    * @param beanClass
-   *            Bean class
+   *         Bean class
+   *
    * @throws Exception
-   *             If any {@link Exception} occurred
+   *         If any {@link Exception} occurred
    * @since 2.3.7
    */
   public void buildHandlerMethod(final Class<?> beanClass) throws Exception {
@@ -211,15 +197,16 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * Set Action Mapping
    *
    * @param beanClass
-   *            Controller
+   *         Controller
    * @param method
-   *            Action or Handler
+   *         Action or Handler
    * @param namespaces
-   *            Name space is that path mapping on the class level
+   *         Name space is that path mapping on the class level
    * @param methodsOnClass
-   *            request method on class
+   *         request method on class
+   *
    * @throws Exception
-   *             If any {@link Exception} occurred
+   *         If any {@link Exception} occurred
    */
   protected void buildHandlerMethod(final Class<?> beanClass,
                                     final Method method,
@@ -242,19 +229,18 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * Mapping given HandlerMapping to {@link HandlerMethodRegistry}
    *
    * @param handler
-   *            current {@link HandlerMethod}
+   *         current {@link HandlerMethod}
    * @param namespaces
-   *            path on class
+   *         path on class
    * @param classRequestMethods
-   *            methods on class
+   *         methods on class
    * @param annotationAttributes
-   *            {@link ActionMapping} Attributes
+   *         {@link ActionMapping} Attributes
    */
   protected void mappingHandlerMethod(final HandlerMethod handler,
                                       final Set<String> namespaces,
                                       final Set<RequestMethod> classRequestMethods,
-                                      final AnnotationAttributes[] annotationAttributes)
-  {
+                                      final AnnotationAttributes[] annotationAttributes) {
     final boolean emptyNamespaces = namespaces.isEmpty();
     final boolean addClassRequestMethods = !classRequestMethods.isEmpty();
 
@@ -289,9 +275,10 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * Transform {@link HandlerMethod} if path contains {@link PathVariable}
    *
    * @param path
-   *            handler key
+   *         handler key
    * @param handlerMethod
-   *            Target {@link HandlerMethod}
+   *         Target {@link HandlerMethod}
+   *
    * @return Transformed {@link HandlerMethod}
    */
   protected HandlerMethod transformHandlerMethod(final String path, final HandlerMethod handlerMethod) {
@@ -305,7 +292,8 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * contains {@link PathVariable} char: '{' and '}'
    *
    * @param path
-   *            handler key
+   *         handler key
+   *
    * @return If contains '{' and '}'
    */
   protected boolean containsPathVariable(final String path) {
@@ -316,11 +304,12 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * Mapping to {@link HandlerMethodRegistry}
    *
    * @param handlerMethod
-   *            {@link HandlerMethod}
+   *         {@link HandlerMethod}
    * @param urlOnMethod
-   *            Method url mapping
+   *         Method url mapping
    * @param requestMethod
-   *            HTTP request method
+   *         HTTP request method
+   *
    * @see RequestMethod
    */
   protected void mappingHandlerMethod(String urlOnMethod, RequestMethod requestMethod, HandlerMethod handlerMethod) {
@@ -360,9 +349,10 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * Create {@link HandlerMethod}.
    *
    * @param beanClass
-   *            Controller class
+   *         Controller class
    * @param method
-   *            Action or Handler
+   *         Action or Handler
+   *
    * @return A new {@link HandlerMethod}
    */
   protected HandlerMethod createHandlerMethod(final Class<?> beanClass, final Method method) {
@@ -379,9 +369,10 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * Create a handler bean instance
    *
    * @param beanClass
-   *            Target bean class
+   *         Target bean class
    * @param beanFactory
-   *            {@link AbstractBeanFactory}
+   *         {@link AbstractBeanFactory}
+   *
    * @return Returns a handler bean of target beanClass
    */
   protected Object createHandler(final Class<?> beanClass, final AbstractBeanFactory beanFactory) {
@@ -395,9 +386,10 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * Get list of intercepters.
    *
    * @param controllerClass
-   *            controller class
+   *         controller class
    * @param action
-   *            method
+   *         method
+   *
    * @return List of {@link HandlerInterceptor} objects
    */
   protected List<HandlerInterceptor> getInterceptors(final Class<?> controllerClass, final Method action) {
@@ -462,7 +454,7 @@ public class HandlerMethodRegistry extends MappedHandlerRegistry implements Hand
    * Rebuild Controllers
    *
    * @throws Throwable
-   *             If any {@link Throwable} occurred
+   *         If any {@link Throwable} occurred
    */
   public void reBuiltControllers() throws Throwable {
 

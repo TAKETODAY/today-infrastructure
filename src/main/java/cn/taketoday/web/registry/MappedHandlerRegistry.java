@@ -46,7 +46,6 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   private List<PatternHandler> patternHandlers;
 
   private PathMatcher pathMatcher = new AntPathMatcher();
-
   private CompositeHandlerCustomizer handlerCustomizer;
 
   public MappedHandlerRegistry() {
