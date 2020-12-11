@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import cn.taketoday.context.AntPathMatcher;
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.utils.CollectionUtils;
@@ -36,7 +38,7 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
- *         2019-12-24 15:46
+ * 2019-12-24 15:46
  */
 public class MappedHandlerRegistry extends AbstractHandlerRegistry {
 
@@ -44,6 +46,8 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   private List<PatternHandler> patternHandlers;
 
   private PathMatcher pathMatcher = new AntPathMatcher();
+
+  private CompositeHandlerCustomizer handlerCustomizer;
 
   public MappedHandlerRegistry() {
     this(new HashMap<>());
@@ -62,6 +66,11 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     setOrder(order);
   }
 
+  @PostConstruct
+  public void initHandlerRegistry(List<HandlerCustomizer> customizers) {
+    this.handlerCustomizer = new CompositeHandlerCustomizer(customizers);
+  }
+
   @Override
   protected Object lookupInternal(final RequestContext context) {
     final String handlerKey = computeKey(context);
@@ -73,9 +82,10 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * Handle handler not found
    *
    * @param handlerKey
-   *            Handler key
+   *         Handler key
    * @param context
-   *            Current request context
+   *         Current request context
+   *
    * @return A handler default is null
    */
   protected Object handlerNotFound(String handlerKey, RequestContext context) {
@@ -86,7 +96,8 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * Compute a handler key from current request context
    *
    * @param context
-   *            Current request context
+   *         Current request context
+   *
    * @return Handler key never be null
    */
   protected String computeKey(final RequestContext context) {
@@ -102,7 +113,8 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * Match pattern handler
    *
    * @param handlerKey
-   *            Handler key
+   *         Handler key
+   *
    * @return Matched pattern handler. If returns {@code null} indicates no handler
    */
   protected Object lookupPatternHandler(final String handlerKey) {
@@ -143,9 +155,9 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * Register a Handler to handler keys
    *
    * @param handler
-   *            Target handler
+   *         Target handler
    * @param handlerKeys
-   *            Handler keys
+   *         Handler keys
    */
   public void registerHandler(Object handler, String... handlerKeys) {
     for (final String path : nonNull(handlerKeys, "Handler Keys must not be null")) {
@@ -154,13 +166,12 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   }
 
   /**
-   *
    * Register a Handler to handler key
    *
    * @param handler
-   *            Target handler
+   *         Target handler
    * @param handlerKey
-   *            Handler key
+   *         Handler key
    */
   public void registerHandler(String handlerKey, Object handler) {
     nonNull(handler, "Handler must not be null");
@@ -169,18 +180,30 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     if (handler instanceof String) {
       handler = obtainApplicationContext().getBean((String) handler);
     }
+    // before
+    handler = beforeRegisterHandler(handler);
 
-    log.debug("Mapped [{}] onto [{}]", handlerKey, handler);
-
+    log.info("Mapped [{}] onto [{}]", handlerKey, handler);
     if (getPathMatcher().isPattern(handlerKey)) {
       addPatternHandlers(new PatternHandler(handlerKey, handler));
     }
     else {
-      handlers.put(handlerKey, handler); // TODO override handler
+      final Object oldHandler = handlers.put(handlerKey, handler);
+      if (oldHandler != null && oldHandler != handler) {
+        log.warn("Refresh Handler Registration: [{}] onto [{}] old handler: [{}]",
+                 handlerKey, handler, oldHandler);
+      }
     }
   }
 
-  public void addPatternHandlers(final PatternHandler... handlers) {// TODO
+  protected Object beforeRegisterHandler(Object handler) {
+    if (handlerCustomizer != null) {
+      handler = handlerCustomizer.customize(handler);
+    }
+    return handler;
+  }
+
+  public void addPatternHandlers(final PatternHandler... handlers) {
     nonNull(handlers, "Handlers must not be null");
 
     if (patternHandlers == null) {
@@ -202,7 +225,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * Setting a new {@link PathMatcher}
    *
    * @param pathMatcher
-   *            new {@link PathMatcher}
+   *         new {@link PathMatcher}
    */
   public void setPathMatcher(PathMatcher pathMatcher) {
     this.pathMatcher = nonNull(pathMatcher, "PathMatcher must not be null");
