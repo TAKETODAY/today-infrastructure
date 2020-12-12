@@ -36,7 +36,7 @@ public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
   private CorsProcessor processor;
 
   @Override
-  public HandlerMethod customize(final HandlerMethod handler) {
+  public Object customize(final HandlerMethod handler) {
     final CrossOrigin methodCrossOrigin = handler.getMethodAnnotation(CrossOrigin.class);
     final CrossOrigin classCrossOrigin = handler.getDeclaringClassAnnotation(CrossOrigin.class);
 
@@ -72,4 +72,5 @@ public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
     Assert.notNull(processor, "CorsProcessor must not be null");
     this.processor = processor;
   }
+
 }

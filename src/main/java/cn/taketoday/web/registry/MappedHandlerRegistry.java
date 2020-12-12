@@ -29,12 +29,11 @@ import javax.annotation.PostConstruct;
 
 import cn.taketoday.context.AntPathMatcher;
 import cn.taketoday.context.PathMatcher;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.PatternHandler;
-
-import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 
 /**
  * @author TODAY <br>
@@ -61,7 +60,8 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   }
 
   public MappedHandlerRegistry(Map<String, Object> handlers, int order) {
-    this.handlers = nonNull(handlers, "Handlers mappings can not be null");
+    Assert.notNull(handlers, "Handlers mappings can not be null");
+    this.handlers = handlers;
     setOrder(order);
   }
 
@@ -158,8 +158,10 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * @param handlerKeys
    *         Handler keys
    */
-  public void registerHandler(Object handler, String... handlerKeys) {
-    for (final String path : nonNull(handlerKeys, "Handler Keys must not be null")) {
+  public void registerHandler(final Object handler, final String... handlerKeys) {
+    Assert.notNull(handlerKeys, "Handler Keys must not be null");
+
+    for (final String path : handlerKeys) {
       registerHandler(path, handler);
     }
   }
@@ -172,15 +174,14 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    * @param handlerKey
    *         Handler key
    */
-  public void registerHandler(String handlerKey, Object handler) {
-    nonNull(handler, "Handler must not be null");
-    nonNull(handlerKey, "Handler Key must not be null");
+  public void registerHandler(final String handlerKey, Object handler) {
+    Assert.notNull(handler, "Handler must not be null");
+    Assert.notNull(handlerKey, "Handler Key must not be null");
 
     if (handler instanceof String) {
       handler = obtainApplicationContext().getBean((String) handler);
     }
-    // before
-    handler = beforeRegisterHandler(handler);
+    handler = transformHandler(handlerKey, handler);
 
     log.info("Mapped [{}] onto [{}]", handlerKey, handler);
     if (getPathMatcher().isPattern(handlerKey)) {
@@ -195,7 +196,17 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     }
   }
 
-  protected Object beforeRegisterHandler(Object handler) {
+  /**
+   * Transform handler
+   *
+   * @param handlerKey
+   *         handler key
+   * @param handler
+   *         Target handler
+   *
+   * @return Transformed handler
+   */
+  protected Object transformHandler(final String handlerKey, Object handler) {
     if (handlerCustomizer != null) {
       handler = handlerCustomizer.customize(handler);
     }
@@ -203,7 +214,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
   }
 
   public void addPatternHandlers(final PatternHandler... handlers) {
-    nonNull(handlers, "Handlers must not be null");
+    Assert.notNull(handlers, "Handlers must not be null");
 
     if (patternHandlers == null) {
       patternHandlers = new ArrayList<>(handlers.length);
@@ -227,7 +238,8 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
    *         new {@link PathMatcher}
    */
   public void setPathMatcher(PathMatcher pathMatcher) {
-    this.pathMatcher = nonNull(pathMatcher, "PathMatcher must not be null");
+    Assert.notNull(pathMatcher, "PathMatcher must not be null");
+    this.pathMatcher = pathMatcher;
   }
 
   /**

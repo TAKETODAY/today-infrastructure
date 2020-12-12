@@ -30,7 +30,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import cn.taketoday.cache.ConcurrentMapCache;
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.PathMatcher;
@@ -105,15 +104,11 @@ public class HandlerMethodRegistry
     return context.method().concat(context.requestURI());
   }
 
-  public void registerHandler(RequestMethod method, String patternPath, Object handler) {
-    super.registerHandler(method.name().concat(patternPath), handler);
-  }
-
   /**
    * Initialize All Action or Handler
    */
   @Override
-  public void onStartup(WebApplicationContext context) throws Throwable {
+  public void onStartup(WebApplicationContext context) {
 
     log.info("Initializing Controllers");
     startConfiguration();
@@ -132,11 +127,8 @@ public class HandlerMethodRegistry
 
   /**
    * Start config
-   *
-   * @throws Exception
-   *         If any {@link Exception} occurred
    */
-  protected void startConfiguration() throws Exception {
+  protected void startConfiguration() {
     final ApplicationContext beanFactory = obtainApplicationContext();
 
     // @since 2.3.3
@@ -169,11 +161,9 @@ public class HandlerMethodRegistry
    * @param beanClass
    *         Bean class
    *
-   * @throws Exception
-   *         If any {@link Exception} occurred
    * @since 2.3.7
    */
-  public void buildHandlerMethod(final Class<?> beanClass) throws Exception {
+  public void buildHandlerMethod(final Class<?> beanClass) {
 
     final Set<String> namespaces = new LinkedHashSet<>(4, 1.0f); // name space
     final Set<RequestMethod> methodsOnClass = new LinkedHashSet<>(8, 1.0f); // method
@@ -204,14 +194,11 @@ public class HandlerMethodRegistry
    *         Name space is that path mapping on the class level
    * @param methodsOnClass
    *         request method on class
-   *
-   * @throws Exception
-   *         If any {@link Exception} occurred
    */
   protected void buildHandlerMethod(final Class<?> beanClass,
                                     final Method method,
                                     final Set<String> namespaces,
-                                    final Set<RequestMethod> methodsOnClass) throws Exception //
+                                    final Set<RequestMethod> methodsOnClass) //
   {
     final AnnotationAttributes[] annotationAttributes = // find mapping on method
             ClassUtils.getAnnotationAttributesArray(method, ActionMapping.class);
@@ -253,11 +240,10 @@ public class HandlerMethodRegistry
       if (addClassRequestMethods) requestMethods.addAll(classRequestMethods);
 
       for (final String urlOnMethod : handlerMethodMapping.getStringArray("value")) { // url on method
+        final String checkedUrl = checkUrl(urlOnMethod);
         // splice urls and request methods
         // ---------------------------------
         for (final RequestMethod requestMethod : requestMethods) {
-
-          final String checkedUrl = checkUrl(urlOnMethod);
           if (exclude || emptyNamespaces) {
             mappingHandlerMethod(checkedUrl, requestMethod, handler);
           }
@@ -272,20 +258,43 @@ public class HandlerMethodRegistry
   }
 
   /**
-   * Transform {@link HandlerMethod} if path contains {@link PathVariable}
+   * Mapping to {@link HandlerMethodRegistry}
    *
-   * @param path
-   *         handler key
    * @param handlerMethod
+   *         {@link HandlerMethod}
+   * @param path
+   *         Request path
+   * @param requestMethod
+   *         HTTP request method
+   *
+   * @see RequestMethod
+   */
+  protected void mappingHandlerMethod(String path, RequestMethod requestMethod, HandlerMethod handlerMethod) {
+    // GET/blog/users/1 GET/blog/#{key}/1
+    final String key = getContextPath().concat(resolveValue(path, String.class, variables));
+    registerHandler(requestMethod, key, handlerMethod);
+  }
+
+  public void registerHandler(RequestMethod method, String path, Object handler) {
+    super.registerHandler(method.name().concat(path), handler);
+  }
+
+  /**
+   * Transform {@link HandlerMethod}
+   *
+   * @param handlerKey
+   *         handler key
+   * @param handler
    *         Target {@link HandlerMethod}
    *
    * @return Transformed {@link HandlerMethod}
    */
-  protected HandlerMethod transformHandlerMethod(final String path, final HandlerMethod handlerMethod) {
-    if (containsPathVariable(path)) {
-      mappingPathVariable(path, handlerMethod);
+  @Override
+  protected Object transformHandler(final String handlerKey, final Object handler) {
+    if (handler instanceof HandlerMethod && containsPathVariable(handlerKey)) {
+      mappingPathVariable(handlerKey, (HandlerMethod) handler);
     }
-    return handlerMethod;
+    return super.transformHandler(handlerKey, handler);
   }
 
   /**
@@ -298,24 +307,6 @@ public class HandlerMethodRegistry
    */
   protected boolean containsPathVariable(final String path) {
     return path.indexOf('{') > -1 && path.indexOf('}') > -1;
-  }
-
-  /**
-   * Mapping to {@link HandlerMethodRegistry}
-   *
-   * @param handlerMethod
-   *         {@link HandlerMethod}
-   * @param urlOnMethod
-   *         Method url mapping
-   * @param requestMethod
-   *         HTTP request method
-   *
-   * @see RequestMethod
-   */
-  protected void mappingHandlerMethod(String urlOnMethod, RequestMethod requestMethod, HandlerMethod handlerMethod) {
-    // GET/blog/users/1 GET/blog/#{key}/1
-    final String key = getContextPath().concat(resolveValue(urlOnMethod, String.class, variables));
-    registerHandler(requestMethod, key, transformHandlerMethod(key, handlerMethod));
   }
 
   /**
@@ -452,11 +443,8 @@ public class HandlerMethodRegistry
 
   /**
    * Rebuild Controllers
-   *
-   * @throws Throwable
-   *         If any {@link Throwable} occurred
    */
-  public void reBuiltControllers() throws Throwable {
+  public void rebuiltControllers() {
 
     log.info("Rebuilding Controllers");
     clearHandlers();
