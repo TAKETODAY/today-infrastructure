@@ -60,10 +60,12 @@ public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
     }
 
     final CorsConfiguration config = new CorsConfiguration();
-    config.applyPermitDefaultValues();
 
     config.updateCorsConfig(classCrossOrigin);
     config.updateCorsConfig(methodCrossOrigin);
+
+    // 覆盖默认
+    config.applyPermitDefaultValues();
 
     final CorsHandlerInterceptor interceptor = new CorsHandlerInterceptor(config);
     interceptor.setCorsProcessor(processor);

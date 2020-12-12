@@ -25,20 +25,19 @@ import java.io.OutputStream;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.net.URLConnection;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.StringTokenizer;
 
 import cn.taketoday.context.exception.ConversionException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.DefaultMultiValueMap;
 import cn.taketoday.context.utils.ExceptionUtils;
+import cn.taketoday.context.utils.MultiValueMap;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.HttpHeaders;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.annotation.ResponseStatus;
@@ -48,9 +47,6 @@ import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.handler.MethodParameter;
 import cn.taketoday.web.http.HttpStatus;
-import cn.taketoday.web.servlet.ServletRequestContext;
-
-import static cn.taketoday.web.RequestContextHolder.prepareContext;
 
 /**
  * @author TODAY <br>
@@ -209,7 +205,6 @@ public abstract class WebUtils {
     }
   }
 
-
   // ResponseStatus
 
   public static int getStatusValue(final Throwable ex) {
@@ -336,5 +331,43 @@ public abstract class WebUtils {
       return true;
     }
     return false;
+  }
+
+  //
+
+  /**
+   * Parse the given string with matrix variables. An example string would look
+   * like this {@code "q1=a;q1=b;q2=a,b,c"}. The resulting map would contain
+   * keys {@code "q1"} and {@code "q2"} with values {@code ["a","b"]} and
+   * {@code ["a","b","c"]} respectively.
+   *
+   * @param matrixVariables
+   *         the unparsed matrix variables string
+   *
+   * @return a map with matrix variable names and values (never {@code null})
+   *
+   * @since 3.0
+   */
+  public static MultiValueMap<String, String> parseMatrixVariables(String matrixVariables) {
+    MultiValueMap<String, String> result = new DefaultMultiValueMap<>();
+    if (!StringUtils.hasText(matrixVariables)) {
+      return result;
+    }
+    StringTokenizer pairs = new StringTokenizer(matrixVariables, ";");
+    while (pairs.hasMoreTokens()) {
+      String pair = pairs.nextToken();
+      int index = pair.indexOf('=');
+      if (index != -1) {
+        String name = pair.substring(0, index);
+        String rawValue = pair.substring(index + 1);
+        for (String value : StringUtils.tokenizeToStringArray(rawValue, ",")) {
+          result.add(name, value);
+        }
+      }
+      else {
+        result.add(pair, Constant.BLANK);
+      }
+    }
+    return result;
   }
 }
