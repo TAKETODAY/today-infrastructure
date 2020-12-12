@@ -40,7 +40,7 @@ public class CorsHandlerInterceptor
   private CorsProcessor processor;
   private CorsConfigurationSource configSource;
 
-  public CorsHandlerInterceptor() {}
+  public CorsHandlerInterceptor() { }
 
   public CorsHandlerInterceptor(CorsConfiguration configSource) {
     setConfigSource(configSource);

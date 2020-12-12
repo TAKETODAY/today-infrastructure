@@ -19,13 +19,16 @@
  */
 package cn.taketoday.web.registry;
 
+import cn.taketoday.context.Ordered;
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.web.annotation.CrossOrigin;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.cors.CorsProcessor;
 import cn.taketoday.web.cors.DefaultCorsProcessor;
 import cn.taketoday.web.handler.HandlerMethod;
 import cn.taketoday.web.interceptor.CorsHandlerInterceptor;
+import cn.taketoday.web.interceptor.HandlerInterceptor;
 
 /**
  * @author TODAY
@@ -37,6 +40,17 @@ public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
 
   @Override
   public Object customize(final HandlerMethod handler) {
+
+    // 预防已经设置
+    final HandlerInterceptor[] interceptors = handler.getInterceptors();
+    if (ObjectUtils.isNotEmpty(interceptors)) {
+      for (final HandlerInterceptor interceptor : interceptors) {
+        if (interceptor instanceof CorsHandlerInterceptor) {
+          return handler;
+        }
+      }
+    }
+
     final CrossOrigin methodCrossOrigin = handler.getMethodAnnotation(CrossOrigin.class);
     final CrossOrigin classCrossOrigin = handler.getDeclaringClassAnnotation(CrossOrigin.class);
 
@@ -53,6 +67,7 @@ public class HandlerCorsCustomizer implements HandlerMethodCustomizer {
 
     final CorsHandlerInterceptor interceptor = new CorsHandlerInterceptor(config);
     interceptor.setCorsProcessor(processor);
+    interceptor.setOrder(Ordered.HIGHEST_PRECEDENCE);
 
     handler.addInterceptors(interceptor);
 
