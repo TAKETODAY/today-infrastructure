@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,5 +34,5 @@ import cn.taketoday.framework.Constant;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Starter {
 
-    String webMvcConfigLocation() default Constant.BLANK;
+  String webMvcConfigLocation() default Constant.BLANK;
 }

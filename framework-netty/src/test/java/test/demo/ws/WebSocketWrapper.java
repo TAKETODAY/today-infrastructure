@@ -40,23 +40,23 @@ import cn.taketoday.web.annotation.RequestParam;
 @WebSocket("/wrapper")
 public class WebSocketWrapper {
 
-    @OnConnect
-    public void onConnect(WebSocketContext webSocketContext, @RequestParam String name) {
-        System.out.println("websocket open connect:" + name);
-    }
+  @OnConnect
+  public void onConnect(WebSocketContext webSocketContext, @RequestParam String name) {
+    System.out.println("websocket open connect:" + name);
+  }
 
-    @OnMessage
-    public void onMessage(WebSocketContext webSocketContext) {
-        System.out.println(webSocketContext.getMessage().text());
-    }
+  @OnMessage
+  public void onMessage(WebSocketContext webSocketContext) {
+    System.out.println(webSocketContext.getMessage().text());
+  }
 
-    @OnClose
-    public void onClose(WebSocketContext webSocketContext) {
-        System.out.println("关闭连接:" + webSocketContext.session().getId());
-    }
+  @OnClose
+  public void onClose(WebSocketContext webSocketContext) {
+    System.out.println("关闭连接:" + webSocketContext.session().getId());
+  }
 
-    @OnError
-    public void onError(WebSocketContext webSocketContext) {
+  @OnError
+  public void onError(WebSocketContext webSocketContext) {
 
-    }
+  }
 }

@@ -33,9 +33,9 @@ import java.lang.annotation.Target;
  * @author WangYi
  * @since 2020/7/11
  */
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface WebSocket {
-    String value() default "";
+  String value() default "";
 }

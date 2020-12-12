@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@ package cn.taketoday.framework.config;
 import cn.taketoday.context.annotation.Props;
 
 /**
- * @author TODAY(taketoday@foxmail.com)<br>
+ * @author TODAY(taketoday @ foxmail.com)<br>
  *         2019-01-31 13:54
  */
 //@MissingBean

@@ -28,11 +28,11 @@ package cn.taketoday.framework.reactive.websocket;
  * @since 2020/7/11
  */
 public interface WebSocketChannel {
-    void onConnect(WebSocketContext webSocketContext);
+  void onConnect(WebSocketContext webSocketContext);
 
-    void onMessage(WebSocketContext webSocketContext);
+  void onMessage(WebSocketContext webSocketContext);
 
-    void onClose(WebSocketContext webSocketContext);
+  void onClose(WebSocketContext webSocketContext);
 
-    void onError(WebSocketContext webSocketContext);
+  void onError(WebSocketContext webSocketContext);
 }

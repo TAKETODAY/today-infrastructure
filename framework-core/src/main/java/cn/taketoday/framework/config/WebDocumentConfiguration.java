@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -35,144 +35,144 @@ import cn.taketoday.context.utils.ResourceUtils;
 import cn.taketoday.framework.WebServerApplicationContext;
 
 /**
- * 
+ *
  * @author TODAY <br>
  *         2019-02-05 13:09
  */
 @Props(prefix = "server.docs.")
 public class WebDocumentConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(WebDocumentConfiguration.class);
+  private static final Logger log = LoggerFactory.getLogger(WebDocumentConfiguration.class);
 
-    private static final String[] COMMON_DOC_ROOTS = { //
-        "src/main/webapp", "src/main/resources", "public", "static", "assets" //
-    };
+  private static final String[] COMMON_DOC_ROOTS = { //
+          "src/main/webapp", "src/main/resources", "public", "static", "assets" //
+  };
 
-    private Resource directory;
+  private Resource directory;
 
-    private final Class<?> startupClass;
+  private final Class<?> startupClass;
 
-    @Autowired
-    public WebDocumentConfiguration(WebServerApplicationContext context) { //TODO Startup class
-        this.startupClass = context.getStartupClass() == null ? WebDocumentConfiguration.class : context.getStartupClass();
+  @Autowired
+  public WebDocumentConfiguration(WebServerApplicationContext context) { //TODO Startup class
+    this.startupClass = context.getStartupClass() == null ? WebDocumentConfiguration.class : context.getStartupClass();
+  }
+
+  public Resource getDirectory() {
+    return this.directory;
+  }
+
+  public void setDirectory(Resource directory) {
+    this.directory = directory;
+  }
+
+  /**
+   * Returns the absolute document root when it points to a valid directory,
+   * logging a warning and returning {@code null} otherwise.
+   *
+   * @return the valid document root
+   */
+  public Resource getValidDocumentDirectory() {
+    Resource resource = this.directory;
+    if (resource == null) {
+      resource = getJarFileDocBase();
+    }
+    if (resource == null) {
+      resource = getExplodedJarFileDocBase();
+    }
+    if (resource == null) {
+      resource = getCommonDocBase();
     }
 
-    public Resource getDirectory() {
-        return this.directory;
+    if (resource == null) {
+      log.warn("There is no document root directory");
     }
-
-    public void setDirectory(Resource directory) {
-        this.directory = directory;
+    else {
+      log.debug("Document root: [{}]", resource);
     }
+    return resource;
+  }
 
-    /**
-     * Returns the absolute document root when it points to a valid directory,
-     * logging a warning and returning {@code null} otherwise.
-     * 
-     * @return the valid document root
-     */
-    public Resource getValidDocumentDirectory() {
-        Resource resource = this.directory;
-        if (resource == null) {
-            resource = getJarFileDocBase();
-        }
-        if (resource == null) {
-            resource = getExplodedJarFileDocBase();
-        }
-        if (resource == null) {
-            resource = getCommonDocBase();
-        }
-
-        if (resource == null) {
-            log.warn("There is no document root directory");
-        }
-        else {
-            log.debug("Document root: [{}]", resource);
-        }
-        return resource;
+  protected Resource getJarFileDocBase() {
+    final File archiveFileDocumentRoot = getArchiveFileDocumentRoot(".jar");
+    if (archiveFileDocumentRoot == null) {
+      return null;
     }
+    return ResourceUtils.getResource(archiveFileDocumentRoot);
+  }
 
-    protected Resource getJarFileDocBase() {
-        final File archiveFileDocumentRoot = getArchiveFileDocumentRoot(".jar");
-        if (archiveFileDocumentRoot == null) {
-            return null;
-        }
-        return ResourceUtils.getResource(archiveFileDocumentRoot);
+  protected File getArchiveFileDocumentRoot(String extension) {
+
+    File file = getCodeSourceArchive();
+    log.debug("Code archive: [{}]", file);
+    if (file != null && file.exists() && !file.isDirectory() && file.getName().toLowerCase(Locale.ENGLISH).endsWith(extension)) {
+      return file.getAbsoluteFile();
     }
+    return null;
+  }
 
-    protected File getArchiveFileDocumentRoot(String extension) {
+  protected Resource getExplodedJarFileDocBase() {// /WEB-INF
+    final File explodedJarFileDocBase = getExplodedJarFileDocBase(getCodeSourceArchive());
+    if (explodedJarFileDocBase == null) {
+      return null;
+    }
+    return ResourceUtils.getResource(explodedJarFileDocBase);
+  }
 
-        File file = getCodeSourceArchive();
-        log.debug("Code archive: [{}]", file);
-        if (file != null && file.exists() && !file.isDirectory() && file.getName().toLowerCase(Locale.ENGLISH).endsWith(extension)) {
-            return file.getAbsoluteFile();
-        }
+  protected File getCodeSourceArchive() {
+    return getCodeSourceArchive(startupClass.getProtectionDomain().getCodeSource());
+  }
+
+  protected File getCodeSourceArchive(CodeSource codeSource) {
+    try {
+      if (codeSource == null) {
         return null;
-    }
+      }
 
-    protected Resource getExplodedJarFileDocBase() {// /WEB-INF
-        final File explodedJarFileDocBase = getExplodedJarFileDocBase(getCodeSourceArchive());
-        if (explodedJarFileDocBase == null) {
-            return null;
-        }
-        return ResourceUtils.getResource(explodedJarFileDocBase);
-    }
-
-    protected File getCodeSourceArchive() {
-        return getCodeSourceArchive(startupClass.getProtectionDomain().getCodeSource());
-    }
-
-    protected File getCodeSourceArchive(CodeSource codeSource) {
-        try {
-            if (codeSource == null) {
-                return null;
-            }
-
-            final URL location = codeSource.getLocation();
-            if (location == null) {
-                return null;
-            }
-            String path;
-            URLConnection connection = location.openConnection();
-            if (connection instanceof JarURLConnection) {
-                path = ((JarURLConnection) connection).getJarFile().getName();
-            }
-            else {
-                path = location.toURI().getPath();
-            }
-            int index = path.indexOf("!/");
-            if (index != -1) {
-                path = path.substring(0, index);
-            }
-            return new File(path);
-        }
-        catch (Exception ex) {
-            return null;
-        }
-    }
-
-    public final File getExplodedJarFileDocBase(File codeSourceFile) {
-
-        if (codeSourceFile != null && codeSourceFile.exists()) {
-            String path = codeSourceFile.getAbsolutePath();
-            int webInfPathIndex = path.indexOf(File.separatorChar + "WEB-INF" + File.separatorChar);
-            if (webInfPathIndex >= 0) {
-                path = path.substring(0, webInfPathIndex);
-                return new File(path);
-            }
-        }
+      final URL location = codeSource.getLocation();
+      if (location == null) {
         return null;
+      }
+      String path;
+      URLConnection connection = location.openConnection();
+      if (connection instanceof JarURLConnection) {
+        path = ((JarURLConnection) connection).getJarFile().getName();
+      }
+      else {
+        path = location.toURI().getPath();
+      }
+      int index = path.indexOf("!/");
+      if (index != -1) {
+        path = path.substring(0, index);
+      }
+      return new File(path);
     }
-
-    protected Resource getCommonDocBase() {
-
-        for (String commonDocRoot : COMMON_DOC_ROOTS) {
-            File root = new File(commonDocRoot);
-            if (root.exists() && root.isDirectory()) {
-                return ResourceUtils.getResource(root.getAbsoluteFile());
-            }
-        }
-        return null;
+    catch (Exception ex) {
+      return null;
     }
+  }
+
+  public final File getExplodedJarFileDocBase(File codeSourceFile) {
+
+    if (codeSourceFile != null && codeSourceFile.exists()) {
+      String path = codeSourceFile.getAbsolutePath();
+      int webInfPathIndex = path.indexOf(File.separatorChar + "WEB-INF" + File.separatorChar);
+      if (webInfPathIndex >= 0) {
+        path = path.substring(0, webInfPathIndex);
+        return new File(path);
+      }
+    }
+    return null;
+  }
+
+  protected Resource getCommonDocBase() {
+
+    for (String commonDocRoot : COMMON_DOC_ROOTS) {
+      File root = new File(commonDocRoot);
+      if (root.exists() && root.isDirectory()) {
+        return ResourceUtils.getResource(root.getAbsoluteFile());
+      }
+    }
+    return null;
+  }
 
 }

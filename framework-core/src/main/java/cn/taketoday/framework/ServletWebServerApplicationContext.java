@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@ import cn.taketoday.web.servlet.StandardWebServletApplicationContext;
 
 /**
  * {@link Servlet} based Web {@link ApplicationContext}
- * 
+ *
  * @author TODAY <br>
  *         2019-01-17 15:54
  */
@@ -38,56 +38,56 @@ public class ServletWebServerApplicationContext
         extends StandardWebServletApplicationContext
         implements WebServerApplicationContext, ConfigurableWebServerApplicationContext {
 
-    private WebServer webServer;
+  private WebServer webServer;
 
-    private Class<?> startupClass;
+  private Class<?> startupClass;
 
-    public ServletWebServerApplicationContext() {
-        this(new StandardWebEnvironment());
-    }
+  public ServletWebServerApplicationContext() {
+    this(new StandardWebEnvironment());
+  }
 
-    public ServletWebServerApplicationContext(Class<?> startupClass, String... args) {
-        this(new StandardWebEnvironment(startupClass, args), startupClass);
-    }
+  public ServletWebServerApplicationContext(Class<?> startupClass, String... args) {
+    this(new StandardWebEnvironment(startupClass, args), startupClass);
+  }
 
-    /**
-     * Construct with given {@link ConfigurableEnvironment}
-     * 
-     * @param env
-     *            {@link ConfigurableEnvironment} instance
-     */
-    public ServletWebServerApplicationContext(ConfigurableEnvironment env) {
-        this(env, null);
-    }
+  /**
+   * Construct with given {@link ConfigurableEnvironment}
+   *
+   * @param env
+   *            {@link ConfigurableEnvironment} instance
+   */
+  public ServletWebServerApplicationContext(ConfigurableEnvironment env) {
+    this(env, null);
+  }
 
-    public ServletWebServerApplicationContext(ConfigurableEnvironment env, Class<?> startupClass) {
-        super(env);
-        this.startupClass = startupClass;
-    }
+  public ServletWebServerApplicationContext(ConfigurableEnvironment env, Class<?> startupClass) {
+    super(env);
+    this.startupClass = startupClass;
+  }
 
-    @Override
-    protected void preRefresh() {
-        this.webServer = ApplicationUtils.obtainWebServer(this);
-        super.preRefresh();
-    }
+  @Override
+  protected void preRefresh() {
+    this.webServer = ApplicationUtils.obtainWebServer(this);
+    super.preRefresh();
+  }
 
-    @Override
-    public WebServer getWebServer() {
-        return webServer;
-    }
+  @Override
+  public WebServer getWebServer() {
+    return webServer;
+  }
 
-    @Override
-    public Class<?> getStartupClass() {
-        return startupClass;
-    }
+  @Override
+  public Class<?> getStartupClass() {
+    return startupClass;
+  }
 
-    /**
-     * Apply startup class
-     * 
-     * @param startupClass
-     *            Startup class such as Application or XXXApplication
-     */
-    public void setStartupClass(Class<?> startupClass) {
-        this.startupClass = startupClass;
-    }
+  /**
+   * Apply startup class
+   *
+   * @param startupClass
+   *            Startup class such as Application or XXXApplication
+   */
+  public void setStartupClass(Class<?> startupClass) {
+    this.startupClass = startupClass;
+  }
 }

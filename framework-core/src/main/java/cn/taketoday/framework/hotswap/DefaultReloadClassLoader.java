@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -26,50 +26,50 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 
 /**
- * 
+ *
  * @author TODAY <br>
  *         2019-06-12 10:03
  */
 public class DefaultReloadClassLoader extends URLClassLoader {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultReloadClassLoader.class);
-    
-    private final ClassLoader parent;
-    private final DefaultClassResolver hotSwapResolver;
+  private static final Logger log = LoggerFactory.getLogger(DefaultReloadClassLoader.class);
 
-    static {
-        registerAsParallelCapable();
-    }
+  private final ClassLoader parent;
+  private final DefaultClassResolver hotSwapResolver;
 
-    public DefaultReloadClassLoader(URL[] urls, ClassLoader parent, DefaultClassResolver hotSwapResolver) {
-        super(urls, parent);
-        this.parent = parent;
-        this.hotSwapResolver = hotSwapResolver;
-    }
+  static {
+    registerAsParallelCapable();
+  }
 
-    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+  public DefaultReloadClassLoader(URL[] urls, ClassLoader parent, DefaultClassResolver hotSwapResolver) {
+    super(urls, parent);
+    this.parent = parent;
+    this.hotSwapResolver = hotSwapResolver;
+  }
 
-        synchronized (getClassLoadingLock(name)) {
+  protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
 
-            Class<?> c = findLoadedClass(name);
-            if (c != null) {
-                return c;
-            }
+    synchronized (getClassLoadingLock(name)) {
 
-            if (hotSwapResolver.isHotSwapClass(name)) {
-                if (log.isTraceEnabled()) {
-                    log.trace("Hot Swap Class: [{}]", name);
-                }
-                c = super.findClass(name);
-                if (c != null) {
-                    if (resolve) {
-                        resolveClass(c);
-                    }
-                    return c;
-                }
-            }
-            return parent.loadClass(name);
+      Class<?> c = findLoadedClass(name);
+      if (c != null) {
+        return c;
+      }
+
+      if (hotSwapResolver.isHotSwapClass(name)) {
+        if (log.isTraceEnabled()) {
+          log.trace("Hot Swap Class: [{}]", name);
         }
+        c = super.findClass(name);
+        if (c != null) {
+          if (resolve) {
+            resolveClass(c);
+          }
+          return c;
+        }
+      }
+      return parent.loadClass(name);
     }
+  }
 
 }

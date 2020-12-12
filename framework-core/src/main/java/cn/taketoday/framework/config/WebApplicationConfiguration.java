@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -35,65 +35,65 @@ import cn.taketoday.framework.server.WebServer;
  */
 public interface WebApplicationConfiguration {
 
-    /**
-     * Configure compression
-     * 
-     * @param compressionConfiguration
-     */
-    default void configureCompression(CompressionConfiguration compressionConfiguration) {}
+  /**
+   * Configure compression
+   *
+   * @param compressionConfiguration
+   */
+  default void configureCompression(CompressionConfiguration compressionConfiguration) {}
 
-    /**
-     * Configure session
-     * 
-     * @param sessionConfiguration
-     */
-    default void configureSession(SessionConfiguration sessionConfiguration) {}
+  /**
+   * Configure session
+   *
+   * @param sessionConfiguration
+   */
+  default void configureSession(SessionConfiguration sessionConfiguration) {}
 
-    /**
-     * Configure jsp servlet
-     * 
-     * @param jspServletConfiguration
-     */
-    default void configureJspServlet(JspServletConfiguration jspServletConfiguration) {}
+  /**
+   * Configure jsp servlet
+   *
+   * @param jspServletConfiguration
+   */
+  default void configureJspServlet(JspServletConfiguration jspServletConfiguration) {}
 
-    /**
-     * Configure default servlet
-     * 
-     * @param defaultServletConfiguration
-     */
-    default void configureDefaultServlet(DefaultServletConfiguration defaultServletConfiguration) {}
+  /**
+   * Configure default servlet
+   *
+   * @param defaultServletConfiguration
+   */
+  default void configureDefaultServlet(DefaultServletConfiguration defaultServletConfiguration) {}
 
-    /**
-     * Configure {@link WebServer}
-     * 
-     * @param webServer
-     *            {@link WebServer} instance
-     */
-    default void configureWebServer(AbstractWebServer webServer) {}
+  /**
+   * Configure {@link WebServer}
+   *
+   * @param webServer
+   *            {@link WebServer} instance
+   */
+  default void configureWebServer(AbstractWebServer webServer) {}
 
-    /**
-     * Configure {@link ErrorPage}s
-     * 
-     * @param errorPages
-     *            a set of {@link ErrorPage}s
-     */
-    default void configureErrorPages(Set<ErrorPage> errorPages) {}
+  /**
+   * Configure {@link ErrorPage}s
+   *
+   * @param errorPages
+   *            a set of {@link ErrorPage}s
+   */
+  default void configureErrorPages(Set<ErrorPage> errorPages) {}
 
-    /**
-     * Configure {@link MimeMappings}
-     * 
-     * @param mimeMappings
-     *            {@link MimeMappings}
-     */
-    default void configureMimeMappings(MimeMappings mimeMappings) {}
+  /**
+   * Configure {@link MimeMappings}
+   *
+   * @param mimeMappings
+   *            {@link MimeMappings}
+   */
+  default void configureMimeMappings(MimeMappings mimeMappings) {}
 
-    /**
-     * Configure welcome pages
-     * 
-     * @param welcomePages
-     */
-    default void configureWelcomePages(Set<String> welcomePages) {}
+  /**
+   * Configure welcome pages
+   *
+   * @param welcomePages
+   */
+  default void configureWelcomePages(Set<String> welcomePages) {}
 
-    default void configureLocaleCharsetMapping(Map<Locale, Charset> localeMappings) {}
+  default void configureLocaleCharsetMapping(Map<Locale, Charset> localeMappings) {}
 
 }

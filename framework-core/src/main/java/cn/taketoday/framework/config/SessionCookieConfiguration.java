@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright ©  TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,8 +27,8 @@ import lombok.Setter;
 
 /**
  * Session cookie properties.
- * 
- * @author TODAY(taketoday@foxmail.com) https://taketoday.cn <br>
+ *
+ * @author TODAY(taketoday @ foxmail.com) https://taketoday.cn <br>
  *         2019-01-26 17:16
  */
 @Getter
@@ -36,12 +36,12 @@ import lombok.Setter;
 @Props(prefix = "server.session.cookie.")
 public class SessionCookieConfiguration {
 
-    private String name = "SESSION";
-    private String path = "/";
-    private String domain;
-    private String comment;
-    private boolean secure;
-    private Duration maxAge = Duration.ofMinutes(30);
-    private boolean httpOnly = true;
+  private String name = "SESSION";
+  private String path = "/";
+  private String domain;
+  private String comment;
+  private boolean secure;
+  private Duration maxAge = Duration.ofMinutes(30);
+  private boolean httpOnly = true;
 
 }

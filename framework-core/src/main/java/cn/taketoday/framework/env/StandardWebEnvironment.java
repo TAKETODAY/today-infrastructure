@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,14 +13,14 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 package cn.taketoday.framework.env;
 
-import static cn.taketoday.context.utils.ClassUtils.getAnnotation;
-import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,9 +29,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.extensions.compactnotation.CompactConstructor;
 
 import cn.taketoday.context.env.StandardEnvironment;
 import cn.taketoday.context.io.Resource;
@@ -43,44 +40,47 @@ import cn.taketoday.framework.Constant;
 import cn.taketoday.framework.annotation.PropertiesSource;
 import cn.taketoday.framework.utils.ApplicationUtils;
 
+import static cn.taketoday.context.utils.ClassUtils.getAnnotation;
+import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
+
 /**
  * @author TODAY <br>
  *         2019-06-17 22:34
  */
 public class StandardWebEnvironment extends StandardEnvironment {
 
-    private static final Logger log = LoggerFactory.getLogger(StandardWebEnvironment.class);
+  private static final Logger log = LoggerFactory.getLogger(StandardWebEnvironment.class);
 
-    private final String[] arguments;
-    private final Class<?> applicationClass;
+  private final String[] arguments;
+  private final Class<?> applicationClass;
 
-    public StandardWebEnvironment() {
-        this(null);
+  public StandardWebEnvironment() {
+    this(null);
+  }
+
+  public StandardWebEnvironment(Class<?> applicationClass, String... arguments) {
+    this.arguments = arguments;
+    this.applicationClass = applicationClass;
+  }
+
+  @Override
+  public void loadProperties() throws IOException {
+
+    // load default properties source : application.yaml or application.properties
+    final Set<String> locations = new HashSet<>(8);
+    final Resource propertiesResource = getPropertiesResource(locations);
+
+    if (propertiesResource.exists()) { // load
+      loadProperties(propertiesResource);
+    }
+    else {
+      super.loadProperties(Constant.BLANK); // scan class path properties files
     }
 
-    public StandardWebEnvironment(Class<?> applicationClass, String... arguments) {
-        this.arguments = arguments;
-        this.applicationClass = applicationClass;
-    }
-
-    @Override
-    public void loadProperties() throws IOException {
-
-        // load default properties source : application.yaml or application.properties
-        final Set<String> locations = new HashSet<>(8);
-        final Resource propertiesResource = getPropertiesResource(locations);
-
-        if (propertiesResource.exists()) { // load
-            loadProperties(propertiesResource);
-        }
-        else {
-            super.loadProperties(Constant.BLANK); // scan class path properties files
-        }
-
-        // load properties from starter class annotated @PropertiesSource
-        final Class<?> applicationClass = this.applicationClass;
-        if (isAnnotationPresent(applicationClass, PropertiesSource.class)) {
-            for (final String propertiesLocation : //@off
+    // load properties from starter class annotated @PropertiesSource
+    final Class<?> applicationClass = this.applicationClass;
+    if (isAnnotationPresent(applicationClass, PropertiesSource.class)) {
+      for (final String propertiesLocation : //@off
                     StringUtils.split(getAnnotation(PropertiesSource.class, applicationClass).value())) {
                 
                 if(!locations.contains(propertiesLocation)) {
@@ -88,96 +88,97 @@ public class StandardWebEnvironment extends StandardEnvironment {
                     locations.add(propertiesLocation);
                 }
             }//@on
-        }
-
-        // arguments
-
-        getProperties().putAll(ApplicationUtils.parseCommandArguments(arguments));
-
-        refreshActiveProfiles();
-        replaceProperties(locations);
     }
 
-    protected Resource getPropertiesResource(final Set<String> locations) {
-        Resource propertiesResource = ResourceUtils.getResource(Constant.DEFAULT_PROPERTIES_FILE);
+    // arguments
 
-        if (propertiesResource.exists()) {
-            setPropertiesLocation(Constant.DEFAULT_PROPERTIES_FILE);
-            locations.add(Constant.DEFAULT_PROPERTIES_FILE);
-        }
-        else {
-            propertiesResource = ResourceUtils.getResource(Constant.DEFAULT_YAML_FILE);
-            setPropertiesLocation(Constant.DEFAULT_YAML_FILE);
-            locations.add(Constant.DEFAULT_YAML_FILE);
-        }
-        return propertiesResource;
+    getProperties().putAll(ApplicationUtils.parseCommandArguments(arguments));
+
+    refreshActiveProfiles();
+    replaceProperties(locations);
+  }
+
+  protected Resource getPropertiesResource(final Set<String> locations) {
+    Resource propertiesResource = ResourceUtils.getResource(Constant.DEFAULT_PROPERTIES_FILE);
+
+    if (propertiesResource.exists()) {
+      setPropertiesLocation(Constant.DEFAULT_PROPERTIES_FILE);
+      locations.add(Constant.DEFAULT_PROPERTIES_FILE);
     }
-
-    /**
-     * Is yaml?
-     * 
-     * @param propertiesLocation
-     *            location
-     */
-    protected boolean isYamlProperties(String propertiesLocation) {
-        return propertiesLocation.contains(".yaml") || propertiesLocation.contains(".yml");
+    else {
+      propertiesResource = ResourceUtils.getResource(Constant.DEFAULT_YAML_FILE);
+      setPropertiesLocation(Constant.DEFAULT_YAML_FILE);
+      locations.add(Constant.DEFAULT_YAML_FILE);
     }
+    return propertiesResource;
+  }
 
-    /**
-     * Replace the properties from current active profiles
-     * 
-     * @param locations
-     *            loaded properties locations
-     * @throws IOException
-     *             When access to the resource if any {@link IOException} occurred
-     */
-    protected void replaceProperties(Set<String> locations) throws IOException {
+  /**
+   * Is yaml?
+   *
+   * @param propertiesLocation
+   *         location
+   */
+  protected boolean isYamlProperties(String propertiesLocation) {
+    return propertiesLocation.contains(".yaml") || propertiesLocation.contains(".yml");
+  }
 
-        // replace
-        final String[] activeProfiles = getActiveProfiles();
-        for (final String profile : activeProfiles) {
+  /**
+   * Replace the properties from current active profiles
+   *
+   * @param locations
+   *         loaded properties locations
+   *
+   * @throws IOException
+   *         When access to the resource if any {@link IOException} occurred
+   */
+  protected void replaceProperties(Set<String> locations) throws IOException {
 
-            for (final String location : locations) {
-                final StringBuilder builder = new StringBuilder(location);
-                builder.insert(builder.indexOf("."), '-' + profile);
+    // replace
+    final String[] activeProfiles = getActiveProfiles();
+    for (final String profile : activeProfiles) {
 
-                try {
-                    super.loadProperties(builder.toString());
-                }
-                catch (FileNotFoundException e) {}
-            }
+      for (final String location : locations) {
+        final StringBuilder builder = new StringBuilder(location);
+        builder.insert(builder.indexOf("."), '-' + profile);
+
+        try {
+          super.loadProperties(builder.toString());
         }
+        catch (FileNotFoundException e) {}
+      }
     }
+  }
 
-    @Override
-    protected void loadProperties(Resource resource) throws IOException {
+  @Override
+  protected void loadProperties(Resource resource) throws IOException {
 
-        if (isYamlProperties(resource.getName())) {
-            loadFromYmal(getProperties(), resource);
-        }
-        else {
-            super.loadProperties(resource);
-        }
+    if (isYamlProperties(resource.getName())) {
+      loadFromYmal(getProperties(), resource);
     }
-
-    protected void loadFromYmal(final Properties properties, final Resource yamlResource) throws IOException {
-        log.info("Found Yaml Properties Resource: [{}]", yamlResource.getLocation());
-        doMapping(properties, new Yaml(new CompactConstructor()).load(yamlResource.getInputStream()), null);
+    else {
+      super.loadProperties(resource);
     }
+  }
 
-    @SuppressWarnings("unchecked")
-    protected static void doMapping(final Properties properties, final Map<String, Object> base, final String prefix) {
+  protected void loadFromYmal(final Properties properties, final Resource yamlResource) throws IOException {
+    log.info("Found Yaml Properties Resource: [{}]", yamlResource.getLocation());
+    doMapping(properties, new Yaml(new CompactConstructor()).load(yamlResource.getInputStream()), null);
+  }
 
-        for (final Entry<String, Object> entry : base.entrySet()) {
-            String key = entry.getKey();
-            final Object value = entry.getValue();
-            key = prefix == null ? key : (prefix + '.' + key);
-            if (value instanceof Map) {
-                doMapping(properties, (Map<String, Object>) value, key);
-            }
-            else {
-                properties.put(key, value);
-            }
-        }
+  @SuppressWarnings("unchecked")
+  protected static void doMapping(final Properties properties, final Map<String, Object> base, final String prefix) {
+
+    for (final Entry<String, Object> entry : base.entrySet()) {
+      String key = entry.getKey();
+      final Object value = entry.getValue();
+      key = prefix == null ? key : (prefix + '.' + key);
+      if (value instanceof Map) {
+        doMapping(properties, (Map<String, Object>) value, key);
+      }
+      else {
+        properties.put(key, value);
+      }
     }
+  }
 }

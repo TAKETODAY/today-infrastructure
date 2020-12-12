@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -42,34 +42,34 @@ import freemarker.template.utility.ObjectWrapperWithAPISupport;
 public class ReactiveFreeMarkerTemplateViewResolver
         extends AbstractFreeMarkerTemplateViewResolver implements WebMvcConfiguration {
 
-    public static final String KEY_REQUEST_PARAMETERS = "RequestParameters";
+  public static final String KEY_REQUEST_PARAMETERS = "RequestParameters";
 
-    public ReactiveFreeMarkerTemplateViewResolver(Configuration configuration) {
-        this(new DefaultObjectWrapper(configuration.getIncompatibleImprovements()), configuration);
-    }
+  public ReactiveFreeMarkerTemplateViewResolver(Configuration configuration) {
+    this(new DefaultObjectWrapper(configuration.getIncompatibleImprovements()), configuration);
+  }
 
-    @Autowired
-    public ReactiveFreeMarkerTemplateViewResolver(ObjectWrapper wrapper, Configuration configuration) {
-        setConfiguration(configuration);
-        setObjectWrapper(wrapper);
-    }
+  @Autowired
+  public ReactiveFreeMarkerTemplateViewResolver(ObjectWrapper wrapper, Configuration configuration) {
+    setConfiguration(configuration);
+    setObjectWrapper(wrapper);
+  }
 
-    /**
-     * Create Model Attributes.
-     * 
-     * @param context
-     *            Current request context
-     * @return {@link TemplateHashModel}
-     */
-    protected TemplateHashModel createModel(RequestContext context) {
-        final ObjectWrapper wrapper = this.getObjectWrapper();
+  /**
+   * Create Model Attributes.
+   *
+   * @param context
+   *            Current request context
+   * @return {@link TemplateHashModel}
+   */
+  protected TemplateHashModel createModel(RequestContext context) {
+    final ObjectWrapper wrapper = this.getObjectWrapper();
 
-        final Map<String, Object> attributes = context.asMap();
+    final Map<String, Object> attributes = context.asMap();
 
-        // Create hash model wrapper for request
-        attributes.put(KEY_REQUEST_PARAMETERS, new RequestContextParametersHashModel(context));
+    // Create hash model wrapper for request
+    attributes.put(KEY_REQUEST_PARAMETERS, new RequestContextParametersHashModel(context));
 
-        return DefaultMapAdapter.adapt(attributes, (ObjectWrapperWithAPISupport) wrapper);
-    }
+    return DefaultMapAdapter.adapt(attributes, (ObjectWrapperWithAPISupport) wrapper);
+  }
 
 }

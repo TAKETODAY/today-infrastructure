@@ -29,26 +29,26 @@ import cn.taketoday.web.handler.DispatcherHandler;
 
 /**
  * @author TODAY <br>
- * 		   2020-03-30 17:13
+ * 2020-03-30 17:13
  */
 public class NettyWebServerApplicationLoader extends WebServerApplicationLoader {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public NettyWebServerApplicationLoader(Supplier<List<WebApplicationInitializer>> initializersSupplier) {
-        super(initializersSupplier);
-    }
+  public NettyWebServerApplicationLoader(Supplier<List<WebApplicationInitializer>> initializersSupplier) {
+    super(initializersSupplier);
+  }
 
-    @Override
-    public void onStartup(WebApplicationContext context) throws Throwable {
-        setApplicationContext(context);
-        super.onStartup(context);
-    }
+  @Override
+  public void onStartup(WebApplicationContext context) throws Throwable {
+    setApplicationContext(context);
+    super.onStartup(context);
+  }
 
-    @Override
-    protected DispatcherHandler createDispatcher(WebApplicationContext context) {
-        final ReactiveDispatcher dispatcherServlet = new ReactiveDispatcher();
-        dispatcherServlet.setApplicationContext(context);
-        return dispatcherServlet;
-    }
+  @Override
+  protected DispatcherHandler createDispatcher(WebApplicationContext context) {
+    final ReactiveDispatcher dispatcherServlet = new ReactiveDispatcher();
+    dispatcherServlet.setApplicationContext(context);
+    return dispatcherServlet;
+  }
 }

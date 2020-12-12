@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 
+ *
  * @author TODAY <br>
  *         2019-02-07 16:31
  */
@@ -32,24 +32,24 @@ import lombok.Setter;
 @Getter
 public class CompressionConfiguration {
 
-    private String level = "on";
-    private boolean enable = false;
+  private String level = "on";
+  private boolean enable = false;
 
-    private String[] excludePaths;
-    private String[] includedPaths;
-    private String[] excludeMethods;
-    private String[] includeMethods;
+  private String[] excludePaths;
+  private String[] includedPaths;
+  private String[] excludeMethods;
+  private String[] includeMethods;
 
-    private String[] excludeUserAgents;
-    private String[] excludeAgentPatterns;
+  private String[] excludeUserAgents;
+  private String[] excludeAgentPatterns;
 
-    private String[] includeAgentPatterns;
+  private String[] includeAgentPatterns;
 
-    private DataSize minResponseSize = DataSize.ofKilobytes(2);
+  private DataSize minResponseSize = DataSize.ofKilobytes(2);
 
-    private String[] mimeTypes = new String[] { //
-            "text/html", "text/xml", "text/plain", //
-            "text/javascript", "application/javascript", //
-            "text/css", "text/javascript", "application/xml"//
-    };
+  private String[] mimeTypes = new String[] { //
+          "text/html", "text/xml", "text/plain", //
+          "text/javascript", "application/javascript", //
+          "text/css", "text/javascript", "application/xml"//
+  };
 }

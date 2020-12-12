@@ -12,23 +12,23 @@ import cn.taketoday.framework.reactive.websocket.WebSocketContext;
 @Singleton
 @WebSocket(value = "/websocket")
 public class WebSocketImpl implements WebSocketChannel {
-    @Override
-    public void onConnect(WebSocketContext webSocketContext) {
-        System.out.println("websocket open connect");
-    }
+  @Override
+  public void onConnect(WebSocketContext webSocketContext) {
+    System.out.println("websocket open connect");
+  }
 
-    @Override
-    public void onMessage(WebSocketContext webSocketContext) {
-        System.out.println(webSocketContext.getMessage().text());
-    }
+  @Override
+  public void onMessage(WebSocketContext webSocketContext) {
+    System.out.println(webSocketContext.getMessage().text());
+  }
 
-    @Override
-    public void onClose(WebSocketContext webSocketContext) {
-        System.out.println("关闭连接:" + webSocketContext.session().getId());
-    }
+  @Override
+  public void onClose(WebSocketContext webSocketContext) {
+    System.out.println("关闭连接:" + webSocketContext.session().getId());
+  }
 
-    @Override
-    public void onError(WebSocketContext webSocketContext) {
+  @Override
+  public void onError(WebSocketContext webSocketContext) {
 
-    }
+  }
 }
