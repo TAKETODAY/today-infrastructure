@@ -59,7 +59,7 @@ public class CaffeineCache extends AbstractCache {
   }
 
   @Override
-  protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
+  protected <T> Object getInternal(Object key, CacheCallback<T> valueLoader) {
     return this.caffeine.get(key, k -> lookupValue(k, valueLoader));
   }
 
