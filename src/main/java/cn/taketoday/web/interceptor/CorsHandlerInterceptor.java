@@ -22,7 +22,6 @@ package cn.taketoday.web.interceptor;
 import java.io.IOException;
 
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.utils.Assert;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.cors.CorsConfigurationCapable;
@@ -91,7 +90,6 @@ public class CorsHandlerInterceptor
    * <p>By default {@link DefaultCorsProcessor} is used.
    */
   public void setCorsProcessor(CorsProcessor processor) {
-    Assert.notNull(processor, "CorsProcessor must not be null");
     this.processor = processor;
   }
 

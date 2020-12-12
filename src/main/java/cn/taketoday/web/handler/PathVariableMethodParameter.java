@@ -21,16 +21,16 @@ package cn.taketoday.web.handler;
 
 import java.util.Objects;
 
-import static cn.taketoday.context.utils.ConvertUtils.convert;
-
 import cn.taketoday.context.PathMatcher;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.utils.WebUtils;
 
+import static cn.taketoday.context.utils.ConvertUtils.convert;
+
 /**
  * @author TODAY <br>
- *         2019-12-28 14:56
+ * 2019-12-28 14:56
  */
 public class PathVariableMethodParameter extends MethodParameter {
 
