@@ -59,7 +59,7 @@ public class RedissonCache extends AbstractCache implements Cache {
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  protected static void doPut(final RMap<Object, Object> cache, //
+  protected static void doPut(final RMap<Object, Object> cache,
                               final CacheConfig cacheConfig,
                               final Object key, final Object value)//
   {
@@ -88,7 +88,7 @@ public class RedissonCache extends AbstractCache implements Cache {
   }
 
   @Override
-  protected <T> Object lookupValue(Object key, CacheCallback<T> valueLoader) throws CacheValueRetrievalException {
+  protected <T> Object lookupValue(Object key, CacheCallback<T> valueLoader) {
     final RLock lock = cache.getLock(key);
     try {
       lock.lock();
