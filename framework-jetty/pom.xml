@@ -1,41 +1,41 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>cn.taketoday</groupId>
-        <artifactId>today-framework-parent</artifactId>
-        <version>latest</version>
-    </parent>
-    <artifactId>today-framework-jetty</artifactId>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>cn.taketoday</groupId>
+    <artifactId>today-framework-parent</artifactId>
+    <version>latest</version>
+  </parent>
+  <artifactId>today-framework-jetty</artifactId>
 
-    <name>jetty plugin</name>
+  <name>jetty plugin</name>
 
-    <description>Jetty Web Server Plugin</description>
-    
-    <properties>
-        <jetty.version>9.4.28.v20200408</jetty.version>
-    </properties>
+  <description>Jetty Web Server Plugin</description>
 
-    <dependencies>
+  <properties>
+    <jetty.version>11.0.0</jetty.version>
+  </properties>
 
-        <dependency>
-            <groupId>cn.taketoday</groupId>
-            <artifactId>today-framework</artifactId>
-            <version>latest</version>
-        </dependency>
+  <dependencies>
 
-      <!-- 
-      
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-util-ajax</artifactId>
-            <version>${jetty.version}</version>
-        </dependency> -->
+    <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-framework</artifactId>
+      <version>latest</version>
+    </dependency>
 
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-webapp</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-    </dependencies>
+    <!--
+
+      <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-util-ajax</artifactId>
+          <version>${jetty.version}</version>
+      </dependency> -->
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+  </dependencies>
 </project>
