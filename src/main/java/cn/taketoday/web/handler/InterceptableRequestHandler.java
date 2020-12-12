@@ -88,12 +88,17 @@ public abstract class InterceptableRequestHandler
   }
 
   public void setInterceptors(HandlerInterceptor... interceptors) {
-    this.interceptors = OrderUtils.reversedSort(interceptors); // 默认没有顺序
+    if (interceptors != null) {
+      OrderUtils.reversedSort(interceptors);
+    }
+    this.interceptors = interceptors;
   }
 
   public void addInterceptors(HandlerInterceptor... interceptors) {
     final ArrayList<HandlerInterceptor> objects = new ArrayList<>();
-    Collections.addAll(objects, this.interceptors);
+    if (this.interceptors != null) {
+      Collections.addAll(objects, this.interceptors);
+    }
     Collections.addAll(objects, interceptors);
     setInterceptors(objects);
   }
