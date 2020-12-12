@@ -33,7 +33,8 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
  * @author TODAY <br>
  * 2019-07-02 21:34
  */
-public class NettyServerInitializer extends ChannelInitializer<SocketChannel> implements ChannelHandler {
+public class NettyServerInitializer
+        extends ChannelInitializer<SocketChannel> implements ChannelHandler {
 
   private static final Logger log = LoggerFactory.getLogger(NettyServerInitializer.class);
 

@@ -1,36 +1,36 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>cn.taketoday</groupId>
-        <artifactId>today-framework-parent</artifactId>
-        <version>latest</version>
-    </parent>
-    <artifactId>today-framework-tomcat</artifactId>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>cn.taketoday</groupId>
+    <artifactId>today-framework-parent</artifactId>
+    <version>latest</version>
+  </parent>
+  <artifactId>today-framework-tomcat</artifactId>
 
-    <name>tomcat plugin</name>
+  <name>tomcat plugin</name>
 
-    <description>Tomcat Web Server Plugin</description>
+  <description>Tomcat Web Server Plugin</description>
 
-    <properties>
-        <embed.tomcat.version>9.0.35</embed.tomcat.version>
-    </properties>
+  <properties>
+    <embed.tomcat.version>9.0.35</embed.tomcat.version>
+  </properties>
 
-    <dependencies>
+  <dependencies>
 
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-core</artifactId>
-            <version>${embed.tomcat.version}</version>
-        </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+      <version>${embed.tomcat.version}</version>
+    </dependency>
 
-        <dependency>
-            <groupId>cn.taketoday</groupId>
-            <artifactId>today-framework</artifactId>
-            <version>latest</version>
-        </dependency>
+    <dependency>
+      <groupId>cn.taketoday</groupId>
+      <artifactId>today-framework</artifactId>
+      <version>latest</version>
+    </dependency>
 
-    </dependencies>
+  </dependencies>
 
 
 </project>
