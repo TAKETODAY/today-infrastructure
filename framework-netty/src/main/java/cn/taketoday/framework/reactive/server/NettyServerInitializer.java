@@ -31,33 +31,33 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 
 /**
  * @author TODAY <br>
- *         2019-07-02 21:34
+ * 2019-07-02 21:34
  */
 public class NettyServerInitializer extends ChannelInitializer<SocketChannel> implements ChannelHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(NettyServerInitializer.class);
+  private static final Logger log = LoggerFactory.getLogger(NettyServerInitializer.class);
 
-    private final ReactiveDispatcher reactiveDispatcher;
+  private final ReactiveDispatcher reactiveDispatcher;
 
-    public NettyServerInitializer(ReactiveDispatcher reactiveDispatcher) {
-        this.reactiveDispatcher = reactiveDispatcher;
+  public NettyServerInitializer(ReactiveDispatcher reactiveDispatcher) {
+    this.reactiveDispatcher = reactiveDispatcher;
+  }
+
+  @Override
+  protected void initChannel(final SocketChannel ch) throws Exception {
+    log.info("initChannel {}", ch);
+
+    try {
+      ch.pipeline()
+              .addLast("HttpServerCodec", new HttpServerCodec())
+              .addLast("HttpObjectAggregator", new HttpObjectAggregator(1024 * 1024 * 64))
+              .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
+              .addLast("ReactiveDispatcher", reactiveDispatcher);
     }
-
-    @Override
-    protected void initChannel(final SocketChannel ch) throws Exception {
-        log.info("initChannel {}", ch);
-
-        try {
-            ch.pipeline()
-                    .addLast("HttpServerCodec", new HttpServerCodec())
-                    .addLast("HttpObjectAggregator", new HttpObjectAggregator(1024 * 1024 * 64))
-                    .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
-                    .addLast("ReactiveDispatcher", reactiveDispatcher);
-        }
-        catch (Exception e) {
-            log.error("Add channel pipeline error", e);
-            throw e;
-        }
+    catch (Exception e) {
+      log.error("Add channel pipeline error", e);
+      throw e;
     }
+  }
 
 }

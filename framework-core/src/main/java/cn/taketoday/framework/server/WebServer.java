@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,14 +25,14 @@ package cn.taketoday.framework.server;
  */
 public interface WebServer {
 
-    /**
-     * Start server
-     */
-    void start();
+  /**
+   * Start server
+   */
+  void start();
 
-    /**
-     * Stop server
-     */
-    void stop();
+  /**
+   * Stop server
+   */
+  void stop();
 
 }

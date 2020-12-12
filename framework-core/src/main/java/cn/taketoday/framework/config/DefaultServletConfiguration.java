@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright ©  TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -38,9 +38,9 @@ import lombok.Setter;
 @Props(prefix = "server.servlet.default.")
 public class DefaultServletConfiguration {
 
-    private boolean enable;
-    private String[] urlMappings;
+  private boolean enable;
+  private String[] urlMappings;
 
-    private Map<String, String> initParameters = new HashMap<>();
+  private Map<String, String> initParameters = new HashMap<>();
 
 }

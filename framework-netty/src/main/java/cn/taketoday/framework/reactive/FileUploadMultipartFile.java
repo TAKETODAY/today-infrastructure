@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -33,62 +33,62 @@ import io.netty.handler.codec.http.multipart.FileUpload;
  */
 public class FileUploadMultipartFile implements MultipartFile {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private final FileUpload fileUpload;
+  private final FileUpload fileUpload;
 
-    public FileUploadMultipartFile(FileUpload fileUpload) {
-        this.fileUpload = fileUpload;
-    }
+  public FileUploadMultipartFile(FileUpload fileUpload) {
+    this.fileUpload = fileUpload;
+  }
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-        return new ByteArrayInputStream(getBytes());
-    }
+  @Override
+  public InputStream getInputStream() throws IOException {
+    return new ByteArrayInputStream(getBytes());
+  }
 
-    @Override
-    public String getContentType() {
-        return fileUpload.getContentType();
-    }
+  @Override
+  public String getContentType() {
+    return fileUpload.getContentType();
+  }
 
-    @Override
-    public long getSize() {
-        return fileUpload.length();
-    }
+  @Override
+  public long getSize() {
+    return fileUpload.length();
+  }
 
-    @Override
-    public String getName() {
-        return fileUpload.getName();
-    }
+  @Override
+  public String getName() {
+    return fileUpload.getName();
+  }
 
-    @Override
-    public String getFileName() {
-        return fileUpload.getFilename();
-    }
+  @Override
+  public String getFileName() {
+    return fileUpload.getFilename();
+  }
 
-    @Override
-    public void save(File dest) throws IOException {
-        fileUpload.renameTo(dest);
-    }
+  @Override
+  public void save(File dest) throws IOException {
+    fileUpload.renameTo(dest);
+  }
 
-    @Override
-    public boolean isEmpty() {
-        return getSize() == 0;
-    }
+  @Override
+  public boolean isEmpty() {
+    return getSize() == 0;
+  }
 
-    @Override
-    public byte[] getBytes() throws IOException {
-        return fileUpload.get();
-    }
+  @Override
+  public byte[] getBytes() throws IOException {
+    return fileUpload.get();
+  }
 
-    @Override
-    public Object getOriginalResource() {
-        return fileUpload;
-    }
+  @Override
+  public Object getOriginalResource() {
+    return fileUpload;
+  }
 
-    @Override
-    public void delete() throws IOException {
-        fileUpload.delete();
-    }
+  @Override
+  public void delete() throws IOException {
+    fileUpload.delete();
+  }
 
 }

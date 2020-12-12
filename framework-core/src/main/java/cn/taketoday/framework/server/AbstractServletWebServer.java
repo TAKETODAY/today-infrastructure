@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -62,177 +62,177 @@ import lombok.Setter;
 @Setter
 public abstract class AbstractServletWebServer extends AbstractWebServer implements ConfigurableWebServer {
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractServletWebServer.class);
+  private static final Logger log = LoggerFactory.getLogger(AbstractServletWebServer.class);
 
-    @Autowired(required = false)
-    private SessionConfiguration sessionConfiguration;
-    @Autowired(required = false)
-    private JspServletConfiguration jspServletConfiguration;
-    @Autowired(required = false)
-    private DefaultServletConfiguration defaultServletConfiguration;
+  @Autowired(required = false)
+  private SessionConfiguration sessionConfiguration;
+  @Autowired(required = false)
+  private JspServletConfiguration jspServletConfiguration;
+  @Autowired(required = false)
+  private DefaultServletConfiguration defaultServletConfiguration;
 
-    private Map<Locale, Charset> localeCharsetMappings = new HashMap<>();
+  private Map<Locale, Charset> localeCharsetMappings = new HashMap<>();
 
-    /**
-     * Context init parameters
-     */
-    private final Map<String, String> contextInitParameters = new HashMap<>();
+  /**
+   * Context init parameters
+   */
+  private final Map<String, String> contextInitParameters = new HashMap<>();
 
-    @Override
-    protected abstract ServletWebServerApplicationContext getApplicationContext();
+  @Override
+  protected abstract ServletWebServerApplicationContext getApplicationContext();
 
-    /**
-     * Add jsp to context
-     * 
-     * @throws Throwable
-     */
-    protected void addJspServlet() {
+  /**
+   * Add jsp to context
+   *
+   * @throws Throwable
+   */
+  protected void addJspServlet() {
 
-        final JspServletConfiguration jspServletConfiguration = this.jspServletConfiguration;
+    final JspServletConfiguration jspServletConfiguration = this.jspServletConfiguration;
 
-        if (jspServletConfiguration == null) {
-            return;
+    if (jspServletConfiguration == null) {
+      return;
+    }
+    // config jsp servlet
+    getWebApplicationConfiguration().configureJspServlet(jspServletConfiguration);
+
+    if (jspServletConfiguration.isEnable()) {
+
+      try {
+        Servlet jspServlet = ClassUtils.newInstance(jspServletConfiguration.getClassName());
+
+        if (jspServlet != null) {
+          log.info("Jsp is enabled, use jsp servlet: [{}]", jspServlet.getServletInfo());
+
+          WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(jspServlet);
+
+          initializer.setName(jspServletConfiguration.getName());
+          initializer.setOrder(Ordered.HIGHEST_PRECEDENCE);
+          initializer.addUrlMappings(jspServletConfiguration.getUrlMappings());
+          initializer.setInitParameters(jspServletConfiguration.getInitParameters());
+
+          getContextInitializers().add(initializer);
         }
-        // config jsp servlet
-        getWebApplicationConfiguration().configureJspServlet(jspServletConfiguration);
+      }
+      catch (ClassNotFoundException e) {
+        throw new ConfigurationException(e);
+      }
+    }
+  }
 
-        if (jspServletConfiguration.isEnable()) {
+  /**
+   * Add default servlet
+   */
+  protected void addDefaultServlet() {
 
-            try {
-                Servlet jspServlet = ClassUtils.newInstance(jspServletConfiguration.getClassName());
+    final DefaultServletConfiguration defaultServletConfiguration = this.defaultServletConfiguration;
 
-                if (jspServlet != null) {
-                    log.info("Jsp is enabled, use jsp servlet: [{}]", jspServlet.getServletInfo());
+    if (defaultServletConfiguration == null) {
+      return;
+    }
+    // config default servlet
+    getWebApplicationConfiguration().configureDefaultServlet(defaultServletConfiguration);
 
-                    WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(jspServlet);
+    if (defaultServletConfiguration.isEnable()) {
 
-                    initializer.setName(jspServletConfiguration.getName());
-                    initializer.setOrder(Ordered.HIGHEST_PRECEDENCE);
-                    initializer.addUrlMappings(jspServletConfiguration.getUrlMappings());
-                    initializer.setInitParameters(jspServletConfiguration.getInitParameters());
+      final Servlet defaultServlet = getDefaultServlet();
+      if (defaultServlet != null) {
 
-                    getContextInitializers().add(initializer);
-                }
-            }
-            catch (ClassNotFoundException e) {
-                throw new ConfigurationException(e);
-            }
+        log.info("Default servlet is enabled, use servlet: [{}]", defaultServlet.getServletInfo());
+
+        WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(defaultServlet);
+
+        initializer.setName(Constant.DEFAULT);
+        initializer.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        initializer.addUrlMappings(defaultServletConfiguration.getUrlMappings());
+        initializer.setInitParameters(defaultServletConfiguration.getInitParameters());
+
+        getContextInitializers().add(initializer);
+      }
+    }
+  }
+
+  @Override
+  protected List<WebApplicationInitializer> getMergedInitializers() {
+
+    final List<WebApplicationInitializer> contextInitializers = getContextInitializers();
+
+    contextInitializers.add(new OrderedServletContextInitializer() {
+      @Override
+      public void onStartup(ServletContext servletContext) throws Throwable {
+        getContextInitParameters().forEach(servletContext::setInitParameter);
+      }
+    });
+
+    final SessionConfiguration sessionConfiguration = getSessionConfiguration();
+    if (sessionConfiguration != null && sessionConfiguration.isEnable()) {
+      contextInitializers.add(new OrderedServletContextInitializer() {
+
+        @Override
+        public void onStartup(ServletContext servletContext) throws Throwable {
+
+          getWebApplicationConfiguration().configureSession(sessionConfiguration);
+
+          final SessionCookieConfiguration cookie = sessionConfiguration.getCookieConfiguration();
+          final SessionCookieConfig config = servletContext.getSessionCookieConfig();
+
+          config.setName(cookie.getName());
+          config.setPath(cookie.getPath());
+          config.setSecure(cookie.isSecure());
+          config.setDomain(cookie.getDomain());
+          config.setComment(cookie.getComment());
+          config.setHttpOnly(cookie.isHttpOnly());
+
+          config.setMaxAge((int) cookie.getMaxAge().getSeconds());
+
+          if (sessionConfiguration.getTrackingModes() != null) {
+
+            final Set<SessionTrackingMode> collect = Arrays.asList(sessionConfiguration.getTrackingModes())
+                    .stream()
+                    .map(t -> t.name())
+                    .map(SessionTrackingMode::valueOf)
+                    .collect(Collectors.toSet());
+
+            servletContext.setSessionTrackingModes(collect);
+          }
         }
+      });
+    }
+    return contextInitializers;
+  }
+
+  /**
+   * Get Default Servlet Instance
+   *
+   * @return
+   */
+  protected abstract Servlet getDefaultServlet();
+
+  /**
+   * @throws Throwable
+   */
+  @Override
+  protected void prepareInitialize() {
+
+    super.prepareInitialize();
+
+    final WebServerApplicationContext context = getApplicationContext();
+
+    final Class<?> startupClass = context.getStartupClass();
+    if (startupClass != null) {
+      ServletSecurity servletSecurity = startupClass.getAnnotation(ServletSecurity.class);
+      if (servletSecurity != null) {
+        if (context.containsBeanDefinition(ServletSecurityElement.class)) {
+          log.info("Multiple: [{}] Overriding its bean definition", ServletSecurityElement.class.getName());
+        }
+        context.registerSingleton(new ServletSecurityElement(servletSecurity));
+        context.registerBean("servletSecurityElement", ServletSecurityElement.class);
+      }
     }
 
-    /**
-     * Add default servlet
-     */
-    protected void addDefaultServlet() {
+    addDefaultServlet();
 
-        final DefaultServletConfiguration defaultServletConfiguration = this.defaultServletConfiguration;
-
-        if (defaultServletConfiguration == null) {
-            return;
-        }
-        // config default servlet
-        getWebApplicationConfiguration().configureDefaultServlet(defaultServletConfiguration);
-
-        if (defaultServletConfiguration.isEnable()) {
-
-            final Servlet defaultServlet = getDefaultServlet();
-            if (defaultServlet != null) {
-
-                log.info("Default servlet is enabled, use servlet: [{}]", defaultServlet.getServletInfo());
-
-                WebServletInitializer<Servlet> initializer = new WebServletInitializer<>(defaultServlet);
-
-                initializer.setName(Constant.DEFAULT);
-                initializer.setOrder(Ordered.HIGHEST_PRECEDENCE);
-                initializer.addUrlMappings(defaultServletConfiguration.getUrlMappings());
-                initializer.setInitParameters(defaultServletConfiguration.getInitParameters());
-
-                getContextInitializers().add(initializer);
-            }
-        }
-    }
-
-    @Override
-    protected List<WebApplicationInitializer> getMergedInitializers() {
-
-        final List<WebApplicationInitializer> contextInitializers = getContextInitializers();
-
-        contextInitializers.add(new OrderedServletContextInitializer() {
-            @Override
-            public void onStartup(ServletContext servletContext) throws Throwable {
-                getContextInitParameters().forEach(servletContext::setInitParameter);
-            }
-        });
-
-        final SessionConfiguration sessionConfiguration = getSessionConfiguration();
-        if (sessionConfiguration != null && sessionConfiguration.isEnable()) {
-            contextInitializers.add(new OrderedServletContextInitializer() {
-
-                @Override
-                public void onStartup(ServletContext servletContext) throws Throwable {
-
-                    getWebApplicationConfiguration().configureSession(sessionConfiguration);
-
-                    final SessionCookieConfiguration cookie = sessionConfiguration.getCookieConfiguration();
-                    final SessionCookieConfig config = servletContext.getSessionCookieConfig();
-
-                    config.setName(cookie.getName());
-                    config.setPath(cookie.getPath());
-                    config.setSecure(cookie.isSecure());
-                    config.setDomain(cookie.getDomain());
-                    config.setComment(cookie.getComment());
-                    config.setHttpOnly(cookie.isHttpOnly());
-
-                    config.setMaxAge((int) cookie.getMaxAge().getSeconds());
-
-                    if (sessionConfiguration.getTrackingModes() != null) {
-
-                        final Set<SessionTrackingMode> collect = Arrays.asList(sessionConfiguration.getTrackingModes())
-                                .stream()
-                                .map(t -> t.name())
-                                .map(SessionTrackingMode::valueOf)
-                                .collect(Collectors.toSet());
-
-                        servletContext.setSessionTrackingModes(collect);
-                    }
-                }
-            });
-        }
-        return contextInitializers;
-    }
-
-    /**
-     * Get Default Servlet Instance
-     * 
-     * @return
-     */
-    protected abstract Servlet getDefaultServlet();
-
-    /**
-     * @throws Throwable
-     */
-    @Override
-    protected void prepareInitialize() {
-
-        super.prepareInitialize();
-
-        final WebServerApplicationContext context = getApplicationContext();
-
-        final Class<?> startupClass = context.getStartupClass();
-        if (startupClass != null) {
-            ServletSecurity servletSecurity = startupClass.getAnnotation(ServletSecurity.class);
-            if (servletSecurity != null) {
-                if (context.containsBeanDefinition(ServletSecurityElement.class)) {
-                    log.info("Multiple: [{}] Overriding its bean definition", ServletSecurityElement.class.getName());
-                }
-                context.registerSingleton(new ServletSecurityElement(servletSecurity));
-                context.registerBean("servletSecurityElement", ServletSecurityElement.class);
-            }
-        }
-
-        addDefaultServlet();
-
-        addJspServlet();
-    }
+    addJspServlet();
+  }
 
 }

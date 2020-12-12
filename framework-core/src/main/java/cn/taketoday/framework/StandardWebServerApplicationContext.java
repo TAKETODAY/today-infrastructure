@@ -3,7 +3,7 @@
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *   
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
@@ -39,70 +39,70 @@ public class StandardWebServerApplicationContext
         extends StandardApplicationContext
         implements ConfigurableWebServerApplicationContext, WebServerApplicationContext {
 
-    private WebServer webServer;
-    private final Class<?> startupClass;
-    private String contextPath = Constant.BLANK;
+  private WebServer webServer;
+  private final Class<?> startupClass;
+  private String contextPath = Constant.BLANK;
 
-    public StandardWebServerApplicationContext() {
-        this(new StandardWebEnvironment());
-    }
+  public StandardWebServerApplicationContext() {
+    this(new StandardWebEnvironment());
+  }
 
-    public StandardWebServerApplicationContext(Class<?> startupClass, String... args) {
-        this(new StandardWebEnvironment(startupClass, args), startupClass);
-    }
+  public StandardWebServerApplicationContext(Class<?> startupClass, String... args) {
+    this(new StandardWebEnvironment(startupClass, args), startupClass);
+  }
 
-    /**
-     * Construct with given {@link ConfigurableEnvironment}
-     * 
-     * @param env
-     *            {@link ConfigurableEnvironment} instance
-     */
-    public StandardWebServerApplicationContext(ConfigurableEnvironment env) {
-        this(env, null);
-    }
+  /**
+   * Construct with given {@link ConfigurableEnvironment}
+   *
+   * @param env
+   *            {@link ConfigurableEnvironment} instance
+   */
+  public StandardWebServerApplicationContext(ConfigurableEnvironment env) {
+    this(env, null);
+  }
 
-    public StandardWebServerApplicationContext(ConfigurableEnvironment env, Class<?> startupClass) {
-        super(env);
-        this.startupClass = startupClass;
-    }
+  public StandardWebServerApplicationContext(ConfigurableEnvironment env, Class<?> startupClass) {
+    super(env);
+    this.startupClass = startupClass;
+  }
 
-    @Override
-    protected StandardBeanFactory createBeanFactory() {
-        return new StandardWebBeanFactory(this);
-    }
+  @Override
+  protected StandardBeanFactory createBeanFactory() {
+    return new StandardWebBeanFactory(this);
+  }
 
-    @Override
-    protected void postProcessRegisterListener(Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) {
-        super.postProcessRegisterListener(applicationListeners);
-        registerSingleton(this);
-    }
+  @Override
+  protected void postProcessRegisterListener(Map<Class<?>, List<ApplicationListener<Object>>> applicationListeners) {
+    super.postProcessRegisterListener(applicationListeners);
+    registerSingleton(this);
+  }
 
-    @Override
-    protected void preRefresh() {
-        this.webServer = ApplicationUtils.obtainWebServer(this);
-        super.preRefresh();
-    }
+  @Override
+  protected void preRefresh() {
+    this.webServer = ApplicationUtils.obtainWebServer(this);
+    super.preRefresh();
+  }
 
-    @Override
-    public WebServer getWebServer() {
-        return webServer;
-    }
+  @Override
+  public WebServer getWebServer() {
+    return webServer;
+  }
 
-    @Override
-    public Class<?> getStartupClass() {
-        return startupClass;
-    }
+  @Override
+  public Class<?> getStartupClass() {
+    return startupClass;
+  }
 
-    @Override
-    public String getContextPath() {
-        final String contextPath = this.contextPath;
-        if (contextPath == null) {
-            return this.contextPath = Constant.BLANK;
-        }
-        return contextPath;
+  @Override
+  public String getContextPath() {
+    final String contextPath = this.contextPath;
+    if (contextPath == null) {
+      return this.contextPath = Constant.BLANK;
     }
+    return contextPath;
+  }
 
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
-    }
+  public void setContextPath(String contextPath) {
+    this.contextPath = contextPath;
+  }
 }

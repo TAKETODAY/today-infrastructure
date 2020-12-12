@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -43,193 +43,193 @@ import io.undertow.util.HttpString;
  */
 public abstract class UndertowCompressionUtils {
 
-    private static final String WILDCARD_TYPE = "*/*";
+  private static final String WILDCARD_TYPE = "*/*";
 
-    protected static boolean isWildcardType(String mimeType) {
-        return WILDCARD_TYPE.equals(mimeType);
-    }
+  protected static boolean isWildcardType(String mimeType) {
+    return WILDCARD_TYPE.equals(mimeType);
+  }
 
-    /**
-     * Optionally wrap the given {@link HttpHandler} for HTTP compression support.
-     * 
-     * @param compression
-     *            the HTTP compression configuration
-     * @param httpHandler
-     *            the HTTP handler to wrap
-     * @return the wrapped HTTP handler if compression is enabled, or the handler
-     *         itself
-     */
-    public static HttpHandler configureCompression(CompressionConfiguration compression, //
-            HttpHandler httpHandler) //
+  /**
+   * Optionally wrap the given {@link HttpHandler} for HTTP compression support.
+   *
+   * @param compression
+   *            the HTTP compression configuration
+   * @param httpHandler
+   *            the HTTP handler to wrap
+   * @return the wrapped HTTP handler if compression is enabled, or the handler
+   *         itself
+   */
+  public static HttpHandler configureCompression(CompressionConfiguration compression, //
+                                                 HttpHandler httpHandler) //
+  {
+
+    ContentEncodingRepository repository = new ContentEncodingRepository();
+
+    repository.addEncodingHandler(Constant.GZIP, new GzipEncodingProvider(), 50, Predicates.and(getCompressionPredicates(compression)));
+
+    return new EncodingHandler(repository).setNext(httpHandler);
+  }
+
+  private static Predicate[] getCompressionPredicates(CompressionConfiguration compression) {
+
+    final List<Predicate> predicates = new ArrayList<>();
+
+    predicates.add(Predicates.maxContentSize(compression.getMinResponseSize().toBytes()));
+
+    if (compression.getIncludeMethods() != null //
+            || compression.getExcludeMethods() != null//
+            || compression.getIncludedPaths() != null//
+            || compression.getExcludePaths() != null) //
     {
-
-        ContentEncodingRepository repository = new ContentEncodingRepository();
-
-        repository.addEncodingHandler(Constant.GZIP, new GzipEncodingProvider(), 50, Predicates.and(getCompressionPredicates(compression)));
-
-        return new EncodingHandler(repository).setNext(httpHandler);
+      predicates.add(new RequestPathAndMethodPredicate(compression));
     }
 
-    private static Predicate[] getCompressionPredicates(CompressionConfiguration compression) {
-
-        final List<Predicate> predicates = new ArrayList<>();
-
-        predicates.add(Predicates.maxContentSize(compression.getMinResponseSize().toBytes()));
-
-        if (compression.getIncludeMethods() != null //
-                || compression.getExcludeMethods() != null//
-                || compression.getIncludedPaths() != null//
-                || compression.getExcludePaths() != null) //
-        {
-            predicates.add(new RequestPathAndMethodPredicate(compression));
-        }
-
-        if (compression.getIncludeAgentPatterns() != null //
-                || compression.getExcludeUserAgents() != null//
-                || compression.getExcludeAgentPatterns() != null) //
-        {
-            predicates.add(new UserAgentPredicate(compression));
-        }
-
-        predicates.add(new MimeTypesPredicate(compression.getMimeTypes()));
-        return predicates.toArray(new Predicate[predicates.size()]);
+    if (compression.getIncludeAgentPatterns() != null //
+            || compression.getExcludeUserAgents() != null//
+            || compression.getExcludeAgentPatterns() != null) //
+    {
+      predicates.add(new UserAgentPredicate(compression));
     }
 
-    private static <T> boolean contains(T[] targets, Function<T, Boolean> function) {
-        if (targets != null) {
-            for (T target : targets) {
-                if (function.apply(target)) {
-                    return true;
-                }
-            }
+    predicates.add(new MimeTypesPredicate(compression.getMimeTypes()));
+    return predicates.toArray(new Predicate[predicates.size()]);
+  }
+
+  private static <T> boolean contains(T[] targets, Function<T, Boolean> function) {
+    if (targets != null) {
+      for (T target : targets) {
+        if (function.apply(target)) {
+          return true;
         }
-        return false;
+      }
+    }
+    return false;
+  }
+
+  private static class UserAgentPredicate implements Predicate {
+
+    private final String[] excludeUserAgents;
+
+    private final Pattern[] excludeAgentPatterns;
+
+    private final Pattern[] includeAgentPatterns;
+
+    private UserAgentPredicate(final CompressionConfiguration compression) {
+      this.excludeUserAgents = compression.getExcludeUserAgents();
+      String[] excludeAgentPatterns = compression.getExcludeAgentPatterns();
+
+      final List<Pattern> patterns = new ArrayList<>();
+
+      if (excludeAgentPatterns != null) {
+        for (String excludeAgentPattern : excludeAgentPatterns) {
+          patterns.add(Pattern.compile(excludeAgentPattern));
+        }
+        this.excludeAgentPatterns = patterns.toArray(new Pattern[patterns.size()]);
+      }
+      else {
+        this.excludeAgentPatterns = null;
+      }
+
+      patterns.clear();
+
+      final String[] includeAgentPatterns = compression.getIncludeAgentPatterns();
+      if (includeAgentPatterns != null) {
+        for (String includeAgentPattern : includeAgentPatterns) {
+          patterns.add(Pattern.compile(includeAgentPattern));
+        }
+        this.includeAgentPatterns = patterns.toArray(new Pattern[patterns.size()]);
+      }
+      else {
+        this.includeAgentPatterns = null;
+      }
     }
 
-    private static class UserAgentPredicate implements Predicate {
+    @Override
+    public boolean resolve(HttpServerExchange serverExchange) {
+      final String userAgent = serverExchange.getRequestHeaders().getFirst(Headers.USER_AGENT);
+      return testExcludeUserAgents(userAgent) || testIncludeUserAgents(userAgent);
+    }
 
-        private final String[] excludeUserAgents;
+    private boolean testExcludeUserAgents(final String userAgent) {
+      return !(contains(excludeUserAgents, excludedUserAgent -> excludedUserAgent.equals(userAgent)) && //
+              contains(excludeAgentPatterns, excludeAgentPattern -> excludeAgentPattern.matcher(userAgent).matches()));
+    }
 
-        private final Pattern[] excludeAgentPatterns;
+    private boolean testIncludeUserAgents(final String userAgent) {
 
-        private final Pattern[] includeAgentPatterns;
-
-        private UserAgentPredicate(final CompressionConfiguration compression) {
-            this.excludeUserAgents = compression.getExcludeUserAgents();
-            String[] excludeAgentPatterns = compression.getExcludeAgentPatterns();
-
-            final List<Pattern> patterns = new ArrayList<>();
-
-            if (excludeAgentPatterns != null) {
-                for (String excludeAgentPattern : excludeAgentPatterns) {
-                    patterns.add(Pattern.compile(excludeAgentPattern));
-                }
-                this.excludeAgentPatterns = patterns.toArray(new Pattern[patterns.size()]);
-            }
-            else {
-                this.excludeAgentPatterns = null;
-            }
-
-            patterns.clear();
-
-            final String[] includeAgentPatterns = compression.getIncludeAgentPatterns();
-            if (includeAgentPatterns != null) {
-                for (String includeAgentPattern : includeAgentPatterns) {
-                    patterns.add(Pattern.compile(includeAgentPattern));
-                }
-                this.includeAgentPatterns = patterns.toArray(new Pattern[patterns.size()]);
-            }
-            else {
-                this.includeAgentPatterns = null;
-            }
-        }
-
-        @Override
-        public boolean resolve(HttpServerExchange serverExchange) {
-            final String userAgent = serverExchange.getRequestHeaders().getFirst(Headers.USER_AGENT);
-            return testExcludeUserAgents(userAgent) || testIncludeUserAgents(userAgent);
-        }
-
-        private boolean testExcludeUserAgents(final String userAgent) {
-            return !(contains(excludeUserAgents, excludedUserAgent -> excludedUserAgent.equals(userAgent)) && //
-                    contains(excludeAgentPatterns, excludeAgentPattern -> excludeAgentPattern.matcher(userAgent).matches()));
-        }
-
-        private boolean testIncludeUserAgents(final String userAgent) {
-
-            if (includeAgentPatterns != null) {
-                return contains(includeAgentPatterns, //
+      if (includeAgentPatterns != null) {
+        return contains(includeAgentPatterns, //
                         includeAgentPattern -> includeAgentPattern.matcher(userAgent).matches());
-            }
+      }
+      return true;
+    }
+
+  }
+
+  private static class RequestPathAndMethodPredicate implements Predicate {
+
+    private final String[] excludePaths;
+    private final String[] includedPaths;
+
+    private final String[] excludeMethods;
+    private final String[] includeMethods;
+
+    private RequestPathAndMethodPredicate(final CompressionConfiguration compression) {
+      this.excludePaths = compression.getExcludePaths();
+      this.includedPaths = compression.getIncludedPaths();
+
+      this.excludeMethods = compression.getExcludeMethods();
+      this.includeMethods = compression.getIncludeMethods();
+    }
+
+    @Override
+    public boolean resolve(final HttpServerExchange serverExchange) {
+
+      final HttpString requestMethod = serverExchange.getRequestMethod();
+      final String requestPath = serverExchange.getRequestPath();
+
+      return testExclude(requestMethod, requestPath) || testInclude(requestMethod, requestPath);
+    }
+
+    private boolean testExclude(final HttpString requestMethod, final String requestPath) {
+      return !(contains(excludePaths, requestPath::equals) //
+              && contains(excludeMethods, requestMethod::equalToString));
+    }
+
+    private boolean testInclude(final HttpString requestMethod, final String requestPath) {
+      return contains(includedPaths, requestPath::equals) //
+              || contains(includeMethods, requestMethod::equalToString);
+    }
+  }
+
+  private static class MimeTypesPredicate implements Predicate {
+
+    private final String[] mimeTypes;
+
+    private MimeTypesPredicate(String... mimeTypes) {
+      this.mimeTypes = mimeTypes;
+    }
+
+    @Override
+    public boolean resolve(HttpServerExchange httpServerExchange) {
+      final String contentType = httpServerExchange.getResponseHeaders().getFirst(Constant.CONTENT_TYPE);
+
+      if (StringUtils.isNotEmpty(contentType)) {
+        for (String mimeType : this.mimeTypes) {
+          if (matches(mimeType, contentType)) {
             return true;
+          }
         }
-
+      }
+      return false;
     }
 
-    private static class RequestPathAndMethodPredicate implements Predicate {
-
-        private final String[] excludePaths;
-        private final String[] includedPaths;
-
-        private final String[] excludeMethods;
-        private final String[] includeMethods;
-
-        private RequestPathAndMethodPredicate(final CompressionConfiguration compression) {
-            this.excludePaths = compression.getExcludePaths();
-            this.includedPaths = compression.getIncludedPaths();
-
-            this.excludeMethods = compression.getExcludeMethods();
-            this.includeMethods = compression.getIncludeMethods();
-        }
-
-        @Override
-        public boolean resolve(final HttpServerExchange serverExchange) {
-
-            final HttpString requestMethod = serverExchange.getRequestMethod();
-            final String requestPath = serverExchange.getRequestPath();
-
-            return testExclude(requestMethod, requestPath) || testInclude(requestMethod, requestPath);
-        }
-
-        private boolean testExclude(final HttpString requestMethod, final String requestPath) {
-            return !(contains(excludePaths, requestPath::equals) //
-                    && contains(excludeMethods, requestMethod::equalToString));
-        }
-
-        private boolean testInclude(final HttpString requestMethod, final String requestPath) {
-            return contains(includedPaths, requestPath::equals) //
-                    || contains(includeMethods, requestMethod::equalToString);
-        }
+    protected static boolean matches(String mimeType, String contentType) {
+      if (contentType == null) {
+        return false;
+      }
+      return isWildcardType(mimeType) || isWildcardType(contentType) || mimeType.equals(contentType);
     }
-
-    private static class MimeTypesPredicate implements Predicate {
-
-        private final String[] mimeTypes;
-
-        private MimeTypesPredicate(String... mimeTypes) {
-            this.mimeTypes = mimeTypes;
-        }
-
-        @Override
-        public boolean resolve(HttpServerExchange httpServerExchange) {
-            final String contentType = httpServerExchange.getResponseHeaders().getFirst(Constant.CONTENT_TYPE);
-
-            if (StringUtils.isNotEmpty(contentType)) {
-                for (String mimeType : this.mimeTypes) {
-                    if (matches(mimeType, contentType)) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        protected static boolean matches(String mimeType, String contentType) {
-            if (contentType == null) {
-                return false;
-            }
-            return isWildcardType(mimeType) || isWildcardType(contentType) || mimeType.equals(contentType);
-        }
-    }
+  }
 
 }

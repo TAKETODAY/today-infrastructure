@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,17 +28,17 @@ import cn.taketoday.web.WebApplicationContext;
  */
 public interface WebServerApplicationContext extends WebApplicationContext {
 
-	/**
-	 * Returns the {@link WebServer} that was created by the context or {@code null}
-	 * if the server has not yet been created.
-	 * 
-	 * @return the web server
-	 */
-	WebServer getWebServer();
+  /**
+   * Returns the {@link WebServer} that was created by the context or {@code null}
+   * if the server has not yet been created.
+   *
+   * @return the web server
+   */
+  WebServer getWebServer();
 
-	/**
-	 * Get startup class
-	 */
-	Class<?> getStartupClass();
+  /**
+   * Get startup class
+   */
+  Class<?> getStartupClass();
 
 }

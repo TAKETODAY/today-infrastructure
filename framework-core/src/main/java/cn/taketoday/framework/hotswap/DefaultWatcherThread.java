@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,8 +18,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package cn.taketoday.framework.hotswap;
-
-import static cn.taketoday.context.utils.ClassUtils.loadClass;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +46,8 @@ import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.WebServerApplicationContext;
 
+import static cn.taketoday.context.utils.ClassUtils.loadClass;
+
 /**
  * @author TODAY <br>
  *         2019-06-12 10:03
@@ -55,205 +55,205 @@ import cn.taketoday.framework.WebServerApplicationContext;
 @Props(prefix = "devtools.hotswap.")
 public class DefaultWatcherThread extends Thread implements InitializingBean {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultWatcherThread.class);
+  private static final Logger log = LoggerFactory.getLogger(DefaultWatcherThread.class);
 
-    private volatile WatchKey watchKey;
-    private static final List<Path> watchingDirs;
+  private volatile WatchKey watchKey;
+  private static final List<Path> watchingDirs;
 
-    private volatile boolean running = true;
+  private volatile boolean running = true;
 
-    private ClassLoader parent;
-    private WebServerApplicationContext applicationContext;
+  private ClassLoader parent;
+  private WebServerApplicationContext applicationContext;
 
-    private static final DefaultClassResolver HOT_SWAP_RESOLVER = new DefaultClassResolver();
+  private static final DefaultClassResolver HOT_SWAP_RESOLVER = new DefaultClassResolver();
 
-    private static int reloadCount = 0;
+  private static int reloadCount = 0;
 
-    private String[] hotSwapClassPrefix = { //
+  private String[] hotSwapClassPrefix = { //
 
-    };
+  };
 
-    private URL[] urLs;
-    private boolean scanAllDir = true;
+  private URL[] urLs;
+  private boolean scanAllDir = true;
 
-    static {
-        watchingDirs = buildWatchingPaths();
+  static {
+    watchingDirs = buildWatchingPaths();
+  }
+
+  public DefaultWatcherThread(WebServerApplicationContext applicationContext) {
+
+    this.applicationContext = applicationContext;
+
+    setName("Watcher-" + reloadCount++);
+
+    setDaemon(false);
+    setPriority(Thread.MAX_PRIORITY);
+  }
+
+  private static List<Path> buildWatchingPaths() {
+    Set<String> watchingDirSet = new HashSet<>();
+    String[] classPathArray = System.getProperty("java.class.path").split(File.pathSeparator);
+
+    for (String classPath : classPathArray) {
+      buildDirs(new File(classPath.trim()), watchingDirSet);
     }
 
-    public DefaultWatcherThread(WebServerApplicationContext applicationContext) {
+    List<String> dirList = new ArrayList<String>(watchingDirSet);
+    Collections.sort(dirList);
 
-        this.applicationContext = applicationContext;
-
-        setName("Watcher-" + reloadCount++);
-
-        setDaemon(false);
-        setPriority(Thread.MAX_PRIORITY);
-    }
-
-    private static List<Path> buildWatchingPaths() {
-        Set<String> watchingDirSet = new HashSet<>();
-        String[] classPathArray = System.getProperty("java.class.path").split(File.pathSeparator);
-
-        for (String classPath : classPathArray) {
-            buildDirs(new File(classPath.trim()), watchingDirSet);
+    List<Path> pathList = new ArrayList<Path>(dirList.size());
+    for (String dir : dirList) {
+      if (!dir.contains("META-INF")) {
+        if (log.isTraceEnabled()) {
+          log.trace("Watching dir: [{}]", dir);
         }
+        pathList.add(Paths.get(dir));
+      }
+    }
+    return pathList;
+  }
 
-        List<String> dirList = new ArrayList<String>(watchingDirSet);
-        Collections.sort(dirList);
+  private static void buildDirs(File file, Set<String> watchingDirSet) {
+    if (file.isDirectory()) {
+      watchingDirSet.add(file.getPath());
 
-        List<Path> pathList = new ArrayList<Path>(dirList.size());
-        for (String dir : dirList) {
-            if (!dir.contains("META-INF")) {
-                if (log.isTraceEnabled()) {
-                    log.trace("Watching dir: [{}]", dir);
-                }
-                pathList.add(Paths.get(dir));
-            }
-        }
-        return pathList;
+      File[] fileList = file.listFiles();
+      for (File f : fileList) {
+        buildDirs(f, watchingDirSet);
+      }
+    }
+  }
+
+  public void run() {
+    try {
+      doRun();
+    }
+    catch (Throwable e) {
+      log.error("Error occurred", e);
+      //			throw new ContextException(e);
+    }
+  }
+
+  protected void doRun() throws Throwable {
+
+    log.info("HotSwapWatcher Is Running");
+
+    WatchService watcher = FileSystems.getDefault().newWatchService();
+    addShutdownHook(watcher);
+
+    for (Path path : watchingDirs) {
+      path.register(
+              watcher,
+              StandardWatchEventKinds.ENTRY_DELETE,
+              StandardWatchEventKinds.ENTRY_MODIFY,
+              StandardWatchEventKinds.ENTRY_CREATE);
     }
 
-    private static void buildDirs(File file, Set<String> watchingDirSet) {
-        if (file.isDirectory()) {
-            watchingDirSet.add(file.getPath());
+    while (running) {
+      try {
+        watchKey = watcher.take();
 
-            File[] fileList = file.listFiles();
-            for (File f : fileList) {
-                buildDirs(f, watchingDirSet);
-            }
+        if (watchKey == null) {
+          continue;
         }
-    }
-
-    public void run() {
-        try {
-            doRun();
-        }
-        catch (Throwable e) {
-            log.error("Error occurred", e);
-            //			throw new ContextException(e);
-        }
-    }
-
-    protected void doRun() throws Throwable {
-
-        log.info("HotSwapWatcher Is Running");
-
-        WatchService watcher = FileSystems.getDefault().newWatchService();
-        addShutdownHook(watcher);
-
-        for (Path path : watchingDirs) {
-            path.register(
-                          watcher,
-                          StandardWatchEventKinds.ENTRY_DELETE,
-                          StandardWatchEventKinds.ENTRY_MODIFY,
-                          StandardWatchEventKinds.ENTRY_CREATE);
-        }
-
-        while (running) {
-            try {
-                watchKey = watcher.take();
-
-                if (watchKey == null) {
-                    continue;
-                }
-            }
-            catch (InterruptedException e) {
-                running = false;
-                Thread.currentThread().interrupt();
-                break;
-            }
-            catch (Exception e) {
-                running = false;
-                break;
-            }
-            List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
-            for (WatchEvent<?> ev : watchEvents) {
-
-                String fileName = ev.context().toString();
-
-                final Kind<?> kind = ev.kind();
-
-                log.info("File: [{}] changed, type: [{}]", fileName, kind);
-                if (StandardWatchEventKinds.ENTRY_MODIFY == kind && fileName.endsWith(".class")) {
-                    if (!applicationContext.hasStarted()) {
-                        continue;
-                    }
-                    applicationContext.close();
-
-                    replaceClassLoader();
-
-                    Class<?> startupClass = applicationContext.getStartupClass();
-                    if (startupClass != null) {
-                        startupClass = loadClass(startupClass.getName());
-                    }
-                    WebApplication.run(startupClass);
-
-                    resetWatchKey();
-                    while ((watchKey = watcher.poll()) != null) {
-                        // System.out.println("---> poll() ");
-                        watchKey.pollEvents();
-                        resetWatchKey();
-                    }
-                    exit();
-                    break;
-                }
-            }
-            resetWatchKey();
-        }
-    }
-
-    protected void replaceClassLoader() {
-        //		if (!enableJrebel) {
-        ClassUtils.setClassLoader(new DefaultReloadClassLoader(urLs, parent, HOT_SWAP_RESOLVER));
-        //		}
-    }
-
-    protected void resetWatchKey() {
-        if (watchKey != null) {
-            watchKey.reset();
-            watchKey = null;
-        }
-    }
-
-    protected void addShutdownHook(WatchService watcher) {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                watcher.close();
-            }
-            catch (IOException e) {
-                throw new ContextException(e);
-            }
-        }));
-    }
-
-    public void exit() {
-        log.info("Exit Previous Watcher");
-
+      }
+      catch (InterruptedException e) {
         running = false;
-        try {
-            //            interrupt();
-            join();
+        Thread.currentThread().interrupt();
+        break;
+      }
+      catch (Exception e) {
+        running = false;
+        break;
+      }
+      List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
+      for (WatchEvent<?> ev : watchEvents) {
+
+        String fileName = ev.context().toString();
+
+        final Kind<?> kind = ev.kind();
+
+        log.info("File: [{}] changed, type: [{}]", fileName, kind);
+        if (StandardWatchEventKinds.ENTRY_MODIFY == kind && fileName.endsWith(".class")) {
+          if (!applicationContext.hasStarted()) {
+            continue;
+          }
+          applicationContext.close();
+
+          replaceClassLoader();
+
+          Class<?> startupClass = applicationContext.getStartupClass();
+          if (startupClass != null) {
+            startupClass = loadClass(startupClass.getName());
+          }
+          WebApplication.run(startupClass);
+
+          resetWatchKey();
+          while ((watchKey = watcher.poll()) != null) {
+            // System.out.println("---> poll() ");
+            watchKey.pollEvents();
+            resetWatchKey();
+          }
+          exit();
+          break;
         }
-        catch (Exception e) {
-            throw new ContextException(e);
-        }
+      }
+      resetWatchKey();
+    }
+  }
+
+  protected void replaceClassLoader() {
+    //		if (!enableJrebel) {
+    ClassUtils.setClassLoader(new DefaultReloadClassLoader(urLs, parent, HOT_SWAP_RESOLVER));
+    //		}
+  }
+
+  protected void resetWatchKey() {
+    if (watchKey != null) {
+      watchKey.reset();
+      watchKey = null;
+    }
+  }
+
+  protected void addShutdownHook(WatchService watcher) {
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      try {
+        watcher.close();
+      }
+      catch (IOException e) {
+        throw new ContextException(e);
+      }
+    }));
+  }
+
+  public void exit() {
+    log.info("Exit Previous Watcher");
+
+    running = false;
+    try {
+      //            interrupt();
+      join();
+    }
+    catch (Exception e) {
+      throw new ContextException(e);
+    }
+  }
+
+  @Override
+  public void afterPropertiesSet() throws Exception {
+
+    this.parent = ClassUtils.getClassLoader();
+    //        System.err.println(parent);
+    if (parent instanceof URLClassLoader) {
+      urLs = ((URLClassLoader) parent).getURLs();
+    }
+    else {
+      urLs = new URL[0];
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    HOT_SWAP_RESOLVER.addHotSwapClassPrefix(hotSwapClassPrefix);
+    HOT_SWAP_RESOLVER.setScanAllDir(scanAllDir);
 
-        this.parent = ClassUtils.getClassLoader();
-        //        System.err.println(parent);
-        if (parent instanceof URLClassLoader) {
-            urLs = ((URLClassLoader) parent).getURLs();
-        }
-        else {
-            urLs = new URL[0];
-        }
-
-        HOT_SWAP_RESOLVER.addHotSwapClassPrefix(hotSwapClassPrefix);
-        HOT_SWAP_RESOLVER.setScanAllDir(scanAllDir);
-
-        start();
-    }
+    start();
+  }
 }

@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,22 +22,22 @@ package cn.taketoday.framework;
 import cn.taketoday.context.exception.ContextException;
 
 /**
- * 
+ *
  * @author TODAY <br>
  *         2019-02-14 21:09
  */
 @SuppressWarnings("serial")
 public class WebServerException extends ContextException {
 
-    public WebServerException(Throwable cause) {
-        super(cause);
-    }
+  public WebServerException(Throwable cause) {
+    super(cause);
+  }
 
-    public WebServerException(String message) {
-        super(message);
-    }
+  public WebServerException(String message) {
+    super(message);
+  }
 
-    public WebServerException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public WebServerException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

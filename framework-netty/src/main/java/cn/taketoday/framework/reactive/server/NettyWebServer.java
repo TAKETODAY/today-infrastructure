@@ -56,7 +56,7 @@ import lombok.Setter;
 
 /**
  * @author TODAY <br>
- *         2019-07-02 21:15
+ * 2019-07-02 21:15
  */
 @Setter
 @Getter
@@ -64,139 +64,139 @@ import lombok.Setter;
 @Props(prefix = { "server.", "server.netty." })
 public class NettyWebServer extends AbstractWebServer implements WebServer {
 
-    private static final Logger log = LoggerFactory.getLogger(NettyWebServer.class);
+  private static final Logger log = LoggerFactory.getLogger(NettyWebServer.class);
 
-    private Channel channel;
-    private EventLoopGroup childGroup;
-    private EventLoopGroup parentGroup;
-    private Class<? extends ServerSocketChannel> socketChannel;
-    private final StandardWebServerApplicationContext applicationContext;
+  private Channel channel;
+  private EventLoopGroup childGroup;
+  private EventLoopGroup parentGroup;
+  private Class<? extends ServerSocketChannel> socketChannel;
+  private final StandardWebServerApplicationContext applicationContext;
 
-    @Autowired
-    public NettyWebServer(StandardWebServerApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-        applicationContext.setContextPath(getContextPath());
+  @Autowired
+  public NettyWebServer(StandardWebServerApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+    applicationContext.setContextPath(getContextPath());
+  }
+
+  public static boolean epollIsAvailable() {
+    try {
+      Object obj = Class.forName("io.netty.channel.epoll.Epoll").getMethod("isAvailable").invoke(null);
+      return obj != null
+              && Boolean.parseBoolean(obj.toString())
+              && System.getProperty("os.name").toLowerCase().contains("linux");
+    }
+    catch (Exception e) {
+      return false;
+    }
+  }
+
+  @Override
+  protected void prepareInitialize() {
+    super.prepareInitialize();
+  }
+
+  @Override
+  protected void contextInitialized() {
+    super.contextInitialized();
+
+    try {
+      new NettyWebServerApplicationLoader(this::getMergedInitializers)
+              .onStartup(applicationContext);
+    }
+    catch (Throwable e) {
+      throw new ConfigurationException(e);
+    }
+  }
+
+  @Override
+  public void start() {
+
+    ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
+    final ServerBootstrap bootstrap = new ServerBootstrap();
+
+    int acceptThreadCount = 2;
+    int threadCount = 2;
+
+    // enable epoll
+    if (epollIsAvailable()) {
+
+      bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
+      socketChannel = EpollServerSocketChannel.class;
+      this.parentGroup = new EpollEventLoopGroup(threadCount, new NamedThreadFactory("epoll-parent@"));
+      this.childGroup = new EpollEventLoopGroup(acceptThreadCount, new NamedThreadFactory("epoll-child@"));
+    }
+    else {
+      this.parentGroup = new NioEventLoopGroup(acceptThreadCount, new NamedThreadFactory("parent@"));
+      this.childGroup = new NioEventLoopGroup(threadCount, new NamedThreadFactory("child@"));
+      socketChannel = NioServerSocketChannel.class;
     }
 
-    public static boolean epollIsAvailable() {
-        try {
-            Object obj = Class.forName("io.netty.channel.epoll.Epoll").getMethod("isAvailable").invoke(null);
-            return obj != null
-                   && Boolean.parseBoolean(obj.toString())
-                   && System.getProperty("os.name").toLowerCase().contains("linux");
-        }
-        catch (Exception e) {
-            return false;
-        }
+    bootstrap.group(getParentGroup(), getChildGroup())
+            .channel(getSocketChannel());
+
+    bootstrap.handler(new LoggingHandler(LogLevel.INFO));
+
+    bootstrap.childHandler(obtainNettyServerInitializer());
+    bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
+
+    try {
+      channel = bootstrap.bind(getHost(), getPort())
+              .sync()
+              .channel();
     }
-
-    @Override
-    protected void prepareInitialize() {
-        super.prepareInitialize();
+    catch (InterruptedException e) {
+      throw new WebServerException(e);
     }
+  }
 
-    @Override
-    protected void contextInitialized() {
-        super.contextInitialized();
+  protected final NettyServerInitializer obtainNettyServerInitializer() {
+    NettyServerInitializer ret = getNettyServerInitializer();
+    Assert.notNull(ret, "No NettyServerInitializer");
+    return ret;
+  }
 
-        try {
-            new NettyWebServerApplicationLoader(this::getMergedInitializers)
-                    .onStartup(applicationContext);
-        }
-        catch (Throwable e) {
-            throw new ConfigurationException(e);
-        }
+  protected NettyServerInitializer getNettyServerInitializer() {
+    final WebServerApplicationContext context = getApplicationContext();
+    NettyServerInitializer ret = context.getBean(NettyServerInitializer.class);
+    if (ret == null) {
+      final ReactiveDispatcher reactiveDispatcher = context.getBean(ReactiveDispatcher.class);
+      ret = new NettyServerInitializer(reactiveDispatcher);
     }
+    return ret;
+  }
 
-    @Override
-    public void start() {
+  @PreDestroy
+  @Override
+  public void stop() {
 
-        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.DISABLED);
-        final ServerBootstrap bootstrap = new ServerBootstrap();
+    log.info("shutdown: [{}]", this);
 
-        int acceptThreadCount = 2;
-        int threadCount = 2;
-
-        // enable epoll
-        if (epollIsAvailable()) {
-
-            bootstrap.option(EpollChannelOption.SO_REUSEPORT, true);
-            socketChannel = EpollServerSocketChannel.class;
-            this.parentGroup = new EpollEventLoopGroup(threadCount, new NamedThreadFactory("epoll-parent@"));
-            this.childGroup = new EpollEventLoopGroup(acceptThreadCount, new NamedThreadFactory("epoll-child@"));
-        }
-        else {
-            this.parentGroup = new NioEventLoopGroup(acceptThreadCount, new NamedThreadFactory("parent@"));
-            this.childGroup = new NioEventLoopGroup(threadCount, new NamedThreadFactory("child@"));
-            socketChannel = NioServerSocketChannel.class;
-        }
-
-        bootstrap.group(getParentGroup(), getChildGroup())
-                .channel(getSocketChannel());
-
-        bootstrap.handler(new LoggingHandler(LogLevel.INFO));
-
-        bootstrap.childHandler(obtainNettyServerInitializer());
-        bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
-
-        try {
-            channel = bootstrap.bind(getHost(), getPort())
-                    .sync()
-                    .channel();
-        }
-        catch (InterruptedException e) {
-            throw new WebServerException(e);
-        }
+    if (this.parentGroup != null) {
+      this.parentGroup.shutdownGracefully();
     }
-
-    protected final NettyServerInitializer obtainNettyServerInitializer() {
-        NettyServerInitializer ret = getNettyServerInitializer();
-        Assert.notNull(ret, "No NettyServerInitializer");
-        return ret;
+    if (this.childGroup != null) {
+      this.childGroup.shutdownGracefully();
     }
+  }
 
-    protected NettyServerInitializer getNettyServerInitializer() {
-        final WebServerApplicationContext context = getApplicationContext();
-        NettyServerInitializer ret = context.getBean(NettyServerInitializer.class);
-        if (ret == null) {
-            final ReactiveDispatcher reactiveDispatcher = context.getBean(ReactiveDispatcher.class);
-            ret = new NettyServerInitializer(reactiveDispatcher);
-        }
-        return ret;
-    }
+  public static class NamedThreadFactory implements ThreadFactory {
 
-    @PreDestroy
-    @Override
-    public void stop() {
+    private final String prefix;
+    private final LongAdder threadNumber = new LongAdder();
 
-        log.info("shutdown: [{}]", this);
-
-        if (this.parentGroup != null) {
-            this.parentGroup.shutdownGracefully();
-        }
-        if (this.childGroup != null) {
-            this.childGroup.shutdownGracefully();
-        }
-    }
-
-    public static class NamedThreadFactory implements ThreadFactory {
-
-        private final String prefix;
-        private final LongAdder threadNumber = new LongAdder();
-
-        public NamedThreadFactory(String prefix) {
-            this.prefix = prefix;
-        }
-
-        @Override
-        public Thread newThread(Runnable runnable) {
-            threadNumber.add(1);
-            return new Thread(runnable, prefix.concat("thread-") + threadNumber.intValue());
-        }
+    public NamedThreadFactory(String prefix) {
+      this.prefix = prefix;
     }
 
     @Override
-    protected WebServerApplicationContext getApplicationContext() {
-        return applicationContext;
+    public Thread newThread(Runnable runnable) {
+      threadNumber.add(1);
+      return new Thread(runnable, prefix.concat("thread-") + threadNumber.intValue());
     }
+  }
+
+  @Override
+  protected WebServerApplicationContext getApplicationContext() {
+    return applicationContext;
+  }
 }

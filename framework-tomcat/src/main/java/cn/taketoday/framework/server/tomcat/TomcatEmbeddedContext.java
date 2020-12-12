@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -29,39 +29,39 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 
 /**
- * 
+ *
  * @author TODAY <br>
  *         2019-02-05 13:30
  */
 public class TomcatEmbeddedContext extends StandardContext {
 
-    private static final Logger log = LoggerFactory.getLogger(TomcatEmbeddedContext.class);
-    
-    private final SessionIdGenerator sessionIdGenerator;
+  private static final Logger log = LoggerFactory.getLogger(TomcatEmbeddedContext.class);
 
-    public TomcatEmbeddedContext(SessionIdGenerator generator) {
-        this.sessionIdGenerator = generator;
+  private final SessionIdGenerator sessionIdGenerator;
+
+  public TomcatEmbeddedContext(SessionIdGenerator generator) {
+    this.sessionIdGenerator = generator;
+  }
+
+  @Override
+  public boolean loadOnStartup(Container[] children) {
+    return true;
+  }
+
+  @Override
+  public void setManager(Manager manager) {
+
+    log.info("Setting SessionManager: [{}]", manager);// SessionIdGenerator
+
+    if (manager instanceof ManagerBase) {
+
+      ((ManagerBase) manager).setSessionIdGenerator(getSessionIdGenerator());
     }
+    super.setManager(manager);
+  }
 
-    @Override
-    public boolean loadOnStartup(Container[] children) {
-        return true;
-    }
-
-    @Override
-    public void setManager(Manager manager) {
-
-        log.info("Setting SessionManager: [{}]", manager);// SessionIdGenerator
-
-        if (manager instanceof ManagerBase) {
-
-            ((ManagerBase) manager).setSessionIdGenerator(getSessionIdGenerator());
-        }
-        super.setManager(manager);
-    }
-
-    public SessionIdGenerator getSessionIdGenerator() {
-        return sessionIdGenerator;
-    }
+  public SessionIdGenerator getSessionIdGenerator() {
+    return sessionIdGenerator;
+  }
 
 }

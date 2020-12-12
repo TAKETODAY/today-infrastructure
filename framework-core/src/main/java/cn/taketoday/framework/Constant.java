@@ -21,15 +21,15 @@ package cn.taketoday.framework;
 
 /**
  * @author TODAY <br>
- *         2019-06-19 21:50
+ * 2019-06-19 21:50
  */
 public interface Constant extends cn.taketoday.web.Constant {
 
-    String DEFAULT_YAML_FILE = CLASS_PATH_PREFIX + "application.yaml";
+  String DEFAULT_YAML_FILE = CLASS_PATH_PREFIX + "application.yaml";
 
-    String DEFAULT_PROPERTIES_FILE = CLASS_PATH_PREFIX + "application.properties";
+  String DEFAULT_PROPERTIES_FILE = CLASS_PATH_PREFIX + "application.properties";
 
-    //@off
+  //@off
 
 	
 	// @on

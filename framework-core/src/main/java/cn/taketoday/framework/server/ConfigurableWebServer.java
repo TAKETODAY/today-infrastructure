@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -27,11 +27,11 @@ import cn.taketoday.web.config.WebApplicationInitializer;
  */
 public interface ConfigurableWebServer extends WebServer {
 
-    /**
-     * @param contextInitializers
-     * 
-     * @throws Throwable
-     */
-    void initialize(WebApplicationInitializer... contextInitializers);
+  /**
+   * @param contextInitializers
+   *
+   * @throws Throwable
+   */
+  void initialize(WebApplicationInitializer... contextInitializers);
 
 }

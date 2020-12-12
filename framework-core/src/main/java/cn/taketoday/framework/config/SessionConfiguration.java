@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright ©  TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -35,7 +35,7 @@ import lombok.Setter;
 /**
  * Session Configuration.
  *
- * @author TODAY(taketoday@foxmail.com) https://taketoday.cn <br>
+ * @author TODAY(taketoday @ foxmail.com) https://taketoday.cn <br>
  *         2019-01-26 17:11
  */
 @Setter
@@ -43,35 +43,35 @@ import lombok.Setter;
 @Props(prefix = "server.session.")
 public class SessionConfiguration {
 
-    private boolean enable = true;
-    private boolean persistent = true;
+  private boolean enable = true;
+  private boolean persistent = true;
 
-    /** Directory used to store session data. */
-    private Resource storeDirectory;
-    private TrackingMode[] trackingModes;
-    private Duration timeout = Duration.ofMinutes(30);
+  /** Directory used to store session data. */
+  private Resource storeDirectory;
+  private TrackingMode[] trackingModes;
+  private Duration timeout = Duration.ofMinutes(30);
 
-    @Autowired
-    private SessionCookieConfiguration cookieConfiguration;
+  @Autowired
+  private SessionCookieConfiguration cookieConfiguration;
 
-    public File getStoreDirectory(Class<?> startupClass) throws IOException {
+  public File getStoreDirectory(Class<?> startupClass) throws IOException {
 
-        if (this.storeDirectory == null || !this.storeDirectory.exists()) {
-            return ApplicationUtils.getTemporalDirectory(startupClass, "web-app-sessions");
-        }
-
-        if (storeDirectory.isDirectory()) {
-
-            LoggerFactory.getLogger(getClass()).info("Use directory: [{}] to store sessions", storeDirectory);
-            return storeDirectory.getFile();
-        }
-
-        throw new ConfigurationException("Store directory must be a 'directory'");
+    if (this.storeDirectory == null || !this.storeDirectory.exists()) {
+      return ApplicationUtils.getTemporalDirectory(startupClass, "web-app-sessions");
     }
 
-    public enum TrackingMode {
-        COOKIE,
-        URL,
-        SSL
+    if (storeDirectory.isDirectory()) {
+
+      LoggerFactory.getLogger(getClass()).info("Use directory: [{}] to store sessions", storeDirectory);
+      return storeDirectory.getFile();
     }
+
+    throw new ConfigurationException("Store directory must be a 'directory'");
+  }
+
+  public enum TrackingMode {
+    COOKIE,
+    URL,
+    SSL
+  }
 }

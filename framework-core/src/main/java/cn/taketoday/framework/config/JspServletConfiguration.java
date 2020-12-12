@@ -1,7 +1,7 @@
 /**
  * Original Author -> 杨海健 (taketoday@foxmail.com) https://taketoday.cn
  * Copyright © TODAY & 2017 - 2020 All Rights Reserved.
- * 
+ *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@ import lombok.Setter;
 
 /**
  * Configuration for the server's JSP servlet.
- * 
+ *
  * @author TODAY <br>
  *         2019-01-26 16:39
  */
@@ -40,17 +40,17 @@ import lombok.Setter;
 @ConditionalOnClass(Constant.ENV_SERVLET)
 public class JspServletConfiguration {
 
-    private boolean enable;
+  private boolean enable;
 
-    private String name = "jsp";
-    private String[] urlMappings = { "*.jsp", "*.jspx" };
+  private String name = "jsp";
+  private String[] urlMappings = { "*.jsp", "*.jspx" };
 
-    private String className = "org.apache.jasper.servlet.JspServlet";
+  private String className = "org.apache.jasper.servlet.JspServlet";
 
-    private Map<String, String> initParameters = new HashMap<>();
+  private Map<String, String> initParameters = new HashMap<>();
 
-    public JspServletConfiguration() {
-        this.initParameters.put("development", "false");
-    }
+  public JspServletConfiguration() {
+    this.initParameters.put("development", "false");
+  }
 
 }
