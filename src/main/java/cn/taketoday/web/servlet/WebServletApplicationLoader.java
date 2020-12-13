@@ -183,7 +183,7 @@ public class WebServletApplicationLoader
         servletContext.setRequestCharacterEncoding(Constant.DEFAULT_ENCODING);
         servletContext.setResponseCharacterEncoding(Constant.DEFAULT_ENCODING);
       }
-      catch (IllegalStateException ignored) {} // Waiting for Jetty 10.0.0
+      catch (Throwable ignored) {} // Waiting for Jetty 10.0.0
 
       onStartup(context);
     }
