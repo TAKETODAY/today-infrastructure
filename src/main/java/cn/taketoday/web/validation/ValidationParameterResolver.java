@@ -27,6 +27,7 @@ import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.condition.ConditionalOnClass;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
@@ -44,7 +45,7 @@ public class ValidationParameterResolver
         extends OrderedSupport implements ParameterResolver {
 
   private final Validator validator;
-  private static final Map<MethodParameter, ParameterResolver> RESOLVERS = new HashMap<>();
+  private final Map<MethodParameter, ParameterResolver> resolvers = new HashMap<>();
   private static final Class<? extends Annotation> VALID_CLASS = ClassUtils.loadClass("javax.validation.Valid");
 
   @Autowired
@@ -63,7 +64,7 @@ public class ValidationParameterResolver
     if (parameter.isAnnotationPresent(VALID_CLASS)) {
       for (final ParameterResolver parameterResolver : ParameterResolvers.getResolvers()) {
         if (parameterResolver != this && parameterResolver.supports(parameter)) {
-          RESOLVERS.put(parameter, parameterResolver);
+          resolvers.put(parameter, parameterResolver);
           return true;
         }
       }
@@ -73,7 +74,7 @@ public class ValidationParameterResolver
 
   @Override
   public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-    final Object value = getResolver(parameter).resolveParameter(context, parameter);
+    final Object value = obtainResolver(parameter).resolveParameter(context, parameter);
     final Errors errors = getValidator().validate(value);
     if (errors != null) {
 
@@ -104,7 +105,13 @@ public class ValidationParameterResolver
   }
 
   protected ParameterResolver getResolver(final MethodParameter parameter) {
-    return RESOLVERS.get(parameter);
+    return resolvers.get(parameter);
+  }
+
+  protected ParameterResolver obtainResolver(final MethodParameter parameter) {
+    final ParameterResolver resolver = getResolver(parameter);
+    Assert.state(resolver != null, "target parameter resolver must not be null");
+    return resolver;
   }
 
 }
