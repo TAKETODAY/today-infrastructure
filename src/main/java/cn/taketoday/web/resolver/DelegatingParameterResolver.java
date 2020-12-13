@@ -19,28 +19,30 @@
  */
 package cn.taketoday.web.resolver;
 
-import cn.taketoday.context.Ordered;
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
 /**
  * @author TODAY <br>
- *         2019-07-15 13:01
+ * 2019-07-15 13:01
  */
-public final class DelegatingParameterResolver implements ParameterResolver, Ordered {
+public final class DelegatingParameterResolver
+        extends OrderedSupport implements ParameterResolver {
 
-  private final int order;
   private final SupportsFunction function;
   private final ParameterResolver resolver;
 
-  public DelegatingParameterResolver(SupportsFunction function, ParameterResolver resolver) {
+  public DelegatingParameterResolver(SupportsFunction function,
+                                     ParameterResolver resolver) {
     this(function, resolver, LOWEST_PRECEDENCE);
   }
 
-  public DelegatingParameterResolver(SupportsFunction function, ParameterResolver resolver, int order) {
+  public DelegatingParameterResolver(SupportsFunction function,
+                                     ParameterResolver resolver, int order) {
     this.function = function;
     this.resolver = resolver;
-    this.order = order;
+    setOrder(order);
   }
 
   @Override
@@ -49,20 +51,17 @@ public final class DelegatingParameterResolver implements ParameterResolver, Ord
   }
 
   @Override
-  public Object resolveParameter(final RequestContext requestContext, final MethodParameter parameter) throws Throwable {
-    return resolver.resolveParameter(requestContext, parameter);
+  public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
+    return resolver.resolveParameter(context, parameter);
   }
 
-  @Override
-  public int getOrder() {
-    return order;
-  }
-
-  public static DelegatingParameterResolver delegate(SupportsFunction supports, ParameterResolver resolver) {
+  public static DelegatingParameterResolver delegate(SupportsFunction supports,
+                                                     ParameterResolver resolver) {
     return new DelegatingParameterResolver(supports, resolver);
   }
 
-  public static DelegatingParameterResolver delegate(SupportsFunction supports, ParameterResolver resolver, int order) {
+  public static DelegatingParameterResolver delegate(SupportsFunction supports,
+                                                     ParameterResolver resolver, int order) {
     return new DelegatingParameterResolver(supports, resolver, order);
   }
 }
