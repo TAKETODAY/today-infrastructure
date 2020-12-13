@@ -97,8 +97,6 @@ public abstract class AbstractWebServer implements ConfigurableWebServer {
 
   /**
    * Context Initialized
-   *
-   * @throws Throwable
    */
   protected void contextInitialized() {}
 

@@ -60,7 +60,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class AbstractServletWebServer extends AbstractWebServer implements ConfigurableWebServer {
+public abstract class AbstractServletWebServer
+        extends AbstractWebServer implements ConfigurableWebServer {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractServletWebServer.class);
 
@@ -83,8 +84,6 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
 
   /**
    * Add jsp to context
-   *
-   * @throws Throwable
    */
   protected void addJspServlet() {
 
@@ -159,7 +158,7 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
 
     contextInitializers.add(new OrderedServletContextInitializer() {
       @Override
-      public void onStartup(ServletContext servletContext) throws Throwable {
+      public void onStartup(ServletContext servletContext) {
         getContextInitParameters().forEach(servletContext::setInitParameter);
       }
     });
@@ -169,7 +168,7 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
       contextInitializers.add(new OrderedServletContextInitializer() {
 
         @Override
-        public void onStartup(ServletContext servletContext) throws Throwable {
+        public void onStartup(ServletContext servletContext) {
 
           getWebApplicationConfiguration().configureSession(sessionConfiguration);
 
@@ -187,9 +186,8 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
 
           if (sessionConfiguration.getTrackingModes() != null) {
 
-            final Set<SessionTrackingMode> collect = Arrays.asList(sessionConfiguration.getTrackingModes())
-                    .stream()
-                    .map(t -> t.name())
+            final Set<SessionTrackingMode> collect = Arrays.stream(sessionConfiguration.getTrackingModes())
+                    .map(Enum::name)
                     .map(SessionTrackingMode::valueOf)
                     .collect(Collectors.toSet());
 
@@ -203,14 +201,9 @@ public abstract class AbstractServletWebServer extends AbstractWebServer impleme
 
   /**
    * Get Default Servlet Instance
-   *
-   * @return
    */
   protected abstract Servlet getDefaultServlet();
 
-  /**
-   * @throws Throwable
-   */
   @Override
   protected void prepareInitialize() {
 

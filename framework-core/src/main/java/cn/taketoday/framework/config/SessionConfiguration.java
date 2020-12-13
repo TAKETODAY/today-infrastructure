@@ -35,8 +35,8 @@ import lombok.Setter;
 /**
  * Session Configuration.
  *
- * @author TODAY(taketoday @ foxmail.com) https://taketoday.cn <br>
- *         2019-01-26 17:11
+ * @author TODAY(taketoday(AT)foxmail.com) https://taketoday.cn <br>
+ * 2019-01-26 17:11
  */
 @Setter
 @Getter
