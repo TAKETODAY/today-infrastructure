@@ -29,7 +29,8 @@ import cn.taketoday.web.WebApplicationContextSupport;
  * @author TODAY <br>
  *         2019-12-21 15:56
  */
-public class WebServletApplicationContextSupport extends WebApplicationContextSupport implements ServletContextAware {
+public class WebServletApplicationContextSupport
+        extends WebApplicationContextSupport implements ServletContextAware {
 
   private ServletContext servletContext;
 
@@ -62,7 +63,7 @@ public class WebServletApplicationContextSupport extends WebApplicationContextSu
    *             if not running in a WebApplicationContext
    * @see #getApplicationContext()
    */
-  public final WebServletApplicationContext getWebServletApplicationContext() throws IllegalStateException {
+  public final WebServletApplicationContext getWebServletApplicationContext() {
     ApplicationContext ctx = getApplicationContext();
     if (ctx instanceof WebServletApplicationContext) {
       return (WebServletApplicationContext) ctx;
@@ -76,15 +77,12 @@ public class WebServletApplicationContextSupport extends WebApplicationContextSu
    * @throws IllegalStateException
    *             if not running within a required ServletContext
    */
-  public final ServletContext getServletContext() throws IllegalStateException {
+  public final ServletContext getServletContext() {
     if (this.servletContext != null) {
       return this.servletContext;
     }
     final WebServletApplicationContext context = getWebServletApplicationContext();
-    ServletContext servletContext = null;
-    if (context != null) {
-      servletContext = context.getServletContext();
-    }
+    ServletContext servletContext = context.getServletContext();
     if (servletContext == null) {
       throw new IllegalStateException("WebServletApplicationContextSupport instance [" + this +
                                               "] does not run within a ServletContext. Make sure the object is fully configured!");
