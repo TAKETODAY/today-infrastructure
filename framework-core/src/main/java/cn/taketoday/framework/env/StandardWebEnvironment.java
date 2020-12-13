@@ -45,7 +45,7 @@ import static cn.taketoday.context.utils.ClassUtils.isAnnotationPresent;
 
 /**
  * @author TODAY <br>
- *         2019-06-17 22:34
+ * 2019-06-17 22:34
  */
 public class StandardWebEnvironment extends StandardEnvironment {
 
@@ -80,14 +80,14 @@ public class StandardWebEnvironment extends StandardEnvironment {
     // load properties from starter class annotated @PropertiesSource
     final Class<?> applicationClass = this.applicationClass;
     if (isAnnotationPresent(applicationClass, PropertiesSource.class)) {
-      for (final String propertiesLocation : //@off
-                    StringUtils.split(getAnnotation(PropertiesSource.class, applicationClass).value())) {
-                
-                if(!locations.contains(propertiesLocation)) {
-                    loadProperties(propertiesLocation);
-                    locations.add(propertiesLocation);
-                }
-            }//@on
+      for (final String propertiesLocation :
+              StringUtils.split(getAnnotation(PropertiesSource.class, applicationClass).value())) {
+
+        if (!locations.contains(propertiesLocation)) {
+          loadProperties(propertiesLocation);
+          locations.add(propertiesLocation);
+        }
+      }
     }
 
     // arguments
@@ -145,7 +145,7 @@ public class StandardWebEnvironment extends StandardEnvironment {
         try {
           super.loadProperties(builder.toString());
         }
-        catch (FileNotFoundException e) {}
+        catch (FileNotFoundException ignored) {}
       }
     }
   }
