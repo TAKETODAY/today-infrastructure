@@ -93,9 +93,8 @@ import lombok.Setter;
  * @author Eddú Meléndez
  * @author Brian Clozel
  * @author Kristine Jetzke
- *
  * @author TODAY <br>
- *         2018-10-15 20:44
+ * 2018-10-15 20:44
  */
 @Setter
 @Getter
@@ -178,14 +177,12 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
     return (messageSupplier != null ? messageSupplier.get() : null);
   }
 
-  //@off
-    private void stopSilently() {
-        try {
-            this.server.stop();
-        }
-        catch (Exception ex) {}
+  private void stopSilently() {
+    try {
+      this.server.stop();
     }
-    // @on
+    catch (Exception ex) {}
+  }
 
   @Override
   public synchronized void start() throws WebServerException {
@@ -347,10 +344,6 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
    *
    * @param context
    *         the context to configure
-   * @param initializers
-   *         the set of initializers to apply
-   *
-   * @throws Throwable
    */
   protected void configureWebAppContext(final WebAppContext context) {
 
@@ -390,8 +383,6 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
    *
    * @param webAppContext
    *         the Jetty {@link WebAppContext}
-   * @param initializers
-   *         the {@link ServletContextInitializer}s to apply
    *
    * @return configurations to apply
    */
@@ -447,9 +438,6 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
 
   /**
    * Add jetty {@link ErrorPage}
-   *
-   * @param errorHandler
-   * @param errorPages
    */
   protected void addJettyErrorPages(ErrorHandler errorHandler, Set<ErrorPage> errorPages) {
 
@@ -477,13 +465,11 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
    *
    * @param webAppContext
    *         the Jetty {@link WebAppContext}
-   * @param initializers
-   *         the {@link ServletContextInitializer}s to apply
    *
    * @return the {@link Configuration} instance
    */
   protected Configuration getJettyServletContextInitializer(final WebAppContext webAppContext) {
-    return new ServletContextInitializerConfiguration(() -> getMergedInitializers());
+    return new ServletContextInitializerConfiguration(this::getMergedInitializers);
   }
 
   /**
@@ -531,10 +517,6 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
 
   /**
    * Configure jetty root document dir
-   *
-   * @param webAppContext
-   *
-   * @throws Throwable
    */
   protected void configureDocumentRoot(final WebAppContext webAppContext) {
     final WebDocumentConfiguration webDocument = getWebDocumentConfiguration();
@@ -589,20 +571,6 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
     if (StringUtils.isArrayNotEmpty(compression.getExcludeMethods())) {
       handler.addExcludedMethods(compression.getExcludeMethods());
     }
-    // --- agent
-
-    if (StringUtils.isArrayNotEmpty(compression.getExcludeUserAgents())) {
-      handler.addExcludedAgentPatterns(compression.getExcludeUserAgents());
-    }
-
-    if (StringUtils.isArrayNotEmpty(compression.getIncludeAgentPatterns())) {
-      handler.addIncludedAgentPatterns(compression.getIncludeAgentPatterns());
-    }
-
-    if (StringUtils.isArrayNotEmpty(compression.getExcludeAgentPatterns())) {
-      handler.addExcludedAgentPatterns(compression.getExcludeAgentPatterns());
-    }
-
     return handler;
   }
 
