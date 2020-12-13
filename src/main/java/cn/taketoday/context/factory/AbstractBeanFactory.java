@@ -921,7 +921,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   }
 
   protected Map<Class<?>, Object> createObjectFactories() {
-    return null;
+    return new HashMap<>();
   }
 
   public void setObjectFactories(Map<Class<?>, Object> objectFactories) {
