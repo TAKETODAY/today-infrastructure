@@ -90,7 +90,7 @@ import lombok.Setter;
 
 /**
  * @author TODAY <br>
- *         2018-10-15 20:44
+ * 2018-10-15 20:44
  */
 @Setter
 @Getter
@@ -334,6 +334,7 @@ public class TomcatServer extends AbstractServletWebServer {
    * Configure {@link Connector}
    *
    * @param connector
+   *         Connector
    */
   protected void configureConnector(final Connector connector) {
     connector.setPort(getPort());
@@ -358,10 +359,6 @@ public class TomcatServer extends AbstractServletWebServer {
     connector.setProperty("bindOnInit", "false");
   }
 
-  /**
-   * @param compression
-   * @param protocol
-   */
   private void configureCompressionProtocol(CompressionConfiguration compression, AbstractHttp11Protocol<?> protocol) {
     if (isEnableHttp2()) {
       protocol.addUpgradeProtocol(new Http2Protocol());
@@ -378,7 +375,7 @@ public class TomcatServer extends AbstractServletWebServer {
   protected void doPrepareContext(Host host) {
     try {
       final ServletWebServerApplicationLoader starter = //
-              new ServletWebServerApplicationLoader(() -> getMergedInitializers());
+              new ServletWebServerApplicationLoader(this::getMergedInitializers);
 
       starter.setApplicationContext(getApplicationContext());
 
@@ -439,17 +436,11 @@ public class TomcatServer extends AbstractServletWebServer {
     }
   }
 
-  /**
-   * @param context
-   */
   private void resetDefaultLocaleMapping(TomcatEmbeddedContext context) {
     context.addLocaleEncodingMappingParameter(Locale.ENGLISH.toString(), Constant.DEFAULT_CHARSET.displayName());
     context.addLocaleEncodingMappingParameter(Locale.FRENCH.toString(), Constant.DEFAULT_CHARSET.displayName());
   }
 
-  /**
-   * @param context
-   */
   protected void addLocaleMappings(TomcatEmbeddedContext context) {
 
     for (Entry<Locale, Charset> entry : getLocaleCharsetMappings().entrySet()) {
@@ -484,10 +475,7 @@ public class TomcatServer extends AbstractServletWebServer {
    * Configure the Tomcat {@link Context}.
    *
    * @param context
-   *            the Tomcat context
-   * @param initializers
-   *            initializers to apply
-   * @throws Throwable
+   *         the Tomcat context
    */
   protected void configureTomcatContext(Context context) {
 
@@ -608,7 +596,7 @@ public class TomcatServer extends AbstractServletWebServer {
     return new DefaultServlet();
   }
 
-  private final static class LazySessionIdGenerator extends StandardSessionIdGenerator {
+  private static final class LazySessionIdGenerator extends StandardSessionIdGenerator {
 
     @Override
     protected void startInternal() throws LifecycleException {
