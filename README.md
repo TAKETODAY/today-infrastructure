@@ -7,8 +7,23 @@
 
 ## 开始
 
+只需要
 ```java
+@RestController
+public class DemoApplication {
 
+  @GET("/index/{q}")
+  public String index(String q) {
+    return q;
+  }
+
+  public static void main(String[] args) {
+    WebApplication.run(DemoApplication.class, args);
+  }
+}
+```
+
+```java
 @Slf4j
 @Configuration
 @RequestMapping
@@ -22,55 +37,55 @@
 @MultipartConfig(maxFileSize = 10240000, fileSizeThreshold = 1000000000, maxRequestSize = 1024000000)
 public class TestApplication implements WebMvcConfiguration, ApplicationListener<ContextStartedEvent> {
 
-    public static void main(String[] args) {
-        WebApplication.run(TestApplication.class, args);
-    }
+  public static void main(String[] args) {
+    WebApplication.run(TestApplication.class, args);
+  }
 
-    @GET("index/{q}")
-    public String index(String q) {
-        return q;
-    }
-    
-    @Singleton
-    @Profile("prod")
-    public ResourceHandlerRegistry prodResourceMappingRegistry() {
+  @GET("index/{q}")
+  public String index(String q) {
+    return q;
+  }
 
-        final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
+  @Singleton
+  @Profile("prod")
+  public ResourceHandlerRegistry prodResourceMappingRegistry() {
 
-        registry.addResourceMapping(LoginInterceptor.class)//
-                .setPathPatterns("/assets/admin/**")//
-                .setOrder(Ordered.HIGHEST_PRECEDENCE)//
-                .addLocations("/assets/admin/");
+    final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
 
-        return registry;
-    }
-    
-	@Singleton
-    @Profile("dev")
-    public ResourceHandlerRegistry devRsourceMappingRegistry(@Env("site.uploadPath") String upload,
-                                                             @Env("site.assetsPath") String assetsPath) //
-    {
-        final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
+    registry.addResourceMapping(LoginInterceptor.class)//
+            .setPathPatterns("/assets/admin/**")//
+            .setOrder(Ordered.HIGHEST_PRECEDENCE)//
+            .addLocations("/assets/admin/");
 
-        registry.addResourceMapping("/assets/**")//
-                .addLocations(assetsPath);
+    return registry;
+  }
 
-        registry.addResourceMapping("/upload/**")//
-                .addLocations(upload);
+  @Singleton
+  @Profile("dev")
+  public ResourceHandlerRegistry devRsourceMappingRegistry(@Env("site.uploadPath") String upload,
+                                                           @Env("site.assetsPath") String assetsPath) //
+  {
+    final ResourceHandlerRegistry registry = new ResourceHandlerRegistry();
 
-        registry.addResourceMapping("/logo.png")//
-                .addLocations("file:///D:/dev/www.yhj.com/webapps/assets/images/logo.png");
+    registry.addResourceMapping("/assets/**")//
+            .addLocations(assetsPath);
 
-        registry.addResourceMapping("/favicon.ico")//
-                .addLocations("classpath:/favicon.ico");
+    registry.addResourceMapping("/upload/**")//
+            .addLocations(upload);
 
-        return registry;
-    }
+    registry.addResourceMapping("/logo.png")//
+            .addLocations("file:///D:/dev/www.yhj.com/webapps/assets/images/logo.png");
 
-    @Override
-    public void onApplicationEvent(ContextStartedEvent event) {
-        log.info("----------------Application Started------------------");
-    }
+    registry.addResourceMapping("/favicon.ico")//
+            .addLocations("classpath:/favicon.ico");
+
+    return registry;
+  }
+
+  @Override
+  public void onApplicationEvent(ContextStartedEvent event) {
+    log.info("----------------Application Started------------------");
+  }
 }
 ```
 
