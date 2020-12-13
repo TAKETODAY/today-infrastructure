@@ -48,11 +48,7 @@ public class StandardWebBeanFactory extends StandardBeanFactory {
 
   @Override
   protected Map<Class<?>, Object> createObjectFactories() {
-    final Map<Class<?>, Object> objectFactories = super.createObjectFactories();
-    if (CollectionUtils.isEmpty(objectFactories)) {
-//TODO
-    }
-    final Map<Class<?>, Object> env = new HashMap<>();
+    final Map<Class<?>, Object> env = super.createObjectFactories();
     env.put(RequestContext.class, factory(RequestContextHolder::currentContext));
     return env;
   }
