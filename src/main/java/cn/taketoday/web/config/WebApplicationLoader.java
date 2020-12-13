@@ -93,8 +93,8 @@ import static cn.taketoday.web.resolver.DelegatingParameterResolver.delegate;
  * @author TODAY <br>
  * 2019-07-10 23:12
  */
-@SuppressWarnings("serial")
-public class WebApplicationLoader extends WebApplicationContextSupport implements WebApplicationInitializer, Constant {
+public class WebApplicationLoader
+        extends WebApplicationContextSupport implements WebApplicationInitializer {
 
   private DispatcherHandler dispatcher;
 
@@ -129,7 +129,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
   }
 
   protected void logStartup(WebApplicationContext context) {
-    if (context.getEnvironment().getFlag(ENABLE_WEB_STARTED_LOG, true)) {
+    if (context.getEnvironment().getFlag(Constant.ENABLE_WEB_STARTED_LOG, true)) {
       log.info("Your Application Started Successfully, It takes a total of [{}] ms.", //
                System.currentTimeMillis() - context.getStartupDate()//
       );
@@ -179,7 +179,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
     ViewControllerHandlerRegistry registry = context.getBean(ViewControllerHandlerRegistry.class);
 
     final Environment environment = context.getEnvironment();
-    if (environment.getFlag(ENABLE_WEB_MVC_XML, true)) {
+    if (environment.getFlag(Constant.ENABLE_WEB_MVC_XML, true)) {
       registry = configViewControllerHandlerRegistry(registry);
     }
     if (registry != null) {
@@ -249,7 +249,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
 
     final TemplateViewResolver viewResolver = getTemplateViewResolver(mvcConfiguration);
     final Environment environment = context.getEnvironment();
-    int bufferSize = Integer.parseInt(environment.getProperty(DOWNLOAD_BUFF_SIZE, "10240"));
+    int bufferSize = Integer.parseInt(environment.getProperty(Constant.DOWNLOAD_BUFF_SIZE, "10240"));
 
     final MessageConverter messageConverter = context.getBean(MessageConverter.class);
 
@@ -311,36 +311,36 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
     // Use ConverterParameterResolver to resolve primitive types
     // --------------------------------------------------------------------------
 
-    resolvers.add(convert((m) -> m.is(String.class), (s) -> s));
-    resolvers.add(convert((m) -> m.is(Long.class) || m.is(long.class), Long::parseLong));
-    resolvers.add(convert((m) -> m.is(Integer.class) || m.is(int.class), Integer::parseInt));
-    resolvers.add(convert((m) -> m.is(Short.class) || m.is(short.class), Short::parseShort));
-    resolvers.add(convert((m) -> m.is(Float.class) || m.is(float.class), Float::parseFloat));
-    resolvers.add(convert((m) -> m.is(Double.class) || m.is(double.class), Double::parseDouble));
-    resolvers.add(convert((m) -> m.is(Boolean.class) || m.is(boolean.class), Boolean::parseBoolean));
+    resolvers.add(convert(m -> m.is(String.class), s -> s));
+    resolvers.add(convert(m -> m.is(Long.class) || m.is(long.class), Long::parseLong));
+    resolvers.add(convert(m -> m.is(Integer.class) || m.is(int.class), Integer::parseInt));
+    resolvers.add(convert(m -> m.is(Short.class) || m.is(short.class), Short::parseShort));
+    resolvers.add(convert(m -> m.is(Float.class) || m.is(float.class), Float::parseFloat));
+    resolvers.add(convert(m -> m.is(Double.class) || m.is(double.class), Double::parseDouble));
+    resolvers.add(convert(m -> m.is(Boolean.class) || m.is(boolean.class), Boolean::parseBoolean));
 
     // For some useful context annotations @off
     // --------------------------------------------
 
-    resolvers.add(delegate((m) -> m.isAnnotationPresent(RequestAttribute.class), //
+    resolvers.add(delegate(m -> m.isAnnotationPresent(RequestAttribute.class), //
       (ctx, m) -> ctx.attribute(m.getName())//
     ));
 
-    resolvers.add(delegate((m) -> m.isAnnotationPresent(Value.class), //
+    resolvers.add(delegate(m -> m.isAnnotationPresent(Value.class), //
       (ctx, m) -> resolveValue(m.getAnnotation(Value.class), m.getParameterClass())//
     ));
-    resolvers.add(delegate((m) -> m.isAnnotationPresent(Env.class), //
+    resolvers.add(delegate(m -> m.isAnnotationPresent(Env.class), //
       (ctx, m) -> resolveValue(m.getAnnotation(Env.class), m.getParameterClass())//
     ));
 
     final WebApplicationContext context = obtainApplicationContext();
     final Properties properties = context.getEnvironment().getProperties();
 
-    resolvers.add(delegate((m) -> m.isAnnotationPresent(Props.class), //
+    resolvers.add(delegate(m -> m.isAnnotationPresent(Props.class), //
       (ctx, m) -> resolveProps(m.getAnnotation(Props.class), m.getParameterClass(), properties)//
     ));
 
-    resolvers.add(delegate((m) -> m.isAnnotationPresent(Autowired.class), //@off
+    resolvers.add(delegate(m -> m.isAnnotationPresent(Autowired.class), //@off
       (ctx, m) -> {
         final Autowired autowired = m.getAnnotation(Autowired.class);
         final String name = autowired.value();
@@ -360,7 +360,7 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
     ));
 
     // HandlerMethod @on
-    resolvers.add(delegate((m) -> m.is(HandlerMethod.class), (ctx, m) -> m.getHandlerMethod()));
+    resolvers.add(delegate(m -> m.is(HandlerMethod.class), (ctx, m) -> m.getHandlerMethod()));
 
     // For cookies
     // ------------------------------------------
@@ -491,8 +491,8 @@ public class WebApplicationLoader extends WebApplicationContextSupport implement
     return registry;
   }
 
-  protected String getWebMvcConfigLocation() throws Throwable {
-    return obtainApplicationContext().getEnvironment().getProperty(WEB_MVC_CONFIG_LOCATION);
+  protected String getWebMvcConfigLocation() {
+    return obtainApplicationContext().getEnvironment().getProperty(Constant.WEB_MVC_CONFIG_LOCATION);
   }
 
   /**

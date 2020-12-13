@@ -35,7 +35,6 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletSecurityElement;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.ServletSecurity;
@@ -73,8 +72,8 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  * @author TODAY <br>
  *         2019-01-12 17:28
  */
-@SuppressWarnings("serial")
-public class WebServletApplicationLoader extends WebApplicationLoader implements ServletContainerInitializer {
+public class WebServletApplicationLoader
+        extends WebApplicationLoader implements ServletContainerInitializer {
 
   @Override
   protected ServletWebMvcConfiguration getWebMvcConfiguration(ApplicationContext applicationContext) {
@@ -87,11 +86,11 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
   }
 
   @Override
-  protected String getWebMvcConfigLocation() throws Throwable {
+  protected String getWebMvcConfigLocation() {
     String webMvcConfigLocation = super.getWebMvcConfigLocation();
 
     if (StringUtils.isEmpty(webMvcConfigLocation)) {
-      webMvcConfigLocation = getServletContext().getInitParameter(WEB_MVC_CONFIG_LOCATION);
+      webMvcConfigLocation = getServletContext().getInitParameter(Constant.WEB_MVC_CONFIG_LOCATION);
     }
 
     if (StringUtils.isEmpty(webMvcConfigLocation)) { // scan from '/'
@@ -124,9 +123,8 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
    *
    * @param dir
    *            directory
-   * @throws Throwable
    */
-  protected void scanXml(final File dir, final Set<String> files, FileFilter filter) throws Throwable {
+  protected void scanXml(final File dir, final Set<String> files, FileFilter filter) {
 
     log.trace("Enter [{}]", dir.getAbsolutePath());
 
@@ -175,17 +173,17 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
   }
 
   @Override
-  public void onStartup(Set<Class<?>> classes, ServletContext servletContext) throws ServletException {
+  public void onStartup(Set<Class<?>> classes, ServletContext servletContext) {
 
     Objects.requireNonNull(servletContext, "ServletContext can't be null");
 
     final WebApplicationContext context = prepareApplicationContext(servletContext);
     try {
       try {
-        servletContext.setRequestCharacterEncoding(DEFAULT_ENCODING);
-        servletContext.setResponseCharacterEncoding(DEFAULT_ENCODING);
+        servletContext.setRequestCharacterEncoding(Constant.DEFAULT_ENCODING);
+        servletContext.setResponseCharacterEncoding(Constant.DEFAULT_ENCODING);
       }
-      catch (Throwable e) {} // Waiting for Jetty 10.0.0
+      catch (IllegalStateException ignored) {} // Waiting for Jetty 10.0.0
 
       onStartup(context);
     }
@@ -242,8 +240,8 @@ public class WebServletApplicationLoader extends WebApplicationLoader implements
 
     if (!context.containsBeanDefinition(TemplateViewResolver.class)) {
       // use freemarker view resolver
-      context.registerBean(TEMPLATE_VIEW_RESOLVER, FreeMarkerTemplateViewResolver.class);
-      context.refresh(TEMPLATE_VIEW_RESOLVER);
+      context.registerBean(Constant.TEMPLATE_VIEW_RESOLVER, FreeMarkerTemplateViewResolver.class);
+      context.refresh(Constant.TEMPLATE_VIEW_RESOLVER);
       log.info("Use default view resolver: [{}].", FreeMarkerTemplateViewResolver.class);
     }
     super.checkFrameWorkComponents(context);
