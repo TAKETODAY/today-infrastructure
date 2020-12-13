@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 import cn.taketoday.context.AnnotationAttributes;
 import cn.taketoday.context.utils.ClassUtils;
@@ -172,7 +173,8 @@ public class MethodParameter {
 
   @Override
   public boolean equals(Object obj) {
-    return obj == this || (obj instanceof MethodParameter && parameter.equals(((MethodParameter) obj).parameter));
+    return obj == this || (obj instanceof MethodParameter
+            && Objects.equals(parameter, ((MethodParameter) obj).parameter));
   }
 
   // Getter Setter
