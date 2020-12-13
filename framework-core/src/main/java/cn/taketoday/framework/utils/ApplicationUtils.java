@@ -74,11 +74,6 @@ public abstract class ApplicationUtils {
     return webServer;
   }
 
-  /**
-   * @param startupClass
-   * @param subdir
-   * @return
-   */
   public static File getTemporalDirectory(Class<?> startupClass, String subdir) {
     if (StringUtils.isEmpty(subdir)) {
       return getBaseTemporalDirectory(startupClass);
@@ -190,7 +185,6 @@ public abstract class ApplicationUtils {
   /**
    * @param homeDir
    *            source dir
-   * @return
    */
   private static File findHomeDir(File homeDir) {
 
@@ -200,7 +194,7 @@ public abstract class ApplicationUtils {
       ret = new File(StringUtils.isNotEmpty(userDir) ? userDir : ".");
     }
     if (ret.isFile()) {
-      ret = homeDir.getParentFile();
+      ret = ret.getParentFile();
     }
     if (!ret.exists()) {
       ret = new File(".");
