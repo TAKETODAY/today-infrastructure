@@ -292,7 +292,8 @@ public class HandlerMethodRegistry
   @Override
   protected Object transformHandler(final String handlerKey, final Object handler) {
     if (handler instanceof HandlerMethod && containsPathVariable(handlerKey)) {
-      mappingPathVariable(handlerKey, (HandlerMethod) handler);
+      final String pathPattern = handlerKey.substring(handlerKey.indexOf('/'));
+      mappingPathVariable(pathPattern, (HandlerMethod) handler);
     }
     return super.transformHandler(handlerKey, handler);
   }
