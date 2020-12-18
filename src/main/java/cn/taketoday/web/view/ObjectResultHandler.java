@@ -45,11 +45,14 @@ public class ObjectResultHandler extends HandlerMethodResultHandler {
   }
 
   @Override
-  protected void handleInternal(final RequestContext context,
-                                final HandlerMethod handler,
-                                final Object result) throws Throwable {
-    handleObject(context, result);
+  public void handleResult(final RequestContext context, final Object handler, final Object result) throws Throwable {
+    if (result != null) {
+      handleObject(context, result);
+    }
   }
+
+  @Override
+  protected void handleInternal(RequestContext context, HandlerMethod handler, Object result) {}
 
   @Override
   public boolean supportsResult(Object result) {
