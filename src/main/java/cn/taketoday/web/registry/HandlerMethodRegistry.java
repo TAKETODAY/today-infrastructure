@@ -293,7 +293,8 @@ public class HandlerMethodRegistry
   protected Object transformHandler(final String handlerKey, final Object handler) {
     if (handler instanceof HandlerMethod && containsPathVariable(handlerKey)) {
       final String pathPattern = handlerKey.substring(handlerKey.indexOf('/'));
-      mappingPathVariable(pathPattern, (HandlerMethod) handler);
+      // 复制一份，防止不同@PathVariable
+      mappingPathVariable(pathPattern, new HandlerMethod((HandlerMethod) handler));
     }
     return super.transformHandler(handlerKey, handler);
   }

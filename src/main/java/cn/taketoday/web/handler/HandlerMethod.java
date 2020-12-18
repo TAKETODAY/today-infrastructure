@@ -100,12 +100,12 @@ public class HandlerMethod
     this.bean = other.bean;
     this.method = other.method;
     this.returnType = other.returnType;
-    this.parameters = other.parameters;
     this.resultHandler = other.resultHandler;
     this.handlerInvoker = other.handlerInvoker;
     this.responseStatus = other.responseStatus;
     this.genericityClass = other.genericityClass;
     setInterceptors(other.getInterceptors());
+    this.parameters = other.parameters != null ? other.parameters.clone() : null;
   }
 
   // -----------------------------------------
