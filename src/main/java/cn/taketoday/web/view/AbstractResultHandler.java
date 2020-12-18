@@ -43,7 +43,8 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
  * @author TODAY <br>
  * 2019-07-14 10:47
  */
-public abstract class AbstractResultHandler extends OrderedSupport implements ResultHandler, RuntimeResultHandler {
+public abstract class AbstractResultHandler
+        extends OrderedSupport implements ResultHandler, RuntimeResultHandler {
 
   private int downloadFileBuf;
   /** view resolver **/
