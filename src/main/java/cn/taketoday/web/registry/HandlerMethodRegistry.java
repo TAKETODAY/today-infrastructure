@@ -269,34 +269,35 @@ public class HandlerMethodRegistry
    *
    * @see RequestMethod
    */
-  protected void mappingHandlerMethod(String path, RequestMethod requestMethod, HandlerMethod handlerMethod) {
+  protected void mappingHandlerMethod(String path,
+                                      RequestMethod requestMethod,
+                                      HandlerMethod handlerMethod) {
     // GET/blog/users/1 GET/blog/#{key}/1
-    final String key = getContextPath().concat(resolveValue(path, String.class, variables));
-    registerHandler(requestMethod, key, handlerMethod);
+    final String pathPattern = getContextPath().concat(resolveValue(path, String.class, variables));
+    registerHandler(requestMethod, pathPattern, transformHandlerMethod(pathPattern, handlerMethod));
   }
 
-  public void registerHandler(RequestMethod method, String path, Object handler) {
-    super.registerHandler(method.name().concat(path), handler);
+  public void registerHandler(RequestMethod method, String pathPattern, Object handler) {
+    super.registerHandler(method.name().concat(pathPattern), handler);
   }
 
   /**
-   * Transform {@link HandlerMethod}
+   * Transform {@link HandlerMethod} if path contains {@link PathVariable}
    *
-   * @param handlerKey
-   *         handler key
-   * @param handler
+   * @param pathPattern
+   *         path pattern
+   * @param handlerMethod
    *         Target {@link HandlerMethod}
    *
    * @return Transformed {@link HandlerMethod}
    */
-  @Override
-  protected Object transformHandler(final String handlerKey, final Object handler) {
-    if (handler instanceof HandlerMethod && containsPathVariable(handlerKey)) {
-      final String pathPattern = handlerKey.substring(handlerKey.indexOf('/'));
-      // 复制一份，防止不同@PathVariable
-      mappingPathVariable(pathPattern, new HandlerMethod((HandlerMethod) handler));
+  protected HandlerMethod transformHandlerMethod(final String pathPattern, final HandlerMethod handlerMethod) {
+    if (containsPathVariable(pathPattern)) {
+      final HandlerMethod transformed = new HandlerMethod(handlerMethod);
+      mappingPathVariable(pathPattern, transformed);
+      return transformed;
     }
-    return super.transformHandler(handlerKey, handler);
+    return handlerMethod;
   }
 
   /**
