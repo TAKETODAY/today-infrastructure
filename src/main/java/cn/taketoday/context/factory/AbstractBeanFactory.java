@@ -19,15 +19,11 @@
  */
 package cn.taketoday.context.factory;
 
-import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +36,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import cn.taketoday.context.BeanNameCreator;
-import cn.taketoday.context.Constant;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.annotation.Component;
 import cn.taketoday.context.annotation.Primary;
@@ -914,10 +909,10 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    * @since 2.3.7
    */
   public final Map<Class<?>, Object> getObjectFactories() {
-    final Map<Class<?>, Object> objectFactories = this.objectFactories;
-    return objectFactories == null
-           ? this.objectFactories = createObjectFactories()
-           : objectFactories;
+    if (objectFactories == null) {
+      objectFactories = createObjectFactories();
+    }
+    return objectFactories;
   }
 
   protected Map<Class<?>, Object> createObjectFactories() {
@@ -1180,7 +1175,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
     }
     if (def.isSingleton() || def.isPrototype()) {
       throw new IllegalArgumentException("Bean name '"
-               + beanName + "' does not correspond to an object in a mutable scope");
+                                                 + beanName + "' does not correspond to an object in a mutable scope");
     }
     final Scope scope = scopes.get(def.getScope());
     if (scope == null) {
