@@ -20,13 +20,11 @@
 package cn.taketoday.context.factory;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.function.Supplier;
 
 import cn.taketoday.context.exception.NoSuchPropertyException;
-import cn.taketoday.context.reflect.BeanConstructor;
 import cn.taketoday.context.utils.Assert;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
