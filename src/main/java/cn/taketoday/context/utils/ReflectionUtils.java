@@ -52,7 +52,6 @@ import cn.taketoday.context.reflect.ReflectionException;
 import cn.taketoday.context.reflect.SetterMethod;
 import sun.misc.Unsafe;
 
-import static cn.taketoday.context.utils.Assert.notNull;
 
 /**
  * Fast reflection operation
@@ -970,12 +969,12 @@ public abstract class ReflectionUtils {
   public static <T> Constructor<T> accessibleConstructor(final Class<T> targetClass, final Class<?>... parameterTypes)
           throws NoSuchMethodException //
   {
-    notNull(targetClass, "targetClass must not be null");
+    Assert.notNull(targetClass, "targetClass must not be null");
     return makeAccessible(targetClass.getDeclaredConstructor(parameterTypes));
   }
 
   public static <T> Constructor<T> makeAccessible(Constructor<T> constructor) {
-    notNull(constructor, "constructor must not be null");
+    Assert.notNull(constructor, "constructor must not be null");
 
     if ((!Modifier.isPublic(constructor.getModifiers()) //
             || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) && !constructor.isAccessible()) {
