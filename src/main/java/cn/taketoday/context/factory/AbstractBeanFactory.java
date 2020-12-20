@@ -72,7 +72,8 @@ import static java.util.Objects.requireNonNull;
  * @author TODAY <br>
  * 2018-06-23 11:20:58
  */
-public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, AutowireCapableBeanFactory {
+public abstract class AbstractBeanFactory
+        implements ConfigurableBeanFactory, AutowireCapableBeanFactory {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractBeanFactory.class);
 
@@ -112,10 +113,7 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
     }
     try {
       final BeanDefinition child = def.getChild();
-      if (child == null) {
-        return initializeBean(def);
-      }
-      return getImplementation(child, def);
+      return child == null ? initializeBean(def) : getImplementation(child, def);
     }
     catch (Throwable ex) {
       ex = ExceptionUtils.unwrapThrowable(ex);
@@ -127,12 +125,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getBean(final Class<T> requiredType) {
-
     final Object bean = getBean(getBeanNameCreator().create(requiredType));
-    if (bean != null && requiredType.isInstance(bean)) {
-      return (T) bean;
-    }
-    return (T) doGetBeanForType(requiredType);
+    return (T) (requiredType.isInstance(bean) ? bean : doGetBeanForType(requiredType));
   }
 
   /**
