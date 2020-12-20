@@ -319,8 +319,8 @@ public abstract class AbstractBeanFactory implements ConfigurableBeanFactory, Au
    */
   protected Object resolvePropertyValue(final BeanReference ref) {
 
-    final Class<?> type = ref.getReferenceClass();
     final String name = ref.getName();
+    final Class<?> type = ref.getReferenceClass();
 
     if (fullPrototype && ref.isPrototype() && containsBeanDefinition(name)) {
       return Prototypes.newProxyInstance(type, getBeanDefinition(name), this);
