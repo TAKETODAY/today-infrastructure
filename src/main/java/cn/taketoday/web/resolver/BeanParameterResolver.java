@@ -20,16 +20,10 @@
 package cn.taketoday.web.resolver;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.OrderedSupport;
-import cn.taketoday.context.Scope;
-import cn.taketoday.context.factory.BeanDefinition;
-import cn.taketoday.context.factory.PropertyValue;
-import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ConvertUtils;
@@ -102,46 +96,46 @@ public class BeanParameterResolver
 
   // --
 
-  Scope scope;
-  ApplicationContext ctx;
-  BeanDefinitionLoader beanDefinitionLoader;
-  Map<MethodParameter, BeanDefinition> defs;
-
-  public Object resolve(final RequestContext context, final MethodParameter parameter) {
-    return ctx.getScopeBean(getBeanDefinition(parameter), scope);
-  }
-
-  protected BeanDefinition getBeanDefinition(final MethodParameter parameter) {
-    BeanDefinition def;
-    if ((def = defs.get(parameter)) == null) {
-      def = createBeanDefinition(parameter);
-      defs.put(parameter, def);
-    }
-    return def;
-  }
-
-  protected BeanDefinition createBeanDefinition(final MethodParameter parameter) {
-    final Class<?> parameterClass = parameter.getParameterClass();
-    final BeanDefinition ret = beanDefinitionLoader.createBeanDefinition(parameter.getName(), parameterClass);
-    final Collection<Field> fields = ClassUtils.getFields(parameterClass);
-    for (Field field : fields) {
-
-    }
-    return ret;
-  }
-
-  static class RequestPropertyValue extends PropertyValue {
-
-    private RequestContext context;
-
-    public RequestPropertyValue(Object value, Field field) {
-      super(value, field);
-    }
-
-    @Override
-    public Object getValue() {
-      return super.getValue();
-    }
-  }
+//  Scope scope;
+//  ApplicationContext ctx;
+//  BeanDefinitionLoader beanDefinitionLoader;
+//  Map<MethodParameter, BeanDefinition> defs;
+//
+//  public Object resolve(final RequestContext context, final MethodParameter parameter) {
+//    return ctx.getScopeBean(getBeanDefinition(parameter), scope);
+//  }
+//
+//  protected BeanDefinition getBeanDefinition(final MethodParameter parameter) {
+//    BeanDefinition def;
+//    if ((def = defs.get(parameter)) == null) {
+//      def = createBeanDefinition(parameter);
+//      defs.put(parameter, def);
+//    }
+//    return def;
+//  }
+//
+//  protected BeanDefinition createBeanDefinition(final MethodParameter parameter) {
+//    final Class<?> parameterClass = parameter.getParameterClass();
+//    final BeanDefinition ret = beanDefinitionLoader.createBeanDefinition(parameter.getName(), parameterClass);
+//    final Collection<Field> fields = ClassUtils.getFields(parameterClass);
+//    for (Field field : fields) {
+//
+//    }
+//    return ret;
+//  }
+//
+//  static class RequestPropertyValue extends PropertyValue {
+//
+//    private RequestContext context;
+//
+//    public RequestPropertyValue(Object value, Field field) {
+//      super(value, field);
+//    }
+//
+//    @Override
+//    public Object getValue() {
+//      return super.getValue();
+//    }
+//  }
 
 }
