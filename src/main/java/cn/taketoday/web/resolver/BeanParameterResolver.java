@@ -21,27 +21,39 @@ package cn.taketoday.web.resolver;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.context.ApplicationContext;
+import cn.taketoday.context.OrderedSupport;
 import cn.taketoday.context.Scope;
 import cn.taketoday.context.factory.BeanDefinition;
 import cn.taketoday.context.factory.PropertyValue;
 import cn.taketoday.context.loader.BeanDefinitionLoader;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.MethodParameter;
 
-import static cn.taketoday.context.utils.ObjectUtils.toArrayObject;
-
 /**
+ * Resolve Bean
+ *
  * @author TODAY <br>
- *         2019-07-13 01:11
+ * 2019-07-13 01:11
  */
-public class BeanParameterResolver implements OrderedParameterResolver {
+public class BeanParameterResolver
+        extends OrderedSupport implements ParameterResolver {
+
+  public BeanParameterResolver() {
+    this(LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100);
+  }
+
+  public BeanParameterResolver(final int order) {
+    super(order);
+  }
 
   @Override
   public boolean supports(MethodParameter parameter) {
@@ -50,42 +62,45 @@ public class BeanParameterResolver implements OrderedParameterResolver {
 
   @Override
   public Object resolveParameter(final RequestContext context, final MethodParameter parameter) throws Throwable {
-
     final Class<?> parameterClass = parameter.getParameterClass();
-
     final Object bean = ClassUtils.newInstance(parameterClass);
 
-    final Enumeration<String> parameterNames = context.parameterNames();
-
-    while (parameterNames.hasMoreElements()) {
-      // 遍历参数
-      final String parameterName = parameterNames.nextElement();
-      // 寻找参数
-      try {
-        resolvePojoParameter(context, parameterName, bean, parameterClass.getDeclaredField(parameterName));
+    final Map<String, String[]> parameters = context.parameters();
+    if (parameters != null) {
+      final Set<Map.Entry<String, String[]>> entries = parameters.entrySet();
+      if (!CollectionUtils.isEmpty(entries)) {
+        // 遍历参数
+        for (final Map.Entry<String, String[]> entry : entries) {
+          final String[] value = entry.getValue();
+          if (ObjectUtils.isNotEmpty(value)) {
+            final Field field = ReflectionUtils.findField(parameterClass, entry.getKey());
+            if (field != null) {
+              applyParameter(field, bean, value);
+            }
+          }
+        }
       }
-      catch (NoSuchFieldException e) {}
     }
 
     return bean;
   }
 
-  protected void resolvePojoParameter(RequestContext request,
-                                      String parameterName, Object bean, Field field) throws Throwable {
-
+  protected void applyParameter(final Field field, final Object bean, final String[] value) {
     final Class<?> type = field.getType();
     if (type.isArray()) {
-      ReflectionUtils.makeAccessible(field)
-              .set(bean, toArrayObject(request.parameters(parameterName), type));
+      ReflectionUtils.makeAccessible(field);
+      ReflectionUtils.setField(field, bean, ObjectUtils.toArrayObject(value, type));
     }
     else {
-      final String parameter = request.parameter(parameterName);
+      final String parameter = value[0];
       if (parameter != null) {
-        ReflectionUtils.makeAccessible(field)
-                .set(bean, ConvertUtils.convert(parameter, type));
+        ReflectionUtils.makeAccessible(field);
+        ReflectionUtils.setField(field, bean, ConvertUtils.convert(parameter, type));
       }
     }
   }
+
+  // --
 
   Scope scope;
   ApplicationContext ctx;
@@ -129,8 +144,4 @@ public class BeanParameterResolver implements OrderedParameterResolver {
     }
   }
 
-  @Override
-  public int getOrder() {
-    return LOWEST_PRECEDENCE - HIGHEST_PRECEDENCE - 100;
-  }
 }
