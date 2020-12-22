@@ -1322,8 +1322,8 @@ public abstract class ClassUtils {
 
           final Method method = findMethod(declaringClass, methodNode.name, argTypes);
           if (method == null) {
-            throw new NoSuchMethodException("No such method named: " + methodNode.name + "argTypes: "
-                                                    + Arrays.toString(argTypes) + "in: " + declaringClass);
+            throw new NoSuchMethodException("No such method named: '" + methodNode.name + "' argTypes: '"
+                                                    + Arrays.toString(argTypes) + "' in: " + declaringClass);
           }
 
           final int parameterCount = method.getParameterCount();
