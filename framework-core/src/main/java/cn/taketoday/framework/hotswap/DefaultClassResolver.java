@@ -84,9 +84,7 @@ public class DefaultClassResolver {
     String fileName = className.replace('.', '/').concat(".class");
 
     if (classPathDirectory.length == 1) {
-      if (findFile(classPathDirectory[0], fileName)) {
-        return true;
-      }
+      return findFile(classPathDirectory[0], fileName);
     }
     else {
       for (String dir : classPathDirectory) {

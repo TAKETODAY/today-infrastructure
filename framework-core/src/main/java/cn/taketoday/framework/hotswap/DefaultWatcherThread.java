@@ -43,6 +43,7 @@ import cn.taketoday.context.factory.InitializingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.WebServerApplicationContext;
 
@@ -50,14 +51,15 @@ import static cn.taketoday.context.utils.ClassUtils.loadClass;
 
 /**
  * @author TODAY <br>
- *         2019-06-12 10:03
+ * 2019-06-12 10:03
  */
 @Props(prefix = "devtools.hotswap.")
-public class DefaultWatcherThread extends Thread implements InitializingBean {
+public class DefaultWatcherThread
+        extends Thread implements InitializingBean {
 
   private static final Logger log = LoggerFactory.getLogger(DefaultWatcherThread.class);
 
-  private volatile WatchKey watchKey;
+  private WatchKey watchKey;
   private static final List<Path> watchingDirs;
 
   private volatile boolean running = true;
@@ -68,6 +70,7 @@ public class DefaultWatcherThread extends Thread implements InitializingBean {
   private static final DefaultClassResolver HOT_SWAP_RESOLVER = new DefaultClassResolver();
 
   private static int reloadCount = 0;
+  private static int sleepTime = 50;
 
   private String[] hotSwapClassPrefix = { //
 
@@ -80,9 +83,8 @@ public class DefaultWatcherThread extends Thread implements InitializingBean {
     watchingDirs = buildWatchingPaths();
   }
 
-  public DefaultWatcherThread(WebServerApplicationContext applicationContext) {
-
-    this.applicationContext = applicationContext;
+  public DefaultWatcherThread(WebServerApplicationContext context) {
+    this.applicationContext = context;
 
     setName("Watcher-" + reloadCount++);
 
@@ -98,10 +100,10 @@ public class DefaultWatcherThread extends Thread implements InitializingBean {
       buildDirs(new File(classPath.trim()), watchingDirSet);
     }
 
-    List<String> dirList = new ArrayList<String>(watchingDirSet);
+    List<String> dirList = new ArrayList<>(watchingDirSet);
     Collections.sort(dirList);
 
-    List<Path> pathList = new ArrayList<Path>(dirList.size());
+    List<Path> pathList = new ArrayList<>(dirList.size());
     for (String dir : dirList) {
       if (!dir.contains("META-INF")) {
         if (log.isTraceEnabled()) {
@@ -118,19 +120,22 @@ public class DefaultWatcherThread extends Thread implements InitializingBean {
       watchingDirSet.add(file.getPath());
 
       File[] fileList = file.listFiles();
-      for (File f : fileList) {
-        buildDirs(f, watchingDirSet);
+      if (ObjectUtils.isNotEmpty(fileList)) {
+        for (File f : fileList) {
+          buildDirs(f, watchingDirSet);
+        }
       }
     }
   }
 
+  @Override
   public void run() {
     try {
       doRun();
     }
     catch (Throwable e) {
       log.error("Error occurred", e);
-      //			throw new ContextException(e);
+      //throw new ContextException(e);
     }
   }
 
@@ -141,12 +146,11 @@ public class DefaultWatcherThread extends Thread implements InitializingBean {
     WatchService watcher = FileSystems.getDefault().newWatchService();
     addShutdownHook(watcher);
 
+    WatchEvent.Kind<?>[] kinds = new WatchEvent.Kind<?>[] {
+            StandardWatchEventKinds.ENTRY_MODIFY
+    };
     for (Path path : watchingDirs) {
-      path.register(
-              watcher,
-              StandardWatchEventKinds.ENTRY_DELETE,
-              StandardWatchEventKinds.ENTRY_MODIFY,
-              StandardWatchEventKinds.ENTRY_CREATE);
+      path.register(watcher, kinds);
     }
 
     while (running) {
@@ -156,6 +160,7 @@ public class DefaultWatcherThread extends Thread implements InitializingBean {
         if (watchKey == null) {
           continue;
         }
+        sleep(sleepTime);
       }
       catch (InterruptedException e) {
         running = false;
@@ -166,46 +171,49 @@ public class DefaultWatcherThread extends Thread implements InitializingBean {
         running = false;
         break;
       }
-      List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
-      for (WatchEvent<?> ev : watchEvents) {
-
-        String fileName = ev.context().toString();
-
-        final Kind<?> kind = ev.kind();
-
-        log.info("File: [{}] changed, type: [{}]", fileName, kind);
-        if (StandardWatchEventKinds.ENTRY_MODIFY == kind && fileName.endsWith(".class")) {
-          if (!applicationContext.hasStarted()) {
-            continue;
-          }
-          applicationContext.close();
-
-          replaceClassLoader();
-
-          Class<?> startupClass = applicationContext.getStartupClass();
-          if (startupClass != null) {
-            startupClass = loadClass(startupClass.getName());
-          }
-          WebApplication.run(startupClass);
-
-          resetWatchKey();
-          while ((watchKey = watcher.poll()) != null) {
-            // System.out.println("---> poll() ");
-            watchKey.pollEvents();
-            resetWatchKey();
-          }
-          exit();
-          break;
-        }
-      }
-      resetWatchKey();
+      process(watcher);
     }
   }
 
+  protected void process(final WatchService watcher) {
+    List<WatchEvent<?>> watchEvents = watchKey.pollEvents();
+
+    if (reloadable(watchEvents)) {
+      applicationContext.close();
+      replaceClassLoader();
+
+      Class<?> startupClass = applicationContext.getStartupClass();
+      if (startupClass != null) {
+        final String startupClassName = startupClass.getName();
+        log.info("restart application: [{}]", startupClassName);
+        startupClass = loadClass(startupClassName);
+      }
+      applicationContext = WebApplication.run(startupClass);
+
+      resetWatchKey();
+      exit();
+    }
+  }
+
+  protected boolean reloadable(List<WatchEvent<?>> watchEvents) {
+    if (!applicationContext.hasStarted()) {
+      return false;
+    }
+    for (WatchEvent<?> ev : watchEvents) {
+      String fileName = ev.context().toString();
+      final Kind<?> kind = ev.kind();
+      log.info("File: [{}] changed, type: [{}]", fileName, kind);
+      if (StandardWatchEventKinds.ENTRY_MODIFY == kind && fileName.endsWith(".class")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   protected void replaceClassLoader() {
-    //		if (!enableJrebel) {
+    //if (!enableJrebel) {
     ClassUtils.setClassLoader(new DefaultReloadClassLoader(urLs, parent, HOT_SWAP_RESOLVER));
-    //		}
+    //}
   }
 
   protected void resetWatchKey() {
@@ -228,10 +236,9 @@ public class DefaultWatcherThread extends Thread implements InitializingBean {
 
   public void exit() {
     log.info("Exit Previous Watcher");
-
     running = false;
     try {
-      //            interrupt();
+      // interrupt();
       join();
     }
     catch (Exception e) {
@@ -240,10 +247,10 @@ public class DefaultWatcherThread extends Thread implements InitializingBean {
   }
 
   @Override
-  public void afterPropertiesSet() throws Exception {
+  public void afterPropertiesSet() {
 
     this.parent = ClassUtils.getClassLoader();
-    //        System.err.println(parent);
+    // System.err.println(parent);
     if (parent instanceof URLClassLoader) {
       urLs = ((URLClassLoader) parent).getURLs();
     }
