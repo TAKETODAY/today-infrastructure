@@ -26,13 +26,8 @@ import cn.taketoday.web.RequestContext;
  * @author TODAY <br>
  *         2019-12-24 21:39
  */
-public abstract class AbstractHandlerAdapter extends OrderedSupport implements HandlerAdapter {
-
-  public AbstractHandlerAdapter() {}
-
-  public AbstractHandlerAdapter(int order) {
-    super(order);
-  }
+public abstract class AbstractHandlerAdapter
+        extends OrderedSupport implements HandlerAdapter {
 
   @Override
   public long getLastModified(final RequestContext context, final Object handler) {
