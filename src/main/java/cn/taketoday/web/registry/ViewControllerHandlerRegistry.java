@@ -37,7 +37,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import cn.taketoday.context.AntPathMatcher;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.exception.ConfigurationException;
-import cn.taketoday.context.exception.ContextException;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
@@ -131,7 +130,8 @@ public class ViewControllerHandlerRegistry extends CacheableMappedHandlerRegistr
    * @return {@link ViewController}
    */
   public ViewController addViewController(String pathPattern, Object resource) {
-    return addViewController(pathPattern).setResource(resource);
+    return addViewController(pathPattern)
+            .setResource(resource);
   }
 
   /**
@@ -139,7 +139,8 @@ public class ViewControllerHandlerRegistry extends CacheableMappedHandlerRegistr
    * to another URL.
    */
   public ViewController addRedirectViewController(String pathPattern, String redirectUrl) {
-    return addViewController(pathPattern).setResource(Constant.REDIRECT_URL_PREFIX.concat(redirectUrl));
+    return addViewController(pathPattern)
+            .setResource(Constant.REDIRECT_URL_PREFIX.concat(redirectUrl));
   }
 
   /**
@@ -147,13 +148,14 @@ public class ViewControllerHandlerRegistry extends CacheableMappedHandlerRegistr
    * the response status to the given code without rendering a body.
    */
   public ViewController addStatusController(String pathPattern, Integer status) {
-    return addViewController(pathPattern).setStatus(status);
+    return addViewController(pathPattern)
+            .setStatus(status);
   }
 
   // ---------------------------------------------------------
 
   @Override
-  protected void initApplicationContext(ApplicationContext context) throws ContextException {
+  protected void initApplicationContext(ApplicationContext context) {
     super.initApplicationContext(context);
     this.variables = context.getEnvironment().getProperties();
   }
