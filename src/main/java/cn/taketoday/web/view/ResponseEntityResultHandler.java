@@ -40,7 +40,7 @@ public class ResponseEntityResultHandler
                                 final HandlerMethod handler, final Object result) throws Throwable {
 
     ResponseEntity<?> response = (ResponseEntity<?>) result;
-    context.status(response.getStatusCodeValue());
+    context.status(response.getStatusCode());
 
     handleObject(context, response.getBody());
     // apply headers

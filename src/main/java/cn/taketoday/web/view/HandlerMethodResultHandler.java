@@ -43,6 +43,7 @@ public abstract class HandlerMethodResultHandler extends AbstractResultHandler {
     }
   }
 
-  protected abstract void handleInternal(RequestContext context,
-                                         HandlerMethod handler, Object result) throws Throwable;
+  protected void handleInternal(RequestContext context,
+                                HandlerMethod handler,
+                                Object result) throws Throwable { }
 }

@@ -50,8 +50,8 @@ public class ModelAndViewResultHandler extends HandlerMethodResultHandler {
   }
 
   @Override
-  protected void handleInternal(final RequestContext context,
-                                final HandlerMethod handler, final Object result) throws Throwable {
+  public void handleResult(final RequestContext context,
+                           final Object handler, final Object result) throws Throwable {
     resolveModelAndView(context, (ModelAndView) result);
   }
 

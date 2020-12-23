@@ -31,7 +31,8 @@ import cn.taketoday.web.utils.WebUtils;
  * @author TODAY <br>
  * 2019-07-14 11:18
  */
-public class ResourceResultHandler extends HandlerMethodResultHandler implements RuntimeResultHandler {
+public class ResourceResultHandler
+        extends HandlerMethodResultHandler implements RuntimeResultHandler {
 
   public ResourceResultHandler(int downloadFileBuf) {
     setDownloadFileBufferSize(downloadFileBuf);
@@ -50,13 +51,14 @@ public class ResourceResultHandler extends HandlerMethodResultHandler implements
   }
 
   @Override
-  protected void handleInternal(final RequestContext context,
-                                final HandlerMethod handler,
-                                final Object result) throws Throwable {
-    if (result instanceof Resource) {
-      WebUtils.downloadFile(context, (Resource) result, getDownloadFileBufferSize());
+  public void handleResult(final RequestContext context,
+                           final Object handler, final Object result) throws Throwable {
+    if (result != null) {
+      if (result instanceof Resource) {
+        WebUtils.downloadFile(context, (Resource) result, getDownloadFileBufferSize());
+      }
+      WebUtils.downloadFile(context, ResourceUtils.getResource((File) result), getDownloadFileBufferSize());
     }
-    WebUtils.downloadFile(context, ResourceUtils.getResource((File) result), getDownloadFileBufferSize());
   }
 
 }

@@ -52,9 +52,6 @@ public class ObjectResultHandler extends HandlerMethodResultHandler {
   }
 
   @Override
-  protected void handleInternal(RequestContext context, HandlerMethod handler, Object result) {}
-
-  @Override
   public boolean supportsResult(Object result) {
     return true;
   }

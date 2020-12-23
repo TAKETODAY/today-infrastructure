@@ -31,7 +31,8 @@ import cn.taketoday.web.handler.HandlerMethod;
  * @author TODAY <br>
  * 2019-07-14 15:15
  */
-public class ImageResultHandler extends HandlerMethodResultHandler implements RuntimeResultHandler {
+public class ImageResultHandler
+        extends HandlerMethodResultHandler implements RuntimeResultHandler {
 
   @Override
   public boolean supports(HandlerMethod handlerMethod) {
@@ -44,11 +45,12 @@ public class ImageResultHandler extends HandlerMethodResultHandler implements Ru
   }
 
   @Override
-  protected void handleInternal(final RequestContext context,
-                                final HandlerMethod handler,
-                                final Object result) throws Throwable {
-    context.contentType("image/png"); // sub classes can override this method to apply content type
-    ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, context.getOutputStream());
+  public void handleResult(final RequestContext context, final Object handler, final Object result) throws Throwable {
+    if (result != null) {
+      context.contentType("image/png");
+      // sub classes can override this method to apply content type
+      ImageIO.write((RenderedImage) result, Constant.IMAGE_PNG, context.getOutputStream());
+    }
   }
 
 }
