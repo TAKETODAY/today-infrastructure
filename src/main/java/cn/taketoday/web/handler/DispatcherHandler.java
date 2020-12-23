@@ -161,6 +161,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *         Current HTTP request context
    *
    * @throws Throwable
+   *         If {@link Throwable} occurred in handler
    */
   public void handle(final RequestContext context) throws Throwable {
     handle(lookupHandler(context), context);
@@ -175,6 +176,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *         Current HTTP request context
    *
    * @throws Throwable
+   *         If {@link Throwable} occurred in handler
    */
   public void handle(final Object handler, final RequestContext context) throws Throwable {
     handle(handler, context, lookupHandlerAdapter(handler));
@@ -191,6 +193,7 @@ public class DispatcherHandler extends WebApplicationContextSupport {
    *         {@link HandlerAdapter}
    *
    * @throws Throwable
+   *         If {@link Throwable} occurred in handler
    */
   public void handleNotModify(final Object handler,
                               final RequestContext context,
@@ -240,8 +243,8 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   public void handleException(final Object handler,
                               final Throwable exception,
                               final RequestContext context) throws Throwable {
-
-    obtainExceptionHandler().handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
+    obtainExceptionHandler()
+            .handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
   }
 
   /**
