@@ -36,7 +36,7 @@ public class ServletHandlerAdapter extends AbstractHandlerAdapter {
   public ServletHandlerAdapter() {}
 
   public ServletHandlerAdapter(int order) {
-    super(order);
+    setOrder(order);
   }
 
   @Override
