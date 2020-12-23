@@ -23,7 +23,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import cn.taketoday.context.ApplicationContext.State;
-import cn.taketoday.context.utils.ExceptionUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContext;
@@ -35,6 +34,7 @@ import cn.taketoday.web.view.ResultHandlerCapable;
 import cn.taketoday.web.view.RuntimeResultHandler;
 
 import static cn.taketoday.context.exception.ConfigurationException.nonNull;
+import static cn.taketoday.context.utils.ExceptionUtils.unwrapThrowable;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers
@@ -217,9 +217,10 @@ public class DispatcherHandler extends WebApplicationContextSupport {
                      final RequestContext context,
                      final HandlerAdapter adapter) throws Throwable {
     try {
-      final Object result = adapter.handle(context, handler);
-      if (result != HandlerAdapter.NONE_RETURN_VALUE) {
-        lookupResultHandler(handler, result).handleResult(context, handler, result);
+      final Object view = adapter.handle(context, handler);
+      if (view != HandlerAdapter.NONE_RETURN_VALUE) {
+        lookupResultHandler(handler, view)
+                .handleResult(context, handler, view);
       }
     }
     catch (Throwable e) {
@@ -243,8 +244,15 @@ public class DispatcherHandler extends WebApplicationContextSupport {
   public void handleException(final Object handler,
                               final Throwable exception,
                               final RequestContext context) throws Throwable {
-    obtainExceptionHandler()
-            .handleException(context, ExceptionUtils.unwrapThrowable(exception), handler);
+    final Object view = obtainExceptionHandler()
+            .handleException(context, unwrapThrowable(exception), handler);
+    if (view != HandlerAdapter.NONE_RETURN_VALUE) {
+      for (final RuntimeResultHandler resultHandler : resultHandlers) {
+        if (resultHandler.supportsResult(view)) {
+          resultHandler.handleResult(context, handler, view);
+        }
+      }
+    }
   }
 
   /**
