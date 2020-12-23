@@ -19,9 +19,6 @@
  */
 package cn.taketoday.web.registry;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestMethod;
 import cn.taketoday.web.handler.FunctionHandler;
@@ -41,22 +38,6 @@ import static cn.taketoday.web.RequestMethod.TRACE;
  *         2019-12-26 17:33
  */
 public class FunctionHandlerRegistry extends CacheableMappedHandlerRegistry {
-
-  public FunctionHandlerRegistry() {
-    this(new HashMap<>());
-  }
-
-  public FunctionHandlerRegistry(int initialCapacity) {
-    this(new HashMap<>(initialCapacity));
-  }
-
-  public FunctionHandlerRegistry(Map<String, Object> handlers) {
-    super(handlers);
-  }
-
-  public FunctionHandlerRegistry(Map<String, Object> handlers, int order) {
-    super(handlers, order);
-  }
 
   @Override
   protected String computeKey(final RequestContext context) {

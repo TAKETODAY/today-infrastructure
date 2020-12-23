@@ -74,26 +74,14 @@ import static java.util.Objects.requireNonNull;
  */
 @MissingBean
 public class HandlerMethodRegistry
-        extends CacheableMappedHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
+        extends AbstractUrlHandlerRegistry implements HandlerRegistry, WebApplicationInitializer {
 
   private Properties variables;
   private AbstractBeanFactory beanFactory;
   private BeanDefinitionLoader beanDefinitionLoader;
 
   public HandlerMethodRegistry() {
-    this(512);
-  }
-
-  public HandlerMethodRegistry(int initialCapacity) {
-    this(new HashMap<>(initialCapacity));
-  }
-
-  public HandlerMethodRegistry(Map<String, Object> handlers) {
-    this(handlers, HIGHEST_PRECEDENCE);
-  }
-
-  public HandlerMethodRegistry(Map<String, Object> handlers, int order) {
-    super(handlers, order);
+    setOrder(HIGHEST_PRECEDENCE);
   }
 
   // MappedHandlerRegistry

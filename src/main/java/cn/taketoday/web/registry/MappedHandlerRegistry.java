@@ -33,37 +33,26 @@ import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.handler.PatternHandler;
 
 /**
+ * Map HandlerRegistry
+ * <p>
+ * 用字符串作Key
+ * </p>
+ *
  * @author TODAY <br>
  * 2019-12-24 15:46
+ * @see #computeKey(RequestContext)
  */
 public class MappedHandlerRegistry extends AbstractHandlerRegistry {
 
-  private final Map<String, Object> handlers;
+  private final Map<String, Object> handlers = new HashMap<>();
   private List<PatternHandler> patternHandlers;
 
   private PathMatcher pathMatcher = new AntPathMatcher();
   private CompositeHandlerCustomizer handlerCustomizer;
-
-  public MappedHandlerRegistry() {
-    this(new HashMap<>());
-  }
-
-  public MappedHandlerRegistry(int initialCapacity) {
-    this(new HashMap<>(initialCapacity));
-  }
-
-  public MappedHandlerRegistry(Map<String, Object> handlers) {
-    this(handlers, LOWEST_PRECEDENCE);
-  }
-
-  public MappedHandlerRegistry(Map<String, Object> handlers, int order) {
-    Assert.notNull(handlers, "Handlers mappings can not be null");
-    this.handlers = handlers;
-    setOrder(order);
-  }
 
   @PostConstruct
   public void initHandlerRegistry(List<HandlerCustomizer> customizers) {
@@ -132,7 +121,7 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
 
     for (final PatternHandler mapping : patternHandlers) {
       final String pattern = mapping.getPattern();
-      if (pathMatcher.match(pattern, handlerKey)) {
+      if (matchingPattern(pathMatcher, pattern, handlerKey)) {
         matchedPatterns.put(pattern, mapping);
       }
     }
@@ -148,6 +137,13 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
       log.trace("Matching patterns {}", patterns);
     }
     return matchedPatterns.get(patterns.get(0));
+  }
+
+  protected boolean matchingPattern(
+          final PathMatcher pathMatcher,
+          final String pattern, final String handlerKey
+  ) {
+    return pathMatcher.match(pattern, handlerKey);
   }
 
   /**
@@ -179,7 +175,12 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
     Assert.notNull(handlerKey, "Handler Key must not be null");
 
     if (handler instanceof String) {
-      handler = obtainApplicationContext().getBean((String) handler);
+      final String handlerName = (String) handler;
+      final WebApplicationContext context = obtainApplicationContext();
+      // singleton
+      if (context.isSingleton(handlerName)) {
+        handler = context.getBean(handlerName);
+      }
     }
     handler = transformHandler(handlerKey, handler);
 
@@ -194,6 +195,12 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
                  handlerKey, handler, oldHandler);
       }
     }
+
+    postRegisterHandler(handlerKey, handler);
+  }
+
+  protected void postRegisterHandler(final String handlerKey, final Object handler) {
+
   }
 
   /**
@@ -256,6 +263,10 @@ public class MappedHandlerRegistry extends AbstractHandlerRegistry {
 
   public final Map<String, Object> getHandlers() {
     return handlers;
+  }
+
+  public void setHandlers(Map<String, Object> handlers) {
+    this.handlers.putAll(handlers);
   }
 
 }

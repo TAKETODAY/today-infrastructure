@@ -24,20 +24,39 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 
 /**
+ * 只查找处理器
+ *
  * @author TODAY <br>
- *         2019-12-24 15:02
+ * 2019-12-24 15:02
+ * @see #lookup(RequestContext)
  */
-public abstract class AbstractHandlerRegistry extends WebApplicationContextSupport implements HandlerRegistry, Ordered {
+public abstract class AbstractHandlerRegistry
+        extends WebApplicationContextSupport implements HandlerRegistry, Ordered {
 
   private Object defaultHandler;
 
   private int order = Ordered.LOWEST_PRECEDENCE;
 
+  /**
+   * Look up a handler for the given request, falling back to the default
+   * handler if no specific one is found.
+   *
+   * @param context
+   *         current HTTP request context
+   *
+   * @return the corresponding handler instance, or the default handler
+   *
+   * @see #lookupInternal
+   */
   @Override
   public final Object lookup(final RequestContext context) {
-    final Object handler = lookupInternal(context);
+    Object handler = lookupInternal(context);
     if (handler == null) {
-      return getDefaultHandler();
+      handler = getDefaultHandler();
+    }
+
+    if (handler instanceof String) {
+      handler = obtainApplicationContext().getBean((String) handler);
     }
     return handler;
   }

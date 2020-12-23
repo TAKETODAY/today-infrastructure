@@ -27,8 +27,6 @@ import org.xml.sax.InputSource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -57,22 +55,6 @@ import static cn.taketoday.context.exception.ConfigurationException.nonNull;
 public class ViewControllerHandlerRegistry extends CacheableMappedHandlerRegistry {
 
   private Properties variables;
-
-  public ViewControllerHandlerRegistry() {
-    this(new HashMap<>());
-  }
-
-  public ViewControllerHandlerRegistry(int initialCapacity) {
-    this(new HashMap<>(initialCapacity));
-  }
-
-  public ViewControllerHandlerRegistry(Map<String, Object> viewControllers) {
-    super(viewControllers);
-  }
-
-  public ViewControllerHandlerRegistry(Map<String, Object> viewControllers, int order) {
-    super(viewControllers, order);
-  }
 
   public final ViewController getViewController(String key) {
     final Object obj = lookupHandler(key);
