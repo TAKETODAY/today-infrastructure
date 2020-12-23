@@ -45,7 +45,7 @@ public class DispatcherServlet
 
   private static final long serialVersionUID = 1L;
 
-  private ServletConfig servletConfig;
+  private transient ServletConfig servletConfig;
 
   public DispatcherServlet() {}
 
@@ -80,10 +80,6 @@ public class DispatcherServlet
   @Override
   public ServletConfig getServletConfig() {
     return nonNull(servletConfig, "DispatcherServlet has not been initialized");
-  }
-
-  public String getServletName() {
-    return "DispatcherServlet";
   }
 
   @Override
