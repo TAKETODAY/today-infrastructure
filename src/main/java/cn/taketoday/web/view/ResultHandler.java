@@ -20,6 +20,7 @@
 package cn.taketoday.web.view;
 
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 
 /**
  * ResultHandler
@@ -40,7 +41,7 @@ public interface ResultHandler {
    * in application startup time
    *
    * @param handler
-   *         Target handler
+   *         Target HTTP handler
    *
    * @return If this {@link ResultHandler} supports the target handler
    */
@@ -53,8 +54,11 @@ public interface ResultHandler {
    *
    * @param context
    *         Current HTTP request context
+   * @param handler
+   *         Target HTTP handler
    * @param result
    *         Handler execution result
+   *         Or {@link HandlerExceptionHandler} return value
    */
   void handleResult(RequestContext context, Object handler, Object result) throws Throwable;
 
