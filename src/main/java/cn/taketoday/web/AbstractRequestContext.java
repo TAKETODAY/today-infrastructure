@@ -36,7 +36,7 @@ import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 
 /**
  * @author TODAY <br>
- *         2020-03-29 22:20
+ * 2020-03-29 22:20
  */
 public abstract class AbstractRequestContext implements RequestContext {
 
@@ -167,7 +167,7 @@ public abstract class AbstractRequestContext implements RequestContext {
 
   /**
    * @return an array of all the Cookies included with this request,or
-   *         {@link #EMPTY_COOKIES} if the request has no cookies
+   * {@link #EMPTY_COOKIES} if the request has no cookies
    */
   protected abstract HttpCookie[] getCookiesInternal();
 

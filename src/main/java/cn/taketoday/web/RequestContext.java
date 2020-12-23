@@ -49,6 +49,8 @@ import cn.taketoday.web.ui.RedirectModel;
  */
 public interface RequestContext extends Readable, Writable, Model, HttpHeaders, Flushable {
 
+  String KEY_REDIRECT_MODEL = RequestContext.class + "redirect-model";
+
   HttpCookie[] EMPTY_COOKIES = {};
 
   // --- request

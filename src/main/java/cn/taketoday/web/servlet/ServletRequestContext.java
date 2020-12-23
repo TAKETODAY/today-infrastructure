@@ -59,7 +59,8 @@ import cn.taketoday.web.ui.RedirectModel;
  *         2019-07-07 22:27
  * @since 2.3.7
  */
-public class ServletRequestContext extends AbstractRequestContext implements RequestContext, Map<String, Object> {
+public class ServletRequestContext
+        extends AbstractRequestContext implements RequestContext, Map<String, Object> {
 
   private final HttpServletRequest request;
   private final HttpServletResponse response;
@@ -391,7 +392,7 @@ public class ServletRequestContext extends AbstractRequestContext implements Req
 
   @Override
   public RedirectModel redirectModel() {
-    final Object attribute = request.getSession().getAttribute("redirect-model");
+    final Object attribute = request.getSession().getAttribute(KEY_REDIRECT_MODEL);
 
     if (attribute instanceof RedirectModel) {
       return (RedirectModel) attribute;
@@ -401,7 +402,7 @@ public class ServletRequestContext extends AbstractRequestContext implements Req
 
   @Override
   public RedirectModel redirectModel(RedirectModel redirectModel) {
-    request.getSession().setAttribute("redirect-model", redirectModel);
+    request.getSession().setAttribute(KEY_REDIRECT_MODEL, redirectModel);
     return redirectModel;
   }
 
@@ -450,6 +451,7 @@ public class ServletRequestContext extends AbstractRequestContext implements Req
     int size = 0;
     final Enumeration<String> attributes = attributes();
     while (attributes.hasMoreElements()) {
+      attributes.nextElement(); // FIX 死循环
       size++;
     }
     return size;
