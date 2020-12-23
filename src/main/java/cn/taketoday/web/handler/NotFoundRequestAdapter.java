@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.handler;
 
+import java.io.IOException;
+
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
@@ -28,7 +30,7 @@ import cn.taketoday.web.RequestContext;
  * Process Handler not found
  *
  * @author TODAY <br>
- *         2019-12-20 19:15
+ * 2019-12-20 19:15
  */
 @MissingBean(type = NotFoundRequestAdapter.class)
 public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
@@ -38,7 +40,7 @@ public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
   public NotFoundRequestAdapter() {}
 
   public NotFoundRequestAdapter(int order) {
-    super(order);
+    setOrder(order);
   }
 
   @Override
@@ -47,10 +49,14 @@ public class NotFoundRequestAdapter extends AbstractHandlerAdapter {
   }
 
   @Override
-  public Object handle(RequestContext context, Object handler) throws Throwable {
-    context.sendError(404);
+  public Object handle(final RequestContext context, final Object handler) throws Throwable {
+    handleNotFound(context);
     logNotFound(context);
     return NONE_RETURN_VALUE;
+  }
+
+  protected void handleNotFound(final RequestContext context) throws IOException {
+    context.sendError(404);
   }
 
   protected void logNotFound(RequestContext context) {
