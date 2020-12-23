@@ -22,7 +22,9 @@ package cn.taketoday.context.utils;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
+import cn.taketoday.context.Constant;
 import cn.taketoday.context.exception.ConversionException;
 
 /**
@@ -30,6 +32,19 @@ import cn.taketoday.context.exception.ConversionException;
  * 2019-08-23 00:16
  */
 public abstract class ObjectUtils {
+
+  /**
+   * Determine whether the given object is an array:
+   * either an Object array or a primitive array.
+   *
+   * @param obj
+   *         the object to check
+   *
+   * @since 3.0
+   */
+  public static boolean isArray(Object obj) {
+    return (obj != null && obj.getClass().isArray());
+  }
 
   /**
    * Test if a array is a null or empty object
@@ -55,6 +70,9 @@ public abstract class ObjectUtils {
     if (obj == null) {
       return true;
     }
+    if (obj instanceof Optional) {
+      return !((Optional<?>) obj).isPresent();
+    }
     if (obj instanceof String) {
       return ((String) obj).isEmpty();
     }
@@ -75,6 +93,29 @@ public abstract class ObjectUtils {
     return !isEmpty(obj);
   }
 
+  /**
+   * Unwrap the given object which is potentially a {@link java.util.Optional}.
+   *
+   * @param obj
+   *         the candidate object
+   *
+   * @return either the value held within the {@code Optional}, {@code null}
+   * if the {@code Optional} is empty, or simply the given object as-is
+   *
+   * @since 3.0
+   */
+  public static Object unwrapOptional(Object obj) {
+    if (obj instanceof Optional) {
+      Optional<?> optional = (Optional<?>) obj;
+      if (!optional.isPresent()) {
+        return null;
+      }
+      Object result = optional.get();
+      Assert.isTrue(!(result instanceof Optional), "Multi-level Optional usage not supported");
+      return result;
+    }
+    return obj;
+  }
   //
 
   /**
@@ -90,7 +131,7 @@ public abstract class ObjectUtils {
    * @throws ConversionException
    *         If can't convert source to target type object
    */
-  public static Object toArrayObject(String source[], Class<?> targetClass) throws ConversionException {
+  public static Object toArrayObject(String[] source, Class<?> targetClass) {
 
     // @since 2.1.6 fix: String[].class can't be resolve
     if (String[].class == targetClass) {
@@ -181,9 +222,13 @@ public abstract class ObjectUtils {
     }
   }
 
-  public static <T> T parseArray(String source[], Class<T> targetClass) throws ConversionException {
+  public static <T> T parseArray(String[] source, Class<T> targetClass) {
     return targetClass.cast(toArrayObject(source, targetClass));
   }
+
+  //---------------------------------------------------------------------
+  // Convenience methods for toString output
+  //---------------------------------------------------------------------
 
   public static String toHexString(final Object obj) {
     return obj == null
@@ -192,6 +237,36 @@ public abstract class ObjectUtils {
                    .append(obj.getClass().getName())
                    .append('@')
                    .append(Integer.toHexString(obj.hashCode())).toString();
+  }
+
+  /**
+   * Return a String representation of an object's overall identity.
+   *
+   * @param obj
+   *         the object (may be {@code null})
+   *
+   * @return the object's identity as String representation,
+   * or an empty String if the object was {@code null}
+   */
+  public static String identityToString(Object obj) {
+    if (obj == null) {
+      return Constant.BLANK;
+    }
+    String className = obj.getClass().getName();
+    String identityHexString = getIdentityHexString(obj);
+    return className + '@' + identityHexString;
+  }
+
+  /**
+   * Return a hex String form of an object's identity hash code.
+   *
+   * @param obj
+   *         the object
+   *
+   * @return the object's identity code in hex notation
+   */
+  public static String getIdentityHexString(Object obj) {
+    return Integer.toHexString(System.identityHashCode(obj));
   }
 
 }
