@@ -306,6 +306,12 @@ public class ServletRequestContext extends AbstractRequestContext implements Req
   }
 
   @Override
+  public RequestContext status(final int status, final String message) {
+    response.setStatus(status, message);
+    return this;
+  }
+
+  @Override
   public int status() {
     return response.getStatus();
   }

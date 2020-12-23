@@ -412,6 +412,14 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
   RequestContext status(int sc);
 
   /**
+   * Sets the status code and message for this response.
+   *
+   * @param	status	the status code
+   * @param	message	the status message
+   */
+  RequestContext status(int status, String message);
+
+  /**
    * Gets the current status code of this response.
    *
    * @return the current status code of this response
