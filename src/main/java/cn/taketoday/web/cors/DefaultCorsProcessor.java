@@ -31,6 +31,7 @@ import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.utils.WebUtils;
 
 import static cn.taketoday.context.utils.StringUtils.collectionToString;
@@ -86,7 +87,7 @@ public class DefaultCorsProcessor implements CorsProcessor {
    */
   protected void rejectRequest(RequestContext context) throws IOException {
 
-    context.status(403);
+    context.status(HttpStatus.FORBIDDEN);
     context.getOutputStream()
             .write("Invalid CORS request".getBytes(Constant.DEFAULT_CHARSET));
     context.flush();

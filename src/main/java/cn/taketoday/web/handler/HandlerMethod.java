@@ -195,7 +195,7 @@ public class HandlerMethod
         context.sendError(httpStatus.value(), reason);
       }
       else {
-        context.status(httpStatus.value());
+        context.status(httpStatus);
       }
     }
   }

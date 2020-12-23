@@ -352,6 +352,11 @@ public abstract class RequestContextHolder {
     }
 
     @Override
+    public RequestContext status(final int status, final String message) {
+      return null;
+    }
+
+    @Override
     public int status() {
       return 0;
     }

@@ -28,6 +28,7 @@ import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.exception.NotFoundException;
+import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.interceptor.HandlerInterceptor;
 import cn.taketoday.web.resource.CacheControl;
 import cn.taketoday.web.resource.WebResource;
@@ -105,7 +106,7 @@ public class ResourceRequestHandler extends InterceptableRequestHandler {
       return;
     }
 
-    context.status(200);
+    context.status(HttpStatus.OK);
 
     final ResourceMapping resourceMapping = getMapping();
     applyHeaders(context, lastModified, eTag, resourceMapping);
