@@ -35,6 +35,7 @@ import cn.taketoday.context.env.Environment;
 import cn.taketoday.context.exception.NoSuchBeanDefinitionException;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.context.utils.ConvertUtils;
+import cn.taketoday.context.utils.ObjectUtils;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.web.Constant;
@@ -70,6 +71,7 @@ import cn.taketoday.web.resolver.ParameterResolvers;
 import cn.taketoday.web.resolver.RequestBodyParameterResolver;
 import cn.taketoday.web.resolver.StreamParameterResolver;
 import cn.taketoday.web.resolver.ThrowableHandlerParameterResolver;
+import cn.taketoday.web.view.HttpStatusResultHandler;
 import cn.taketoday.web.view.ImageResultHandler;
 import cn.taketoday.web.view.ModelAndViewResultHandler;
 import cn.taketoday.web.view.ObjectResultHandler;
@@ -78,6 +80,7 @@ import cn.taketoday.web.view.ResponseBodyResultHandler;
 import cn.taketoday.web.view.ResponseEntityResultHandler;
 import cn.taketoday.web.view.ResultHandler;
 import cn.taketoday.web.view.ResultHandlers;
+import cn.taketoday.web.view.RuntimeResultHandler;
 import cn.taketoday.web.view.TemplateResultHandler;
 import cn.taketoday.web.view.VoidResultHandler;
 import cn.taketoday.web.view.template.AbstractTemplateViewResolver;
@@ -186,7 +189,8 @@ public class WebApplicationLoader
     obtainDispatcher.setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));
   }
 
-  protected void configureViewControllerHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) throws Throwable {
+  protected void configureViewControllerHandler(WebApplicationContext context,
+                                                WebMvcConfiguration mvcConfiguration) throws Throwable {
 
     ViewControllerHandlerRegistry registry = context.getBean(ViewControllerHandlerRegistry.class);
 
@@ -199,17 +203,17 @@ public class WebApplicationLoader
     }
   }
 
-  protected void configureExceptionHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
+  protected void configureExceptionHandler(WebApplicationContext context,
+                                           WebMvcConfiguration mvcConfiguration) {
+    final DispatcherHandler obtainDispatcher = obtainDispatcher();
 
     HandlerExceptionHandler exceptionHandler = context.getBean(HandlerExceptionHandler.class);
     if (exceptionHandler == null) {
       context.registerBean(ControllerAdviceExceptionHandler.class);
       exceptionHandler = context.getBean(ControllerAdviceExceptionHandler.class);
     }
-    final DispatcherHandler obtainDispatcher = obtainDispatcher();
-    if (obtainDispatcher.getExceptionHandler() == null) {
-      obtainDispatcher.setExceptionHandler(exceptionHandler);
-    }
+    // set
+    obtainDispatcher.setExceptionHandler(exceptionHandler);
   }
 
   protected void configureFunctionHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
@@ -256,7 +260,11 @@ public class WebApplicationLoader
    *         All {@link WebMvcConfiguration} object
    */
   protected void configureResultHandler(List<ResultHandler> handlers, WebMvcConfiguration mvcConfiguration) {
-
+    final DispatcherHandler obtainDispatcher = obtainDispatcher();
+    final RuntimeResultHandler[] resultHandlers = obtainDispatcher.getResultHandlers();
+    if (ObjectUtils.isNotEmpty(resultHandlers)) {
+      Collections.addAll(handlers, resultHandlers);
+    }
     final WebApplicationContext context = obtainApplicationContext();
 
     final TemplateViewResolver viewResolver = getTemplateViewResolver(mvcConfiguration);
@@ -275,13 +283,15 @@ public class WebApplicationLoader
 
     handlers.add(new ResponseBodyResultHandler(messageConverter));
 
+    handlers.add(new HttpStatusResultHandler());
+
+    // 自定义
     mvcConfiguration.configureResultHandler(handlers);
 
     ResultHandlers.addHandler(handlers);
-    final DispatcherHandler obtainDispatcher = obtainDispatcher();
-    if (obtainDispatcher.getResultHandlers() == null) {
-      obtainDispatcher.setResultHandlers(ResultHandlers.getRuntimeHandlers());// apply result handler
-    }
+
+    // apply result handler
+    obtainDispatcher.setResultHandlers(ResultHandlers.getRuntimeHandlers());
   }
 
   protected TemplateViewResolver getTemplateViewResolver(final WebMvcConfiguration mvcConfiguration) {
