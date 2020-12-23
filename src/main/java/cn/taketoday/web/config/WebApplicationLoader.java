@@ -19,6 +19,7 @@
  */
 package cn.taketoday.web.config;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -158,20 +159,26 @@ public class WebApplicationLoader
    *         {@link WebMvcConfiguration}
    */
   protected void configureHandlerAdapter(final List<HandlerAdapter> adapters, WebMvcConfiguration mvcConfiguration) {
-
+    // 先看有的
+    final DispatcherHandler obtainDispatcher = obtainDispatcher();
+    final HandlerAdapter[] handlerAdapters = obtainDispatcher.getHandlerAdapters();
+    if (handlerAdapters != null) {
+      Collections.addAll(adapters, handlerAdapters);
+    }
+    // 添加默认的
     adapters.add(new RequestHandlerAdapter(Ordered.HIGHEST_PRECEDENCE << 1));
     adapters.add(new FunctionRequestAdapter(Ordered.HIGHEST_PRECEDENCE - 1));
     adapters.add(new ViewControllerHandlerAdapter(Ordered.HIGHEST_PRECEDENCE - 2));
     adapters.add(new NotFoundRequestAdapter(-100));
 
+    // 用户自定义
     mvcConfiguration.configureHandlerAdapter(adapters);
 
+    // 排序
     OrderUtils.reversedSort(adapters);
 
-    final DispatcherHandler obtainDispatcher = obtainDispatcher();
-    if (obtainDispatcher.getHandlerAdapters() == null) {
-      obtainDispatcher.setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));// apply request handler
-    }
+    // apply request handler
+    obtainDispatcher.setHandlerAdapters(adapters.toArray(new HandlerAdapter[adapters.size()]));
   }
 
   protected void configureViewControllerHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) throws Throwable {
