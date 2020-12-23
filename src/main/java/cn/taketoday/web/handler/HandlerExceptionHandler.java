@@ -23,21 +23,31 @@ import cn.taketoday.web.RequestContext;
 
 /**
  * @author TODAY <br>
- * 		   2020-03-29 20:52
+ * 2020-03-29 20:52
  */
 @FunctionalInterface
 public interface HandlerExceptionHandler {
 
   /**
+   * This value indicates that the handler did not return a value, or the result
+   * has been processed
+   */
+  Object NONE_RETURN_VALUE = HandlerAdapter.NONE_RETURN_VALUE;
+
+  /**
    * Handle exception
    *
    * @param exception
-   *            The exception occurred
+   *         The exception occurred
    * @param handler
-   *            Current handler
+   *         Current handler
+   *
+   * @return Exception view
+   *
    * @throws Throwable
-   *             If any {@link Exception} occurred
+   *         If any {@link Exception} occurred
    */
-  void handleException(RequestContext context, Throwable exception, Object handler) throws Throwable;
+  Object handleException(RequestContext context,
+                         Throwable exception, Object handler) throws Throwable;
 
 }

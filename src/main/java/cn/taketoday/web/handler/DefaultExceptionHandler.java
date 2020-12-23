@@ -43,31 +43,26 @@ import cn.taketoday.web.view.TemplateResultHandler;
  * 2020-03-29 21:01
  */
 public class DefaultExceptionHandler implements HandlerExceptionHandler {
-
   private static final Logger log = LoggerFactory.getLogger(DefaultExceptionHandler.class);
 
   @Override
-  public void handleException(final RequestContext context,
-                              final Throwable ex, final Object handler) throws Throwable {
-
+  public Object handleException(final RequestContext context,
+                                final Throwable ex, final Object handler) throws Throwable {
     try {
-
       if (handler instanceof HandlerMethod) {
-        handleHandlerMethodInternal(ex, context, (HandlerMethod) handler);
+        return handleHandlerMethodInternal(ex, context, (HandlerMethod) handler);
       }
-      else if (handler instanceof ViewController) {
-        handleViewControllerInternal(ex, context, (ViewController) handler);
+      if (handler instanceof ViewController) {
+        return handleViewControllerInternal(ex, context, (ViewController) handler);
       }
-      else if (handler instanceof ResourceRequestHandler) {
-        handleResourceMappingInternal(ex, context, (ResourceRequestHandler) handler);
-      }
-      else {
-        handleExceptionInternal(ex, context);
+      if (handler instanceof ResourceRequestHandler) {
+        return handleResourceMappingInternal(ex, context, (ResourceRequestHandler) handler);
       }
 
       if (log.isDebugEnabled()) {
         log.debug("Catch Throwable: [{}]", ex.toString(), ex);
       }
+      return handleExceptionInternal(ex, context);
     }
     catch (ExceptionUnhandledException unhandled) {
       throw unhandled;
@@ -93,10 +88,10 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
    * @throws Throwable
    *         If any {@link Exception} occurred
    */
-  protected void handleResourceMappingInternal(final Throwable ex,
-                                               final RequestContext context,
-                                               final ResourceRequestHandler handler) throws Throwable {
-    handleExceptionInternal(ex, context);
+  protected Object handleResourceMappingInternal(final Throwable ex,
+                                                 final RequestContext context,
+                                                 final ResourceRequestHandler handler) throws Throwable {
+    return handleExceptionInternal(ex, context);
   }
 
   /**
@@ -112,10 +107,10 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
    * @throws Throwable
    *         If any {@link Exception} occurred
    */
-  protected void handleViewControllerInternal(final Throwable ex,
-                                              final RequestContext context,
-                                              final ViewController viewController) throws Throwable {
-    handleExceptionInternal(ex, context);
+  protected Object handleViewControllerInternal(final Throwable ex,
+                                                final RequestContext context,
+                                                final ViewController viewController) throws Throwable {
+    return handleExceptionInternal(ex, context);
   }
 
   /**
@@ -131,28 +126,28 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
    * @throws Throwable
    *         If any {@link Exception} occurred
    */
-  protected void handleHandlerMethodInternal(final Throwable ex,
-                                             final RequestContext context,
-                                             final HandlerMethod handlerMethod) throws Throwable//
+  protected Object handleHandlerMethodInternal(final Throwable ex,
+                                               final RequestContext context,
+                                               final HandlerMethod handlerMethod) throws Throwable//
   {
     context.status(getErrorStatusValue(ex));
 
     if (handlerMethod.isAssignableFrom(RenderedImage.class)) {
-      handlerMethod.handleResult(context, handlerMethod, resolveImageException(ex, context));
+      return resolveImageException(ex, context);
     }
-    else if (!handlerMethod.is(void.class)
+    if (!handlerMethod.is(void.class)
             && !handlerMethod.is(Object.class)
             && !handlerMethod.is(ModelAndView.class)
             && TemplateResultHandler.supportsHandlerMethod(handlerMethod)) {
 
-      handleExceptionInternal(ex, context);
+      return handleExceptionInternal(ex, context);
     }
-    else {
-      context.contentType(Constant.CONTENT_TYPE_JSON);
-      final PrintWriter writer = context.getWriter();
-      writer.write(buildDefaultErrorMessage(ex));
-      writer.flush();
-    }
+
+    context.contentType(Constant.CONTENT_TYPE_JSON);
+    final PrintWriter writer = context.getWriter();
+    writer.write(buildDefaultErrorMessage(ex));
+    writer.flush();
+    return NONE_RETURN_VALUE;
   }
 
   protected String buildDefaultErrorMessage(final Throwable ex) {
@@ -175,8 +170,9 @@ public class DefaultExceptionHandler implements HandlerExceptionHandler {
    * @param context
    *         Current request context
    */
-  public void handleExceptionInternal(final Throwable ex, final RequestContext context) throws IOException {
+  public Object handleExceptionInternal(final Throwable ex, final RequestContext context) throws IOException {
     context.sendError(getErrorStatusValue(ex), ex.getMessage());
+    return NONE_RETURN_VALUE;
   }
 
   /**

@@ -50,29 +50,29 @@ public class ControllerAdviceExceptionHandler
   private final Map<Class<? extends Throwable>, ThrowableHandlerMethod> exceptionHandlers = new HashMap<>();
 
   @Override
-  protected void handleHandlerMethodInternal(final Throwable ex,
-                                             final RequestContext context,
-                                             final HandlerMethod handlerMethod) throws Throwable //
+  protected Object handleHandlerMethodInternal(final Throwable ex,
+                                               final RequestContext context,
+                                               final HandlerMethod handlerMethod) throws Throwable //
   {
     final ThrowableHandlerMethod exceptionHandler = lookupExceptionHandler(ex);
-    if (exceptionHandler != null) {
-      context.attribute(Constant.KEY_THROWABLE, ex);
-      try {
-        exceptionHandler.handleResult(context,
-                                      exceptionHandler,
-                                      exceptionHandler.invokeHandler(context));
-      }
-      catch (final Throwable target) {
-        if (!(target instanceof ExceptionUnhandledException)) {
-          log.error("Handling of [{}] resulted in Exception: [{}]", //
-                    target.getClass().getName(), target.getClass().getName(), target);
-          throw target;
-        }
+    if (exceptionHandler == null) {
+      return super.handleHandlerMethodInternal(ex, context, handlerMethod);
+    }
+
+    context.attribute(Constant.KEY_THROWABLE, ex);
+    try {
+      exceptionHandler.handleResult(context,
+                                    exceptionHandler,
+                                    exceptionHandler.invokeHandler(context));
+    }
+    catch (final Throwable target) {
+      if (!(target instanceof ExceptionUnhandledException)) {
+        log.error("Handling of [{}] resulted in Exception: [{}]", //
+                  target.getClass().getName(), target.getClass().getName(), target);
+        throw target;
       }
     }
-    else {
-      super.handleHandlerMethodInternal(ex, context, handlerMethod);
-    }
+    return NONE_RETURN_VALUE;
   }
 
   /**
