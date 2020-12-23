@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -56,7 +57,7 @@ import cn.taketoday.web.ui.RedirectModel;
 
 /**
  * @author TODAY <br>
- *         2019-07-07 22:27
+ * 2019-07-07 22:27
  * @since 2.3.7
  */
 public class ServletRequestContext
@@ -469,7 +470,13 @@ public class ServletRequestContext
 
   @Override
   public boolean containsValue(Object value) {
-    throw new UnsupportedOperationException();
+    final Enumeration<String> attributeNames = attributes();
+    while (attributeNames.hasMoreElements()) {
+      if (Objects.equals(value, get(attributeNames.nextElement()))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
