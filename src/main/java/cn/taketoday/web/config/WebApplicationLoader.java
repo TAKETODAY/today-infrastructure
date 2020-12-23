@@ -138,15 +138,20 @@ public class WebApplicationLoader
   }
 
   protected void configureHandlerRegistry(List<HandlerRegistry> registries, WebMvcConfiguration mvcConfiguration) {
-    mvcConfiguration.configureHandlerRegistry(registries);
+
     final DispatcherHandler obtainDispatcher = obtainDispatcher();
-    if (obtainDispatcher.getHandlerRegistry() == null) {
-      if (registries.size() == 1) {
-        obtainDispatcher.setHandlerRegistry(registries.get(0));
-      }
-      else {
-        obtainDispatcher.setHandlerRegistry(new CompositeHandlerRegistry(registries));
-      }
+    final HandlerRegistry handlerRegistry = obtainDispatcher.getHandlerRegistry();
+    if (handlerRegistry != null) {
+      registries.add(handlerRegistry);
+    }
+    // 自定义
+    mvcConfiguration.configureHandlerRegistry(registries);
+
+    if (registries.size() == 1) {
+      obtainDispatcher.setHandlerRegistry(registries.get(0));
+    }
+    else {
+      obtainDispatcher.setHandlerRegistry(new CompositeHandlerRegistry(registries));
     }
   }
 
