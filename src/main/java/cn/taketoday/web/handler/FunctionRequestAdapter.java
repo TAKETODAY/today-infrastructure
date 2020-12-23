@@ -30,7 +30,7 @@ public class FunctionRequestAdapter extends AbstractHandlerAdapter {
   public FunctionRequestAdapter() {}
 
   public FunctionRequestAdapter(int order) {
-    super(order);
+    setOrder(order);
   }
 
   @Override
