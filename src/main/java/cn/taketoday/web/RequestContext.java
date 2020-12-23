@@ -34,6 +34,7 @@ import cn.taketoday.context.io.Readable;
 import cn.taketoday.context.io.Writable;
 import cn.taketoday.web.RequestContextHolder.ApplicationNotStartedContext;
 import cn.taketoday.web.annotation.PathVariable;
+import cn.taketoday.web.http.HttpStatus;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.ui.Model;
 import cn.taketoday.web.ui.ModelAndView;
@@ -43,7 +44,7 @@ import cn.taketoday.web.ui.RedirectModel;
  * Context holder for request-specific state.
  *
  * @author TODAY <br>
- *         2019-06-22 15:48
+ * 2019-06-22 15:48
  * @since 2.3.7
  */
 public interface RequestContext extends Readable, Writable, Model, HttpHeaders, Flushable {
@@ -59,7 +60,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * container does not decode this string.
    *
    * @return a <code>String</code> specifying the portion of the request URI that
-   *         indicates the context of the request
+   * indicates the context of the request
    */
   String contextPath();
 
@@ -87,7 +88,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * </table>
    *
    * @return a <code>String</code> containing the part of the URL from the
-   *         protocol name up to the query string
+   * protocol name up to the query string
    */
   String requestURI();
 
@@ -105,8 +106,8 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * string. Same as the value of the CGI variable QUERY_STRING.
    *
    * @return a <code>String</code> containing the query string or
-   *         <code>null</code> if the URL contains no query string. The value is
-   *         not decoded by the container.
+   * <code>null</code> if the URL contains no query string. The value is
+   * not decoded by the container.
    */
   String queryString();
 
@@ -116,7 +117,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * were sent.
    *
    * @return an array of all the <code>Cookies</code> included with this request,
-   *         or {@link #EMPTY_COOKIES} if the request has no cookies
+   * or {@link #EMPTY_COOKIES} if the request has no cookies
    */
   HttpCookie[] cookies();
 
@@ -125,9 +126,11 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * method returns <code>null</code> if no target cookie were sent.
    *
    * @param name
-   *            Cookie name
+   *         Cookie name
+   *
    * @return a {@link HttpCookie} object the client sent with this request. This
-   *         method returns <code>null</code> if no target cookie were sent.
+   * method returns <code>null</code> if no target cookie were sent.
+   *
    * @since 2.3.7
    */
   HttpCookie cookie(String name);
@@ -137,7 +140,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * times to set more than one cookie.
    *
    * @param cookie
-   *            the Cookie to return to the client
+   *         the Cookie to return to the client
    */
   RequestContext addCookie(HttpCookie cookie);
 
@@ -149,8 +152,8 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * are contained in the query string or posted form data.
    *
    * @return java.util.Map containing parameter names as keys and parameter values
-   *         as map values. The keys in the parameter map are of type String. The
-   *         values in the parameter map are of type String array.
+   * as map values. The keys in the parameter map are of type String. The
+   * values in the parameter map are of type String array.
    */
   Map<String, String[]> parameters();
 
@@ -160,8 +163,8 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * parameters, the method returns an empty <code>Enumeration</code>.
    *
    * @return an <code>Enumeration</code> of <code>String</code> objects, each
-   *         <code>String</code> containing the name of a request parameter; or an
-   *         empty <code>Enumeration</code> if the request has no parameters
+   * <code>String</code> containing the name of a request parameter; or an
+   * empty <code>Enumeration</code> if the request has no parameters
    */
   Enumeration<String> parameterNames();
 
@@ -174,11 +177,11 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * If the parameter has a single value, the array has a length of 1.
    *
    * @param name
-   *            a <code>String</code> containing the name of the parameter whose
-   *            value is requested
+   *         a <code>String</code> containing the name of the parameter whose
+   *         value is requested
    *
    * @return an array of <code>String</code> objects containing the parameter's
-   *         values
+   * values
    *
    * @see #parameters()
    */
@@ -206,7 +209,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * or {@link #getReader} can interfere with the execution of this method.
    *
    * @param name
-   *            a <code>String</code> specifying the name of the parameter
+   *         a <code>String</code> specifying the name of the parameter
    *
    * @return a <code>String</code> representing the single value of the parameter
    *
@@ -219,7 +222,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * example, GET, POST, or PUT.
    *
    * @return a <code>String</code> specifying the name of the method with which
-   *         this request was made
+   * this request was made
    */
   String method();
 
@@ -228,7 +231,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * sent the request.
    *
    * @return a <code>String</code> containing the IP address of the client that
-   *         sent the request
+   * sent the request
    */
   String remoteAddress();
 
@@ -237,7 +240,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * input stream, or -1 if the length is not known.
    *
    * @return a long containing the length of the request body or -1L if the length
-   *         is not known
+   * is not known
    */
   long contentLength();
 
@@ -248,12 +251,11 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    *
    * @return a {@link InputStream} object containing the body of the request
    *
-   * @exception IllegalStateException
-   *                For Servlet Environment if the {@link #getReader} method has
-   *                already been called for this request
-   *
-   * @exception IOException
-   *                if an input or output exception occurred
+   * @throws IllegalStateException
+   *         For Servlet Environment if the {@link #getReader} method has
+   *         already been called for this request
+   * @throws IOException
+   *         if an input or output exception occurred
    */
   @Override
   InputStream getInputStream() throws IOException;
@@ -266,12 +268,11 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    *
    * @return a <code>BufferedReader</code> containing the body of the request
    *
-   * @exception IllegalStateException
-   *                For Servlet Environment if {@link #getInputStream} method has
-   *                been called on this request
-   * @exception IOException
-   *                if an input or output exception occurred
-   *
+   * @throws IllegalStateException
+   *         For Servlet Environment if {@link #getInputStream} method has
+   *         been called on this request
+   * @throws IOException
+   *         if an input or output exception occurred
    * @see #getInputStream
    */
   @Override
@@ -288,7 +289,8 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * Apply request body object
    *
    * @param body
-   *            Target request body object
+   *         Target request body object
+   *
    * @return Request body object
    */
   Object requestBody(Object body);
@@ -299,7 +301,8 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * set current {@link PathVariable}s
    *
    * @param variables
-   *            {@link PathVariable}s
+   *         {@link PathVariable}s
+   *
    * @return input variables
    */
   String[] pathVariables(String[] variables);
@@ -312,8 +315,8 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * Get all {@link MultipartFile}s from current request
    *
    * @throws IOException
-   *             if an I/O error occurred during the retrieval of the Part
-   *             components of this request
+   *         if an I/O error occurred during the retrieval of the Part
+   *         components of this request
    */
   Map<String, List<MultipartFile>> multipartFiles() throws IOException;
 
@@ -326,7 +329,7 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * <b>Create One</b>
    *
    * @return Returns {@link ModelAndView}, never be null but except
-   *         {@link ApplicationNotStartedContext}
+   * {@link ApplicationNotStartedContext}
    */
   ModelAndView modelAndView();
 
@@ -335,8 +338,8 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * HTTP Content-Length header.
    *
    * @param length
-   *            an long specifying the length of the content being returned to the
-   *            client; sets the Content-Length header
+   *         an long specifying the length of the content being returned to the
+   *         client; sets the Content-Length header
    */
   RequestContext contentLength(long length);
 
@@ -360,8 +363,8 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * behavior of using the stale object is undefined. If the response has been
    * committed, this method throws an <code>IllegalStateException</code>.
    *
-   * @exception IllegalStateException
-   *                if the response has already been committed
+   * @throws IllegalStateException
+   *         if the response has already been committed
    */
   RequestContext reset();
 
@@ -386,12 +389,13 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * considered to be committed and should not be written to.
    *
    * @param location
-   *            the redirect location URL
-   * @exception IOException
-   *                If an input or output exception occurs
-   * @exception IllegalStateException
-   *                If the response was committed or if a partial URL is given and
-   *                cannot be converted into a valid URL
+   *         the redirect location URL
+   *
+   * @throws IOException
+   *         If an input or output exception occurs
+   * @throws IllegalStateException
+   *         If the response was committed or if a partial URL is given and
+   *         cannot be converted into a valid URL
    */
   RequestContext redirect(String location) throws IOException;
 
@@ -407,17 +411,29 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * status codes are treated as container specific.
    *
    * @param sc
-   *            the status code
+   *         the status code
    */
   RequestContext status(int sc);
 
   /**
    * Sets the status code and message for this response.
    *
-   * @param	status	the status code
-   * @param	message	the status message
+   * @param status
+   *         the status code
+   * @param message
+   *         the status message
    */
   RequestContext status(int status, String message);
+
+  /**
+   * Sets the status code and message for this response.
+   *
+   * @param status
+   *         the status
+   */
+  default RequestContext status(HttpStatus status) {
+    return status(status.value(), status.getReasonPhrase());
+  }
 
   /**
    * Gets the current status code of this response.
@@ -443,11 +459,12 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * considered to be committed and should not be written to.
    *
    * @param sc
-   *            the error status code
-   * @exception IOException
-   *                If an input or output exception occurs
-   * @exception IllegalStateException
-   *                If the response was committed before this method call
+   *         the error status code
+   *
+   * @throws IOException
+   *         If an input or output exception occurs
+   * @throws IllegalStateException
+   *         If the response was committed before this method call
    */
   RequestContext sendError(int sc) throws IOException;
 
@@ -477,13 +494,14 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * considered to be committed and should not be written to.
    *
    * @param sc
-   *            the error status code
+   *         the error status code
    * @param msg
-   *            the descriptive message
-   * @exception IOException
-   *                If an input or output exception occurs
-   * @exception IllegalStateException
-   *                If the response was committed
+   *         the descriptive message
+   *
+   * @throws IOException
+   *         If an input or output exception occurs
+   * @throws IllegalStateException
+   *         If the response was committed
    */
   RequestContext sendError(int sc, String msg) throws IOException;
 
@@ -498,11 +516,11 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    *
    * @return a {@link OutputStream} for writing binary data
    *
-   * @exception IllegalStateException
-   *                For Servlet Environment if the <code>getWriter</code> method
-   *                has been called on this response
-   * @exception IOException
-   *                if an input or output exception occurred
+   * @throws IllegalStateException
+   *         For Servlet Environment if the <code>getWriter</code> method
+   *         has been called on this response
+   * @throws IOException
+   *         if an input or output exception occurred
    * @see #getWriter
    * @see #reset
    */
@@ -519,14 +537,13 @@ public interface RequestContext extends Readable, Writable, Model, HttpHeaders, 
    * body, not both, except when {@link #reset} has been called.
    *
    * @return a <code>PrintWriter</code> object that can return character data to
-   *         the client
+   * the client
    *
-   * @exception IOException
-   *                if an input or output exception occurred
-   *
-   * @exception IllegalStateException
-   *                For Servlet Environment if the <code>getOutputStream</code>
-   *                method has already been called for this response object
+   * @throws IOException
+   *         if an input or output exception occurred
+   * @throws IllegalStateException
+   *         For Servlet Environment if the <code>getOutputStream</code>
+   *         method has already been called for this response object
    * @see #getOutputStream
    * @see #reset
    */
