@@ -109,6 +109,11 @@ public class ConstructorAccessorGenerator
   }
 
   @Override
+  protected Object cacheKey() {
+    return targetConstructor;
+  }
+
+  @Override
   protected String createClassName() {
     StringBuilder builder = new StringBuilder(targetClass.getName());
     builder.append('$').append("class"); // 使用 'class' 代替<init>

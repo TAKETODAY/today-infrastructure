@@ -162,6 +162,11 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     }
 
     @Override
+    protected Object cacheKey() {
+      return targetMethod;
+    }
+
+    @Override
     public String getSuperType() {
       return superType;
     }

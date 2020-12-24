@@ -20,16 +20,18 @@
 package cn.taketoday.context.reflect;
 
 import java.lang.reflect.Executable;
+import java.util.LinkedList;
+import java.util.Objects;
 
 import cn.taketoday.context.asm.ClassVisitor;
 import cn.taketoday.context.asm.Type;
+import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.ClassEmitter;
 import cn.taketoday.context.cglib.core.ClassGenerator;
 import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.CodeGenerationException;
 import cn.taketoday.context.cglib.core.DefaultGeneratorStrategy;
 import cn.taketoday.context.cglib.core.EmitUtils;
-import cn.taketoday.context.cglib.core.CglibReflectUtils;
 import cn.taketoday.context.cglib.core.TypeUtils;
 import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.ClassUtils;
@@ -44,14 +46,14 @@ import static cn.taketoday.context.asm.Opcodes.INVOKEVIRTUAL;
  * @date 2020/9/11 16:32
  */
 abstract class GeneratorSupport<T> {
+  static final String DEFAULT_SUPER = "Ljava/lang/Object;";
+  static final LinkedList<GeneratorNode> created = new LinkedList<>();
 
-  private static final String DEFAULT_SUPER = "Ljava/lang/Object;";
+  String className;
+  ClassLoader classLoader;
+  final Class<?> targetClass;
 
-  protected String className;
-  private ClassLoader classLoader;
-  protected final Class<?> targetClass;
-
-  protected GeneratorSupport(final Class<?> targetClass) {
+  GeneratorSupport(final Class<?> targetClass) {
     Assert.notNull(targetClass, "targetClass  must not be null");
     this.targetClass = targetClass;
   }
@@ -59,24 +61,38 @@ abstract class GeneratorSupport<T> {
   @SuppressWarnings("unchecked")
   public T create() {
 
+    final Object cacheKey = cacheKey();
+    for (final GeneratorNode node : created) {
+      if (Objects.equals(cacheKey, node.key)) {
+        return (T) node.value;
+      }
+    }
+
+    final T ret = (T) doCreate();
+    created.add(new GeneratorNode(cacheKey, ret));
+    return ret;
+  }
+
+  Object doCreate() {
     if (isPrivate()) {
       return privateInstance();
     }
-
     final ClassLoader classLoader = getClassLoader();
     try {
-      return (T) ClassUtils.newInstance(classLoader.loadClass(getClassName()));
+      return ClassUtils.newInstance(classLoader.loadClass(getClassName()));
     }
     catch (ClassNotFoundException e) {
       return ClassUtils.newInstance(generateClass(classLoader));
     }
   }
 
-  protected abstract T privateInstance();
+  abstract Object cacheKey();
 
-  protected abstract boolean isPrivate();
+  abstract T privateInstance();
 
-  protected Class<T> generateClass(final ClassLoader classLoader) {
+  abstract boolean isPrivate();
+
+  Class<T> generateClass(final ClassLoader classLoader) {
     try {
       final byte[] b = DefaultGeneratorStrategy.INSTANCE.generate(getClassGenerator());
       return CglibReflectUtils.defineClass(getClassName(), b, classLoader, CglibReflectUtils.getProtectionDomain(targetClass));
@@ -86,25 +102,25 @@ abstract class GeneratorSupport<T> {
     }
   }
 
-  protected ClassLoader getClassLoader() {
+  ClassLoader getClassLoader() {
     if (classLoader == null) {
       return targetClass.getClassLoader();
     }
     return classLoader;
   }
 
-  protected abstract ClassGenerator getClassGenerator();
+  abstract ClassGenerator getClassGenerator();
 
-  protected String getClassName() {
+  String getClassName() {
     if (className == null) {
       this.className = createClassName();
     }
     return className;
   }
 
-  protected abstract String createClassName();
+  abstract String createClassName();
 
-  protected void buildClassNameSuffix(final StringBuilder builder, final Executable target) {
+  void buildClassNameSuffix(final StringBuilder builder, final Executable target) {
     if (target.getParameterCount() != 0) {
       for (final Class<?> parameterType : target.getParameterTypes()) {
         builder.append('$');
@@ -120,11 +136,11 @@ abstract class GeneratorSupport<T> {
     }
   }
 
-  protected int getArgsIndex() {
+  int getArgsIndex() {
     return 2;
   }
 
-  protected void prepareParameters(final CodeEmitter codeEmitter, Executable targetExecutable) {
+  void prepareParameters(final CodeEmitter codeEmitter, Executable targetExecutable) {
 
     if (targetExecutable.getParameterCount() == 0) {
       return;
@@ -132,9 +148,8 @@ abstract class GeneratorSupport<T> {
 
     final Class<?>[] parameterTypes = targetExecutable.getParameterTypes();
     final int argsIndex = getArgsIndex();
-    final int a_load = ALOAD;
     for (int i = 0; i < parameterTypes.length; i++) {
-      codeEmitter.visitVarInsn(a_load, argsIndex);
+      codeEmitter.visitVarInsn(ALOAD, argsIndex);
       codeEmitter.aaload(i);
 
       Class<?> parameterClass = parameterTypes[i];
@@ -154,14 +169,14 @@ abstract class GeneratorSupport<T> {
     }
   }
 
-  protected ClassEmitter beginClass(ClassVisitor v) {
+  ClassEmitter beginClass(ClassVisitor v) {
     final ClassEmitter ce = new ClassEmitter(v);
     ce.beginClass(ACC_PUBLIC | ACC_FINAL, getClassName().replace('.', '/'), getSuperType(), getInterfaces());
     EmitUtils.nullConstructor(ce);
     return ce;
   }
 
-  protected String[] getInterfaces() {
+  String[] getInterfaces() {
     return null;
   }
 
@@ -171,5 +186,15 @@ abstract class GeneratorSupport<T> {
 
   public void setClassLoader(final ClassLoader classLoader) {
     this.classLoader = classLoader;
+  }
+}
+
+class GeneratorNode {
+  final Object key;
+  final Object value;
+
+  GeneratorNode(final Object key, final Object value) {
+    this.key = key;
+    this.value = value;
   }
 }
