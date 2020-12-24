@@ -48,13 +48,6 @@ import java.util.Objects;
  * it as a stop condition for iterating through its component resolvers.
  * </p>
  *
- * <p>
- * The <code>ELContext.propertyResolved</code> flag is not used for the
- * design-time methods {@link #getFeatureDescriptors} and
- * {@link #getCommonPropertyType}. Instead, results are collected and combined
- * from all child <code>ELResolver</code>s for these methods.
- * </p>
- *
  * @see ExpressionContext
  * @see ExpressionResolver
  * @since JSP 2.1

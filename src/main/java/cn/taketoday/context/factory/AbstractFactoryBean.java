@@ -147,7 +147,7 @@ public abstract class AbstractFactoryBean<T>
    * @throws IllegalStateException
    *         if the singleton instance is not initialized
    */
-  private T getSingletonInstance() throws IllegalStateException {
+  private T getSingletonInstance() {
     Assert.state(this.initialized, "Singleton instance not initialized yet");
     return this.singletonInstance;
   }
@@ -180,8 +180,6 @@ public abstract class AbstractFactoryBean<T>
    *
    * @return the object returned by this factory
    *
-   * @throws Exception
-   *         if an exception occurred during object creation
    * @see #getBean()
    */
   protected abstract T createBeanInstance();
