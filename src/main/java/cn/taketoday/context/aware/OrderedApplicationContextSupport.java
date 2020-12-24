@@ -25,7 +25,8 @@ import cn.taketoday.context.Ordered;
  * @author TODAY <br>
  * 2020-09-19 21:43
  */
-public class OrderedApplicationContextSupport extends ApplicationContextSupport implements Ordered {
+public class OrderedApplicationContextSupport
+        extends ApplicationContextSupport implements Ordered {
 
   private int order;
 

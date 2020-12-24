@@ -110,17 +110,16 @@ public class AutowiredPropertyResolver
    * @return a bean name none null
    */
   protected String byType(final Class<?> targetClass) {
+    final ApplicationContext context = obtainApplicationContext();
 
-    final ApplicationContext applicationContext = obtainApplicationContext();
-
-    if (applicationContext.hasStarted()) {
-      final String name = findName(applicationContext, targetClass);
+    if (context.hasStarted()) {
+      final String name = findName(context, targetClass);
       if (StringUtils.isNotEmpty(name)) {
         return name;
       }
     }
 
-    return applicationContext.getEnvironment().getBeanNameCreator().create(targetClass);
+    return context.getEnvironment().getBeanNameCreator().create(targetClass);
   }
 
   /**

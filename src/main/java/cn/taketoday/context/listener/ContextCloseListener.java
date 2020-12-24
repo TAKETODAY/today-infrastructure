@@ -39,7 +39,8 @@ import static cn.taketoday.context.utils.ExceptionUtils.unwrapThrowable;
  * @author TODAY <br>
  *         2018-09-09 23:20
  */
-public class ContextCloseListener extends OrderedSupport implements ApplicationListener<ContextCloseEvent> {
+public class ContextCloseListener
+        extends OrderedSupport implements ApplicationListener<ContextCloseEvent> {
 
   public ContextCloseListener() {
     this(Ordered.LOWEST_PRECEDENCE - Ordered.HIGHEST_PRECEDENCE);

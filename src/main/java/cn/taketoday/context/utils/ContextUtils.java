@@ -380,8 +380,8 @@ public abstract class ContextUtils {
     if (input == null || input.length() <= 3) { // #{} > 3
       return input;
     }
-    int prefixIndex = 0;
-    int suffixIndex = 0;
+    int prefixIndex;
+    int suffixIndex;
 
     final StringBuilder builder = new StringBuilder();
     while ((prefixIndex = input.indexOf(Constant.PLACE_HOLDER_PREFIX)) > -1 //

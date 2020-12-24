@@ -64,7 +64,7 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    *         if thrown by ApplicationContext methods
    * @see #setApplicationContext
    */
-  protected void initApplicationContext(ApplicationContext context) throws ContextException {
+  protected void initApplicationContext(ApplicationContext context) {
     initApplicationContext();
   }
 
@@ -78,7 +78,11 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    *         if thrown by ApplicationContext methods
    * @see #setApplicationContext
    */
-  protected void initApplicationContext() throws ContextException {}
+  protected void initApplicationContext() {}
+
+  public final ApplicationContext getApplicationContext() {
+    return applicationContext;
+  }
 
   /**
    * Return the ApplicationContext that this object is associated with.
@@ -86,10 +90,6 @@ public abstract class ApplicationContextSupport implements ApplicationContextAwa
    * @throws IllegalStateException
    *         if not running in an ApplicationContext
    */
-  public final ApplicationContext getApplicationContext() {
-    return applicationContext;
-  }
-
   public ApplicationContext obtainApplicationContext() {
     final ApplicationContext context = getApplicationContext();
     if (context == null) {
