@@ -31,12 +31,6 @@ public class DefaultGeneratorStrategy implements GeneratorStrategy {
     return new DebuggingClassWriter(ClassWriter.COMPUTE_FRAMES);
   }
 
-  protected final ClassWriter getClassWriter() {
-    // Cause compile / runtime errors for people who implemented the old
-    // interface without using @Override
-    throw new UnsupportedOperationException("You are calling getClassWriter, which no longer exists in this cglib version.");
-  }
-
   protected byte[] transform(byte[] b) throws Exception {
     return b;
   }
