@@ -25,6 +25,7 @@ import cn.taketoday.context.cglib.core.CodeEmitter;
 import cn.taketoday.context.cglib.core.EmitUtils;
 import cn.taketoday.context.cglib.core.Signature;
 import cn.taketoday.context.cglib.transform.ClassEmitterTransformer;
+import cn.taketoday.context.utils.Assert;
 
 /**
  * @author Today <br>
@@ -39,14 +40,14 @@ public class UndeclaredThrowableTransformer extends ClassEmitterTransformer {
     this.wrapper = Type.getType(wrapper);
     boolean found = false;
     Constructor[] cstructs = wrapper.getConstructors();
-    for (int i = 0; i < cstructs.length; i++) {
-      Class[] types = cstructs[i].getParameterTypes();
+    for (final Constructor cstruct : cstructs) {
+      Class[] types = cstruct.getParameterTypes();
       if (types.length == 1 && types[0].equals(Throwable.class)) {
         found = true;
         break;
       }
     }
-    if (!found) throw new IllegalArgumentException(wrapper + " does not have a single-arg constructor that takes a Throwable");
+    Assert.isTrue(found, () -> wrapper + " does not have a single-arg constructor that takes a Throwable");
   }
 
   @Override
