@@ -39,7 +39,7 @@ public class WebApplicationContextSupport extends ApplicationContextSupport {
    *             if not running in a WebApplicationContext
    * @see #getApplicationContext()
    */
-  public final WebApplicationContext getWebApplicationContext() throws IllegalStateException {
+  public final WebApplicationContext getWebApplicationContext() {
     final ApplicationContext ctx = getApplicationContext();
     if (ctx instanceof WebApplicationContext) {
       return (WebApplicationContext) ctx;
