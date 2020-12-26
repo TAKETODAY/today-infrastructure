@@ -56,13 +56,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import javax.annotation.PreDestroy;
 import javax.servlet.Servlet;
 
 import cn.taketoday.context.annotation.Autowired;
 import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Props;
 import cn.taketoday.context.exception.ConfigurationException;
+import cn.taketoday.context.factory.DisposableBean;
 import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.logger.Logger;
@@ -100,7 +100,8 @@ import lombok.Setter;
 @Getter
 @MissingBean(type = WebServer.class)
 @Props(prefix = { "server.", "server.jetty." })
-public class JettyServer extends AbstractServletWebServer implements WebServer {
+public class JettyServer
+        extends AbstractServletWebServer implements WebServer, DisposableBean {
 
   private static final Logger log = LoggerFactory.getLogger(JettyServer.class);
 
@@ -232,7 +233,11 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
   }
 
   @Override
-  @PreDestroy
+  public void destroy() {
+    stop();
+  }
+
+  @Override
   public synchronized void stop() {
     getStarted().set(false);
     log.info("Jetty stopping on port(s) '{}' with context path '{}'", //
@@ -575,7 +580,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
    * @author TODAY <br>
    * 2019-10-14 01:07
    */
-  public static class ServletContextInitializerConfiguration extends AbstractConfiguration {
+  public class ServletContextInitializerConfiguration extends AbstractConfiguration {
 
     private ServletWebServerApplicationLoader starter;
 
@@ -598,6 +603,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
 
       @Override
       protected void doStart() {
+        starter.setApplicationContext(applicationContext);
 
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.context.getClassLoader());
