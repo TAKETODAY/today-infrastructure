@@ -431,7 +431,7 @@ public class TomcatServer extends AbstractServletWebServer {
         context.addServletContainerInitializer(ClassUtils.newInstance(jasperInitializer), null);
       }
       else {
-        throw new ConfigurationException("jasperInitializer");
+        throw new ConfigurationException("no 'org.apache.jasper.servlet.JasperInitializer in classpath");
       }
     }
   }
