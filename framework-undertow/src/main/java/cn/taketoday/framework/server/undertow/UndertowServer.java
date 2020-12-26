@@ -30,7 +30,6 @@ import java.util.Set;
 
 import javax.annotation.PreDestroy;
 import javax.servlet.Servlet;
-import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletException;
 
 import cn.taketoday.context.annotation.Autowired;
@@ -76,7 +75,7 @@ import lombok.Setter;
 
 /**
  * @author TODAY <br>
- *         2019-01-12 17:28
+ * 2019-01-12 17:28
  */
 @Setter
 @Getter
@@ -219,14 +218,15 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
     final DeploymentInfo deployment = Servlets.deployment();
 
     final ServletWebServerApplicationLoader starter = //
-            new ServletWebServerApplicationLoader(() -> getMergedInitializers());
+            new ServletWebServerApplicationLoader(this::getMergedInitializers);
 
     //@off
-        deployment.addServletContainerInitializer(
-                new ServletContainerInitializerInfo(ServletWebServerApplicationLoader.class, //
-                        new ImmediateInstanceFactory<ServletContainerInitializer>(starter), Collections.emptySet()//
-                )//@on
-        );
+    // 添加 ApplicationLoader
+    deployment.addServletContainerInitializer(
+          new ServletContainerInitializerInfo(ServletWebServerApplicationLoader.class,
+                  new ImmediateInstanceFactory<>(starter), Collections.emptySet()
+          )//@on
+    );
 
     deployment.setClassLoader(getClassLoader());
     deployment.setContextPath(getContextPath());
@@ -256,7 +256,7 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
 
     SessionManager sessionManager = this.sessionManager;
     if (sessionManager != null) {
-      deployment.setSessionManagerFactory((e) -> this.sessionManager);
+      deployment.setSessionManagerFactory(e -> this.sessionManager);
       manager.deploy();
     }
     else {
@@ -371,7 +371,7 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
 
   private static class JarResourceManager implements ResourceManager {
 
-    private String jarFilePath;
+    private final String jarFilePath;
 
     JarResourceManager(JarResource rootDirectory) throws IOException {
       this.jarFilePath = StringUtils.cleanPath(rootDirectory.getFile().getAbsolutePath());
@@ -380,7 +380,7 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
     @Override
     public Resource getResource(String path) throws IOException {
 
-      URL url = new URL("jar:file:" + jarFilePath + "!" + (path.startsWith("/") ? path : '/' + path));
+      URL url = new URL("jar:file:" + jarFilePath + '!' + (path.startsWith("/") ? path : '/' + path));
 
       URLResource resource = new URLResource(url, path);
       if (resource.getContentLength() < 0) {
@@ -395,19 +395,13 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
     }
 
     @Override
-    public void registerResourceChangeListener(ResourceChangeListener listener) {
-
-    }
+    public void registerResourceChangeListener(ResourceChangeListener listener) { }
 
     @Override
-    public void removeResourceChangeListener(ResourceChangeListener listener) {
-
-    }
+    public void removeResourceChangeListener(ResourceChangeListener listener) { }
 
     @Override
-    public void close() throws IOException {
-
-    }
+    public void close() { }
 
   }
 
