@@ -42,7 +42,6 @@ import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
 import cn.taketoday.context.utils.ClassUtils;
 import cn.taketoday.framework.Constant;
-import cn.taketoday.framework.ServletWebServerApplicationContext;
 import cn.taketoday.framework.WebServerApplicationContext;
 import cn.taketoday.framework.config.DefaultServletConfiguration;
 import cn.taketoday.framework.config.JspServletConfiguration;
@@ -78,9 +77,6 @@ public abstract class AbstractServletWebServer
    * Context init parameters
    */
   private final Map<String, String> contextInitParameters = new HashMap<>();
-
-  @Override
-  protected abstract ServletWebServerApplicationContext getApplicationContext();
 
   /**
    * Add jsp to context
