@@ -44,6 +44,7 @@ import cn.taketoday.web.WebApplicationContext;
 import cn.taketoday.web.WebApplicationContextSupport;
 import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.event.WebApplicationStartedEvent;
+import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.ControllerAdviceExceptionHandler;
 import cn.taketoday.web.handler.DispatcherHandler;
 import cn.taketoday.web.handler.FunctionRequestAdapter;
@@ -110,7 +111,8 @@ public class WebApplicationLoader
     configureTemplateLoader(context, mvcConfiguration);
     configureResourceHandler(context, mvcConfiguration);
     configureFunctionHandler(context, mvcConfiguration);
-    configureExceptionHandler(context, mvcConfiguration);
+    configureExceptionHandler(context.getBeans(HandlerExceptionHandler.class),
+                              mvcConfiguration);
 
     configureResultHandler(context.getBeans(ResultHandler.class), mvcConfiguration);
     configureTypeConverter(context.getBeans(TypeConverter.class), mvcConfiguration);
@@ -153,7 +155,7 @@ public class WebApplicationLoader
     obtainDispatcher.setHandlerRegistry(registries.size() == 1
                                         ? registries.get(0)
                                         : new CompositeHandlerRegistry(registries));
-}
+  }
 
   /**
    * Configure {@link HandlerAdapter}
@@ -200,17 +202,33 @@ public class WebApplicationLoader
     }
   }
 
-  protected void configureExceptionHandler(WebApplicationContext context,
+  protected void configureExceptionHandler(List<HandlerExceptionHandler> handlers,
                                            WebMvcConfiguration mvcConfiguration) {
-    final DispatcherHandler obtainDispatcher = obtainDispatcher();
 
-    HandlerExceptionHandler exceptionHandler = context.getBean(HandlerExceptionHandler.class);
-    if (exceptionHandler == null) {
-      context.registerBean(ControllerAdviceExceptionHandler.class);
-      exceptionHandler = context.getBean(ControllerAdviceExceptionHandler.class);
+    final DispatcherHandler dispatcherHandler = obtainDispatcher();
+    final HandlerExceptionHandler exceptionHandler = dispatcherHandler.getExceptionHandler();
+    if (exceptionHandler != null) {
+      handlers.add(exceptionHandler);
     }
+
+    final WebApplicationContext context = obtainApplicationContext();
+
+    // 默认
+    ControllerAdviceExceptionHandler defaultHandler = context.getBean(ControllerAdviceExceptionHandler.class);
+    if (defaultHandler == null) {
+      context.registerBean(ControllerAdviceExceptionHandler.class);
+      defaultHandler = context.getBean(ControllerAdviceExceptionHandler.class);
+    }
+
+    handlers.add(defaultHandler);
+
+    // 用户
+    mvcConfiguration.configureExceptionHandlers(handlers);
+
     // set
-    obtainDispatcher.setExceptionHandler(exceptionHandler);
+    dispatcherHandler.setExceptionHandler(handlers.size() == 1
+                                          ? handlers.get(0)
+                                          : new CompositeHandlerExceptionHandler(handlers));
   }
 
   protected void configureFunctionHandler(WebApplicationContext context, WebMvcConfiguration mvcConfiguration) {
