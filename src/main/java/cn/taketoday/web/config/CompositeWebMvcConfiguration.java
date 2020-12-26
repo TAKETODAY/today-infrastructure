@@ -24,6 +24,7 @@ import java.util.List;
 import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.utils.OrderUtils;
 import cn.taketoday.web.handler.HandlerAdapter;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
 import cn.taketoday.web.registry.HandlerRegistry;
@@ -127,6 +128,13 @@ public class CompositeWebMvcConfiguration implements WebMvcConfiguration {
   public void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries) {
     for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
       webMvcConfiguration.configureHandlerRegistry(handlerRegistries);
+    }
+  }
+
+  @Override
+  public void configureExceptionHandlers(final List<HandlerExceptionHandler> handlers) {
+    for (WebMvcConfiguration webMvcConfiguration : getWebMvcConfigurations()) {
+      webMvcConfiguration.configureExceptionHandlers(handlers);
     }
   }
 

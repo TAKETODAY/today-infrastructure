@@ -25,6 +25,7 @@ import cn.taketoday.context.conversion.TypeConverter;
 import cn.taketoday.context.io.Resource;
 import cn.taketoday.web.annotation.Multipart;
 import cn.taketoday.web.handler.HandlerAdapter;
+import cn.taketoday.web.handler.HandlerExceptionHandler;
 import cn.taketoday.web.handler.ViewController;
 import cn.taketoday.web.multipart.MultipartConfiguration;
 import cn.taketoday.web.registry.FunctionHandlerRegistry;
@@ -38,7 +39,7 @@ import cn.taketoday.web.view.template.TemplateViewResolver;
 
 /**
  * @author TODAY <br>
- *         2019-05-17 17:46
+ * 2019-05-17 17:46
  */
 public interface WebMvcConfiguration {
 
@@ -46,7 +47,7 @@ public interface WebMvcConfiguration {
    * Configure {@link ParameterResolver}
    *
    * @param parameterResolvers
-   *            {@link ParameterResolver} registry
+   *         {@link ParameterResolver} registry
    */
   default void configureParameterResolver(List<ParameterResolver> parameterResolvers) {}
 
@@ -54,7 +55,7 @@ public interface WebMvcConfiguration {
    * Configure {@link ResultHandler}
    *
    * @param resultHandlers
-   *            {@link ResultHandler} registry
+   *         {@link ResultHandler} registry
    */
   default void configureResultHandler(List<ResultHandler> resultHandlers) {}
 
@@ -62,7 +63,7 @@ public interface WebMvcConfiguration {
    * Configure {@link TemplateViewResolver}
    *
    * @param viewResolver
-   *            {@link TemplateViewResolver} instance
+   *         {@link TemplateViewResolver} instance
    */
   default void configureTemplateViewResolver(AbstractTemplateViewResolver viewResolver) {}
 
@@ -70,7 +71,7 @@ public interface WebMvcConfiguration {
    * Configure static {@link Resource}
    *
    * @param registry
-   *            {@link ResourceHandlerRegistry}
+   *         {@link ResourceHandlerRegistry}
    */
   default void configureResourceHandler(ResourceHandlerRegistry registry) {}
 
@@ -78,7 +79,7 @@ public interface WebMvcConfiguration {
    * Configure {@link Multipart}
    *
    * @param multipartConfiguration
-   *            {@link MultipartConfiguration}
+   *         {@link MultipartConfiguration}
    */
   default void configureMultipart(MultipartConfiguration multipartConfiguration) {}
 
@@ -86,7 +87,7 @@ public interface WebMvcConfiguration {
    * Use {@link TypeConverter}s to convert request parameters
    *
    * @param typeConverters
-   *            {@link TypeConverter} registry
+   *         {@link TypeConverter} registry
    */
   default void configureTypeConverter(List<TypeConverter> typeConverters) {}
 
@@ -94,7 +95,7 @@ public interface WebMvcConfiguration {
    * Configure WebApplicationInitializer
    *
    * @param initializers
-   *            WebApplicationInitializer register
+   *         WebApplicationInitializer register
    */
   default void configureInitializer(List<WebApplicationInitializer> initializers) {}
 
@@ -102,7 +103,8 @@ public interface WebMvcConfiguration {
    * Configure Freemarker's {@link freemarker.cache.TemplateLoader} s
    *
    * @param loaders
-   *            TemplateLoaders
+   *         TemplateLoaders
+   *
    * @since 2.3.7
    */
   default <T extends Object> void configureTemplateLoader(List<T> loaders) {}
@@ -111,7 +113,8 @@ public interface WebMvcConfiguration {
    * Configure {@link ViewController} s
    *
    * @param registry
-   *            {@link ViewControllerHandlerRegistry}
+   *         {@link ViewControllerHandlerRegistry}
+   *
    * @since 2.3.7
    */
   default void configureViewController(ViewControllerHandlerRegistry registry) {}
@@ -120,7 +123,8 @@ public interface WebMvcConfiguration {
    * Configure Function Handler
    *
    * @param registry
-   *            {@link FunctionHandlerRegistry}
+   *         {@link FunctionHandlerRegistry}
+   *
    * @since 2.3.7
    */
   default void configureFunctionHandler(FunctionHandlerRegistry registry) {}
@@ -129,7 +133,8 @@ public interface WebMvcConfiguration {
    * Configure {@link HandlerAdapter}
    *
    * @param adapters
-   *            {@link HandlerAdapter}s
+   *         {@link HandlerAdapter}s
+   *
    * @since 2.3.7
    */
   default void configureHandlerAdapter(List<HandlerAdapter> adapters) {}
@@ -138,9 +143,20 @@ public interface WebMvcConfiguration {
    * Configure {@link HandlerRegistry}
    *
    * @param handlerRegistries
-   *            {@link HandlerRegistry}s
+   *         {@link HandlerRegistry}s
+   *
    * @since 2.3.7
    */
   default void configureHandlerRegistry(List<HandlerRegistry> handlerRegistries) {}
+
+  /**
+   * Configure {@link HandlerExceptionHandler}
+   *
+   * @param handlers
+   *         HandlerExceptionHandlers
+   *
+   * @since 3.0
+   */
+  default void configureExceptionHandlers(List<HandlerExceptionHandler> handlers) {}
 
 }
