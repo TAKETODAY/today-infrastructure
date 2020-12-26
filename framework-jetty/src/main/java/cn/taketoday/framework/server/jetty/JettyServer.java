@@ -53,7 +53,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -68,6 +67,7 @@ import cn.taketoday.context.io.ClassPathResource;
 import cn.taketoday.context.io.FileBasedResource;
 import cn.taketoday.context.logger.Logger;
 import cn.taketoday.context.logger.LoggerFactory;
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.StringUtils;
 import cn.taketoday.framework.ServletWebServerApplicationContext;
 import cn.taketoday.framework.WebServerException;
@@ -149,7 +149,8 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
         @Override
         protected void doStart() throws Exception {
           for (Connector connector : JettyServer.this.connectors) {
-            state(connector.isStopped(), () -> "Connector " + connector + " has been started prematurely");
+            Assert.state(connector.isStopped(),
+                         () -> "Connector " + connector + " has been started prematurely");
           }
           JettyServer.this.server.setConnectors(null);
         }
@@ -167,25 +168,15 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
     }
   }
 
-  public static void state(boolean expression, Supplier<String> messageSupplier) {
-    if (!expression) {
-      throw new IllegalStateException(nullSafeGet(messageSupplier));
-    }
-  }
-
-  private static String nullSafeGet(Supplier<String> messageSupplier) {
-    return (messageSupplier != null ? messageSupplier.get() : null);
-  }
-
   private void stopSilently() {
     try {
       this.server.stop();
     }
-    catch (Exception ex) {}
+    catch (Exception ignored) {}
   }
 
   @Override
-  public synchronized void start() throws WebServerException {
+  public synchronized void start() {
     if (getStarted().get()) {
       return;
     }
@@ -303,7 +294,8 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
    *
    * @return a {@link ServerConnector}
    */
-  protected ServerConnector getServerConnector(final String host, final int port, final Server server) {
+  protected ServerConnector getServerConnector(final String host,
+                                               final int port, final Server server) {
 
     final ServerConnector connector = new ServerConnector(server, this.acceptors, this.selectors);
 
@@ -347,7 +339,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
    */
   protected void configureWebAppContext(final WebAppContext context) {
 
-    Objects.requireNonNull(context, "WebAppContext must not be null");
+    Assert.notNull(context, "WebAppContext must not be null");
 
     context.setTempDirectory(getTemporalDirectory()); // base temp dir
 
@@ -484,7 +476,9 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
     final SessionConfiguration sessionConfiguration = getSessionConfiguration();
     final Duration sessionTimeout = sessionConfiguration.getTimeout();
 
-    sessionHandler.setMaxInactiveInterval(isNegative(sessionTimeout) ? -1 : (int) sessionTimeout.getSeconds());
+    sessionHandler.setMaxInactiveInterval(isNegative(sessionTimeout)
+                                          ? -1
+                                          : (int) sessionTimeout.getSeconds());
 
     if (sessionConfiguration.isPersistent()) {
 
@@ -512,7 +506,6 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
     for (Entry<Locale, Charset> entry : getLocaleCharsetMappings().entrySet()) {
       context.addLocaleEncoding(entry.getKey().toString(), entry.getValue().toString());
     }
-
   }
 
   /**
@@ -521,7 +514,9 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
   protected void configureDocumentRoot(final WebAppContext webAppContext) {
     final WebDocumentConfiguration webDocument = getWebDocumentConfiguration();
     try {
-      webAppContext.setBaseResource(getRootResource(webDocument == null ? null : webDocument.getValidDocumentDirectory()));
+      webAppContext.setBaseResource(getRootResource(webDocument == null
+                                                    ? null
+                                                    : webDocument.getValidDocumentDirectory()));
     }
     catch (IOException e) {
       throw new ConfigurationException(e);
@@ -551,7 +546,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
 
     GzipHandler handler = new GzipHandler();
 
-    //        handler.setCompressionLevel(compression.getLevel());
+    // handler.setCompressionLevel(compression.getLevel());
 
     handler.setMinGzipSize((int) compression.getMinResponseSize().toBytes());
     handler.addIncludedMimeTypes(compression.getMimeTypes());
@@ -602,7 +597,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
       }
 
       @Override
-      protected void doStart() throws Exception {
+      protected void doStart() {
 
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(this.context.getClassLoader());
@@ -619,7 +614,7 @@ public class JettyServer extends AbstractServletWebServer implements WebServer {
         }
       }
 
-      private final void setExtendedListenerTypes(boolean extended) {
+      private void setExtendedListenerTypes(boolean extended) {
         this.context.getServletContext().setExtendedListenerTypes(extended);
       }
     }

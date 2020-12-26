@@ -62,7 +62,8 @@ public class SessionConfiguration {
 
     if (storeDirectory.isDirectory()) {
 
-      LoggerFactory.getLogger(getClass()).info("Use directory: [{}] to store sessions", storeDirectory);
+      LoggerFactory.getLogger(getClass())
+              .info("Use directory: [{}] to store sessions", storeDirectory);
       return storeDirectory.getFile();
     }
 
