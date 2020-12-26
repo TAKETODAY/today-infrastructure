@@ -553,7 +553,7 @@ public class TomcatServer extends AbstractServletWebServer {
     }
     else {
       context.addLifecycleListener((event) -> {
-        if (event.getType().equals(Lifecycle.START_EVENT)) {
+        if (Lifecycle.START_EVENT.equals(event.getType())) {
           final Context context_ = (Context) event.getLifecycle();
           final Manager manager_ = context_.getManager();
           if (manager_ instanceof StandardManager) {
