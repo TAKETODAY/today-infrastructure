@@ -21,8 +21,10 @@ package test.framework.demo;
 
 import javax.servlet.http.HttpSession;
 
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.framework.WebApplication;
 import cn.taketoday.framework.annotation.PropertiesSource;
+import cn.taketoday.framework.server.undertow.UndertowServer;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RestController;
@@ -33,6 +35,7 @@ import cn.taketoday.web.registry.ResourceHandlerRegistry;
  * @author TODAY <br>
  *         2019-06-19 09:58
  */
+@Import(UndertowServer.class)
 @RestController
 @PropertiesSource("classpath:info.properties")
 public class TestApplication implements WebMvcConfiguration {

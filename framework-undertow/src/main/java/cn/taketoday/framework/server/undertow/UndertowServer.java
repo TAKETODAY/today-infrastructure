@@ -81,7 +81,8 @@ import lombok.Setter;
 @Getter
 @MissingBean(type = WebServer.class)
 @Props(prefix = { "server.", "server.undertow." })
-public class UndertowServer extends AbstractServletWebServer implements WebServer {
+public class UndertowServer
+        extends AbstractServletWebServer implements WebServer {
 
   private static final Logger log = LoggerFactory.getLogger(UndertowServer.class);
 
@@ -219,6 +220,8 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
 
     final ServletWebServerApplicationLoader starter = //
             new ServletWebServerApplicationLoader(this::getMergedInitializers);
+
+    starter.setApplicationContext(getApplicationContext());
 
     //@off
     // 添加 ApplicationLoader
@@ -368,6 +371,7 @@ public class UndertowServer extends AbstractServletWebServer implements WebServe
   protected Servlet getDefaultServlet() {
     return new DefaultServlet();
   }
+
 
   private static class JarResourceManager implements ResourceManager {
 
