@@ -21,7 +21,6 @@ package cn.taketoday.framework.server.undertow;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import cn.taketoday.context.utils.StringUtils;
@@ -95,10 +94,10 @@ public abstract class UndertowCompressionUtils {
     return predicates.toArray(new Predicate[predicates.size()]);
   }
 
-  private static <T> boolean contains(T[] targets, Function<T, Boolean> function) {
+  private static <T> boolean contains(T[] targets, java.util.function.Predicate<T> function) {
     if (targets != null) {
       for (T target : targets) {
-        if (function.apply(target)) {
+        if (function.test(target)) {
           return true;
         }
       }
