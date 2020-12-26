@@ -150,13 +150,10 @@ public class WebApplicationLoader
     // 自定义
     mvcConfiguration.configureHandlerRegistry(registries);
 
-    if (registries.size() == 1) {
-      obtainDispatcher.setHandlerRegistry(registries.get(0));
-    }
-    else {
-      obtainDispatcher.setHandlerRegistry(new CompositeHandlerRegistry(registries));
-    }
-  }
+    obtainDispatcher.setHandlerRegistry(registries.size() == 1
+                                        ? registries.get(0)
+                                        : new CompositeHandlerRegistry(registries));
+}
 
   /**
    * Configure {@link HandlerAdapter}
