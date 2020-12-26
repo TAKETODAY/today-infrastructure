@@ -77,7 +77,8 @@ import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
  * @author TODAY <br>
  *         2019-07-04 21:24
  */
-public class NettyRequestContext extends AbstractRequestContext implements RequestContext, Map<String, Object> {
+public class NettyRequestContext
+        extends AbstractRequestContext implements RequestContext, Map<String, Object> {
 
 //    private static final Logger log = LoggerFactory.getLogger(NettyRequestContext.class);
 
@@ -509,6 +510,12 @@ public class NettyRequestContext extends AbstractRequestContext implements Reque
   @Override
   public RequestContext status(int sc) {
     getResponse().setStatus(HttpResponseStatus.valueOf(sc));
+    return this;
+  }
+
+  @Override
+  public RequestContext status(final int status, final String message) {
+    getResponse().setStatus(new HttpResponseStatus(status, message));
     return this;
   }
 
