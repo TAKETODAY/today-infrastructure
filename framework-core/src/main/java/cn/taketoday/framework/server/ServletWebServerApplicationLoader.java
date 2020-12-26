@@ -32,8 +32,6 @@ import cn.taketoday.web.servlet.WebServletApplicationLoader;
  */
 public class ServletWebServerApplicationLoader extends WebServletApplicationLoader {
 
-  private static final long serialVersionUID = 1L;
-
   private Supplier<List<WebApplicationInitializer>> initializersSupplier;
 
   public ServletWebServerApplicationLoader(Supplier<List<WebApplicationInitializer>> initializersSupplier) {
