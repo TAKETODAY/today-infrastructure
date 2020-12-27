@@ -27,6 +27,8 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package cn.taketoday.context.asm;
 
+import cn.taketoday.context.Constant;
+
 /**
  * The input and output stack map frames of a basic block.
  *
@@ -321,7 +323,7 @@ class Frame {
       return getAbstractTypeFromDescriptor(symbolTable, descriptor, 0);
     }
     else {
-      return UNINITIALIZED_KIND | symbolTable.addUninitializedType("", ((Label) type).bytecodeOffset);
+      return UNINITIALIZED_KIND | symbolTable.addUninitializedType(Constant.BLANK, ((Label) type).bytecodeOffset);
     }
   }
 
@@ -1379,7 +1381,9 @@ class Frame {
    * @return {@literal true} if the type array has been modified by this
    * operation.
    */
-  private static boolean merge(final SymbolTable symbolTable, final int sourceType, final int[] dstTypes,
+  private static boolean merge(final SymbolTable symbolTable,
+                               final int sourceType,
+                               final int[] dstTypes,
                                final int dstIndex) {
     int dstType = dstTypes[dstIndex];
     if (dstType == sourceType) {
