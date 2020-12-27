@@ -159,10 +159,16 @@ final class FieldWriter extends FieldVisitor {
     // Write type_index and reserve space for num_element_value_pairs.
     annotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
     if (visible) {
-      return lastRuntimeVisibleAnnotation = new AnnotationWriter(symbolTable, annotation, lastRuntimeVisibleAnnotation);
+      return lastRuntimeVisibleAnnotation
+              = new AnnotationWriter(symbolTable,
+                                     annotation,
+                                     lastRuntimeVisibleAnnotation);
     }
     else {
-      return lastRuntimeInvisibleAnnotation = new AnnotationWriter(symbolTable, annotation, lastRuntimeInvisibleAnnotation);
+      return lastRuntimeInvisibleAnnotation
+              = new AnnotationWriter(symbolTable,
+                                     annotation,
+                                     lastRuntimeInvisibleAnnotation);
     }
   }
 
@@ -179,10 +185,16 @@ final class FieldWriter extends FieldVisitor {
     // Write type_index and reserve space for num_element_value_pairs.
     typeAnnotation.putShort(symbolTable.addConstantUtf8(descriptor)).putShort(0);
     if (visible) {
-      return lastRuntimeVisibleTypeAnnotation = new AnnotationWriter(symbolTable, typeAnnotation, lastRuntimeVisibleTypeAnnotation);
+      return lastRuntimeVisibleTypeAnnotation
+              = new AnnotationWriter(symbolTable,
+                                     typeAnnotation,
+                                     lastRuntimeVisibleTypeAnnotation);
     }
     else {
-      return lastRuntimeInvisibleTypeAnnotation = new AnnotationWriter(symbolTable, typeAnnotation, lastRuntimeInvisibleTypeAnnotation);
+      return lastRuntimeInvisibleTypeAnnotation
+              = new AnnotationWriter(symbolTable,
+                                     typeAnnotation,
+                                     lastRuntimeInvisibleTypeAnnotation);
     }
   }
 
