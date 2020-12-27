@@ -109,9 +109,13 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   public Map<String, Object> getAttributes() {
     final HashMap<String, Object> attributes = this.attributes;
     if (attributes == null) {
-      return this.attributes = new HashMap<>();
+      return this.attributes = createAttributes();
     }
     return attributes;
+  }
+
+  protected HashMap<String, Object> createAttributes() {
+    return new HashMap<>();
   }
 
 }

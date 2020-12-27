@@ -33,7 +33,8 @@ import cn.taketoday.context.reflect.MethodInvoker;
  * @author TODAY <br>
  * 2018-11-10 13:14
  */
-public class StandardMethodInvocation extends AttributeAccessorSupport implements MethodInvocation {
+public class StandardMethodInvocation
+        extends AttributeAccessorSupport implements MethodInvocation {
 
   private final Object[] args;
   private final Target target;
