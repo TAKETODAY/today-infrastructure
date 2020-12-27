@@ -25,6 +25,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Objects;
 
 import cn.taketoday.context.AttributeAccessorSupport;
 import cn.taketoday.context.reflect.MethodInvoker;
@@ -81,6 +82,24 @@ public class StandardMethodInvocation
   @Override
   public String toString() {
     return target.toString();
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) return true;
+    if (!(o instanceof StandardMethodInvocation)) return false;
+    if (!super.equals(o)) return false;
+    final StandardMethodInvocation that = (StandardMethodInvocation) o;
+    return currentAdviceIndex == that.currentAdviceIndex
+            && Arrays.equals(args, that.args)
+            && Objects.equals(target, that.target);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = Objects.hash(super.hashCode(), target, currentAdviceIndex);
+    result = 31 * result + Arrays.hashCode(args);
+    return result;
   }
 
   public static class Target implements MethodInvocation {
