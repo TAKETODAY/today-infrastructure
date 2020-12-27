@@ -39,8 +39,10 @@ import static java.lang.String.format;
  * 2018-12-14 13:45
  * @since 2.1.1
  */
-@SuppressWarnings("serial")
-public class AnnotationAttributes extends LinkedHashMap<String, Object> implements Ordered {
+public class AnnotationAttributes
+        extends LinkedHashMap<String, Object> implements Ordered {
+
+  private static final long serialVersionUID = 1L;
 
   private static final String UNKNOWN = "unknown";
 
