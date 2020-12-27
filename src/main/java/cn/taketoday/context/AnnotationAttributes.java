@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import cn.taketoday.context.utils.Assert;
 import cn.taketoday.context.utils.OrderUtils;
 
 import static java.lang.String.format;
@@ -62,7 +63,7 @@ public class AnnotationAttributes
 
   public AnnotationAttributes(Class<? extends Annotation> annotationType, int initialCapacity) {
     super(initialCapacity, 0.75f);
-    Objects.requireNonNull(annotationType, "'annotationType' must not be null");
+    Assert.notNull(annotationType, "'annotationType' must not be null");
     this.annotationType = annotationType;
     this.displayName = annotationType.getName();
   }
@@ -80,7 +81,7 @@ public class AnnotationAttributes
   }
 
   public AnnotationAttributes(Class<? extends Annotation> annotationType) {
-    Objects.requireNonNull(annotationType, "'annotationType' must not be null");
+    Assert.notNull(annotationType, "'annotationType' must not be null");
 
     this.annotationType = annotationType;
     this.displayName = annotationType.getName();
@@ -141,7 +142,7 @@ public class AnnotationAttributes
    * @return T
    */
   public <T> T getAttribute(String attributeName, Class<T> expectedType) {
-    Objects.requireNonNull(attributeName, "'attributeName' must not be null or empty");
+    Assert.notNull(attributeName, "'attributeName' must not be null or empty");
     Object value = get(attributeName); // get value
     assertAttributePresence(attributeName, value);
 
