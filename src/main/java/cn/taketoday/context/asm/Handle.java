@@ -28,6 +28,8 @@
 
 package cn.taketoday.context.asm;
 
+import java.util.Objects;
+
 /**
  * A reference to a field or a method.
  *
@@ -180,13 +182,17 @@ public final class Handle {
       return false;
     }
     Handle handle = (Handle) object;
-    return tag == handle.tag && isInterface == handle.isInterface && owner.equals(handle.owner) && name.equals(
-            handle.name) && descriptor.equals(handle.descriptor);
+    return tag == handle.tag
+            && isInterface == handle.isInterface
+            && Objects.equals(name, handle.name)
+            && Objects.equals(owner, handle.owner)
+            && Objects.equals(descriptor, handle.descriptor);
   }
 
   @Override
   public int hashCode() {
-    return tag + (isInterface ? 64 : 0) + owner.hashCode() * name.hashCode() * descriptor.hashCode();
+    return tag + (isInterface ? 64 : 0)
+            + owner.hashCode() * name.hashCode() * descriptor.hashCode();
   }
 
   /**
