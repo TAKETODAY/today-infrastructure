@@ -36,7 +36,7 @@ package cn.taketoday.context.asm;
  * "https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-6.html">JVMS
  * 6</a>
  */
-final class Constants implements Opcodes {
+abstract class Constants implements Opcodes {
 
   // The ClassFile attribute names, in the order they are defined in
   // https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7-300.
@@ -180,6 +180,4 @@ final class Constants implements Opcodes {
   static final int ASM_IFNONNULL = IFNONNULL + ASM_IFNULL_OPCODE_DELTA;
   static final int ASM_GOTO_W = 220;
 
-  private Constants() {
-  }
 }
