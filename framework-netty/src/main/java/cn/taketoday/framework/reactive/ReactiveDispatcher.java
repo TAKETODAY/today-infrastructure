@@ -39,7 +39,8 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
  * @author TODAY <br>
  *         2019-07-04 21:50
  */
-public class ReactiveDispatcher extends DispatcherHandler implements ChannelInboundHandler {
+public class ReactiveDispatcher
+        extends DispatcherHandler implements ChannelInboundHandler {
 
   public ReactiveDispatcher() {}
 

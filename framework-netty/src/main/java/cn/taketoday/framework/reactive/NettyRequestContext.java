@@ -62,6 +62,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
@@ -75,7 +76,7 @@ import static cn.taketoday.context.Constant.DEFAULT_CHARSET;
 
 /**
  * @author TODAY <br>
- *         2019-07-04 21:24
+ * 2019-07-04 21:24
  */
 public class NettyRequestContext
         extends AbstractRequestContext implements RequestContext, Map<String, Object> {
@@ -276,25 +277,25 @@ public class NettyRequestContext
 
   @Override
   public cn.taketoday.web.HttpHeaders responseDateHeader(String name, long date) {
-    getResponseHeaders().set(name, Long.valueOf(date));
+    getResponseHeaders().set(name, date);
     return this;
   }
 
   @Override
   public cn.taketoday.web.HttpHeaders addResponseDateHeader(String name, long date) {
-    getResponseHeaders().add(name, Long.valueOf(date));
+    getResponseHeaders().add(name, date);
     return this;
   }
 
   @Override
   public cn.taketoday.web.HttpHeaders responseIntHeader(String name, int value) {
-    getResponseHeaders().set(name, Integer.valueOf(value));
+    getResponseHeaders().set(name, value);
     return this;
   }
 
   @Override
   public cn.taketoday.web.HttpHeaders addResponseIntHeader(String name, int value) {
-    getResponseHeaders().add(name, Integer.valueOf(value));
+    getResponseHeaders().add(name, value);
     return this;
   }
 
@@ -310,8 +311,21 @@ public class NettyRequestContext
     if (StringUtils.isEmpty(header)) {
       return EMPTY_COOKIES;
     }
-    final List<HttpCookie> parsed = HttpCookie.parse(header);
-    return ObjectUtils.isEmpty(parsed) ? EMPTY_COOKIES : parsed.toArray(new HttpCookie[parsed.size()]);
+
+    final Set<Cookie> parsed = ServerCookieDecoder.STRICT.decode(header);
+    return ObjectUtils.isEmpty(parsed)
+           ? EMPTY_COOKIES
+           : parsed.stream().map(this::mapHttpCookie).toArray(HttpCookie[]::new);
+  }
+
+  private HttpCookie mapHttpCookie(final Cookie cookie) {
+    final HttpCookie ret = new HttpCookie(cookie.name(), cookie.value());
+    ret.setPath(cookie.path());
+    ret.setDomain(cookie.domain());
+    ret.setMaxAge(cookie.maxAge());
+    ret.setSecure(cookie.isSecure());
+    ret.setHttpOnly(cookie.isHttpOnly());
+    return ret;
   }
 
   @Override
@@ -383,7 +397,6 @@ public class NettyRequestContext
   protected InterfaceHttpPostRequestDecoder getRequestDecoder() {
     InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
     if (requestDecoder == null) {
-
       requestDecoder = new HttpPostRequestDecoder(HTTP_DATA_FACTORY, this.request, DEFAULT_CHARSET);
 //            requestDecoder = WebUtils.isMultipart(this)
 //                    ? new HttpPostMultipartRequestDecoder(HTTP_DATA_FACTORY, request.retain(), DEFAULT_CHARSET)
@@ -502,7 +515,7 @@ public class NettyRequestContext
     c.setSecure(cookie.getSecure());
     c.setHttpOnly(cookie.isHttpOnly());
 
-    getResponseHeaders().add(HttpHeaderNames.SET_COOKIE, ServerCookieEncoder.STRICT.encode(c)); // TODO 优化
+    getResponseHeaders().add(HttpHeaderNames.SET_COOKIE, ServerCookieEncoder.STRICT.encode(c));
 
     return this;
   }
@@ -668,7 +681,7 @@ public class NettyRequestContext
   }
 
   @Override
-  public void putAll(Map<? extends String, ? extends Object> m) {
+  public void putAll(Map<? extends String, ?> m) {
     getAttributes().putAll(m);
   }
 

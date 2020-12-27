@@ -33,8 +33,6 @@ import cn.taketoday.web.handler.DispatcherHandler;
  */
 public class NettyWebServerApplicationLoader extends WebServerApplicationLoader {
 
-  private static final long serialVersionUID = 1L;
-
   public NettyWebServerApplicationLoader(Supplier<List<WebApplicationInitializer>> initializersSupplier) {
     super(initializersSupplier);
   }
