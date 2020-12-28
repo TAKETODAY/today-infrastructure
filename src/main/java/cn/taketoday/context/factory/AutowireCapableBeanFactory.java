@@ -50,7 +50,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @throws ContextException
    *         if instantiation or wiring failed
    */
-  default <T> T createBean(Class<T> beanClass) throws ContextException {
+  default <T> T createBean(Class<T> beanClass) {
     return createBean(beanClass, false);
   }
 
@@ -74,7 +74,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @throws ContextException
    *         if instantiation or wiring failed
    */
-  <T> T createBean(Class<T> beanClass, boolean cacheBeanDef) throws ContextException;
+  <T> T createBean(Class<T> beanClass, boolean cacheBeanDef);
 
   /**
    * Populate the given bean instance through applying after-instantiation
@@ -90,7 +90,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @throws ContextException
    *         if wiring failed
    */
-  void autowireBean(Object existingBean) throws ContextException;
+  void autowireBean(Object existingBean);
 
   /**
    * Autowire the bean properties of the given bean instance by name or type.
@@ -104,7 +104,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @throws ContextException
    *         if wiring failed
    */
-  void autowireBeanProperties(Object existingBean) throws ContextException;
+  void autowireBeanProperties(Object existingBean);
 
   /**
    * Initialize the given raw bean, applying factory callbacks such as
@@ -125,7 +125,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @throws BeanInitializingException
    *         if the initialization failed
    */
-  Object initializeBean(Object existingBean, String beanName) throws BeanInitializingException;
+  Object initializeBean(Object existingBean, String beanName)
+          throws BeanInitializingException;
 
   /**
    * Fully initialize the given raw bean, applying factory callbacks such as
@@ -144,6 +145,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
    * @return the bean instance to use, either the original or a wrapped one
    *
    * @throws BeanInitializingException
+   *         if the initialization failed
    */
   Object initializeBean(final Object existingBean, final BeanDefinition def)
           throws BeanInitializingException;

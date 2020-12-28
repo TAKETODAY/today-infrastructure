@@ -864,8 +864,7 @@ public abstract class AbstractApplicationContext implements ConfigurableApplicat
   }
 
   @Override
-  public Object initializeBean(final Object existingBean, final BeanDefinition def)
-          throws BeanInitializingException {
+  public Object initializeBean(final Object existingBean, final BeanDefinition def) {
     return getBeanFactory().initializeBean(existingBean, def);
   }
 
