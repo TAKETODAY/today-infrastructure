@@ -469,7 +469,8 @@ public abstract class AbstractBeanFactory
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
    */
-  protected Object getImplementation(final String childName, final BeanDefinition currentDef) {
+  protected Object getImplementation(
+          final String childName, final BeanDefinition currentDef) {
     return getImplementation(getBeanDefinition(childName), currentDef);
   }
 
@@ -488,7 +489,9 @@ public abstract class AbstractBeanFactory
    * @throws BeanInstantiationException
    *         When instantiation of a bean failed
    */
-  protected Object getImplementation(final BeanDefinition childDef, final BeanDefinition currentDef) {
+  protected Object getImplementation(
+          final BeanDefinition childDef, final BeanDefinition currentDef
+  ) {
     if (currentDef.isPrototype()) {
       return createPrototype(childDef);
     }
