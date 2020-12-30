@@ -33,7 +33,7 @@ import cn.taketoday.context.utils.OrderUtils;
 
 /**
  * @author TODAY <br>
- *         2018-10-09 10:22
+ * 2018-10-09 10:22
  */
 public abstract class SynchronizationManager {
 
@@ -64,8 +64,9 @@ public abstract class SynchronizationManager {
      * {@code hasResource} for a specific resource key that they are interested in.
      *
      * @return a Map with resource keys (usually the resource factory) and resource
-     *         values (usually the active resource object), or an empty Map if there
-     *         are currently no resources bound
+     * values (usually the active resource object), or an empty Map if there
+     * are currently no resources bound
+     *
      * @see #hasResource
      */
     public Map<Object, Object> getResources() {
@@ -80,8 +81,10 @@ public abstract class SynchronizationManager {
      * Check if there is a resource for the given key bound to the current thread.
      *
      * @param key
-     *            the key to check (usually the resource factory)
+     *         the key to check (usually the resource factory)
+     *
      * @return if there is a value bound to the current thread
+     *
      * @see ResourceTransactionManager#getResourceFactory()
      */
     public boolean hasResource(final Object key) {
@@ -92,9 +95,11 @@ public abstract class SynchronizationManager {
      * Retrieve a resource for the given key that is bound to the current thread.
      *
      * @param key
-     *            the key to check (usually the resource factory)
+     *         the key to check (usually the resource factory)
+     *
      * @return a value bound to the current thread (usually the active resource
-     *         object), or {@code null} if none
+     * object), or {@code null} if none
+     *
      * @see ResourceTransactionManager#getResourceFactory()
      */
     public Object getResource(final Object key) {
@@ -136,14 +141,15 @@ public abstract class SynchronizationManager {
      * Bind the given resource for the given key to the current thread.
      *
      * @param key
-     *            the key to bind the value to (usually the resource factory)
+     *         the key to bind the value to (usually the resource factory)
      * @param value
-     *            the value to bind (usually the active resource object)
+     *         the value to bind (usually the active resource object)
+     *
      * @throws IllegalStateException
-     *             if there is already a value bound to the thread
+     *         if there is already a value bound to the thread
      * @see ResourceTransactionManager#getResourceFactory()
      */
-    public void bindResource(Object key, Object value) throws IllegalStateException {
+    public void bindResource(Object key, Object value) {
 
       Map<Object, Object> map = resources;
       if (map == null) {
@@ -164,13 +170,15 @@ public abstract class SynchronizationManager {
      * Unbind a resource for the given key from the current thread.
      *
      * @param key
-     *            the key to unbind (usually the resource factory)
+     *         the key to unbind (usually the resource factory)
+     *
      * @return the previously bound value (usually the active resource object)
+     *
      * @throws IllegalStateException
-     *             if there is no value bound to the thread
+     *         if there is no value bound to the thread
      * @see ResourceTransactionManager#getResourceFactory()
      */
-    public Object unbindResource(Object key) throws IllegalStateException {
+    public Object unbindResource(Object key) {
       Object value = doUnbindResource(key);
       if (value == null) {
         throw new IllegalStateException("No value for key [" + key + "] bound to thread [" + Thread.currentThread().getName()
@@ -183,7 +191,8 @@ public abstract class SynchronizationManager {
      * Unbind a resource for the given key from the current thread.
      *
      * @param key
-     *            the key to unbind (usually the resource factory)
+     *         the key to unbind (usually the resource factory)
+     *
      * @return the previously bound value, or {@code null} if none bound
      */
     public Object unbindResourceIfPossible(Object key) {
@@ -223,9 +232,9 @@ public abstract class SynchronizationManager {
      * transaction manager on transaction begin.
      *
      * @throws IllegalStateException
-     *             if synchronization is already active
+     *         if synchronization is already active
      */
-    public void initSynchronization() throws IllegalStateException {
+    public void initSynchronization() {
       if (isActive()) {
         throw new IllegalStateException("Cannot activate transaction synchronization - cause its already active");
       }
@@ -235,7 +244,7 @@ public abstract class SynchronizationManager {
       this.synchronizations = new ArrayList<>(8);
     }
 
-    public void registerSynchronization(final TransactionSynchronization synchronization) throws IllegalStateException {
+    public void registerSynchronization(final TransactionSynchronization synchronization) {
 
       if (isActive()) {
         final List<TransactionSynchronization> list = getSynchronizations();
@@ -249,7 +258,7 @@ public abstract class SynchronizationManager {
       }
     }
 
-    public void clearSynchronization() throws IllegalStateException {
+    public void clearSynchronization() {
       if (isActive()) {
         if (log.isDebugEnabled()) {
           log.debug("Clearing transaction synchronization");
@@ -338,7 +347,7 @@ public abstract class SynchronizationManager {
      * Trigger {@code flush} callbacks on all currently registered synchronizations.
      *
      * @throws RuntimeException
-     *             if thrown by a {@code flush} callback
+     *         if thrown by a {@code flush} callback
      * @see TransactionSynchronization#flush(SynchronizationMetaData)
      */
     public void triggerFlush() {
@@ -352,9 +361,10 @@ public abstract class SynchronizationManager {
      * synchronizations.
      *
      * @param readOnly
-     *            whether the transaction is defined as read-only transaction
+     *         whether the transaction is defined as read-only transaction
+     *
      * @throws RuntimeException
-     *             if thrown by a {@code beforeCommit} callback
+     *         if thrown by a {@code beforeCommit} callback
      * @see TransactionSynchronization#beforeCommit(SynchronizationMetaData, boolean)
      */
     public void triggerBeforeCommit(final boolean readOnly) {
@@ -385,7 +395,7 @@ public abstract class SynchronizationManager {
      * synchronizations.
      *
      * @throws RuntimeException
-     *             if thrown by a {@code afterCommit} callback
+     *         if thrown by a {@code afterCommit} callback
      * @see SynchronizationManager#getSynchronizations()
      * @see TransactionSynchronization#afterCommit(SynchronizationMetaData,)
      */
@@ -400,8 +410,9 @@ public abstract class SynchronizationManager {
      * TransactionSynchronization objects.
      *
      * @param completionStatus
-     *            the completion status according to the constants in the
-     *            TransactionSynchronization interface
+     *         the completion status according to the constants in the
+     *         TransactionSynchronization interface
+     *
      * @see TransactionSynchronization#afterCompletion(SynchronizationMetaData, int)
      * @see TransactionSynchronization#STATUS_COMMITTED
      * @see TransactionSynchronization#STATUS_ROLLED_BACK
@@ -445,8 +456,9 @@ public abstract class SynchronizationManager {
    * {@code hasResource} for a specific resource key that they are interested in.
    *
    * @return a Map with resource keys (usually the resource factory) and resource
-   *         values (usually the active resource object), or an empty Map if there
-   *         are currently no resources bound
+   * values (usually the active resource object), or an empty Map if there
+   * are currently no resources bound
+   *
    * @see #hasResource
    */
   public static Map<Object, Object> getResourceMap() {
@@ -457,8 +469,10 @@ public abstract class SynchronizationManager {
    * Check if there is a resource for the given key bound to the current thread.
    *
    * @param key
-   *            the key to check (usually the resource factory)
+   *         the key to check (usually the resource factory)
+   *
    * @return if there is a value bound to the current thread
+   *
    * @see ResourceTransactionManager#getResourceFactory()
    */
   public static boolean hasResource(final Object key) {
@@ -469,9 +483,11 @@ public abstract class SynchronizationManager {
    * Retrieve a resource for the given key that is bound to the current thread.
    *
    * @param key
-   *            the key to check (usually the resource factory)
+   *         the key to check (usually the resource factory)
+   *
    * @return a value bound to the current thread (usually the active resource
-   *         object), or {@code null} if none
+   * object), or {@code null} if none
+   *
    * @see ResourceTransactionManager#getResourceFactory()
    */
   public static Object getResource(final Object key) {
@@ -482,14 +498,15 @@ public abstract class SynchronizationManager {
    * Bind the given resource for the given key to the current thread.
    *
    * @param key
-   *            the key to bind the value to (usually the resource factory)
+   *         the key to bind the value to (usually the resource factory)
    * @param value
-   *            the value to bind (usually the active resource object)
+   *         the value to bind (usually the active resource object)
+   *
    * @throws IllegalStateException
-   *             if there is already a value bound to the thread
+   *         if there is already a value bound to the thread
    * @see ResourceTransactionManager#getResourceFactory()
    */
-  public static void bindResource(Object key, Object value) throws IllegalStateException {
+  public static void bindResource(Object key, Object value) {
     getMetaData().bindResource(key, value);
   }
 
@@ -497,13 +514,15 @@ public abstract class SynchronizationManager {
    * Unbind a resource for the given key from the current thread.
    *
    * @param key
-   *            the key to unbind (usually the resource factory)
+   *         the key to unbind (usually the resource factory)
+   *
    * @return the previously bound value (usually the active resource object)
+   *
    * @throws IllegalStateException
-   *             if there is no value bound to the thread
+   *         if there is no value bound to the thread
    * @see ResourceTransactionManager#getResourceFactory()
    */
-  public static Object unbindResource(Object key) throws IllegalStateException {
+  public static Object unbindResource(Object key) {
     return getMetaData().unbindResource(key);
   }
 
@@ -511,7 +530,8 @@ public abstract class SynchronizationManager {
    * Unbind a resource for the given key from the current thread.
    *
    * @param key
-   *            the key to unbind (usually the resource factory)
+   *         the key to unbind (usually the resource factory)
+   *
    * @return the previously bound value, or {@code null} if none bound
    */
   public static Object unbindResourceIfPossible(Object key) {
@@ -532,7 +552,7 @@ public abstract class SynchronizationManager {
     return getMetaData().isActive();
   }
 
-  public static void initSynchronization() throws IllegalStateException {
+  public static void initSynchronization() {
     getMetaData().initSynchronization();
   }
 
@@ -544,11 +564,12 @@ public abstract class SynchronizationManager {
    * will be executed in an order according to their order value (if any).
    *
    * @param synchronization
-   *            the synchronization object to register
+   *         the synchronization object to register
+   *
    * @throws IllegalStateException
-   *             if transaction synchronization is not active
+   *         if transaction synchronization is not active
    */
-  public static void registerSynchronization(TransactionSynchronization synchronization) throws IllegalStateException {
+  public static void registerSynchronization(TransactionSynchronization synchronization) {
     getMetaData().registerSynchronization(synchronization);
   }
 
@@ -557,11 +578,12 @@ public abstract class SynchronizationManager {
    * the current thread.
    *
    * @return unmodifiable List of TransactionSynchronization instances
+   *
    * @throws IllegalStateException
-   *             if synchronization is not active
+   *         if synchronization is not active
    * @see TransactionSynchronization
    */
-  public static List<TransactionSynchronization> getSynchronizations() throws IllegalStateException {
+  public static List<TransactionSynchronization> getSynchronizations() {
     return getMetaData().getSynchronizations();
   }
 
@@ -570,9 +592,9 @@ public abstract class SynchronizationManager {
    * transaction manager on transaction cleanup.
    *
    * @throws IllegalStateException
-   *             if synchronization is not active
+   *         if synchronization is not active
    */
-  public static void clearSynchronization() throws IllegalStateException {
+  public static void clearSynchronization() {
     getMetaData().clearSynchronization();
   }
 

@@ -954,7 +954,6 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    * @param completionStatus
    *            the completion status according to the constants in the
    *            TransactionSynchronization interface
-   * @see #registerAfterCompletionWithExistingTransaction(Object, java.util.List)
    * @see TransactionSynchronization#STATUS_COMMITTED
    * @see TransactionSynchronization#STATUS_ROLLED_BACK
    * @see TransactionSynchronization#STATUS_UNKNOWN
@@ -1114,7 +1113,7 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    *             in case of system errors
    * @see #doResume
    */
-  protected Object doSuspend(final SynchronizationMetaData metaData, final Object transaction) throws TransactionException {
+  protected Object doSuspend(final SynchronizationMetaData metaData, final Object transaction) {
     throw new TransactionException("Transaction manager [" + getClass().getName() + "] does not support transaction suspension");
   }
 
@@ -1266,8 +1265,8 @@ public abstract class AbstractTransactionManager implements TransactionManager, 
    *            List of TransactionSynchronization objects
    * @throws TransactionException
    *             in case of system errors
-   * @see #invokeAfterCompletion(java.util.List, int)
-   * @see TransactionSynchronization#afterCompletion(int)
+   * @see #invokeAfterCompletion(SynchronizationMetaData, List, int)
+   * @see TransactionSynchronization#afterCompletion(SynchronizationMetaData, int)
    * @see TransactionSynchronization#STATUS_UNKNOWN
    */
   protected void registerAfterCompletionWithExistingTransaction(final SynchronizationMetaData metaData,

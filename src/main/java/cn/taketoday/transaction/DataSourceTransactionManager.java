@@ -37,10 +37,10 @@ import cn.taketoday.transaction.SynchronizationManager.SynchronizationMetaData;
  *
  * @author Juergen Hoeller
  * @author TODAY <br>
- *         2018-11-13 19:05
+ * 2018-11-13 19:05
  */
-public class DataSourceTransactionManager extends
-                                          AbstractTransactionManager implements ResourceTransactionManager, InitializingBean {
+public class DataSourceTransactionManager
+        extends AbstractTransactionManager implements ResourceTransactionManager, InitializingBean {
 
   private static final long serialVersionUID = 1L;
 
@@ -66,8 +66,9 @@ public class DataSourceTransactionManager extends
    * Obtain the DataSource for actual use.
    *
    * @return the DataSource (never {@code null})
+   *
    * @throws NullPointerException
-   *             in case of no DataSource set
+   *         in case of no DataSource set
    */
   protected DataSource obtainDataSource() {
     return Objects.requireNonNull(getDataSource(), "No DataSource set");
@@ -315,23 +316,20 @@ public class DataSourceTransactionManager extends
    * Statement, override this method accordingly.
    *
    * @param con
-   *            the transactional JDBC Connection
+   *         the transactional JDBC Connection
    * @param definition
-   *            the current transaction definition
+   *         the current transaction definition
+   *
    * @throws SQLException
-   *             if thrown by JDBC API
+   *         if thrown by JDBC API
    * @see #setEnforceReadOnly
    */
   protected void prepareTransactionalConnection(final Connection con,
                                                 final TransactionDefinition definition) throws SQLException //
   {
     if (isEnforceReadOnly() && definition.isReadOnly()) {
-      Statement stmt = con.createStatement();
-      try {
+      try (Statement stmt = con.createStatement()) {
         stmt.executeUpdate("SET TRANSACTION READ ONLY");
-      }
-      finally {
-        stmt.close();
       }
     }
   }
