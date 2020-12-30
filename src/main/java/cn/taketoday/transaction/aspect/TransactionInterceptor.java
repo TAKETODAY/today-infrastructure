@@ -183,7 +183,7 @@ public class TransactionInterceptor implements MethodInterceptor {
     return ret;
   }
 
-  private static final TransactionDefinition getTransaction(Method method) {
+  private static TransactionDefinition getTransaction(Method method) {
 
     AnnotationAttributes attributes = ClassUtils.getAnnotationAttributes(Transactional.class, method);
 
@@ -212,7 +212,7 @@ public class TransactionInterceptor implements MethodInterceptor {
     return transactionManager;
   }
 
-  private static final TransactionManager obtainQualifiedTransactionManager(BeanFactory beanFactory, String qualifier) {
+  private static TransactionManager obtainQualifiedTransactionManager(BeanFactory beanFactory, String qualifier) {
     final TransactionManager ret = beanFactory.getBean(qualifier, TransactionManager.class);
     if (ret == null) {
       throw new NoSuchBeanDefinitionException(qualifier, TransactionManager.class);

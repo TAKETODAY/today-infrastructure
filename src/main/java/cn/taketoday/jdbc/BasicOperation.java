@@ -27,7 +27,7 @@ import java.sql.Statement;
 
 /**
  * @author TODAY <br>
- *         2019-08-18 20:07
+ * 2019-08-18 20:07
  */
 public interface BasicOperation {
 
@@ -37,17 +37,16 @@ public interface BasicOperation {
   /**
    * Execute a JDBC data access operation, implemented as callback action working
    * on a JDBC Connection. This allows for implementing arbitrary data access
-   * operations, within Spring's managed JDBC environment: that is, participating
-   * in Spring-managed transactions and converting JDBC SQLExceptions into
-   * Spring's DataAccessException hierarchy.
+   * operations
    * <p>
    * The callback action can return a result object, for example a domain object
    * or a collection of domain objects.
    *
    * @param action
-   *            the callback object that specifies the action
+   *         the callback object that specifies the action
+   *
    * @return a result object returned by the action, or {@code null} @ if there is
-   *         any problem
+   * any problem
    */
   <T> T execute(ConnectionCallback<T> action) throws SQLException;
 
@@ -62,9 +61,10 @@ public interface BasicOperation {
    * or a collection of domain objects.
    *
    * @param action
-   *            callback object that specifies the action
+   *         callback object that specifies the action
+   *
    * @return a result object returned by the action, or {@code null} @ if there is
-   *         any problem
+   * any problem
    */
   <T> T execute(StatementCallback<T> action) throws SQLException;
 
@@ -72,7 +72,7 @@ public interface BasicOperation {
    * Issue a single SQL execute, typically a DDL statement.
    *
    * @param sql
-   *            static SQL to execute @ if there is any problem
+   *         static SQL to execute @ if there is any problem
    */
   void execute(String sql) throws SQLException;
 
@@ -87,11 +87,12 @@ public interface BasicOperation {
    * or a collection of domain objects.
    *
    * @param sql
-   *            SQL to execute
+   *         SQL to execute
    * @param action
-   *            callback object that specifies the action
+   *         callback object that specifies the action
+   *
    * @return a result object returned by the action, or {@code null} @ if there is
-   *         any problem
+   * any problem
    */
   <T> T execute(String sql, PreparedStatementCallback<T> action) throws SQLException;
 
@@ -106,11 +107,12 @@ public interface BasicOperation {
    * or a collection of domain objects.
    *
    * @param sql
-   *            the SQL call string to execute
+   *         the SQL call string to execute
    * @param action
-   *            callback object that specifies the action
+   *         callback object that specifies the action
+   *
    * @return a result object returned by the action, or {@code null} @ if there is
-   *         any problem
+   * any problem
    */
   <T> T execute(String sql, CallableStatementCallback<T> action) throws SQLException;
 

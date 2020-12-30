@@ -29,7 +29,6 @@ import cn.taketoday.context.logger.LoggerFactory;
  * @author TODAY <br>
  *         2018-12-30 21:02
  */
-@SuppressWarnings("serial")
 public class TransactionTemplate extends DefaultTransactionDefinition implements TransactionOperations {
 
   private static final Logger log = LoggerFactory.getLogger(TransactionTemplate.class);
