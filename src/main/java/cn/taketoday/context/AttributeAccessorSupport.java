@@ -22,8 +22,10 @@ package cn.taketoday.context;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import cn.taketoday.context.utils.Assert;
+import cn.taketoday.context.utils.CollectionUtils;
 import cn.taketoday.context.utils.StringUtils;
 
 /**
@@ -47,8 +49,8 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
 
   @Override
   public void setAttribute(String name, Object value) {
-    Assert.notNull(name, "Name must not be null");
     if (value != null) {
+      Assert.notNull(name, "Name must not be null");
       getAttributes().put(name, value);
     }
     else {
@@ -87,9 +89,12 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
    */
   protected void copyAttributesFrom(AttributeAccessor source) {
     Assert.notNull(source, "Source must not be null");
-    String[] attributeNames = source.attributeNames();
-    for (String attributeName : attributeNames) {
-      setAttribute(attributeName, source.getAttribute(attributeName));
+
+    final Map<String, Object> attributes = source.getAttributes();
+    if (!CollectionUtils.isEmpty(attributes)) {
+      for (final Map.Entry<String, Object> entry : attributes.entrySet()) {
+        setAttribute(entry.getKey(), entry.getValue());
+      }
     }
   }
 
@@ -97,7 +102,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor {
   public boolean equals(Object other) {
     return (this == other
             || (other instanceof AttributeAccessorSupport &&
-            getAttributes().equals(((AttributeAccessorSupport) other).getAttributes())));
+            Objects.equals(attributes, (((AttributeAccessorSupport) other).attributes))));
   }
 
   @Override
