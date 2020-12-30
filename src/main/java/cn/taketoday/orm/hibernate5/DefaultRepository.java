@@ -122,9 +122,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
         log.error("Could not rollback Session after failed transaction begin", ex2);
       }
       finally {
-        if (session != null) {
-          session.close();
-        }
+        session.close();
       }
       throw ex;
     }
@@ -147,28 +145,28 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public T get(Serializable id) throws PersistenceException {
+  public T get(Serializable id) {
     return get(id, null);
   }
 
   @Override
-  public T get(Serializable id, LockMode lockMode) throws PersistenceException {
+  public T get(Serializable id, LockMode lockMode) {
     return execute(s -> lockMode != null ? s.get(beanClass, id, new LockOptions(lockMode)) : s.get(beanClass, id));
   }
 
   @Override
-  public T load(Serializable id) throws PersistenceException {
+  public T load(Serializable id) {
     return load(id, null);
   }
 
   @Override
-  public T load(Serializable id, LockMode lockMode) throws PersistenceException {
+  public T load(Serializable id, LockMode lockMode) {
     return execute(s -> lockMode != null ? s.load(beanClass, id, new LockOptions(lockMode)) : s.load(beanClass, id));
   }
 
   @Override
   @SuppressWarnings({ "unchecked", "deprecation" })
-  public List<T> findAll() throws PersistenceException {
+  public List<T> findAll() {
     return execute(session -> {
       return prepareCriteria(session.createCriteria(beanClass)//
                                      .setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY))//
@@ -177,7 +175,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public void load(Object entity, Serializable id) throws PersistenceException {
+  public void load(Object entity, Serializable id) {
     execute(session -> {
       session.load(entity, id);
       return null;
@@ -185,7 +183,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public boolean contains(Object entity) throws PersistenceException {
+  public boolean contains(Object entity) {
     return execute(session -> session.contains(entity));
   }
 
@@ -200,12 +198,12 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public Serializable save(Object entity) throws PersistenceException {
+  public Serializable save(Object entity) {
     return execute(session -> session.save(entity));
   }
 
   @Override
-  public void saveOrUpdate(Object entity) throws PersistenceException {
+  public void saveOrUpdate(Object entity) {
     execute(session -> {
       session.saveOrUpdate(entity);
       return null;
@@ -214,27 +212,23 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
 
   @Override
   @SuppressWarnings("unchecked")
-  public T merge(T entity) throws PersistenceException {
-    return execute(session -> {
-      return (T) session.merge(entity);
-    });
+  public T merge(T entity) {
+    return execute(session -> (T) session.merge(entity));
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public T merge(String entityName, T entity) throws PersistenceException {
-    return execute(session -> {
-      return (T) session.merge(entityName, entity);
-    });
+  public T merge(String entityName, T entity) {
+    return execute(session -> (T) session.merge(entityName, entity));
   }
 
   @Override
-  public void delete(Object entity) throws PersistenceException {
+  public void delete(Object entity) {
     delete(entity, null);
   }
 
   @Override
-  public void delete(Object entity, LockMode lockMode) throws PersistenceException {
+  public void delete(Object entity, LockMode lockMode) {
     execute(session -> {
       if (lockMode != null) {
         session.buildLockRequest(new LockOptions(lockMode)).lock(entity);
@@ -245,12 +239,12 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public void delete(String entityName, Object entity) throws PersistenceException {
+  public void delete(String entityName, Object entity) {
     delete(entityName, entity, null);
   }
 
   @Override
-  public void delete(String entityName, Object entity, LockMode lockMode) throws PersistenceException {
+  public void delete(String entityName, Object entity, LockMode lockMode) {
     execute(session -> {
       if (lockMode != null) {
         session.buildLockRequest(new LockOptions(lockMode)).lock(entityName, entity);
@@ -261,7 +255,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public void deleteAll(Collection<?> entities) throws PersistenceException {
+  public void deleteAll(Collection<?> entities) {
     execute(session -> {
       for (final Object entity : entities) {
         session.delete(entity);
@@ -271,7 +265,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public void flush() throws PersistenceException {
+  public void flush() {
     execute(session -> {
       session.flush();
       return null;
@@ -279,7 +273,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public void clear() throws PersistenceException {
+  public void clear() {
     execute(session -> {
       session.clear();
       return null;
@@ -287,11 +281,11 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public void closeIterator(Iterator<?> it) throws PersistenceException {
+  public void closeIterator(Iterator<?> it) {
     try {
       Hibernate.close(it);
     }
-    catch (HibernateException ex) {}
+    catch (HibernateException ignored) {}
   }
 
   protected <Q> Query<Q> prepareQuery(Query<Q> query) {
@@ -324,14 +318,14 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public Long getTotalRecord() throws PersistenceException {
+  public Long getTotalRecord() {
     return execute(session -> session.createQuery("select count(*) from " + beanClassName, Long.class)
             .uniqueResult()//
     );
   }
 
   @Override
-  public void update(T entity) throws PersistenceException {
+  public void update(T entity) {
     execute(session -> {
       session.update(entity);
       return null;
@@ -339,8 +333,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public Integer updateOne(String columnName, String primaryKey, Object columnValue, Object keyValue)
-          throws PersistenceException {
+  public Integer updateOne(String columnName, String primaryKey, Object columnValue, Object keyValue) {
     return execute(session -> session.createQuery(
             new StringBuilder()//
                     .append("update ")
@@ -358,7 +351,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public Long getTotalRecord(Object[] params, String condition) throws PersistenceException {
+  public Long getTotalRecord(Object[] params, String condition) {
     return execute(session -> setParameter(//
                                            session.createQuery(
                                                    new StringBuilder("select count(*) from ")//
@@ -372,7 +365,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public Integer update(String columnNames, Object[] params, String primaryKey) throws PersistenceException {
+  public Integer update(String columnNames, Object[] params, String primaryKey) {
 
     return execute(session -> {
       Query<?> query = session.createQuery(//
@@ -396,12 +389,12 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public Integer insertBySql(Object[] params, String sql) throws PersistenceException {
+  public Integer insertBySql(Object[] params, String sql) {
     return execute(session -> setParameter(session.createNativeQuery(sql, Integer.class), params).executeUpdate());
   }
 
   @Override
-  public Integer insertBySql(String sql) throws PersistenceException {
+  public Integer insertBySql(String sql) {
     return execute(session -> session.createNativeQuery(sql).executeUpdate());
   }
 
@@ -421,7 +414,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public List<T> find(int pageNow, int pageSize) throws PersistenceException {
+  public List<T> find(int pageNow, int pageSize) {
     return execute(session -> session.createQuery("from " + beanClassName, beanClass)//
             .setFirstResult((pageNow - 1) * pageSize)//
             .setMaxResults(pageSize)//
@@ -430,29 +423,29 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public List<T> find(int pageNow, int pageSize, Object[] params, String condition) throws PersistenceException {
+  public List<T> find(int pageNow, int pageSize, Object[] params, String condition) {
     return execute(session -> setParameter(session.createQuery(where(condition), beanClass), params)
             .setFirstResult((pageNow - 1) * pageSize).setMaxResults(pageSize).list());
   }
 
   @Override
-  public List<T> findCondition(Object[] params, String condition) throws PersistenceException {
+  public List<T> findCondition(Object[] params, String condition) {
     return execute(session -> setParameter(session.createQuery(where(condition), beanClass),
                                            params).list());
   }
 
   @Override
-  public List<T> find(Object[] params, String queryString) throws PersistenceException {
+  public List<T> find(Object[] params, String queryString) {
     return execute(session -> setParameter(prepareQuery(session.createQuery(queryString, beanClass)), params).list());
   }
 
   @Override
-  public <X> X query(String queryString, Object[] params, Class<X> type) throws PersistenceException {
+  public <X> X query(String queryString, Object[] params, Class<X> type) {
     return execute(session -> setParameter(prepareQuery(session.createQuery(queryString, type)), params).uniqueResult());
   }
 
   @Override
-  public List<String> query(Object[] params, String queryString) throws PersistenceException {
+  public List<String> query(Object[] params, String queryString) {
     return execute(session -> setParameter(prepareQuery(session.createQuery(queryString, String.class)), params).list());
   }
 
@@ -468,14 +461,14 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
   }
 
   @Override
-  public Integer updateOne(Object[] params, String sql) throws PersistenceException {
+  public Integer updateOne(Object[] params, String sql) {
     return execute(session -> setParameter(session.createNativeQuery(sql, Integer.class), params)//
             .executeUpdate()//
     );
   }
 
   @Override
-  public List<T> orderBy(int pageNow, int pageSize, Object[] params, String by) throws PersistenceException {
+  public List<T> orderBy(int pageNow, int pageSize, Object[] params, String by) {
     return execute(session -> setParameter(session.createQuery(orderBy(by), beanClass),
                                            params).setFirstResult((pageNow - 1) * pageSize).setMaxResults(pageSize).list());
   }
@@ -549,9 +542,7 @@ public class DefaultRepository<T> implements JdbcOperations<T>, InitializingBean
 
   public final DefaultRepository<T> setBeanClass(Class<T> beanClass) {
     this.beanClass = beanClass;
-    synchronized (this.beanClassName) {
-      this.beanClassName = beanClass.getSimpleName();
-    }
+    this.beanClassName = beanClass.getSimpleName();
     return this;
   }
 
