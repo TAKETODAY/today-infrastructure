@@ -26,5 +26,19 @@ package cn.taketoday.context.reflect;
 @FunctionalInterface
 public interface ConstructorAccessor {
 
+  /**
+   * Invoke default {@link java.lang.reflect.Constructor}
+   *
+   * @return returns Object
+   */
+  default Object newInstance() {
+    return newInstance(null);
+  }
+
+  /**
+   * Invoke {@link java.lang.reflect.Constructor} with given args
+   *
+   * @return returns Object
+   */
   Object newInstance(Object[] args);
 }
